@@ -1,0 +1,68 @@
+name: wsr
+channels:
+- nvidia
+- pytorch
+- gurobi
+- conda-forge
+- conda
+- defaults
+dependencies:
+#- brax #=0.1
+- configspace #=1.2
+- deap #=1.4
+- distributed #=2024.8
+- geopandas #=0.12
+- geopy #=2.4
+- googlemaps #=4.10
+#- gpytorch #=1.13
+#- gpy #=1.13
+- gurobi=11.0
+#- gym #=0.26
+- ipykernel #=6.25
+- ipyparallel #=8.4
+- loguru #=0.7
+- matplotlib #=3.7
+- nbformat #=5.1
+- networkx #=3.1
+- numpy #=1.24
+- optuna #=4.2
+- ortools-python #=9.2
+- osmnx #=1.9
+- openpyxl #=3.0
+- pandas #=2.0
+- plotly #=5.24
+- protobuf #=3.20
+- pyarrow=14.0
+- pyinstaller #=6.16
+- pytest #=8.4
+- pytest-mock
+- python=3.9
+- pyside6
+- pytorch=2.2
+#- pyproj #=2.6
+- ray-all #=2.9
+- statsmodels #=0.14
+- scipy #=1.10
+- seaborn #=0.13
+- shapely #=2.0
+- torchvision #=0.17
+- torchaudio #=2.2
+- tqdm #=4.65
+- wandb #=0.15
+- pip #=23.3
+- pip:
+#  - dppy #==0.3
+  - fast-tsp #==0.1.4
+  - --extra-index-url https://pip.hexaly.com
+  - hexaly #==14.0.20250922|==14.0.20251008
+  - setuptools==57.5
+  - tensorboard_logger #==0.1
+  - torch_geometric #==2.5.3
+  - torch-tb-profiler #==0.4.3
+  - --find-links https://data.pyg.org/whl/torch-2.2.2+cu121.html
+  - torch-scatter==2.1.2
+  - pywin32==308; sys_platform == 'win32' or sys_platform == 'cygwin'
+#  - -e rl4co
+#  - torch-scatter -f https://data.pyg.org/whl/torch-2.2.2+cu121.html
+# To install torch-scatter: pip install torch-scatter==2.1.2 -f https://data.pyg.org/whl/torch-2.2.2+cu121.html
+# To install hexaly: pip install hexaly -i https://pip.hexaly.com

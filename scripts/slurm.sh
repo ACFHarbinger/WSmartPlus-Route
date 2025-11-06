@@ -1,0 +1,149 @@
+#!/bin/bash
+
+#SBATCH --job-name=train
+#SBATCH --time=2-00:00:00
+
+# Slurm parameters for Nexus cluster
+# SBATCH --mem=32G # RAM
+# SBATCH --mincpus=6
+# SBATCH --output=/home/users/afernandes/Repositories/wsr_tmp/job_out_%A.out
+
+# SBATCH --gres=shard:24 # GB of gpu VRAM
+# SBATCH --exclude=nexus1, # we can exclude machines if we want
+
+# Slurm parameters for INCD cluster
+#SBATCH --partition=gpu
+#SBATCH --output=/users5/vlabist/afonsofernandes/Repositories/wsr_tmp/job_out_%A.out
+#SBATCH --gres=gpu:v100s
+
+# Slurm parameters for HLT Ada clusters
+# SBATCH --mem=64G # RAM
+# SBATCH --mincpus=32
+# SBATCH --output=/home/u024151/Repositories/wsr_tmp/job_out_%A.out
+
+# Activate the Conda environment
+eval "$(conda shell.bash hook)"
+#conda activate /home/users/afernandes/anaconda3/envs/wsr
+conda activate /users5/vlabist/afonsofernandes/anaconda3/envs/wsr
+#conda activate /home/u024151/anaconda3/envs/wsr
+
+# To execute this slurm script: sbatch slurm.sh 
+NUMBER_OF_CORES=32
+
+# Read arguments and execute program
+while getopts c:m:p:g: flag
+do
+    case "${flag}" in
+        c) command=${OPTARG};;
+        m) model=${OPTARG};;
+        p) problem=${OPTARG};;
+        g) gs=${OPTARG};;
+    esac
+done
+
+if [[ -z $command ]]; then
+    command="train"
+fi
+
+if [[ -z $model ]]; then
+    model=("amgc")
+fi
+
+if [[ -z $problem ]]; then
+    problem="wcrp"
+fi
+
+if [[ -z $gs ]]; then
+    gs=20
+fi
+
+if [[ "$command" == "train" ]]; then
+    while getopts b:d:n:s:e:l:et: flag
+    do
+        case "${flag}" in
+            b) bs=${OPTARG};;
+            d) dd=${OPTARG};;
+            n) ne=${OPTARG};;
+            s) ebs=${OPTARG};;
+            e) es=${OPTARG};;
+            l) lp=${OPTARG};;
+            et) et=${OPTARG};;
+        esac
+    done
+
+    if [[ -z $bs ]]; then
+        bs=256
+    fi
+
+    if [[ -z $dd ]]; then
+        dd="unif"
+    fi
+
+    if [[ -z $ne ]]; then
+        ne=25
+    fi
+
+    if [[ -z $es ]]; then
+        es=0
+    fi
+
+    if [[ -z $ebs ]]; then
+        ebs=256
+    fi
+    
+    if [[ -z $et ]]; then
+        et=0.3
+    fi
+
+    python main.py "$command" --model "${model[0]}" --baseline rollout --train_dataset virtual \
+    --val_dataset data/datasets/wcrp/wcrp_unif20_val_seed1234.pkl --problem "$problem" \
+    --batch_size "$bs" --data_distribution "$dd" --n_epochs "$ne" --eval_batch_size "$ebs" \
+    --graph_size "$gs" --epoch_start "$es" --edge_threshold "$et" --n_other_layers 2;
+elif [[ "$command" == "test" ]]; then
+    while getopts d:o:s:l:cf:nv:dd: flag
+    do
+        case "${flag}" in
+            d) days=${OPTARG};;
+            o) od=${OPTARG};;
+            s) ns=${OPTARG};;
+            l) lvl=${OPTARG};;
+            cf) cf=${OPTARG};;
+            nv) nv=${OPTARG};;
+            dd) dd=${OPTARG};;
+        esac
+    done
+
+    if [[ -z $days ]]; then
+        days=365
+    fi
+
+    if [[ -z $od ]]; then
+        od="output"
+    fi
+
+    if [[ -z $ns ]]; then
+        ns=100
+    fi
+
+    if [[ -z $lvl ]]; then
+        lvl=("")
+    fi
+
+    if [[ -z $cf ]]; then
+        cf=("")
+    fi
+
+    if [[ -z $dd ]]; then
+        dd="gamma1"
+    fi
+
+    if [[ -z $nv ]]; then
+        nv=1
+    fi
+
+    python main.py "$command" --policies "${model[@]}" --dd "$dd" --problem "$problem" --size "$gs" \
+    --days "$days" --output_dir "$od" --n_samples "$ns" --cpu_cores "$NUMBER_OF_CORES" --server_run --resume; 
+    #--lvl "${lvl[@]}" --cf "${cf[@]}" --n_vehicles "$nv"
+else
+    echo "Unknown command: $command"
+fi

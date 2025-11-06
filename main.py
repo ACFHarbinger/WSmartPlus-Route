@@ -1,0 +1,143 @@
+#!/usr/bin/env python
+
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, 
+    message="jax.tree_util.register_keypaths is deprecated")
+
+import io
+import sys
+import torch
+import pprint
+import random
+import traceback
+import numpy as np
+
+from tests import PyTestRunner
+from backend.src.file_system import (
+    perform_cryptographic_operations,
+    update_file_system_entries, 
+    delete_file_system_entries
+)
+from backend.src.pipeline.test import run_wsr_simulator_test
+from backend.src.pipeline.eval import run_evaluate_model
+from backend.src.pipeline.train import (
+    train_reinforcement_learning, 
+    train_reinforce_over_time, train_reinforce_epoch,
+    train_meta_reinforcement_learning, hyperparameter_optimization
+)
+from backend.src.data.generate_data import generate_datasets
+from backend.src.utils.arg_parser import parse_params
+from backend.app_launch import run_app_gui
+
+
+def run_test_suite(opts):
+    try:
+        # Initialize test runner
+        runner = PyTestRunner(test_dir=opts['test_dir'])
+        
+        # Handle information commands
+        if opts['list']:
+            runner.list_modules()
+            return 0
+        
+        if opts['list_tests']:
+            runner.list_tests(opts['module'][0] if opts['module'] else None)
+            return 0
+        
+        # Run tests
+        return runner.run_tests(
+            modules=opts['module'],
+            test_class=opts['test_class'],
+            test_method=opts['test_method'],
+            verbose=opts['verbose'],
+            coverage=opts['coverage'],
+            markers=opts['markers'],
+            failed_first=opts['failed_first'],
+            maxfail=opts['maxfail'],
+            capture=opts['capture'],
+            tb_style=opts['tb'],
+            parallel=opts['parallel'],
+            keyword=opts['keyword']
+        )
+    except Exception as e:
+        raise Exception(f"failed to run test suite due to {repr(e)}")
+
+
+def pretty_print_args(comm, opts, inner_comm=None):
+    try:
+        # Capture the pprint output
+        printer = pprint.PrettyPrinter(width=1, indent=1, sort_dicts=False)
+        buffer = io.StringIO()
+        printer._stream = buffer # Redirect PrettyPrinter's internal stream
+        printer.pprint(opts)
+        output = buffer.getvalue()
+
+        # Pretty print the run options
+        lines = output.splitlines()
+        lines[0] = lines[0].lstrip('{')
+        lines[-1] = lines[-1].rstrip('}')
+        formatted = comm + "{}".format(f' {inner_comm}' if inner_comm is not None else "") + \
+            ": {\n" + "\n".join(f" {line}" for line in lines) + "\n}"
+        print(formatted, end="\n\n")
+    except Exception as e:
+        raise Exception(f"failed to pretty print arguments due to {repr(e)}")
+
+
+def main(args):
+    comm, opts = args
+    exit_code = 0
+    try:
+        if isinstance(comm, tuple) and len(comm) > 1:
+            comm, inner_comm = comm
+            pretty_print_args(comm, opts, inner_comm)
+            assert comm == 'file_system'
+            if inner_comm == 'update':
+                update_file_system_entries(opts)
+            elif inner_comm == 'delete':
+                delete_file_system_entries(opts)
+            else:
+                assert inner_comm == 'cryptography'
+                perform_cryptographic_operations(opts)
+        else:
+            inner_comm = None
+            pretty_print_args(comm, opts, inner_comm)
+            if comm == 'gui':
+                exit_code = run_app_gui(opts)
+            elif comm == 'test_suite':
+                run_test_suite(opts)       
+            else:
+                # Set the random seed and execute the program
+                random.seed(opts['seed'])
+                np.random.seed(opts['seed'])
+                torch.manual_seed(opts['seed'])
+                if comm == 'train':
+                    #if opts['rl_algorithm'] == 'reinforce':
+                    train_func = train_reinforce_over_time if opts['train_time'] else train_reinforce_epoch
+                    #else:
+                    #    raise ValueError(f"Unknown reinforcement learning algorithm: {opts['rl_algorithm']}")
+                    train_reinforcement_learning(opts, train_func)
+                elif comm == 'mrl_train':
+                    train_meta_reinforcement_learning(opts)
+                elif comm == 'hp_optim':
+                    hyperparameter_optimization(opts)
+                elif comm == 'gen_data':
+                    generate_datasets(opts)
+                elif comm == 'eval':
+                    run_evaluate_model(opts)
+                elif comm == 'test_sim':
+                    run_wsr_simulator_test(opts)
+    except Exception as e:
+        print(e)
+        exit_code = 1
+        traceback.print_exc(file=sys.stdout)
+    finally:
+        print("\nFinished {}{} command execution with exit code: {}".format(
+            comm, f" ({inner_comm}) " if inner_comm is not None else "", exit_code
+        ))
+        sys.stdout.flush()
+        sys.exit(exit_code)
+
+
+
+if __name__ =="__main__":
+    main(parse_params())
