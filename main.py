@@ -127,9 +127,9 @@ def main(args):
                 elif comm == 'test_sim':
                     run_wsr_simulator_test(opts)
     except Exception as e:
-        print(e)
-        exit_code = 1
         traceback.print_exc(file=sys.stdout)
+        print('\n' + e)
+        exit_code = 1
     finally:
         print("\nFinished {}{} command execution with exit code: {}".format(
             comm, f" ({inner_comm}) " if inner_comm is not None else "", exit_code

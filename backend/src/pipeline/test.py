@@ -140,6 +140,7 @@ def simulator_testing(opts, data_size, device):
                         task.get()
                     except Exception as e:
                         print(f"Task failed with exception: {e}")
+                        traceback.print_exc(file=sys.stdout)
         except KeyboardInterrupt:
             print("\n\n[WARNING] Caught CTRL+C. Terminating worker processes...")
             p.terminate()
@@ -260,9 +261,9 @@ if __name__ =="__main__":
         torch.manual_seed(args['seed'])
         run_wsr_simulator_test(args)
     except Exception as e:
-        print(e)
-        exit_code = 1
         traceback.print_exc(file=sys.stdout)
+        print('\n' + e)
+        exit_code = 1
     finally:
         sys.stdout.flush()
         sys.exit(exit_code)

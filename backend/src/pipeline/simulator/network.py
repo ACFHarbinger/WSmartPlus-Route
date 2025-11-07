@@ -26,13 +26,13 @@ def compute_distance_matrix(coords, method, **kwargs):
         matrix_path = os.path.join(ROOT_DIR, "data", "wsr_simulator", "distance_matrix", kwargs['dm_filepath']) if filename_only \
             else kwargs['dm_filepath']
         if os.path.isfile(matrix_path):
-            dist_matrix = np.loadtxt(matrix_path, delimiter=',', skiprows=1, usecols=range(1, size+1))
+            distance_matrix = np.loadtxt(matrix_path, delimiter=',')[1:, 1:]
             if eval_kwarg('focus_idx', kwargs):
                 idx = kwargs['focus_idx'][0] if isinstance(kwargs['focus_idx'][0], Iterable) else kwargs['focus_idx']
                 idx = np.array([-1] + idx) + 1
-                return dist_matrix[idx[:, None], idx]
+                return distance_matrix[idx[:, None], idx]
             else:
-                return dist_matrix
+                return distance_matrix
         else:
             matrix_f = open(matrix_path, mode='w', newline='')
             matrix_f.write(",".join(map(str, coords['ID'].to_numpy()))+'\n')

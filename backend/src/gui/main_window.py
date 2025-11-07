@@ -1,13 +1,12 @@
 import re
 import sys
-import subprocess
 
+from PySide6.QtCore import QProcess
 from PySide6.QtWidgets import (
     QComboBox, QTextEdit, QSizePolicy,
     QVBoxLayout, QHBoxLayout, QApplication,
     QTabWidget, QPushButton, QWidget, QLabel, QMessageBox
 )
-# Assuming these imports exist and are correct for your project
 from .tabs import (
     RLCostsTab, RLDataTab, RLModelTab, RunScriptsTab,
     GenDataGeneralTab, GenDataProblemTab, GenDataAdvancedTab,
@@ -379,6 +378,7 @@ class MainWindow(QWidget):
 
         # Collect parameters based on the main command 🚀
         all_params = {}
+        regex = r"(?<!-)-(?!-)"
         if main_command_display in ['File System Tools', 'Other Tools']:
             # Only get parameters from the CURRENT tab
             current_tab_widget = self.tabs.currentWidget()
@@ -423,16 +423,16 @@ class MainWindow(QWidget):
             if isinstance(value, bool):
                 if key in ['mask_inner', 'mask_logits'] and value is False:
                     # Specific "no" flag handling
-                    cmd_parts.append(f"--no_{key.replace('_', '-')}")
+                    cmd_parts.append(f"--no_{re.sub(regex, '_', key)}")
                 elif value is True:
                     # Standard flag when True
-                    cmd_parts.append(f"--{key.replace('_', '-')}")
+                    cmd_parts.append(f"--{re.sub(regex, '_', key)}")
                 # Ignore False boolean values unless it's a specific 'no-' flag
 
             # Numeric values
             elif isinstance(value, (int, float)):
                 # Handle is_gaussian 0/1 explicitly if needed, but QSpinBox handles this fine
-                cmd_parts.append(f"--{key.replace('_', '-')} {value}")
+                cmd_parts.append(f"--{re.sub(regex, '_', key)} {value}")
 
             # String values (including space-separated lists like graph_sizes)
             elif isinstance(value, str):
@@ -470,45 +470,54 @@ class MainWindow(QWidget):
         QMessageBox.information(self, "Copied:", self.preview.toPlainText())
 
     def run_command(self):
-        """Simulate command execution (actual execution is environment-dependent)"""
-        # The :disabled state in the main stylesheet now handles the style.
         self.run_button.setDisabled(True)
         self.update_preview()
-
-        regex = r"(?<!-)-(?!-)"
-        command_str = self.preview.toPlainText()
-        command_str = re.sub(regex, '_', command_str)
-        if self.test_only:
-            QMessageBox.information(
-                self,
-                "Command Simulation",
-                f"The following command would be executed:\n\n{command_str}\n\n(Execution is simulated in this environment)."
-            )
-        else:
-            print(f"Executing: {command_str}")
-            try:
-                # Replace the continuation markers for shell execution
-                shell_command = command_str.replace(" \\\n  ", " ")
-                # Use subprocess.run for simple execution and capturing output
-                result = subprocess.run(
-                    shell_command,
-                    shell=True,
-                    check=True,
-                    capture_output=True,
-                    text=True
-                )
-                print("\n--- Command Output ---")
-                print(result.stdout)
-                if result.stderr:
-                    print("\n--- Command Error Output (if any) ---")
-                    print(result.stderr)
-                print("------------------------\nCommand execution finished successfully.")
-            except subprocess.CalledProcessError as e:
-                print(f"\nCommand failed with exit code {e.returncode}")
-                print("\n--- Command STDOUT ---")
-                print(e.stdout)
-                print("\n--- Command STDERR ---")
-                print(e.stderr)
         
-        # Re-enable the button. The style is automatically restored.
+        # 1. Prepare the command
+        command_str = self.preview.toPlainText()
+        
+        # Split the command string into the program and its arguments
+        # The first part is the program (e.g., 'python'), the rest are arguments.
+        shell_command = command_str.replace(" \\\n  ", " ")
+        
+        # Using a shell to interpret the full command line string simplifies execution:
+        program = '/bin/bash' # or 'cmd' on Windows, or use 'sh -c'
+        arguments = ['-c', shell_command]
+
+        # 2. Initialize QProcess and connect signals
+        self.process = QProcess(self)
+        
+        # Connect finished signal to handle cleanup and re-enabling the button
+        self.process.finished.connect(self.on_command_finished)
+        
+        # Connect output signals to log messages (optional, but helpful)
+        self.process.readyReadStandardOutput.connect(self.read_stdout)
+        self.process.readyReadStandardError.connect(self.read_stderr)
+
+        # 3. Start the process (non-blocking)
+        self.process.start(program, arguments)
+        
+        print(f"Executing process: {program} {arguments[0]}...")
+
+
+    def read_stdout(self):
+        """Reads and prints output from the running process."""
+        data = self.process.readAllStandardOutput().data().decode()
+        print(data, end='')
+
+    def read_stderr(self):
+        """Reads and prints error output from the running process."""
+        data = self.process.readAllStandardError().data().decode()
+        print(data, end='')
+
+    def on_command_finished(self, exit_code, exit_status):
+        """Called when the external command finishes."""
+        
+        # Handle success/failure status and print final message
+        if exit_status == QProcess.ExitStatus.NormalExit and exit_code == 0:
+            QMessageBox.information(self, "Success", "Command execution finished successfully.")
+        else:
+            QMessageBox.critical(self, "Error", f"Command failed with exit code: {exit_code}")
+
+        # Re-enable the button
         self.run_button.setDisabled(False)

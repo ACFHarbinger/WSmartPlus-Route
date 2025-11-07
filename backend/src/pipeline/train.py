@@ -214,9 +214,9 @@ def run_training(args):
         elif comm == 'hp_optim':
             hyperparameter_optimization(opts)
     except Exception as e:
-        print(e)
-        exit_code = 1
         traceback.print_exc(file=sys.stdout)
+        print('\n' + e)
+        exit_code = 1
     finally:
         sys.stdout.flush()
         sys.exit(exit_code)
