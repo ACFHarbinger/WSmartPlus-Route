@@ -11,7 +11,7 @@ from backend.src.gui.app_definitions import (
     DISTANCE_MATRIX_METHODS,
     VERTEX_METHODS, EDGE_METHODS
 )
-from ..components import ClickableHeaderWidget
+from ...components import ClickableHeaderWidget
 
 
 class TestSimAdvancedTab(QWidget):
@@ -164,13 +164,13 @@ class TestSimAdvancedTab(QWidget):
         key_license_files_layout.setContentsMargins(0, 0, 0, 0)
 
         # 7. Add widgets to the container's layout
-        self.gplic_file_input = QLineEdit()
+        self.gplic_file_input = QLineEdit("gurobi.lic.enc")
         key_license_files_layout.addRow("Gurobi License File:", self.gplic_file_input)
-        self.hexlic_file_input = QLineEdit()
+        self.hexlic_file_input = QLineEdit("hexaly.dat.enc")
         key_license_files_layout.addRow("Hexaly License File:", self.hexlic_file_input)
-        self.gapik_file_input = QLineEdit()
+        self.gapik_file_input = QLineEdit("google.lic.enc")
         key_license_files_layout.addRow("Google API Key File:", self.gapik_file_input)
-        self.symkey_name_input = QLineEdit()
+        self.symkey_name_input = QLineEdit("skey")
         key_license_files_layout.addRow("Cryptographic Key Name:", self.symkey_name_input)
         
         # 8. Add the content container to the main form layout

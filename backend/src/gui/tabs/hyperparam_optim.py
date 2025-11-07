@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QLineEdit, QFormLayout, QDoubleSpinBox,
 )
 from backend.src.gui.app_definitions import HOP_METHODS, HOP_METRICS
-from .components import ClickableHeaderWidget
+from ..components import ClickableHeaderWidget
 
 
 class HyperParamOptimParserTab(QWidget):

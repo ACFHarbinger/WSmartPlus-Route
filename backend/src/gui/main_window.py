@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
 )
 # Assuming these imports exist and are correct for your project
 from .tabs import (
-    RLCostsTab, RLDataTab, RLModelTab, FileSystemScriptsTab,
+    RLCostsTab, RLDataTab, RLModelTab, RunScriptsTab,
     GenDataGeneralTab, GenDataProblemTab, GenDataAdvancedTab,
     RLOptimizerTab, RLOutputTab, RLTrainingTab, TestSuiteTab,
     TestSimAdvancedTab, TestSimIOTab, FileSystemCryptographyTab,
@@ -17,88 +17,117 @@ from .tabs import (
     EvalIOTab, EvalDataBatchingTab, EvalDecodingTab, EvalProblemTab,
     MetaRLTrainParserTab, HyperParamOptimParserTab, FileSystemUpdateTab,
 )
+from .styles import (
+    TEXT_COLOR, CONTAINER_BG_COLOR, PRIMARY_ACCENT_COLOR,
+    BACKGROUND_COLOR, MUTED_TEXT_COLOR, PRIMARY_HOVER_COLOR,
+    SECONDARY_ACCENT_COLOR, SECONDARY_HOVER_COLOR, BORDER_COLOR
+)
 
-
-# --- MODERN STYLING CONSTANTS ---
-# Based on a dark, professional theme with a vibrant accent color.
-PRIMARY_ACCENT_COLOR = "#00BFA5"  # Teal/Cyan for emphasis (e.g., Refresh, active tabs)
-SECONDARY_ACCENT_COLOR = "#FF5252"  # Red/Pink for critical actions (e.g., Reopen/Reset)
-BACKGROUND_COLOR = "#2C3E50"      # Dark Slate Blue/Wet Asphalt (Main Background)
-FOREGROUND_COLOR = "#ECF0F1"      # Light Gray/Cloud (Text/Foreground Elements)
-CONTAINER_BG_COLOR = "#34495E"    # Darker container background
-TEXT_COLOR = FOREGROUND_COLOR
 
 class MainWindow(QWidget):
     def __init__(self, test_only=False, initial_window='Train Model', restart_callback=None, initial_tab_index=0):
         super().__init__()
         self.test_only = test_only
         self.restart_callback = restart_callback
-        self.setWindowTitle("Neural Combinatorial Optimization — Configuration GUI")
-        self.resize(900, 700)
-        self.setMinimumSize(800, 600)
+        self.setWindowTitle("Machine Learning Models and Operations Research Solvers for Combinatorial Optimization Problems")
+        self.setMinimumSize(1080, 900)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        # Apply Global Stylesheet for a Dark Theme
+        # Apply Global Stylesheet for a Modern Light Theme
         self.setStyleSheet(f"""
             QWidget {{
                 background-color: {BACKGROUND_COLOR};
                 color: {TEXT_COLOR};
-                font-family: Arial, Helvetica, sans-serif;
-                font-size: 12px;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                font-size: 13px;
             }}
             QLabel {{
                 color: {TEXT_COLOR};
+                padding-bottom: 2px;
             }}
             QComboBox, QTextEdit {{
-                border: 1px solid {CONTAINER_BG_COLOR};
-                padding: 5px;
+                border: 1px solid {BORDER_COLOR};
+                padding: 6px 8px;
                 background-color: {CONTAINER_BG_COLOR};
                 selection-background-color: {PRIMARY_ACCENT_COLOR};
                 color: {TEXT_COLOR};
+                border-radius: 5px; /* Rounded corners */
             }}
             QComboBox::drop-down {{
                 subcontrol-origin: padding;
                 subcontrol-position: top right;
-                width: 15px;
+                width: 20px;
                 border-left-width: 1px;
-                border-left-color: darkgray;
+                border-left-color: {BORDER_COLOR};
                 border-left-style: solid; 
             }}
             QTabWidget::pane {{ /* The tab content area */
-                border: 1px solid {CONTAINER_BG_COLOR};
+                border: 1px solid {BORDER_COLOR};
                 background-color: {CONTAINER_BG_COLOR};
+                border-radius: 5px;
+                border-top-left-radius: 0; /* Align with tab */
             }}
             QTabBar::tab {{
                 background: {BACKGROUND_COLOR};
-                color: {TEXT_COLOR};
-                padding: 8px 15px;
-                border: 1px solid {CONTAINER_BG_COLOR};
+                color: {MUTED_TEXT_COLOR};
+                font-weight: 500;
+                padding: 10px 18px;
+                border: 1px solid {BORDER_COLOR};
                 border-bottom: none;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
             }}
             QTabBar::tab:selected {{
                 background: {CONTAINER_BG_COLOR};
                 color: {PRIMARY_ACCENT_COLOR};
-                font-weight: bold;
-                border-top: 3px solid {PRIMARY_ACCENT_COLOR};
+                font-weight: 600;
+                /* Trick to make tab connect to pane */
+                border-bottom: 2px solid {CONTAINER_BG_COLOR}; 
+                margin-bottom: -2px;
+            }}
+            QTabBar::tab:hover {{
+                color: {TEXT_COLOR};
+            }}
+            
+            /* General Button Styling */
+            QPushButton {{
+                color: white;
+                font-weight: 600;
+                border: none;
+                padding: 10px 12px;
+                border-radius: 5px;
+            }}
+            QPushButton:pressed {{
+                /* Add a subtle press effect */
+                padding-top: 11px;
+                padding-bottom: 9px;
+            }}
+            QPushButton:disabled {{
+                background-color: #BDC3C7; /* Muted gray */
+                color: #7F8C8D;
             }}
         """)
 
-        main_layout = QVBoxLayout()
-        main_layout.setSpacing(10) # Add a little space between sections
+        main_layout = QVBoxLayout(self)
+        main_layout.setSpacing(12) # Add space between main sections
+        main_layout.setContentsMargins(15, 15, 15, 15) # Add padding to window
 
         # Title
-        title = QLabel("Neural Combinatorial Optimization")
+        title = QLabel("Machine Learning and Operations Research for Combinatorial Optimization")
         title.setStyleSheet(f"""
-            font-size: 24px; 
-            font-weight: bold; 
-            padding: 10px 0;
-            color: {PRIMARY_ACCENT_COLOR}; 
+            font-size: 26px; 
+            font-weight: 700; 
+            padding-bottom: 5px;
+            color: {TEXT_COLOR}; 
         """)
         main_layout.addWidget(title)
 
         # Command selection
         command_layout = QHBoxLayout()
-        command_layout.addWidget(QLabel("Select Command:"))
+        command_label = QLabel("Select Command:")
+        command_label.setStyleSheet("font-weight: 600;")
+        command_layout.addWidget(command_label)
+        
         self.command_combo = QComboBox()
         self.command_combo.addItems(['Train Model', 'Generate Data', 'Evaluate', 'Test Simulator', 'File System Tools', 'Other Tools'])
         self.command_combo.currentTextChanged.connect(self.on_command_changed)
@@ -129,7 +158,7 @@ class MainWindow(QWidget):
             "Cryptography Settings": FileSystemCryptographyTab(),
         }
         self.other_tabs_map = {
-            "Execute Script": FileSystemScriptsTab(), "Program Test Suite": TestSuiteTab()
+            "Execute Script": RunScriptsTab(), "Program Test Suite": TestSuiteTab()
         }
         self.all_tabs = {
             'Train Model': self.train_tabs_map, 'Generate Data': self.gen_data_tabs_map,
@@ -144,21 +173,23 @@ class MainWindow(QWidget):
 
         # Preview
         preview_layout = QVBoxLayout()
-        if self.test_only:
-            preview_layout.addWidget(QLabel("Generated Command (Read-Only):"))
-        else:
-            preview_layout.addWidget(QLabel("Generated Command:"))
+        preview_str = "Generated Command (Read-Only):" if self.test_only else "Generated Command:" 
+        preview_label = QLabel(preview_str)
+        preview_label.setStyleSheet("font-weight: 600; padding-top: 5px;")
+        preview_layout.addWidget(preview_label)
+        
         self.preview = QTextEdit()
-        self.preview.setReadOnly(self.test_only)
-        self.preview.setMaximumHeight(180) # Increased height slightly
+        self.preview.setReadOnly(True)
+        self.preview.setMaximumHeight(180)
         self.preview.setStyleSheet(f"""
             QTextEdit {{
-                background-color: #1E2B38; /* Slightly darker for a code look */
-                color: #A9B7C6; /* Light blue-gray for code */
-                border: 1px solid {PRIMARY_ACCENT_COLOR};
+                background-color: #FAFAFA; /* Slightly different white for code */
+                color: #333333;
+                border: 1px solid {BORDER_COLOR};
                 font-family: "Consolas", "Courier New", monospace;
-                font-size: 11px;
+                font-size: 12px;
                 padding: 10px;
+                border-radius: 5px;
             }}
         """)
         preview_layout.addWidget(self.preview)
@@ -178,75 +209,55 @@ class MainWindow(QWidget):
 
         # Preview and controls
         lower_layout = QHBoxLayout()
+        lower_layout.setSpacing(15)
         # Preview
         lower_layout.addLayout(preview_layout, 3)
 
         # Controls
         control_layout = QVBoxLayout()
-
-        # Helper function for common button styling
-        def get_button_style(bg_color, hover_color, text_color="white"):
-            return f"""
-                QPushButton {{
-                    background-color: {bg_color};
-                    color: {text_color};
-                    font-weight: bold;
-                    border: none;
-                    padding: 8px;
-                    border-radius: 4px; /* Rounded corners */
-                    text-transform: uppercase;
-                }}
-                QPushButton:hover {{
-                    background-color: {hover_color};
-                }}
-                QPushButton:pressed {{
-                    background-color: {bg_color};
-                }}
-                QPushButton:disabled {{
-                    background-color: #5D6D7E; /* Muted gray for disabled state */
-                    color: #AAB7B8;
-                }}
-            """
+        control_layout.setSpacing(8)
 
         # Reopen Button (Critical Action)
         self.reopen_button = QPushButton("Close and Reopen GUI")
         self.reopen_button.clicked.connect(self.close_and_reopen)
-        self.reopen_button.setStyleSheet(get_button_style(SECONDARY_ACCENT_COLOR, "#D32F2F"))
+        self.reopen_button.setStyleSheet(f"""
+            QPushButton {{ background-color: {SECONDARY_ACCENT_COLOR}; }}
+            QPushButton:hover {{ background-color: {SECONDARY_HOVER_COLOR}; }}
+        """)
         control_layout.addWidget(self.reopen_button)
 
-        # Refresh Button (Utility/Primary Accent)
+        # --- Secondary/Utility Button Style ---
+        secondary_button_style = f"""
+            QPushButton {{
+                background-color: #ECF0F1;
+                color: {TEXT_COLOR};
+            }}
+            QPushButton:hover {{
+                background-color: {BORDER_COLOR};
+            }}
+        """
+        
+        # Refresh Button (Utility)
         self.refresh_button = QPushButton("Refresh Preview")
         self.refresh_button.clicked.connect(self.update_preview)
-        self.refresh_button.setStyleSheet(get_button_style("#7D8D9D", "#62707E"))
+        self.refresh_button.setStyleSheet(secondary_button_style)
         control_layout.addWidget(self.refresh_button)
 
         # Copy Button (Utility)
         self.copy_button = QPushButton("Copy to Clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
-        self.copy_button.setStyleSheet(get_button_style("#7D8D9D", "#62707E")) # Soft Gray/Blue
+        self.copy_button.setStyleSheet(secondary_button_style)
         control_layout.addWidget(self.copy_button)
 
         # Run Button (Primary Action)
         self.run_button = QPushButton("Run Command (simulated)" if self.test_only else "Run Command")
         self.run_button.clicked.connect(self.run_command)
-        # Separate style for run button to easily manage disabled state
         self.run_button.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {PRIMARY_ACCENT_COLOR};
-                color: white;
-                font-weight: bold;
-                border: none;
-                padding: 10px; /* Bigger padding */
-                border-radius: 4px;
-                text-transform: uppercase;
+            QPushButton {{ 
+                background-color: {PRIMARY_ACCENT_COLOR}; 
+                padding: 12px; /* Bigger padding for primary action */
             }}
-            QPushButton:hover {{
-                background-color: #00897B; /* Darker accent */
-            }}
-            QPushButton:disabled {{
-                background-color: #5D6D7E; /* Muted gray for disabled state */
-                color: #AAB7B8;
-            }}
+            QPushButton:hover {{ background-color: {PRIMARY_HOVER_COLOR}; }}
         """)
         control_layout.addWidget(self.run_button)
         control_layout.addStretch()
@@ -255,24 +266,18 @@ class MainWindow(QWidget):
         suffix_notes = "\n• Run is simulated here." if self.test_only else ""
         notes_label = QLabel("Notes:\n• Leave fields empty to use defaults\n• Cost weights of 0 are ignored\n• Use Refresh to update preview" + suffix_notes)
         notes_label.setWordWrap(True)
-        notes_label.setStyleSheet("font-size: 10px; color: #95A5A6; padding-top: 5px;") # Lighter gray for notes
+        notes_label.setStyleSheet(f"font-size: 11px; color: {MUTED_TEXT_COLOR}; padding-top: 5px;")
         control_layout.addWidget(notes_label)
 
         lower_layout.addLayout(control_layout, 1)
 
         main_layout.addLayout(lower_layout)
 
-        self.setLayout(main_layout)
-
-        # Final update call (redundant, but safe)
-        self.update_preview()
-        # Connect tab change signal (re-connect is not needed, but doesn't hurt)
-        self.tabs.currentChanged.connect(self.update_preview)
-
-    # All methods below (close_and_reopen, get_actual_command, setup_tabs, 
-    # on_command_changed, update_preview, copy_to_clipboard, run_command)
-    # remain the same as the original, save for potential stylistic updates 
-    # to run_command's button re-enabling logic to match the new style.
+    # --- NO CHANGES REQUIRED FOR LOGIC METHODS BELOW THIS LINE ---
+    # The styling changes are all self-contained in __init__
+    # The logic for enabling/disabling the Run button is now handled
+    # by the :disabled pseudo-state in the main stylesheet,
+    # so the setStyleSheet calls in run_command are no longer needed.
 
     def close_and_reopen(self):
         """Hides the current window and triggers the external restart."""
@@ -466,9 +471,8 @@ class MainWindow(QWidget):
 
     def run_command(self):
         """Simulate command execution (actual execution is environment-dependent)"""
-        # Disable button with the disabled style
+        # The :disabled state in the main stylesheet now handles the style.
         self.run_button.setDisabled(True)
-
         self.update_preview()
 
         regex = r"(?<!-)-(?!-)"
@@ -505,6 +509,6 @@ class MainWindow(QWidget):
                 print(e.stdout)
                 print("\n--- Command STDERR ---")
                 print(e.stderr)
-
-        # Re-enable button with the original style
+        
+        # Re-enable the button. The style is automatically restored.
         self.run_button.setDisabled(False)

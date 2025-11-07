@@ -4,12 +4,18 @@ from PySide6.QtWidgets import (
     QLabel, QVBoxLayout, QHBoxLayout, QWidget
 )
 from backend.src.gui.app_definitions import DATA_DISTRIBUTIONS, PROBLEM_TYPES
+from ...styles import (
+    SECTION_HEADER_STYLE, TOGGLE_BUTTON_STYLE, SUCCESS_BUTTON_STYLE,
+    SECONDARY_BUTTON_STYLE, SECTION_HEADER_STYLE, SUB_HEADER_STYLE
+)
 
 
 class GenDataProblemTab(QWidget):
     def __init__(self):
         super().__init__()
         layout = QFormLayout(self)
+        layout.setSpacing(8)
+        layout.setContentsMargins(5, 5, 5, 5)
         
         # 1. --problem
         self.problem_combo = QComboBox()
@@ -23,50 +29,35 @@ class GenDataProblemTab(QWidget):
         layout.addRow("Graph Sizes:", self.graph_sizes_input)
 
         # 3. --data_distributions
-        layout.addRow(QLabel("<b>Data Distributions:</b>"))
+        dist_header = QLabel("Data Distributions")
+        dist_header.setStyleSheet(SECTION_HEADER_STYLE)
+        layout.addRow(dist_header)
         
         distributions_container = QWidget()
         distributions_layout = QVBoxLayout(distributions_container)
         distributions_layout.setContentsMargins(0, 0, 0, 0)
+        distributions_layout.setSpacing(6)
         
         self.dist_buttons = {}
         row_layout = None
         
-        # Determine how many distributions per row (e.g., 3)
         NUM_COLS = 4
         
-        # Create buttons for each distribution
         for i, dist_name in enumerate(DATA_DISTRIBUTIONS.keys()):
             if i % NUM_COLS == 0:
                 row_layout = QHBoxLayout()
                 distributions_layout.addLayout(row_layout)
             
-            btn = QPushButton(dist_name.title()) # Use .title() for display text
+            btn = QPushButton(dist_name.title())
             btn.setCheckable(True)
+            btn.setStyleSheet(TOGGLE_BUTTON_STYLE) # Apply new toggle style
             
-            # Set default styling (similar to your policy buttons)
-            btn.setStyleSheet("""
-                QPushButton:checked {
-                    background-color: #3320b5; /* Blue when checked */
-                    color: white;
-                    border: 1px solid #27ae60;
-                }
-                QPushButton:hover:!checked {
-                    background-color: #3498db; /* Light hover color for unchecked */
-                }
-                QPushButton:hover:checked {
-                    background-color: #00838a;
-                }
-            """)
-            
-            # Automatically check 'all' or 'uniform' if you have a default
             if dist_name.lower() == 'all':
                 btn.setChecked(True)
                 
             row_layout.addWidget(btn)
             self.dist_buttons[dist_name] = btn
 
-        # Add stretch to incomplete rows
         if row_layout is not None and len(DATA_DISTRIBUTIONS.keys()) % NUM_COLS != 0:
             for _ in range(NUM_COLS - (len(DATA_DISTRIBUTIONS.keys()) % NUM_COLS)):
                 row_layout.addStretch(1)
@@ -74,10 +65,11 @@ class GenDataProblemTab(QWidget):
         # Select All / Deselect All Buttons
         all_btn_layout = QHBoxLayout()
         self.btn_select_all_dists = QPushButton("Select All")
-        self.btn_select_all_dists.setStyleSheet("background-color: green; color: white;")
+        self.btn_select_all_dists.setStyleSheet(SUCCESS_BUTTON_STYLE) # Apply new green style
         self.btn_select_all_dists.clicked.connect(self.select_all_distributions)
+        
         self.btn_deselect_all_dists = QPushButton("Deselect All")
-        self.btn_deselect_all_dists.setStyleSheet("background-color: red; color: white;")
+        self.btn_deselect_all_dists.setStyleSheet(SECONDARY_BUTTON_STYLE) # Apply new secondary style
         self.btn_deselect_all_dists.clicked.connect(self.deselect_all_distributions)
 
         all_btn_layout.addWidget(self.btn_select_all_dists)
@@ -86,33 +78,29 @@ class GenDataProblemTab(QWidget):
 
         layout.addRow(distributions_container)
 
-        layout.addRow(QLabel('<span style="font-weight: 600;">PDP Parameters</span>'))
+        pdp_header = QLabel("PDP Parameters")
+        pdp_header.setStyleSheet(SUB_HEADER_STYLE)
+        layout.addRow(pdp_header)
+        
         # 4. --is_gaussian
-        start_red_style = """
-            QPushButton:checked {
-                background-color: #06402B;
-                color: white;
-            }
-            QPushButton {
-                background-color: #8B0000;
-                color: white;
-            }
-        """
         self.is_gaussian_check = QPushButton("Use Gaussian Distribution")
         self.is_gaussian_check.setCheckable(True)
         self.is_gaussian_check.setChecked(False)
-        self.is_gaussian_check.setStyleSheet(start_red_style)
-        layout.addRow(QLabel("Gaussian:"), self.is_gaussian_check)
+        self.is_gaussian_check.setStyleSheet(TOGGLE_BUTTON_STYLE) # Apply new toggle style
+        layout.addRow("Distribution Type:", self.is_gaussian_check)
 
         # 5. --sigma
         self.sigma_input = QDoubleSpinBox()
         self.sigma_input.setRange(0, 1)
         self.sigma_input.setSingleStep(0.1)
         self.sigma_input.setValue(0.6)
-        layout.addRow("Sigma Value:", self.sigma_input)
+        layout.addRow("Sigma Value (if Gaussian):", self.sigma_input)
 
         # 6. --penalty_factor
-        layout.addRow(QLabel('<span style="font-weight: 600;">PCTSP Parameters</span>'))
+        pctsp_header = QLabel("PCTSP Parameters")
+        pctsp_header.setStyleSheet(SUB_HEADER_STYLE)
+        layout.addRow(pctsp_header)
+        
         self.penalty_factor_input = QDoubleSpinBox()
         self.penalty_factor_input.setRange(0.1, 10.0)
         self.penalty_factor_input.setSingleStep(0.1)
@@ -130,7 +118,6 @@ class GenDataProblemTab(QWidget):
             btn.setChecked(False)
 
     # --- Modified get_params ---
-
     def get_params(self):
         params = {}
         # Mandatory fields
@@ -142,7 +129,7 @@ class GenDataProblemTab(QWidget):
         if self.graph_sizes_input.text().strip():
             params["graph_sizes"] = self.graph_sizes_input.text().strip()
 
-        # 4. --data_distributions (Collect from buttons) 🌟
+        # 4. --data_distributions (Collect from buttons)
         selected_dists = [
             dist_name 
             for dist_name, btn in self.dist_buttons.items() 
@@ -150,7 +137,6 @@ class GenDataProblemTab(QWidget):
         ]
         
         if selected_dists:
-            # Join the list of selected distribution names with a space
             params["data_distributions"] = " ".join([DATA_DISTRIBUTIONS[sd] for sd in selected_dists])
             
         if self.is_gaussian_check.isChecked():
