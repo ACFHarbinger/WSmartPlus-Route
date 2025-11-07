@@ -7,6 +7,10 @@ from backend.src.gui.app_definitions import (
     SIMULATOR_TEST_POLICIES,
     PROBLEM_TYPES, DATA_DISTRIBUTIONS, 
 )
+from ...styles import (
+    TOGGLE_BUTTON_STYLE, SUCCESS_BUTTON_STYLE,
+    SECONDARY_BUTTON_STYLE, SECTION_HEADER_STYLE
+)
 
 
 class TestSimSettingsTab(QWidget):
@@ -18,14 +22,20 @@ class TestSimSettingsTab(QWidget):
         
         # 2. Use the QFormLayout for the content widget
         content_layout = QFormLayout(self.content_widget)
+        content_layout.setSpacing(8)
+        content_layout.setContentsMargins(5, 5, 5, 5)
         
         self.selected_policies = set()
-        content_layout.addRow(QLabel("<b>Test Policies</b>"))
+        
+        policy_header = QLabel("Test Policies")
+        policy_header.setStyleSheet(SECTION_HEADER_STYLE)
+        content_layout.addRow(policy_header)
 
-        # --- Policy Selection Setup (Remains within content_layout) ---
+        # --- Policy Selection Setup ---
         policies_container = QWidget()
         policies_layout = QVBoxLayout(policies_container)
         policies_layout.setContentsMargins(0, 0, 0, 0)
+        policies_layout.setSpacing(6)
         
         # Policy Buttons
         self.policy_buttons = {}
@@ -37,19 +47,7 @@ class TestSimSettingsTab(QWidget):
             
             btn = QPushButton(policy_name)
             btn.setCheckable(True)
-            btn.setStyleSheet("""
-                QPushButton:checked {
-                    background-color: #3320b5; /* Blue when checked */
-                    color: white;
-                    border: 1px solid #27ae60;
-                }
-                QPushButton:hover:!checked {
-                    background-color: #3498db; /* Light hover color for unchecked */
-                }
-                QPushButton:hover:checked {
-                    background-color: #00838a;
-                }
-            """)
+            btn.setStyleSheet(TOGGLE_BUTTON_STYLE) # Apply new toggle style
             
             btn.clicked.connect(lambda checked, p=policy_name: self.toggle_policy(p, checked))
             row_layout.addWidget(btn)
@@ -62,10 +60,11 @@ class TestSimSettingsTab(QWidget):
         # Select All / Deselect All Buttons
         all_btn_layout = QHBoxLayout()
         self.btn_select_all = QPushButton("Select All")
-        self.btn_select_all.setStyleSheet("background-color: green; color: white;")
+        self.btn_select_all.setStyleSheet(SUCCESS_BUTTON_STYLE) # Apply new green style
         self.btn_select_all.clicked.connect(self.select_all_policies)
+        
         self.btn_deselect_all = QPushButton("Deselect All")
-        self.btn_deselect_all.setStyleSheet("background-color: red; color: white;")
+        self.btn_deselect_all.setStyleSheet(SECONDARY_BUTTON_STYLE) # Apply new secondary style
         self.btn_deselect_all.clicked.connect(self.deselect_all_policies)
 
         all_btn_layout.addWidget(self.btn_select_all)
@@ -75,13 +74,17 @@ class TestSimSettingsTab(QWidget):
         content_layout.addRow(policies_container)
         
         # --- Test Environment --- 
-        content_layout.addRow(QLabel("<hr>")) # Use a horizontal line for separation
-        content_layout.addRow(QLabel("<b>Test Environment</b>"))
+        content_layout.addRow(self.create_separator()) # Use styled separator
+        
+        env_header = QLabel("Test Environment")
+        env_header.setStyleSheet(SECTION_HEADER_STYLE)
+        content_layout.addRow(env_header)
         
         # 2. --data_distribution
         self.data_dist_input = QComboBox()
         self.data_dist_input.addItems(DATA_DISTRIBUTIONS.keys())
         self.data_dist_input.setCurrentText("Gamma 1")
+        # No inline style needed, handled by main_window.py
         content_layout.addRow("Waste Fill Data Distribution:", self.data_dist_input)
          
         # 3. --problem
@@ -111,13 +114,11 @@ class TestSimSettingsTab(QWidget):
         content_layout.addRow("Random Seed:", self.seed_input)
         
         # --- Make Tab Scrollable ---
-        
-        # 3. Create the QScrollArea
         scroll_area = QScrollArea()
-        
-        # Set the content_widget as the QScrollArea's widget
-        scroll_area.setWidgetResizable(True) # Allows the widget to be resized when the scroll area is resized
+        scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(self.content_widget)
+        # Remove border from scroll area itself to blend with tab pane
+        scroll_area.setStyleSheet("QScrollArea { border: none; }") 
         
         # Ensure the content widget takes minimum space vertically
         self.content_widget.setSizePolicy(
@@ -130,6 +131,13 @@ class TestSimSettingsTab(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(scroll_area)
     
+    def create_separator(self):
+        """Creates a modern, thin horizontal separator."""
+        separator = QWidget()
+        separator.setFixedHeight(1)
+        separator.setStyleSheet("background-color: #DDE3E8;") # BORDER_COLOR
+        return separator
+
     # Policy Management Methods (Unchanged)
     def toggle_policy(self, policy_name, checked):
         if checked:

@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QPushButton, QSizePolicy, QHBoxLayout
 )
 from backend.src.gui.app_definitions import COUNTY_AREAS, VERTEX_METHODS
-from ..components import ClickableHeaderWidget
+from ...components import ClickableHeaderWidget
 
 
 class GenDataAdvancedTab(QWidget):        

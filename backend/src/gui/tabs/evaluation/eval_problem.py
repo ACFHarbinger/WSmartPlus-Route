@@ -9,7 +9,7 @@ from backend.src.gui.app_definitions import (
     VERTEX_METHODS, EDGE_METHODS,
     DISTANCE_MATRIX_METHODS, COUNTY_AREAS
 )
-from ..components import ClickableHeaderWidget
+from ...components import ClickableHeaderWidget
 
 
 class EvalProblemTab(QWidget):

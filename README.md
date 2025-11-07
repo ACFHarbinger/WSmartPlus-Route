@@ -1,5 +1,5 @@
 # WSmart+ Route
-Machine Learning models and Operations Research solvers for Combinatorial Optimization tasks, focusing on route planning for waste collection.
+Machine Learning models and Operations Research solvers for Combinatorial Optimization problems, focusing on route planning for waste collection.
 
 ## Tech Stack
 - [Python Programming Language](https://www.python.org/)

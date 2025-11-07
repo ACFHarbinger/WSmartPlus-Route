@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout, QSizePolicy, QPushButton,
     QLineEdit, QFormLayout, QWidget, QLabel,
 )
-from ..components import ClickableHeaderWidget
+from ...components import ClickableHeaderWidget
 
 
 class GenDataGeneralTab(QWidget):

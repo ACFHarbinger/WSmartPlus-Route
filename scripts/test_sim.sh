@@ -32,7 +32,7 @@ fi
 
 SEED=42
 N_DAYS=31
-N_BINS=170
+N_BINS=50
 N_SAMPLES=10
 PROBLEM="vrpp"
 
@@ -41,7 +41,7 @@ WTYPE="plastic"
 DATA_DIST="gamma2"
 IDX_PATH="graphs_${N_BINS}V_1N_${WTYPE}.json"
 
-SYM_KEY="acf_skey"
+SYM_KEY="skey"
 ENV_FILE="vars.env"
 GP_LIC_FILE="gurobi.lic.enc"
 HEX_DAT_FILE="hexaly.dat.enc"

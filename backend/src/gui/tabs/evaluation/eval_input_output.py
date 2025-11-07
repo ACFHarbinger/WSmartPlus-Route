@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QScrollArea, QLabel, QWidget,
     QLineEdit, QCheckBox, QHBoxLayout,
 )
-from ..components import ClickableHeaderWidget
+from ...components import ClickableHeaderWidget
 
 
 class EvalIOTab(QWidget):

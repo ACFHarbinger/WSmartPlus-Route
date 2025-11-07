@@ -25,13 +25,13 @@ class TestSimIOTab(QWidget):
         
         # Input Files
         form_layout.addRow(QLabel("<b>Input Files</b>"))
-        self.waste_filepath_input = QLineEdit()
+        self.waste_filepath_input = QLineEdit("daily_waste/riomaior50_gamma1_wsr31_N10_seed42.pkl")
         form_layout.addRow("Waste Fill File:", self.waste_filepath_input)
         
-        self.dm_filepath_input = QLineEdit()
+        self.dm_filepath_input = QLineEdit("data/wsr_simulator/distance_matrix/gmaps_distmat_plastic[riomaior].csv")
         form_layout.addRow("Distance Matrix File:", self.dm_filepath_input)
         
-        self.bin_idx_file_input = QLineEdit()
+        self.bin_idx_file_input = QLineEdit("graphs_50V_1N_plastic.json")
         form_layout.addRow("Bin Index File:", self.bin_idx_file_input)
         
         # Simulator Data Context

@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QPushButton, QHBoxLayout, QScrollArea,
 )
 from backend.src.gui.app_definitions import OPERATION_MAP, FUNCTION_MAP
-from ..components import ClickableHeaderWidget
+from ...components import ClickableHeaderWidget
 
 
 class FileSystemUpdateTab(QWidget):

@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QSpinBox, QLabel, QHBoxLayout,
     QWidget, QLineEdit, QFormLayout, 
 )
-from ..components import ClickableHeaderWidget
+from ...components import ClickableHeaderWidget
 
 
 class FileSystemCryptographyTab(QWidget):

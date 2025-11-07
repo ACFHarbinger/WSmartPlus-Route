@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
 )
 from backend.src.gui.app_definitions import BASELINES
 from .rl_base import BaseReinforcementLearningTab
-from ..components import ClickableHeaderWidget
+from ...components import ClickableHeaderWidget
 
 
 class RLTrainingTab(BaseReinforcementLearningTab):
