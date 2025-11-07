@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QApplication,
     QTabWidget, QPushButton, QWidget, QLabel, QMessageBox
 )
+from .windows import RawLogWindow
 from .tabs import (
     RLCostsTab, RLDataTab, RLModelTab, RunScriptsTab,
     GenDataGeneralTab, GenDataProblemTab, GenDataAdvancedTab,
@@ -26,6 +27,9 @@ from .styles import (
 class MainWindow(QWidget):
     def __init__(self, test_only=False, initial_window='Train Model', restart_callback=None, initial_tab_index=0):
         super().__init__()
+        self.process = None
+        self.output_buffer = ""
+        self.results_window = None
         self.test_only = test_only
         self.restart_callback = restart_callback
         self.setWindowTitle("Machine Learning Models and Operations Research Solvers for Combinatorial Optimization Problems")
@@ -103,7 +107,7 @@ class MainWindow(QWidget):
             }}
             QPushButton:disabled {{
                 background-color: #BDC3C7; /* Muted gray */
-                color: #7F8C8D;
+                color: {TEXT_COLOR};
             }}
         """)
 
@@ -135,7 +139,6 @@ class MainWindow(QWidget):
         command_layout.addStretch()
         main_layout.addLayout(command_layout)
 
-        # --- Tab Initialization (No visual change needed here, keeping original structure) ---
         self.train_tabs_map = {
             "Data": RLDataTab(), "Model": RLModelTab(), "Training": RLTrainingTab(),
             "Optimizer": RLOptimizerTab(), "Cost Weights": RLCostsTab(), "Output": RLOutputTab(),
@@ -272,11 +275,7 @@ class MainWindow(QWidget):
 
         main_layout.addLayout(lower_layout)
 
-    # --- NO CHANGES REQUIRED FOR LOGIC METHODS BELOW THIS LINE ---
-    # The styling changes are all self-contained in __init__
-    # The logic for enabling/disabling the Run button is now handled
-    # by the :disabled pseudo-state in the main stylesheet,
-    # so the setStyleSheet calls in run_command are no longer needed.
+    # --- LOGIC METHODS ---
 
     def close_and_reopen(self):
         """Hides the current window and triggers the external restart."""
@@ -322,44 +321,31 @@ class MainWindow(QWidget):
                 actual_command = 'test_suite'
 
         if actual_command == 'scripts':
-            # Get parameters from the active ScriptsTab widget
+            # Note: DummyTab logic is limited here, assuming the real tab handles parameters
             script_tab_widget = self.other_tabs_map['Execute Script']
             if hasattr(script_tab_widget, 'get_params'):
-                # Call get_params to fetch all arguments for the script execution
                 script_params = script_tab_widget.get_params()
-
-                # Pop the script name (which should be stored under the key 'script')
                 script_name = script_params.pop('script', None)
-
-                # Crucially, the MainWindow.update_preview logic must now rely on
-                # collecting parameters from the active tab in the "File System Tools" section.
                 if script_name:
-                    # Replace 'scripts' with 'scripts/script_name.sh'
                     if sys.platform.startswith('linux'):
                         actual_command = f'scripts/{script_name}'
-                        if not actual_command.endswith('.sh'):
-                            actual_command += '.sh' # Assuming the script requires .sh extension
+                        if not actual_command.endswith('.sh'): actual_command += '.sh'
                     elif sys.platform.startswith('win'):
                         actual_command = f'scripts\{script_name}'
-                        if not actual_command.endswith('.bat'):
-                            actual_command += '.bat' # Assuming the script requires .bat extension
+                        if not actual_command.endswith('.bat'): actual_command += '.bat'
 
-        # Default to the mapped command or raise an error if needed
         return actual_command if actual_command else main_command_display
 
     def setup_tabs(self, command):
         """Dynamically loads the correct set of tabs based on the command."""
-        # Remove existing tabs
         while self.tabs.count() > 0:
             self.tabs.removeTab(0)
 
-        # Add new tabs
         if command in self.all_tabs:
             tab_set = self.all_tabs[command]
             for title, tab_widget in tab_set.items():
                 self.tabs.addTab(tab_widget, title)
         else:
-            # Placeholder for other commands
             placeholder = QWidget()
             placeholder.setLayout(QVBoxLayout())
             placeholder.layout().addWidget(QLabel(f"GUI for '{command}' coming soon."))
@@ -372,91 +358,63 @@ class MainWindow(QWidget):
 
     def update_preview(self):
         """Update the command preview by collecting parameters from current tabs."""
-        # Get the actual command based on the main selection and current tab
         main_command_display = self.command_combo.currentText()
         actual_command = self.get_actual_command(main_command_display)
-
-        # Collect parameters based on the main command 🚀
         all_params = {}
         regex = r"(?<!-)-(?!-)"
+        
         if main_command_display in ['File System Tools', 'Other Tools']:
-            # Only get parameters from the CURRENT tab
             current_tab_widget = self.tabs.currentWidget()
             if hasattr(current_tab_widget, 'get_params'):
                 all_params.update(current_tab_widget.get_params())
         elif main_command_display == 'Train Model':
-            # For Train Model: Base parameters are always included, but HPO/Meta-Learning are conditional
             current_tab_title = self.tabs.tabText(self.tabs.currentIndex())
             for title, tab_widget in self.train_tabs_map.items():
                 if hasattr(tab_widget, 'get_params'):
-                    # Always include params from the base tabs (Data, Model, Training, etc.)
                     is_base_tab = title not in ["Hyper-Parameter Optimization", "Meta-Learning"]
-
-                    # Include HPO or Meta-Learning params ONLY if that tab is currently active
                     is_active_special_tab = (
                         title == current_tab_title and
                         title in ["Hyper-Parameter Optimization", "Meta-Learning"]
                     )
-
                     if is_base_tab or is_active_special_tab:
                         all_params.update(tab_widget.get_params())
         else:
-            # For all other main commands, we iterate over all loaded tabs for that section
             for i in range(self.tabs.count()):
                 tab_widget = self.tabs.widget(i)
                 if hasattr(tab_widget, 'get_params'):
                     all_params.update(tab_widget.get_params())
 
-        # Build command string
         if actual_command.startswith('scripts/') and 'script' in all_params:
-            # Pop the argument so it is not added as a --script flag in the final command string
             all_params.pop('script')
             cmd_parts = [f"bash {actual_command}"] if sys.platform.startswith('linux') else [actual_command]
         else:
-            cmd_parts = [f"python main.py {actual_command}"] # Use actual_command here
+            cmd_parts = [f"python main.py {actual_command}"]
 
         for key, value in all_params.items():
             if value is None or value == "":
                 continue
 
-            # Special case for boolean flags (True/False values)
             if isinstance(value, bool):
+                print(key, ':', value)
                 if key in ['mask_inner', 'mask_logits'] and value is False:
-                    # Specific "no" flag handling
                     cmd_parts.append(f"--no_{re.sub(regex, '_', key)}")
                 elif value is True:
-                    # Standard flag when True
                     cmd_parts.append(f"--{re.sub(regex, '_', key)}")
-                # Ignore False boolean values unless it's a specific 'no-' flag
-
-            # Numeric values
             elif isinstance(value, (int, float)):
-                # Handle is_gaussian 0/1 explicitly if needed, but QSpinBox handles this fine
                 cmd_parts.append(f"--{re.sub(regex, '_', key)} {value}")
-
-            # String values (including space-separated lists like graph_sizes)
             elif isinstance(value, str):
-                # Check for spaces or quotes, which indicates a complex string or list
-                if ' ' in value or '"' in value or "'" in value:
-                    # These keys contain space-separated arguments that should NOT be quoted.
-                    list_keys = [
-                        'focus_graph', 'input_keys',
-                        'graph_sizes', 'data_distributions',
-                        'policies', 'pregular_level', 'plastminute_cf',
-                        'lookahead_configs', 'gurobi_param', 'hexaly_param',
-                    ]
-                    if key in list_keys:
-                        # Append list elements directly: --key 2 3 6
-                        parts = value.split()
-                        cmd_parts.append(f"--{key}")
-                        cmd_parts.extend(parts)
-                    else:
-                        # Standard string argument (e.g., a path or a complex string that requires quotes)
-                        cmd_parts.append(f"--{key} '{value}'")
-                elif key == 'update_operation':
+                list_keys = [
+                    'focus_graph', 'input_keys', 'graph_sizes', 'data_distributions',
+                    'policies', 'pregular_level', 'plastminute_cf',
+                    'lookahead_configs', 'gurobi_param', 'hexaly_param',
+                ]
+                if key in list_keys:
+                    parts = value.split()
+                    cmd_parts.append(f"--{key}")
+                    cmd_parts.extend(parts)
+                elif ' ' in value or '"' in value or "'" in value or key == 'update_operation':
                     cmd_parts.append(f"--{key} '{value}'")
                 else:
-                    # Simple strings/numbers without spaces
                     cmd_parts.append(f"--{key} {value}")
         command_str = " \\\n  ".join(cmd_parts)
         self.preview.setPlainText(command_str)
@@ -466,58 +424,104 @@ class MainWindow(QWidget):
         self.update_preview()
         clipboard = QApplication.clipboard()
         clipboard.setText(self.preview.toPlainText())
-        # Use a non-blocking message box instead of alert/confirm
         QMessageBox.information(self, "Copied:", self.preview.toPlainText())
 
     def run_command(self):
+        """Starts the external command using QProcess and opens the results window."""
         self.run_button.setDisabled(True)
         self.update_preview()
         
-        # 1. Prepare the command
         command_str = self.preview.toPlainText()
-        
-        # Split the command string into the program and its arguments
-        # The first part is the program (e.g., 'python'), the rest are arguments.
         shell_command = command_str.replace(" \\\n  ", " ")
         
-        # Using a shell to interpret the full command line string simplifies execution:
-        program = '/bin/bash' # or 'cmd' on Windows, or use 'sh -c'
-        arguments = ['-c', shell_command]
+        if self.test_only:
+            QMessageBox.information(
+                self, "Command Simulation",
+                f"The following command would be executed:\n\n{command_str}\n\n(Execution is simulated in this environment)."
+            )
+            self.run_button.setDisabled(False)
+            return
 
-        # 2. Initialize QProcess and connect signals
+        main_command = self.command_combo.currentText()
+        is_simulation = main_command == 'Test Simulator'
+        
+        if is_simulation:
+            test_sim_tab = self.test_sim_tabs_map['Simulator Settings'] 
+            policy_names = ['Unknown Policy'] # Default fallback
+            if hasattr(test_sim_tab, 'get_params'):
+                policies_str = test_sim_tab.get_params().get('policies', '')
+                policy_names = policies_str.split() if policies_str else ['Unknown Policy']
+            
+            self.results_window = RawLogWindow(policy_names)
+            self.results_window.show()
+        else:
+            self.results_window = None
+            
+        if self.process is not None:
+            self.process.terminate()
+            self.process.waitForFinished(100) 
+
         self.process = QProcess(self)
+        self.process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
         
-        # Connect finished signal to handle cleanup and re-enabling the button
+        self.process.readyReadStandardOutput.connect(self.read_output)
         self.process.finished.connect(self.on_command_finished)
-        
-        # Connect output signals to log messages (optional, but helpful)
-        self.process.readyReadStandardOutput.connect(self.read_stdout)
-        self.process.readyReadStandardError.connect(self.read_stderr)
 
-        # 3. Start the process (non-blocking)
+        program = 'sh' if sys.platform.startswith('linux') or sys.platform.startswith('darwin') else 'cmd'
+        
+        if program == 'sh':
+            arguments = ['-c', shell_command]
+        elif program == 'cmd':
+            arguments = ['/C', shell_command]
+        else:
+            parts = shell_command.split()
+            program = parts[0]
+            arguments = parts[1:]
+
+        print(f"Starting process: {program} {' '.join(arguments)}")
         self.process.start(program, arguments)
         
-        print(f"Executing process: {program} {arguments[0]}...")
+        if not self.process.waitForStarted(200):
+            error_msg = self.process.errorString()
+            QMessageBox.critical(self, "Error", f"Failed to start external process: {error_msg}")
+            self.on_command_finished(1, QProcess.ExitStatus.CrashExit)
 
+    def read_output(self):
+        """Reads output and feeds it to the results window for plotting."""
+        output_bytes = self.process.readAllStandardOutput()
+        output = output_bytes.data().decode()
+        
+        self.output_buffer += output
 
-    def read_stdout(self):
-        """Reads and prints output from the running process."""
-        data = self.process.readAllStandardOutput().data().decode()
-        print(data, end='')
+        if self.results_window:
+            # Data parsing is fast and is done here
+            self.output_buffer = self.results_window.parse_buffer(self.output_buffer)
 
-    def read_stderr(self):
-        """Reads and prints error output from the running process."""
-        data = self.process.readAllStandardError().data().decode()
-        print(data, end='')
+        non_structural_output = [line for line in output.splitlines() if not line.startswith("GUI_")]
+        if non_structural_output:
+            print("\n".join(non_structural_output))
+            sys.stdout.flush()
 
     def on_command_finished(self, exit_code, exit_status):
         """Called when the external command finishes."""
         
-        # Handle success/failure status and print final message
         if exit_status == QProcess.ExitStatus.NormalExit and exit_code == 0:
-            QMessageBox.information(self, "Success", "Command execution finished successfully.")
+            msg = "Command execution finished successfully."
+            if self.results_window: 
+                self.results_window.status_label.setText("Simulation Complete: Success")
         else:
-            QMessageBox.critical(self, "Error", f"Command failed with exit code: {exit_code}")
+            msg = f"Command failed with exit code: {exit_code}"
+            if self.results_window: 
+                self.results_window.status_label.setText(f"Simulation Failed (Code: {exit_code})")
+            QMessageBox.critical(self, "Error", msg)
 
-        # Re-enable the button
+        self.process = None 
         self.run_button.setDisabled(False)
+
+    def read_stdout(self):
+        data = self.process.readAllStandardOutput().data().decode()
+        print(data, end='')
+
+    def read_stderr(self):
+        data = self.process.readAllStandardError().data().decode()
+        print(data, end='')

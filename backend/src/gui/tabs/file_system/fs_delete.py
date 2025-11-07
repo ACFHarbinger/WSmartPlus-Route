@@ -3,6 +3,7 @@ from PySide6.QtWidgets import (
     QWidget, QLineEdit, QFormLayout, 
     QVBoxLayout, QGroupBox, QPushButton
 )
+from ...styles import START_RED_STYLE
 
 
 class FileSystemDeleteTab(QWidget):
@@ -102,22 +103,12 @@ class FileSystemDeleteTab(QWidget):
 
         # --- Separator and Preview Checkbox ---
         flag_layout.addRow(QLabel("<hr>"))
-        start_red_style = """
-            QPushButton:checked {
-                background-color: #06402B;
-                color: white;
-            }
-            QPushButton {
-                background-color: #8B0000;
-                color: white;
-            }
-        """
 
         # --delete_preview (action='store_true' -> default False)
         self.preview_check = QPushButton("Preview Delete")
-        self.preview_check.setChecked(False)
         self.preview_check.setCheckable(True)
-        self.preview_check.setStyleSheet(start_red_style)
+        self.preview_check.setChecked(False)
+        self.preview_check.setStyleSheet(START_RED_STYLE)
         flag_layout.addRow("Verify changes before deleting:", self.preview_check)
         
         content_layout.addWidget(flag_group)

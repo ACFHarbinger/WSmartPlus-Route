@@ -3,7 +3,8 @@ from PySide6.QtWidgets import (
     QComboBox, QLineEdit,
     QPushButton, QFormLayout,
 )
-from backend.src.gui.app_definitions import WB_MODES
+from ...app_definitions import WB_MODES
+from ...styles import START_GREEN_STYLE
 from .rl_base import BaseReinforcementLearningTab
 
 
@@ -47,27 +48,17 @@ class RLOutputTab(BaseReinforcementLearningTab):
         self.widgets['wandb_mode'].addItem('')
         layout.addRow(QLabel("Weight and Biases Mode:"), self.widgets['wandb_mode'])
         
-        # Checkboxes´
-        start_green_style = """
-            QPushButton:checked {
-                background-color: #8B0000;
-                color: white;
-            }
-            QPushButton {
-                background-color: #06402B;
-                color: white;
-            }
-        """
+        # Checkboxes
         self.widgets['no_tensorboard'] = QPushButton("TensorBoard Logger")
-        self.widgets['no_tensorboard'].setChecked(False)
         self.widgets['no_tensorboard'].setCheckable(True)
-        self.widgets['no_tensorboard'].setStyleSheet(start_green_style)
+        self.widgets['no_tensorboard'].setChecked(False)
+        self.widgets['no_tensorboard'].setStyleSheet(START_GREEN_STYLE)
         layout.addRow(QLabel("Options:"), self.widgets['no_tensorboard'])
 
         self.widgets['no_progress_bar'] = QPushButton("Progress Bar")
-        self.widgets['no_progress_bar'].setChecked(False)
         self.widgets['no_progress_bar'].setCheckable(True)
-        self.widgets['no_progress_bar'].setStyleSheet(start_green_style)
+        self.widgets['no_progress_bar'].setChecked(False)
+        self.widgets['no_progress_bar'].setStyleSheet(START_GREEN_STYLE)
         layout.addRow("", self.widgets['no_progress_bar'])
         
         self.setLayout(layout)
@@ -85,7 +76,7 @@ class RLOutputTab(BaseReinforcementLearningTab):
                 text = widget.currentText()
                 if text:
                     params[key] = text
-            elif isinstance(widget, QPushButton):
-                if widget.isChecked():
-                    params[key] = True
+        
+        params['no_tensorboard'] = self.widgets['no_tensorboard'].isChecked()
+        params['no_progress_bar'] = self.widgets['no_progress_bar'].isChecked()
         return params

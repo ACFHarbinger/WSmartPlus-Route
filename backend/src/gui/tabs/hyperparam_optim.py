@@ -7,7 +7,8 @@ from PySide6.QtWidgets import (
     QScrollArea, QVBoxLayout, QSizePolicy,
     QLineEdit, QFormLayout, QDoubleSpinBox,
 )
-from backend.src.gui.app_definitions import HOP_METHODS, HOP_METRICS
+from ..styles import START_RED_STYLE
+from ..app_definitions import HOP_METHODS, HOP_METRICS
 from ..components import ClickableHeaderWidget
 
 
@@ -56,38 +57,18 @@ class HyperParamOptimParserTab(QWidget):
         self.verbose_input = QSpinBox(minimum=0, maximum=3, value=2)
         form_layout.addRow(QLabel("Verbose Level (0-3):"), self.verbose_input)
 
-        start_green_style = """
-            QPushButton:checked {
-                background-color: #8B0000;
-                color: white;
-            }
-            QPushButton {
-                background-color: #06402B;
-                color: white;
-            }
-        """
         # --train_best (action='store_true', default=True) -> Checkbox should control False
         self.train_best_check = QPushButton("Train final model with best hyper-parameters")
-        self.train_best_check.setChecked(True)
         self.train_best_check.setCheckable(True)
-        self.train_best_check.setStyleSheet(start_green_style)
+        self.train_best_check.setChecked(True)
+        self.train_best_check.setStyleSheet(START_RED_STYLE)
         form_layout.addRow(QLabel("Train Best Model:"), self.train_best_check)
 
-        start_red_style = """
-            QPushButton:checked {
-                background-color: #06402B;
-                color: white;
-            }
-            QPushButton {
-                background-color: #8B0000;
-                color: white;
-            }
-        """
         # --local_mode
         self.local_mode_check = QPushButton("Run Ray in Local Mode")
         self.local_mode_check.setCheckable(True)
         self.local_mode_check.setChecked(False)
-        self.local_mode_check.setStyleSheet(start_red_style)
+        self.local_mode_check.setStyleSheet(START_RED_STYLE)
         form_layout.addRow(QLabel("Local Mode:"), self.local_mode_check)
         
         # --num_samples

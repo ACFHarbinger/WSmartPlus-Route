@@ -5,7 +5,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QGroupBox, QComboBox,
     QPushButton, QHBoxLayout, QScrollArea,
 )
-from backend.src.gui.app_definitions import OPERATION_MAP, FUNCTION_MAP
+from ...styles import START_RED_STYLE
+from ...app_definitions import OPERATION_MAP, FUNCTION_MAP
 from ...components import ClickableHeaderWidget
 
 
@@ -47,22 +48,12 @@ class FileSystemUpdateTab(QWidget):
         
         # --- Separator and Preview Checkbox ---
         target_layout.addRow(QLabel("<hr>"))
-        start_red_style = """
-            QPushButton:checked {
-                background-color: #06402B;
-                color: white;
-            }
-            QPushButton {
-                background-color: #8B0000;
-                color: white;
-            }
-        """
         
         # --update_preview (action='store_true' -> default False)
         self.preview_check = QPushButton("Preview Update")
-        self.preview_check.setChecked(False)
         self.preview_check.setCheckable(True)
-        self.preview_check.setStyleSheet(start_red_style)
+        self.preview_check.setChecked(False)
+        self.preview_check.setStyleSheet(START_RED_STYLE)
         target_layout.addRow("Verify changes before updating:", self.preview_check)
         
         content_layout.addWidget(target_group)

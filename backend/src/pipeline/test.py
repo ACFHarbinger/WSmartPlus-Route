@@ -13,7 +13,10 @@ from tqdm import tqdm
 from collections import defaultdict
 from multiprocessing.pool import ThreadPool
 from backend.src.utils.arg_parser import parse_params
-from backend.src.utils.log_utils import output_stats, runs_per_policy
+from backend.src.utils.log_utils import (
+    output_stats, runs_per_policy,
+    send_final_output_to_gui
+)
 from backend.src.pipeline.simulator.loader import load_indices
 from backend.src.pipeline.simulator.simulation import (
     single_simulation, sequential_simulations,
@@ -49,7 +52,7 @@ def simulator_testing(opts, data_size, device):
         n_cores = task_count if task_count <= n_cores else n_cores
     else:
         assert n_cores == 0
-        n_cores = task_count if task_count <= mp.cpu_count() else mp.cpu_count()
+        n_cores = task_count if task_count <= mp.cpu_count() - 1 else mp.cpu_count() - 1
 
     if data_size != opts['size']:
         indices = load_indices(opts['bin_idx_file'], opts['n_samples'], opts['size'], data_size, lock)
@@ -187,6 +190,7 @@ def simulator_testing(opts, data_size, device):
     else:
         print(f"Launching {task_count} WSmart Route simulations on a single CPU core...")
         log, log_std, failed_log = sequential_simulations(opts, device, indices, sample_idx_ls, weights_path, lock)
+    send_final_output_to_gui(log, log_std, opts['n_samples'], opts['policies'])
     display_log_metrics(opts['output_dir'], opts['size'], opts['n_samples'], 
         opts['days'], opts['area'], opts['policies'], log, log_std, lock
     )

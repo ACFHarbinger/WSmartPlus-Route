@@ -245,7 +245,7 @@ def process_model_data(coordinates, dist_matrix, device, method, configs,
     if 'model' in configs and configs['model'] in ['tam']:
         model_data['fill_history'] = torch.zeros((1, configs['graph_size'], configs['temporal_horizon']))
 
-    if edge_threshold > 0:
+    if edge_threshold > 0 and edge_threshold < 1:
         if edge_method == 'dist':
             edges = torch.tensor(adj_to_idx(adj_matrix, negative=False)) if adj_matrix is not None \
                     else torch.tensor(get_edge_idx_dist(dist_matrix[1:, 1:], edge_threshold))

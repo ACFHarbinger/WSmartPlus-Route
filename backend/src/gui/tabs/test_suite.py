@@ -99,7 +99,7 @@ class TestSuiteTab(QWidget):
         checkbox_layout.addWidget(self.coverage_check)
 
         # --ff, --failed-first
-        self.ff_check = QCheckBox("Failed First") # Store reference
+        self.ff_check = QCheckBox("Run Failed Tests First") # Store reference
         self.ff_check.setToolTip("Run failed tests first")
         checkbox_layout.addWidget(self.ff_check)
 

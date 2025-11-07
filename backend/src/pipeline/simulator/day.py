@@ -2,6 +2,7 @@ import torch
 import numpy as np
 
 from backend.src.utils.definitions import DAY_METRICS
+from backend.src.utils.log_utils import send_daily_output_to_gui
 from backend.src.utils.functions import move_to
 from backend.src.or_policies import (
     get_route_cost, find_route,
@@ -46,7 +47,7 @@ def get_daily_results(bins, cost, tour, day, new_overflows, sum_lost, coordinate
     return bins, dlog
 
 
-def run_day(graph_size, pol, bins, new_data, coords, run_tsp,
+def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
             overflows, day, model_env, model_ls, n_vehicles, area, 
             waste_type, distpath_tup, current_collection_day, cached, device):
     cost = 0
@@ -172,4 +173,5 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp,
     else:
         raise ValueError("Unknown policy:", policy)
     bins, daily_log = get_daily_results(bins, cost, tour, day, new_overflows, sum_lost, coords)
+    send_daily_output_to_gui(daily_log, pol, sample_id, day)
     return (new_data, coords, bins), (overflows, daily_log, output_dict), cached
