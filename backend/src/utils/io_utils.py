@@ -1,13 +1,13 @@
 import os
-import sys
 import json
 import glob
 import shutil
 import signal
 import zipfile
-import traceback
 import pandas as pd
 import backend.src.utils.definitions as udef
+
+from collections.abc import Iterable
 
 
 def read_output(json_path, policies, lock=None):
@@ -900,3 +900,16 @@ def confirm_proceed(default_no=True, operation_name='update'):
     except KeyboardInterrupt:
         print(f"\nOperation interrupted by user. Defaulting to {'no' if default_no else 'yes'}.")
         return not default_no
+
+
+def compose_dirpath(fun):
+    def inner(home_dir, ndays, nbins, output_dir, area, *args, **kwargs):
+        if not isinstance(nbins, Iterable):
+            dir_path = os.path.join(home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{nbins}")
+            return fun(dir_path, *args, **kwargs)
+
+        dir_paths = []
+        for gs in nbins:
+            dir_paths.append(os.path.join(home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{gs}"))
+        return fun(dir_paths, *args, **kwargs)
+    return inner

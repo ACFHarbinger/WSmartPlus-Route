@@ -82,3 +82,26 @@ SCRIPT_HEADER_STYLE = """
     font-size: 13px; 
     color: #2C3E50;
 """
+
+# Boolean Push Buttons
+START_RED_STYLE = """
+            QPushButton:checked {
+                background-color: #06402B;
+                color: white;
+            }
+            QPushButton {
+                background-color: #8B0000;
+                color: white;
+            }
+        """
+
+START_GREEN_STYLE = """
+    QPushButton:checked {
+        background-color: #8B0000;
+        color: white;
+    }
+    QPushButton {
+        background-color: #06402B;
+        color: white;
+    }
+"""

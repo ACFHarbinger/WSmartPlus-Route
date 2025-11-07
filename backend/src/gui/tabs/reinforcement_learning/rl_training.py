@@ -5,7 +5,8 @@ from PySide6.QtWidgets import (
     QScrollArea, QSizePolicy, QVBoxLayout, 
     QLabel, QLineEdit, QPushButton, QWidget
 )
-from backend.src.gui.app_definitions import BASELINES
+from ...app_definitions import BASELINES
+from ...styles import START_RED_STYLE, START_GREEN_STYLE
 from .rl_base import BaseReinforcementLearningTab
 from ...components import ClickableHeaderWidget
 
@@ -149,44 +150,25 @@ class RLTrainingTab(BaseReinforcementLearningTab):
         self.load_model_optim_container.hide()
         
         # Checkboxes
-        start_red_style = """
-            QPushButton:checked {
-                background-color: #06402B;
-                color: white;
-            }
-            QPushButton {
-                background-color: #8B0000;
-                color: white;
-            }
-        """
         self.widgets['eval_only'] = QPushButton("Evaluation Only")
         self.widgets['eval_only'].setCheckable(True)
-        self.widgets['eval_only'].setStyleSheet(start_red_style)
+        self.widgets['eval_only'].setChecked(False)
+        self.widgets['eval_only'].setStyleSheet(START_RED_STYLE)
         layout.addRow(QLabel("Options:"), self.widgets['eval_only'])
-        
-        start_green_style = """
-            QPushButton:checked {
-                background-color: #8B0000;
-                color: white;
-            }
-            QPushButton {
-                background-color: #06402B;
-                color: white;
-            }
-        """
         self.widgets['no_cuda'] = QPushButton("Use CUDA")
         self.widgets['no_cuda'].setCheckable(True)
-        self.widgets['no_cuda'].setStyleSheet(start_green_style)
+        self.widgets['no_cuda'].setChecked(False)
+        self.widgets['no_cuda'].setStyleSheet(START_GREEN_STYLE)
         layout.addRow("", self.widgets['no_cuda'])
         
         self.widgets['enable_scaler'] = QPushButton("Enable CUDA Scaler")
         self.widgets['enable_scaler'].setCheckable(True)
-        self.widgets['enable_scaler'].setStyleSheet(start_red_style)
+        self.widgets['enable_scaler'].setStyleSheet(START_RED_STYLE)
         layout.addRow("", self.widgets['enable_scaler'])
         
         self.widgets['checkpoint_encoder'] = QPushButton("Checkpoint Encoder (Decrease Memory Usage)")
         self.widgets['checkpoint_encoder'].setCheckable(True)
-        self.widgets['checkpoint_encoder'].setStyleSheet(start_red_style)
+        self.widgets['checkpoint_encoder'].setStyleSheet(START_RED_STYLE)
         layout.addRow("", self.widgets['checkpoint_encoder'])
         
         scroll_widget.setLayout(layout)
@@ -238,4 +220,10 @@ class RLTrainingTab(BaseReinforcementLearningTab):
             elif isinstance(widget, QCheckBox):
                 if widget.isChecked():
                     params[key] = True
+
+        # This part handles boolean flags that might not be QCheckBoxes.
+        params['eval_only'] = self.widgets['eval_only'].isChecked()
+        params['no_cuda'] = self.widgets['no_cuda'].isChecked()
+        params['enable_scaler'] = self.widgets['enable_scaler'].isChecked()
+        params['checkpoint_encoder'] = self.widgets['checkpoint_encoder'].isChecked()
         return params

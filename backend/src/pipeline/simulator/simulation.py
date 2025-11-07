@@ -176,7 +176,7 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
             for day in tqdm(range(start_day, opts['days']+1), disable=opts['no_progress_bar'], desc=desc, 
                             position=tqdm_position+1, dynamic_ncols=True, leave=False, colour=colour):
                 hook.before_day(day)
-                data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], 
+                data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id,
                                                     overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], 
                                                     opts['waste_type'], dist_tup, current_collection_day, cached, device)
                 execution_time = time.process_time() - tic
@@ -280,7 +280,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     dist_tup, adj_matrix = _setup_dist_path_tup(coords, opts['size'], opts['distance_method'], opts['dm_filepath'], 
                                                                 opts['env_file'], opts['gapik_file'], opts['symkey_name'], device,
                                                                 opts['edge_threshold'], opts['edge_method'], indices_ls[sample_id])
-                    if 'am' in policy or "transgcn" in policy:
+                    if 'am' in pol_strip or "transgcn" in pol_strip:
                         model_tup = process_model_data(coords, dist_tup[-1], device, opts['vertex_method'], 
                                                        configs, opts['edge_threshold'], opts['edge_method'], 
                                                        opts['area'], opts['waste_type'], adj_matrix)
@@ -317,7 +317,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                 hook.set_timer(tic)
                 for day in range(start_day, opts['days']+1):
                     hook.before_day(day)
-                    data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], 
+                    data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id, 
                                                         overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], 
                                                         opts['waste_type'], dist_tup, current_collection_day, cached, device)
                     execution_time = time.process_time() - tic

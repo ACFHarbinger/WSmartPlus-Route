@@ -1,22 +1,18 @@
 import os
 import sys
 import json
-import math
 import wandb
 import torch
 import pickle
 import datetime
-import traceback
 import statistics
 import numpy as np
-import seaborn as sns
-import plotly.express as px
 import matplotlib.pyplot as plt
 import backend.src.utils.definitions as udef
 
 from collections import Counter
-from collections.abc import Iterable
-from backend.src.utils.io_utils import read_json
+from backend.src.utils.definitions import DAY_METRICS
+from backend.src.utils.io_utils import read_json, compose_dirpath
 
 
 def log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts):
@@ -337,19 +333,6 @@ def update_log(json_path, new_output, start_id, policies, sort_log=True, lock=No
     return new_logs
 
 
-def compose_dirpath(fun):
-    def inner(home_dir, ndays, nbins, output_dir, area, *args, **kwargs):
-        if not isinstance(nbins, Iterable):
-            dir_path = os.path.join(home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{nbins}")
-            return fun(dir_path, *args, **kwargs)
-
-        dir_paths = []
-        for gs in nbins:
-            dir_paths.append(os.path.join(home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{gs}"))
-        return fun(dir_paths, *args, **kwargs)
-    return inner
-
-
 @compose_dirpath
 def load_log_dict(dir_paths, nsamples, show_incomplete=False, lock=None):
     assert len(dir_paths) == len(nsamples), f"Len of dir_paths and nsamples lists must be equal, not {len(dir_paths)} != {len(nsamples)}"
@@ -371,6 +354,14 @@ def load_log_dict(dir_paths, nsamples, show_incomplete=False, lock=None):
                         print(f'graph {gsize} incomplete runs:')
                     print('-', key, "-", ns - val)
     return logs
+
+
+def log_plot(visualize=False, **kwargs):
+    """Execution function for saving static plots"""
+    kwargs['fig'].savefig(kwargs['fig_filename'], bbox_inches='tight')
+    if visualize: plt.show()
+    plt.close(kwargs['fig'])
+    return
 
 
 @compose_dirpath
@@ -440,116 +431,20 @@ def runs_per_policy(dir_paths, nsamples, policies, print_output=False, lock=None
     return runs_ls
 
 
-@compose_dirpath
-def plot_attention_maps_wrapper(
-    dir_path, attention_dict, model_name, execution_function,
-    layer_idx=0, sample_idx=0, head_idx=0, batch_idx=0, x_labels=None, y_labels=None, **execution_kwargs
-    ):
-    """
-    Plot attention maps as heatmaps for a given layer, head, batch, and simulation sample.
-    
-    Args:
-        dir_path (str): Directory path to save the heatmap image.
-        attention_dict (dict): Dictionary where:
-                              - Keys are model names (str);
-                              - Values are lists of attention data for each sample, where each element is a dictionary containing:
-                                'attention_weights' tensor of shape [num_layers, n_heads, batch_size, graph_size, graph_size].
-        model_name (str): Name of the model to extract attention maps for.
-        execution_function (function): Function that handles the plotting/saving logic.
-        layer_idx (int): Index of the layer to visualize.
-        sample_idx (int): Index of the simulation sample to visualize.
-        head_idx (int): Index of the head to visualize (-1 for average over all heads).
-        batch_idx (int): Index of the data batch to visualize (-1 for average over all batches).
-        x_labels (list, optional): Custom labels for x-axis vertices.
-        y_labels (list, optional): Custom labels for y-axis vertices.
-        **execution_kwargs: Additional arguments to pass to the execution function.
-    
-    Returns:
-        attn_map (np.ndarray): The attention map as a Numpy array.
-    """
-    assert sample_idx >= 0, f"sample_idx {sample_idx} must be a non-negative integer"
-
-    attention_weights = attention_dict[model_name][sample_idx]['attention_weights']
-    assert layer_idx < attention_weights.shape[0], f"layer_idx {layer_idx} exceeds number of layers {attention_weights.shape[0]}"
-    assert head_idx < attention_weights.shape[1], f"head_idx {head_idx} exceeds number of heads {attention_weights.shape[1]}"
-    assert batch_idx < attention_weights.shape[2], f"layer_idx {batch_idx} exceeds batch size {attention_weights.shape[2]}"
-
-    # Extract attention map
-    if head_idx >= 0:
-        if batch_idx >= 0:
-            attn_map = attention_weights[layer_idx, head_idx, batch_idx].cpu().numpy()
-            title = 'Attention Map (Layer {}, Head {}, Batch {})'.format(layer_idx, head_idx, batch_idx)
-            attention_filename = os.path.join(dir_path, 'attention_maps', model_name, f'layer{layer_idx}_head{head_idx}_map{sample_idx}.png')
-        else:
-            attn_map = attention_weights[layer_idx, head_idx, :].mean(dim=0).cpu().numpy() # Average over batches
-            title = 'Attention Map Average Over All Batches (Layer {}, Head {})'.format(layer_idx, head_idx)
-            attention_filename = os.path.join(dir_path, 'attention_maps', model_name, f'layer{layer_idx}_head{head_idx}_map{sample_idx}.png')
-    else:
-        if batch_idx >= 0:
-            attn_map = attention_weights[layer_idx, :, batch_idx].mean(dim=0).cpu().numpy() # Average over heads
-            title = 'Attention Map Average Over All Heads (Layer {}, Batch {})'.format(layer_idx, batch_idx)
-            attention_filename = os.path.join(dir_path, 'attention_maps', model_name, f'layer{layer_idx}_headavg_map{sample_idx}.png')
-        else:
-            attn_map = attention_weights[layer_idx, :, :].mean(dim=(0, 1)).cpu().numpy() # Average over heads and batches
-            title = 'Attention Map Average Over All Heads and Batches (Layer {})'.format(layer_idx)
-            attention_filename = os.path.join(dir_path, 'attention_maps', model_name, f'layer{layer_idx}_headavg_map{sample_idx}.png')
-
-    try:
-        os.makedirs(os.path.dirname(attention_filename), exist_ok=True)
-    except Exception:
-        raise Exception("directories to save attention maps do not exist and could not be created")
-
-    # Dynamically set figure size based on map_size
-    base_vertexsize = 0.5
-    map_size = math.isqrt(attn_map.shape[0] * attn_map.shape[1])
-    min_figsize = 6.0
-    max_figsize = 30.0
-    figsize = min(max(min_figsize, base_vertexsize * map_size), max_figsize)
-    fig = plt.figure(figsize=(figsize, figsize))
-
-    # Adjust annotations and font sizes to scale inversely with map_size
-    max_ticsize = 8
-    max_annotsize = 8
-    annot = True if map_size <= 55 else False  # Disable annotations for large graphs to avoid clutter
-    tick_fontsize = max(max_ticsize, 14 - map_size // 10)
-    annot_fontsize = max(max_annotsize, 12 - map_size // 10)
-    
-    # Plot and/or log attention heatmap
-    plt.title(title)
-    sns.heatmap(attn_map, annot=annot, cmap='viridis', fmt='.2f', cbar=True, annot_kws={'fontsize': annot_fontsize})
-    plt.xlabel('Key Vertices')
-    plt.ylabel('Query Vertices')
-    if x_labels is None: x_labels = [f'Vertex {i}' for i in range(attn_map.shape[0])]
-    if y_labels is None: y_labels = [f'Vertex {i}' for i in range(attn_map.shape[1])]
-    plt.xticks(ticks=range(attn_map.shape[0]), labels=x_labels, rotation=45, fontsize=tick_fontsize)
-    plt.yticks(ticks=range(attn_map.shape[1]), labels=y_labels, rotation=0, fontsize=tick_fontsize)
-    plt.tight_layout()
-    execution_function(
-        plot_target=attn_map,
-        fig=fig,
-        title=title,
-        figsize=figsize,
-        x_labels=x_labels,
-        y_labels=y_labels,
-        fig_filename=attention_filename,
-        **execution_kwargs
-    )
-    return attn_map
+def send_daily_output_to_gui(daily_log, policy, sample_idx, day):
+    json_payload = json.dumps({k: v for k, v in daily_log.items() if k in DAY_METRICS[:-1]})
+    print(f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json_payload}")
+    sys.stdout.flush()
 
 
-def visualize_interactive_plot(**kwargs):
-    """Execution function for interactive visualization"""
-    interactive_fig = px.imshow(kwargs['plot_target'], text_auto='.2f', color_continuous_scale='Viridis', title=kwargs['title'], 
-                                labels={'x': kwargs['x_labels'], 'y': kwargs['y_labels']}, width=kwargs['figsize'], height=kwargs['figsize'])
-    interactive_fig.update_xaxes(tickvals=list(range(len(kwargs['x_labels']))), ticktext=kwargs['x_labels'])
-    interactive_fig.update_yaxes(tickvals=list(range(len(kwargs['y_labels']))), ticktext=kwargs['y_labels'])
-    interactive_fig.show()
-    return
+def send_final_output_to_gui(log, log_std, n_samples, policies):
+    summary_data = {
+        'log': {k: [list(v) if isinstance(v, tuple) else v for v in pol_data] for k, pol_data in log.items()},
+        'log_std': {k: [list(v) if isinstance(v, tuple) else v for v in pol_data] for k, pol_data in log_std.items()},
+        'n_samples': n_samples,
+        'policies': policies
+    }
 
-
-def log_plot(visualize=False, **kwargs):
-    """Execution function for saving static plots"""
-    kwargs['fig'].savefig(kwargs['fig_filename'], bbox_inches='tight')
-    if visualize: plt.show()
-    plt.close(kwargs['fig'])
-    return
+    # Print summary data to stdout
+    print(f"GUI_SUMMARY_LOG_START: {json.dumps(summary_data)}")
+    sys.stdout.flush()

@@ -11,6 +11,7 @@ from backend.src.gui.app_definitions import (
     DISTANCE_MATRIX_METHODS,
     VERTEX_METHODS, EDGE_METHODS
 )
+from ...styles import START_RED_STYLE, START_GREEN_STYLE
 from ...components import ClickableHeaderWidget
 
 
@@ -40,8 +41,7 @@ class TestSimAdvancedTab(QWidget):
         form_layout.addRow(QLabel("<b>System Settings</b>"))
         
         # 2. Maximum CPU Cores and Env Vars File (Add directly to QFormLayout)
-        system_cpu_cores = mp.cpu_count()
-        self.cpu_cores_input = QSpinBox(value=system_cpu_cores, minimum=1, maximum=system_cpu_cores)
+        self.cpu_cores_input = QSpinBox(value=1, minimum=1, maximum=mp.cpu_count()-1)
         form_layout.addRow("Maximum CPU Cores:", self.cpu_cores_input)
 
         self.env_file_input = QLineEdit("vars.env")
@@ -51,40 +51,21 @@ class TestSimAdvancedTab(QWidget):
         flags_container = QWidget()
         system_flags_layout = QHBoxLayout(flags_container) # Use flags_container as parent
         system_flags_layout.setContentsMargins(0, 0, 0, 0) # Tidy up spacing
-        start_red_style = """
-            QPushButton:checked {
-                background-color: #06402B;
-                color: white;
-            }
-            QPushButton {
-                background-color: #8B0000;
-                color: white;
-            }
-        """
-        start_green_style = """
-            QPushButton:checked {
-                background-color: #8B0000;
-                color: white;
-            }
-            QPushButton {
-                background-color: #06402B;
-                color: white;
-            }
-        """
+
         self.server_run_check = QPushButton("Remote Server Execution")
-        self.server_run_check.setChecked(False)
         self.server_run_check.setCheckable(True)
-        self.server_run_check.setStyleSheet(start_red_style)
+        self.server_run_check.setChecked(False)
+        self.server_run_check.setStyleSheet(START_RED_STYLE)
 
         self.no_progress_check = QPushButton("Progress Bar")
-        self.no_progress_check.setChecked(False)
         self.no_progress_check.setCheckable(True)
-        self.no_progress_check.setStyleSheet(start_green_style)
+        self.no_progress_check.setChecked(True)
+        self.no_progress_check.setStyleSheet(START_GREEN_STYLE)
 
         self.resume_check = QPushButton("Resume Testing")
-        self.resume_check.setChecked(False)
         self.resume_check.setCheckable(True)
-        self.resume_check.setStyleSheet(start_red_style)
+        self.resume_check.setChecked(False)
+        self.resume_check.setStyleSheet(START_RED_STYLE)
         
         # Add widgets to the horizontal layout (using addWidget)
         system_flags_layout.addWidget(self.server_run_check)

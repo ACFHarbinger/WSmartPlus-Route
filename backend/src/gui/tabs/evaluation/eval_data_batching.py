@@ -3,6 +3,7 @@ from PySide6.QtWidgets import (
     QFormLayout, QVBoxLayout,
     QScrollArea, QLabel, QWidget,
 )
+from ...styles import START_RED_STYLE, START_GREEN_STYLE
 
 
 class EvalDataBatchingTab(QWidget):
@@ -38,52 +39,33 @@ class EvalDataBatchingTab(QWidget):
         form_layout.addRow("Maximum Calculation Sub-Batch Size:", self.max_calc_batch_size_input)
         
         form_layout.addRow(QLabel("<b>System Flags</b>"))
-        start_red_style = """
-            QPushButton:checked {
-                background-color: #06402B;
-                color: white;
-            }
-            QPushButton {
-                background-color: #8B0000;
-                color: white;
-            }
-        """
-        start_green_style = """
-            QPushButton:checked {
-                background-color: #8B0000;
-                color: white;
-            }
-            QPushButton {
-                background-color: #06402B;
-                color: white;
-            }
-        """
+
         # --no_cuda
         self.no_cuda_check = QPushButton("Use CUDA (Nvidia GPU)")
-        self.no_cuda_check.setChecked(False)
         self.no_cuda_check.setCheckable(True)
-        self.no_cuda_check.setStyleSheet(start_green_style)
+        self.no_cuda_check.setChecked(False)
+        self.no_cuda_check.setStyleSheet(START_GREEN_STYLE)
         form_layout.addRow(QLabel("CUDA (disable for CPU only):"), self.no_cuda_check)
         
         # --no_progress_bar
         self.no_progress_bar_check = QPushButton("Progress Bar")
-        self.no_progress_bar_check.setChecked(False)
         self.no_progress_bar_check.setCheckable(True)
-        self.no_progress_bar_check.setStyleSheet(start_green_style)
+        self.no_progress_bar_check.setChecked(False)
+        self.no_progress_bar_check.setStyleSheet(START_RED_STYLE)
         form_layout.addRow(QLabel("Progress Bar:"), self.no_progress_bar_check)
         
         # --compress_mask
         self.compress_mask_check = QPushButton("Compress Mask")
-        self.compress_mask_check.setChecked(False)
         self.compress_mask_check.setCheckable(True)
-        self.compress_mask_check.setStyleSheet(start_red_style)
+        self.compress_mask_check.setChecked(False)
+        self.compress_mask_check.setStyleSheet(START_RED_STYLE)
         form_layout.addRow(QLabel("Compress Mask:"), self.compress_mask_check)
         
         # --multiprocessing
         self.multiprocessing_check = QPushButton("Use Multiprocessing")
-        self.multiprocessing_check.setChecked(False)
         self.multiprocessing_check.setCheckable(True)
-        self.multiprocessing_check.setStyleSheet(start_red_style)
+        self.multiprocessing_check.setChecked(False)
+        self.multiprocessing_check.setStyleSheet(START_RED_STYLE)
         form_layout.addRow(QLabel("Multiprocessing:"), self.multiprocessing_check)
 
         scroll_area.setWidget(content)

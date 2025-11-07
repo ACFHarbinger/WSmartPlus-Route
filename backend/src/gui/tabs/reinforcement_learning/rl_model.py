@@ -7,6 +7,7 @@ from backend.src.gui.app_definitions import (
     MODELS, ENCODERS, NORMALIZATION_METHODS,
     AGGREGATION_FUNCTIONS, ACTIVATION_FUNCTIONS
 )
+from ...styles import START_RED_STYLE
 from .rl_base import BaseReinforcementLearningTab
 
 
@@ -100,43 +101,22 @@ class RLModelTab(BaseReinforcementLearningTab):
         layout.addRow(QLabel("Attention Heads:"), self.widgets['n_heads'])
         
         # Mask options
-        start_red_style = """
-            QPushButton:checked {
-                background-color: #06402B;
-                color: white;
-            }
-            QPushButton {
-                background-color: #8B0000;
-                color: white;
-            }
-        """
-        start_green_style = """
-            QPushButton:checked {
-                background-color: #8B0000;
-                color: white;
-            }
-            QPushButton {
-                background-color: #06402B;
-                color: white;
-            }
-        """
-
         self.widgets['mask_inner'] = QPushButton("Mask Inner")
-        self.widgets['mask_inner'].setChecked(True)
         self.widgets['mask_inner'].setCheckable(True)
-        self.widgets['mask_inner'].setStyleSheet(start_green_style)
+        self.widgets['mask_inner'].setChecked(True)
+        self.widgets['mask_inner'].setStyleSheet(START_RED_STYLE)
         layout.addRow(QLabel("Masking:"), self.widgets['mask_inner'])
         
         self.widgets['mask_logits'] = QPushButton("Mask Logits")
-        self.widgets['mask_logits'].setChecked(True)
         self.widgets['mask_logits'].setCheckable(True)
-        self.widgets['mask_logits'].setStyleSheet(start_green_style)
+        self.widgets['mask_logits'].setChecked(True)
+        self.widgets['mask_logits'].setStyleSheet(START_RED_STYLE)
         layout.addRow("", self.widgets['mask_logits'])
 
         self.widgets['mask_graph'] = QPushButton("Mask Graph")
-        self.widgets['mask_graph'].setChecked(False)
         self.widgets['mask_graph'].setCheckable(True)
-        self.widgets['mask_graph'].setStyleSheet(start_red_style)
+        self.widgets['mask_graph'].setChecked(False)
+        self.widgets['mask_graph'].setStyleSheet(START_RED_STYLE)
         layout.addRow("", self.widgets['mask_graph'])
         
         scroll_widget.setLayout(layout)
@@ -195,27 +175,8 @@ class RLModelTab(BaseReinforcementLearningTab):
                     # 3. Assign the command-line value to the parameter key
                     params[key] = cli_argument
                 
-            # --- END: QComboBox FIX ---
-
-            elif isinstance(widget, QPushButton):
-                # Handle QPushButton flags (assuming you map the key to the state later)
-                if key in ['mask_inner', 'mask_logits'] and not widget.isChecked():
-                    params[key] = False
-                elif key == 'mask_graph' and widget.isChecked():
-                    params[key] = True
-
-        # Handle the special case where a QPushButton is a flag (like 'mask_graph')
         # This part handles boolean flags that might not be QCheckBoxes.
-        if 'mask_inner' in self.widgets and isinstance(self.widgets['mask_inner'], QPushButton):
-            if not self.widgets['mask_inner'].isChecked():
-                params['mask_inner'] = False
-        
-        if 'mask_logits' in self.widgets and isinstance(self.widgets['mask_logits'], QPushButton):
-            if not self.widgets['mask_logits'].isChecked():
-                params['mask_logits'] = False
-
-        if 'mask_graph' in self.widgets and isinstance(self.widgets['mask_graph'], QPushButton):
-            if self.widgets['mask_graph'].isChecked():
-                params['mask_graph'] = True
-                
+        params['mask_inner'] = self.widgets['mask_inner'].isChecked()
+        params['mask_logits'] = self.widgets['mask_logits'].isChecked()
+        params['mask_graph'] = self.widgets['mask_graph'].isChecked()
         return params
