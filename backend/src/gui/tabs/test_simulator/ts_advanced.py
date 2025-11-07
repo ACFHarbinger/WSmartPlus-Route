@@ -164,13 +164,13 @@ class TestSimAdvancedTab(QWidget):
         key_license_files_layout.setContentsMargins(0, 0, 0, 0)
 
         # 7. Add widgets to the container's layout
-        self.gplic_file_input = QLineEdit("gurobi.lic.enc")
+        self.gplic_file_input = QLineEdit()
         key_license_files_layout.addRow("Gurobi License File:", self.gplic_file_input)
-        self.hexlic_file_input = QLineEdit("hexaly.dat.enc")
+        self.hexlic_file_input = QLineEdit()
         key_license_files_layout.addRow("Hexaly License File:", self.hexlic_file_input)
-        self.gapik_file_input = QLineEdit("google.lic.enc")
+        self.gapik_file_input = QLineEdit()
         key_license_files_layout.addRow("Google API Key File:", self.gapik_file_input)
-        self.symkey_name_input = QLineEdit("skey")
+        self.symkey_name_input = QLineEdit()
         key_license_files_layout.addRow("Cryptographic Key Name:", self.symkey_name_input)
         
         # 8. Add the content container to the main form layout

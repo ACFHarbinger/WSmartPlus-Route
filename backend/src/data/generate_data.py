@@ -164,9 +164,9 @@ if __name__ =="__main__":
         torch.manual_seed(args['seed'])
         generate_datasets(args)
     except Exception as e:
-        print(e)
-        exit_code = 1
         traceback.print_exc(file=sys.stdout)
+        print('\n' + e)
+        exit_code = 1
     finally:
         sys.stdout.flush()
         sys.exit(exit_code)

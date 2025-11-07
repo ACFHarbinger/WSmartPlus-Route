@@ -44,19 +44,16 @@ class ConfigsParser(argparse.ArgumentParser):
             if action.nargs is not None and action.type is not None:
                 opts = action.option_strings
                 idx = next((i for i, x in enumerate(args) if x in opts), None)
-                if idx is not None: #and isinstance(args[idx+1], str):
+                if idx is not None:
                     arg = args[idx+1].split()
                     if len(arg) > 1:
                         args[idx+1:idx+2] = arg
 
         subnamespace = super().parse_args(args)
         parsed_args_dict = vars(subnamespace)
-        
-        # Dictionary comprehension to filter out keys where the value is None
         filtered_args = {
             key: value 
             for key, value in parsed_args_dict.items() 
-            if value is not None
         }
         return filtered_args
     
