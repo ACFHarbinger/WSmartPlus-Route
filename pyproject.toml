@@ -272,3 +272,12 @@ format = "flat"
 [[tool.uv.index]]
 name = "hexaly"
 url = "https://pip.hexaly.com"   
+
+[tool.pyright]
+typeCheckingMode = "off"
+
+[tool.pytest.ini_options]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*", "*Test"]
+python_functions = ["test_*", "*_test"]
+testpaths = "backend/test"
