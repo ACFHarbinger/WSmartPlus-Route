@@ -280,4 +280,4 @@ typeCheckingMode = "off"
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*", "*Test"]
 python_functions = ["test_*", "*_test"]
-testpaths = "backend/test"
+testpaths = "backend/tests"
