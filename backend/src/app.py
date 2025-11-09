@@ -2,9 +2,9 @@ import sys
 import signal
 import threading
 
-from .src.utils.definitions import CTRL_C_TIMEOUT
-from .src.utils.arg_parser import parse_params
-from .src.gui.main_window import MainWindow
+from .utils.definitions import CTRL_C_TIMEOUT
+from .utils.arg_parser import parse_params
+from .gui.main_window import MainWindow
 from PySide6.QtWidgets import QApplication
 
 

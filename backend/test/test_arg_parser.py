@@ -3,7 +3,7 @@ import copy
 import pytest
 
 from unittest.mock import patch
-from backend.src.utils.arg_parser import (
+from ..src.utils.arg_parser import (
     parse_params,
     ConfigsParser, LowercaseAction
 )

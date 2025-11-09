@@ -1,7 +1,7 @@
 import pytest
 
 from unittest.mock import ANY as mocker_ANY # Import ANY and alias it for clearer use
-from backend.src.data.generate_data import generate_datasets
+from ..src.data.generate_data import generate_datasets
 
 
 

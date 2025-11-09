@@ -9,17 +9,17 @@ import pandas as pd
 from multiprocessing import Lock
 from unittest.mock import MagicMock
 from pandas.testing import assert_frame_equal
-from backend.src.pipeline.simulator.bins import Bins
-from backend.src.pipeline.simulator import simulation
-from backend.src.pipeline.simulator.network import compute_distance_matrix, apply_edges
-from backend.src.pipeline.simulator.day import set_daily_waste, get_daily_results, run_day
-from backend.src.pipeline.simulator.checkpoints import checkpoint_manager, CheckpointError
-from backend.src.pipeline.simulator.loader import (
+from ..src.pipeline.simulator.bins import Bins
+from ..src.pipeline.simulator import simulation
+from ..src.pipeline.simulator.network import compute_distance_matrix, apply_edges
+from ..src.pipeline.simulator.day import set_daily_waste, get_daily_results, run_day
+from ..src.pipeline.simulator.checkpoints import checkpoint_manager, CheckpointError
+from ..src.pipeline.simulator.loader import (
     load_simulator_data,
     load_indices, load_depot, 
     load_area_and_waste_type_params
 )
-from backend.src.pipeline.simulator.processor import (
+from ..src.pipeline.simulator.processor import (
     process_data, process_coordinates,
     sort_dataframe, setup_df, haversine_distance,
 )
