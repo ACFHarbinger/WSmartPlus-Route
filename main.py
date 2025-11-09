@@ -12,7 +12,7 @@ import random
 import traceback
 import numpy as np
 
-from backend.tests import PyTestRunner
+from backend.test import PyTestRunner
 from backend.src.file_system import (
     perform_cryptographic_operations,
     update_file_system_entries, 
@@ -27,7 +27,7 @@ from backend.src.pipeline.train import (
 )
 from backend.src.data.generate_data import generate_datasets
 from backend.src.utils.arg_parser import parse_params
-from backend.app_launch import run_app_gui
+from backend.src.app import run_app_gui
 
 
 def run_test_suite(opts):
