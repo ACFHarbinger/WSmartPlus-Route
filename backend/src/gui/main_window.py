@@ -91,6 +91,60 @@ class MainWindow(QWidget):
             QTabBar::tab:hover {{
                 color: {TEXT_COLOR};
             }}
+            QScrollBar:vertical {{
+                border: 1px solid {BORDER_COLOR};
+                background: {CONTAINER_BG_COLOR}; /* White track background */
+                width: 12px; 
+                /* Margin reserves space for the arrow buttons */
+                margin: 12px 0 12px 0; 
+            }}
+
+            QScrollBar::handle:vertical {{
+                background: {TEXT_COLOR}; /* Dark Slate/Black for the handle */
+                min-height: 20px;
+                border-radius: 6px; 
+            }}
+            
+            /* Style for the buttons holding the arrows (top and bottom) */
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+                border: none;
+                background: {TEXT_COLOR}; /* Black background for the arrow buttons */
+                height: 12px;
+                subcontrol-origin: margin;
+            }}
+            
+            /* Position and shape the top button */
+            QScrollBar::sub-line:vertical {{ 
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                subcontrol-position: top; 
+            }}
+            
+            /* Position and shape the bottom button */
+            QScrollBar::add-line:vertical {{
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                subcontrol-position: bottom; 
+            }}
+
+            /* Explicitly define the Up Arrow (White arrow on Black button) */
+            QScrollBar::up-arrow:vertical {{
+                image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDhMOCAxMkgxNkwxMiA4WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+);
+                width: 8px; 
+                height: 8px;
+            }}
+
+            /* Explicitly define the Down Arrow (White arrow on Black button) */
+            QScrollBar::down-arrow:vertical {{
+                image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDE2TDE2IDEySDhMMTIgMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2ZyA+);
+                width: 8px; 
+                height: 8px;
+            }}
+            
+            /* The pages (area between handle and arrow buttons) should be transparent */
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
+                background: none;
+            }}
             
             /* General Button Styling */
             QPushButton {{
@@ -395,7 +449,6 @@ class MainWindow(QWidget):
                 continue
 
             if isinstance(value, bool):
-                print(key, ':', value)
                 if key in ['mask_inner', 'mask_logits'] and value is False:
                     cmd_parts.append(f"--no_{re.sub(regex, '_', key)}")
                 elif value is True:
