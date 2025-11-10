@@ -10,7 +10,7 @@ class TestSimPolicyParamsTab(QWidget):
     def __init__(self):
         super().__init__()
         layout = QFormLayout(self)
-        layout.addRow(QLabel("<b>Model Parameters</b>"))
+        layout.addRow(QLabel("<b>Attention Model Parameters</b>"))
         
         # 1. --decode_type
         self.decode_type_combo = QComboBox(currentText='Greedy')
