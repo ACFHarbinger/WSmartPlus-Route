@@ -805,6 +805,51 @@ def mock_policy_dependencies(mocker):
         return_value=50.0 
     )
 
+
+@pytest.fixture(autouse=True)
+def mock_lookahead_aux(mocker):
+    """Mocks the internal look_ahead_aux dependencies."""
+    
+    # Mocks must be autospec=True to be bound correctly to the look_ahead module import
+    mocker.patch(
+        'backend.src.or_policies.look_ahead.should_bin_be_collected',
+        autospec=True,
+        side_effect=lambda fill, rate: fill + rate >= 100
+    )
+    mocker.patch(
+        'backend.src.or_policies.look_ahead.update_fill_levels_after_first_collection',
+        autospec=True,
+        # Returns fill levels after collected bins are reset
+        return_value=np.array([0.0, 10.0, 30.0, 40.0, 50.0]) 
+    )
+    mocker.patch(
+        'backend.src.or_policies.look_ahead.get_next_collection_day',
+        autospec=True,
+        return_value=5 # Mocked next overflow day
+    )
+    mocker.patch(
+        'backend.src.or_policies.look_ahead.add_bins_to_collect',
+        autospec=True,
+        return_value=[0, 1, 2] # Mocked final bin list
+    )
+
+
+@pytest.fixture
+def mock_optimizer_data(mock_policy_common_data):
+    """Provides data structures needed for VRPP policies."""
+    data = mock_policy_common_data
+    
+    # Mock predicted values (media + param * std)
+    media = np.full(data['n_bins'], 10.0)
+    std = np.full(data['n_bins'], 1.0)
+    
+    return {
+        "bins": data['bins_waste'], # [10.0, 95.0, 30.0, 85.0, 50.0]
+        "distances": data['distance_matrix'].tolist(), # Use float matrix
+        "media": media,
+        "std": std
+    }
+
 # ============================================================================
 # Configuration Fixtures
 # ============================================================================
