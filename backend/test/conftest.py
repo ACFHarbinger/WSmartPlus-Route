@@ -835,6 +835,26 @@ def mock_lookahead_aux(mocker):
 
 
 @pytest.fixture
+def mock_vrpp_inputs(mock_policy_common_data):
+    """Provides data structures needed for VRPP policies."""
+    data = mock_policy_common_data
+    
+    # Mock predicted values (media + param * std)
+    media = np.full(data['n_bins'], 10.0)
+    std = np.full(data['n_bins'], 1.0)
+    
+    return {
+        "bins": data['bins_waste'], # [10.0, 95.0, 30.0, 85.0, 50.0]
+        "distances": data['distance_matrix'].tolist(), # Use float matrix
+        "distance_matrix": data['distance_matrix'],
+        "media": media,
+        "std": std,
+        "must_go_bins": [1, 3], # Bin indices (0-indexed)
+        "binsids": list(range(data['n_bins'])), # [0, 1, 2, 3, 4]
+        }
+
+
+@pytest.fixture
 def mock_optimizer_data(mock_policy_common_data):
     """Provides data structures needed for VRPP policies."""
     data = mock_policy_common_data

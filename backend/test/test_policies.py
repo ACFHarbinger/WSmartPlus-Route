@@ -4,8 +4,8 @@ import numpy as np
 from unittest.mock import patch, MagicMock
 from backend.src.pipeline.simulator.day import run_day
 from backend.src.or_policies.regular import policy_regular
-from backend.src.or_policies.look_ahead import policy_lookahead
 from backend.src.or_policies.last_minute import policy_last_minute, policy_last_minute_and_path
+from backend.src.or_policies.look_ahead import policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp
 
 
 # --- Test Class for `run_day` Policy Dispatcher ---
@@ -427,6 +427,107 @@ class TestLookaheadPolicyLogic:
         patch('backend.src.or_policies.look_ahead.get_next_collection_day').assert_called_once()
         patch('backend.src.or_policies.look_ahead.add_bins_to_collect').assert_called_once()
 
+
+class TestAdvancedLookaheadPolicies:
+    """
+    Unit tests for VRPP policies utilizing Gurobi/Hexaly or Simulated Annealing logic.
+    """
+    @pytest.mark.unit
+    def test_policy_lookahead_vrpp(self, mocker, mock_vrpp_inputs):
+        """
+        Tests the execution flow and parameter passing for the Gurobi VRPP lookahead policy.
+        """
+        # --- Arrange ---
+        # Mock the Gurobi optimizer wrapper to return a predictable route result
+        mock_vrpp_solver = mocker.patch(
+            'backend.src.or_policies.gurobi_optimizer.policy_gurobi_vrpp',
+            return_value=[[0, 1, 3, 0]] # Route of bin indices (0-indexed)
+        )
+        
+        # Mock look_ahead_aux dependencies required by lookahead_vrpp
+        mock_get_fill_history = mocker.patch('backend.src.or_policies.look_ahead.Bins.get_fill_history', return_value=np.zeros((5, 5)))
+        mock_env = MagicMock()
+
+        values = {
+            'R': 0.16, 'C': 1.0, 'E': 2.5, 'B': 21.0, 
+            'vehicle_capacity': 4000.0, 'time_limit': 600,
+        }
+        
+        # --- Act ---
+        routes, profit, cost = policy_lookahead_vrpp(
+            mock_vrpp_inputs['fh'] if 'fh' in mock_vrpp_inputs else None, # fh (fill history) is placeholder here
+            mock_vrpp_inputs['binsids'],
+            mock_vrpp_inputs['must_go_bins'],
+            mock_vrpp_inputs['distance_matrix'],
+            values,
+            number_vehicles=1,
+            env=mock_env
+        )
+        
+        # --- Assert ---
+        # 1. Check that the Gurobi solver was called with the correct parameters
+        mock_vrpp_solver.assert_called_once()
+        
+        # Check param: bins, distancematrix, env, param(dummy), media, std, waste, area, n_vehicles
+        call_args = mock_vrpp_solver.call_args[0]
+        assert np.array_equal(call_args[0], mock_vrpp_inputs['bins']) # bins
+        assert call_args[8] == 1 # number_vehicles
+        
+        # 2. Check the output route format
+        # The solver returns [0, 1, 3, 0] (indices), single_vehicle.find_route is mocked
+        # The test relies on find_route being called to convert TSP to the final tour.
+        assert routes == [0, 1, 3, 0]
+        assert profit == 100 # Mocked profit (not returned by this mocked flow)
+        assert cost == 50.0 # Mocked cost from get_route_cost
+
+    @pytest.mark.unit
+    def test_policy_lookahead_sans(self, mocker, mock_vrpp_inputs):
+        """
+        Tests the execution flow and mocking requirements for the Simulated Annealing policy.
+        """
+        # --- Arrange ---
+        
+        # Mock internal data processing helpers
+        mocker.patch('backend.src.or_policies.look_ahead.create_dataframe_from_matrix', return_value=MagicMock())
+        mocker.patch('backend.src.or_policies.look_ahead.convert_to_dict', return_value=MagicMock())
+        mocker.patch('backend.src.or_policies.look_ahead.compute_initial_solution', return_value=[])
+        
+        # Mock the core Simulated Annealing engine
+        mock_annealing = mocker.patch(
+            'backend.src.or_policies.look_ahead.improved_simulated_annealing',
+            return_value=([0, 1, 2, 0], 100.0, 50.0, 1000.0, 100.0) # routes, profit, dist, kg, revenue
+        )
+        
+        # Mock the external loader (as in the policy itself)
+        mocker.patch('backend.src.pipeline.simulator.loader.load_area_and_waste_type_params', 
+                     return_value=(4000, 0.16, 21.0, 1.0, 2.5))
+
+        # Parameters for Simulated Annealing
+        params = (75, 50000, 0.7, 0.01) # T_init, iterations, alpha, T_min
+        values = {
+            'R': 0.16, 'C': 1.0, 'E': 2.5, 'B': 21.0, 
+            'vehicle_capacity': 4000.0, 'time_limit': 60
+        }
+        
+        # --- Act ---
+        routes, profit, distance = policy_lookahead_sans(
+            data=np.array([[10, 20]]),
+            bins_coordinates=MagicMock(),
+            distance_matrix=mock_vrpp_inputs['distance_matrix'],
+            params=params,
+            bins_cannot_removed=[],
+            values=values,
+            ids_principais=mock_vrpp_inputs['binsids']
+        )
+        
+        # --- Assert ---
+        # 1. Check that the core SA algorithm was executed
+        mock_annealing.assert_called_once()
+        
+        # 2. Check the output route format
+        assert routes == [0, 1, 2, 0]
+        assert profit == 100.0
+        assert distance == 50.0 # From mocked get_route_cost (50.0)
 
 
 class TestGurobiOptimizer:
