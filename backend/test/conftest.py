@@ -586,44 +586,45 @@ def mock_load_dependencies(mocker):
 
 @pytest.fixture
 def mock_run_day_deps(mocker):
-    """Mocks all dependencies for the run_day function."""
-    # 1. Mock the 'bins' object
-    # These tests primarily interact with the bins' filling logic.
+    """
+    Mocks all dependencies for the run_day function, including policy 
+    and GUI logging mocks injected as part of the fixture.
+    """
+    # 1. Mock the 'bins' object (Keep existing logic)
     mock_bins = MagicMock()
-    mock_bins.is_stochastic.return_value = False # Default, can be changed in test
+    mock_bins.is_stochastic.return_value = False 
     mock_bins.loadFilling.return_value = (0, 'mock_fill', 'mock_sum_lost')
     mock_bins.stochasticFilling.return_value = (0, 'mock_stoch_fill', 'mock_stoch_sum_lost')
-    
-    # Add attributes needed just for the 'policy_regular' branch
-    # (used by the filling tests)
     mock_bins.c = np.array([10, 20])
     mock_bins.n = 2
+    mock_bins.collect.return_value = (100.0, 2) # Added mock for collect
 
-    # 2. Mock the other required arguments as simple placeholders
+    # 2. Mock other required arguments (Keep existing logic)
     mock_new_data = pd.DataFrame() 
     mock_coords = pd.DataFrame()
     mock_model_env = MagicMock()
-    mock_model_ls = (MagicMock(), MagicMock(), MagicMock()) # Placeholder tuple
-    
-    # distpath_tup (distance_matrix, paths_between_states, dm_tensor, distancesC)
+    mock_model_ls = (MagicMock(), MagicMock(), MagicMock())
     mock_dist_tup = (
         MagicMock(), # distance_matrix
         MagicMock(), # paths_between_states
         MagicMock(), # dm_tensor
-        MagicMock()  # distancesC (needed by policy_regular)
+        MagicMock()  # distancesC 
     )
 
-    # 3. Mock the functions that are actually called
+    # 3. Patch the functions that are actually called (CRUCIAL CHANGE)
     
-    # Mock 'policy_regular' and 'get_route_cost' because the first two
-    # tests use 'policy_regular3' as their policy to run.
-    mocker.patch('backend.src.or_policies.regular.policy_regular', return_value=['reg_tour'])
+    # Mock policy_regular to return a tour (to prevent errors in get_daily_results)
+    mock_policy_regular = mocker.patch(
+        'backend.src.or_policies.regular.policy_regular', return_value=[0, 1, 2, 0] 
+    )
+    # Mock send_daily_output_to_gui to prevent the final crash
+    mock_send_output = mocker.patch(
+        'backend.src.pipeline.simulator.day.send_daily_output_to_gui', autospec=True
+    )
+    # Mock get_route_cost (used by policy_regular flow)
     mocker.patch('backend.src.or_policies.single_vehicle.get_route_cost', return_value=50.0)
 
-    # Mock 'get_daily_results' as it's always called at the end
-    mocker.patch('backend.src.pipeline.simulator.day.get_daily_results', return_value=(mock_bins, 'daily_log'))
-
-    # 4. Return the dependencies in the dictionary format the tests expect
+    # 4. Return the dependencies, including the new mocks
     return {
         'bins': mock_bins,
         'model_env': mock_model_env,
@@ -631,7 +632,9 @@ def mock_run_day_deps(mocker):
         'distpath_tup': mock_dist_tup,
         'new_data': mock_new_data,
         'coords': mock_coords,
-        'mocks': {} # Not needed for this test subset
+        # INJECTING the mock objects into the dictionary:
+        'mock_policy_regular': mock_policy_regular,
+        'mock_send_output': mock_send_output,
     }
 
 # ============================================================================

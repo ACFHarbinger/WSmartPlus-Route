@@ -7,19 +7,19 @@ import numpy as np
 import pandas as pd
 
 from multiprocessing import Lock
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from pandas.testing import assert_frame_equal
-from ..src.pipeline.simulator.bins import Bins
-from ..src.pipeline.simulator import simulation
-from ..src.pipeline.simulator.network import compute_distance_matrix, apply_edges
-from ..src.pipeline.simulator.day import set_daily_waste, get_daily_results, run_day
-from ..src.pipeline.simulator.checkpoints import checkpoint_manager, CheckpointError
-from ..src.pipeline.simulator.loader import (
+from backend.src.pipeline.simulator.bins import Bins
+from backend.src.pipeline.simulator import simulation
+from backend.src.pipeline.simulator.network import compute_distance_matrix, apply_edges
+from backend.src.pipeline.simulator.day import set_daily_waste, get_daily_results, run_day
+from backend.src.pipeline.simulator.checkpoints import checkpoint_manager, CheckpointError
+from backend.src.pipeline.simulator.loader import (
     load_simulator_data,
     load_indices, load_depot, 
     load_area_and_waste_type_params
 )
-from ..src.pipeline.simulator.processor import (
+from backend.src.pipeline.simulator.processor import (
     process_data, process_coordinates,
     sort_dataframe, setup_df, haversine_distance,
 )
@@ -616,7 +616,7 @@ class TestNetwork:
         dm_file = dm_dir / "test_dm.csv"
         
         # Perfect CSV: header = IDs, first column = IDs
-        dm_file.write_text("ID,1,2\n1,0,10\n2,10,0")
+        dm_file.write_text("-1,1,2\n1,0,10\n2,10,0")
         
         coords = pd.DataFrame({'ID': [1, 2], 'Lat': [0.0, 0.0], 'Lng': [0.0, 0.0]})
         
@@ -657,7 +657,8 @@ class TestDay:
     @pytest.mark.unit
     def test_set_daily_waste(self):
         """Test the function that sets daily waste in model_data."""
-        model_data = {'fill_history': torch.tensor([])}
+        # Use a list for fill_history just to satisfy the 'if' condition
+        model_data = {'fill_history': torch.tensor([[]])} 
         waste = np.array([10, 20, 30])
         fill = np.array([5, 15, 25])
         device = torch.device('cpu')
@@ -667,7 +668,7 @@ class TestDay:
         assert 'waste' in model_data
         assert 'current_fill' in model_data
         assert torch.is_tensor(model_data['waste'])
-        # Check scaling (divided by 100)
+        # Check scaling (divided by 100) and unsqueeze(0)
         assert torch.allclose(model_data['waste'], torch.tensor([[0.1, 0.2, 0.3]]))
         assert torch.allclose(model_data['current_fill'], torch.tensor([[0.05, 0.15, 0.25]]))
 
@@ -675,13 +676,15 @@ class TestDay:
     def test_get_daily_results_with_tour(self, mocker):
         """Test processing daily results when a tour is performed."""
         mock_bins = mocker.MagicMock()
-        mock_bins.collect.return_value = (150.0, 2) # 150kg collected, 2 bins
+        mock_bins.collect.return_value = (150.0, 2) # (collected, ncol)
         mock_bins.travel = 0
         
-        coordinates = pd.DataFrame({'ID': [0, 101, 102]}) # IDs 0, 1, 2 -> Sim IDs 0, 101, 102
-        coordinates.index = [0, 1, 2] # Index
+        # Create coordinates DataFrame indexed by simulation ID (0, 1, 2)
+        # and containing the real external ID (0, 101, 102)
+        coordinates = pd.DataFrame({'ID': [0, 101, 102]}) 
+        coordinates.index = [0, 1, 2] 
         
-        tour = [0, 1, 2, 0] # Bin indices 1 and 2
+        tour = [0, 1, 2, 0] # Bin indices 1 and 2 are collected
         cost = 50.0 # km
         day = 3
         new_overflows = 5
@@ -689,7 +692,8 @@ class TestDay:
         
         bins_out, dlog = get_daily_results(mock_bins, cost, tour, day, new_overflows, sum_lost, coordinates)
         
-        assert bins_out.travel == 50.0
+        # Assertions
+        assert bins_out.travel == 50.0 # Should be updated by cost
         assert dlog['day'] == 3
         assert dlog['overflows'] == 5
         assert dlog['kg_lost'] == 10.0
@@ -697,18 +701,19 @@ class TestDay:
         assert dlog['ncol'] == 2
         assert dlog['km'] == 50.0
         assert dlog['kg/km'] == 3.0 # 150 / 50
-        assert dlog['tour'] == [0, 101, 102, 0] # Should map to real IDs
+        assert dlog['cost'] == (5 - 150 + 50) # new_overflows - collected + cost = -95
+        assert dlog['tour'] == [0, 101, 102, 0] # Should map simulation IDs (1, 2) to real IDs (101, 102)
 
     @pytest.mark.unit
     def test_get_daily_results_no_tour(self, mocker):
-        """Test processing daily results when no tour is performed."""
+        """Test processing daily results when no tour is performed (len(tour) <= 2)."""
         mock_bins = mocker.MagicMock()
         mock_bins.collect.return_value = (0, 0)
-        mock_bins.travel = 100 # Existing travel
+        mock_bins.travel = 100 # Existing travel (should remain unchanged)
         
         coordinates = pd.DataFrame({'ID': [0, 101, 102]})
         
-        tour = [0] # No tour
+        tour = [0] # Only depot, length is 1
         cost = 0.0 # km
         day = 4
         new_overflows = 8
@@ -716,6 +721,7 @@ class TestDay:
         
         bins_out, dlog = get_daily_results(mock_bins, cost, tour, day, new_overflows, sum_lost, coordinates)
         
+        # Assertions
         assert bins_out.travel == 100 # Unchanged
         assert dlog['day'] == 4
         assert dlog['overflows'] == 8
@@ -724,14 +730,20 @@ class TestDay:
         assert dlog['ncol'] == 0
         assert dlog['km'] == 0
         assert dlog['kg/km'] == 0
+        assert dlog['cost'] == 8 # equals new_overflows
         assert dlog['tour'] == [0]
-    
+
     @pytest.mark.unit
     def test_stochastic_filling(self, mock_run_day_deps):
         """Test that stochasticFilling is called when bins are stochastic."""
         mock_run_day_deps['bins'].is_stochastic.return_value = True
         
-        # Use a policy that runs quickly, e.g., policy_regular
+        # Mock the filling return: (new_overflows, fill, sum_lost)
+        mock_run_day_deps['bins'].stochasticFilling.return_value = (10, [0.5], 5)
+
+        # Access the mocks from the dictionary
+        mock_send_output = mock_run_day_deps['mock_send_output']
+
         run_day(
             graph_size=3, pol='policy_regular3_gamma1', bins=mock_run_day_deps['bins'], 
             new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
@@ -744,12 +756,19 @@ class TestDay:
         
         mock_run_day_deps['bins'].stochasticFilling.assert_called_once()
         mock_run_day_deps['bins'].loadFilling.assert_not_called()
+        mock_send_output.assert_called_once() # Ensure final call happened without crash
 
     @pytest.mark.unit
     def test_load_filling(self, mock_run_day_deps):
         """Test that loadFilling is called when bins are not stochastic."""
         mock_run_day_deps['bins'].is_stochastic.return_value = False
         
+        # Mock the filling return: (new_overflows, fill, sum_lost)
+        mock_run_day_deps['bins'].loadFilling.return_value = (8, [0.4], 3)
+        
+        # Access the mocks from the dictionary
+        mock_send_output = mock_run_day_deps['mock_send_output']
+
         run_day(
             graph_size=3, pol='policy_regular3_gamma1', bins=mock_run_day_deps['bins'], 
             new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
@@ -760,8 +779,9 @@ class TestDay:
             current_collection_day=1, cached=None, device='cpu'
         )
         
-        mock_run_day_deps['bins'].loadFilling.assert_called_once_with(4) # day - 1
+        mock_run_day_deps['bins'].loadFilling.assert_called_once_with(4) # day - 1 = 4
         mock_run_day_deps['bins'].stochasticFilling.assert_not_called()
+        mock_send_output.assert_called_once() # Ensure final call happened without crash
 
     @pytest.mark.unit
     def test_policy_last_minute_and_path_invalid_cf(self, mock_run_day_deps):
