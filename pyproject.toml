@@ -286,8 +286,134 @@ url = "https://pip.hexaly.com"
 [tool.pyright]
 typeCheckingMode = "off"
 
+# =================================================================
+# PYTEST CONFIGURATION (from pytest.ini)
+# =================================================================
+
 [tool.pytest.ini_options]
+# Test discovery
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*", "*Test"]
 python_functions = ["test_*", "*_test"]
-testpaths = "backend/test"
+testpaths = "backend/test" # Original pyproject.toml value
+# testpaths = "test" # Overwritten by pytest.ini value
+
+# Console output options (addopts converted to list format)
+addopts = [
+    "-v",               # Verbose output
+    "-ra",              # Show summary of all test outcomes
+    "--showlocals",     # Show local variables in tracebacks
+    "--strict-markers", # Fail on unknown markers
+    #"--strict-config",  # Fail on unknown config options
+    "--tb=short",       # Shorter traceback format
+    "--color=yes",      # Color output
+    "--show-capture=all", # Show captured output on failure
+    "--disable-warnings", # Disable warnings to reduce noise
+]
+
+# Markers for categorizing tests (converted to key=value pairs)
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "fast: marks tests as fast running",
+    "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests",
+    "validation: marks tests that validate argument combinations",
+    "edge_case: marks tests for edge cases",
+    "parametrize: marks parametrized tests",
+    "train: marks tests related to training command",
+    "mrl_train: marks tests related to meta-reinforcement learning training",
+    "hp_optim: marks tests related to hyperparameter optimization",
+    "eval: marks tests related to evaluation command",
+    "test_sim: marks tests related to simulator test command",
+    "gen_data: marks tests related to data generation command",
+    "file_system: marks tests related to file system operations",
+    "gui: marks tests related to GUI operations",
+    "test_suite: marks tests related to test suite command",
+    "arg_parser: marks tests for argument parser functionality",
+    "cli_args: marks tests for command line interface arguments",
+    "model: marks tests for model functionality",
+    "data: marks tests for data processing",
+    "skip: skip this test",
+    "skipif: skip this test if condition is true",
+    "xfail: expected to fail",
+]
+
+# Filter warnings (converted to list)
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::UserWarning",
+    "ignore::FutureWarning",
+    "ignore:.*urllib3.*:UserWarning",
+    "ignore:.*distutils.*:DeprecationWarning",
+    "error::ResourceWarning",
+]
+
+# Logging configuration
+log_level = "INFO"
+log_format = "%(asctime)s [%(levelname)8s] %(name)s: %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(name)s: %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+# JUnit XML output
+junit_suite_name = "wsmart_route"
+junit_logging = "all"
+junit_duration_report = "call"
+
+# Custom configuration (from [pytest] section in .ini)
+wsr_test_mode = true
+wsr_temp_dir = "./temp_test"
+
+
+# =================================================================
+# COVERAGE CONFIGURATION (from [tool:coverage] and [coverage:*])
+# =================================================================
+[tool.coverage.run]
+source = [
+    "backend"
+]
+omit = [
+    "*/test/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+    "*/.*/*",
+    "setup.py",
+    "conftest.py",
+]
+branch = true
+data_file = ".coverage"
+
+[tool.coverage.report]
+fail_under = 0
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "def __str__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstract",
+    "logger\\.",
+    "log\\.",
+    "pass",
+    "from typing import",
+    "import typing",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+title = "wsmart_route Test Coverage Report"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.coverage.json]
+output = "coverage.json"

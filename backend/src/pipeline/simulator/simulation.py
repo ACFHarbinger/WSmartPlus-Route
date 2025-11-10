@@ -123,14 +123,13 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
         saved_state, last_day = checkpoint.load_state()
 
     if 'am' in pol_strip or "transgcn" in pol_strip:
-            model_env, configs = setup_model(policy, model_weights_path, device, _lock, opts['temperature'], opts['decode_type'])
-            model_tup = process_model_data(coords, dist_tup[-1], device, opts['vertex_method'], 
-                                           configs, opts['edge_threshold'], opts['edge_method'], 
-                                           opts['area'], opts['waste_type'], adj_matrix)
+        model_env, configs = setup_model(policy, model_weights_path, device, _lock, opts['temperature'], opts['decode_type'])
     elif "vrpp" in pol_strip:
         model_env = setup_env(policy, opts['server_run'], opts['gplic_file'], opts['symkey_name'], opts['env_file'])
         model_tup = (None, None)
+        configs = None
     else:
+        configs = None
         model_env = None
         model_tup = (None, None)
 
@@ -144,7 +143,10 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
         dist_tup, adj_matrix = _setup_dist_path_tup(coords, opts['size'], opts['distance_method'], opts['dm_filepath'], 
                                                     opts['env_file'], opts['gapik_file'], opts['symkey_name'], device, 
                                                     opts['edge_threshold'], opts['edge_method'], indices)
-
+        if 'am' in pol_strip or "transgcn" in pol_strip:
+            model_tup = process_model_data(coords, dist_tup[-1], device, opts['vertex_method'], 
+                                        configs, opts['edge_threshold'], opts['edge_method'], 
+                                        opts['area'], opts['waste_type'], adj_matrix)
         if "gamma" in data_dist:
             bins = Bins(opts['size'], data_dir, data_dist[:-1], area=opts['area'], waste_file=opts['waste_filepath'])
             gamma_option = int(policy[-1]) - 1
@@ -168,7 +170,6 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
     desc = f"{policy} #{sample_id}"
     colour = TQDM_COLOURS[pol_id % len(TQDM_COLOURS)]
     tqdm_position = os.getpid() % n_cores + 1
-    tic = time.process_time() + run_time
     tic = time.process_time() + run_time
     try:
         with checkpoint_manager(checkpoint, opts['checkpoint_days'], _get_current_state) as hook:
