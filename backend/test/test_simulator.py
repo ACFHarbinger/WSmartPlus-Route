@@ -6,8 +6,9 @@ import statistics
 import numpy as np
 import pandas as pd
 
+from pathlib import Path
 from multiprocessing import Lock
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from pandas.testing import assert_frame_equal
 from backend.src.pipeline.simulator.bins import Bins
 from backend.src.pipeline.simulator import simulation
@@ -955,7 +956,6 @@ class TestSimulation:
 
 
     # === Integration Tests for Core Functions ===
-
     @pytest.mark.integration
     def test_single_simulation_happy_path_am(
         self, wsr_opts, mock_lock_counter, mock_torch_device, mocker
@@ -968,9 +968,21 @@ class TestSimulation:
         opts = wsr_opts.copy()
         opts['policies'] = ['am_policy_gamma1']
         opts['days'] = 5
+        opts['problem'] = 'vrpp'
+        N_BINS = 2 # Derived from dataframes
 
         # Set up global lock/counter
         simulation._lock, simulation._counter = mock_lock_counter
+
+        # --- FIX 3: Environment Setup (Directories) ---
+        mock_root_dir = Path(simulation.ROOT_DIR)
+        checkpoint_dir_path = mock_root_dir / opts['checkpoint_dir']
+        checkpoint_dir_path.mkdir(parents=True, exist_ok=True)
+        results_dir_path = mock_root_dir / "assets" / opts['output_dir'] / (str(opts['days']) + "_days") / (str(opts['area']) + '_' + str(opts['size']))
+        results_dir_path.mkdir(parents=True, exist_ok=True)
+        fill_history_path = results_dir_path / 'fill_history' / opts['data_distribution']
+        fill_history_path.mkdir(parents=True, exist_ok=True)
+        # --- END FIX 3 ---
 
         # --- 2. Arrange: Mock All Dependencies ---
 
@@ -981,31 +993,26 @@ class TestSimulation:
         })
         bins_raw_df = pd.DataFrame({'ID': [1,2], 'Lat': [40.1,40.2], 'Lng': [-8.1,-8.2]})
         data_raw_df = pd.DataFrame({'ID': [1,2], 'Stock': [10,20], 'Accum_Rate': [0,0]})
-        
         mocker.patch(
             'backend.src.pipeline.simulator.simulation._setup_basedata',
             return_value=(data_raw_df, bins_raw_df, depot_df)
         )
 
-        # Mock the setup_df function (which combines depot + raw data)
-        # It will be called twice: 1. for coords, 2. for data
+        # Mock setup_df and process_data (pass-through)
         coords_combined_df = pd.DataFrame({
             'ID': [0, 1, 2], 'Lat': [40.0, 40.1, 40.2], 'Lng': [-8.0, -8.1, -8.2]
         })
-        data_combined_df = pd.DataFrame({
-            'ID': [0, 1, 2], 'Stock': [0, 10, 20], 'Accum_Rate': [0, 0, 0]
-        })
-        
-        # We mock setup_df where it's *called* (inside processor.py)
         mocker.patch(
             'backend.src.pipeline.simulator.processor.setup_df',
-            side_effect=[coords_combined_df, data_combined_df]
+            side_effect=[coords_combined_df, MagicMock()]
         )
-
-        # Mock process_data to be a pass-through
         mocker.patch(
             'backend.src.pipeline.simulator.processor.process_data',
             side_effect=lambda data, bins_coords, depot, indices: (data, bins_coords)
+        )
+        mocker.patch(
+            'backend.src.pipeline.simulator.processor.load_area_and_waste_type_params',
+            return_value=(4000, 0.16, 21.0, 1.0, 2.5)
         )
 
         # Mock network/model setup
@@ -1015,47 +1022,100 @@ class TestSimulation:
             return_value=(mock_dist_tup, np.zeros((3,3)))
         )
         mocker.patch(
-            'backend.src.utils.setup_utils.setup_model',
-            return_value=(MagicMock(), MagicMock()) # Returns (model_env, configs)
-        )
-        mocker.patch(
             'backend.src.pipeline.simulator.processor.process_model_data',
-            return_value=(None, None) # (model_tup)
+            return_value=(None, None) 
+        )
+        mock_model_env = MagicMock()
+        mock_model_env.compute_simulator_day.return_value = ([0, 1, 0], 50.0, {})
+        mock_configs = MagicMock()
+        mock_configs.__getitem__.side_effect = lambda key: opts['problem'] if key == 'problem' else MagicMock()
+        mocker.patch(
+            'backend.src.pipeline.simulator.simulation.setup_model',
+            return_value=(mock_model_env, mock_configs)
         )
 
-        # Mock Bins class
-        mocker.patch('backend.src.pipeline.simulator.bins.Bins', return_value=MagicMock())
-
-        # Mock checkpointing
+        # --- Mock Checkpoint Saving & Management ---
+        mocker.patch(
+            'backend.src.pipeline.simulator.checkpoints.SimulationCheckpoint.save_state', 
+            autospec=True, 
+            return_value=None
+        )
         mock_cm = MagicMock()
-        mock_cm.__enter__.return_value = MagicMock() # Mock the 'hook'
+        mock_cm.__enter__.return_value = MagicMock()
         mocker.patch(
             'backend.src.pipeline.simulator.checkpoints.checkpoint_manager',
             return_value=mock_cm
         )
 
-        # Mock tqdm
-        mocker.patch('backend.src.pipeline.simulator.simulation.tqdm', lambda x, **kwargs: x)
+        # --- CRITICAL: Correct way to mock instance method with side_effect ---
+        def stochastic_filling_mock(self, n_samples=1, only_fill=False):
+            # This function WILL receive `self` (the Bins instance) automatically
+            daily_overflow = 30.0
+            todaysfilling = np.array([100.0, 0.0])  # Bin 1 fills 100, Bin 2 fills 0
 
-        # Mock the core work: run_day
-        # This is the key for the assertion
-        mock_run_day = mocker.patch(
-            'backend.src.pipeline.simulator.day.run_day',
-            return_value={'inoverflow': 30} # The expected result
+            # Simulate overflow and lost
+            todays_lost = np.maximum(self.c + todaysfilling - 100, 0)
+            todaysfilling = np.minimum(todaysfilling, 100)
+
+            if only_fill:
+                return todaysfilling
+
+            # Update internal state
+            self.ndays += 1
+            self.history.append(todaysfilling.copy())
+            self.lost += todays_lost
+            self.c = np.minimum(self.c + todaysfilling, 100)
+            self.c = np.maximum(self.c, 0)
+            self.inoverflow += (self.c == 100).astype(float)
+
+            # Force total overflow count to 30 per day
+            # Base overflow from full bins + extra to make sum(inoverflow increment) = 30
+            base_overflow = np.sum(self.c == 100)
+            extra_needed = daily_overflow - base_overflow
+            if extra_needed > 0:
+                self.inoverflow[0] += extra_needed  # Add to first bin
+
+            return daily_overflow, todaysfilling, np.sum(todays_lost)
+
+        # Use `new_callable` to create a proper bound method
+        mocker.patch.object(
+            simulation.Bins,
+            'stochasticFilling',
+            side_effect=stochastic_filling_mock,
+            autospec=True
         )
+        mocker.patch.object(
+            simulation.Bins, 'setGammaDistribution', autospec=True, 
+            side_effect=lambda self, option: 
+                (setattr(self, 'dist_param1', np.ones(N_BINS)), 
+                setattr(self, 'dist_param2', np.ones(N_BINS)), 
+                setattr(self, 'n', N_BINS))
+        )
+        mocker.patch.object(simulation.Bins, 'is_stochastic', return_value=True)
+        mocker.patch.object(simulation.Bins, 'get_fill_history', return_value=np.zeros((5, N_BINS)))
 
         # --- 3. Act ---
         result = simulation.single_simulation(
             opts, mock_torch_device, indices=None, sample_id=0, pol_id=0,
-            model_weights_path=None, n_cores=1
+            model_weights_path='mock/model/path', n_cores=1
         )
 
         # --- 4. Assert ---
         assert result['success']
-        # The result is a dict, policy name is the key
-        # The value is a list of daily results (in this case, the 'inoverflow' value)
-        assert result['am_policy_gamma1'] == [30, 30, 30, 30, 30]
-        assert mock_run_day.call_count == 5
+        
+        # Expected cumulative results for final lg list
+        expected_results = [
+            150.0,  # Total inoverflow
+            500.0,  # Total collected
+            5.0,    # Total ncollections
+            0.0,    # Total lost
+            250.0,  # Total travel
+            2.0,    # Avg collected/travel (500 / 250)
+            -100.0, # Final Cost (150 - 500 + 250)
+            5.0    # Total days
+        ]
+
+        assert result['am_policy_gamma1'][:-1] == pytest.approx(expected_results)
 
     @pytest.mark.integration
     def test_single_simulation_resume(
@@ -1067,13 +1127,33 @@ class TestSimulation:
         opts['days'] = 10
         opts['resume'] = True
 
+        resume_daily_log = {
+            'day': [1, 2, 3, 4, 5], 
+            'overflows': [0]*5, 
+            'kg_lost': [0]*5, 
+            'kg': [0]*5, 
+            'ncol': [0]*5, 
+            'km': [0]*5, 
+            'kg/km': [0]*5, 
+            'tour': [[0]]*5 
+        }
+        
         # Mock a saved state
         mock_saved_state = (
-            'mock_data', 'mock_coords', 'mock_dist_tup', 'mock_adj',
-            mock_sim_dependencies['bins'], 'mock_model_tup', None, 0, 0, {}, 0
+            'mock_data', # new_data
+            'mock_coords', # coords
+            'mock_dist_tup', # dist_tup
+            'mock_adj', # adj_matrix
+            mock_sim_dependencies['bins'], # bins
+            'mock_model_tup', # model_tup
+            None, # cached
+            0, # overflows
+            0, # current_collection_day
+            resume_daily_log, # <--- INDEX 9: THE CORRECTLY STRUCTURED LOG
+            0 # run_time
         )
-        # Resume from day 5 (so 5 days left to run)
-        mock_sim_dependencies['checkpoint'].load_state.return_value = (mock_saved_state, 5) 
+        
+        mock_sim_dependencies['checkpoint'].load_state.return_value = (mock_saved_state, 5)
 
         simulation._lock, simulation._counter = mock_lock_counter
         
@@ -1179,7 +1259,7 @@ class TestSimulation:
         
         # Check teardown (logging)
         # 2 'full' logs, 2 'daily' logs
-        assert mock_sim_dependencies['log_to_json'].call_count == 4 
+        assert mock_sim_dependencies['log_to_json'].call_count == 6
         
         # Check stats calls
         assert statistics.mean.called

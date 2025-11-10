@@ -7,6 +7,7 @@ that can be used across all test files.
 import os
 import sys
 import torch
+import shutil
 import pytest
 import tempfile
 import numpy as np
@@ -14,11 +15,9 @@ import pandas as pd
 
 from multiprocessing import Lock, Value
 from pathlib import Path
-from contextlib import nullcontext
 from unittest.mock import MagicMock 
 from backend.src.pipeline.simulator.bins import Bins
 from backend.src.pipeline.simulator import simulation
-from backend.src.pipeline.simulator.checkpoints import SimulationCheckpoint
 
 # Add project root to Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -200,7 +199,71 @@ def wsr_opts(tmp_path):
         'data_distribution': 'gamma',
         'n_samples': 1,
         'seed': 42,
-        'problem': 'cvrp',
+        'problem': 'vrpp',
+    }
+
+# --- Fixtures for Policy Unit Tests ---
+@pytest.fixture
+def policy_deps(mocker):
+    """
+    Provides a comprehensive set of mocks for unit-testing individual policy functions.
+    This is different from conftest.py's mock_run_day_deps, which mocks all
+    dependencies for the `run_day` function itself.
+    """
+    
+    # 1. Mock common data (5 bins + 1 depot)
+    # Bins 1-5 (indices 0-4)
+    bins_waste = np.array([10.0, 95.0, 30.0, 85.0, 50.0]) 
+    
+    # Distances (Depot=0, Bins=1-5)
+    distancesC = np.array([
+        [0, 10, 10, 15, 20, 15], # Depot 0
+        [10, 0, 5, 10, 15, 10], # Bin 1
+        [10, 5, 0, 10, 15, 10], # Bin 2
+        [15, 10, 10, 0, 5, 5],  # Bin 3
+        [20, 15, 15, 5, 0, 5],  # Bin 4
+        [15, 10, 10, 5, 5, 0]   # Bin 5
+    ], dtype=np.int32)
+    
+    # Paths for policy_last_minute_and_path (Nodes 0-5)
+    paths_between_states = [
+        [[]], # 0
+        [[1, 0], [], [1, 2], [1, 5, 3], [1, 5, 4], [1, 5]], # 1
+        [[2, 0], [2, 1], [], [2, 1, 5, 3], [2, 1, 5, 4], [2, 1, 5]], # 2
+        [[3, 5, 0], [3, 5, 1], [3, 5, 1, 2], [], [3, 4], [3, 5]], # 3
+        [[4, 5, 0], [4, 5, 1], [4, 5, 1, 2], [4, 3], [], [4, 5]], # 4
+        [[5, 0], [5, 1], [5, 1, 2], [5, 3], [5, 4], []]  # 5
+    ]
+    
+    # 2. Mock dependent functions
+    mock_load_params = mocker.patch(
+        # This function is imported into last_minute, regular, and day
+        'backend.src.pipeline.simulator.loader.load_area_and_waste_type_params',
+        return_value=(4000, 0.16, 21.0, 1.0, 2.5) # Q, R, B, C, V
+    )
+    
+    # Mock TSP solver (used by last_minute and regular)
+    mock_find_route = mocker.patch(
+        'backend.src.or_policies.single_vehicle.find_route', 
+        return_value=[0, 1, 3, 0] # Default mock tour
+    )
+    
+    # Mock multi-tour splitter
+    mock_get_multi_tour = mocker.patch(
+        'backend.src.or_policies.single_vehicle.get_multi_tour',
+        side_effect=lambda tour, *args: tour # Pass-through
+    )
+
+    return {
+        "n_bins": 5,
+        "bins_waste": bins_waste,
+        "distancesC": distancesC,
+        "paths_between_states": paths_between_states,
+        "mocks": {
+            "load_params": mock_load_params,
+            "find_route": mock_find_route,
+            "get_multi_tour": mock_get_multi_tour
+        }
     }
 
 # ============================================================================
@@ -456,6 +519,7 @@ def mock_bins_instance(mocker):
     mock_bins.lost = np.array([5, 5])
     mock_bins.travel = 50.0
     mock_bins.ndays = 10
+    mock_bins.n = 2
     mock_bins.get_fill_history.return_value = np.array([[10, 20], [30, 40]])
     return mock_bins
 
@@ -471,7 +535,7 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     
     # 2. Mock loader functions
     mock_depot = pd.DataFrame({'ID': [0], 'Lat': [40], 'Lng': [-8]})
-    mock_data = pd.DataFrame({'ID': [1, 2], 'Stock': [10, 20]})
+    mock_data = pd.DataFrame({'ID': [1, 2], 'Stock': [10, 20], 'Accum_Rate': [0.1, 0.2]})
     mock_coords = pd.DataFrame({'ID': [1, 2], 'Lat': [40.1, 40.2], 'Lng': [-8.1, -8.2]})
     mocker.patch('backend.src.pipeline.simulator.simulation.load_depot', return_value=mock_depot)
     mocker.patch('backend.src.pipeline.simulator.simulation.load_simulator_data', 
@@ -501,17 +565,21 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     mocker.patch('backend.src.pipeline.simulator.simulation.Bins', return_value=mock_bins_instance)
 
     # 6. Mock setup functions
-    mocker.patch('backend.src.pipeline.simulator.simulation.setup_model', 
-                 return_value=('mock_model_env', 'mock_configs'))
-    mocker.patch('backend.src.pipeline.simulator.simulation.setup_env', 
+    mocker.patch(
+        'backend.src.pipeline.simulator.simulation.setup_model',
+        return_value=(MagicMock(), MagicMock()) 
+    )
+    mocker.patch('backend.src.utils.setup_utils.setup_env', 
                  return_value='mock_or_env')
 
     # 7. Mock day function
     mock_dlog = {'day': 1, 'overflows': 0, 'kg_lost': 0, 'kg': 0, 'ncol': 0, 'km': 0, 'kg/km': 0, 'tour': [0]}
     mock_data_ls = (mock_proc_data, mock_proc_coords, mock_bins_instance)
     mock_output_ls = (0, mock_dlog, {}) # overflows, dlog, output_dict
-    mocker.patch('backend.src.pipeline.simulator.simulation.run_day', 
-                 return_value=(mock_data_ls, mock_output_ls, None)) # data_ls, output_ls, cached
+    mock_run_day = mocker.patch( # CAPTURE the mock object here
+        'backend.src.pipeline.simulator.simulation.run_day', 
+        return_value=(mock_data_ls, mock_output_ls, None)
+    )
 
     # 8. Mock checkpointing
     mock_cp_instance = mocker.MagicMock()
@@ -521,29 +589,67 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     
     # Mock the context manager and its hook
     mock_hook = mocker.MagicMock()
-    mock_hook.day = 0
+    mock_cm = mocker.MagicMock()
+    mock_cm.__enter__.return_value = mock_hook # Yield the hook
     mocker.patch('backend.src.pipeline.simulator.simulation.checkpoint_manager', 
-                 return_value=nullcontext(mock_hook)) # Use nullcontext to just yield the hook
-    mocker.patch('backend.src.pipeline.simulator.simulation.CheckpointHook', 
-                 return_value=mock_hook)
+                return_value=mock_cm)
 
     # 9. Mock utilities
     mocker.patch('backend.src.pipeline.simulator.simulation.log_to_json')
     mocker.patch('backend.src.pipeline.simulator.simulation.output_stats',
                  return_value=({}, {})) # mock_log, mock_log_std
     mocker.patch('backend.src.pipeline.simulator.simulation.save_matrix_to_excel')
-    mocker.patch('backend.src.pipeline.simulator.simulation.tqdm', side_effect=lambda x, **kwargs: x)
     mocker.patch('backend.src.pipeline.simulator.simulation.time.process_time', return_value=1.0)
     mocker.patch('os.makedirs', new_callable=lambda: lambda *args, **kwargs: None)
     mocker.patch('pandas.DataFrame.to_excel')
     mocker.patch('statistics.mean', return_value=1.0)
     mocker.patch('statistics.stdev', return_value=0.1)
 
+    mock_tqdm_instance = mocker.MagicMock()
+    mock_tqdm_instance.update.return_value = None
+    mock_tqdm_instance.close.return_value = None
+
+    def mock_tqdm_factory(*args, **kwargs):
+        """
+        Returns a mock instance that either iterates over the input (if it's an iterable) 
+        or just returns itself (if it's an int/total count).
+        """
+        if args and len(args) > 0:
+            iterable = args[0]
+        else:
+            iterable = []
+
+        mock_instance = mocker.MagicMock()
+        mock_instance.update.return_value = None
+        mock_instance.close.return_value = None
+        
+        # Crucial check: Only make the mock iterable if the input argument is actually iterable (e.g., a range or list).
+        if isinstance(iterable, (range, list, tuple)):
+            # Configure the mock to yield the values from the actual iterable
+            mock_instance.__iter__.return_value = iter(iterable)
+        else:
+            # If it's an integer (like opts['days'] = 5), we assume it's the total count for a manual bar.
+            # MagicMock's default __iter__ behavior is fine for a non-loop bar, or we explicitly remove it.
+            # Since MagicMock often fails as an iterator if __iter__ isn't set, we just skip setting the return_value.
+            pass
+
+        # Configure as a context manager (if used in 'with')
+        mock_instance.__enter__.return_value = mock_instance
+        mock_instance.__exit__.return_value = False
+        
+        return mock_instance
+
+    mocker.patch(
+        'backend.src.pipeline.simulator.simulation.tqdm', 
+        side_effect=mock_tqdm_factory, # Use side_effect to dynamically return the iterable mock
+        autospec=True
+    )
+
     # Return key mocks for modification in tests
     return {
         'checkpoint': mock_cp_instance,
         'hook': mock_hook,
-        'run_day': simulation.run_day,
+        'run_day': mock_run_day,
         'log_to_json': simulation.log_to_json,
         'save_excel': simulation.save_matrix_to_excel,
         'bins': mock_bins_instance,
@@ -600,8 +706,16 @@ def mock_run_day_deps(mocker):
     mock_bins.collect.return_value = (100.0, 2) # Added mock for collect
 
     # 2. Mock other required arguments (Keep existing logic)
-    mock_new_data = pd.DataFrame() 
-    mock_coords = pd.DataFrame()
+    mock_new_data = pd.DataFrame({
+        'ID': [1, 2], 
+        'Stock': [0, 0], 
+        'Accum_Rate': [0, 0]
+    })
+    mock_coords = pd.DataFrame({
+        'ID': [1, 2],
+        'Lat': [40.1, 40.2],
+        'Lng': [-8.1, -8.2]
+    })
     mock_model_env = MagicMock()
     mock_model_ls = (MagicMock(), MagicMock(), MagicMock())
     mock_dist_tup = (
@@ -610,7 +724,7 @@ def mock_run_day_deps(mocker):
         MagicMock(), # dm_tensor
         MagicMock()  # distancesC 
     )
-
+    
     # 3. Patch the functions that are actually called (CRUCIAL CHANGE)
     
     # Mock policy_regular to return a tour (to prevent errors in get_daily_results)
@@ -632,10 +746,64 @@ def mock_run_day_deps(mocker):
         'distpath_tup': mock_dist_tup,
         'new_data': mock_new_data,
         'coords': mock_coords,
-        # INJECTING the mock objects into the dictionary:
         'mock_policy_regular': mock_policy_regular,
         'mock_send_output': mock_send_output,
     }
+
+
+@pytest.fixture
+def mock_policy_common_data():
+    """Provides common data structures (distances, waste, paths) for policy unit tests."""
+    # 5 bins + 1 depot (node 0)
+    distancesC = np.array([
+        [0, 10, 10, 15, 20, 15], # Depot 0
+        [10, 0, 5, 10, 15, 10], # Bin 1 (idx 1)
+        [10, 5, 0, 10, 15, 10], # Bin 2 (idx 2)
+        [15, 10, 10, 0, 5, 5],  # Bin 3 (idx 3)
+        [20, 15, 15, 5, 0, 5],  # Bin 4 (idx 4)
+        [15, 10, 10, 5, 5, 0]   # Bin 5 (idx 5)
+    ], dtype=np.int32)
+    
+    # Fill levels for bins 1-5 (indices 0-4)
+    bins_waste = np.array([10.0, 95.0, 30.0, 85.0, 50.0])
+    
+    # Mock paths for 'last_minute_and_path' testing (full 6x6 node structure)
+    paths_between_states = [
+        [[]] * 6, 
+        [[]] * 6, 
+        [[2, 0], [2, 1], [2], [2, 1, 5, 3], [2, 1, 5, 4], [2, 1, 5]], # Example paths
+        [[]] * 6,
+        [[]] * 6,
+        [[]] * 6,
+    ]
+    
+    return {
+        "n_bins": 5,
+        "bins_waste": bins_waste,
+        "distancesC": distancesC,
+        "distance_matrix": distancesC.astype(float),
+        "paths_between_states": paths_between_states
+    }
+
+
+@pytest.fixture(autouse=True)
+def mock_policy_dependencies(mocker):
+    """Mocks common policy dependencies (loader, solver) for unit tests."""
+    # Mock TSP solver (used by last_minute)
+    mocker.patch(
+        'backend.src.or_policies.single_vehicle.find_route', 
+        return_value=[0, 1, 3, 0] # Default mock tour for 2 bins
+    )
+    # Mock multi-tour splitter
+    mocker.patch(
+        'backend.src.or_policies.single_vehicle.get_multi_tour',
+        side_effect=lambda tour, *args: tour # Pass-through
+    )
+    # Mock distance matrix used by single_vehicle helpers
+    mocker.patch(
+        'backend.src.or_policies.single_vehicle.get_route_cost',
+        return_value=50.0 
+    )
 
 # ============================================================================
 # Configuration Fixtures
@@ -670,3 +838,12 @@ def disable_wandb():
         os.environ.pop('WANDB_MODE', None)
     else:
         os.environ['WANDB_MODE'] = original_wandb_mode
+
+
+@pytest.fixture(scope="session", autouse=True)
+def cleanup_test_root(request):
+    def finalizer():
+        path_to_clean = Path("assets/test_output")
+        if path_to_clean.exists():
+            shutil.rmtree(path_to_clean)
+    request.addfinalizer(finalizer)
