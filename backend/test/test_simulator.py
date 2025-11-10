@@ -735,7 +735,8 @@ class TestDay:
         run_day(
             graph_size=3, pol='policy_regular3_gamma1', bins=mock_run_day_deps['bins'], 
             new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
-            run_tsp=True, overflows=0, day=1, model_env=mock_run_day_deps['model_env'], 
+            run_tsp=True, sample_id=0, overflows=0, day=1, 
+            model_env=mock_run_day_deps['model_env'], 
             model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='test_area', 
             waste_type='test_waste', distpath_tup=mock_run_day_deps['distpath_tup'], 
             current_collection_day=1, cached=None, device='cpu'
@@ -752,7 +753,8 @@ class TestDay:
         run_day(
             graph_size=3, pol='policy_regular3_gamma1', bins=mock_run_day_deps['bins'], 
             new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
-            run_tsp=True, overflows=0, day=5, model_env=mock_run_day_deps['model_env'], 
+            run_tsp=True, sample_id=0, overflows=0, day=5, 
+            model_env=mock_run_day_deps['model_env'], 
             model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='test_area', 
             waste_type='test_waste', distpath_tup=mock_run_day_deps['distpath_tup'], 
             current_collection_day=1, cached=None, device='cpu'
@@ -768,7 +770,8 @@ class TestDay:
             run_day(
                 graph_size=3, pol='policy_last_minute_and_path60_gamma1', bins=mock_run_day_deps['bins'], 
                 new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
-                run_tsp=True, overflows=0, day=1, model_env=mock_run_day_deps['model_env'], 
+                run_tsp=True, sample_id=0, overflows=0, day=1, 
+                model_env=mock_run_day_deps['model_env'], 
                 model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='test_area', 
                 waste_type='test_waste', distpath_tup=mock_run_day_deps['distpath_tup'], 
                 current_collection_day=1, cached=None, device='cpu'
@@ -781,7 +784,8 @@ class TestDay:
             run_day(
                 graph_size=3, pol='policy_regular4_gamma1', bins=mock_run_day_deps['bins'], 
                 new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
-                run_tsp=True, overflows=0, day=1, model_env=mock_run_day_deps['model_env'], 
+                run_tsp=True, sample_id=0, overflows=0, day=1, 
+                model_env=mock_run_day_deps['model_env'], 
                 model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='test_area', 
                 waste_type='test_waste', distpath_tup=mock_run_day_deps['distpath_tup'], 
                 current_collection_day=1, cached=None, device='cpu'
@@ -794,7 +798,8 @@ class TestDay:
             run_day(
                 graph_size=3, pol='policy_look_ahead_z_gamma1', bins=mock_run_day_deps['bins'], 
                 new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
-                run_tsp=True, overflows=0, day=1, model_env=mock_run_day_deps['model_env'], 
+                run_tsp=True, sample_id=0, overflows=0, day=1, 
+                model_env=mock_run_day_deps['model_env'], 
                 model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='test_area', 
                 waste_type='test_waste', distpath_tup=mock_run_day_deps['distpath_tup'], 
                 current_collection_day=1, cached=None, device='cpu'
@@ -807,7 +812,8 @@ class TestDay:
             run_day(
                 graph_size=3, pol='this_policy_does_not_exist_gamma1', bins=mock_run_day_deps['bins'], 
                 new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
-                run_tsp=True, overflows=0, day=1, model_env=mock_run_day_deps['model_env'], 
+                run_tsp=True, sample_id=0, overflows=0, day=1, 
+                model_env=mock_run_day_deps['model_env'], 
                 model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='test_area', 
                 waste_type='test_waste', distpath_tup=mock_run_day_deps['distpath_tup'], 
                 current_collection_day=1, cached=None, device='cpu'

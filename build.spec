@@ -1,62 +1,97 @@
-# -*- mode: python ; coding: utf-8 -*-
+# -- mode: python ; coding: utf-8 --
 
-import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)
+# To build: pyinstaller app.spec
 
-block_cipher = None
+import PySide6
+import os
+
+pyside_path = os.path.dirname(PySide6.__file__)
+
+# pathex=['.'] means it looks in the current directory (where app.spec is)
+
+pathex=['/backend']
 
 a = Analysis(
-    ['main.py'],
-    pathex=[],
+    ['__main__.py'],
+    pathex=['/backend'],
     binaries=[],
     datas=[
         # Include data files
         ('data/wsr_simulator/*', 'data'),
         ('assets/model_weights/*', 'model_weights'),
         ('assets/logs/*', 'logs'),
-        ('utils/*', 'utils'),
-        ('env/wsr', '.'),
     ],
     hiddenimports=[
-        # Add any hidden imports here
-        'torch', 'numpy', 'argparse', 'unittest.mock',
-        'utils.arg_parser', 'utils.functions', 'utils.definitions',
+        # Core modules PyInstaller often needs for PySide6/subprocess interactions
+        'PySide6.QtSvg',
+        'PySide6.QtXml',
+
+        # Other modules
+        'torch', 'numpy', 'argparse',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[
         # Exclude unnecessary packages to reduce size
-        'tkinter', 'test', 'pytest', 'matplotlib.tests', 'numpy.tests',
-        'scipy.tests', 'pandas.tests', 'torch.test', 'PIL.tests',
+        'tkinter', 'test', 'pytest', 'matplotlib.tests', 'numpy.tests', 
+        'onnxscript', 'pysqlite2', 'MySQLdb', 'psycopg2', 'expecttest',
+        'scipy.tests', 'pandas.tests', 'torch.test', 'PIL.tests', 'torchaudio',
+        'hypothesis', 'torch.onnx._internal.fx.passes', 'importlib_resources.trees'
     ],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
     noarchive=False,
+    optimize=0,
+    cipher=None,
+    key=None,
+    collect_all=[],
+    collect_submodules=[],
+    collect_data=[(pyside_path, 'PySide6')], # Include PySide6 data globally
+    collect_entrypoints=[],
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    runtime_clean_pkgname=[],
 )
 
 # Enable large file support
-a.archivename = 'wsmart_route'  # This helps with large files
+a.archivename = 'WSmartRoute'  # This helps with large files
 
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+a.datas += Tree(os.path.join(pyside_path, 'Qt', 'plugins', 'platforms'), prefix='PySide6/Qt/plugins/platforms')
+
+pyz = PYZ(a.pure, a.zipped_data,
+    cipher=None
+)
+
 
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     [],
-    exclude_binaries=True,  # This can help with size issues
-    name='wsmart_route',
+    name='WSmartRouteApp', # Name of the executable file
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,  # Enable compression
+    upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,
+    console=False, # Use 'False' for a GUI application (no command line window)
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    asarchive=True,  # Important: Use archive mode for large applications
+)
+
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='WSmartRoute' # Name of the final folder/bundle
 )

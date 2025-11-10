@@ -50,7 +50,7 @@ SUCCESS_BUTTON_STYLE = """
 
 SECONDARY_BUTTON_STYLE = """
     QPushButton {
-        background-color: #E74C3C; /* Red */
+        background-color: #FF8C00; /* Orange */
         color: white;
         font-weight: 600;
         border: none;
@@ -58,7 +58,7 @@ SECONDARY_BUTTON_STYLE = """
         border-radius: 5px;
     }
     QPushButton:hover {
-        background-color: #C0392B; /* Darker Red */
+        background-color: #E67E00; /* Darker Orange */
     }
 """
 
