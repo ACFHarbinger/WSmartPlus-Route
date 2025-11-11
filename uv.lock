@@ -5987,7 +5987,7 @@ wheels = [
 
 [[package]]
 name = "wsmart-route"
-version = "1.1.0"
+version = "1.0.0"
 source = { virtual = "." }
 dependencies = [
     { name = "absl-py" },
@@ -6237,6 +6237,13 @@ dependencies = [
     { name = "zstandard" },
 ]
 
+[package.optional-dependencies]
+mlor = [
+    { name = "gurobipy" },
+    { name = "hexaly" },
+    { name = "torch-scatter" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "black" },
@@ -6248,11 +6255,6 @@ dev = [
     { name = "pytest" },
     { name = "pytest-mock" },
     { name = "ruff" },
-]
-mlor = [
-    { name = "gurobipy" },
-    { name = "hexaly" },
-    { name = "torch-scatter" },
 ]
 
 [package.metadata]
@@ -6329,9 +6331,11 @@ requires-dist = [
     { name = "gpustat", specifier = "==1.1.1" },
     { name = "greenlet", specifier = "==3.2.4" },
     { name = "grpcio", specifier = "==1.48.2" },
+    { name = "gurobipy", marker = "extra == 'mlor'", specifier = "==11.0.3" },
     { name = "gymnasium", specifier = "==0.28.1" },
     { name = "h11", specifier = "==0.16.0" },
     { name = "h2", specifier = "==4.2.0" },
+    { name = "hexaly", marker = "extra == 'mlor'", specifier = "==14.0.20251008" },
     { name = "hpack", specifier = "==4.1.0" },
     { name = "httpcore", specifier = "==1.0.9" },
     { name = "httptools", specifier = "==0.6.4" },
@@ -6471,6 +6475,7 @@ requires-dist = [
     { name = "toolz", specifier = "==1.0.0" },
     { name = "torch", specifier = "==2.2.2" },
     { name = "torch-geometric", specifier = "==2.6.1" },
+    { name = "torch-scatter", marker = "extra == 'mlor'", specifier = "==2.1.2" },
     { name = "torch-tb-profiler", specifier = "==0.4.3" },
     { name = "torchaudio", specifier = "==2.2.2" },
     { name = "torchvision", specifier = "==0.17.2" },
@@ -6503,6 +6508,7 @@ requires-dist = [
     { name = "zipp", marker = "python_full_version < '3.10'", specifier = "==3.23.0" },
     { name = "zstandard", specifier = "==0.23.0" },
 ]
+provides-extras = ["mlor"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -6515,11 +6521,6 @@ dev = [
     { name = "pytest", specifier = "==8.4.2" },
     { name = "pytest-mock", specifier = "==3.15.1" },
     { name = "ruff", specifier = ">=0.14.3" },
-]
-mlor = [
-    { name = "gurobipy", specifier = "==11.0.3" },
-    { name = "hexaly", specifier = "==14.0.20251008" },
-    { name = "torch-scatter", specifier = "==2.1.2" },
 ]
 
 [[package]]

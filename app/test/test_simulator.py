@@ -41,7 +41,7 @@ class TestBins:
     @pytest.mark.unit
     def test_bins_init_emp(self, mocker, tmp_path):
         """Test initialization with 'emp' distribution, mocking the grid."""
-        mocker.patch('backend.src.pipeline.simulator.bins.OldGridBase', autospec=True)
+        mocker.patch('app.src.pipeline.simulator.bins.OldGridBase', autospec=True)
         bins = Bins(n=5, data_dir=str(tmp_path), sample_dist="emp", area="test_area")
         assert bins.distribution == "emp"
         assert bins.grid is not None
@@ -121,17 +121,22 @@ class TestCheckpoints:
         """Test SimulationCheckpoint initialization."""
         assert basic_checkpoint.policy == "test_policy"
         assert basic_checkpoint.sample_id == 1
-        assert str(basic_checkpoint.checkpoint_dir).endswith("temp")
-        assert str(basic_checkpoint.output_dir).endswith("results/temp")
+        assert Path(basic_checkpoint.checkpoint_dir).name == "temp"
+        assert Path(basic_checkpoint.output_dir).name == "temp"
+        assert Path(basic_checkpoint.output_dir).parent.name == "results"
 
     @pytest.mark.unit
     def test_get_checkpoint_file(self, basic_checkpoint):
         """Test the generation of checkpoint filenames."""
         fname = basic_checkpoint.get_checkpoint_file(day=5)
-        assert fname.endswith("temp/checkpoint_test_policy_1_day5.pkl")
+        
+        assert Path(fname).name == "checkpoint_test_policy_1_day5.pkl"
+        assert Path(fname).parent.name == "temp"
         
         fname_end = basic_checkpoint.get_checkpoint_file(day=10, end_simulation=True)
-        assert fname_end.endswith("results/temp/checkpoint_test_policy_1_day10.pkl")
+        assert Path(fname_end).name == "checkpoint_test_policy_1_day10.pkl"
+        assert Path(fname_end).parent.name == "temp"
+        assert Path(fname_end).parent.parent.name == "results"
 
     @pytest.mark.unit
     def test_save_load_state(self, basic_checkpoint, tmp_path):
@@ -167,7 +172,7 @@ class TestCheckpoints:
             "some_ignored_file.txt" # Add noise to ensure filtering works
         ]
         # Patch the os module where it is imported in checkpoints.py
-        mocker.patch('backend.src.pipeline.simulator.checkpoints.os.listdir', return_value=saved_filenames)
+        mocker.patch('app.src.pipeline.simulator.checkpoints.os.listdir', return_value=saved_filenames)
         # --------------------------------------------------------
 
         # find_last_checkpoint_day should find day 10
@@ -248,7 +253,7 @@ class TestLoader:
         # mock_data_dir setup creates Facilities.csv with 'RM' for 'riomaior'
         # udef.MAP_DEPOTS['riomaior'] is assumed to be 'RM'
         mocker.patch(
-            'backend.src.pipeline.simulator.loader.udef.MAP_DEPOTS',
+            'app.src.pipeline.simulator.loader.udef.MAP_DEPOTS',
             {'riomaior': 'RM'}
         )
 
@@ -272,7 +277,7 @@ class TestLoader:
             json.dump(mock_indices, f)
         
         # Mock udef.ROOT_DIR to point to tmp_path
-        mocker.patch('backend.src.utils.definitions.ROOT_DIR', str(tmp_path))
+        mocker.patch('app.src.utils.definitions.ROOT_DIR', str(tmp_path))
         
         indices = load_indices("test_indices.json", n_samples=2, n_nodes=3, data_size=100)
         assert indices == mock_indices
@@ -285,7 +290,7 @@ class TestLoader:
         indices_file = indices_dir / "new_indices.json"
         
         # Mock udef.ROOT_DIR
-        mocker.patch('backend.src.utils.definitions.ROOT_DIR', str(tmp_path))
+        mocker.patch('app.src.utils.definitions.ROOT_DIR', str(tmp_path))
         # Mock pd.Series.sample to be deterministic
         mocker.patch('pandas.Series.sample', side_effect=[
             pd.Series([10, 20]), pd.Series([30, 40])
@@ -610,7 +615,7 @@ class TestNetwork:
     @pytest.mark.unit
     def test_compute_distance_matrix_load_file(self, mocker, tmp_path):
         """Test loading a distance matrix from a file."""
-        mocker.patch('backend.src.utils.definitions.ROOT_DIR', str(tmp_path))
+        mocker.patch('app.src.utils.definitions.ROOT_DIR', str(tmp_path))
         
         dm_dir = tmp_path / "data" / "wsr_simulator" / "distance_matrix"
         dm_dir.mkdir(parents=True, exist_ok=True)
@@ -912,8 +917,8 @@ class TestSimulation:
         mock_data_df = pd.DataFrame({'ID': [1], 'shape': [(1,1)]}) 
         mock_coords_df = pd.DataFrame({'ID': [1], 'shape': [(1,1)]})
         
-        mocker.patch('backend.src.pipeline.simulator.simulation.load_depot', return_value=mock_depot_df)
-        mocker.patch('backend.src.pipeline.simulator.simulation.load_simulator_data', 
+        mocker.patch('app.src.pipeline.simulator.simulation.load_depot', return_value=mock_depot_df)
+        mocker.patch('app.src.pipeline.simulator.simulation.load_simulator_data', 
             return_value=(mock_data_df, mock_coords_df))
         
         data, coords, depot = simulation._setup_basedata(1, 'data_dir', 'area', 'waste')
@@ -931,11 +936,11 @@ class TestSimulation:
         mock_paths = 'mock_shortest_paths'
         mock_adj = np.array([[1, 1], [1, 1]])
         
-        mocker.patch('backend.src.pipeline.simulator.simulation.compute_distance_matrix', 
+        mocker.patch('app.src.pipeline.simulator.simulation.compute_distance_matrix', 
                     return_value=mock_dist_matrix)
-        mocker.patch('backend.src.pipeline.simulator.simulation.apply_edges', 
+        mocker.patch('app.src.pipeline.simulator.simulation.apply_edges', 
                     return_value=(mock_dist_edges, mock_paths, mock_adj))
-        mocker.patch('backend.src.pipeline.simulator.simulation.get_paths_between_states', 
+        mocker.patch('app.src.pipeline.simulator.simulation.get_paths_between_states', 
                     return_value='all_paths')
         mock_torch_from_numpy = mocker.patch('torch.from_numpy', 
                                             return_value=torch.tensor(mock_dist_edges))
@@ -994,7 +999,7 @@ class TestSimulation:
         bins_raw_df = pd.DataFrame({'ID': [1,2], 'Lat': [40.1,40.2], 'Lng': [-8.1,-8.2]})
         data_raw_df = pd.DataFrame({'ID': [1,2], 'Stock': [10,20], 'Accum_Rate': [0,0]})
         mocker.patch(
-            'backend.src.pipeline.simulator.simulation._setup_basedata',
+            'app.src.pipeline.simulator.simulation._setup_basedata',
             return_value=(data_raw_df, bins_raw_df, depot_df)
         )
 
@@ -1003,26 +1008,26 @@ class TestSimulation:
             'ID': [0, 1, 2], 'Lat': [40.0, 40.1, 40.2], 'Lng': [-8.0, -8.1, -8.2]
         })
         mocker.patch(
-            'backend.src.pipeline.simulator.processor.setup_df',
+            'app.src.pipeline.simulator.processor.setup_df',
             side_effect=[coords_combined_df, MagicMock()]
         )
         mocker.patch(
-            'backend.src.pipeline.simulator.processor.process_data',
+            'app.src.pipeline.simulator.processor.process_data',
             side_effect=lambda data, bins_coords, depot, indices: (data, bins_coords)
         )
         mocker.patch(
-            'backend.src.pipeline.simulator.processor.load_area_and_waste_type_params',
+            'app.src.pipeline.simulator.processor.load_area_and_waste_type_params',
             return_value=(4000, 0.16, 21.0, 1.0, 2.5)
         )
 
         # Mock network/model setup
         mock_dist_tup = (np.zeros((3,3)), MagicMock(), MagicMock(), np.zeros((3,3)))
         mocker.patch(
-            'backend.src.pipeline.simulator.simulation._setup_dist_path_tup',
+            'app.src.pipeline.simulator.simulation._setup_dist_path_tup',
             return_value=(mock_dist_tup, np.zeros((3,3)))
         )
         mocker.patch(
-            'backend.src.pipeline.simulator.processor.process_model_data',
+            'app.src.pipeline.simulator.processor.process_model_data',
             return_value=(None, None) 
         )
         mock_model_env = MagicMock()
@@ -1030,20 +1035,20 @@ class TestSimulation:
         mock_configs = MagicMock()
         mock_configs.__getitem__.side_effect = lambda key: opts['problem'] if key == 'problem' else MagicMock()
         mocker.patch(
-            'backend.src.pipeline.simulator.simulation.setup_model',
+            'app.src.pipeline.simulator.simulation.setup_model',
             return_value=(mock_model_env, mock_configs)
         )
 
         # --- Mock Checkpoint Saving & Management ---
         mocker.patch(
-            'backend.src.pipeline.simulator.checkpoints.SimulationCheckpoint.save_state', 
+            'app.src.pipeline.simulator.checkpoints.SimulationCheckpoint.save_state', 
             autospec=True, 
             return_value=None
         )
         mock_cm = MagicMock()
         mock_cm.__enter__.return_value = MagicMock()
         mocker.patch(
-            'backend.src.pipeline.simulator.checkpoints.checkpoint_manager',
+            'app.src.pipeline.simulator.checkpoints.checkpoint_manager',
             return_value=mock_cm
         )
 
@@ -1198,7 +1203,7 @@ class TestSimulation:
         mock_depot = pd.DataFrame({'ID': [0], 'Lat': [0], 'Lng': [0], 'Stock': [0], 'Accum_Rate': [0]})
 
         mocker.patch(
-            'backend.src.pipeline.simulator.simulation._setup_basedata', 
+            'app.src.pipeline.simulator.simulation._setup_basedata', 
             return_value=(mock_data, mock_coords, mock_depot)
         )
 
@@ -1206,20 +1211,20 @@ class TestSimulation:
         mock_dist_tup = (np.zeros((N+1, N+1)), MagicMock(), MagicMock(), np.zeros((N+1, N+1), dtype='int32'))
         mock_adj_matrix = np.zeros((N+1, N+1))
         mocker.patch(
-            'backend.src.pipeline.simulator.simulation._setup_dist_path_tup',
+            'app.src.pipeline.simulator.simulation._setup_dist_path_tup',
             return_value=(mock_dist_tup, mock_adj_matrix)
         )
         
         # Patch the Bins constructor to return a mock object
         mocker.patch(
-            'backend.src.pipeline.simulator.simulation.Bins',
+            'app.src.pipeline.simulator.simulation.Bins',
             return_value=MagicMock()
         )
 
         # Mock the checkpoint manager to raise the error
         error_result = {'success': False, 'error': 'test error'}
         mocker.patch(
-            'backend.src.pipeline.simulator.simulation.checkpoint_manager', 
+            'app.src.pipeline.simulator.simulation.checkpoint_manager', 
             side_effect=CheckpointError(error_result)
         )
         

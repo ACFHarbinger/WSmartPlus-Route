@@ -9,11 +9,11 @@ pyside_path = os.path.dirname(PySide6.__file__)
 
 # pathex=['.'] means it looks in the current directory (where app.spec is)
 
-pathex=['/backend']
+pathex=['/app']
 
 a = Analysis(
     ['__main__.py'],
-    pathex=['/backend'],
+    pathex=['/app'],
     binaries=[],
     datas=[
         # Include data files

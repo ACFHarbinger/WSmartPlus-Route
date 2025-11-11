@@ -238,19 +238,19 @@ def policy_deps(mocker):
     # 2. Mock dependent functions
     mock_load_params = mocker.patch(
         # This function is imported into last_minute, regular, and day
-        'backend.src.pipeline.simulator.loader.load_area_and_waste_type_params',
+        'app.src.pipeline.simulator.loader.load_area_and_waste_type_params',
         return_value=(4000, 0.16, 21.0, 1.0, 2.5) # Q, R, B, C, V
     )
     
     # Mock TSP solver (used by last_minute and regular)
     mock_find_route = mocker.patch(
-        'backend.src.or_policies.single_vehicle.find_route', 
+        'app.src.or_policies.single_vehicle.find_route', 
         return_value=[0, 1, 3, 0] # Default mock tour
     )
     
     # Mock multi-tour splitter
     mock_get_multi_tour = mocker.patch(
-        'backend.src.or_policies.single_vehicle.get_multi_tour',
+        'app.src.or_policies.single_vehicle.get_multi_tour',
         side_effect=lambda tour, *args: tour # Pass-through
     )
 
@@ -287,7 +287,7 @@ def basic_checkpoint(mocker, tmp_path):
     # 1. Mock ROOT_DIR to point to a temporary path
     mock_root = tmp_path / "mock_root"
     mocker.patch(
-        'backend.src.pipeline.simulator.checkpoints.ROOT_DIR', 
+        'app.src.pipeline.simulator.checkpoints.ROOT_DIR', 
         new=str(mock_root)
     )
 
@@ -412,20 +412,20 @@ def mock_dependencies(mocker):
     # 1. Mock the specific problem generators imported into generate_data.py
     # Since they are imported via `from .generate_problem_data import *`, we mock 
     # them as attributes of the generate_data module.
-    mocker.patch('backend.src.data.generate_data.generate_tsp_data', return_value=[(None, None)])
-    mocker.patch('backend.src.data.generate_data.generate_vrp_data', return_value=[(None, None)])
-    mocker.patch('backend.src.data.generate_data.generate_pctsp_data', return_value=[(None, None)])
-    mocker.patch('backend.src.data.generate_data.generate_op_data', return_value=[(None, None)])
-    mocker.patch('backend.src.data.generate_data.generate_vrpp_data', return_value=[(None, None)])
-    mocker.patch('backend.src.data.generate_data.generate_wcrp_data', return_value=[(None, None)])
-    mocker.patch('backend.src.data.generate_data.generate_wcvrp_data', return_value=[(None, None)])
-    mocker.patch('backend.src.data.generate_data.generate_pdp_data', return_value=[(None, None)])
+    mocker.patch('app.src.data.generate_data.generate_tsp_data', return_value=[(None, None)])
+    mocker.patch('app.src.data.generate_data.generate_vrp_data', return_value=[(None, None)])
+    mocker.patch('app.src.data.generate_data.generate_pctsp_data', return_value=[(None, None)])
+    mocker.patch('app.src.data.generate_data.generate_op_data', return_value=[(None, None)])
+    mocker.patch('app.src.data.generate_data.generate_vrpp_data', return_value=[(None, None)])
+    mocker.patch('app.src.data.generate_data.generate_wcrp_data', return_value=[(None, None)])
+    mocker.patch('app.src.data.generate_data.generate_wcvrp_data', return_value=[(None, None)])
+    mocker.patch('app.src.data.generate_data.generate_pdp_data', return_value=[(None, None)])
     
     # 2. Mock the WSR simulator data generator
-    mocker.patch('backend.src.data.generate_data.generate_wsr_data', return_value=[(None, None)])
+    mocker.patch('app.src.data.generate_data.generate_wsr_data', return_value=[(None, None)])
     
     # 3. Mock the save utility
-    mocker.patch('backend.src.data.generate_data.save_dataset', return_value=None)
+    mocker.patch('app.src.data.generate_data.save_dataset', return_value=None)
 
 
 # Mocks for WSmart+ Route simulator
@@ -531,45 +531,45 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     and sequential_simulations.
     """
     # 1. Patch ROOT_DIR
-    mocker.patch('backend.src.pipeline.simulator.simulation.ROOT_DIR', str(tmp_path))
+    mocker.patch('app.src.pipeline.simulator.simulation.ROOT_DIR', str(tmp_path))
     
     # 2. Mock loader functions
     mock_depot = pd.DataFrame({'ID': [0], 'Lat': [40], 'Lng': [-8]})
     mock_data = pd.DataFrame({'ID': [1, 2], 'Stock': [10, 20], 'Accum_Rate': [0.1, 0.2]})
     mock_coords = pd.DataFrame({'ID': [1, 2], 'Lat': [40.1, 40.2], 'Lng': [-8.1, -8.2]})
-    mocker.patch('backend.src.pipeline.simulator.simulation.load_depot', return_value=mock_depot)
-    mocker.patch('backend.src.pipeline.simulator.simulation.load_simulator_data', 
+    mocker.patch('app.src.pipeline.simulator.simulation.load_depot', return_value=mock_depot)
+    mocker.patch('app.src.pipeline.simulator.simulation.load_simulator_data', 
                  return_value=(mock_data.copy(), mock_coords.copy()))
 
     # 3. Mock processor functions
     mock_proc_data = pd.DataFrame({'ID': [0, 1, 2], 'Stock': [0, 10, 20]})
     mock_proc_coords = pd.DataFrame({'ID': [0, 1, 2], 'Lat': [40, 40.1, 40.2], 'Lng': [-8, -8.1, -8.2]})
-    mocker.patch('backend.src.pipeline.simulator.simulation.process_data', 
+    mocker.patch('app.src.pipeline.simulator.simulation.process_data', 
                  return_value=(mock_proc_data.copy(), mock_proc_coords.copy()))
-    mocker.patch('backend.src.pipeline.simulator.simulation.process_model_data', 
+    mocker.patch('app.src.pipeline.simulator.simulation.process_model_data', 
                  return_value=('mock_model_tup_0', 'mock_model_tup_1'))
 
     # 4. Mock network functions
     mock_dist_tup = (np.array([[0, 1], [1, 0]]), 'mock_paths', 'mock_tensor', 'mock_distC')
     mock_adj_matrix = np.array([[1, 1], [1, 1]])
-    mocker.patch('backend.src.pipeline.simulator.simulation._setup_dist_path_tup', 
+    mocker.patch('app.src.pipeline.simulator.simulation._setup_dist_path_tup', 
                  return_value=(mock_dist_tup, mock_adj_matrix))
-    mocker.patch('backend.src.pipeline.simulator.simulation.compute_distance_matrix', 
+    mocker.patch('app.src.pipeline.simulator.simulation.compute_distance_matrix', 
                  return_value=np.array([[0,1],[1,0]]))
-    mocker.patch('backend.src.pipeline.simulator.simulation.apply_edges', 
+    mocker.patch('app.src.pipeline.simulator.simulation.apply_edges', 
                  return_value=('mock_dist_edges', 'mock_paths', 'mock_adj'))
-    mocker.patch('backend.src.pipeline.simulator.simulation.get_paths_between_states', 
+    mocker.patch('app.src.pipeline.simulator.simulation.get_paths_between_states', 
                  return_value='mock_all_paths')
 
     # 5. Mock Bins class
-    mocker.patch('backend.src.pipeline.simulator.simulation.Bins', return_value=mock_bins_instance)
+    mocker.patch('app.src.pipeline.simulator.simulation.Bins', return_value=mock_bins_instance)
 
     # 6. Mock setup functions
     mocker.patch(
-        'backend.src.pipeline.simulator.simulation.setup_model',
+        'app.src.pipeline.simulator.simulation.setup_model',
         return_value=(MagicMock(), MagicMock()) 
     )
-    mocker.patch('backend.src.utils.setup_utils.setup_env', 
+    mocker.patch('app.src.utils.setup_utils.setup_env', 
                  return_value='mock_or_env')
 
     # 7. Mock day function
@@ -577,29 +577,29 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     mock_data_ls = (mock_proc_data, mock_proc_coords, mock_bins_instance)
     mock_output_ls = (0, mock_dlog, {}) # overflows, dlog, output_dict
     mock_run_day = mocker.patch( # CAPTURE the mock object here
-        'backend.src.pipeline.simulator.simulation.run_day', 
+        'app.src.pipeline.simulator.simulation.run_day', 
         return_value=(mock_data_ls, mock_output_ls, None)
     )
 
     # 8. Mock checkpointing
     mock_cp_instance = mocker.MagicMock()
     mock_cp_instance.load_state.return_value = (None, 0) # Default: no resume
-    mocker.patch('backend.src.pipeline.simulator.simulation.SimulationCheckpoint', 
+    mocker.patch('app.src.pipeline.simulator.simulation.SimulationCheckpoint', 
                  return_value=mock_cp_instance)
     
     # Mock the context manager and its hook
     mock_hook = mocker.MagicMock()
     mock_cm = mocker.MagicMock()
     mock_cm.__enter__.return_value = mock_hook # Yield the hook
-    mocker.patch('backend.src.pipeline.simulator.simulation.checkpoint_manager', 
+    mocker.patch('app.src.pipeline.simulator.simulation.checkpoint_manager', 
                 return_value=mock_cm)
 
     # 9. Mock utilities
-    mocker.patch('backend.src.pipeline.simulator.simulation.log_to_json')
-    mocker.patch('backend.src.pipeline.simulator.simulation.output_stats',
+    mocker.patch('app.src.pipeline.simulator.simulation.log_to_json')
+    mocker.patch('app.src.pipeline.simulator.simulation.output_stats',
                  return_value=({}, {})) # mock_log, mock_log_std
-    mocker.patch('backend.src.pipeline.simulator.simulation.save_matrix_to_excel')
-    mocker.patch('backend.src.pipeline.simulator.simulation.time.process_time', return_value=1.0)
+    mocker.patch('app.src.pipeline.simulator.simulation.save_matrix_to_excel')
+    mocker.patch('app.src.pipeline.simulator.simulation.time.process_time', return_value=1.0)
     mocker.patch('os.makedirs', new_callable=lambda: lambda *args, **kwargs: None)
     mocker.patch('pandas.DataFrame.to_excel')
     mocker.patch('statistics.mean', return_value=1.0)
@@ -640,7 +640,7 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
         return mock_instance
 
     mocker.patch(
-        'backend.src.pipeline.simulator.simulation.tqdm', 
+        'app.src.pipeline.simulator.simulation.tqdm', 
         side_effect=mock_tqdm_factory, # Use side_effect to dynamically return the iterable mock
         autospec=True
     )
@@ -677,14 +677,14 @@ def mock_load_dependencies(mocker):
     mock_read_excel = mocker.patch('pandas.read_excel')
     
     # Mock the 'udef' module
-    # We must mock it where it's *used*, e.g., 'backend.src.utils.definitions'
+    # We must mock it where it's *used*, e.g., 'app.src.utils.definitions'
     mock_udef = MagicMock()
     mock_udef.WASTE_TYPES = {
         'paper': 'Embalagens de papel e cartão',
         'plastic': 'Mistura de embalagens'
     }
     mock_udef.LOCK_TIMEOUT = 30
-    mocker.patch('backend.src.utils.definitions', mock_udef)
+    mocker.patch('app.src.utils.definitions', mock_udef)
     
     # Return the mocks so tests can configure them
     return mock_read_csv, mock_read_excel, mock_udef
@@ -729,14 +729,14 @@ def mock_run_day_deps(mocker):
     
     # Mock policy_regular to return a tour (to prevent errors in get_daily_results)
     mock_policy_regular = mocker.patch(
-        'backend.src.or_policies.regular.policy_regular', return_value=[0, 1, 2, 0] 
+        'app.src.or_policies.regular.policy_regular', return_value=[0, 1, 2, 0] 
     )
     # Mock send_daily_output_to_gui to prevent the final crash
     mock_send_output = mocker.patch(
-        'backend.src.pipeline.simulator.day.send_daily_output_to_gui', autospec=True
+        'app.src.pipeline.simulator.day.send_daily_output_to_gui', autospec=True
     )
     # Mock get_route_cost (used by policy_regular flow)
-    mocker.patch('backend.src.or_policies.single_vehicle.get_route_cost', return_value=50.0)
+    mocker.patch('app.src.or_policies.single_vehicle.get_route_cost', return_value=50.0)
 
     # 4. Return the dependencies, including the new mocks
     return {
@@ -791,17 +791,17 @@ def mock_policy_dependencies(mocker):
     """Mocks common policy dependencies (loader, solver) for unit tests."""
     # Mock TSP solver (used by last_minute)
     mocker.patch(
-        'backend.src.or_policies.single_vehicle.find_route', 
+        'app.src.or_policies.single_vehicle.find_route', 
         return_value=[0, 1, 3, 0] # Default mock tour for 2 bins
     )
     # Mock multi-tour splitter
     mocker.patch(
-        'backend.src.or_policies.single_vehicle.get_multi_tour',
+        'app.src.or_policies.single_vehicle.get_multi_tour',
         side_effect=lambda tour, *args: tour # Pass-through
     )
     # Mock distance matrix used by single_vehicle helpers
     mocker.patch(
-        'backend.src.or_policies.single_vehicle.get_route_cost',
+        'app.src.or_policies.single_vehicle.get_route_cost',
         return_value=50.0 
     )
 
@@ -812,23 +812,23 @@ def mock_lookahead_aux(mocker):
     
     # Mocks must be autospec=True to be bound correctly to the look_ahead module import
     mocker.patch(
-        'backend.src.or_policies.look_ahead.should_bin_be_collected',
+        'app.src.or_policies.look_ahead.should_bin_be_collected',
         autospec=True,
         side_effect=lambda fill, rate: fill + rate >= 100
     )
     mocker.patch(
-        'backend.src.or_policies.look_ahead.update_fill_levels_after_first_collection',
+        'app.src.or_policies.look_ahead.update_fill_levels_after_first_collection',
         autospec=True,
         # Returns fill levels after collected bins are reset
         return_value=np.array([0.0, 10.0, 30.0, 40.0, 50.0]) 
     )
     mocker.patch(
-        'backend.src.or_policies.look_ahead.get_next_collection_day',
+        'app.src.or_policies.look_ahead.get_next_collection_day',
         autospec=True,
         return_value=5 # Mocked next overflow day
     )
     mocker.patch(
-        'backend.src.or_policies.look_ahead.add_bins_to_collect',
+        'app.src.or_policies.look_ahead.add_bins_to_collect',
         autospec=True,
         return_value=[0, 1, 2] # Mocked final bin list
     )

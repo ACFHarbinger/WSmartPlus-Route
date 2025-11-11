@@ -295,7 +295,7 @@ typeCheckingMode = "off"
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*", "*Test"]
 python_functions = ["test_*", "*_test"]
-testpaths = "backend/test" # Original pyproject.toml value
+testpaths = "app/test" # Original pyproject.toml value
 # testpaths = "test" # Overwritten by pytest.ini value
 
 # Console output options (addopts converted to list format)
@@ -373,7 +373,7 @@ wsr_temp_dir = "./temp_test"
 # =================================================================
 [tool.coverage.run]
 source = [
-    "backend"
+    "app"
 ]
 omit = [
     "*/test/*",

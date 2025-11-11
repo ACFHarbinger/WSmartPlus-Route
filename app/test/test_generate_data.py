@@ -20,8 +20,8 @@ class TestGenerateData:
         gen_data_opts['problem'] = problem
         gen_data_opts['graph_sizes'] = [50]
         
-        mock_save = mocker.patch('backend.src.data.generate_data.save_dataset')
-        mock_generator = mocker.patch(f'backend.src.data.generate_data.{generator_name}')
+        mock_save = mocker.patch('app.src.data.generate_data.save_dataset')
+        mock_generator = mocker.patch(f'app.src.data.generate_data.{generator_name}')
 
         # Act
         generate_datasets(gen_data_opts)
@@ -70,8 +70,8 @@ class TestGenerateData:
         gen_data_opts['graph_sizes'] = [10]
         gen_data_opts['data_distributions'] = ['all']
         
-        mock_save = mocker.patch('backend.src.data.generate_data.save_dataset')
-        mock_generator = mocker.patch(f'backend.src.data.generate_data.{generator_name}')
+        mock_save = mocker.patch('app.src.data.generate_data.save_dataset')
+        mock_generator = mocker.patch(f'app.src.data.generate_data.{generator_name}')
 
         # Act
         generate_datasets(gen_data_opts)
@@ -104,7 +104,7 @@ class TestGenerateData:
         # Fixed to single graph size in previous step to align with observed generate_datasets behavior
         gen_data_opts['graph_sizes'] = [10] 
         
-        mock_generator = mocker.patch('backend.src.data.generate_data.generate_vrp_data')
+        mock_generator = mocker.patch('app.src.data.generate_data.generate_vrp_data')
 
         # Act
         generate_datasets(gen_data_opts)
@@ -126,7 +126,7 @@ class TestGenerateData:
         gen_data_opts['n_epochs'] = 7
         gen_data_opts['problem'] = 'wcrp' 
         
-        mock_wsr_generator = mocker.patch('backend.src.data.generate_data.generate_wsr_data', return_value=[(mocker_ANY, mocker_ANY)])
+        mock_wsr_generator = mocker.patch('app.src.data.generate_data.generate_wsr_data', return_value=[(mocker_ANY, mocker_ANY)])
 
         # Act
         generate_datasets(gen_data_opts) 
