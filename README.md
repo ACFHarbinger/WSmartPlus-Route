@@ -28,14 +28,9 @@ This repository also includes adaptions of the following repositories as baselin
 You can choose to install this repository's dependencies using any of the following methods below.
 
 ### UV
-To use the [UV Python package and project manager](https://github.com/astral-sh/uv) to setup the virtual environment, you first need to create the project using the correct Python version (you can skip the UV init, as the pyproject.toml is already in the repository)
+To use the [UV Python package and project manager](https://github.com/astral-sh/uv) to setup the virtual environment, you first have to synchronize the project and then you need to install the additional required dependencies.
 ```bash
-uv init --python 3.9 --name wsmart_route
-```
-
-and then install the required dependencies.
-```bash 
-uv add -r env/requirements.txt
+uv sync
 uv pip install -r pyproject.toml --extra mlor
 ```
 

@@ -44,7 +44,7 @@ class TestRunDayPolicyRouting:
         """Test if 'policy_last_minute90_gamma1' calls policy_last_minute."""
         
         # We need to mock 'policy_last_minute' as it's not in the conftest fixture
-        mock_pol_lm = mocker.patch('backend.src.or_policies.policy_last_minute', return_value=[0, 1, 0])
+        mock_pol_lm = mocker.patch('app.src.or_policies.policy_last_minute', return_value=[0, 1, 0])
 
         run_day(
             graph_size=5,
@@ -74,7 +74,7 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_gurobi(self, mocker, mock_run_day_deps):
         """Test if 'gurobi_vrpp0.5_gamma1' calls policy_gurobi_vrpp."""
         
-        mock_pol_gurobi = mocker.patch('backend.src.or_policies.policy_gurobi_vrpp', return_value=[[0, 1, 0]])
+        mock_pol_gurobi = mocker.patch('app.src.or_policies.policy_gurobi_vrpp', return_value=[[0, 1, 0]])
 
         run_day(
             graph_size=5,
@@ -93,7 +93,7 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_hexaly(self, mocker, mock_run_day_deps):
         """Test if 'hexaly_vrpp0.8_gamma1' calls policy_hexaly_vrpp."""
         
-        mock_pol_hexaly = mocker.patch('backend.src.or_policies.policy_hexaly_vrpp', return_value=[[0, 2, 0]])
+        mock_pol_hexaly = mocker.patch('app.src.or_policies.policy_hexaly_vrpp', return_value=[[0, 2, 0]])
 
         run_day(
             graph_size=5,
@@ -293,7 +293,7 @@ class TestLastMinutePolicies:
         lvl = np.full(5, 80.0) 
         
         # Mock find_route to return tour for [0, 2, 4, 0]
-        patch('backend.src.or_policies.single_vehicle.find_route', return_value=[0, 2, 4, 0]).start()
+        patch('app.src.or_policies.single_vehicle.find_route', return_value=[0, 2, 4, 0]).start()
         
         # Capacity mock: Set capacity high (9999) and low (100)
         max_capacity = 9999
@@ -336,7 +336,7 @@ class TestLastMinutePolicies:
         data = mock_policy_common_data
         
         # Capacity mock: Set capacity low
-        patch('backend.src.pipeline.simulator.loader.load_area_and_waste_type_params', return_value=(200, 0.16, 21.0, 1.0, 2.5)).start()
+        patch('app.src.pipeline.simulator.loader.load_area_and_waste_type_params', return_value=(200, 0.16, 21.0, 1.0, 2.5)).start()
 
         # Bins: [10.0 (B1), 95.0 (B2), 30.0 (B3), 85.0 (B4), 50.0 (B5)]
         lvl = np.full(5, 80.0) 
@@ -351,7 +351,7 @@ class TestLastMinutePolicies:
             [[4, 5, 0], [4, 5, 1], [4, 5, 1, 2], [4, 3], [4], [4, 5]], # 4
             [[]]*6  # 5
         ]
-        patch('backend.src.or_policies.single_vehicle.find_route', return_value=[0, 2, 4, 0]).start()
+        patch('app.src.or_policies.single_vehicle.find_route', return_value=[0, 2, 4, 0]).start()
 
         tour_low_cap = policy_last_minute_and_path(
             bins=data["bins_waste"],
@@ -384,7 +384,7 @@ class TestLookaheadPolicyLogic:
         binsids = list(range(mock_policy_common_data['n_bins'])) # [0, 1, 2, 3, 4]
         
         # Patch the initial check to ensure nothing is critical
-        with patch('backend.src.or_policies.look_ahead.should_bin_be_collected', return_value=False) as mock_should_collect:
+        with patch('app.src.or_policies.look_ahead.should_bin_be_collected', return_value=False) as mock_should_collect:
             must_go = policy_lookahead(
                 binsids, 
                 mock_policy_common_data['bins_waste'], 
@@ -399,7 +399,7 @@ class TestLookaheadPolicyLogic:
         assert must_go == []
         
         # Assert that internal logic was NOT called
-        patch('backend.src.or_policies.look_ahead.get_next_collection_day').assert_not_called()
+        patch('app.src.or_policies.look_ahead.get_next_collection_day').assert_not_called()
 
     @pytest.mark.unit
     def test_lookahead_full_logic_flow(self, mock_policy_common_data):
@@ -423,9 +423,9 @@ class TestLookaheadPolicyLogic:
         assert must_go == [0, 1, 2]
         
         # Assert that the entire internal logic chain was called (Mocks are autouse)
-        patch('backend.src.or_policies.look_ahead.update_fill_levels_after_first_collection').assert_called_once()
-        patch('backend.src.or_policies.look_ahead.get_next_collection_day').assert_called_once()
-        patch('backend.src.or_policies.look_ahead.add_bins_to_collect').assert_called_once()
+        patch('app.src.or_policies.look_ahead.update_fill_levels_after_first_collection').assert_called_once()
+        patch('app.src.or_policies.look_ahead.get_next_collection_day').assert_called_once()
+        patch('app.src.or_policies.look_ahead.add_bins_to_collect').assert_called_once()
 
 
 class TestAdvancedLookaheadPolicies:
@@ -440,12 +440,12 @@ class TestAdvancedLookaheadPolicies:
         # --- Arrange ---
         # Mock the Gurobi optimizer wrapper to return a predictable route result
         mock_vrpp_solver = mocker.patch(
-            'backend.src.or_policies.gurobi_optimizer.policy_gurobi_vrpp',
+            'app.src.or_policies.gurobi_optimizer.policy_gurobi_vrpp',
             return_value=[[0, 1, 3, 0]] # Route of bin indices (0-indexed)
         )
         
         # Mock look_ahead_aux dependencies required by lookahead_vrpp
-        mock_get_fill_history = mocker.patch('backend.src.or_policies.look_ahead.Bins.get_fill_history', return_value=np.zeros((5, 5)))
+        mock_get_fill_history = mocker.patch('app.src.or_policies.look_ahead.Bins.get_fill_history', return_value=np.zeros((5, 5)))
         mock_env = MagicMock()
 
         values = {
@@ -488,18 +488,18 @@ class TestAdvancedLookaheadPolicies:
         # --- Arrange ---
         
         # Mock internal data processing helpers
-        mocker.patch('backend.src.or_policies.look_ahead.create_dataframe_from_matrix', return_value=MagicMock())
-        mocker.patch('backend.src.or_policies.look_ahead.convert_to_dict', return_value=MagicMock())
-        mocker.patch('backend.src.or_policies.look_ahead.compute_initial_solution', return_value=[])
+        mocker.patch('app.src.or_policies.look_ahead.create_dataframe_from_matrix', return_value=MagicMock())
+        mocker.patch('app.src.or_policies.look_ahead.convert_to_dict', return_value=MagicMock())
+        mocker.patch('app.src.or_policies.look_ahead.compute_initial_solution', return_value=[])
         
         # Mock the core Simulated Annealing engine
         mock_annealing = mocker.patch(
-            'backend.src.or_policies.look_ahead.improved_simulated_annealing',
+            'app.src.or_policies.look_ahead.improved_simulated_annealing',
             return_value=([0, 1, 2, 0], 100.0, 50.0, 1000.0, 100.0) # routes, profit, dist, kg, revenue
         )
         
         # Mock the external loader (as in the policy itself)
-        mocker.patch('backend.src.pipeline.simulator.loader.load_area_and_waste_type_params', 
+        mocker.patch('app.src.pipeline.simulator.loader.load_area_and_waste_type_params', 
                      return_value=(4000, 0.16, 21.0, 1.0, 2.5))
 
         # Parameters for Simulated Annealing
@@ -560,7 +560,7 @@ class TestGurobiOptimizer:
             # This is complex to mock fully, but we mock the final extraction to confirm flow.
             return [[0, 1, 0]]
         
-        mocker.patch('backend.src.or_policies.gurobi_optimizer.policy_gurobi_vrpp', side_effect=mock_gurobi_solution_routes, autospec=True)
+        mocker.patch('app.src.or_policies.gurobi_optimizer.policy_gurobi_vrpp', side_effect=mock_gurobi_solution_routes, autospec=True)
 
 
         # Test 1: Must-Go Bin (Prediction > 100)
@@ -579,7 +579,7 @@ class TestGurobiOptimizer:
 
         # Assert: The mock function was called. (Specific check for must-go logic is complex 
         # as it happens inside the model construction, but the call itself confirms the data flow)
-        patch('backend.src.or_policies.gurobi_optimizer.policy_gurobi_vrpp').assert_called_once()
+        patch('app.src.or_policies.gurobi_optimizer.policy_gurobi_vrpp').assert_called_once()
 
 
 class TestHexalyOptimizer:
