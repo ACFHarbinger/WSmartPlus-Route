@@ -12,22 +12,22 @@ import random
 import traceback
 import numpy as np
 
-from backend.test import PyTestRunner
-from backend.src.file_system import (
+from app.test import PyTestRunner
+from app.src.file_system import (
     perform_cryptographic_operations,
     update_file_system_entries, 
     delete_file_system_entries
 )
-from backend.src.pipeline.test import run_wsr_simulator_test
-from backend.src.pipeline.eval import run_evaluate_model
-from backend.src.pipeline.train import (
+from app.src.pipeline.test import run_wsr_simulator_test
+from app.src.pipeline.eval import run_evaluate_model
+from app.src.pipeline.train import (
     train_reinforcement_learning, 
     train_reinforce_over_time, train_reinforce_epoch,
     train_meta_reinforcement_learning, hyperparameter_optimization
 )
-from backend.src.data.generate_data import generate_datasets
-from backend.src.utils.arg_parser import parse_params
-from backend.src.app import run_app_gui
+from app.src.data.generate_data import generate_datasets
+from app.src.utils.arg_parser import parse_params
+from app.src.app import run_app_gui
 
 
 def run_test_suite(opts):
