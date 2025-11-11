@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
 )
 from ..components import ClickableHeaderWidget
 from ..styles import (
-    TOGGLE_BUTTON_STYLE, SECONDARY_BUTTON_STYLE,
+    SECONDARY_BUTTON_STYLE,
     SECTION_HEADER_STYLE, SCRIPT_HEADER_STYLE
 )
 
@@ -137,8 +137,11 @@ class RunScriptsTab(QWidget):
                 btn = self.create_script_button(script_name)
                 
                 # New "warning" disabled style
+                # This inline style is fine as it's a specific disabled state,
+                # but we must *append* to the existing stylesheet.
+                current_style = btn.styleSheet() if btn.styleSheet() else ""
                 btn.setStyleSheet(
-                    btn.styleSheet() + 
+                    current_style + 
                     """
                     QPushButton:disabled { 
                         color: #B87A00; /* Dark Yellow/Orange */
@@ -184,7 +187,7 @@ class RunScriptsTab(QWidget):
         # Common parameters
         self.verbose_checkbox = QPushButton("Verbose Mode")
         self.verbose_checkbox.setCheckable(True)
-        self.verbose_checkbox.setStyleSheet(TOGGLE_BUTTON_STYLE) # Use standard toggle
+        self.verbose_checkbox.setObjectName("toggleStyleButton") # Use standard toggle ID
         content_layout.addRow("Verbose Output:", self.verbose_checkbox)
         
         self.cores_input = QSpinBox(value=22, minimum=1, maximum=mp.cpu_count())
@@ -224,7 +227,7 @@ class RunScriptsTab(QWidget):
         display_name = self.SCRIPTS[script_name]
         btn = QPushButton(display_name)
         btn.setCheckable(True)
-        btn.setStyleSheet(TOGGLE_BUTTON_STYLE) # Apply standard toggle style
+        btn.setObjectName("toggleStyleButton") # Apply standard toggle style ID
         
         btn.clicked.connect(lambda checked, s=script_name: self.select_script(s, checked))
         self.button_group.addButton(btn)

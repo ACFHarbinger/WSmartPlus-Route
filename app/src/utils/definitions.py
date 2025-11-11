@@ -1,8 +1,14 @@
 import os
 import statistics
 
+from pathlib import Path
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+# Paths
+path = Path(os.getcwd())
+parts = path.parts
+ROOT_DIR = Path(*parts[:parts.index('WSmart-Route') + 1])
+ICON_FILE = os.path.join(ROOT_DIR, 'assets', 'images', "logo-wsmartroute-white.png")
 
 # Multi-core processing settings
 CORE_LOCK_WAIT_TIME=10

@@ -2,14 +2,21 @@ import sys
 import signal
 import threading
 
-from .utils.definitions import CTRL_C_TIMEOUT
-from .utils.arg_parser import parse_params
-from .gui.main_window import MainWindow
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
+from .gui.main_window import MainWindow
+from .utils.arg_parser import parse_params
+from .utils.definitions import CTRL_C_TIMEOUT, ICON_FILE
 
 
 def run_app_gui(opts):
     app = QApplication(sys.argv)
+    try:
+        app_icon = QIcon(ICON_FILE)
+        app.setWindowIcon(app_icon)
+    except Exception:
+        pass 
+    
     if 'app_style' in opts and opts['app_style'] is not None:
         app.setStyle(opts['app_style']) # Set application style
     

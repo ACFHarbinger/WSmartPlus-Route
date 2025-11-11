@@ -8,7 +8,7 @@ from app.src.gui.app_definitions import (
     PROBLEM_TYPES, DATA_DISTRIBUTIONS, 
 )
 from ...styles import (
-    TOGGLE_BUTTON_STYLE, SUCCESS_BUTTON_STYLE,
+    SUCCESS_BUTTON_STYLE,
     SECONDARY_BUTTON_STYLE, SECTION_HEADER_STYLE
 )
 
@@ -47,7 +47,7 @@ class TestSimSettingsTab(QWidget):
             
             btn = QPushButton(policy_name)
             btn.setCheckable(True)
-            btn.setStyleSheet(TOGGLE_BUTTON_STYLE) # Apply new toggle style
+            btn.setObjectName("toggleStyleButton") # Apply new toggle style ID
             
             btn.clicked.connect(lambda checked, p=policy_name: self.toggle_policy(p, checked))
             row_layout.addWidget(btn)
