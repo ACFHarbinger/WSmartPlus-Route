@@ -5,8 +5,8 @@ from PySide6.QtWidgets import (
 )
 from app.src.gui.app_definitions import DATA_DISTRIBUTIONS, PROBLEM_TYPES
 from ...styles import (
-    SECTION_HEADER_STYLE, TOGGLE_BUTTON_STYLE, SUCCESS_BUTTON_STYLE,
-    SECONDARY_BUTTON_STYLE, SECTION_HEADER_STYLE, SUB_HEADER_STYLE
+    SECTION_HEADER_STYLE, SUCCESS_BUTTON_STYLE,
+    SECONDARY_BUTTON_STYLE, SUB_HEADER_STYLE
 )
 
 
@@ -50,7 +50,7 @@ class GenDataProblemTab(QWidget):
             
             btn = QPushButton(dist_name.title())
             btn.setCheckable(True)
-            btn.setStyleSheet(TOGGLE_BUTTON_STYLE) # Apply new toggle style
+            btn.setObjectName("toggleStyleButton") # Apply new toggle style ID
             
             if dist_name.lower() == 'all':
                 btn.setChecked(True)
@@ -86,7 +86,7 @@ class GenDataProblemTab(QWidget):
         self.is_gaussian_check = QPushButton("Use Gaussian Distribution")
         self.is_gaussian_check.setCheckable(True)
         self.is_gaussian_check.setChecked(False)
-        self.is_gaussian_check.setStyleSheet(TOGGLE_BUTTON_STYLE) # Apply new toggle style
+        self.is_gaussian_check.setObjectName("toggleStyleButton") # Apply new toggle style ID
         layout.addRow("Distribution Type:", self.is_gaussian_check)
 
         # 5. --sigma

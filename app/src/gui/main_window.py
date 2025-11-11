@@ -18,9 +18,10 @@ from .tabs import (
     MetaRLTrainParserTab, HyperParamOptimParserTab, FileSystemUpdateTab,
 )
 from .styles import (
-    TEXT_COLOR, CONTAINER_BG_COLOR, PRIMARY_ACCENT_COLOR,
-    BACKGROUND_COLOR, MUTED_TEXT_COLOR, PRIMARY_HOVER_COLOR,
-    SECONDARY_ACCENT_COLOR, SECONDARY_HOVER_COLOR, BORDER_COLOR
+    TEXT_COLOR, LIGHT_QSS, DARK_QSS, 
+    SECONDARY_HOVER_COLOR, BORDER_COLOR,
+    PRIMARY_ACCENT_COLOR, MUTED_TEXT_COLOR, 
+    PRIMARY_HOVER_COLOR, SECONDARY_ACCENT_COLOR, 
 )
 
 
@@ -36,161 +37,45 @@ class MainWindow(QWidget):
         self.setMinimumSize(1080, 900)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
+        # Theme tracking
+        self.current_theme = 'light'
+
         # Apply Global Stylesheet for a Modern Light Theme
-        self.setStyleSheet(f"""
-            QWidget {{
-                background-color: {BACKGROUND_COLOR};
-                color: {TEXT_COLOR};
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                font-size: 13px;
-            }}
-            QLabel {{
-                color: {TEXT_COLOR};
-                padding-bottom: 2px;
-            }}
-            QComboBox, QTextEdit {{
-                border: 1px solid {BORDER_COLOR};
-                padding: 6px 8px;
-                background-color: {CONTAINER_BG_COLOR};
-                selection-background-color: {PRIMARY_ACCENT_COLOR};
-                color: {TEXT_COLOR};
-                border-radius: 5px; /* Rounded corners */
-            }}
-            QComboBox::drop-down {{
-                subcontrol-origin: padding;
-                subcontrol-position: top right;
-                width: 20px;
-                border-left-width: 1px;
-                border-left-color: {BORDER_COLOR};
-                border-left-style: solid; 
-            }}
-            QTabWidget::pane {{ /* The tab content area */
-                border: 1px solid {BORDER_COLOR};
-                background-color: {CONTAINER_BG_COLOR};
-                border-radius: 5px;
-                border-top-left-radius: 0; /* Align with tab */
-            }}
-            QTabBar::tab {{
-                background: {BACKGROUND_COLOR};
-                color: {MUTED_TEXT_COLOR};
-                font-weight: 500;
-                padding: 10px 18px;
-                border: 1px solid {BORDER_COLOR};
-                border-bottom: none;
-                border-top-left-radius: 5px;
-                border-top-right-radius: 5px;
-            }}
-            QTabBar::tab:selected {{
-                background: {CONTAINER_BG_COLOR};
-                color: {PRIMARY_ACCENT_COLOR};
-                font-weight: 600;
-                /* Trick to make tab connect to pane */
-                border-bottom: 2px solid {CONTAINER_BG_COLOR}; 
-                margin-bottom: -2px;
-            }}
-            QTabBar::tab:hover {{
-                color: {TEXT_COLOR};
-            }}
-            QScrollBar:vertical {{
-                border: 1px solid {BORDER_COLOR};
-                background: {CONTAINER_BG_COLOR}; /* White track background */
-                width: 12px; 
-                /* Margin reserves space for the arrow buttons */
-                margin: 12px 0 12px 0; 
-            }}
-
-            QScrollBar::handle:vertical {{
-                background: {TEXT_COLOR}; /* Dark Slate/Black for the handle */
-                min-height: 20px;
-                border-radius: 6px; 
-            }}
-            
-            /* Style for the buttons holding the arrows (top and bottom) */
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
-                border: none;
-                background: {TEXT_COLOR}; /* Black background for the arrow buttons */
-                height: 12px;
-                subcontrol-origin: margin;
-            }}
-            
-            /* Position and shape the top button */
-            QScrollBar::sub-line:vertical {{ 
-                border-top-left-radius: 5px;
-                border-top-right-radius: 5px;
-                subcontrol-position: top; 
-            }}
-            
-            /* Position and shape the bottom button */
-            QScrollBar::add-line:vertical {{
-                border-bottom-left-radius: 5px;
-                border-bottom-right-radius: 5px;
-                subcontrol-position: bottom; 
-            }}
-
-            /* Explicitly define the Up Arrow (White arrow on Black button) */
-            QScrollBar::up-arrow:vertical {{
-                image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDhMOCAxMkgxNkwxMiA4WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+);
-                width: 8px; 
-                height: 8px;
-            }}
-
-            /* Explicitly define the Down Arrow (White arrow on Black button) */
-            QScrollBar::down-arrow:vertical {{
-                image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDE2TDE2IDEySDhMMTIgMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2ZyA+);
-                width: 8px; 
-                height: 8px;
-            }}
-            
-            /* The pages (area between handle and arrow buttons) should be transparent */
-            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
-                background: none;
-            }}
-            
-            /* General Button Styling */
-            QPushButton {{
-                color: white;
-                font-weight: 600;
-                border: none;
-                padding: 10px 12px;
-                border-radius: 5px;
-            }}
-            QPushButton:pressed {{
-                /* Add a subtle press effect */
-                padding-top: 11px;
-                padding-bottom: 9px;
-            }}
-            QPushButton:disabled {{
-                background-color: #BDC3C7; /* Muted gray */
-                color: {TEXT_COLOR};
-            }}
-        """)
+        self.setStyleSheet(LIGHT_QSS)
 
         main_layout = QVBoxLayout(self)
         main_layout.setSpacing(12) # Add space between main sections
         main_layout.setContentsMargins(15, 15, 15, 15) # Add padding to window
 
         # Title
-        title = QLabel("Machine Learning and Operations Research for Combinatorial Optimization")
-        title.setStyleSheet(f"""
-            font-size: 26px; 
-            font-weight: 700; 
-            padding-bottom: 5px;
-            color: {TEXT_COLOR}; 
-        """)
-        main_layout.addWidget(title)
+        self.title_label = QLabel("Machine Learning and Operations Research for Combinatorial Optimization")
+        self.title_label.setObjectName("mainTitleLabel")
+        main_layout.addWidget(self.title_label)
 
         # Command selection
         command_layout = QHBoxLayout()
-        command_label = QLabel("Select Command:")
-        command_label.setStyleSheet("font-weight: 600;")
-        command_layout.addWidget(command_label)
+
+        self.command_label = QLabel("Select Command:")
+        self.command_label.setObjectName("commandSelectLabel")
+        command_layout.addWidget(self.command_label)
         
         self.command_combo = QComboBox()
         self.command_combo.addItems(['Train Model', 'Generate Data', 'Evaluate', 'Test Simulator', 'File System Tools', 'Other Tools'])
         self.command_combo.currentTextChanged.connect(self.on_command_changed)
         self.command_combo.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         command_layout.addWidget(self.command_combo)
+        
         command_layout.addStretch()
+
+        # --- NEW: Theme Toggle Button (Moved to far right) ---
+        self.theme_toggle_button = QPushButton("🎨")
+        self.theme_toggle_button.setObjectName("themeToggleButton")
+        self.theme_toggle_button.clicked.connect(self.toggle_theme)
+        self.theme_toggle_button.setToolTip("Toggle Light/Dark Mode")
+        self.theme_toggle_button.setFixedSize(25, 25)
+        command_layout.addWidget(self.theme_toggle_button)
+        # --- END NEW ---
+        
         main_layout.addLayout(command_layout)
 
         self.train_tabs_map = {
@@ -235,19 +120,10 @@ class MainWindow(QWidget):
         preview_layout.addWidget(preview_label)
         
         self.preview = QTextEdit()
+        self.preview.setObjectName("previewTextEdit") # <-- ADDED
         self.preview.setReadOnly(True)
         self.preview.setMaximumHeight(180)
-        self.preview.setStyleSheet(f"""
-            QTextEdit {{
-                background-color: #FAFAFA; /* Slightly different white for code */
-                color: #333333;
-                border: 1px solid {BORDER_COLOR};
-                font-family: "Consolas", "Courier New", monospace;
-                font-size: 12px;
-                padding: 10px;
-                border-radius: 5px;
-            }}
-        """)
+        # <-- REMOVED INLINE STYLESHEET
         preview_layout.addWidget(self.preview)
 
         # Restore logic starts here
@@ -275,11 +151,8 @@ class MainWindow(QWidget):
 
         # Reopen Button (Critical Action)
         self.reopen_button = QPushButton("Close and Reopen GUI")
+        self.reopen_button.setObjectName("reopenButton")
         self.reopen_button.clicked.connect(self.close_and_reopen)
-        self.reopen_button.setStyleSheet(f"""
-            QPushButton {{ background-color: {SECONDARY_ACCENT_COLOR}; }}
-            QPushButton:hover {{ background-color: {SECONDARY_HOVER_COLOR}; }}
-        """)
         control_layout.addWidget(self.reopen_button)
 
         # --- Secondary/Utility Button Style ---
@@ -307,14 +180,8 @@ class MainWindow(QWidget):
 
         # Run Button (Primary Action)
         self.run_button = QPushButton("Run Command (simulated)" if self.test_only else "Run Command")
+        self.run_button.setObjectName("runButton")
         self.run_button.clicked.connect(self.run_command)
-        self.run_button.setStyleSheet(f"""
-            QPushButton {{ 
-                background-color: {PRIMARY_ACCENT_COLOR}; 
-                padding: 12px; /* Bigger padding for primary action */
-            }}
-            QPushButton:hover {{ background-color: {PRIMARY_HOVER_COLOR}; }}
-        """)
         control_layout.addWidget(self.run_button)
         control_layout.addStretch()
 
@@ -328,6 +195,16 @@ class MainWindow(QWidget):
         lower_layout.addLayout(control_layout, 1)
 
         main_layout.addLayout(lower_layout)
+
+    # --- THEME AND STYLING METHODS ---
+    def toggle_theme(self):
+        """Toggles the application stylesheet between light and dark mode."""
+        if self.current_theme == 'light':
+            self.current_theme = 'dark'
+            self.setStyleSheet(DARK_QSS)
+        else:
+            self.current_theme = 'light'
+            self.setStyleSheet(LIGHT_QSS)
 
     # --- LOGIC METHODS ---
 
