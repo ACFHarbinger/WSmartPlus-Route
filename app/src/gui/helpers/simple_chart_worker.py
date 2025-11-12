@@ -1,12 +1,11 @@
-# --- File: simple_chart_worker.py (Per-Sample Tab Fix) ---
-import numpy as np
-
 from PySide6.QtCore import QObject, Signal, Slot, QMutex, QMutexLocker
+from matplotlib.ticker import MaxNLocator
 
 
 class SimpleChartWorker(QObject):
     """
-    Worker that plots data for a *single* (Policy, Sample) key.
+    Worker that plots data for a *single* (Policy, Sample) key, with thread-safe data access
+    and robust X-axis tick generation.
     """
     draw_request = Signal(object) 
     
@@ -15,7 +14,7 @@ class SimpleChartWorker(QObject):
         super().__init__(parent)
         self.daily_data = daily_data
         self.policy_chart_widgets = policy_chart_widgets
-        self.color = color # Single color, not a list
+        self.color = color 
         self.metrics_to_plot = metrics_to_plot
         self.data_mutex = data_mutex 
 
@@ -68,11 +67,11 @@ class SimpleChartWorker(QObject):
                 if days:
                     all_values_for_metric.extend(values)
                     
-                    # No loop, no legend, just plot the single line
+                    # Plot the single line
                     ax.plot(days, values, 
                             marker='o', markersize=3, linestyle='-', color=self.color)
 
-                # 3. Set Dynamic Y-Axis Limits
+                # 3. Set Dynamic Y-Axis Limits (Unchanged, remains robust)
                 if all_values_for_metric:
                     min_val = min(all_values_for_metric)
                     max_val = max(all_values_for_metric)
@@ -93,15 +92,17 @@ class SimpleChartWorker(QObject):
                 # 4. Set X-Axis Limits and Ticks
                 if max_days > 0:
                     ax.set_xlim(0.8, max_days + 0.2)
-                    step = max(1, int(max_days / 10))
-                    ax.set_xticks(np.arange(1, max_days + 1, step))
                 else:
-                    ax.set_xlim(0, 100) 
+                    # Default for empty plot (0 to 100)
+                    ax.set_xlim(0, 100)
+                
+                # --- CRITICAL FIX: Use Matplotlib's automatic integer locator ---
+                # This replaces all the complex np.arange logic and prevents the crash
+                ax.xaxis.set_major_locator(MaxNLocator(integer=True, min_n_ticks=1))
+                # --- END CRITICAL FIX ---
 
                 if i == len(self.metrics_to_plot) - 1:
                     ax.set_xlabel("Day")
-                
-                # No legend needed for single-sample plots
 
         # --- END CRITICAL SECTION ---
         

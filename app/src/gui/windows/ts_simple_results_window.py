@@ -1,4 +1,4 @@
-# --- File: ts_simple_results_window.py (Per-Sample Tab Fix) ---
+# --- File: ts_simple_results_window.py (Thread Shutdown Fix) ---
 import json
 import random
 import numpy as np
@@ -87,12 +87,22 @@ class SimpleChartWindow(QWidget):
         self.start_chart_update.connect(self.chart_worker.update_figure)
         self.chart_worker.draw_request.connect(self._redraw_canvas_on_main_thread) 
         
-        self.destroyed.connect(self.stop_thread)
+        # self.destroyed.connect(self.stop_thread) # <-- This is less reliable
         
     def stop_thread(self):
         """Safely stops the worker thread."""
+        print("Stopping chart worker thread...")
         self.chart_thread.quit()
-        self.chart_thread.wait()
+        self.chart_thread.wait() # Wait for thread to finish
+        print("Thread stopped.")
+
+    def closeEvent(self, event):
+        """
+        Overrides QWidget.closeEvent to safely stop the worker thread
+        before the window closes.
+        """
+        self.stop_thread()
+        event.accept() # Accept the close event
 
     @Slot(object)
     def _redraw_canvas_on_main_thread(self, canvas):
@@ -112,7 +122,7 @@ class SimpleChartWindow(QWidget):
     def setup_summary_chart(self):
         """Adds the Summary tab"""
         self.summary_tab = QWidget(); self.summary_layout = QVBoxLayout(self.summary_tab)
-        self.tabs.addTab(self.summary_tab, "Average & StdDev Summary")
+        self.tabs.addTab(self.summary_tab, "Average and StdDev Summary")
         self.summary_fig = Figure(figsize=(10, 6))
         self.summary_canvas = FigureCanvas(self.summary_fig)
         self.summary_layout.addWidget(self.summary_canvas)
@@ -222,10 +232,12 @@ class SimpleChartWindow(QWidget):
                     day = int(parts[2].strip())
                     
                     # Create the unique key for this tab/chart
-                    policy_sample_key = f"{policy}, Sample {sample_idx}"
+                    policy_sample_key = f"{policy} S{sample_idx}"
 
                     # Check if we need to create a new tab for this sample
                     if policy_sample_key not in self.active_sample_keys:
+                        # CRITICAL: Must create tab on main thread
+                        # This code is running on the main thread, so this is safe.
                         self.add_sample_chart_tab(policy_sample_key)
                     
                     json_part = parts[3].strip()
