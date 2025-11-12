@@ -1,4 +1,3 @@
-# --- File: ts_simple_results_window.py (Thread Shutdown Fix) ---
 import json
 import random
 import numpy as np
@@ -11,46 +10,34 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import (
     Qt, Signal, QThread, Slot, QMutex, QMutexLocker 
 )
+from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-# Assuming worker is in a sub-directory or importable
+from matplotlib.ticker import MaxNLocator
 from ..helpers import SimpleChartWorker 
-
-# Define the metrics for the daily chart tab
-TARGET_METRICS = ['overflows', 'kg/km']
-# Define all metrics used for the summary bar chart
-SUMMARY_METRICS = ['overflows', 'kg', 'ncol', 'km', 'kg/km', 'cost'] 
+from ..app_definitions import TARGET_METRICS, SUMMARY_METRICS
 
 
 class SimpleChartWindow(QWidget):
     """
     Window with tabs for Raw Log, Summary, and individual (Policy, Sample) charts.
     """
-    # Argument will now be the unique (policy, sample) key
-    start_chart_update = Signal(str) 
+    # Signal to start the worker's data processing
+    start_chart_processing = Signal(str) 
 
     def __init__(self, policy_names):
         super().__init__()
-        self.setWindowTitle("Simulation Chart & Raw Output (Per Sample)")
+        self.setWindowTitle("Simulation Chart and Raw Output (Per Sample)")
         self.setMinimumSize(1000, 700)
         self.setWindowFlags(self.windowFlags() | Qt.Window) 
 
         self.data_mutex = QMutex() 
         
-        # Data structure simplified to key by PolicySampleKey:
-        # daily_data[key][metric][day] = value
         self.daily_data = defaultdict(lambda: defaultdict(dict)) 
-        
-        # Policy names are kept for summary
         self.policy_names = policy_names
-        
-        # Tracks which keys have been initialized (e.g., "policy_1, Sample 0")
         self.active_sample_keys = set() 
-        
         self.summary_data = {} 
         self.is_complete = False
-        
-        # Charts keyed by PolicySampleKey
         self.policy_chart_widgets = {} 
         
         main_layout = QVBoxLayout(self)
@@ -61,33 +48,29 @@ class SimpleChartWindow(QWidget):
         self.tabs = QTabWidget()
         main_layout.addWidget(self.tabs)
         
-        # This QTabWidget will hold the dynamically added (Policy, Sample) tabs
         self.policy_tabs_container = QTabWidget() 
         self.tabs.addTab(self.policy_tabs_container, "Metric Evolution (Charts)")
         
-        # Add the other tabs
         self.setup_raw_log_area()
         self.setup_summary_chart()
 
-        # Single color for all plots, as each tab is one sample
         self.plot_color = "#3465a4" 
         
         # --- THREAD SETUP ---
         self.chart_thread = QThread()
         self.chart_worker = SimpleChartWorker(
             daily_data=self.daily_data, 
-            policy_chart_widgets=self.policy_chart_widgets, 
-            color=self.plot_color,
             metrics_to_plot=TARGET_METRICS,
             data_mutex=self.data_mutex 
         )
         self.chart_worker.moveToThread(self.chart_thread)
         self.chart_thread.start()
         
-        self.start_chart_update.connect(self.chart_worker.update_figure)
-        self.chart_worker.draw_request.connect(self._redraw_canvas_on_main_thread) 
+        # 1. Main thread signals worker to start processing
+        self.start_chart_processing.connect(self.chart_worker.process_data)
         
-        # self.destroyed.connect(self.stop_thread) # <-- This is less reliable
+        # 2. Worker signals main thread with processed data
+        self.chart_worker.data_ready.connect(self._update_chart_on_main_thread) 
         
     def stop_thread(self):
         """Safely stops the worker thread."""
@@ -97,19 +80,81 @@ class SimpleChartWindow(QWidget):
         print("Thread stopped.")
 
     def closeEvent(self, event):
-        """
-        Overrides QWidget.closeEvent to safely stop the worker thread
-        before the window closes.
-        """
+        """Overrides QWidget.closeEvent to safely stop the worker thread."""
         self.stop_thread()
-        event.accept() # Accept the close event
+        event.accept() 
 
-    @Slot(object)
-    def _redraw_canvas_on_main_thread(self, canvas):
-        """Slot executed on the MAIN thread to safely trigger Matplotlib rendering."""
-        canvas.draw_idle() 
+    @Slot(str, dict)
+    def _update_chart_on_main_thread(self, target_key, processed_data):
+        """
+        Slot executed on the MAIN thread to safely perform all Matplotlib operations.
+        """
+        if target_key not in self.policy_chart_widgets:
+            return
 
-    # --- Setup methods (Modified) ---
+        chart_data = self.policy_chart_widgets[target_key]
+        axes = chart_data['axes']
+        canvas = chart_data['canvas']
+        max_days = processed_data['max_days']
+
+        # --- All Matplotlib logic is now safely on the Main Thread ---
+        for i, metric in enumerate(TARGET_METRICS):
+            ax = axes[i]
+            ax.clear() 
+            ax.grid(True)
+            ax.set_title(f'{metric} for {target_key}')
+            ax.set_ylabel(metric)
+
+            all_values_for_metric = []
+            
+            # Get processed data from the worker
+            metric_data = processed_data['metrics'].get(metric)
+            
+            if metric_data and metric_data['days']:
+                days = metric_data['days']
+                values = metric_data['values']
+                all_values_for_metric.extend(values)
+                
+                # Plot the single line
+                ax.plot(days, values, 
+                        marker='o', markersize=3, linestyle='-', color=self.plot_color)
+
+            # 3. Set Dynamic Y-Axis Limits
+            if all_values_for_metric:
+                min_val = min(all_values_for_metric)
+                max_val = max(all_values_for_metric)
+                y_range = max_val - min_val
+                
+                if y_range == 0:
+                    if max_val == 0: ax.set_ylim(-0.1, 1.1)
+                    else:
+                        buffer = max(1.0, abs(max_val * 0.1)) # Ensure buffer is at least 1
+                        ax.set_ylim(min_val - buffer, max_val + buffer)
+                else:
+                    buffer = y_range * 0.05
+                    ax.set_ylim(min_val - buffer, max_val + buffer)
+            else:
+                ax.set_ylim(-0.1, 1.1) 
+
+            # 4. Set X-Axis Limits and Ticks
+            if max_days > 0:
+                ax.set_xlim(0.8, max_days + 0.2)
+            else:
+                ax.set_xlim(0, 100)
+            
+            # Use Matplotlib's automatic integer locator
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True, min_n_ticks=1))
+            
+            # Explicitly disable minor ticks to prevent minorTicks[0] crash
+            ax.xaxis.set_minor_locator(plt.NullLocator()) 
+
+            if i == len(TARGET_METRICS) - 1:
+                ax.set_xlabel("Day")
+
+        # 5. Final draw call
+        canvas.draw_idle()
+
+    # --- Setup methods (Unchanged) ---
     def setup_raw_log_area(self):
         """Adds the Raw Output tab"""
         self.raw_tab = QWidget(); self.raw_layout = QVBoxLayout(self.raw_tab)
@@ -166,7 +211,6 @@ class SimpleChartWindow(QWidget):
 
     # --- Utility methods (Omitted) ---
     def _generate_distinct_colors(self, num_colors):
-        # Kept for summary chart, though not used for daily plot anymore
         hex_colors = []
         for i in range(num_colors):
             h = i * (360 / num_colors)
@@ -221,6 +265,8 @@ class SimpleChartWindow(QWidget):
             clean_record = record[:end_index + 1]
             
             try:
+                policy_sample_key = "" # Define scope
+                
                 # --- CRITICAL SECTION: DATA WRITING (Protected) ---
                 with QMutexLocker(self.data_mutex): 
                     
@@ -232,12 +278,11 @@ class SimpleChartWindow(QWidget):
                     day = int(parts[2].strip())
                     
                     # Create the unique key for this tab/chart
-                    policy_sample_key = f"{policy} S{sample_idx}"
+                    policy_sample_key = f"{policy}, sample {sample_idx}"
 
                     # Check if we need to create a new tab for this sample
                     if policy_sample_key not in self.active_sample_keys:
-                        # CRITICAL: Must create tab on main thread
-                        # This code is running on the main thread, so this is safe.
+                        # This is safe because we are on the main thread
                         self.add_sample_chart_tab(policy_sample_key)
                     
                     json_part = parts[3].strip()
@@ -259,8 +304,9 @@ class SimpleChartWindow(QWidget):
                     self.status_label.setText(f"Processing: {policy_sample_key}, Day: {day}")
                 # --- END CRITICAL SECTION ---
                 
-                # Emit the unique key to the worker
-                self.start_chart_update.emit(policy_sample_key) 
+                # Emit the unique key to the worker for processing
+                if policy_sample_key:
+                    self.start_chart_processing.emit(policy_sample_key) 
                 
             except Exception as e:
                 print(f"CRITICAL PARSING ERROR (Day Log): {e} in record: {clean_record}")
@@ -310,7 +356,6 @@ class SimpleChartWindow(QWidget):
         
         x = np.arange(n_metrics)
         
-        # We need to regenerate colors here if they weren't stored
         summary_colors = self._generate_distinct_colors(n_policies)
 
         for i, policy in enumerate(policy_names):

@@ -274,3 +274,8 @@ TEST_MODULES = {
     'optimizer': 'test_optimizer.py',
     'integration': 'test_integration.py'
 }
+
+# Define the metrics for the daily chart tab
+TARGET_METRICS = ['overflows', 'kg/km']
+# Define all metrics used for the summary bar chart
+SUMMARY_METRICS = ['overflows', 'kg', 'ncol', 'km', 'kg/km', 'cost'] 
