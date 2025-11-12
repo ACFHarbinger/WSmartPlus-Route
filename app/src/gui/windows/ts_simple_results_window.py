@@ -28,7 +28,6 @@ class SimpleChartWindow(QWidget):
     def __init__(self, policy_names):
         super().__init__()
         self.setWindowTitle("Simulation Chart and Raw Output (Per Sample)")
-        self.setMinimumSize(1000, 700)
         self.setWindowFlags(self.windowFlags() | Qt.Window) 
 
         self.data_mutex = QMutex() 
@@ -167,7 +166,7 @@ class SimpleChartWindow(QWidget):
     def setup_summary_chart(self):
         """Adds the Summary tab"""
         self.summary_tab = QWidget(); self.summary_layout = QVBoxLayout(self.summary_tab)
-        self.tabs.addTab(self.summary_tab, "Average and StdDev Summary")
+        self.tabs.addTab(self.summary_tab, "Average and StdDev (Summary)")
         self.summary_fig = Figure(figsize=(10, 6))
         self.summary_canvas = FigureCanvas(self.summary_fig)
         self.summary_layout.addWidget(self.summary_canvas)
@@ -301,7 +300,7 @@ class SimpleChartWindow(QWidget):
                         if metric in TARGET_METRICS or metric in SUMMARY_METRICS:
                             self.daily_data[policy_sample_key][metric][day] = float_value 
                     
-                    self.status_label.setText(f"Processing: {policy_sample_key}, Day: {day}")
+                    self.status_label.setText(f"Processing: {policy_sample_key} day {day}")
                 # --- END CRITICAL SECTION ---
                 
                 # Emit the unique key to the worker for processing
