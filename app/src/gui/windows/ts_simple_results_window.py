@@ -278,7 +278,7 @@ class SimpleChartWindow(QWidget):
                     day = int(parts[2].strip())
                     
                     # Create the unique key for this tab/chart
-                    policy_sample_key = f"{policy}, sample {sample_idx}"
+                    policy_sample_key = f"{policy} sample {sample_idx}"
 
                     # Check if we need to create a new tab for this sample
                     if policy_sample_key not in self.active_sample_keys:

@@ -7,8 +7,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QApplication,
     QTabWidget, QPushButton, QWidget, QLabel, QMessageBox
 )
-from .windows import SimpleChartWindow
-from .tabs import (
+from . import SimpleChartWindow
+from ..tabs import (
     RLCostsTab, RLDataTab, RLModelTab, RunScriptsTab,
     GenDataGeneralTab, GenDataProblemTab, GenDataAdvancedTab,
     RLOptimizerTab, RLOutputTab, RLTrainingTab, TestSuiteTab,
@@ -17,7 +17,7 @@ from .tabs import (
     EvalIOTab, EvalDataBatchingTab, EvalDecodingTab, EvalProblemTab,
     MetaRLTrainParserTab, HyperParamOptimParserTab, FileSystemUpdateTab,
 )
-from .styles import (
+from ..styles import (
     TEXT_COLOR, LIGHT_QSS, DARK_QSS, 
     SECONDARY_HOVER_COLOR, BORDER_COLOR,
     PRIMARY_ACCENT_COLOR, MUTED_TEXT_COLOR, 
