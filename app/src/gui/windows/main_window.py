@@ -18,10 +18,8 @@ from ..tabs import (
     MetaRLTrainParserTab, HyperParamOptimParserTab, FileSystemUpdateTab,
 )
 from ..styles import (
+    BORDER_COLOR, MUTED_TEXT_COLOR,
     TEXT_COLOR, LIGHT_QSS, DARK_QSS, 
-    SECONDARY_HOVER_COLOR, BORDER_COLOR,
-    PRIMARY_ACCENT_COLOR, MUTED_TEXT_COLOR, 
-    PRIMARY_HOVER_COLOR, SECONDARY_ACCENT_COLOR, 
 )
 
 
@@ -86,10 +84,16 @@ class MainWindow(QWidget):
         self.gen_data_tabs_map = {
             "General Output": GenDataGeneralTab(), "Problem Definition": GenDataProblemTab(), "Advanced Settings": GenDataAdvancedTab()
         }
+        
+        settings_tab = TestSimSettingsTab()
+        io_tab = TestSimIOTab(settings_tab=settings_tab) # Pass the reference
         self.test_sim_tabs_map = {
-            "Simulator Settings": TestSimSettingsTab(), "Policy Parameters": TestSimPolicyParamsTab(),
-            "IO Settings": TestSimIOTab(), "Advanced Settings": TestSimAdvancedTab()
+            "Simulator Settings": settings_tab, 
+            "Policy Parameters": TestSimPolicyParamsTab(),
+            "IO Settings": io_tab, 
+            "Advanced Settings": TestSimAdvancedTab()
         }
+
         self.eval_tabs_map = {
             'IO Settings': EvalIOTab(), 'Data Configurations': EvalDataBatchingTab(),
             'Decoding Strategy': EvalDecodingTab(), 'Problem Definition': EvalProblemTab()
