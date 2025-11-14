@@ -5,16 +5,8 @@ import torch.optim as optim
 
 from .definitions import ROOT_DIR
 from dotenv import dotenv_values
-from app.src.utils.functions import load_model
 from app.src.utils.cryptography import decrypt_file_data
-from app.src.pipeline.reinforcement_learning.epoch import get_inner_model
-from app.src.models import (
-    CriticNetwork, CriticNetworkLSTM,
-    AttentionModel, PointerNetwork, TemporalAttentionModel,
-    DeepDecoderAttentionModel, HierarchicalTemporalAttentionModel,
-    GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
-    NoBaseline, WarmupBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline
-)
+from app.src.utils.functions import load_model, get_inner_model
 
 
 def setup_cost_weights(opts, def_val=1.):
@@ -95,6 +87,13 @@ def setup_env(policy, server=False, gplic_filename=None, symkey_name=None, env_f
     
 
 def setup_model_and_baseline(problem, data_load, use_cuda, opts):
+    from app.src.models import (
+        CriticNetwork, CriticNetworkLSTM,
+        AttentionModel, PointerNetwork, TemporalAttentionModel,
+        DeepDecoderAttentionModel, HierarchicalTemporalAttentionModel,
+        GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
+        NoBaseline, WarmupBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline
+    )
     encoder_class = {
         'gat': GraphAttentionEncoder,
         'gac': GraphAttConvEncoder,

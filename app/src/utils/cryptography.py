@@ -1,9 +1,7 @@
 import os
-import sys
 import struct
 import base64
 import pickle
-import traceback
 
 from .definitions import ROOT_DIR
 from .io_utils import zip_directory, extract_zip

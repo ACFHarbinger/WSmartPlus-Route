@@ -10,7 +10,7 @@ from app.src.utils.arg_parser import (
     validate_test_sim_args
 )
 
-# Ensure that your root directory is on the path if needed
+# Ensure that the app root directory is on the path if needed
 sys.path.insert(0, os.path.dirname(__file__))
 
 

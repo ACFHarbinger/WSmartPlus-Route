@@ -482,7 +482,7 @@ def add_test_suite_args(parser):
     parser.add_argument('--maxfail', type=int, help='Exit after N failures')
     parser.add_argument('--tb', choices=['auto', 'long', 'short', 'line', 'native', 'no'], default='auto', help='Traceback print mode')
     parser.add_argument('--capture', choices=['auto', 'no', 'sys', 'fd'], default='auto', help='Capture mode for output')
-    parser.addargument('-n', '--parallel', action='store_true', help='Run tests in parallel (requires pytest-xdist)')
+    parser.add_argument('-n', '--parallel', action='store_true', help='Run tests in parallel (requires pytest-xdist)')
     
     # Information commands
     parser.add_argument('-l', '--list', action='store_true', help='List all available test modules')

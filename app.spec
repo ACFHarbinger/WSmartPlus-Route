@@ -23,7 +23,7 @@ a = Analysis(
     ],
     hiddenimports=[
         # Core modules PyInstaller often needs for PySide6/subprocess interactions
-        # 'PySide6.QtSvg', 'PySide6.QtXml',
+        'PySide6.QtSvg', 'PySide6.QtXml',
 
         # Other modules
         'torch', 'numpy', 'argparse',
@@ -55,11 +55,10 @@ a = Analysis(
 # Enable large file support
 a.archivename = 'WSmartRoute'  # This helps with large files
 
-# a.datas += Tree(os.path.join(pyside_path, 'Qt', 'plugins', 'platforms'), prefix='PySide6/Qt/plugins/platforms')
+# Add the Tree import to a.datas
+a.datas += Tree(os.path.join(pyside_path, 'Qt', 'plugins', 'platforms'), prefix='PySide6/Qt/plugins/platforms')
 
-pyz = PYZ(a.pure, a.zipped_data,
-    cipher=None
-)
+pyz = PYZ(a.pure, a.zipped_data, cipher=None)
 
 exe = EXE(
     pyz,
@@ -83,7 +82,6 @@ exe = EXE(
     entitlements_file=None,
 )
 
-
 coll = COLLECT(
     exe,
     a.binaries,
@@ -91,5 +89,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='WSmartRoute' # Name of the final folder/bundle
+    name='app' # Name of the final folder/bundle
 )
