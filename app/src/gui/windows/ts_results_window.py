@@ -1,4 +1,3 @@
-# --- File: ts_results_window.py (REBUILT WITH QTIMER) ---
 import json
 import random
 import numpy as np
@@ -6,33 +5,37 @@ import numpy as np
 from collections import defaultdict
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, 
-    QTabWidget, QLabel,
+    QTabWidget, QLabel, QTextEdit
 )
-from PySide6.QtCore import Qt, Signal, QThread, Slot
+from PySide6.QtCore import (
+    Qt, Signal, QThread, Slot, QMutex, QMutexLocker 
+)
+from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from ..helpers import ChartWorker
-try:
-    from app.src.utils.definitions import METRICS
-except ImportError:
-    METRICS = ['overflows', 'kg', 'ncol', 'km', 'kg/km', 'cost'] 
-
+from matplotlib.ticker import MaxNLocator
+from ..helpers import ChartWorker 
+from ..app_definitions import TARGET_METRICS, SUMMARY_METRICS
 
 
 class SimulationResultsWindow(QWidget):
-    # Signal emitted from main thread (in parse_buffer) to trigger the worker's slot
-    start_chart_update = Signal(str)
+    """
+    Window with tabs for Raw Log, Summary, and individual (Policy, Sample) charts.
+    """
+    # Signal to start the worker's data processing
+    start_chart_processing = Signal(str) 
 
     def __init__(self, policy_names):
         super().__init__()
-        self.setWindowTitle("Simulation Results Dashboard")
-        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("Simulation Chart and Raw Output (Per Sample)")
         self.setWindowFlags(self.windowFlags() | Qt.Window) 
 
-        self.daily_data = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
-        self.sample_counts = defaultdict(int) 
-        self.summary_data = {} 
+        self.data_mutex = QMutex() 
+        
+        self.daily_data = defaultdict(lambda: defaultdict(dict)) 
         self.policy_names = policy_names
+        self.active_sample_keys = set() 
+        self.summary_data = {} 
         self.is_complete = False
         self.policy_chart_widgets = {} 
         
@@ -44,53 +47,169 @@ class SimulationResultsWindow(QWidget):
         self.tabs = QTabWidget()
         main_layout.addWidget(self.tabs)
         
-        self.per_sample_tab = QWidget()
-        self.per_sample_layout = QVBoxLayout(self.per_sample_tab)
-        self.tabs.addTab(self.per_sample_tab, "Daily Metric Evolution")
-        self.setup_daily_charts()
-
-        self.summary_tab = QWidget()
-        self.summary_layout = QVBoxLayout(self.summary_tab)
-        self.tabs.addTab(self.summary_tab, "Average & StdDev Summary")
+        self.policy_tabs_container = QTabWidget() 
+        self.tabs.addTab(self.policy_tabs_container, "Metric Evolution (Charts)")
+        
+        self.setup_raw_log_area()
         self.setup_summary_chart()
 
-        self.colors = self._generate_distinct_colors(20) 
+        self.plot_color = "#3465a4" 
         
         # --- THREAD SETUP ---
         self.chart_thread = QThread()
         self.chart_worker = ChartWorker(
             daily_data=self.daily_data, 
-            sample_counts=self.sample_counts, 
-            policy_chart_widgets=self.policy_chart_widgets, 
-            colors=self.colors
+            metrics_to_plot=TARGET_METRICS,
+            data_mutex=self.data_mutex 
         )
         self.chart_worker.moveToThread(self.chart_thread)
         self.chart_thread.start()
         
-        # Connection 1: Main Thread Data Ready -> Worker Thread Update Figure (Cross-thread)
-        self.start_chart_update.connect(self.chart_worker.update_figure)
+        # 1. Main thread signals worker to start processing
+        self.start_chart_processing.connect(self.chart_worker.process_data)
         
-        # Connection 2: Worker Thread Draw Request -> Main Thread Draw Canvas (Cross-thread GUI update)
-        self.chart_worker.draw_request.connect(self._redraw_canvas_on_main_thread)
-        
-        self.destroyed.connect(self.stop_thread)
+        # 2. Worker signals main thread with processed data
+        self.chart_worker.data_ready.connect(self._update_chart_on_main_thread) 
         
     def stop_thread(self):
         """Safely stops the worker thread."""
+        print("Stopping chart worker thread...")
         self.chart_thread.quit()
-        self.chart_thread.wait()
+        self.chart_thread.wait() # Wait for thread to finish
+        print("Thread stopped.")
 
-    @Slot(object)
-    def _redraw_canvas_on_main_thread(self, canvas):
-        """
-        Slot executed on the MAIN thread to safely trigger Matplotlib rendering.
-        This is the only place canvas.draw_idle() should be called.
-        """
-        canvas.draw_idle() 
+    def closeEvent(self, event):
+        """Overrides QWidget.closeEvent to safely stop the worker thread."""
+        self.stop_thread()
+        event.accept() 
 
-    # --- Utility methods (unchanged) ---
+    @Slot(str, dict)
+    def _update_chart_on_main_thread(self, target_key, processed_data):
+        """
+        Slot executed on the MAIN thread to safely perform all Matplotlib operations.
+        """
+        if target_key not in self.policy_chart_widgets:
+            return
+
+        chart_data = self.policy_chart_widgets[target_key]
+        axes = chart_data['axes']
+        canvas = chart_data['canvas']
+        max_days = processed_data['max_days']
+
+        # --- All Matplotlib logic is now safely on the Main Thread ---
+        for i, metric in enumerate(TARGET_METRICS):
+            ax = axes[i]
+            ax.clear() 
+            ax.grid(True)
+            ax.set_title(f'{metric} for {target_key}')
+            ax.set_ylabel(metric)
+
+            all_values_for_metric = []
+            
+            # Get processed data from the worker
+            metric_data = processed_data['metrics'].get(metric)
+            
+            if metric_data and metric_data['days']:
+                days = metric_data['days']
+                values = metric_data['values']
+                all_values_for_metric.extend(values)
+                
+                # Plot the single line
+                ax.plot(days, values, 
+                        marker='o', markersize=3, linestyle='-', color=self.plot_color)
+
+            # 3. Set Dynamic Y-Axis Limits
+            if all_values_for_metric:
+                min_val = min(all_values_for_metric)
+                max_val = max(all_values_for_metric)
+                y_range = max_val - min_val
+                
+                if y_range == 0:
+                    if max_val == 0: ax.set_ylim(-0.1, 1.1)
+                    else:
+                        buffer = max(1.0, abs(max_val * 0.1)) # Ensure buffer is at least 1
+                        ax.set_ylim(min_val - buffer, max_val + buffer)
+                else:
+                    buffer = y_range * 0.05
+                    ax.set_ylim(min_val - buffer, max_val + buffer)
+            else:
+                ax.set_ylim(-0.1, 1.1) 
+
+            # 4. Set X-Axis Limits and Ticks
+            if max_days > 0:
+                ax.set_xlim(0.8, max_days + 0.2)
+            else:
+                ax.set_xlim(0, 100)
+            
+            # Use Matplotlib's automatic integer locator
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True, min_n_ticks=1))
+            
+            # Explicitly disable minor ticks to prevent minorTicks[0] crash
+            ax.xaxis.set_minor_locator(plt.NullLocator()) 
+
+            if i == len(TARGET_METRICS) - 1:
+                ax.set_xlabel("Day")
+
+        # 5. Final draw call
+        canvas.draw_idle()
+
+    # --- Setup methods (Unchanged) ---
+    def setup_raw_log_area(self):
+        """Adds the Raw Output tab"""
+        self.raw_tab = QWidget(); self.raw_layout = QVBoxLayout(self.raw_tab)
+        self.tabs.addTab(self.raw_tab, "Raw Output (Log)")
+        self.raw_log_area = QTextEdit()
+        self.raw_log_area.setReadOnly(True)
+        self.raw_log_area.setStyleSheet("font-family: monospace; font-size: 10pt; background: #2e3436; color: #d3d7cf;")
+        self.raw_layout.addWidget(self.raw_log_area)
+        
+    def setup_summary_chart(self):
+        """Adds the Summary tab"""
+        self.summary_tab = QWidget(); self.summary_layout = QVBoxLayout(self.summary_tab)
+        self.tabs.addTab(self.summary_tab, "Average and StdDev (Summary)")
+        self.summary_fig = Figure(figsize=(10, 6))
+        self.summary_canvas = FigureCanvas(self.summary_fig)
+        self.summary_layout.addWidget(self.summary_canvas)
+        self.summary_ax = self.summary_fig.add_subplot(111)
+        self.summary_fig.tight_layout(pad=1.0)
+        self.summary_ax.set_title("Simulation Summary (Averages)")
+        self.summary_fig.canvas.draw()
+        
+    def add_sample_chart_tab(self, policy_sample_key):
+        """Dynamically creates a tab for a new (policy, sample) pair."""
+        
+        policy_widget = QWidget()
+        policy_layout = QVBoxLayout(policy_widget)
+        
+        fig = Figure(figsize=(10, 6))
+        canvas = FigureCanvas(fig)
+        
+        axes = fig.subplots(len(TARGET_METRICS), 1, sharex=True)
+        fig.tight_layout(pad=2.0)
+        
+        self.policy_chart_widgets[policy_sample_key] = {
+            'fig': fig,
+            'canvas': canvas,
+            'axes': axes if len(TARGET_METRICS) > 1 else [axes], 
+        }
+        policy_layout.addWidget(canvas)
+        
+        for i, metric in enumerate(TARGET_METRICS):
+            ax = self.policy_chart_widgets[policy_sample_key]['axes'][i]
+            ax.set_title(f'{metric} for {policy_sample_key}')
+            ax.grid(True)
+            ax.set_xlim(0, 100) 
+            ax.set_ylim(-0.1, 1.1)
+            if i == len(TARGET_METRICS) - 1:
+                ax.set_xlabel("Day")
+
+        self.policy_tabs_container.addTab(policy_widget, policy_sample_key)
+        fig.canvas.draw() 
+        self.active_sample_keys.add(policy_sample_key)
+
+
+    # --- Utility methods (Omitted) ---
     def _generate_distinct_colors(self, num_colors):
-        """Generates a list of distinct colors."""
         hex_colors = []
         for i in range(num_colors):
             h = i * (360 / num_colors)
@@ -101,22 +220,15 @@ class SimulationResultsWindow(QWidget):
         return hex_colors
 
     def _hsl_to_rgb(self, h, s, l):
-        """Converts HSL to RGB."""
-        h /= 360
-        s /= 100
-        l /= 100
-
-        if s == 0:
-            return l * 255, l * 255, l * 255
-
+        h /= 360; s /= 100; l /= 100
+        if s == 0: return l * 255, l * 255, l * 255
         def hue_to_rgb(p, q, t):
-            if t < 0: t += 1
-            if t > 1: t -= 1
+            if t < 0: t += 1;
+            if t > 1: t -= 1;
             if t < 1/6: return p + (q - p) * 6 * t
             if t < 1/2: return q
             if t < 2/3: return p + (q - p) * (2/3 - t) * 6
             return p
-
         q = l * (1 + s) if l < 0.5 else l + s - l * s
         p = 2 * l - q
         r = hue_to_rgb(p, q, h + 1/3)
@@ -124,55 +236,14 @@ class SimulationResultsWindow(QWidget):
         b = hue_to_rgb(p, q, h - 1/3)
         return r * 255, g * 255, b * 255
 
-    # --- Setup methods ---
-    def setup_daily_charts(self):
-        """Initializes a QTabWidget inside the Daily tab, one sub-tab per policy."""
-        self.policy_tabs = QTabWidget()
-        self.per_sample_layout.addWidget(self.policy_tabs)
-        
-        for policy in self.policy_names:
-            policy_widget = QWidget()
-            policy_layout = QVBoxLayout(policy_widget)
-            
-            fig = Figure(figsize=(10, 6))
-            canvas = FigureCanvas(fig)
-            
-            axes = fig.subplots(len(METRICS), 1, sharex=True)
-            fig.tight_layout(pad=1.0)
-            
-            self.policy_chart_widgets[policy] = {
-                'fig': fig,
-                'canvas': canvas,
-                'axes': axes,
-                'next_sample_color_idx': 0
-            }
-            policy_layout.addWidget(canvas)
-            
-            for i, metric in enumerate(METRICS):
-                ax = axes[i]
-                ax.set_title(f'{metric} for {policy}')
-                ax.grid(True)
-                ax.set_xlim(0, 100) 
-                if i == len(METRICS) - 1:
-                    ax.set_xlabel("Day")
 
-            self.policy_tabs.addTab(policy_widget, policy)
-            # Initial draw is safe here
-            fig.canvas.draw() 
-
-    def setup_summary_chart(self):
-        """Initializes the Matplotlib canvas for summary bar plotting."""
-        self.summary_fig = Figure(figsize=(10, 6))
-        self.summary_canvas = FigureCanvas(self.summary_fig)
-        self.summary_layout.addWidget(self.summary_canvas)
-        self.summary_ax = self.summary_fig.add_subplot(111)
-        self.summary_fig.tight_layout(pad=1.0)
-        self.summary_ax.set_title("Simulation Summary (Averages)")
-        self.summary_fig.canvas.draw()
-
-
-    # --- Parsing methods (Triggers QThread) ---
+    # --- Parsing methods (Modified) ---
     def parse_buffer(self, buffer: str) -> str:
+        self.raw_log_area.append(buffer)
+        if self.raw_log_area.document().blockCount() > 500:
+             self.raw_log_area.clear()
+             self.raw_log_area.append("--- Log Cleared (Overflow Prevention) ---")
+        
         records = buffer.split('GUI_')
         processed_length = 0
         for i in range(1, len(records)):
@@ -188,53 +259,61 @@ class SimulationResultsWindow(QWidget):
     def _process_single_record(self, record):
         if record.startswith("GUI_DAY_LOG_START:"):
             end_index = record.rfind('}')
-            if end_index == -1:
-                 print(f"CRITICAL PARSING ERROR (Day Log): Missing closing brace in record: {record}")
-                 return
+            if end_index == -1: return
 
             clean_record = record[:end_index + 1]
             
             try:
-                parts = clean_record.split("GUI_DAY_LOG_START:")[1].strip().split(',', 3)
-                if len(parts) != 4:
-                     raise ValueError(f"Malformed record structure. Expected 4 parts, got {len(parts)}.")
+                policy_sample_key = "" # Define scope
                 
-                policy = parts[0].strip().replace('\r', '').replace('\n', '') 
+                # --- CRITICAL SECTION: DATA WRITING (Protected) ---
+                with QMutexLocker(self.data_mutex): 
+                    
+                    parts = clean_record.split("GUI_DAY_LOG_START:")[1].strip().split(',', 3)
+                    if len(parts) != 4: raise ValueError(f"Malformed record structure.")
+                    
+                    policy = parts[0].strip().replace('\r', '').replace('\n', '') 
+                    sample_idx = int(parts[1].strip())
+                    day = int(parts[2].strip())
+                    
+                    # Create the unique key for this tab/chart
+                    policy_sample_key = f"{policy} sample {sample_idx}"
 
-                sample_idx = int(parts[1].strip())
-                day = int(parts[2].strip())
+                    # Check if we need to create a new tab for this sample
+                    if policy_sample_key not in self.active_sample_keys:
+                        # This is safe because we are on the main thread
+                        self.add_sample_chart_tab(policy_sample_key)
+                    
+                    json_part = parts[3].strip()
+                    start_json = json_part.find('{')
+                    end_json = json_part.rfind('}')
+                    
+                    if start_json == -1 or end_json == -1 or end_json < start_json: raise ValueError(f"JSON payload not found.")
+                    
+                    json_string_only = json_part[start_json : end_json + 1]
+                    metrics = json.loads(json_string_only)
+                    
+                    for metric, value in metrics.items():
+                        float_value = float(value)
+                        
+                        # Store data using the unique key
+                        if metric in TARGET_METRICS or metric in SUMMARY_METRICS:
+                            self.daily_data[policy_sample_key][metric][day] = float_value 
+                    
+                    self.status_label.setText(f"Processing: {policy_sample_key} day {day}")
+                # --- END CRITICAL SECTION ---
                 
-                json_part = parts[3].strip()
-                start_json = json_part.find('{')
-                end_json = json_part.rfind('}')
+                # Emit the unique key to the worker for processing
+                if policy_sample_key:
+                    self.start_chart_processing.emit(policy_sample_key) 
                 
-                if start_json == -1 or end_json == -1 or end_json < start_json:
-                     raise ValueError(f"JSON payload not found or malformed in: {json_part}")
-                
-                json_string_only = json_part[start_json : end_json + 1]
-                metrics = json.loads(json_string_only)
-
-                if policy in self.policy_names and sample_idx >= self.sample_counts[policy]:
-                    self.sample_counts[policy] = sample_idx + 1
-
-                for metric, value in metrics.items():
-                    if metric in METRICS:
-                        # Data storage (fast operation) stays on the main thread
-                        self.daily_data[policy][sample_idx][metric][day] = value 
-                
-                self.status_label.setText(f"Processing Policy: {policy}, Sample: {sample_idx}, Day: {day}")
-                
-                # CRITICAL: Emit signal to start the heavy plotting in the worker thread
-                self.start_chart_update.emit(policy) 
             except Exception as e:
                 print(f"CRITICAL PARSING ERROR (Day Log): {e} in record: {clean_record}")
         
         elif record.startswith("GUI_SUMMARY_LOG_START:"):
-            # ... (Summary logic is unchanged) ...
+            # This logic remains unchanged
             end_index = record.rfind('}')
-            if end_index == -1:
-                print(f"CRITICAL PARSING ERROR (Summary Log): Missing closing brace in record: {record}")
-                return
+            if end_index == -1: return
                 
             clean_record = record[:end_index + 1]
             
@@ -243,8 +322,7 @@ class SimulationResultsWindow(QWidget):
                 start_json = json_part.find('{')
                 end_json = json_part.rfind('}')
                 
-                if start_json == -1 or end_json == -1 or end_json < start_json:
-                     raise ValueError(f"JSON payload not found or malformed in: {json_part}")
+                if start_json == -1 or end_json == -1 or end_json < start_json: raise ValueError(f"JSON payload not found.")
                 
                 json_string_only = json_part[start_json : end_json + 1]
                 summary_data = json.loads(json_string_only)
@@ -257,7 +335,7 @@ class SimulationResultsWindow(QWidget):
                 print(f"CRITICAL PARSING ERROR (Summary Log): {e} in record: {clean_record}")
 
     def redraw_summary_chart(self):
-        """Redraws the summary chart."""
+        """Redraws the summary bar chart."""
         if not self.summary_data:
             self.summary_ax.text(0.5, 0.5, "No summary data available.", 
                                  transform=self.summary_ax.transAxes, ha='center')
@@ -268,7 +346,7 @@ class SimulationResultsWindow(QWidget):
         log = self.summary_data['log']
         log_std = self.summary_data['log_std']
         
-        metric_labels = METRICS
+        metric_labels = SUMMARY_METRICS
         
         policy_names = self.summary_data['policies']
         n_policies = len(policy_names)
@@ -276,6 +354,8 @@ class SimulationResultsWindow(QWidget):
         bar_width = 0.8 / n_policies
         
         x = np.arange(n_metrics)
+        
+        summary_colors = self._generate_distinct_colors(n_policies)
 
         for i, policy in enumerate(policy_names):
             means = [log[policy][j] for j in range(n_metrics)]
@@ -285,7 +365,7 @@ class SimulationResultsWindow(QWidget):
             
             self.summary_ax.bar(r, means, width=bar_width, 
                                 edgecolor='grey', label=policy,
-                                yerr=stds, capsize=5)
+                                yerr=stds, capsize=5, color=summary_colors[i % len(summary_colors)])
 
         self.summary_ax.set_xlabel("Metrics")
         self.summary_ax.set_ylabel("Mean Value")
