@@ -5273,22 +5273,19 @@ wheels = [
 
 [[package]]
 name = "torch-geometric"
-version = "2.6.1"
+version = "2.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "aiohttp" },
-    { name = "fsspec" },
     { name = "jinja2" },
     { name = "numpy" },
     { name = "psutil" },
     { name = "pyparsing" },
     { name = "requests" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e8/81/e1b015494cb9e0bf4c47cc8426e49736120248733be0e22072a5628ae9ed/torch_geometric-2.6.1.tar.gz", hash = "sha256:1f18f9d0fc4d2239d526221e4f22606a4a3895b5d965a9856d27610a3df662c6", size = 771490, upload-time = "2024-09-26T08:11:30.25Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/03/9f/157e913626c1acfb3b19ce000b1a6e4e4fb177c0bc0ea0c67ca5bd714b5a/torch_geometric-2.6.1-py3-none-any.whl", hash = "sha256:8faeb353f9655f7dbec44c5e0b44c721773bdfb279994da96b9b8b12fd30f427", size = 1135632, upload-time = "2024-09-26T08:11:27.194Z" },
-]
+sdist = { url = "https://files.pythonhosted.org/packages/06/a5/9f5af849c4185da5ea55f70ef17e23f93355cd4e989d82cfc8ba2d8747af/torch_geometric-2.3.1.tar.gz", hash = "sha256:454fd0bbc128a17a4b9d15010ba9f66d48ec8cd7277991b888a7770263fa125d", size = 661639, upload-time = "2023-04-27T10:12:44.153Z" }
 
 [[package]]
 name = "torch-scatter"
@@ -6474,7 +6471,7 @@ requires-dist = [
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = "==2.2.1" },
     { name = "toolz", specifier = "==1.0.0" },
     { name = "torch", specifier = "==2.2.2" },
-    { name = "torch-geometric", specifier = "==2.6.1" },
+    { name = "torch-geometric", specifier = "==2.3.1" },
     { name = "torch-scatter", marker = "extra == 'mlor'", specifier = "==2.1.2" },
     { name = "torch-tb-profiler", specifier = "==0.4.3" },
     { name = "torchaudio", specifier = "==2.2.2" },
