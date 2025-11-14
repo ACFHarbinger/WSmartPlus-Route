@@ -4,15 +4,20 @@ import json
 import torch
 import wandb
 import random
+import argparse
 import traceback
 import numpy as np
 
 from tensorboard_logger import Logger as TbLogger
-from app.src.utils.arg_parser import parse_params
 from app.src.utils.functions import load_data, load_problem
 from app.src.utils.definitions import (
     ROOT_DIR, HOP_KEYS,
     update_lock_wait_time,
+)
+from app.src.utils.arg_parser import (
+    ConfigsParser, 
+    add_train_args, validate_train_args,
+    add_mrl_train_args, add_hp_optim_args
 )
 from app.src.utils.setup_utils import (
     setup_cost_weights, 
@@ -195,32 +200,55 @@ def train_reinforcement_learning(opts, train_function, cost_weights=None):
     return model
 
 
-def run_training(args):
-    comm, opts = args
+def run_training(args, command):
+    # Set the random seed and execute the program
+    random.seed(args['seed'])
+    np.random.seed(args['seed'])
+    torch.manual_seed(args['seed'])
+    
+    # Use the passed command
+    if command == 'train':
+        train_func = train_reinforce_over_time if args['train_time'] else train_reinforce_epoch
+        train_reinforcement_learning(args, train_func)
+    elif command == 'mrl_train':
+        train_meta_reinforcement_learning(args)
+    elif command == 'hp_optim':
+        hyperparameter_optimization(args)  
+
+
+if __name__ == "__main__":
     exit_code = 0
+    parser = ConfigsParser(
+        description="Training and Optimization Runner (train/mrl_train/hp_optim)",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    
+    # Create subparsers for the commands managed by this file
+    subparsers = parser.add_subparsers(help='Training command', dest='command', required=True)
+    
+    # Add parsers for the three relevant commands
+    add_train_args(subparsers.add_parser('train', help='Train base RL model'))
+    add_mrl_train_args(subparsers.add_parser('mrl_train', help='Train Meta-RL model'))
+    add_hp_optim_args(subparsers.add_parser('hp_optim', help='Run Hyperparameter Optimization'))
     try:
-        # Set the random seed and execute the program
-        random.seed(opts['seed'])
-        np.random.seed(opts['seed'])
-        torch.manual_seed(opts['seed'])
-        if comm == 'train':
-            #if opts['rl_algorithm'] == 'reinforce':
-            train_func = train_reinforce_over_time if opts['train_time'] else train_reinforce_epoch
-            #else:
-            #    raise ValueError(f"Unknown reinforcement learning algorithm: {opts['rl_algorithm']}")
-            train_reinforcement_learning(opts, train_func)
-        elif comm == 'mrl_train':
-            train_meta_reinforcement_learning(opts)
-        elif comm == 'hp_optim':
-            hyperparameter_optimization(opts)
+        # Parse arguments globally, then validate the result based on the command
+        parsed_args = parser.parse_process_args(sys.argv[1:])
+        command = parsed_args.get('command')
+        
+        # Validation is now based on the detected command
+        args = validate_train_args(parsed_args) # validate_train_args handles all three variants
+        
+        # Pass the validated arguments and the command type to the execution function
+        run_training(args, command) 
+    except (argparse.ArgumentError, AssertionError) as e:
+        exit_code = 1
+        parser.print_help()
+        print(f"Error: {e}", file=sys.stderr)
     except Exception as e:
-        traceback.print_exc(file=sys.stdout)
-        print('\n' + e)
+        traceback.print_exc(file=sys.stderr)
+        print(str(e), file=sys.stderr)
         exit_code = 1
     finally:
         sys.stdout.flush()
+        sys.stderr.flush()
         sys.exit(exit_code)
-
-
-if __name__ =="__main__":
-    run_training(parse_params())

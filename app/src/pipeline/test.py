@@ -3,6 +3,7 @@ import sys
 import time
 import torch
 import random
+import argparse
 import traceback
 import statistics
 import numpy as np
@@ -12,7 +13,11 @@ import app.src.utils.definitions as udef
 from tqdm import tqdm
 from collections import defaultdict
 from multiprocessing.pool import ThreadPool
-from app.src.utils.arg_parser import parse_params
+from app.src.utils.arg_parser import (
+    ConfigsParser, 
+    add_test_sim_args, 
+    validate_test_sim_args
+)
 from app.src.utils.log_utils import (
     output_stats, runs_per_policy,
     send_final_output_to_gui
@@ -197,6 +202,10 @@ def simulator_testing(opts, data_size, device):
 
 
 def run_wsr_simulator_test(opts):
+    # Set the random seed and execute the program
+    random.seed(opts['seed'])
+    np.random.seed(opts['seed'])
+    torch.manual_seed(opts['seed'])
     if opts['area'] == 'mixrmbac' and opts['size'] not in [20, 50, 225]:
         data_size = 20 if opts['size'] < 20 else 50 if opts['size'] < 50 else 225
     elif opts['area'] == 'riomaior' and opts['size'] not in [57, 203, 317]:
@@ -254,20 +263,26 @@ def run_wsr_simulator_test(opts):
         raise Exception(f"failed to execute WSmart+ Route simulations due to {repr(e)}")
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
     exit_code = 0
+    parser = ConfigsParser(
+        description="WSmart Route Simulator Test Runner",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    add_test_sim_args(parser)
     try:
-        args = parse_params()
-
-        # Set the random seed and execute the program
-        random.seed(args['seed'])
-        np.random.seed(args['seed'])
-        torch.manual_seed(args['seed'])
+        parsed_args = parser.parse_process_args(sys.argv[1:])
+        args = validate_test_sim_args(parsed_args)
         run_wsr_simulator_test(args)
+    except (argparse.ArgumentError, AssertionError) as e:
+        exit_code = 1
+        parser.print_help()
+        print(f"Error: {e}", file=sys.stderr)
     except Exception as e:
-        traceback.print_exc(file=sys.stdout)
-        print('\n' + e)
+        traceback.print_exc(file=sys.stderr)
+        print(str(e), file=sys.stderr)
         exit_code = 1
     finally:
         sys.stdout.flush()
+        sys.stderr.flush()
         sys.exit(exit_code)

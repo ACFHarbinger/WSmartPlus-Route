@@ -17,6 +17,20 @@ class TestRunDayPolicyRouting:
     
     This class re-uses the 'mock_run_day_deps' fixture from conftest.py
     """
+    
+    # Common arguments required by run_day() that are missing from mock_run_day_deps
+    _RUN_DAY_CONST_ARGS = {
+        'run_tsp': True,
+        'sample_id': 0,
+        'overflows': 0,
+        'n_vehicles': 1,
+        'area': 'riomaior',
+        'waste_type': 'plastic',
+        'current_collection_day': 1,
+        'cached': None,
+        'device': 'cpu'
+    }
+
     @pytest.mark.unit
     def test_run_day_calls_regular(self, mock_run_day_deps):
         """Test if 'policy_regular3_gamma1' calls policy_regular with lvl=2."""
@@ -24,6 +38,7 @@ class TestRunDayPolicyRouting:
             graph_size=5,
             pol='policy_regular3_gamma1',
             day=3,
+            **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
         
@@ -50,6 +65,7 @@ class TestRunDayPolicyRouting:
             graph_size=5,
             pol='policy_last_minute90_gamma1',
             day=1,
+            **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
         
@@ -64,6 +80,7 @@ class TestRunDayPolicyRouting:
             graph_size=5,
             pol='am_policy_gamma1',
             day=1,
+            **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
         
@@ -80,6 +97,7 @@ class TestRunDayPolicyRouting:
             graph_size=5,
             pol='gurobi_vrpp0.5_gamma1',
             day=1,
+            **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
         
@@ -93,12 +111,28 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_hexaly(self, mocker, mock_run_day_deps):
         """Test if 'hexaly_vrpp0.8_gamma1' calls policy_hexaly_vrpp."""
         
+        # Define a mock for the HexalyOptimizer instance
+        mock_hx_instance = MagicMock()
+        
+        # Mock the entire HexalyOptimizer context manager constructor to prevent HxError
+        # We need to ensure that the mocked model.count() returns an object that
+        # can be compared to an int (True for any non-zero value).
+        class MockIntForComparison:
+            def __gt__(self, other): return True
+            def __enter__(self): return self
+            def __exit__(self, exc_type, exc_val, exc_tb): pass
+
+        mock_hx_instance.model.count.return_value = MockIntForComparison()
+
+        mocker.patch('hexaly.optimizer.HexalyOptimizer', return_value=mock_hx_instance)
+        
         mock_pol_hexaly = mocker.patch('app.src.or_policies.policy_hexaly_vrpp', return_value=[[0, 2, 0]])
 
         run_day(
             graph_size=5,
             pol='hexaly_vrpp0.8_gamma1',
             day=1,
+            **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
         
@@ -111,24 +145,28 @@ class TestRunDayPolicyRouting:
     @pytest.mark.unit
     def test_run_day_invalid_policy(self, mock_run_day_deps):
         """Test that an unknown policy string raises a ValueError."""
+        run_day_args = {
+            'graph_size': 5,
+            'pol': 'invalid_policy_name_gamma1',
+            'day': 1,
+            **self._RUN_DAY_CONST_ARGS,
+            **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
+        }
         with pytest.raises(ValueError, match="Unknown policy:"):
-            run_day(
-                graph_size=5,
-                pol='invalid_policy_name_gamma1',
-                day=1,
-                **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
-            )
+            run_day(**run_day_args)
 
     @pytest.mark.unit
     def test_run_day_invalid_regular_lvl(self, mock_run_day_deps):
         """Test that 'policy_regular' raises an error for an invalid level."""
+        run_day_args = {
+            'graph_size': 5,
+            'pol': 'policy_regular4_gamma1', # 4 is invalid
+            'day': 1,
+            **self._RUN_DAY_CONST_ARGS,
+            **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
+        }
         with pytest.raises(ValueError, match="Invalid lvl value for policy_regular: 4"):
-            run_day(
-                graph_size=5,
-                pol='policy_regular4_gamma1', # 4 is invalid
-                day=1,
-                **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
-            )
+            run_day(**run_day_args)
 
 
 # --- Test Class for Individual Policy Logic ---
@@ -239,9 +277,9 @@ class TestLastMinutePolicies:
         paths = [
             [], # 0
             [], # 1
-            [[], [], [], [2, 1, 5, 3], [2, 1, 5, 4], []], # 2
+            [[2, 0], [2, 1], [], [2, 1, 5, 3], [2, 1, 5, 4], [2, 1, 5]], # 2
             [], # 3
-            [[], [], [4, 5, 1, 2], [4, 3], [], [4, 5]], # 4
+            [[4, 5, 0], [4, 5, 1], [4, 5, 1, 2], [4, 3], [4], [4, 5]], # 4
             []  # 5
         ]
         policy_deps['paths_between_states'] = paths
@@ -596,21 +634,41 @@ class TestHexalyOptimizer:
         # --- Arrange ---
         from app.src.or_policies.hexaly_optimizer import policy_hexaly_vrpp
         
-        # Mock the entire Hexaly solver flow (optimizer, model, solve)
+        # Define a mock for the HexalyOptimizer instance
         mock_hexaly = MagicMock()
         mock_hexaly.model.list.return_value = MagicMock() # Mock list variables
         mock_hexaly.model.array.return_value = MagicMock() # Mock array conversion
         
+        # Mock solution status for successful run
+        mock_hexaly.solution_status.value = 1
+        
+        # FIX 4: Use a Mock class that explicitly inherits from int (or behaves like it)
+        # to ensure the Python comparison (`> 0`) succeeds without TypeError.
+        class IntMock(int):
+            # Hexaly constraints often compare the result of model.count() directly.
+            # We enforce that the result object is always treated as the integer 1 (or any non-zero value).
+            def __new__(cls, value):
+                return int.__new__(cls, value)
+            def __gt__(self, other):
+                # Ensure the comparison (route_length > 0) returns True
+                return self.value > other
+            # Need to define __enter__ and __exit__ for the context manager in the failing trace
+            def __enter__(self):
+                return self
+            def __exit__(self, exc_type, exc_val, exc_tb):
+                pass
+            
+        # Configure model.count() to return a mock object that is ALSO an integer (value 1)
+        mock_hexaly.model.count.return_value = IntMock(1)
+
         # Mock the route list variable to return a solved value
         routes_mock = MagicMock()
         routes_mock.value = [1] # Bin ID 1 (Index 1) collected
         
-        # Hexaly's model.list returns the mock route objects
-        mock_list_side_effect = [routes_mock, routes_mock] # For 2 vehicles
-        mock_hexaly.model.list.side_effect = mock_list_side_effect
+        # Hexaly's model.list returns the mock route objects (one list per vehicle)
+        mock_hexaly.model.list.side_effect = [routes_mock] 
         
         mocker.patch('hexaly.optimizer.HexalyOptimizer', return_value=mock_hexaly)
-        mocker.patch('hexaly.optimizer.HxSolutionStatus.OPTIMAL', 1) 
 
         # Test 1: Must-Go Bin (Prediction > 100)
         # Bin 2: Current 95.0 + Mean 10.0 + Param(1) * Std(1) = 106.0 -> Must Go

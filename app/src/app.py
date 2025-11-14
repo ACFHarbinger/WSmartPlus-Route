@@ -1,12 +1,18 @@
 import sys
 import signal
+import argparse
 import threading
+import traceback
 
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 from .gui import MainWindow
-from .utils.arg_parser import parse_params
 from .utils.definitions import CTRL_C_TIMEOUT, ICON_FILE
+from app.src.utils.arg_parser import (
+    ConfigsParser, 
+    add_gui_args, 
+    validate_gui_args
+)
 
 
 def run_app_gui(opts):
@@ -64,10 +70,26 @@ def run_app_gui(opts):
     
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
+    exit_code = 0
+    parser = ConfigsParser(
+        description="WSR Simulator Test Runner",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    add_gui_args(parser)
     try:
-        args = parse_params()
+        parsed_args = parser.parse_process_args(sys.argv[1:])
+        args = validate_gui_args(parsed_args)
         exit_code = run_app_gui(args)
+    except (argparse.ArgumentError, AssertionError) as e:
+        print(f"Error: {e}", file=sys.stderr)
+        parser.print_help()
+        exit_code = 1
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        print('\n' + e)
+        exit_code = 1
     finally:
         sys.stdout.flush()
+        sys.stderr.flush()
         sys.exit(exit_code)

@@ -18,13 +18,12 @@ a = Analysis(
     datas=[
         # Include data files
         ('data/wsr_simulator/*', 'data'),
-        ('assets/model_weights/*', 'model_weights'),
-        ('assets/logs/*', 'logs'),
+        ('assets/model_weights/*', 'assets/model_weights'),
+        ('assets/logs/*', 'assets/logs'),
     ],
     hiddenimports=[
         # Core modules PyInstaller often needs for PySide6/subprocess interactions
-        'PySide6.QtSvg',
-        'PySide6.QtXml',
+        # 'PySide6.QtSvg', 'PySide6.QtXml',
 
         # Other modules
         'torch', 'numpy', 'argparse',
@@ -56,12 +55,11 @@ a = Analysis(
 # Enable large file support
 a.archivename = 'WSmartRoute'  # This helps with large files
 
-a.datas += Tree(os.path.join(pyside_path, 'Qt', 'plugins', 'platforms'), prefix='PySide6/Qt/plugins/platforms')
+# a.datas += Tree(os.path.join(pyside_path, 'Qt', 'plugins', 'platforms'), prefix='PySide6/Qt/plugins/platforms')
 
 pyz = PYZ(a.pure, a.zipped_data,
     cipher=None
 )
-
 
 exe = EXE(
     pyz,
