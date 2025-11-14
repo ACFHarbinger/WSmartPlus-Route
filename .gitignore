@@ -429,6 +429,8 @@ model_weights/
 # WSmart Route simulator temporary files
 temp/
 cache/
+**/WSmartRoute/
+WSmartRoute.zip
 
 # Datafiles that exceed Github memory limit
 data/wsr_simulator/bins_waste/Enchimentos_de_Sensores\[RioMaior\].csv

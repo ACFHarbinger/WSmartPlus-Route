@@ -9,6 +9,10 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 
 # Attention, Learn to Solve Routing Problems
+def get_inner_model(model):
+    return model.module if isinstance(model, torch.nn.DataParallel) else model
+
+
 def load_problem(name):
     from problems import TSP, PDP, CVRP, SDVRP, OP, VRPP, WCRP, CWCVRP, SDWCVRP, PCTSPDet, PCTSPStoch
     problem = {
@@ -170,7 +174,6 @@ def load_model(path, epoch=None):
 
 
 def parse_softmax_temperature(raw_temp):
-    # print(raw_temp)
     # Load from file
     if os.path.isfile(raw_temp):
         return np.loadtxt(raw_temp)[-1, 0]
