@@ -2,17 +2,27 @@ import os
 import sys
 import torch
 import random
+import argparse
 import traceback
 import numpy as np
 
 from app.src.utils.definitions import ROOT_DIR
-from app.src.utils.arg_parser import parse_params
+from app.src.utils.arg_parser import (
+    ConfigsParser, 
+    add_gen_data_args, 
+    validate_gen_data_args
+)
 from app.src.utils.data_utils import check_extension, save_dataset
 from .generate_problem_data import *
 from .generate_simulator_data import generate_wsr_data
 
 
 def generate_datasets(opts):
+    # Set the random seed and execute the program
+    random.seed(opts['seed'])
+    np.random.seed(opts['seed'])
+    torch.manual_seed(opts['seed'])
+
     gamma_dists = ['gamma1', 'gamma2', 'gamma3', 'gamma4']
     distributions_per_problem = {
         'tsp': [None],
@@ -153,20 +163,26 @@ def generate_datasets(opts):
             ))
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
     exit_code = 0
+    parser = ConfigsParser(
+        description="Data Generator Runner",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    add_gen_data_args(parser)
     try:
-        args = parse_params()
-
-        # Set the random seed and execute the program
-        random.seed(args['seed'])
-        np.random.seed(args['seed'])
-        torch.manual_seed(args['seed'])
+        parsed_args = parser.parse_process_args(sys.argv[1:])
+        args = validate_gen_data_args(parsed_args)
         generate_datasets(args)
+    except (argparse.ArgumentError, AssertionError) as e:
+        exit_code = 1
+        parser.print_help()
+        print(f"Error: {e}", file=sys.stderr)
     except Exception as e:
-        traceback.print_exc(file=sys.stdout)
-        print('\n' + e)
+        traceback.print_exc(file=sys.stderr)
+        print(str(e), file=sys.stderr)
         exit_code = 1
     finally:
         sys.stdout.flush()
+        sys.stderr.flush()
         sys.exit(exit_code)

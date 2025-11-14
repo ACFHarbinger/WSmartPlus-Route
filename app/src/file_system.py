@@ -2,9 +2,14 @@ import os
 import sys
 import shutil
 import traceback
+import argparse
 
 from .utils.definitions import ROOT_DIR
-from .utils.arg_parser import parse_params
+from .utils.arg_parser import (
+    ConfigsParser,
+    add_files_args,
+    validate_file_system_args
+)
 from .utils.cryptography import (
     generate_key, load_key, 
     encrypt_file_data, decrypt_file_data
@@ -156,10 +161,22 @@ def delete_file_system_entries(opts):
 
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
     exit_code = 0
+    
+    # Create a generic parser, add the file system arguments, parse, and validate.
+    parser = ConfigsParser(
+        description="File System Utility Runner (update/delete/cryptography)",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    add_files_args(parser) 
     try:
-        comm, opts = parse_params()
+        # Parse arguments from command line
+        parsed_args = parser.parse_process_args(sys.argv[1:])
+        
+        # Validate arguments and extract the inner command (e.g., 'update', 'delete', 'cryptography')
+        # validate_file_system_args returns (fs_command, validated_opts)
+        comm, opts = validate_file_system_args(parsed_args)
         if comm == 'update':
             update_file_system_entries(opts)
         elif comm == 'delete':
@@ -167,10 +184,15 @@ if __name__ =="__main__":
         else:
             assert comm == 'cryptography'
             perform_cryptographic_operations(opts)
-    except Exception as e:
-        print(e)
+    except (argparse.ArgumentError, AssertionError) as e:
         exit_code = 1
-        traceback.print_exc(file=sys.stdout)
+        parser.print_help()
+        print(f"Error: {e}", file=sys.stderr)
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        print(str(e), file=sys.stderr)
+        exit_code = 1
     finally:
         sys.stdout.flush()
+        sys.stderr.flush()
         sys.exit(exit_code)

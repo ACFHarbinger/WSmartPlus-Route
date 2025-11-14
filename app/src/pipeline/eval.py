@@ -4,13 +4,18 @@ import math
 import time
 import torch
 import random
+import argparse
 import datetime
 import traceback
 import itertools
 import numpy as np
 
 from tqdm import tqdm
-from app.src.utils.arg_parser import parse_params
+from app.src.utils.arg_parser import (
+    ConfigsParser, 
+    add_eval_args, 
+    validate_eval_args
+)
 from app.src.utils.data_utils import save_dataset
 from app.src.utils.functions import move_to, load_model
 
@@ -183,6 +188,10 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
 
 
 def run_evaluate_model(opts):
+    # Set the random seed and execute the program
+    random.seed(opts['seed'])
+    np.random.seed(opts['seed'])
+    torch.manual_seed(opts['seed'])
     widths = opts['width'] if opts['width'] is not None else [0]
     for width in widths:
         for dataset_path in opts['datasets']:
@@ -190,21 +199,26 @@ def run_evaluate_model(opts):
     return
 
 
-
-if __name__ =="__main__":
+if __name__ == "__main__":
     exit_code = 0
+    parser = ConfigsParser(
+        description="Evaluation Runner",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    add_eval_args(parser)
     try:
-        args = parse_params()
-
-        # Set the random seed and execute the program
-        random.seed(args['seed'])
-        np.random.seed(args['seed'])
-        torch.manual_seed(args['seed'])
+        parsed_args = parser.parse_process_args(sys.argv[1:])
+        args = validate_eval_args(parsed_args)
         run_evaluate_model(args)
+    except (argparse.ArgumentError, AssertionError) as e:
+        exit_code = 1
+        parser.print_help()
+        print(f"Error: {e}", file=sys.stderr)
     except Exception as e:
-        traceback.print_exc(file=sys.stdout)
-        print('\n' + e)
+        traceback.print_exc(file=sys.stderr)
+        print(str(e), file=sys.stderr)
         exit_code = 1
     finally:
         sys.stdout.flush()
+        sys.stderr.flush()
         sys.exit(exit_code)

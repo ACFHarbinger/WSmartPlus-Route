@@ -26,7 +26,8 @@ from app.src.pipeline.train import (
     train_meta_reinforcement_learning, hyperparameter_optimization
 )
 from app.src.data.generate_data import generate_datasets
-from app.src.utils.arg_parser import parse_params
+# Ensure parse_params is imported from the new location
+from app.src.utils.arg_parser import parse_params 
 from app.src.app import run_app_gui
 
 
@@ -106,10 +107,6 @@ def main(args):
             elif comm == 'test_suite':
                 run_test_suite(opts)       
             else:
-                # Set the random seed and execute the program
-                random.seed(opts['seed'])
-                np.random.seed(opts['seed'])
-                torch.manual_seed(opts['seed'])
                 if comm == 'train':
                     #if opts['rl_algorithm'] == 'reinforce':
                     train_func = train_reinforce_over_time if opts['train_time'] else train_reinforce_epoch
@@ -127,16 +124,16 @@ def main(args):
                 elif comm == 'test_sim':
                     run_wsr_simulator_test(opts)
     except Exception as e:
-        traceback.print_exc(file=sys.stdout)
-        print('\n' + e)
+        traceback.print_exc(file=sys.stderr)
+        print('\n' + str(e))
         exit_code = 1
     finally:
         print("\nFinished {}{} command execution with exit code: {}".format(
             comm, f" ({inner_comm}) " if inner_comm is not None else "", exit_code
         ))
         sys.stdout.flush()
+        sys.stderr.flush()
         sys.exit(exit_code)
-
 
 
 if __name__ =="__main__":
