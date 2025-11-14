@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QApplication,
     QTabWidget, QPushButton, QWidget, QLabel, QMessageBox
 )
-from . import SimpleChartWindow
+from . import SimulationResultsWindow
 from ..tabs import (
     RLCostsTab, RLDataTab, RLModelTab, RunScriptsTab,
     GenDataGeneralTab, GenDataProblemTab, GenDataAdvancedTab,
@@ -386,7 +386,7 @@ class MainWindow(QWidget):
                 policies_str = test_sim_tab.get_params().get('policies', '')
                 policy_names = policies_str.split() if policies_str else ['Unknown Policy']
             
-            self.results_window = SimpleChartWindow(policy_names)
+            self.results_window = SimulationResultsWindow(policy_names)
             self.results_window.show()
         else:
             self.results_window = None
