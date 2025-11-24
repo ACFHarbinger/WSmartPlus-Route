@@ -16,7 +16,7 @@ if [ "$VERBOSE" = false ]; then
     exec >/dev/null 2>&1
 fi
 
-EDGE_T=1.0
+EDGE_T=0.0
 EDGE_M="knn"
 DIST_M="gmaps"
 VERTEX_M="mmn"
@@ -58,7 +58,7 @@ EXP_BETA=0.8
 BL_ALPHA=0.05
 ACC_STEPS=1
 
-SIZE=170
+SIZE=100
 AREA="riomaior"
 WTYPE="plastic"
 F_SIZE=128000
