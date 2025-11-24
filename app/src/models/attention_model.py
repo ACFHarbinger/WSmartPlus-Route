@@ -6,8 +6,7 @@ import torch.nn.functional as F
 
 from app.src.utils.beam_search import CachedLookup
 from app.src.or_policies import find_route
-from app.src.utils.sampling import sample_many
-from app.src.utils.tensor_functions import compute_in_batches, add_attention_hooks
+from app.src.utils.functions import compute_in_batches, add_attention_hooks, sample_many
 
 
 class AttentionModelFixed(typing.NamedTuple):

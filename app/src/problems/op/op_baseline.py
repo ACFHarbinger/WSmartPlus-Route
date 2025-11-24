@@ -243,8 +243,7 @@ def run_all_tsiligirides(dataset_path, sample, num_samples, eval_batch_size, max
 
     from problems.op.problem_op import OP
     from torch.utils.data import DataLoader
-    from utils.functions import move_to
-    from utils.sampling import sample_many
+    from utils.functions import move_to, sample_many
     from problems.op.tsiligirides import op_tsiligirides
     
     # Set the random seed, data loader, and device

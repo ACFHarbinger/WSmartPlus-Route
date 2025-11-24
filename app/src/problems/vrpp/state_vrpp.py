@@ -3,7 +3,6 @@ import torch.nn.functional as F
 
 from typing import NamedTuple
 from utils.boolmask import mask_long2bool, mask_long_scatter
-from pipeline.simulator.loader import load_area_and_waste_type_params
 
 
 class StateVRPP(NamedTuple):

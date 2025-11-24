@@ -3,6 +3,7 @@ import json
 import torch
 import numpy as np
 import multiprocessing as mp
+import torch.nn.functional as F
 
 from tqdm import tqdm
 from multiprocessing.dummy import Pool as ThreadPool
@@ -218,3 +219,108 @@ def get_path_until_string(path, end_str):
     except ValueError as ve:
         print(f"Path '{path}' does not contain '{end_str}'")
         return None
+
+
+# Tensor functions
+def compute_in_batches(f, calc_batch_size, *args, n=None):
+    """
+    Computes memory heavy function f(*args) in batches
+    :param n: the total number of elements, optional if it cannot be determined as args[0].size(0)
+    :param f: The function that is computed, should take only tensors as arguments and return tensor or tuple of tensors
+    :param calc_batch_size: The batch size to use when computing this function
+    :param args: Tensor arguments with equally sized first batch dimension
+    :return: f(*args), this should be one or multiple tensors with equally sized first batch dimension
+    """
+    if n is None:
+        n = args[0].size(0)
+    n_batches = (n + calc_batch_size - 1) // calc_batch_size  # ceil
+    if n_batches == 1:
+        return f(*args)
+
+    # Run all batches
+    # all_res = [f(*batch_args) for batch_args in zip(*[torch.chunk(arg, n_batches) for arg in args])]
+    # We do not use torch.chunk such that it also works for other classes that support slicing
+    all_res = [f(*(arg[i * calc_batch_size:(i + 1) * calc_batch_size] for arg in args)) for i in range(n_batches)]
+
+    # Allow for functions that return None
+    def safe_cat(chunks, dim=0):
+        if chunks[0] is None:
+            assert all(chunk is None for chunk in chunks)
+            return None
+        return torch.cat(chunks, dim)
+
+    # Depending on whether the function returned a tuple we need to concatenate each element or only the result
+    if isinstance(all_res[0], tuple):
+        return tuple(safe_cat(res_chunks, 0) for res_chunks in zip(*all_res))
+    return safe_cat(all_res, 0)
+
+
+def add_attention_hooks(model_module):
+        graph_masks = []
+        attention_weights = []
+        
+        def hook(module, input, output):
+            if hasattr(module, 'last_attn') and module.last_attn is not None:
+                graph_masks.append(module.last_attn[-1])
+                attention_weights.append(module.last_attn[0])
+        
+        # Register hooks on all MHA layers
+        hook_data = {
+            'weights': attention_weights,
+            'masks': graph_masks,
+            'handles': []
+        }
+        for layer in model_module.layers:
+            # Get the actual attention module (skip the SkipConnection wrapper), if layer has attention
+            if not hasattr(layer, 'att'): continue
+            attention_module = layer.att.module
+            
+            # Register hook and store the handle
+            hook_handle = attention_module.register_forward_hook(hook)
+            hook_data['handles'].append(hook_handle)
+        return hook_data
+
+
+# Sampling functions
+def do_batch_rep(v, n):
+    if isinstance(v, dict):
+        return {k: do_batch_rep(v_, n) for k, v_ in v.items()}
+    elif isinstance(v, list):
+        return [do_batch_rep(v_, n) for v_ in v]
+    elif isinstance(v, tuple):
+        return tuple(do_batch_rep(v_, n) for v_ in v)
+    return v[None, ...].expand(n, *v.size()).contiguous().view(-1, *v.size()[1:])
+
+
+def sample_many(inner_func, get_cost_func, input, batch_rep=1, iter_rep=1):
+    """
+    :param input: (batch_size, graph_size, node_dim) input node features
+    :return:
+    """
+    input = do_batch_rep(input, batch_rep)
+    costs = []
+    pis = []
+    for i in range(iter_rep):
+        _log_p, pi = inner_func(input)
+
+        # pi.view(-1, batch_rep, pi.size(-1))
+        cost, mask = get_cost_func(input, pi)
+
+        costs.append(cost.view(batch_rep, -1).t())
+        pis.append(pi.view(batch_rep, -1, pi.size(-1)).transpose(0, 1))
+
+    max_length = max(pi.size(-1) for pi in pis)
+
+    # (batch_size * batch_rep, iter_rep, max_length) => (batch_size, batch_rep * iter_rep, max_length)
+    pis = torch.cat(
+        [F.pad(pi, (0, max_length - pi.size(-1))) for pi in pis],
+        1
+    )  # .view(embeddings.size(0), batch_rep * iter_rep, max_length)
+    costs = torch.cat(costs, 1)
+
+    # (batch_size)
+    mincosts, argmincosts = costs.min(-1)
+    
+    # (batch_size, minlength)
+    minpis = pis[torch.arange(pis.size(0), out=argmincosts.new()), argmincosts]
+    return minpis, mincosts
