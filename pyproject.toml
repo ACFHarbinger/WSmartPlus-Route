@@ -77,9 +77,11 @@ dependencies = [
     "gpustat==1.1.1",
     "greenlet==3.2.4",
     "grpcio==1.48.2",
+    "gurobipy==11.0.3",
     "gymnasium==0.28.1",
     "h11==0.16.0",
     "h2==4.2.0",
+    "hexaly>=14.0.20251008",
     "hpack==4.1.0",
     "httpcore==1.0.9",
     "httptools==0.6.4",
@@ -219,6 +221,7 @@ dependencies = [
     "toolz==1.0.0",
     "torch==2.2.2",
     "torch-geometric==2.3.1",
+    "torch-scatter>=2.1.2",
     "torch-tb-profiler==0.4.3",
     "torchaudio==2.2.2",
     "torchvision==0.17.2",
@@ -266,22 +269,18 @@ dev = [
     "ruff>=0.14.3",
 ]
 
-# Dependencies for pytorch GNNs and proprietary software
-[project.optional-dependencies]
-mlor = [
-  "torch_scatter==2.1.2",
-  "gurobipy==11.0.3",
-  "hexaly==14.0.20251008"
-]
+[tool.uv.sources]
+hexaly = { index = "hexaly_package" }
+torch_scatter = { index = "pyg" }
+
+[[tool.uv.index]]
+name = "hexaly_package"
+url = "https://pip.hexaly.com" 
 
 [[tool.uv.index]]
 name = "pyg"
 url = "https://data.pyg.org/whl/torch-2.2.2+cu121.html"
 format = "flat"
-
-[[tool.uv.index]]
-name = "hexaly"
-url = "https://pip.hexaly.com"   
 
 [tool.pyright]
 typeCheckingMode = "off"
