@@ -13,7 +13,7 @@ from copy import deepcopy
 from dotenv import dotenv_values
 from geopy.distance import geodesic
 from app.src.utils.definitions import ROOT_DIR, EARTH_RADIUS
-from app.src.utils.cryptography import decrypt_file_data, load_key
+from app.src.utils.crypto_utils import decrypt_file_data, load_key
 from app.src.utils.graph_utils import get_edge_idx_dist, get_adj_knn, idx_to_adj
 
 
