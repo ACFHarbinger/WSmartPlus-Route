@@ -4,7 +4,7 @@
 VERBOSE=false
 
 # Default cores
-N_CORES=22
+N_CORES=1
 
 while getopts nc: flag
 do
@@ -32,13 +32,13 @@ fi
 
 SEED=42
 N_DAYS=31
-N_BINS=50
-N_SAMPLES=10
+N_BINS=100
+N_SAMPLES=1
 PROBLEM="vrpp"
 
 AREA="riomaior"
 WTYPE="plastic"
-DATA_DIST="gamma2"
+DATA_DIST="emp"
 IDX_PATH="graphs_${N_BINS}V_1N_${WTYPE}.json"
 
 SYM_KEY="skey"
@@ -53,7 +53,7 @@ GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("policy_regular")
+POLICIES=("hexaly_vrpp")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
 #"gurobi_vrpp" "hexaly_vrpp" 
@@ -65,10 +65,10 @@ EDGE_METHOD="knn"
 VERTEX_METHOD="mmn"
 DIST_METHOD="gmaps"
 DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}[${AREA}].csv"
-WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr31_N10_seed${SEED}.pkl"
+WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr31_N1_seed${SEED}.pkl"
 
 RUN_TSP=1
-CHECKPOINTS=0
+CHECKPOINTS=30
 
 echo "Starting test execution with $n_cores cores..."
 echo "========================================"

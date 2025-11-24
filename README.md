@@ -28,10 +28,9 @@ This repository also includes adaptions of the following repositories as baselin
 You can choose to install this repository's dependencies using any of the following methods below.
 
 ### UV
-To use the [UV Python package and project manager](https://github.com/astral-sh/uv) to setup the virtual environment, you first have to synchronize the project and then you need to install the additional required dependencies.
+To use the [UV Python package and project manager](https://github.com/astral-sh/uv) to setup the virtual environment, you just have to synchronize the project.
 ```bash
 uv sync
-uv pip install -r pyproject.toml --extra mlor
 ```
 
 Afterwards, you can initialize the virtual environment by running one of the following commands: 

@@ -438,9 +438,11 @@ def send_daily_output_to_gui(daily_log, policy, sample_idx, day):
 
 
 def send_final_output_to_gui(log, log_std, n_samples, policies):
+    lgsd = {k: [[0]*len(v) if isinstance(v, tuple) else 0 for v in pol_data] for k, pol_data in log.items()} if log_std is None \
+        else {k: [list(v) if isinstance(v, tuple) else v for v in pol_data] for k, pol_data in log_std.items()}
     summary_data = {
         'log': {k: [list(v) if isinstance(v, tuple) else v for v in pol_data] for k, pol_data in log.items()},
-        'log_std': {k: [list(v) if isinstance(v, tuple) else v for v in pol_data] for k, pol_data in log_std.items()},
+        'log_std': lgsd,
         'n_samples': n_samples,
         'policies': policies
     }

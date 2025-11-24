@@ -28,6 +28,7 @@ def get_daily_results(bins, cost, tour, day, new_overflows, sum_lost, coordinate
     dlog['kg_lost'] = sum_lost
     if len(tour) > 2:
         collected, ncol = bins.collect(tour)
+        print("Collected:", collected)
         rl_cost = new_overflows - collected + cost
         bins.travel += cost
         dlog['kg'] = collected
