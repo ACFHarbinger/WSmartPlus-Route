@@ -5,7 +5,7 @@ import torch.optim as optim
 
 from .definitions import ROOT_DIR
 from dotenv import dotenv_values
-from app.src.utils.cryptography import decrypt_file_data
+from app.src.utils.crypto_utils import decrypt_file_data
 from app.src.utils.functions import load_model, get_inner_model
 
 
