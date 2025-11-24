@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 
 from typing import NamedTuple
-from utils.boolmask import mask_long2bool, mask_long_scatter
+from app.src.utils.boolmask import mask_long2bool, mask_long_scatter
 
 
 class StateVRPP(NamedTuple):

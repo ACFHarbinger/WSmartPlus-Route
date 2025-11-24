@@ -2,16 +2,17 @@ import os
 import torch
 import pickle
 
-from utils.definitions import MAX_WASTE
+from app.src.utils.definitions import MAX_WASTE
 from tqdm import tqdm
 from torch.utils.data import Dataset
-from problems.vrpp.state_vrpp import StateVRPP
-from utils.beam_search import beam_search
+from .state_vrpp import StateVRPP
 from scipy.spatial.distance import pdist, squareform
-from utils.data_utils import load_focus_coords, generate_waste_prize
-from utils.graph_utils import get_edge_idx_dist, get_adj_knn, adj_to_idx
-from pipeline.simulator.loader import load_area_and_waste_type_params
-from pipeline.simulator.network import compute_distance_matrix, apply_edges
+from app.src.utils.beam_search import beam_search
+from app.src.utils.data_utils import load_focus_coords, generate_waste_prize
+from app.src.utils.graph_utils import get_edge_idx_dist, get_adj_knn, adj_to_idx
+from app.src.pipeline.simulator.bins import Bins
+from app.src.pipeline.simulator.loader import load_area_and_waste_type_params
+from app.src.pipeline.simulator.network import compute_distance_matrix, apply_edges
 
 
 class VRPP(object):
@@ -114,14 +115,14 @@ def make_instance(edge_threshold, edge_strategy, args):
     return ret_dict
 
 
-def generate_instance(size, edge_threshold, edge_strategy, distribution, *args, graph=None):
+def generate_instance(size, edge_threshold, edge_strategy, distribution, bins, graph=None):
     if graph is not None:
         depot, loc = graph
     else:
         loc = torch.FloatTensor(size, 2).uniform_(0, 1)
         depot = torch.FloatTensor(2).uniform_(0, 1)
 
-    waste = torch.from_numpy(generate_waste_prize(size, distribution, (depot, loc)), 1, args).float()
+    waste = torch.from_numpy(generate_waste_prize(size, distribution, (depot, loc), 1, bins)).float()
     ret_dict = {
         'loc': loc,
         'depot': depot,
@@ -173,8 +174,13 @@ class VRPPDataset(Dataset):
             else:
                 dist_matrix_edges = dist_matrix
             self.dist_matrix = torch.from_numpy(dist_matrix_edges).float() / 100
+            if distribution in ['gamma', 'emp']:
+                bins = Bins(size, os.path.join(os.getcwd(), "data", "wsr_simulator"), distribution, area=area, indices=idx)
+            else:
+                bins = None
         else:
             idx = None
+            bins = None
             graph = None
             focus_path = None
             self.edges = None
@@ -191,10 +197,9 @@ class VRPPDataset(Dataset):
                 ]
         else:
             print("Generating data...")
-            args = (focus_path, idx, area)
             self.data = [
-                generate_instance(size, num_edges, edge_strat, dist, args) if focus_size < i 
-                else generate_instance(size, num_edges, edge_strat, dist, graph, args)
+                generate_instance(size, num_edges, edge_strat, dist, bins) if focus_size < i 
+                else generate_instance(size, num_edges, edge_strat, dist, bins, graph=(graph[0][i, :], graph[1][i, :, :]))
                 for i in tqdm(range(num_samples))
             ]
         self.size = len(self.data)

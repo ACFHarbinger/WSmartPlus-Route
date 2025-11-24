@@ -1,8 +1,8 @@
 import torch
 
-from utils.definitions import VEHICLE_CAPACITY
 from typing import NamedTuple
-from utils.boolmask import mask_long2bool, mask_long_scatter
+from app.src.utils.definitions import VEHICLE_CAPACITY
+from app.src.utils.boolmask import mask_long2bool, mask_long_scatter
 
 
 class StateCVRP(NamedTuple):

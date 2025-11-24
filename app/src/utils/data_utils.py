@@ -5,7 +5,7 @@ import torch
 import pickle
 import numpy as np
 
-from .functions import get_path_until_string
+from app.src.utils.functions import get_path_until_string
 from app.src.pipeline.simulator.loader import load_depot, load_simulator_data
 from app.src.pipeline.simulator.processor import process_data, process_coordinates
 
@@ -97,7 +97,7 @@ def _get_fill_gamma(dataset_size, problem_size, gamma_option):
     return np.random.gamma(k, th, size=(dataset_size, problem_size)) / 100.
 
 
-def generate_waste_prize(problem_size, distribution, graph, dataset_size=1, *args):
+def generate_waste_prize(problem_size, distribution, graph, dataset_size=1, bins=None):
     if distribution == 'empty':
         wp = np.zeros(shape=(dataset_size, problem_size))
     elif distribution == 'const':
@@ -108,7 +108,6 @@ def generate_waste_prize(problem_size, distribution, graph, dataset_size=1, *arg
         gamma_option = int(distribution[-1]) - 1
         wp = _get_fill_gamma(dataset_size, problem_size, gamma_option)
     elif 'emp' in distribution:
-        bins, *args = args
         wp = bins.stochasticFilling(n_samples=dataset_size, only_fill=True) / 100.
     else:
         assert distribution == 'dist'
