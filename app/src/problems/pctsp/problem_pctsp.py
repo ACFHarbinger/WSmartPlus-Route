@@ -1,17 +1,16 @@
 import os
-import json
 import torch
 import pickle
 
-from utils.definitions import MAX_LENGTHS
+from app.src.utils.definitions import MAX_LENGTHS
 from tqdm import tqdm
 from torch.utils.data import Dataset
-from problems.pctsp.state_pctsp import StatePCTSP
-from utils.beam_search import beam_search
-from utils.data_utils import load_focus_coords
+from .state_pctsp import StatePCTSP
+from app.src.utils.beam_search import beam_search
+from app.src.utils.data_utils import load_focus_coords
 from scipy.spatial.distance import pdist, squareform
-from utils.graph_utils import get_edge_idx_dist, get_adj_knn, adj_to_idx
-from pipeline.simulator.network import compute_distance_matrix, apply_edges
+from app.src.utils.graph_utils import get_edge_idx_dist, get_adj_knn, adj_to_idx
+from app.src.pipeline.simulator.network import compute_distance_matrix, apply_edges
 
 
 class PCTSP(object):

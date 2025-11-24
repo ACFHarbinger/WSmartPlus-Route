@@ -1,7 +1,7 @@
 import torch
 
-from utils.definitions import VEHICLE_CAPACITY
 from typing import NamedTuple
+from app.src.utils.definitions import VEHICLE_CAPACITY
 
 
 class StateSDVRP(NamedTuple):

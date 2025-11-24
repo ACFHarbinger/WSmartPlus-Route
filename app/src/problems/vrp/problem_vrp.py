@@ -1,18 +1,17 @@
 import os
-import json
 import torch
 import pickle
 
-from utils.definitions import VEHICLE_CAPACITY, CAPACITIES
 from tqdm import tqdm
 from torch.utils.data import Dataset
-from problems.vrp.state_cvrp import StateCVRP
-from problems.vrp.state_sdvrp import StateSDVRP
-from utils.beam_search import beam_search
-from utils.data_utils import load_focus_coords
+from .state_cvrp import StateCVRP
+from .state_sdvrp import StateSDVRP
 from scipy.spatial.distance import pdist, squareform
-from utils.graph_utils import get_edge_idx_dist, get_adj_knn, adj_to_idx
-from pipeline.simulator.network import compute_distance_matrix, apply_edges
+from app.src.utils.definitions import VEHICLE_CAPACITY, CAPACITIES
+from app.src.utils.beam_search import beam_search
+from app.src.utils.data_utils import load_focus_coords
+from app.src.utils.graph_utils import get_edge_idx_dist, get_adj_knn, adj_to_idx
+from app.src.pipeline.simulator.network import compute_distance_matrix, apply_edges
 
 
 class CVRP(object):

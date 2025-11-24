@@ -15,7 +15,7 @@ def get_inner_model(model):
 
 
 def load_problem(name):
-    from problems import TSP, PDP, CVRP, SDVRP, OP, VRPP, WCRP, CWCVRP, SDWCVRP, PCTSPDet, PCTSPStoch
+    from app.src.problems import TSP, PDP, CVRP, SDVRP, OP, VRPP, WCRP, CWCVRP, SDWCVRP, PCTSPDet, PCTSPStoch
     problem = {
         'tsp': TSP,
         'cvrp': CVRP,
@@ -97,7 +97,7 @@ def load_args(filename):
 
 
 def load_model(path, epoch=None):
-    from models import (
+    from app.src.models import (
         GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
         AttentionModel, PointerNetwork, TemporalAttentionModel, DeepDecoderAttentionModel
     )
