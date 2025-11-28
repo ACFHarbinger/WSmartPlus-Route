@@ -28,7 +28,6 @@ def get_daily_results(bins, cost, tour, day, new_overflows, sum_lost, coordinate
     dlog['kg_lost'] = sum_lost
     if len(tour) > 2:
         collected, ncol = bins.collect(tour)
-        print("Collected:", collected)
         rl_cost = new_overflows - collected + cost
         bins.travel += cost
         dlog['kg'] = collected
@@ -171,6 +170,9 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
                     cost = get_route_cost(distance_matrix, tour)
+        else:
+            tour = [0, 0]
+            cost = 0
     else:
         raise ValueError("Unknown policy:", policy)
     bins, daily_log = get_daily_results(bins, cost, tour, day, new_overflows, sum_lost, coords)

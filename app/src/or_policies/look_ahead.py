@@ -176,7 +176,7 @@ def policy_lookahead_vrpp(fh, binsids, must_go_bins, distance_matrix, values, nu
         cost = sum(x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis)
         # print(final_gap)
         contentores_coletados = [contentor - 1 for contentor in contentores_coletados]
-    return contentores_coletados, profit, cost
+    return [0] + contentores_coletados, profit, cost
 
 
 def policy_lookahead_sans(data, bins_coordinates, distance_matrix, params, bins_cannot_removed, values, ids_principais):
@@ -196,5 +196,5 @@ def policy_lookahead_sans(data, bins_coordinates, distance_matrix, params, bins_
         T_init, T_min, alpha, iterations_per_T, R, V, density, C, bins_cannot_removed
     )
 
-    optimized_routes = [r for r in optimized_routes if len(r) > 2]
+    optimized_routes = [r for r in optimized_routes]
     return optimized_routes, best_profit, last_distance
