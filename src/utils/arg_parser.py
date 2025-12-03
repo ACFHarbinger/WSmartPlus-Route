@@ -43,7 +43,7 @@ class ConfigsParser(argparse.ArgumentParser):
         namespace = super().parse_args(args)
         return getattr(namespace, 'command', None)
     
-    def parse_process_args(self, args=None):
+    def parse_process_args(self, args=None, command=None):
         if args is None:
             args = sys.argv[1:]
 
@@ -89,7 +89,7 @@ class ConfigsParser(argparse.ArgumentParser):
         }
 
         command = filtered_args.pop('command')
-        return command, filtered_args
+        return command, filtered_args if command is None else filtered_args
     
     def error_message(self, message, print_help=True):
         print(message, end=' ')
@@ -554,7 +554,7 @@ def get_main_parser():
     Builds the main parser with all sub-commands (train, eval, gen_data, etc.).
     """
     parser = ConfigsParser(
-        description="ML/OR Solvers CLI",
+        description="ML models and OR solvers for CO problems",
         formatter_class=argparse.RawTextHelpFormatter
     )
     

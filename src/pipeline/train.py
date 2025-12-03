@@ -232,8 +232,7 @@ if __name__ == "__main__":
     add_hp_optim_args(subparsers.add_parser('hp_optim', help='Run Hyperparameter Optimization'))
     try:
         # Parse arguments globally, then validate the result based on the command
-        parsed_args = parser.parse_process_args(sys.argv[1:])
-        command = parsed_args.get('command')
+        command, parsed_args = parser.parse_process_args(sys.argv[1:])
         
         # Validation is now based on the detected command
         args = validate_train_args(parsed_args) # validate_train_args handles all three variants

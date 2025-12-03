@@ -19,12 +19,12 @@ def run_app_gui(opts):
     app = QApplication(sys.argv)
     try:
         app_icon = QIcon(ICON_FILE)
-        setWindowIcon(app_icon)
+        app.setWindowIcon(app_icon)
     except Exception:
         pass 
     
     if 'app_style' in opts and opts['app_style'] is not None:
-        setStyle(opts['app_style']) # Set application style
+        app.setStyle(opts['app_style']) # Set application style
     
     current_window = None # Non-local variable to hold the reference to the main window
     
@@ -63,7 +63,7 @@ def run_app_gui(opts):
     # Install a custom event filter to catch the interrupt
     old_handler = signal.signal(signal.SIGINT, signal.SIG_DFL)
     try:
-        return exec()
+        return app.exec()
     finally:
         # Restore original handler
         signal.signal(signal.SIGINT, old_handler)
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     )
     add_gui_args(parser)
     try:
-        parsed_args = parser.parse_process_args(sys.argv[1:])
+        parsed_args = parser.parse_process_args(sys.argv[1:], "gui")
         args = validate_gui_args(parsed_args)
         exit_code = run_app_gui(args)
     except (argparse.ArgumentError, AssertionError) as e:

@@ -207,7 +207,7 @@ if __name__ == "__main__":
     )
     add_eval_args(parser)
     try:
-        parsed_args = parser.parse_process_args(sys.argv[1:])
+        parsed_args = parser.parse_process_args(sys.argv[1:], "eval")
         args = validate_eval_args(parsed_args)
         run_evaluate_model(args)
     except (argparse.ArgumentError, AssertionError) as e:
