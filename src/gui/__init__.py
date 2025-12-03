@@ -1,1 +1,1 @@
-from .windows import MainWindow
+from .windows import MainWindow, SimulationResultsWindow

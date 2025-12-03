@@ -431,18 +431,27 @@ def runs_per_policy(dir_paths, nsamples, policies, print_output=False, lock=None
     return runs_ls
 
 
-def send_daily_output_to_gui(daily_log, policy, sample_idx, day, bins):
+def send_daily_output_to_gui(daily_log, policy, sample_idx, day, bins_c, collected, travelled, log_path):
     full_payload = {k: v for k, v in daily_log.items() if k in DAY_METRICS[:-1]}
     full_payload.update({
-        'bin_state_c': np.array(bins.c).tolist(),
-        'bin_state_collected': np.array(bins.collected).tolist(),
-        'bin_state_travel': float(bins.travel),
+        'bin_state_c': np.array(bins_c).tolist(),
+        'bin_state_collected': np.array(collected).tolist(),
+        'bin_state_travel': float(travelled),
     })
-    print(f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}")
-    sys.stdout.flush()
+    log_msg = f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}"
+    #print(log_msg)
+    #sys.stdout.flush()
+    
+    # Append the raw log message to a local file, immediately flushing the disk buffer.
+    try:
+        with open(log_path, 'a') as f:
+            f.write(log_msg + '\n')
+            f.flush()
+    except Exception as e:
+        print(f"Warning: Failed to write to local log file: {e}")
 
 
-def send_final_output_to_gui(log, log_std, n_samples, policies):
+def send_final_output_to_gui(log, log_std, n_samples, policies, log_path):
     lgsd = {k: [[0]*len(v) if isinstance(v, tuple) else 0 for v in pol_data] for k, pol_data in log.items()} if log_std is None \
         else {k: [list(v) if isinstance(v, tuple) else v for v in pol_data] for k, pol_data in log_std.items()}
     summary_data = {
@@ -452,6 +461,15 @@ def send_final_output_to_gui(log, log_std, n_samples, policies):
         'policies': policies
     }
 
-    # Print summary data to stdout
-    print(f"GUI_SUMMARY_LOG_START: {json.dumps(summary_data)}")
-    sys.stdout.flush()
+    # 1. Standard GUI Output (for PySide capture)
+    summary_message = f"GUI_SUMMARY_LOG_START: {json.dumps(summary_data)}"
+    #print(summary_message)
+    #sys.stdout.flush()
+
+    # 2. [NEW] Local Real-Time File Logging (Ensure final status is also written)
+    try:
+        with open(log_path, 'a') as f:
+            f.write(summary_message + '\n')
+            f.flush()
+    except Exception as e:
+        print(f"Warning: Failed to write summary to local log file: {e}")

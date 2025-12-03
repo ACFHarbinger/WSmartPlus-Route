@@ -6,13 +6,24 @@ import traceback
 
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
-from .gui import MainWindow
+from .gui import MainWindow, SimulationResultsWindow
 from .utils.definitions import CTRL_C_TIMEOUT, ICON_FILE
 from src.utils.arg_parser import (
     ConfigsParser, 
     add_gui_args, 
     validate_gui_args
 )
+
+
+def launch_results_window(policy_names, log_path):
+    """Initializes QApplication and launches the SimulationResultsWindow."""
+    app = QApplication(sys.argv)
+    
+    # Create and show the window
+    results_window = SimulationResultsWindow(policy_names, log_path)
+    results_window.show()
+    
+    sys.exit(app.exec())
 
 
 def run_app_gui(opts):

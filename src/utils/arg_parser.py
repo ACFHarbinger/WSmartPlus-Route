@@ -449,6 +449,7 @@ def add_test_sim_args(parser):
     parser.add_argument('--hexlic_file', type=str, default=None, help="Name of the file that contains the license to use for Gurobi")
     parser.add_argument('--symkey_name', type=str, default=None, help="Name of the cryptographic key used to access the API keys")
     parser.add_argument('--gapik_file', type=str, default=None, help="Name of the file that contains the key to use for the Google API")
+    parser.add_argument('--real_time_log', action='store_true', help="Activate real time results window")
     return parser
 
 def add_files_update_args(parser):

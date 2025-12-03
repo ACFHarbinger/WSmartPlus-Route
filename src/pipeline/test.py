@@ -96,7 +96,7 @@ def simulator_testing(opts, data_size, device):
         max_lock_timeout = time.strftime("%H:%M:%S", time.gmtime(udef.LOCK_TIMEOUT))
         proc_lock_timeout = time.strftime("%H:%M:%S", time.gmtime(udef.LOCK_TIMEOUT//n_cores))
         print(f"- Maximum lock wait time: {max_lock_timeout} ({proc_lock_timeout} per used thread)")
-        mp.set_start_method("spawn", force=True) #mp.set_start_method("fork", force=True)
+        mp.set_start_method("spawn", force=True)
         p = ThreadPool(processes=n_cores, initializer=init_single_sim_worker, initargs=(lock, counter,))
         try:
             with tqdm(total=len(args)*opts['days'], disable=opts['no_progress_bar'], position=1,
@@ -195,7 +195,10 @@ def simulator_testing(opts, data_size, device):
     else:
         print(f"Launching {task_count} WSmart Route simulations on a single CPU core...")
         log, log_std, failed_log = sequential_simulations(opts, device, indices, sample_idx_ls, weights_path, lock)
-    send_final_output_to_gui(log, log_std, opts['n_samples'], opts['policies'])
+    log_path = os.path.join(udef.ROOT_DIR, "assets", opts['output_dir'], 
+                            str(opts['days']) + "_days", str(opts['area']) + '_' + str(opts['size']), 
+                            f"realtime_{opts['data_distribution']}_{opts['n_samples']}N.json")
+    send_final_output_to_gui(log, log_std, opts['n_samples'], opts['policies'], log_path)
     display_log_metrics(opts['output_dir'], opts['size'], opts['n_samples'], 
         opts['days'], opts['area'], opts['policies'], log, log_std, lock
     )
