@@ -693,52 +693,71 @@ def mock_load_dependencies(mocker):
 @pytest.fixture
 def mock_run_day_deps(mocker):
     """
-    Mocks all dependencies for the run_day function, including policy 
-    and GUI logging mocks injected as part of the fixture.
+    Mocks all dependencies for the run_day function with REAL numpy arrays
+    instead of MagicMocks to allow for math operations and slicing.
     """
-    # 1. Mock the 'bins' object (Keep existing logic)
+    # 1. Setup Logic Data (Graph size 5)
+    n_nodes = 5
+    
+    # Mock Bins object with real arrays
     mock_bins = MagicMock()
     mock_bins.is_stochastic.return_value = False 
-    mock_bins.loadFilling.return_value = (0, 'mock_fill', 'mock_sum_lost')
-    mock_bins.stochasticFilling.return_value = (0, 'mock_stoch_fill', 'mock_stoch_sum_lost')
-    mock_bins.c = np.array([10, 20])
-    mock_bins.n = 2
-    mock_bins.collect.return_value = (100.0, 2) # Added mock for collect
+    mock_bins.loadFilling.return_value = (0, np.zeros(n_nodes), 0)
+    mock_bins.stochasticFilling.return_value = (0, np.zeros(n_nodes), 0)
+    mock_bins.c = np.full(n_nodes, 50.0) # 50% fill
+    mock_bins.means = np.full(n_nodes, 10.0)
+    mock_bins.std = np.full(n_nodes, 1.0)
+    mock_bins.collectlevl = np.full(n_nodes, 90.0) # For last_minute policy
+    mock_bins.n = n_nodes
+    mock_bins.collect.return_value = (100.0, 2) 
 
-    # 2. Mock other required arguments (Keep existing logic)
+    # 2. Mock DataFrames
     mock_new_data = pd.DataFrame({
-        'ID': [1, 2], 
-        'Stock': [0, 0], 
-        'Accum_Rate': [0, 0]
+        'ID': range(1, n_nodes + 1), 
+        'Stock': [0]*n_nodes, 
+        'Accum_Rate': [0]*n_nodes
     })
+    
+    # Create coordinates and set 'ID' as the index so .loc[id] works
     mock_coords = pd.DataFrame({
-        'ID': [1, 2],
-        'Lat': [40.1, 40.2],
-        'Lng': [-8.1, -8.2]
+        'ID': range(1, n_nodes + 1),
+        'Lat': [40.0 + i*0.1 for i in range(n_nodes)],
+        'Lng': [-8.0 - i*0.1 for i in range(n_nodes)]
     })
+    # We keep 'ID' as a column but also set it as index
+    mock_coords.set_index('ID', drop=False, inplace=True)
+
+    # 3. Real Numpy Distance Matrix (6x6: Depot=0, Nodes=1..5)
+    matrix_size = n_nodes + 1
+    real_dist_matrix = np.full((matrix_size, matrix_size), 10.0)
+    np.fill_diagonal(real_dist_matrix, 0.0)
+    
+    # Int matrix for TSP
+    real_distancesC = real_dist_matrix.astype(np.int32)
+
     mock_model_env = MagicMock()
     mock_model_ls = (MagicMock(), MagicMock(), MagicMock())
+    
+    # 4. Construct distpath_tup with REAL arrays
     mock_dist_tup = (
-        MagicMock(), # distance_matrix
-        MagicMock(), # paths_between_states
-        MagicMock(), # dm_tensor
-        MagicMock()  # distancesC 
+        real_dist_matrix,    # Real float matrix
+        MagicMock(),         # paths
+        MagicMock(),         # dm_tensor
+        real_distancesC      # Real int matrix
     )
     
-    # 3. Patch the functions that are actually called (CRUCIAL CHANGE)
-    
-    # Mock policy_regular to return a tour (to prevent errors in get_daily_results)
+    # 5. Patch external calls
+    # Note: These patches affect the 'definition' modules. 
+    # Tests in test_policies.py must patch the 'usage' module (day.py).
     mock_policy_regular = mocker.patch(
         'src.or_policies.regular.policy_regular', return_value=[0, 1, 2, 0] 
     )
-    # Mock send_daily_output_to_gui to prevent the final crash
     mock_send_output = mocker.patch(
         'src.pipeline.simulator.day.send_daily_output_to_gui', autospec=True
     )
-    # Mock get_route_cost (used by policy_regular flow)
     mocker.patch('src.or_policies.single_vehicle.get_route_cost', return_value=50.0)
+    mocker.patch('src.or_policies.single_vehicle.find_route', return_value=[0, 1, 0])
 
-    # 4. Return the dependencies, including the new mocks
     return {
         'bins': mock_bins,
         'model_env': mock_model_env,

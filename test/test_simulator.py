@@ -164,7 +164,7 @@ class TestCheckpoints:
         basic_checkpoint.save_state(state_5, day=5)
         basic_checkpoint.save_state(state_10, day=10)
         
-        # --- FIX: Mock os.listdir to reflect the files saved ---
+        # --- Mock os.listdir to reflect the files saved ---
         # This allows find_last_checkpoint_day() to "see" the files.
         saved_filenames = [
             "checkpoint_test_policy_1_day5.pkl",
@@ -979,7 +979,7 @@ class TestSimulation:
         # Set up global lock/counter
         simulation._lock, simulation._counter = mock_lock_counter
 
-        # --- FIX 3: Environment Setup (Directories) ---
+        # --- Environment Setup (Directories) ---
         mock_root_dir = Path(simulation.ROOT_DIR)
         checkpoint_dir_path = mock_root_dir / opts['checkpoint_dir']
         checkpoint_dir_path.mkdir(parents=True, exist_ok=True)
@@ -987,7 +987,6 @@ class TestSimulation:
         results_dir_path.mkdir(parents=True, exist_ok=True)
         fill_history_path = results_dir_path / 'fill_history' / opts['data_distribution']
         fill_history_path.mkdir(parents=True, exist_ok=True)
-        # --- END FIX 3 ---
 
         # --- 2. Arrange: Mock All Dependencies ---
 
