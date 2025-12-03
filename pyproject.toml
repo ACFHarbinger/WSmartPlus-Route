@@ -329,7 +329,6 @@ markers = [
     "gui: marks tests related to GUI operations",
     "test_suite: marks tests related to test suite command",
     "arg_parser: marks tests for argument parser functionality",
-    "cli_args: marks tests for command line interface arguments",
     "model: marks tests for model functionality",
     "data: marks tests for data processing",
     "skip: skip this test",

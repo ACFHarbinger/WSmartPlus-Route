@@ -176,7 +176,7 @@ def wsr_opts(tmp_path):
         'waste_type': 'paper',
         'policies': ['test_policy_gamma1'],
         'output_dir': 'test_output',
-        'checkpoint_dir': 'temp_checkpoints',
+        'checkpoint_dir': 'temp',
         'resume': False,
         'distance_method': 'hsd',
         'dm_filepath': None,
