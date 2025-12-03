@@ -52,8 +52,8 @@ LAST_MINUTE_CF=(70)
 GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
-LOOKAHEAD_CONFIGS=('a' 'b') #'a' 'b'
-POLICIES=("policy_last_minute")
+LOOKAHEAD_CONFIGS=('a') #'a' 'b'
+POLICIES=("policy_look_ahead_vrpp")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
 #"gurobi_vrpp" "hexaly_vrpp" 

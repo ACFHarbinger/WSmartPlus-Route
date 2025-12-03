@@ -170,7 +170,7 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
     desc = f"{policy} #{sample_id}"
     colour = TQDM_COLOURS[pol_id % len(TQDM_COLOURS)]
     tqdm_position = os.getpid() % n_cores + 1
-    log_path = os.path.join(results_dir, f"realtime_{opts['data_distribution']}_{opts['n_samples']}N.json")
+    log_path = os.path.join(results_dir, f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.json")
     tic = time.process_time() + run_time
     try:
         with checkpoint_manager(checkpoint, opts['checkpoint_days'], _get_current_state) as hook:
@@ -243,7 +243,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                                str(opts['days']) + "_days", 
                                str(opts['area']) + '_' + str(opts['size']))
     daily_log_path = os.path.join(results_dir, f"daily_{opts['data_distribution']}_{opts['n_samples']}N.json")
-    log_path = os.path.join(results_dir, f"realtime_{opts['data_distribution']}_{opts['n_samples']}N.json")
+    log_path = os.path.join(results_dir, f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl")
     data, bins_coordinates, depot = _setup_basedata(opts['size'], data_dir, opts['area'], opts['waste_type'])
     for pol_id, policy in enumerate(opts['policies']):
         pol_strip, data_dist = policy.rsplit("_", 1)
