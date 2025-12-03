@@ -35,11 +35,37 @@ class ConfigsParser(argparse.ArgumentParser):
                 if value is not None:
                     transformed_value = self._str_to_nargs(value)
                     setattr(namespace, action.dest, transformed_value)
+
+    def parse_command(self, args=None):
+        if args is None:
+            args = sys.argv[1:]
+
+        namespace = super().parse_args(args)
+        return getattr(namespace, 'command', None)
     
     def parse_process_args(self, args=None):
         if args is None:
             args = sys.argv[1:]
-        for action in self._actions:
+
+        # Get all actions to iterate over: main actions + current subparser actions
+        actions_to_check = list(self._actions)
+        
+        # Attempt to find the actions of the specific subparser command
+        command_name = None
+        if args and not args[0].startswith('-'):
+            command_name = args[0]
+        
+        if command_name:
+            # Find the SubParsersAction to get the sub-parser object
+            subparsers_action = next((a for a in actions_to_check if isinstance(a, argparse._SubParsersAction)), None)
+            
+            if subparsers_action and command_name in subparsers_action.choices:
+                sub_parser = subparsers_action.choices[command_name]
+                # Add subparser actions to the list to be checked
+                actions_to_check.extend(sub_parser._actions)
+
+
+        for action in actions_to_check:
             if action.dest == 'help':
                 continue
 
@@ -61,13 +87,15 @@ class ConfigsParser(argparse.ArgumentParser):
             key: value 
             for key, value in parsed_args_dict.items() 
         }
-        return filtered_args
+
+        command = filtered_args.pop('command')
+        return command, filtered_args
     
     def error_message(self, message, print_help=True):
         print(message, end=' ')
         if print_help:
             self.print_help()
-        sys.exit(1)
+        raise
     
 
 class LowercaseAction(argparse.Action):
@@ -580,11 +608,9 @@ def parse_params():
     
     try:
         # Parse arguments into a dictionary using the custom handler
-        opts = parser.parse_process_args() 
-        command = opts.pop('command') # Extract the top-level command
-        
+        command, opts = parser.parse_process_args()
+
         # --- COMMAND-SPECIFIC VALIDATION AND POST-PROCESSING ---
-        
         if command in ['train', 'mrl_train', 'hp_optim']:
             opts = validate_train_args(opts)
         elif command == 'gen_data':
