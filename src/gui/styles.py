@@ -170,7 +170,7 @@ QWidget, QMainWindow, QDialog {
     font-size: 10pt;
 }
 
-/* --- Buttons (Sleek, Lifted) --- */
+/* --- General Buttons (Sleek, Lifted) --- */
 QPushButton {
     /* Subtle gradient for a modern look */
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #00bcd4, stop: 1 #0097a7);
@@ -483,13 +483,18 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
     background: none;
 }}
 
-/* General Button Styling */
+/* General Button Styling (BASE STYLE) */
 QPushButton {{
+    /* BASE STYLE derived from runButton aesthetic */
+    background-color: {PRIMARY_ACCENT_COLOR}; /* Default Light Accent Color */
     color: white;
     font-weight: 600;
     border: none;
-    padding: 10px 12px;
+    padding: 10px 12px; /* Standard Padding */
     border-radius: 5px;
+}}
+QPushButton:hover {{ 
+    background-color: {PRIMARY_HOVER_COLOR}; 
 }}
 QPushButton:pressed {{
     /* Add a subtle press effect */

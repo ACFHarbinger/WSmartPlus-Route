@@ -507,6 +507,10 @@ class SimulationResultsWindow(QWidget):
         Slot executed on the MAIN thread. Receives one complete line from the tailer
         and sends it to the core parsing logic (parse_buffer is adapted for single lines).
         """
+        # --- UPDATE START: Display raw line in log window ---
+        self.raw_log_area.append(line.strip())
+        # --- UPDATE END ---
+
         # Call the existing parsing logic, adapted to handle single lines
         self.parse_buffer(line)
 
