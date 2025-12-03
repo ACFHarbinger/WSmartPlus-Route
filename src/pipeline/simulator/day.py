@@ -176,5 +176,5 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
     else:
         raise ValueError("Unknown policy:", policy)
     bins, daily_log = get_daily_results(bins, cost, tour, day, new_overflows, sum_lost, coords)
-    send_daily_output_to_gui(daily_log, policy, sample_id, day)
+    send_daily_output_to_gui(daily_log, policy, sample_id, day, bins)
     return (new_data, coords, bins), (overflows, daily_log, output_dict), cached

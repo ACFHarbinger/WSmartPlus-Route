@@ -431,9 +431,14 @@ def runs_per_policy(dir_paths, nsamples, policies, print_output=False, lock=None
     return runs_ls
 
 
-def send_daily_output_to_gui(daily_log, policy, sample_idx, day):
-    json_payload = json.dumps({k: v for k, v in daily_log.items() if k in DAY_METRICS[:-1]})
-    print(f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json_payload}")
+def send_daily_output_to_gui(daily_log, policy, sample_idx, day, bins):
+    full_payload = {k: v for k, v in daily_log.items() if k in DAY_METRICS[:-1]}
+    full_payload.update({
+        'bin_state_c': np.array(bins.c).tolist(),
+        'bin_state_collected': np.array(bins.collected).tolist(),
+        'bin_state_travel': float(bins.travel),
+    })
+    print(f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}")
     sys.stdout.flush()
 
 
