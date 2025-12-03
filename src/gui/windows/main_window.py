@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
 )
 from . import SimulationResultsWindow
 from ..tabs import (
+    DataAnalysisTab, OutputAnalysisTab,
     RLCostsTab, RLDataTab, RLModelTab, RunScriptsTab,
     GenDataGeneralTab, GenDataProblemTab, GenDataAdvancedTab,
     RLOptimizerTab, RLOutputTab, RLTrainingTab, TestSuiteTab,
@@ -28,7 +29,7 @@ class MainWindow(QWidget):
         super().__init__()
         self.process = None
         self.output_buffer = ""
-        self.results_window = None
+        self.results_window = None # Stores the SimulationResultsWindow instance
         self.test_only = test_only
         self.restart_callback = restart_callback
         self.setWindowTitle("Machine Learning Models and Operations Research Solvers for Combinatorial Optimization Problems")
@@ -58,21 +59,21 @@ class MainWindow(QWidget):
         command_layout.addWidget(self.command_label)
         
         self.command_combo = QComboBox()
-        self.command_combo.addItems(['Train Model', 'Generate Data', 'Evaluate', 'Test Simulator', 'File System Tools', 'Other Tools'])
+        # --- CHANGED: Added 'Analysis' to the list ---
+        self.command_combo.addItems(['Train Model', 'Generate Data', 'Evaluate', 'Test Simulator', 'Analysis', 'File System Tools', 'Other Tools'])
         self.command_combo.currentTextChanged.connect(self.on_command_changed)
         self.command_combo.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         command_layout.addWidget(self.command_combo)
         
         command_layout.addStretch()
 
-        # --- NEW: Theme Toggle Button (Moved to far right) ---
+        # --- Theme Toggle Button ---
         self.theme_toggle_button = QPushButton("🎨")
         self.theme_toggle_button.setObjectName("themeToggleButton")
         self.theme_toggle_button.clicked.connect(self.toggle_theme)
         self.theme_toggle_button.setToolTip("Toggle Light/Dark Mode")
         self.theme_toggle_button.setFixedSize(25, 25)
         command_layout.addWidget(self.theme_toggle_button)
-        # --- END NEW ---
         
         main_layout.addLayout(command_layout)
 
@@ -86,7 +87,7 @@ class MainWindow(QWidget):
         }
         
         settings_tab = TestSimSettingsTab()
-        io_tab = TestSimIOTab(settings_tab=settings_tab) # Pass the reference
+        io_tab = TestSimIOTab(settings_tab=settings_tab) 
         self.test_sim_tabs_map = {
             "Simulator Settings": settings_tab, 
             "Policy Parameters": TestSimPolicyParamsTab(),
@@ -98,6 +99,13 @@ class MainWindow(QWidget):
             'IO Settings': EvalIOTab(), 'Data Configurations': EvalDataBatchingTab(),
             'Decoding Strategy': EvalDecodingTab(), 'Problem Definition': EvalProblemTab()
         }
+        
+        # --- CHANGED: Initialize the Analysis Tabs Map ---
+        self.analysis_tabs_map = {
+            "Data Analysis": DataAnalysisTab(),
+            "Output Analysis": OutputAnalysisTab()
+        }
+        
         self.file_system_tabs_map = {
             "Update Settings": FileSystemUpdateTab(), "Delete Settings": FileSystemDeleteTab(),
             "Cryptography Settings": FileSystemCryptographyTab(),
@@ -105,10 +113,16 @@ class MainWindow(QWidget):
         self.other_tabs_map = {
             "Execute Script": RunScriptsTab(), "Program Test Suite": TestSuiteTab()
         }
+        
+        # --- CHANGED: Add 'Analysis' to all_tabs ---
         self.all_tabs = {
-            'Train Model': self.train_tabs_map, 'Generate Data': self.gen_data_tabs_map,
-            'Evaluate': self.eval_tabs_map, 'Test Simulator': self.test_sim_tabs_map,
-            'File System Tools': self.file_system_tabs_map, 'Other Tools': self.other_tabs_map
+            'Train Model': self.train_tabs_map, 
+            'Generate Data': self.gen_data_tabs_map,
+            'Evaluate': self.eval_tabs_map, 
+            'Test Simulator': self.test_sim_tabs_map,
+            'Analysis': self.analysis_tabs_map,
+            'File System Tools': self.file_system_tabs_map, 
+            'Other Tools': self.other_tabs_map
         }
         # --- End Tab Initialization ---
 
@@ -124,21 +138,18 @@ class MainWindow(QWidget):
         preview_layout.addWidget(preview_label)
         
         self.preview = QTextEdit()
-        self.preview.setObjectName("previewTextEdit") # <-- ADDED
+        self.preview.setObjectName("previewTextEdit") 
         self.preview.setReadOnly(True)
         self.preview.setMaximumHeight(180)
-        # <-- REMOVED INLINE STYLESHEET
         preview_layout.addWidget(self.preview)
 
         # Restore logic starts here
-        # -----------------------------------------------------
         self.command_combo.blockSignals(True)
         self.command_combo.setCurrentText(initial_window)
         self.command_combo.blockSignals(False)
         self.setup_tabs(initial_window)
         if initial_tab_index is not None:
             self.tabs.setCurrentIndex(initial_tab_index)
-        # -----------------------------------------------------
 
         self.update_preview()
         self.tabs.currentChanged.connect(self.update_preview)
@@ -153,7 +164,7 @@ class MainWindow(QWidget):
         control_layout = QVBoxLayout()
         control_layout.setSpacing(8)
 
-        # Reopen Button (Critical Action)
+        # Reopen Button 
         self.reopen_button = QPushButton("Close and Reopen GUI")
         self.reopen_button.setObjectName("reopenButton")
         self.reopen_button.clicked.connect(self.close_and_reopen)
@@ -170,19 +181,19 @@ class MainWindow(QWidget):
             }}
         """
         
-        # Refresh Button (Utility)
+        # Refresh Button 
         self.refresh_button = QPushButton("Refresh Preview")
         self.refresh_button.clicked.connect(self.update_preview)
         self.refresh_button.setStyleSheet(secondary_button_style)
         control_layout.addWidget(self.refresh_button)
 
-        # Copy Button (Utility)
+        # Copy Button 
         self.copy_button = QPushButton("Copy to Clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
         self.copy_button.setStyleSheet(secondary_button_style)
         control_layout.addWidget(self.copy_button)
 
-        # Run Button (Primary Action)
+        # Run Button 
         self.run_button = QPushButton("Run Command (simulated)" if self.test_only else "Run Command")
         self.run_button.setObjectName("runButton")
         self.run_button.clicked.connect(self.run_command)
@@ -216,7 +227,7 @@ class MainWindow(QWidget):
         """Hides the current window and triggers the external restart."""
         current_tab_index = self.tabs.currentIndex()
 
-        self.hide() # Hide the window immediately
+        self.hide() 
         if self.restart_callback:
             self.restart_callback(
                 test_only=self.test_only,
@@ -230,15 +241,18 @@ class MainWindow(QWidget):
             'Generate Data': 'gen_data',
             'Evaluate': 'eval',
             'Test Simulator': 'test_sim',
+            'Analysis': 'analysis', # --- CHANGED: Added mapping ---
         }
         actual_command = command_mapping.get(main_command_display)
+        
+        # ... (Rest of logic remains same, Analysis generally doesn't generate a CLI command but we map it safely)
+        
         if main_command_display == 'Train Model':
             current_tab_title = self.tabs.tabText(self.tabs.currentIndex())
             if current_tab_title == "Hyper-Parameter Optimization":
                 actual_command = 'hp_optim'
             elif current_tab_title == "Meta-Learning":
                 actual_command = 'mrl_train'
-            # Otherwise, actual_command remains 'train'
         elif main_command_display == 'File System Tools':
             current_tab_title = self.tabs.tabText(self.tabs.currentIndex())
             actual_command = 'file_system '
@@ -256,7 +270,6 @@ class MainWindow(QWidget):
                 actual_command = 'test_suite'
 
         if actual_command == 'scripts':
-            # Note: DummyTab logic is limited here, assuming the real tab handles parameters
             script_tab_widget = self.other_tabs_map['Execute Script']
             if hasattr(script_tab_widget, 'get_params'):
                 script_params = script_tab_widget.get_params()
@@ -294,6 +307,12 @@ class MainWindow(QWidget):
     def update_preview(self):
         """Update the command preview by collecting parameters from current tabs."""
         main_command_display = self.command_combo.currentText()
+        
+        # --- CHANGED: Analysis tabs are purely GUI tools, no command preview needed really ---
+        if main_command_display == 'Analysis':
+            self.preview.setPlainText("# Analysis tools run directly within the GUI.\n# No command line argument required.")
+            return
+            
         actual_command = self.get_actual_command(main_command_display)
         all_params = {}
         regex = r"(?<!-)-(?!-)"
@@ -362,6 +381,12 @@ class MainWindow(QWidget):
 
     def run_command(self):
         """Starts the external command using QProcess and opens the results window."""
+        
+        # --- CHANGED: Prevent running shell commands for Analysis tabs ---
+        if self.command_combo.currentText() == 'Analysis':
+            QMessageBox.information(self, "Info", "Use the buttons inside the Analysis tabs to load files.")
+            return
+            
         self.run_button.setDisabled(True)
         self.update_preview()
         
@@ -378,6 +403,11 @@ class MainWindow(QWidget):
 
         main_command = self.command_combo.currentText()
         is_simulation = main_command == 'Test Simulator'
+        
+        # --- CLOSE EXISTING RESULTS WINDOW BEFORE STARTING NEW PROCESS ---
+        if self.results_window and self.results_window.isVisible():
+            self.results_window.close()
+            self.results_window = None
         
         if is_simulation:
             test_sim_tab = self.test_sim_tabs_map['Simulator Settings'] 
@@ -459,3 +489,22 @@ class MainWindow(QWidget):
     def read_stderr(self):
         data = self.process.readAllStandardError().data().decode()
         print(data, end='')
+
+    def closeEvent(self, event):
+        """Ensures all active threads and external windows are closed before main app exit."""
+        
+        # 1. Close the SimulationResultsWindow if it's currently open (from a running process)
+        if self.results_window and self.results_window.isVisible():
+            self.results_window.close()
+        
+        # 2. Explicitly shut down Data Analysis and Output Analysis tabs (which manage their own workers/windows)
+        for tab in self.analysis_tabs_map.values():
+            if hasattr(tab, 'shutdown'):
+                tab.shutdown()
+        
+        # 3. Terminate any running QProcess
+        if self.process is not None and self.process.state() == QProcess.ProcessState.Running:
+            self.process.terminate()
+            self.process.waitForFinished(1000)
+
+        super().closeEvent(event)

@@ -1,3 +1,4 @@
+from .analysis import DataAnalysisTab, OutputAnalysisTab
 from .evaluation import EvalProblemTab, EvalDataBatchingTab, EvalDecodingTab, EvalIOTab
 from .file_system import FileSystemCryptographyTab, FileSystemDeleteTab, FileSystemUpdateTab
 from .test_simulator import TestSimAdvancedTab, TestSimSettingsTab, TestSimIOTab, TestSimPolicyParamsTab

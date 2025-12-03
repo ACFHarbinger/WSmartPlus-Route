@@ -1,0 +1,2 @@
+from .data_analysis import DataAnalysisTab
+from .output_analysis import OutputAnalysisTab
