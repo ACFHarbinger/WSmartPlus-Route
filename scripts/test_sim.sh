@@ -48,12 +48,12 @@ HEX_DAT_FILE="hexaly.dat.enc"
 GOOGLE_API_FILE="google.lic.enc"
 
 REGULAR_LEVEL=(3)
-LAST_MINUTE_CF=(70)
+LAST_MINUTE_CF=(90)
 GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("policy_look_ahead")
+POLICIES=("policy_last_minute" "policy_regular" "policy_last_minute_and_path" "policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" "gurobi_vrpp" "hexaly_vrpp")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
 #"gurobi_vrpp" "hexaly_vrpp" 
