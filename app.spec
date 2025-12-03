@@ -1,19 +1,19 @@
 # -- mode: python ; coding: utf-8 --
 
-# To build: pyinstaller app.spec
+# To build: pyinstaller spec
 
 import PySide6
 import os
 
 pyside_path = os.path.dirname(PySide6.__file__)
 
-# pathex=['.'] means it looks in the current directory (where app.spec is)
+# pathex=['.'] means it looks in the current directory (where spec is)
 
-pathex=['/app']
+pathex=['.']
 
 a = Analysis(
     ['__main__.py'],
-    pathex=['/app'],
+    pathex=['.'],
     binaries=[],
     datas=[
         # Include data files

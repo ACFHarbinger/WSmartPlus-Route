@@ -25,11 +25,11 @@ except IndexError:
 lib_source = os.path.join(hexaly_package_path, 'libhexaly140.so')
 
 # Assuming the root of your project is where you want to start path searching
-pathex=['/app'] # Set pathex to the /app directory
+pathex=['.'] # Set pathex to the /app directory
 
 a = Analysis(
     ['app/src/pipeline/test.py'], # Explicitly list entry point
-    pathex=['/app'], # Start path search from here
+    pathex=['.'], # Start path search from here
     binaries=[
         (lib_source, '.'),
     ],
@@ -76,8 +76,8 @@ a = Analysis(
     key=None,
     # === Use collect_data for the required code directories ===
     collect_all=[
-        'app.src.or_policies',
-        'app.src.pipeline.simulator',
+        'src.or_policies',
+        'src.pipeline.simulator',
     ],
     collect_submodules=[],
     collect_data=[],
