@@ -21,42 +21,40 @@ def set_daily_waste(model_data, waste, device, fill=None):
     return move_to(model_data, device)
 
 
-def get_daily_results(bins, cost, tour, day, new_overflows, sum_lost, coordinates):
+def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum_lost, coordinates):
     dlog = {key: 0 for key in DAY_METRICS}
     dlog['day'] = day
     dlog['overflows'] = new_overflows
     dlog['kg_lost'] = sum_lost
     if len(tour) > 2:
-        collected, ncol = bins.collect(tour)
-        rl_cost = new_overflows - collected + cost
-        bins.travel += cost
-        dlog['kg'] = collected
+        rl_cost = new_overflows - total_collected + cost
+        dlog['kg'] = total_collected
         dlog['ncol'] = ncol
         dlog['km'] = cost
-        dlog['kg/km'] = collected / cost
+        dlog['kg/km'] = total_collected / cost
         dlog['cost'] = rl_cost
         ids = np.array([x for x in tour if x != 0])
         dlog['tour'] = [0] + coordinates.loc[ids, 'ID'].tolist() + [0]
-    else:    
+    else:
         dlog['kg'] = 0
         dlog['ncol'] = 0
         dlog['km'] = 0
         dlog['kg/km'] = 0
         dlog['cost'] = new_overflows
         dlog['tour'] = [0]
-    return bins, dlog
+    return dlog
 
 
 def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
-            overflows, day, model_env, model_ls, n_vehicles, area, 
+            overflows, day, model_env, model_ls, n_vehicles, area, log_path,
             waste_type, distpath_tup, current_collection_day, cached, device):
     cost = 0
     tour = []
     output_dict = None
     if bins.is_stochastic():
-        new_overflows, fill, sum_lost = bins.stochasticFilling()
+        new_overflows, fill, total_fill, sum_lost = bins.stochasticFilling()
     else:
-        new_overflows, fill, sum_lost = bins.loadFilling(day - 1)
+        new_overflows, fill, total_fill, sum_lost = bins.loadFilling(day - 1)
 
     overflows += new_overflows
     distance_matrix, paths_between_states, dm_tensor, distancesC = distpath_tup
@@ -170,11 +168,10 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
                     cost = get_route_cost(distance_matrix, tour)
-        else:
-            tour = [0, 0]
-            cost = 0
     else:
         raise ValueError("Unknown policy:", policy)
-    bins, daily_log = get_daily_results(bins, cost, tour, day, new_overflows, sum_lost, coords)
-    send_daily_output_to_gui(daily_log, policy, sample_id, day, bins)
+    
+    collected, total_collected, ncol = bins.collect(tour, cost)
+    daily_log = get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum_lost, coords)
+    send_daily_output_to_gui(daily_log, policy, sample_id, day, total_fill, collected, cost, log_path)
     return (new_data, coords, bins), (overflows, daily_log, output_dict), cached

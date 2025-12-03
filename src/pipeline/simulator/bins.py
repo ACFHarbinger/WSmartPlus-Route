@@ -71,21 +71,43 @@ class Bins:
     def set_sample_waste(self, sample_id):
         self.waste_fills = self.waste_fills[sample_id]
 
-    def collect(self, idsfull):
+    def collect(self, idsfull, cost=0):
         ids = set(idsfull)
         ids.remove(0)
+        collected = np.zeros((self.n))
         if len(ids) == 0: 
-            return 0, 0
+            return collected, 0, 0
         
         ids = np.array(list(ids)) - 1
         self.collected[ids] += self.c[ids]
         self.ncollections[ids] += 1
-        collected = np.sum(self.c[ids])
+        collected[ids] += self.c[ids]
         self.c[ids] = 0
-        return collected, ids.size
+        self.travel += cost
+        return collected, np.sum(collected), ids.size
 
     def predictdaystooverflow(self, cl):
         return self._predictdaystooverflow(self.means, self.std, self.c, cl)
+    
+    def __process_filling(self, todaysfilling):
+        """
+        Processes the filling data, handles overflows, updates state variables, 
+        and calculates returns.
+        """
+        # Lost overflows
+        todays_lost = np.maximum(self.c + todaysfilling - 100, 0)
+        todaysfilling = np.minimum(todaysfilling, 100)        
+
+        # Update history
+        self.ndays += 1
+        self.history.append(todaysfilling)
+        self.lost += todays_lost
+
+        # New depositions for the overflow calculation
+        self.c = np.minimum(self.c + todaysfilling, 100)
+        self.c = np.maximum(self.c, 0)
+        self.inoverflow += (self.c==100)
+        return np.sum(self.inoverflow), np.array(todaysfilling), np.array(self.c), np.sum(todays_lost)
 
     def stochasticFilling(self, n_samples=1, only_fill=False):
         if self.distribution == 'gamma':
@@ -97,58 +119,21 @@ class Bins:
                 todaysfilling = np.maximum(np.take(sampled_value, self.indices), 0)
             else:
                 todaysfilling = np.maximum(np.take(sampled_value, self.indices, axis=1), 0)
-
-        # Lost overflows
-        todays_lost = np.maximum(self.c + todaysfilling - 100, 0)
-        todaysfilling = np.minimum(todaysfilling, 100)
+        
         if only_fill:
-            return todaysfilling            
-
-        # Update history
-        self.ndays += 1
-        self.history.append(todaysfilling)
-        self.lost += todays_lost
-
-        # New depositions - do not change order otherwise
-        # xq + vals + vals for the overflow calculation
-        self.c = np.minimum(self.c + todaysfilling, 100)
-        self.c = np.maximum(self.c, 0)
-        self.inoverflow += (self.c==100)
-        return np.sum(self.inoverflow), todaysfilling, np.sum(todays_lost)
+            return np.minimum(todaysfilling, 100)
+        else:
+            return self.__process_filling(todaysfilling)
 
     def deterministicFilling(self, date):
         todaysfilling = self.grid.get_values_by_date(date, sample=True)
-
-        # Lost overflows
-        todays_lost = np.maximum(self.c + todaysfilling - 100, 0)
-        todaysfilling = np.minimum(todaysfilling, 100)
-        self.lost += todays_lost
-
-        # Update history
-        self.ndays += 1
-        self.history.append(todaysfilling)
-
-        self.c = np.minimum(self.c + todaysfilling, 100)
-        self.c = np.maximum(self.c, 0)
-        self.inoverflow += (self.c==100)
-        return np.sum(self.inoverflow), todaysfilling, np.sum(todays_lost)
+        
+        return self.__process_filling(todaysfilling)
     
     def loadFilling(self, day):
         todaysfilling = self.waste_fills[day]
 
-        # Lost overflows
-        todays_lost = np.maximum(self.c + todaysfilling - 100, 0)
-        todaysfilling = np.minimum(todaysfilling, 100)
-        self.lost += todays_lost
-
-        # Update history
-        self.ndays += 1
-        self.history.append(todaysfilling)
-
-        self.c = np.minimum(self.c + todaysfilling, 100)
-        self.c = np.maximum(self.c, 0)
-        self.inoverflow += (self.c==100)
-        return np.sum(self.inoverflow), todaysfilling, np.sum(todays_lost)
+        return self.__process_filling(todaysfilling)
 
     def __setDistribution(self, param1, param2):
         if len(param1)==1:

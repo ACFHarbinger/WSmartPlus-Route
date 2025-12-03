@@ -3,64 +3,62 @@ from PySide6.QtCore import QObject, Signal, Slot, QMutex, QMutexLocker
 
 class ChartWorker(QObject):
     """
-    Worker that ONLY processes data for a (Policy, Sample) key and emits
-    the results. It NEVER touches Matplotlib objects.
+    Worker that processes scalar data AND bin state history for plotting.
+    It NEVER touches Matplotlib objects.
     """
-    # Signal emits the target_key and a dictionary of processed data
     data_ready = Signal(str, dict) 
     
-    def __init__(self, daily_data, metrics_to_plot, 
-                 data_mutex: QMutex, parent=None):
+    def __init__(self, daily_data, historical_bin_data, latest_bin_data, 
+                 metrics_to_plot, data_mutex: QMutex, parent=None):
         super().__init__(parent)
         self.daily_data = daily_data
+        self.historical_bin_data = historical_bin_data
+        self.latest_bin_data = latest_bin_data
         self.metrics_to_plot = metrics_to_plot
         self.data_mutex = data_mutex 
 
     @Slot(str)
     def process_data(self, target_key):
         """
-        Slot executed in the worker thread. 
-        Reads data and emits it for the main thread to plot.
+        Reads scalar metrics AND bin state data, then emits them.
         """
-        
         processed_data = {
             'max_days': 0,
-            'metrics': {}
+            'metrics': {},
+            # [NEW] Container for bin state info
+            'bin_state': {} 
         }
         
         # --- CRITICAL SECTION: DATA READING (Protected) ---
         with QMutexLocker(self.data_mutex):
             
-            if target_key not in self.daily_data:
-                # Emit empty data so the main thread can still clear the plot if needed
-                self.data_ready.emit(target_key, processed_data)
-                return
-
-            max_days = 0 
-            
-            # 1. Find max days for this specific key
-            for metric in self.metrics_to_plot:
-                if metric in self.daily_data[target_key] and self.daily_data[target_key][metric]:
-                    max_days = max(max_days, max(self.daily_data[target_key][metric].keys()))
-            
-            processed_data['max_days'] = max_days
-
-            # 2. Iterate and process metrics
-            for metric in self.metrics_to_plot:
-                if metric not in self.daily_data[target_key]:
-                    processed_data['metrics'][metric] = {'days': [], 'values': []}
-                    continue
-
-                # Get data for this single sample
-                days = sorted(self.daily_data[target_key][metric].keys())
-                values = [self.daily_data[target_key][metric][d] for d in days]
+            # 1. Process Scalar Metrics (Time Series)
+            if target_key in self.daily_data:
+                max_days = 0 
+                for metric in self.metrics_to_plot:
+                    data_map = self.daily_data[target_key].get(metric, {})
+                    if data_map:
+                        max_days = max(max_days, max(data_map.keys()))
                 
-                processed_data['metrics'][metric] = {
-                    'days': days,
-                    'values': values
-                }
-                
+                processed_data['max_days'] = max_days
+
+                for metric in self.metrics_to_plot:
+                    data_map = self.daily_data[target_key].get(metric, {})
+                    days = sorted(data_map.keys())
+                    values = [data_map[d] for d in days]
+                    
+                    processed_data['metrics'][metric] = {
+                        'days': days,
+                        'values': values
+                    }
+
+            # 2. [NEW] Process Bin State Data (For labels/updates)
+            # We don't need to deep copy the massive historical arrays here unless 
+            # visual tearing is an issue (usually not for this update rate).
+            # We mostly need the latest scalars for the info label.
+            if target_key in self.latest_bin_data:
+                processed_data['bin_state'] = self.latest_bin_data[target_key].copy()
+
         # --- END CRITICAL SECTION ---
         
-        # Signal the main thread with the processed data
         self.data_ready.emit(target_key, processed_data)

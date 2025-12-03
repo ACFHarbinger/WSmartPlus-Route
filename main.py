@@ -5,9 +5,12 @@ warnings.filterwarnings("ignore", category=FutureWarning,
     message="jax.tree_util.register_keypaths is deprecated")
 
 import io
+import os
 import sys
 import pprint
 import traceback
+import multiprocessing as mp
+import src.utils.definitions as udef
 
 from test import PyTestRunner
 from src.file_system import (
@@ -24,7 +27,7 @@ from src.pipeline.train import (
 )
 from src.data.generate_data import generate_datasets
 from src.utils.arg_parser import parse_params 
-from src.app import run_app_gui
+from src.app import run_app_gui, launch_results_window
 
 
 def run_test_suite(opts):
@@ -118,7 +121,21 @@ def main(args):
                 elif comm == 'eval':
                     run_evaluate_model(opts)
                 elif comm == 'test_sim':
-                    run_wsr_simulator_test(opts)
+                    if opts['real_time_log']:
+                        mp.set_start_method("spawn", force=True)
+                        simulation_process = mp.Process(
+                            target=run_wsr_simulator_test,
+                            args=(opts,)
+                        )
+                        log_path = os.path.join(udef.ROOT_DIR, "assets", opts['output_dir'], 
+                            str(opts['days']) + "_days", str(opts['area']) + '_' + str(opts['size']), 
+                            f"realtime_{opts['data_distribution']}_{opts['n_samples']}N.json")
+                        simulation_process.start()
+                        exit_code = launch_results_window(opts['policies'], log_path)
+                        if simulation_process.is_alive():
+                            simulation_process.terminate()
+                    else:
+                        run_wsr_simulator_test(opts)
     except Exception as e:
         traceback.print_exc(file=sys.stderr)
         print('\n' + str(e))
