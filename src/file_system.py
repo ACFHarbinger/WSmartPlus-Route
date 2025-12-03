@@ -172,7 +172,7 @@ if __name__ == "__main__":
     add_files_args(parser) 
     try:
         # Parse arguments from command line
-        parsed_args = parser.parse_process_args(sys.argv[1:])
+        parsed_args = parser.parse_process_args(sys.argv[1:], "file_system")
         
         # Validate arguments and extract the inner command (e.g., 'update', 'delete', 'cryptography')
         # validate_file_system_args returns (fs_command, validated_opts)

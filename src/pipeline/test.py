@@ -271,7 +271,7 @@ if __name__ == "__main__":
     )
     add_test_sim_args(parser)
     try:
-        parsed_args = parser.parse_process_args(sys.argv[1:])
+        parsed_args = parser.parse_process_args(sys.argv[1:], "test_sim")
         args = validate_test_sim_args(parsed_args)
         run_wsr_simulator_test(args)
     except (argparse.ArgumentError, AssertionError) as e:

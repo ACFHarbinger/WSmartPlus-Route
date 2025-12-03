@@ -28,7 +28,7 @@ lib_source = os.path.join(hexaly_package_path, 'libhexaly140.so')
 pathex=['.'] # Set pathex to the /app directory
 
 a = Analysis(
-    ['app/src/pipeline/test.py'], # Explicitly list entry point
+    ['__main__.py'], # Explicitly list entry point
     pathex=['.'], # Start path search from here
     binaries=[
         (lib_source, '.'),
