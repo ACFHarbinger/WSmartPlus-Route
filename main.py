@@ -7,6 +7,7 @@ warnings.filterwarnings("ignore", category=FutureWarning,
 import io
 import os
 import sys
+import signal
 import pprint
 import traceback
 import multiprocessing as mp
@@ -129,11 +130,38 @@ def main(args):
                         )
                         log_path = os.path.join(udef.ROOT_DIR, "assets", opts['output_dir'], 
                             str(opts['days']) + "_days", str(opts['area']) + '_' + str(opts['size']), 
-                            f"realtime_{opts['data_distribution']}_{opts['n_samples']}N.json")
+                            f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl")
                         simulation_process.start()
-                        exit_code = launch_results_window(opts['policies'], log_path)
-                        if simulation_process.is_alive():
-                            simulation_process.terminate()
+
+                        # Define the handler function that terminates the subprocess
+                        def handle_interrupt(signum, frame):
+                            print("\nCtrl+C received. Terminating simulation process...")
+                            if simulation_process.is_alive():
+                                simulation_process.terminate()
+                                simulation_process.join()
+                            # Force the GUI application to quit gracefully
+                            sys.exit(0)
+
+                        # Register the handler only for this scope
+                        original_sigint_handler = signal.getsignal(signal.SIGINT)
+                        signal.signal(signal.SIGINT, handle_interrupt)
+                        
+                        try:
+                            # 3. Blocking GUI call
+                            exit_code = launch_results_window(opts['policies'], log_path)
+                            
+                        except SystemExit as e:
+                            # Catch the sys.exit(0) from the handler, if triggered.
+                            exit_code = e.code
+                            
+                        finally:
+                            # 4. Restore original handler and clean up the process
+                            signal.signal(signal.SIGINT, original_sigint_handler)
+                            
+                            if simulation_process.is_alive():
+                                print("GUI closed. Terminating lingering simulation process.")
+                                simulation_process.terminate()
+                                simulation_process.join()
                     else:
                         run_wsr_simulator_test(opts)
     except Exception as e:

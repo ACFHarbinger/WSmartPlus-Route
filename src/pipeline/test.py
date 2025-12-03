@@ -197,7 +197,7 @@ def simulator_testing(opts, data_size, device):
         log, log_std, failed_log = sequential_simulations(opts, device, indices, sample_idx_ls, weights_path, lock)
     log_path = os.path.join(udef.ROOT_DIR, "assets", opts['output_dir'], 
                             str(opts['days']) + "_days", str(opts['area']) + '_' + str(opts['size']), 
-                            f"realtime_{opts['data_distribution']}_{opts['n_samples']}N.json")
+                            f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl")
     send_final_output_to_gui(log, log_std, opts['n_samples'], opts['policies'], log_path)
     display_log_metrics(opts['output_dir'], opts['size'], opts['n_samples'], 
         opts['days'], opts['area'], opts['policies'], log, log_std, lock

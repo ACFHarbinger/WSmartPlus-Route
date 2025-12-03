@@ -168,6 +168,9 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
                     cost = get_route_cost(distance_matrix, tour)
+        else:
+            tour = [0, 0]
+            cost = 0
     else:
         raise ValueError("Unknown policy:", policy)
     

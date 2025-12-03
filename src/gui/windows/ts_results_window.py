@@ -212,6 +212,12 @@ class SimulationResultsWindow(QWidget):
                 ax.set_ylabel("Value")
                 ax.set_title(titles.get(metric, metric))
                 ax.grid(True, axis='y', linestyle='--', alpha=0.7)
+
+                # Set X-limits from -0.5 to N - 0.5 to center the 0 and N-1 bars correctly
+                ax.set_xlim(-0.5, len(day_data) - 0.5) 
+                
+                # Set X-ticks for every bin index
+                ax.set_xticks(x_indices)
             else:
                 ax.text(0.5, 0.5, "No Data for Day", ha='center', va='center')
             
