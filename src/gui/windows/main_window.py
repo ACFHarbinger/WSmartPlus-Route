@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
 )
 from . import SimulationResultsWindow
 from ..tabs import (
-    DataAnalysisTab, OutputAnalysisTab,
+    InputAnalysisTab, OutputAnalysisTab,
     RLCostsTab, RLDataTab, RLModelTab, RunScriptsTab,
     GenDataGeneralTab, GenDataProblemTab, GenDataAdvancedTab,
     RLOptimizerTab, RLOutputTab, RLTrainingTab, TestSuiteTab,
@@ -60,7 +60,7 @@ class MainWindow(QWidget):
         
         self.command_combo = QComboBox()
         # --- CHANGED: Added 'Analysis' to the list ---
-        self.command_combo.addItems(['Train Model', 'Generate Data', 'Evaluate', 'Test Simulator', 'Analysis', 'File System Tools', 'Other Tools'])
+        self.command_combo.addItems(['Train Model', 'Generate Data', 'Evaluate', 'Test Simulator', 'Data Analysis', 'File System Tools', 'Other Tools'])
         self.command_combo.currentTextChanged.connect(self.on_command_changed)
         self.command_combo.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         command_layout.addWidget(self.command_combo)
@@ -100,16 +100,16 @@ class MainWindow(QWidget):
             'Decoding Strategy': EvalDecodingTab(), 'Problem Definition': EvalProblemTab()
         }
         
-        # --- CHANGED: Initialize the Analysis Tabs Map ---
         self.analysis_tabs_map = {
-            "Data Analysis": DataAnalysisTab(),
+            "Input Analysis": InputAnalysisTab(),
             "Output Analysis": OutputAnalysisTab()
         }
-        
+
         self.file_system_tabs_map = {
             "Update Settings": FileSystemUpdateTab(), "Delete Settings": FileSystemDeleteTab(),
             "Cryptography Settings": FileSystemCryptographyTab(),
         }
+
         self.other_tabs_map = {
             "Execute Script": RunScriptsTab(), "Program Test Suite": TestSuiteTab()
         }
@@ -120,7 +120,7 @@ class MainWindow(QWidget):
             'Generate Data': self.gen_data_tabs_map,
             'Evaluate': self.eval_tabs_map, 
             'Test Simulator': self.test_sim_tabs_map,
-            'Analysis': self.analysis_tabs_map,
+            'Data Analysis': self.analysis_tabs_map,
             'File System Tools': self.file_system_tabs_map, 
             'Other Tools': self.other_tabs_map
         }

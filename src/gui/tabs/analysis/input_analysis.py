@@ -12,8 +12,7 @@ from .pandas_model import PandasModel
 from ...helpers import DataLoadWorker
 
 
-# --- Tab 1: Data Analysis (CSV, Excel, PKL) ---
-class DataAnalysisTab(QWidget):
+class InputAnalysisTab(QWidget):
     # Signal to request the worker to start loading
     load_request = Signal(str) 
     
