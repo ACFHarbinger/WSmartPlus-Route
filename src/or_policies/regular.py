@@ -20,7 +20,7 @@ def policy_regular(
         *args
     ):
     tour = []
-    if (day % (lvl + 1)) == 0:
+    if (day % (lvl + 1)) == 1:
         to_collect = np.arange(0, n_bins, dtype="int32") + 1
         max_capacity, _, _, _, _ = load_area_and_waste_type_params(area, waste_type)
         if n_vehicles == 1:
