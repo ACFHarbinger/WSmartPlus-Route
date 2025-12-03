@@ -431,16 +431,14 @@ def runs_per_policy(dir_paths, nsamples, policies, print_output=False, lock=None
     return runs_ls
 
 
-def send_daily_output_to_gui(daily_log, policy, sample_idx, day, bins_c, collected, travelled, log_path):
+def send_daily_output_to_gui(daily_log, policy, sample_idx, day, bins_c, collected, bins_c_after, log_path):
     full_payload = {k: v for k, v in daily_log.items() if k in DAY_METRICS[:-1]}
     full_payload.update({
         'bin_state_c': np.array(bins_c).tolist(),
         'bin_state_collected': np.array(collected).tolist(),
-        'bin_state_travel': float(travelled),
+        'bins_state_c_after': np.array(bins_c_after).tolist(),
     })
     log_msg = f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}"
-    #print(log_msg)
-    #sys.stdout.flush()
     
     # Append the raw log message to a local file, immediately flushing the disk buffer.
     try:
@@ -466,7 +464,7 @@ def send_final_output_to_gui(log, log_std, n_samples, policies, log_path):
     #print(summary_message)
     #sys.stdout.flush()
 
-    # 2. [NEW] Local Real-Time File Logging (Ensure final status is also written)
+    # 2. Local Real-Time File Logging (Ensure final status is also written)
     try:
         with open(log_path, 'a') as f:
             f.write(summary_message + '\n')

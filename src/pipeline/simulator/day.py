@@ -21,7 +21,7 @@ def set_daily_waste(model_data, waste, device, fill=None):
     return move_to(model_data, device)
 
 
-def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum_lost, coordinates):
+def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum_lost, coordinates, profit):
     dlog = {key: 0 for key in DAY_METRICS}
     dlog['day'] = day
     dlog['overflows'] = new_overflows
@@ -33,6 +33,7 @@ def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum
         dlog['km'] = cost
         dlog['kg/km'] = total_collected / cost
         dlog['cost'] = rl_cost
+        dlog['profit'] = profit
         ids = np.array([x for x in tour if x != 0])
         dlog['tour'] = [0] + coordinates.loc[ids, 'ID'].tolist() + [0]
     else:
@@ -41,12 +42,13 @@ def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum
         dlog['km'] = 0
         dlog['kg/km'] = 0
         dlog['cost'] = new_overflows
+        dlog['profit'] = 0
         dlog['tour'] = [0]
     return dlog
 
 
 def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
-            overflows, day, model_env, model_ls, n_vehicles, area, log_path,
+            overflows, day, model_env, model_ls, n_vehicles, area, realtime_log_path,
             waste_type, distpath_tup, current_collection_day, cached, device):
     cost = 0
     tour = []
@@ -174,7 +176,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
     else:
         raise ValueError("Unknown policy:", policy)
     
-    collected, total_collected, ncol = bins.collect(tour, cost)
-    daily_log = get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum_lost, coords)
-    send_daily_output_to_gui(daily_log, policy, sample_id, day, total_fill, collected, cost, log_path)
+    collected, total_collected, ncol, profit = bins.collect(tour, cost)
+    daily_log = get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum_lost, coords, profit)
+    send_daily_output_to_gui(daily_log, policy, sample_id, day, total_fill, collected, bins.c, realtime_log_path)
     return (new_data, coords, bins), (overflows, daily_log, output_dict), cached

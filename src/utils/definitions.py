@@ -49,7 +49,7 @@ EARTH_WMP_RADIUS = 6378137
 # WSmart+ route simulation settings
 PBAR_WAIT_TIME=0.1
 
-METRICS = ['overflows', 'kg', 'ncol', 'kg_lost', 'km', 'kg/km', 'cost']
+METRICS = ['overflows', 'kg', 'ncol', 'kg_lost', 'km', 'kg/km', 'cost', 'profit']
 SIM_METRICS = METRICS + ['days', 'time']
 DAY_METRICS = ['day'] + METRICS + ['tour']
 LOSS_KEYS = ['nll', 'reinforce_loss', 'baseline_loss']

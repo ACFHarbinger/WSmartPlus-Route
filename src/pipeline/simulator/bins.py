@@ -5,12 +5,19 @@ import numpy as np
 import scipy.stats as stats
 
 from .wsmart_bin_analysis import OldGridBase
+from .loader import load_area_and_waste_type_params
 
 
 class Bins:
-    def __init__(self, n, data_dir, sample_dist="gamma", grid=None, area=None, indices=None, waste_file=None):
+    def __init__(self, n, data_dir, sample_dist="gamma", grid=None, area=None, waste_type=None, indices=None, waste_file=None):
         assert sample_dist in ["emp", "gamma"]
         self.n = n
+        _, revenue, density, expenses, bin_volume = load_area_and_waste_type_params(area, waste_type)
+        self.revenue = revenue
+        self.density = density
+        self.expenses = expenses
+        self.volume = bin_volume
+
         self.c = np.zeros((n))
         self.means = np.ones((n))*10
         self.std = np.ones((n))*1
@@ -23,6 +30,7 @@ class Bins:
         self.ncollections = np.zeros((n))
         self.history = []
         self.travel = 0
+        self.profit = 0
         self.ndays = 0
         self.collectdays = np.ones((n))*5
         self.collectlevl = np.ones((n))*80
@@ -74,17 +82,20 @@ class Bins:
     def collect(self, idsfull, cost=0):
         ids = set(idsfull)
         ids.remove(0)
-        collected = np.zeros((self.n))
+        total_collected = np.zeros((self.n))
         if len(ids) == 0: 
-            return collected, 0, 0
+            return total_collected, 0, 0, 0
         
         ids = np.array(list(ids)) - 1
-        self.collected[ids] += self.c[ids]
+        collected = (self.c[ids] / 100) * self.volume * self.density
+        self.collected[ids] += collected
         self.ncollections[ids] += 1
-        collected[ids] += self.c[ids]
+        total_collected[ids] += collected
         self.c[ids] = 0
         self.travel += cost
-        return collected, np.sum(collected), ids.size
+        profit = np.sum(total_collected) * self.revenue - cost * self.expenses
+        self.profit += profit
+        return total_collected, np.sum(collected), ids.size, profit
 
     def predictdaystooverflow(self, cl):
         return self._predictdaystooverflow(self.means, self.std, self.c, cl)

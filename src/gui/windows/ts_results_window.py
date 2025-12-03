@@ -192,6 +192,7 @@ class SimulationResultsWindow(QWidget):
         titles = {
             'bin_state_c': "Fill Level (%)",
             'bin_state_collected': "Waste Collected (kg)",
+            'bins_state_c_after': "Fill Level After Collection (%)"
         }
         
         for i, metric in enumerate(HEATMAP_METRICS):
@@ -202,7 +203,7 @@ class SimulationResultsWindow(QWidget):
             
             if day_data:
                 x_indices = np.arange(len(day_data))
-                if metric == 'bin_state_c':
+                if metric in ['bin_state_c', 'bins_state_c_after']:
                     ax.bar(x_indices, day_data, color='#e67e22', edgecolor='black') 
                     ax.set_ylim(0, 105)
                     ax.axhline(y=100, color='red', linestyle='--', linewidth=1, label="Overflow")
@@ -300,6 +301,7 @@ class SimulationResultsWindow(QWidget):
             titles = {
                 'bin_state_c': "Fill Level (%) - Fire Scale",
                 'bin_state_collected': "Waste Collected (kg)",
+                'bins_state_c_after': "Fill Level After Collection (%)"
             }
 
             for i, metric in enumerate(HEATMAP_METRICS):
@@ -318,7 +320,7 @@ class SimulationResultsWindow(QWidget):
                 cmap = 'viridis'
                 vmin, vmax = None, None
                 
-                if metric == 'bin_state_c':
+                if metric in ['bin_state_c', 'bins_state_c_after']:
                     cmap = 'hot' # Fire color
                     vmin, vmax = 30, 70 # Contrast
                 
@@ -551,7 +553,7 @@ class SimulationResultsWindow(QWidget):
                         if m in HEATMAP_METRICS: 
                             self.historical_bin_data[key][m][day] = v 
                         elif m in ['bin_state_travel', 'bin_state_ndays']:
-                             pass
+                            pass
                         elif m in TARGET_METRICS or m in SUMMARY_METRICS:
                             self.daily_data[key][m][day] = float(v)
                     

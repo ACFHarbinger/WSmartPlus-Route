@@ -148,12 +148,12 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
                                         configs, opts['edge_threshold'], opts['edge_method'], 
                                         opts['area'], opts['waste_type'], adj_matrix)
         if "gamma" in data_dist:
-            bins = Bins(opts['size'], data_dir, data_dist[:-1], area=opts['area'], waste_file=opts['waste_filepath'])
+            bins = Bins(opts['size'], data_dir, data_dist[:-1], area=opts['area'], waste_type=opts['waste_type'], waste_file=opts['waste_filepath'])
             gamma_option = int(policy[-1]) - 1
             bins.setGammaDistribution(option=gamma_option)
         else:
             assert data_dist == "emp"
-            bins = Bins(opts['size'], data_dir, data_dist, area=opts['area'], waste_file=opts['waste_filepath'])
+            bins = Bins(opts['size'], data_dir, data_dist, area=opts['area'], waste_type=opts['waste_type'], waste_file=opts['waste_filepath'])
 
         cached = [] if opts['cache_regular'] else None
         if opts['waste_filepath'] is not None:
@@ -170,7 +170,7 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
     desc = f"{policy} #{sample_id}"
     colour = TQDM_COLOURS[pol_id % len(TQDM_COLOURS)]
     tqdm_position = os.getpid() % n_cores + 1
-    log_path = os.path.join(results_dir, f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.json")
+    realtime_log_path = os.path.join(results_dir, f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl")
     tic = time.process_time() + run_time
     try:
         with checkpoint_manager(checkpoint, opts['checkpoint_days'], _get_current_state) as hook:
@@ -180,7 +180,7 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
                 hook.before_day(day)
                 data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id,
                                                     overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], 
-                                                    log_path, opts['waste_type'], dist_tup, current_collection_day, cached, device)
+                                                    realtime_log_path, opts['waste_type'], dist_tup, current_collection_day, cached, device)
                 execution_time = time.process_time() - tic
                 new_data, coords, bins = data_ls
                 overflows, dlog, output_dict = output_ls
@@ -195,7 +195,7 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
             execution_time = time.process_time() - tic
             lg = [np.sum(bins.inoverflow), np.sum(bins.collected), np.sum(bins.ncollections), 
             np.sum(bins.lost), bins.travel, np.nan_to_num(np.sum(bins.collected)/bins.travel, 0), 
-            np.sum(bins.inoverflow)-np.sum(bins.collected)+bins.travel, bins.ndays, execution_time]
+            np.sum(bins.inoverflow)-np.sum(bins.collected)+bins.travel, bins.profit, bins.ndays, execution_time]
             daily_log_path = os.path.join(results_dir, f"daily_{opts['data_distribution']}_{opts['n_samples']}N.json")
             if opts['n_samples'] > 1:
                 log_path = os.path.join(results_dir, f"log_full_{opts['n_samples']}N.json")
@@ -243,7 +243,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                                str(opts['days']) + "_days", 
                                str(opts['area']) + '_' + str(opts['size']))
     daily_log_path = os.path.join(results_dir, f"daily_{opts['data_distribution']}_{opts['n_samples']}N.json")
-    log_path = os.path.join(results_dir, f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl")
+    realtime_log_path = os.path.join(results_dir, f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl")
     data, bins_coordinates, depot = _setup_basedata(opts['size'], data_dir, opts['area'], opts['waste_type'])
     for pol_id, policy in enumerate(opts['policies']):
         pol_strip, data_dist = policy.rsplit("_", 1)
@@ -290,12 +290,12 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     else:
                         model_tup = (None, None)
                     if "gamma" in data_dist:
-                        bins = Bins(opts['size'], data_dir, data_dist[:-1], area=opts['area'], waste_file=opts['waste_filepath'])
+                        bins = Bins(opts['size'], data_dir, data_dist[:-1], area=opts['area'], waste_type=opts['waste_type'], waste_file=opts['waste_filepath'])
                         gamma_option = int(policy[-1]) - 1
                         bins.setGammaDistribution(option=gamma_option)
                     else:
                         assert data_dist == "emp"
-                        bins = Bins(opts['size'], data_dir, data_dist, area=opts['area'], waste_file=opts['waste_filepath'])
+                        bins = Bins(opts['size'], data_dir, data_dist, area=opts['area'], waste_type=opts['waste_type'], waste_file=opts['waste_filepath'])
 
                     cached = [] if opts['cache_regular'] else None
                     if opts['waste_filepath'] is not None:
@@ -322,7 +322,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     hook.before_day(day)
                     data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id, 
                                                         overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], 
-                                                        log_path, opts['waste_type'], dist_tup, current_collection_day, cached, device)
+                                                        realtime_log_path, opts['waste_type'], dist_tup, current_collection_day, cached, device)
                     execution_time = time.process_time() - tic
                     new_data, coords, bins = data_ls
                     overflows, dlog, output_dict = output_ls
@@ -344,7 +344,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                 execution_time = time.process_time() - tic
                 lg = [np.sum(bins.inoverflow), np.sum(bins.collected), np.sum(bins.ncollections), 
                 np.sum(bins.lost), bins.travel, np.nan_to_num(np.sum(bins.collected)/bins.travel, 0), 
-                np.sum(bins.inoverflow)-np.sum(bins.collected)+bins.travel, bins.ndays, execution_time]
+                np.sum(bins.inoverflow)-np.sum(bins.collected)+bins.travel, bins.profit, bins.ndays, execution_time]
                 if opts['n_samples'] > 1:
                     log_full[policy].append(lg)
                     log_path = os.path.join(results_dir, f"log_full_{opts['n_samples']}N.json")
