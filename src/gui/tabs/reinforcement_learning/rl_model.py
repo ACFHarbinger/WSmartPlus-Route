@@ -137,8 +137,6 @@ class RLModelTab(BaseReinforcementLearningTab):
                 text = widget.text().strip()
                 if text:
                     params[key] = text
-            
-            # --- START: QComboBox FIX ---
             elif isinstance(widget, QComboBox):
                 text = widget.currentText()
                 if not text or text == 'none':

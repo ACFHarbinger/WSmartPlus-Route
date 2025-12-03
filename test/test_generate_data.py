@@ -79,7 +79,7 @@ class TestGenerateData:
         # Assert the correct generator was called for each distribution
         assert mock_generator.call_count == len(expected_distributions)
         
-        # FIX: Adjust the argument index for distribution based on problem type.
+        # Adjust the argument index for distribution based on problem type.
         # WCRP distribution is at index 3 (after size, area, waste_type).
         # OP distribution is at index 2 (after size).
         if problem == 'op':
