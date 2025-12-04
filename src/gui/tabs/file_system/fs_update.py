@@ -1,9 +1,11 @@
+import os
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
     QSizePolicy, QFormLayout,
     QWidget, QLineEdit, QLabel,
     QVBoxLayout, QGroupBox, QComboBox,
     QPushButton, QHBoxLayout, QScrollArea,
+    QFileDialog # <-- Added
 )
 from ...styles import START_RED_STYLE
 from ...app_definitions import OPERATION_MAP, FUNCTION_MAP
@@ -33,7 +35,7 @@ class FileSystemUpdateTab(QWidget):
         # --target_entry (str)
         self.target_entry_input = QLineEdit()
         self.target_entry_input.setPlaceholderText("e.g., /path/to/directory or /path/to/single_file.json")
-        target_layout.addRow("Target Entry Path:", self.target_entry_input)
+        target_layout.addRow("Target Entry Path:", self._create_browser_layout(self.target_entry_input, is_dir=True))
 
         # --output_key (str, default=None) - This is the OUTPUT key or the SINGLE input key
         self.output_key_input = QLineEdit()
@@ -224,6 +226,26 @@ class FileSystemUpdateTab(QWidget):
         # 5. Set the final layout of the tab (self)
         tab_layout = QVBoxLayout(self)
         tab_layout.addWidget(scroll_area)
+
+    def _create_browser_layout(self, line_edit, is_dir=False):
+        """Helper to create a layout with a browse button."""
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(line_edit)
+        
+        btn = QPushButton("Browse")
+        btn.clicked.connect(lambda: self._browse_path(line_edit, is_dir))
+        layout.addWidget(btn)
+        return layout
+
+    def _browse_path(self, line_edit, is_dir):
+        if is_dir:
+            path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
+        else:
+            path, _ = QFileDialog.getOpenFileName(self, "Select File", os.getcwd())
+        
+        if path:
+            line_edit.setText(path)
 
     def _toggle_inplace_update(self):
         """Toggles the visibility of the Inplace Update input fields and updates the +/- sign."""

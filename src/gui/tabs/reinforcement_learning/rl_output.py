@@ -1,7 +1,9 @@
+import os
 from PySide6.QtWidgets import (
     QSpinBox, QLabel,
     QComboBox, QLineEdit,
     QPushButton, QFormLayout,
+    QHBoxLayout, QFileDialog # <-- Added
 )
 from ...app_definitions import WB_MODES
 from ...styles import START_GREEN_STYLE
@@ -26,7 +28,7 @@ class RLOutputTab(BaseReinforcementLearningTab):
         
         # Log dir
         self.widgets['log_dir'] = QLineEdit("logs")
-        layout.addRow(QLabel("Log Directory:"), self.widgets['log_dir'])
+        layout.addRow(QLabel("Log Directory:"), self._create_browser_layout(self.widgets['log_dir'], is_dir=True))
         
         # Run name
         self.widgets['run_name'] = QLineEdit()
@@ -34,7 +36,7 @@ class RLOutputTab(BaseReinforcementLearningTab):
         
         # Output dir
         self.widgets['output_dir'] = QLineEdit("model_weights")
-        layout.addRow(QLabel("Output Directory:"), self.widgets['output_dir'])
+        layout.addRow(QLabel("Output Directory:"), self._create_browser_layout(self.widgets['output_dir'], is_dir=True))
         
         # Checkpoint epochs
         self.widgets['checkpoint_epochs'] = QSpinBox()
@@ -62,6 +64,26 @@ class RLOutputTab(BaseReinforcementLearningTab):
         layout.addRow("", self.widgets['no_progress_bar'])
         
         self.setLayout(layout)
+
+    def _create_browser_layout(self, line_edit, is_dir=False):
+        """Helper to create a layout with a browse button."""
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(line_edit)
+        
+        btn = QPushButton("Browse")
+        btn.clicked.connect(lambda: self._browse_path(line_edit, is_dir))
+        layout.addWidget(btn)
+        return layout
+
+    def _browse_path(self, line_edit, is_dir):
+        if is_dir:
+            path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
+        else:
+            path, _ = QFileDialog.getOpenFileName(self, "Select File", os.getcwd())
+        
+        if path:
+            line_edit.setText(path)
         
     def get_params(self):
         params = {}

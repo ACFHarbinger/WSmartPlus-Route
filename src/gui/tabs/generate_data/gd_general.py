@@ -1,8 +1,10 @@
+import os
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
     QSpinBox, QComboBox, QCheckBox,
     QHBoxLayout, QSizePolicy, QPushButton,
     QLineEdit, QFormLayout, QWidget, QLabel,
+    QFileDialog # <-- Added
 )
 from ...components import ClickableHeaderWidget
 
@@ -67,7 +69,7 @@ class GenDataGeneralTab(QWidget):
         # 2. --filename
         self.filename_input = QLineEdit()
         self.filename_input.setPlaceholderText("e.g., my_data.pkl (ignores data_dir)")
-        filename_layout.addRow(QLabel("Specific Filename:"), self.filename_input)
+        filename_layout.addRow(QLabel("Specific Filename:"), self._create_browser_layout(self.filename_input))
         
         # 8. Add the content container to the main layout
         layout.addWidget(self.filename_container)
@@ -78,7 +80,7 @@ class GenDataGeneralTab(QWidget):
         
         # 3. --data_dir
         self.data_dir_input = QLineEdit("datasets")
-        layout.addRow("Data Directory:", self.data_dir_input)
+        layout.addRow("Data Directory:", self._create_browser_layout(self.data_dir_input, is_dir=True))
         
         # 4. --dataset_size
         self.dataset_size_input = QSpinBox()
@@ -103,6 +105,26 @@ class GenDataGeneralTab(QWidget):
         self.overwrite_check.setText("Overwrite existing file")
         layout.addRow(self.overwrite_check)
     
+    def _create_browser_layout(self, line_edit, is_dir=False):
+        """Helper to create a layout with a browse button."""
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(line_edit)
+        
+        btn = QPushButton("Browse")
+        btn.clicked.connect(lambda: self._browse_path(line_edit, is_dir))
+        layout.addWidget(btn)
+        return layout
+
+    def _browse_path(self, line_edit, is_dir):
+        if is_dir:
+            path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
+        else:
+            path, _ = QFileDialog.getOpenFileName(self, "Select File", os.getcwd())
+        
+        if path:
+            line_edit.setText(path)
+
     def _toggle_filename(self):
         """Toggles the visibility of the Filename input field and updates the +/- sign."""
         if self.is_filename_visible: 
