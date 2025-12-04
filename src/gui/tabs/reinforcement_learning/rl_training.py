@@ -1,9 +1,11 @@
+import os
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
     QCheckBox, QHBoxLayout, QFormLayout, 
     QComboBox, QSpinBox, QDoubleSpinBox,
     QScrollArea, QSizePolicy, QVBoxLayout, 
-    QLabel, QLineEdit, QPushButton, QWidget
+    QLabel, QLineEdit, QPushButton, QWidget,
+    QFileDialog # <-- Added
 )
 from ...app_definitions import BASELINES
 from ...styles import START_RED_STYLE, START_GREEN_STYLE
@@ -135,12 +137,12 @@ class RLTrainingTab(BaseReinforcementLearningTab):
         # --load_path
         self.widgets['load_path'] = QLineEdit()
         self.widgets['load_path'].setPlaceholderText("Path to load model parameters and optimizer state from")
-        load_model_optim_layout.addRow("Load Path:", self.widgets['load_path'])
+        load_model_optim_layout.addRow("Load Path:", self._create_browser_layout(self.widgets['load_path']))
         
         # --resume
         self.widgets['resume'] = QLineEdit()
         self.widgets['resume'].setPlaceholderText("Resume from previous checkpoint file")
-        load_model_optim_layout.addRow("Resume From:", self.widgets['resume'])
+        load_model_optim_layout.addRow("Resume From:", self._create_browser_layout(self.widgets['resume']))
         
         # 8. Add the content container to the main layout
         layout.addWidget(self.load_model_optim_container)
@@ -177,6 +179,26 @@ class RLTrainingTab(BaseReinforcementLearningTab):
         main_layout = QVBoxLayout()
         main_layout.addWidget(scroll)
         self.setLayout(main_layout)
+
+    def _create_browser_layout(self, line_edit, is_dir=False):
+        """Helper to create a layout with a browse button."""
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(line_edit)
+        
+        btn = QPushButton("Browse")
+        btn.clicked.connect(lambda: self._browse_path(line_edit, is_dir))
+        layout.addWidget(btn)
+        return layout
+
+    def _browse_path(self, line_edit, is_dir):
+        if is_dir:
+            path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
+        else:
+            path, _ = QFileDialog.getOpenFileName(self, "Select File", os.getcwd())
+        
+        if path:
+            line_edit.setText(path)
 
     def _toggle_load_model_optim(self):
         """Toggles the visibility of the Load Model and Optimizer input fields and updates the +/- sign."""

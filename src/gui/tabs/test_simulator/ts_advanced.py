@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import os
 
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
@@ -6,6 +7,7 @@ from PySide6.QtWidgets import (
     QComboBox, QLineEdit, QFormLayout,
     QScrollArea, QVBoxLayout, QPushButton,
     QSpinBox, QLabel, QWidget, QSizePolicy,
+    QFileDialog  # <-- Added
 )
 from src.gui.app_definitions import (
     DISTANCE_MATRIX_METHODS,
@@ -45,7 +47,8 @@ class TestSimAdvancedTab(QWidget):
         form_layout.addRow("Maximum CPU Cores:", self.cpu_cores_input)
 
         self.env_file_input = QLineEdit("vars.env")
-        form_layout.addRow("Environment Variables File:", self.env_file_input)
+        # Add browse button
+        form_layout.addRow("Environment Variables File:", self._create_browser_layout(self.env_file_input))
         
         # 3. Boolean flags
         flags_container = QWidget()
@@ -146,11 +149,14 @@ class TestSimAdvancedTab(QWidget):
 
         # 7. Add widgets to the container's layout
         self.gplic_file_input = QLineEdit()
-        key_license_files_layout.addRow("Gurobi License File:", self.gplic_file_input)
+        key_license_files_layout.addRow("Gurobi License File:", self._create_browser_layout(self.gplic_file_input))
+        
         self.hexlic_file_input = QLineEdit()
-        key_license_files_layout.addRow("Hexaly License File:", self.hexlic_file_input)
+        key_license_files_layout.addRow("Hexaly License File:", self._create_browser_layout(self.hexlic_file_input))
+        
         self.gapik_file_input = QLineEdit()
-        key_license_files_layout.addRow("Google API Key File:", self.gapik_file_input)
+        key_license_files_layout.addRow("Google API Key File:", self._create_browser_layout(self.gapik_file_input))
+        
         self.symkey_name_input = QLineEdit()
         key_license_files_layout.addRow("Cryptographic Key Name:", self.symkey_name_input)
         
@@ -161,6 +167,26 @@ class TestSimAdvancedTab(QWidget):
         self.is_key_license_files_visible = False
         self.key_license_files_container.hide()
     
+    def _create_browser_layout(self, line_edit, is_dir=False):
+        """Helper to create a layout with a browse button."""
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(line_edit)
+        
+        btn = QPushButton("Browse")
+        btn.clicked.connect(lambda: self._browse_path(line_edit, is_dir))
+        layout.addWidget(btn)
+        return layout
+
+    def _browse_path(self, line_edit, is_dir):
+        if is_dir:
+            path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
+        else:
+            path, _ = QFileDialog.getOpenFileName(self, "Select File", os.getcwd())
+        
+        if path:
+            line_edit.setText(path)
+
     def _toggle_key_license_files(self):
         """Toggles the visibility of the Key/License Files input fields and updates the +/- sign."""
         if self.is_key_license_files_visible: 

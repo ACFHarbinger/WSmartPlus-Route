@@ -1,10 +1,12 @@
+import os
 from PySide6.QtCore import QSize
 from PySide6.QtGui import QFont, QFont
 from PySide6.QtWidgets import (
     QVBoxLayout, QGroupBox,
     QPushButton, QSizePolicy,
     QSpinBox, QLabel, QHBoxLayout,
-    QWidget, QLineEdit, QFormLayout, 
+    QWidget, QLineEdit, QFormLayout,
+    QFileDialog  # <-- Added
 )
 from ...components import ClickableHeaderWidget
 
@@ -29,7 +31,7 @@ class FileSystemCryptographyTab(QWidget):
         file_layout = QFormLayout(file_group)
         
         self.env_file_input = QLineEdit("vars.env")
-        file_layout.addRow(QLabel("Environment File:"), self.env_file_input)
+        file_layout.addRow(QLabel("Environment File:"), self._create_browser_layout(self.env_file_input))
 
         # --------------------------------------------------------------------
         # --- Input Output (Custom Header) ---
@@ -91,12 +93,12 @@ class FileSystemCryptographyTab(QWidget):
         # --input_path
         self.input_path_input = QLineEdit()
         self.input_path_input.setPlaceholderText("Input file path")
-        input_output_layout.addRow(QLabel("Input Path:"), self.input_path_input)
+        input_output_layout.addRow(QLabel("Input Path:"), self._create_browser_layout(self.input_path_input))
         
         # --output_path
         self.output_path_input = QLineEdit()
         self.output_path_input.setPlaceholderText("Output file path")
-        input_output_layout.addRow(QLabel("Output Path:"), self.output_path_input)
+        input_output_layout.addRow(QLabel("Output Path:"), self._create_browser_layout(self.output_path_input))
 
         # The collapsible content container is added here
         main_layout.addWidget(self.input_output_container)
@@ -130,6 +132,26 @@ class FileSystemCryptographyTab(QWidget):
         main_layout.addWidget(param_group)
         main_layout.addStretch() # Push everything to the top
     
+    def _create_browser_layout(self, line_edit, is_dir=False):
+        """Helper to create a layout with a browse button."""
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(line_edit)
+        
+        btn = QPushButton("Browse")
+        btn.clicked.connect(lambda: self._browse_path(line_edit, is_dir))
+        layout.addWidget(btn)
+        return layout
+
+    def _browse_path(self, line_edit, is_dir):
+        if is_dir:
+            path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
+        else:
+            path, _ = QFileDialog.getOpenFileName(self, "Select File", os.getcwd())
+        
+        if path:
+            line_edit.setText(path)
+
     def _toggle_input_output(self):
         """Toggles the visibility of the Input-Output Settings input fields and updates the +/- sign."""
         if self.is_input_output_visible: 

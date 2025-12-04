@@ -1,7 +1,9 @@
+import os
 from PySide6.QtWidgets import (
     QCheckBox, QLabel, QScrollArea,
     QWidget, QLineEdit, QFormLayout, 
-    QVBoxLayout, QGroupBox, QPushButton
+    QVBoxLayout, QGroupBox, QPushButton,
+    QHBoxLayout, QFileDialog  # <-- Added
 )
 from ...styles import START_RED_STYLE
 
@@ -26,22 +28,22 @@ class FileSystemDeleteTab(QWidget):
         path_layout = QFormLayout(path_group)
         
         self.log_dir_input = QLineEdit('logs')
-        path_layout.addRow("Train Log Directory:", self.log_dir_input)
+        path_layout.addRow("Train Log Directory:", self._create_browser_layout(self.log_dir_input, is_dir=True))
         
         self.output_dir_input = QLineEdit('model_weights')
-        path_layout.addRow("Output Models Directory:", self.output_dir_input)
+        path_layout.addRow("Output Models Directory:", self._create_browser_layout(self.output_dir_input, is_dir=True))
         
         self.data_dir_input = QLineEdit('datasets')
-        path_layout.addRow("Datasets Directory:", self.data_dir_input)
+        path_layout.addRow("Datasets Directory:", self._create_browser_layout(self.data_dir_input, is_dir=True))
         
         self.eval_dir_input = QLineEdit('results')
-        path_layout.addRow("Evaluation Results Directory:", self.eval_dir_input)
+        path_layout.addRow("Evaluation Results Directory:", self._create_browser_layout(self.eval_dir_input, is_dir=True))
 
         self.test_dir_input = QLineEdit('output')
-        path_layout.addRow("WSR Test Output Directory:", self.test_dir_input)
+        path_layout.addRow("WSR Test Output Directory:", self._create_browser_layout(self.test_dir_input, is_dir=True))
 
         self.test_checkpoint_dir_input = QLineEdit('temp')
-        path_layout.addRow("WSR Checkpoint Directory:", self.test_checkpoint_dir_input)
+        path_layout.addRow("WSR Checkpoint Directory:", self._create_browser_layout(self.test_checkpoint_dir_input, is_dir=True))
         
         content_layout.addWidget(path_group)
         
@@ -123,6 +125,25 @@ class FileSystemDeleteTab(QWidget):
         tab_layout = QVBoxLayout(self)
         tab_layout.addWidget(scroll_area)
 
+    def _create_browser_layout(self, line_edit, is_dir=False):
+        """Helper to create a layout with a browse button."""
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(line_edit)
+        
+        btn = QPushButton("Browse")
+        btn.clicked.connect(lambda: self._browse_path(line_edit, is_dir))
+        layout.addWidget(btn)
+        return layout
+
+    def _browse_path(self, line_edit, is_dir):
+        if is_dir:
+            path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
+        else:
+            path, _ = QFileDialog.getOpenFileName(self, "Select File", os.getcwd())
+        
+        if path:
+            line_edit.setText(path)
 
     def get_params(self):
         """Extracts settings into a dictionary mimicking argparse output."""

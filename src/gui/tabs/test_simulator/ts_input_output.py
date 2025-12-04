@@ -1,6 +1,8 @@
+import os
 from PySide6.QtWidgets import (
     QLabel, QSpinBox, QComboBox,
     QLineEdit, QFormLayout, QWidget,
+    QPushButton, QHBoxLayout, QFileDialog # <-- Added
 )
 # Import DATA_DISTRIBUTIONS to look up file-safe keys (e.g., 'gamma1')
 from src.gui.app_definitions import WASTE_TYPES, COUNTY_AREAS, DATA_DISTRIBUTIONS
@@ -18,10 +20,10 @@ class TestSimIOTab(QWidget):
         form_layout.addRow(QLabel("<b>Input-Output Paths</b>"))
 
         self.output_dir_input = QLineEdit("output")
-        form_layout.addRow("Output Directory:", self.output_dir_input)
+        form_layout.addRow("Output Directory:", self._create_browser_layout(self.output_dir_input, is_dir=True))
         
         self.checkpoint_dir_input = QLineEdit("temp")
-        form_layout.addRow("Checkpoint Directory:", self.checkpoint_dir_input)
+        form_layout.addRow("Checkpoint Directory:", self._create_browser_layout(self.checkpoint_dir_input, is_dir=True))
         
         self.checkpoint_days_input = QSpinBox(value=5, minimum=0, maximum=365)
         form_layout.addRow("Checkpoint Save Days:", self.checkpoint_days_input)
@@ -30,13 +32,13 @@ class TestSimIOTab(QWidget):
         form_layout.addRow(QLabel("<b>Input Files</b>"))
         # Remove hardcoded defaults; they will be set by update_default_paths
         self.waste_filepath_input = QLineEdit() 
-        form_layout.addRow("Waste Fill File:", self.waste_filepath_input)
+        form_layout.addRow("Waste Fill File:", self._create_browser_layout(self.waste_filepath_input))
         
         self.dm_filepath_input = QLineEdit()
-        form_layout.addRow("Distance Matrix File:", self.dm_filepath_input)
+        form_layout.addRow("Distance Matrix File:", self._create_browser_layout(self.dm_filepath_input))
         
         self.bin_idx_file_input = QLineEdit()
-        form_layout.addRow("Bin Index File:", self.bin_idx_file_input)
+        form_layout.addRow("Bin Index File:", self._create_browser_layout(self.bin_idx_file_input))
         
         # Simulator Data Context
         form_layout.addRow(QLabel("<b>Simulator Data Context</b>"))
@@ -58,6 +60,26 @@ class TestSimIOTab(QWidget):
 
         # --- Set initial default paths ---
         self.update_default_paths()
+
+    def _create_browser_layout(self, line_edit, is_dir=False):
+        """Helper to create a layout with a browse button."""
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(line_edit)
+        
+        btn = QPushButton("Browse")
+        btn.clicked.connect(lambda: self._browse_path(line_edit, is_dir))
+        layout.addWidget(btn)
+        return layout
+
+    def _browse_path(self, line_edit, is_dir):
+        if is_dir:
+            path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
+        else:
+            path, _ = QFileDialog.getOpenFileName(self, "Select File", os.getcwd())
+        
+        if path:
+            line_edit.setText(path)
 
     def connect_signals(self):
         """Connect all relevant signals to the update method."""

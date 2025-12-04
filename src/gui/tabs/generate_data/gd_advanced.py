@@ -1,8 +1,10 @@
+import os
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
     QSpinBox, QComboBox, QLabel,
     QLineEdit, QFormLayout, QWidget, 
-    QPushButton, QSizePolicy, QHBoxLayout
+    QPushButton, QSizePolicy, QHBoxLayout,
+    QFileDialog # <-- Added
 )
 from src.gui.app_definitions import COUNTY_AREAS, VERTEX_METHODS
 from ...components import ClickableHeaderWidget
@@ -150,7 +152,7 @@ class GenDataAdvancedTab(QWidget):
         # 6. --focus_graph
         self.focus_graphs_input = QLineEdit()
         self.focus_graphs_input.setPlaceholderText("Paths to focus graph files")
-        focus_graphs_layout.addRow("Focus Graph Paths:", self.focus_graphs_input)
+        focus_graphs_layout.addRow("Focus Graph Paths:", self._create_browser_layout(self.focus_graphs_input))
         
         # 7. --focus_size
         self.focus_size_input = QSpinBox()
@@ -164,6 +166,26 @@ class GenDataAdvancedTab(QWidget):
         # 9. Initialize state: hidden
         self.is_graphs_visible = False
         self.focus_graphs_container.hide()
+
+    def _create_browser_layout(self, line_edit, is_dir=False):
+        """Helper to create a layout with a browse button."""
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(line_edit)
+        
+        btn = QPushButton("Browse")
+        btn.clicked.connect(lambda: self._browse_path(line_edit, is_dir))
+        layout.addWidget(btn)
+        return layout
+
+    def _browse_path(self, line_edit, is_dir):
+        if is_dir:
+            path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
+        else:
+            path, _ = QFileDialog.getOpenFileName(self, "Select File", os.getcwd())
+        
+        if path:
+            line_edit.setText(path)
 
     def _toggle_area_specific(self):
         """Toggles the visibility of the Area Specific input fields and updates the +/- sign."""
