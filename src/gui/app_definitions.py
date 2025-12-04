@@ -276,8 +276,5 @@ TEST_MODULES = {
 }
 
 # Define the metrics for the daily chart tab
-TARGET_METRICS = ['overflows', 'kg', 'km', 'profit']
+TARGET_METRICS = ['overflows', 'kg', 'ncol', 'km', 'kg/km', 'profit']
 HEATMAP_METRICS = ['bin_state_c', 'bin_state_collected', 'bins_state_c_after']
-
-# Define all metrics used for the summary bar chart
-SUMMARY_METRICS = ['overflows', 'kg', 'ncol', 'km', 'kg/km', 'cost'] 

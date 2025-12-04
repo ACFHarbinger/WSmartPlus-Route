@@ -116,7 +116,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
     elif 'policy_look_ahead' in policy:
         look_ahead_config = policy[policy.find('ahead_') + len('ahead_')]
         possible_configurations = {
-            'a': [500,75,0.7,0,0.095,0,0], 
+            'a': [500,75,0.95,0,0.095,0,0], 
             'b': [2000,75,0.7,0,0.095,0,0]
         }
         try:
