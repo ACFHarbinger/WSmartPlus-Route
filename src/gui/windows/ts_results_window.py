@@ -21,7 +21,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.ticker import MaxNLocator
 from ..helpers import ChartWorker, FileTailerWorker
-from ..app_definitions import TARGET_METRICS, SUMMARY_METRICS, HEATMAP_METRICS
+from ..app_definitions import TARGET_METRICS, HEATMAP_METRICS
 
 
 class SimulationResultsWindow(QWidget):
@@ -459,40 +459,80 @@ class SimulationResultsWindow(QWidget):
         self.hm_summary_canvas.draw_idle()
 
     def redraw_summary_chart(self):
-        """Updates the Bar Chart (Tab 1) and refreshes heatmap dropdowns (Tab 2)."""
+        """Updates the Bar Chart based on dropdown selection ('All Metrics' or specific)."""
         if not self.summary_data: return
 
-        # 1. Scalar Summary
         self.summary_ax.clear()
+        
         log = self.summary_data['log']
         log_std = self.summary_data['log_std']
         policy_names = self.summary_data['policies']
         n_policies = len(policy_names)
-        n_metrics = len(SUMMARY_METRICS)
-        bar_width = 0.8 / n_policies
-        x = np.arange(n_metrics)
         colors = self._generate_distinct_colors(n_policies)
+        
+        selection = self.summary_metric_combo.currentText()
 
-        for i, policy in enumerate(policy_names):
-            means = [log[policy][j] for j in range(n_metrics)]
-            stds = [log_std[policy][j] for j in range(n_metrics)]
-            r = x + bar_width * i
-            self.summary_ax.bar(r, means, width=bar_width, 
-                                edgecolor='grey', label=policy,
-                                yerr=stds, capsize=5, color=colors[i % len(colors)])
+        # ---------------------------------------------------------
+        # MODE A: View All Metrics (Grouped Bar Chart)
+        # ---------------------------------------------------------
+        if selection == "All Metrics":
+            n_metrics = len(udef.SIM_METRICS)
+            bar_width = 0.8 / n_policies
+            x = np.arange(n_metrics)
 
-        self.summary_ax.set_ylabel("Mean Value")
-        self.summary_ax.set_title("Metrics Average (Across Samples)")
-        self.summary_ax.set_xticks(x + bar_width * (n_policies - 1) / 2, SUMMARY_METRICS)
-        self.summary_ax.tick_params(axis='x', rotation=45)
-        self.summary_ax.legend()
+            for i, policy in enumerate(policy_names):
+                means = [log[policy][j] for j in range(n_metrics)]
+                stds = [log_std[policy][j] for j in range(n_metrics)]
+                
+                # Offset bars based on policy index
+                r = x + bar_width * i
+                
+                self.summary_ax.bar(r, means, width=bar_width, 
+                                    edgecolor='grey', label=policy,
+                                    yerr=stds, capsize=5, color=colors[i % len(colors)])
+
+            self.summary_ax.set_ylabel("Mean Value")
+            self.summary_ax.set_title("Metrics Average (Across Samples)")
+            # Center ticks among the groups
+            self.summary_ax.set_xticks(x + bar_width * (n_policies - 1) / 2, udef.SIM_METRICS)
+            self.summary_ax.tick_params(axis='x', rotation=45)
+            self.summary_ax.legend()
+
+        # ---------------------------------------------------------
+        # MODE B: View Single Metric (Comparison Across Policies)
+        # ---------------------------------------------------------
+        else:
+            if selection not in udef.SIM_METRICS: return
+            metric_idx = udef.SIM_METRICS.index(selection)
+            
+            means = []
+            stds = []
+            
+            for policy in policy_names:
+                means.append(log[policy][metric_idx])
+                stds.append(log_std[policy][metric_idx])
+            
+            x_indices = np.arange(len(policy_names))
+            
+            # Draw bars (one per policy)
+            self.summary_ax.bar(x_indices, means, yerr=stds, 
+                                align='center', alpha=0.8, 
+                                edgecolor='black', capsize=10, 
+                                color=colors) # Use distinct colors for each policy
+
+            self.summary_ax.set_ylabel(f"Mean {selection}")
+            self.summary_ax.set_title(f"Comparison: {selection}")
+            self.summary_ax.set_xticks(x_indices)
+            self.summary_ax.set_xticklabels(policy_names, rotation=45, ha='right')
+
+        # Shared Formatting
+        self.summary_ax.yaxis.grid(True, linestyle='--', alpha=0.7)
+        self.summary_fig.tight_layout()
         self.summary_canvas.draw_idle()
         
-        # 2. Refresh dropdowns in Heatmap Tab
-        # (This ensures if summary arrives, options are up to date)
+        # Refresh dropdowns in Heatmap Tab if needed
         if self.summary_policy_combo.count() == 0:
             self._populate_summary_policy_combo()
-
 
     # -------------------------------------------------------------------------
     # SETUP & PARSING
@@ -504,22 +544,44 @@ class SimulationResultsWindow(QWidget):
         self.summary_nested_tabs = QTabWidget()
         self.summary_layout.addWidget(self.summary_nested_tabs)
 
-        # Tab 1: Scalar
+        # --- Tab 1: Scalar Summary ---
         self.scalar_summary_widget = QWidget()
         scalar_layout = QVBoxLayout(self.scalar_summary_widget)
+        
+        # [MODIFIED] Dropdown setup
+        control_layout = QHBoxLayout()
+        lbl_metric = QLabel("Select Metric:")
+        lbl_metric.setStyleSheet("font-weight: bold;")
+        
+        self.summary_metric_combo = QComboBox()
+        self.summary_metric_combo.setMinimumWidth(200)
+        
+        # Add "All Metrics" first, then the specific options
+        self.summary_metric_combo.addItem("All Metrics")
+        self.summary_metric_combo.addItems(udef.SIM_METRICS)
+        
+        self.summary_metric_combo.currentTextChanged.connect(self.redraw_summary_chart)
+        
+        control_layout.addWidget(lbl_metric)
+        control_layout.addWidget(self.summary_metric_combo)
+        control_layout.addStretch()
+        
+        scalar_layout.addLayout(control_layout)
+
+        # Chart Canvas
         self.summary_fig = Figure(figsize=(10, 6))
         self.summary_canvas = FigureCanvas(self.summary_fig)
         scalar_layout.addWidget(self.summary_canvas)
         self.summary_ax = self.summary_fig.add_subplot(111)
+        
         self.summary_nested_tabs.addTab(self.scalar_summary_widget, "Metrics (Bar Chart)")
 
-        # Tab 2: Historical Heatmaps with Selection
+        # --- Tab 2: Heatmaps (Keep as is) ---
         self.hm_summary_widget = QWidget()
+        # ... (Rest of existing heatmap setup code remains unchanged) ...
         hm_layout = QVBoxLayout(self.hm_summary_widget)
         
-        # -- Controls --
         controls_layout = QHBoxLayout()
-        
         lbl_pol = QLabel("Policy:")
         self.summary_policy_combo = QComboBox()
         self.summary_policy_combo.setMinimumWidth(150)
@@ -539,7 +601,6 @@ class SimulationResultsWindow(QWidget):
         
         hm_layout.addLayout(controls_layout)
 
-        # -- Figure --
         self.hm_summary_fig = Figure(figsize=(10, 8)) 
         self.hm_summary_canvas = FigureCanvas(self.hm_summary_fig)
         self.hm_summary_canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -691,7 +752,7 @@ class SimulationResultsWindow(QWidget):
                             self.historical_bin_data[key][m][day] = v 
                         elif m in ['bin_state_travel', 'bin_state_ndays']:
                             pass
-                        elif m in TARGET_METRICS or m in SUMMARY_METRICS:
+                        elif m in TARGET_METRICS or m in udef.SIM_METRICS:
                             self.daily_data[key][m][day] = float(v)
                     
                     self.status_label.setText(f"Processing: {key} day {day}")

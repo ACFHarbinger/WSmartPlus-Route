@@ -86,6 +86,7 @@ class Bins:
         if len(ids) == 0: 
             return total_collected, 0, 0, 0
         
+        self.ndays += 1
         ids = np.array(list(ids)) - 1
         collected = (self.c[ids] / 100) * self.volume * self.density
         self.collected[ids] += collected
@@ -94,7 +95,7 @@ class Bins:
         self.c[ids] = 0
         self.travel += cost
         profit = np.sum(total_collected) * self.revenue - cost * self.expenses
-        self.profit += profit
+        self.profit += profit 
         return total_collected, np.sum(collected), ids.size, profit
 
     def predictdaystooverflow(self, cl):
@@ -110,7 +111,6 @@ class Bins:
         todaysfilling = np.minimum(todaysfilling, 100)        
 
         # Update history
-        self.ndays += 1
         self.history.append(todaysfilling)
         self.lost += todays_lost
 
