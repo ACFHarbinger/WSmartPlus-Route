@@ -117,8 +117,9 @@ class Bins:
         # New depositions for the overflow calculation
         self.c = np.minimum(self.c + todaysfilling, 100)
         self.c = np.maximum(self.c, 0)
+        inoverflow = (self.c==100)
         self.inoverflow += (self.c==100)
-        return np.sum(self.inoverflow), np.array(todaysfilling), np.array(self.c), np.sum(todays_lost)
+        return int(np.sum(inoverflow)), np.array(todaysfilling), np.array(self.c), np.sum(todays_lost)
 
     def stochasticFilling(self, n_samples=1, only_fill=False):
         if self.distribution == 'gamma':

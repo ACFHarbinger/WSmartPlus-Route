@@ -1,15 +1,21 @@
+import os
 import json
+import folium
 import random
+import tempfile
+import webbrowser
 import numpy as np
+import src.utils.definitions as udef
 
 from collections import defaultdict
 from PySide6.QtWidgets import (
+    QSizePolicy, QComboBox, QPushButton,
     QWidget, QVBoxLayout, QHBoxLayout,
-    QTabWidget, QLabel, QTextEdit, QSizePolicy,
-    QComboBox,
+    QTabWidget, QLabel, QTextEdit, 
 )
 from PySide6.QtCore import (
-    Qt, Signal, QThread, Slot, QMutex, QMutexLocker 
+    Qt, Signal, QThread, 
+    Slot, QMutex, QMutexLocker,
 )
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -37,6 +43,10 @@ class SimulationResultsWindow(QWidget):
         # Stores FULL history for Heatmaps
         # Structure: historical_bin_data[policy_sample_key][metric][day] = [array]
         self.historical_bin_data = defaultdict(lambda: defaultdict(dict))
+
+        # Stores route coordinates for Folium visualization [NEW]
+        # Structure: historical_routes[policy_sample_key][day] = [ {lat, lng, popup, type}, ... ]
+        self.historical_routes = defaultdict(dict)
         
         # Tracks which samples are available for which policy for the dropdowns
         # Structure: { 'policy_name': {0, 1, 2} }
@@ -145,10 +155,13 @@ class SimulationResultsWindow(QWidget):
         
         widgets = self.policy_chart_widgets[target_key]
         combo = widgets['day_selector']
+        view_route_btn = widgets['view_route_btn']
         
         # Get list of days recorded so far (based on 'bin_state_c')
         hist_data = self.historical_bin_data[target_key].get('bin_state_c', {})
-        if not hist_data: return
+        if not hist_data: 
+            view_route_btn.setEnabled(False)
+            return
         
         available_days = sorted(hist_data.keys())
         current_count = combo.count()
@@ -169,6 +182,25 @@ class SimulationResultsWindow(QWidget):
             
             if was_at_latest or current_count == 0:
                 self._draw_bars_for_selected_day(target_key)
+        
+        # Enable route button if we have data for current day
+        self._update_route_button_state(target_key)
+
+    def _update_route_button_state(self, target_key):
+        widgets = self.policy_chart_widgets[target_key]
+        combo = widgets['day_selector']
+        btn = widgets['view_route_btn']
+        
+        if combo.count() == 0:
+            btn.setEnabled(False)
+            return
+            
+        try:
+            day = int(combo.currentText())
+            has_route = day in self.historical_routes.get(target_key, {})
+            btn.setEnabled(has_route)
+        except ValueError:
+            btn.setEnabled(False)
 
     def _draw_bars_for_selected_day(self, target_key):
         """Draws Bar Charts for the day selected in the QComboBox."""
@@ -188,6 +220,9 @@ class SimulationResultsWindow(QWidget):
         hist = self.historical_bin_data[target_key]
         
         info_label.setText(f"<b>Viewing Day:</b> {selected_day}")
+        
+        # Update route button availability for this new day
+        self._update_route_button_state(target_key)
 
         titles = {
             'bin_state_c': "Fill Level (%)",
@@ -226,6 +261,91 @@ class SimulationResultsWindow(QWidget):
                 ax.set_xlabel("Bin Index")
         
         bar_canvas.draw_idle()
+    
+    def _view_route_for_selected_day(self, target_key):
+        """Generates and opens a Folium map for the route of the selected day."""
+        widgets = self.policy_chart_widgets[target_key]
+        combo = widgets['day_selector']
+        selected_day_str = combo.currentText()
+        if not selected_day_str: return
+        
+        day = int(selected_day_str)
+        route_points = self.historical_routes.get(target_key, {}).get(day, [])
+        
+        if not route_points:
+            print(f"No route data available for {target_key} on day {day}")
+            return
+            
+        # Extract valid points (those with lat/lng)
+        points_to_plot = []
+        depot_loc = None
+        
+        for p in route_points:
+            if 'lat' in p and 'lng' in p:
+                points_to_plot.append(p)
+                if p.get('type') == 'depot':
+                    depot_loc = (p['lat'], p['lng'])
+        
+        if not points_to_plot:
+            print("Route data exists but contains no valid coordinates.")
+            return
+
+        # Determine map center
+        if depot_loc:
+            map_center = depot_loc
+        else:
+            map_center = (points_to_plot[0]['lat'], points_to_plot[0]['lng'])
+
+        m = folium.Map(location=map_center, zoom_start=13)
+
+        # Plot points and lines
+        poly_coords = []
+        
+        for p in points_to_plot:
+            lat, lng = p['lat'], p['lng']
+            poly_coords.append((lat, lng))
+            
+            if p.get('type') == 'depot':
+                folium.Marker(
+                    location=(lat, lng),
+                    popup=p.get('popup', "Depot"),
+                    icon=folium.Icon(color='green', icon='home')
+                ).add_to(m)
+            else:
+                folium.CircleMarker(
+                    location=(lat, lng),
+                    radius=6,
+                    color='gray',
+                    fill=True,
+                    fill_opacity=0.7,
+                    popup=p.get('popup', "Bin")
+                ).add_to(m)
+        
+        # Draw the route line
+        if len(poly_coords) > 1:
+            folium.PolyLine(poly_coords, color='blue', weight=2, opacity=0.8).add_to(m)
+
+        # Save to temp file and open
+        try:
+            # --- MODIFIED FILE HANDLING: Use ROOT_DIR/temp ---
+            # 1. Define the custom temp directory path requested by the user
+            temp_root = os.path.join(udef.ROOT_DIR, 'temp')
+            os.makedirs(temp_root, exist_ok=True)
+            
+            # Create a unique but predictable file path
+            temp_filename = f"route_{target_key.replace(' ', '_')}_{day}.html"
+            temp_path = os.path.join(temp_root, temp_filename)
+            
+            # 2. Save the Folium map to the file path
+            m.save(temp_path)
+            
+            # 3. Open the file in the web browser using the absolute path for reliability
+            webbrowser.open('file://' + os.path.abspath(temp_path))
+            
+            print(f"Map saved and opened from: {os.path.abspath(temp_path)}")
+
+        except Exception as e:
+            print(f"Failed to open map: {e}")
 
 
     # -------------------------------------------------------------------------
@@ -452,6 +572,15 @@ class SimulationResultsWindow(QWidget):
         day_label = QLabel("Select Day:")
         day_selector = QComboBox()
         day_selector.setMinimumWidth(100)
+        
+        # -- VIEW ROUTE BUTTON [NEW] --
+        view_route_btn = QPushButton("View Route")
+        view_route_btn.setEnabled(False) # Disabled until data arrives
+        view_route_btn.clicked.connect(
+            lambda: self._view_route_for_selected_day(policy_sample_key)
+        )
+        # -----------------------------
+        
         day_selector.currentIndexChanged.connect(
             lambda: self._draw_bars_for_selected_day(policy_sample_key)
         )
@@ -459,6 +588,8 @@ class SimulationResultsWindow(QWidget):
         
         control_layout.addWidget(day_label)
         control_layout.addWidget(day_selector)
+        control_layout.addSpacing(10)
+        control_layout.addWidget(view_route_btn) # Added button to layout
         control_layout.addSpacing(20)
         control_layout.addWidget(hm_info_label)
         control_layout.addStretch()
@@ -475,7 +606,8 @@ class SimulationResultsWindow(QWidget):
         self.policy_chart_widgets[policy_sample_key] = {
             'line_fig': line_fig, 'line_canvas': line_canvas, 'line_axes': line_axes,
             'hm_fig': hm_fig, 'hm_canvas': hm_canvas, 'hm_axes': hm_axes, 
-            'hm_info_label': hm_info_label, 'day_selector': day_selector
+            'hm_info_label': hm_info_label, 'day_selector': day_selector,
+            'view_route_btn': view_route_btn # Stored ref
         }
 
         self.policy_tabs_container.addTab(main_container, policy_sample_key)
@@ -549,6 +681,11 @@ class SimulationResultsWindow(QWidget):
                     self.available_samples_dict[policy].add(sample)
 
                     data = json.loads(parts[3])
+                    
+                    # Store Route Coords [NEW]
+                    if 'tour' in data:
+                        self.historical_routes[key][day] = data['tour']
+                    
                     for m, v in data.items():
                         if m in HEATMAP_METRICS: 
                             self.historical_bin_data[key][m][day] = v 

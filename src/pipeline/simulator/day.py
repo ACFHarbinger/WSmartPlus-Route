@@ -49,7 +49,7 @@ def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum
 
 def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
             overflows, day, model_env, model_ls, n_vehicles, area, realtime_log_path,
-            waste_type, distpath_tup, current_collection_day, cached, device):
+            waste_type, distpath_tup, current_collection_day, cached, device, lock=None):
     cost = 0
     tour = []
     output_dict = None
@@ -178,5 +178,5 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
     
     collected, total_collected, ncol, profit = bins.collect(tour, cost)
     daily_log = get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum_lost, coords, profit)
-    send_daily_output_to_gui(daily_log, policy, sample_id, day, total_fill, collected, bins.c, realtime_log_path)
+    send_daily_output_to_gui(daily_log, policy, sample_id, day, total_fill, collected, bins.c, realtime_log_path, tour, coords, lock)
     return (new_data, coords, bins), (overflows, daily_log, output_dict), cached

@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import wandb
 import torch
@@ -7,6 +6,7 @@ import pickle
 import datetime
 import statistics
 import numpy as np
+import pandas as pd  # Added pandas
 import matplotlib.pyplot as plt
 import src.utils.definitions as udef
 
@@ -431,8 +431,65 @@ def runs_per_policy(dir_paths, nsamples, policies, print_output=False, lock=None
     return runs_ls
 
 
-def send_daily_output_to_gui(daily_log, policy, sample_idx, day, bins_c, collected, bins_c_after, log_path):
+def send_daily_output_to_gui(daily_log, policy, sample_idx, day, bins_c, collected, bins_c_after, log_path, tour, coordinates, lock=None):
     full_payload = {k: v for k, v in daily_log.items() if k in DAY_METRICS[:-1]}
+    route_coords = []
+    
+    # Prepare coordinates lookup: normalize headers and handle potential duplicates
+    if isinstance(coordinates, pd.DataFrame):
+        coords_lookup = coordinates.copy()
+        # Normalize headers to UPPERCASE and STRIP whitespace
+        coords_lookup.columns = [str(c).upper().strip() for c in coords_lookup.columns]
+    else:
+        # Fallback if coordinates is not a DataFrame (unlikely based on pipeline)
+        coords_lookup = None
+
+    for idx in tour:
+        # Handle Depot (0) or Bins
+        point_data = {'id': str(idx), 'type': 'bin'}
+        
+        if idx == 0:
+            point_data['type'] = 'depot'
+            point_data['popup'] = "Depot"
+        
+        # Safe extraction of coordinates
+        if coords_lookup is not None:
+            # Check for ID in index (handling int vs str mismatch)
+            lookup_idx = idx
+            if lookup_idx not in coords_lookup.index:
+                if str(idx) in coords_lookup.index: lookup_idx = str(idx)
+                elif isinstance(idx, (int, np.integer)) and int(idx) in coords_lookup.index: lookup_idx = int(idx)
+            
+            if lookup_idx in coords_lookup.index:
+                try:
+                    row = coords_lookup.loc[lookup_idx]
+                    # If duplicate indices exist, take the first one
+                    if isinstance(row, pd.DataFrame): 
+                        row = row.iloc[0]
+                    
+                    # Look for standard Latitude/Longitude columns
+                    lat_val = row.get('LAT', row.get('LATITUDE'))
+                    lng_val = row.get('LNG', row.get('LONGITUDE', row.get('LONG')))
+                    
+                    if lat_val is not None and lng_val is not None:
+                        # Parse, replacing comma if locale issue
+                        lat = float(str(lat_val).replace(',', '.'))
+                        lng = float(str(lng_val).replace(',', '.'))
+                        point_data['lat'] = lat
+                        point_data['lng'] = lng
+                        
+                        if idx != 0:
+                            # Try to get a meaningful ID for popup, fallback to index
+                            display_id = row.get('ID', idx)
+                            point_data['popup'] = f"ID {display_id}"
+                except Exception as e:
+                    # Log error but continue so we don't crash the simulation
+                    # print(f"Error parsing coordinates for node {idx}: {e}")
+                    pass
+
+        route_coords.append(point_data)
+        
+    full_payload.update({DAY_METRICS[-1]: route_coords})
     full_payload.update({
         'bin_state_c': np.array(bins_c).tolist(),
         'bin_state_collected': np.array(collected).tolist(),
@@ -441,15 +498,18 @@ def send_daily_output_to_gui(daily_log, policy, sample_idx, day, bins_c, collect
     log_msg = f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}"
     
     # Append the raw log message to a local file, immediately flushing the disk buffer.
+    if lock is not None: lock.acquire(timeout=udef.LOCK_TIMEOUT)
     try:
         with open(log_path, 'a') as f:
             f.write(log_msg + '\n')
             f.flush()
     except Exception as e:
         print(f"Warning: Failed to write to local log file: {e}")
+    finally:
+        if lock is not None: lock.release()
 
 
-def send_final_output_to_gui(log, log_std, n_samples, policies, log_path):
+def send_final_output_to_gui(log, log_std, n_samples, policies, log_path, lock=None):
     lgsd = {k: [[0]*len(v) if isinstance(v, tuple) else 0 for v in pol_data] for k, pol_data in log.items()} if log_std is None \
         else {k: [list(v) if isinstance(v, tuple) else v for v in pol_data] for k, pol_data in log_std.items()}
     summary_data = {
@@ -465,9 +525,12 @@ def send_final_output_to_gui(log, log_std, n_samples, policies, log_path):
     #sys.stdout.flush()
 
     # 2. Local Real-Time File Logging (Ensure final status is also written)
+    if lock is not None: lock.acquire(timeout=udef.LOCK_TIMEOUT)
     try:
         with open(log_path, 'a') as f:
             f.write(summary_message + '\n')
             f.flush()
     except Exception as e:
         print(f"Warning: Failed to write summary to local log file: {e}")
+    finally:
+        if lock is not None: lock.release()
