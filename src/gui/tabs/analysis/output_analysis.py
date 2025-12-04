@@ -189,7 +189,7 @@ class OutputAnalysisTab(QWidget):
         return metrics
 
     def load_files(self):
-        # ... (UNCHANGED) ...
+        # ... (Existing file dialog code) ...
         file_paths, _ = QFileDialog.getOpenFileNames(
             self, "Open Output File(s)", "", "Output Files (*.json *.jsonl)"
         )
@@ -209,13 +209,14 @@ class OutputAnalysisTab(QWidget):
             return
 
         try:
-            # Initialize summary_text early to avoid NameError if an exception occurs during initialization
             summary_text = ""
             
             if self.json_data:
                 all_policy_names = self.json_data.pop('__Policy_Names__', [])
                 all_distributions = self.json_data.pop('__Distributions__', [])
                 all_file_ids = self.json_data.pop('__File_IDs__', [])
+                # Extract existing Num Bins if merging
+                all_n_bins = self.json_data.pop('Num Bins', []) 
                 merged_metrics = defaultdict(list, self.json_data)
                 valid_keys_set = set(merged_metrics.keys())
             else:
@@ -223,36 +224,49 @@ class OutputAnalysisTab(QWidget):
                 all_policy_names = []
                 all_distributions = []
                 all_file_ids = []
+                all_n_bins = [] # New list for bin counts
                 valid_keys_set = set()
             
             # 1. Collect all loaded file paths first
             for fpath in json_files:
                 self._all_loaded_json_paths.append(fpath)
 
-            # 2. Build the list of files loaded previously and now
+            # 2. Build the list of files
             summary_text = "--- Loaded/Merged Files ---\n"
-            for fpath in sorted(list(set(self._all_loaded_json_paths))): # Use set() to avoid duplicates if merging
+            for fpath in sorted(list(set(self._all_loaded_json_paths))):
                 summary_text += f"- {fpath}\n"
             
-            # 3. Continue processing each file
+            # 3. Process each file
             for fpath in json_files:
                 fname_prefix = os.path.basename(fpath)
+                
+                # --- NEW LOGIC: Extract Num Bins from parent directory ---
+                # Example: /path/to/areaname_50/log.json -> parent is areaname_50 -> extracts 50
+                parent_dir = os.path.basename(os.path.dirname(fpath))
+                bin_match = re.search(r'_(\d+)$', parent_dir)
+                n_bins_val = int(bin_match.group(1)) if bin_match else 0
+                # -----------------------------------------------------
+
                 with open(fpath, 'r') as f:
                     raw_data = json.load(f)
 
-                # Use fpath as a unique ID for the file group
                 file_unique_id = fpath 
                 
                 if isinstance(raw_data, dict) and raw_data and isinstance(next(iter(raw_data.values())), dict):
-                    # PASS file_unique_id HERE:
                     pivoted_data = self._pivot_json_data(raw_data, filename_prefix=fname_prefix, file_id=file_unique_id) 
                 else:
                     pivoted_data = raw_data
 
                 current_names = pivoted_data.get('__Policy_Names__', [])
+                count = len(current_names)
+
                 all_policy_names.extend(current_names)
-                all_distributions.extend(pivoted_data.get('__Distributions__', ['unknown'] * len(current_names)))
-                all_file_ids.extend(pivoted_data.get('__File_IDs__', [file_unique_id] * len(current_names)))
+                all_distributions.extend(pivoted_data.get('__Distributions__', ['unknown'] * count))
+                all_file_ids.extend(pivoted_data.get('__File_IDs__', [file_unique_id] * count))
+                
+                # --- NEW LOGIC: Extend Num Bins list ---
+                all_n_bins.extend([n_bins_val] * count)
+                # -------------------------------------
                 
                 for k, v in pivoted_data.items():
                     if k in ['__Policy_Names__', '__Distributions__', '__File_IDs__']: continue
@@ -264,6 +278,10 @@ class OutputAnalysisTab(QWidget):
             self.json_data['__Policy_Names__'] = all_policy_names
             self.json_data['__Distributions__'] = all_distributions
             self.json_data['__File_IDs__'] = all_file_ids
+            self.json_data['Num Bins'] = all_n_bins # Store in main dict
+            
+            # Add "Num Bins" to valid keys so it appears in the dropdown
+            valid_keys_set.add('Num Bins')
             
             final_keys = sorted(list(valid_keys_set))
             
