@@ -179,8 +179,8 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
                             position=tqdm_position+1, dynamic_ncols=True, leave=False, colour=colour):
                 hook.before_day(day)
                 data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id,
-                                                    overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], 
-                                                    realtime_log_path, opts['waste_type'], dist_tup, current_collection_day, cached, device)
+                                                    overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], realtime_log_path, 
+                                                    opts['waste_type'], dist_tup, current_collection_day, cached, device, _lock)
                 execution_time = time.process_time() - tic
                 new_data, coords, bins = data_ls
                 overflows, dlog, output_dict = output_ls
