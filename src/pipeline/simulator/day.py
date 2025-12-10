@@ -92,26 +92,21 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
     elif 'gurobi' in policy:
         gp_param = float(policy.rsplit("_vrpp", 1)[1])
         try:
-            routes = policy_gurobi_vrpp(bins.c, distance_matrix.tolist(), model_env, gp_param, 
-                                        bins.means, bins.std, waste_type, area, n_vehicles, time_limit=600)
+            routes, _, _ = policy_gurobi_vrpp(bins.c, distance_matrix.tolist(), model_env, gp_param, 
+                                            bins.means, bins.std, waste_type, area, n_vehicles, time_limit=600)
         except:
-            routes = policy_gurobi_vrpp(bins.c, distance_matrix.tolist(), model_env, gp_param, 
-                                        bins.means, bins.std, waste_type, area, n_vehicles, time_limit=3600)
+            routes, _, _ = policy_gurobi_vrpp(bins.c, distance_matrix.tolist(), model_env, gp_param, 
+                                            bins.means, bins.std, waste_type, area, n_vehicles, time_limit=3600)
 
         if routes:
-            tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
+            tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
             cost = get_route_cost(distance_matrix, tour)
     elif 'hexaly' in policy:
         hex_param = float(policy.rsplit("_vrpp", 1)[1])
-        try:
-            routes = policy_hexaly_vrpp(bins.c, distance_matrix.tolist(), hex_param, bins.means, 
-                                        bins.std, waste_type, area, n_vehicles, time_limit=600)
-        except:
-            routes = policy_hexaly_vrpp(bins.c, distance_matrix.tolist(), hex_param, bins.means, 
-                                        bins.std, waste_type, area, n_vehicles, time_limit=3600)
-        
+        routes, _, _ = policy_hexaly_vrpp(bins.c, distance_matrix.tolist(), hex_param, bins.means, 
+                                        bins.std, waste_type, area, n_vehicles, time_limit=60)
         if routes:
-            tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
+            tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
             cost = get_route_cost(distance_matrix, tour)
     elif 'policy_look_ahead' in policy:
         look_ahead_config = policy[policy.find('ahead_') + len('ahead_')]
@@ -138,7 +133,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
             if 'vrpp' in policy:
                 values['time_limit'] = 600
                 fh = bins.get_fill_history().transpose()
-                routes, profit, _ = policy_lookahead_vrpp(fh, binsids, must_go_bins, distance_matrix, values, env=model_env)
+                routes, _, _ = policy_lookahead_vrpp(fh, binsids, must_go_bins, distance_matrix, values, env=model_env)
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
                     cost = get_route_cost(distance_matrix, tour)
@@ -150,7 +145,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
                 iterations_per_T = 50000
                 alpha = 0.7
                 params = (T_init, iterations_per_T, alpha, T_min)
-                routes, profit, _ = policy_lookahead_sans(fh, coords, distance_matrix, params, must_go_bins, values, binsids)
+                routes, _, _ = policy_lookahead_sans(fh, coords, distance_matrix, params, must_go_bins, values, binsids)
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
                     cost = get_route_cost(distance_matrix, tour)
@@ -161,11 +156,11 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
                 new_data.loc[1:graph_size+1, 'Stock'] = (bins.c/100).astype('float32')
                 new_data.loc[1:graph_size+1, 'Accum_Rate'] = (bins.means/100).astype('float32')
                 try:
-                    routes, profit, removed_bins = find_solutions(new_data, coords, distance_matrix, chosen_combination,
-                                                                must_go_bins, values, graph_size, points, time_limit=600)
+                    routes, _, _ = find_solutions(new_data, coords, distance_matrix, chosen_combination,
+                                                must_go_bins, values, graph_size, points, time_limit=600)
                 except:
-                    routes, profit, removed_bins = find_solutions(new_data, coords, distance_matrix, chosen_combination,
-                                                                must_go_bins, values, graph_size, points, time_limit=3600)
+                    routes, _, _ = find_solutions(new_data, coords, distance_matrix, chosen_combination,
+                                                must_go_bins, values, graph_size, points, time_limit=3600)
                 
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]

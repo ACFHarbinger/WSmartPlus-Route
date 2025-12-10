@@ -81,11 +81,11 @@ class Bins:
 
     def collect(self, idsfull, cost=0):
         ids = set(idsfull)
-        ids.remove(0)
         total_collected = np.zeros((self.n))
-        if len(ids) == 0: 
+        if len(ids) <= 2: 
             return total_collected, 0, 0, 0
         
+        ids.remove(0)
         self.ndays += 1
         ids = np.array(list(ids)) - 1
         collected = (self.c[ids] / 100) * self.volume * self.density
@@ -106,12 +106,14 @@ class Bins:
         Processes the filling data, handles overflows, updates state variables, 
         and calculates returns.
         """
+        # Update history
+        self.history.append(todaysfilling)
+        self.means = np.mean(self.history, axis=0)
+        self.std = np.std(self.history, axis=0)
+
         # Lost overflows
         todays_lost = np.maximum(self.c + todaysfilling - 100, 0)
         todaysfilling = np.minimum(todaysfilling, 100)        
-
-        # Update history
-        self.history.append(todaysfilling)
         self.lost += todays_lost
 
         # New depositions for the overflow calculation
