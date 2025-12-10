@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import hexaly.optimizer as hx
 
-from typing import List
+from typing import List, Tuple
 from numpy.typing import NDArray
 from src.pipeline.simulator.loader import load_area_and_waste_type_params
 
@@ -18,215 +18,256 @@ def policy_hexaly_vrpp(
         area: str='riomaior', 
         number_vehicles: int=1, 
         time_limit: int=60,
-        max_iter_no_improv: int=3
-    ):
+        max_iter_no_improv: int=10
+    ) -> Tuple[List[int], float, float]:
     """
     Vehicle Routing Problem with Profits using Hexaly Optimizer.
-    
-    Args:
-        bins: Array of bin fill levels (percentage)
-        distancematrix: Distance matrix between nodes
-        param: Parameter for standard deviation multiplier
-        media: Mean fill level predictions
-        desviopadrao: Standard deviation of predictions
-        waste_type: Type of waste (e.g., 'plastic')
-        area: Area name (e.g., 'riomaior')
-        number_vehicles: Maximum number of vehicles
-        time_limit: Time limit in seconds
-        max_iter_no_improv: Maximum iterations without improving profit before stopping
+    Updated for Gurobi-like precision using Integer Scaling and Hard Constraints.
+    Includes Early Stopping Callback.
     
     Returns:
-        List of routes, where each route is a list of node indices
+        Tuple containing:
+        - List of visited nodes (starting with depot 0)
+        - Profit (float)
+        - Cost (float)
     """
+    
+    # ---------------------------------------------------------
+    # 0. PARAMETERS & SCALING
+    # ---------------------------------------------------------
+    # SCALING FACTOR: Convert floats to Ints to match MIP tightness
+    SCALE = 1000 
+    
     Omega, delta, psi = 0.1, 0, 1
     Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
     
-    # Convert bin fill percentages to actual weights in KG
-    pesos_reais = [(e / 100) * B * V for e in bins]
-    nodes = list(range(len(bins)))
-    idx_deposito = 0  # depot index
+    # Scale Capacity to Int
+    Q_int = int(Q * SCALE)
+
+    # ---------------------------------------------------------
+    # 1. DATA PREPARATION
+    # ---------------------------------------------------------
+    n_bins = len(bins)
+    enchimentos = np.insert(bins, 0, 0.0) # Depot has 0 fill
+
+    # Calculate Real Weights (Float) then Scale to Int
+    pesos_reais_float = [(e / 100) * B * V for e in enchimentos]
+    pesos_reais_int = [int(w * SCALE) for w in pesos_reais_float]
+
+    # Scale Distance Matrix to Int
+    dist_matrix_int = [
+        [int(dist * SCALE) for dist in row] 
+        for row in distancematrix
+    ]
+
+    nodes = list(range(n_bins + 1))
+    idx_deposito = 0
     nodes_real = [i for i in nodes if i != idx_deposito]
     
-    # Determine must-go containers
-    must_go = {}
-    must_go_count = 0
-    for container_id in range(len(bins)):
+    # Determine must-go and mandatory containers
+    must_go = set()
+    for container_id in range(n_bins):
         pred_value = bins[container_id] + media[container_id] + param * desviopadrao[container_id]
-        must_go[container_id] = pred_value >= 100
-        if must_go[container_id] and container_id != idx_deposito:
-            must_go_count += 1
-    
-    # Mandatory containers (critical or above threshold)
+        if pred_value >= 100:
+            must_go.add(container_id + 1)
+            
     mandatory = set()
     for i in nodes_real:
-        if must_go[i] or bins[i] >= psi * 100:
+        if (i in must_go) or (enchimentos[i] >= psi * 100):
             mandatory.add(i)
-    
-    max_dist = 6000
+
+    # Identify Forbidden Nodes (Low Fill & Not Critical - Matching Gurobi)
+    forbidden = set()
+    for i in nodes_real:
+        if enchimentos[i] < 10 and not (i in must_go):
+            forbidden.add(i)
+
+    max_dist_int = 6000 * SCALE
     num_nodes = len(nodes)
+    
+    # ---------------------------------------------------------
+    # 2. HEXALY MODEL
+    # ---------------------------------------------------------
     with hx.HexalyOptimizer() as optimizer:
         model = optimizer.model
         
-        # Convert distance matrix and weights to Hexaly arrays
-        dist_array = model.array(distancematrix)
-        weights_array = model.array(pesos_reais)
+        # Pass Scaled Data to Model
+        dist_array = model.array(dist_matrix_int)
+        weights_array = model.array(pesos_reais_int)
         
-        # Decision variables: sequence of visits for each vehicle
+        # Decision variables: Sequence of nodes for each vehicle
         routes = [model.list(num_nodes) for _ in range(number_vehicles)]
         
-        # Constraint: each node appears at most once across all routes
-        model.constraint(model.partition(routes))
+        # Constraint: Disjoint routes (each node visited at most once)
+        model.constraint(model.disjoint(routes))
         
-        # Create distance and load calculations for each route
-        route_distances = []
-        route_loads = []
-        route_profits = []
+        # Define union of visited nodes
+        all_visited = model.union(routes)
+        model.constraint(model.contains(all_visited, idx_deposito) == 0)
+
+        # Hard Forbidden Constraint (Matching Gurobi g[i].ub = 0)
+        for node in forbidden:
+            model.constraint(model.contains(all_visited, node) == 0)
+
+        # Optimization Expressions
+        total_profit_int = 0
+        total_dist_int = 0
+        vehicles_used_expr = 0
+        
         for k in range(number_vehicles):
             route = routes[k]
-            route_length = model.count(route)
+            count = model.count(route)
             
-            # Distance calculation: depot -> route -> depot
-            # Distance from depot to first node
-            dist_to_first = model.iif(
-                route_length > 0,
+            # 1. Vehicle Used?
+            is_used = model.iif(count > 0, 1, 0)
+            vehicles_used_expr += is_used
+            
+            # 2. Load Calculation (Integer)
+            route_load = model.sum(
+                model.range(0, count),
+                model.lambda_function(lambda i: model.at(weights_array, model.at(route, i)))
+            )
+            
+            # Capacity Constraint (Hard)
+            model.constraint(route_load <= Q_int)
+            
+            # Profit Contribution (Sum of loads, scaled R applied later)
+            total_profit_int += route_load 
+            
+            # 3. Distance Calculation (Integer)
+            d_start = model.iif(
+                count > 0,
                 model.at(dist_array, idx_deposito, model.at(route, 0)),
                 0
             )
-            
-            # Distances between consecutive nodes in route
-            dist_between = model.sum(
-                model.range(0, route_length - 1),
+            d_path = model.sum(
+                model.range(0, count - 1),
                 model.lambda_function(
                     lambda i: model.at(dist_array, model.at(route, i), model.at(route, i + 1))
                 )
             )
-            
-            # Distance from last node back to depot
-            dist_to_depot = model.iif(
-                route_length > 0,
-                model.at(dist_array, model.at(route, route_length - 1), idx_deposito),
+            d_end = model.iif(
+                count > 0,
+                model.at(dist_array, model.at(route, count - 1), idx_deposito),
                 0
             )
             
-            # Total distance
-            dist_expr = dist_to_first + dist_between + dist_to_depot
-            route_distances.append(dist_expr)
+            route_dist = d_start + d_path + d_end
+            total_dist_int += route_dist
             
-            # Load calculation: sum of weights in route
-            load_expr = model.sum(
-                model.range(0, route_length),
-                model.lambda_function(lambda i: model.at(weights_array, model.at(route, i)))
-            )
-            route_loads.append(load_expr)
-            
-            # Profit calculation: revenue from collected waste (same as load)
-            route_profits.append(load_expr)
-            
-            # Capacity constraint
-            model.constraint(load_expr <= Q)
-            
-            # Distance constraints are handled implicitly by max_dist filtering
-            # We create a lambda to check each edge in the route
-            model.constraint(
-                model.sum(
-                    model.range(0, route_length - 1),
-                    model.lambda_function(
-                        lambda i: model.iif(
-                            model.at(dist_array, model.at(route, i), model.at(route, i + 1)) <= max_dist,
-                            1,
-                            0
-                        )
-                    )
-                ) == route_length - 1
-            )
-            
-            # Depot connection distance constraints
-            model.constraint(
-                model.iif(
-                    route_length > 0,
-                    model.and_(
-                        model.at(dist_array, idx_deposito, model.at(route, 0)) <= max_dist,
-                        model.at(dist_array, model.at(route, route_length - 1), idx_deposito) <= max_dist
-                    ),
-                    1  # True if route is empty
-                )
-            )
-        
-        # Mandatory containers must be visited
-        all_visited = model.union(routes)
+            # Max Distance Constraints
+            if max_dist_int > 0:
+                model.constraint(route_dist <= max_dist_int)
+
+        # Mandatory Visits
         for node in mandatory:
             model.constraint(model.contains(all_visited, node))
-        
-        # Must-go containers constraint (with delta flexibility)
-        must_go_nodes = [i for i in nodes_real if must_go[i]]
-        if must_go_nodes:
-            min_must_go = max(0, len(must_go_nodes) - int(len(nodes_real) * delta))
-            visited_must_go = model.sum(
-                [model.contains(all_visited, node) for node in must_go_nodes]
+            
+        # Must-Go Flexible Constraint
+        must_go_list = list(must_go)
+        if must_go_list:
+            nb_must_go = len(must_go_list)
+            visited_critical = model.sum(
+                [model.contains(all_visited, node) for node in must_go_list]
             )
-            model.constraint(visited_must_go >= min_must_go)
+            limit = max(0, nb_must_go - int(len(nodes_real) * delta))
+            model.constraint(visited_critical >= limit)
+
+        # ---------------------------------------------------------
+        # 3. OBJECTIVE FUNCTION (Implicit Type Promotion)
+        # ---------------------------------------------------------
+        # Rely on Hexaly's expression system to handle implicit float promotion
+        # when dividing the HxExpression (int) by the Python constant SCALE.
         
-        # Objective: maximize profit - cost
-        total_profit = R * model.sum(route_profits)
-        total_distance_cost = 0.5 * C * model.sum(route_distances)
-        num_vehicles_used = model.sum(
-            [model.iif(model.count(routes[k]) > 0, 1, 0) for k in range(number_vehicles)]
-        )
-        vehicle_cost = Omega * num_vehicles_used
+        revenue_term = (total_profit_int / SCALE) * R 
+        dist_cost_term = (total_dist_int / SCALE) * (0.5 * C) 
+        vehicle_cost_term = vehicles_used_expr * Omega
         
-        objective = total_profit - total_distance_cost - vehicle_cost
-        model.maximize(objective)
+        obj = revenue_term - dist_cost_term - vehicle_cost_term
         
+        model.maximize(obj)
         model.close()
         
-        # Set parameters
+        # ---------------------------------------------------------
+        # 4. SOLVE WITH CALLBACK
+        # ---------------------------------------------------------
         optimizer.param.time_limit = time_limit
         optimizer.param.verbosity = 0
-        old_stdout = sys.stdout
-        sys.stdout = io.StringIO()  # Suppress output
         
-        # Solve
-        best_solution = [None]
-        no_improvement_count = [0]
-        def callback(optimizer, callback_type):
-            """Callback to check if solution is not improving"""
-            if optimizer.solution.status == hx.HxSolutionStatus.INFEASIBLE:
+        # --- EARLY STOPPING CALLBACK ---
+        best_obj_val = [None]
+        no_improv_iter = [0]
+        
+        def callback(opt, type):
+            # Check feasibility first
+            if opt.solution.status == hx.HxSolutionStatus.INFEASIBLE:
                 return
+            
+            if type == hx.HxCallbackType.TIME_TICKED:
+                # Get current objective value
+                val = opt.solution.get_value(obj)
                 
-            if callback_type == hx.HxCallbackType.TIME_TICKED:
-                current_value = optimizer.solution.get_value(objective)
-                if best_solution[0] is None:
-                    best_solution[0] = current_value
-                    no_improvement_count[0] = 0
+                if best_obj_val[0] is None:
+                    best_obj_val[0] = val
+                    no_improv_iter[0] = 0
                 else:
-                    improvement = abs(current_value - best_solution[0])
-                    relative_improvement = improvement / max(abs(best_solution[0]), 1e-10)
+                    # Check for significant relative improvement (e.g. 0.1%)
+                    # Use max(..., 1e-10) to avoid division by zero
+                    relative_improvement = abs(val - best_obj_val[0]) / max(abs(best_obj_val[0]), 1e-10)
                     
-                    if relative_improvement > 0.001:  # 0.1% improvement threshold
-                        best_solution[0] = current_value
-                        no_improvement_count[0] = 0
+                    if relative_improvement > 0.001:
+                        best_obj_val[0] = val
+                        no_improv_iter[0] = 0
                     else:
-                        no_improvement_count[0] += 1
+                        no_improv_iter[0] += 1
                     
-                    # Stop if no better solution is found for too long
-                    if (no_improvement_count[0] >= max_iter_no_improv):
-                        optimizer.stop()
+                    if no_improv_iter[0] >= max_iter_no_improv:
+                        # Stop the optimizer if no improvement for 'max_iter_no_improv' ticks
+                        opt.stop()
 
+        # Register the callback
         optimizer.add_callback(hx.HxCallbackType.TIME_TICKED, callback)
+        # -------------------------------
+
+        # Output capture
+        old_stdout = sys.stdout
+        sys.stdout = io.StringIO()
+        
         try:
             optimizer.solve()
-            sys.stdout = old_stdout  # Restore output
-
-            # Extract solution
-            solution_routes = []
-            for k in range(number_vehicles):
-                route_list = routes[k].value
-                if len(route_list) > 0:
-                    # Add depot at start and end
-                    full_route = [idx_deposito] + list(route_list) + [idx_deposito]
-                    solution_routes.append(full_route)
+            sys.stdout = old_stdout
             
-            return solution_routes
-        except hx.HxError as e:
-            print("Hexaly optimization failed. Error message:", str(e))
-            return None
+            # ---------------------------------------------------------
+            # 5. POST-PROCESSING (Unscale)
+            # ---------------------------------------------------------
+            final_route_flat = [0]
+            
+            calc_revenue = 0.0
+            calc_dist = 0.0
+            
+            for k in range(number_vehicles):
+                r_vals = list(routes[k].value)
+                if not r_vals:
+                    continue
+                    
+                final_route_flat.extend(r_vals)
+                final_route_flat.append(0)
+                
+                # Re-calculate exact float values for return
+                for node in r_vals:
+                    calc_revenue += pesos_reais_float[node] * R
+                
+                # Distance
+                if len(r_vals) > 0:
+                    calc_dist += distancematrix[idx_deposito][r_vals[0]]
+                    for i in range(len(r_vals) - 1):
+                        calc_dist += distancematrix[r_vals[i]][r_vals[i+1]]
+                    calc_dist += distancematrix[r_vals[-1]][idx_deposito]
+            
+            profit = calc_revenue - calc_dist
+            cost = calc_dist
+            return final_route_flat, profit, cost
+        except Exception as e:
+            sys.stdout = old_stdout
+            print(f"Hexaly optimization failed: {e}")
+            return [0], 0.0, 0.0

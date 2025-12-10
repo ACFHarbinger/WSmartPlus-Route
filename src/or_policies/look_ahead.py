@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import gurobipy as gp
-from gurobipy import GRB, quicksum
 
+from gurobipy import GRB, quicksum
 from typing import List
 from numpy.typing import NDArray
 from src.pipeline.simulator.processor import create_dataframe_from_matrix, convert_to_dict
@@ -31,16 +31,16 @@ def policy_lookahead(
 
 
 def policy_lookahead_vrpp(fh, binsids, must_go_bins, distance_matrix, values, number_vehicles=8, env=None):
-    binsids = [bin_id + 1 for bin_id in binsids]
+    binsids = [0] + [bin_id + 1 for bin_id in binsids]
     must_go_bins = [must_go + 1 for must_go in must_go_bins]
     criticos = [bin_id in must_go_bins for bin_id in binsids]
-    #print("A quantidade de contentores MG",sum(criticos))
 
     B, V, Q = values['B'], values['E'], values['vehicle_capacity'] #densidade, volume, capacidade
     R, C, Omega = values['R'], values['C'], 0.1 #receita, custo, omega
     delta, psi = 0, 1 #delta, psi
 
     enchimentos = fh[:, -1]
+    enchimentos = np.insert(enchimentos, 0, 0.0)
     pesos_reais = [(e / 100) * B * V for e in enchimentos]
     nodes = list(range(len(binsids)))
     idx_deposito = 0
@@ -162,11 +162,12 @@ def policy_lookahead_vrpp(fh, binsids, must_go_bins, distance_matrix, values, nu
                 resultados_g.append((id_map[i], g[i].X))
 
         for idx, rota in enumerate(rotas, start=1):
-                df_rota = pd.DataFrame(
-                    [(id_map[i], id_map[j], x[i, j].X) for (i, j) in rota],
-                    columns=['i', 'j', 'x_ij']
-                )
-                contentores_coletados.extend([id_map[j] for (i, j) in rota])
+            df_rota = pd.DataFrame(
+                [(id_map[i], id_map[j], x[i, j].X) for (i, j) in rota],
+                columns=['i', 'j', 'x_ij']
+            )
+            
+            contentores_coletados.extend([id_map[j] for (i, j) in rota])
 
         profit = (
             R * sum(S_dict[i] * g[i].X for i in nodes_real)
@@ -174,8 +175,7 @@ def policy_lookahead_vrpp(fh, binsids, must_go_bins, distance_matrix, values, nu
         )
             
         cost = sum(x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis)
-        # print(final_gap)
-        contentores_coletados = [contentor - 1 for contentor in contentores_coletados]
+        contentores_coletados = [contentor for contentor in contentores_coletados]
     return [0] + contentores_coletados, profit, cost
 
 
