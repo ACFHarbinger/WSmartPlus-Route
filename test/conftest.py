@@ -172,7 +172,7 @@ def wsr_opts(tmp_path):
     return {
         'days': 10,
         'size': 2,
-        'area': 'test_area',
+        'area': 'riomaior',
         'waste_type': 'paper',
         'policies': ['test_policy_gamma1'],
         'output_dir': 'test_output',
@@ -237,22 +237,27 @@ def policy_deps(mocker):
     
     # 2. Mock dependent functions
     mock_load_params = mocker.patch(
-        # This function is imported into last_minute, regular, and day
         'src.pipeline.simulator.loader.load_area_and_waste_type_params',
         return_value=(4000, 0.16, 21.0, 1.0, 2.5) # Q, R, B, C, V
     )
+    mocker.patch('src.or_policies.regular.load_area_and_waste_type_params', mock_load_params)
+    mocker.patch('src.or_policies.last_minute.load_area_and_waste_type_params', mock_load_params)
     
     # Mock TSP solver (used by last_minute and regular)
     mock_find_route = mocker.patch(
         'src.or_policies.single_vehicle.find_route', 
         return_value=[0, 1, 3, 0] # Default mock tour
     )
+    mocker.patch('src.or_policies.regular.find_route', mock_find_route)
+    mocker.patch('src.or_policies.last_minute.find_route', mock_find_route)
     
     # Mock multi-tour splitter
     mock_get_multi_tour = mocker.patch(
         'src.or_policies.single_vehicle.get_multi_tour',
         side_effect=lambda tour, *args: tour # Pass-through
     )
+    mocker.patch('src.or_policies.regular.get_multi_tour', mock_get_multi_tour)
+    mocker.patch('src.or_policies.last_minute.get_multi_tour', mock_get_multi_tour)
 
     return {
         "n_bins": 5,
@@ -273,7 +278,7 @@ def policy_deps(mocker):
 @pytest.fixture
 def basic_bins(tmp_path):
     """Returns a basic Bins instance for testing."""
-    return Bins(n=10, data_dir=str(tmp_path), sample_dist="gamma")
+    return Bins(n=10, data_dir=str(tmp_path), sample_dist="gamma", area="riomaior", waste_type="paper")
 
 
 @pytest.fixture
@@ -702,14 +707,14 @@ def mock_run_day_deps(mocker):
     # Mock Bins object with real arrays
     mock_bins = MagicMock()
     mock_bins.is_stochastic.return_value = False 
-    mock_bins.loadFilling.return_value = (0, np.zeros(n_nodes), 0)
-    mock_bins.stochasticFilling.return_value = (0, np.zeros(n_nodes), 0)
+    mock_bins.loadFilling.return_value = (0, np.zeros(n_nodes), np.zeros(n_nodes), 0)
+    mock_bins.stochasticFilling.return_value = (0, np.zeros(n_nodes), np.zeros(n_nodes), 0)
     mock_bins.c = np.full(n_nodes, 50.0) # 50% fill
     mock_bins.means = np.full(n_nodes, 10.0)
     mock_bins.std = np.full(n_nodes, 1.0)
     mock_bins.collectlevl = np.full(n_nodes, 90.0) # For last_minute policy
     mock_bins.n = n_nodes
-    mock_bins.collect.return_value = (100.0, 2) 
+    mock_bins.collect.return_value = (100.0, 2, 10.0, 5.0) 
 
     # 2. Mock DataFrames
     mock_new_data = pd.DataFrame({

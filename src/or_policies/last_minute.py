@@ -57,8 +57,8 @@ def policy_last_minute_and_path(
         for ii in range(0, len_tour - 1):
             path_to_collect = paths_between_states[tour[ii]][tour[ii+1]]
             for tocol in path_to_collect:
-                if tocol not in tour and tocol != 0:
-                    waste = bins[tocol]
+                if tocol not in tour and tocol != 0 and tocol not in visited_states:
+                    waste = bins[tocol - 1]
                     if waste + total_waste <= max_capacity:
                         total_waste += waste
                         #print("Waste collected trip {}: {}".format(tocol, total_waste))
