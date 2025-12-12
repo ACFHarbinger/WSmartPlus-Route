@@ -3,7 +3,7 @@ import pytest
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QMouseEvent
 from unittest.mock import MagicMock
-from gui.components.clickable_header import ClickableHeaderWidget
+from gui.src.components.clickable_header import ClickableHeaderWidget
 
 def test_clickable_header_mouse_press(qapp):
     """Test that clicking the header triggers the toggle callback."""

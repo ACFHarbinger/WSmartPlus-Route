@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,QScrollArea, QWidget,
     QHBoxLayout, QPushButton, QSizePolicy,
 )
-from gui.utils.app_definitions import (
+from gui.src.utils.app_definitions import (
     VERTEX_METHODS, EDGE_METHODS,
     DISTANCE_MATRIX_METHODS, COUNTY_AREAS
 )

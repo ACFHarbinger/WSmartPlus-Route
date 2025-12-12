@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QLineEdit, QFormLayout, QWidget,
     QPushButton, QHBoxLayout, QFileDialog # <-- Added
 )
-from gui.utils.app_definitions import WASTE_TYPES, COUNTY_AREAS, DATA_DISTRIBUTIONS
+from gui.src.utils.app_definitions import WASTE_TYPES, COUNTY_AREAS, DATA_DISTRIBUTIONS
 
 
 class TestSimIOTab(QWidget):

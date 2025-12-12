@@ -789,7 +789,7 @@ def validate_file_system_args(args):
 
 def validate_gui_args(args):
     """
-    Validates and post-processes arguments for gui.
+    Validates and post-processes arguments for gui.src.
     """
     args = args.copy()
     assert args.get('app_style') in [None] + APP_STYLES, \

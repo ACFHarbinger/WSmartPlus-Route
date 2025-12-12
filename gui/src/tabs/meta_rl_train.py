@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QSpinBox, QScrollArea, QVBoxLayout,
     QLineEdit, QFormLayout, QDoubleSpinBox,
 )
-from gui.utils.app_definitions import (
+from gui.src.utils.app_definitions import (
     CB_EXPLORATION_METHODS,
     RWA_MODELS, RWA_OPTIMIZERS,
     MRL_METHODS, AGGREGATION_FUNCTIONS,

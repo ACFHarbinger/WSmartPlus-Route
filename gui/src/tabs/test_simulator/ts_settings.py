@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QFormLayout, QHBoxLayout, QVBoxLayout,
     QPushButton, QLabel, QScrollArea,
 )
-from gui.utils.app_definitions import (
+from gui.src.utils.app_definitions import (
     SIMULATOR_TEST_POLICIES,
     PROBLEM_TYPES, DATA_DISTRIBUTIONS, 
 )

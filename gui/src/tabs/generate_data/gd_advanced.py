@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QPushButton, QSizePolicy, QHBoxLayout,
     QFileDialog # <-- Added
 )
-from gui.utils.app_definitions import COUNTY_AREAS, VERTEX_METHODS
+from gui.src.utils.app_definitions import COUNTY_AREAS, VERTEX_METHODS
 from ...components import ClickableHeaderWidget
 
 

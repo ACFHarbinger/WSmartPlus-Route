@@ -1,12 +1,12 @@
 
-import pytest
-from unittest.mock import MagicMock, patch
-from gui.tabs.analysis.input_analysis import InputAnalysisTab
-from gui.tabs.analysis.output_analysis import OutputAnalysisTab
-from gui.test.conftest import MockDataLoadWorker
+from unittest.mock import patch
+from .conftest import MockDataLoadWorker
+from gui.src.tabs.analysis.input_analysis import InputAnalysisTab
+from gui.src.tabs.analysis.output_analysis import OutputAnalysisTab
+
 
 # Mock DataLoadWorker where it is imported in input_analysis
-@patch('gui.tabs.analysis.input_analysis.DataLoadWorker', new=MockDataLoadWorker)
+@patch('gui.src.tabs.analysis.input_analysis.DataLoadWorker', new=MockDataLoadWorker)
 def test_input_analysis_tab_init(qapp):
     """Test initialization of InputAnalysisTab."""
     tab = InputAnalysisTab()
