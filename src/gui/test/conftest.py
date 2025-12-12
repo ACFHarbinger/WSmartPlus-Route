@@ -25,6 +25,14 @@ sys.modules['matplotlib.backends.backend_qtagg'] = mock_backend
 # Ensure direct import works too
 sys.modules['matplotlib.backends.backend_qtagg'].FigureCanvasQTAgg = MockCanvas
 
+# Mock DataLoadWorker to prevent thread issues in InputAnalysisTab
+class MockDataLoadWorker(MagicMock):
+    def moveToThread(self, thread): pass
+
+# We can't easily sys.modules mock only one class from a module if the module has other stuff we need,
+# but we can patch it in fixtures or assume the tests will patch it.
+# However, let's try to mock the specific import if possible or just provide a fixture.
+# A better approach for QThread/Worker components in UI tests is often to patch them during test setup.
 
 from src.gui.windows.ts_results_window import SimulationResultsWindow
 
