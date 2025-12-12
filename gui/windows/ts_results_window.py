@@ -4,7 +4,7 @@ import folium
 import random
 import webbrowser
 import numpy as np
-import src.utils.definitions as udef
+import logic.src.utils.definitions as udef
 
 from collections import defaultdict
 from PySide6.QtWidgets import (

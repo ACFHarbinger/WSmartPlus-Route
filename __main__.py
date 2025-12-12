@@ -5,9 +5,9 @@ import sys
 import argparse
 import traceback
 
-from src.pipeline.test import run_wsr_simulator_test
-from src.pipeline.train import run_training
-from src.utils.arg_parser import (
+from logic.src.pipeline.test import run_wsr_simulator_test
+from logic.src.pipeline.train import run_training
+from logic.src.utils.arg_parser import (
     ConfigsParser, 
     add_test_sim_args, validate_test_sim_args,
     add_train_args, validate_train_args,

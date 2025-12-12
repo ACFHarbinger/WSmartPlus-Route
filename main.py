@@ -11,24 +11,24 @@ import signal
 import pprint
 import traceback
 import multiprocessing as mp
-import src.utils.definitions as udef
+import logic.src.utils.definitions as udef
 
-from test import PyTestRunner
-from src.file_system import (
+from logic.test import PyTestRunner
+from logic.src.file_system import (
     perform_cryptographic_operations,
     update_file_system_entries, 
     delete_file_system_entries
 )
-from src.pipeline.test import run_wsr_simulator_test
-from src.pipeline.eval import run_evaluate_model
-from src.pipeline.train import (
+from logic.src.pipeline.test import run_wsr_simulator_test
+from logic.src.pipeline.eval import run_evaluate_model
+from logic.src.pipeline.train import (
     train_reinforcement_learning, 
     train_reinforce_over_time, train_reinforce_epoch,
     train_meta_reinforcement_learning, hyperparameter_optimization
 )
-from src.data.generate_data import generate_datasets
-from src.utils.arg_parser import parse_params 
-from src.app import run_app_gui, launch_results_window
+from logic.src.data.generate_data import generate_datasets
+from logic.src.utils.arg_parser import parse_params 
+from logic.src.app import run_app_gui, launch_results_window
 
 
 def run_test_suite(opts):
