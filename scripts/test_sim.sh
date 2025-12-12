@@ -53,7 +53,7 @@ GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("hexaly_vrpp")
+POLICIES=("policy_look_ahead_sans")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
 #"gurobi_vrpp" "hexaly_vrpp" 
@@ -84,6 +84,7 @@ echo "Fast TSP Mode: $RUN_TSP"
 echo "========================================"
 echo ""
 
+# Add option --real_time_log to the command line if you want real time updates of the simulation
 if [ "$RUN_TSP" -eq 0 ]; then
     echo "Running with fast_tsp..."
     if [ "$VERBOSE" = false ]; then
