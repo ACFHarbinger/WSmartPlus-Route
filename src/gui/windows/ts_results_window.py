@@ -2,7 +2,6 @@ import os
 import json
 import folium
 import random
-import tempfile
 import webbrowser
 import numpy as np
 import src.utils.definitions as udef
@@ -54,7 +53,13 @@ class SimulationResultsWindow(QWidget):
         
         # [MODIFIED] No longer tracking active tabs, we use a single dashboard
         self.live_ui_components = {} 
-        self.summary_data = {} 
+        # Stores aggregated summary data from potentially multiple log lines
+        self.summary_data = {
+            'policies': [],
+            'log': {},
+            'log_std': {},
+            'n_samples': 0
+        }
         
         main_layout = QVBoxLayout(self)
         self.status_label = QLabel("Waiting for simulation to start...")
@@ -455,15 +460,48 @@ class SimulationResultsWindow(QWidget):
             except Exception as e: print(f"Log Error: {e}")
 
         elif record.startswith("GUI_SUMMARY_LOG_START:"):
-            # ... (Summary parsing logic remains same) ...
             try:
+                # Find the last closing brace to ensure we get the valid JSON object
+                # (SOMETIMES logs might have extra noise or multiple concatenated jsons if not careful, 
+                # though usually it's one line per record)
                 end = record.rfind('}')
+                if end == -1: return
+
                 clean = record[:end+1]
-                json_str = clean.split("GUI_SUMMARY_LOG_START:")[1].strip()
-                self.summary_data = json.loads(json_str)
-                self.status_label.setText("Simulation Complete.")
+                json_part = clean.split("GUI_SUMMARY_LOG_START:")[1].strip()
+                new_summary = json.loads(json_part)
+                
+                # MERGE LOGIC:
+                # 1. Update/Extend Policies list (maintain order if possible, or just append unique)
+                existing_policies = set(self.summary_data['policies'])
+                incoming_policies = new_summary.get('policies', [])
+                
+                for p in incoming_policies:
+                    if p not in existing_policies:
+                        self.summary_data['policies'].append(p)
+                        existing_policies.add(p)
+                
+                # 2. Update Log Data (Mean)
+                # Structure: {'policy_name': [metrics...], ...}
+                if 'log' in new_summary:
+                    self.summary_data['log'].update(new_summary['log'])
+                    
+                # 3. Update Log Std Data (StdDev)
+                if 'log_std' in new_summary:
+                    self.summary_data['log_std'].update(new_summary['log_std'])
+                    
+                # 4. Update Meta info
+                # We take the max n_samples or just overwrite if they are consistent/increasing
+                if 'n_samples' in new_summary:
+                    self.summary_data['n_samples'] = new_summary['n_samples']
+
+                self.status_label.setText("Simulation Complete (Summary Updated).")
                 self.redraw_summary_chart()
-            except Exception as e: print(f"Summary Error: {e}")
+                
+            except Exception as e: 
+                print(f"Summary Error: {e}")
+                # Print the problematic record for debugging if needed
+                # print(f"Problem Record: {record}")
 
     # -------------------------------------------------------------------------
     # UTILS & OLD LOGIC PRESERVED
