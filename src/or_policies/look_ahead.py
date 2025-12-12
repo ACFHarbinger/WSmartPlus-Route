@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import gurobipy as gp
+import random
+import time
 
 from gurobipy import GRB, quicksum
 from typing import List
@@ -10,6 +12,9 @@ from .look_ahead_aux import (
     should_bin_be_collected, add_bins_to_collect,
     compute_initial_solution, improved_simulated_annealing, 
     get_next_collection_day, update_fill_levels_after_first_collection,
+)
+from .hybrid_genetic_search import (
+    Individual, HGSParams, evaluate, ordered_crossover, local_search
 )
 
 
@@ -198,3 +203,113 @@ def policy_lookahead_sans(data, bins_coordinates, distance_matrix, params, bins_
 
     optimized_routes = [r for r in optimized_routes]
     return optimized_routes, best_profit, last_distance
+
+
+def policy_lookahead_hgs(fh, binsids, must_go_bins, distance_matrix, values):
+    """
+    Hybrid Genetic Search Policy.
+    """
+    # 0. Adapt Arguments
+    current_fill_levels = fh[:, -1]
+    time_limit = values.get('time_limit', 10)
+
+    # 1. Parse Parameters
+    B, E, Q = values['B'], values['E'], values['vehicle_capacity']
+    R, C = values['R'], values['C']
+    
+    # 2. Filter nodes: We consider all bins passed in 'binsids' as candidates,
+    # but the HGS will decide order. 
+    # Note: If you want to ONLY route specific bins, filter 'binsids' here.
+    # The Gurobi model has a choice (g variable). HGS usually routes everyone in the list.
+    # To mimic Gurobi's 'selection', we can include all bins with fill > 0.
+    
+    candidate_indices = [
+        i for i, b_id in enumerate(binsids) 
+        if current_fill_levels[i] > 0 or b_id in must_go_bins
+    ]
+    
+    # Create mapping
+    # HGS works on indices 0..N. We map these to the distance matrix indices.
+    # The distance matrix includes depot at 0. 'binsids' usually start from index 1 in matrix?
+    # Assuming binsids[i] corresponds to row/col i+1 in distance_matrix (since 0 is depot).
+    
+    # Map local HGS index -> Matrix/Bin Index
+    local_to_global = {local_idx: global_idx + 1 for local_idx, global_idx in enumerate(candidate_indices)} 
+    
+    # Prepare Demands (Weights)
+    demands = {}
+    for local_i, global_i in local_to_global.items():
+        # global_i is matrix index. binsids index is global_i - 1
+        bin_array_idx = global_i - 1 
+        fill = current_fill_levels[bin_array_idx]
+        weight = (fill / 100.0) * B * E
+        demands[global_i] = weight
+
+    if not candidate_indices:
+        return [0], 0, 0
+
+    # 3. Initialization
+    params = HGSParams(time_limit=time_limit)
+    population = []
+    
+    # Seed population
+    base_tour = list(local_to_global.values()) # List of matrix indices
+    
+    start_time = time.time()
+    
+    for _ in range(params.population_size):
+        random.shuffle(base_tour)
+        ind = Individual(base_tour[:])
+        ind = evaluate(ind, distance_matrix, demands, Q, R, C, values)
+        population.append(ind)
+        
+    population.sort(reverse=True) # Best (Highest Profit) first
+    best_solution = population[0]
+    
+    # 4. Main HGS Loop
+    generation = 0
+    while time.time() - start_time < params.time_limit:
+        generation += 1
+        
+        # Selection (Tournament)
+        parent1 = population[random.randint(0, params.elite_size)]
+        parent2 = population[random.randint(0, params.population_size - 1)]
+        
+        # Crossover
+        child_tour = ordered_crossover(parent1.giant_tour, parent2.giant_tour)
+        child = Individual(child_tour)
+        
+        # Education (Local Search / Mutation)
+        child = local_search(child, distance_matrix)
+        
+        # Evaluation (Split)
+        child = evaluate(child, distance_matrix, demands, Q, R, C, values)
+        
+        # Survivor Selection
+        # Simple steady-state: if better than worst, replace worst
+        if child.fitness > population[-1].fitness:
+            population[-1] = child
+            population.sort(reverse=True)
+            
+            if child.fitness > best_solution.fitness:
+                best_solution = child
+                
+    # 5. Format Output
+    # Convert routes to flat list of IDs (excluding depot 0 inside the list, 
+    # but the simulator usually expects [0, id, id, 0, id...]).
+    # The 'policy_lookahead_vrpp' returns [0] + contentores_coletados.
+    
+    final_sequence = []
+    # Flatten routes
+    for route in best_solution.routes:
+        final_sequence.extend(route)
+        
+    # Convert Matrix Indices (1..N) back to Bin IDs if necessary
+    # The Gurobi code returns: contentores_coletados = [id_map[j] for ...].
+    # binsids are 0-indexed in the input list, but IDs might be +1.
+    # The standard output seems to be the list of collected bin INDICES (0-based relative to binsids).
+    
+    # Convert back to 0-based index referenced in 'binsids'
+    collected_bins_indices = [idx - 1 for idx in final_sequence]
+    
+    return [0] + collected_bins_indices, best_solution.fitness, best_solution.cost

@@ -614,6 +614,72 @@ class TestAdvancedLookaheadPolicies:
         assert routes == [0, 1, 3, 0]
 
     @pytest.mark.unit
+    def test_policy_lookahead_hgs(self, mocker, mock_vrpp_inputs):
+        """
+        Tests the HGS policy implementation logic (moved to look_ahead.py).
+        Runs a very short simulation to ensure no runtime errors.
+        """
+        from src.or_policies.look_ahead import policy_lookahead_hgs
+        
+        # We don't mock the implementation anymore since it's inline.
+        # We run it with minimal time_limit to ensure it completes fast.
+        
+        values = {
+            'R': 1, 'C': 1, 'E': 1, 'B': 1, 'vehicle_capacity': 100,
+            'time_limit': 0.1 # Very short time limit
+        }
+        mock_vrpp_inputs['fh'] = np.zeros((5, 5))
+        mock_vrpp_inputs['fh'][:, -1] = np.array([10, 20, 30, 40, 50])
+        
+        # Mocking random and time to be deterministic if needed, 
+        # but for integration sanity check, real execution is fine if short.
+        
+        routes, profit, cost = policy_lookahead_hgs(
+            mock_vrpp_inputs['fh'],
+            mock_vrpp_inputs['binsids'],
+            mock_vrpp_inputs['must_go_bins'],
+            mock_vrpp_inputs['distance_matrix'],
+            values
+        )
+        
+        # Assert structure of output
+        assert isinstance(routes, list)
+        assert routes[0] == 0
+    @pytest.mark.unit
+    def test_policy_lookahead_hgs_must_go(self, mocker, mock_vrpp_inputs):
+        """
+        Tests that HGS includes must-go bins even if they have 0 fill.
+        """
+        from src.or_policies.look_ahead import policy_lookahead_hgs
+        
+        values = {
+            'R': 1, 'C': 1, 'E': 1, 'B': 1, 'vehicle_capacity': 100,
+            'time_limit': 0.1
+        }
+        # Bin 0 has 0 fill, but is must-go
+        mock_vrpp_inputs['fh'] = np.zeros((5, 5)) 
+        mock_vrpp_inputs['fh'][:, -1] = np.array([0, 20, 30, 40, 50])
+        
+        # binsids are usually just [0, 1, 2, 3, 4] corresponding to the matrix indices (minus depot 0?)
+        # Let's say binsids = [0, 1, 2, 3, 4]
+        # And must_go_bins = [0]
+        
+        # Ensure bin 0 (index 0) is a must-go bin
+        must_go = [mock_vrpp_inputs['binsids'][0]] 
+        
+        routes, profit, cost = policy_lookahead_hgs(
+            mock_vrpp_inputs['fh'],
+            mock_vrpp_inputs['binsids'],
+            must_go,
+            mock_vrpp_inputs['distance_matrix'],
+            values
+        )
+        
+        # Route should include bin 0 (which has 0 fill) because it is must-go
+        # routes are 0-based indices from binsids.
+        assert 0 in routes[1:] # bin 0 should be collected (excluding depot start/end if any)
+
+    @pytest.mark.unit
     def test_policy_lookahead_sans(self, mocker, mock_vrpp_inputs):
         """
         Tests the execution flow and mocking requirements for the Simulated Annealing policy.

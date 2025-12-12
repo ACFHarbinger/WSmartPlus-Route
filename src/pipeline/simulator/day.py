@@ -5,11 +5,10 @@ from src.utils.definitions import DAY_METRICS
 from src.utils.log_utils import send_daily_output_to_gui
 from src.utils.functions import move_to
 from src.or_policies import (
-    get_route_cost, find_route,
-    create_points, find_solutions,
-    policy_last_minute, policy_last_minute_and_path,
-    policy_regular, policy_gurobi_vrpp, policy_hexaly_vrpp,
-    policy_lookahead, policy_lookahead_vrpp, policy_lookahead_sans,
+    get_route_cost, find_route, create_points, find_solutions,
+    policy_gurobi_vrpp, policy_hexaly_vrpp, policy_lookahead_vrpp,
+    policy_lookahead, policy_lookahead_hgs, policy_lookahead_sans,
+    policy_last_minute, policy_last_minute_and_path, policy_regular, 
 )
 from .loader import load_area_and_waste_type_params
 
@@ -146,6 +145,13 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
                 alpha = 0.7
                 params = (T_init, iterations_per_T, alpha, T_min)
                 routes, _, _ = policy_lookahead_sans(fh, coords, distance_matrix, params, must_go_bins, values, binsids)
+                if routes:
+                    tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
+                    cost = get_route_cost(distance_matrix, tour)
+            elif 'hgs' in policy:
+                values['time_limit'] = 600
+                fh = bins.get_fill_history().transpose()
+                routes, _, _ = policy_lookahead_hgs(fh, coords, distance_matrix, params, must_go_bins, values, binsids)
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
                     cost = get_route_cost(distance_matrix, tour)
