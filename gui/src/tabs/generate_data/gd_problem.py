@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QLineEdit, QFormLayout, QPushButton,
     QLabel, QVBoxLayout, QHBoxLayout, QWidget
 )
-from gui.utils.app_definitions import DATA_DISTRIBUTIONS, PROBLEM_TYPES
+from gui.src.utils.app_definitions import DATA_DISTRIBUTIONS, PROBLEM_TYPES
 from ...styles.globals import (
     SECTION_HEADER_STYLE, SUCCESS_BUTTON_STYLE,
     SECONDARY_BUTTON_STYLE, SUB_HEADER_STYLE

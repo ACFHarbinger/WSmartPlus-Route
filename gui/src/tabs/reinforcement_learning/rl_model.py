@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QLineEdit, QPushButton,
     QScrollArea, QWidget, QFormLayout, QLabel,
 )
-from gui.utils.app_definitions import (
+from gui.src.utils.app_definitions import (
     MODELS, ENCODERS, NORMALIZATION_METHODS,
     AGGREGATION_FUNCTIONS, ACTIVATION_FUNCTIONS
 )

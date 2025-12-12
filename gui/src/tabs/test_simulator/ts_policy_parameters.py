@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QCheckBox, QLabel, QWidget,
     QLineEdit, QFormLayout, QHBoxLayout,
 )
-from gui.utils.app_definitions import DECODE_TYPES
+from gui.src.utils.app_definitions import DECODE_TYPES
 
 
 class TestSimPolicyParamsTab(QWidget):

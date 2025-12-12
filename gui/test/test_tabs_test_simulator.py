@@ -1,9 +1,9 @@
 
 import pytest
 from unittest.mock import MagicMock
-from gui.tabs.test_simulator.ts_settings import TestSimSettingsTab
-from gui.tabs.test_simulator.ts_input_output import TestSimIOTab
-from gui.tabs.test_simulator.ts_policy_parameters import TestSimPolicyParamsTab
+from gui.src.tabs.test_simulator.ts_settings import TestSimSettingsTab
+from gui.src.tabs.test_simulator.ts_input_output import TestSimIOTab
+from gui.src.tabs.test_simulator.ts_policy_parameters import TestSimPolicyParamsTab
 
 def test_ts_settings_tab(qapp):
     tab = TestSimSettingsTab()

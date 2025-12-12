@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QScrollArea, QLabel, QWidget,
     QComboBox, QLineEdit, QDoubleSpinBox,
 )
-from gui.utils.app_definitions import DECODE_STRATEGIES, DECODE_TYPES
+from gui.src.utils.app_definitions import DECODE_STRATEGIES, DECODE_TYPES
 
 
 class EvalDecodingTab(QWidget):

@@ -2,7 +2,7 @@
 import pytest
 import json
 from unittest.mock import MagicMock
-from gui.windows.ts_results_window import SimulationResultsWindow
+from gui.src.windows.ts_results_window import SimulationResultsWindow
 
 
 @pytest.fixture

@@ -1,7 +1,7 @@
 
 import pytest
-from gui.tabs.evaluation.eval_problem import EvalProblemTab
-from gui.tabs.evaluation.eval_input_output import EvalIOTab
+from gui.src.tabs.evaluation.eval_problem import EvalProblemTab
+from gui.src.tabs.evaluation.eval_input_output import EvalIOTab
 
 def test_eval_problem_tab(qapp):
     tab = EvalProblemTab()

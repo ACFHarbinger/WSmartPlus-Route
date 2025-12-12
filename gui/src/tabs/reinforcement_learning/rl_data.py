@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QComboBox, QSpinBox, QCheckBox,
     QVBoxLayout, QScrollArea, QHBoxLayout,
 )
-from gui.utils.app_definitions import (
+from gui.src.utils.app_definitions import (
     COUNTY_AREAS, WASTE_TYPES,
     VERTEX_METHODS, EDGE_METHODS,
     DATA_DISTRIBUTIONS, DATA_DIST_PROBLEMS,

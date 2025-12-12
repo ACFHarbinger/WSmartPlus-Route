@@ -6,7 +6,7 @@ import traceback
 
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
-from gui.windows import MainWindow, SimulationResultsWindow
+from gui.src.windows import MainWindow, SimulationResultsWindow
 from logic.src.utils.definitions import CTRL_C_TIMEOUT, ICON_FILE
 from logic.src.utils.arg_parser import (
     ConfigsParser, 

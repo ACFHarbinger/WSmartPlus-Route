@@ -1,8 +1,8 @@
 
 import pytest
-from gui.tabs.reinforcement_learning.rl_training import RLTrainingTab
-from gui.tabs.reinforcement_learning.rl_model import RLModelTab
-from gui.tabs.reinforcement_learning.rl_data import RLDataTab
+from gui.src.tabs.reinforcement_learning.rl_training import RLTrainingTab
+from gui.src.tabs.reinforcement_learning.rl_model import RLModelTab
+from gui.src.tabs.reinforcement_learning.rl_data import RLDataTab
 
 def test_rl_training_tab(qapp):
     tab = RLTrainingTab()

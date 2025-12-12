@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QSpinBox, QLabel, QWidget, QSizePolicy,
     QFileDialog
 )
-from gui.utils.app_definitions import (
+from gui.src.utils.app_definitions import (
     DISTANCE_MATRIX_METHODS,
     VERTEX_METHODS, EDGE_METHODS
 )

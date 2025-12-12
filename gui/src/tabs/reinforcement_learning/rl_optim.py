@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox, QLabel, QWidget,
     QComboBox, QSpinBox, QVBoxLayout
 )
-from gui.utils.app_definitions import LR_SCHEDULERS, OPTIMIZERS
+from gui.src.utils.app_definitions import LR_SCHEDULERS, OPTIMIZERS
 from .rl_base import BaseReinforcementLearningTab
 
 
