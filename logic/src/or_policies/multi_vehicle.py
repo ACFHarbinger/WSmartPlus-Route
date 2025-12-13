@@ -2,7 +2,6 @@
 import pyvrp
 import numpy as np
 
-from fast_tsp import compute_cost
 from pyvrp.stop import MaxRuntime
 from ortools.constraint_solver import pywrapcp
 from ortools.constraint_solver import routing_enums_pb2
@@ -111,44 +110,47 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
     return tour_flat, total_cost
 
 
-def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, depot):
-    to_collect_tmp = [0]
-    to_collect_tmp.extend(list(to_collect))
-    distancesC = dist_mat[to_collect_tmp, :][:, to_collect_tmp]
+def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0):
+    # Mapping: subset index -> original index
+    subset_indices = [depot] + list(to_collect)
+    
+    # Create sub-matrices and cast to int for OR-Tools/compute_cost
+    distancesC = dist_mat[np.ix_(subset_indices, subset_indices)].astype(int)
+    
+    # Demands: map node idx to demand index (idx-1)
+    sub_demands = [0] # Depot
+    for idx in subset_indices[1:]:
+        d = int(demands[idx - 1])
+        sub_demands.append(d)
+        
+    # Unlimited logic
+    if n_vehicles == 0:
+        n_vehicles = len(to_collect)
 
-    manager = pywrapcp.RoutingIndexManager(len(distancesC), n_vehicles, depot)
+    manager = pywrapcp.RoutingIndexManager(len(distancesC), n_vehicles, 0)
     routing = pywrapcp.RoutingModel(manager)
 
-    # Create and register a transit callback.
     def distance_callback(from_index, to_index):
-        """Returns the distance between the two nodes."""
-        # Convert from routing variable Index to distance matrix NodeIndex.
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
-        return distancesC[from_node][to_node]
+        return int(distancesC[from_node][to_node])
 
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
-
-    # Define cost of each arc.
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
-    # Add Capacity constraint.
     def demand_callback(from_index):
-        """Returns the demand of the node."""
-        # Convert from routing variable Index to demands NodeIndex.
         from_node = manager.IndexToNode(from_index)
-        return demands[from_node]
+        return int(sub_demands[from_node])
 
     demand_callback_index = routing.RegisterUnaryTransitCallback(demand_callback)
     routing.AddDimensionWithVehicleCapacity(
         demand_callback_index,
         0,  # null capacity slack
-        max_caps,  # vehicle maximum capacities
+        [int(max_caps)] * n_vehicles, 
         True,  # start cumul to zero
         "Capacity",
     )
 
-    # Setting first solution heuristic.
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     search_parameters.first_solution_strategy = (
         routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
@@ -159,8 +161,36 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, dep
     search_parameters.time_limit.FromSeconds(2)
 
     solution = routing.SolveWithParameters(search_parameters)
-    tours, costs, _, _ = get_solution_costs(demands, n_vehicles, manager, routing, solution, distancesC)
-    return tours, costs
+    
+    if not solution:
+        return [0], 0
+
+    # Ensure distancesC is passed as list of lists for compute_cost (unused now but keeps signal)
+    tours_subset, costs_subset, _, _ = get_solution_costs(sub_demands, n_vehicles, manager, routing, solution, distancesC.tolist())
+    
+    # Flatten and Map Indices
+    tour_flat = []
+    total_cost = sum(costs_subset)
+    
+    for t in tours_subset:
+        if not tour_flat:
+             tour_flat.append(0)
+             
+        for node_idx in t:
+             # node_idx is now NODE index (from get_solution_costs)
+             if node_idx == 0: continue
+             
+             original_idx = subset_indices[node_idx]
+             
+             if original_idx == 0 and tour_flat[-1] == 0:
+                 continue
+                 
+             tour_flat.append(original_idx)
+             
+        if tour_flat[-1] != 0:
+            tour_flat.append(0)
+            
+    return tour_flat, total_cost
 
 
 def get_solution_costs(demands, n_vehicles, manager, routing, solution, distancesC):
@@ -172,7 +202,11 @@ def get_solution_costs(demands, n_vehicles, manager, routing, solution, distance
         index = routing.Start(vehicle_id)
         route_distance = 0
         route_load = 0
-        route = [index]
+        
+        # Start node
+        start_node = manager.IndexToNode(index)
+        route = [start_node]
+        
         while not routing.IsEnd(index):
             node_index = manager.IndexToNode(index)
             route_load += demands[node_index]
@@ -181,9 +215,12 @@ def get_solution_costs(demands, n_vehicles, manager, routing, solution, distance
             route_distance += routing.GetArcCostForVehicle(
                 previous_index, index, vehicle_id
             )
-            route.append(index)
+            # Append next NODE index
+            next_node = manager.IndexToNode(index)
+            route.append(next_node)
+            
         dist_ls.append(route_distance)
         load_ls.append(route_load)
         tours.append(route)
-        costs.append(compute_cost(route, distancesC))
+        costs.append(route_distance)
     return tours, costs, dist_ls, load_ls
