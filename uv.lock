@@ -5781,6 +5781,15 @@ wheels = [
 ]
 
 [[package]]
+name = "vrpsolvereasy"
+version = "0.1.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2a/92/2be14e8526762dcbe15d8c287c5b133154757fbbb7d3cc969613cafb9a2d/VRPSolverEasy-0.1.4.tar.gz", hash = "sha256:170ba20ce23066934558f804c204af26852e1fd735836eefe1603867868a3a9b", size = 268745, upload-time = "2023-11-11T15:19:27.828Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/45/61/bf450c59762b4cb6e0d962f7c5ec23f9945d93e50393049af9385db4caed/VRPSolverEasy-0.1.4-py3-none-any.whl", hash = "sha256:ff1881f7ffd404760711842e29f2a7eab19939b47fd6ce02c6ed01158fb63a65", size = 530409, upload-time = "2023-11-11T15:19:22.453Z" },
+]
+
+[[package]]
 name = "wandb"
 version = "0.21.1"
 source = { registry = "https://pypi.org/simple" }
@@ -6364,6 +6373,7 @@ dependencies = [
     { name = "uvicorn" },
     { name = "uvloop", marker = "sys_platform != 'win32'" },
     { name = "virtualenv" },
+    { name = "vrpsolvereasy" },
     { name = "wandb" },
     { name = "watchfiles" },
     { name = "wcwidth" },
@@ -6630,6 +6640,7 @@ requires-dist = [
     { name = "uvicorn", specifier = "==0.35.0" },
     { name = "uvloop", marker = "sys_platform != 'win32'", specifier = "==0.21.0" },
     { name = "virtualenv", specifier = "==20.4.7" },
+    { name = "vrpsolvereasy", specifier = ">=0.1.4" },
     { name = "wandb", specifier = "==0.21.1" },
     { name = "watchfiles", specifier = "==1.1.0" },
     { name = "wcwidth", specifier = "==0.2.13" },

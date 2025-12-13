@@ -1,7 +1,7 @@
 
 import pytest
 import numpy as np
-from logic.src.or_policies.multi_vehicle import find_routes
+from logic.src.or_policies.multi_vehicle import find_routes, find_routes_ortools
 
 def test_find_routes_basic():
     # 0 is depot. 1, 2, 3 are bins.
@@ -81,4 +81,43 @@ def test_find_routes_unlimited_vehicles():
     zeros = tour.count(0)
     trips = zeros - 1
     assert trips >= 3
+    
+def test_find_routes_ortools_basic():
+    # Same basic test but for OR-Tools
+    dist_matrix = np.array([
+        [0, 10, 10, 10], # 0 (Depot)
+        [10, 0, 10, 20], # 1
+        [10, 10, 0, 10], # 2
+        [10, 20, 10, 0]  # 3
+    ], dtype=np.int32)
+    
+    demands = np.array([1, 1, 1])
+    max_capacity = 5
+    to_collect = np.array([1, 2, 3], dtype=np.int32)
+    n_vehicles = 1
+    
+    tour, cost = find_routes_ortools(dist_matrix, demands, max_capacity, to_collect, n_vehicles)
+    
+    # Should visit all.
+    assert 1 in tour
+    assert 2 in tour
+    assert 3 in tour
+    assert tour[0] == 0
+    assert tour[-1] == 0
+    
+    # Test unlimited vehicles for OR-Tools
+    n_vehicles_unlimited = 0
+    max_capacity_small = 1 # Force split
+    # demands 1, capacity 1 -> 3 trips
+    tour_u, cost_u = find_routes_ortools(dist_matrix, demands, max_capacity_small, to_collect, n_vehicles_unlimited)
+    
+    zeros = tour_u.count(0)
+    # 3 trips -> S-1-E-S-2-E-S-3-E -> [0, 1, 0, 2, 0, 3, 0] -> 4 zeros -> 3 trips.
+    # OR-Tools flat tour construction logic should be verified.
+    # Logic: [0, 1, 0] + [2, 0] -> [0, 1, 0, 2, 0] if merging...
+    # My logic: 
+    # for t in tours: if not flat: add 0. add nodes. add 0.
+    # [0, 1, 0] -> flat: [0, 1, 0]
+    # [0, 2, 0] -> flat: [0, 1, 0, 2, 0]
+
     
