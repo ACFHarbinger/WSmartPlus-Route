@@ -8,6 +8,7 @@ from logic.src.or_policies import (
     get_route_cost, find_route, create_points, find_solutions,
     policy_gurobi_vrpp, policy_hexaly_vrpp, policy_lookahead_vrpp,
     policy_lookahead, policy_lookahead_hgs, policy_lookahead_sans,
+    policy_lookahead_alns, policy_lookahead_bcp,
     policy_last_minute, policy_last_minute_and_path, policy_regular, 
 )
 from .loader import load_area_and_waste_type_params
@@ -157,6 +158,20 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
             elif 'hgs' in policy:
                 values['time_limit'] = 60
                 routes, _, _ = policy_lookahead_hgs(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
+                if routes:
+                    tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
+                    cost = get_route_cost(distance_matrix, tour)
+            elif 'alns' in policy:
+                values['time_limit'] = 60
+                values['Iterations'] = 5000
+                routes, _, _ = policy_lookahead_alns(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
+                if routes:
+                    tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
+                    cost = get_route_cost(distance_matrix, tour)
+            elif 'bcp' in policy:
+                values['time_limit'] = 60
+                values['Iterations'] = 50
+                routes, _, _ = policy_lookahead_bcp(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
                     cost = get_route_cost(distance_matrix, tour)
