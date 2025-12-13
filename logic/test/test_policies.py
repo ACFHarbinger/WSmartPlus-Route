@@ -1,11 +1,15 @@
 import pytest
 import numpy as np
+import pandas as pd
 
 from unittest.mock import patch, MagicMock, PropertyMock
 from logic.src.pipeline.simulator.day import run_day
 from logic.src.or_policies.regular import policy_regular
 from logic.src.or_policies.last_minute import policy_last_minute, policy_last_minute_and_path
-from logic.src.or_policies.look_ahead import policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp
+from logic.src.or_policies.look_ahead import (
+    policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp, 
+    policy_lookahead_hgs, policy_lookahead_alns, policy_lookahead_bcp
+)
 
 
 # --- Test Class for `run_day` Policy Dispatcher ---
@@ -619,8 +623,6 @@ class TestAdvancedLookaheadPolicies:
         Tests the HGS policy implementation logic (moved to look_ahead.py).
         Runs a very short simulation to ensure no runtime errors.
         """
-        from logic.src.or_policies.look_ahead import policy_lookahead_hgs
-        
         # We don't mock the implementation anymore since it's inline.
         # We run it with minimal time_limit to ensure it completes fast.
         
@@ -635,11 +637,12 @@ class TestAdvancedLookaheadPolicies:
         # but for integration sanity check, real execution is fine if short.
         
         routes, profit, cost = policy_lookahead_hgs(
-            mock_vrpp_inputs['fh'],
+            mock_vrpp_inputs['fh'][:, -1],
             mock_vrpp_inputs['binsids'],
             mock_vrpp_inputs['must_go_bins'],
             mock_vrpp_inputs['distance_matrix'],
-            values
+            values,
+            coords = pd.DataFrame({'Lat': [0]*10, 'Lng': [0]*10}) # Mock coords
         )
         
         # Assert structure of output
@@ -668,11 +671,12 @@ class TestAdvancedLookaheadPolicies:
         must_go = [mock_vrpp_inputs['binsids'][0]] 
         
         routes, profit, cost = policy_lookahead_hgs(
-            mock_vrpp_inputs['fh'],
+            mock_vrpp_inputs['fh'][:, -1],
             mock_vrpp_inputs['binsids'],
             must_go,
             mock_vrpp_inputs['distance_matrix'],
-            values
+            values,
+            coords = pd.DataFrame({'Lat': [0]*10, 'Lng': [0]*10})
         )
         
         # Route should include bin 0 (which has 0 fill) because it is must-go
@@ -714,9 +718,8 @@ class TestAdvancedLookaheadPolicies:
             bins_coordinates=MagicMock(),
             distance_matrix=mock_vrpp_inputs['distance_matrix'],
             params=params,
-            bins_cannot_removed=[],
-            values=values,
-            ids_principais=mock_vrpp_inputs['binsids']
+            must_go_bins=[],
+            values=values
         )
         
         # --- Assert ---
@@ -727,6 +730,87 @@ class TestAdvancedLookaheadPolicies:
         assert routes == [0, 1, 2, 0]
         assert profit == 100.0
         assert distance == 50.0 # From mocked get_route_cost (50.0)
+
+    @pytest.mark.unit
+    def test_policy_lookahead_alns(self, mocker, mock_vrpp_inputs):
+        """
+        Tests the ALNS policy integration.
+        """
+        from logic.src.or_policies.look_ahead import policy_lookahead_alns
+        
+        # --- Arrange ---
+        # Mock run_alns
+        mock_run_alns = mocker.patch(
+            'logic.src.or_policies.look_ahead.run_alns',
+            return_value=([[1, 2], [3]], 150.0) # routes (list of lists), cost
+        )
+        
+        values = {
+            'R': 1, 'C': 1, 'E': 1, 'B': 10, 'vehicle_capacity': 100
+        }
+        
+        # Inputs
+        # mock_vrpp_inputs contains 'binsids', 'bins_waste' etc.
+        # But we need to make sure the inputs allow for non-empty candidates.
+        # binsids = [0, 1, 2, 3, 4] (from conftest usually)
+        # fill levels need to be > 0
+        fill_levels = np.array([50.0, 50.0, 50.0, 50.0, 50.0])
+        
+        # --- Act ---
+        # Note: binsids input to policy_lookahead_alns usually corresponds to indices 0..N ?
+        # Based on look_ahead.py: candidate_indices = [i for i, mid in enumerate(binsids) if ...]
+        # local_to_global map uses these indices.
+        
+        routes, profit, cost = policy_lookahead_alns(
+            fill_levels,
+            mock_vrpp_inputs['binsids'],
+            [], # must_go
+            mock_vrpp_inputs['distance_matrix'],
+            values,
+            coords=[] # Not used in ALNS setup currently
+        )
+        
+        # --- Assert ---
+        mock_run_alns.assert_called_once()
+        # Expect flat sequence with depot 0s: [0, 1, 2, 0, 3, 0]
+        # logic: final_sequence = [0]; for r in routes: extend(r); append(0)
+        assert routes == [0, 1, 2, 0, 3, 0]
+        assert cost == 150.0
+        assert profit == 0 # ALNS policy returns 0 profit in current implementation
+
+    @pytest.mark.unit
+    def test_policy_lookahead_bcp(self, mocker, mock_vrpp_inputs):
+        """
+        Tests the Branch-Cut-and-Price policy integration.
+        """
+        from logic.src.or_policies.look_ahead import policy_lookahead_bcp
+        
+        # --- Arrange ---
+        mock_run_bcp = mocker.patch(
+            'logic.src.or_policies.look_ahead.run_bcp',
+            return_value=([[1, 3], [2]], 200.0)
+        )
+        
+        values = {
+            'R': 1, 'C': 1, 'E': 1, 'B': 10, 'vehicle_capacity': 100
+        }
+        fill_levels = np.array([50.0, 50.0, 50.0, 50.0, 50.0])
+        
+        # --- Act ---
+        routes, profit, cost = policy_lookahead_bcp(
+            fill_levels,
+            mock_vrpp_inputs['binsids'],
+            [],
+            mock_vrpp_inputs['distance_matrix'],
+            values,
+            coords=[]
+        )
+        
+        # --- Assert ---
+        mock_run_bcp.assert_called_once()
+        # [0, 1, 3, 0, 2, 0]
+        assert routes == [0, 1, 3, 0, 2, 0]
+        assert cost == 200.0
 
 
 class TestGurobiOptimizer:
