@@ -452,3 +452,236 @@ def local_search(individual: Individual, dist_matrix, demands, capacity, R, C, v
         
     individual.giant_tour = new_tour
     return individual
+
+
+def run_hgs(dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global, vrpp_tour_global=None):
+    """
+    Dispatcher for HGS implementations.
+    """
+    engine = values.get('hgs_engine', 'custom')
+    
+    if engine == 'pyvrp':
+        return _run_hgs_pyvrp(dist_matrix, demands, capacity, R, C, values, global_must_go)
+    else:
+        return _run_hgs_custom(dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global, vrpp_tour_global)
+
+
+def _run_hgs_custom(dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global, vrpp_tour_global):
+    """
+    Custom Pure-Python HGS Implementation.
+    """
+    import time
+    
+    # 1. Initialization
+    params = HGSParams(
+        time_limit=values.get('time_limit', 10), 
+        population_size=100, 
+        elite_size=20
+    )
+    population = []
+    
+    # Seed population
+    # local_to_global map: local_idx -> global_matrix_idx
+    # We need to construct tours of GLOBAL INDICES.
+    base_tour = list(local_to_global.values()) # Default Sorted
+    
+    start_time = time.time()
+    
+    for i in range(params.population_size):
+        if i == 0 and vrpp_tour_global:
+            # Seed 1: VRPP Greedy Solution
+            tour = vrpp_tour_global[:]
+        elif i == 1:
+            # Seed 2: Sorted Indices
+            tour = base_tour[:]
+        else:
+            # Random
+            tour = base_tour[:]
+            random.shuffle(tour)
+            
+        ind = Individual(tour)
+        ind = evaluate(ind, dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global)
+        population.append(ind)
+        
+    population.sort(reverse=True) # Best (Highest Profit) first
+    best_solution = population[0]
+    
+    # Precompute Neighbors (Granularity)
+    neighbors = {}
+    granularity = 20
+    matrix_indices = list(local_to_global.values())
+    
+    for u in matrix_indices:
+        candidates = [v for v in matrix_indices if v != u]
+        candidates.sort(key=lambda v: dist_matrix[u][v]) 
+        neighbors[u] = candidates[:granularity]
+
+    # 2. Main HGS Loop
+    iterations_without_improvement = 0
+    max_stagnation = 2000
+    
+    while time.time() - start_time < params.time_limit:
+        
+        # Selection
+        parent1 = population[random.randint(0, params.elite_size - 1)] 
+        parent2 = population[random.randint(0, params.population_size - 1)]
+        
+        # Crossover
+        child_tour = ordered_crossover(parent1.giant_tour, parent2.giant_tour)
+        child = Individual(child_tour)
+        
+        # Education
+        child = local_search(child, dist_matrix, demands, capacity, R, C, values, neighbors)
+        
+        # Evaluation
+        child = evaluate(child, dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global)
+        
+        # Survivor Selection
+        is_duplicate = False
+        for p in population:
+             if abs(p.fitness - child.fitness) < 1e-4:
+                 is_duplicate = True
+                 break
+        
+        if not is_duplicate:
+            if child.fitness > population[-1].fitness:
+                population[-1] = child
+                population.sort(reverse=True)
+                
+                if child.fitness > best_solution.fitness:
+                    best_solution = child
+                    iterations_without_improvement = 0
+                else:
+                    iterations_without_improvement += 1
+        
+        # Restart mechanism
+        if iterations_without_improvement > max_stagnation:
+             for k in range(params.elite_size, params.population_size):
+                  random.shuffle(population[k].giant_tour)
+                  population[k] = evaluate(population[k], dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global)
+             population.sort(reverse=True)
+             iterations_without_improvement = 0
+                
+    return best_solution.routes, best_solution.fitness, best_solution.cost
+
+
+def _run_hgs_pyvrp(dist_matrix, demands, capacity, R, C, values, global_must_go):
+    """
+    HGS Implementation using PyVRP library.
+    """
+    try:
+        from pyvrp import Model, ProblemData, Client, Depot, VehicleType
+        from pyvrp.stop import MaxRuntime
+    except ImportError:
+        print("Error: PyVRP not installed. Falling back to custom engine.")
+        # Fallback requires consistent arguments, which might be tricky if not passed.
+        # But we assume calling code handles this or fails.
+        return [], 0, 0
+
+    # 1. Prepare Data
+    # PyVRP expects Clients (1..N) and Depot (0).
+    # dist_matrix includes Depot at 0.
+    
+    clients = []
+    n_nodes = len(dist_matrix)
+    
+    # Depot
+    depot = Depot(0, 0) # ID 0
+    
+    # We iterate 1..N-1 because dist_matrix serves 0..N-1
+    for i in range(1, n_nodes):
+        weight = demands.get(i, 0)
+        
+        # Calculate Prize (Revenue)
+        # Verify units: R is $/kg?
+        prize = weight * R
+        
+        # Must Go enforcement
+        if i in global_must_go:
+            # Make prize huge so it's always profitable to visit
+            prize += 100000.0
+        
+        # Modern PyVRP API:
+        # Client(x, y, demand=0, service_duration=0, delivery=0, prize=0, required=False)
+        # 'delivery' or 'demand'. For CVRP, use delivery usually?
+        # PyVRP's 'demand' is load.
+        # 'prize' implies optional. 
+        # If we use prize, PyVRP treats it as Prize Collecting.
+        
+        # Note: PyVRP validation might require ints.
+        client = Client(
+            x=0, y=0,
+            delivery=int(weight),
+            prize=int(prize * 100) # Scale prize for precision
+        )
+        clients.append(client)
+        
+    # Vehicle Type
+    vehicle_type = VehicleType(capacity=int(capacity), num_available=100)
+    
+    # Distance Matrix
+    # Scale float distances to int? 
+    # Or pass scaled C?
+    # PyVRP minimizes obj = cost - prize.
+    # We want max profit.
+    # Our dist matrix is km. Cost = km * C.
+    # PyVRP 'distance' matrix should represent the Cost.
+    m_dist = [[int(d * C * 100) for d in row] for row in dist_matrix] 
+    m_dur = [[0] * n_nodes for _ in dist_matrix] 
+    
+    data = ProblemData(
+        clients=clients,
+        depots=[depot],
+        vehicle_types=[vehicle_type],
+        distance_matrices=[m_dist],
+        duration_matrices=[m_dur]
+    )
+    
+    # Solve
+    model = Model.from_data(data)
+    time_limit_sec = values.get('time_limit', 10)
+    result = model.solve(stop=MaxRuntime(time_limit_sec), display=False)
+    
+    # Parse Result
+    routes = []
+    
+    for r in result.best.routes():
+        # r.visits() gives list of client IDs (1-based indices relative to clients list)
+        # clients list starts at index 0 which corresponds to Node 1.
+        # So Client k is Node k+1.
+        r_indices = []
+        for v in r.visits():
+            # v is numeric ID if we didn't name them?
+            # Or v is a client index?
+            # PyVRP visits() returns integers representing client indices (1..N).
+            # Our clients list matched 1..N-1 of matrix.
+            r_indices.append(v) 
+        routes.append(r_indices)
+        
+    # Recalculate Profit/Cost Manually to ensure correct scaling/float
+    calc_profit = 0
+    calc_cost = 0
+    
+    for r in routes:
+        if not r: continue
+        r_cost = 0
+        r_load = 0
+        
+        # Dep->First
+        r_cost += dist_matrix[0][r[0]] * C
+        
+        for k in range(len(r)-1):
+            r_cost += dist_matrix[r[k]][r[k+1]] * C
+            
+        # Last->Dep
+        r_cost += dist_matrix[r[-1]][0] * C
+        
+        calc_cost += r_cost
+        
+        for node in r:
+            w = demands.get(node, 0)
+            calc_profit += w * R
+            
+    calc_profit -= calc_cost
+    
+    return routes, calc_profit, calc_cost

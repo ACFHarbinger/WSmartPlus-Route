@@ -14,7 +14,7 @@ from .look_ahead_aux import (
     get_next_collection_day, update_fill_levels_after_first_collection,
 )
 from .hybrid_genetic_search import (
-    Individual, HGSParams, evaluate, ordered_crossover, local_search
+    Individual, HGSParams, evaluate, ordered_crossover, local_search, run_hgs
 )
 from .adaptive_large_neighborhood_search import run_alns
 from .branch_cut_and_price import run_bcp
@@ -337,8 +337,8 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
         val = demands.get(idx, 0)
         # Force VRPP to visit must_go_bins even if empty (epsilon stock)
         if idx in global_must_go:
-             if val <= 0:
-                 val = 0.00001
+            if val <= 0:
+                val = 0.00001
         stock_col.append(val)
         
     accum_col = [0.0] * len(bin_col)
@@ -391,99 +391,20 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
     
     # -------------------------------------------
 
-    # 3. Initialization
-    # Increased population size for better exploration
-    params = HGSParams(time_limit=values.get('time_limit', 10), population_size=100, elite_size=20)
-    population = []
+    # 3. Run HGS Dispatcher
+    # Pass all necessary data
+    routes, fitness, cost = run_hgs(
+        distance_matrix, 
+        demands, 
+        Q, 
+        R, 
+        C, 
+        values, 
+        global_must_go, 
+        local_to_global, 
+        vrpp_tour_global
+    )
     
-    # Seed population
-    base_tour = list(local_to_global.values()) # Default Sorted
-    
-    start_time = time.time()
-    
-    for i in range(params.population_size):
-        if i == 0:
-            # Seed 1: VRPP Greedy Solution
-            tour = vrpp_tour_global[:]
-        elif i == 1:
-            # Seed 2: Sorted Indices
-            tour = base_tour[:]
-        else:
-            # Random
-            tour = base_tour[:]
-            random.shuffle(tour)
-            
-        ind = Individual(tour)
-        ind = evaluate(ind, distance_matrix, demands, Q, R, C, values, global_must_go, local_to_global)
-        population.append(ind)
-        
-    population.sort(reverse=True) # Best (Highest Profit) first
-    best_solution = population[0]
-    
-    
-    # Precompute Neighbors (Granularity) for Local Search
-    neighbors = {}
-    granularity = 20
-    for u in matrix_indices:
-        # Sort all other bins by distance (matrix_indices are global indices)
-        candidates = [v for v in matrix_indices if v != u]
-        # Use distance_matrix[u][v]
-        candidates.sort(key=lambda v: distance_matrix[u][v]) 
-        neighbors[u] = candidates[:granularity]
-
-    # 4. Main HGS Loop
-    iterations_without_improvement = 0
-    max_stagnation = 2000
-    
-    while time.time() - start_time < params.time_limit:
-        
-        # Selection (Tournament)
-        # Select one from Elite, one from whole population to mix good traits with diversity
-        parent1 = population[random.randint(0, params.elite_size - 1)] 
-        parent2 = population[random.randint(0, params.population_size - 1)]
-        
-        # Crossover
-        child_tour = ordered_crossover(parent1.giant_tour, parent2.giant_tour)
-        child = Individual(child_tour)
-        
-        # Education (Local Search / Mutation)
-        # Pass demands, capacity (Q), R, C, values, and neighbors
-        child = local_search(child, distance_matrix, demands, Q, R, C, values, neighbors)
-        
-        # Evaluation (Split)
-        child = evaluate(child, distance_matrix, demands, Q, R, C, values, global_must_go, local_to_global)
-        
-        # Survivor Selection
-        # Diversity check: Don't add if fitness matches existing individual exactly (duplicate prevention specific to fitness values for speed)
-        # Better: check exact fitness collision with any in population?
-        # For efficiency, just check against top K or random samples.
-        
-        is_duplicate = False
-        for p in population:
-             if abs(p.fitness - child.fitness) < 1e-4:
-                 is_duplicate = True
-                 break
-        
-        if not is_duplicate:
-            if child.fitness > population[-1].fitness:
-                population[-1] = child
-                population.sort(reverse=True)
-                
-                if child.fitness > best_solution.fitness:
-                    best_solution = child
-                    iterations_without_improvement = 0
-                else:
-                    iterations_without_improvement += 1
-        
-        # Restart mechanism if stuck
-        if iterations_without_improvement > max_stagnation:
-             # Scramble 50% of population except elite
-             for k in range(params.elite_size, params.population_size):
-                  random.shuffle(population[k].giant_tour)
-                  population[k] = evaluate(population[k], distance_matrix, demands, Q, R, C, values, global_must_go, local_to_global)
-             population.sort(reverse=True)
-             iterations_without_improvement = 0
-                
     # 5. Format Output
     # Convert routes to flat list of IDs (excluding depot 0 inside the list, 
     # but the simulator usually expects [0, id, id, 0, id...]).
@@ -491,10 +412,10 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
     
     final_sequence = []
     # Support Multi-Route (Concatenate routes with returns to depot)
-    if best_solution.routes:
-        for route in best_solution.routes:
-             final_sequence.extend(route)
-             final_sequence.append(0) # Return to depot after each route
+    if routes:
+        for route in routes:
+            final_sequence.extend(route)
+            final_sequence.append(0) # Return to depot after each route
         
         # Remove the very last 0 if we want to rely on the final append below?
         # The logic below returns [0] + IDs + [0].
@@ -508,10 +429,10 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
     collected_bins_indices_tour = []
     for idx in final_sequence:
         if idx == 0:
-             collected_bins_indices_tour.append(0) # Depot
+            collected_bins_indices_tour.append(0) # Depot
         else:
-             # Return Matrix Index (1..N) directly, as simulator expects 1-based Bin IDs
-             collected_bins_indices_tour.append(idx)
+            # Return Matrix Index (1..N) directly, as simulator expects 1-based Bin IDs
+            collected_bins_indices_tour.append(idx)
              
     # Ensure start and end with 0 if not empty
     if not collected_bins_indices_tour:
@@ -523,9 +444,9 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
         
     # Check if ends with 0
     if collected_bins_indices_tour[-1] != 0:
-         collected_bins_indices_tour.append(0)
+        collected_bins_indices_tour.append(0)
     
-    return collected_bins_indices_tour, best_solution.fitness, best_solution.cost
+    return collected_bins_indices_tour, fitness, cost
 
 
 def policy_lookahead_alns(current_fill_levels, binsids, must_go_bins, distance_matrix, values, coords):
