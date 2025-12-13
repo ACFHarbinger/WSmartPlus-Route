@@ -390,7 +390,8 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
     # -------------------------------------------
 
     # 3. Initialization
-    params = HGSParams(time_limit=values.get('time_limit', 10))
+    # Increased population size for better exploration
+    params = HGSParams(time_limit=values.get('time_limit', 10), population_size=100, elite_size=20)
     population = []
     
     # Seed population
@@ -417,11 +418,26 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
     population.sort(reverse=True) # Best (Highest Profit) first
     best_solution = population[0]
     
+    
+    # Precompute Neighbors (Granularity) for Local Search
+    neighbors = {}
+    granularity = 20
+    for u in matrix_indices:
+        # Sort all other bins by distance (matrix_indices are global indices)
+        candidates = [v for v in matrix_indices if v != u]
+        # Use distance_matrix[u][v]
+        candidates.sort(key=lambda v: distance_matrix[u][v]) 
+        neighbors[u] = candidates[:granularity]
+
     # 4. Main HGS Loop
+    iterations_without_improvement = 0
+    max_stagnation = 2000
+    
     while time.time() - start_time < params.time_limit:
         
         # Selection (Tournament)
-        parent1 = population[random.randint(0, params.elite_size)]
+        # Select one from Elite, one from whole population to mix good traits with diversity
+        parent1 = population[random.randint(0, params.elite_size - 1)] 
         parent2 = population[random.randint(0, params.population_size - 1)]
         
         # Crossover
@@ -429,19 +445,42 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
         child = Individual(child_tour)
         
         # Education (Local Search / Mutation)
-        child = local_search(child, distance_matrix)
+        # Pass demands, capacity (Q), R, C, values, and neighbors
+        child = local_search(child, distance_matrix, demands, Q, R, C, values, neighbors)
         
         # Evaluation (Split)
         child = evaluate(child, distance_matrix, demands, Q, R, C, values, global_must_go, local_to_global)
         
         # Survivor Selection
-        # Simple steady-state: if better than worst, replace worst
-        if child.fitness > population[-1].fitness:
-            population[-1] = child
-            population.sort(reverse=True)
-            
-            if child.fitness > best_solution.fitness:
-                best_solution = child
+        # Diversity check: Don't add if fitness matches existing individual exactly (duplicate prevention specific to fitness values for speed)
+        # Better: check exact fitness collision with any in population?
+        # For efficiency, just check against top K or random samples.
+        
+        is_duplicate = False
+        for p in population:
+             if abs(p.fitness - child.fitness) < 1e-4:
+                 is_duplicate = True
+                 break
+        
+        if not is_duplicate:
+            if child.fitness > population[-1].fitness:
+                population[-1] = child
+                population.sort(reverse=True)
+                
+                if child.fitness > best_solution.fitness:
+                    best_solution = child
+                    iterations_without_improvement = 0
+                else:
+                    iterations_without_improvement += 1
+        
+        # Restart mechanism if stuck
+        if iterations_without_improvement > max_stagnation:
+             # Scramble 50% of population except elite
+             for k in range(params.elite_size, params.population_size):
+                  random.shuffle(population[k].giant_tour)
+                  population[k] = evaluate(population[k], distance_matrix, demands, Q, R, C, values, global_must_go, local_to_global)
+             population.sort(reverse=True)
+             iterations_without_improvement = 0
                 
     # 5. Format Output
     # Convert routes to flat list of IDs (excluding depot 0 inside the list, 

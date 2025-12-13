@@ -185,70 +185,266 @@ def ordered_crossover(p1: List[int], p2: List[int]) -> List[int]:
     return child
 
 
-def local_search(individual: Individual, dist_matrix):
+def local_search(individual: Individual, dist_matrix, demands, capacity, R, C, values, neighbors=None):
     """
-    2-opt improvement on the Giant Tour.
-    Optimizes the sequence distance (Depot -> ... -> Depot considered implicitly or just path).
-    Here we optimize the Path Distance between nodes.
+    Route-Based Local Search (Granular).
+    Optimizes the solution by performing Relocate and Swap moves on the decoded routes.
     """
-    tour = individual.giant_tour[:]
-    n = len(tour)
-    if n < 2:
+    # 1. Decode to Routes (using Split)
+    # We need to run split to get the current route structure
+    routes, _ = split_algorithm(individual.giant_tour, dist_matrix, demands, capacity, R, C, values)
+    
+    if not routes:
         return individual
-        
-    # Limit iterations for speed
-    max_improvements = 5000 
-    improvements = 0
+
+    # Helper to calculate route cost
+    def get_route_cost(route):
+        if not route: return 0
+        d = dist_matrix[0][route[0]]
+        for k in range(len(route)-1):
+            d += dist_matrix[route[k]][route[k+1]]
+        d += dist_matrix[route[-1]][0]
+        return d * C
+
+    def get_route_load(route):
+        return sum(demands.get(n, 0) for n in route)
+
+    # 2. Granular Search Setup
+    # Flatten structure for easy iteration? Or iterate routes?
+    # Iterate through all nodes U
     
     improved = True
-    while improved and improvements < max_improvements:
+    max_moves = 500 # Safety limit per call
+    move_count = 0
+    
+    # Pre-calculate route loads/costs
+    route_data = []
+    for r_idx, route in enumerate(routes):
+        route_data.append({
+            'load': get_route_load(route),
+            'cost': get_route_cost(route),
+            'route': route
+        })
+        
+    while improved and move_count < max_moves:
         improved = False
         
-        for i in range(n - 1):
-            for j in range(i + 1, n):
-                if j == i + 1: continue # Adjacent edges
+        # Iterate all routes and nodes
+        # We make a list of (r_idx, node_idx_in_route, node_id) to iterate safely
+        # But indices change on modification.
+        
+        # Strategy: Iterate u from 1..N. Find where u is.
+        # Map: node -> (r_idx, pos)
+        node_map = {}
+        for r_idx, data in enumerate(route_data):
+            for pos, node in enumerate(data['route']):
+                node_map[node] = (r_idx, pos)
                 
-                # Check 2-opt swap:
-                # Edge A-B and C-D  ->  A-C and B-D
-                # Indices: A=i, B=i+1, C=j, D=j+1
-                
-                # We need to handle boundary conditions if we considered a closed loop (Depot-Depot).
-                # But giant_tour is just a list. We optimize the linear path distance sum(d[k][k+1]).
-                
-                u = tour[i]
-                v = tour[i+1] # B
-                x = tour[j]   # C
-                
-                # If j is last element, 'y' is implicit end? 
-                # Let's simple swap logic: reverse segment [i+1 : j+1]
-                # Pre-swap edges: (tour[i], tour[i+1]) + (tour[j], tour[j+1])
-                # Post-swap edges: (tour[i], tour[j]) + (tour[i+1], tour[j+1])
-                # Note: This is valid for internal nodes.
-                
-                if j == n - 1:
-                    # Edge at the end. 
-                    # If we don't have a fixed end depot, we just check if dist(u, x) < dist(u, v) ?
-                    # Not strictly correct without depot. 
-                    # But standard HGS assumes TSP on nodes + 0.
-                    # Let's check strict delta including neighbors.
-                    pass
-                    
-                else: 
-                    y = tour[j+1] # D
-                    
-                    # Original: u->v ... x->y
-                    # New:      u->x ... v->y (reversed path between v..x)
-                    d_current = dist_matrix[u][v] + dist_matrix[x][y]
-                    d_new = dist_matrix[u][x] + dist_matrix[v][y]
-                    
-                    if d_new < d_current:
-                        # Apply Swap
-                        tour[i+1:j+1] = tour[i+1:j+1][::-1]
-                        improved = True
-                        improvements += 1
-                        break # First improvement
-                        
-            if improved: break
+        # Iterate all nodes U
+        all_nodes = list(node_map.keys())
+        random.shuffle(all_nodes) # Shuffle to diversify order
+        
+        for u in all_nodes:
+            if u not in node_map: continue # Moved/Removed?
+            u_r_idx, u_pos = node_map[u]
+            u_route = route_data[u_r_idx]['route']
             
-    individual.giant_tour = tour
+            # Identify Neighbors V
+            # If neighbors provided, use them. Else full scan (slow).
+            search_space = neighbors[u] if neighbors else all_nodes
+            
+            for v in search_space:
+                if u == v: continue
+                if v not in node_map: continue
+                
+                v_r_idx, v_pos = node_map[v]
+                v_route = route_data[v_r_idx]['route']
+                
+                # --- Operator 1: RELOCATE U -> V (Insert U after V) ---
+                # Valid? Check Capacity of v_route (if u not in v_route)
+                u_demand = demands.get(u, 0)
+                
+                if u_r_idx != v_r_idx:
+                    if route_data[v_r_idx]['load'] + u_demand > capacity:
+                        # Capacity violation (strict)
+                        pass
+                    else:
+                        # Evaluate Move
+                        # Remove U from U_Route
+                        # Cost change U:
+                        # ... prev_u -> u -> next_u ...  => ... prev_u -> next_u ...
+                        # cost_diff_u = d(prev, next) - d(prev, u) - d(u, next)
+                        
+                        u_prev = u_route[u_pos-1] if u_pos > 0 else 0
+                        u_next = u_route[u_pos+1] if u_pos < len(u_route)-1 else 0
+                        
+                        delta_u = dist_matrix[u_prev][u_next] - (dist_matrix[u_prev][u] + dist_matrix[u][u_next])
+                        
+                        # Insert U after V in V_Route
+                        # ... v -> next_v ... => ... v -> u -> next_v ...
+                        v_next = v_route[v_pos+1] if v_pos < len(v_route)-1 else 0
+                        
+                        delta_v = (dist_matrix[v][u] + dist_matrix[u][v_next]) - dist_matrix[v][v_next]
+                        
+                        total_delta = (delta_u + delta_v) * C
+                        
+                        if total_delta < -1e-4:
+                            # Apply Move
+                            u_route.pop(u_pos)
+                            v_route.insert(v_pos + 1, u)
+                            
+                            # Update Loads/Costs metadata
+                            route_data[u_r_idx]['load'] -= u_demand
+                            route_data[v_r_idx]['load'] += u_demand
+                            # We could treat costs exactly, but brute force update is safer for code simplicity
+                            # (Cost is only used for final fitness, simplified delta logic above suffices for acceptance)
+                            
+                            improved = True
+                            move_count += 1
+                            break # Restart/Next U
+                
+                
+                else:
+                    # Intra-Route Relocate (Skipped for now)
+                    pass 
+
+                # --- Operator 2: SWAP U <-> V ---
+                # Check Capacity
+                # New Load U = Old Load U - u_dem + v_dem
+                # New Load V = Old Load V - v_dem + u_dem
+                v_demand = demands.get(v, 0)
+                
+                if u_r_idx != v_r_idx:
+                    new_load_u = route_data[u_r_idx]['load'] - u_demand + v_demand
+                    new_load_v = route_data[v_r_idx]['load'] - v_demand + u_demand
+                    
+                    if new_load_u <= capacity and new_load_v <= capacity:
+                         # Evaluate Swap
+                         # U Side: ... u_prev -> u -> u_next ...
+                         u_prev = u_route[u_pos-1] if u_pos > 0 else 0
+                         u_next = u_route[u_pos+1] if u_pos < len(u_route)-1 else 0
+                         
+                         v_prev = v_route[v_pos-1] if v_pos > 0 else 0
+                         v_next = v_route[v_pos+1] if v_pos < len(v_route)-1 else 0
+
+                         # Delta Remove U + Insert V
+                         d_u_change = (dist_matrix[u_prev][v] + dist_matrix[v][u_next]) - \
+                                      (dist_matrix[u_prev][u] + dist_matrix[u][u_next])
+                                      
+                         # Delta Remove V + Insert U
+                         d_v_change = (dist_matrix[v_prev][u] + dist_matrix[u][v_next]) - \
+                                      (dist_matrix[v_prev][v] + dist_matrix[v][v_next])
+
+                         if (d_u_change + d_v_change) * C < -1e-4:
+                             # Apply Swap
+                             u_route[u_pos] = v
+                             v_route[v_pos] = u
+                             
+                             route_data[u_r_idx]['load'] = new_load_u
+                             route_data[v_r_idx]['load'] = new_load_v
+                             
+                             improved = True
+                             move_count += 1
+                             break
+                             
+                # --- Operator 3: 2-Opt* (Inter-Route Tail Swap) ---
+                # Swap tails after u and v
+                # u_route: [... u, u_next ...] -> [... u, v_next ...]
+                # v_route: [... v, v_next ...] -> [... v, u_next ...]
+                if u_r_idx != v_r_idx:
+                    # Current Tails
+                    # u_tail includes u_next...end
+                    # v_tail includes v_next...end
+                    
+                    # Loads
+                    # Calculating tail load might be O(L). For granular search, O(L) is fine (L~10).
+                    # Actually, precomputing Prefix Loads would be faster, but let's do O(L) first.
+                    
+                    u_tail_load = sum(demands.get(n, 0) for n in u_route[u_pos+1:])
+                    v_tail_load = sum(demands.get(n, 0) for n in v_route[v_pos+1:])
+                    
+                    u_head_load = route_data[u_r_idx]['load'] - u_tail_load
+                    v_head_load = route_data[v_r_idx]['load'] - v_tail_load
+                    
+                    # New Loads
+                    new_load_u = u_head_load + v_tail_load
+                    new_load_v = v_head_load + u_tail_load
+                    
+                    if new_load_u <= capacity and new_load_v <= capacity:
+                        # Cost Delta
+                        # Edge changes:
+                        # Remove (u, u_next) and (v, v_next)
+                        # Add (u, v_next) and (v, u_next)
+                        
+                        u_next = u_route[u_pos+1] if u_pos < len(u_route)-1 else 0
+                        v_next = v_route[v_pos+1] if v_pos < len(v_route)-1 else 0
+                        
+                        # Note: u and v are usually "neighbors", so crossing edges (u, v_next) might be short?
+                        # Actually 2-opt* typically cuts edges (u, u_next) and (v, v_next) and connects u-v_next?
+                        # Yes.
+                        
+                        curr_dist = dist_matrix[u][u_next] + dist_matrix[v][v_next]
+                        new_dist = dist_matrix[u][v_next] + dist_matrix[v][u_next]
+                        
+                        delta = new_dist - curr_dist
+                        
+                        if delta * C < -1e-4:
+                            # Apply 2-Opt*
+                            # Tails
+                            tail_u = u_route[u_pos+1:]
+                            tail_v = v_route[v_pos+1:]
+                            
+                            # Construct new routes
+                            # u_route becomes head_u + tail_v
+                            # v_route becomes head_v + tail_u
+                            
+                            new_route_u = u_route[:u_pos+1] + tail_v
+                            new_route_v = v_route[:v_pos+1] + tail_u
+                            
+                            # Update in place? Careful with list refs
+                            route_data[u_r_idx]['route'] = new_route_u
+                            route_data[v_r_idx]['route'] = new_route_v
+                            
+                            route_data[u_r_idx]['load'] = new_load_u
+                            route_data[v_r_idx]['load'] = new_load_v
+                            
+                            improved = True
+                            move_count += 1
+                            break
+                
+            if improved: break
+    
+    # 3. 2-Opt (Intra-Route) - Quick check on all routes
+    for data in route_data:
+        route = data['route']
+        if len(route) < 3: continue
+        
+        # Simple 2-opt pass on this route
+        best_delta = 0
+        best_move = None
+        
+        # Limit 2-opt search? O(L^2). Max L=100. Fast enough.
+        for i in range(len(route)-1):
+            for j in range(i+1, len(route)):
+                if j == i+1: continue
+                # u-v, x-y
+                u = route[i]
+                v = route[i+1]
+                x = route[j]
+                y = route[j+1] if j < len(route)-1 else 0
+                
+                curr = dist_matrix[u][v] + dist_matrix[x][y]
+                new = dist_matrix[u][x] + dist_matrix[v][y]
+                
+                if new < curr - 1e-4:
+                     # Apply immediately (First Improvement)
+                     route[i+1:j+1] = route[i+1:j+1][::-1]
+                     pass # Route modified in place
+                     
+    # 4. Re-Encode Giant Tour
+    new_tour = []
+    for data in route_data:
+        new_tour.extend(data['route'])
+        
+    individual.giant_tour = new_tour
     return individual

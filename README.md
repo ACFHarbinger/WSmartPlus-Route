@@ -17,6 +17,7 @@ This project contains code that was adapted from the following repositories:
 - [WSmart+ Bin Analysis](https://github.com/ACFPeacekeeper/wsmart_bin_analysis)
 - [Do We Need Anisotropic Graph Neural Networks?](https://github.com/shyam196/egc)
 - [Learning TSP Requires Rethinking Generalization](https://github.com/chaitjo/learning-tsp)
+- [HGS-CVRP: A modern implementation of the Hybrid Genetic Search for the CVRP](https://github.com/vidalt/HGS-CVRP)
 
 This repository also includes adaptions of the following repositories as baselines:
 * https://github.com/MichelDeudon/encode-attend-navigate
