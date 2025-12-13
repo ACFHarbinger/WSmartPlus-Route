@@ -1,6 +1,7 @@
 import numpy as np
 
 from typing import List
+from pandas import DataFrame
 from numpy.typing import NDArray
 from .multi_vehicle import find_routes
 from .single_vehicle import find_route, get_multi_tour
@@ -14,18 +15,17 @@ def policy_last_minute(
         waste_type: str='plastic', 
         area: str='riomaior', 
         n_vehicles: int=1,
-        *args
+        coords: DataFrame=None
     ):
     tour = []
-    to_collect = np.nonzero(bins > lvl)[0]
+    to_collect = np.nonzero(bins > lvl)[0] + 1
     if len(to_collect) > 0:
         max_capacity, _, _, _, _ = load_area_and_waste_type_params(area, waste_type)
         if n_vehicles == 1:
-            tour = find_route(distancesC, to_collect + 1)
+            tour = find_route(distancesC, to_collect)
             tour = get_multi_tour(tour, bins, max_capacity, distancesC)
         else:
-           demands, depot = args
-           tour, cost = find_routes(distancesC, demands, max_capacity, to_collect, n_vehicles, depot)
+           tour, cost = find_routes(distancesC, bins, max_capacity, to_collect, n_vehicles, coords)
     else:
         tour = [0]
     return tour
@@ -39,17 +39,16 @@ def policy_last_minute_and_path(
         waste_type: str='plastic', 
         area: str='riomaior', 
         n_vehicles: int=1,
-        *args
+        coords: DataFrame=None
     ):
     tour = []
-    to_collect = np.nonzero(bins > lvl)[0]
+    to_collect = np.nonzero(bins > lvl)[0] + 1
     if len(to_collect) > 0:
         max_capacity, _, _, _, _ = load_area_and_waste_type_params(area, waste_type)
         if n_vehicles == 1:
-            tour = find_route(distancesC, to_collect + 1)
+            tour = find_route(distancesC, to_collect)
         else:
-           demands, depot = args
-           tour, cost = find_routes(distancesC, demands, max_capacity, to_collect, n_vehicles, depot)
+           tour, cost = find_routes(distancesC, bins, max_capacity, to_collect, n_vehicles, coords)
         visited_states = [0]
         len_tour = len(tour)
         np_tour = np.array(tour)
@@ -61,7 +60,6 @@ def policy_last_minute_and_path(
                     waste = bins[tocol - 1]
                     if waste + total_waste <= max_capacity:
                         total_waste += waste
-                        #print("Waste collected trip {}: {}".format(tocol, total_waste))
                         visited_states.append(tocol)
                 elif tocol not in visited_states:
                     visited_states.append(tocol)

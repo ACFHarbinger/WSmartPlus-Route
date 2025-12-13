@@ -175,6 +175,7 @@ dependencies = [
     "python-multipart==0.0.20",
     "pytz==2025.2",
     "pyu2f==0.1.5",
+    "pyvrp>=0.9.1",
     "pywavelets==1.6.0",
     "pywin32==308 ; sys_platform == 'cygwin' or sys_platform == 'win32'",
     "pywin32-ctypes==0.2.3 ; sys_platform == 'win32'",
