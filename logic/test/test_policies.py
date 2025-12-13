@@ -149,6 +149,53 @@ class TestRunDayPolicyRouting:
         )
         
         mock_pol_hexaly.assert_called_once()
+        
+    @pytest.mark.unit
+    def test_run_day_calls_alns_package(self, mocker, mock_run_day_deps):
+        """Test if 'policy_look_ahead_alns_package_gamma1' calls policy_lookahead_alns with variant='package'."""
+        mock_pol = mocker.patch(
+            'logic.src.pipeline.simulator.day.policy_lookahead_alns',
+            return_value=([0, 1, 0], 10.0, 0)
+        )
+        # Mock policy_lookahead to return must_go_bins so logic enters the if block
+        mocker.patch('logic.src.pipeline.simulator.day.policy_lookahead', return_value=[0, 1])
+        mocker.patch('logic.src.pipeline.simulator.day.load_area_and_waste_type_params', return_value=(100, 1, 1, 1, 1))
+        
+        run_day(
+            graph_size=5,
+            pol='policy_look_ahead_alns_package_gamma1',
+            day=3,
+            realtime_log_path=None,
+            **self._RUN_DAY_CONST_ARGS,
+            **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
+        )
+        
+        # Verify call args
+        args, kwargs = mock_pol.call_args
+        assert kwargs.get('variant') == 'package'
+
+    @pytest.mark.unit
+    def test_run_day_calls_alns_ortools(self, mocker, mock_run_day_deps):
+        """Test if 'policy_look_ahead_alns_ortools_gamma1' calls policy_lookahead_alns with variant='ortools'."""
+        mock_pol = mocker.patch(
+            'logic.src.pipeline.simulator.day.policy_lookahead_alns',
+            return_value=([0, 1, 0], 10.0, 0)
+        )
+        mocker.patch('logic.src.pipeline.simulator.day.policy_lookahead', return_value=[0, 1])
+        mocker.patch('logic.src.pipeline.simulator.day.load_area_and_waste_type_params', return_value=(100, 1, 1, 1, 1))
+
+        run_day(
+            graph_size=5,
+            pol='policy_look_ahead_alns_ortools_gamma1',
+            day=3,
+            realtime_log_path=None,
+            **self._RUN_DAY_CONST_ARGS,
+            **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
+        )
+        
+        args, kwargs = mock_pol.call_args
+        assert kwargs.get('variant') == 'ortools'
+
 
     @pytest.mark.unit
     def test_run_day_invalid_policy(self, mock_run_day_deps):

@@ -13,11 +13,9 @@ from .look_ahead_aux import (
     compute_initial_solution, improved_simulated_annealing, 
     get_next_collection_day, update_fill_levels_after_first_collection,
 )
-from .hybrid_genetic_search import (
-    Individual, HGSParams, evaluate, ordered_crossover, local_search, run_hgs
-)
-from .adaptive_large_neighborhood_search import run_alns
+from .hybrid_genetic_search import run_hgs
 from .branch_cut_and_price import run_bcp
+from .adaptive_large_neighborhood_search import run_alns, run_alns_package, run_alns_ortools
 
 
 def policy_lookahead(
@@ -449,11 +447,10 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
     return collected_bins_indices_tour, fitness, cost
 
 
-def policy_lookahead_alns(current_fill_levels, binsids, must_go_bins, distance_matrix, values, coords):
+def policy_lookahead_alns(current_fill_levels, binsids, must_go_bins, distance_matrix, values, coords, variant='custom'):
     """
-    Adaptive Large Neighborhood Search Policy.
+    Adaptive Large Neighborhood Search Policy (Unified Dispatcher).
     """
-    # 1. Reuse setup logic from HGS (candidates, weights, mapping)
     B, E, Q = values['B'], values['E'], values['vehicle_capacity']
     R, C = values['R'], values['C']
     
@@ -472,18 +469,16 @@ def policy_lookahead_alns(current_fill_levels, binsids, must_go_bins, distance_m
         demands[global_i] = weight
         
     matrix_indices = list(local_to_global.values())
-    
     if not matrix_indices:
         return [0, 0], 0, 0
         
-    # Extract Sub-Matrix for just valid nodes + Depot
-    # OR pass full matrix and handle via Indices?
-    # ALNS Solver expects full matrix reference usually or we filter.
-    # For simiplicity, passing full matrix + Node IDs is cleaner.
-    
-    # 2. Run ALNS
-    # Note: run_alns expects 1-based indexing for nodes in dist_matrix if depot is 0
-    routes, cost = run_alns(distance_matrix, demands, Q, R, C, values)
+    # Dispatch specific runner
+    if variant == 'package':
+        routes, cost = run_alns_package(distance_matrix, demands, Q, R, C, values)
+    elif variant == 'ortools':
+        routes, cost = run_alns_ortools(distance_matrix, demands, Q, R, C, values)
+    else:
+        routes, cost = run_alns(distance_matrix, demands, Q, R, C, values)
     
     # 3. Format Output
     final_sequence = [0]

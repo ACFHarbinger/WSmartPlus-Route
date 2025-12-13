@@ -1,9 +1,17 @@
-
-import random
 import math
 import time
 import copy
-from typing import List, Dict, Tuple
+import random
+import numpy as np
+
+from typing import List
+from alns import ALNS 
+from alns.stop import MaxRuntime
+from alns.select import RouletteWheel
+from alns.accept import SimulatedAnnealing
+from ortools.constraint_solver import pywrapcp
+from ortools.constraint_solver import routing_enums_pb2
+
 
 class ALNSParams:
     def __init__(self, time_limit=10, max_iterations=1000, 
@@ -411,3 +419,280 @@ def run_alns(dist_matrix, demands, capacity, R, C, values):
     solver = ALNSSolver(dist_matrix, demands, capacity, R, C, params)
     routes, cost = solver.solve()
     return routes, cost
+
+
+# --- ALNS Package Implementation ---
+class ALNSState:
+    """
+    State representation for the alns package.
+    """
+    def __init__(self, routes: List[List[int]], unassigned: List[int], 
+                 dist_matrix, demands, capacity, R, C, values):
+        self.routes = routes
+        self.unassigned = unassigned
+        self.dist_matrix = dist_matrix
+        self.demands = demands
+        self.capacity = capacity
+        self.R = R
+        self.C = C
+        self.values = values
+        self._score = self.calculate_profit()
+
+    def copy(self):
+        return ALNSState(
+            copy.deepcopy(self.routes), 
+            copy.deepcopy(self.unassigned),
+            self.dist_matrix, 
+            self.demands, 
+            self.capacity, 
+            self.R, 
+            self.C, 
+            self.values
+        )
+
+    def objective(self):
+        # ALNS package minimizes objective.
+        # We want to maximize profit. So minimize negative profit.
+        return -self._score
+
+    def calculate_profit(self):
+        total_profit = 0
+        visited = set()
+        
+        for route in self.routes:
+            if not route: continue
+            
+            dist = 0
+            load = 0
+            if len(route) > 0:
+                dist += self.dist_matrix[0][route[0]]
+                for i in range(len(route) - 1):
+                    dist += self.dist_matrix[route[i]][route[i+1]]
+                    load += self.demands[route[i]]
+                dist += self.dist_matrix[route[-1]][0]
+                load += self.demands[route[-1]]
+            
+            cost = dist * self.C
+            
+            revenue = 0
+            for node in route:
+                revenue += self.demands[node] * self.R
+                visited.add(node)
+            
+            total_profit += revenue - cost
+            
+        return total_profit
+        
+    @property
+    def cost(self):
+        return self.objective()
+
+# Operators for ALNS package
+def alns_pkg_random_removal(state, random_state):
+    new_state = state.copy()
+    all_nodes = [n for r in new_state.routes for n in r]
+    if not all_nodes:
+        return new_state
+    n_remove = min(len(all_nodes), random_state.randint(1, min(len(all_nodes)+1, 10)))
+    removed = random_state.choice(all_nodes, n_remove, replace=False)
+    
+    new_routes = []
+    for r in new_state.routes:
+        new_r = [n for n in r if n not in removed]
+        if new_r:
+            new_routes.append(new_r)
+    
+    new_state.routes = new_routes
+    new_state.unassigned.extend(removed)
+    new_state._score = new_state.calculate_profit()
+    return new_state
+
+def alns_pkg_worst_removal(state, random_state):
+    new_state = state.copy()
+    all_nodes = [n for r in new_state.routes for n in r]
+    if not all_nodes: return new_state
+    
+    costs = []
+    for r_idx, route in enumerate(new_state.routes):
+        for idx, node in enumerate(route):
+            prev_node = 0 if idx == 0 else route[idx-1]
+            next_node = 0 if idx == len(route)-1 else route[idx+1]
+            cost = state.dist_matrix[prev_node][node] + state.dist_matrix[node][next_node] - state.dist_matrix[prev_node][next_node]
+            costs.append((cost, node))
+            
+    costs.sort(key=lambda x: x[0], reverse=True)
+    n_remove = min(len(all_nodes), random_state.randint(1, min(len(all_nodes)+1, 10)))
+    removed = [x[1] for x in costs[:n_remove]]
+    
+    new_routes = []
+    for r in new_state.routes:
+        new_r = [n for n in r if n not in removed]
+        if new_r:
+            new_routes.append(new_r)
+            
+    new_state.routes = new_routes
+    new_state.unassigned.extend(removed)
+    new_state._score = new_state.calculate_profit()
+    return new_state
+
+def alns_pkg_greedy_insertion(state, random_state):
+    new_state = state.copy()
+    random_state.shuffle(new_state.unassigned)
+    while new_state.unassigned:
+        node = new_state.unassigned.pop(0)
+        best_cost = float('inf')
+        best_pos = None
+        candidate_routes = new_state.routes + [[]]
+        for r_idx, route in enumerate(candidate_routes):
+            current_load = sum(state.demands[n] for n in route)
+            if current_load + state.demands[node] > state.capacity:
+                continue
+            for i in range(len(route) + 1):
+                prev_node = 0 if i == 0 else route[i-1]
+                next_node = 0 if i == len(route) else route[i]
+                delta_dist = state.dist_matrix[prev_node][node] + state.dist_matrix[node][next_node] - state.dist_matrix[prev_node][next_node]
+                delta_leverage = (delta_dist * state.C) - (state.demands[node] * state.R)
+                if delta_leverage < best_cost:
+                    best_cost = delta_leverage
+                    best_pos = (r_idx, i)
+        if best_pos:
+            r_idx, idx = best_pos
+            if r_idx >= len(new_state.routes):
+                new_state.routes.append([node])
+            else:
+                new_state.routes[r_idx].insert(idx, node)
+    new_state._score = new_state.calculate_profit()
+    return new_state
+
+def run_alns_package(dist_matrix, demands, capacity, R, C, values):
+    """
+    Runner for ALNS package implementation.
+    """
+    n_nodes = len(dist_matrix) - 1
+    nodes = list(range(1, n_nodes + 1))
+    
+    initial_routes = []
+    for i in nodes:
+        initial_routes.append([i])
+        
+    init_state = ALNSState(initial_routes, [], dist_matrix, demands, capacity, R, C, values)
+    
+    alns = ALNS(np.random.RandomState(42))
+    
+    alns.add_destroy_operator(alns_pkg_random_removal)
+    alns.add_destroy_operator(alns_pkg_worst_removal)
+    alns.add_repair_operator(alns_pkg_greedy_insertion)
+    
+    time_limit = values.get('time_limit', 10)
+    select = RouletteWheel([25, 10, 1, 0], 0.8, 1, 1)
+    accept = SimulatedAnnealing(start_temperature=1000, end_temperature=1, step=1 - 1e-3)
+    stop = MaxRuntime(time_limit)
+    
+    result = alns.iterate(init_state, select, accept, stop)
+    best_state = result.best_state
+    
+    total_dist_cost = 0
+    for route in best_state.routes:
+        if not route: continue
+        d = dist_matrix[0][route[0]]
+        for i in range(len(route)-1):
+            d += dist_matrix[route[i]][route[i+1]]
+        d += dist_matrix[route[-1]][0]
+        total_dist_cost += d * C
+        
+    return best_state.routes, total_dist_cost
+
+
+# --- OR-Tools ALNS Implementation ---
+def run_alns_ortools(dist_matrix, demands, capacity, R, C, values):
+    """
+    Runner for ALNS using OR-Tools (Guided Local Search).
+    """
+    # 1. Identify active nodes (Depot + keys in demands)
+    active_nodes = [0] + sorted(list(demands.keys()))
+    compact_to_global = {c: g for c, g in enumerate(active_nodes)}
+    
+    n_active = len(active_nodes)
+    max_vehicles = n_active
+    
+    # 2. Create Distance Matrix for Compact Indices
+    sub_matrix = np.zeros((n_active, n_active), dtype=int)
+    for c1 in range(n_active):
+        for c2 in range(n_active):
+            g1 = compact_to_global[c1]
+            g2 = compact_to_global[c2]
+            sub_matrix[c1][c2] = int(dist_matrix[g1][g2])
+            
+    # 3. Create Demands Array
+    sub_demands = [0] * n_active
+    for c in range(1, n_active):
+        g = compact_to_global[c]
+        sub_demands[c] = int(demands[g])
+        
+    scale_factor = 1000
+    scaled_capacity = int(capacity * scale_factor)
+    scaled_demands = [int(d * scale_factor) for d in sub_demands]
+    
+    # 4. OR-Tools Setup
+    manager = pywrapcp.RoutingIndexManager(n_active, max_vehicles, 0)
+    routing = pywrapcp.RoutingModel(manager)
+
+    def distance_callback(from_index, to_index):
+        from_node = manager.IndexToNode(from_index)
+        to_node = manager.IndexToNode(to_index)
+        return sub_matrix[from_node][to_node]
+
+    transit_callback_index = routing.RegisterTransitCallback(distance_callback)
+    routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
+
+    def demand_callback(from_index):
+        from_node = manager.IndexToNode(from_index)
+        return scaled_demands[from_node]
+
+    demand_callback_index = routing.RegisterUnaryTransitCallback(demand_callback)
+    routing.AddDimensionWithVehicleCapacity(
+        demand_callback_index,
+        0,  # null capacity slack
+        [scaled_capacity] * max_vehicles, 
+        True,  # start cumul to zero
+        "Capacity",
+    )
+
+    search_parameters = pywrapcp.DefaultRoutingSearchParameters()
+    search_parameters.first_solution_strategy = (
+        routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
+    )
+    search_parameters.local_search_metaheuristic = (
+        routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
+    )
+    
+    time_limit_sec = values.get('time_limit', 10)
+    search_parameters.time_limit.FromSeconds(int(time_limit_sec))
+
+    solution = routing.SolveWithParameters(search_parameters)
+
+    routes = []
+    total_cost = 0
+    if solution:
+        for vehicle_id in range(max_vehicles):
+            index = routing.Start(vehicle_id)
+            route = []
+            if routing.IsEnd(solution.Value(routing.NextVar(index))):
+                continue
+                
+            # Skip Start Node (Depot)
+            index = solution.Value(routing.NextVar(index))
+            
+            while not routing.IsEnd(index):
+                node_index = manager.IndexToNode(index)
+                global_idx = compact_to_global[node_index]
+                route.append(global_idx)
+                index = solution.Value(routing.NextVar(index))
+            
+            if route:
+                routes.append(route)
+        
+        # Calculate real cost with C
+        total_cost = solution.ObjectiveValue() * C
+        
+    return routes, total_cost
