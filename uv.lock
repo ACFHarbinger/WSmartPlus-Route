@@ -775,6 +775,34 @@ wheels = [
 ]
 
 [[package]]
+name = "cspy"
+version = "1.0.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "networkx" },
+    { name = "numpy" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/63/b5cd9a655c40939ba2568f9f931a979f445107a5012c7c418e2bf8e0e7ea/cspy-1.0.3-cp310-cp310-macosx_10_15_x86_64.whl", hash = "sha256:7a472ae624e07fa42ba2593e7abe479ad0eae363ab4605e4b0df9990c013bb37", size = 251598, upload-time = "2023-01-05T14:53:38.203Z" },
+    { url = "https://files.pythonhosted.org/packages/de/db/40f9a187ce79c834742bd9690c6a9ff66794ed61f9e793e3347facf31e06/cspy-1.0.3-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:8d516cc7b806207351e2ad4c5d10652b31438d610e8e3bfce513b437f41c2872", size = 253046, upload-time = "2023-01-05T14:57:46.822Z" },
+    { url = "https://files.pythonhosted.org/packages/56/27/8fb2a3e8ac251d38eabd83c9e428b79dedb3bf2f9aa7630ad75cd0e7cf28/cspy-1.0.3-cp310-cp310-macosx_12_7_x86_64.whl", hash = "sha256:5e23c321803e82ea74284557634eba54bc95484045c63700ae203020e57c29ce", size = 263917, upload-time = "2024-06-10T13:07:44.371Z" },
+    { url = "https://files.pythonhosted.org/packages/ea/65/d59f4aca4b110fbbe876811f2b72b93febbd79e1ad00ac931214d2db1262/cspy-1.0.3-cp310-cp310-macosx_13_0_arm64.whl", hash = "sha256:633be98127d45f90a0eee1c1944dd75987813078df527f6f88bd99e63a91cbcc", size = 222100, upload-time = "2023-01-05T15:16:56.534Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/e6/2a783b38de188e71da6dbc087adc135a7d1dcb1023e27c875e8e7962f525/cspy-1.0.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:289119fd2ae180c314c03c067aa13271a38575f781791d31cdfb390b21e10772", size = 489273, upload-time = "2023-01-05T15:13:26.948Z" },
+    { url = "https://files.pythonhosted.org/packages/30/0d/61be5e5d5f67fd3ad74bbb9410ae9eace09700423e55fec43efcf1be4a68/cspy-1.0.3-cp310-cp310-win_amd64.whl", hash = "sha256:d1b0a4aea4b66056d0e0607ccf389adced5c2e350958dd01845c0ee6a391eda8", size = 662141, upload-time = "2023-01-05T15:20:22.259Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/74/37db4a27cfbc7473174a8b131dbdc3d628aceefb5959ac3e0b44cbd18725/cspy-1.0.3-cp311-cp311-macosx_10_15_universal2.whl", hash = "sha256:1b85505924d5482a4efb73f596b66e2bac9dad062234a0a95213c32777e68bb2", size = 251601, upload-time = "2023-01-05T14:54:23.683Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/bb/e13b7a9d5f60bfac1396c286d0028344573bd435b45241afb0a7e7687c94/cspy-1.0.3-cp311-cp311-macosx_11_0_universal2.whl", hash = "sha256:9726ef2bf8ad6e60803809dfab3d5fabb767adfdbce5aa8a118a09643281cec4", size = 253049, upload-time = "2023-01-05T14:58:23.029Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/ea/4cb65f4e3f4444cbdcef74dfad35e63118d77bf664d8bf7e78c2321a1e65/cspy-1.0.3-cp311-cp311-macosx_14_0_arm64.whl", hash = "sha256:d68e84808cb14e374236ec20cd8d11c9c970e057e7c9f329d16ffab697d27177", size = 226212, upload-time = "2024-02-05T10:27:50.857Z" },
+    { url = "https://files.pythonhosted.org/packages/af/b6/7be9e63f80ba4eb8a442bfca18b83e5f354a24d3253fea46c69d438956c2/cspy-1.0.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:887a58765e55ad524964f9248869494c53d926718af547b6c3680f55b083ed04", size = 489273, upload-time = "2023-01-05T15:14:10.419Z" },
+    { url = "https://files.pythonhosted.org/packages/38/f3/27c2f30378a30e2cdaffc4b8f862103eb67aec0384a70aff2f9cf726991b/cspy-1.0.3-cp311-cp311-win_amd64.whl", hash = "sha256:4ced92ce5e54febd4507563eb1e2062e57de3979f087e7f59413a596e61ad54c", size = 662144, upload-time = "2023-01-05T15:20:19.611Z" },
+    { url = "https://files.pythonhosted.org/packages/bd/3e/0b6fc8477c1d812c99334daa8f01ba306ee7d2467312df1ed4d64fa29e28/cspy-1.0.3-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:ff9e6050bb237b7bf6d9d167e2a354c83acb35e531515d4bf7d12db972e70c58", size = 229924, upload-time = "2024-06-10T14:13:17.686Z" },
+    { url = "https://files.pythonhosted.org/packages/52/c0/ba2078aee36b872cd3da70ca488db91eb97b949b23f9181f4d89b2744b5e/cspy-1.0.3-cp312-cp312-win_amd64.whl", hash = "sha256:170e8b08f91b803ff0eb36edc16e3f2934f5cd593b630576463a4ccc076099f8", size = 672167, upload-time = "2024-06-10T13:07:46.369Z" },
+    { url = "https://files.pythonhosted.org/packages/94/23/c3326ea5e708e30f2b5f0a9ee7b4d6f9c91566ea977e1000b6cda6fe3141/cspy-1.0.3-cp39-cp39-macosx_10_15_x86_64.whl", hash = "sha256:11536dfd765289d345edaeb0adbf077ba311566a929759f3aa0dfb73101ee284", size = 251623, upload-time = "2023-01-05T14:57:59.61Z" },
+    { url = "https://files.pythonhosted.org/packages/8e/b9/7ce28baf0aa717f646c9cce6ac5aa61edf8c9908a21f9547b1ea2cb2bd72/cspy-1.0.3-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:91547460bd89a2ee64fb73dac489add79517ac8caa7d11aed66e294a9c49115d", size = 253072, upload-time = "2023-01-05T15:03:47.843Z" },
+    { url = "https://files.pythonhosted.org/packages/56/a6/167303431477437dae58408dccacc20a28198bffbba759b32b65c00d26d1/cspy-1.0.3-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d854184a774af946fc1617d44a2cfed4ee4412d0b184f8e308e485bc4589de0f", size = 489271, upload-time = "2023-01-05T15:13:59.277Z" },
+    { url = "https://files.pythonhosted.org/packages/23/0a/5bee6db2a6296b2f8bb251271656246e96d7fa1c790785c0334e2b92d580/cspy-1.0.3-cp39-cp39-win_amd64.whl", hash = "sha256:3ac476e19f24d2b244757d8c907cdb6c18b4529c242a9e8161aa2da98f8da06b", size = 662191, upload-time = "2023-01-05T15:23:06.635Z" },
+]
+
+[[package]]
 name = "cycler"
 version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
@@ -3534,6 +3562,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pulp"
+version = "3.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/1c/d880b739b841a8aa81143091c9bdda5e72e226a660aa13178cb312d4b27f/pulp-3.3.0.tar.gz", hash = "sha256:7eb99b9ce7beeb8bbb7ea9d1c919f02f003ab7867e0d1e322f2f2c26dd31c8ba", size = 16301847, upload-time = "2025-09-18T08:14:57.552Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/99/6c/64cafaceea3f99927e84b38a362ec6a8f24f33061c90bda77dfe1cd4c3c6/pulp-3.3.0-py3-none-any.whl", hash = "sha256:dd6ad2d63f196d1254eddf9dcff5cd224912c1f046120cb7c143c5b0eda63fae", size = 16387700, upload-time = "2025-09-18T08:14:53.368Z" },
+]
+
+[[package]]
 name = "pure-eval"
 version = "0.2.3"
 source = { registry = "https://pypi.org/simple" }
@@ -5781,13 +5818,16 @@ wheels = [
 ]
 
 [[package]]
-name = "vrpsolvereasy"
-version = "0.1.4"
+name = "vrpy"
+version = "0.5.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/2a/92/2be14e8526762dcbe15d8c287c5b133154757fbbb7d3cc969613cafb9a2d/VRPSolverEasy-0.1.4.tar.gz", hash = "sha256:170ba20ce23066934558f804c204af26852e1fd735836eefe1603867868a3a9b", size = 268745, upload-time = "2023-11-11T15:19:27.828Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/45/61/bf450c59762b4cb6e0d962f7c5ec23f9945d93e50393049af9385db4caed/VRPSolverEasy-0.1.4-py3-none-any.whl", hash = "sha256:ff1881f7ffd404760711842e29f2a7eab19939b47fd6ce02c6ed01158fb63a65", size = 530409, upload-time = "2023-11-11T15:19:22.453Z" },
+dependencies = [
+    { name = "cspy" },
+    { name = "networkx" },
+    { name = "numpy" },
+    { name = "pulp" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/b9/84/15ebdf4ed4a250c28bae25e98a31b7fda78abd0b5d713d48e7843b18dc93/vrpy-0.5.1.tar.gz", hash = "sha256:953d5cabe6ae7d4b58439f9e85cb899b3ce912bddc5ca9184947abef39bfbd7e", size = 139986, upload-time = "2021-09-18T11:46:04.092Z" }
 
 [[package]]
 name = "wandb"
@@ -6373,7 +6413,7 @@ dependencies = [
     { name = "uvicorn" },
     { name = "uvloop", marker = "sys_platform != 'win32'" },
     { name = "virtualenv" },
-    { name = "vrpsolvereasy" },
+    { name = "vrpy" },
     { name = "wandb" },
     { name = "watchfiles" },
     { name = "wcwidth" },
@@ -6640,7 +6680,7 @@ requires-dist = [
     { name = "uvicorn", specifier = "==0.35.0" },
     { name = "uvloop", marker = "sys_platform != 'win32'", specifier = "==0.21.0" },
     { name = "virtualenv", specifier = "==20.4.7" },
-    { name = "vrpsolvereasy", specifier = ">=0.1.4" },
+    { name = "vrpy", specifier = ">=0.5.1" },
     { name = "wandb", specifier = "==0.21.1" },
     { name = "watchfiles", specifier = "==1.1.0" },
     { name = "wcwidth", specifier = "==0.2.13" },

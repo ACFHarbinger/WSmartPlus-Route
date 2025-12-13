@@ -587,6 +587,14 @@ def policy_lookahead_bcp(current_fill_levels, binsids, must_go_bins, distance_ma
     
     local_to_global = {local_idx: global_idx + 1 for local_idx, global_idx in enumerate(candidate_indices)} 
     demands = {}
+    
+    # Map must_go_bins to Global Indices (for Penalty enforcement)
+    binsids_map = {bid: i for i, bid in enumerate(binsids)}
+    global_must_go = set()
+    for mg in must_go_bins:
+        if mg in binsids_map:
+            global_must_go.add(binsids_map[mg] + 1)
+
     for local_i, global_i in local_to_global.items():
         bin_array_idx = global_i - 1 
         fill = current_fill_levels[bin_array_idx]
@@ -597,7 +605,7 @@ def policy_lookahead_bcp(current_fill_levels, binsids, must_go_bins, distance_ma
     if not matrix_indices:
         return [0, 0], 0, 0
         
-    routes, cost = run_bcp(distance_matrix, demands, Q, R, C, values)
+    routes, cost = run_bcp(distance_matrix, demands, Q, R, C, values, must_go_indices=global_must_go)
     
     final_sequence = [0]
     for route in routes:
