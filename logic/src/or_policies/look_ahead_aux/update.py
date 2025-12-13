@@ -19,6 +19,7 @@ def add_bins_to_collect(binsids, next_collection_day, must_go_bins, current_fill
 
 
 def update_fill_levels_after_first_collection(binsids, must_go_bins, current_fill_levels):
+  current_fill_levels = current_fill_levels.copy()
   for i in binsids:
     if i in must_go_bins:
       current_fill_levels[i] = 0
@@ -34,7 +35,7 @@ def initialize_lists_of_bins(binsids):
 
 def calculate_next_collection_days(must_go_bins, current_fill_levels, accumulation_rates, binsids):
   next_collection_days = initialize_lists_of_bins(binsids)
-  temporary_fill_levels = current_fill_levels
+  temporary_fill_levels = current_fill_levels.copy()
   for i in must_go_bins:
     current_day = 0
     while temporary_fill_levels[i] < 100:
