@@ -1,5 +1,6 @@
 import numpy as np
 
+from pandas import DataFrame
 from numpy.typing import NDArray
 from typing import Optional, List
 from .multi_vehicle import find_routes
@@ -17,7 +18,7 @@ def policy_regular(
         waste_type: str='plastic', 
         area: str='riomaior', 
         n_vehicles: int=1,
-        *args
+        coords: DataFrame=None
     ):
     tour = []
     if (day % (lvl + 1)) == 1:
@@ -27,8 +28,7 @@ def policy_regular(
             tour = cached if cached is not None and len(cached) > 1 else find_route(distancesC, to_collect)
             tour = get_multi_tour(tour, bins_waste, max_capacity, distancesC)
         else:
-           demands, depot = args
-           tour, cost = find_routes(distancesC, demands, max_capacity, to_collect, n_vehicles, depot)
+            tour, cost = find_routes(distancesC, bins_waste, max_capacity, to_collect, n_vehicles, coords)
     else:
         tour = [0]
     return tour

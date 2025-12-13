@@ -53,13 +53,13 @@ GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("policy_look_ahead_hgs")
+POLICIES=("policy_last_minute")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" "policy_look_ahead_hgs"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
 #"gurobi_vrpp" "hexaly_vrpp" 
 #"am" "amgc" "transgcn"
 
-VEHICLES=1
+VEHICLES=0
 EDGE_THRESH=0.0
 EDGE_METHOD="knn"
 VERTEX_METHOD="mmn"
