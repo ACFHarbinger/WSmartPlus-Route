@@ -5,12 +5,13 @@ from logic.src.utils.definitions import DAY_METRICS
 from logic.src.utils.log_utils import send_daily_output_to_gui
 from logic.src.utils.functions import move_to
 from logic.src.or_policies import (
+    policy_gurobi_vrpp, policy_hexaly_vrpp,
     get_route_cost, find_route, create_points, find_solutions,
-    policy_gurobi_vrpp, policy_hexaly_vrpp, policy_lookahead_vrpp,
-    policy_lookahead, policy_lookahead_hgs, policy_lookahead_sans,
-    policy_lookahead_alns, policy_lookahead_bcp,
+    policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp,
+    policy_lookahead_alns, policy_lookahead_hgs, policy_lookahead_bcp,
     policy_last_minute, policy_last_minute_and_path, policy_regular, 
 )
+
 from .loader import load_area_and_waste_type_params
 
 
@@ -164,7 +165,13 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
             elif 'alns' in policy:
                 values['time_limit'] = 60
                 values['Iterations'] = 5000
-                routes, _, _ = policy_lookahead_alns(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
+                variant = 'default'
+                if 'package' in policy:
+                    variant = 'package'
+                elif 'ortools' in policy:
+                    variant = 'ortools'
+                
+                routes, _, _ = policy_lookahead_alns(bins.c, binsids, must_go_bins, distance_matrix, values, coords, variant=variant)
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
                     cost = get_route_cost(distance_matrix, tour)
