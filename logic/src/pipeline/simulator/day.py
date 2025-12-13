@@ -63,25 +63,16 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
     policy = pol.rsplit('_', 1)[0]
     if 'policy_last_minute_and_path' in policy:
         cf = int(policy.rsplit("_and_path", 1)[1])
-        if cf not in [50, 70, 90]:
-            print('Valid cf values for policy_last_minute_and_path: [50, 70, 90]')
-            raise ValueError(f'Invalid cf value for policy_last_minute_and_path: {cf}')
         bins.setCollectionLvlandFreq(cf=cf/100)
         tour = policy_last_minute_and_path(bins.c, distancesC, paths_between_states, bins.collectlevl, waste_type, area, n_vehicles, coords)
         cost = get_route_cost(distance_matrix, tour) if tour else 0
     elif 'policy_last_minute' in policy:
         cf = int(policy.rsplit("_last_minute", 1)[1])
-        if cf not in [50, 70, 90]:
-            print('Valid cf values for policy_last_minute: [50, 70, 90]')
-            raise ValueError(f'Invalid cf value for policy_last_minute: {cf}')
         bins.setCollectionLvlandFreq(cf=cf/100)
         tour = policy_last_minute(bins.c, distancesC, bins.collectlevl, waste_type, area, n_vehicles, coords)
         cost = get_route_cost(distance_matrix, tour) if tour else 0
     elif 'policy_regular' in policy:
         lvl = int(policy.rsplit("_regular", 1)[1]) - 1
-        if lvl not in [1, 2, 5]:
-            print('Valid lvl values for policy_regular: [2, 3, 6]')
-            raise ValueError(f'Invalid lvl value for policy_regular: {lvl + 1}')
         tour = policy_regular(bins.n, bins.c, distancesC, lvl, day, cached, waste_type, area, n_vehicles, coords)
         cost = get_route_cost(distance_matrix, tour) if tour else 0
         if cached is not None and not cached and tour: cached = tour
@@ -151,7 +142,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
                 new_data.loc[1:, 'Stock'] = bins.c.astype('float32')
                 new_data.loc[1:, 'Accum_Rate'] = bins.means.astype('float32')
                 
-                routes, _, _ = policy_lookahead_sans(new_data, coords, distance_matrix, params, must_go_bins, values, binsids)
+                routes, _, _ = policy_lookahead_sans(new_data, coords, distance_matrix, params, must_go_bins, values)
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
                     cost = get_route_cost(distance_matrix, tour)

@@ -769,6 +769,17 @@ def validate_test_sim_args(args):
     assert args.get('cpu_cores', 0) <= cpu_count(), "Number of CPU cores to use cannot exceed system specifications"
     if args.get('cpu_cores') == 0:
         args['cpu_cores'] = cpu_count()
+
+    for cf in args['plastminute_cf']:
+        assert cf > 0 and cf < 100, "Policy last minute CF must be between 0 and 100"
+    for lvl in args['pregular_level']:
+        assert lvl >= 1 and lvl <= args['days'], "Policy regular level must be between 1 and number of days, inclusive"
+    for gp in args['gurobi_param']:
+        assert gp > 0, "Policy gurobi parameter must be greater than 0"
+    for hp in args['hexaly_param']:
+        assert hp > 0, "Policy hexaly parameter must be greater than 0"
+    for lac in args['lookahead_configs']:
+        assert lac in ['a', 'b'], "Policy lookahead configuration must be 'a' or 'b'"
     return args
 
 def validate_file_system_args(args):
