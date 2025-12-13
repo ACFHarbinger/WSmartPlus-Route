@@ -211,7 +211,7 @@ def run_wsr_simulator_test(opts):
     torch.manual_seed(opts['seed'])
     if opts['area'] == 'mixrmbac' and opts['size'] not in [20, 50, 225]:
         data_size = 20 if opts['size'] < 20 else 50 if opts['size'] < 50 else 225
-    elif opts['area'] == 'riomaior' and opts['size'] not in [57, 203, 317]:
+    elif opts['area'] == 'riomaior' and opts['size'] not in [57, 104, 203, 317]:
         #data_size = 57 if opts['size'] < 57 else 203 if opts['size'] < 203 else 317
         data_size = 317
     elif opts['area'] == 'both' and opts['size'] not in [57, 371, 485, 542]:

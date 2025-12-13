@@ -50,9 +50,9 @@ def load_depot(data_dir, area='Rio Maior'):
 
 
 def load_simulator_data(data_dir, number_of_bins, area='Rio Maior', waste_type=None, lock=None):
-    def _preprocess_county_date(data):
-        data['Date'] = pd.to_datetime(data['Date'], format = "%Y-%m-%d")
-        data = data.set_index('Date')
+    def _preprocess_county_date(data, date_str="Date"):
+        data[date_str] = pd.to_datetime(data[date_str], format = "%Y-%m-%d")
+        data = data.set_index(date_str)
         data = data.round()
         data.columns = data.columns.astype(int)
         return data
@@ -66,7 +66,7 @@ def load_simulator_data(data_dir, number_of_bins, area='Rio Maior', waste_type=N
         # Get waste accumulation rate (mean) and stock (first value >= 0) of bins
         accum_rate = data.clip(lower=0).fillna(0).mean()
         stock = data.apply(__get_stock, axis=0)
-        new_data = pd.DataFrame(data.columns, columns=['ID'])
+        new_data = pd.DataFrame({'ID': data.columns})
         new_data['Stock'] = new_data['ID'].map(stock)
         new_data['Accum_Rate'] = new_data['ID'].map(accum_rate)
         new_data[['Stock', 'Accum_Rate']] = ((new_data[['Stock', 'Accum_Rate']] - new_data[['Stock', 'Accum_Rate']].min()) / 
@@ -89,11 +89,20 @@ def load_simulator_data(data_dir, number_of_bins, area='Rio Maior', waste_type=N
                 data = pd.read_excel(os.path.join(data_dir, 'bins_waste', 'StockAndAccumulationRate.xlsx'))
                 bins_coordinates = pd.read_excel(os.path.join(data_dir, 'coordinates', 'Coordinates.xlsx'))
         elif src_area == 'riomaior':
-            data = _preprocess_county_date(pd.read_csv(os.path.join(data_dir, 'bins_waste', f"old_out_crude_rate[{src_area}].csv")))
             assert number_of_bins <= 317, f"Number of bins for area {src_area} must be <= 317"
-            coords_tmp = pd.read_csv(os.path.join(data_dir, 'coordinates', f'old_out_info[{src_area}].csv'))
-            coords_tmp = coords_tmp.rename(columns={'Latitude': 'Lat', 'Longitude': 'Lng'})
-            if wtype: coords_tmp = coords_tmp[coords_tmp['Tipo de Residuos'] == wtype]
+            if number_of_bins <= 104:
+                df = pd.read_csv(os.path.join(data_dir, 'bins_waste', f"Rio_Maior_Sensores_2021_2024_cleaned_104.csv"))
+                df['Data da leitura'] = pd.to_datetime(df['Data da leitura'], format="%Y-%m-%d")
+                data = df.pivot_table(index='Data da leitura', columns='idcontentor', values='Enchimento', aggfunc='mean')
+                data = data.round()
+                data.columns = data.columns.astype(int)
+                coords_tmp = pd.read_csv(os.path.join(data_dir, 'coordinates', f'coordinates104.csv'))
+                coords_tmp = coords_tmp.rename(columns={'Lon': 'Lng', 'Longitude': 'Lng', 'Latitude': 'Lat'})
+            else:
+                data = _preprocess_county_date(pd.read_csv(os.path.join(data_dir, 'bins_waste', f"old_out_crude_rate[{src_area}].csv")))
+                coords_tmp = pd.read_csv(os.path.join(data_dir, 'coordinates', f'old_out_info[{src_area}].csv'))
+                coords_tmp = coords_tmp.rename(columns={'Latitude': 'Lat', 'Longitude': 'Lng'})
+                if wtype: coords_tmp = coords_tmp[coords_tmp['Tipo de Residuos'] == wtype]
             bins_coordinates = coords_tmp[['ID', 'Lat', 'Lng']]
             data = _preprocess_county_data(data)
             data = data[data['ID'].isin(bins_coordinates['ID'])]

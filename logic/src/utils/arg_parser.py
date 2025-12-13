@@ -84,7 +84,7 @@ class ConfigsParser(argparse.ArgumentParser):
         subnamespace = super().parse_args(args)
         parsed_args_dict = vars(subnamespace)
         filtered_args = {
-            key: value 
+            key: value if value != "" else None
             for key, value in parsed_args_dict.items() 
         }
 
