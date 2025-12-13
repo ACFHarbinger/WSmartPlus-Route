@@ -70,6 +70,9 @@ def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_m
         mdl.addConstr(quicksum(y[i, j] - y[j, i] for j in nodes if (i, j) in y or (j, i) in y) == S_dict[i] * g[i])
 
     # Teste de fixar o valor da quantidade de caminhões
+    if number_vehicles == 0:
+        number_vehicles = len(binsids)
+
     MAX_TRUCKS = number_vehicles
     mdl.addConstr(k_var <= MAX_TRUCKS)
 
