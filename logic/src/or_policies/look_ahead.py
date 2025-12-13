@@ -268,7 +268,7 @@ def policy_lookahead_sans(data, bins_coordinates, distance_matrix, params, must_
     return optimized_routes, best_profit, last_distance
 
 
-def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_matrix, values):
+def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_matrix, values, coords):
     """
     Hybrid Genetic Search Policy.
     """
@@ -303,32 +303,122 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
         fill = current_fill_levels[bin_array_idx]
         weight = (fill / 100.0) * B * E
         demands[global_i] = weight
+        
+    # Map must_go_bins (IDs) to Global Matrix Indices
+    # We need this for both Seeding (epsilon stock) and Evaluation (penalties)
+    global_must_go = set()
+    # Create valid ID lookup
+    binsids_map = {bid: i for i, bid in enumerate(binsids)}
+    for mg in must_go_bins:
+        if mg in binsids_map:
+            # binsids index i correponds to Matrix Index i + 1
+            global_must_go.add(binsids_map[mg] + 1)
 
     if not candidate_indices:
+        print(f"DEBUG: No candidates found. Fill > 0 count: {sum(current_fill_levels > 0)}")
         return [0], 0, 0
+
+    # --- SEEDING WITH VRPP (GREEDY) SOLUTION ---
+    # Robust approach: Use Matrix Indices (0..N) as IDs, mirroring SANS structure.
+    # This avoids type mismatches (String vs Int) and ordering assumptions in solutions.py.
+    
+    # Matrix Indices involved: 0 (Depot) and those in local_to_global (Bins)
+    matrix_indices = list(local_to_global.values()) # e.g. [1, 2, ... 100]
+    
+    # Construct columns for DataFrame
+    # Row 0 is Depot
+    bin_col = [0] + matrix_indices
+    
+    # Stock: Depot=0. Bins=demands[idx]
+    stock_col = [0.0]
+    for idx in matrix_indices:
+        val = demands.get(idx, 0)
+        # Force VRPP to visit must_go_bins even if empty (epsilon stock)
+        if idx in global_must_go:
+             if val <= 0:
+                 val = 0.00001
+        stock_col.append(val)
+        
+    accum_col = [0.0] * len(bin_col)
+    
+    seed_df = pd.DataFrame({
+        '#bin': bin_col,
+        'Stock': stock_col,
+        'Accum_Rate': accum_col
+    })
+    
+    # Coords Dict: Map Matrix Index -> (Lat, Lon)
+    # Assumes coords list is aligned with Matrix Indices
+    coord_dict_seed = {}
+    for idx in bin_col:
+        # idx is the Matrix Index (0..N).
+        # We assume coords DataFrame has at least N+1 rows, ordered such that row `idx` corresponds to Node `idx`.
+        # setup_df in processor.py ensures this ordering/reset_index.
+        if idx < len(coords):
+            # Access by position using iloc
+            lat = coords.iloc[idx]['Lat']
+            lng = coords.iloc[idx]['Lng']
+            coord_dict_seed[idx] = (lat, lng)
+        else:
+            coord_dict_seed[idx] = (0,0)
+            
+    # Identity ID Map
+    id_to_index_seed = { idx: idx for idx in bin_col }
+    
+    # Run VRPP Greedy
+    vrpp_routes = compute_initial_solution(
+        seed_df, 
+        coord_dict_seed, 
+        distance_matrix, 
+        Q, 
+        id_to_index_seed
+    )
+    
+    # Result is list of lists of Matrix Indices (since we passed Matrix Indices as IDs).
+    vrpp_tour_global = []
+    if vrpp_routes:
+        for route in vrpp_routes:
+            vrpp_tour_global.extend(route)
+            
+    # Ensure all required nodes are present
+    missing = [idx for idx in matrix_indices if idx not in vrpp_tour_global]
+    vrpp_tour_global.extend(missing)
+    
+    # Remove Depot (0) if present, as HGS works on Bin permutations
+    vrpp_tour_global = [node for node in vrpp_tour_global if node != 0]
+    
+    # -------------------------------------------
 
     # 3. Initialization
     params = HGSParams(time_limit=values.get('time_limit', 10))
     population = []
     
     # Seed population
-    base_tour = list(local_to_global.values()) # List of matrix indices
+    base_tour = list(local_to_global.values()) # Default Sorted
     
     start_time = time.time()
     
-    for _ in range(params.population_size):
-        random.shuffle(base_tour)
-        ind = Individual(base_tour[:])
-        ind = evaluate(ind, distance_matrix, demands, Q, R, C, values)
+    for i in range(params.population_size):
+        if i == 0:
+            # Seed 1: VRPP Greedy Solution
+            tour = vrpp_tour_global[:]
+        elif i == 1:
+            # Seed 2: Sorted Indices
+            tour = base_tour[:]
+        else:
+            # Random
+            tour = base_tour[:]
+            random.shuffle(tour)
+            
+        ind = Individual(tour)
+        ind = evaluate(ind, distance_matrix, demands, Q, R, C, values, global_must_go, local_to_global)
         population.append(ind)
         
     population.sort(reverse=True) # Best (Highest Profit) first
     best_solution = population[0]
     
     # 4. Main HGS Loop
-    generation = 0
     while time.time() - start_time < params.time_limit:
-        generation += 1
         
         # Selection (Tournament)
         parent1 = population[random.randint(0, params.elite_size)]
@@ -342,7 +432,7 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
         child = local_search(child, distance_matrix)
         
         # Evaluation (Split)
-        child = evaluate(child, distance_matrix, demands, Q, R, C, values)
+        child = evaluate(child, distance_matrix, demands, Q, R, C, values, global_must_go, local_to_global)
         
         # Survivor Selection
         # Simple steady-state: if better than worst, replace worst
@@ -359,16 +449,39 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
     # The 'policy_lookahead_vrpp' returns [0] + contentores_coletados.
     
     final_sequence = []
-    # Flatten routes
-    for route in best_solution.routes:
-        final_sequence.extend(route)
+    # Support Multi-Route (Concatenate routes with returns to depot)
+    if best_solution.routes:
+        for route in best_solution.routes:
+             final_sequence.extend(route)
+             final_sequence.append(0) # Return to depot after each route
         
-    # Convert Matrix Indices (1..N) back to Bin IDs if necessary
-    # The Gurobi code returns: contentores_coletados = [id_map[j] for ...].
-    # binsids are 0-indexed in the input list, but IDs might be +1.
+        # Remove the very last 0 if we want to rely on the final append below?
+        # The logic below returns [0] + IDs + [0].
+        # If final_sequence is [1, 2, 0, 3, 4, 0], we want result [0, 1, 2, 0, 3, 4, 0].
+        # So we should POP the last 0 if present to avoid double 0 at end with logic below?
+        # Actually, let's just construct the full tour here cleanly.
+        
+    # Convert Matrix Indices (1..N) back to Bin IDs
     # The standard output seems to be the list of collected bin INDICES (0-based relative to binsids).
     
-    # Convert back to 0-based index referenced in 'binsids'
-    collected_bins_indices = [idx - 1 for idx in final_sequence]
+    collected_bins_indices_tour = []
+    for idx in final_sequence:
+        if idx == 0:
+             collected_bins_indices_tour.append(0) # Depot
+        else:
+             # Return Matrix Index (1..N) directly, as simulator expects 1-based Bin IDs
+             collected_bins_indices_tour.append(idx)
+             
+    # Ensure start and end with 0 if not empty
+    if not collected_bins_indices_tour:
+        return [0, 0], 0, 0
     
-    return [0] + collected_bins_indices, best_solution.fitness, best_solution.cost
+    # Check if starts with 0
+    if collected_bins_indices_tour[0] != 0:
+        collected_bins_indices_tour.insert(0, 0)
+        
+    # Check if ends with 0
+    if collected_bins_indices_tour[-1] != 0:
+         collected_bins_indices_tour.append(0)
+    
+    return collected_bins_indices_tour, best_solution.fitness, best_solution.cost
