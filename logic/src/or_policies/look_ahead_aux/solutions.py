@@ -9,11 +9,8 @@ from .sans_opt import *
 from .select import insert_bins, remove_bins_end
 from .routes import uncross_arcs_in_routes, uncross_arcs_in_sans_routes
 from .search import local_search, local_search_2, local_search_reversed
+from .computations import compute_profit, compute_real_profit, compute_total_cost
 from .check import check_solution_admissibility, check_bins_overflowing_feasibility
-from .computations import (
-    compute_profit, compute_real_profit, 
-    compute_total_profit, compute_total_cost,
-)
 
 
 # Lookahead base policy
@@ -237,7 +234,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
     return routes_list
 
 
-def find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, bins_cannot_removed, values, n_bins, points, time_limit):
+def find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, must_go_bins, values, n_bins, points, time_limit):
     number_iterations = chosen_combination[0]
     T_initial = chosen_combination[1]
     T_param = chosen_combination[2]
@@ -272,7 +269,7 @@ def find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, 
     tic = time.perf_counter()
     for i in range (1,number_iterations + 1):
         chosen_procedure, _, bin_to_remove, bin_to_add, bins_to_remove_random, bins_to_remove_consecutive, bins_to_add_random, \
-        bins_to_add_consecutive, bins_random, bins_consecutive = local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed)
+        bins_to_add_consecutive, bins_random, bins_consecutive = local_search(routes_list, removed_bins, distance_matrix, must_go_bins)
         count = count + 1
 
         # Compute profit for the new solution
@@ -440,61 +437,61 @@ def find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, 
     solution_after_uncross_11, _, _ = uncross_arcs_in_routes(solution_after_reversed_LS_5, p_vehicle, p_load, p_route_difference, p_shift, data, points, distance_matrix, values)
 
     # Remove bins local search - 1
-    solution_after_remove, _, _, removed_bins = remove_bins_end(solution_after_uncross_11, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  bins_cannot_removed, distance_matrix, values)
+    solution_after_remove, _, _, removed_bins = remove_bins_end(solution_after_uncross_11, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  must_go_bins, distance_matrix, values)
 
     # Insert bins local search - 1
     solution_after_insert, _, _, removed_bins = insert_bins(solution_after_remove, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  distance_matrix, values)
 
     # Remove bins local search - 2
-    solution_after_remove_2, _, _, removed_bins = remove_bins_end(solution_after_insert, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)
+    solution_after_remove_2, _, _, removed_bins = remove_bins_end(solution_after_insert, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, must_go_bins, distance_matrix, values)
 
     # Insert bins local search - 2
     solution_after_insert_2, _, _, removed_bins = insert_bins(solution_after_remove_2, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  distance_matrix, values)
 
     # Remove bins local search - 3
-    solution_after_remove_3, _, _, removed_bins = remove_bins_end(solution_after_insert_2, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)
+    solution_after_remove_3, _, _, removed_bins = remove_bins_end(solution_after_insert_2, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, must_go_bins, distance_matrix, values)
 
     # Insert bins local search - 3
     solution_after_insert_3, _, _, removed_bins = insert_bins(solution_after_remove_3, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  distance_matrix, values)
 
     # Remove bins local search - 4
-    solution_after_remove_4, _, _, removed_bins = remove_bins_end(solution_after_insert_3, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)
+    solution_after_remove_4, _, _, removed_bins = remove_bins_end(solution_after_insert_3, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, must_go_bins, distance_matrix, values)
 
     # Insert bins local search - 4
     solution_after_insert_4, _, _, removed_bins = insert_bins(solution_after_remove_4, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  distance_matrix, values)
 
     # Remove bins local search - 5
-    solution_after_remove_5, _, _, removed_bins = remove_bins_end(solution_after_insert_4, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)
+    solution_after_remove_5, _, _, removed_bins = remove_bins_end(solution_after_insert_4, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, must_go_bins, distance_matrix, values)
 
     # Insert bins local search - 5
     solution_after_insert_5, _, _, removed_bins = insert_bins(solution_after_remove_5, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  distance_matrix, values)
 
     # Remove bins local6
-    solution_after_remove_6, _, _, removed_bins = remove_bins_end(solution_after_insert_5, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)
+    solution_after_remove_6, _, _, removed_bins = remove_bins_end(solution_after_insert_5, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, must_go_bins, distance_matrix, values)
 
     # Insert bins local search - 6
     solution_after_insert_6, _, _, removed_bins = insert_bins(solution_after_remove_6, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  distance_matrix, values)
 
     # Remove bins local search - 7
-    solution_after_remove_7, _, _, removed_bins = remove_bins_end(solution_after_insert_6, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)
+    solution_after_remove_7, _, _, removed_bins = remove_bins_end(solution_after_insert_6, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, must_go_bins, distance_matrix, values)
 
     # Insert bins local search - 7
     solution_after_insert_7, _, _, removed_bins = insert_bins(solution_after_remove_7, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values)
 
     # Remove bins local search - 8
-    solution_after_remove_8, _, _, removed_bins = remove_bins_end(solution_after_insert_7, removed_bins, p_vehicle,p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)
+    solution_after_remove_8, _, _, removed_bins = remove_bins_end(solution_after_insert_7, removed_bins, p_vehicle,p_load, p_route_difference, p_shift, data, must_go_bins, distance_matrix, values)
 
     # Insert bins local search - 8
     solution_after_insert_8, _, _, removed_bins = insert_bins(solution_after_remove_8, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  distance_matrix, values)
 
     # Remove bins local search - 9
-    solution_after_remove_9, _, _, removed_bins = remove_bins_end(solution_after_insert_8, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)
+    solution_after_remove_9, _, _, removed_bins = remove_bins_end(solution_after_insert_8, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, must_go_bins, distance_matrix, values)
 
     # Insert bins local search - 9
     solution_after_insert_9, _, _, removed_bins = insert_bins(solution_after_remove_9, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  distance_matrix, values)
 
     # Remove bins local search - 10
-    solution_after_remove_10, _, _, removed_bins = remove_bins_end(solution_after_insert_9, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)
+    solution_after_remove_10, _, _, removed_bins = remove_bins_end(solution_after_insert_9, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, must_go_bins, distance_matrix, values)
 
     # Insert bins local search - 10
     solution_after_insert_10, _, real_profit_after_insert_10, removed_bins = insert_bins(solution_after_remove_10, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data,  distance_matrix, values)
@@ -560,136 +557,169 @@ def compute_initial_solution(data, bins_coordinates, distance_matrix, vehicle_ca
 def improved_simulated_annealing(
         routes, distance_matrix, time_limit, id_to_index, data, vehicle_capacity,
         T_init=1000, T_min=0.001, alpha=0.995, iterations_per_T=100, R=0.165, V=2.5, 
-        density=20, C=1.0, bins_cannot_removed=None, removed_bins=None, verbose=False
+        density=20, C=1.0, must_go_bins=None, removed_bins=None, verbose=False,
+        perc_bins_can_overflow=0.0, volume=2.5, density_val=20, max_vehicles=None
     ):
     def _power_function_decay(T_init, i, T_param):
         return T_init / (i ** T_param)
     
     start_time = time.time()
+    
+    # --- 1. ROBUST INITIALIZATION ---
+    if removed_bins is None:
+        removed_bins = set()
+    else:
+        removed_bins = set(removed_bins)
+        
+    if must_go_bins is None:
+        must_go_bins = set()
+    else:
+        must_go_bins = set(must_go_bins)
+
+    # Capture any bins missed by the initial greedy solution
+    all_bins_ids = set(data['#bin'].tolist()) - {0}
+    scheduled_bins = set()
+    for r in routes:
+        for b in r:
+            if b != 0:
+                scheduled_bins.add(b)
+    missing_bins = all_bins_ids - scheduled_bins
+    for b in missing_bins:
+        removed_bins.add(b)
+
     initial_solution = copy.deepcopy(routes)
     current_solution = uncross_arcs_in_sans_routes(initial_solution, id_to_index, distance_matrix)
-    best_solution = copy.deepcopy(current_solution)
+    
+    # Calculate initial metrics
     current_cost = compute_total_cost(current_solution, distance_matrix, id_to_index)
-    current_profit, total_kg, total_km, initial_receita = compute_total_profit(current_solution, distance_matrix, id_to_index, data, R, V, density, C)
+    # Calculate initial metrics
+    current_cost = compute_total_cost(current_solution, distance_matrix, id_to_index)
+    
+    # Calculate STRICT SIMULATOR PROFIT (Route 0 Only + Capacity Cutoff)
+    # 1. Total KM Cost (We pay for everything planned)
+    # compute_total_cost returns total km? No, it returns cost = km * C? 
+    # check solutions.py imports... compute_total_cost.
+    # Actually compute_total_profit returns total_km. 
+    # Let's call compute_total_profit just to get total_km and naive revenue if we want, or just use current_cost.
+    # current_cost IS the transportation cost.
+    
+    # 2. Real Revenue (Route 0 Cutoff)
+    real_kg = 0
+    collected_must_go = set()
+    if len(current_solution) > 0 and len(current_solution[0]) > 2:
+        route0 = current_solution[0]
+        stocks = dict(zip(data['#bin'], data['Stock']))
+        current_load = 0
+        for b in route0:
+            if b == 0: continue
+            bin_kg = stocks.get(b, 0) * V * density / 100.0
+            
+            if current_load + bin_kg <= vehicle_capacity:
+                current_load += bin_kg
+                real_kg += bin_kg
+                if must_go_bins and b in must_go_bins:
+                    collected_must_go.add(b)
+            else:
+                break
+    
+    current_revenue = real_kg * R
+    
+    # Must-Go Penalty: Force all must_go_bins into the valid trunk of Route 0
+    missed_must_go = len(must_go_bins) - len(collected_must_go) if must_go_bins else 0
+    penalty_must_go = missed_must_go * 10000.0 # Huge penalty
+    
+    current_profit = current_revenue - current_cost - penalty_must_go
+
+    initial_receita = current_revenue
+    best_solution = copy.deepcopy(current_solution)
     best_profit = current_profit
     last_receita = initial_receita
-    last_weight = total_kg
-    last_distance = total_km
+    last_weight = real_kg
+    last_distance = current_cost
+    
     no_improvement_count = 0
     T = T_init
     stocks = dict(zip(data['#bin'], data['Stock']))
-    if removed_bins is None:
-        removed_bins = set()
-    if bins_cannot_removed is None:
-        bins_cannot_removed = set()
 
     iter_count = 0
     while T > T_min:
         if time.time() - start_time > time_limit:
-            if verbose: print("[DEBUG] Time limit atingido, encerrando otimização.")
+            if verbose: print("[DEBUG] Time limit reached.")
             break
 
         for _ in range(iterations_per_T):
             iter_count += 1
             if time.time() - start_time > time_limit:
-                if verbose: print("[DEBUG] Time limit atingido, encerrando otimização.")
                 break
             
+            # --- 2. STATE COPYING (Fixes Missing Bin 100) ---
             new_solution = copy.deepcopy(current_solution)
-            op = random.choice([
-                "2opt", 
-                "move", 
-                "swap", 
-                "remove", 
-                "insert",
-                "move_n_random", 
-                "move_n_consec",
-                "swap_n_random", "swap_n_consec",
-                "remove_n_bins", "remove_n_bins_consec",
+            candidate_removed_bins = copy.deepcopy(removed_bins)
+            
+            # --- 3. GUARD CLAUSES (Fixes IndexError Crash) ---
+            # Separate operators into those needing routes and those needing removed bins
+            route_ops = [
+                "2opt", "move", "swap", "remove", "insert",
+                "move_n_random", "move_n_consec", "swap_n_random", "swap_n_consec",
+                "remove_n_bins", "remove_n_bins_consec", "relocate", "cross", "or-opt"
+            ]
+            
+            add_ops = [
                 "add_n_bins", "add_n_bins_consec",
-                "add_route_removed", "add_route_removed_consec",
-                "relocate", 
-                "cross",
-                  "or-opt"
-            ])
+                "add_route_removed", "add_route_removed_consec"
+            ]
+
+            # Smart Selection: If no routes, MUST add. If no removed bins, MUST modify routes.
+            valid_ops = []
+            if len(new_solution) > 0:
+                valid_ops.extend(route_ops)
+            if len(candidate_removed_bins) > 0:
+                valid_ops.extend(add_ops)
+            
+            if not valid_ops:
+                # Dead end (no routes and no bins to add), break or continue
+                continue
+
+            op = random.choice(valid_ops)
+
+            # --- 4. APPLY OPERATORS ---
+            # (Note: We pass candidate_removed_bins to operators, protecting the main set)
             if op == "2opt":
-                r = random.choice(range(len(new_solution)))
-                new_solution[r] = random.choice(get_2opt_neighbors(new_solution[r]))
+                # Guard: Route must be long enough
+                valid_indices = [i for i, r in enumerate(new_solution) if len(r) > 3]
+                if valid_indices:
+                    r = random.choice(valid_indices)
+                    new_solution[r] = random.choice(get_2opt_neighbors(new_solution[r]))
             elif op == "move":
-                neighbors = move_between_routes(current_solution, data, vehicle_capacity, id_to_index)
+                neighbors = move_between_routes(new_solution, data, vehicle_capacity, id_to_index)
                 if neighbors:
                     new_solution = random.choice(neighbors)
             elif op == "swap":
                 r = random.choice(range(len(new_solution)))
                 new_solution[r] = mutate_route_by_swapping_bins(new_solution[r], num_bins=random.choice([1, 2]))
             elif op == "remove":
-                new_solution = remove_n_bins_random(current_solution, removed_bins, bins_cannot_removed, n=1)
+                # Assuming remove_n_bins_random handles n=1 internally or we call specific func
+                new_solution = remove_n_bins_random(new_solution, candidate_removed_bins, must_go_bins, n=1)
             elif op == "move_n_random":
-                r = random.choice(range(len(new_solution)))
-                route_bins = [b for b in new_solution[r] if b != 0]
-                max_n = len(route_bins)
-                if max_n > 0:
-                    n = random.randint(1, max_n)
-                    n = max_n
-                    new_solution = move_n_route_random(current_solution, n=n)
-                else:
-                    new_solution = move_n_route_random(current_solution, n=1)
+                new_solution = move_n_route_random(new_solution, n=random.randint(2, 5))
             elif op == "move_n_consec":
-                r = random.choice(range(len(new_solution)))
-                route_bins = [b for b in new_solution[r] if b != 0]
-                max_n = len(route_bins)
-                if max_n > 0:
-                    n = random.randint(2, max_n)
-                    n = max_n
-                    new_solution = move_n_route_consecutive(current_solution, n=n)
-                else:
-                    new_solution = move_n_route_consecutive(current_solution, n=2)
+                new_solution = move_n_route_consecutive(new_solution, n=random.randint(2, 5))
             elif op == "swap_n_random":
-                r = random.choice(range(len(new_solution)))
-                route_bins = [b for b in new_solution[r] if b != 0]
-                max_n = len(route_bins)
-                if max_n > 0:
-                    n = random.randint(2, max_n)
-                    new_solution = swap_n_route_random(current_solution, n=n)
-                    n = max_n
-                else: 
-                    new_solution = swap_n_route_random(current_solution, n=2)
+                new_solution = swap_n_route_random(new_solution, n=random.randint(2, 5))
             elif op == "swap_n_consec":
-                r = random.choice(range(len(new_solution)))
-                route_bins = [b for b in new_solution[r] if b != 0]
-                max_n = len(route_bins)
-                if max_n > 0:
-                    n = random.randint(2, max_n)
-                    n = max_n
-                    new_solution = swap_n_route_consecutive(current_solution, n=n)
-                else:
-                    new_solution = swap_n_route_consecutive(current_solution, n=2)
+                new_solution = swap_n_route_consecutive(new_solution, n=random.randint(2, 5))
             elif op == "remove_n_bins":
-                r = random.choice(range(len(new_solution)))
-                route_bins = [b for b in new_solution[r] if b != 0]
-                max_n = len(route_bins)
-                if max_n > 0:
-                    n = random.randint(2, max_n)
-                    new_solution = remove_n_bins_random(current_solution, removed_bins, bins_cannot_removed, n=n)
-                else:
-                    new_solution = remove_n_bins_random(current_solution, removed_bins, bins_cannot_removed, n=2)
+                new_solution = remove_n_bins_random(new_solution, candidate_removed_bins, must_go_bins, n=random.randint(2, 5))
             elif op == "remove_n_bins_consec":
-                r = random.choice(range(len(new_solution)))
-                route_bins = [b for b in new_solution[r] if b != 0]
-                max_n = len(route_bins)
-                if max_n > 0:
-                    n = random.randint(2, max_n)
-                    new_solution = remove_n_bins_consecutive(current_solution, removed_bins, bins_cannot_removed, n=n)
-                else:
-                    new_solution = remove_n_bins_consecutive(current_solution, removed_bins, bins_cannot_removed, n=2)
+                new_solution = remove_n_bins_consecutive(new_solution, candidate_removed_bins, must_go_bins, n=random.randint(2, 5))
             elif op == "add_n_bins":
-                new_solution = add_n_bins_random(current_solution, removed_bins, stocks, vehicle_capacity, id_to_index, distance_matrix, n=2)
+                new_solution = add_n_bins_random(new_solution, candidate_removed_bins, stocks, vehicle_capacity, id_to_index, distance_matrix, n=2)
             elif op == "add_n_bins_consec":
-                new_solution = add_n_bins_consecutive(current_solution, removed_bins, stocks, vehicle_capacity, id_to_index, distance_matrix, n=2)
+                new_solution = add_n_bins_consecutive(new_solution, candidate_removed_bins, stocks, vehicle_capacity, id_to_index, distance_matrix, n=2)
             elif op == "add_route_removed":
-                new_solution = add_route_with_removed_bins_random(current_solution, removed_bins, stocks, vehicle_capacity)
+                new_solution = add_route_with_removed_bins_random(new_solution, candidate_removed_bins, stocks, vehicle_capacity)
             elif op == "add_route_removed_consec":
-                new_solution = add_route_with_removed_bins_consecutive(current_solution, removed_bins, stocks, vehicle_capacity)
+                new_solution = add_route_with_removed_bins_consecutive(new_solution, candidate_removed_bins, stocks, vehicle_capacity)
             elif op == "relocate":
                 r = random.choice(range(len(new_solution)))
                 new_solution[r] = relocate_within_route(new_solution[r])
@@ -699,6 +729,7 @@ def improved_simulated_annealing(
                 r = random.choice(range(len(new_solution)))
                 new_solution[r] = or_opt_move(new_solution[r])
             elif op == "insert":
+                if not new_solution: continue
                 r = random.choice(range(len(new_solution)))
                 all_bins = set(data['#bin']) - {0}
                 used_bins = set(b for route in new_solution for b in route)
@@ -708,35 +739,79 @@ def improved_simulated_annealing(
                     load = sum(stocks.get(b, 0) for b in new_solution[r] if b != 0)
                     if load + stocks.get(bin_to_insert, 0) <= vehicle_capacity:
                         new_solution[r] = insert_bin_in_route(new_solution[r], bin_to_insert, id_to_index, distance_matrix)
+                        # Remove from candidate removed bins if it was there
+                        if bin_to_insert in candidate_removed_bins:
+                            candidate_removed_bins.remove(bin_to_insert)
+
+            # Filter out empty routes (safely)
+            new_solution = [r for r in new_solution if len(r) > 2]
             
-            all_bins = set(data['#bin']) - {0}
-            used_bins = [b for route in new_solution for b in route if b != 0]
-            duplicated = [b for b in used_bins if used_bins.count(b) > 1]
-            unused = list(all_bins - set(used_bins))
-            if duplicated:
-                continue  # ignore this new_solution
-            
+            # --- 5. EVALUATION ---
+            # --- 5. EVALUATION ---
             new_cost = compute_total_cost(new_solution, distance_matrix, id_to_index)
-            new_profit, last_kg, last_km, receita = compute_total_profit(new_solution, distance_matrix, id_to_index, data, R, V, density, C)
+            # Calculate STRICT SIMULATOR PROFIT (Route 0 Only + Capacity Cutoff)
+            real_kg = 0
+            collected_must_go = set()
+            if len(new_solution) > 0 and len(new_solution[0]) > 2:
+                route0 = new_solution[0]
+                current_load = 0
+                for b in route0:
+                    if b == 0: continue
+                    # Optimization: pre-calculate bin weights? Or just do it here.
+                    bin_kg = stocks.get(b, 0) * V * density / 100.0
+                    if current_load + bin_kg <= vehicle_capacity:
+                        current_load += bin_kg
+                        real_kg += bin_kg
+                        if must_go_bins and b in must_go_bins:
+                            collected_must_go.add(b)
+                    else:
+                        break
+            
+            new_revenue = real_kg * R
+            # Must-Go Penalty
+            missed_must_go = len(must_go_bins) - len(collected_must_go) if must_go_bins else 0
+            penalty_must_go = missed_must_go * 10000.0
+            
+            new_profit = new_revenue - new_cost - penalty_must_go
+
             delta = new_profit - current_profit
+            
+            # Acceptance Probability
             if delta > 0:
+                accept = True
+            else:
+                p = math.exp(delta / T)
+                accept = (random.random() < p)
+
+            if accept:
+                # ACCEPT: Adopt new routes AND the modified removed_bins set
                 current_solution = new_solution
                 current_cost = new_cost
                 current_profit = new_profit
-                best_solution = new_solution
-                last_weight = last_kg
-                last_distance = last_km
-                best_profit = new_profit
-                last_receita = receita
-                no_improvement_count = 0 
+                removed_bins = candidate_removed_bins # <--- CRITICAL: Update state only on acceptance
+                
+                if current_profit > best_profit:
+                    best_solution = copy.deepcopy(current_solution)
+                    best_profit = current_profit
+                    last_weight = real_kg
+                    last_distance = new_cost
+                    last_receita = new_revenue
+                    no_improvement_count = 0
+                else:
+                    no_improvement_count += 1
             else:
+                # REJECT: Do nothing. 
+                # candidate_removed_bins is discarded automatically.
+                # removed_bins remains untouched, so "lost" bins are effectively restored.
                 no_improvement_count += 1
 
-            T = _power_function_decay(T_init, iter_count, 0.52)        
+            T = T * alpha
+            if verbose:
+                print(f"Temperature cooled to {T:.4f}")
 
         if no_improvement_count > 500:
             if verbose: print("[INFO] Reaquecendo temperatura.")
-            T = T_init * 0.5
+            T = T_init          # start again from the original temperature
             no_improvement_count = 0
 
     best_solution = [r for r in best_solution if len(r) > 2]

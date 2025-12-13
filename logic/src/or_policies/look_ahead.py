@@ -35,7 +35,7 @@ def policy_lookahead(
   return must_go_bins # bins that are mandatory to collect at the current day
 
 
-def policy_lookahead_vrpp(fh, binsids, must_go_bins, distance_matrix, values, number_vehicles=8, env=None):
+def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_matrix, values, number_vehicles=8, env=None):
     binsids = [0] + [bin_id + 1 for bin_id in binsids]
     must_go_bins = [must_go + 1 for must_go in must_go_bins]
     criticos = [bin_id in must_go_bins for bin_id in binsids]
@@ -44,8 +44,7 @@ def policy_lookahead_vrpp(fh, binsids, must_go_bins, distance_matrix, values, nu
     R, C, Omega = values['R'], values['C'], 0.1 #receita, custo, omega
     delta, psi = 0, 1 #delta, psi
 
-    enchimentos = fh[:, -1]
-    enchimentos = np.insert(enchimentos, 0, 0.0)
+    enchimentos = np.insert(current_fill_levels, 0, 0.0)
     pesos_reais = [(e / 100) * B * V for e in enchimentos]
     nodes = list(range(len(binsids)))
     idx_deposito = 0
@@ -184,35 +183,95 @@ def policy_lookahead_vrpp(fh, binsids, must_go_bins, distance_matrix, values, nu
     return [0] + contentores_coletados, profit, cost
 
 
-def policy_lookahead_sans(data, bins_coordinates, distance_matrix, params, bins_cannot_removed, values, ids_principais):
+def policy_lookahead_sans(data, bins_coordinates, distance_matrix, params, must_go_bins, values):
     T_init, iterations_per_T, alpha, T_min, *_ = params
 
     density, V, vehicle_capacity = values['B'], values['E'], values['vehicle_capacity'] # densidade, volume, capacidade
     R, C, Omega = values['R'], values['C'], 0.1 # receita, custo, omega
     E, B, time_limit = 1, 1, values['time_limit']
 
-    data = create_dataframe_from_matrix(data)
-    coordinates_dict = convert_to_dict(bins_coordinates)
-    id_to_index = {id_: idx for idx, id_ in enumerate(ids_principais)}
+    iframe = isinstance(data, pd.DataFrame)
+    if iframe:
+        # Data passed from simulator (101 rows, 0=Depot, 1..100=Bins)
+        # Indexes are already 1-based (Depot=0). No shift needed.
+        pass
+    else:
+        # Legacy matrix input (0-based)
+        data = create_dataframe_from_matrix(data)
+        data['#bin'] = data['#bin'] + 1 # Shift 0..99 -> 1..100
 
+    coordinates_dict = convert_to_dict(bins_coordinates)
+    
+    # Map IDs (1..100) -> Matrix Indices (1..100).
+    # Since Distance Matrix has Depot at 0, Bin ID k matches Matrix Index k.
+    id_to_index = {i: i for i in range(len(distance_matrix))}
+
+    # 1. Compute greedy multi-route solution
+    # compute_initial_solution expects 'data' to have '#bin' values that are keys in id_to_index.
     initial_routes = compute_initial_solution(data, coordinates_dict, distance_matrix, vehicle_capacity, id_to_index)
+
+    # 2. Update Must Go Bins (Input 0..99 -> Shift to 1..100)
+    must_go_bins = [b + 1 for b in must_go_bins]
+    
+    # Update ID map (1 -> 1, ... 100 -> 100) if we assume matrix aligns
+    # Before: 0->0, ..., 99->99.
+    # Now we use nodes 1..100. distance_matrix[1] corresponds to Bin 0 (which is now Node 1).
+    # So mapping Node k -> Matrix Index k is correct.
+    id_to_index = {i: i for i in range(len(distance_matrix))}
+
+    # 2. ADAPT FOR SINGLE VEHICLE SIMULATION (n_vehicles=1)
+    # The simulator (day.py) only executes routes[0]. We must focus optimization on this single route.
+    # Strategy:
+    #   - Take initial_routes[0] as current_route.
+    #   - Enforce inclusion of ALL must_go_bins into current_route (even if it temporarily overloads capacity).
+    #   - Move all other bins (from initial_routes[1:] or unvisited) into 'removed_bins'.
+    #   - SANS will then optimize by swapping non-mandatory bins between current_route and removed_bins.
+
+    current_route = []
+    if initial_routes:
+        current_route = initial_routes[0]
+    else:
+        current_route = [0, 0] # Depot-only if empty
+
+    # Identify all bins in the system
+    all_bins_set = set(data['#bin'].tolist()) - {0}
+
+    # Identify bins currently in Route 1
+    route_bins_set = set(current_route) - {0}
+
+    # Prepare removed_bins (starts with everything NOT in Route 1)
+    removed_bins = list(all_bins_set - route_bins_set)
+
+    # Force insert missing must_go_bins into current_route
+    # We remove them from 'removed_bins' and append to current_route
+    must_go_set = set(must_go_bins)
+    missing_must_go = must_go_set - route_bins_set
+    if missing_must_go:
+        # Insert them at a reasonable position (e.g., end before depot, or index 1)
+        # Simple approach: Insert at index 1
+        for b in missing_must_go:
+            current_route.insert(1, b)
+            if b in removed_bins:
+                removed_bins.remove(b)
+
+    # Re-package as the solution for SANS
+    # SANS expects a list of routes. We give it [current_route].
+    single_route_solution = [current_route]
+
     optimized_routes, best_profit, last_distance, total_kg, last_revenue = improved_simulated_annealing(
-        initial_routes, distance_matrix, time_limit, id_to_index, data, vehicle_capacity, 
-        T_init, T_min, alpha, iterations_per_T, R, V, density, C, bins_cannot_removed
+        single_route_solution, distance_matrix, time_limit, id_to_index, data, vehicle_capacity,
+        T_init, T_min, alpha, iterations_per_T, R, V, density, C, must_go_bins, removed_bins=set(removed_bins),
+        perc_bins_can_overflow=values.get('perc_bins_can_overflow', 0.0), volume=V, density_val=density, max_vehicles=1
     )
 
-    optimized_routes = [r for r in optimized_routes]
+    # Output is already 1-based, no shift needed
     return optimized_routes, best_profit, last_distance
 
 
-def policy_lookahead_hgs(fh, binsids, must_go_bins, distance_matrix, values):
+def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_matrix, values):
     """
     Hybrid Genetic Search Policy.
     """
-    # 0. Adapt Arguments
-    current_fill_levels = fh[:, -1]
-    time_limit = values.get('time_limit', 10)
-
     # 1. Parse Parameters
     B, E, Q = values['B'], values['E'], values['vehicle_capacity']
     R, C = values['R'], values['C']
@@ -249,7 +308,7 @@ def policy_lookahead_hgs(fh, binsids, must_go_bins, distance_matrix, values):
         return [0], 0, 0
 
     # 3. Initialization
-    params = HGSParams(time_limit=time_limit)
+    params = HGSParams(time_limit=values.get('time_limit', 10))
     population = []
     
     # Seed population

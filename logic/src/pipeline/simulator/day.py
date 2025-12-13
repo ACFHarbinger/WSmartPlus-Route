@@ -131,20 +131,26 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
             }
             if 'vrpp' in policy:
                 values['time_limit'] = 600
-                fh = bins.get_fill_history().transpose()
-                routes, _, _ = policy_lookahead_vrpp(fh, binsids, must_go_bins, distance_matrix, values, env=model_env)
+                routes, _, _ = policy_lookahead_vrpp(bins.c, binsids, must_go_bins, distance_matrix, values, env=model_env)
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
                     cost = get_route_cost(distance_matrix, tour)
             elif 'sans' in policy:
                 values['time_limit'] = 60
-                fh = bins.get_fill_history().transpose()
+                values['perc_bins_can_overflow'] = 0 # 0%
+
                 T_min = 0.01
                 T_init = 75
-                iterations_per_T = 50000
-                alpha = 0.7
+                iterations_per_T = 5000
+                alpha = 0.95
                 params = (T_init, iterations_per_T, alpha, T_min)
-                routes, _, _ = policy_lookahead_sans(fh, coords, distance_matrix, params, must_go_bins, values, binsids)
+                
+                # Update Stock and Accum_Rate for bins (Rows 1..100)
+                # new_data has 101 rows (0=Depot, 1..100=Bins). bins.c has 100 values.
+                new_data.loc[1:, 'Stock'] = bins.c.astype('float32')
+                new_data.loc[1:, 'Accum_Rate'] = bins.means.astype('float32')
+                
+                routes, _, _ = policy_lookahead_sans(new_data, coords, distance_matrix, params, must_go_bins, values, binsids)
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
                     cost = get_route_cost(distance_matrix, tour)

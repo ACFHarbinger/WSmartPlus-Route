@@ -501,7 +501,7 @@ class SimulationResultsWindow(QWidget):
             except Exception as e: 
                 print(f"Summary Error: {e}")
                 # Print the problematic record for debugging if needed
-                # print(f"Problem Record: {record}")
+                print(f"Problem Record: {record}")
 
     # -------------------------------------------------------------------------
     # UTILS & OLD LOGIC PRESERVED
