@@ -11,7 +11,6 @@ from logic.src.or_policies import (
     policy_lookahead_alns, policy_lookahead_hgs, policy_lookahead_bcp,
     policy_last_minute, policy_last_minute_and_path, policy_regular, 
 )
-
 from .loader import load_area_and_waste_type_params
 
 
