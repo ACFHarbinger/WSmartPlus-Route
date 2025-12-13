@@ -5,6 +5,7 @@ import pandas as pd
 from unittest.mock import patch, MagicMock, PropertyMock
 from logic.src.pipeline.simulator.day import run_day
 from logic.src.or_policies.regular import policy_regular
+from logic.src.or_policies.hybrid_genetic_search import run_hgs
 from logic.src.or_policies.multi_vehicle import find_routes, find_routes_ortools
 from logic.src.or_policies.last_minute import policy_last_minute, policy_last_minute_and_path
 from logic.src.or_policies.look_ahead import (
@@ -609,8 +610,55 @@ class TestLookaheadPolicyLogic:
 
 class TestAdvancedLookaheadPolicies:
     """
-    Unit tests for VRPP policies utilizing Gurobi/Hexaly or Simulated Annealing logic.
+    Unit tests for VRPP policies utilizing Solvers or Search Algorithms.
     """
+    @pytest.mark.unit
+    def test_hgs_custom(self, hgs_inputs):
+        dist_matrix, demands, capacity, R, C, global_must_go, local_to_global, vrpp_tour_global = hgs_inputs
+        values = {'hgs_engine': 'custom', 'time_limit': 1}
+        routes, fitness, cost = run_hgs(dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global, vrpp_tour_global)
+        assert isinstance(routes, list)
+        assert len(routes) > 0
+        for r in routes:
+            assert isinstance(r, list)
+
+    @pytest.mark.unit
+    def test_hgs_pyvrp(self, hgs_inputs):
+        dist_matrix, demands, capacity, R, C, global_must_go, local_to_global, vrpp_tour_global = hgs_inputs
+        values = {'hgs_engine': 'pyvrp', 'time_limit': 1}
+        try:
+            import pyvrp
+        except ImportError:
+            pytest.skip("PyVRP not installed")
+        routes, fitness, cost = run_hgs(dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global, vrpp_tour_global)
+        assert isinstance(routes, list)
+
+    @pytest.mark.unit
+    def test_policy_integration_custom(self, hgs_inputs):
+        current_fill_levels = np.array([50.0, 50.0, 50.0, 50.0])
+        binsids = [0, 1, 2, 3]
+        must_go_bins = [1, 3]
+        dist_matrix = [
+            [0, 10, 20, 30, 40],
+            [10, 0, 10, 20, 30],
+            [20, 10, 0, 10, 20],
+            [30, 20, 10, 0, 10],
+            [40, 30, 20, 10, 0]
+        ]
+        values = {
+            'B': 1.0, 'E': 0.2, 'vehicle_capacity': 100,
+            'R': 100.0, 'C': 0.1,
+            'time_limit': 0.1,
+            'hgs_engine': 'custom'
+        }
+        coords = pd.DataFrame({'Lat': [0]*5, 'Lng': [0]*5})
+        final_sequence, fitness, cost = policy_lookahead_hgs(
+            current_fill_levels, binsids, must_go_bins, dist_matrix, values, coords
+        )
+        assert isinstance(final_sequence, list)
+        assert final_sequence[0] == 0
+        assert final_sequence[-1] == 0
+    
     @pytest.mark.unit
     def test_policy_lookahead_vrpp(self, mocker, mock_vrpp_inputs):
         """
