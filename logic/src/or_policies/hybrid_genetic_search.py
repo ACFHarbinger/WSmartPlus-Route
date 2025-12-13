@@ -31,7 +31,7 @@ def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C,
     Decodes a Giant Tour (permutation of nodes) into a set of routes 
     that maximizes profit (Revenue - Travel Cost).
     
-    This is a simplified Split algorithm using a shortest-path approach on a DAG.
+    This is a Split algorithm using a shortest-path approach on a DAG.
     """
     n = len(giant_tour)
     # V[i] stores the max profit from node i to the end
@@ -44,6 +44,9 @@ def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C,
     # Note: giant_tour indices map to actual bin IDs. 
     # dist_matrix indices usually include depot at 0.
     
+    # Optimization: Convert demands to list for faster access if keys are dense integers
+    node_demands = [demands.get(node_id, 0) for node_id in giant_tour]
+    
     # We iterate through the giant tour
     for i in range(n):
         load = 0
@@ -52,9 +55,10 @@ def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C,
         # Try to form a route from i+1 to j
         for j in range(i + 1, n + 1):
             node_idx = giant_tour[j-1]
+            d = node_demands[j-1]
             
             # Update Load
-            load += demands.get(node_idx, 0) # Safety get
+            load += d
             
             # Check Capacity
             # RELAXATION: Allow single-node routes even if they exceed capacity.
@@ -64,7 +68,7 @@ def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C,
                 
             # Update Revenue
             # Revenue = Weight * R
-            revenue += demands.get(node_idx, 0) * R
+            revenue += d * R
             
             # Update Distance
             if j == i + 1:

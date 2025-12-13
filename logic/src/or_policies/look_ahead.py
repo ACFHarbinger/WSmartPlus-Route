@@ -16,6 +16,8 @@ from .look_ahead_aux import (
 from .hybrid_genetic_search import (
     Individual, HGSParams, evaluate, ordered_crossover, local_search
 )
+from .adaptive_large_neighborhood_search import run_alns
+from .branch_cut_and_price import run_bcp
 
 
 def policy_lookahead(
@@ -524,3 +526,82 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
          collected_bins_indices_tour.append(0)
     
     return collected_bins_indices_tour, best_solution.fitness, best_solution.cost
+
+
+def policy_lookahead_alns(current_fill_levels, binsids, must_go_bins, distance_matrix, values, coords):
+    """
+    Adaptive Large Neighborhood Search Policy.
+    """
+    # 1. Reuse setup logic from HGS (candidates, weights, mapping)
+    B, E, Q = values['B'], values['E'], values['vehicle_capacity']
+    R, C = values['R'], values['C']
+    
+    candidate_indices = [
+        i for i, b_id in enumerate(binsids) 
+        if current_fill_levels[i] > 0 or b_id in must_go_bins
+    ]
+    
+    local_to_global = {local_idx: global_idx + 1 for local_idx, global_idx in enumerate(candidate_indices)} 
+    
+    demands = {}
+    for local_i, global_i in local_to_global.items():
+        bin_array_idx = global_i - 1 
+        fill = current_fill_levels[bin_array_idx]
+        weight = (fill / 100.0) * B * E
+        demands[global_i] = weight
+        
+    matrix_indices = list(local_to_global.values())
+    
+    if not matrix_indices:
+        return [0, 0], 0, 0
+        
+    # Extract Sub-Matrix for just valid nodes + Depot
+    # OR pass full matrix and handle via Indices?
+    # ALNS Solver expects full matrix reference usually or we filter.
+    # For simiplicity, passing full matrix + Node IDs is cleaner.
+    
+    # 2. Run ALNS
+    # Note: run_alns expects 1-based indexing for nodes in dist_matrix if depot is 0
+    routes, cost = run_alns(distance_matrix, demands, Q, R, C, values)
+    
+    # 3. Format Output
+    final_sequence = [0]
+    for route in routes:
+        final_sequence.extend(route)
+        final_sequence.append(0)
+        
+    return final_sequence, 0, cost
+
+
+def policy_lookahead_bcp(current_fill_levels, binsids, must_go_bins, distance_matrix, values, coords):
+    """
+    Branch-Cut-and-Price Policy.
+    """
+    B, E, Q = values['B'], values['E'], values['vehicle_capacity']
+    R, C = values['R'], values['C']
+    
+    candidate_indices = [
+        i for i, b_id in enumerate(binsids) 
+        if current_fill_levels[i] > 0 or b_id in must_go_bins
+    ]
+    
+    local_to_global = {local_idx: global_idx + 1 for local_idx, global_idx in enumerate(candidate_indices)} 
+    demands = {}
+    for local_i, global_i in local_to_global.items():
+        bin_array_idx = global_i - 1 
+        fill = current_fill_levels[bin_array_idx]
+        weight = (fill / 100.0) * B * E
+        demands[global_i] = weight
+        
+    matrix_indices = list(local_to_global.values())
+    if not matrix_indices:
+        return [0, 0], 0, 0
+        
+    routes, cost = run_bcp(distance_matrix, demands, Q, R, C, values)
+    
+    final_sequence = [0]
+    for route in routes:
+        final_sequence.extend(route)
+        final_sequence.append(0)
+        
+    return final_sequence, 0, cost
