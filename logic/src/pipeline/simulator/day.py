@@ -155,11 +155,10 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
                     cost = get_route_cost(distance_matrix, tour)
             elif 'hgs' in policy:
-                values['time_limit'] = 600
-                fh = bins.get_fill_history().transpose()
-                routes, _, _ = policy_lookahead_hgs(fh, coords, distance_matrix, params, must_go_bins, values, binsids)
+                values['time_limit'] = 60
+                routes, _, _ = policy_lookahead_hgs(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
                 if routes:
-                    tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
+                    tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
                     cost = get_route_cost(distance_matrix, tour)
             else:
                 values['shift_duration'] = 390 # minutes

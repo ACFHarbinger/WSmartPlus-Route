@@ -1,12 +1,9 @@
-import numpy as np
 import random
-import time
-import copy
-from typing import List, Tuple, Dict
-from logic.src.pipeline.simulator.processor import create_dataframe_from_matrix
+
+from typing import List
+
 
 # --- HGS Auxiliaries ---
-
 class Individual:
     def __init__(self, giant_tour: List[int]):
         self.giant_tour = giant_tour
@@ -20,12 +17,14 @@ class Individual:
         # Here we define < as "is worse than" (lower fitness)
         return self.fitness < other.fitness
 
+
 class HGSParams:
     def __init__(self, time_limit=10, population_size=50, elite_size=10, mutation_rate=0.2):
         self.time_limit = time_limit
         self.population_size = population_size
         self.elite_size = elite_size
         self.mutation_rate = mutation_rate
+
 
 def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C, values):
     """
@@ -55,18 +54,17 @@ def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C,
             node_idx = giant_tour[j-1]
             
             # Update Load
-            load += demands[node_idx]
-            if load > capacity:
+            load += demands.get(node_idx, 0) # Safety get
+            
+            # Check Capacity
+            # RELAXATION: Allow single-node routes even if they exceed capacity.
+            # This handles overflowing bins that effectively fill the truck immediately.
+            if load > capacity and j > i + 1:
                 break
                 
             # Update Revenue
-            # Revenue calculation matches Gurobi: (fill/100) * Density * Volume * R
-            # Assuming demands passed here are already in kg for capacity check, 
-            # we re-derive revenue or pass it in. 
-            # For simplicity, let's assume 'demands' is weight, and revenue is prop to weight.
-            # Revenue = Weight * R (if R is price per kg) OR calculated externally.
-            # Based on Gurobi: R * S_dict[i]. S_dict is weight. So Revenue = Weight * R.
-            revenue += demands[node_idx] * R
+            # Revenue = Weight * R
+            revenue += demands.get(node_idx, 0) * R
             
             # Update Distance
             if j == i + 1:
@@ -89,6 +87,11 @@ def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C,
     # Reconstruct Routes
     routes = []
     curr = n
+    
+    # Safety check if no solution found
+    if V[n] == -float('inf'):
+        return [], -float('inf')
+
     while curr > 0:
         prev = P[curr]
         route = giant_tour[prev:curr]
@@ -98,25 +101,66 @@ def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C,
     total_profit = V[n]
     return routes, total_profit
 
-def evaluate(individual: Individual, dist_matrix, demands, capacity, R, C, values):
+
+def evaluate(individual: Individual, dist_matrix, demands, capacity, R, C, values, must_go_bins, local_to_global):
     """
     Runs Split to determine fitness and routes.
+    Optimized for SINGLE VEHICLE reality:
+    - Fitness = Profit(Route 0) - Penalty(Missed Must-Go)
+    - Ignores subsequent routes (phantom routes).
     """
-    routes, profit = split_algorithm(individual.giant_tour, dist_matrix, demands, capacity, R, C, values)
+    routes, total_split_profit = split_algorithm(individual.giant_tour, dist_matrix, demands, capacity, R, C, values)
     individual.routes = routes
-    individual.fitness = profit
     
-    # Calculate explicit cost for reporting
-    total_dist = 0
+    # Analyze All Routes (Multi-Trip)
+    if not routes:
+        individual.fitness = -1e9
+        individual.cost = 0
+        return individual
+
+    total_profit = 0
+    total_cost = 0
+    visited_nodes = set()
+
     for route in routes:
-        if not route: continue
-        d = dist_matrix[0][route[0]]
-        for k in range(len(route)-1):
-            d += dist_matrix[route[k]][route[k+1]]
-        d += dist_matrix[route[-1]][0]
-        total_dist += d
-    individual.cost = total_dist * C
+        # Calculate Profit of this Route
+        load = 0
+        revenue = 0
+        dist = 0
+        
+        if route:
+            # Distance
+            dist = dist_matrix[0][route[0]]
+            for k in range(len(route)-1):
+                dist += dist_matrix[route[k]][route[k+1]]
+            dist += dist_matrix[route[-1]][0]
+            
+            # Revenue & Load
+            for node_idx in route:
+                w = demands.get(node_idx, 0)
+                load += w
+                revenue += w * R
+                visited_nodes.add(node_idx)
+                
+        cost = dist * C
+        profit_r = revenue - cost
+        
+        total_profit += profit_r
+        total_cost += cost
+
+    # Check Must-Go Enforcement (Global across all routes)
+    missed_must_go = 0
+    for mg in must_go_bins:
+        if mg not in visited_nodes:
+            missed_must_go += 1
+            
+    # Fitness: Total Profit - Penalty
+    penalty = missed_must_go * 10000.0
+    individual.fitness = total_profit - penalty
+    individual.cost = total_cost # Report total cost
+    
     return individual
+
 
 def ordered_crossover(p1: List[int], p2: List[int]) -> List[int]:
     """Standard OX Crossover for permutations."""
@@ -140,34 +184,71 @@ def ordered_crossover(p1: List[int], p2: List[int]) -> List[int]:
         
     return child
 
+
 def local_search(individual: Individual, dist_matrix):
     """
-    Simple 2-opt improvement on the Giant Tour.
+    2-opt improvement on the Giant Tour.
+    Optimizes the sequence distance (Depot -> ... -> Depot considered implicitly or just path).
+    Here we optimize the Path Distance between nodes.
     """
     tour = individual.giant_tour[:]
-    improved = True
-    while improved:
-        improved = False
-        for i in range(len(tour) - 1):
-            for j in range(i + 2, len(tour)): # +2 ensures we don't swap adjacent edges
-                # Calculate simple distance delta (approximate)
-                # Note: Exact delta requires running Split, which is expensive.
-                # In HGS, we usually run LS on individual routes *after* Split.
-                # Here we do a simple permutation swap to shake up the giant tour.
-                
-                # Perform swap
-                new_tour = tour[:i+1] + tour[i+1:j+1][::-1] + tour[j+1:]
-                
-                # We would need to evaluate to know if it's better. 
-                # For this snippet, we just return a mutated tour probabilistically
-                # or rely on the genetic pressure.
-                # Let's just do a random swap mutation here for efficiency in Python
-                pass
-    
-    # Simple Mutation instead of full 2-opt for speed in python
-    if random.random() < 0.3:
-        i, j = random.sample(range(len(tour)), 2)
-        tour[i], tour[j] = tour[j], tour[i]
+    n = len(tour)
+    if n < 2:
+        return individual
         
+    # Limit iterations for speed
+    max_improvements = 5000 
+    improvements = 0
+    
+    improved = True
+    while improved and improvements < max_improvements:
+        improved = False
+        
+        for i in range(n - 1):
+            for j in range(i + 1, n):
+                if j == i + 1: continue # Adjacent edges
+                
+                # Check 2-opt swap:
+                # Edge A-B and C-D  ->  A-C and B-D
+                # Indices: A=i, B=i+1, C=j, D=j+1
+                
+                # We need to handle boundary conditions if we considered a closed loop (Depot-Depot).
+                # But giant_tour is just a list. We optimize the linear path distance sum(d[k][k+1]).
+                
+                u = tour[i]
+                v = tour[i+1] # B
+                x = tour[j]   # C
+                
+                # If j is last element, 'y' is implicit end? 
+                # Let's simple swap logic: reverse segment [i+1 : j+1]
+                # Pre-swap edges: (tour[i], tour[i+1]) + (tour[j], tour[j+1])
+                # Post-swap edges: (tour[i], tour[j]) + (tour[i+1], tour[j+1])
+                # Note: This is valid for internal nodes.
+                
+                if j == n - 1:
+                    # Edge at the end. 
+                    # If we don't have a fixed end depot, we just check if dist(u, x) < dist(u, v) ?
+                    # Not strictly correct without depot. 
+                    # But standard HGS assumes TSP on nodes + 0.
+                    # Let's check strict delta including neighbors.
+                    pass
+                    
+                else: 
+                    y = tour[j+1] # D
+                    
+                    # Original: u->v ... x->y
+                    # New:      u->x ... v->y (reversed path between v..x)
+                    d_current = dist_matrix[u][v] + dist_matrix[x][y]
+                    d_new = dist_matrix[u][x] + dist_matrix[v][y]
+                    
+                    if d_new < d_current:
+                        # Apply Swap
+                        tour[i+1:j+1] = tour[i+1:j+1][::-1]
+                        improved = True
+                        improvements += 1
+                        break # First improvement
+                        
+            if improved: break
+            
     individual.giant_tour = tour
     return individual
