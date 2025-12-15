@@ -198,7 +198,7 @@ class VRPPDataset(Dataset):
         else:
             print("Generating data...")
             self.data = [
-                generate_instance(size, num_edges, edge_strat, dist, bins) if focus_size < i 
+                generate_instance(size, num_edges, edge_strat, dist, bins) if i >= focus_size
                 else generate_instance(size, num_edges, edge_strat, dist, bins, graph=(graph[0][i, :], graph[1][i, :, :]))
                 for i in tqdm(range(num_samples))
             ]
