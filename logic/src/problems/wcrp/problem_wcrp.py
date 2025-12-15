@@ -211,7 +211,7 @@ class WCRPDataset(Dataset):
             print("Generating data...")
             args = (focus_path, idx, area)
             self.data = [
-                generate_instance(size, num_edges, edge_strat, dist, bins, args) if focus_size < i 
+                generate_instance(size, num_edges, edge_strat, dist, bins, args) if i >= focus_size 
                 else generate_instance(size, num_edges, edge_strat, dist, bins, graph=(graph[0][i, :], graph[1][i, :, :]))
                 for i in tqdm(range(num_samples))
             ]
