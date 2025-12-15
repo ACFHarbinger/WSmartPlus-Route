@@ -32,9 +32,9 @@ WTYPE="plastic"
 FOCUS_SIZE=128000
 VAL_FOCUS_SIZE=1280
 TEST_FOCUS_SIZE=1
-SIZES=(170)
+SIZES=(20)
 for size in "${SIZES[@]}"; do
-    FOCUS_GRAPHS+=("bins_selection/graphs_${size}V_1N_${WTYPE}.json")
+    FOCUS_GRAPHS+=("graphs_${size}V_1N_${WTYPE}.json")
 done
 
 N_DATA=128000
@@ -43,11 +43,11 @@ N_TEST_DATA=10
 DATASET_NAME="time"
 VAL_DATASET_NAME="${DATASET_NAME}_val"
 TEST_DATASET_NAME="wsr"
-DATA_DISTS=("emp")
+DATA_DISTS=("gamma1")
 
-GENERATE_DATASET=1
+GENERATE_DATASET=0
 GENERATE_VAL_DATASET=1
-GENERATE_TEST_DATASET=0
+GENERATE_TEST_DATASET=1
 
 echo "Starting data generation..."
 

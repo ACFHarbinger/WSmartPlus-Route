@@ -175,7 +175,7 @@ class VRPPDataset(Dataset):
                 dist_matrix_edges = dist_matrix
             self.dist_matrix = torch.from_numpy(dist_matrix_edges).float() / 100
             if distribution in ['gamma', 'emp']:
-                bins = Bins(size, os.path.join(os.getcwd(), "data", "wsr_simulator"), distribution, area=area, indices=idx)
+                bins = Bins(size, os.path.join(os.getcwd(), "data", "wsr_simulator"), distribution, area=area, indices=idx[0], waste_type=waste_type)
             else:
                 bins = None
         else:

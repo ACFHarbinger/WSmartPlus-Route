@@ -108,7 +108,7 @@ def generate_waste_prize(problem_size, distribution, graph, dataset_size=1, bins
         gamma_option = int(distribution[-1]) - 1
         wp = _get_fill_gamma(dataset_size, problem_size, gamma_option)
     elif 'emp' in distribution:
-        wp = bins.stochasticFilling(n_samples=dataset_size, only_fill=True) / 100.
+        wp = np.expand_dims(bins.stochasticFilling(n_samples=dataset_size, only_fill=True), axis=0) / 100.
     else:
         assert distribution == 'dist'
         depot, loc = graph
