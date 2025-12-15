@@ -771,16 +771,26 @@ def validate_test_sim_args(args):
     if args.get('cpu_cores') == 0:
         args['cpu_cores'] = cpu_count()
 
-    for cf in args['plastminute_cf']:
-        assert cf > 0 and cf < 100, "Policy last minute CF must be between 0 and 100"
-    for lvl in args['pregular_level']:
-        assert lvl >= 1 and lvl <= args['days'], "Policy regular level must be between 1 and number of days, inclusive"
-    for gp in args['gurobi_param']:
-        assert gp > 0, "Policy gurobi parameter must be greater than 0"
-    for hp in args['hexaly_param']:
-        assert hp > 0, "Policy hexaly parameter must be greater than 0"
-    for lac in args['lookahead_configs']:
-        assert lac in ['a', 'b'], "Policy lookahead configuration must be 'a' or 'b'"
+    if args.get('plastminute_cf'):
+        vals = args['plastminute_cf'] if isinstance(args['plastminute_cf'], list) else [args['plastminute_cf']]
+        for cf in vals:
+            assert cf > 0 and cf < 100, "Policy last minute CF must be between 0 and 100"
+    if args.get('pregular_level'):
+        vals = args['pregular_level'] if isinstance(args['pregular_level'], list) else [args['pregular_level']]
+        for lvl in vals:
+            assert lvl >= 1 and lvl <= args['days'], "Policy regular level must be between 1 and number of days, inclusive"
+    if args.get('gurobi_param'):
+        vals = args['gurobi_param'] if isinstance(args['gurobi_param'], list) else [args['gurobi_param']]
+        for gp in vals:
+            assert gp > 0, "Policy gurobi parameter must be greater than 0"
+    if args.get('hexaly_param'):
+        vals = args['hexaly_param'] if isinstance(args['hexaly_param'], list) else [args['hexaly_param']]
+        for hp in vals:
+            assert hp > 0, "Policy hexaly parameter must be greater than 0"
+    if args.get('lookahead_configs'):
+        vals = args['lookahead_configs'] if isinstance(args['lookahead_configs'], list) else [args['lookahead_configs']]
+        for lac in vals:
+            assert lac in ['a', 'b'], "Policy lookahead configuration must be 'a' or 'b'"
     return args
 
 def validate_file_system_args(args):

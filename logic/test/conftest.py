@@ -205,6 +205,7 @@ def wsr_opts(tmp_path):
         'n_samples': 1,
         'seed': 42,
         'problem': 'vrpp',
+        'stats_filepath': None,
     }
 
 # --- Fixtures for Policy Unit Tests ---
