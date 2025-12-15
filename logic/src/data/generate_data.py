@@ -72,7 +72,6 @@ def generate_datasets(opts):
                         " and using '{}' as the instance distribution".format(dist),
                         ":" if n_days == 0 else "..."
                     ))
-                    
                     if opts['dataset_type'] == 'test_simulator':
                         if 'filename' not in opts or opts['filename'] is None:
                             filename = os.path.join(datadir, 
@@ -83,6 +82,8 @@ def generate_datasets(opts):
                         else:
                             filename = check_extension(opts['filename'])
                         
+                        assert opts.get('f', opts.get('overwrite', False)) or not os.path.isfile(check_extension(filename)), \
+                        "File already exists! Try running with -f option to overwrite."
                         dataset = generate_wsr_data(size, n_days, opts['dataset_size'], opts['area'], 
                                                     opts['waste_type'], dist, graph, opts['vertex_method'])
                         save_dataset(dataset, filename)
@@ -102,7 +103,7 @@ def generate_datasets(opts):
                         else:
                             filename = check_extension(opts['filename'])
 
-                        assert opts['f'] or not os.path.isfile(check_extension(filename)), \
+                        assert opts.get('f', opts.get('overwrite', False)) or not os.path.isfile(check_extension(filename)), \
                         "File already exists! Try running with -f option to overwrite."
                         if problem == "vrpp":
                             dataset = generate_vrpp_data(opts['dataset_size'], size, opts['waste_type'], dist, opts['area'], 

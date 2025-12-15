@@ -21,7 +21,7 @@ EDGE_M="knn"
 DIST_M="gmaps"
 VERTEX_M="mmn"
 
-W_LEN=1.5
+W_LEN=1.0
 W_OVER=0.0
 W_WASTE=1.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
@@ -66,21 +66,22 @@ VAL_F_SIZE=0
 DM_METHOD="gmaps"
 F_GRAPH="graphs_${SIZE}V_1N_${WTYPE}.json"
 DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}[${AREA}].csv"
-WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}_seed${SEED}.pkl"
+WASTE_PATH="" #"daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}_seed${SEED}.pkl"
 
 SEED=42
 START=0
 EPOCHS=31
 TOTAL_EPOCHS=$(($START + $EPOCHS))
-PROBLEM="vrpp"
+PROBLEM="wcrp"
 DATASET_NAME="time${TOTAL_EPOCHS}"
 VAL_DATASET_NAME="${DATASET_NAME}_val"
 DATASETS=()
 VAL_DATASETS=()
-DATA_DISTS=("emp")
+DATA_DISTS=("gamma1")
 for dist in "${DATA_DISTS[@]}"; do
     # VAL_DATASETS+="data/datasets/${PROBLEM}/${PROBLEM}${SIZE}_${dist}_${VAL_DATASET_NAME}_seed${SEED}.pkl"
-    DATASETS+=("data/datasets/${PROBLEM}/${PROBLEM}${SIZE}_${dist}_${DATASET_NAME}_seed${SEED}.pkl")
+    #DATASETS+=("data/datasets/${PROBLEM}/${PROBLEM}${SIZE}_${dist}_${DATASET_NAME}_seed${SEED}.pkl")
+    DATASETS+=()
 done
 
 TRAIN_AM=0

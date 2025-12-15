@@ -274,7 +274,7 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
         data_dir = os.path.join(os.getcwd(), "data", "wsr_simulator")
         with open(os.path.join(data_dir, 'bins_selection', opts['focus_graph'])) as js:
             idx = json.load(js)
-        bins = Bins(opts['graph_size'], data_dir, sample_dist=opts['data_distribution'], area=opts['area'], indices=idx[0], grid=None)
+        bins = Bins(opts['graph_size'], data_dir, sample_dist=opts['data_distribution'], area=opts['area'], indices=idx[0], waste_type=opts['waste_type'])
     else:
         idx = [None]
         bins = None
