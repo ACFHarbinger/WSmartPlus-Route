@@ -47,7 +47,7 @@ GP_LIC_FILE="gurobi.lic.enc"
 HEX_DAT_FILE="hexaly.dat.enc"
 GOOGLE_API_FILE="google.lic.enc"
 
-REGULAR_LEVEL=(4)
+REGULAR_LEVEL=(3)
 LAST_MINUTE_CF=(90)
 GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
@@ -65,7 +65,7 @@ EDGE_THRESH=0.0
 EDGE_METHOD="knn"
 VERTEX_METHOD="mmn"
 DIST_METHOD="gmaps"
-DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}[${AREA}].csv"
+DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}104[${AREA}].csv"
 WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr31_N1_seed${SEED}.pkl"
 
 RUN_TSP=1

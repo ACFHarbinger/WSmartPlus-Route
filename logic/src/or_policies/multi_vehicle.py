@@ -70,7 +70,6 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
     res = pyvrp.solve(data, stop=MaxRuntime(2.0), seed=42)
     
     tour_flat = []
-    total_cost = res.cost()
     
     # Parse result
     # res.best.routes() -> list of Route
@@ -106,8 +105,7 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
     # append nodes -> [0, 1, 2, 0, 3, 4]
     # append 0 -> [0, 1, 2, 0, 3, 4, 0]
     # Correct.
-    
-    return tour_flat, total_cost
+    return tour_flat
 
 
 def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0):
@@ -170,8 +168,6 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coo
     
     # Flatten and Map Indices
     tour_flat = []
-    total_cost = sum(costs_subset)
-    
     for t in tours_subset:
         if not tour_flat:
              tour_flat.append(0)
@@ -190,7 +186,7 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coo
         if tour_flat[-1] != 0:
             tour_flat.append(0)
             
-    return tour_flat, total_cost
+    return tour_flat
 
 
 def get_solution_costs(demands, n_vehicles, manager, routing, solution, distancesC):

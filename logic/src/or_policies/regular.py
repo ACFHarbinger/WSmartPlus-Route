@@ -28,7 +28,7 @@ def policy_regular(
             tour = cached if cached is not None and len(cached) > 1 else find_route(distancesC, to_collect)
             tour = get_multi_tour(tour, bins_waste, max_capacity, distancesC)
         else:
-            tour, cost = find_routes(distancesC, bins_waste, max_capacity, to_collect, n_vehicles, coords)
+            tour = cached if cached is not None and len(cached) > 1 else find_routes(distancesC, bins_waste, max_capacity, to_collect, n_vehicles, coords)
     else:
         tour = [0]
     return tour
