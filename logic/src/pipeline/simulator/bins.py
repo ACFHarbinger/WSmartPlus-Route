@@ -5,7 +5,7 @@ import pickle
 import numpy as np
 import scipy.stats as stats
 
-from .wsmart_bin_analysis import OldGridBase
+from .wsmart_bin_analysis import GridBase
 from .loader import load_area_and_waste_type_params
 
 
@@ -44,7 +44,22 @@ class Bins:
         else:
             self.indices = np.array(indices)
         if grid is None and sample_dist == "emp":
-            self.grid = OldGridBase(data_dir, area)
+            src_area = area.translate(str.maketrans('', '', '-_ ')).lower()
+            waste_csv = f"out_rate_crude[{src_area}].csv"
+            info_csv = f"out_info[{src_area}].csv"
+            
+            # Read info file to map indices to IDs
+            info_df = pandas.read_csv(os.path.join(data_dir, 'coordinates', info_csv))
+            real_ids = info_df.iloc[self.indices]['ID'].tolist()
+            
+            # Check ID type in waste csv
+            waste_path = os.path.join(data_dir, 'bins_waste', waste_csv)
+            waste_header = pandas.read_csv(waste_path, nrows=0).columns
+            if pandas.api.types.is_string_dtype(waste_header):
+                real_ids = [str(i) for i in real_ids]
+            
+            self.grid = GridBase(real_ids, data_dir, rate_type="crude", names=[waste_csv, info_csv, None], same_file=True)
+            self.grid.ids_map = {i: real_id for i, real_id in zip(self.indices, real_ids)}
         else:
             self.grid = grid
         if waste_file is not None:
@@ -149,11 +164,8 @@ class Bins:
             if n_samples <= 1: todaysfilling = todaysfilling.squeeze(0)
         elif self.distribution == 'emp':
             sampled_value = self.grid.sample(n_samples=n_samples)
-            if n_samples <= 1:
-                todaysfilling = np.maximum(np.take(sampled_value, self.indices), 0)
-            else:
-                todaysfilling = np.maximum(np.take(sampled_value, self.indices, axis=1), 0)
-        
+            todaysfilling = np.maximum(sampled_value, 0)
+  
         if only_fill:
             return np.minimum(todaysfilling, 100)
         else:

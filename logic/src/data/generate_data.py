@@ -59,6 +59,13 @@ def generate_datasets(opts):
         try:
             for dist in distributions or [None]:
                 for size, graph in zip(opts['graph_sizes'], opts['focus_graphs']):
+                    if not os.path.isfile(graph):
+                        sim_dir = os.path.join(ROOT_DIR, 'data', 'wsr_simulator')
+                        if os.path.isfile(os.path.join(sim_dir, graph)):
+                            graph = os.path.join(sim_dir, graph)
+                        elif os.path.isfile(os.path.join(sim_dir, 'bins_selection', graph)):
+                            graph = os.path.join(sim_dir, 'bins_selection', graph)
+
                     print("Generating '{}{}' ({}) dataset for the {} with {} locations{}{}".format(
                         opts['name'], n_days if n_days > 0 else "", 
                         opts['dataset_type'], problem.upper(), size, 
