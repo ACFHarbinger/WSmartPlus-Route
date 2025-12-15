@@ -73,7 +73,7 @@ class Bins:
                 return n
     
     def set_statistics(self, stats_file):
-        data = pandas.read_csv(stats_file)
+        data = pandas.read_csv(os.path.join(self.data_dir, stats_file))
         self.means = np.maximum(data['Mean'].values.astype(np.float64), 0)
         self.std = np.maximum(data['StD'].values.astype(np.float64), 0)
         self.day_count = np.maximum(data.at[0, 'Count'].astype(np.int64), 0)
@@ -132,7 +132,7 @@ class Bins:
         self.std = self.__get_stdev()
 
         # Lost overflows
-        todays_lost = np.maximum(self.c + todaysfilling - 100, 0)
+        todays_lost = (np.maximum(self.c + todaysfilling - 100, 0) / 100) * self.volume * self.density
         todaysfilling = np.minimum(todaysfilling, 100)    
         self.lost += todays_lost
 
