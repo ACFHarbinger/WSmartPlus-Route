@@ -47,7 +47,7 @@ def generate_wsr_data(problem_size, num_days, num_samples, area, waste_type, dis
         assert 'emp' in distribution
         fill_values = []
         data_dir = get_path_until_string(focus_graph, 'wsr_simulator')
-        bins = Bins(problem_size, data_dir, sample_dist=distribution, area=area, indices=idx[0], grid=None)
+        bins = Bins(problem_size, data_dir, sample_dist=distribution, area=area, waste_type=waste_type, indices=idx[0], grid=None)
         for _ in range(num_samples):
             fill_values.append(bins.stochasticFilling(n_samples=num_days, only_fill=True))
         waste = np.array(fill_values)
