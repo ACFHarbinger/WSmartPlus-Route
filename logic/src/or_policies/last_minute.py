@@ -25,7 +25,7 @@ def policy_last_minute(
             tour = find_route(distancesC, to_collect)
             tour = get_multi_tour(tour, bins, max_capacity, distancesC)
         else:
-           tour, cost = find_routes(distancesC, bins, max_capacity, to_collect, n_vehicles, coords)
+           tour = find_routes(distancesC, bins, max_capacity, to_collect, n_vehicles, coords)
     else:
         tour = [0]
     return tour
@@ -48,7 +48,7 @@ def policy_last_minute_and_path(
         if n_vehicles == 1:
             tour = find_route(distancesC, to_collect)
         else:
-           tour, cost = find_routes(distancesC, bins, max_capacity, to_collect, n_vehicles, coords)
+           tour = find_routes(distancesC, bins, max_capacity, to_collect, n_vehicles, coords)
         visited_states = [0]
         len_tour = len(tour)
         np_tour = np.array(tour)
