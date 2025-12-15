@@ -1,3 +1,4 @@
+import pandas
 import os
 import math
 import pickle
@@ -19,8 +20,11 @@ class Bins:
         self.volume = bin_volume
 
         self.c = np.zeros((n))
-        self.means = np.ones((n))*10
-        self.std = np.ones((n))*1
+        self.means = np.zeros((n))
+        self.std = np.zeros((n))
+        self.day_count = 0
+        self.square_diff = np.zeros((n))
+        
         self.lost = np.zeros((n))
         self.distribution = sample_dist
         self.dist_param1 = np.ones((n))*10
@@ -49,17 +53,31 @@ class Bins:
         else:
             self.waste_fills = None
 
+    def __get_stdev(self):
+        if self.day_count > 1:
+            variance = self.square_diff / (self.day_count - 1)
+            return np.sqrt(variance)
+        else:
+            return np.zeros(self.n)
+
     def _predictdaystooverflow(self, ui, vi, f, cl):
-        n = np.zeros(ui.shape[0])+31
+        n = np.zeros(ui.shape[0]) + 31
         for ii in np.arange(1,31,1):
             k = ii*ui**2/vi
             th = vi/ui
-            aux = np.zeros(ui.shape[0])+31
+            aux = np.zeros(ui.shape[0]) + 31
             p = 1-stats.gamma.cdf(100-f, k, scale=th)
-            aux[np.nonzero(p>cl)[0]]=ii
-            n = np.minimum(n,aux)
-            if (p>cl).all():
+            aux[np.nonzero(p > cl)[0]] = ii
+            n = np.minimum(n, aux)
+            if (p > cl).all():
                 return n
+    
+    def set_statistics(self, stats_file):
+        data = pandas.read_csv(stats_file)
+        self.means = np.maximum(data['Mean'].values.astype(np.float64), 0)
+        self.std = np.maximum(data['StD'].values.astype(np.float64), 0)
+        self.day_count = np.maximum(data.at[0, 'Count'].astype(np.int64), 0)
+        self.square_diff = (self.std ** 2) * (self.day_count - 1)
     
     def is_stochastic(self):
         return self.waste_fills is None
@@ -97,23 +115,25 @@ class Bins:
         profit = np.sum(total_collected) * self.revenue - cost * self.expenses
         self.profit += profit 
         return total_collected, np.sum(collected), ids.size, profit
-
-    def predictdaystooverflow(self, cl):
-        return self._predictdaystooverflow(self.means, self.std, self.c, cl)
     
-    def __process_filling(self, todaysfilling):
+    def _process_filling(self, todaysfilling):
         """
         Processes the filling data, handles overflows, updates state variables, 
         and calculates returns.
         """
-        # Update history
-        self.history.append(todaysfilling)
-        self.means = np.mean(self.history, axis=0)
-        self.std = np.std(self.history, axis=0)
+        # Update mean and standard deviation using Welford's method
+        todaysfilling = np.array(todaysfilling)
+        old_means = self.means.copy()
+
+        self.day_count += 1
+        delta = todaysfilling - old_means
+        self.means += delta / self.day_count
+        self.square_diff += delta * (todaysfilling - self.means)
+        self.std = self.__get_stdev()
 
         # Lost overflows
         todays_lost = np.maximum(self.c + todaysfilling - 100, 0)
-        todaysfilling = np.minimum(todaysfilling, 100)        
+        todaysfilling = np.minimum(todaysfilling, 100)    
         self.lost += todays_lost
 
         # New depositions for the overflow calculation
@@ -137,17 +157,15 @@ class Bins:
         if only_fill:
             return np.minimum(todaysfilling, 100)
         else:
-            return self.__process_filling(todaysfilling)
+            return self._process_filling(todaysfilling)
 
     def deterministicFilling(self, date):
         todaysfilling = self.grid.get_values_by_date(date, sample=True)
-        
-        return self.__process_filling(todaysfilling)
+        return self._process_filling(todaysfilling)
     
     def loadFilling(self, day):
         todaysfilling = self.waste_fills[day]
-
-        return self.__process_filling(todaysfilling)
+        return self._process_filling(todaysfilling)
 
     def __setDistribution(self, param1, param2):
         if len(param1)==1:

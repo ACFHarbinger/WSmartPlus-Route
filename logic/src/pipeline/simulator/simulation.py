@@ -158,6 +158,8 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
         cached = [] if opts['cache_regular'] else None
         if opts['waste_filepath'] is not None:
             bins.set_sample_waste(sample_id)
+        if opts['stats_filepath'] is not None:
+            bins.set_statistics(opts['stats_filepath'])
 
         run_time = 0
         overflows = 0
@@ -300,6 +302,8 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     cached = [] if opts['cache_regular'] else None
                     if opts['waste_filepath'] is not None:
                         bins.set_sample_waste(sample_id)
+                    if opts['stats_filepath'] is not None:
+                        bins.set_statistics(opts['stats_filepath'])
 
                     run_time = 0
                     start_day = 1
