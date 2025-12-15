@@ -192,4 +192,5 @@ def load_area_and_waste_type_params(area, waste_type):
             assert src_area == 'figueiradafoz', "Unknown waste collection area: {}".format(src_area)
             density = 200.0
             vehicle_capacity = 8000
+    vehicle_capacity = (vehicle_capacity / (bin_volume * density)) * 100
     return (vehicle_capacity, revenue, density, expenses, bin_volume) # KG, $/KG, KG/m^3, $/KM, m^3
