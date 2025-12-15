@@ -63,16 +63,22 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
     policy = pol.rsplit('_', 1)[0]
     if 'policy_last_minute_and_path' in policy:
         cf = int(policy.rsplit("_and_path", 1)[1])
+        if cf <= 0:
+            raise ValueError(f'Invalid cf value for policy_last_minute_and_path: {cf}')
         bins.setCollectionLvlandFreq(cf=cf/100)
         tour = policy_last_minute_and_path(bins.c, distancesC, paths_between_states, bins.collectlevl, waste_type, area, n_vehicles, coords)
         cost = get_route_cost(distance_matrix, tour) if tour else 0
     elif 'policy_last_minute' in policy:
         cf = int(policy.rsplit("_last_minute", 1)[1])
+        if cf <= 0:
+            raise ValueError(f'Invalid cf value for policy_last_minute: {cf}')
         bins.setCollectionLvlandFreq(cf=cf/100)
         tour = policy_last_minute(bins.c, distancesC, bins.collectlevl, waste_type, area, n_vehicles, coords)
         cost = get_route_cost(distance_matrix, tour) if tour else 0
     elif 'policy_regular' in policy:
         lvl = int(policy.rsplit("_regular", 1)[1]) - 1
+        if lvl < 0:
+            raise ValueError(f'Invalid lvl value for policy_regular: {lvl + 1}')
         tour = policy_regular(bins.n, bins.c, distancesC, lvl, day, cached, waste_type, area, n_vehicles, coords)
         cost = get_route_cost(distance_matrix, tour) if tour else 0
         if cached is not None and not cached and tour: cached = tour
@@ -82,6 +88,8 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
         tour, cost, output_dict = model_env.compute_simulator_day(daily_data, graph, dm_tensor, profit_vars, run_tsp)
     elif 'gurobi' in policy:
         gp_param = float(policy.rsplit("_vrpp", 1)[1])
+        if gp_param <= 0:
+            raise ValueError(f'Invalid gp_param value for gurobi_vrpp: {gp_param}')
         try:
             routes, _, _ = policy_gurobi_vrpp(bins.c, distance_matrix.tolist(), model_env, gp_param, 
                                             bins.means, bins.std, waste_type, area, n_vehicles, time_limit=600)
@@ -94,6 +102,8 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id,
             cost = get_route_cost(distance_matrix, tour)
     elif 'hexaly' in policy:
         hex_param = float(policy.rsplit("_vrpp", 1)[1])
+        if hex_param <= 0:
+            raise ValueError(f'Invalid hex_param value for hexaly_vrpp: {hex_param}')
         routes, _, _ = policy_hexaly_vrpp(bins.c, distance_matrix.tolist(), hex_param, bins.means, 
                                         bins.std, waste_type, area, n_vehicles, time_limit=60)
         if routes:

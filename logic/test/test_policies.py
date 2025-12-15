@@ -197,15 +197,6 @@ class TestRunDayPolicyRouting:
         assert kwargs.get('variant') == 'ortools'
 
 
-    @pytest.mark.unit
-    def test_run_day_invalid_policy(self, mock_run_day_deps):
-        pass
-
-    @pytest.mark.unit
-    def test_run_day_invalid_regular_lvl(self, mock_run_day_deps):
-        pass
-
-
 class TestMultiVehiclePolicies:
     def test_find_routes_basic(self):
         # 0 is depot. 1, 2, 3 are bins.
@@ -232,7 +223,7 @@ class TestMultiVehiclePolicies:
         n_vehicles = 1
         depot = 0
         
-        tour, cost = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
+        tour = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
         
         # Check structure
         assert isinstance(tour, list)
@@ -260,7 +251,7 @@ class TestMultiVehiclePolicies:
         n_vehicles = 2
         depot = 0
         
-        tour, cost = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
+        tour = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
         
         # Should have at least one return to depot in middle
         # tour like [0, 1, 2, 0, 3, 4, 0]
@@ -279,7 +270,7 @@ class TestMultiVehiclePolicies:
         n_vehicles = 0 # Unlimited
         depot = 0
         
-        tour, cost = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
+        tour = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
         
         # Should calculate trips correctly
         zeros = tour.count(0)
@@ -300,7 +291,7 @@ class TestMultiVehiclePolicies:
         to_collect = np.array([1, 2, 3], dtype=np.int32)
         n_vehicles = 1
         
-        tour, cost = find_routes_ortools(dist_matrix, demands, max_capacity, to_collect, n_vehicles)
+        tour = find_routes_ortools(dist_matrix, demands, max_capacity, to_collect, n_vehicles)
         
         # Should visit all.
         assert 1 in tour
@@ -313,7 +304,7 @@ class TestMultiVehiclePolicies:
         n_vehicles_unlimited = 0
         max_capacity_small = 1 # Force split
         # demands 1, capacity 1 -> 3 trips
-        tour_u, cost_u = find_routes_ortools(dist_matrix, demands, max_capacity_small, to_collect, n_vehicles_unlimited)
+        tour_u = find_routes_ortools(dist_matrix, demands, max_capacity_small, to_collect, n_vehicles_unlimited)
         
         zeros = tour_u.count(0)
         # 3 trips -> S-1-E-S-2-E-S-3-E -> [0, 1, 0, 2, 0, 3, 0] -> 4 zeros -> 3 trips.
@@ -342,7 +333,7 @@ class TestMultiVehiclePolicies:
         to_collect = np.array([1, 2, 3, 4, 5], dtype=np.int32)
         n_vehicles = 10 # Excess
         
-        tour, cost = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles)
+        tour = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles)
         
         # Calculate trips by counting 0s (excluding start/end if stripped? No, find_routes returns [0, ..., 0])
         # [0, 1, 2, 0, 3, 4, 0, 5, 0] -> 3 trips?
