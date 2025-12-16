@@ -12,26 +12,7 @@ from logic.src.pipeline.reinforcement_learning.meta.weight_optimizer import Rewa
 
 
 class TestWeightContextualBandit:
-    @pytest.fixture
-    def bandit_setup(self):
-        initial_weights = {'w_waste': 1.0, 'w_over': 1.0}
-        weight_ranges = {'w_waste': (0.1, 5.0), 'w_over': (0.1, 5.0)}
-        context_features = ['waste', 'overflow', 'day']
-        dummy_dist_matrix = torch.rand(10, 2)
-        
-        bandit = WeightContextualBandit(
-            num_days=10,
-            distance_matrix=dummy_dist_matrix,
-            initial_weights=initial_weights,
-            context_features=context_features,
-            features_aggregation='avg',
-            exploration_strategy='epsilon_greedy',
-            exploration_factor=0.5,
-            num_weight_configs=5,
-            weight_ranges=weight_ranges,
-            window_size=5
-        )
-        return bandit
+
 
     def test_initialization(self, bandit_setup):
         bandit = bandit_setup
@@ -123,20 +104,7 @@ class TestWeightContextualBandit:
 
 
 class TestHRLManager:
-    @pytest.fixture
-    def hrl_setup(self):
-        initial_weights = {'w_waste': 1.0, 'w_over': 2.0}
-        manager = HRLManager(
-            initial_weights=initial_weights,
-            history_length=5,
-            hidden_size=32,
-            lr=1e-3,
-            device='cpu',
-            min_weights=[0.1, 0.1],
-            max_weights=[5.0, 5.0],
-            ppo_epochs=2
-        )
-        return manager
+
 
     def test_initialization(self, hrl_setup):
         manager = hrl_setup
@@ -196,19 +164,7 @@ class TestHRLManager:
 
 
 class TestMORLWeightOptimizer:
-    @pytest.fixture
-    def morl_setup(self):
-        initial_weights = {'w_waste': 1.0, 'w_over': 1.0, 'w_len': 1.0}
-        optimizer = MORLWeightOptimizer(
-            initial_weights=initial_weights,
-            weight_names=['w_waste', 'w_over', 'w_len'],
-            objective_names=['waste_efficiency', 'overflow_rate'],
-            weight_ranges=[0.01, 5.0],
-            history_window=10,
-            exploration_factor=0.2, # Deterministic enough for some logical checks if seeded
-            adaptation_rate=0.1
-        )
-        return optimizer
+
 
     def test_initialization(self, morl_setup):
         optimizer = morl_setup
@@ -290,17 +246,7 @@ class TestMORLWeightOptimizer:
 
 
 class TestCostWeightManager:
-    @pytest.fixture
-    def cwm_setup(self):
-        initial_weights = {'waste': 1.0, 'over': 1.0, 'len': 1.0}
-        manager = CostWeightManager(
-            initial_weights=initial_weights,
-            learning_rate=0.1,
-            decay_rate=0.9,
-            weight_ranges=[0.1, 5.0],
-            window_size=5
-        )
-        return manager
+
 
     def test_initialization(self, cwm_setup):
         manager = cwm_setup
@@ -348,31 +294,7 @@ class TestCostWeightManager:
 
 
 class TestRewardWeightOptimizer:
-    @pytest.fixture
-    def rwo_setup(self):
-        # We need a mock model class
-        class MockModel(torch.nn.Module):
-            def __init__(self, input_size, hidden_size, output_size):
-                super().__init__()
-                self.layer = torch.nn.Linear(input_size, output_size)
-            def forward(self, x):
-                return self.layer(x[:, -1, :]), None # Simple last step
 
-        initial_weights = {'w1': 1.0, 'w2': 1.0}
-        
-        optimizer = RewardWeightOptimizer(
-            model_class=MockModel,
-            initial_weights=initial_weights,
-            history_length=5,
-            hidden_size=10,
-            lr=0.01,
-            device='cpu',
-            meta_batch_size=2,
-            min_weights=[0.1, 0.1],
-            max_weights=[5.0, 5.0],
-            meta_optimizer='adam'
-        )
-        return optimizer
 
     def test_initialization(self, rwo_setup):
         optimizer = rwo_setup

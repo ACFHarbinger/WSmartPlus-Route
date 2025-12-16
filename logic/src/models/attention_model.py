@@ -246,8 +246,12 @@ class AttentionModel(nn.Module):
         ret_dict = {}
         ret_dict['overflows'] = cost_dict['overflows']
         ret_dict['kg'] = cost_dict['waste'] * 100
-        ret_dict['km'] = travelled.sum(dim=1) + dist_matrix[0, 0, src_vertices[:, 0]] + \
-            dist_matrix[0, dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0]
+        if dist_matrix.dim() == 2:
+            ret_dict['km'] = travelled.sum(dim=1) + dist_matrix[0, src_vertices[:, 0]] + \
+                dist_matrix[dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0]
+        else:
+            ret_dict['km'] = travelled.sum(dim=1) + dist_matrix[0, 0, src_vertices[:, 0]] + \
+                dist_matrix[0, dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0]
         attention_weights = torch.tensor([])
         if hook_data['weights']:
             attention_weights = torch.stack(hook_data['weights'])
