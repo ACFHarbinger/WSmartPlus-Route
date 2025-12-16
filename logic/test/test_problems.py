@@ -264,7 +264,7 @@ class TestStateCVRPP:
             'depot': torch.zeros(batch_size, 2),
             'loc': torch.rand(batch_size, n_loc, 2),
             'waste': torch.tensor([[6.0, 6.0]]),
-            'max_waste': torch.ones(batch_size, 1) * 10.0 # Clamp limit
+            'max_waste': torch.ones(batch_size) * 10.0 # Clamp limit
         }
         
         # Manually invoke initialize with explicit profit_vars to set capacity

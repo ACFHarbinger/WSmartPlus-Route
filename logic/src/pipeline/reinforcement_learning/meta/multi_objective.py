@@ -243,8 +243,16 @@ class MORLWeightOptimizer:
                 self.current_weights[name] = 1.0  # Default
         
         # Set constraints
-        self.min_weights = weight_ranges[0] or {name: weight_ranges[0] for name in weight_names}
-        self.max_weights = weight_ranges[1] or {name: weight_ranges[1] for name in weight_names}
+        # Set constraints
+        if isinstance(weight_ranges[0], (int, float)):
+            self.min_weights = {name: float(weight_ranges[0]) for name in weight_names}
+        else:
+            self.min_weights = weight_ranges[0] or {name: 0.01 for name in weight_names}
+
+        if isinstance(weight_ranges[1], (int, float)):
+            self.max_weights = {name: float(weight_ranges[1]) for name in weight_names}
+        else:
+            self.max_weights = weight_ranges[1] or {name: 5.0 for name in weight_names}
         
         # Performance tracking
         self.history_window = history_window
