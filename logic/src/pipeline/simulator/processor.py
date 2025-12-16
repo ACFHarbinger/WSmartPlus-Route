@@ -262,10 +262,12 @@ def process_model_data(coordinates, dist_matrix, device, method, configs,
     
     VEHICLE_CAPACITY, REVENUE_KG, DENSITY, COST_KM, VOLUME = load_area_and_waste_type_params(area, waste_type)
     BIN_CAPACITY = VOLUME * DENSITY
+    VEHICLE_CAPACITY = VEHICLE_CAPACITY / 100
     profit_vars = {
         'cost_km': COST_KM,
         'revenue_kg': REVENUE_KG,
-        'bin_capacity': BIN_CAPACITY
+        'bin_capacity': BIN_CAPACITY,
+        'vehicle_capacity': VEHICLE_CAPACITY
     }
     return ({key: val.unsqueeze(0) for key, val in model_data.items()}, 
         (edges, torch.from_numpy(dist_matrix).float().to(device)), profit_vars)
