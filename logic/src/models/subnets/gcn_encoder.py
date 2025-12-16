@@ -14,7 +14,7 @@ class GraphConvolutionEncoder(nn.Module):
         self.init_embed_edges = nn.Embedding(2, hidden_dim)
 
         self.layers = nn.ModuleList([
-            GatedGraphConvolution(hidden_dim, agg, norm, learn_affine, track_norm, gated)
+            GatedGraphConvolution(hidden_dim=hidden_dim, aggregation=agg, norm=norm, learn_affine=learn_affine, gated=gated)
                 for _ in range(n_layers)
         ])
 
