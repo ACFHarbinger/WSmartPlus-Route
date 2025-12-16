@@ -31,7 +31,6 @@ def generate_datasets(opts):
         'op': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
         'vrpp': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
         'wcrp': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
-        'wcvrp': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
         'pdp': [None]
     }
 
@@ -108,12 +107,9 @@ def generate_datasets(opts):
                         if problem == "vrpp":
                             dataset = generate_vrpp_data(opts['dataset_size'], size, opts['waste_type'], dist, opts['area'], 
                                                         graph, opts['focus_size'], opts['vertex_method'], num_days=opts['n_epochs'])
-                        elif problem == "wcrp":
-                            dataset = generate_wcrp_data(opts['dataset_size'], size, opts['waste_type'], dist, opts['area'], 
-                                                        graph, opts['focus_size'], opts['vertex_method'], num_days=opts['n_epochs'])
                         else:
-                            assert problem == 'wcvrp'
-                            dataset = generate_wcvrp_data(opts['dataset_size'], size, opts['waste_type'], dist, opts['area'], 
+                            assert problem == "wcrp"
+                            dataset = generate_wcrp_data(opts['dataset_size'], size, opts['waste_type'], dist, opts['area'], 
                                                         graph, opts['focus_size'], opts['vertex_method'], num_days=opts['n_epochs'])
                         save_dataset(dataset, filename)
                     else:
@@ -154,9 +150,6 @@ def generate_datasets(opts):
                                 dist, opts['area'], graph, opts['focus_size'], opts['vertex_method'])
                             elif problem == "wcrp":
                                 dataset = generate_wcrp_data(opts['dataset_size'], size, opts['waste_type'], 
-                                dist, opts['area'], graph, opts['focus_size'], opts['vertex_method'])
-                            elif problem == "wcvrp":
-                                dataset = generate_wcvrp_data(opts['dataset_size'], size, opts['waste_type'],
                                 dist, opts['area'], graph, opts['focus_size'], opts['vertex_method'])
                             elif problem == 'pdp':
                                 dataset = generate_pdp_data(opts['dataset_size'], size, opts['is_gaussian'],

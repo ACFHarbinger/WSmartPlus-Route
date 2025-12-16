@@ -350,7 +350,7 @@ def add_gen_data_args(parser):
     parser.add_argument("--filename", default=None, help="Filename of the dataset to create (ignores datadir)")
     parser.add_argument("--data_dir", default='datasets', help="Create datasets in data")
     parser.add_argument("--problem", type=str, default='all', 
-                                help="Problem: 'tsp'|'vrp'|'pctsp'|'vrpp'|'cvrpp'|'wcrp'|'cwcvrp'|'sdwcvrp'|'op_const'|'op_unif'|'op_dist'|'pdp'|'all'")
+                                help="Problem: 'tsp'|'vrp'|'pctsp'|'vrpp'|'wcrp'|'op_const'|'op_unif'|'op_dist'|'pdp'|'all'")
     parser.add_argument("--is_gaussian", type=int, default=0)
     parser.add_argument('--data_distributions', nargs='+', default=['all'], help="Distributions to generate for problems")
     parser.add_argument("--dataset_size", type=int, default=128_000, help="Size of the dataset")

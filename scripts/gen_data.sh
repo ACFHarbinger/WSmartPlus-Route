@@ -19,7 +19,7 @@ fi
 SEED=42
 START=0
 N_EPOCHS=31
-PROBLEM="wcvrp"
+PROBLEM="vrpp"
 AREA="riomaior"
 VERTEX_METHOD="mmn"
 
@@ -32,7 +32,7 @@ WTYPE="plastic"
 FOCUS_SIZE=128000
 VAL_FOCUS_SIZE=1280
 TEST_FOCUS_SIZE=1
-SIZES=(20)
+SIZES=(20 50 100 170)
 for size in "${SIZES[@]}"; do
     FOCUS_GRAPHS+=("graphs_${size}V_1N_${WTYPE}.json")
 done
