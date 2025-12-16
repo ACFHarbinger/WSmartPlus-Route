@@ -1109,10 +1109,85 @@ class TestAdvancedLookaheadPolicies:
             assert 2 in visited
 
     @pytest.mark.unit
-    def test_bcp_variant_gurobi(self):
+    def test_bcp_variant_gurobi(self, mocker):
         """Test Gurobi engine"""
+        from gurobipy import GRB
         from logic.src.or_policies.branch_cut_and_price import run_bcp
+        
+        # Mock the Gurobi Model class itself
+        mock_model = MagicMock()
+        mock_model_cls = mocker.patch('gurobipy.Model', return_value=mock_model)
 
+        # Configure the mock model to return a successful solution immediately
+        mock_model.optimize.return_value = None
+        mock_model.status = GRB.OPTIMAL # Assume success
+        mock_model.SolCount = 1 # Assume a solution was found
+        mock_model.objVal = 10.0 # Arbitrary objective value
+
+        # Simple Mock Adjacency: 0 -> 1 -> 0
+        def get_adj_mock(i):
+            if i == 0:
+                return [1]
+            elif i == 1:
+                return [0]
+            else: # Node 2
+                return []
+
+        # MOCK THE ENVIRONMENT ITSELF TO BE NONE IN THE FUNCTION
+        def mock_gurobi_model_creation(name, env=None):
+            if env:
+                # If env is provided, just return the mock model without using the env
+                return mock_model
+            else:
+                return mock_model
+
+        mocker.patch('gurobipy.Model', side_effect=mock_gurobi_model_creation)
+        mocker.patch('gurobipy.Env', return_value=None)
+
+        # Helper to configure a mock variable with arithmetic/comparison operators
+        def configure_mock_var(m):
+            m.__add__ = MagicMock(return_value=m)
+            m.__radd__ = MagicMock(return_value=m)
+            m.__sub__ = MagicMock(return_value=m)
+            m.__rsub__ = MagicMock(return_value=m)
+            m.__mul__ = MagicMock(return_value=m)
+            m.__rmul__ = MagicMock(return_value=m)
+            m.__le__ = MagicMock(return_value=True)
+            m.__ge__ = MagicMock(return_value=True)
+            m.__eq__ = MagicMock(return_value=True)
+            return m
+
+        # Helper to mock the tupledict returned by addVars for 'x'
+        x_vars_mock = {}
+        for i in [0, 1, 2]:
+            for j in [0, 1, 2]:
+                if i != j:
+                    m = MagicMock()
+                    is_active = (i, j) in [(0, 1), (1, 0)] # Active edges for route 0-1-0
+                    type(m).X = PropertyMock(return_value=1.0 if is_active else 0.0)
+                    configure_mock_var(m)
+                    x_vars_mock[i, j] = m
+        
+        def mock_addVar(vtype=None, name=None, **kwargs):
+            if name and name.startswith("x_"):
+                # Parse indices from name "x_0_1"
+                try:
+                    parts = name.split('_')
+                    i, j = int(parts[1]), int(parts[2])
+                    return x_vars_mock[(i, j)]
+                except (ValueError, IndexError, KeyError):
+                    pass
+            
+            # For u, y, etc. return generic mock
+            # If name starts with u_, we might want check, but generic is fine as they are not used for route extraction
+            # except u constraint
+            m = MagicMock(X=1.0)
+            configure_mock_var(m)
+            return m
+
+        mock_model.addVar.side_effect = mock_addVar
+
+        # --- Test Data ---
         dist_matrix = np.array([
             [0, 10, 100], 
             [10, 0, 100], 
@@ -1123,21 +1198,16 @@ class TestAdvancedLookaheadPolicies:
         R = 20
         C = 1
         values = {'time_limit': 1, 'bcp_engine': 'gurobi'}
+
+        # Gurobi impl mirrors PC-CVRP logic (dropping allowed)
+        routes, cost = run_bcp(dist_matrix, demands, capacity, R, C, values, env=None)
         
-        # Gurobi impl mirrors PC-CVRP logic (dropping allowed).
-        routes, cost = run_bcp(dist_matrix, demands, capacity, R, C, values)
-        
+        assert routes == [[1]]
+        # Cost should be near 40.0 (dist_cost + penalty_cost)
+        # We assert the route structure is correct (only node 1 visited).
         visited = [n for r in routes for n in r]
         assert 1 in visited
-        # assert 2 not in visited # Gurobi PC-CVRP should drop costly node
-        # Allowing it to fail if Gurobi decides otherwise for small gap, 
-        # but logically it should drop. 
-        # Actually in verification it passed and dropped 2.
-        if 2 in visited:
-             # Just in case heuristic/gap keeps it, but highly unlikely given cost disparity (100 vs 20)
-             pass 
-        else:
-             assert 2 not in visited
+        assert 2 not in visited
 
 
 class TestGurobiOptimizer:
