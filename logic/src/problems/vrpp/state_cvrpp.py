@@ -201,37 +201,37 @@ class StateCVRPP(NamedTuple):
         remaining capacity. 0 = feasible, 1 = infeasible
         Forbids to visit depot twice in a row, unless all nodes have been visited
         """
-        # If the node has already been visited (excl depot)
-        visited_ = self.visited > 0
-        mask = visited_ | visited_[:, :, 0:1]
+        # Visited locations (indices 1..n)
+        # visited_ is (Batch, 1, N+1). Slice to get 1..N.
+        visited_loc = self.visited[:, :, 1:] > 0
 
         # Capacity check
-        # We need to check if used_capacity + new_waste <= vehicle_capacity
-        # Use ids to maintain step dimension (batch, 1, n_loc+1)
-        potential_waste = self.waste[self.ids, :].clamp(max=self.max_waste[self.ids, :])
+        # self.waste is (OriginalBatch, N+1). self.ids is (Batch, 1).
+        # We want (Batch, 1, N+1).
+        potential_waste = self.waste[self.ids, :]
+        max_waste = self.max_waste[self.ids, :]
         
-        # Exceeds capacity?
-        # Note: potential_waste[:, 0] is 0 (depot), so depot never exceeds capacity addition
-        # unsqueeze used_capacity to (batch, 1, 1) to broadcast correctly against (batch, 1, n_loc+1)
-        exceeds_cap = (self.used_capacity[:, :, None] + potential_waste) > self.vehicle_capacity
+        # Clamp waste
+        potential_waste = potential_waste.clamp(max=max_waste)
         
-        # Combine masks
-        # mask is currently "is visited".
-        # We want (is visited) OR (exceeds capacity)
-        # exceeds_cap is (batch, 1, n_loc+1) matching mask
-        mask = mask | exceeds_cap
-        
-        # Check if there are any feasible non-depot nodes
-        # mask[:, :, 1:] correspond to nodes (0 in mask means feasible)
-        has_feasible_dest = (mask[:, :, 1:] == 0).any(dim=-1) # (B, 1)
+        # Extract potential waste for locations only (1..N)
+        potential_waste_loc = potential_waste[:, :, 1:]
 
-        # If prev_a == 0, we mask depot ONLY if we can go somewhere else.
-        # If we are at depot and cannot go anywhere, we must allow staying at depot (to finish or wait).
+        # Check capacity for locations
+        # used_capacity is (Batch, 1). Unsqueeze to (Batch, 1, 1).
+        exceeds_cap_loc = (self.used_capacity[:, :, None] + potential_waste_loc) > self.vehicle_capacity
+        
+        # Combine visited and capacity masks for locations
+        mask_loc = visited_loc | exceeds_cap_loc
+        
+        # Determine if depot should be masked
+        # If we are at depot (prev_a == 0), we must go to a customer node if one is available.
+        # If no customer node is available (all visited or capacity full), we allow depot (to finish).
+        has_feasible_dest = (mask_loc == 0).any(dim=-1) # (Batch, 1)
         mask_depot = (self.prev_a == 0) & has_feasible_dest
         
-        # Update mask for depot column
-        mask[:, :, 0] = mask_depot
-        return mask
+        # Combine depot mask and location mask
+        return torch.cat((mask_depot[:, :, None], mask_loc), -1)
     
     def get_edges_mask(self):
         batch_size, n_coords, _ = self.coords.size()

@@ -5,7 +5,7 @@ import torch
 import pandas as pd
 
 from tqdm import tqdm
-from .meta_reinforce import (
+from .meta import (
     WeightContextualBandit, MORLWeightOptimizer, 
     HRLManager, CostWeightManager, RewardWeightOptimizer,
 )

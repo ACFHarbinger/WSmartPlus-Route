@@ -206,6 +206,7 @@ def wsr_opts(tmp_path):
         'seed': 42,
         'problem': 'vrpp',
         'stats_filepath': None,
+        'model_path': None,
     }
 
 # --- Fixtures for Policy Unit Tests ---
@@ -429,7 +430,6 @@ def mock_dependencies(mocker):
     mocker.patch('logic.src.data.generate_data.generate_op_data', return_value=[(None, None)])
     mocker.patch('logic.src.data.generate_data.generate_vrpp_data', return_value=[(None, None)])
     mocker.patch('logic.src.data.generate_data.generate_wcrp_data', return_value=[(None, None)])
-    mocker.patch('logic.src.data.generate_data.generate_wcvrp_data', return_value=[(None, None)])
     mocker.patch('logic.src.data.generate_data.generate_pdp_data', return_value=[(None, None)])
     
     # 2. Mock the WSR simulator data generator

@@ -189,8 +189,7 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
                 hook.before_day(day)
                 data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id,
                                                     overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], realtime_log_path, 
-                                                    opts['waste_type'], dist_tup, current_collection_day, cached, device, _lock,
-                                                    hrl_manager=hrl_manager, waste_history=waste_history)
+                                                    opts['waste_type'], dist_tup, current_collection_day, cached, device, _lock, hrl_manager=hrl_manager)
                 execution_time = time.process_time() - tic
                 new_data, coords, bins = data_ls
                 overflows, dlog, output_dict = output_ls
@@ -347,9 +346,8 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                 for day in range(start_day, opts['days']+1):
                     hook.before_day(day)
                     data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id, 
-                                                        overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], 
-                                                        realtime_log_path, opts['waste_type'], dist_tup, current_collection_day, cached, device,
-                                                        hrl_manager=hrl_manager, waste_history=waste_history)
+                                                        overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], realtime_log_path, 
+                                                        opts['waste_type'], dist_tup, current_collection_day, cached, device, hrl_manager=hrl_manager)
                     execution_time = time.process_time() - tic
                     new_data, coords, bins = data_ls
                     overflows, dlog, output_dict = output_ls
