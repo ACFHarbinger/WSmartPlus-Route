@@ -30,8 +30,8 @@ class CriticNetwork(nn.Module):
         self.is_vrp = problem.NAME == 'cvrp' or problem.NAME == 'sdvrp'
         self.is_orienteering = problem.NAME == 'op'
         self.is_pctsp = problem.NAME == 'pctsp'
-        self.is_wc = problem.NAME == 'wcrp'
-        self.is_vrpp = problem.NAME == 'vrpp'
+        self.is_wc = problem.NAME == 'wcrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
+        self.is_vrpp = problem.NAME == 'vrpp' or problem.NAME == 'cvrpp'
 
          # Problem specific context parameters
         if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:

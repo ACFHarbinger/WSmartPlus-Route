@@ -15,8 +15,8 @@ class Hypernetwork(nn.Module):
     def __init__(self, problem, embedding_dim=16, hidden_dim=64, normalization='layer', activation='relu', learn_affine=True, bias=True):
         super(Hypernetwork, self).__init__()
         self.problem = problem
-        self.is_wc = problem.NAME == 'wcrp'
-        self.is_vrpp = problem.NAME == 'vrpp'
+        self.is_wc = problem.NAME == 'wcrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
+        self.is_vrpp = problem.NAME == 'vrpp' or problem.NAME == 'cvrpp'
         self.is_pctsp = problem.NAME == 'pctsp'
         if self.is_vrpp or self.is_wc or self.is_pctsp:
             cost_dim = 3 * 2

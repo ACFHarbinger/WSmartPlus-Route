@@ -6,7 +6,8 @@ import numpy as np
 from unittest.mock import MagicMock, patch
 from logic.src.problems.vrpp import problem_vrpp
 from logic.src.problems.vrpp.state_vrpp import StateVRPP
-from logic.src.problems.vrpp.problem_vrpp import VRPP, VRPPDataset, generate_instance as gen_vrpp
+from logic.src.problems.vrpp.problem_vrpp import VRPP, VRPPDataset, generate_instance as gen_vrpp, CVRPP
+from logic.src.problems.vrpp.state_cvrpp import StateCVRPP
 from logic.src.problems.wcrp import problem_wcrp
 from logic.src.problems.wcrp.state_wcrp import StateWCRP
 from logic.src.problems.wcrp.problem_wcrp import WCRP, WCRPDataset, generate_instance as gen_wcrp
@@ -245,8 +246,120 @@ class TestStateWCRP:
         selected = torch.tensor([1])
         state = state.update(selected)
         
-        # Waste should be collected but clamped to max (10)
-        # code: cur_total_waste = ... + waste.clamp(max=max_waste)
-        # So we collect 10, not 15.
-        
         assert state.cur_total_waste.item() == 10.0
+
+class TestStateCVRPP:
+    """Tests for StateCVRPP logic."""
+
+    @pytest.mark.unit
+    def test_capacity_mask(self):
+        """Test that nodes exceeding remaining capacity are masked."""
+        batch_size = 1
+        n_loc = 2
+        # Setup: Bin Capacity 10.
+        # Node 1: Waste 6.
+        # Node 2: Waste 6.
+        # We can visit 1 OR 2, but not both (6+6 > 10).
+        input_data = {
+            'depot': torch.zeros(batch_size, 2),
+            'loc': torch.rand(batch_size, n_loc, 2),
+            'waste': torch.tensor([[6.0, 6.0]]),
+            'max_waste': torch.ones(batch_size, 1) * 10.0 # Clamp limit
+        }
+        
+        # Manually invoke initialize with explicit profit_vars to set capacity
+        profit_vars = {'cost_km': 1.0, 'revenue_kg': 1.0, 'bin_capacity': 10.0, 'vehicle_capacity': 10.0}
+        state = StateCVRPP.initialize(input_data, edges=None, profit_vars=profit_vars)
+        
+        # Visit Node 1
+        selected = torch.tensor([1])
+        state = state.update(selected)
+        
+        # Check used_capacity
+        assert state.used_capacity.item() == 6.0
+        
+        # Check mask
+        mask = state.get_mask()
+        # Node 2 (idx 2) should be masked because 6 (curr) + 6 (potential) = 12 > 10
+        assert mask[:, :, 2].item() == 1
+        # Depot (idx 0) should be unmasked (allowed to return)
+        assert mask[:, :, 0].item() == 0
+
+    @pytest.mark.unit
+    def test_depot_reset(self):
+        """Test that visiting depot resets used_capacity."""
+        batch_size = 1
+        n_loc = 2
+        input_data = {
+            'depot': torch.zeros(batch_size, 2),
+            'loc': torch.rand(batch_size, n_loc, 2),
+            'waste': torch.tensor([[6.0, 6.0]]),
+            'max_waste': torch.ones(batch_size, 1) * 10.0
+        }
+        profit_vars = {'cost_km': 1.0, 'revenue_kg': 1.0, 'bin_capacity': 10.0, 'vehicle_capacity': 10.0}
+        state = StateCVRPP.initialize(input_data, edges=None, profit_vars=profit_vars)
+        
+        # 0 -> 1 (Load 6)
+        state = state.update(torch.tensor([1]))
+        assert state.used_capacity.item() == 6.0
+        
+        # 1 -> 0 (Depot) -> Should reset capacity
+        state = state.update(torch.tensor([0]))
+        assert state.used_capacity.item() == 0.0
+        
+        # 0 -> 2 (Load 6) -> Should be allowed now
+        state = state.update(torch.tensor([2]))
+        assert state.used_capacity.item() == 6.0
+
+class TestCVRPP:
+    """Tests for the CVRPP problem class."""
+
+    @pytest.mark.unit
+    def test_make_state_uses_cvrpp_state(self):
+        """Test that CVRPP uses StateCVRPP."""
+        problem_vrpp.COST_KM = 1.0
+        problem_vrpp.REVENUE_KG = 0.1
+        problem_vrpp.BIN_CAPACITY = 100.0
+        
+        with patch('logic.src.problems.vrpp.state_cvrpp.StateCVRPP.initialize') as mock_init:
+            CVRPP.make_state(input='mock')
+            mock_init.assert_called_once()
+            
+    @pytest.mark.unit
+    def test_get_costs_multitrip(self):
+        """Test CVRPP.get_costs with multi-trip capacity logic."""
+        # Setup: Vehicle Capacity 100.
+        problem_vrpp.BIN_CAPACITY = 100.0
+        problem_vrpp.VEHICLE_CAPACITY = 100.0
+        problem_vrpp.COST_KM = 1.0
+        problem_vrpp.REVENUE_KG = 1.0
+        
+        batch_size = 1
+        n_loc = 2
+        dataset = {
+            'depot': torch.zeros(batch_size, 2),
+            'loc': torch.tensor([[[1.0, 0.0], [2.0, 0.0]]]), # 1 and 2 away
+            'waste': torch.tensor([[60.0, 60.0]]), # Each 60. Total 120 > 100.
+            'max_waste': torch.tensor([100.0])
+        }
+        
+        # Scenario 1: Visit 1 -> 2 directly (Total 120) -> Should Fail Assertion
+        pi_fail = torch.tensor([[1, 2]])
+        with pytest.raises(AssertionError, match="Used more than capacity"):
+            CVRPP.get_costs(dataset, pi_fail, cw_dict=None)
+            
+        # Scenario 2: Visit 1 -> 0 (Depot) -> 2 (Total 60 reset 60) -> Should Pass
+        pi_pass = torch.tensor([[1, 0, 2]])
+        cost, c_dict, _ = CVRPP.get_costs(dataset, pi_pass, cw_dict=None)
+        
+        # Check Profit
+        # Length: 
+        # 0->1 (1.0)
+        # 1->0 (1.0)
+        # 0->2 (2.0)
+        # 2->0 (2.0)
+        # Total Length = 6.0
+        # collected waste is waste at 1 and 2. Depot implies reset capacity not "collection of negative waste".
+        # get_costs logic sums gathered waste. gather([1, 0, 2]) -> [60, 0, 60]. Sum = 120.
+        # Profit = 120 - 6 = 114. Negative Profit = -114.
+        assert torch.isclose(cost, torch.tensor([-114.0]))
