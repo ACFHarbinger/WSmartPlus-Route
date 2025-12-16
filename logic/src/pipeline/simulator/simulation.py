@@ -123,7 +123,7 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
         saved_state, last_day = checkpoint.load_state()
 
     if 'am' in pol_strip or "transgcn" in pol_strip:
-        model_env, configs = setup_model(policy, model_weights_path, device, _lock, opts['temperature'], opts['decode_type'])
+        model_env, configs = setup_model(policy, model_weights_path, opts['model_path'], device, _lock, opts['temperature'], opts['decode_type'])
     elif "vrpp" in pol_strip:
         model_env = setup_env(policy, opts['server_run'], opts['gplic_file'], opts['symkey_name'], opts['env_file'])
         model_tup = (None, None)
@@ -251,8 +251,8 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
         pol_strip, data_dist = policy.rsplit("_", 1)
         if 'am' in pol_strip or "transgcn" in pol_strip:
             attention_dict = {pol_strip: []}
-            model_env, configs = setup_model(policy, model_weights_path, device, lock, 
-                                             opts['temperature'], opts['decode_type'])
+            model_env, configs = setup_model(policy, model_weights_path, opts['model_path'], device, 
+                                            lock, opts['temperature'], opts['decode_type'])
         elif "vrpp" in pol_strip:
             model_env = setup_env(policy, opts['server_run'], opts['gplic_file'], 
                                   opts['symkey_name'], opts['env_file'])

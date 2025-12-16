@@ -34,7 +34,7 @@ SEED=42
 N_DAYS=31
 N_BINS=104
 N_SAMPLES=1
-PROBLEM="vrpp"
+PROBLEM="cvrpp"
 
 AREA="riomaior"
 WTYPE="plastic"
@@ -60,6 +60,15 @@ POLICIES=("policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
 #"gurobi_vrpp" "hexaly_vrpp" 
 #"am" "amgc" "transgcn"
+declare -A MODEL_PATHS
+MODEL_PATHS["am"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/am"
+MODEL_PATHS["amgc"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgc"
+MODEL_PATHS["transgcn"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/transgcn"
+
+MODEL_PATH_ARGS=()
+for key in "${!MODEL_PATHS[@]}"; do
+    MODEL_PATH_ARGS+=("$key=${MODEL_PATHS[$key]}")
+done
 
 VEHICLES=0
 EDGE_THRESH=0.0
@@ -100,7 +109,7 @@ if [ "$RUN_TSP" -eq 0 ]; then
     --lac "${LOOKAHEAD_CONFIGS[@]}" --hp "${HEXALY_PARAM[@]}" --problem "$PROBLEM" --days "$N_DAYS" \
     --waste_type "$WTYPE" --cc "$n_cores" --et "$EDGE_THRESH" --em "$EDGE_METHOD" --env_file "$ENV_FILE" \
     --gapik_file "$GOOGLE_API_FILE" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" --dm "$DIST_METHOD" \
-    --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH";
+    --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}";
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi
@@ -116,7 +125,7 @@ else
     --days "$N_DAYS" --lvl "${REGULAR_LEVEL[@]}" --cf "${LAST_MINUTE_CF[@]}" --gp "${GUROBI_PARAM[@]}" --hp "${HEXALY_PARAM[@]}" \
     --et "$EDGE_THRESH" --em "$EDGE_METHOD" --waste_type "$WTYPE" --env_file "$ENV_FILE" --gplic_file "$GP_LIC_FILE" \
     --gapik_file "$GOOGLE_API_FILE" --waste_filepath "$WASTE_PATH" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" \
-    --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH";
+    --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}";
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi

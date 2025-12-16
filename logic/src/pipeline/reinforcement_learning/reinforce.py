@@ -343,7 +343,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             avg_total_cost = torch.stack(daily_loss['total']).sum().item() / daily_total_samples
             metrics.append(avg_total_cost) # Last metric is total
             
-            hrl_reward = -avg_total_cost 
+            hrl_reward = -avg_total_cost * 0.001 # Scale reward to reasonable range (~ -30) 
             
             # Store transition
             hrl_manager.store_transition(metrics, hrl_reward)

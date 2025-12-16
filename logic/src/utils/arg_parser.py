@@ -105,6 +105,23 @@ class LowercaseAction(argparse.Action):
         setattr(namespace, self.dest, values)
 
 
+class StoreDictKeyPair(argparse.Action):
+    """
+    Custom action to parse arguments in the form key=value into a dictionary.
+    Usage: --arg key1=value1 key2=value2
+    """
+    def __call__(self, parser, namespace, values, option_string=None):
+        my_dict = {}
+        for kv in values:
+            if "=" in kv:
+                k, v = kv.split("=", 1)
+                my_dict[k] = v
+            else:
+                # Handle cases where formatting is incorrect
+                raise argparse.ArgumentError(self, f"Could not parse argument '{kv}' as key=value format")
+        setattr(namespace, self.dest, my_dict)
+
+
 def UpdateFunctionMapActionFactory(inplace=False):
     """Factory function to create custom Action with flag"""
     class UpdateFunctionMapAction(argparse.Action):
@@ -453,6 +470,8 @@ def add_test_sim_args(parser):
     parser.add_argument('--gapik_file', type=str, default=None, help="Name of the file that contains the key to use for the Google API")
     parser.add_argument('--real_time_log', action='store_true', help="Activate real time results window")
     parser.add_argument('--stats_filepath', type=str, default=None, help="Path to the file to read the statistics from")
+    parser.add_argument('--model_path', action=StoreDictKeyPair, default=None, nargs='+', 
+                        help="Path to the directory where the model(s) is/are stored (format: name=path)")
     return parser
 
 def add_files_update_args(parser):
