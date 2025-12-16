@@ -1,5 +1,5 @@
 # Problems and Data
-PROBLEM_TYPES = ["TSP", "VRP", "PCTSP", "VRPP", "WCRP", "WCVRP", "OP", "PDP"]
+PROBLEM_TYPES = ["TSP", "VRP", "PCTSP", "VRPP", "WCRP", "OP", "PDP"]
 
 DATA_DIST_PROBLEMS = ['VRPP', 'OP', 'WCRP', 'WCVRP']
 

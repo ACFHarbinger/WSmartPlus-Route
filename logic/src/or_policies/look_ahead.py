@@ -492,7 +492,7 @@ def policy_lookahead_alns(current_fill_levels, binsids, must_go_bins, distance_m
     return final_sequence, 0, cost
 
 
-def policy_lookahead_bcp(current_fill_levels, binsids, must_go_bins, distance_matrix, values, coords):
+def policy_lookahead_bcp(current_fill_levels, binsids, must_go_bins, distance_matrix, values, coords, env=None):
     """
     Branch-Cut-and-Price Policy.
     """
@@ -524,7 +524,7 @@ def policy_lookahead_bcp(current_fill_levels, binsids, must_go_bins, distance_ma
     if not matrix_indices:
         return [0, 0], 0, 0
         
-    routes, cost = run_bcp(distance_matrix, demands, Q, R, C, values, must_go_indices=global_must_go)
+    routes, cost = run_bcp(distance_matrix, demands, Q, R, C, values, must_go_indices=global_must_go, env=None)
     
     final_sequence = [0]
     for route in routes:
