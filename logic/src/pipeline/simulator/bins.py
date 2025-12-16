@@ -1,7 +1,8 @@
-import pandas
 import os
 import math
+import torch
 import pickle
+import pandas
 import numpy as np
 import scipy.stats as stats
 
@@ -97,8 +98,11 @@ class Bins:
     def is_stochastic(self):
         return self.waste_fills is None
     
-    def get_fill_history(self):
-        return np.array(self.history)
+    def get_fill_history(self, device=None):
+        if device is not None:
+            return torch.tensor(self.history, dtype=torch.float, device=device)
+        else:
+            return np.array(self.history)
 
     def predictdaystooverflow(self, cl):
         return self._predictdaystooverflow(self.means, self.std, self.c, cl)
@@ -137,6 +141,7 @@ class Bins:
         and calculates returns.
         """
         # Update mean and standard deviation using Welford's method
+        self.history.append(todaysfilling)
         todaysfilling = np.array(todaysfilling)
         old_means = self.means.copy()
 

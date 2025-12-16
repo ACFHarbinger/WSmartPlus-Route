@@ -21,7 +21,8 @@ from .epoch import (
 )
 
 
-def _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_optimizer, day_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts):
+def _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_optimizer, day_dataset, 
+                    val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts, manager=None):
     log_pi = []
     daily_total_samples = 0
     daily_loss = {key: [] for key in loss_keys}  
@@ -42,7 +43,7 @@ def _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_o
     table_df.loc[day] = get_loss_stats(daily_loss)
     log_epoch(('day', day), loss_keys, daily_loss, opts)      
     _ = complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, 
-                            day, step, day_duration, tb_logger, cost_weights, opts)
+                            day, step, day_duration, tb_logger, cost_weights, opts, manager)
     return step, log_pi, daily_loss, daily_total_samples, current_weights
 
 
@@ -363,8 +364,8 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             
             # 4. Train Worker 
             step, log_pi, daily_loss, daily_total_samples, _ = _train_single_day(
-                model, optimizer, baseline, lr_scheduler, scaler, None, 
-                training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts
+                model, optimizer, baseline, lr_scheduler, scaler, None, training_dataset, 
+                val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts, hrl_manager
             )
             
             # 5. Reward Calculation
