@@ -71,11 +71,11 @@ def validate_update(model, dataset, cw_dict, opts):
     attention_dict = {'attention_weights': [], 'graph_masks': []}
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=opts['eval_batch_size'], pin_memory=True)
     print('Validating...')
-    for bat_id, bat in enumerate(tqdm(disable=opts['no_progress_bar'])):
+    for bat_id, bat in enumerate(tqdm(dataloader, disable=opts['no_progress_bar'])):
         bat = prepare_batch(bat, bat_id, dataset, dataloader, opts)
         ucost, cost_dict, attn_dict = _eval_model_bat(bat, dataset.dist_matrix)
         for key in attention_dict.keys():
-            attention_dict[key].append[attn_dict[key]]
+            attention_dict[key].append(attn_dict[key])
 
         all_ucosts = torch.cat((all_ucosts, ucost), 0)
         for key, val in cost_dict.items():
