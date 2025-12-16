@@ -300,7 +300,7 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
     return step, training_dataset, loss_keys, table_df, (bins,)
 
 
-def complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, epoch, step, epoch_duration, tb_logger, cost_weights, opts):
+def complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, epoch, step, epoch_duration, tb_logger, cost_weights, opts, manager=None):
     print("Finished {} {}, took {} s".format(
         "day" if opts['train_time'] else "epoch", epoch, time.strftime('%H:%M:%S', time.gmtime(epoch_duration))))
     if (opts['checkpoint_epochs'] != 0 and epoch % opts['checkpoint_epochs'] == 0) or epoch == opts['n_epochs'] - 1:
@@ -311,7 +311,8 @@ def complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, e
                 'optimizer': optimizer.state_dict(),
                 'rng_state': torch.get_rng_state(),
                 'cuda_rng_state': torch.cuda.get_rng_state_all(),
-                'baseline': baseline.state_dict()
+                'baseline': baseline.state_dict(),
+                'manager': manager.state_dict() if manager is not None else None
             },
             os.path.join(opts['save_dir'], 'epoch-{}.pt'.format(epoch))
         )

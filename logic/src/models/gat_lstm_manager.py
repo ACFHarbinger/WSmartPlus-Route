@@ -23,6 +23,7 @@ class GATLSTManager(nn.Module):
         super(GATLSTManager, self).__init__()
         self.device = device
         self.hidden_dim = hidden_dim
+        self.input_dim_dynamic = input_dim_dynamic
         
         # 1. Temporal Encoder (LSTM)
         # Inputs: (Batch * N, Sequence, 1) - We treat each node's history as a sequence

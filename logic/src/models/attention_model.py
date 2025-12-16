@@ -210,11 +210,33 @@ class AttentionModel(nn.Module):
             return cost, ll, cost_dict, pi
         return cost, ll, cost_dict, None
     
-    def compute_batch_sim(self, input, dist_matrix):
+    def compute_batch_sim(self, input, dist_matrix, hrl_manager=None, waste_history=None):
         hook_data = add_attention_hooks(self.embedder)
         edges = input.pop('edges') if 'edges' in input.keys() else None
+        
+        mask = None
+        if hrl_manager is not None and waste_history is not None:
+            # Static: Customer Locations (Batch, N, 2)
+            static_feat = input['loc']
+            # Dynamic: Waste History (Batch, N, History)
+            dynamic_feat = waste_history
+            
+            # Get Action (Deterministic)
+            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, deterministic=True)
+            
+            # Construct Mask
+            # mask_action: 1=Visit, 0=Skip. AM Mask: True=Masked(Skip), False=Keep.
+            mask = (mask_action == 0)
+            
+            # Apply Gate: If Gate=0, Mask ALL
+            gate_mask = (gate_action == 0).unsqueeze(1).expand_as(mask)
+            mask = mask | gate_mask
+            
+            # Important: If all nodes are masked for an instance, _inner might fail or produce empty route
+            # usually _inner handles masking.
+        
         embeddings = self.embedder(self._init_embed(input), edges)
-        _, pi = self._inner(input, edges, embeddings, cost_weights=None)
+        _, pi = self._inner(input, edges, embeddings, cost_weights=None, mask=mask)
         ucost, cost_dict, _ = self.problem.get_costs(input, pi, cw_dict=None)
         src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
         dst_mask = dst_vertices != 0
@@ -231,11 +253,62 @@ class AttentionModel(nn.Module):
             attention_weights = torch.stack(hook_data['weights'])
         return ucost, ret_dict, {'attention_weights': attention_weights, 'graph_masks': hook_data['masks']}
     
-    def compute_simulator_day(self, input, graph, distC, profit_vars=None, run_tsp=False):
+    def compute_simulator_day(self, input, graph, distC, profit_vars=None, run_tsp=False, hrl_manager=None, waste_history=None):
         edges, dist_matrix = graph
         hook_data = add_attention_hooks(self.embedder)
+        
+        mask = None
+        if hrl_manager is not None and waste_history is not None:
+            # Static: Customer Locations (Batch, N, 2)
+            # Should be shape (1, N, 2) if single instance
+            if input['loc'].dim() == 2:
+                static_feat = input['loc'].unsqueeze(0)
+            else:
+                static_feat = input['loc']
+            
+            # Dynamic: Waste History (Batch, N, History)
+            # waste_history likely (N, History) if single instance
+            if waste_history.dim() == 2:
+                dynamic_feat = waste_history.unsqueeze(0)
+            else:
+                dynamic_feat = waste_history
+            
+            # Ensure shapes align:
+            # static_feat: (Batch, N, 2)
+            # dynamic_feat: (Batch, N, History)
+            
+            # If dynamic_feat came from (Days, N), it is now (1, Days, N)
+            # We check if dim 1 matches N (from static). If not, and dim 2 does, we permute.
+            N = static_feat.size(1)
+            if dynamic_feat.size(1) != N and dynamic_feat.size(2) == N:
+                dynamic_feat = dynamic_feat.permute(0, 2, 1) # (B, N, Days)
+
+            # Feature Normalization Check
+            # History should be [0, 1]. If we see values >> 1 (e.g. 0-100), normalize.
+            if dynamic_feat.max() > 2.0: # Safe threshold, assuming valid fills roughly <= 100% (1.0)
+                dynamic_feat = dynamic_feat / 100.0
+            
+            # Truncate to Window Size if passed full history (e.g. from Notebook)
+            # dynamic_feat: (Batch, N, History)
+            if hasattr(hrl_manager, 'input_dim_dynamic'):
+                window_size = hrl_manager.input_dim_dynamic
+                if dynamic_feat.size(2) > window_size:
+                    # Take last 'window_size' steps
+                    dynamic_feat = dynamic_feat[:, :, -window_size:]
+
+            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, deterministic=True)
+            
+            # If Gate is closed (0), return empty immediately
+            if gate_action.item() == 0:
+                for handle in hook_data['handles']:
+                    handle.remove()
+                return [], 0, {'attention_weights': torch.tensor([]), 'graph_masks': hook_data['masks']}
+            
+            # Construct Mask
+            mask = (mask_action == 0)
+        
         embeddings = self.embedder(self._init_embed(input), edges)
-        _, pi = self._inner(input, edges, embeddings, None, dist_matrix, profit_vars)
+        _, pi = self._inner(input, edges, embeddings, None, dist_matrix, profit_vars, mask=mask)
         if run_tsp:
             try:
                 route, cost = find_route(dist_matrix.cpu().numpy(), pi[pi != 0].cpu().numpy())

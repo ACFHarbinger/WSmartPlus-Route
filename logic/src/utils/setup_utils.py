@@ -4,9 +4,10 @@ import gurobipy as gp
 import torch.optim as optim
 
 from .definitions import ROOT_DIR
+from logic.src.models.gat_lstm_manager import GATLSTManager
 from dotenv import dotenv_values
 from logic.src.utils.crypto_utils import decrypt_file_data
-from logic.src.utils.functions import load_model, get_inner_model
+from logic.src.utils.functions import load_model, get_inner_model, torch_load_cpu
 
 
 def setup_cost_weights(opts, def_val=1.):
@@ -33,6 +34,67 @@ def setup_cost_weights(opts, def_val=1.):
         cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
         cw_dict['penalty'] = opts['w_penalty'] = _set_val(opts['w_penalty'], def_val)
     return cw_dict
+
+
+def setup_hrl_manager(opts, device, configs=None):
+    hrl_path = None
+    if opts.get('model_path') is not None:
+        hrl_path = opts['model_path']
+    
+    # Check prioritization: Configs > Opts
+    hrl_method = None
+    if configs is not None:
+        hrl_method = configs.get('hrl_method')
+    
+    if hrl_method is None:
+        hrl_method = opts.get('hrl_method')
+
+    if hrl_method != 'gat_lstm' or hrl_path is None:
+        return None
+    
+    # --- Logic from load_model to handle directory ---
+    # Attempt to resolve path if it's a directory
+    print(hrl_path)
+    if os.path.isfile(hrl_path):
+        pass # hrl_path is already the file
+    elif os.path.isdir(hrl_path):
+        # Find latest epoch
+        epoch = max(
+            int(os.path.splitext(filename)[0].split("-")[1])
+            for filename in os.listdir(hrl_path)
+            if os.path.splitext(filename)[1] == '.pt' and 'epoch' in filename
+        )
+        hrl_path = os.path.join(hrl_path, 'epoch-{}.pt'.format(epoch))
+    else:
+        # If explicitly requested but not found, maybe valid to return None or raise error?
+        # For robustness, if we can't find it, we skip HRL
+        return None
+
+    # Get params from configs if available, else opts
+    if configs is not None:
+        mrl_history = configs.get('mrl_history', opts.get('mrl_history', 10))
+        gat_hidden = configs.get('gat_hidden', opts.get('gat_hidden', 128))
+        lstm_hidden = configs.get('lstm_hidden', opts.get('lstm_hidden', 64))
+    else:
+        mrl_history = opts.get('mrl_history', 10)
+        gat_hidden = opts.get('gat_hidden', 128)
+        lstm_hidden = opts.get('lstm_hidden', 64)
+         
+    manager = GATLSTManager(
+        input_dim_static=2,
+        input_dim_dynamic=mrl_history,
+        hidden_dim=gat_hidden,
+        lstm_hidden=lstm_hidden,
+        device=device
+    ).to(device)
+    
+    load_data = torch_load_cpu(hrl_path)
+    if isinstance(load_data, dict) and 'manager' in load_data:
+        manager.load_state_dict(load_data['manager'])
+    else:
+        manager.load_state_dict(load_data)
+    manager.eval()
+    return manager
 
 
 def setup_model(policy, general_path, model_paths, device, lock, temperature=1, decode_type="greedy"):
