@@ -45,6 +45,11 @@ class HRLManager(nn.Module):
         metrics_per_step = self.num_weights + 1 
         input_size = (self.num_weights + metrics_per_step) * history_length
 
+        # Input normalization
+        self.state_mean = torch.zeros(input_size, device=device)
+        self.state_std = torch.ones(input_size, device=device)
+        self.state_n = 0
+        
         # Actor Network (Gaussian Policy)
         self.actor_mean = nn.Sequential(
             nn.Linear(input_size, hidden_size),
@@ -54,7 +59,15 @@ class HRLManager(nn.Module):
             nn.Linear(hidden_size, self.num_weights)
         ).to(device)
         
-        self.actor_log_std = nn.Parameter(torch.zeros(1, self.num_weights).to(device))
+        # Initialize output bias to initial_weights
+        # This ensures exploration starts around the user-provided (likely working) configuration
+        # Inverse tanh is not needed as final layer is Linear
+        self.actor_mean[-1].bias.data = self.current_weights.clone()
+        # Initialize weights to small values to reduce initial variance from the mean
+        self.actor_mean[-1].weight.data *= 0.01
+
+        # Initialize log_std to -1.0 (std approx 0.37) for reduced initial variance
+        self.actor_log_std = nn.Parameter(torch.ones(1, self.num_weights).to(device) * -1.0)
 
         # Critic Network (Value Function)
         self.critic = nn.Sequential(
@@ -77,8 +90,32 @@ class HRLManager(nn.Module):
         self.values = []
         self.dones = []
 
+    def _update_running_stats(self, x):
+        """Update running mean and std."""
+        batch_mean = torch.mean(x, dim=0)
+        batch_var = torch.var(x, dim=0, unbiased=False)
+        batch_count = x.shape[0]
+        
+        if self.state_n == 0:
+            self.state_mean = batch_mean
+            self.state_std = torch.sqrt(batch_var + 1e-8)
+        else:
+            delta = batch_mean - self.state_mean
+            tot_count = self.state_n + batch_count
+            
+            new_mean = self.state_mean + delta * batch_count / tot_count
+            m_a = self.state_std ** 2 * self.state_n
+            m_b = batch_var * batch_count
+            m_2 = m_a + m_b + delta ** 2 * self.state_n * batch_count / tot_count
+            new_var = m_2 / tot_count
+            new_std = torch.sqrt(new_var + 1e-8)
+            
+            self.state_mean = new_mean
+            self.state_std = new_std
+        self.state_n += batch_count
+
     def get_state(self):
-        """Construct state from history."""
+        """Construct normalized state from history."""
         if len(self.weight_history) < self.history_length:
             # Pad with zeros if not enough history
             padding_len = self.history_length - len(self.weight_history)
@@ -100,7 +137,15 @@ class HRLManager(nn.Module):
             flat_state.append(w)
             flat_state.append(p)
         
-        return torch.cat(flat_state).unsqueeze(0) # (1, input_size)
+        raw_state = torch.cat(flat_state).unsqueeze(0) # (1, input_size)
+        
+        # Update stats and normalize
+        # Note: We update stats continuously during training
+        with torch.no_grad():
+            self._update_running_stats(raw_state)
+            norm_state = (raw_state - self.state_mean) / (self.state_std + 1e-8)
+            
+        return norm_state.clamp(-5.0, 5.0) # Clip extreme values
 
     def select_action(self):
         """Select new weights based on current state."""

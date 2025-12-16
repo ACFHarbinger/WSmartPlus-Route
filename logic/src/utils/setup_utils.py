@@ -35,7 +35,7 @@ def setup_cost_weights(opts, def_val=1.):
     return cw_dict
 
 
-def setup_model(policy, general_path, device, lock, temperature=1, decode_type="greedy"):
+def setup_model(policy, general_path, model_paths, device, lock, temperature=1, decode_type="greedy"):
     def _load_model(general_path, model_name, device, temperature, decode_type, lock):
         model_path = os.path.join(general_path, model_name)
         with lock:
@@ -47,11 +47,11 @@ def setup_model(policy, general_path, device, lock, temperature=1, decode_type="
         return model, configs
 
     if 'amgc' in policy:
-        return _load_model(general_path, "amgc", device, temperature, decode_type, lock)
+        return _load_model(general_path, model_paths['amgc'], device, temperature, decode_type, lock)
     elif 'am' in policy:
-        return _load_model(general_path, "am", device, temperature, decode_type, lock)
+        return _load_model(general_path, model_paths['am'], device, temperature, decode_type, lock)
     elif 'transgcn' in policy:
-        return _load_model(general_path, "transgcn", device, temperature, decode_type, lock)
+        return _load_model(general_path, model_paths['transgcn'], device, temperature, decode_type, lock)
     return None
 
 
