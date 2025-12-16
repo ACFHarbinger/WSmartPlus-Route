@@ -9,7 +9,7 @@ from .meta_reinforce import (
     WeightContextualBandit, MORLWeightOptimizer, 
     HRLManager, CostWeightManager, RewardWeightOptimizer,
 )
-
+from logic.src.models.gat_lstm_manager import GATLSTManager
 from logic.src.models import WeightAdjustmentRNN
 from logic.src.utils.functions import move_to
 from logic.src.utils.log_utils import log_values, log_training, log_epoch, get_loss_stats
@@ -279,6 +279,154 @@ def train_reinforce_over_time_morl(model, optimizer, baseline, lr_scheduler, sca
 
 
 def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+    if opts.get('hrl_method', 'weight_manager') == 'gat_lstm':
+        # --- GAT-LSTM HRL Logic ---
+        
+        daily_rewards = []
+        
+        daily_rewards = []
+        model.train()
+        set_decode_type(model, "sampling")
+
+        # Initialize Dataset for Day Start
+        day = opts['epoch_start']
+        step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
+
+        # Initialize GATLSTManager
+        hrl_manager = GATLSTManager(
+            input_dim_static=2,
+            input_dim_dynamic=opts.get('mrl_history', 10),
+            hidden_dim=opts.get('gat_hidden', 128),
+            lstm_hidden=opts.get('lstm_hidden', 64),
+            device=opts['device']
+        )
+        
+        # Setup Waste History Buffer (Batch, N, History)
+        # We need to maintain this manually as dataset evolves
+        # Initialize with zeros or initial waste
+        n_nodes = opts['graph_size']
+        epoch_size = opts['epoch_size']
+        history_len = opts.get('mrl_history', 10)
+        
+        waste_history = torch.zeros((epoch_size, n_nodes, history_len)).to(opts['device'])
+        
+        # Optimizer for Manager
+        hrl_optimizer = torch.optim.Adam(hrl_manager.parameters(), lr=opts.get('mrl_lr', 3e-4))
+        hrl_manager.optimizer = hrl_optimizer
+
+        while True:
+            # Batch Manager Decision and Mask Creation
+            inference_batch_size = 1024 # Adjustable or from opts
+            n_samples = len(training_dataset)
+            
+            mask_actions_list = []
+            gate_actions_list = []
+            
+            for i in range(0, n_samples, inference_batch_size):
+                # Slice indices
+                batch_indices = slice(i, min(i + inference_batch_size, n_samples))
+                
+                # Extract batch data
+                # Using a list comprehension for slice is inefficient for huge lists but dataset.data is list
+                batch_data = training_dataset.data[batch_indices] # Assuming data is list or sliceable
+                
+                static_locs = torch.stack([x['loc'] for x in batch_data]).to(opts['device'])
+                current_waste = torch.stack([x['waste'] for x in batch_data]).to(opts['device'])
+                
+                # Update Waste History Slice
+                # Slice waste_history tensor
+                batch_waste_history = waste_history[batch_indices]
+                batch_waste_history = torch.roll(batch_waste_history, shifts=-1, dims=2)
+                batch_waste_history[:, :, -1] = current_waste
+                
+                # Write back to main history
+                waste_history[batch_indices] = batch_waste_history
+                
+                # Manager Decision
+                mask_action, gate_action, value = hrl_manager.select_action(static_locs, batch_waste_history)
+                
+                mask_actions_list.append(mask_action)
+                gate_actions_list.append(gate_action)
+                
+            # Concatenate results
+            mask_action_full = torch.cat(mask_actions_list, dim=0)
+            gate_action_full = torch.cat(gate_actions_list, dim=0)
+            
+            # 3. Apply Decision
+            am_mask = (mask_action_full == 0) # True where we want to skip
+            gate_expanded = gate_action_full.unsqueeze(1).expand_as(am_mask) # (B, N)
+            final_mask = am_mask | (gate_expanded == 0)
+            
+            # Store in dataset for _train_single_day loop
+            for i in range(n_samples):
+                training_dataset.data[i]['hrl_mask'] = final_mask[i].cpu()
+            
+            # 4. Train Worker 
+            step, log_pi, daily_loss, daily_total_samples, _ = _train_single_day(
+                model, optimizer, baseline, lr_scheduler, scaler, None, 
+                training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts
+            )
+            
+            # 5. Reward Calculation
+            if daily_total_samples > 0:
+                # daily_loss has 'total' cost, 'overflows' (count/penalty), etc.
+                # Logic:
+                # If Gate=1: Cost > 0.
+                # If Gate=0: Cost should be small (depot loop), but Waste Accumulates.
+                # daily_loss accumulates based on what actually happened in 'model'.
+                # But 'update_time_dataset' calculates waste accumulation based on Routes.
+                # If Gate=0 -> Mask=AllTrue -> Route is empty/depot.
+                # update_time_dataset sees empty route -> Accumulates Waste.
+                # So Overflow is calculated correctly!
+                
+                # Reward = - (RouteCost + OverflowPenalty + Risk)
+                
+                # Route Cost: 'km' or 'length' from daily_loss.
+                avg_route_cost = torch.stack(daily_loss['length']).sum().item() / daily_total_samples
+                
+                # Overflow: 'overflows' from daily_loss? 
+                # Note: daily_loss comes from 'model' output.
+                # Does model calculate overflow? Yes, usually.
+                if 'overflows' in daily_loss:
+                    avg_overflow = torch.stack(daily_loss['overflows']).sum().item() / daily_total_samples
+                else:
+                    avg_overflow = 0.0
+                
+                # Future Risk: Sum of Squared Waste.
+                # We can compute this from 'waste_history' (current state).
+                # Risk = Sum(W^2)
+                # current_waste is (B, N).
+                risk = (current_waste ** 2).sum(dim=1).mean().item()
+                
+                # Coefficients
+                lambda_overflow = 100.0 # High penalty
+                lambda_risk = 0.1
+                
+                hrl_reward = - (avg_route_cost + lambda_overflow * avg_overflow + lambda_risk * risk) * 0.001
+                
+                daily_rewards.append(hrl_reward)
+                hrl_manager.rewards.append(hrl_reward) # Use simple storage for now
+                
+                # Update Manager
+                freq = opts.get('mrl_step', 10)
+                if len(hrl_manager.rewards) >= freq:
+                    loss = hrl_manager.update(
+                        lr=opts.get('mrl_lr', 3e-4),
+                        ppo_epochs=opts.get('hrl_epochs', 4),
+                        clip_eps=opts.get('hrl_clip_eps', 0.2)
+                    )
+                    if loss is not None and tb_logger is not None:
+                        tb_logger.log_value('hrl_manager_loss', loss, step)
+                    print(f"HRL Update Day {day}: Reward={hrl_reward:.4f} Loss={loss if loss else 0:.4f}")
+
+            day += 1
+            if day >= opts['epoch_start'] + opts['n_epochs']: break
+            training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
+            
+        log_training(loss_keys, table_df, opts)
+        return
+
+    # --- Original Weight Manager Logic ---
     day = opts['epoch_start']
     step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
 
@@ -443,12 +591,102 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
         autocast_context.__enter__()
     try:
         # Evaluate model, get costs and log probabilities
-        cost, log_likelihood, c_dict, pi = model(x, cost_weights, return_pi=opts['train_time'], pad=opts['train_time'])
+        # Pass hrl_mask if available in batch
+        mask = batch.get('hrl_mask', None)
+        active_indices = None
+        
+        if mask is not None:
+            mask = move_to(mask, opts['device'])
+            # Check for instances where ALL nodes are masked (True)
+            # mask is (Batch, N).
+            # If all are True, then no customers are valid.
+            all_masked = mask.all(dim=1)
+            
+            if all_masked.any():
+                # We have some instances to skip
+                active_indices = torch.nonzero(~all_masked).squeeze(-1)
+                
+                # If everything is masked, return zero loss immediately
+                if len(active_indices) == 0:
+                     return torch.tensor(0., device=opts['device'])
+
+                # Slice mask
+                mask = mask[active_indices]
+                
+        if active_indices is not None:
+            # Slice input x
+            # x is expected to be a dict based on AM
+            if isinstance(x, dict):
+                x_active = {}
+                for k, v in x.items():
+                    if isinstance(v, torch.Tensor) and v.size(0) == x['loc'].size(0):
+                        x_active[k] = v[active_indices]
+                    elif isinstance(v, torch.Tensor) and v.size(0) == 1:
+                        # Assume strictly shared tensor (e.g. static graph)
+                        x_active[k] = v
+                    else:
+                        x_active[k] = v
+            else:
+                # Assume tensor
+                x_active = x[active_indices]
+                 
+            # Run model on active subset
+            cost_active, log_likelihood_active, c_dict_active, pi_active = model(x_active, cost_weights=cost_weights, return_pi=opts['train_time'], pad=opts['train_time'], mask=mask)
+            
+            # Reconstruct full outputs
+            batch_size = x['loc'].shape[0] if isinstance(x, dict) else x.shape[0]
+            
+            cost = torch.zeros(batch_size, device=opts['device'])
+            cost[active_indices] = cost_active
+            
+            log_likelihood = torch.zeros(batch_size, device=opts['device'])
+            log_likelihood[active_indices] = log_likelihood_active
+            
+            # Reconstruct pi
+            if pi_active is not None:
+                # pi_active is (ActiveBatch, SeqLen)
+                # We need (Batch, SeqLen)
+                # Pad with 0 (Depot)
+                seq_len = pi_active.size(1)
+                pi = torch.zeros((batch_size, seq_len), dtype=pi_active.dtype, device=opts['device'])
+                pi[active_indices] = pi_active
+            else:
+                pi = None
+                
+            # Reconstruct c_dict
+            c_dict = {}
+            if c_dict_active is not None:
+                for k, v in c_dict_active.items():
+                    if isinstance(v, torch.Tensor) and v.size(0) == active_indices.size(0):
+                        # Reconstruct
+                        full_v = torch.zeros(batch_size, device=active_indices.device, dtype=v.dtype)
+                        full_v[active_indices] = v
+                        c_dict[k] = full_v
+                    else:
+                        # Scalar or other
+                        c_dict[k] = v
+            
+            # Adjust baseline value if present
+            if bl_val is not None:
+                # bl_val is usually (Batch,)
+                # We only care about active ones for loss? 
+                # Wait, for inactive ones: Cost=0. bl_val might be non-zero?
+                # If bl_val is estimated, we should use it? 
+                # REINFORCE loss: (Cost - Baseline) * LogProb
+                # If LogProb=0 (deterministic "do nothing"), then Loss=0 regardless of Baseline.
+                # So we don't need to worry about bl_val for inactive indices for the GRADIENT.
+                # But for logging 'bl_loss' (critic update), we might need it?
+                # If we skip running model, we implicitly skip creating a trajectory.
+                pass
+        else:
+            # Standard run
+            cost, log_likelihood, c_dict, pi = model(x, cost_weights=cost_weights, return_pi=opts['train_time'], pad=opts['train_time'], mask=mask)
 
         # Evaluate baseline, get baseline loss if any (only for critic)
         bl_val, bl_loss = baseline.eval(x, cost) if bl_val is None else (bl_val, 0)
 
         # Calculate loss (and normalize for gradient accumulation if accumulation_steps > 1)
+        # For inactive indices: LogLikelihood is 0. So (Cost-BL)*0 = 0. Loss contribution is 0. Correct.
         reinforce_loss = (cost - bl_val) * log_likelihood
         loss = reinforce_loss.mean() + bl_loss
         loss = loss / opts['accumulation_steps']

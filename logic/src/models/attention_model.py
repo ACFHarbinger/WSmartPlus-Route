@@ -178,13 +178,14 @@ class AttentionModel(nn.Module):
         if temp is not None:  # Do not change temperature if not provided
             self.temp = temp
 
-    def forward(self, input, cost_weights=None, return_pi=False, pad=False):
+    def forward(self, input, cost_weights=None, return_pi=False, pad=False, mask=None):
         """
-        :param input: (batch_size, graph_size, node_dim) dictionary with multiple tensors
+        :param input: (batch_size, graph_size, node_dim) input node features or dictionary with multiple tensors
         :param cost_weights: dictionary with weights for each term of the cost function
         :param return_pi: whether to return the output sequences, this is optional as it is not compatible with
         using DataParallel as the results may be of different lengths on different GPUs
         :param pad: whether to pad the output sequences in order to use return_pi with multiple GPUs
+        :param mask: (batch_size, graph_size) boolean mask where True indicates nodes to be masked (skipped)
         :return:
         """
         edges = input.pop('edges') if 'edges' in input.keys() else None
@@ -194,7 +195,9 @@ class AttentionModel(nn.Module):
         else:
             embeddings = self.embedder(self._init_embed(input), edges)
 
-        _log_p, pi = self._inner(input, edges, embeddings, cost_weights, dist_matrix)
+        # profit_vars is not a direct argument to forward, it's derived or passed through input
+        # Assuming it's handled within _inner or not needed here based on original code
+        _log_p, pi = self._inner(input, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=mask)
         cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, dist_matrix)
         
         # Log likelyhood is calculated within the model since returning it per action does not work well with
@@ -330,10 +333,10 @@ class AttentionModel(nn.Module):
         # TSP
         return self.init_embed(nodes['loc'])
 
-    def _inner(self, nodes, edges, embeddings, cost_weights, dist_matrix, profit_vars=None):
+    def _inner(self, nodes, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=None):
         outputs = []
         sequences = []
-        state = self.problem.make_state(nodes, edges, cost_weights, dist_matrix, profit_vars=profit_vars)
+        state = self.problem.make_state(nodes, edges, cost_weights, dist_matrix, profit_vars=profit_vars, hrl_mask=mask)
 
         # Compute keys, values for the glimpse and keys for the logits once as they can be reused in every step
         fixed = self._precompute(embeddings)
@@ -354,10 +357,40 @@ class AttentionModel(nn.Module):
                     state = state[unfinished]
                     fixed = fixed[unfinished]
 
-            log_p, mask = self._get_log_p(fixed, state)
+            log_p, step_mask = self._get_log_p(fixed, state)
 
+            # Apply HRL Mask if provided
+            if mask is not None:
+                # Mask from HRL is typically (Batch, N) for customers
+                # step_mask is likely (Batch, 1, N+1) including depot
+                if mask.size(1) == step_mask.size(2) - 1:
+                    # Pad mask with False for depot at index 0
+                    # (Batch, N) -> (Batch, N+1)
+                    depot_mask = torch.zeros((mask.size(0), 1), dtype=torch.bool, device=mask.device)
+                    mask_padded = torch.cat((depot_mask, mask), dim=1)
+                else:
+                    mask_padded = mask
+
+                if step_mask.dim() == 3:
+                    # (Batch, 1, N)
+                    step_mask = step_mask | mask_padded.unsqueeze(1)
+                else:
+                    step_mask = step_mask | mask_padded
+                
+                # CRITICAL FIX: Mask logits (log_p) for HRL-masked nodes
+                # Ensure they have -inf log_prob so they have 0 probability
+                # log_p is (Batch, 1, GraphSize)
+                # Expand step_mask to broadcast if necessary
+                if step_mask.dim() == 2:
+                    current_mask = step_mask.unsqueeze(1)
+                else:
+                    current_mask = step_mask
+                    
+                log_p = log_p.masked_fill(current_mask, -math.inf)
+
+                     
             # Select the indices of the next nodes in the sequences, result (batch_size) long
-            selected = self._select_node(log_p.exp()[:, 0, :], mask[:, 0, :])  # Squeeze out steps dimension
+            selected = self._select_node(log_p.exp()[:, 0, :], step_mask[:, 0, :])  # Squeeze out steps dimension
             state = state.update(selected)
 
             # Now make log_p, selected desired output size by 'unshrinking'

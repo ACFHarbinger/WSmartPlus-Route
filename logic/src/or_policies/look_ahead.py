@@ -318,7 +318,6 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
             global_must_go.add(binsids_map[mg] + 1)
 
     if not candidate_indices:
-        print(f"DEBUG: No candidates found. Fill > 0 count: {sum(current_fill_levels > 0)}")
         return [0], 0, 0
 
     # --- SEEDING WITH VRPP (GREEDY) SOLUTION ---

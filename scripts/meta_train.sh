@@ -48,7 +48,7 @@ LR_SCHEDULER="lambda"
 LR_DECAY=1.0
 
 B_SIZE=256
-N_DATA=128000
+N_DATA=1280
 N_VAL_DATA=0 #1280
 VAL_B_SIZE=0
 
@@ -58,6 +58,10 @@ EXP_BETA=0.8
 BL_ALPHA=0.05
 ACC_STEPS=1
 
+HRL_METHOD="gat_lstm"
+GAT_HIDDEN=128
+LSTM_HIDDEN=64
+GATE_THRESH=0.7
 META_METHOD="hrl"
 META_HISTORY=10
 META_LR=0.0003
@@ -68,7 +72,7 @@ HRL_CLIP_EPS=0.2
 SIZE=20
 AREA="riomaior"
 WTYPE="plastic"
-F_SIZE=128000
+F_SIZE=1280
 VAL_F_SIZE=0
 DM_METHOD="gmaps"
 F_GRAPH="graphs_${SIZE}V_1N_${WTYPE}.json"
@@ -128,7 +132,8 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
-        --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS";
+        --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
+        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -156,7 +161,8 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
-        --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS";
+        --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
+        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -185,7 +191,8 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
-        --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS";
+        --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
+        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -214,7 +221,8 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
-        --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS";
+        --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
+        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -243,7 +251,8 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
-        --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS";
+        --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
+        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
