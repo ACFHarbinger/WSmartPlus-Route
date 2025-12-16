@@ -115,6 +115,7 @@ class Bins:
 
     def set_sample_waste(self, sample_id):
         self.waste_fills = self.waste_fills[sample_id]
+        self.c = self.waste_fills[0]
 
     def collect(self, idsfull, cost=0):
         ids = set(idsfull)
@@ -182,6 +183,7 @@ class Bins:
     
     def loadFilling(self, day):
         todaysfilling = self.waste_fills[day]
+        print("Loading waste bins:", todaysfilling)
         return self._process_filling(todaysfilling)
 
     def __setDistribution(self, param1, param2):
