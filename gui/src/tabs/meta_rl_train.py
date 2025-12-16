@@ -123,19 +123,19 @@ class MetaRLTrainParserTab(QWidget):
         self.rwa_optimizer_combo.setCurrentText('Root Mean Square Propagation (RMSProp)')
         form_layout.addRow(QLabel("Optimizer:"), self.rwa_optimizer_combo)
 
-        # --rwa_embedding_dim
-        self.rwa_embedding_dim_input = QSpinBox(minimum=16, maximum=512, value=128)
-        self.rwa_embedding_dim_input.setSingleStep(16)
-        form_layout.addRow(QLabel("Embedding Dim:"), self.rwa_embedding_dim_input)
+        # --mrl_embedding_dim
+        self.mrl_embedding_dim_input = QSpinBox(minimum=16, maximum=512, value=128)
+        self.mrl_embedding_dim_input.setSingleStep(16)
+        form_layout.addRow(QLabel("Embedding Dim:"), self.mrl_embedding_dim_input)
 
         # --rwa_batch_size
         self.rwa_batch_size_input = QSpinBox(minimum=1, maximum=1024, value=256)
         self.rwa_batch_size_input.setSingleStep(32)
         form_layout.addRow(QLabel("Batch Size:"), self.rwa_batch_size_input)
 
-        # --rwa_step
-        self.rwa_step_input = QSpinBox(minimum=1, maximum=1000, value=100)
-        form_layout.addRow(QLabel("Model Update Step:"), self.rwa_step_input)
+        # --mrl_step
+        self.mrl_step_input = QSpinBox(minimum=1, maximum=1000, value=100)
+        form_layout.addRow(QLabel("Model Update Step:"), self.mrl_step_input)
         
         # --rwa_update_step
         self.rwa_update_step_input = QSpinBox(minimum=1, maximum=1000, value=100)
@@ -150,14 +150,14 @@ class MetaRLTrainParserTab(QWidget):
             "mrl_history": self.mrl_history_input.value(),
             "mrl_exploration_factor": self.mrl_exploration_factor_input.value(),
             "mrl_lr": self.mrl_lr_input.value(),
+            "mrl_step": self.mrl_step_input.value(),
+            "mrl_embedding_dim": self.mrl_embedding_dim_input.value(),
             "tdl_lr_decay": self.tdl_lr_decay_input.value(),
             "cb_num_configs": self.cb_num_configs_input.value(),
             "cb_epsilon_decay": self.cb_epsilon_decay_input.value(),
             "cb_min_epsilon": self.cb_min_epsilon_input.value(),
             "morl_adaptation_rate": self.morl_adaptation_rate_input.value(),
-            "rwa_embedding_dim": self.rwa_embedding_dim_input.value(),
             "rwa_batch_size": self.rwa_batch_size_input.value(),
-            "rwa_step": self.rwa_step_input.value(),
             "rwa_update_step": self.rwa_update_step_input.value(),
         }
 

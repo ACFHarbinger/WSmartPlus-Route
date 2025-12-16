@@ -6,9 +6,10 @@ import pandas as pd
 
 from tqdm import tqdm
 from .meta_reinforce import (
-    CostWeightManager, RewardWeightOptimizer,
     WeightContextualBandit, MORLWeightOptimizer, 
+    HRLManager, CostWeightManager, RewardWeightOptimizer,
 )
+
 from logic.src.models import WeightAdjustmentRNN
 from logic.src.utils.functions import move_to
 from logic.src.utils.log_utils import log_values, log_training, log_epoch, get_loss_stats
@@ -64,7 +65,7 @@ def train_reinforce_over_time_rwa(model, optimizer, baseline, lr_scheduler, scal
         model_class=model_class,
         initial_weights=cost_weights,
         history_length=opts.get('meta_history', 10),
-        hidden_size=opts.get('rwa_embedding_dim', 64),
+        hidden_size=opts.get('mrl_embedding_dim', 64),
         lr=opts.get('mrl_lr', 0.001),
         device=opts['device'],
         meta_batch_size=opts.get('rwa_batch_size', 8),
@@ -277,6 +278,98 @@ def train_reinforce_over_time_morl(model, optimizer, baseline, lr_scheduler, sca
     return
 
 
+def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+    day = opts['epoch_start']
+    step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
+
+    # Initialize HRL Manager
+    len_weights = len(cost_weights.keys())
+    min_weights = [opts['mrl_range'][0] for _ in range(len_weights)]
+    max_weights = [opts['mrl_range'][1] for _ in range(len_weights)]
+    hrl_manager = HRLManager(
+        initial_weights=cost_weights,
+        history_length=opts.get('mrl_history', 10),
+        hidden_size=opts.get('mrl_embedding_dim', 128),
+        lr=opts.get('mrl_lr', 3e-4),
+        device=opts['device'],
+        min_weights=min_weights,
+        max_weights=max_weights,
+        ppo_epochs=opts.get('hrl_epochs', 4),
+        clip_eps=opts.get('hrl_clip_eps', 0.2)
+    )
+
+    # Sync weights
+    current_weights_dict = hrl_manager.get_current_weights()
+    for k, v in current_weights_dict.items():
+        cost_weights[k] = v
+
+    # For tracking
+    daily_rewards = []
+    
+    # Put model in train mode
+    model.train()
+    set_decode_type(model, "sampling")
+    
+    while True:
+        # 1. HRL Manager selects new goals (weights) for the day
+        new_weights = hrl_manager.select_action()
+        for k, v in new_weights.items():
+            cost_weights[k] = v
+            
+        # 2. Train Worker (Low-Level Policy) for the day using these weights
+        # We reuse _train_single_day but don't pass a weight_optimizer because we manage it manually here
+        step, log_pi, daily_loss, daily_total_samples, _ = _train_single_day(
+            model, optimizer, baseline, lr_scheduler, scaler, None, 
+            training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts
+        )
+
+        # 3. Calculate Reward for HRL Manager
+        # Reward is negative total cost (or specific objective). 
+        # Using 'total' cost from daily_loss
+        if daily_total_samples > 0:
+            # daily_loss['total'] is sum of costs. We want average cost as penalty.
+            # aggregated metric for state: values of each component
+            metrics = []
+            avg_cost = 0
+            # Order matters: must match hrl_manager.weight_names order
+            for name in hrl_manager.weight_names:
+                if name in daily_loss:
+                    val = torch.stack(daily_loss[name]).sum().item() / daily_total_samples
+                    metrics.append(val)
+                else:
+                    metrics.append(0.0)
+            
+            # Add TOTAL cost as the last metric
+            avg_total_cost = torch.stack(daily_loss['total']).sum().item() / daily_total_samples
+            metrics.append(avg_total_cost) # Last metric is total
+            
+            hrl_reward = -avg_total_cost 
+            
+            # Store transition
+            hrl_manager.store_transition(metrics, hrl_reward)
+            daily_rewards.append(hrl_reward)
+            
+            # Update HRL Manager
+            update_freq = opts.get('mrl_step', 10)
+            if len(hrl_manager.rewards) >= update_freq:
+                loss = hrl_manager.update()
+                if loss is not None and tb_logger is not None:
+                    tb_logger.log_value('hrl_manager_loss', loss, step)
+                print(f"HRL Update Day {day}: Reward={hrl_reward:.4f} Loss={loss if loss else 0:.4f}")
+
+        # Logging
+        if tb_logger is not None:
+            for k, v in new_weights.items():
+                tb_logger.log_value(f'hrl_weight_{k}', v, day)
+        
+        day += 1
+        if day >= opts['epoch_start'] + opts['n_epochs']: break
+        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
+
+    log_training(loss_keys, table_df, opts)
+    return
+
+
 def train_reinforce_over_time(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
     day = opts['epoch_start']
     step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
@@ -423,7 +516,7 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
             weight_optimizer.update_histories(performance_metrics, -cost.mean().item())
             
             # Periodically perform meta-learning update
-            if step % opts.get('rwa_step', 100) == 0:
+            if step % opts.get('mrl_step', 100) == 0:
                 meta_loss = weight_optimizer.meta_learning_step()
                 if meta_loss is not None and tb_logger is not None:
                     tb_logger.add_scalar('meta_loss', meta_loss, step)
@@ -433,7 +526,7 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
             if step % opts.get('rwa_update_step', 500) == 0:
                 updated = weight_optimizer.update_weights()
     
-            if step % opts.get('rwa_step', 100) == 0 or step % opts.get('rwa_update_step', 500) == 0:
+            if step % opts.get('mrl_step', 100) == 0 or step % opts.get('rwa_update_step', 500) == 0:
                 if tb_logger is not None and (meta_loss is not None or updated is not None):
                     for i, name in enumerate(weight_optimizer.weight_names):
                         tb_logger.add_scalar(f'weight_{name}', weight_optimizer.current_weights[i].item(), step)

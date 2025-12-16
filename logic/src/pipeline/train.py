@@ -28,7 +28,8 @@ from .reinforcement_learning.epoch import validate
 from .reinforcement_learning.reinforce import (
     train_reinforce_epoch, train_reinforce_over_time, 
     train_reinforce_over_time_cb, train_reinforce_over_time_tdl, 
-    train_reinforce_over_time_morl, train_reinforce_over_time_rwa
+    train_reinforce_over_time_morl, train_reinforce_over_time_rwa,
+    train_reinforce_over_time_hrl,
 )
 from .reinforcement_learning.hpo import (
     random_search, bayesian_optimization, 
@@ -102,6 +103,8 @@ def train_meta_reinforcement_learning(opts):
         train_func = train_reinforce_over_time_morl
     elif opts['mrl_method'] == 'rwa':
         train_func = train_reinforce_over_time_rwa
+    elif opts['mrl_method'] == 'hrl':
+        train_func = train_reinforce_over_time_hrl
     else:
         print(f"ERROR: unknown meta-reinforcement learning method '{opts['mrl_method']}'")
         return 1

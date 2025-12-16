@@ -140,7 +140,7 @@ def add_train_args(parser):
     parser.add_argument('--batch_size', type=int, default=256, help='Number of instances per batch during training')
     parser.add_argument('--epoch_size', type=int, default=128_000, help='Number of instances per epoch during training')
     parser.add_argument('--val_size', type=int, default=0, 
-                            help='Number of instances used for reporting validation performance (0 to deactivate validation)')
+                        help='Number of instances used for reporting validation performance (0 to deactivate validation)')
     parser.add_argument('--val_dataset', type=str, default=None, help='Dataset file to use for validation')
     parser.add_argument('--eval_batch_size', type=int, default=256, help="Batch size to use during (baseline) evaluation")
     parser.add_argument('--train_dataset', type=str, default=None, help='Name of dataset to use for training')
@@ -157,7 +157,7 @@ def add_train_args(parser):
     parser.add_argument('--dm_filepath', type=str, default=None, help="Path to the file to read/write the distance matrix from/to")
     parser.add_argument('--waste_filepath', type=str, default=None, help="Path to the file to read the waste fill for each day from")
     parser.add_argument('--vertex_method', type=str, default="mmn", help="Method to transform vertex coordinates "
-                            "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'")
+                        "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'")
 
     # Model
     parser.add_argument('--model', default='am', help="Model: 'am'|'tam'|'ddam'|'pn'")
@@ -179,7 +179,7 @@ def add_train_args(parser):
     parser.add_argument('--lrnorm_k', type=float, default=None, help="Additive factor for LocalResponseNorm")
     parser.add_argument('--gnorm_groups', type=int, default=4, help="Number of groups to separate channels into for GroupNorm")
     parser.add_argument('--activation', default='gelu', help="Activation function: 'gelu'|'gelu_tanh'|'tanh'|'tanhshrink'|'mish'|'hardshrink'|'hardtanh'|'hardswish'|'glu'|"
-                            "'relu'|'leakyrelu'|'silu'|'selu'|'elu'|'celu'|'prelu'|'rrelu'|'sigmoid'|'logsigmoid'|'hardsigmoid'|'threshold'|'softplus'|'softshrink'|'softsign'")
+                        "'relu'|'leakyrelu'|'silu'|'selu'|'elu'|'celu'|'prelu'|'rrelu'|'sigmoid'|'logsigmoid'|'hardsigmoid'|'threshold'|'softplus'|'softshrink'|'softsign'")
     parser.add_argument('--af_param', type=float, default=1.0, help="Parameter for the activation function formulation")
     parser.add_argument('--af_threshold', type=float, default=None, help="Threshold value for the activation function")
     parser.add_argument('--af_replacement', type=float, default=None, help="Replacement value for the activation function (above/below threshold)")
@@ -268,11 +268,15 @@ def add_mrl_train_args(parser):
     parser = add_train_args(parser)
     
     # MRL specific args
-    parser.add_argument('--mrl_method', type=str, default='cb', choices=['tdl', 'rwa', 'cb', 'morl'], help='Method to use for Meta-Reinforcement Learning')
+    parser.add_argument('--mrl_method', type=str, default='cb', choices=['tdl', 'rwa', 'cb', 'morl', 'hrl'], help='Method to use for Meta-Reinforcement Learning')
     parser.add_argument('--mrl_history', type=int, default=10, help="Number of previous days/epochs to take into account during Meta-Reinforcement Learning")
     parser.add_argument('--mrl_range', type=float, nargs='+', default=[0.01, 5.0], help="Maximum and minimum values for Meta-Reinforcement Learning with dynamic hyperparameters")
     parser.add_argument('--mrl_exploration_factor', type=float, default=2.0, help="Factor that controls the exploration vs. exploitation balance")
     parser.add_argument('--mrl_lr', type=float, default=1e-3, help="Set the learning rate for Meta-Reinforcement Learning")
+    parser.add_argument('--mrl_embedding_dim', type=int, default=128, help='Dimension of input embedding for Reward Weight Adjustment model')
+    parser.add_argument('--mrl_step', type=int, default=100, help='Update every mrl_step steps')
+    parser.add_argument('--hrl_epochs', type=int, default=4, help="Number of epochs to use for Hierarchical Reinforcement Learning PPO")
+    parser.add_argument('--hrl_clip_eps', type=float, default=0.2, help="Set the clip epsilon for Hierarchical Reinforcement Learning PPO")
     parser.add_argument('--tdl_lr_decay', type=float, default=1.0, help='Learning rate decay for Temporal Difference Learning')
     parser.add_argument('--cb_exploration_method', type=str, default='ucb', help="Method for exploration in Contextual Bandits: 'ucb'|'thompson_sampling'|'epsilon_greedy'")
     parser.add_argument('--cb_num_configs', type=int, default=10, help="Number of weight configurations to generate in Contextual Bandits")
@@ -284,9 +288,7 @@ def add_mrl_train_args(parser):
     parser.add_argument('--morl_adaptation_rate', type=float, default=0.1, help="Adaptation rate in Multi-Objective RL")
     parser.add_argument('--rwa_model', type=str, default='rnn', choices=['rnn'], help='Neural network to use for Reward Weight Adjustment')
     parser.add_argument('--rwa_optimizer', type=str, default='rmsprop', help="Optimizer: 'adamax'|'adam'|'adamw'|'radam'|'nadam'|'rmsprop'")
-    parser.add_argument('--rwa_embedding_dim', type=int, default=128, help='Dimension of input embedding for Reward Weight Adjustment model')
     parser.add_argument('--rwa_batch_size', type=int, default=256, help="Batch size to use for Reward Weight Adjustment model")
-    parser.add_argument('--rwa_step', type=int, default=100, help='Update Reward Weight Adjustment model every rwa_step steps')
     parser.add_argument('--rwa_update_step', type=int, default=100, help='Update Reward Weight Adjustment weights every rwa_update_step steps')
     return parser
 
@@ -301,8 +303,8 @@ def add_hp_optim_args(parser):
                                 help='Method to use for hyperparameter optimization')
     parser.add_argument('--hop_range', type=float, nargs='+', default=[0.0, 2.0], help="Maximum and minimum values for hyperparameter optimization")
     parser.add_argument('--hop_epochs', type=int, default=7, help='The number of epochs to optimize hyperparameters')
-    parser.add_argument('--metric', type=str, default="val_loss", choices=['loss', 'val_loss', 'mean_reward', 'mae', 'mse', 'rmse', 'episode_reward_mean', 
-                                'kg/km', 'overflows', 'both'], help='Metric to optimize')
+    parser.add_argument('--metric', type=str, default="val_loss", choices=[
+        'loss', 'val_loss', 'mean_reward', 'mae', 'mse', 'rmse', 'episode_reward_mean', 'kg/km', 'overflows', 'both'], help='Metric to optimize')
     
     # ===== Bayesian Optimization (BO) =====
     parser.add_argument('--n_trials', type=int, default=20, help='Number of trials for Optuna optimization')
