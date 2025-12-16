@@ -15,13 +15,14 @@ def get_inner_model(model):
 
 
 def load_problem(name):
-    from logic.src.problems import TSP, PDP, CVRP, SDVRP, OP, VRPP, WCRP, CWCVRP, SDWCVRP, PCTSPDet, PCTSPStoch
+    from logic.src.problems import TSP, PDP, CVRP, SDVRP, OP, VRPP, CVRPP, WCRP, CWCVRP, SDWCVRP, PCTSPDet, PCTSPStoch
     problem = {
         'tsp': TSP,
         'cvrp': CVRP,
         'sdvrp': SDVRP,
         'op': OP,
         'vrpp': VRPP,
+        'cvrpp': CVRPP,
         'wcrp': WCRP,
         'cwcvrp': CWCVRP,
         'sdwcvrp': SDWCVRP,

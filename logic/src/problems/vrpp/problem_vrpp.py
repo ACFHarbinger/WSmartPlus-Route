@@ -6,6 +6,7 @@ from logic.src.utils.definitions import MAX_WASTE
 from tqdm import tqdm
 from torch.utils.data import Dataset
 from .state_vrpp import StateVRPP
+from .state_cvrpp import StateCVRPP
 from scipy.spatial.distance import pdist, squareform
 from logic.src.utils.beam_search import beam_search
 from logic.src.utils.data_utils import load_focus_coords, generate_waste_prize
@@ -89,6 +90,102 @@ class VRPP(object):
         return beam_search(state, beam_size, propose_expansions)
 
 
+class CVRPP(object):
+    NAME = 'cvrpp'
+
+    @staticmethod
+    def get_costs(dataset, pi, cw_dict, dist_matrix=None):
+        if pi.size(-1) == 1:
+            assert (pi == 0).all(), "If all length 1 tours, they should be zero"
+            profit = torch.zeros_like(dataset['max_waste']).to(pi.device)
+            c_dict = {'length': profit, 'waste': profit, 'total': profit}
+            return profit, c_dict, None
+
+        # Check for duplicates (except depot)
+        sorted_pi = pi.data.sort(1)[0]
+        assert ((sorted_pi[:, 1:] == 0) | (sorted_pi[:, 1:] > sorted_pi[:, :-1])).all(), "Duplicates"
+        
+        # --- Capacity Validation Logic (Similar to CVRP) ---        
+        waste_with_depot_reset = torch.cat(
+            (
+                torch.full_like(dataset['waste'][:, :1], -VEHICLE_CAPACITY),
+                dataset['waste']
+            ),
+            1
+        )
+        
+        d_reset = waste_with_depot_reset.gather(1, pi)
+        used_cap = torch.zeros_like(dataset['waste'][:, 0])
+        for i in range(pi.size(1)):
+            used_cap += d_reset[:, i]
+            # Reset at depot (if used_cap becomes negative due to -VEHICLE_CAPACITY, clamp to 0)
+            used_cap[used_cap < 0] = 0
+            # Check capacity constraint with floating point tolerance
+            if (used_cap > VEHICLE_CAPACITY + 1e-5).any():
+                assert (used_cap <= VEHICLE_CAPACITY + 1e-5).all(), "Used more than capacity"
+
+        # --- Profit Calculation (Similar to VRPP) ---
+        # For profit, we sum actual waste collected (depot has 0)
+        waste_with_depot = torch.cat(
+            (
+                torch.zeros_like(dataset['waste'][:, :1]),
+                dataset['waste']
+            ),
+            1
+        )
+        # Clamp waste to max_waste (per bin)
+        w = waste_with_depot.gather(1, pi).clamp(max=dataset['max_waste'][:, None])
+        waste = w.sum(dim=-1)
+        if dist_matrix is not None:
+            src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
+            dst_mask = dst_vertices != 0
+            pair_mask = (src_vertices != 0) & (dst_mask)
+            dists = dist_matrix[0, src_vertices, dst_vertices] * pair_mask.float()
+            last_dst = torch.max(dst_mask * torch.arange(dst_vertices.size(1), device=dst_vertices.device), dim=1).indices
+            length = dist_matrix[0, dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0] + dists.sum(dim=1) + dist_matrix[0, 0, src_vertices[:, 0]]
+        else:
+            # Gather dataset in order of tour
+            loc_with_depot = torch.cat((dataset['depot'][:, None, :], dataset['loc']), 1)
+            d = loc_with_depot.gather(1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1)))
+            length = (
+                (d[:, 1:] - d[:, :-1]).norm(p=2, dim=-1).sum(1)
+                + (d[:, 0] - dataset['depot']).norm(p=2, dim=-1)
+                + (d[:, -1] - dataset['depot']).norm(p=2, dim=-1)
+            )
+            
+        negative_profit = length * COST_KM - waste * REVENUE_KG if cw_dict is None \
+        else cw_dict['length'] * length * COST_KM - cw_dict['waste'] * waste * REVENUE_KG
+        c_dict = {'length': length, 'waste': waste, 'total': negative_profit}
+        return negative_profit, c_dict, None
+
+    @staticmethod
+    def make_dataset(*args, **kwargs):
+        return VRPPDataset(*args, **kwargs)
+
+    @staticmethod
+    def make_state(*args, **kwargs):
+        if 'profit_vars' not in kwargs or kwargs['profit_vars'] is None:
+            kwargs['profit_vars'] = {
+                'cost_km': COST_KM,
+                'revenue_kg': REVENUE_KG,
+                'bin_capacity': BIN_CAPACITY,
+                'vehicle_capacity': VEHICLE_CAPACITY
+            }
+        return StateCVRPP.initialize(*args, **kwargs)
+
+    @staticmethod
+    def beam_search(input, beam_size, cost_weights, edges=None, expand_size=None, compress_mask=False, model=None, max_calc_batch_size=4096):
+        assert model is not None, "Provide model"
+
+        fixed = model.precompute_fixed(input)
+
+        def propose_expansions(beam):
+            return model.propose_expansions(beam, fixed, expand_size, normalize=True, max_calc_batch_size=max_calc_batch_size)
+
+        state = VRPP.make_state(input, edges, cost_weights, visited_dtype=torch.int64 if compress_mask else torch.uint8)
+        return beam_search(state, beam_size, propose_expansions)
+
+
 def make_instance(edge_threshold, edge_strategy, args):
     depot, loc, waste, max_waste, *args = args
     ret_dict = {
@@ -157,8 +254,10 @@ class VRPPDataset(Dataset):
         global COST_KM
         global REVENUE_KG
         global BIN_CAPACITY
+        global VEHICLE_CAPACITY
         VEHICLE_CAPACITY, REVENUE_KG, DENSITY, COST_KM, VOLUME = load_area_and_waste_type_params(area, waste_type)
         BIN_CAPACITY = VOLUME * DENSITY
+        VEHICLE_CAPACITY = VEHICLE_CAPACITY / 100
         if focus_graph is not None and focus_size > 0:
             focus_path = os.path.join(os.getcwd(), "data", "wsr_simulator", "bins_selection", focus_graph)
             tmp_coords, idx = load_focus_coords(size, None, area, waste_type, focus_path, focus_size=1)

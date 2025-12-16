@@ -16,18 +16,14 @@ def setup_cost_weights(opts, def_val=1.):
     #return opts.get(cost_weight, default_value)
 
     cw_dict = {}
-    if opts['problem'] == 'wcrp':
+    if opts['problem'] in ['wcrp', 'cwcvrp', 'sdwcvrp']:
         #cw_dict['lost'] = opts['w_lost'] = _set_val(opts['w_lost'], def_val)
         cw_dict['waste'] = opts['w_waste'] = _set_val(opts['w_waste'], def_val)
         cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
         cw_dict['overflows'] = opts['w_overflows'] = _set_val(opts['w_overflows'], def_val)
-    elif opts['problem'] == 'vrpp':
+    elif opts['problem'] in ['vrpp', 'cvrpp']:
         cw_dict['waste'] = opts['w_waste'] = _set_val(opts['w_waste'], def_val)
         cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
-    elif opts['problem'] in ['cwcvrp', 'sdwcvrp']:
-        cw_dict['lost'] = opts['w_lost'] = _set_val(opts['w_lost'], def_val)
-        cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
-        cw_dict['overflows'] = opts['w_overflows'] = _set_val(opts['w_overflows'], def_val)
     elif opts['problem'] == 'op':
         cw_dict['prize'] = opts['w_prize'] = _set_val(opts['w_prize'], def_val)
     elif opts['problem'] in ['tsp', 'cvrp', 'sdvrp', 'pdp']:

@@ -270,7 +270,7 @@ def prepare_epoch(optimizer, epoch, problem, tb_logger, cost_weights, opts):
 
 
 def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts):
-    if opts['problem'] in ['vrpp', 'wcrp', 'cwcvrp', 'sdwcvrp'] and opts['data_distribution'] == 'emp':
+    if opts['problem'] in ['vrpp', 'cvrpp', 'wcrp', 'cwcvrp', 'sdwcvrp'] and opts['data_distribution'] == 'emp':
         data_dir = os.path.join(os.getcwd(), "data", "wsr_simulator")
         with open(os.path.join(data_dir, 'bins_selection', opts['focus_graph'])) as js:
             idx = json.load(js)
@@ -283,7 +283,7 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
     if opts['temporal_horizon'] > 0:
         data_size = training_dataset.size
         graphs = torch.stack([torch.cat((x['depot'].unsqueeze(0), x['loc'])) for x in training_dataset])
-        if opts['problem'] in ['vrpp', 'wcrp', 'cwcvrp', 'sdwcvrp']:
+        if opts['problem'] in ['vrpp', 'cvrpp', 'wcrp', 'cwcvrp', 'sdwcvrp']:
             for day_id in range(1, opts['temporal_horizon'] + 1):
                 training_dataset["fill{}".format(day_id)] = torch.from_numpy(generate_waste_prize(opts['graph_size'], opts['data_distribution'], graphs, data_size, bins)).float()
 
@@ -363,7 +363,7 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args):
     # Put model in train mode!
     model.train()
     set_decode_type(model, "sampling")
-    if opts['problem'] in ['vrpp', 'wcrp']:
+    if opts['problem'] in ['vrpp', 'cvrpp', 'wcrp', 'cwcvrp', 'sdwcvrp']:
         # Get masks for bins present in routes
         sorted_routes = routes.sort(1)[0]
         dataset_dim, node_dim = sorted_routes.size()
