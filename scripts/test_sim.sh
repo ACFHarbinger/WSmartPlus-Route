@@ -31,7 +31,7 @@ if [[ -z $n_cores ]]; then
 fi
 
 SEED=42
-N_DAYS=31
+N_DAYS=30
 N_BINS=104
 N_SAMPLES=1
 PROBLEM="cvrpp"
@@ -54,7 +54,7 @@ GUROBI_PARAM=(0.84 1.00)
 HEXALY_PARAM=(0.84 1.00)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" "policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp" "policy_last_minute" "policy_regular" "gurobi_vrpp" "hexaly_vrpp")
+POLICIES=("policy_look_ahead_vrpp")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
@@ -76,7 +76,7 @@ EDGE_METHOD="knn"
 VERTEX_METHOD="mmn"
 DIST_METHOD="gmaps"
 DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}104[${AREA}].csv"
-WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr31_N1_seed${SEED}.pkl"
+WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}_seed${SEED}.pkl"
 
 RUN_TSP=1
 CHECKPOINTS=30

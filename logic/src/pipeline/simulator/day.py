@@ -56,7 +56,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
     if bins.is_stochastic():
         new_overflows, fill, total_fill, sum_lost = bins.stochasticFilling()
     else:
-        new_overflows, fill, total_fill, sum_lost = bins.loadFilling(day - 1)
+        new_overflows, fill, total_fill, sum_lost = bins.loadFilling(day)
 
     overflows += new_overflows
     distance_matrix, paths_between_states, dm_tensor, distancesC = distpath_tup
