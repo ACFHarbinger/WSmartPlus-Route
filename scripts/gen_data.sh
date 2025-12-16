@@ -29,7 +29,7 @@ D_TYPE="train_time" #"train"
 D_TYPE_SIM="test_simulator"
 
 WTYPE="plastic"
-FOCUS_SIZE=128000
+FOCUS_SIZE=1280
 VAL_FOCUS_SIZE=1280
 TEST_FOCUS_SIZE=1
 SIZES=(20 50 100 170)
@@ -37,7 +37,7 @@ for size in "${SIZES[@]}"; do
     FOCUS_GRAPHS+=("graphs_${size}V_1N_${WTYPE}.json")
 done
 
-N_DATA=128000
+N_DATA=1280
 N_VAL_DATA=1280
 N_TEST_DATA=10
 DATASET_NAME="time"

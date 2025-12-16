@@ -64,7 +64,7 @@ class StateCVRPP(NamedTuple):
         return self[key]
 
     @staticmethod
-    def initialize(input, edges, cost_weights=None, dist_matrix=None, profit_vars=None, visited_dtype=torch.uint8):
+    def initialize(input, edges, cost_weights=None, dist_matrix=None, profit_vars=None, visited_dtype=torch.uint8, hrl_mask=None):
         depot = input['depot']
         loc = input['loc']
         waste = input['waste']
@@ -79,21 +79,38 @@ class StateCVRPP(NamedTuple):
 
         batch_size, n_loc, _ = loc.size()
         coords = torch.cat((depot[:, None, :], loc), -2)
+        
+        # Initialize visited mask
+        if visited_dtype == torch.uint8:
+            visited_ = torch.zeros(
+                batch_size, 1, n_loc + 1,
+                dtype=torch.uint8, device=loc.device
+            )
+            if hrl_mask is not None:          
+                # hrl_mask is (Batch, N).
+                # visited_ is (Batch, 1, N+1). Index 0 is Depot.
+                # Mark HRL masked nodes as visited (1)
+                if hrl_mask.dim() == 2:
+                    if hrl_mask.size(1) != n_loc:
+                        print(f"CRITICAL ERROR: HRL Mask width {hrl_mask.size(1)} != n_loc {n_loc}")
+                    visited_[:, 0, 1:] = hrl_mask.to(torch.uint8)
+                else:
+                    # If mask has extra dims
+                    visited_[:, 0, 1:] = hrl_mask.squeeze().to(torch.uint8)
+        else:
+            # Compressed mask logic (int64 bitmask)
+            visited_ = torch.zeros(batch_size, 1, (n_loc + 1 + 63) // 64, dtype=torch.int64, device=loc.device)
+            # NOTE: Compressed mask HRL not implemented yet, assumes uint8 default
+            if hrl_mask is not None:
+                print("Warning: HRL Mask with compressed visited mask not implemented")
+                 
         return StateCVRPP(
             coords=coords,
             waste=F.pad(waste, (1, 0), mode='constant', value=0),  # add 0 for depot
             max_waste=max_waste[:, None],
             ids=torch.arange(batch_size, dtype=torch.int64, device=loc.device)[:, None],  # Add steps dimension
             prev_a=torch.zeros(batch_size, 1, dtype=torch.long, device=loc.device),
-            visited_=(  # Visited as mask is easier to understand, as long more memory efficient
-                # Keep visited_ with depot so we can scatter efficiently (if there is an action for depot)
-                torch.zeros(
-                    batch_size, 1, n_loc + 1,
-                    dtype=torch.uint8, device=loc.device
-                )
-                if visited_dtype == torch.uint8
-                else torch.zeros(batch_size, 1, (n_loc + 1 + 63) // 64, dtype=torch.int64, device=loc.device)  # Ceil
-            ),
+            visited_=visited_,
             lengths=torch.zeros(batch_size, 1, device=loc.device),
             cur_coord=input['depot'][:, None, :],  # Add step dimension
             used_capacity=torch.zeros(batch_size, 1, device=loc.device),
