@@ -7,7 +7,9 @@ TEST_MODULES = {
     'gen_data': 'test_generate_data.py',
     'problems': 'test_problems.py',
     'eval': 'test_eval.py',
-    'gui': 'test_gui.py',
+    'models': 'test_models.py',
+    'subnets': 'test_subnets.py',
+    'modules': 'test_modules.py',
     'simulator': 'test_simulator.py',
     'integration': 'test_integration.py'
 }
