@@ -58,7 +58,7 @@ EXP_BETA=0.8
 BL_ALPHA=0.05
 ACC_STEPS=1
 
-SIZE=100
+SIZE=20
 AREA="riomaior"
 WTYPE="plastic"
 F_SIZE=128000
@@ -66,22 +66,22 @@ VAL_F_SIZE=0
 DM_METHOD="gmaps"
 F_GRAPH="graphs_${SIZE}V_1N_${WTYPE}.json"
 DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}[${AREA}].csv"
-WASTE_PATH="" #"daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}_seed${SEED}.pkl"
+WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}_seed${SEED}.pkl"
 
 SEED=42
 START=0
 EPOCHS=31
 TOTAL_EPOCHS=$(($START + $EPOCHS))
-PROBLEM="wcrp"
+PROBLEM="cvrpp"
+DATA_PROBLEM="vrpp"
 DATASET_NAME="time${TOTAL_EPOCHS}"
 VAL_DATASET_NAME="${DATASET_NAME}_val"
 DATASETS=()
 VAL_DATASETS=()
 DATA_DISTS=("gamma1")
 for dist in "${DATA_DISTS[@]}"; do
-    # VAL_DATASETS+="data/datasets/${PROBLEM}/${PROBLEM}${SIZE}_${dist}_${VAL_DATASET_NAME}_seed${SEED}.pkl"
-    #DATASETS+=("data/datasets/${PROBLEM}/${PROBLEM}${SIZE}_${dist}_${DATASET_NAME}_seed${SEED}.pkl")
-    DATASETS+=()
+    # VAL_DATASETS+="data/datasets/${DATA_PROBLEM}/${DATA_PROBLEM}${SIZE}_${dist}_${VAL_DATASET_NAME}_seed${SEED}.pkl"
+    DATASETS+=("data/datasets/${DATA_PROBLEM}/${DATA_PROBLEM}${SIZE}_${dist}_${DATASET_NAME}_seed${SEED}.pkl")
 done
 
 TRAIN_AM=0
@@ -112,7 +112,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
         --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
-        --focus_graph "$F_GRAPH" --normalization "$NORM" \
+        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
