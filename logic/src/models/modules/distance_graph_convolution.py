@@ -47,8 +47,9 @@ class DistanceAwareGraphConvolution(nn.Module):
         
     def init_parameters(self):
         for param in self.parameters():
-            stdv = 1. / math.sqrt(param.size(-1))
-            param.data.uniform_(-stdv, stdv)
+            if param.dim() > 1:
+                stdv = 1. / math.sqrt(param.size(-1))
+                param.data.uniform_(-stdv, stdv)
             
     def get_distance_weights(self, dist_matrix):
         """
@@ -137,15 +138,24 @@ class DistanceAwareGraphConvolution(nn.Module):
                                 dim_size=batch_size * num_nodes, reduce="max")
             out = flat_output.view(batch_size, num_nodes, self.out_channels)
             
-        elif self.aggregation == "mean":
+        if self.aggregation == "mean":
             # Calculate weighted node degrees for normalization
-            degrees = weighted_adj.squeeze(0).sum(dim=0).clamp(min=1e-8)
-            
+            # Handle batched/unbatched weighted_adj
+            if weighted_adj.dim() == 3: # (B, N, N)
+                 degrees = weighted_adj.sum(dim=-1).clamp(min=1e-8) # (B, N)
+                 degrees = degrees.unsqueeze(-1) # (B, N, 1)
+            else: # (N, N)
+                 degrees = weighted_adj.sum(dim=-1).clamp(min=1e-8) # (N)
+                 degrees = degrees.view(1, num_nodes, 1).expand(batch_size, -1, -1)
+
             # Weighted message passing
-            out = torch.bmm(weighted_adj.expand(batch_size, -1, -1), support)
+            if weighted_adj.dim() == 2:
+                weighted_adj = weighted_adj.expand(batch_size, -1, -1)
+            
+            out = torch.bmm(weighted_adj, support)
             
             # Normalize by weighted degrees
-            out = out / degrees.view(1, -1, 1).expand(batch_size, -1, self.out_channels)
+            out = out / degrees
             
         else:  # Default: sum aggregation
             # Weighted message passing

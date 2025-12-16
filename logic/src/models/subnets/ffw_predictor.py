@@ -15,5 +15,5 @@ class FeedForwardWeightPredictor(nn.Module):
     
     def forward(self, instance_features, keys):
         weights = self.network(instance_features)
-        cost_dict = {k: v for k, v in zip(keys, weights)}
+        cost_dict = {k: weights[:, i] for i, k in enumerate(keys)}
         return cost_dict

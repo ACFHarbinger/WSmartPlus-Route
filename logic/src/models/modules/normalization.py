@@ -16,14 +16,22 @@ class Normalization(nn.Module):
                 kval: Optional[float]=None,
                 bias: Optional[bool]=True):
         super(Normalization, self).__init__()
-        self.normalizer = {
-            'instance': nn.InstanceNorm1d(embed_dim, eps=eps_alpha, affine=learn_affine, track_running_stats=track_stats, momentum=mbval),
-            'batch': nn.BatchNorm1d(embed_dim, eps=eps_alpha, affine=learn_affine, track_running_stats=track_stats, momentum=mbval),
-            'layer': nn.LayerNorm(embed_dim, eps=eps_alpha, elementwise_affine=learn_affine, bias=bias),
-            'group': nn.GroupNorm(n_groups, eps=eps_alpha, num_channels=embed_dim, affine=learn_affine),
-            'local_response': nn.LocalResponseNorm(embed_dim, alpha=eps_alpha, beta=mbval, k=kval)
-        }.get(norm_name, None)
-        assert self.normalizer is not None, "Unknown normalization method: {}".format(norm_name)
+        
+        if norm_name == 'instance':
+            self.normalizer = nn.InstanceNorm1d(embed_dim, eps=eps_alpha, affine=learn_affine, track_running_stats=track_stats, momentum=mbval)
+        elif norm_name == 'batch':
+            self.normalizer = nn.BatchNorm1d(embed_dim, eps=eps_alpha, affine=learn_affine, track_running_stats=track_stats, momentum=mbval)
+        elif norm_name == 'layer':
+            self.normalizer = nn.LayerNorm(embed_dim, eps=eps_alpha, elementwise_affine=learn_affine, bias=bias)
+        elif norm_name == 'group':
+            if n_groups is None:
+                # Fallback or error if n_groups not provided
+                n_groups = 1 # avoid error if not used, or raise?
+            self.normalizer = nn.GroupNorm(n_groups, eps=eps_alpha, num_channels=embed_dim, affine=learn_affine)
+        elif norm_name == 'local_response':
+            self.normalizer = nn.LocalResponseNorm(embed_dim, alpha=eps_alpha, beta=mbval, k=kval)
+        else:
+            raise ValueError(f"Unknown normalization method: {norm_name}")
 
         # Normalization by default initializes affine parameters with bias 0 and weight unif(0, 1) which is too large!
         if learn_affine:
