@@ -190,19 +190,27 @@ class StateCVRPP(NamedTuple):
 
         # Capacity check
         # We need to check if used_capacity + new_waste <= vehicle_capacity
-        potential_waste = self.waste.clamp(max=self.max_waste) # (batch, n_loc+1)
+        # Use ids to maintain step dimension (batch, 1, n_loc+1)
+        potential_waste = self.waste[self.ids, :].clamp(max=self.max_waste[self.ids, :])
         
         # Exceeds capacity?
         # Note: potential_waste[:, 0] is 0 (depot), so depot never exceeds capacity addition
-        exceeds_cap = (self.used_capacity + potential_waste) > self.vehicle_capacity
+        # unsqueeze used_capacity to (batch, 1, 1) to broadcast correctly against (batch, 1, n_loc+1)
+        exceeds_cap = (self.used_capacity[:, :, None] + potential_waste) > self.vehicle_capacity
         
         # Combine masks
         # mask is currently "is visited".
         # We want (is visited) OR (exceeds capacity)
+        # exceeds_cap is (batch, 1, n_loc+1) matching mask
         mask = mask | exceeds_cap
-         
-        # If prev_a == 0, we mask depot.
-        mask_depot = (self.prev_a == 0)
+        
+        # Check if there are any feasible non-depot nodes
+        # mask[:, :, 1:] correspond to nodes (0 in mask means feasible)
+        has_feasible_dest = (mask[:, :, 1:] == 0).any(dim=-1) # (B, 1)
+
+        # If prev_a == 0, we mask depot ONLY if we can go somewhere else.
+        # If we are at depot and cannot go anywhere, we must allow staying at depot (to finish or wait).
+        mask_depot = (self.prev_a == 0) & has_feasible_dest
         
         # Update mask for depot column
         mask[:, :, 0] = mask_depot
