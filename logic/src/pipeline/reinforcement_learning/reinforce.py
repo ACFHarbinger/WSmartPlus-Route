@@ -136,7 +136,7 @@ def train_reinforce_over_time_cb(model, optimizer, baseline, lr_scheduler, scale
 
             # Calculate average daily reward and cost components
             avg_daily_reward = (
-                - sum([current_weights[ckey] * (daily_cost_components[ckey] / daily_total_samples)] for ckey in cost_keys)
+                - sum(current_weights[ckey] * (daily_cost_components[ckey] / daily_total_samples) for ckey in cost_keys)
             )
             normalized_components = {ckey: daily_cost_components[ckey] / daily_total_samples for ckey in cost_keys}
             

@@ -942,3 +942,61 @@ def cleanup_test_root(request):
         if path_to_clean.exists():
             shutil.rmtree(path_to_clean)
     request.addfinalizer(finalizer)
+
+
+@pytest.fixture
+def mock_train_model(mocker, mock_torch_device):
+    """
+    Returns a mock PyTorch model for training tests.
+    It mimics the signature: cost, log_likelihood, c_dict, pi = model(x, cost_weights, return_pi, pad)
+    """
+    mock_model = mocker.MagicMock(spec=torch.nn.Module)
+    
+    # Setup standard return values
+    # cost: (batch_size,) tensor
+    # log_likelihood: (batch_size,) tensor
+    # c_dict: dict of tensors
+    # pi: (batch_size, seq_len)
+    
+    cost = torch.tensor([10.0, 12.0], device=mock_torch_device, requires_grad=True)
+    log_likelihood = torch.tensor([-0.5, -0.6], device=mock_torch_device, requires_grad=True)
+    c_dict = {
+        'length': torch.tensor([5.0, 6.0], device=mock_torch_device),
+        'waste': torch.tensor([50.0, 60.0], device=mock_torch_device),
+        'overflows': torch.tensor([0.0, 1.0], device=mock_torch_device)
+    }
+    pi = torch.tensor([[0, 1, 0], [0, 2, 0]], device=mock_torch_device)
+    
+    # Configure return values on instance call
+    mock_model.return_value = (cost, log_likelihood, c_dict, pi)
+    
+    # Allow .to(device) chaining
+    mock_model.to.return_value = mock_model
+    
+    # DataParallel support mocks
+    mock_model.module = mock_model
+    
+    # Mock set_decode_type method
+    mock_model.set_decode_type = mocker.MagicMock()
+    
+    return mock_model
+
+
+@pytest.fixture
+def mock_optimizer(mocker):
+    """Returns a mock optimizer."""
+    mock_opt = mocker.MagicMock()
+    mock_opt.param_groups = [{'params': [], 'lr': 0.001}]
+    return mock_opt
+
+
+@pytest.fixture
+def mock_baseline(mocker):
+    """Returns a mock baseline."""
+    mock_bl = mocker.MagicMock()
+    mock_bl.wrap_dataset.side_effect = lambda x: x # Pass through
+    mock_bl.unwrap_batch.side_effect = lambda x: (x, None) # Simple unwrap
+    # eval returns (bl_val, bl_loss)
+    mock_bl.eval.return_value = (torch.zeros(2), 0.0) 
+    return mock_bl
+
