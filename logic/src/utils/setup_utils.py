@@ -140,7 +140,7 @@ def setup_env(policy, server=False, gplic_filename=None, symkey_name=None, env_f
                         raise ValueError(f"Missing parameter {glp_key} for Gurobi license")
         else:
             params = {}
-        params['OutputFlag'] = 1
+        params['OutputFlag'] = 0
         return gp.Env(params=params)
     
 
