@@ -1,3 +1,4 @@
+import os
 import torch
 import numpy as np
 
@@ -49,7 +50,7 @@ def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum
 
 def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflows, 
             day, model_env, model_ls, n_vehicles, area, realtime_log_path, waste_type, 
-            distpath_tup, current_collection_day, cached, device, lock=None, hrl_manager=None):
+            distpath_tup, current_collection_day, cached, device, lock=None, hrl_manager=None, bins_indices=None):
     cost = 0
     tour = []
     output_dict = None
@@ -132,9 +133,12 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
             values = {
                 'R': R, 'C': C, 'E': E, 'B': B, 
                 'vehicle_capacity': vehicle_capacity,
+                'Omega': 0.1,
+                'delta': 0,  
+                'psi': 1,
             }
             if 'vrpp' in policy:
-                values['time_limit'] = 600
+                values['time_limit'] = 28800
                 routes, _, _ = policy_lookahead_vrpp(bins.c, binsids, must_go_bins, distance_matrix, values, env=model_env)
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes

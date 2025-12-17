@@ -94,6 +94,45 @@ class Bins:
         self.std = np.maximum(data['StD'].values.astype(np.float64), 0)
         self.day_count = np.maximum(data.at[0, 'Count'].astype(np.int64), 0)
         self.square_diff = (self.std ** 2) * (self.day_count - 1)
+
+    def load_params_from_excel(self, excel_path):
+        """
+        Loads Si (Initial Fill) and Mean (Accumulation Rate) from parameters.xlsx.
+        Overrides self.c and self.means to match Notebook physics.
+        """
+        import pandas as pd
+        if not os.path.exists(excel_path):
+            print(f"Warning: Excel params not found at {excel_path}")
+            return
+
+        df = pd.read_excel(excel_path, sheet_name="Si_Ei", engine="openpyxl")
+        
+        # Ensure we Map ID -> Index correctly. 
+        # self.grid.ids_map maps Index -> ID.
+        # We need ID -> Index to populate arrays.
+        id_to_index = {v: k for k, v in self.grid.ids_map.items()}
+        
+        count = 0
+        for _, row in df.iterrows():
+            bid = row['ID']
+            # Handle type mismatch (int vs str) if necessary
+            # ID in excel is likely int. grid IDs might be str or int.
+            if bid not in id_to_index and str(bid) in id_to_index:
+                bid = str(bid)
+            
+            if bid in id_to_index:
+                idx = id_to_index[bid]
+                
+                # Set Initial Fill (Si)
+                # Note: Notebook uses Si as-is. Sim uses self.c (0..100).
+                # Assuming Si is % in Excel.
+                self.c[idx] = row['Si']
+                
+                # Set Mean
+                self.means[idx] = row['Mean']
+                count += 1
+        
+        print(f"Loaded Params from Excel for {count} bins. Overrode c and means.")
     
     def is_stochastic(self):
         return self.waste_fills is None
@@ -183,7 +222,6 @@ class Bins:
     
     def loadFilling(self, day):
         todaysfilling = self.waste_fills[day]
-        print("Loading waste bins:", todaysfilling)
         return self._process_filling(todaysfilling)
 
     def __setDistribution(self, param1, param2):

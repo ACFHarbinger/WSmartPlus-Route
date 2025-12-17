@@ -75,7 +75,7 @@ EDGE_THRESH=0.0
 EDGE_METHOD="knn"
 VERTEX_METHOD="mmn"
 DIST_METHOD="gmaps"
-DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}104[${AREA}].csv"
+DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_plastic104[riomaior].csv"
 WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}_seed${SEED}.pkl"
 
 RUN_TSP=1
