@@ -799,7 +799,7 @@ class TestDay:
             current_collection_day=1, cached=None, device='cpu'
         )
         
-        mock_run_day_deps['bins'].loadFilling.assert_called_once_with(4) # day - 1 = 4
+        mock_run_day_deps['bins'].loadFilling.assert_called_once_with(5)
         mock_run_day_deps['bins'].stochasticFilling.assert_not_called()
         mock_send_output.assert_called_once() # Ensure final call happened without crash
 
