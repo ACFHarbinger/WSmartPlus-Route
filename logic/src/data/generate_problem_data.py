@@ -96,7 +96,7 @@ def generate_vrpp_data(dataset_size, vrpp_size, waste_type,
         assert depot.shape[-1] == loc.shape[-1] and depot.shape[0] == loc.shape[0]
         if distribution == 'emp':
             data_dir = get_path_until_string(focus_graph, 'wsr_simulator')
-            bins = Bins(vrpp_size, data_dir, sample_dist=distribution, area=area, indices=idx[0], grid=None)
+            bins = Bins(vrpp_size, data_dir, sample_dist=distribution, area=area, indices=idx[0], grid=None, waste_type=waste_type)
         else:
             bins = None
     else:
@@ -132,7 +132,7 @@ def generate_wcrp_data(dataset_size, wcrp_size, waste_type,
         assert depot.shape[-1] == loc.shape[-1] and depot.shape[0] == loc.shape[0]
         if distribution == 'emp':
             data_dir = get_path_until_string(focus_graph, 'wsr_simulator')
-            bins = Bins(wcrp_size, data_dir, sample_dist=distribution, area=area, indices=idx[0], grid=None)
+            bins = Bins(wcrp_size, data_dir, sample_dist=distribution, area=area, indices=idx[0], grid=None, waste_type=waste_type)
         else:
             bins = None
     else:
@@ -146,7 +146,7 @@ def generate_wcrp_data(dataset_size, wcrp_size, waste_type,
     for _ in range(num_days):
         waste = generate_waste_prize(wcrp_size, distribution, (depot, loc), dataset_size, bins)
         fill_values.append(waste)
-    
+
     fill_values = np.transpose(np.array(fill_values), (1, 0, 2))
     return list(zip(
         depot.tolist(),
