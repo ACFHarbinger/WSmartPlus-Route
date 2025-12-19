@@ -724,7 +724,7 @@ class TestAdvancedLookaheadPolicies:
         mock_model = MagicMock()
         mock_model_cls.return_value = mock_model
         mock_model.optimize.return_value = None
-        mock_model.status = 2 # Matches GRB.OPTIMAL
+        mock_model.Status = 2 # Matches GRB.OPTIMAL
         mock_model.MIPGap = 0.0
 
         # Setup Variables Mock
@@ -744,10 +744,10 @@ class TestAdvancedLookaheadPolicies:
         # Edges: (0, 1), (1, 3), (3, 0).
         # WAIT: x vars use NODE INDICES (0, 1, 2).
         # We need (0, 1), (1, 2), (2, 0).
-        active_edges = {(0, 1), (1, 2), (2, 0)}
+        active_edges = {(0, 1), (1, 3), (3, 4)}
 
         # Helper to create var mocks with .X attribute
-        def create_var_mock(indices, vtype, name=None, **kwargs):
+        def create_var_mock(*indices, vtype=None, name=None, **kwargs):
             # indices is the first arg to addVars.
             # It returns a dict-like object (tupledict).
             vars_dict = MagicMock()
@@ -797,12 +797,24 @@ class TestAdvancedLookaheadPolicies:
 
         values = {
             'R': 0.16, 'C': 1.0, 'E': 2.5, 'B': 21.0, 
-            'vehicle_capacity': 4000.0, 'time_limit': 600,
+            'vehicle_capacity': 4000.0, 'time_limit': 600, 'Omega': 0.1
         }
+        
+        # Mock getAttr to return dict-like accessor for x values
+        def get_attr_side_effect(attr, *args):
+            if attr == 'x':
+                d = MagicMock()
+                def get_val(key):
+                    if key in active_edges: return 1.0
+                    return 0.0
+                d.__getitem__.side_effect = get_val
+                return d
+            return MagicMock()
+        mock_model.getAttr.side_effect = get_attr_side_effect
         
         # --- Act ---
         # Mock inputs
-        fh = np.zeros((5, 5))
+        fh = np.zeros(5)
         must_go_bins = []
         distance_matrix = np.zeros((10, 10)) # Big enough
         mock_env = MagicMock()
@@ -954,7 +966,7 @@ class TestAdvancedLookaheadPolicies:
         params = (75, 50000, 0.7, 0.01) # T_init, iterations, alpha, T_min
         values = {
             'R': 0.16, 'C': 1.0, 'E': 2.5, 'B': 21.0, 
-            'vehicle_capacity': 4000.0, 'time_limit': 60
+            'vehicle_capacity': 4000.0, 'time_limit': 60, 'Omega': 0.1
         }
         
         # --- Act ---
