@@ -65,7 +65,7 @@ class StateVRPP(NamedTuple):
     # def __len__(self):
     #     return len(self.used_capacity)
     @staticmethod
-    def initialize(input, edges, cost_weights=None, dist_matrix=None, profit_vars=None, visited_dtype=torch.uint8):
+    def initialize(input, edges, cost_weights=None, dist_matrix=None, profit_vars=None, visited_dtype=torch.uint8, hrl_mask=None):
         depot = input['depot']
         loc = input['loc']
         waste = input['waste']

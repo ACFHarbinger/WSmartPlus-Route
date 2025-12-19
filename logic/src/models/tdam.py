@@ -179,7 +179,7 @@ class TemporalDistanceAttentionModel(nn.Module):
         self.is_vrp = problem.NAME == 'vrp'
         self.is_orienteering = problem.NAME == 'orienteering'
         self.is_pctsp = problem.NAME == 'pctsp'
-        self.is_wc = problem.NAME == 'wcrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
+        self.is_wc = problem.NAME == 'wcvrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
         self.is_vrpp = problem.NAME == 'vrpp' or problem.NAME == 'cvrpp'
         
         # Determine if we should predict future values

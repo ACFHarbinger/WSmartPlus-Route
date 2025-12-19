@@ -105,7 +105,7 @@ class HierarchicalTemporalAttentionModel(TemporalAttentionModel):
         # Get clustering features
         clustering_features = self.clustering_network(node_embeddings)
         
-        # For WCRP/VRPP, incorporate waste and max_waste into clustering decision
+        # For WCVRP/VRPP, incorporate waste and max_waste into clustering decision
         if (self.is_vrpp or self.is_wc) and node_features is not None:
             # Extract waste and max_waste
             waste = node_features.get('waste', None)

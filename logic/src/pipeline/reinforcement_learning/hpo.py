@@ -165,7 +165,7 @@ def distributed_evolutionary_algorithm(opts):
     def __individual_to_opts(individual, opts):
         w_lost, w_waste, w_length, w_overflows = individual
         new_opts = {key: val for key, val in opts.items() if 'w_' not in key}
-        if new_opts['problem'] == 'wcrp':
+        if new_opts['problem'] == 'wcvrp':
             new_opts['w_lost'] = w_lost
             new_opts['w_waste'] = w_waste
             new_opts['w_length'] = w_length
@@ -173,7 +173,7 @@ def distributed_evolutionary_algorithm(opts):
         return new_opts
 
     def _create_hyperparameter_configuration(opts):
-        if opts['problem'] == 'wcrp':
+        if opts['problem'] == 'wcvrp':
             wl = random.uniform(opts['hop_range'][0], opts['hop_range'][1]) 
             p = random.uniform(opts['hop_range'][0], opts['hop_range'][1])
             l = random.uniform(opts['hop_range'][0], opts['hop_range'][1])
@@ -237,7 +237,7 @@ def bayesian_optimization(opts):
     try:
         def _objective(trial):
             # Define the hyperparameters for Optuna to optimize
-            if opts['problem'] == 'wcrp':
+            if opts['problem'] == 'wcvrp':
                 cost_weights = {
                     'w_lost': trial.suggest_float('w_lost', opts['hop_range'][0], opts['hop_range'][1]),
                     'w_waste': trial.suggest_float('w_waste', opts['hop_range'][0], opts['hop_range'][1]),
@@ -335,7 +335,7 @@ def bayesian_optimization(opts):
 def _ray_tune_trainable(opts, config, checkpoint_dir=None):
         # Update opts with the hyperparameters from config
         current_opts = opts.copy()
-        if current_opts['problem'] == 'wcrp':
+        if current_opts['problem'] == 'wcvrp':
             current_opts['w_lost'] = config['w_lost']
             current_opts['w_waste'] = config['w_waste']
             current_opts['w_length'] = config['w_length']
@@ -438,7 +438,7 @@ def random_search(opts):
             num_gpus=gpu_num, local_mode=opts.get('local_mode', False))
     
     # Define the hyperparameter search space
-    if opts['problem'] == 'wcrp':
+    if opts['problem'] == 'wcvrp':
         config = {
             "w_lost": tune.uniform(opts['hop_range'][0], opts['hop_range'][1]),
             "w_waste": tune.uniform(opts['hop_range'][0], opts['hop_range'][1]),
@@ -512,7 +512,7 @@ def grid_search(opts):
 
     # Setup parameter grid
     default_wcost_grid = [0.0, 0.5, 1]
-    if opts['problem'] == 'wcrp':
+    if opts['problem'] == 'wcvrp':
         param_grid = {
             'w_lost': opts.get('grid', default_wcost_grid),
             'w_waste': opts.get('grid', default_wcost_grid),
@@ -656,7 +656,7 @@ def population_based_bandits_algorithm(opts):
     except Exception:
         raise Exception("directories to save output files do not exist and could not be created")
 
-    if opts['problem'] == 'wcrp':
+    if opts['problem'] == 'wcvrp':
         hp_names = ['w_lost', 'w_waste', 'w_length', 'w_overflows']
         #mutations = {
         #    "epsilon":  lambda: random.uniform(0.01, 0.5),

@@ -234,7 +234,7 @@ def process_model_data(coordinates, dist_matrix, device, method, configs,
         'depot': torch.as_tensor(depot, dtype=torch.float32),
         'waste': torch.zeros(problem_size)
     }
-    if configs['problem'] in ['vrpp', 'cvrpp', 'wcrp', 'cwcvrp', 'sdwcvrp']:
+    if configs['problem'] in ['vrpp', 'cvrpp', 'wcvrp', 'cwcvrp', 'sdwcvrp']:
         #cw_dict = {'waste': configs['w_waste'], 'length': configs['w_length'], 'overflows': configs['w_overflows'], 'lost': configs['w_lost']}
         model_data['max_waste'] = torch.as_tensor(MAX_WASTE, dtype=torch.float32)
     else:

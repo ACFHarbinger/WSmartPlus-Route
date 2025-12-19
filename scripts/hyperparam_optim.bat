@@ -82,7 +82,7 @@ set VAL_F_SIZE=1280
 set FOCUS_GRAPH=graphs_20V_1N_plastic.json
 
 set SEED=42
-set PROBLEM=wcrp
+set PROBLEM=wcvrp
 set DATASET_NAME=real
 set VAL_DATASET=real_val
 set DATA_DIST=gamma1

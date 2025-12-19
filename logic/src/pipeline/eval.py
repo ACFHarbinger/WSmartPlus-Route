@@ -177,7 +177,7 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
                 seq = seq.tolist()  # No need to trim as all are same length
             elif model.problem.NAME in ("cvrp", "sdvrp", "pdp"):
                 seq = np.trim_zeros(seq).tolist() + [0]  # Add depot
-            elif model.problem.NAME in ("op", "pctsp", "vrpp", "wcrp"):
+            elif model.problem.NAME in ("op", "pctsp", "vrpp", "wcvrp"):
                 seq = np.trim_zeros(seq)  # We have the convention to exclude the depot
             else:
                 seq = None
