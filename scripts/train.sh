@@ -72,13 +72,13 @@ SEED=42
 START=0
 EPOCHS=31
 TOTAL_EPOCHS=$(($START + $EPOCHS))
-PROBLEM="cvrpp"
-DATA_PROBLEM="vrpp"
+PROBLEM="cwcvrp"
+DATA_PROBLEM="wcrp"
 DATASET_NAME="time${TOTAL_EPOCHS}"
 VAL_DATASET_NAME="${DATASET_NAME}_val"
 DATASETS=()
 VAL_DATASETS=()
-DATA_DISTS=("gamma1")
+DATA_DISTS=("emp")
 for dist in "${DATA_DISTS[@]}"; do
     # VAL_DATASETS+="data/datasets/${DATA_PROBLEM}/${DATA_PROBLEM}${SIZE}_${dist}_${VAL_DATASET_NAME}_seed${SEED}.pkl"
     DATASETS+=("data/datasets/${DATA_PROBLEM}/${DATA_PROBLEM}${SIZE}_${dist}_${DATASET_NAME}_seed${SEED}.pkl")
