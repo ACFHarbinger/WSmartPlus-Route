@@ -78,7 +78,7 @@ VAL_F_SIZE=1280
 FOCUS_GRAPH="graphs_${SIZE}V_1N_${WTYPE}.json"
 
 SEED=42
-PROBLEM="wcrp"
+PROBLEM="wcvrp"
 DATASET_NAME="real"
 VAL_DATASET="${DATASET_NAME}_val"
 DATA_DIST="gamma1"

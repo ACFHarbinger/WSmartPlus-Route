@@ -437,7 +437,7 @@ def mock_dependencies(mocker):
     mocker.patch('logic.src.data.generate_data.generate_pctsp_data', return_value=[(None, None)])
     mocker.patch('logic.src.data.generate_data.generate_op_data', return_value=[(None, None)])
     mocker.patch('logic.src.data.generate_data.generate_vrpp_data', return_value=[(None, None)])
-    mocker.patch('logic.src.data.generate_data.generate_wcrp_data', return_value=[(None, None)])
+    mocker.patch('logic.src.data.generate_data.generate_wcvrp_data', return_value=[(None, None)])
     mocker.patch('logic.src.data.generate_data.generate_pdp_data', return_value=[(None, None)])
     
     # 2. Mock the WSR simulator data generator
@@ -1041,7 +1041,7 @@ def mock_baseline(mocker):
 @pytest.fixture
 def hpo_opts():
     return {
-        'problem': 'wcrp',
+        'problem': 'wcvrp',
         'graph_size': 20,
         'save_dir': 'test_save_dir',
         'load_path': 'test_load_path',

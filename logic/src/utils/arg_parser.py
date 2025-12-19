@@ -150,7 +150,7 @@ def add_train_args(parser):
     Adds all arguments related to training to the given parser.
     """
     # Data
-    parser.add_argument('--problem', default='wcrp', help="The problem to solve")
+    parser.add_argument('--problem', default='wcvrp', help="The problem to solve")
     parser.add_argument('--graph_size', type=int, default=20, help="The size of the problem graph")
     parser.add_argument('--edge_threshold', default='0', type=str, help="How many of all possible edges to consider")
     parser.add_argument('--edge_method', type=str, default=None, help="Method for getting edges ('dist'|'knn')")
@@ -373,7 +373,7 @@ def add_gen_data_args(parser):
     parser.add_argument("--filename", default=None, help="Filename of the dataset to create (ignores datadir)")
     parser.add_argument("--data_dir", default='datasets', help="Create datasets in data")
     parser.add_argument("--problem", type=str, default='all', 
-                                help="Problem: 'tsp'|'vrp'|'pctsp'|'vrpp'|'wcrp'|'op_const'|'op_unif'|'op_dist'|'pdp'|'all'")
+                                help="Problem: 'tsp'|'vrp'|'pctsp'|'vrpp'|'wcvrp'|'op_const'|'op_unif'|'op_dist'|'pdp'|'all'")
     parser.add_argument("--is_gaussian", type=int, default=0)
     parser.add_argument('--data_distributions', nargs='+', default=['all'], help="Distributions to generate for problems")
     parser.add_argument("--dataset_size", type=int, default=128_000, help="Size of the dataset")

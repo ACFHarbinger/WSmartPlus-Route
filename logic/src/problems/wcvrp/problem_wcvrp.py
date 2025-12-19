@@ -5,7 +5,7 @@ import pickle
 from logic.src.utils.definitions import MAX_WASTE
 from tqdm import tqdm
 from torch.utils.data import Dataset
-from .state_wcrp import StateWCRP
+from .state_wcvrp import StateWCVRP
 from .state_cwcvrp import StateCWCVRP
 from .state_sdwcvrp import StateSDWCVRP
 from logic.src.utils.beam_search import beam_search
@@ -16,8 +16,8 @@ from logic.src.pipeline.simulator.bins import Bins
 from logic.src.pipeline.simulator.network import compute_distance_matrix, apply_edges
 
 
-class WCRP(object):
-    NAME = 'wcrp'  # Waste collection routing problem
+class WCVRP(object):
+    NAME = 'wcvrp'  # Waste collection routing problem
 
     @staticmethod
     def get_costs(dataset, pi, cw_dict, dist_matrix=None):
@@ -88,12 +88,12 @@ class WCRP(object):
 
     @staticmethod
     def make_dataset(*args, **kwargs):
-        return WCRPDataset(*args, **kwargs)
+        return WCVRPDataset(*args, **kwargs)
 
     @staticmethod
     def make_state(*args, **kwargs):
         kwargs.pop('profit_vars', None)
-        return StateWCRP.initialize(*args, **kwargs)
+        return StateWCVRP.initialize(*args, **kwargs)
 
     @staticmethod
     def beam_search(input, beam_size, cost_weights, edges=None, expand_size=None, compress_mask=False, model=None, max_calc_batch_size=4096):
@@ -104,7 +104,7 @@ class WCRP(object):
         def propose_expansions(beam):
             return model.propose_expansions(beam, fixed, expand_size, normalize=True, max_calc_batch_size=max_calc_batch_size)
 
-        state = WCRP.make_state(input, edges, cost_weights, visited_dtype=torch.int64 if compress_mask else torch.uint8)
+        state = WCVRP.make_state(input, edges, cost_weights, visited_dtype=torch.int64 if compress_mask else torch.uint8)
         return beam_search(state, beam_size, propose_expansions)
 
 
@@ -182,10 +182,11 @@ class CWCVRP(object):
 
     @staticmethod
     def make_dataset(*args, **kwargs):
-        return WCRPDataset(*args, **kwargs)
+        return WCVRPDataset(*args, **kwargs)
 
     @staticmethod
     def make_state(*args, **kwargs):
+        kwargs.pop('profit_vars', None)
         return StateCWCVRP.initialize(*args, **kwargs)
 
     @staticmethod
@@ -273,10 +274,11 @@ class SDWCVRP(object):
 
     @staticmethod
     def make_dataset(*args, **kwargs):
-        return WCRPDataset(*args, **kwargs)
+        return WCVRPDataset(*args, **kwargs)
 
     @staticmethod
     def make_state(*args, **kwargs):
+        kwargs.pop('profit_vars', None)
         return StateSDWCVRP.initialize(*args, **kwargs)
 
     @staticmethod
@@ -344,10 +346,10 @@ def generate_instance(size, edge_threshold, edge_strategy, distribution, bins, *
     return ret_dict
 
 
-class WCRPDataset(Dataset):
+class WCVRPDataset(Dataset):
     def __init__(self, filename=None, size=50, num_samples=1000000, offset=0, distribution='unif', area="riomaior", vertex_strat="mmn", 
                 number_edges=0, edge_strat=None, focus_graph=None, focus_size=0, dist_strat=None, waste_type=None, dist_matrix_path=None):
-        super(WCRPDataset, self).__init__()
+        super(WCVRPDataset, self).__init__()
         dist = distribution
         self.data_set = []
         if isinstance(number_edges, str):

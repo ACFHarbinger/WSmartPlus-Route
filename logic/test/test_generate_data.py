@@ -60,7 +60,7 @@ class TestGenerateData:
 
     @pytest.mark.parametrize("problem, generator_name, expected_distributions", [
         ('op', 'generate_op_data', ['empty', 'const', 'unif', 'dist', 'emp', 'gamma1', 'gamma2', 'gamma3', 'gamma4']),
-        ('wcrp', 'generate_wcrp_data', ['empty', 'const', 'unif', 'dist', 'emp', 'gamma1', 'gamma2', 'gamma3', 'gamma4']),
+        ('wcvrp', 'generate_wcvrp_data', ['empty', 'const', 'unif', 'dist', 'emp', 'gamma1', 'gamma2', 'gamma3', 'gamma4']),
     ])
     @pytest.mark.unit
     def test_multiple_distribution_generation(self, gen_data_opts, problem, generator_name, expected_distributions, mocker):
@@ -80,11 +80,11 @@ class TestGenerateData:
         assert mock_generator.call_count == len(expected_distributions)
         
         # Adjust the argument index for distribution based on problem type.
-        # WCRP distribution is at index 3 (after size, area, waste_type).
+        # WCVRP distribution is at index 3 (after size, area, waste_type).
         # OP distribution is at index 2 (after size).
         if problem == 'op':
             dist_index = 2
-        elif problem == 'wcrp':
+        elif problem == 'wcvrp':
             dist_index = 3
         else:
             # Fallback for unexpected problem types
@@ -124,7 +124,7 @@ class TestGenerateData:
         gen_data_opts['graph_sizes'] = [5]
         gen_data_opts['data_distributions'] = ['gamma1']
         gen_data_opts['n_epochs'] = 7
-        gen_data_opts['problem'] = 'wcrp' 
+        gen_data_opts['problem'] = 'wcvrp' 
         
         mock_wsr_generator = mocker.patch('logic.src.data.generate_data.generate_wsr_data', return_value=[(mocker_ANY, mocker_ANY)])
 

@@ -15,7 +15,7 @@ def get_inner_model(model):
 
 
 def load_problem(name):
-    from logic.src.problems import TSP, PDP, CVRP, SDVRP, OP, VRPP, CVRPP, WCRP, CWCVRP, SDWCVRP, PCTSPDet, PCTSPStoch
+    from logic.src.problems import TSP, PDP, CVRP, SDVRP, OP, VRPP, CVRPP, WCVRP, CWCVRP, SDWCVRP, PCTSPDet, PCTSPStoch
     problem = {
         'tsp': TSP,
         'cvrp': CVRP,
@@ -23,7 +23,7 @@ def load_problem(name):
         'op': OP,
         'vrpp': VRPP,
         'cvrpp': CVRPP,
-        'wcrp': WCRP,
+        'wcvrp': WCVRP,
         'cwcvrp': CWCVRP,
         'sdwcvrp': SDWCVRP,
         'pctsp_det': PCTSPDet,
@@ -88,7 +88,7 @@ def load_args(filename):
     if 'data_distribution' not in args:
         args['data_distribution'] = None
         probl, *dist = args['problem'].split("_")
-        if probl in ("op", "wcrp"):
+        if probl in ("op", "wcvrp"):
             args['problem'] = probl
             args['data_distribution'] = dist[0]
     

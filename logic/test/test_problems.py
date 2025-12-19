@@ -8,9 +8,9 @@ from logic.src.problems.vrpp import problem_vrpp
 from logic.src.problems.vrpp.state_vrpp import StateVRPP
 from logic.src.problems.vrpp.problem_vrpp import VRPP, VRPPDataset, generate_instance as gen_vrpp, CVRPP
 from logic.src.problems.vrpp.state_cvrpp import StateCVRPP
-from logic.src.problems.wcrp import problem_wcrp
-from logic.src.problems.wcrp.state_wcrp import StateWCRP
-from logic.src.problems.wcrp.problem_wcrp import WCRP, WCRPDataset, generate_instance as gen_wcrp
+from logic.src.problems.wcvrp import problem_wcvrp
+from logic.src.problems.wcvrp.state_wcvrp import StateWCVRP
+from logic.src.problems.wcvrp.problem_wcvrp import WCVRP, WCVRPDataset, generate_instance as gen_wcvrp
 
 
 class TestVRPP:
@@ -142,14 +142,14 @@ class TestStateVRPP:
         assert mask[:, :, 1].item() == 1 # Node 1 visited, now infeasible
         assert mask[:, :, 2].item() == 0 # Node 2 unvisited
 
-class TestWCRP:
-    """Tests for the WCRP problem class."""
+class TestWCVRP:
+    """Tests for the WCVRP problem class."""
 
     @pytest.mark.unit
     def test_get_costs_overflow(self):
-        """Test cost calculation with overflows for WCRP."""
-        problem_wcrp.COST_KM = 1.0
-        problem_wcrp.REVENUE_KG = 0.1
+        """Test cost calculation with overflows for WCVRP."""
+        problem_wcvrp.COST_KM = 1.0
+        problem_wcvrp.REVENUE_KG = 0.1
         
         dataset = {
             'depot': torch.tensor([[0.0, 0.0]]),
@@ -160,7 +160,7 @@ class TestWCRP:
         
         pi = torch.tensor([[1, 0]]) # (1, 2) - Visit 1 then padded 0
         
-        cost, c_dict, _ = WCRP.get_costs(dataset, pi, cw_dict=None)
+        cost, c_dict, _ = WCVRP.get_costs(dataset, pi, cw_dict=None)
         
         # Overflows: 120 >= 100 -> 1 overflow
         assert c_dict['overflows'] == 1.0
@@ -169,11 +169,11 @@ class TestWCRP:
         assert c_dict['length'] == 2.0
         
         # Cost check: overflows + length - waste ??
-        # Or cost logic in WCRP?
+        # Or cost logic in WCVRP?
         # cost = overflows + length - waste
         # 1.0 + 2.0 - 100.0 (waste clamped to max) = -97.0
         
-        # Wait, waste calculation in WCRP:
+        # Wait, waste calculation in WCVRP:
         # w = waste.gather... clamp(max)
         # So collected waste is 100.
         
@@ -181,10 +181,10 @@ class TestWCRP:
 
     @pytest.mark.unit
     def test_make_state_removes_profit_vars(self):
-        """Test that profit_vars is removed from kwargs for WCRP."""
-        with patch('logic.src.problems.wcrp.problem_wcrp.StateWCRP.initialize') as mock_init:
+        """Test that profit_vars is removed from kwargs for WCVRP."""
+        with patch('logic.src.problems.wcvrp.problem_wcvrp.StateWCVRP.initialize') as mock_init:
             kwargs = {'profit_vars': {'a': 1}, 'other': 2}
-            WCRP.make_state(input='mock', **kwargs)
+            WCVRP.make_state(input='mock', **kwargs)
             
             args, called_kwargs = mock_init.call_args
             assert 'profit_vars' not in called_kwargs
@@ -192,21 +192,21 @@ class TestWCRP:
 
     @pytest.mark.unit
     def test_dataset_generation(self, mocker):
-        """Test dataset generation calls for WCRP."""
+        """Test dataset generation calls for WCVRP."""
         # Mock dependencies
-        mocker.patch('logic.src.problems.wcrp.problem_wcrp.generate_waste_prize', 
+        mocker.patch('logic.src.problems.wcvrp.problem_wcvrp.generate_waste_prize', 
                      return_value=np.zeros((1, 10)))
 
-        dataset = WCRPDataset(size=10, num_samples=2, distribution='unif')
+        dataset = WCVRPDataset(size=10, num_samples=2, distribution='unif')
         assert len(dataset) == 2
         assert dataset[0]['waste'].shape == (1, 10)
 
-class TestStateWCRP:
-    """Tests for StateWCRP logic."""
+class TestStateWCVRP:
+    """Tests for StateWCVRP logic."""
 
     @pytest.mark.unit
     def test_initialize(self):
-        """Test initialization of StateWCRP."""
+        """Test initialization of StateWCVRP."""
         # Input mock
         batch_size = 1
         n_loc = 2
@@ -217,7 +217,7 @@ class TestStateWCRP:
             'max_waste': torch.tensor([10.0])
         }
         
-        state = StateWCRP.initialize(input_data, edges=None)
+        state = StateWCVRP.initialize(input_data, edges=None)
         
         # Check initial overflows
         # Node 1 has 12, max 10 -> Overflow. Node 2 has 5 -> No overflow.
@@ -237,7 +237,7 @@ class TestStateWCRP:
             'waste': torch.tensor([[15.0]]), # 15 > 10
             'max_waste': torch.tensor([10.0])
         }
-        state = StateWCRP.initialize(input_data, edges=None)
+        state = StateWCVRP.initialize(input_data, edges=None)
         
         # Initial checks
         assert state.cur_overflows.item() == 1.0

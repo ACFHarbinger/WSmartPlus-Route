@@ -255,4 +255,4 @@ class TestDEHB:
         
         assert dehb.min_fidelity == 1
         assert dehb.max_fidelity == 10
-        assert dehb.dimensions == 4 # 4 params in wcrp config space
+        assert dehb.dimensions == 4 # 4 params in wcvrp config space

@@ -5,7 +5,7 @@ from typing import NamedTuple
 from logic.src.utils.boolmask import mask_long2bool, mask_long_scatter
 
 
-class StateWCRP(NamedTuple):
+class StateWCVRP(NamedTuple):
     # Fixed input
     coords: torch.Tensor  # Depot + loc
     waste: torch.Tensor
@@ -64,7 +64,7 @@ class StateWCRP(NamedTuple):
     # def __len__(self):
     #     return len(self.used_capacity)
     @staticmethod
-    def initialize(input, edges, cost_weights=None, dist_matrix=None, visited_dtype=torch.uint8):
+    def initialize(input, edges, cost_weights=None, dist_matrix=None, visited_dtype=torch.uint8, hrl_mask=None):
         depot = input['depot']
         loc = input['loc']
         waste = input['waste']
@@ -72,7 +72,7 @@ class StateWCRP(NamedTuple):
 
         batch_size, n_loc, _ = loc.size()
         coords = torch.cat((depot[:, None, :], loc), -2)
-        return StateWCRP(
+        return StateWCVRP(
             coords=coords,
             waste=F.pad(waste, (1, 0), mode='constant', value=0),  # add 0 for depot
             max_waste=max_waste[:, None],
