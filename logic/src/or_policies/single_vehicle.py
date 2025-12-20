@@ -22,11 +22,11 @@ def find_route(C, to_collect):
 
 def get_route_cost(distancesC, tour):
     if isinstance(tour, torch.Tensor) and isinstance(distancesC, torch.Tensor):
-        return distancesC[tour[:-1], tour[1:]].sum().cpu().numpy()
+        return distancesC[tour[:-1], tour[1:]].sum().cpu().numpy().item()
     else:
         distancesC2 = distancesC.copy() if isinstance(distancesC, np.ndarray) else np.array(distancesC)
         tour2 = tour.copy() if isinstance(tour, np.ndarray) else np.array(tour)
-        return np.sum(distancesC2[tour2[:-1], tour2[1:]])
+        return np.sum(distancesC2[tour2[:-1], tour2[1:]]).item()
 
 
 def get_path_cost(G, p):

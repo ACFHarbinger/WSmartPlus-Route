@@ -280,8 +280,8 @@ def train_reinforce_over_time_morl(model, optimizer, baseline, lr_scheduler, sca
 
 
 def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
-    if opts.get('hrl_method', 'weight_manager') == 'gat_lstm':
-        # --- GAT-LSTM HRL Logic ---        
+    if opts.get('hrl_method', 'weight_manager') == 'gating_mechanism':
+        # --- Gating Mechanism HRL Logic ---        
         daily_rewards = []
         model.train()
         set_decode_type(model, "sampling")
@@ -393,7 +393,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 
                 # Coefficients
                 lambda_waste = 1.0     # Benefit of collecting waste
-                lambda_overflow = 100.0 # High penalty for letting bins overflow
+                lambda_overflow = 10.0 # High penalty for letting bins overflow
                 lambda_risk = 0.1      # Penalty for leaving high waste in bins
                 
                 # Total Reward: Collected - (Route Cost + Penalties)

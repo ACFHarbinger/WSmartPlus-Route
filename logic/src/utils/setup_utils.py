@@ -40,7 +40,7 @@ def setup_hrl_manager(opts, device, configs=None):
     if hrl_method is None:
         hrl_method = opts.get('hrl_method')
 
-    if hrl_method != 'gat_lstm' or hrl_path is None:
+    if hrl_method != 'gating_mechanism' or hrl_path is None:
         return None
     
     # --- Logic from load_model to handle directory ---
@@ -99,12 +99,12 @@ def setup_model(policy, general_path, model_paths, device, lock, temperature=1, 
         model.set_decode_type(decode_type, temp=temperature)
         return model, configs
 
-    if 'amgc' in policy:
-        return _load_model(general_path, model_paths['amgc'], device, temperature, decode_type, lock)
-    elif 'am' in policy:
-        return _load_model(general_path, model_paths['am'], device, temperature, decode_type, lock)
-    elif 'transgcn' in policy:
-        return _load_model(general_path, model_paths['transgcn'], device, temperature, decode_type, lock)
+    if 'amgac' in policy:
+        return _load_model(general_path, model_paths['amgac'], device, temperature, decode_type, lock)
+    elif 'amgat' in policy:
+        return _load_model(general_path, model_paths['amgat'], device, temperature, decode_type, lock)
+    elif 'amtgc' in policy:
+        return _load_model(general_path, model_paths['amtgc'], device, temperature, decode_type, lock)
     return None
 
 
