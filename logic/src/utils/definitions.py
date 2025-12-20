@@ -70,15 +70,7 @@ MAX_LENGTHS = {
     225: 6,
     317: 7
 }
-VEHICLE_CAPACITY = 1.
-CAPACITIES = {
-    10: 20.,
-    20: 30.,
-    50: 40.,
-    100: 50.,
-    150: 60.,
-    225: 70.
-}
+VEHICLE_CAPACITY = 100.
 
 # Model configurations
 SUB_NET_ENCS = ['tgc']

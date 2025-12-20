@@ -278,6 +278,8 @@ def add_attention_hooks(model_module):
 
 # Sampling functions
 def do_batch_rep(v, n):
+    if v is None:
+        return None
     if isinstance(v, dict):
         return {k: do_batch_rep(v_, n) for k, v_ in v.items()}
     elif isinstance(v, list):

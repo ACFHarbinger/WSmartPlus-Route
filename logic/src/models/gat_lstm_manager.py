@@ -14,6 +14,7 @@ class GATLSTManager(nn.Module):
     def __init__(self,
                  input_dim_static=2,   # x, y
                  input_dim_dynamic=10, # waste history length
+                 batch_size=1024,
                  hidden_dim=128,
                  lstm_hidden=64,
                  num_layers_gat=3,
@@ -22,6 +23,7 @@ class GATLSTManager(nn.Module):
                  device='cuda'):
         super(GATLSTManager, self).__init__()
         self.device = device
+        self.batch_size = batch_size
         self.hidden_dim = hidden_dim
         self.input_dim_dynamic = input_dim_dynamic
         
@@ -204,14 +206,14 @@ class GATLSTManager(nn.Module):
         # Rewards processing
         sample = self.rewards[0]
         if isinstance(sample, (int, float)) or (torch.is_tensor(sample) and sample.ndim == 0):
-             # Expand scalar reward to batch size
-             batch_size = old_states_static.shape[0] // len(self.rewards)
-             expanded_rewards = []
-             for r in self.rewards:
-                 r_val = r if isinstance(r, (int, float)) else r.item()
-                 # Use CPU tensor for expansion
-                 expanded_rewards.append(torch.full((batch_size,), r_val))
-             rewards = torch.cat(expanded_rewards)
+            # Expand scalar reward to batch size
+            total_samples = old_states_static.shape[0] // len(self.rewards)
+            expanded_rewards = []
+            for r in self.rewards:
+                r_val = r if isinstance(r, (int, float)) else r.item()
+                # Use CPU tensor for expansion
+                expanded_rewards.append(torch.full((total_samples,), r_val))
+            rewards = torch.cat(expanded_rewards)
         else:
             rewards = torch.cat(self.rewards).cpu() # Ensure CPU
             
@@ -224,17 +226,14 @@ class GATLSTManager(nn.Module):
             advantages = (advantages - advantages.mean())
             
         # Mini-batch PPO
-        total_samples = old_states_static.size(0)
-        batch_size = 1024 # Mini-batch size
-        
+        states_size = old_states_static.size(0)
         total_loss = 0
         updates = 0
-        
         for _ in range(ppo_epochs):
-            indices = torch.randperm(total_samples)
+            indices = torch.randperm(states_size)
             
-            for i in range(0, total_samples, batch_size):
-                batch_idx = indices[i:i+batch_size]
+            for i in range(0, states_size, self.batch_size):
+                batch_idx = indices[i:i+self.batch_size]
                 
                 # Move batch to device
                 b_static = old_states_static[batch_idx].to(self.device)

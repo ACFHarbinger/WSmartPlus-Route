@@ -97,7 +97,7 @@ def train_reinforce_over_time_rwa(model, optimizer, baseline, lr_scheduler, scal
     log_training(loss_keys, table_df, opts)
     if weight_optimizer is not None and 'output_dir' in opts:
         weight_history_df.to_csv(os.path.join(opts['output_dir'], "weight_history_final.csv"))
-    return
+    return model, None
 
 
 def train_reinforce_over_time_cb(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
@@ -171,7 +171,7 @@ def train_reinforce_over_time_cb(model, optimizer, baseline, lr_scheduler, scale
             for wkey, wval in cost_weights.items():
                 tb_logger.log_value(f'weight_{wkey}', wval, d + opts['epoch_start'])
     log_training(loss_keys, table_df, opts)
-    return
+    return model, None
 
 
 def train_reinforce_over_time_tdl(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
@@ -226,7 +226,7 @@ def train_reinforce_over_time_tdl(model, optimizer, baseline, lr_scheduler, scal
             for wkey, wval in cost_weights.items():
                 tb_logger.log_value(f'weight_{wkey}', wval, d + opts['epoch_start'])
     log_training(loss_keys, table_df, opts)
-    return
+    return model, None
 
 
 def train_reinforce_over_time_morl(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
@@ -276,15 +276,12 @@ def train_reinforce_over_time_morl(model, optimizer, baseline, lr_scheduler, sca
         if 'output_dir' in opts:
             history_df = weight_optimizer.get_weight_history_dataframe()
             history_df.to_csv(os.path.join({opts['output_dir']}, "weight_history_final.csv"))
-    return
+    return model, None
 
 
 def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
     if opts.get('hrl_method', 'weight_manager') == 'gat_lstm':
-        # --- GAT-LSTM HRL Logic ---
-        
-        daily_rewards = []
-        
+        # --- GAT-LSTM HRL Logic ---        
         daily_rewards = []
         model.train()
         set_decode_type(model, "sampling")
@@ -299,7 +296,8 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             input_dim_dynamic=opts.get('mrl_history', 10),
             hidden_dim=opts.get('gat_hidden', 128),
             lstm_hidden=opts.get('lstm_hidden', 64),
-            device=opts['device']
+            batch_size=opts.get('mrl_batch_size', 1024),
+            device=opts['device'],
         )
         
         # Setup Waste History Buffer (Batch, N, History)
@@ -381,6 +379,12 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 else:
                     avg_overflow = 0.0
                 
+                # Collected Waste Rewards: 'waste' from daily_loss (kg / 100)
+                if 'waste' in daily_loss:
+                    avg_waste_collected = torch.stack(daily_loss['waste']).sum().item() / daily_total_samples
+                else:
+                    avg_waste_collected = 0.0
+                
                 # Future Risk: Sum of Squared Waste.
                 # We can compute this from 'waste_history' (current state).
                 # Risk = Sum(W^2)
@@ -388,10 +392,12 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 risk = (current_waste ** 2).sum(dim=1).mean().item()
                 
                 # Coefficients
-                lambda_overflow = 100.0 # High penalty
-                lambda_risk = 0.1
+                lambda_waste = 1.0     # Benefit of collecting waste
+                lambda_overflow = 100.0 # High penalty for letting bins overflow
+                lambda_risk = 0.1      # Penalty for leaving high waste in bins
                 
-                hrl_reward = - (avg_route_cost + lambda_overflow * avg_overflow + lambda_risk * risk) * 0.001
+                # Total Reward: Collected - (Route Cost + Penalties)
+                hrl_reward = (lambda_waste * avg_waste_collected - (avg_route_cost + lambda_overflow * avg_overflow + lambda_risk * risk)) * 0.001
                 
                 daily_rewards.append(hrl_reward)
                 hrl_manager.rewards.append(hrl_reward) # Use simple storage for now
@@ -413,7 +419,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
             
         log_training(loss_keys, table_df, opts)
-        return
+        return model, hrl_manager
 
     # --- Original Weight Manager Logic ---
     day = opts['epoch_start']
@@ -504,7 +510,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
         training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
 
     log_training(loss_keys, table_df, opts)
-    return
+    return model, hrl_manager
 
 
 def train_reinforce_over_time(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
@@ -535,7 +541,7 @@ def train_reinforce_over_time(model, optimizer, baseline, lr_scheduler, scaler, 
         # Save the post-processor
         if opts.get('checkpoint_encoder', None) is not None:
             torch.save(post_processor.state_dict(), f"{opts['checkpoint_encoder']}_post_processor.pt")
-    return
+    return model, None
 
 
 def train_reinforce_epoch(model, optimizer, baseline, lr_scheduler, scaler, epoch, val_dataset, problem, tb_logger, cost_weights, opts):
@@ -559,7 +565,7 @@ def train_reinforce_epoch(model, optimizer, baseline, lr_scheduler, scaler, epoc
     log_epoch(('epoch', epoch), loss_keys, epoch_loss, opts)
     _ = complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, 
                             epoch, step, epoch_duration, tb_logger, cost_weights, opts)    
-    return
+    return model, None
 
 
 def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, step, 
@@ -582,111 +588,25 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
         # Evaluate model, get costs and log probabilities
         # Pass hrl_mask if available in batch
         mask = batch.get('hrl_mask', None)
-        active_indices = None
-        
         if mask is not None:
             mask = move_to(mask, opts['device'])
-            # Check for instances where ALL nodes are masked (True)
-            # mask is (Batch, N).
-            # If all are True, then no customers are valid.
-            all_masked = mask.all(dim=1)
             
-            if all_masked.any():
-                # We have some instances to skip
-                active_indices = torch.nonzero(~all_masked).squeeze(-1)
-                
-                # If everything is masked, return zero loss immediately
-                if len(active_indices) == 0:
-                     return None, None, None
-
-                # Slice mask
-                mask = mask[active_indices]
-                
-        if active_indices is not None:
-            # Slice input x
-            # x is expected to be a dict based on AM
-            if isinstance(x, dict):
-                x_active = {}
-                for k, v in x.items():
-                    if isinstance(v, torch.Tensor) and v.size(0) == x['loc'].size(0):
-                        x_active[k] = v[active_indices]
-                    elif isinstance(v, torch.Tensor) and v.size(0) == 1:
-                        # Assume strictly shared tensor (e.g. static graph)
-                        x_active[k] = v
-                    else:
-                        x_active[k] = v
-            else:
-                # Assume tensor
-                x_active = x[active_indices]
-                 
-            # Run model on active subset
-            cost_active, log_likelihood_active, c_dict_active, pi_active = model(x_active, cost_weights=cost_weights, return_pi=opts['train_time'], pad=opts['train_time'], mask=mask)
-            
-            # Reconstruct full outputs
-            batch_size = x['loc'].shape[0] if isinstance(x, dict) else x.shape[0]
-            pomo_size = opts.get('pomo_size', 0)
-
-            # Map active_indices to actual indices in the expanded POMO batch if needed
-            if pomo_size > 0:
-                expanded_active_indices = torch.arange(pomo_size, device=active_indices.device).view(1, -1) + (active_indices * pomo_size).view(-1, 1)
-                expanded_active_indices = expanded_active_indices.view(-1)
-                full_batch_size = batch_size * pomo_size
-            else:
-                expanded_active_indices = active_indices
-                full_batch_size = batch_size
-            
-            cost = torch.zeros(full_batch_size, device=opts['device'])
-            cost[expanded_active_indices] = cost_active
-            
-            log_likelihood = torch.zeros(full_batch_size, device=opts['device'])
-            log_likelihood[expanded_active_indices] = log_likelihood_active
-            
-            # Reconstruct pi
-            if pi_active is not None:
-                # pi_active is (ActiveBatch, SeqLen)
-                # We need (Batch, SeqLen)
-                # Pad with 0 (Depot)
-                seq_len = pi_active.size(1)
-                pi = torch.zeros((full_batch_size, seq_len), dtype=pi_active.dtype, device=opts['device'])
-                pi[expanded_active_indices] = pi_active
-            else:
-                pi = None
-                
-            # Reconstruct c_dict
-            c_dict = {}
-            if c_dict_active is not None:
-                for k, v in c_dict_active.items():
-                    if isinstance(v, torch.Tensor) and v.size(0) == cost_active.size(0):
-                        # Reconstruct
-                        full_v = torch.zeros(full_batch_size, device=active_indices.device, dtype=v.dtype)
-                        full_v[expanded_active_indices] = v
-                        c_dict[k] = full_v
-                    else:
-                        # Scalar or other
-                        c_dict[k] = v
-            
-            # Adjust baseline value if present
-            if bl_val is not None:
-                # bl_val is usually (Batch,)
-                # We only care about active ones for loss? 
-                # Wait, for inactive ones: Cost=0. bl_val might be non-zero?
-                # If bl_val is estimated, we should use it? 
-                # REINFORCE loss: (Cost - Baseline) * LogProb
-                # If LogProb=0 (deterministic "do nothing"), then Loss=0 regardless of Baseline.
-                # So we don't need to worry about bl_val for inactive indices for the GRADIENT.
-                # But for logging 'bl_loss' (critic update), we might need it?
-                # If we skip running model, we implicitly skip creating a trajectory.
-                pass
-        else:
-            # Standard run
-            cost, log_likelihood, c_dict, pi = model(x, cost_weights=cost_weights, return_pi=opts['train_time'], pad=opts['train_time'], mask=mask)
+        # Standard run on full batch
+        cost, log_likelihood, c_dict, pi = model(x, cost_weights=cost_weights, return_pi=opts['train_time'], pad=opts['train_time'], mask=mask)
 
         # Evaluate baseline, get baseline loss if any (only for critic)
-        bl_val, bl_loss = baseline.eval(x, cost) if bl_val is None else (bl_val, 0)
-        if not isinstance(bl_loss, torch.Tensor):
-            bl_loss = torch.tensor([bl_loss], device=opts['device'], dtype=torch.float)
-        elif bl_loss.dim() == 0:
-            bl_loss = bl_loss.unsqueeze(0)
+        # If POMO is used, calculate shared baseline (mean cost of all trajectories for the same instance)
+        if opts.get('pomo_size', 0) > 1:
+            # Reshape cost to (Batch, POMO) and calculate mean per instance
+            cost_pomo = cost.view(-1, opts['pomo_size'])
+            bl_val = cost_pomo.mean(dim=1, keepdim=True).expand_as(cost_pomo).reshape(-1)
+            bl_loss = torch.tensor([0.0], device=opts['device']) # Shared baseline doesn't need separate critic loss
+        else:
+            bl_val, bl_loss = baseline.eval(x, cost) if bl_val is None else (bl_val, 0)
+            if not isinstance(bl_loss, torch.Tensor):
+                bl_loss = torch.tensor([bl_loss], device=opts['device'], dtype=torch.float)
+            elif bl_loss.dim() == 0:
+                bl_loss = bl_loss.unsqueeze(0)
 
         # Calculate loss (and normalize for gradient accumulation if accumulation_steps > 1)
         # For inactive indices: LogLikelihood is 0. So (Cost-BL)*0 = 0. Loss contribution is 0. Correct.
