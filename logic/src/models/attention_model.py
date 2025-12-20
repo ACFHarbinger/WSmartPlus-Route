@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from logic.src.utils.beam_search import CachedLookup
-from logic.src.or_policies import find_route
+from logic.src.or_policies import find_route, get_route_cost
 from logic.src.utils.functions import compute_in_batches, add_attention_hooks, sample_many
 
 
@@ -312,7 +312,7 @@ class AttentionModel(nn.Module):
             if gate_action.item() == 0:
                 for handle in hook_data['handles']:
                     handle.remove()
-                return [], 0, {'attention_weights': torch.tensor([]), 'graph_masks': hook_data['masks']}
+                return [0], 0, {'attention_weights': torch.tensor([]), 'graph_masks': hook_data['masks']}
             
             # Construct Mask
             mask = (mask_action == 0)
@@ -326,8 +326,8 @@ class AttentionModel(nn.Module):
                 route = []
                 cost = 0
         else:
-            route = torch.cat((torch.tensor([0]).to(pi.device), pi.squeeze(0))).cpu().numpy().tolist()
-            cost = distC[route[:-1], route[1:]].sum().cpu().numpy().tolist()
+            route = torch.cat((torch.tensor([0]).to(pi.device), pi.squeeze(0))).cpu().numpy()
+            cost = get_route_cost(distC, route)
         
         for handle in hook_data['handles']:
             handle.remove()
@@ -335,7 +335,7 @@ class AttentionModel(nn.Module):
         attention_weights = torch.tensor([])
         if hook_data['weights']:
             attention_weights = torch.stack(hook_data['weights'])
-        return route, cost, {'attention_weights': attention_weights, 'graph_masks': hook_data['masks']}
+        return route.cpu().numpy().tolist(), cost, {'attention_weights': attention_weights, 'graph_masks': hook_data['masks']}
 
     def beam_search(self, *args, **kwargs):
         return self.problem.beam_search(*args, **kwargs, model=self)
@@ -507,9 +507,9 @@ class AttentionModel(nn.Module):
         # Bit ugly but we need to pass the embeddings as well.
         # Making a tuple will not work with the problem.get_cost function
         return sample_many(
-            lambda input: self._inner(*input, cost_weights),  # Need to unpack tuple into arguments
-            lambda input, pi: self.problem.get_costs(input[0], pi, cost_weights),  # Don't need embeddings as input to get_costs
-            (input, edges, self.embedder(self._init_embed(input), edges)),  # Pack input with embeddings (additional input)
+            lambda input: self._inner(*input[:3], cost_weights, input[3]),  # Need to unpack tuple into arguments
+            lambda input, pi: self.problem.get_costs(input[0], pi, cost_weights)[:2],  # Don't need embeddings as input to get_costs
+            (input, edges, self.embedder(self._init_embed(input), edges), input.get('dist_matrix', None)),  # Pack input with embeddings (additional input)
             batch_rep, iter_rep
         )
 

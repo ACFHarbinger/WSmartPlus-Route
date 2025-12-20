@@ -22,8 +22,8 @@ DIST_M="gmaps"
 VERTEX_M="mmn"
 
 W_LEN=1.0
-W_OVER=1.0
-W_WASTE=1.0
+W_OVER=10.0
+W_WASTE=10.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
 # gamma W_LEN = 2.5, 1.75, 1.75, 1.75
 
@@ -63,14 +63,15 @@ GAT_HIDDEN=128
 LSTM_HIDDEN=64
 GATE_THRESH=0.7
 META_METHOD="hrl"
-META_HISTORY=10
+META_HISTORY=7
 META_LR=0.0003
-META_STEP=10
+META_STEP=7
 META_B_SIZE=256
 HRL_EPOCHS=4
 HRL_CLIP_EPS=0.2
 
 SIZE=100
+LOG_STEP=5
 AREA="riomaior"
 WTYPE="plastic"
 F_SIZE=1280
@@ -84,7 +85,7 @@ SEED=42
 START=0
 EPOCHS=31
 TOTAL_EPOCHS=$(($START + $EPOCHS))
-PROBLEM="cwcvrp"
+PROBLEM="wcvrp"
 DATA_PROBLEM="wcvrp"
 DATASET_NAME="time${TOTAL_EPOCHS}"
 VAL_DATASET_NAME="${DATASET_NAME}_val"
@@ -124,7 +125,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
         --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
-        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" \
+        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --log_step "$LOG_STEP" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
@@ -153,7 +154,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
         --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
-        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" \
+        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --log_step "$LOG_STEP" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
@@ -183,7 +184,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
         --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
-        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" \
+        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --log_step "$LOG_STEP" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" --area "$AREA" \
@@ -216,7 +217,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --area "$AREA" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
-        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
+        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" --log_step "$LOG_STEP" \
         --temporal_horizon "${HORIZON[3]}" --lr_scheduler "$LR_SCHEDULER" --n_decode_layers "$N_DEC_L"  \
         --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
@@ -246,7 +247,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --area "$AREA" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
-        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
+        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" --log_step "$LOG_STEP" \
         --temporal_horizon "${HORIZON[4]}" --lr_scheduler "$LR_SCHEDULER" --n_predict_layers "$N_PRED_L"  \
         --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \

@@ -53,7 +53,6 @@ def rollout(model, dataset, opts):
     return torch.cat(costs, 0)
 
 
-# TODO: change way new costs are calculated
 def validate_update(model, dataset, cw_dict, opts):
     def _eval_model_bat(bat, dist_matrix):
         with torch.no_grad():
@@ -158,35 +157,6 @@ def validate_update(model, dataset, cw_dict, opts):
         overflow_length_ratio = overflow_w / (overflow_w + length_w)
         new_cw['overflows'] = remaining * overflow_length_ratio
         new_cw['length'] = remaining * (1 - overflow_length_ratio)
-     
-    """max_val = max(kg_mean, km_mean, overflows_mean)
-    norm_efficiency = efficiency / max_val.clamp(min=eps)
-    norm_overflow = overflows_mean / max_val.clamp(min=eps)
-    overflow_efficiency = norm_overflow / norm_efficiency.clamp(min=eps)
-    
-    kg_adjust = opts['adaptation_rate'] * (torch.tanh(efficiency - 1.0))
-    km_adjust = opts['adaptation_rate'] * (-torch.tanh(efficiency - 1.0))
-    overflow_adjust = opts['adaptation_rate'] * torch.tanh(overflow_efficiency - 1.0)
-    
-    overflow_prev_factor = -0.5 * opts['adaptation_rate'] * ((cw_dict['overflows'] - opts['constraint']/3) / (opts['constraint']/3))
-    waste_prev_factor = -0.5 * opts['adaptation_rate'] * ((cw_dict['waste'] - opts['constraint']/3) / (opts['constraint']/3))
-    length_prev_factor = -0.5 * opts['adaptation_rate'] * ((cw_dict['length'] - opts['constraint']/3) / (opts['constraint']/3))
-
-    overflow_w = overflow_adjust + overflow_prev_factor + cw_dict['overflows']
-    waste_w = kg_adjust + waste_prev_factor + cw_dict['waste']
-    length_w = km_adjust + length_prev_factor + cw_dict['length']
-
-    min_weight = 0.05 * opts['constraint']
-    overflow_w = min_weight + (overflow_w - min_weight).clamp(min=0).item()
-    waste_w = min_weight + (waste_w - min_weight).clamp(min=0).item()
-    length_w = min_weight + (length_w - min_weight).clamp(min=0).item()
-
-    sum_w = overflow_w + waste_w + length_w
-    new_cw = {
-        'overflows': overflow_w * (opts['constraint'] / sum_w),
-        'waste': waste_w * (opts['constraint'] / sum_w),
-        'length': length_w * (opts['constraint'] / sum_w)
-    }"""
 
     print("New cost function weights: ")
     for key, val in new_cw.items():
@@ -201,13 +171,6 @@ def validate_update(model, dataset, cw_dict, opts):
         print('- {}: {} +- {}'.format(
         key, val.mean(), torch.std(val) / math.sqrt(len(val))))
     return new_cw, avg_cost, all_costs
-    """# Print additional metrics for monitoring
-    print('\nDerived metrics:')
-    print(f'Efficiency (kg/km): {efficiency.item():.4f} (target: {target_efficiency:.4f})')
-    print(f'Overflow count: {overflows_mean.item():.2f}')
-    print(f'Weight adjustments - Overflow: {overflow_adjust.item():.4f}, Waste: {waste_adjust.item():.4f}, Length: {efficiency_adjust.item():.4f}')
-    
-    return new_cw, avg_cost, all_costs"""
 
 
 def clip_grad_norms(param_groups, max_norm=math.inf):
@@ -369,15 +332,17 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args):
     set_decode_type(model, "sampling")
     if opts['problem'] in ['vrpp', 'cvrpp', 'wcvrp', 'cwcvrp', 'sdwcvrp']:
         # Get masks for bins present in routes
+        dataset_dim = routes.size(0)
+        waste = torch.stack([torch.cat((torch.tensor([0]), x['waste'])) for x in dataset])
+        num_nodes = waste.size(1)
+        
         sorted_routes = routes.sort(1)[0]
-        dataset_dim, node_dim = sorted_routes.size()
-        visited_mask = torch.zeros((dataset_dim, node_dim), dtype=torch.bool).to(sorted_routes.device)
+        visited_mask = torch.zeros((dataset_dim, num_nodes), dtype=torch.bool).to(sorted_routes.device)
         col_idx = sorted_routes[sorted_routes != 0]
         row_idx = torch.arange(dataset_dim, device=sorted_routes.device).repeat_interleave((sorted_routes != 0).sum(dim=1))
         visited_mask[row_idx, col_idx] = True
         
         # Set waste in visited bins to 0 and remove waste above max_waste
-        waste = torch.stack([torch.cat((torch.tensor([0]), x['waste'])) for x in dataset])
         max_waste = torch.stack([x['max_waste'] for x in dataset]).unsqueeze(1)
         waste[visited_mask] = 0
         waste = waste[:, 1:].clamp_(max=max_waste)
@@ -402,7 +367,9 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args):
             else:
                 fill = torch.from_numpy(generate_waste_prize(opts['graph_size'], opts['data_distribution'], graphs, data_size, *args)).float()
             waste += fill
-        dataset['waste'] = torch.clone(waste).to(dtype=torch.float)
+        dataset['waste'] = torch.clone(waste).to(dtype=torch.float).clamp(max=max_waste)
+    else:
+        raise ValueError("Problem {} not supported".format(opts['problem']))
     is_val = data_size == opts['val_size'] 
     print("Start {} day {},{} for run {}".format("eval" if is_val else "train", day, 
         " lr={}".format(optimizer.param_groups[0]['lr']) if not is_val else "", opts['run_name']))
