@@ -27,10 +27,10 @@ def setup_cost_weights(opts, def_val=1.):
     return cw_dict
 
 
-def setup_hrl_manager(opts, device, configs=None):
+def setup_hrl_manager(opts, device, configs=None, policy=None):
     hrl_path = None
     if opts.get('model_path') is not None:
-        hrl_path = opts['model_path']
+        hrl_path = opts['model_path'][policy]
     
     # Check prioritization: Configs > Opts
     hrl_method = None
@@ -45,7 +45,6 @@ def setup_hrl_manager(opts, device, configs=None):
     
     # --- Logic from load_model to handle directory ---
     # Attempt to resolve path if it's a directory
-    print(hrl_path)
     if os.path.isfile(hrl_path):
         pass # hrl_path is already the file
     elif os.path.isdir(hrl_path):
