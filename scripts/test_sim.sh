@@ -31,7 +31,7 @@ if [[ -z $n_cores ]]; then
 fi
 
 SEED=42
-N_DAYS=30
+N_DAYS=31
 N_BINS=100
 N_SAMPLES=10
 PROBLEM="cwcvrp"
@@ -40,7 +40,7 @@ AREA="riomaior"
 WTYPE="plastic"
 DATA_DIST="gamma1"
 IDX_PATH="graphs_${N_BINS}V_1N_${WTYPE}.json"
-STATS_PATH="daily_waste/april_2024_summary.csv"
+STATS_PATH="" #"daily_waste/april_2024_summary.csv"
 
 SYM_KEY="skey"
 ENV_FILE="vars.env"

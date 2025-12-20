@@ -156,10 +156,10 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
             bins = Bins(opts['size'], data_dir, data_dist, area=opts['area'], waste_type=opts['waste_type'], waste_file=opts['waste_filepath'])
 
         cached = [] if opts['cache_regular'] else None
-        if opts['waste_filepath'] is not None:
-            bins.set_sample_waste(sample_id)
         if opts['stats_filepath'] is not None:
             bins.set_statistics(opts['stats_filepath'])
+        if opts['waste_filepath'] is not None:
+            bins.set_sample_waste(sample_id)
 
         run_time = 0
         overflows = 0
@@ -314,10 +314,10 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                         bins = Bins(opts['size'], data_dir, data_dist, area=opts['area'], waste_type=opts['waste_type'], waste_file=opts['waste_filepath'])
 
                     cached = [] if opts['cache_regular'] else None
-                    if opts['waste_filepath'] is not None:
-                        bins.set_sample_waste(sample_id)
                     if opts['stats_filepath'] is not None:
                         bins.set_statistics(opts['stats_filepath'])
+                    if opts['waste_filepath'] is not None:
+                        bins.set_sample_waste(sample_id)
 
                     run_time = 0
                     start_day = 1
@@ -327,7 +327,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     daily_log = {key: [] for key in DAY_METRICS}
                 
                 # Setup HRL Manager
-                hrl_manager = setup_hrl_manager(opts, device, configs)
+                hrl_manager = setup_hrl_manager(opts, device, configs, pol_strip)
                 waste_history = None
                 if hrl_manager is not None:
                     history_len = opts.get('mrl_history', 10)
