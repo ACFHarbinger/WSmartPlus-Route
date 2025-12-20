@@ -1,6 +1,7 @@
 import torch
 
 from typing import NamedTuple
+from logic.src.utils.definitions import VEHICLE_CAPACITY
 
 
 class StateSDWCVRP(NamedTuple):
@@ -31,8 +32,7 @@ class StateSDWCVRP(NamedTuple):
     i: torch.Tensor  # Keeps track of step
     edges: torch.Tensor
     dist_matrix: torch.Tensor
-
-    VEHICLE_CAPACITY = 1.0  # Hardcoded
+    vehicle_capacity: float
 
     def __getitem__(self, key):
         if torch.is_tensor(key) or isinstance(key, slice):  # If tensor, idx all tensors by this tensor:
@@ -70,14 +70,15 @@ class StateSDWCVRP(NamedTuple):
             wastes_with_depot=waste[:, None, :],
             lengths=torch.zeros(batch_size, 1, device=loc.device),
             cur_coord=input['depot'][:, None, :],  # Add step dimension
-            cur_overflows=torch.sum((input['waste'] > max_waste[:, None]), dim=-1),
+            cur_overflows=torch.sum((input['waste'] >= max_waste[:, None]), dim=-1),
             cur_total_waste=torch.zeros(batch_size, 1, device=loc.device),
             i=torch.zeros(1, dtype=torch.int64, device=loc.device),  # Vector with length num_steps
             w_waste=1 if cost_weights is None else cost_weights['waste'],
             w_overflows=1 if cost_weights is None else cost_weights['overflows'],
             w_length=1 if cost_weights is None else cost_weights['length'],
             edges=edges,
-            dist_matrix=dist_matrix
+            dist_matrix=dist_matrix,
+            vehicle_capacity=VEHICLE_CAPACITY
         )
 
         if hrl_mask is not None:
@@ -158,7 +159,7 @@ class StateSDWCVRP(NamedTuple):
         :return:
         """
         # Nodes that cannot be visited are already visited or too much waste to be served now
-        mask_loc = (self.wastes_with_depot[:, :, 1:] == 0) | (self.used_capacity[:, :, None] >= self.VEHICLE_CAPACITY)
+        mask_loc = (self.wastes_with_depot[:, :, 1:] == 0) | (self.used_capacity[:, :, None] >= self.vehicle_capacity)
 
         # Cannot visit the depot if just visited and still unserved nodes
         # For partial tours, we always allow the depot as a valid next action to finish

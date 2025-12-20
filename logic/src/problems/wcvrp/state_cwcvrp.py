@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 
 from typing import NamedTuple
+from logic.src.utils.definitions import VEHICLE_CAPACITY
 from logic.src.utils.boolmask import mask_long2bool, mask_long_scatter
 
 
@@ -33,8 +34,7 @@ class StateCWCVRP(NamedTuple):
     i: torch.Tensor  # Keeps track of step
     edges: torch.Tensor
     dist_matrix: torch.Tensor
-
-    VEHICLE_CAPACITY = 1.0  # Hardcoded
+    vehicle_capacity: float
 
     @property
     def visited(self):
@@ -106,7 +106,7 @@ class StateCWCVRP(NamedTuple):
             visited_=visited_,
             lengths=torch.zeros(batch_size, 1, device=loc.device),
             cur_coord=input['depot'][:, None, :],  # Add step dimension
-            cur_overflows=torch.sum((input['waste'] > max_waste[:, None]), dim=-1),
+            cur_overflows=torch.sum((input['waste'] >= max_waste[:, None]), dim=-1),
             cur_total_waste=torch.zeros(batch_size, 1, device=loc.device),
             #cur_waste_lost=torch.sum((waste - max_waste[:, None]).clamp(min=0), dim=-1),
             i=torch.zeros(1, dtype=torch.int64, device=loc.device),  # Vector with length num_steps
@@ -114,7 +114,8 @@ class StateCWCVRP(NamedTuple):
             w_overflows=1 if cost_weights is None else cost_weights['overflows'],
             w_length=1 if cost_weights is None else cost_weights['length'],
             edges=edges,
-            dist_matrix=dist_matrix
+            dist_matrix=dist_matrix,
+            vehicle_capacity=VEHICLE_CAPACITY
         )
 
     def get_final_cost(self):
@@ -201,7 +202,7 @@ class StateCWCVRP(NamedTuple):
         waste_to_collect = self.waste[:, 1:].clamp(max=self.max_waste)
         # A node exceeds capacity if truck is not empty AND (current + new > VEHICLE_CAPACITY)
         # If truck is empty (at depot), we allow visiting any bin even if it's large (it will just fill the truck)
-        exceeds_cap = (self.used_capacity[:, :, None] > 0) & (waste_to_collect[:, None, :] + self.used_capacity[:, :, None] > self.VEHICLE_CAPACITY)
+        exceeds_cap = (self.used_capacity[:, :, None] > 0) & (waste_to_collect[:, None, :] + self.used_capacity[:, :, None] > self.vehicle_capacity)
 
         # Nodes that cannot be visited are already visited or would exceed capacity
         mask_loc = visited_loc.to(exceeds_cap.dtype) | exceeds_cap

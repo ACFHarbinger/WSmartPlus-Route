@@ -9,7 +9,7 @@ import traceback
 import numpy as np
 
 from tensorboard_logger import Logger as TbLogger
-from logic.src.utils.functions import load_data, load_problem
+from logic.src.utils.functions import load_data, load_problem, get_inner_model
 from logic.src.utils.definitions import (
     ROOT_DIR, HOP_KEYS,
     update_lock_wait_time,
@@ -185,16 +185,30 @@ def train_reinforcement_learning(opts, train_function, cost_weights=None):
             "Scaler for automatic mixed precision can only be used with CUDA GPU(s)"
             scaler = torch.cuda.amp.GradScaler() if opts['enable_scaler'] else None
             if opts['train_time']:
-                train_function(model, optimizer, baseline, lr_scheduler, scaler, 
-                                val_dataset, problem, tb_logger, cost_weights, opts)
+                model, manager = train_function(model, optimizer, baseline, lr_scheduler, scaler, 
+                                                val_dataset, problem, tb_logger, cost_weights, opts)
             else:
                 for epoch in range(opts['epoch_start'], opts['epoch_start'] + opts['n_epochs']):
-                    train_function(model, optimizer, baseline, lr_scheduler, scaler, epoch, 
-                                    val_dataset, problem, tb_logger, cost_weights, opts)
+                    model, manager = train_function(model, optimizer, baseline, lr_scheduler, scaler, epoch, 
+                                                    val_dataset, problem, tb_logger, cost_weights, opts)
         if opts['wandb_mode'] != 'disabled': wandb.finish()
     except Exception as e:
         raise Exception(f"failed to train model with exception due to {repr(e)}")
-    return model
+
+    os.makedirs(os.path.join(ROOT_DIR, opts['final_dir']), exist_ok=True)
+    save_opts = {k: str(v) if isinstance(v, torch.device) else v for k, v in opts.items()}
+    with open(os.path.join(ROOT_DIR, opts['final_dir'], "args.json"), 'w') as f:
+        json.dump(save_opts, f, indent=True)
+    torch.save(
+        {
+            'model': get_inner_model(model).state_dict(),
+            'rng_state': torch.get_rng_state(),
+            'cuda_rng_state': torch.cuda.get_rng_state_all(),
+            'manager': manager.state_dict() if manager is not None else None
+        },
+        os.path.join(ROOT_DIR, opts['final_dir'], 'epoch-{}.pt'.format(opts['epoch_start'] + opts['n_epochs'] - 1))
+    )
+    return model, manager
 
 
 def run_training(args, command):

@@ -2,7 +2,7 @@ import os
 import torch
 import pickle
 
-from logic.src.utils.definitions import MAX_WASTE
+from logic.src.utils.definitions import MAX_WASTE, CAPACITIES
 from tqdm import tqdm
 from torch.utils.data import Dataset
 from .state_wcvrp import StateWCVRP
@@ -48,7 +48,7 @@ class WCVRP(object):
         w = waste_with_depot.gather(1, pi).clamp(max=dataset['max_waste'][:, None])
         waste = w.sum(dim=-1)
 
-        # Get masks for bins with overflows and present in tour
+        # Get masks for bins with overflows
         overflow_mask = waste_with_depot >= dataset['max_waste'][:, None]
         #batch_dim, node_dim = overflow_mask.size()
         #visited_mask = torch.zeros((batch_dim, node_dim), dtype=torch.bool).to(sorted_pi.device)
@@ -63,7 +63,6 @@ class WCVRP(object):
         # Compute the amount of waste above max_waste
         #excess_waste = (waste_with_depot - dataset['max_waste'][:, None]).clamp(min=0)
         #waste_lost = torch.sum(excess_waste, dim=-1)
-
         if dist_matrix is not None:
             src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
             dst_mask = dst_vertices != 0
@@ -120,21 +119,16 @@ class CWCVRP(object):
         if pi.size(-1) == 1:
             assert (pi == 0).all(), "If all length 1 tours, they should be zero"
             overflows = torch.sum(dataset['waste'] >= dataset['max_waste'][:, None], dim=-1)
-            cost = overflows # length and waste are 0
+            cost = overflows if cw_dict is None \
+            else cw_dict['overflows'] * overflows # length and waste are 0
             c_dict = {'overflows': overflows, 'length': torch.zeros_like(cost), 'waste': torch.zeros_like(cost), 'total': cost}
             return cost, c_dict, None
 
-        # Check that tours are valid
-        # sorted_pi = pi.data.sort(1)[0]
-        # assert (
-        #     torch.arange(1, graph_size + 1, out=pi.data.new()).view(1, -1).expand(batch_size, graph_size) ==
-        #     sorted_pi[:, -graph_size:]
-        # ).all() and (sorted_pi[:, :-graph_size] == 0).all(), "Invalid tour"
-
         # Visiting depot resets capacity so we add waste = -capacity (we make sure it does not become negative)
+        capacity = CAPACITIES.get(graph_size, 1.0)
         waste_with_depot = torch.cat(
             (
-                torch.full_like(dataset['waste'][:, :1], -CWCVRP.VEHICLE_CAPACITY),
+                torch.full_like(dataset['waste'][:, :1], -capacity),
                 dataset['waste']
             ),
             1
@@ -146,23 +140,13 @@ class CWCVRP(object):
 
             # Cannot use less than 0
             used_cap[used_cap < 0] = 0
-            assert (used_cap <= CWCVRP.VEHICLE_CAPACITY + 1e-5).all(), "Used more than capacity"
+            assert (used_cap <= capacity + 1e-5).all(), "Used more than capacity"
 
-        # Get masks for bins with overflows and present in tour
+        # Get masks for bins with
         overflow_mask = waste_with_depot >= dataset['max_waste'][:, None]
-        batch_dim, node_dim = overflow_mask.size()
-        visited_mask = torch.zeros((batch_dim, node_dim), dtype=torch.bool).to(pi.device)
-        col_idx = pi[pi != 0]
-        row_idx = torch.arange(batch_dim, device=pi.device).repeat_interleave((pi != 0).sum(dim=1))
-        visited_mask[row_idx, col_idx] = True
 
-        # Compute number of overflows in unvisited bins
-        overflows = torch.sum(overflow_mask & ~visited_mask, dim=-1)
-
-        # Compute the amount of waste above max_waste in unvisited bins
-        #excess_waste = (waste_with_depot - dataset['max_waste'][:, None]).clamp(min=0)
-        #waste_lost = torch.sum(excess_waste * (~visited_mask), dim=-1)
-
+        # Compute number of overflows
+        overflows = torch.sum(overflow_mask, dim=-1)
         if dist_matrix is not None:
             src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
             dst_mask = dst_vertices != 0
@@ -181,7 +165,10 @@ class CWCVRP(object):
                 + (d_coord[:, -1] - dataset['depot']).norm(p=2, dim=-1)  # Last to depot, will be 0 if depot is last
             )
 
-        waste = d.sum(dim=-1)
+        # Exclude depot (index 0) from waste sum. Depot has negative waste marker for capacity reset.
+        # d contains the waste collected at each step. If pi[:, i] == 0, d[:, i] is negative.
+        # We only want to sum positive waste collected from bins.
+        waste = d.clamp(min=0).sum(dim=-1)
         cost = overflows + length - waste if cw_dict is None \
         else cw_dict['overflows'] * overflows + cw_dict['length'] * length - cw_dict['waste'] * waste
         c_dict = {'overflows': overflows, 'length': length, 'waste': waste, 'total': cost}
@@ -222,15 +209,17 @@ class SDWCVRP(object):
             assert (pi == 0).all(), "If all length 1 tours, they should be zero"
             overflow_mask = dataset['waste'] >= dataset['max_waste'][:, None]
             overflows = torch.sum(overflow_mask, dim=-1)
-            cost = overflows # length and waste are 0
+            cost = overflows if cw_dict is None \
+            else cw_dict['overflows'] * overflows # length and waste are 0
             c_dict = {'overflows': overflows, 'length': torch.zeros_like(cost), 'waste': torch.zeros_like(cost), 'total': cost}
             return cost, c_dict, None
 
         # Each node can be visited multiple times, but we always deliver as much waste as possible
         # We check that at the end all waste has been satisfied
+        capacity = CAPACITIES.get(graph_size, 1.0)
         wastes = torch.cat(
             (
-                torch.full_like(dataset['waste'][:, :1], -SDWCVRP.VEHICLE_CAPACITY),
+                torch.full_like(dataset['waste'][:, :1], -capacity),
                 dataset['waste']
             ),
             1
@@ -241,28 +230,18 @@ class SDWCVRP(object):
         for a in pi.transpose(0, 1):
             # assert a_prev is None or (wastes[((a_prev == 0) & (a == 0)), :] == 0).all(), \
             #     "Cannot visit depot twice if any nonzero waste"
-            d = torch.min(wastes[rng, a], SDWCVRP.VEHICLE_CAPACITY - used_cap)
+            d = torch.min(wastes[rng, a], capacity - used_cap)
             wastes[rng, a] -= d
             used_cap += d
             used_cap[a == 0] = 0
             a_prev = a
         # assert (wastes == 0).all(), "All waste must be satisfied"
 
-        # Get masks for bins with overflows and present in tour
-        overflow_mask = wastes >= dataset['max_waste'][:, None]
-        batch_dim, node_dim = overflow_mask.size()
-        visited_mask = torch.zeros((batch_dim, node_dim), dtype=torch.bool).to(pi.device)
-        col_idx = pi[pi != 0]
-        row_idx = torch.arange(batch_dim, device=pi.device).repeat_interleave((pi != 0).sum(dim=1))
-        visited_mask[row_idx, col_idx] = True
+        # Get masks for bins with overflows 
+        overflow_mask = waste_with_depot >= dataset['max_waste'][:, None]
 
-        # Compute number of overflows in unvisited bins
-        overflows = torch.sum(overflow_mask & ~visited_mask, dim=-1)
-
-        # Compute the amount of waste above max_waste in unvisited bins
-        #excess_waste = (wastes - dataset['max_waste'][:, None]).clamp(min=0)
-        #waste_lost = torch.sum(excess_waste * (~visited_mask), dim=-1)
-
+        # Compute number of overflows
+        overflows = torch.sum(overflow_mask, dim=-1)
         if dist_matrix is not None:
             src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
             dst_mask = dst_vertices != 0
@@ -282,7 +261,7 @@ class SDWCVRP(object):
                 + (d[:, -1] - dataset['depot']).norm(p=2, dim=-1)  # Last to depot, will be 0 if depot is last
             )
 
-        waste = wastes.sum(dim=-1)
+        waste = dataset['waste'].sum(dim=-1) - wastes[:, 1:].sum(dim=-1)
         cost = overflows + length - waste if cw_dict is None \
         else cw_dict['overflows'] * overflows + cw_dict['length'] * length - cw_dict['waste'] * waste
         c_dict = {'overflows': overflows, 'length': length, 'waste': waste, 'total': cost}

@@ -1,3 +1,4 @@
+import torch
 import fast_tsp
 import numpy as np
 import networkx as nx
@@ -20,8 +21,12 @@ def find_route(C, to_collect):
 
 
 def get_route_cost(distancesC, tour):
-   tour2 = tour.copy() if isinstance(tour, np.ndarray) else np.array(tour)
-   return np.sum(distancesC[tour2[:-1], tour2[1:]])
+    if isinstance(tour, torch.Tensor) and isinstance(distancesC, torch.Tensor):
+        return distancesC[tour[:-1], tour[1:]].sum().cpu().numpy()
+    else:
+        distancesC2 = distancesC.copy() if isinstance(distancesC, np.ndarray) else np.array(distancesC)
+        tour2 = tour.copy() if isinstance(tour, np.ndarray) else np.array(tour)
+        return np.sum(distancesC2[tour2[:-1], tour2[1:]])
 
 
 def get_path_cost(G, p):

@@ -18,7 +18,7 @@ def check_extension(filename):
 
 def save_dataset(dataset, filename):
     filedir = os.path.split(filename)[0]
-    if not os.path.isdir(filedir):
+    if filedir and not os.path.isdir(filedir):
         try:
             os.makedirs(filedir, exist_ok=True)
         except Exception:

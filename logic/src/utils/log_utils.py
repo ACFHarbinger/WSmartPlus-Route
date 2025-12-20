@@ -69,7 +69,8 @@ def get_loss_stats(epoch_loss):
 def log_training(loss_keys, table_df, opts):
     xname = "day" if opts['train_time'] else "epoch"
     x_values = [row_id for row_id in range(table_df.shape[0])]
-    log_dir = os.path.join(os.getcwd(), opts['log_dir'], os.path.relpath(opts['save_dir'], start=opts['output_dir']))
+    log_dir = os.path.join(opts['log_dir'], os.path.relpath(opts['save_dir'], start=opts['checkpoints_dir']))
+    os.makedirs(log_dir, exist_ok=True)
     table_df.to_parquet(os.path.join(log_dir, "table.parquet"), engine="pyarrow")
     swapped_df = table_df.swaplevel(axis=1)
     swapped_df.columns = ['_'.join(col).strip() for col in swapped_df.columns]

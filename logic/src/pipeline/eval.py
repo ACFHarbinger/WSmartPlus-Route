@@ -18,6 +18,7 @@ from logic.src.utils.arg_parser import (
 )
 from logic.src.utils.data_utils import save_dataset
 from logic.src.utils.functions import move_to, load_model
+from logic.src.utils.setup_utils import setup_cost_weights
 
 
 mp = torch.multiprocessing.get_context('spawn')
@@ -60,7 +61,7 @@ def eval_dataset_mp(args):
     return _eval_dataset(model, dataset, width, softmax_temp, opts, device)
 
 
-def eval_dataset(dataset_path, width, softmax_temp, opts, method):
+def eval_dataset(dataset_path, width, softmax_temp, opts, method=None):
     # Even with multiprocessing, we load the model here since it contains the name where to write results
     model, _ = load_model(opts['model'], method)
     use_cuda = torch.cuda.is_available()
@@ -81,7 +82,7 @@ def eval_dataset(dataset_path, width, softmax_temp, opts, method):
             distribution=opts['data_distribution'], vertex_strat=opts['vertex_method'],
             size=opts['graph_size'], focus_graph=opts['focus_graph'], focus_size=opts['focus_size'],
             area=opts['area'], number_edges=opts['edge_threshold'], dist_matrix_path=opts['dm_filepath'],
-            wtype=opts['waste_type'], edge_strat=opts['edge_method'], dist_strat=opts['distance_method']
+            waste_type=opts['waste_type'], edge_strat=opts['edge_method'], dist_strat=opts['distance_method']
         )
         results = _eval_dataset(model, dataset, width, softmax_temp, opts, device)
 
@@ -97,7 +98,7 @@ def eval_dataset(dataset_path, width, softmax_temp, opts, method):
 
     dataset_basename, ext = os.path.splitext(os.path.split(dataset_path)[-1])
     model_name = "_".join(os.path.normpath(os.path.splitext(opts['model'])[0]).split(os.sep)[-2:])
-    if opts['o'] is None:
+    if opts['output_filename'] is None:
         results_dir = os.path.join(opts['results_dir'], model.problem.NAME, dataset_basename)
         try:
             os.makedirs(results_dir, exist_ok=True)
@@ -111,9 +112,9 @@ def eval_dataset(dataset_path, width, softmax_temp, opts, method):
             softmax_temp, opts['offset'], opts['offset'] + len(costs), ext
         ))
     else:
-        out_file = opts['o']
+        out_file = opts['output_filename']
 
-    assert opts['f'] or not os.path.isfile(
+    assert opts['overwrite'] or not os.path.isfile(
         out_file), "File already exists! Try running with -f option to overwrite."
 
     save_dataset((results, parallelism), out_file)
@@ -129,6 +130,7 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
 
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=opts['eval_batch_size'], pin_memory=True)
     results = []
+    cost_weights = setup_cost_weights(cost_weights)
     for batch in tqdm(dataloader, disable=opts['no_progress_bar']):
         batch = move_to(batch, device)
         start = time.time()
@@ -151,7 +153,7 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
                 assert batch_rep > 0
 
                 # This returns (batch_size, iter_rep shape)
-                sequences, costs = model.sample_many(batch, batch_rep=batch_rep, iter_rep=iter_rep)
+                sequences, costs = model.sample_many(batch, cost_weights=cost_weights, batch_rep=batch_rep, iter_rep=iter_rep)
                 batch_size = len(costs)
                 ids = torch.arange(batch_size, dtype=torch.int64, device=costs.device)
             else:
@@ -159,6 +161,7 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
 
                 cum_log_p, sequences, costs, ids, batch_size = model.beam_search(
                     batch, beam_size=width,
+                    cost_weights=cost_weights,
                     compress_mask=opts['compress_mask'],
                     max_calc_batch_size=opts['max_calc_batch_size']
                 )

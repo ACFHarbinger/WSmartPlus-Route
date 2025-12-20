@@ -272,7 +272,8 @@ def add_train_args(parser):
     parser.add_argument('--log_step', type=int, default=50, help='Log info every log_step steps')
     parser.add_argument('--log_dir', default='logs', help='Directory to write TensorBoard information to')
     parser.add_argument('--run_name', default=None, help='Name to identify the run')
-    parser.add_argument('--output_dir', default='model_weights', help='Directory to write output models to')
+    parser.add_argument('--output_dir', default='assets/model_weights', help='Directory to write output models to')
+    parser.add_argument('--checkpoints_dir', default='model_weights', help='Directory to write checkpoints to')
     parser.add_argument('--checkpoint_epochs', type=int, default=1, help='Save checkpoint every n epochs, 0 to save no checkpoints')
     parser.add_argument('--wandb_mode', default='offline', help="Weights and biases mode: 'online'|'offline'|'disabled'|None")
     parser.add_argument('--no_tensorboard', action='store_true', help='Disable logging TensorBoard files')
@@ -409,6 +410,8 @@ def add_eval_args(parser):
     parser.add_argument('--decode_strategy', type=str, help='Beam search (bs), Sampling (sample) or Greedy (greedy)')
     parser.add_argument('--softmax_temperature', type=parse_softmax_temperature, default=1, help="Softmax temperature (sampling or bs)")
     parser.add_argument('--model', type=str)
+    parser.add_argument('--seed', type=int, default=42, help='Random seed to use')
+    parser.add_argument('--data_distribution', type=str, default=None, help='Data distribution of the dataset')
     parser.add_argument('--no_cuda', action='store_true', help='Disable CUDA')
     parser.add_argument('--no_progress_bar', action='store_true', help='Disable progress bar')
     parser.add_argument('--compress_mask', action='store_true', help='Compress mask into long')
@@ -423,8 +426,12 @@ def add_eval_args(parser):
     parser.add_argument('--edge_threshold', default='0', type=str, help="How many of all possible edges to consider")
     parser.add_argument('--edge_method', type=str, default=None, help="Method for getting edges ('dist'|'knn')")
     parser.add_argument('--distance_method', type=str, default='ogd', help="Method to compute distance matrix")
+    parser.add_argument('--dm_filepath', type=str, default=None, help='Path to the distance matrix file')
     parser.add_argument('--vertex_method', type=str, default="mmn", help="Method to transform vertex coordinates "
                             "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'")
+    parser.add_argument('--w_length', type=float, default=1.0, help='Weight for length in cost function')
+    parser.add_argument('--w_waste', type=float, default=1.0, help='Weight for waste in cost function')
+    parser.add_argument('--w_overflows', type=float, default=1.0, help='Weight for overflows in cost function')
     return parser
 
 def add_test_sim_args(parser):
@@ -709,9 +716,23 @@ def validate_train_args(args):
             time.strftime("%Y%m%dT%H%M%S"))
     
     args['save_dir'] = os.path.join(
-        args.get('output_dir', 'model_weights'),
+        args.get('checkpoints_dir', 'model_weights'),
         "{}_{}".format(args.get('problem', 'problem'), args.get('graph_size', 'size')),
         args['run_name']
+    )
+
+    args['final_dir'] = os.path.join(
+        args.get('output_dir', 'assets/model_weights'),
+        "{}{}{}{}".format(
+            args.get('problem', 'problem'), args.get('graph_size', 'size'),
+            "_{}".format(args.get('area')) if 'area' in args and args['area'] is not None else "", 
+            "_{}".format(args.get('waste_type')) if 'waste_type' in args and args['waste_type'] is not None else ""
+        ),
+        args.get('data_distribution', ''),
+        "{}{}{}".format(
+            args.get('model', 'model'), args.get('encoder', 'enc'), 
+            "_{}".format(args.get('mrl_method')) if 'mrl_method' in args and args.get('mrl_method') is not None else ""
+        )
     )
     
     if 'area' in args and args['area'] is not None:
@@ -766,7 +787,7 @@ def validate_eval_args(args):
         args['o'] = args['output_filename']
     
     assert 'o' not in args or args['o'] is None or (
-        len(args.get('datasets', [])) == 1 and len(args.get('width', [])) <= 1
+        len(args.get('datasets') or []) == 1 and len(args.get('width') or []) <= 1
         ), "Cannot specify result filename with more than one dataset or more than one width"
     
     args['area'] = re.sub(r'[^a-zA-Z]', '', args.get('area', '').lower())
