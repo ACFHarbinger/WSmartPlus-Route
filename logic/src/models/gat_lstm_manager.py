@@ -77,6 +77,12 @@ class GATLSTManager(nn.Module):
         # Buffers for PPO
         self.clear_memory()
 
+        # Force the Manager to prefer Routing (1) over Skipping (0) at the start
+        with torch.no_grad():
+            # Assuming gate_head's last layer is a Linear layer
+            self.gate_head[-1].bias.fill_(0)
+            self.gate_head[-1].bias[1] = 2.0 # Significant bias toward action 1 (Route)
+
     def clear_memory(self):
         self.states_static = []
         self.states_dynamic = []
