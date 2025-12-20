@@ -432,6 +432,9 @@ def add_eval_args(parser):
     parser.add_argument('--w_length', type=float, default=1.0, help='Weight for length in cost function')
     parser.add_argument('--w_waste', type=float, default=1.0, help='Weight for waste in cost function')
     parser.add_argument('--w_overflows', type=float, default=1.0, help='Weight for overflows in cost function')
+    parser.add_argument('--problem', type=str, default='cwcvrp', help="Problem to evaluate ('wcvrp'|'cwcvrp'|'sdwcvrp')")
+    parser.add_argument('--encoder', type=str, default='gat', help="Encoder to use ('gat'|'gac'|'tgc')")
+    parser.add_argument('--load_path', help='Path to load model parameters and optimizer state from')
     return parser
 
 def add_test_sim_args(parser):
@@ -439,6 +442,8 @@ def add_test_sim_args(parser):
     Adds all arguments related to the test simulator to the given parser.
     """
     parser.add_argument('--policies', type=str, nargs='+', required=True, help="Name of the policy(ies) to test on the WSR simulator")
+    parser.add_argument('--gate_prob_threshold', type=float, default=0.5, help="Probability threshold for gating decisions (default: 0.5)")
+    parser.add_argument('--mask_prob_threshold', type=float, default=0.5, help="Probability threshold for mask decisions (default: 0.5)")
     parser.add_argument('--data_distribution', '--dd', type=str, default='gamma1', help="Distribution to generate the bins daily waste fill")
     parser.add_argument('--problem', default='vrpp', help="The problem the model was trained to solve")
     parser.add_argument('--size', type=int, default=50, help="The size of the problem graph")
@@ -728,7 +733,7 @@ def validate_train_args(args):
             "_{}".format(args.get('area')) if 'area' in args and args['area'] is not None else "", 
             "_{}".format(args.get('waste_type')) if 'waste_type' in args and args['waste_type'] is not None else ""
         ),
-        args.get('data_distribution', ''),
+        args.get('data_distribution') or '',
         "{}{}{}".format(
             args.get('model', 'model'), args.get('encoder', 'enc'), 
             "_{}".format(args.get('mrl_method')) if 'mrl_method' in args and args.get('mrl_method') is not None else ""

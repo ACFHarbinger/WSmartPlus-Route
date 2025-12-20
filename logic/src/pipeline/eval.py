@@ -48,7 +48,7 @@ def get_best(sequences, cost, ids=None, batch_size=None):
 
 def eval_dataset_mp(args):
     (dataset_path, width, softmax_temp, opts, i, num_processes) = args
-    model, _ = load_model(opts['model'])
+    model, _ = load_model(opts.get('load_path', opts['model']))
     val_size = opts['val_size'] // num_processes
     dataset = model.problem.make_dataset(
         filename=dataset_path, num_samples=val_size, offset=opts['offset'] + val_size * i,
@@ -63,7 +63,7 @@ def eval_dataset_mp(args):
 
 def eval_dataset(dataset_path, width, softmax_temp, opts, method=None):
     # Even with multiprocessing, we load the model here since it contains the name where to write results
-    model, _ = load_model(opts['model'], method)
+    model, _ = load_model(opts.get('load_path', opts['model']), method)
     use_cuda = torch.cuda.is_available()
     if opts['multiprocessing']:
         assert use_cuda, "Can only do multiprocessing with cuda"
@@ -88,9 +88,18 @@ def eval_dataset(dataset_path, width, softmax_temp, opts, method=None):
 
     # This is parallelism, even if we use multiprocessing (we report as if we did not use multiprocessing, e.g. 1 GPU)
     parallelism = opts['eval_batch_size']
-    costs, tours, durations = zip(*results)  # Not really costs since they should be negative
-
-    print("Average cost: {} +- {}".format(np.mean(costs), 2 * np.std(costs) / np.sqrt(len(costs))))
+    avg_cost = np.mean([r['cost'] for r in results])
+    std_cost = np.std([r['cost'] for r in results])
+    avg_km = np.mean([r['km'] for r in results])
+    avg_kg = np.mean([r['kg'] for r in results])
+    avg_over = np.mean([r['overflows'] for r in results])
+    
+    print("Average cost: {} +- {}".format(avg_cost, std_cost))
+    print("Average KM: {}, Average KG: {}, Average Overflows: {}".format(avg_km, avg_kg, avg_over))
+    
+    costs = [r['cost'] for r in results]
+    tours = [r['seq'] for r in results]
+    durations = [r['duration'] for r in results]
     print("Average serial duration: {} +- {}".format(
         np.mean(durations), 2 * np.std(durations) / np.sqrt(len(durations))))
     print("Average parallel duration: {}".format(np.mean(durations) / parallelism))
@@ -130,7 +139,7 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
 
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=opts['eval_batch_size'], pin_memory=True)
     results = []
-    cost_weights = setup_cost_weights(cost_weights)
+    cost_weights = setup_cost_weights(opts)
     for batch in tqdm(dataloader, disable=opts['no_progress_bar']):
         batch = move_to(batch, device)
         start = time.time()
@@ -175,7 +184,7 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
                 batch_size
             )
         duration = time.time() - start
-        for seq, cost in zip(sequences, costs):
+        for i, (seq, cost) in enumerate(zip(sequences, costs)):
             if model.problem.NAME in ("cvrpp", "cwcvrp", "sdwcvrp"):
                 seq = np.trim_zeros(seq).tolist() + [0]  # Add depot
             elif model.problem.NAME in ("vrpp", "wcvrp"):
@@ -183,8 +192,23 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
             else:
                 seq = None
                 assert False, "Unknown problem: {}".format(model.problem.NAME)
+            
+            # Recalculate components
+            seq_tensor = torch.tensor(seq, device=device).unsqueeze(0)
+            # Use a sub-batch of size 1 for get_costs
+            batch_i = {k: v[i:i+1] for k, v in batch.items() if isinstance(v, torch.Tensor)}
+            # We don't need cost_weights here as we only want back the c_dict
+            _, c_dict, _ = model.problem.get_costs(batch_i, seq_tensor, None, batch_i.get('dist_matrix'))
+            
             # Note VRP only
-            results.append((cost, seq, duration))
+            results.append({
+                'cost': cost,
+                'seq': seq,
+                'duration': duration,
+                'km': c_dict['length'].item(),
+                'kg': c_dict['waste'].item() * 100, # Assuming waste is normalized 0-1
+                'overflows': c_dict['overflows'].item()
+            })
     return results
 
 

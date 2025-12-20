@@ -104,9 +104,10 @@ class TestTrainFunctions:
         mocker.patch('logic.src.pipeline.train.wandb')
         mocker.patch('torch.cuda.is_available', return_value=False)
         mocker.patch('torch.cuda.amp.GradScaler')
+        mocker.patch('torch.save')
         
         # Mock training function
-        mock_train_func = MagicMock()
+        mock_train_func = MagicMock(return_value=(mock_model, MagicMock()))
         
         opts = {
             'no_tensorboard': False, 'log_dir': 'logs', 'run_name': 'test', 'problem': 'vrpp', 'graph_size': 10,
@@ -117,7 +118,7 @@ class TestTrainFunctions:
              'val_size': 10, 'area': None, 'waste_type': None, 'dm_filepath': None,
              'val_dataset': None, 'data_distribution': None, 'vertex_method': None, 
              'distance_method': None, 'edge_threshold': None, 'edge_method': None,
-             'focus_graph': None, 'eval_focus_size': None
+             'focus_graph': None, 'eval_focus_size': None, 'final_dir': 'temp'
         }
         
         train_reinforcement_learning(opts, mock_train_func)
