@@ -72,7 +72,7 @@ class TemporalAttentionModelWithScheduling(AttentionModel):
         # Temporal embedding
         self.temporal_embed = nn.Linear(1, embedding_dim)
         
-        if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:
+        if self.is_wc or self.is_vrpp:
             self.predict_future = True
         else:
             self.predict_future = False
@@ -119,7 +119,7 @@ class TemporalAttentionModelWithScheduling(AttentionModel):
         predicted_fills = predicted_fills.view(batch_size, graph_size, 1)
         
         # For depot node, set predicted fill to 0
-        if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:
+        if self.is_wc or self.is_vrpp:
             depot_fill = torch.zeros((batch_size, 1, 1), device=predicted_fills.device)
             predicted_fills = torch.cat((depot_fill, predicted_fills), dim=1)
         
@@ -138,7 +138,7 @@ class TemporalAttentionModelWithScheduling(AttentionModel):
             graph_size = input['loc'].size(1)
             
             # For VRP-like problems, adjust for depot (excluded from graph size)
-            if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:
+            if self.is_wc or self.is_vrpp:
                 graph_size -= 1
                 
             fill_history = torch.zeros(
@@ -245,7 +245,7 @@ class TemporalAttentionModelWithScheduling(AttentionModel):
         # If decision is to skip, return empty route
         if execute_route.item() < 0.5:
             # Create empty route (just depot)
-            if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:
+            if self.is_wc or self.is_vrpp:
                 empty_route = torch.zeros(
                     (input['loc'].size(0), 1), 
                     dtype=torch.long,

@@ -74,7 +74,7 @@ class ImprovedTemporalAttentionModel(AttentionModel):
         self.temporal_embed = nn.Linear(1, embedding_dim // 2)
         self.waste_ratio_embed = nn.Linear(1, embedding_dim // 2)
         
-        if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:
+        if self.is_wc or self.is_vrpp:
             self.predict_future = True
         else:
             self.predict_future = False
@@ -129,7 +129,7 @@ class ImprovedTemporalAttentionModel(AttentionModel):
             waste_ratio = torch.sigmoid(predicted_fills)  # Normalize if max_prize not available
         
         # For depot node, set predicted fill to 0
-        if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:
+        if self.is_wc or self.is_vrpp:
             depot_fill = torch.zeros((batch_size, 1, 1), device=predicted_fills.device)
             depot_ratio = torch.zeros((batch_size, 1, 1), device=predicted_fills.device)
             predicted_fills = torch.cat((depot_fill, predicted_fills), dim=1)
@@ -188,7 +188,7 @@ class ImprovedTemporalAttentionModel(AttentionModel):
             graph_size = input['loc'].size(1)
             
             # For VRP-like problems, adjust for depot (excluded from graph size)
-            if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:
+            if self.is_wc or self.is_vrpp:
                 graph_size -= 1
                 
             fill_history = torch.zeros(

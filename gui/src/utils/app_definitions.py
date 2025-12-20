@@ -1,7 +1,7 @@
 # Problems and Data
-PROBLEM_TYPES = ["TSP", "VRP", "PCTSP", "VRPP", "WCVRP", "OP", "PDP"]
+PROBLEM_TYPES = ["VRPP", "CVRPP", "WCVRP", "CWCVRP", "SDWCVRP"]
 
-DATA_DIST_PROBLEMS = ['VRPP', 'OP', 'WCVRP', 'WCVRP']
+DATA_DIST_PROBLEMS = ['VRPP', 'WCVRP']
 
 DATA_DISTRIBUTIONS = {
     "Empty": "empty", 

@@ -177,7 +177,7 @@ def add_train_args(parser):
                         "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'")
 
     # Model
-    parser.add_argument('--model', default='am', help="Model: 'am'|'tam'|'ddam'|'pn'")
+    parser.add_argument('--model', default='am', help="Model: 'am'|'tam'|'ddam'")
     parser.add_argument('--encoder', default='gat', help="Encoder: 'gat'|gac'|'tgc'|'gcn'|'mlp'")
     parser.add_argument('--embedding_dim', type=int, default=128, help='Dimension of input embedding')
     parser.add_argument('--hidden_dim', type=int, default=512, help='Dimension of hidden layers in Enc/Dec')
@@ -373,8 +373,7 @@ def add_gen_data_args(parser):
     parser.add_argument("--name", type=str, help="Name to identify dataset")
     parser.add_argument("--filename", default=None, help="Filename of the dataset to create (ignores datadir)")
     parser.add_argument("--data_dir", default='datasets', help="Create datasets in data")
-    parser.add_argument("--problem", type=str, default='all', 
-                                help="Problem: 'tsp'|'vrp'|'pctsp'|'vrpp'|'wcvrp'|'op_const'|'op_unif'|'op_dist'|'pdp'|'all'")
+    parser.add_argument("--problem", type=str, default='all', help="Problem: 'vrpp'|'wcvrp'|'all'")
     parser.add_argument("--is_gaussian", type=int, default=0)
     parser.add_argument('--data_distributions', nargs='+', default=['all'], help="Distributions to generate for problems")
     parser.add_argument("--dataset_size", type=int, default=128_000, help="Size of the dataset")

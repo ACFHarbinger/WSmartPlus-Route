@@ -30,8 +30,12 @@ class TestAttentionModel:
         input_data = {
             'depot': torch.rand(batch_size, 2),
             'loc': torch.rand(batch_size, graph_size, 2),
-            'demand': torch.rand(batch_size, graph_size)
+            'demand': torch.rand(batch_size, graph_size),
+            'waste': torch.rand(batch_size, graph_size),
         }
+        # Add fill history
+        for day in range(1, model.temporal_horizon + 1):
+            input_data[f'fill{day}'] = torch.rand(batch_size, graph_size)
         
         cost, ll, pi, _ = model(input_data)
         assert ll.shape == (batch_size,)
@@ -42,7 +46,14 @@ class TestAttentionModel:
         model._inner = MagicMock(return_value=(None, torch.zeros(2, 6, dtype=torch.long))) # Return pi as indices
         model.problem.get_costs.return_value = (torch.zeros(2), {'overflows': torch.zeros(2), 'waste': torch.zeros(2)}, None)
         
-        input_data = {'depot': torch.zeros(2,2), 'loc': torch.zeros(2,5,2), 'demand': torch.zeros(2,5)}
+        input_data = {
+            'depot': torch.zeros(2,2), 
+            'loc': torch.zeros(2,5,2), 
+            'demand': torch.zeros(2,5),
+            'waste': torch.zeros(2,5)
+        }
+        for day in range(1, model.temporal_horizon + 1):
+             input_data[f'fill{day}'] = torch.zeros(2,5)
         dist_matrix = torch.zeros(6, 6)
         
         ucost, ret_dict, attn_dict = model.compute_batch_sim(input_data, dist_matrix)

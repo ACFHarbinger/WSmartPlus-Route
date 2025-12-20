@@ -176,14 +176,11 @@ class TemporalDistanceAttentionModel(nn.Module):
         
         # Problem type identification (from parent class)
         self.problem = problem
-        self.is_vrp = problem.NAME == 'vrp'
-        self.is_orienteering = problem.NAME == 'orienteering'
-        self.is_pctsp = problem.NAME == 'pctsp'
         self.is_wc = problem.NAME == 'wcvrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
         self.is_vrpp = problem.NAME == 'vrpp' or problem.NAME == 'cvrpp'
         
         # Determine if we should predict future values
-        if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:
+        if self.is_wc or self.is_vrpp:
             self.predict_future = True
         else:
             self.predict_future = False

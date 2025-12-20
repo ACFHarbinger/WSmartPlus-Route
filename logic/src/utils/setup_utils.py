@@ -18,21 +18,12 @@ def setup_cost_weights(opts, def_val=1.):
 
     cw_dict = {}
     if opts['problem'] in ['wcvrp', 'cwcvrp', 'sdwcvrp']:
-        #cw_dict['lost'] = opts['w_lost'] = _set_val(opts['w_lost'], def_val)
         cw_dict['waste'] = opts['w_waste'] = _set_val(opts['w_waste'], def_val)
         cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
         cw_dict['overflows'] = opts['w_overflows'] = _set_val(opts['w_overflows'], def_val)
     elif opts['problem'] in ['vrpp', 'cvrpp']:
         cw_dict['waste'] = opts['w_waste'] = _set_val(opts['w_waste'], def_val)
         cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
-    elif opts['problem'] == 'op':
-        cw_dict['prize'] = opts['w_prize'] = _set_val(opts['w_prize'], def_val)
-    elif opts['problem'] in ['tsp', 'cvrp', 'sdvrp', 'pdp']:
-        cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
-    elif opts['problem'] == 'pctsp':
-        cw_dict['prize'] = opts['w_prize'] = _set_val(opts['w_prize'], def_val)
-        cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
-        cw_dict['penalty'] = opts['w_penalty'] = _set_val(opts['w_penalty'], def_val)
     return cw_dict
 
 
@@ -146,11 +137,11 @@ def setup_env(policy, server=False, gplic_filename=None, symkey_name=None, env_f
 
 def setup_model_and_baseline(problem, data_load, use_cuda, opts):
     from logic.src.models import (
-        CriticNetwork, CriticNetworkLSTM,
-        AttentionModel, PointerNetwork, TemporalAttentionModel,
+        WarmupBaseline, ExponentialBaseline, RolloutBaseline,
+        NoBaseline, CriticBaseline, CriticNetwork, POMOBaseline,
+        AttentionModel, TemporalAttentionModel,
         DeepDecoderAttentionModel, HierarchicalTemporalAttentionModel,
         GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
-        NoBaseline, WarmupBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, POMOBaseline
     )
     encoder_class = {
         'gat': GraphAttentionEncoder,
@@ -162,7 +153,6 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
 
     model_class = {
         'am': AttentionModel,
-        'pn': PointerNetwork,
         'tam': TemporalAttentionModel,
         'htam': HierarchicalTemporalAttentionModel,
         'ddam': DeepDecoderAttentionModel
@@ -217,8 +207,6 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
     if opts['baseline'] == 'exponential':
         baseline = ExponentialBaseline(opts['exp_beta'])
     elif opts['baseline'] == 'critic' or opts['baseline'] == 'critic_lstm':
-        assert opts['baseline'] != 'critic_lstm' or problem.NAME == 'tsp', \
-        "Critic LSTM only supported for TSP"
         baseline = CriticBaseline(
             (
                 CriticNetworkLSTM(

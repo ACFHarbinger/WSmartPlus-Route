@@ -20,12 +20,6 @@ This project contains code or ideas that were adapted from the following reposit
 - [Learning TSP Requires Rethinking Generalization](https://github.com/chaitjo/learning-tsp)
 - [HGS-CVRP: A modern implementation of the Hybrid Genetic Search for the CVRP](https://github.com/vidalt/HGS-CVRP)
 
-This repository also includes adaptions of the following repositories as baselines:
-* https://github.com/MichelDeudon/encode-attend-navigate
-* https://github.com/mc-ride/orienteering
-* https://github.com/jordanamecler/PCTSP
-* https://github.com/rafael2reis/salesman
-
 ## Setup Dependencies
 You can choose to install this repository's dependencies using any of the following methods below.
 

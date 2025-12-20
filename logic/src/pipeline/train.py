@@ -32,10 +32,8 @@ from .reinforcement_learning.reinforce import (
     train_reinforce_over_time_hrl,
 )
 from .reinforcement_learning.hpo import (
-    random_search, bayesian_optimization, 
-    grid_search, population_based_bandits_algorithm,
-    bayesian_generational_population_based_training,
     differential_evolutionary_hyperband_optimization,
+    random_search, bayesian_optimization, grid_search,
     hyperband_optimization, distributed_evolutionary_algorithm, 
 )
 
@@ -66,10 +64,6 @@ def hyperparameter_optimization(opts):
         best_params = distributed_evolutionary_algorithm(opts)
     elif opts['hop_method'] == 'dehbo':
         best_params = differential_evolutionary_hyperband_optimization(opts)
-    elif opts['hop_method'] == 'pbba':
-        best_params = population_based_bandits_algorithm(opts)
-    elif opts['hop_method'] == 'bgpbt':
-        best_params = bayesian_generational_population_based_training(opts)
     else:
         raise ValueError(f"unknown hyper-parameter optimization method '{opts['hop_method']}'")
     
