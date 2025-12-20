@@ -206,8 +206,6 @@ HOP_METHODS = {
     'Random Search (RS)': 'rs', 
     'Grid Search (GS)': 'gs', 
     'Differential Evolutionary Hyperband Optimization (DEHBO)': 'dehbo', 
-    'Population-Based Bandits Algorithm (PBBA)': 'pbba', 
-    'Bayesian Generational Population-Based Training (BGPBT)': 'bgpbt'
 }
 
 # Logging

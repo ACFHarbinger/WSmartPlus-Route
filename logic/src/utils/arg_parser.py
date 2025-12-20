@@ -321,7 +321,7 @@ def add_hp_optim_args(parser):
     parser = add_train_args(parser)
     
     # HPO specific args
-    parser.add_argument('--hop_method', type=str, default='dehbo', choices=['dea', 'bo', 'hbo', 'rs', 'gs', 'dehbo', 'pbba', 'bgpbt'],
+    parser.add_argument('--hop_method', type=str, default='dehbo', choices=['dea', 'bo', 'hbo', 'rs', 'gs', 'dehbo'],
                                 help='Method to use for hyperparameter optimization')
     parser.add_argument('--hop_range', type=float, nargs='+', default=[0.0, 2.0], help="Maximum and minimum values for hyperparameter optimization")
     parser.add_argument('--hop_epochs', type=int, default=7, help='The number of epochs to optimize hyperparameters')

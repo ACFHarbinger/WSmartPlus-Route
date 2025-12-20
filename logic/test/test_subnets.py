@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 from unittest.mock import MagicMock
 
-from logic.src.models.subnets.ffw_predictor import FeedForwardWeightPredictor
 from logic.src.models.subnets.gac_encoder import GraphAttConvEncoder
 from logic.src.models.subnets.gat_decoder import GraphAttentionDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
@@ -15,18 +14,6 @@ from logic.src.models.subnets.ptr_decoder import PointerDecoder
 from logic.src.models.subnets.ptr_encoder import PointerEncoder
 from logic.src.models.subnets.tgc_encoder import TransGraphConvEncoder
 
-class TestFeedForwardWeightPredictor:
-    def test_forward(self):
-        input_dim = 128
-        model = FeedForwardWeightPredictor(input_dim=input_dim, num_weights=3, activation='relu')
-        batch_size = 4
-        x = torch.randn(batch_size, input_dim)
-        keys = ['w1', 'w2', 'w3']
-        
-        output = model(x, keys)
-        assert isinstance(output, dict)
-        assert len(output) == 3
-        assert output['w1'].shape == (batch_size,)
 
 class TestGACEncoder:
     def test_init(self):
