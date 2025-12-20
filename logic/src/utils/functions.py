@@ -15,20 +15,13 @@ def get_inner_model(model):
 
 
 def load_problem(name):
-    from logic.src.problems import TSP, PDP, CVRP, SDVRP, OP, VRPP, CVRPP, WCVRP, CWCVRP, SDWCVRP, PCTSPDet, PCTSPStoch
+    from logic.src.problems import VRPP, CVRPP, WCVRP, CWCVRP, SDWCVRP
     problem = {
-        'tsp': TSP,
-        'cvrp': CVRP,
-        'sdvrp': SDVRP,
-        'op': OP,
         'vrpp': VRPP,
         'cvrpp': CVRPP,
         'wcvrp': WCVRP,
         'cwcvrp': CWCVRP,
         'sdwcvrp': SDWCVRP,
-        'pctsp_det': PCTSPDet,
-        'pctsp_stoch': PCTSPStoch,
-        'pdp': PDP,
     }.get(name, None)
     assert problem is not None, "Currently unsupported problem: {}!".format(name)
     return problem
@@ -90,7 +83,7 @@ def load_args(filename):
     if 'data_distribution' not in args:
         args['data_distribution'] = None
         probl, *dist = args['problem'].split("_")
-        if probl in ("op", "wcvrp"):
+        if probl in ("vrpp", "wcvrp"):
             args['problem'] = probl
             args['data_distribution'] = dist[0]
     
@@ -102,7 +95,7 @@ def load_args(filename):
 def load_model(path, epoch=None):
     from logic.src.models import (
         GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
-        AttentionModel, PointerNetwork, TemporalAttentionModel, DeepDecoderAttentionModel
+        AttentionModel, TemporalAttentionModel, DeepDecoderAttentionModel
     )
     if os.path.isfile(path):
         model_filename = path
@@ -129,7 +122,6 @@ def load_model(path, epoch=None):
 
     model_class = {
         'am': AttentionModel,
-        'pn': PointerNetwork,
         'tam': TemporalAttentionModel,
         'ddam': DeepDecoderAttentionModel
     }.get(args.get('model', 'am'), None)

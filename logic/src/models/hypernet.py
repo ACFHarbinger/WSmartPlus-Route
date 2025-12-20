@@ -17,8 +17,7 @@ class Hypernetwork(nn.Module):
         self.problem = problem
         self.is_wc = problem.NAME == 'wcvrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
         self.is_vrpp = problem.NAME == 'vrpp' or problem.NAME == 'cvrpp'
-        self.is_pctsp = problem.NAME == 'pctsp'
-        if self.is_vrpp or self.is_wc or self.is_pctsp:
+        if self.is_vrpp or self.is_wc:
             cost_dim = 3 * 2
         else:
             cost_dim = 1 * 2

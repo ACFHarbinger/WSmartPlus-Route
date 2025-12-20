@@ -34,8 +34,8 @@ class RLDataTab(BaseReinforcementLearningTab):
         # Problem
         self.widgets['problem'] = QComboBox()
         self.widgets['problem'].addItems(PROBLEM_TYPES)
-        # Set default to 'TSP'
-        self.widgets['problem'].setCurrentText('TSP') 
+        # Set default to 'WCVRP'
+        self.widgets['problem'].setCurrentText('WCVRP') 
         layout.addRow(QLabel("Problem:"), self.widgets['problem'])
 
         # --- Data Distribution Dropdown (Conditional) ---

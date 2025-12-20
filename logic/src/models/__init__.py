@@ -1,7 +1,6 @@
-from .critic_network import CriticNetwork, CriticNetworkLSTM
+from .critic_network import CriticNetwork
 from .reinforce_baselines import NoBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, WarmupBaseline, POMOBaseline
 
-from .pointer_network import PointerNetwork
 from .attention_model import AttentionModel
 from .temporal_am import TemporalAttentionModel
 from .hierarchical_tam import HierarchicalTemporalAttentionModel

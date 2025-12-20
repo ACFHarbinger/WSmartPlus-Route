@@ -148,7 +148,7 @@ def gen_data_opts():
     """Returns a basic set of mock arguments (opts) for generate_datasets."""
     return {
         'name': 'test_suite',
-        'problem': 'tsp',
+        'problem': 'vrpp',
         'dataset_size': 100,
         'graph_sizes': [20],
         'data_distributions': ['all'],
@@ -432,13 +432,10 @@ def mock_dependencies(mocker):
     # 1. Mock the specific problem generators imported into generate_data.py
     # Since they are imported via `from .generate_problem_data import *`, we mock 
     # them as attributes of the generate_data module.
-    mocker.patch('logic.src.data.generate_data.generate_tsp_data', return_value=[(None, None)])
-    mocker.patch('logic.src.data.generate_data.generate_vrp_data', return_value=[(None, None)])
-    mocker.patch('logic.src.data.generate_data.generate_pctsp_data', return_value=[(None, None)])
-    mocker.patch('logic.src.data.generate_data.generate_op_data', return_value=[(None, None)])
+
     mocker.patch('logic.src.data.generate_data.generate_vrpp_data', return_value=[(None, None)])
     mocker.patch('logic.src.data.generate_data.generate_wcvrp_data', return_value=[(None, None)])
-    mocker.patch('logic.src.data.generate_data.generate_pdp_data', return_value=[(None, None)])
+
     
     # 2. Mock the WSR simulator data generator
     mocker.patch('logic.src.data.generate_data.generate_wsr_data', return_value=[(None, None)])
@@ -1193,7 +1190,7 @@ def rwo_setup():
 def am_setup(mocker):
     """Fixture for AttentionModel"""
     mock_problem = mocker.MagicMock()
-    mock_problem.NAME = 'cvrp'
+    mock_problem.NAME = 'vrpp'
     mock_problem.get_costs.return_value = (torch.zeros(1), {}, None)
     
     mock_encoder = mocker.MagicMock()

@@ -173,11 +173,9 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
             )
         duration = time.time() - start
         for seq, cost in zip(sequences, costs):
-            if model.problem.NAME == "tsp":
-                seq = seq.tolist()  # No need to trim as all are same length
-            elif model.problem.NAME in ("cvrp", "sdvrp", "pdp"):
+            if model.problem.NAME in ("cvrpp", "cwcvrp", "sdwcvrp"):
                 seq = np.trim_zeros(seq).tolist() + [0]  # Add depot
-            elif model.problem.NAME in ("op", "pctsp", "vrpp", "wcvrp"):
+            elif model.problem.NAME in ("vrpp", "wcvrp"):
                 seq = np.trim_zeros(seq)  # We have the convention to exclude the depot
             else:
                 seq = None

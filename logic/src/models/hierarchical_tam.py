@@ -211,7 +211,7 @@ class HierarchicalTemporalAttentionModel(TemporalAttentionModel):
                 continue
                 
             # Get locations for this cluster
-            if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc:
+            if self.is_wc or self.is_vrpp:
                 # Include depot in locations
                 locs = torch.cat([input['depot'].unsqueeze(1), input['loc']], dim=1)
             else:
