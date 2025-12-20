@@ -63,6 +63,7 @@ class AttentionModel(nn.Module):
                  n_heads=8,
                  checkpoint_encoder=False,
                  shrink_size=None,
+                 pomo_size=0,
                  temporal_horizon=0,
                  predictor_layers=None):
         super(AttentionModel, self).__init__()
@@ -101,6 +102,7 @@ class AttentionModel(nn.Module):
         self.mask_inner = mask_inner
         self.mask_logits = mask_logits
         self.mask_graph = mask_graph
+        self.pomo_size = pomo_size
 
         self.problem = problem
         self.allow_partial = problem.NAME == 'sdvrp' or problem.NAME == 'sdwcvrp'
@@ -197,8 +199,30 @@ class AttentionModel(nn.Module):
 
         # profit_vars is not a direct argument to forward, it's derived or passed through input
         # Assuming it's handled within _inner or not needed here based on original code
-        _log_p, pi = self._inner(input, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=mask)
-        cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, dist_matrix)
+        
+        # If POMO is enabled, we expand the batch
+        if self.pomo_size > 0:
+            def expand(t):
+                if t is None:
+                    return None
+                if isinstance(t, torch.Tensor):
+                    # (B, ...) -> (B * pomo_size, ...)
+                    return t.repeat_interleave(self.pomo_size, dim=0)
+                if isinstance(t, dict):
+                    return {k: expand(v) for k, v in t.items()}
+                return t
+            
+            expanded_input = expand(input)
+            expanded_embeddings = expand(embeddings)
+            expanded_edges = expand(edges)
+            expanded_dist_matrix = expand(dist_matrix)
+            expanded_mask = expand(mask)
+            
+            _log_p, pi = self._inner(expanded_input, expanded_edges, expanded_embeddings, cost_weights, expanded_dist_matrix, profit_vars=None, mask=expanded_mask)
+            cost, cost_dict, mask = self.problem.get_costs(expanded_input, pi, cost_weights, expanded_dist_matrix)
+        else:
+            _log_p, pi = self._inner(input, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=mask)
+            cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, dist_matrix)
         
         # Log likelyhood is calculated within the model since returning it per action does not work well with
         # DataParallel since sequences can be of different lengths
@@ -468,6 +492,19 @@ class AttentionModel(nn.Module):
                      
             # Select the indices of the next nodes in the sequences, result (batch_size) long
             selected = self._select_node(log_p.exp()[:, 0, :], step_mask[:, 0, :])  # Squeeze out steps dimension
+            
+            # POMO: For the first customer choice, we force the selection
+            if self.pomo_size > 0 and i == 0:
+                # We assume the first choice after depot is a customer.
+                # In POMO, we want trajectory j for instance b to start with customer j+1
+                # selected is (B * pomo_size)
+                # We need to find B
+                current_batch_size = selected.size(0)
+                B = current_batch_size // self.pomo_size
+                # Forced actions: [1, 2, ..., pomo_size] repeated B times
+                forced_selected = torch.arange(1, self.pomo_size + 1, device=selected.device).repeat(B)
+                selected = forced_selected
+
             state = state.update(selected)
 
             # Now make log_p, selected desired output size by 'unshrinking'

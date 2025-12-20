@@ -52,6 +52,8 @@ def load_data(load_path, resume):
 
 
 def move_to(var, device):
+    if var is None:
+        return None
     if isinstance(var, dict):
         return {k: move_to(v, device) for k, v in var.items()}
     return var.to(device)

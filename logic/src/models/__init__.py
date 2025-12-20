@@ -1,5 +1,5 @@
 from .critic_network import CriticNetwork, CriticNetworkLSTM
-from .reinforce_baselines import NoBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, WarmupBaseline
+from .reinforce_baselines import NoBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, WarmupBaseline, POMOBaseline
 
 from .pointer_network import PointerNetwork
 from .attention_model import AttentionModel

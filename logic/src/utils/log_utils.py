@@ -47,6 +47,8 @@ def log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
 
 def log_epoch(x_tup, loss_keys, epoch_loss, opts):
     for id, key in enumerate(loss_keys):
+        if not epoch_loss.get(key):
+            continue
         lname = key if key in udef.LOSS_KEYS else f"{key}_cost"
         lmean = torch.cat(epoch_loss[key]).float().mean().item()
         if opts['wandb_mode'] != 'disabled':
