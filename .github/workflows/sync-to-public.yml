@@ -5,6 +5,7 @@ on:
       - main
 jobs:
   sync:
+    if: github.repository == 'ACFHarbinger/WSmart-Route'
     runs-on: ubuntu-latest
     steps:
       # Use the checkout action with your Personal Access Token (PAT) 
