@@ -11,19 +11,14 @@ Machine Learning models and Operations Research solvers for Combinatorial Optimi
 You need to have the CUDA drivers installed in order to be able to run the program on NVidia GPU. If you need to install the drivers, you can [download them here](https://developer.nvidia.com/cuda-downloads), and then follow (the instructions on this website)[https://docs.nvidia.com/cuda/index.html] to install them on your operating system.
 
 ### Adapted Code
-This project contains code that was adapted from the following repositories:
+This project contains code or ideas that were adapted from the following repositories:
 - [Attention, Learn to Solve Routing Problems](https://github.com/wouterkool/attention-learn-to-route)
 - [Heterogeneous Attentions for Solving PDP via DRL](https://github.com/jingwenli0312/Heterogeneous-Attentions-PDP-DRL)
+- [POMO: Policy Optimization with Multiple Optima for Reinforcement Learning](https://github.com/yd-kwon/POMO/tree/master)
 - [WSmart+ Bin Analysis](https://github.com/ACFPeacekeeper/wsmart_bin_analysis)
 - [Do We Need Anisotropic Graph Neural Networks?](https://github.com/shyam196/egc)
 - [Learning TSP Requires Rethinking Generalization](https://github.com/chaitjo/learning-tsp)
 - [HGS-CVRP: A modern implementation of the Hybrid Genetic Search for the CVRP](https://github.com/vidalt/HGS-CVRP)
-
-This repository also includes adaptions of the following repositories as baselines:
-* https://github.com/MichelDeudon/encode-attend-navigate
-* https://github.com/mc-ride/orienteering
-* https://github.com/jordanamecler/PCTSP
-* https://github.com/rafael2reis/salesman
 
 ## Setup Dependencies
 You can choose to install this repository's dependencies using any of the following methods below.

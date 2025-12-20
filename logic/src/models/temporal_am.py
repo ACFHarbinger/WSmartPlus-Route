@@ -69,9 +69,10 @@ class TemporalAttentionModel(AttentionModel):
             n_heads,
             checkpoint_encoder,
             shrink_size,
-            temporal_horizon
+            0 # temporal_horizon=0 for base init_embed
         )
-        from models.modules import ActivationFunction
+        self.temporal_horizon = temporal_horizon
+        from .modules import ActivationFunction
         from . import GatedRecurrentFillPredictor
         self.fill_predictor = GatedRecurrentFillPredictor(
             input_dim=1,  
@@ -81,7 +82,7 @@ class TemporalAttentionModel(AttentionModel):
         )
 
         self.temporal_embed = nn.Linear(1, embedding_dim)
-        if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:
+        if self.is_wc or self.is_vrpp:
             self.predict_future = True
         else:
             self.predict_future = False
@@ -108,7 +109,7 @@ class TemporalAttentionModel(AttentionModel):
         predicted_fills = predicted_fills.view(batch_size, graph_size, 1)
         
         # For depot node, set predicted fill to 0
-        if self.is_vrpp or self.is_wc or self.is_vrp or self.is_orienteering or self.is_pctsp:
+        if self.is_vrpp or self.is_wc:
             depot_fill = torch.zeros((batch_size, 1, 1), device=predicted_fills.device)
             predicted_fills = torch.cat((depot_fill, predicted_fills), dim=1)
         
@@ -124,8 +125,8 @@ class TemporalAttentionModel(AttentionModel):
             graph_size = input['loc'].size(1)
             
             # For VRP-like problems, adjust for depot (excluded from graph size)
-            if self.is_vrpp or self.is_wc or self.is_vrp or self.is_orienteering or self.is_pctsp:
-                graph_size -= 1
+            if self.is_vrpp or self.is_wc:
+                pass # graph_size is already correct (num customers)
                 
             fill_history = torch.zeros(
                 (batch_size, graph_size, self.temporal_horizon),

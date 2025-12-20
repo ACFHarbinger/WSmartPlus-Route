@@ -30,7 +30,7 @@ _logger_props = {
 
 def get_config_space(opts):
     cs = CS.ConfigurationSpace()
-    if opts['problem'] == 'wcrp':
+    if opts['problem'] == 'wcvrp':
         cs.add(CSHP.UniformFloatHyperparameter("w_lost", lower=opts['hop_range'][0], upper=opts['hop_range'][1]))
         cs.add(CSHP.UniformFloatHyperparameter("w_prize", lower=opts['hop_range'][0], upper=opts['hop_range'][1]))
         cs.add(CSHP.UniformFloatHyperparameter("w_length", lower=opts['hop_range'][0], upper=opts['hop_range'][1]))

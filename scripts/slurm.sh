@@ -50,7 +50,7 @@ if [[ -z $model ]]; then
 fi
 
 if [[ -z $problem ]]; then
-    problem="wcrp"
+    problem="wcvrp"
 fi
 
 if [[ -z $gs ]]; then
@@ -96,7 +96,7 @@ if [[ "$command" == "train" ]]; then
     fi
 
     python main.py "$command" --model "${model[0]}" --baseline rollout --train_dataset virtual \
-    --val_dataset data/datasets/wcrp/wcrp_unif20_val_seed1234.pkl --problem "$problem" \
+    --val_dataset data/datasets/wcvrp/wcvrp_unif20_val_seed1234.pkl --problem "$problem" \
     --batch_size "$bs" --data_distribution "$dd" --n_epochs "$ne" --eval_batch_size "$ebs" \
     --graph_size "$gs" --epoch_start "$es" --edge_threshold "$et" --n_other_layers 2;
 elif [[ "$command" == "test" ]]; then

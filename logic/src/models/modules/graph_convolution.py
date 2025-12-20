@@ -58,9 +58,22 @@ class GraphConvolution(nn.Module):
                                 dim_size=batch_size * num_nodes, reduce="max")
             out = flat_output.view(batch_size, num_nodes, self.out_channels)
         elif self.aggregation == "mean":
-            degrees = mask.squeeze(0).sum(dim=0).clamp(min=1)  # Prevent division by zero
-            out = torch.bmm(mask.expand(batch_size, -1, -1), support)
-            out = out / degrees.view(1, -1, 1).expand(batch_size, -1, -1)
+            # Check if mask is batched (B, V, V) or shared (1, V, V) / (V, V)
+            if mask.dim() == 3:
+                degrees = mask.sum(dim=-1, keepdim=True).clamp(min=1)
+                # degrees is (B, V, 1)
+                if degrees.size(0) == 1: # Shared graph but 3D
+                    degrees = degrees.expand(batch_size, -1, -1)
+            else: # (V, V)
+                degrees = mask.sum(dim=-1).view(1, num_nodes, 1).expand(batch_size, -1, -1).clamp(min=1)
+            
+            if mask.dim() == 2:
+                mask = mask.unsqueeze(0).expand(batch_size, -1, -1)
+            elif mask.size(0) == 1:
+                mask = mask.expand(batch_size, -1, -1)
+                
+            out = torch.bmm(mask, support)
+            out = out / degrees
         else:
             out = torch.bmm(mask.expand(batch_size, -1, -1), support)
         

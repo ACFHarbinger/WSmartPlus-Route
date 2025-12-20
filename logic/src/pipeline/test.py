@@ -67,9 +67,7 @@ def simulator_testing(opts, data_size, device):
     else:
         indices = [None] * opts['n_samples']
 
-    models_dir = "{}{}_{}{}".format(opts['problem'], opts['size'], opts['area'], 
-                                    f"_{opts['waste_type']}" if opts['waste_type'] is not None else "")
-    weights_path = os.path.join(udef.ROOT_DIR, "assets", "model_weights", models_dir, opts['data_distribution'])
+    weights_path = os.path.join(udef.ROOT_DIR, "assets", "model_weights")
     if n_cores > 1:
         udef.update_lock_wait_time(n_cores)
         counter = mp.Value('i', 0)

@@ -175,7 +175,7 @@ class DeepDecoderAttentionModel(AttentionModel):
         return logits
     
     def _get_attention_node_data(self, fixed, state):
-        if self.is_vrp and self.allow_partial:
+        if self.is_wc and self.allow_partial:
             # Need to provide information of how much each node has already been served
             # Clone demands as they are needed by the backprop whereas they are updated later
             mha_key_step = self.project_node_step(state.demands_with_depot[:, :, :, None].clone())
@@ -185,5 +185,4 @@ class DeepDecoderAttentionModel(AttentionModel):
                 fixed.mha_key + self._make_heads(mha_key_step)
             )
 
-        # TSP or VRP without split delivery
         return fixed.mha_key

@@ -104,6 +104,29 @@ class ExponentialBaseline(Baseline):
         self.v = state_dict['v']
 
 
+class POMOBaseline(Baseline):
+    def __init__(self, pomo_size):
+        super(Baseline, self).__init__()
+        self.pomo_size = pomo_size
+
+    def eval(self, x, c):
+        # c: [batch_size * pomo_size]
+        B_pomo = c.size(0)
+        B = B_pomo // self.pomo_size
+        
+        # Reshape to [B, pomo_size]
+        # rewards = c.reshape(B, self.pomo_size)
+        rewards = c.view(B, self.pomo_size)
+        
+        # Compute mean reward per instance: [B]
+        mean_rewards = rewards.mean(dim=1)
+        
+        # Repeat mean rewards to match c shape: [B * pomo_size]
+        v = mean_rewards.repeat_interleave(self.pomo_size)
+        
+        return v, 0  # No critic loss
+
+
 class CriticBaseline(Baseline):
     def __init__(self, critic):
         super(Baseline, self).__init__()

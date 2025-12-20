@@ -63,6 +63,7 @@ class AttentionModel(nn.Module):
                  n_heads=8,
                  checkpoint_encoder=False,
                  shrink_size=None,
+                 pomo_size=0,
                  temporal_horizon=0,
                  predictor_layers=None):
         super(AttentionModel, self).__init__()
@@ -101,44 +102,27 @@ class AttentionModel(nn.Module):
         self.mask_inner = mask_inner
         self.mask_logits = mask_logits
         self.mask_graph = mask_graph
+        self.pomo_size = pomo_size
 
         self.problem = problem
-        self.allow_partial = problem.NAME == 'sdvrp'
-        self.is_vrp = problem.NAME == 'cvrp' or problem.NAME == 'sdvrp'
-        self.is_orienteering = problem.NAME == 'op'
-        self.is_pctsp = problem.NAME == 'pctsp'
-        self.is_wc = problem.NAME == 'wcrp'
-        self.is_vrpp = problem.NAME == 'vrpp'
+        self.allow_partial = problem.NAME == 'sdwcvrp'
+        self.is_wc = problem.NAME == 'wcvrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
+        self.is_vrpp = problem.NAME == 'vrpp' or problem.NAME == 'cvrpp'
+
+        assert self.is_wc or self.is_vrpp, "Unsupported problem: {}".format(problem.NAME)
 
         # Problem specific context parameters (placeholder and step context dimension)
-        if self.is_vrp or self.is_orienteering or self.is_pctsp or self.is_wc or self.is_vrpp:
-            # Embedding of last node + remaining_capacity / remaining length / current profit / current overflows + length
-            if self.is_wc:
-                step_context_dim = embedding_dim + 2
-            else:
-                step_context_dim = embedding_dim + 1
+        # Embedding of last node + remaining_capacity / remaining length / current profit / current overflows + length
+        if self.is_wc:
+            step_context_dim = embedding_dim + 2
+        else:
+            # vrpp
+            step_context_dim = embedding_dim + 1
+        
+        node_dim = 3  # x, y, demand / prize / waste (vrpp has waste, wc has waste)
 
-            if self.is_pctsp:
-                node_dim = 4  # x, y, expected_prize, penalty
-            else:
-                node_dim = 3  # x, y, demand / prize / waste
-
-            # Special embedding projection for depot node
-            #if self.is_wc:
-            #    self.init_embed_depot = nn.Linear(3, embedding_dim)
-            #else:
-            self.init_embed_depot = nn.Linear(2, embedding_dim)
-            
-            if self.is_vrp and self.allow_partial:  # Need to include the demand if split delivery allowed
-                self.project_node_step = nn.Linear(1, 3 * embedding_dim, bias=False)
-        else:  # TSP
-            assert problem.NAME == "tsp", "Unsupported problem: {}".format(problem.NAME)
-            step_context_dim = 2 * embedding_dim  # Embedding of first and last node
-            node_dim = 2  # x, y
-            
-            # Learned input symbols for first action
-            self.W_placeholder = nn.Parameter(torch.Tensor(2 * embedding_dim))
-            self.W_placeholder.data.uniform_(-1, 1)  # Placeholder should be in range of activations
+        # Special embedding projection for depot node
+        self.init_embed_depot = nn.Linear(2, embedding_dim)
 
         self.init_embed = nn.Linear(node_dim + temporal_horizon, embedding_dim)
         self.embedder = encoder_class(
@@ -178,13 +162,14 @@ class AttentionModel(nn.Module):
         if temp is not None:  # Do not change temperature if not provided
             self.temp = temp
 
-    def forward(self, input, cost_weights=None, return_pi=False, pad=False):
+    def forward(self, input, cost_weights=None, return_pi=False, pad=False, mask=None):
         """
-        :param input: (batch_size, graph_size, node_dim) dictionary with multiple tensors
+        :param input: (batch_size, graph_size, node_dim) input node features or dictionary with multiple tensors
         :param cost_weights: dictionary with weights for each term of the cost function
         :param return_pi: whether to return the output sequences, this is optional as it is not compatible with
         using DataParallel as the results may be of different lengths on different GPUs
         :param pad: whether to pad the output sequences in order to use return_pi with multiple GPUs
+        :param mask: (batch_size, graph_size) boolean mask where True indicates nodes to be masked (skipped)
         :return:
         """
         edges = input.pop('edges') if 'edges' in input.keys() else None
@@ -194,24 +179,70 @@ class AttentionModel(nn.Module):
         else:
             embeddings = self.embedder(self._init_embed(input), edges)
 
-        _log_p, pi = self._inner(input, edges, embeddings, cost_weights, dist_matrix)
-        cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, dist_matrix)
+        # profit_vars is not a direct argument to forward, it's derived or passed through input
+        # Assuming it's handled within _inner or not needed here based on original code
+        
+        # If POMO is enabled, we expand the batch
+        if self.pomo_size > 0:
+            def expand(t):
+                if t is None:
+                    return None
+                if isinstance(t, torch.Tensor):
+                    # (B, ...) -> (B * pomo_size, ...)
+                    return t.repeat_interleave(self.pomo_size, dim=0)
+                if isinstance(t, dict):
+                    return {k: expand(v) for k, v in t.items()}
+                return t
+            
+            expanded_input = expand(input)
+            expanded_embeddings = expand(embeddings)
+            expanded_edges = expand(edges)
+            expanded_dist_matrix = expand(dist_matrix)
+            expanded_mask = expand(mask)
+            
+            _log_p, pi = self._inner(expanded_input, expanded_edges, expanded_embeddings, cost_weights, expanded_dist_matrix, profit_vars=None, mask=expanded_mask)
+            cost, cost_dict, mask = self.problem.get_costs(expanded_input, pi, cost_weights, expanded_dist_matrix)
+        else:
+            _log_p, pi = self._inner(input, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=mask)
+            cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, dist_matrix)
         
         # Log likelyhood is calculated within the model since returning it per action does not work well with
         # DataParallel since sequences can be of different lengths
         ll = self._calc_log_likelihood(_log_p, pi, mask)
         if return_pi:
             if pad:
-                pad_dim = input['loc'].size(1) + 1 if self.problem.NAME != "tsp" else input['loc'].size(1)
+                pad_dim = input['loc'].size(1) + 1
                 pi = F.pad(pi, (0, (pad_dim) - pi.size(-1)), value=0)
             return cost, ll, cost_dict, pi
         return cost, ll, cost_dict, None
     
-    def compute_batch_sim(self, input, dist_matrix):
+    def compute_batch_sim(self, input, dist_matrix, hrl_manager=None, waste_history=None):
         hook_data = add_attention_hooks(self.embedder)
         edges = input.pop('edges') if 'edges' in input.keys() else None
+        
+        mask = None
+        if hrl_manager is not None and waste_history is not None:
+            # Static: Customer Locations (Batch, N, 2)
+            static_feat = input['loc']
+            # Dynamic: Waste History (Batch, N, History)
+            dynamic_feat = waste_history
+            
+            # Get Action (Deterministic)
+            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, deterministic=True)
+            
+            # Construct Mask
+            # mask_action: 1=Visit, 0=Skip. AM Mask: True=Masked(Skip), False=Keep.
+            mask = (mask_action == 0)
+            
+            # Apply Gate: If Gate=0, Mask ALL
+            gate_mask = (gate_action == 0).unsqueeze(1).expand_as(mask)
+            mask = mask | gate_mask
+            
+            # Important: If all nodes are masked for an instance, _inner might fail or produce empty route
+            # usually _inner handles masking.
+        
         embeddings = self.embedder(self._init_embed(input), edges)
-        _, pi = self._inner(input, edges, embeddings, cost_weights=None)
+        _, pi = self._inner(input, edges, embeddings, cost_weights=None, mask=mask)
         ucost, cost_dict, _ = self.problem.get_costs(input, pi, cw_dict=None)
         src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
         dst_mask = dst_vertices != 0
@@ -221,18 +252,73 @@ class AttentionModel(nn.Module):
         ret_dict = {}
         ret_dict['overflows'] = cost_dict['overflows']
         ret_dict['kg'] = cost_dict['waste'] * 100
-        ret_dict['km'] = travelled.sum(dim=1) + dist_matrix[0, 0, src_vertices[:, 0]] + \
-            dist_matrix[0, dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0]
+        if dist_matrix.dim() == 2:
+            ret_dict['km'] = travelled.sum(dim=1) + dist_matrix[0, src_vertices[:, 0]] + \
+                dist_matrix[dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0]
+        else:
+            ret_dict['km'] = travelled.sum(dim=1) + dist_matrix[0, 0, src_vertices[:, 0]] + \
+                dist_matrix[0, dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0]
         attention_weights = torch.tensor([])
         if hook_data['weights']:
             attention_weights = torch.stack(hook_data['weights'])
         return ucost, ret_dict, {'attention_weights': attention_weights, 'graph_masks': hook_data['masks']}
     
-    def compute_simulator_day(self, input, graph, distC, profit_vars=None, run_tsp=False):
+    def compute_simulator_day(self, input, graph, distC, profit_vars=None, run_tsp=False, hrl_manager=None, waste_history=None):
         edges, dist_matrix = graph
         hook_data = add_attention_hooks(self.embedder)
+        
+        mask = None
+        if hrl_manager is not None and waste_history is not None:
+            # Static: Customer Locations (Batch, N, 2)
+            # Should be shape (1, N, 2) if single instance
+            if input['loc'].dim() == 2:
+                static_feat = input['loc'].unsqueeze(0)
+            else:
+                static_feat = input['loc']
+            
+            # Dynamic: Waste History (Batch, N, History)
+            # waste_history likely (N, History) if single instance
+            if waste_history.dim() == 2:
+                dynamic_feat = waste_history.unsqueeze(0)
+            else:
+                dynamic_feat = waste_history
+            
+            # Ensure shapes align:
+            # static_feat: (Batch, N, 2)
+            # dynamic_feat: (Batch, N, History)
+            
+            # If dynamic_feat came from (Days, N), it is now (1, Days, N)
+            # We check if dim 1 matches N (from static). If not, and dim 2 does, we permute.
+            N = static_feat.size(1)
+            if dynamic_feat.size(1) != N and dynamic_feat.size(2) == N:
+                dynamic_feat = dynamic_feat.permute(0, 2, 1) # (B, N, Days)
+
+            # Feature Normalization Check
+            # History should be [0, 1]. If we see values >> 1 (e.g. 0-100), normalize.
+            if dynamic_feat.max() > 2.0: # Safe threshold, assuming valid fills roughly <= 100% (1.0)
+                dynamic_feat = dynamic_feat / 100.0
+            
+            # Truncate to Window Size if passed full history (e.g. from Notebook)
+            # dynamic_feat: (Batch, N, History)
+            if hasattr(hrl_manager, 'input_dim_dynamic'):
+                window_size = hrl_manager.input_dim_dynamic
+                if dynamic_feat.size(2) > window_size:
+                    # Take last 'window_size' steps
+                    dynamic_feat = dynamic_feat[:, :, -window_size:]
+
+            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, deterministic=True)
+            
+            # If Gate is closed (0), return empty immediately
+            if gate_action.item() == 0:
+                for handle in hook_data['handles']:
+                    handle.remove()
+                return [], 0, {'attention_weights': torch.tensor([]), 'graph_masks': hook_data['masks']}
+            
+            # Construct Mask
+            mask = (mask_action == 0)
+        
         embeddings = self.embedder(self._init_embed(input), edges)
-        _, pi = self._inner(input, edges, embeddings, None, dist_matrix, profit_vars)
+        _, pi = self._inner(input, edges, embeddings, None, dist_matrix, profit_vars, mask=mask)
         if run_tsp:
             try:
                 route, cost = find_route(dist_matrix.cpu().numpy(), pi[pi != 0].cpu().numpy())
@@ -304,19 +390,11 @@ class AttentionModel(nn.Module):
         return log_p.sum(1)
 
     def _init_embed(self, nodes, temporal_features=True):
-        if self.is_vrpp or self.is_vrp or self.is_wc or self.is_orienteering or self.is_pctsp:
-            if self.is_vrp:
-                features = ('demand',)  # [batch_size, graph_size]
-            elif self.is_vrpp or self.is_wc:
-                if temporal_features:
-                    features = tuple(['waste'] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
-                else:
-                    features = ('waste',)
-            elif self.is_orienteering:
-                features = ('prize',)
+        if self.is_vrpp or self.is_wc:
+            if temporal_features:
+                features = tuple(['waste'] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
             else:
-                assert self.is_pctsp
-                features = ('deterministic_prize', 'penalty')
+                features = ('waste',)
             return torch.cat(  # [batch_size, graph_size+1, embed_dim]
                 (
                     self.init_embed_depot(nodes['depot'])[:, None, :],
@@ -327,13 +405,12 @@ class AttentionModel(nn.Module):
                 ),
                 1
             )
-        # TSP
-        return self.init_embed(nodes['loc'])
+        assert False, "Unsupported problem"
 
-    def _inner(self, nodes, edges, embeddings, cost_weights, dist_matrix, profit_vars=None):
+    def _inner(self, nodes, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=None):
         outputs = []
         sequences = []
-        state = self.problem.make_state(nodes, edges, cost_weights, dist_matrix, profit_vars=profit_vars)
+        state = self.problem.make_state(nodes, edges, cost_weights, dist_matrix, profit_vars=profit_vars, hrl_mask=mask)
 
         # Compute keys, values for the glimpse and keys for the logits once as they can be reused in every step
         fixed = self._precompute(embeddings)
@@ -354,10 +431,53 @@ class AttentionModel(nn.Module):
                     state = state[unfinished]
                     fixed = fixed[unfinished]
 
-            log_p, mask = self._get_log_p(fixed, state)
+            log_p, step_mask = self._get_log_p(fixed, state)
 
+            # Apply HRL Mask if provided
+            if mask is not None:
+                # Mask from HRL is typically (Batch, N) for customers
+                # step_mask is likely (Batch, 1, N+1) including depot
+                if mask.size(1) == step_mask.size(2) - 1:
+                    # Pad mask with False for depot at index 0
+                    # (Batch, N) -> (Batch, N+1)
+                    depot_mask = torch.zeros((mask.size(0), 1), dtype=torch.bool, device=mask.device)
+                    mask_padded = torch.cat((depot_mask, mask), dim=1)
+                else:
+                    mask_padded = mask
+
+                if step_mask.dim() == 3:
+                    # (Batch, 1, N)
+                    step_mask = step_mask | mask_padded.unsqueeze(1)
+                else:
+                    step_mask = step_mask | mask_padded
+                
+                # CRITICAL FIX: Mask logits (log_p) for HRL-masked nodes
+                # Ensure they have -inf log_prob so they have 0 probability
+                # log_p is (Batch, 1, GraphSize)
+                # Expand step_mask to broadcast if necessary
+                if step_mask.dim() == 2:
+                    current_mask = step_mask.unsqueeze(1)
+                else:
+                    current_mask = step_mask
+                    
+                log_p = log_p.masked_fill(current_mask, -math.inf)
+
+                     
             # Select the indices of the next nodes in the sequences, result (batch_size) long
-            selected = self._select_node(log_p.exp()[:, 0, :], mask[:, 0, :])  # Squeeze out steps dimension
+            selected = self._select_node(log_p.exp()[:, 0, :], step_mask[:, 0, :])  # Squeeze out steps dimension
+            
+            # POMO: For the first customer choice, we force the selection
+            if self.pomo_size > 0 and i == 0:
+                # We assume the first choice after depot is a customer.
+                # In POMO, we want trajectory j for instance b to start with customer j+1
+                # selected is (B * pomo_size)
+                # We need to find B
+                current_batch_size = selected.size(0)
+                B = current_batch_size // self.pomo_size
+                # Forced actions: [1, 2, ..., pomo_size] repeated B times
+                forced_selected = torch.arange(1, self.pomo_size + 1, device=selected.device).repeat(B)
+                selected = forced_selected
+
             state = state.update(selected)
 
             # Now make log_p, selected desired output size by 'unshrinking'
@@ -486,34 +606,8 @@ class AttentionModel(nn.Module):
         """
         current_node = state.get_current_node()
         batch_size, num_steps = current_node.size()
-        if self.is_vrp:
-            # Embedding of previous node + remaining capacity
-            if from_depot:
-                # 1st dimension is node idx, but we do not squeeze it since we want to insert step dimension
-                # i.e. we actually want embeddings[:, 0, :][:, None, :] which is equivalent
-                return torch.cat(
-                    (
-                        embeddings[:, 0:1, :].expand(batch_size, num_steps, embeddings.size(-1)),
-                        # used capacity is 0 after visiting depot
-                        self.problem.VEHICLE_CAPACITY - torch.zeros_like(state.used_capacity[:, :, None])
-                    ),
-                    -1
-                )
-            else:
-                return torch.cat(
-                    (
-                        torch.gather(
-                            embeddings,  # [batch_size, graph_size, embed_dim]
-                            1,
-                            current_node.contiguous()
-                                .view(batch_size, num_steps, 1)
-                                .expand(batch_size, num_steps, embeddings.size(-1))
-                        ).view(batch_size, num_steps, embeddings.size(-1)),  # [batch_size, num_steps, embed_dim]
-                        self.problem.VEHICLE_CAPACITY - state.used_capacity[:, :, None]
-                    ),
-                    -1
-                )      
-        elif self.is_vrpp:
+
+        if self.is_vrpp:
             return torch.cat(
                 (
                     torch.gather(
@@ -542,48 +636,8 @@ class AttentionModel(nn.Module):
                 ),
                 -1
             )
-        elif self.is_orienteering or self.is_pctsp:                
-            return torch.cat(
-                (
-                    torch.gather(
-                        embeddings,
-                        1,
-                        current_node.contiguous()
-                            .view(batch_size, num_steps, 1)
-                            .expand(batch_size, num_steps, embeddings.size(-1))
-                    ).view(batch_size, num_steps, embeddings.size(-1)),
-                    (
-                        state.get_remaining_length()[:, :, None]
-                        if self.is_orienteering
-                        else state.get_remaining_prize_to_collect()[:, :, None]
-                    )
-                ),
-                -1
-            )
-        else:  # TSP
-            if num_steps == 1:  # We need to special case if we have only 1 step, may be the first or not
-                if state.i.item() == 0:
-                    # First and only step, ignore prev_a (this is a placeholder)
-                    return self.W_placeholder[None, None, :].expand(batch_size, 1, self.W_placeholder.size(-1))
-                else:
-                    return embeddings.gather(
-                        1,
-                        torch.cat((state.first_a, current_node), 1)[:, :, None].expand(batch_size, 2, embeddings.size(-1))
-                    ).view(batch_size, 1, -1)
-            # More than one step, assume always starting with first
-            embeddings_per_step = embeddings.gather(
-                1,
-                current_node[:, 1:, None].expand(batch_size, num_steps - 1, embeddings.size(-1))
-            )
-            return torch.cat((
-                # First step placeholder, cat in dim 1 (time steps)
-                self.W_placeholder[None, None, :].expand(batch_size, 1, self.W_placeholder.size(-1)),
-                # Second step, concatenate embedding of first with embedding of current/previous (in dim 2, context dim)
-                torch.cat((
-                    embeddings_per_step[:, 0:1, :].expand(batch_size, num_steps - 1, embeddings.size(-1)),
-                    embeddings_per_step
-                ), 2)
-            ), 1)
+        else:
+            assert False, "Unsupported problem"
 
     def _one_to_many_logits(self, query, glimpse_K, glimpse_V, logit_K, mask, graph_mask=None):
         batch_size, num_steps, embed_dim = query.size()
@@ -624,7 +678,7 @@ class AttentionModel(nn.Module):
         return logits, glimpse.squeeze(-2)
 
     def _get_attention_node_data(self, fixed, state):
-        if self.is_vrp and self.allow_partial:
+        if self.is_wc and self.allow_partial:
             # Need to provide information of how much each node has already been served
             # Clone demands as they are needed by the backprop whereas they are updated later
             glimpse_key_step, glimpse_val_step, logit_key_step = \
@@ -636,8 +690,6 @@ class AttentionModel(nn.Module):
                 fixed.glimpse_val + self._make_heads(glimpse_val_step),
                 fixed.logit_key + logit_key_step,
             )
-
-        # TSP or VRP without split delivery
         return fixed.glimpse_key, fixed.glimpse_val, fixed.logit_key
 
     def _make_heads(self, v, num_steps=None):
