@@ -352,7 +352,10 @@ def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
             batch['edges'] = dataset.edges.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1).float()
         else:
             batch['edges'] = dataset.edges.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1).bool()
-    batch['dist'] = dataset.dist_matrix.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1)
+    if dataset.dist_matrix is not None:
+        batch['dist'] = dataset.dist_matrix.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1)
+    else:
+        batch['dist'] = None
     return batch
 
 

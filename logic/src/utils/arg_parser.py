@@ -221,13 +221,14 @@ def add_train_args(parser):
     parser.add_argument('--no_cuda', action='store_true', help='Disable CUDA')
     parser.add_argument('--enable_scaler', action='store_true', help='Enables CUDA scaler for automatic mixed precision training')
     parser.add_argument('--exp_beta', type=float, default=0.8, help='Exponential moving average baseline decay')
-    parser.add_argument('--baseline', default=None, help="Baseline to use: 'rollout'|'critic'|'exponential'|None")
+    parser.add_argument('--baseline', default=None, help="Baseline to use: 'rollout'|'critic'|'exponential'|'pomo'|None")
     parser.add_argument('--bl_alpha', type=float, default=0.05, help='Significance in the t-test for updating rollout baseline')
     parser.add_argument('--bl_warmup_epochs', type=int, default=-1, help='Number of epochs to warmup the baseline, ' 
                             'None means 1 for rollout (exponential used for warmup phase), 0 otherwise. Can only be used with rollout baseline.')
     parser.add_argument('--checkpoint_encoder', action='store_true', help='Set to decrease memory usage by checkpointing encoder')
     parser.add_argument('--shrink_size', type=int, default=None, help='Shrink the batch size if at least this many instances in the batch'
                             ' are finished to save memory (default None means no shrinking)')
+    parser.add_argument('--pomo_size', type=int, default=0, help='Number of starting nodes for POMO (Policy Optimization with Multiple Optima)')
     parser.add_argument('--data_distribution', type=str, default=None, help='Data distribution to use during training,'
                             ' defaults and options depend on problem. "empty"|"const"|"unif"|"dist"|"gamma[1-4]|"emp""')
     parser.add_argument('--accumulation_steps', type=int, default=1, 
@@ -677,6 +678,9 @@ def validate_train_args(args):
         args['bl_warmup_epochs'] = 1 if args.get('baseline') == 'rollout' else 0
 
     assert (args['bl_warmup_epochs'] == 0) or (args.get('baseline') == 'rollout')
+    
+    if args.get('baseline') == 'pomo':
+        assert args.get('pomo_size', 0) > 0, "pomo_size must be > 0 when using pomo baseline"
     
     if args.get('encoder') in SUB_NET_ENCS and args.get('n_encode_sublayers') is None:
         args['n_encode_sublayers'] = args['n_encode_layers']

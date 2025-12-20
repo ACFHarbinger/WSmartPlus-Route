@@ -551,7 +551,7 @@ def train_reinforce_over_time(model, optimizer, baseline, lr_scheduler, scaler, 
 
 
 def train_reinforce_epoch(model, optimizer, baseline, lr_scheduler, scaler, epoch, val_dataset, problem, tb_logger, cost_weights, opts):
-    step, training_dataset, loss_keys = prepare_epoch(optimizer, epoch, problem, tb_logger, opts)
+    step, training_dataset, loss_keys = prepare_epoch(optimizer, epoch, problem, tb_logger, cost_weights, opts)
     epoch_loss = {key: [] for key in loss_keys}
     training_dataloader = torch.utils.data.DataLoader(
         baseline.wrap_dataset(training_dataset), batch_size=opts['batch_size'], pin_memory=True)
@@ -562,7 +562,7 @@ def train_reinforce_epoch(model, optimizer, baseline, lr_scheduler, scaler, epoc
     start_time = time.time()
     for batch_id, batch in enumerate(tqdm(training_dataloader, disable=opts['no_progress_bar'])):
         batch = prepare_batch(batch, batch_id, training_dataset, training_dataloader, opts)
-        _, c_dict, l_dict, _ = train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, step, batch, tb_logger, cost_weights, opts)
+        _, c_dict, l_dict = train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, step, batch, tb_logger, cost_weights, opts)
         step += 1
         for key, val in zip(list(c_dict.keys()) + list(l_dict.keys()), list(c_dict.values()) + list(l_dict.values())):
             if isinstance(val, torch.Tensor): epoch_loss[key].append(val.detach()) 
@@ -609,7 +609,7 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
                 
                 # If everything is masked, return zero loss immediately
                 if len(active_indices) == 0:
-                     return torch.tensor(0., device=opts['device'])
+                     return None, None, None
 
                 # Slice mask
                 mask = mask[active_indices]
@@ -636,12 +636,22 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
             
             # Reconstruct full outputs
             batch_size = x['loc'].shape[0] if isinstance(x, dict) else x.shape[0]
+            pomo_size = opts.get('pomo_size', 0)
+
+            # Map active_indices to actual indices in the expanded POMO batch if needed
+            if pomo_size > 0:
+                expanded_active_indices = torch.arange(pomo_size, device=active_indices.device).view(1, -1) + (active_indices * pomo_size).view(-1, 1)
+                expanded_active_indices = expanded_active_indices.view(-1)
+                full_batch_size = batch_size * pomo_size
+            else:
+                expanded_active_indices = active_indices
+                full_batch_size = batch_size
             
-            cost = torch.zeros(batch_size, device=opts['device'])
-            cost[active_indices] = cost_active
+            cost = torch.zeros(full_batch_size, device=opts['device'])
+            cost[expanded_active_indices] = cost_active
             
-            log_likelihood = torch.zeros(batch_size, device=opts['device'])
-            log_likelihood[active_indices] = log_likelihood_active
+            log_likelihood = torch.zeros(full_batch_size, device=opts['device'])
+            log_likelihood[expanded_active_indices] = log_likelihood_active
             
             # Reconstruct pi
             if pi_active is not None:
@@ -649,8 +659,8 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
                 # We need (Batch, SeqLen)
                 # Pad with 0 (Depot)
                 seq_len = pi_active.size(1)
-                pi = torch.zeros((batch_size, seq_len), dtype=pi_active.dtype, device=opts['device'])
-                pi[active_indices] = pi_active
+                pi = torch.zeros((full_batch_size, seq_len), dtype=pi_active.dtype, device=opts['device'])
+                pi[expanded_active_indices] = pi_active
             else:
                 pi = None
                 
@@ -658,10 +668,10 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
             c_dict = {}
             if c_dict_active is not None:
                 for k, v in c_dict_active.items():
-                    if isinstance(v, torch.Tensor) and v.size(0) == active_indices.size(0):
+                    if isinstance(v, torch.Tensor) and v.size(0) == cost_active.size(0):
                         # Reconstruct
-                        full_v = torch.zeros(batch_size, device=active_indices.device, dtype=v.dtype)
-                        full_v[active_indices] = v
+                        full_v = torch.zeros(full_batch_size, device=active_indices.device, dtype=v.dtype)
+                        full_v[expanded_active_indices] = v
                         c_dict[k] = full_v
                     else:
                         # Scalar or other
@@ -685,6 +695,10 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
 
         # Evaluate baseline, get baseline loss if any (only for critic)
         bl_val, bl_loss = baseline.eval(x, cost) if bl_val is None else (bl_val, 0)
+        if not isinstance(bl_loss, torch.Tensor):
+            bl_loss = torch.tensor([bl_loss], device=opts['device'], dtype=torch.float)
+        elif bl_loss.dim() == 0:
+            bl_loss = bl_loss.unsqueeze(0)
 
         # Calculate loss (and normalize for gradient accumulation if accumulation_steps > 1)
         # For inactive indices: LogLikelihood is 0. So (Cost-BL)*0 = 0. Loss contribution is 0. Correct.

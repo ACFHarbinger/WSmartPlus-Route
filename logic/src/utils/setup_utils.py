@@ -150,7 +150,7 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         AttentionModel, PointerNetwork, TemporalAttentionModel,
         DeepDecoderAttentionModel, HierarchicalTemporalAttentionModel,
         GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
-        NoBaseline, WarmupBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline
+        NoBaseline, WarmupBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, POMOBaseline
     )
     encoder_class = {
         'gat': GraphAttentionEncoder,
@@ -201,6 +201,7 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         mask_graph=opts['mask_graph'],
         checkpoint_encoder=opts['checkpoint_encoder'],
         shrink_size=opts['shrink_size'],
+        pomo_size=opts.get('pomo_size', 0),
         temporal_horizon=opts['temporal_horizon'],
         predictor_layers=opts['n_predict_layers']
     ).to(opts['device'])
@@ -243,6 +244,8 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         )
     elif opts['baseline'] == 'rollout':
         baseline = RolloutBaseline(model, problem, opts)
+    elif opts['baseline'] == 'pomo':
+        baseline = POMOBaseline(opts.get('pomo_size', 0))
     else:
         assert opts['baseline'] is None, \
         "Unknown baseline: {}".format(opts['baseline'])

@@ -173,12 +173,12 @@ class CWCVRP(object):
         else:
             # Gather dataset in order of tour
             loc_with_depot = torch.cat((dataset['depot'][:, None, :], dataset['loc']), 1)
-            d = loc_with_depot.gather(1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1)))
+            d_coord = loc_with_depot.gather(1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1)))
 
             length = (
-                (d[:, 1:] - d[:, :-1]).norm(p=2, dim=-1).sum(1)  # Prevent error if len 1 seq
-                + (d[:, 0] - dataset['depot']).norm(p=2, dim=-1)  # Depot to first
-                + (d[:, -1] - dataset['depot']).norm(p=2, dim=-1)  # Last to depot, will be 0 if depot is last
+                (d_coord[:, 1:] - d_coord[:, :-1]).norm(p=2, dim=-1).sum(1)  # Prevent error if len 1 seq
+                + (d_coord[:, 0] - dataset['depot']).norm(p=2, dim=-1)  # Depot to first
+                + (d_coord[:, -1] - dataset['depot']).norm(p=2, dim=-1)  # Last to depot, will be 0 if depot is last
             )
 
         waste = d.sum(dim=-1)
