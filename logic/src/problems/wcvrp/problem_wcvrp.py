@@ -56,9 +56,11 @@ class WCVRP(object):
         #row_idx = torch.arange(batch_dim, device=sorted_pi.device).repeat_interleave((sorted_pi != 0).sum(dim=1))
         #visited_mask[row_idx, col_idx] = True
 
+        visited_mask = torch.zeros_like(waste_with_depot, dtype=torch.bool)
+        visited_mask.scatter_(1, pi, True)
+
         # Compute number of overflows
-        #overflows = torch.sum(overflow_mask & ~visited_mask, dim=-1)
-        overflows = torch.sum(overflow_mask, dim=-1)
+        overflows = torch.sum(overflow_mask[:, 1:] & ~visited_mask[:, 1:], dim=-1)
 
         # Compute the amount of waste above max_waste
         #excess_waste = (waste_with_depot - dataset['max_waste'][:, None]).clamp(min=0)
@@ -144,8 +146,11 @@ class CWCVRP(object):
         # Get masks for bins with
         overflow_mask = waste_with_depot >= dataset['max_waste'][:, None]
 
+        visited_mask = torch.zeros_like(waste_with_depot, dtype=torch.bool)
+        visited_mask.scatter_(1, pi, True)
+
         # Compute number of overflows
-        overflows = torch.sum(overflow_mask, dim=-1)
+        overflows = torch.sum(overflow_mask[:, 1:] & ~visited_mask[:, 1:], dim=-1)
         if dist_matrix is not None:
             src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
             dst_mask = dst_vertices != 0
@@ -234,11 +239,9 @@ class SDWCVRP(object):
             a_prev = a
         # assert (wastes == 0).all(), "All waste must be satisfied"
 
-        # Get masks for bins with overflows 
-        overflow_mask = waste_with_depot >= dataset['max_waste'][:, None]
-
         # Compute number of overflows
-        overflows = torch.sum(overflow_mask, dim=-1)
+        # For split delivery, we penalize bins that still have waste >= max_waste
+        overflows = torch.sum(wastes[:, 1:] >= dataset['max_waste'][:, None], dim=-1)
         if dist_matrix is not None:
             src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
             dst_mask = dst_vertices != 0

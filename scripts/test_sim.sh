@@ -54,14 +54,14 @@ GUROBI_PARAM=(0.84 1.00)
 HEXALY_PARAM=(0.84 1.00)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("amgat")
+POLICIES=("amgat_hrl")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
 #"gurobi_vrpp" "hexaly_vrpp" 
 #"am" "amgc" "transgcn"
 declare -A MODEL_PATHS
-MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat_hrl"
+MODEL_PATHS["amgat_hrl"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat_hrl"
 MODEL_PATHS["amgac"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgac_hrl"
 MODEL_PATHS["amtgc"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amtgc_hrl"
 
@@ -109,7 +109,7 @@ if [ "$RUN_TSP" -eq 0 ]; then
     --lac "${LOOKAHEAD_CONFIGS[@]}" --hp "${HEXALY_PARAM[@]}" --problem "$PROBLEM" --days "$N_DAYS" \
     --waste_type "$WTYPE" --cc "$n_cores" --et "$EDGE_THRESH" --em "$EDGE_METHOD" --env_file "$ENV_FILE" \
     --gapik_file "$GOOGLE_API_FILE" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" --dm "$DIST_METHOD" \
-    --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}";
+    --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" --gate_prob_threshold 0.5352 --mask_prob_threshold 0.5;
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi
@@ -125,7 +125,7 @@ else
     --days "$N_DAYS" --lvl "${REGULAR_LEVEL[@]}" --cf "${LAST_MINUTE_CF[@]}" --gp "${GUROBI_PARAM[@]}" --hp "${HEXALY_PARAM[@]}" \
     --et "$EDGE_THRESH" --em "$EDGE_METHOD" --waste_type "$WTYPE" --env_file "$ENV_FILE" --gplic_file "$GP_LIC_FILE" \
     --gapik_file "$GOOGLE_API_FILE" --waste_filepath "$WASTE_PATH" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" \
-    --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}";
+    --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" --gate_prob_threshold 0.5352 --mask_prob_threshold 0.5;
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi

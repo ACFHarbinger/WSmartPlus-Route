@@ -162,8 +162,8 @@ class TestWCVRP:
         
         cost, c_dict, _ = WCVRP.get_costs(dataset, pi, cw_dict=None)
         
-        # Overflows: 120 >= 100 -> 1 overflow
-        assert c_dict['overflows'] == 1.0
+        # Overflows: 120 >= 100 but visited -> 0 remaining overflows
+        assert c_dict['overflows'] == 0.0
         
         # Length: 0->1 (1.0) + 1->0 (1.0) = 2.0
         assert c_dict['length'] == 2.0
@@ -177,7 +177,7 @@ class TestWCVRP:
         # w = waste.gather... clamp(max)
         # So collected waste is 100.
         
-        assert torch.isclose(cost, torch.tensor([-97.0]))
+        assert torch.isclose(cost, torch.tensor([-98.0]))
 
     @pytest.mark.unit
     def test_make_state_removes_profit_vars(self):

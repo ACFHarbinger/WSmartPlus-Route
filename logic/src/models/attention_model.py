@@ -228,7 +228,7 @@ class AttentionModel(nn.Module):
             dynamic_feat = waste_history
             
             # Get Action (Deterministic)
-            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, deterministic=True)
+            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, deterministic=True, threshold=threshold)
             
             # Construct Mask
             # mask_action: 1=Visit, 0=Skip. AM Mask: True=Masked(Skip), False=Keep.
@@ -263,7 +263,7 @@ class AttentionModel(nn.Module):
             attention_weights = torch.stack(hook_data['weights'])
         return ucost, ret_dict, {'attention_weights': attention_weights, 'graph_masks': hook_data['masks']}
     
-    def compute_simulator_day(self, input, graph, distC, profit_vars=None, run_tsp=False, hrl_manager=None, waste_history=None):
+    def compute_simulator_day(self, input, graph, distC, profit_vars=None, run_tsp=False, hrl_manager=None, waste_history=None, threshold=0.5, mask_threshold=0.5):
         edges, dist_matrix = graph
         hook_data = add_attention_hooks(self.embedder)
         
@@ -306,7 +306,7 @@ class AttentionModel(nn.Module):
                     # Take last 'window_size' steps
                     dynamic_feat = dynamic_feat[:, :, -window_size:]
 
-            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, deterministic=True)
+            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, deterministic=True, threshold=threshold, mask_threshold=mask_threshold)
             
             # If Gate is closed (0), return empty immediately
             if gate_action.item() == 0:
