@@ -293,6 +293,7 @@ def add_mrl_train_args(parser):
     parser.add_argument('--mrl_lr', type=float, default=1e-3, help="Set the learning rate for Meta-Reinforcement Learning")
     parser.add_argument('--mrl_embedding_dim', type=int, default=128, help='Dimension of input embedding for Reward Weight Adjustment model')
     parser.add_argument('--mrl_step', type=int, default=100, help='Update every mrl_step steps')
+    parser.add_argument('--mrl_batch_size', type=int, default=256, help="Batch size to use for Meta-Reinforcement Learning")
     parser.add_argument('--hrl_epochs', type=int, default=4, help="Number of epochs to use for Hierarchical Reinforcement Learning PPO")
     parser.add_argument('--hrl_clip_eps', type=float, default=0.2, help="Set the clip epsilon for Hierarchical Reinforcement Learning PPO")
     parser.add_argument('--hrl_method', type=str, default='weight_manager', choices=['weight_manager', 'gat_lstm'], help="Method for HRL Manager")
@@ -310,7 +311,6 @@ def add_mrl_train_args(parser):
     parser.add_argument('--morl_adaptation_rate', type=float, default=0.1, help="Adaptation rate in Multi-Objective RL")
     parser.add_argument('--rwa_model', type=str, default='rnn', choices=['rnn'], help='Neural network to use for Reward Weight Adjustment')
     parser.add_argument('--rwa_optimizer', type=str, default='rmsprop', help="Optimizer: 'adamax'|'adam'|'adamw'|'radam'|'nadam'|'rmsprop'")
-    parser.add_argument('--rwa_batch_size', type=int, default=256, help="Batch size to use for Reward Weight Adjustment model")
     parser.add_argument('--rwa_update_step', type=int, default=100, help='Update Reward Weight Adjustment weights every rwa_update_step steps')
     return parser
 

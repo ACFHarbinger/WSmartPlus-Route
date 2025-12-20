@@ -128,10 +128,10 @@ class MetaRLTrainParserTab(QWidget):
         self.mrl_embedding_dim_input.setSingleStep(16)
         form_layout.addRow(QLabel("Embedding Dim:"), self.mrl_embedding_dim_input)
 
-        # --rwa_batch_size
-        self.rwa_batch_size_input = QSpinBox(minimum=1, maximum=1024, value=256)
-        self.rwa_batch_size_input.setSingleStep(32)
-        form_layout.addRow(QLabel("Batch Size:"), self.rwa_batch_size_input)
+        # --mrl_batch_size
+        self.mrl_batch_size_input = QSpinBox(minimum=1, maximum=1024, value=256)
+        self.mrl_batch_size_input.setSingleStep(32)
+        form_layout.addRow(QLabel("Batch Size:"), self.mrl_batch_size_input)
 
         # --mrl_step
         self.mrl_step_input = QSpinBox(minimum=1, maximum=1000, value=100)
@@ -157,7 +157,7 @@ class MetaRLTrainParserTab(QWidget):
             "cb_epsilon_decay": self.cb_epsilon_decay_input.value(),
             "cb_min_epsilon": self.cb_min_epsilon_input.value(),
             "morl_adaptation_rate": self.morl_adaptation_rate_input.value(),
-            "rwa_batch_size": self.rwa_batch_size_input.value(),
+            "mrl_batch_size": self.mrl_batch_size_input.value(),
             "rwa_update_step": self.rwa_update_step_input.value(),
         }
 
