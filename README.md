@@ -19,8 +19,6 @@ This project contains code or ideas that were adapted from the following reposit
 - [Do We Need Anisotropic Graph Neural Networks?](https://github.com/shyam196/egc)
 - [Learning TSP Requires Rethinking Generalization](https://github.com/chaitjo/learning-tsp)
 - [HGS-CVRP: A modern implementation of the Hybrid Genetic Search for the CVRP](https://github.com/vidalt/HGS-CVRP)
-- [Population-Based Bandits (PB2)](https://github.com/jparkerholder/PB2)
-- [Bayesian Generational Population-based Training (BG-PBT)](https://github.com/xingchenwan/bgpbt)
 
 This repository also includes adaptions of the following repositories as baselines:
 * https://github.com/MichelDeudon/encode-attend-navigate
