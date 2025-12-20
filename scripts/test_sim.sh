@@ -32,13 +32,13 @@ fi
 
 SEED=42
 N_DAYS=30
-N_BINS=104
-N_SAMPLES=1
-PROBLEM="cvrpp"
+N_BINS=100
+N_SAMPLES=10
+PROBLEM="cwcvrp"
 
 AREA="riomaior"
 WTYPE="plastic"
-DATA_DIST="emp"
+DATA_DIST="gamma1"
 IDX_PATH="graphs_${N_BINS}V_1N_${WTYPE}.json"
 STATS_PATH="daily_waste/april_2024_summary.csv"
 
@@ -54,16 +54,16 @@ GUROBI_PARAM=(0.84 1.00)
 HEXALY_PARAM=(0.84 1.00)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("policy_look_ahead_vrpp")
+POLICIES=("amgat")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
 #"gurobi_vrpp" "hexaly_vrpp" 
 #"am" "amgc" "transgcn"
 declare -A MODEL_PATHS
-MODEL_PATHS["am"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/am"
-MODEL_PATHS["amgc"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgc"
-MODEL_PATHS["transgcn"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/transgcn"
+MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat_hrl"
+MODEL_PATHS["amgac"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgac_hrl"
+MODEL_PATHS["amtgc"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amtgc_hrl"
 
 MODEL_PATH_ARGS=()
 for key in "${!MODEL_PATHS[@]}"; do
@@ -75,7 +75,7 @@ EDGE_THRESH=0.0
 EDGE_METHOD="knn"
 VERTEX_METHOD="mmn"
 DIST_METHOD="gmaps"
-DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_plastic104[riomaior].csv"
+DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_plastic[riomaior].csv"
 WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}_seed${SEED}.pkl"
 
 RUN_TSP=1

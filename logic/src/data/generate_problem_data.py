@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import scipy.stats as stats
 
-from logic.src.utils.definitions import MAX_WASTE, MAX_LENGTHS, CAPACITIES
+from logic.src.utils.definitions import MAX_WASTE, MAX_LENGTHS
 from logic.src.utils.functions import get_path_until_string
 from logic.src.utils.data_utils import generate_waste_prize, load_focus_coords
 from logic.src.pipeline.simulator.bins import Bins

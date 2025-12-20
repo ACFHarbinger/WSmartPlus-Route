@@ -129,8 +129,10 @@ class GATLSTManager(nn.Module):
         mask_logits = self.mask_head(h) # (B, N, 2)
         
         # Global Pooling for Gate/Critic
-        # Mean pooling
-        h_global = torch.mean(h, dim=1) # (B, H)
+        # Combine Mean (for general load) and Max (for urgency/overflows)
+        h_mean = torch.mean(h, dim=1) # (B, H)
+        h_max = torch.max(h, dim=1)[0] # (B, H)
+        h_global = h_mean + h_max      # Simple addition or concatenation
         
         # Gate Logits
         gate_logits = self.gate_head(h_global) # (B, 2)
@@ -219,7 +221,7 @@ class GATLSTManager(nn.Module):
             
         # Calculate Returns & Advantages (on CPU)
         returns = rewards
-        advantages = returns - old_values
+        advantages = old_values - returns
         if advantages.std() > 1e-8:
             advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
         else:
@@ -269,7 +271,7 @@ class GATLSTManager(nn.Module):
                 
                 entropy = mask_dist.entropy().mean() + gate_dist.entropy().mean()
                 
-                loss = actor_loss + 0.5 * value_loss - 0.01 * entropy
+                loss = actor_loss + 0.5 * value_loss - 0.1 * entropy
                 
                 self.optimizer.zero_grad()
                 loss.backward()
