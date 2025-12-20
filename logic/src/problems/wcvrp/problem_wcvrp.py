@@ -2,7 +2,7 @@ import os
 import torch
 import pickle
 
-from logic.src.utils.definitions import MAX_WASTE, CAPACITIES
+from logic.src.utils.definitions import MAX_WASTE, VEHICLE_CAPACITY
 from tqdm import tqdm
 from torch.utils.data import Dataset
 from .state_wcvrp import StateWCVRP
@@ -124,11 +124,10 @@ class CWCVRP(object):
             c_dict = {'overflows': overflows, 'length': torch.zeros_like(cost), 'waste': torch.zeros_like(cost), 'total': cost}
             return cost, c_dict, None
 
-        # Visiting depot resets capacity so we add waste = -capacity (we make sure it does not become negative)
-        capacity = CAPACITIES.get(graph_size, 1.0)
+        # Visiting depot resets capacity so we add waste = -VEHICLE_CAPACITY (we make sure it does not become negative)
         waste_with_depot = torch.cat(
             (
-                torch.full_like(dataset['waste'][:, :1], -capacity),
+                torch.full_like(dataset['waste'][:, :1], -VEHICLE_CAPACITY),
                 dataset['waste']
             ),
             1
@@ -140,7 +139,7 @@ class CWCVRP(object):
 
             # Cannot use less than 0
             used_cap[used_cap < 0] = 0
-            assert (used_cap <= capacity + 1e-5).all(), "Used more than capacity"
+            assert (used_cap <= VEHICLE_CAPACITY + 1e-5).all(), "Used more than capacity"
 
         # Get masks for bins with
         overflow_mask = waste_with_depot >= dataset['max_waste'][:, None]
@@ -198,7 +197,6 @@ class CWCVRP(object):
 
 class SDWCVRP(object):
     NAME = 'sdwcvrp'  # Split Delivery Waste Collection Vehicle Routing Problem
-    VEHICLE_CAPACITY = 1.0  # (w.l.o.g. vehicle capacity is 1, wastes should be scaled)
 
     @staticmethod
     def get_costs(dataset, pi, cw_dict, dist_matrix=None):
@@ -216,10 +214,9 @@ class SDWCVRP(object):
 
         # Each node can be visited multiple times, but we always deliver as much waste as possible
         # We check that at the end all waste has been satisfied
-        capacity = CAPACITIES.get(graph_size, 1.0)
         wastes = torch.cat(
             (
-                torch.full_like(dataset['waste'][:, :1], -capacity),
+                torch.full_like(dataset['waste'][:, :1], -VEHICLE_CAPACITY),
                 dataset['waste']
             ),
             1
@@ -230,7 +227,7 @@ class SDWCVRP(object):
         for a in pi.transpose(0, 1):
             # assert a_prev is None or (wastes[((a_prev == 0) & (a == 0)), :] == 0).all(), \
             #     "Cannot visit depot twice if any nonzero waste"
-            d = torch.min(wastes[rng, a], capacity - used_cap)
+            d = torch.min(wastes[rng, a], VEHICLE_CAPACITY - used_cap)
             wastes[rng, a] -= d
             used_cap += d
             used_cap[a == 0] = 0

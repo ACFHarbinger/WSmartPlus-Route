@@ -326,7 +326,7 @@ class AttentionModel(nn.Module):
                 route = []
                 cost = 0
         else:
-            route = torch.cat((torch.tensor([0]).to(pi.device), pi.squeeze(0))).cpu().numpy()
+            route = torch.cat((torch.tensor([0]).to(pi.device), pi.squeeze(0)))
             cost = get_route_cost(distC, route)
         
         for handle in hook_data['handles']:
