@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QDoubleSpinBox, QComboBox,
+    QComboBox,
     QLineEdit, QFormLayout, QPushButton,
     QLabel, QVBoxLayout, QHBoxLayout, QWidget
 )
@@ -78,35 +78,6 @@ class GenDataProblemTab(QWidget):
 
         layout.addRow(distributions_container)
 
-        pdp_header = QLabel("PDP Parameters")
-        pdp_header.setStyleSheet(SUB_HEADER_STYLE)
-        layout.addRow(pdp_header)
-        
-        # 4. --is_gaussian
-        self.is_gaussian_check = QPushButton("Use Gaussian Distribution")
-        self.is_gaussian_check.setCheckable(True)
-        self.is_gaussian_check.setChecked(False)
-        self.is_gaussian_check.setObjectName("toggleStyleButton") # Apply new toggle style ID
-        layout.addRow("Distribution Type:", self.is_gaussian_check)
-
-        # 5. --sigma
-        self.sigma_input = QDoubleSpinBox()
-        self.sigma_input.setRange(0, 1)
-        self.sigma_input.setSingleStep(0.1)
-        self.sigma_input.setValue(0.6)
-        layout.addRow("Sigma Value (if Gaussian):", self.sigma_input)
-
-        # 6. --penalty_factor
-        pctsp_header = QLabel("PCTSP Parameters")
-        pctsp_header.setStyleSheet(SUB_HEADER_STYLE)
-        layout.addRow(pctsp_header)
-        
-        self.penalty_factor_input = QDoubleSpinBox()
-        self.penalty_factor_input.setRange(0.1, 10.0)
-        self.penalty_factor_input.setSingleStep(0.1)
-        self.penalty_factor_input.setValue(3.0)
-        layout.addRow("Penalty Factor:", self.penalty_factor_input)
-
     def select_all_distributions(self):
         """Sets all distribution buttons to checked."""
         for btn in self.dist_buttons.values():
@@ -122,8 +93,6 @@ class GenDataProblemTab(QWidget):
         params = {}
         # Mandatory fields
         params["problem"] = self.problem_combo.currentText()
-        params["penalty_factor"] = self.penalty_factor_input.value()
-        params["is_gaussian"] = 1 if self.is_gaussian_check.isChecked() else 0
 
         # List fields (only include if non-empty)
         if self.graph_sizes_input.text().strip():
@@ -139,7 +108,4 @@ class GenDataProblemTab(QWidget):
         if selected_dists:
             params["data_distributions"] = " ".join([DATA_DISTRIBUTIONS[sd] for sd in selected_dists])
             
-        if self.is_gaussian_check.isChecked():
-            params["sigma"] = self.sigma_input.value()
-        
         return params

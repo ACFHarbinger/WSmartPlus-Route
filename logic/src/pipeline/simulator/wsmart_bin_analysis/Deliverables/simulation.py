@@ -12,7 +12,7 @@ class GridBase():
 
     It receives a csv file, and pre-processes the necessary data in order to allow sampling.
     """
-    def __init__(self, ids, data_dir, rate_type, info_ver = None, names = None) -> None:
+    def __init__(self, ids, data_dir, rate_type, info_ver = None, names = None, same_file = False) -> None:
         self.data:pd.DataFrame = None
         self.__info:dict = None
         self.__freq_table:pd.DataFrame = None
@@ -21,7 +21,7 @@ class GridBase():
         self.__data_dir = data_dir
         self.data, self.__info = self.load_data(processed = False, 
                                                   ids=ids, data_dir=self.__data_dir, 
-                                                  rate_type=rate_type, info_ver=info_ver, names=names)
+                                                  rate_type=rate_type, info_ver=info_ver, names=names, same_file=same_file)
         
         self.data = self.data.select_dtypes(include='number').round(0)
         self.__freq_table = self.cacl_freq_tables()
@@ -149,18 +149,32 @@ class GridBase():
         index = self.data.index
         return index[0], index[-1]
     
-    def sample(self) -> np.ndarray:
+    def sample(self, n_samples=1) -> np.ndarray:
         """
-        Returns
-        -------
-        sample: np.ndarray
-            a sample form each bins rate histogram
+        Sample N times from each bins' waste fill rate distribution.
+        
+        Args:
+            n_samples: Number of samples to generate (default: 1)
+            
+        Returns:
+            np.ndarray: Array of shape (n_samples, n_columns) containing values sampled from each distribution
         """
+        assert n_samples > 0, "Number of samples must be a positive integer"
         assert self.__freq_table is not None, "Freq tables should be calculated before calling this method. Call self.calc_freq_tables()"
         
-        indexes = self.__freq_table.apply(lambda s: np.searchsorted(s, np.random.random(), side = 'right'), raw=True, axis=0)
-        sample = self.__freq_table.index[indexes]
-        return sample.to_numpy()
+        index_values = np.array(self.__freq_table.index)
+        freq_table = self.__freq_table.to_numpy()
+        
+        # Generate random values for all samples and columns
+        rand_vals = np.random.random(size=(n_samples, len(self.__freq_table.columns)))
+        
+        # Apply searchsorted column-wise to get indices
+        indexes = np.zeros((n_samples, freq_table.shape[1]), dtype=int)
+        for col in range(freq_table.shape[1]):
+            indexes[:, col] = np.searchsorted(freq_table[:, col], rand_vals[:, col], side='right')
+        
+        sample = index_values[indexes]
+        return sample if n_samples > 1 else sample.squeeze(0)
     
     def get_values_by_date(self, date, sample: bool = False) -> np.ndarray:
         """    

@@ -131,7 +131,7 @@ class PointerDecoder(nn.Module):
         selections = []
         steps = range(embedded_inputs.size(0))
         idxs = None
-        mask = torch.autograd.Variable(embedded_inputs.data.new().byte().new(embedded_inputs.size(1), embedded_inputs.size(0)).zero_(), requires_grad=False)
+        mask = torch.autograd.Variable(embedded_inputs.data.new().bool().new(embedded_inputs.size(1), embedded_inputs.size(0)).zero_(), requires_grad=False)
         for i in steps:
             hidden, log_p, probs, mask = self.recurrence(decoder_input, hidden, mask, idxs, i, context)
             # select the next inputs for the decoder [batch_size x hidden_dim]

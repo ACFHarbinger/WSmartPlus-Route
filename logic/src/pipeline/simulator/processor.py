@@ -234,13 +234,10 @@ def process_model_data(coordinates, dist_matrix, device, method, configs,
         'depot': torch.as_tensor(depot, dtype=torch.float32),
         'waste': torch.zeros(problem_size)
     }
-    if configs['problem'] in ['vrpp', 'wcrp']:
-        #cw_dict = {'waste': configs['w_waste'], 'length': configs['w_length'], 'overflows': configs['w_overflows'], 'lost': configs['w_lost']}
+    if configs['problem'] in ['vrpp', 'cvrpp', 'wcvrp', 'cwcvrp', 'sdwcvrp']:
         model_data['max_waste'] = torch.as_tensor(MAX_WASTE, dtype=torch.float32)
     else:
-        assert configs['problem'] == 'op'
-        #cw_dict = {'prize': configs['w_prize']}
-        model_data['max_length'] = torch.as_tensor(MAX_LENGTHS[problem_size], dtype=torch.float32)
+        raise ValueError(f"Unknown problem: {configs['problem']}")
 
     if 'model' in configs and configs['model'] in ['tam']:
         model_data['fill_history'] = torch.zeros((1, configs['graph_size'], configs['temporal_horizon']))
@@ -262,10 +259,12 @@ def process_model_data(coordinates, dist_matrix, device, method, configs,
     
     VEHICLE_CAPACITY, REVENUE_KG, DENSITY, COST_KM, VOLUME = load_area_and_waste_type_params(area, waste_type)
     BIN_CAPACITY = VOLUME * DENSITY
+    VEHICLE_CAPACITY = VEHICLE_CAPACITY / 100
     profit_vars = {
         'cost_km': COST_KM,
         'revenue_kg': REVENUE_KG,
-        'bin_capacity': BIN_CAPACITY
+        'bin_capacity': BIN_CAPACITY,
+        'vehicle_capacity': VEHICLE_CAPACITY
     }
     return ({key: val.unsqueeze(0) for key, val in model_data.items()}, 
         (edges, torch.from_numpy(dist_matrix).float().to(device)), profit_vars)

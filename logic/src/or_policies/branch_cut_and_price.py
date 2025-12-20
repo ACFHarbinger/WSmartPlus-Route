@@ -9,7 +9,7 @@ from ortools.constraint_solver import pywrapcp
 from ortools.constraint_solver import routing_enums_pb2
 
 
-def run_bcp(dist_matrix, demands, capacity, R, C, values, must_go_indices=None):
+def run_bcp(dist_matrix, demands, capacity, R, C, values, must_go_indices=None, env=None):
     """
     Main Dispatcher for BCP Algorithms.
     Default engine: 'ortools'.
@@ -20,7 +20,7 @@ def run_bcp(dist_matrix, demands, capacity, R, C, values, must_go_indices=None):
     if engine == 'vrpy':
         return _run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values)
     elif engine == 'gurobi':
-        return _run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indices)
+        return _run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indices, env)
     else:
         # Default to OR-Tools
         return _run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indices)
@@ -184,7 +184,7 @@ def _run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values):
         return [], 0.0
 
 
-def _run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indices=None):
+def _run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indices=None, env=None):
     """
     Solves CVRP using Gurobi (MIP Formulation).
     Implementation: 2-index Flow Formulation with Lazy Subtour Elimination Constraints.
@@ -206,8 +206,7 @@ def _run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indice
     # Gurobi should ideally be PC-CVRP to match functionality, or CVRP.
     # Adding PC-CVRP logic to MIP is easy (make visit variable).
     
-    model = gp.Model("CVRP")
-    model.setParam('OutputFlag', 1) # User asked for Logging
+    model = gp.Model("CVRP", env=env) if env else gp.Model("CVRP")
     model.setParam('TimeLimit', values.get('time_limit', 30))
     model.setParam('MIPGap', 0.05)
     

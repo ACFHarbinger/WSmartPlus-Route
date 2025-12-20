@@ -1,7 +1,7 @@
 # Problems and Data
-PROBLEM_TYPES = ["TSP", "VRP", "PCTSP", "VRPP", "WCRP", "WCVRP", "OP", "PDP"]
+PROBLEM_TYPES = ["VRPP", "CVRPP", "WCVRP", "CWCVRP", "SDWCVRP"]
 
-DATA_DIST_PROBLEMS = ['VRPP', 'OP', 'WCRP', 'WCVRP']
+DATA_DIST_PROBLEMS = ['VRPP', 'WCVRP']
 
 DATA_DISTRIBUTIONS = {
     "Empty": "empty", 
@@ -206,8 +206,6 @@ HOP_METHODS = {
     'Random Search (RS)': 'rs', 
     'Grid Search (GS)': 'gs', 
     'Differential Evolutionary Hyperband Optimization (DEHBO)': 'dehbo', 
-    'Population-Based Bandits Algorithm (PBBA)': 'pbba', 
-    'Bayesian Generational Population-Based Training (BGPBT)': 'bgpbt'
 }
 
 # Logging

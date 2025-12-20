@@ -4,9 +4,10 @@ import gurobipy as gp
 import torch.optim as optim
 
 from .definitions import ROOT_DIR
+from logic.src.models import GATLSTManager
 from dotenv import dotenv_values
 from logic.src.utils.crypto_utils import decrypt_file_data
-from logic.src.utils.functions import load_model, get_inner_model
+from logic.src.utils.functions import load_model, get_inner_model, torch_load_cpu
 
 
 def setup_cost_weights(opts, def_val=1.):
@@ -16,30 +17,78 @@ def setup_cost_weights(opts, def_val=1.):
     #return opts.get(cost_weight, default_value)
 
     cw_dict = {}
-    if opts['problem'] == 'wcrp':
-        #cw_dict['lost'] = opts['w_lost'] = _set_val(opts['w_lost'], def_val)
+    if opts['problem'] in ['wcvrp', 'cwcvrp', 'sdwcvrp']:
         cw_dict['waste'] = opts['w_waste'] = _set_val(opts['w_waste'], def_val)
         cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
         cw_dict['overflows'] = opts['w_overflows'] = _set_val(opts['w_overflows'], def_val)
-    elif opts['problem'] == 'vrpp':
+    elif opts['problem'] in ['vrpp', 'cvrpp']:
         cw_dict['waste'] = opts['w_waste'] = _set_val(opts['w_waste'], def_val)
         cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
-    elif opts['problem'] in ['cwcvrp', 'sdwcvrp']:
-        cw_dict['lost'] = opts['w_lost'] = _set_val(opts['w_lost'], def_val)
-        cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
-        cw_dict['overflows'] = opts['w_overflows'] = _set_val(opts['w_overflows'], def_val)
-    elif opts['problem'] == 'op':
-        cw_dict['prize'] = opts['w_prize'] = _set_val(opts['w_prize'], def_val)
-    elif opts['problem'] in ['tsp', 'cvrp', 'sdvrp', 'pdp']:
-        cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
-    elif opts['problem'] == 'pctsp':
-        cw_dict['prize'] = opts['w_prize'] = _set_val(opts['w_prize'], def_val)
-        cw_dict['length'] = opts['w_length'] = _set_val(opts['w_length'], def_val)
-        cw_dict['penalty'] = opts['w_penalty'] = _set_val(opts['w_penalty'], def_val)
     return cw_dict
 
 
-def setup_model(policy, general_path, device, lock, temperature=1, decode_type="greedy"):
+def setup_hrl_manager(opts, device, configs=None):
+    hrl_path = None
+    if opts.get('model_path') is not None:
+        hrl_path = opts['model_path']
+    
+    # Check prioritization: Configs > Opts
+    hrl_method = None
+    if configs is not None:
+        hrl_method = configs.get('hrl_method')
+    
+    if hrl_method is None:
+        hrl_method = opts.get('hrl_method')
+
+    if hrl_method != 'gat_lstm' or hrl_path is None:
+        return None
+    
+    # --- Logic from load_model to handle directory ---
+    # Attempt to resolve path if it's a directory
+    print(hrl_path)
+    if os.path.isfile(hrl_path):
+        pass # hrl_path is already the file
+    elif os.path.isdir(hrl_path):
+        # Find latest epoch
+        epoch = max(
+            int(os.path.splitext(filename)[0].split("-")[1])
+            for filename in os.listdir(hrl_path)
+            if os.path.splitext(filename)[1] == '.pt' and 'epoch' in filename
+        )
+        hrl_path = os.path.join(hrl_path, 'epoch-{}.pt'.format(epoch))
+    else:
+        # If explicitly requested but not found, maybe valid to return None or raise error?
+        # For robustness, if we can't find it, we skip HRL
+        return None
+
+    # Get params from configs if available, else opts
+    if configs is not None:
+        mrl_history = configs.get('mrl_history', opts.get('mrl_history', 10))
+        gat_hidden = configs.get('gat_hidden', opts.get('gat_hidden', 128))
+        lstm_hidden = configs.get('lstm_hidden', opts.get('lstm_hidden', 64))
+    else:
+        mrl_history = opts.get('mrl_history', 10)
+        gat_hidden = opts.get('gat_hidden', 128)
+        lstm_hidden = opts.get('lstm_hidden', 64)
+         
+    manager = GATLSTManager(
+        input_dim_static=2,
+        input_dim_dynamic=mrl_history,
+        hidden_dim=gat_hidden,
+        lstm_hidden=lstm_hidden,
+        device=device
+    ).to(device)
+    
+    load_data = torch_load_cpu(hrl_path)
+    if isinstance(load_data, dict) and 'manager' in load_data:
+        manager.load_state_dict(load_data['manager'])
+    else:
+        manager.load_state_dict(load_data)
+    manager.eval()
+    return manager
+
+
+def setup_model(policy, general_path, model_paths, device, lock, temperature=1, decode_type="greedy"):
     def _load_model(general_path, model_name, device, temperature, decode_type, lock):
         model_path = os.path.join(general_path, model_name)
         with lock:
@@ -51,11 +100,11 @@ def setup_model(policy, general_path, device, lock, temperature=1, decode_type="
         return model, configs
 
     if 'amgc' in policy:
-        return _load_model(general_path, "amgc", device, temperature, decode_type, lock)
+        return _load_model(general_path, model_paths['amgc'], device, temperature, decode_type, lock)
     elif 'am' in policy:
-        return _load_model(general_path, "am", device, temperature, decode_type, lock)
+        return _load_model(general_path, model_paths['am'], device, temperature, decode_type, lock)
     elif 'transgcn' in policy:
-        return _load_model(general_path, "transgcn", device, temperature, decode_type, lock)
+        return _load_model(general_path, model_paths['transgcn'], device, temperature, decode_type, lock)
     return None
 
 
@@ -88,11 +137,10 @@ def setup_env(policy, server=False, gplic_filename=None, symkey_name=None, env_f
 
 def setup_model_and_baseline(problem, data_load, use_cuda, opts):
     from logic.src.models import (
-        CriticNetwork, CriticNetworkLSTM,
-        AttentionModel, PointerNetwork, TemporalAttentionModel,
-        DeepDecoderAttentionModel, HierarchicalTemporalAttentionModel,
+        WarmupBaseline, ExponentialBaseline, RolloutBaseline,
+        NoBaseline, CriticBaseline, CriticNetwork, POMOBaseline,
+        AttentionModel, TemporalAttentionModel, DeepDecoderAttentionModel,
         GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
-        NoBaseline, WarmupBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline
     )
     encoder_class = {
         'gat': GraphAttentionEncoder,
@@ -104,9 +152,7 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
 
     model_class = {
         'am': AttentionModel,
-        'pn': PointerNetwork,
         'tam': TemporalAttentionModel,
-        'htam': HierarchicalTemporalAttentionModel,
         'ddam': DeepDecoderAttentionModel
     }.get(opts['model'], None)
     assert model_class is not None, \
@@ -143,6 +189,7 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         mask_graph=opts['mask_graph'],
         checkpoint_encoder=opts['checkpoint_encoder'],
         shrink_size=opts['shrink_size'],
+        pomo_size=opts.get('pomo_size', 0),
         temporal_horizon=opts['temporal_horizon'],
         predictor_layers=opts['n_predict_layers']
     ).to(opts['device'])
@@ -158,8 +205,6 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
     if opts['baseline'] == 'exponential':
         baseline = ExponentialBaseline(opts['exp_beta'])
     elif opts['baseline'] == 'critic' or opts['baseline'] == 'critic_lstm':
-        assert opts['baseline'] != 'critic_lstm' or problem.NAME == 'tsp', \
-        "Critic LSTM only supported for TSP"
         baseline = CriticBaseline(
             (
                 CriticNetworkLSTM(
@@ -185,6 +230,8 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         )
     elif opts['baseline'] == 'rollout':
         baseline = RolloutBaseline(model, problem, opts)
+    elif opts['baseline'] == 'pomo':
+        baseline = POMOBaseline(opts.get('pomo_size', 0))
     else:
         assert opts['baseline'] is None, \
         "Unknown baseline: {}".format(opts['baseline'])

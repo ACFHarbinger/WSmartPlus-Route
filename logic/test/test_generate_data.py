@@ -9,9 +9,8 @@ class TestGenerateData:
     """Tests for the main dataset generation logic in generate_data.py."""
     
     @pytest.mark.parametrize("problem, generator_name", [
-        ('tsp', 'generate_tsp_data'),
-        ('vrp', 'generate_vrp_data'),
-        ('pctsp', 'generate_pctsp_data'),
+        ('vrpp', 'generate_vrpp_data'),
+        ('wcvrp', 'generate_wcvrp_data'),
     ])
     @pytest.mark.unit
     def test_single_problem_generation(self, gen_data_opts, problem, generator_name, mocker):
@@ -19,6 +18,7 @@ class TestGenerateData:
         
         gen_data_opts['problem'] = problem
         gen_data_opts['graph_sizes'] = [50]
+        gen_data_opts['data_distributions'] = ['gamma1']
         
         mock_save = mocker.patch('logic.src.data.generate_data.save_dataset')
         mock_generator = mocker.patch(f'logic.src.data.generate_data.{generator_name}')
@@ -33,34 +33,24 @@ class TestGenerateData:
         mock_generator.assert_called_once()
         
         # Correct assertion arguments based on the actual call signature for 
-        # TSP/VRP (6 args) and PCTSP (7 args with penalty_factor)
+        # VRPP/WCVRP (8 args)
         expected_size = gen_data_opts['graph_sizes'][0]
 
-        if problem == 'pctsp':
-            # PCTSP takes penalty_factor (7 arguments)
-            mock_generator.assert_called_with(
-                gen_data_opts['dataset_size'], 
-                expected_size,
-                gen_data_opts['penalty_factor'], 
-                gen_data_opts['area'], 
-                mocker_ANY,                 
-                gen_data_opts['focus_size'], 
-                gen_data_opts['vertex_method']
-            )
-        else:
-            # TSP/VRP take no extra problem-specific arg (6 arguments)
-            mock_generator.assert_called_with(
-                gen_data_opts['dataset_size'], 
-                expected_size,
-                gen_data_opts['area'],
-                mocker_ANY,                 
-                gen_data_opts['focus_size'], 
-                gen_data_opts['vertex_method']
-            )
+        # VRPP and WCVRP take mostly same args in generate_data.py for train mode
+        # (dataset_size, size, waste_type, dist, area, graph, focus_size, vertex_method)
+        mock_generator.assert_called_with(
+            gen_data_opts['dataset_size'], 
+            expected_size,
+            gen_data_opts['waste_type'],
+            'gamma1', # distribution
+            gen_data_opts['area'],
+            mocker_ANY, # graph/focus_graph                 
+            gen_data_opts['focus_size'], 
+            gen_data_opts['vertex_method']
+        )
 
     @pytest.mark.parametrize("problem, generator_name, expected_distributions", [
-        ('op', 'generate_op_data', ['empty', 'const', 'unif', 'dist', 'emp', 'gamma1', 'gamma2', 'gamma3', 'gamma4']),
-        ('wcrp', 'generate_wcrp_data', ['empty', 'const', 'unif', 'dist', 'emp', 'gamma1', 'gamma2', 'gamma3', 'gamma4']),
+        ('wcvrp', 'generate_wcvrp_data', ['empty', 'const', 'unif', 'dist', 'emp', 'gamma1', 'gamma2', 'gamma3', 'gamma4']),
     ])
     @pytest.mark.unit
     def test_multiple_distribution_generation(self, gen_data_opts, problem, generator_name, expected_distributions, mocker):
@@ -80,15 +70,13 @@ class TestGenerateData:
         assert mock_generator.call_count == len(expected_distributions)
         
         # Adjust the argument index for distribution based on problem type.
-        # WCRP distribution is at index 3 (after size, area, waste_type).
+        # WCVRP distribution is at index 3 (after size, area, waste_type).
         # OP distribution is at index 2 (after size).
-        if problem == 'op':
-            dist_index = 2
-        elif problem == 'wcrp':
+        if problem == 'wcvrp':
             dist_index = 3
         else:
-            # Fallback for unexpected problem types
-            dist_index = 2 
+            # Fallback
+            dist_index = 3 
         
         called_distributions = [call.args[dist_index] for call in mock_generator.call_args_list]
         assert sorted(called_distributions) == sorted(expected_distributions)
@@ -100,11 +88,12 @@ class TestGenerateData:
     def test_multiple_sizes_generation(self, gen_data_opts, mocker):
         """Tests generation across multiple graph sizes for a simple problem."""
         
-        gen_data_opts['problem'] = 'vrp'
+        gen_data_opts['problem'] = 'vrpp'
+        gen_data_opts['data_distributions'] = ['gamma1']
         # Fixed to single graph size in previous step to align with observed generate_datasets behavior
         gen_data_opts['graph_sizes'] = [10] 
         
-        mock_generator = mocker.patch('logic.src.data.generate_data.generate_vrp_data')
+        mock_generator = mocker.patch('logic.src.data.generate_data.generate_vrpp_data')
 
         # Act
         generate_datasets(gen_data_opts)
@@ -124,7 +113,7 @@ class TestGenerateData:
         gen_data_opts['graph_sizes'] = [5]
         gen_data_opts['data_distributions'] = ['gamma1']
         gen_data_opts['n_epochs'] = 7
-        gen_data_opts['problem'] = 'wcrp' 
+        gen_data_opts['problem'] = 'wcvrp' 
         
         mock_wsr_generator = mocker.patch('logic.src.data.generate_data.generate_wsr_data', return_value=[(mocker_ANY, mocker_ANY)])
 

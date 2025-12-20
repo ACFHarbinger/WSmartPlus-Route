@@ -1,38 +1,137 @@
 import os
-import json
 import torch
 import pickle
 
 from logic.src.utils.definitions import MAX_WASTE
 from tqdm import tqdm
 from torch.utils.data import Dataset
+from .state_wcvrp import StateWCVRP
 from .state_cwcvrp import StateCWCVRP
 from .state_sdwcvrp import StateSDWCVRP
 from logic.src.utils.beam_search import beam_search
 from scipy.spatial.distance import pdist, squareform
 from logic.src.utils.data_utils import load_focus_coords, generate_waste_prize
 from logic.src.utils.graph_utils import get_edge_idx_dist, get_adj_knn, adj_to_idx
+from logic.src.pipeline.simulator.bins import Bins
 from logic.src.pipeline.simulator.network import compute_distance_matrix, apply_edges
+
+
+class WCVRP(object):
+    NAME = 'wcvrp'  # Waste collection vehicle routing problem
+
+    @staticmethod
+    def get_costs(dataset, pi, cw_dict, dist_matrix=None):
+        if pi.size(-1) == 1:  # In case all tours directly return to depot, prevent further problems
+            assert (pi == 0).all(), "If all length 1 tours, they should be zero"
+            overflow_mask = dataset['waste'] >= dataset['max_waste'][:, None]
+            overflows = torch.sum(overflow_mask, dim=-1, dtype=torch.float)
+            #excess_waste = (dataset['waste'] - dataset['max_waste'][:, None]).clamp(min=0)
+            #waste_lost = torch.sum(excess_waste, dim=-1, dtype=torch.float)
+            cost = overflows if cw_dict is None \
+            else cw_dict['overflows'] * overflows
+            c_dict = {'overflows': overflows, 'length': torch.zeros_like(overflows).to(pi.device),
+                    'waste': torch.zeros_like(overflows).to(pi.device), 'total': cost}
+            return cost, c_dict, None
+
+        # Check that tours are valid, i.e. contain 0 to n -1
+        sorted_pi = pi.data.sort(1)[0]
+
+        # Make sure each node visited once at most (except for depot)
+        assert ((sorted_pi[:, 1:] == 0) | (sorted_pi[:, 1:] > sorted_pi[:, :-1])).all(), "Duplicates"
+        waste_with_depot = torch.cat(
+            (
+                torch.zeros_like(dataset['waste'][:, :1]),
+                dataset['waste']
+            ),
+            1
+        )
+        w = waste_with_depot.gather(1, pi).clamp(max=dataset['max_waste'][:, None])
+        waste = w.sum(dim=-1)
+
+        # Get masks for bins with overflows and present in tour
+        overflow_mask = waste_with_depot >= dataset['max_waste'][:, None]
+        #batch_dim, node_dim = overflow_mask.size()
+        #visited_mask = torch.zeros((batch_dim, node_dim), dtype=torch.bool).to(sorted_pi.device)
+        #col_idx = sorted_pi[sorted_pi != 0]
+        #row_idx = torch.arange(batch_dim, device=sorted_pi.device).repeat_interleave((sorted_pi != 0).sum(dim=1))
+        #visited_mask[row_idx, col_idx] = True
+
+        # Compute number of overflows
+        #overflows = torch.sum(overflow_mask & ~visited_mask, dim=-1)
+        overflows = torch.sum(overflow_mask, dim=-1)
+
+        # Compute the amount of waste above max_waste
+        #excess_waste = (waste_with_depot - dataset['max_waste'][:, None]).clamp(min=0)
+        #waste_lost = torch.sum(excess_waste, dim=-1)
+
+        if dist_matrix is not None:
+            src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
+            dst_mask = dst_vertices != 0
+            pair_mask = (src_vertices != 0) & (dst_mask)
+            dists = dist_matrix[0, src_vertices, dst_vertices] * pair_mask.float()
+            last_dst = torch.max(dst_mask * torch.arange(dst_vertices.size(1), device=dst_vertices.device), dim=1).indices
+            length = dist_matrix[0, dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0] + dists.sum(dim=1) + dist_matrix[0, 0, src_vertices[:, 0]]
+        else:
+            # Gather dataset in order of tour
+            loc_with_depot = torch.cat((dataset['depot'][:, None, :], dataset['loc']), 1)
+            d = loc_with_depot.gather(1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1)))
+            length = (
+                (d[:, 1:] - d[:, :-1]).norm(p=2, dim=-1).sum(1)  # Prevent error if len 1 seq
+                + (d[:, 0] - dataset['depot']).norm(p=2, dim=-1)  # Depot to first
+                + (d[:, -1] - dataset['depot']).norm(p=2, dim=-1)  # Last to depot, will be 0 if depot is last
+            )
+        
+        cost = overflows + length - waste if cw_dict is None \
+        else cw_dict['overflows'] * overflows + cw_dict['length'] * length - cw_dict['waste'] * waste
+        c_dict = {'overflows': overflows, 'length': length, 'waste': waste, 'total': cost}
+        return cost, c_dict, None
+
+    @staticmethod
+    def make_dataset(*args, **kwargs):
+        return WCVRPDataset(*args, **kwargs)
+
+    @staticmethod
+    def make_state(*args, **kwargs):
+        kwargs.pop('profit_vars', None)
+        return StateWCVRP.initialize(*args, **kwargs)
+
+    @staticmethod
+    def beam_search(input, beam_size, cost_weights, edges=None, expand_size=None, compress_mask=False, model=None, max_calc_batch_size=4096):
+        assert model is not None, "Provide model"
+
+        fixed = model.precompute_fixed(input)
+
+        def propose_expansions(beam):
+            return model.propose_expansions(beam, fixed, expand_size, normalize=True, max_calc_batch_size=max_calc_batch_size)
+
+        state = WCVRP.make_state(input, edges, cost_weights, visited_dtype=torch.int64 if compress_mask else torch.uint8)
+        return beam_search(state, beam_size, propose_expansions)
 
 
 class CWCVRP(object):
     NAME = 'cwcvrp'  # Capacitated Waste Collection Vehicle Routing Problem
-    VEHICLE_CAPACITY = 1.0  # (w.l.o.g. vehicle capacity is 1, demands should be scaled)
+    VEHICLE_CAPACITY = 1.0  # (w.l.o.g. vehicle capacity is 1, wastes should be scaled)
 
     @staticmethod
     def get_costs(dataset, pi, cw_dict, dist_matrix=None):
         batch_size, graph_size = dataset['waste'].size()
 
-        # Check that tours are valid, i.e. contain 0 to n -1
-        sorted_pi = pi.data.sort(1)[0]
+        # In case all tours directly return to depot, prevent further problems
+        if pi.size(-1) == 1:
+            assert (pi == 0).all(), "If all length 1 tours, they should be zero"
+            overflows = torch.sum(dataset['waste'] >= dataset['max_waste'][:, None], dim=-1)
+            cost = overflows # length and waste are 0
+            c_dict = {'overflows': overflows, 'length': torch.zeros_like(cost), 'waste': torch.zeros_like(cost), 'total': cost}
+            return cost, c_dict, None
 
-        # Sorting it should give all zeros at front and then 1...n
-        assert (
-            torch.arange(1, graph_size + 1, out=pi.data.new()).view(1, -1).expand(batch_size, graph_size) ==
-            sorted_pi[:, -graph_size:]
-        ).all() and (sorted_pi[:, :-graph_size] == 0).all(), "Invalid tour"
+        # Check that tours are valid
+        # sorted_pi = pi.data.sort(1)[0]
+        # assert (
+        #     torch.arange(1, graph_size + 1, out=pi.data.new()).view(1, -1).expand(batch_size, graph_size) ==
+        #     sorted_pi[:, -graph_size:]
+        # ).all() and (sorted_pi[:, :-graph_size] == 0).all(), "Invalid tour"
 
-        # Visiting depot resets capacity so we add demand = -capacity (we make sure it does not become negative)
+        # Visiting depot resets capacity so we add waste = -capacity (we make sure it does not become negative)
         waste_with_depot = torch.cat(
             (
                 torch.full_like(dataset['waste'][:, :1], -CWCVRP.VEHICLE_CAPACITY),
@@ -52,9 +151,9 @@ class CWCVRP(object):
         # Get masks for bins with overflows and present in tour
         overflow_mask = waste_with_depot >= dataset['max_waste'][:, None]
         batch_dim, node_dim = overflow_mask.size()
-        visited_mask = torch.zeros((batch_dim, node_dim), dtype=torch.bool).to(sorted_pi.device)
-        col_idx = sorted_pi[sorted_pi != 0]
-        row_idx = torch.arange(batch_dim, device=sorted_pi.device).repeat_interleave((sorted_pi != 0).sum(dim=1))
+        visited_mask = torch.zeros((batch_dim, node_dim), dtype=torch.bool).to(pi.device)
+        col_idx = pi[pi != 0]
+        row_idx = torch.arange(batch_dim, device=pi.device).repeat_interleave((pi != 0).sum(dim=1))
         visited_mask[row_idx, col_idx] = True
 
         # Compute number of overflows in unvisited bins
@@ -64,7 +163,7 @@ class CWCVRP(object):
         #excess_waste = (waste_with_depot - dataset['max_waste'][:, None]).clamp(min=0)
         #waste_lost = torch.sum(excess_waste * (~visited_mask), dim=-1)
 
-        if dist_matrix:
+        if dist_matrix is not None:
             src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
             dst_mask = dst_vertices != 0
             pair_mask = (src_vertices != 0) & (dst_mask)
@@ -74,18 +173,19 @@ class CWCVRP(object):
         else:
             # Gather dataset in order of tour
             loc_with_depot = torch.cat((dataset['depot'][:, None, :], dataset['loc']), 1)
-            d = loc_with_depot.gather(1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1)))
+            d_coord = loc_with_depot.gather(1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1)))
 
             length = (
-                (d[:, 1:] - d[:, :-1]).norm(p=2, dim=-1).sum(1)  # Prevent error if len 1 seq
-                + (d[:, 0] - dataset['depot']).norm(p=2, dim=-1)  # Depot to first
-                + (d[:, -1] - dataset['depot']).norm(p=2, dim=-1)  # Last to depot, will be 0 if depot is last
+                (d_coord[:, 1:] - d_coord[:, :-1]).norm(p=2, dim=-1).sum(1)  # Prevent error if len 1 seq
+                + (d_coord[:, 0] - dataset['depot']).norm(p=2, dim=-1)  # Depot to first
+                + (d_coord[:, -1] - dataset['depot']).norm(p=2, dim=-1)  # Last to depot, will be 0 if depot is last
             )
 
         waste = d.sum(dim=-1)
         cost = overflows + length - waste if cw_dict is None \
         else cw_dict['overflows'] * overflows + cw_dict['length'] * length - cw_dict['waste'] * waste
-        return cost, None
+        c_dict = {'overflows': overflows, 'length': length, 'waste': waste, 'total': cost}
+        return cost, c_dict, None
 
     @staticmethod
     def make_dataset(*args, **kwargs):
@@ -93,6 +193,7 @@ class CWCVRP(object):
 
     @staticmethod
     def make_state(*args, **kwargs):
+        kwargs.pop('profit_vars', None)
         return StateCWCVRP.initialize(*args, **kwargs)
 
     @staticmethod
@@ -110,48 +211,56 @@ class CWCVRP(object):
 
 class SDWCVRP(object):
     NAME = 'sdwcvrp'  # Split Delivery Waste Collection Vehicle Routing Problem
-    VEHICLE_CAPACITY = 1.0  # (w.l.o.g. vehicle capacity is 1, demands should be scaled)
+    VEHICLE_CAPACITY = 1.0  # (w.l.o.g. vehicle capacity is 1, wastes should be scaled)
 
     @staticmethod
     def get_costs(dataset, pi, cw_dict, dist_matrix=None):
         batch_size, graph_size = dataset['waste'].size()
 
-        # Each node can be visited multiple times, but we always deliver as much demand as possible
-        # We check that at the end all demand has been satisfied
-        demands = torch.cat(
+        # In case all tours directly return to depot, prevent further problems
+        if pi.size(-1) == 1:
+            assert (pi == 0).all(), "If all length 1 tours, they should be zero"
+            overflow_mask = dataset['waste'] >= dataset['max_waste'][:, None]
+            overflows = torch.sum(overflow_mask, dim=-1)
+            cost = overflows # length and waste are 0
+            c_dict = {'overflows': overflows, 'length': torch.zeros_like(cost), 'waste': torch.zeros_like(cost), 'total': cost}
+            return cost, c_dict, None
+
+        # Each node can be visited multiple times, but we always deliver as much waste as possible
+        # We check that at the end all waste has been satisfied
+        wastes = torch.cat(
             (
                 torch.full_like(dataset['waste'][:, :1], -SDWCVRP.VEHICLE_CAPACITY),
                 dataset['waste']
             ),
             1
         )
-        rng = torch.arange(batch_size, out=demands.data.new().long())
+        rng = torch.arange(batch_size, out=wastes.data.new().long())
         used_cap = torch.zeros_like(dataset['waste'][:, 0])
         a_prev = None
         for a in pi.transpose(0, 1):
-            assert a_prev is None or (demands[((a_prev == 0) & (a == 0)), :] == 0).all(), \
-                "Cannot visit depot twice if any nonzero demand"
-            d = torch.min(demands[rng, a], SDWCVRP.VEHICLE_CAPACITY - used_cap)
-            demands[rng, a] -= d
+            # assert a_prev is None or (wastes[((a_prev == 0) & (a == 0)), :] == 0).all(), \
+            #     "Cannot visit depot twice if any nonzero waste"
+            d = torch.min(wastes[rng, a], SDWCVRP.VEHICLE_CAPACITY - used_cap)
+            wastes[rng, a] -= d
             used_cap += d
             used_cap[a == 0] = 0
             a_prev = a
-        assert (demands == 0).all(), "All demand must be satisfied"
+        # assert (wastes == 0).all(), "All waste must be satisfied"
 
         # Get masks for bins with overflows and present in tour
-        sorted_pi = pi.data.sort(1)[0]
-        overflow_mask = demands >= dataset['max_waste'][:, None]
+        overflow_mask = wastes >= dataset['max_waste'][:, None]
         batch_dim, node_dim = overflow_mask.size()
-        visited_mask = torch.zeros((batch_dim, node_dim), dtype=torch.bool).to(sorted_pi.device)
-        col_idx = sorted_pi[sorted_pi != 0]
-        row_idx = torch.arange(batch_dim, device=sorted_pi.device).repeat_interleave((sorted_pi != 0).sum(dim=1))
+        visited_mask = torch.zeros((batch_dim, node_dim), dtype=torch.bool).to(pi.device)
+        col_idx = pi[pi != 0]
+        row_idx = torch.arange(batch_dim, device=pi.device).repeat_interleave((pi != 0).sum(dim=1))
         visited_mask[row_idx, col_idx] = True
 
         # Compute number of overflows in unvisited bins
         overflows = torch.sum(overflow_mask & ~visited_mask, dim=-1)
 
         # Compute the amount of waste above max_waste in unvisited bins
-        #excess_waste = (demands - dataset['max_waste'][:, None]).clamp(min=0)
+        #excess_waste = (wastes - dataset['max_waste'][:, None]).clamp(min=0)
         #waste_lost = torch.sum(excess_waste * (~visited_mask), dim=-1)
 
         if dist_matrix is not None:
@@ -173,10 +282,11 @@ class SDWCVRP(object):
                 + (d[:, -1] - dataset['depot']).norm(p=2, dim=-1)  # Last to depot, will be 0 if depot is last
             )
 
-        waste = demands.sum(dim=-1)
+        waste = wastes.sum(dim=-1)
         cost = overflows + length - waste if cw_dict is None \
-        else cw_dict['overflows'] * overflows + cw_dict['length'] * length + cw_dict['waste'] * waste
-        return cost, None
+        else cw_dict['overflows'] * overflows + cw_dict['length'] * length - cw_dict['waste'] * waste
+        c_dict = {'overflows': overflows, 'length': length, 'waste': waste, 'total': cost}
+        return cost, c_dict, None
 
     @staticmethod
     def make_dataset(*args, **kwargs):
@@ -184,6 +294,7 @@ class SDWCVRP(object):
 
     @staticmethod
     def make_state(*args, **kwargs):
+        kwargs.pop('profit_vars', None)
         return StateSDWCVRP.initialize(*args, **kwargs)
 
     @staticmethod
@@ -226,14 +337,14 @@ def make_instance(edge_threshold, edge_strategy, args):
     return ret_dict
 
 
-def generate_instance(size, edge_threshold, edge_strategy, distribution, graph=None):
+def generate_instance(size, edge_threshold, edge_strategy, distribution, bins, *args, graph=None):
     if graph is not None:
         depot, loc = graph
     else:
         loc = torch.FloatTensor(size, 2).uniform_(0, 1)
         depot = torch.FloatTensor(2).uniform_(0, 1)
 
-    waste = torch.from_numpy(generate_waste_prize(size, distribution, (depot, loc))).float()
+    waste = torch.from_numpy(generate_waste_prize(size, distribution, (depot, loc), 1, bins)).float()
     ret_dict = {
         'loc': loc,
         'depot': depot,
@@ -255,7 +366,6 @@ class WCVRPDataset(Dataset):
     def __init__(self, filename=None, size=50, num_samples=1000000, offset=0, distribution='unif', area="riomaior", vertex_strat="mmn", 
                 number_edges=0, edge_strat=None, focus_graph=None, focus_size=0, dist_strat=None, waste_type=None, dist_matrix_path=None):
         super(WCVRPDataset, self).__init__()
-        assert focus_graph is None or focus_size > 0
         dist = distribution
         self.data_set = []
         if isinstance(number_edges, str):
@@ -266,7 +376,7 @@ class WCVRPDataset(Dataset):
         else:
             num_edges = number_edges if number_edges is not None else 0
 
-        if focus_graph is not None:
+        if focus_graph is not None and focus_size > 0:
             focus_path = os.path.join(os.getcwd(), "data", "wsr_simulator", "bins_selection", focus_graph)
             tmp_coords, idx = load_focus_coords(size, None, area, waste_type, focus_path, focus_size=1)
             dist_matrix = compute_distance_matrix(tmp_coords, dist_strat, dm_filepath=dist_matrix_path, focus_idx=idx)
@@ -280,9 +390,17 @@ class WCVRPDataset(Dataset):
                 if edge_strat is None: num_edges = 0
             else:
                 dist_matrix_edges = dist_matrix
+                self.edges = None
             self.dist_matrix = torch.from_numpy(dist_matrix_edges).float() / 100
+            if distribution in ['gamma', 'emp']:
+                bins = Bins(size, os.path.join(os.getcwd(), "data", "wsr_simulator"), distribution, area=area, indices=idx[0], waste_type=waste_type)
+            else:
+                bins = None
         else:
+            idx = None
+            bins = None
             graph = None
+            focus_path = None
             self.edges = None
             self.dist_matrix = None
 
@@ -297,9 +415,10 @@ class WCVRPDataset(Dataset):
                 ]
         else:
             print("Generating data...")
+            args = (focus_path, idx, area)
             self.data = [
-                generate_instance(size, num_edges, edge_strat, dist) if focus_size < i 
-                else generate_instance(size, num_edges, edge_strat, dist, graph)
+                generate_instance(size, num_edges, edge_strat, dist, bins, args) if i >= focus_size 
+                else generate_instance(size, num_edges, edge_strat, dist, bins, graph=(graph[0][i, :], graph[1][i, :, :]))
                 for i in tqdm(range(num_samples))
             ]
         self.size = len(self.data)

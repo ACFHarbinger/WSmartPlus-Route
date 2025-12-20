@@ -12,18 +12,18 @@ class Hypernetwork(nn.Module):
     Hypernetwork that generates adaptive cost weights for time-variant RL tasks.
     Takes temporal and performance metrics as input and outputs cost weights.
     """
-    def __init__(self, problem, embedding_dim=16, hidden_dim=64, normalization='layer', activation='relu', learn_affine=True, bias=True):
+    def __init__(self, problem, n_days=365, embedding_dim=16, hidden_dim=64, normalization='layer', activation='relu', learn_affine=True, bias=True):
         super(Hypernetwork, self).__init__()
         self.problem = problem
-        self.is_wc = problem.NAME == 'wcrp'
-        self.is_vrpp = problem.NAME == 'vrpp'
-        self.is_pctsp = problem.NAME == 'pctsp'
-        if self.is_vrpp or self.is_wc or self.is_pctsp:
+        self.is_wc = problem.NAME == 'wcvrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
+        self.is_vrpp = problem.NAME == 'vrpp' or problem.NAME == 'cvrpp'
+        if self.is_vrpp or self.is_wc:
             cost_dim = 3 * 2
         else:
             cost_dim = 1 * 2
 
-        self.time_embedding = nn.Embedding(365, embedding_dim)  # Day of year embedding
+        self.n_days = n_days
+        self.time_embedding = nn.Embedding(n_days, embedding_dim)  # Day of year embedding
 
         # Combined input: metrics + time embedding
         combined_dim = cost_dim + embedding_dim
@@ -61,7 +61,7 @@ class Hypernetwork(nn.Module):
             cost_weights: Tensor of generated cost weights [batch_size, output_dim]
         """
         # Get time embeddings
-        day_embed = self.time_embedding(day % 365)
+        day_embed = self.time_embedding(day % self.n_days)
         
         # Concatenate metrics with time embeddings
         combined = torch.cat([metrics, day_embed], dim=1)
@@ -189,7 +189,7 @@ class HypernetworkOptimizer:
             # Calculate derived metrics
             efficiency = kg / (km + 1e-8)
             kg_lost = all_costs.get('kg_lost', torch.tensor(0.0)).mean().item()
-            day_progress = day / 365.0  # Normalized day of year
+            day_progress = day / self.n_days  # Normalized day of year
             
             # Combine metrics
             metrics = torch.tensor(
@@ -283,7 +283,7 @@ def train_over_time_with_hypernetwork(model, optimizer, baseline, lr_scheduler, 
             torch.mean(all_costs['kg']),                                                # kg
             torch.mean(all_costs['km']),                                                # km
             all_costs.get('kg_lost', torch.tensor(0.0)).mean(),                         # kg_lost
-            day / 365.0                                                                 # day_progress
+            day / self.n_days                                                                 # day_progress
         ], device=opts['device'])
         
         weights_tensor = torch.tensor([cost_weights[key] for key in hyperopt.cost_weight_keys], device=opts['device'])
@@ -319,8 +319,3 @@ def train_over_time_with_hypernetwork(model, optimizer, baseline, lr_scheduler, 
         training_dataset = update_day(model, optimizer, training_dataset, log_pi, day+1, opts)
     
     return
-
-opts['hyper_lr'] = 1e-4
-opts['hyper_buffer_size'] = 100
-opts['hyper_epochs'] = 10
-opts['use_hypernetwork'] = True

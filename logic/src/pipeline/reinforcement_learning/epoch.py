@@ -71,11 +71,11 @@ def validate_update(model, dataset, cw_dict, opts):
     attention_dict = {'attention_weights': [], 'graph_masks': []}
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=opts['eval_batch_size'], pin_memory=True)
     print('Validating...')
-    for bat_id, bat in enumerate(tqdm(disable=opts['no_progress_bar'])):
+    for bat_id, bat in enumerate(tqdm(dataloader, disable=opts['no_progress_bar'])):
         bat = prepare_batch(bat, bat_id, dataset, dataloader, opts)
         ucost, cost_dict, attn_dict = _eval_model_bat(bat, dataset.dist_matrix)
         for key in attention_dict.keys():
-            attention_dict[key].append[attn_dict[key]]
+            attention_dict[key].append(attn_dict[key])
 
         all_ucosts = torch.cat((all_ucosts, ucost), 0)
         for key, val in cost_dict.items():
@@ -270,11 +270,11 @@ def prepare_epoch(optimizer, epoch, problem, tb_logger, cost_weights, opts):
 
 
 def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts):
-    if opts['problem'] in ['vrpp', 'wcrp', 'cwcvrp', 'sdwcvrp'] and opts['data_distribution'] == 'emp':
+    if opts['problem'] in ['vrpp', 'cvrpp', 'wcvrp', 'cwcvrp', 'sdwcvrp'] and opts['data_distribution'] == 'emp':
         data_dir = os.path.join(os.getcwd(), "data", "wsr_simulator")
         with open(os.path.join(data_dir, 'bins_selection', opts['focus_graph'])) as js:
             idx = json.load(js)
-        bins = Bins(opts['graph_size'], data_dir, sample_dist=opts['data_distribution'], area=opts['area'], indices=idx[0], grid=None)
+        bins = Bins(opts['graph_size'], data_dir, sample_dist=opts['data_distribution'], area=opts['area'], indices=idx[0], waste_type=opts['waste_type'])
     else:
         idx = [None]
         bins = None
@@ -283,7 +283,7 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
     if opts['temporal_horizon'] > 0:
         data_size = training_dataset.size
         graphs = torch.stack([torch.cat((x['depot'].unsqueeze(0), x['loc'])) for x in training_dataset])
-        if opts['problem'] in ['vrpp', 'wcrp', 'cwcvrp', 'sdwcvrp']:
+        if opts['problem'] in ['vrpp', 'cvrpp', 'wcvrp', 'cwcvrp', 'sdwcvrp']:
             for day_id in range(1, opts['temporal_horizon'] + 1):
                 training_dataset["fill{}".format(day_id)] = torch.from_numpy(generate_waste_prize(opts['graph_size'], opts['data_distribution'], graphs, data_size, bins)).float()
 
@@ -300,7 +300,7 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
     return step, training_dataset, loss_keys, table_df, (bins,)
 
 
-def complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, epoch, step, epoch_duration, tb_logger, cost_weights, opts):
+def complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, epoch, step, epoch_duration, tb_logger, cost_weights, opts, manager=None):
     print("Finished {} {}, took {} s".format(
         "day" if opts['train_time'] else "epoch", epoch, time.strftime('%H:%M:%S', time.gmtime(epoch_duration))))
     if (opts['checkpoint_epochs'] != 0 and epoch % opts['checkpoint_epochs'] == 0) or epoch == opts['n_epochs'] - 1:
@@ -311,7 +311,8 @@ def complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, e
                 'optimizer': optimizer.state_dict(),
                 'rng_state': torch.get_rng_state(),
                 'cuda_rng_state': torch.cuda.get_rng_state_all(),
-                'baseline': baseline.state_dict()
+                'baseline': baseline.state_dict(),
+                'manager': manager.state_dict() if manager is not None else None
             },
             os.path.join(opts['save_dir'], 'epoch-{}.pt'.format(epoch))
         )
@@ -351,7 +352,10 @@ def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
             batch['edges'] = dataset.edges.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1).float()
         else:
             batch['edges'] = dataset.edges.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1).bool()
-    batch['dist'] = dataset.dist_matrix.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1)
+    if dataset.dist_matrix is not None:
+        batch['dist'] = dataset.dist_matrix.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1)
+    else:
+        batch['dist'] = None
     return batch
 
 
@@ -363,7 +367,7 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args):
     # Put model in train mode!
     model.train()
     set_decode_type(model, "sampling")
-    if opts['problem'] in ['vrpp', 'wcrp']:
+    if opts['problem'] in ['vrpp', 'cvrpp', 'wcvrp', 'cwcvrp', 'sdwcvrp']:
         # Get masks for bins present in routes
         sorted_routes = routes.sort(1)[0]
         dataset_dim, node_dim = sorted_routes.size()
