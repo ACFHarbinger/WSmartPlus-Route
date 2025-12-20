@@ -611,6 +611,7 @@ class SimulationResultsWindow(QWidget):
         policy_names = self.summary_data['policies']
         colors = self._generate_distinct_colors(len(policy_names))
         selection = self.summary_metric_combo.currentText()
+        self.summary_ax.set_title(selection)
 
         if selection == "All Metrics":
             n_metrics = len(udef.SIM_METRICS)

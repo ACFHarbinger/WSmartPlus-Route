@@ -90,7 +90,7 @@ def load_simulator_data(data_dir, number_of_bins, area='Rio Maior', waste_type=N
                 bins_coordinates = pd.read_excel(os.path.join(data_dir, 'coordinates', 'Coordinates.xlsx'))
         elif src_area == 'riomaior':
             assert number_of_bins <= 317, f"Number of bins for area {src_area} must be <= 317"
-            if number_of_bins <= 104:
+            if number_of_bins == 104:
                 df = pd.read_csv(os.path.join(data_dir, 'bins_waste', f"Rio_Maior_Sensores_2021_2024_cleaned_104.csv"))
                 df['Data da leitura'] = pd.to_datetime(df['Data da leitura'], format="%Y-%m-%d")
                 data = df.pivot_table(index='Data da leitura', columns='idcontentor', values='Enchimento', aggfunc='mean')
@@ -192,4 +192,5 @@ def load_area_and_waste_type_params(area, waste_type):
             assert src_area == 'figueiradafoz', "Unknown waste collection area: {}".format(src_area)
             density = 200.0
             vehicle_capacity = 8000
+    vehicle_capacity = (vehicle_capacity / (bin_volume * density)) * 100
     return (vehicle_capacity, revenue, density, expenses, bin_volume) # KG, $/KG, KG/m^3, $/KM, m^3

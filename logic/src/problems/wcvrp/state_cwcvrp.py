@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 
 from typing import NamedTuple
 from logic.src.utils.boolmask import mask_long2bool, mask_long_scatter
@@ -40,7 +41,7 @@ class StateCWCVRP(NamedTuple):
         if self.visited_.dtype == torch.uint8:
             return self.visited_
         else:
-            return mask_long2bool(self.visited_, n=self.demand.size(-1))
+            return mask_long2bool(self.visited_, n=self.waste.size(-1))
 
     @property
     def dist(self):
@@ -64,28 +65,45 @@ class StateCWCVRP(NamedTuple):
     # def __len__(self):
     #     return len(self.used_capacity)
     @staticmethod
-    def initialize(input, edges, cost_weights=None, dist_matrix=None, visited_dtype=torch.uint8):
+    def initialize(input, edges, cost_weights=None, dist_matrix=None, visited_dtype=torch.uint8, hrl_mask=None):
         depot = input['depot']
         loc = input['loc']
         waste = input['waste']
         max_waste = input['max_waste']
         batch_size, n_loc, _ = loc.size()
+
+        # Initialize visited mask
+        if visited_dtype == torch.uint8:
+            visited_ = torch.zeros(
+                batch_size, 1, n_loc + 1,
+                dtype=torch.uint8, device=loc.device
+            )
+            if hrl_mask is not None:          
+                # hrl_mask is (Batch, N).
+                # visited_ is (Batch, 1, N+1). Index 0 is Depot.
+                # Mark HRL masked nodes as visited (1)
+                if hrl_mask.dim() == 2:
+                    if hrl_mask.size(1) != n_loc:
+                        print(f"CRITICAL ERROR: HRL Mask width {hrl_mask.size(1)} != n_loc {n_loc}")
+                    visited_[:, 0, 1:] = hrl_mask.to(torch.uint8)
+                else:
+                    # If mask has extra dims
+                    visited_[:, 0, 1:] = hrl_mask.squeeze().to(torch.uint8)
+        else:
+            # Compressed mask logic (int64 bitmask)
+            visited_ = torch.zeros(batch_size, 1, (n_loc + 63) // 64, dtype=torch.int64, device=loc.device)
+            # NOTE: Compressed mask HRL not implemented yet, assumes uint8 default
+            if hrl_mask is not None:
+                print("Warning: HRL Mask with compressed visited mask not implemented")
+
         return StateCWCVRP(
             coords=torch.cat((depot[:, None, :], loc), -2),
-            waste=waste,
+            waste=F.pad(waste, (1, 0), mode='constant', value=0),  # add 0 for depot
             max_waste=max_waste[:, None],
             ids=torch.arange(batch_size, dtype=torch.int64, device=loc.device)[:, None],  # Add steps dimension
             prev_a=torch.zeros(batch_size, 1, dtype=torch.long, device=loc.device),
             used_capacity=waste.new_zeros(batch_size, 1),
-            visited_=(  # Visited as mask is easier to understand, as long more memory efficient
-                # Keep visited_ with depot so we can scatter efficiently
-                torch.zeros(
-                    batch_size, 1, n_loc + 1,
-                    dtype=torch.uint8, device=loc.device
-                )
-                if visited_dtype == torch.uint8
-                else torch.zeros(batch_size, 1, (n_loc + 63) // 64, dtype=torch.int64, device=loc.device)  # Ceil
-            ),
+            visited_=visited_,
             lengths=torch.zeros(batch_size, 1, device=loc.device),
             cur_coord=input['depot'][:, None, :],  # Add step dimension
             cur_overflows=torch.sum((input['waste'] > max_waste[:, None]), dim=-1),
@@ -110,7 +128,7 @@ class StateCWCVRP(NamedTuple):
         # Update the state
         selected = selected[:, None]  # Add dimension for step
         prev_a = selected
-        n_loc = self.demand.size(-1)  # Excludes depot
+        n_loc = self.waste.size(-1)  # Excludes depot
 
         # Add the length
         cur_coord = self.coords[self.ids, selected]
@@ -120,14 +138,15 @@ class StateCWCVRP(NamedTuple):
         # )[:, 0, :]
         lengths = self.lengths + (cur_coord - self.cur_coord).norm(p=2, dim=-1)  # (batch_dim, 1)
 
-        # Not selected_demand is demand of first node (by clamp) so incorrect for nodes that visit depot!
-        #selected_demand = self.waste.gather(-1, torch.clamp(prev_a - 1, 0, n_loc - 1))
-        selected_demand = self.waste[self.ids, torch.clamp(prev_a - 1, 0, n_loc - 1)].clamp(max=self.max_waste[self.ids, 0])
-        cur_total_waste = self.cur_total_waste + selected_demand
+        # selected is (batch, 1) and includes depot at 0
+        # self.waste is (batch, n_loc + 1)
+        #selected_waste = self.waste.gather(-1, torch.clamp(prev_a - 1, 0, n_loc - 1))
+        selected_waste = self.waste.gather(-1, selected).clamp(max=self.max_waste)
+        cur_total_waste = self.cur_total_waste + selected_waste
 
         # Increase capacity if depot is not visited, otherwise set to 0
-        #used_capacity = torch.where(selected == 0, 0, self.used_capacity + selected_demand)
-        used_capacity = (self.used_capacity + selected_demand) * (prev_a != 0).float()
+        #used_capacity = torch.where(selected == 0, 0, self.used_capacity + selected_waste)
+        used_capacity = (self.used_capacity + selected_waste) * (prev_a != 0).float()
         
         # Update the number of overflows
         cur_overflows = self.cur_overflows - torch.sum((self.waste[self.ids, selected] >= self.max_waste), dim=-1)
@@ -149,14 +168,21 @@ class StateCWCVRP(NamedTuple):
         )
 
     def all_finished(self):
-        # We dont need to visit all bins to end state, just arrive at the depot
-        return self.i.item() >= self.waste.size(-1) and (self.prev_a == 0).all() # self.visited.all() 
+        # Allow to finish at any time as long as we are at the depot (after starting)
+        return (self.i > 0).all() and (self.prev_a == 0).all()
 
     def get_finished(self):
         return self.visited.sum(-1) == self.visited.size(-1)
 
     def get_current_node(self):
         return self.prev_a
+    
+    def get_remaining_overflows(self):
+        return self.cur_overflows.unsqueeze(-1)
+    
+    def get_current_efficiency(self):
+        efficiency = self.cur_total_waste / self.lengths
+        return torch.nan_to_num(efficiency, nan=0.0)
 
     def get_mask(self):
         """
@@ -170,14 +196,19 @@ class StateCWCVRP(NamedTuple):
         else:
             visited_loc = mask_long2bool(self.visited_, n=self.waste.size(-1))
 
-        # For demand steps_dim is inserted by indexing with id, for used_capacity insert node dim for broadcasting
-        exceeds_cap = (self.waste[self.ids, :] + self.used_capacity[:, :, None] > self.VEHICLE_CAPACITY)
-        # Nodes that cannot be visited are already visited or too much demand to be served now
-        mask_loc = visited_loc.to(exceeds_cap.dtype) | exceeds_cap
+        # Check which nodes exceed vehicle capacity if visited from current state
+        # We clamp waste by bin capacity (max_waste) as that's all we can collect
+        waste_to_collect = self.waste[:, 1:].clamp(max=self.max_waste)
+        # A node exceeds capacity if truck is not empty AND (current + new > VEHICLE_CAPACITY)
+        # If truck is empty (at depot), we allow visiting any bin even if it's large (it will just fill the truck)
+        exceeds_cap = (self.used_capacity[:, :, None] > 0) & (waste_to_collect[:, None, :] + self.used_capacity[:, :, None] > self.VEHICLE_CAPACITY)
 
-        # Cannot visit the depot if just visited and still unserved nodes
-        mask_depot = (self.prev_a == 0) & ((mask_loc == 0).int().sum(-1) > 0)
-        return torch.cat((mask_depot[:, :, None], mask_loc), -1)
+        # Nodes that cannot be visited are already visited or would exceed capacity
+        mask_loc = visited_loc.to(exceeds_cap.dtype) | exceeds_cap
+        
+        # Depot can always be visited (to finish the tour)
+        mask_depot = torch.zeros_like(self.prev_a, dtype=torch.bool)
+        return torch.cat((mask_depot[:, :, None], mask_loc), -1).bool()
 
     def get_edges_mask(self):
         batch_size, n_coords, _ = self.coords.size()

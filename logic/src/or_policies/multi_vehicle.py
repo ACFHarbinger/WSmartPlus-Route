@@ -38,12 +38,12 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
     # Clients (indices 1..N in subset)
     clients_list = []
     for i in range(1, len(subset_indices)):
-         original_idx = subset_indices[i]
-         # Demand for node original_idx is at demands[original_idx - 1]
-         # assuming depot is 0 and demands are for nodes 1..N
-         d = int(demands[original_idx - 1])
-         # Use delivery for demand
-         clients_list.append(pyvrp.Client(x=0, y=0, delivery=d))
+        original_idx = subset_indices[i]
+        # Demand for node original_idx is at demands[original_idx - 1]
+        # assuming depot is 0 and demands are for nodes 1..N
+        d = int(demands[original_idx - 1])
+        # Use delivery for demand
+        clients_list.append(pyvrp.Client(x=0, y=0, delivery=d))
          
     depots_list = [pyvrp.Depot(x=0, y=0)]
     
@@ -70,7 +70,6 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
     res = pyvrp.solve(data, stop=MaxRuntime(2.0), seed=42)
     
     tour_flat = []
-    total_cost = res.cost()
     
     # Parse result
     # res.best.routes() -> list of Route
@@ -92,22 +91,7 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
         # End route with depot
         tour_flat.append(0)
         
-    # Example format: [0, 1, 2, 0, 3, 4, 0]
-    # My logic:
-    # R1: [1, 2]. -> adds 0, 1, 2, 0. list: [0, 1, 2, 0]
-    # R2: [3, 4]. -> adds 3, 4, 0. list: [0, 1, 2, 0, 3, 4, 0] (Wait, check loop)
-    
-    # Logic in loop:
-    # if not tour_flat: append(0) -> [0]
-    # append nodes -> [0, 1, 2]
-    # append 0 -> [0, 1, 2, 0]
-    # Next route:
-    # if not tour_flat (false)
-    # append nodes -> [0, 1, 2, 0, 3, 4]
-    # append 0 -> [0, 1, 2, 0, 3, 4, 0]
-    # Correct.
-    
-    return tour_flat, total_cost
+    return tour_flat
 
 
 def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0):
@@ -170,27 +154,25 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coo
     
     # Flatten and Map Indices
     tour_flat = []
-    total_cost = sum(costs_subset)
-    
     for t in tours_subset:
         if not tour_flat:
-             tour_flat.append(0)
+            tour_flat.append(0)
              
         for node_idx in t:
-             # node_idx is now NODE index (from get_solution_costs)
-             if node_idx == 0: continue
-             
-             original_idx = subset_indices[node_idx]
-             
-             if original_idx == 0 and tour_flat[-1] == 0:
-                 continue
-                 
-             tour_flat.append(original_idx)
+            # node_idx is now NODE index (from get_solution_costs)
+            if node_idx == 0: continue
+            
+            original_idx = subset_indices[node_idx]
+            
+            if original_idx == 0 and tour_flat[-1] == 0:
+                continue
+                
+            tour_flat.append(original_idx)
              
         if tour_flat[-1] != 0:
             tour_flat.append(0)
             
-    return tour_flat, total_cost
+    return tour_flat
 
 
 def get_solution_costs(demands, n_vehicles, manager, routing, solution, distancesC):

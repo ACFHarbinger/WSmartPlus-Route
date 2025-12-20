@@ -25,14 +25,8 @@ def generate_datasets(opts):
 
     gamma_dists = ['gamma1', 'gamma2', 'gamma3', 'gamma4']
     distributions_per_problem = {
-        'tsp': [None],
-        'vrp': [None],
-        'pctsp': [None],
-        'op': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
         'vrpp': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
-        'wcrp': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
         'wcvrp': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
-        'pdp': [None]
     }
 
     # Define the problem distribution(s)
@@ -59,13 +53,19 @@ def generate_datasets(opts):
         try:
             for dist in distributions or [None]:
                 for size, graph in zip(opts['graph_sizes'], opts['focus_graphs']):
+                    if not os.path.isfile(graph):
+                        sim_dir = os.path.join(ROOT_DIR, 'data', 'wsr_simulator')
+                        if os.path.isfile(os.path.join(sim_dir, graph)):
+                            graph = os.path.join(sim_dir, graph)
+                        elif os.path.isfile(os.path.join(sim_dir, 'bins_selection', graph)):
+                            graph = os.path.join(sim_dir, 'bins_selection', graph)
+
                     print("Generating '{}{}' ({}) dataset for the {} with {} locations{}{}".format(
                         opts['name'], n_days if n_days > 0 else "", 
                         opts['dataset_type'], problem.upper(), size, 
                         " and using '{}' as the instance distribution".format(dist),
                         ":" if n_days == 0 else "..."
                     ))
-                    
                     if opts['dataset_type'] == 'test_simulator':
                         if 'filename' not in opts or opts['filename'] is None:
                             filename = os.path.join(datadir, 
@@ -76,6 +76,8 @@ def generate_datasets(opts):
                         else:
                             filename = check_extension(opts['filename'])
                         
+                        assert opts.get('f', opts.get('overwrite', False)) or not os.path.isfile(check_extension(filename)), \
+                        "File already exists! Try running with -f option to overwrite."
                         dataset = generate_wsr_data(size, n_days, opts['dataset_size'], opts['area'], 
                                                     opts['waste_type'], dist, graph, opts['vertex_method'])
                         save_dataset(dataset, filename)
@@ -95,16 +97,13 @@ def generate_datasets(opts):
                         else:
                             filename = check_extension(opts['filename'])
 
-                        assert opts['f'] or not os.path.isfile(check_extension(filename)), \
+                        assert opts.get('f', opts.get('overwrite', False)) or not os.path.isfile(check_extension(filename)), \
                         "File already exists! Try running with -f option to overwrite."
                         if problem == "vrpp":
                             dataset = generate_vrpp_data(opts['dataset_size'], size, opts['waste_type'], dist, opts['area'], 
                                                         graph, opts['focus_size'], opts['vertex_method'], num_days=opts['n_epochs'])
-                        elif problem == "wcrp":
-                            dataset = generate_wcrp_data(opts['dataset_size'], size, opts['waste_type'], dist, opts['area'], 
-                                                        graph, opts['focus_size'], opts['vertex_method'], num_days=opts['n_epochs'])
                         else:
-                            assert problem == 'wcvrp'
+                            assert problem == "wcvrp"
                             dataset = generate_wcvrp_data(opts['dataset_size'], size, opts['waste_type'], dist, opts['area'], 
                                                         graph, opts['focus_size'], opts['vertex_method'], num_days=opts['n_epochs'])
                         save_dataset(dataset, filename)
@@ -129,30 +128,12 @@ def generate_datasets(opts):
 
                             assert opts['f'] or not os.path.isfile(check_extension(filename)), \
                             "File already exists! Try running with -f option to overwrite."
-                            if problem == 'tsp':
-                                dataset = generate_tsp_data(opts['dataset_size'], size,
-                                opts['area'], graph, opts['focus_size'], opts['vertex_method'])
-                            elif problem == 'vrp':
-                                dataset = generate_vrp_data(opts['dataset_size'], size,
-                                opts['area'], graph, opts['focus_size'], opts['vertex_method'])
-                            elif problem == 'pctsp':
-                                dataset = generate_pctsp_data(opts['dataset_size'], size, opts['penalty_factor'],
-                                opts['area'], graph, opts['focus_size'], opts['vertex_method'])
-                            elif problem == "op":
-                                dataset = generate_op_data(opts['dataset_size'], size, dist,
-                                opts['area'], graph, opts['focus_size'], opts['vertex_method'])
-                            elif problem == "vrpp":
+                            if problem == "vrpp":
                                 dataset = generate_vrpp_data(opts['dataset_size'], size, opts['waste_type'], 
                                 dist, opts['area'], graph, opts['focus_size'], opts['vertex_method'])
-                            elif problem == "wcrp":
-                                dataset = generate_wcrp_data(opts['dataset_size'], size, opts['waste_type'], 
-                                dist, opts['area'], graph, opts['focus_size'], opts['vertex_method'])
                             elif problem == "wcvrp":
-                                dataset = generate_wcvrp_data(opts['dataset_size'], size, opts['waste_type'],
+                                dataset = generate_wcvrp_data(opts['dataset_size'], size, opts['waste_type'], 
                                 dist, opts['area'], graph, opts['focus_size'], opts['vertex_method'])
-                            elif problem == 'pdp':
-                                dataset = generate_pdp_data(opts['dataset_size'], size, opts['is_gaussian'],
-                                opts['sigma'], opts['area'], graph, opts['focus_size'], opts['vertex_method'])
                             else:
                                 assert False, "Unknown problem: {}".format(problem)
                             save_dataset(dataset, filename)

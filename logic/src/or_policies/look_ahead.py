@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 import gurobipy as gp
-import random
-import time
 
 from gurobipy import GRB, quicksum
 from typing import List
@@ -37,160 +35,188 @@ def policy_lookahead(
 
 def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_matrix, values, number_vehicles=8, env=None):
     binsids = [0] + [bin_id + 1 for bin_id in binsids]
+    # Filter must_go_bins to ensure they are valid bin IDs (1..N)
+    # Actually must_go_bins input are 0..N-1. We map to 1..N.
     must_go_bins = [must_go + 1 for must_go in must_go_bins]
-    criticos = [bin_id in must_go_bins for bin_id in binsids]
+    
+    # Unpack values with notebook defaults if missing
+    R = values.get('R')
+    C = values.get('C') # expenses
+    Omega = values.get('Omega', 0.1) # Default to 0.1 from notebook
+    delta = values.get('delta', 0)   # Default to 0 from notebook
+    vehicle_capacity = values.get('vehicle_capacity')
+    time_limit = values.get('time_limit', 600)
 
-    B, V, Q = values['B'], values['E'], values['vehicle_capacity'] #densidade, volume, capacidade
-    R, C, Omega = values['R'], values['C'], 0.1 #receita, custo, omega
-    delta, psi = 0, 1 #delta, psi
+    B = values.get('B', 19.0) # Density
+    # volume is hardcoded 2.5 in loader.py.
+    bin_volume = 2.5 
+    
+    # R is $/KG. We need to convert % to KG for the objective to be comparable with Cost ($).
+    # 1 unit of fill (1%) = (B * V / 100) KG.
+    percent_to_kg = (B * bin_volume) / 100.0
+    R_model = R * percent_to_kg
+    
+    model = gp.Model("VRPP", env=env)
+    model.Params.LogToConsole = 1
+    model.Params.TimeLimit = time_limit
+    model.Params.MIPGap = 0.0
 
-    enchimentos = np.insert(current_fill_levels, 0, 0.0)
-    pesos_reais = [(e / 100) * B * V for e in enchimentos]
-    nodes = list(range(len(binsids)))
-    idx_deposito = 0
-    nodes_real = [i for i in nodes if i != idx_deposito]
-    S_dict = {i: pesos_reais[i] for i in nodes}
-    criticos_dict = {i: criticos[i] for i in nodes}
+    # Nodes: 0 (Depot) ... N (Bins) ... N+1 (Fictitious Sink)
+    # binsids contains [0, 1...N]. Max ID is N. 
+    # Fictitious node index = N + 1.
+    real_nodes = binsids[1:] # 1..N
+    depot = 0
+    fictitious_node = max(binsids) + 1
+    all_nodes = binsids + [fictitious_node]
 
-    max_dist = 6000
-    pares_viaveis = [(i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= max_dist]
-    mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
+    # Variables
+    x = model.addVars(all_nodes, all_nodes, vtype=GRB.BINARY, name="x")
+    g = model.addVars(real_nodes, vtype=GRB.BINARY, name="g")
+    f = model.addVars(all_nodes, all_nodes, vtype=GRB.CONTINUOUS, name="f")
 
-    x = mdl.addVars(pares_viaveis, vtype=GRB.BINARY, name="x") #diz se a gente usa ou não a estrada que vai do ponto i até o ponto j
-    y = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="y") # quanto de resíduo (kg) a gente está carregando nesse trecho entre i e j
-    f = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="f") # pra evitar que o modelo crie "ciclos pequenos" fora do caminho principal (subtours).
-    g = mdl.addVars(nodes, vtype=GRB.BINARY, name="g")
-    k_var = mdl.addVar(lb=0, vtype=GRB.INTEGER, name="k_var")
-    for i, j in pares_viaveis:
-        mdl.addConstr(y[i, j] <= Q * x[i, j]) # limita que o trecho não tenha a capaciade maxima do caminhão
-        mdl.addConstr(f[i, j] <= len(nodes) * x[i, j]) #evita subtours
+    # Objective: Maximize Profit - Cost - Penalty
+    
+    # Calculate capped fill for each node (Notebook uses min(S, E))
+    capped_fills = {}
+    for i in real_nodes:
+        # i corresponds to index i in binsids (which corresponds to bins.c[i-1])
+        # current_fill_levels is 0-indexed array of size N.
+        fill_val = current_fill_levels[i-1]
+        if fill_val > 100:
+            fill_val = 100 # Capped at capacity
+        capped_fills[i] = fill_val
 
-    # Garante que o fluxo líquido em cada nó é igual ao resíduo gerado somente se o contentor for coletado
-    for i in nodes_real:
-        mdl.addConstr(quicksum(y[i, j] - y[j, i] for j in nodes if (i, j) in y or (j, i) in y) == S_dict[i] * g[i])
+    obj_profit = quicksum(capped_fills[i] * g[i] for i in real_nodes) * R_model
+    
+    # Distance Helper
+    def get_dist(i, j):
+        ii = 0 if i == fictitious_node else i
+        jj = 0 if j == fictitious_node else j
+        return distance_matrix[ii][jj]
 
-    # Teste de fixar o valor da quantidade de caminhões
-    if number_vehicles == 0:
-        number_vehicles = len(binsids)
+    obj_cost = quicksum(x[i,j] * get_dist(i,j) for i in all_nodes for j in all_nodes if i != j) * C
+    
+    # Penalty per route (leaving depot)
+    obj_penalty = quicksum(x[0, j] for j in real_nodes) * Omega 
+    
+    # MUST GO BINS (Planned) - Soft Constraint with High Penalty
+    # Instead of forcing collection (which causes infeasibility if Q is insufficient),
+    # we add a large reward for collecting these bins.
+    obj_must_go_reward = 0
+    if must_go_bins:
+        planned = [b for b in must_go_bins if b in real_nodes]
+        if planned:
+            # Reward constant. Should be large enough to dominate Cost but not break float precision.
+            # Cost ~ 1000s. Profit ~ 1000s. 
+            M_reward = 100000.0 
+            obj_must_go_reward = quicksum(g[i] for i in planned) * M_reward
 
-    MAX_TRUCKS = number_vehicles
-    mdl.addConstr(k_var <= MAX_TRUCKS)
+    # VISIT BONUS (Incentive to collect more bins if route exists)
+    # Reward for visiting any bin, equivalent to collecting 1% of waste (reduced from 15%).
+    # This encourages sweeping nearby bins ONLY if they are very close, avoiding extra routes.
+    visit_bonus_val = 1.0 * R_model
+    obj_visit_bonus = quicksum(g[i] for i in real_nodes) * visit_bonus_val
 
-    # Relaciona k_var com o número de rotas que partem e voltam do depósito.
-    mdl.addConstr(k_var == quicksum(x[idx_deposito, j] for j in nodes_real if (idx_deposito, j) in x))
-    mdl.addConstr(quicksum(x[idx_deposito, j] for j in nodes_real if (idx_deposito, j) in x) == k_var)
-    mdl.addConstr(quicksum(x[j, idx_deposito] for j in nodes_real if (j, idx_deposito) in x) == k_var)
+    model.setObjective(obj_profit + obj_must_go_reward + obj_visit_bonus - obj_cost - obj_penalty, GRB.MAXIMIZE)
 
-    # Se um contentor não for coletado (g[j]==0), não pode haver rota conectando-o ao depósito.
-    for j in nodes_real:
-        if (idx_deposito, j) in x: mdl.addConstr(x[idx_deposito, j] <= g[j])
-        if (j, idx_deposito) in x: mdl.addConstr(x[j, idx_deposito] <= g[j])
-
-    #Garante que pelo menos um número mínimo de contentores críticos seja visitado (ajustável por delta)
-    mdl.addConstr(quicksum(g[i] for i in nodes_real if criticos_dict[i]) >= len([i for i in nodes_real if criticos_dict[i]]) - len(nodes_real) * delta)
-
-    for i in nodes_real:
-        # Esses contentores devem ser coletados.
-        if criticos_dict[i] or enchimentos[i] >= psi * 100:
-            mdl.addConstr(g[i] == 1)
-        # g[i] é forçado a ser 0 (não coleta).
-        if enchimentos[i] < 10 and not criticos[i]:
-            g[i].ub = 0
-
-    # Se um contentor for visitado (g[j]==1), deve ter exatamente uma entrada e uma saída.
-    for j in nodes_real:
-        mdl.addConstr(quicksum(x[i, j] for i in nodes if (i, j) in x) == g[j])
-        mdl.addConstr(quicksum(x[j, k] for k in nodes if (j, k) in x) == g[j])
-
-    # Assegura conectividade entre os pontos e impede a criação de ciclos menores isolados (subtours).
-    mdl.addConstr(quicksum(f[0, j] for j in nodes_real if (0, j) in f) == quicksum(g[j] for j in nodes_real))
-    for j in nodes_real:
-        mdl.addConstr(quicksum(f[i, j] for i in nodes if (i, j) in f) - quicksum(f[j, k] for k in nodes if (j, k) in f) == g[j])
-
-    mdl.setObjective(
-        R * quicksum(S_dict[i] * g[i] for i in nodes_real)
-        - 0.5 * C * quicksum(x[i, j] * distance_matrix[i][j] for i, j in pares_viaveis)
-        - Omega * k_var,
-        GRB.MAXIMIZE
-    )
-
-    mdl.Params.MIPFocus = 1
-    mdl.Params.Heuristics = 0.5
-    mdl.Params.Threads = 0
-    mdl.Params.Cuts = 3
-    mdl.Params.CliqueCuts = 2    # força clique cuts
-    mdl.Params.CoverCuts = 2     # força cuts de conjuntos
-    mdl.Params.FlowCoverCuts = 2 # força cortes para fluxos
-    mdl.Params.GUBCoverCuts = 2
-    mdl.Params.Presolve = 1
-    mdl.Params.NodefileStart = 0.5
-    mdl.setParam("MIPGap", 0.01)
-    mdl.Params.TimeLimit = values['time_limit']
-
-    contentores_coletados = []
-    profit = 0
-    cost = 0
-    mdl.optimize()
-    if mdl.status in [GRB.OPTIMAL, GRB.TIME_LIMIT]:
-        resultados_y = []
-        resultados_g = []
-        id_map = {i: binsids[i] for i in nodes}
-        arcos_ativos = [(i, j) for i in nodes for j in nodes if i != j and x[i, j].X > 0.5]
-        final_gap = mdl.MIPGap
-
-        rotas = []
-        visitados = set()
-        while True:
-            rota = []
-            atual = 0
-            while True:
-                prox = [j for (i, j) in arcos_ativos if i == atual and (i, j) not in visitados]
-                if not prox:
-                    break
-                j = prox[0]
-                visitados.add((atual, j))
-                rota.append((atual, j))
-                atual = j
-                if j == 0:
-                    break
-            if rota:
-                rotas.append(rota)
-            else:
-                break
-
-        for i in nodes:
-            for j in nodes:
-                if i != j and y[i, j].X > 0:
-                    resultados_y.append((id_map[i], id_map[j], y[i, j].X))
-
-        # Variáveis g[i]
-        for i in nodes:
-            if g[i].X > 0.5:
-                resultados_g.append((id_map[i], g[i].X))
-
-        for idx, rota in enumerate(rotas, start=1):
-            df_rota = pd.DataFrame(
-                [(id_map[i], id_map[j], x[i, j].X) for (i, j) in rota],
-                columns=['i', 'j', 'x_ij']
-            )
-            
-            contentores_coletados.extend([id_map[j] for (i, j) in rota])
-
-        profit = (
-            R * sum(S_dict[i] * g[i].X for i in nodes_real)
-            - sum(x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis)
+    # Constraints
+    
+    # 1. Flow conservation: Visit if collected
+    for j in real_nodes:
+        model.addConstr(quicksum(x[i,j] for i in all_nodes if i != fictitious_node and i != j) == g[j])
+    
+    # Flow balance: in = out
+    for j in real_nodes:
+        model.addConstr(
+            quicksum(x[i,j] for i in all_nodes if i != j) == 
+            quicksum(x[j,k] for k in all_nodes if k != j)
         )
+        
+    # Depot flow consistency: Out from 0 = In to N+1
+    model.addConstr(
+        quicksum(x[0,j] for j in real_nodes) == 
+        quicksum(x[i, fictitious_node] for i in real_nodes)
+    )
+    
+    # Capacity Constraint
+    # vehicle_capacity is in KG (3500). Flow f is in % points.
+    # We must convert Q to % points.
+    # Q_% = Q_kg / (kg per 1%)
+    Q_val = vehicle_capacity / percent_to_kg
+    for i in all_nodes:
+        for j in all_nodes:
+            if i != j:
+                model.addConstr(f[i,j] <= Q_val * x[i,j])
+    
+    # Flow conservation of load (f represents accumulated load on edge)
+    for j in real_nodes:
+        model.addConstr(
+            quicksum(f[i,j] for i in all_nodes if i!=j) + capped_fills[j]*g[j] == 
+            quicksum(f[j,k] for k in all_nodes if k!=j)
+        )
+        
+    # Load leaving depot is 0
+    for j in real_nodes:
+        model.addConstr(f[0,j] == 0)
+
+    # Max vehicles
+    model.addConstr(quicksum(x[0,j] for j in real_nodes) <= number_vehicles)
+
+    model.optimize()
+
+    if model.Status == GRB.OPTIMAL or model.Status == GRB.TIME_LIMIT:
+        vals = model.getAttr('x', x)
+        succ = {}
+        for i in all_nodes:
+            for j in all_nodes:
+                if i!=j and vals[i,j] > 0.5:
+                    succ[i] = j
+        
+        routes = []
+        starts = [j for j in real_nodes if vals[0,j] > 0.5]
+        for s in starts:
+            route = [0]
+            curr = s
+            visited_count = 0
+            while curr != fictitious_node and visited_count < len(real_nodes) + 2:
+                route.append(curr)
+                if curr not in succ:
+                    break 
+                curr = succ[curr]
+                visited_count += 1
+            routes.append(route)
+        
+        # Flatten and format for output
+        final_route = []
+        for r in routes:
+            final_route.extend(r)
+            final_route.append(0)
             
-        cost = sum(x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis)
-        contentores_coletados = [contentor for contentor in contentores_coletados]
-    return [0] + contentores_coletados, profit, cost
+        # Clean up duplicates 0s
+        cleaned_route = []
+        for n in final_route:
+            if not cleaned_route or cleaned_route[-1] != n or n != 0:
+                cleaned_route.append(n)
+        if cleaned_route and cleaned_route[-1] != 0:
+            cleaned_route.append(0)
+            
+        profit_val = model.ObjVal + obj_cost.getValue() + obj_penalty.getValue() # Rough approximation of Profit component
+        cost_val = obj_cost.getValue()
+        
+        # Recalculate profit/cost exactly based on solution
+        # g_vals = model.getAttr('x', g)
+        # profit_val = sum(capped_fills[i] * g_vals[i] for i in real_nodes) * R_model
+        
+        return cleaned_route, profit_val, cost_val
+
+    return [0, 0], 0, 0
 
 
 def policy_lookahead_sans(data, bins_coordinates, distance_matrix, params, must_go_bins, values):
     T_init, iterations_per_T, alpha, T_min, *_ = params
 
     density, V, vehicle_capacity = values['B'], values['E'], values['vehicle_capacity'] # densidade, volume, capacidade
-    R, C, Omega = values['R'], values['C'], 0.1 # receita, custo, omega
+    R, C, Omega = values['R'], values['C'], values['Omega'] # receita, custo, omega
     E, B, time_limit = 1, 1, values['time_limit']
 
     iframe = isinstance(data, pd.DataFrame)
@@ -229,7 +255,6 @@ def policy_lookahead_sans(data, bins_coordinates, distance_matrix, params, must_
     #   - Enforce inclusion of ALL must_go_bins into current_route (even if it temporarily overloads capacity).
     #   - Move all other bins (from initial_routes[1:] or unvisited) into 'removed_bins'.
     #   - SANS will then optimize by swapping non-mandatory bins between current_route and removed_bins.
-
     current_route = []
     if initial_routes:
         current_route = initial_routes[0]
@@ -318,7 +343,6 @@ def policy_lookahead_hgs(current_fill_levels, binsids, must_go_bins, distance_ma
             global_must_go.add(binsids_map[mg] + 1)
 
     if not candidate_indices:
-        print(f"DEBUG: No candidates found. Fill > 0 count: {sum(current_fill_levels > 0)}")
         return [0], 0, 0
 
     # --- SEEDING WITH VRPP (GREEDY) SOLUTION ---
@@ -492,7 +516,7 @@ def policy_lookahead_alns(current_fill_levels, binsids, must_go_bins, distance_m
     return final_sequence, 0, cost
 
 
-def policy_lookahead_bcp(current_fill_levels, binsids, must_go_bins, distance_matrix, values, coords):
+def policy_lookahead_bcp(current_fill_levels, binsids, must_go_bins, distance_matrix, values, coords, env=None):
     """
     Branch-Cut-and-Price Policy.
     """
@@ -524,7 +548,7 @@ def policy_lookahead_bcp(current_fill_levels, binsids, must_go_bins, distance_ma
     if not matrix_indices:
         return [0, 0], 0, 0
         
-    routes, cost = run_bcp(distance_matrix, demands, Q, R, C, values, must_go_indices=global_must_go)
+    routes, cost = run_bcp(distance_matrix, demands, Q, R, C, values, must_go_indices=global_must_go, env=None)
     
     final_sequence = [0]
     for route in routes:

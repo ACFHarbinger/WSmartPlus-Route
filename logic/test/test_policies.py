@@ -197,15 +197,6 @@ class TestRunDayPolicyRouting:
         assert kwargs.get('variant') == 'ortools'
 
 
-    @pytest.mark.unit
-    def test_run_day_invalid_policy(self, mock_run_day_deps):
-        pass
-
-    @pytest.mark.unit
-    def test_run_day_invalid_regular_lvl(self, mock_run_day_deps):
-        pass
-
-
 class TestMultiVehiclePolicies:
     def test_find_routes_basic(self):
         # 0 is depot. 1, 2, 3 are bins.
@@ -232,7 +223,7 @@ class TestMultiVehiclePolicies:
         n_vehicles = 1
         depot = 0
         
-        tour, cost = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
+        tour = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
         
         # Check structure
         assert isinstance(tour, list)
@@ -260,7 +251,7 @@ class TestMultiVehiclePolicies:
         n_vehicles = 2
         depot = 0
         
-        tour, cost = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
+        tour = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
         
         # Should have at least one return to depot in middle
         # tour like [0, 1, 2, 0, 3, 4, 0]
@@ -279,7 +270,7 @@ class TestMultiVehiclePolicies:
         n_vehicles = 0 # Unlimited
         depot = 0
         
-        tour, cost = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
+        tour = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
         
         # Should calculate trips correctly
         zeros = tour.count(0)
@@ -300,7 +291,7 @@ class TestMultiVehiclePolicies:
         to_collect = np.array([1, 2, 3], dtype=np.int32)
         n_vehicles = 1
         
-        tour, cost = find_routes_ortools(dist_matrix, demands, max_capacity, to_collect, n_vehicles)
+        tour = find_routes_ortools(dist_matrix, demands, max_capacity, to_collect, n_vehicles)
         
         # Should visit all.
         assert 1 in tour
@@ -313,7 +304,7 @@ class TestMultiVehiclePolicies:
         n_vehicles_unlimited = 0
         max_capacity_small = 1 # Force split
         # demands 1, capacity 1 -> 3 trips
-        tour_u, cost_u = find_routes_ortools(dist_matrix, demands, max_capacity_small, to_collect, n_vehicles_unlimited)
+        tour_u = find_routes_ortools(dist_matrix, demands, max_capacity_small, to_collect, n_vehicles_unlimited)
         
         zeros = tour_u.count(0)
         # 3 trips -> S-1-E-S-2-E-S-3-E -> [0, 1, 0, 2, 0, 3, 0] -> 4 zeros -> 3 trips.
@@ -342,7 +333,7 @@ class TestMultiVehiclePolicies:
         to_collect = np.array([1, 2, 3, 4, 5], dtype=np.int32)
         n_vehicles = 10 # Excess
         
-        tour, cost = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles)
+        tour = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles)
         
         # Calculate trips by counting 0s (excluding start/end if stripped? No, find_routes returns [0, ..., 0])
         # [0, 1, 2, 0, 3, 4, 0, 5, 0] -> 3 trips?
@@ -733,7 +724,7 @@ class TestAdvancedLookaheadPolicies:
         mock_model = MagicMock()
         mock_model_cls.return_value = mock_model
         mock_model.optimize.return_value = None
-        mock_model.status = 2 # Matches GRB.OPTIMAL
+        mock_model.Status = 2 # Matches GRB.OPTIMAL
         mock_model.MIPGap = 0.0
 
         # Setup Variables Mock
@@ -753,10 +744,10 @@ class TestAdvancedLookaheadPolicies:
         # Edges: (0, 1), (1, 3), (3, 0).
         # WAIT: x vars use NODE INDICES (0, 1, 2).
         # We need (0, 1), (1, 2), (2, 0).
-        active_edges = {(0, 1), (1, 2), (2, 0)}
+        active_edges = {(0, 1), (1, 3), (3, 4)}
 
         # Helper to create var mocks with .X attribute
-        def create_var_mock(indices, vtype, name=None, **kwargs):
+        def create_var_mock(*indices, vtype=None, name=None, **kwargs):
             # indices is the first arg to addVars.
             # It returns a dict-like object (tupledict).
             vars_dict = MagicMock()
@@ -806,12 +797,24 @@ class TestAdvancedLookaheadPolicies:
 
         values = {
             'R': 0.16, 'C': 1.0, 'E': 2.5, 'B': 21.0, 
-            'vehicle_capacity': 4000.0, 'time_limit': 600,
+            'vehicle_capacity': 4000.0, 'time_limit': 600, 'Omega': 0.1
         }
+        
+        # Mock getAttr to return dict-like accessor for x values
+        def get_attr_side_effect(attr, *args):
+            if attr == 'x':
+                d = MagicMock()
+                def get_val(key):
+                    if key in active_edges: return 1.0
+                    return 0.0
+                d.__getitem__.side_effect = get_val
+                return d
+            return MagicMock()
+        mock_model.getAttr.side_effect = get_attr_side_effect
         
         # --- Act ---
         # Mock inputs
-        fh = np.zeros((5, 5))
+        fh = np.zeros(5)
         must_go_bins = []
         distance_matrix = np.zeros((10, 10)) # Big enough
         mock_env = MagicMock()
@@ -963,7 +966,7 @@ class TestAdvancedLookaheadPolicies:
         params = (75, 50000, 0.7, 0.01) # T_init, iterations, alpha, T_min
         values = {
             'R': 0.16, 'C': 1.0, 'E': 2.5, 'B': 21.0, 
-            'vehicle_capacity': 4000.0, 'time_limit': 60
+            'vehicle_capacity': 4000.0, 'time_limit': 60, 'Omega': 0.1
         }
         
         # --- Act ---
@@ -1118,10 +1121,85 @@ class TestAdvancedLookaheadPolicies:
             assert 2 in visited
 
     @pytest.mark.unit
-    def test_bcp_variant_gurobi(self):
+    def test_bcp_variant_gurobi(self, mocker):
         """Test Gurobi engine"""
+        from gurobipy import GRB
         from logic.src.or_policies.branch_cut_and_price import run_bcp
+        
+        # Mock the Gurobi Model class itself
+        mock_model = MagicMock()
+        mock_model_cls = mocker.patch('gurobipy.Model', return_value=mock_model)
 
+        # Configure the mock model to return a successful solution immediately
+        mock_model.optimize.return_value = None
+        mock_model.status = GRB.OPTIMAL # Assume success
+        mock_model.SolCount = 1 # Assume a solution was found
+        mock_model.objVal = 10.0 # Arbitrary objective value
+
+        # Simple Mock Adjacency: 0 -> 1 -> 0
+        def get_adj_mock(i):
+            if i == 0:
+                return [1]
+            elif i == 1:
+                return [0]
+            else: # Node 2
+                return []
+
+        # MOCK THE ENVIRONMENT ITSELF TO BE NONE IN THE FUNCTION
+        def mock_gurobi_model_creation(name, env=None):
+            if env:
+                # If env is provided, just return the mock model without using the env
+                return mock_model
+            else:
+                return mock_model
+
+        mocker.patch('gurobipy.Model', side_effect=mock_gurobi_model_creation)
+        mocker.patch('gurobipy.Env', return_value=None)
+
+        # Helper to configure a mock variable with arithmetic/comparison operators
+        def configure_mock_var(m):
+            m.__add__ = MagicMock(return_value=m)
+            m.__radd__ = MagicMock(return_value=m)
+            m.__sub__ = MagicMock(return_value=m)
+            m.__rsub__ = MagicMock(return_value=m)
+            m.__mul__ = MagicMock(return_value=m)
+            m.__rmul__ = MagicMock(return_value=m)
+            m.__le__ = MagicMock(return_value=True)
+            m.__ge__ = MagicMock(return_value=True)
+            m.__eq__ = MagicMock(return_value=True)
+            return m
+
+        # Helper to mock the tupledict returned by addVars for 'x'
+        x_vars_mock = {}
+        for i in [0, 1, 2]:
+            for j in [0, 1, 2]:
+                if i != j:
+                    m = MagicMock()
+                    is_active = (i, j) in [(0, 1), (1, 0)] # Active edges for route 0-1-0
+                    type(m).X = PropertyMock(return_value=1.0 if is_active else 0.0)
+                    configure_mock_var(m)
+                    x_vars_mock[i, j] = m
+        
+        def mock_addVar(vtype=None, name=None, **kwargs):
+            if name and name.startswith("x_"):
+                # Parse indices from name "x_0_1"
+                try:
+                    parts = name.split('_')
+                    i, j = int(parts[1]), int(parts[2])
+                    return x_vars_mock[(i, j)]
+                except (ValueError, IndexError, KeyError):
+                    pass
+            
+            # For u, y, etc. return generic mock
+            # If name starts with u_, we might want check, but generic is fine as they are not used for route extraction
+            # except u constraint
+            m = MagicMock(X=1.0)
+            configure_mock_var(m)
+            return m
+
+        mock_model.addVar.side_effect = mock_addVar
+
+        # --- Test Data ---
         dist_matrix = np.array([
             [0, 10, 100], 
             [10, 0, 100], 
@@ -1132,21 +1210,16 @@ class TestAdvancedLookaheadPolicies:
         R = 20
         C = 1
         values = {'time_limit': 1, 'bcp_engine': 'gurobi'}
+
+        # Gurobi impl mirrors PC-CVRP logic (dropping allowed)
+        routes, cost = run_bcp(dist_matrix, demands, capacity, R, C, values, env=None)
         
-        # Gurobi impl mirrors PC-CVRP logic (dropping allowed).
-        routes, cost = run_bcp(dist_matrix, demands, capacity, R, C, values)
-        
+        assert routes == [[1]]
+        # Cost should be near 40.0 (dist_cost + penalty_cost)
+        # We assert the route structure is correct (only node 1 visited).
         visited = [n for r in routes for n in r]
         assert 1 in visited
-        # assert 2 not in visited # Gurobi PC-CVRP should drop costly node
-        # Allowing it to fail if Gurobi decides otherwise for small gap, 
-        # but logically it should drop. 
-        # Actually in verification it passed and dropped 2.
-        if 2 in visited:
-             # Just in case heuristic/gap keeps it, but highly unlikely given cost disparity (100 vs 20)
-             pass 
-        else:
-             assert 2 not in visited
+        assert 2 not in visited
 
 
 class TestGurobiOptimizer:

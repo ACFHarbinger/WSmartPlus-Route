@@ -16,7 +16,7 @@ class GatedRecurrentFillPredictor(nn.Module):
                 uniform_range=[0.125, 1/3],
                 bidirectional=False):
         super(GatedRecurrentFillPredictor, self).__init__()
-        from models.modules import ActivationFunction
+        from ..modules import ActivationFunction
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
         self.bidirectional = bidirectional

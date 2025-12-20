@@ -105,6 +105,23 @@ class LowercaseAction(argparse.Action):
         setattr(namespace, self.dest, values)
 
 
+class StoreDictKeyPair(argparse.Action):
+    """
+    Custom action to parse arguments in the form key=value into a dictionary.
+    Usage: --arg key1=value1 key2=value2
+    """
+    def __call__(self, parser, namespace, values, option_string=None):
+        my_dict = {}
+        for kv in values:
+            if "=" in kv:
+                k, v = kv.split("=", 1)
+                my_dict[k] = v
+            else:
+                # Handle cases where formatting is incorrect
+                raise argparse.ArgumentError(self, f"Could not parse argument '{kv}' as key=value format")
+        setattr(namespace, self.dest, my_dict)
+
+
 def UpdateFunctionMapActionFactory(inplace=False):
     """Factory function to create custom Action with flag"""
     class UpdateFunctionMapAction(argparse.Action):
@@ -133,14 +150,14 @@ def add_train_args(parser):
     Adds all arguments related to training to the given parser.
     """
     # Data
-    parser.add_argument('--problem', default='wcrp', help="The problem to solve")
+    parser.add_argument('--problem', default='wcvrp', help="The problem to solve")
     parser.add_argument('--graph_size', type=int, default=20, help="The size of the problem graph")
     parser.add_argument('--edge_threshold', default='0', type=str, help="How many of all possible edges to consider")
     parser.add_argument('--edge_method', type=str, default=None, help="Method for getting edges ('dist'|'knn')")
     parser.add_argument('--batch_size', type=int, default=256, help='Number of instances per batch during training')
     parser.add_argument('--epoch_size', type=int, default=128_000, help='Number of instances per epoch during training')
     parser.add_argument('--val_size', type=int, default=0, 
-                            help='Number of instances used for reporting validation performance (0 to deactivate validation)')
+                        help='Number of instances used for reporting validation performance (0 to deactivate validation)')
     parser.add_argument('--val_dataset', type=str, default=None, help='Dataset file to use for validation')
     parser.add_argument('--eval_batch_size', type=int, default=256, help="Batch size to use during (baseline) evaluation")
     parser.add_argument('--train_dataset', type=str, default=None, help='Name of dataset to use for training')
@@ -157,10 +174,10 @@ def add_train_args(parser):
     parser.add_argument('--dm_filepath', type=str, default=None, help="Path to the file to read/write the distance matrix from/to")
     parser.add_argument('--waste_filepath', type=str, default=None, help="Path to the file to read the waste fill for each day from")
     parser.add_argument('--vertex_method', type=str, default="mmn", help="Method to transform vertex coordinates "
-                            "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'")
+                        "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'")
 
     # Model
-    parser.add_argument('--model', default='am', help="Model: 'am'|'tam'|'ddam'|'pn'")
+    parser.add_argument('--model', default='am', help="Model: 'am'|'tam'|'ddam'")
     parser.add_argument('--encoder', default='gat', help="Encoder: 'gat'|gac'|'tgc'|'gcn'|'mlp'")
     parser.add_argument('--embedding_dim', type=int, default=128, help='Dimension of input embedding')
     parser.add_argument('--hidden_dim', type=int, default=512, help='Dimension of hidden layers in Enc/Dec')
@@ -179,7 +196,7 @@ def add_train_args(parser):
     parser.add_argument('--lrnorm_k', type=float, default=None, help="Additive factor for LocalResponseNorm")
     parser.add_argument('--gnorm_groups', type=int, default=4, help="Number of groups to separate channels into for GroupNorm")
     parser.add_argument('--activation', default='gelu', help="Activation function: 'gelu'|'gelu_tanh'|'tanh'|'tanhshrink'|'mish'|'hardshrink'|'hardtanh'|'hardswish'|'glu'|"
-                            "'relu'|'leakyrelu'|'silu'|'selu'|'elu'|'celu'|'prelu'|'rrelu'|'sigmoid'|'logsigmoid'|'hardsigmoid'|'threshold'|'softplus'|'softshrink'|'softsign'")
+                        "'relu'|'leakyrelu'|'silu'|'selu'|'elu'|'celu'|'prelu'|'rrelu'|'sigmoid'|'logsigmoid'|'hardsigmoid'|'threshold'|'softplus'|'softshrink'|'softsign'")
     parser.add_argument('--af_param', type=float, default=1.0, help="Parameter for the activation function formulation")
     parser.add_argument('--af_threshold', type=float, default=None, help="Threshold value for the activation function")
     parser.add_argument('--af_replacement', type=float, default=None, help="Replacement value for the activation function (above/below threshold)")
@@ -204,13 +221,14 @@ def add_train_args(parser):
     parser.add_argument('--no_cuda', action='store_true', help='Disable CUDA')
     parser.add_argument('--enable_scaler', action='store_true', help='Enables CUDA scaler for automatic mixed precision training')
     parser.add_argument('--exp_beta', type=float, default=0.8, help='Exponential moving average baseline decay')
-    parser.add_argument('--baseline', default=None, help="Baseline to use: 'rollout'|'critic'|'exponential'|None")
+    parser.add_argument('--baseline', default=None, help="Baseline to use: 'rollout'|'critic'|'exponential'|'pomo'|None")
     parser.add_argument('--bl_alpha', type=float, default=0.05, help='Significance in the t-test for updating rollout baseline')
     parser.add_argument('--bl_warmup_epochs', type=int, default=-1, help='Number of epochs to warmup the baseline, ' 
                             'None means 1 for rollout (exponential used for warmup phase), 0 otherwise. Can only be used with rollout baseline.')
     parser.add_argument('--checkpoint_encoder', action='store_true', help='Set to decrease memory usage by checkpointing encoder')
     parser.add_argument('--shrink_size', type=int, default=None, help='Shrink the batch size if at least this many instances in the batch'
                             ' are finished to save memory (default None means no shrinking)')
+    parser.add_argument('--pomo_size', type=int, default=0, help='Number of starting nodes for POMO (Policy Optimization with Multiple Optima)')
     parser.add_argument('--data_distribution', type=str, default=None, help='Data distribution to use during training,'
                             ' defaults and options depend on problem. "empty"|"const"|"unif"|"dist"|"gamma[1-4]|"emp""')
     parser.add_argument('--accumulation_steps', type=int, default=1, 
@@ -268,11 +286,19 @@ def add_mrl_train_args(parser):
     parser = add_train_args(parser)
     
     # MRL specific args
-    parser.add_argument('--mrl_method', type=str, default='cb', choices=['tdl', 'rwa', 'cb', 'morl'], help='Method to use for Meta-Reinforcement Learning')
+    parser.add_argument('--mrl_method', type=str, default='cb', choices=['tdl', 'rwa', 'cb', 'morl', 'hrl'], help='Method to use for Meta-Reinforcement Learning')
     parser.add_argument('--mrl_history', type=int, default=10, help="Number of previous days/epochs to take into account during Meta-Reinforcement Learning")
     parser.add_argument('--mrl_range', type=float, nargs='+', default=[0.01, 5.0], help="Maximum and minimum values for Meta-Reinforcement Learning with dynamic hyperparameters")
     parser.add_argument('--mrl_exploration_factor', type=float, default=2.0, help="Factor that controls the exploration vs. exploitation balance")
     parser.add_argument('--mrl_lr', type=float, default=1e-3, help="Set the learning rate for Meta-Reinforcement Learning")
+    parser.add_argument('--mrl_embedding_dim', type=int, default=128, help='Dimension of input embedding for Reward Weight Adjustment model')
+    parser.add_argument('--mrl_step', type=int, default=100, help='Update every mrl_step steps')
+    parser.add_argument('--hrl_epochs', type=int, default=4, help="Number of epochs to use for Hierarchical Reinforcement Learning PPO")
+    parser.add_argument('--hrl_clip_eps', type=float, default=0.2, help="Set the clip epsilon for Hierarchical Reinforcement Learning PPO")
+    parser.add_argument('--hrl_method', type=str, default='weight_manager', choices=['weight_manager', 'gat_lstm'], help="Method for HRL Manager")
+    parser.add_argument('--gat_hidden', type=int, default=128, help="Hidden dimension for GAT Manager")
+    parser.add_argument('--lstm_hidden', type=int, default=64, help="Hidden dimension for LSTM in GAT Manager")
+    parser.add_argument('--gate_prob_threshold', type=float, default=0.5, help="Threshold for routing decision gate")
     parser.add_argument('--tdl_lr_decay', type=float, default=1.0, help='Learning rate decay for Temporal Difference Learning')
     parser.add_argument('--cb_exploration_method', type=str, default='ucb', help="Method for exploration in Contextual Bandits: 'ucb'|'thompson_sampling'|'epsilon_greedy'")
     parser.add_argument('--cb_num_configs', type=int, default=10, help="Number of weight configurations to generate in Contextual Bandits")
@@ -284,9 +310,7 @@ def add_mrl_train_args(parser):
     parser.add_argument('--morl_adaptation_rate', type=float, default=0.1, help="Adaptation rate in Multi-Objective RL")
     parser.add_argument('--rwa_model', type=str, default='rnn', choices=['rnn'], help='Neural network to use for Reward Weight Adjustment')
     parser.add_argument('--rwa_optimizer', type=str, default='rmsprop', help="Optimizer: 'adamax'|'adam'|'adamw'|'radam'|'nadam'|'rmsprop'")
-    parser.add_argument('--rwa_embedding_dim', type=int, default=128, help='Dimension of input embedding for Reward Weight Adjustment model')
     parser.add_argument('--rwa_batch_size', type=int, default=256, help="Batch size to use for Reward Weight Adjustment model")
-    parser.add_argument('--rwa_step', type=int, default=100, help='Update Reward Weight Adjustment model every rwa_step steps')
     parser.add_argument('--rwa_update_step', type=int, default=100, help='Update Reward Weight Adjustment weights every rwa_update_step steps')
     return parser
 
@@ -297,12 +321,12 @@ def add_hp_optim_args(parser):
     parser = add_train_args(parser)
     
     # HPO specific args
-    parser.add_argument('--hop_method', type=str, default='dehbo', choices=['dea', 'bo', 'hbo', 'rs', 'gs', 'dehbo', 'pbba', 'bgpbt'],
+    parser.add_argument('--hop_method', type=str, default='dehbo', choices=['dea', 'bo', 'hbo', 'rs', 'gs', 'dehbo'],
                                 help='Method to use for hyperparameter optimization')
     parser.add_argument('--hop_range', type=float, nargs='+', default=[0.0, 2.0], help="Maximum and minimum values for hyperparameter optimization")
     parser.add_argument('--hop_epochs', type=int, default=7, help='The number of epochs to optimize hyperparameters')
-    parser.add_argument('--metric', type=str, default="val_loss", choices=['loss', 'val_loss', 'mean_reward', 'mae', 'mse', 'rmse', 'episode_reward_mean', 
-                                'kg/km', 'overflows', 'both'], help='Metric to optimize')
+    parser.add_argument('--metric', type=str, default="val_loss", choices=[
+        'loss', 'val_loss', 'mean_reward', 'mae', 'mse', 'rmse', 'episode_reward_mean', 'kg/km', 'overflows', 'both'], help='Metric to optimize')
     
     # ===== Bayesian Optimization (BO) =====
     parser.add_argument('--n_trials', type=int, default=20, help='Number of trials for Optuna optimization')
@@ -349,8 +373,7 @@ def add_gen_data_args(parser):
     parser.add_argument("--name", type=str, help="Name to identify dataset")
     parser.add_argument("--filename", default=None, help="Filename of the dataset to create (ignores datadir)")
     parser.add_argument("--data_dir", default='datasets', help="Create datasets in data")
-    parser.add_argument("--problem", type=str, default='all', 
-                                help="Problem: 'tsp'|'vrp'|'pctsp'|'vrpp'|'wcrp'|'op_const'|'op_unif'|'op_dist'|'pdp'|'all'")
+    parser.add_argument("--problem", type=str, default='all', help="Problem: 'vrpp'|'wcvrp'|'all'")
     parser.add_argument("--is_gaussian", type=int, default=0)
     parser.add_argument('--data_distributions', nargs='+', default=['all'], help="Distributions to generate for problems")
     parser.add_argument("--dataset_size", type=int, default=128_000, help="Size of the dataset")
@@ -450,6 +473,9 @@ def add_test_sim_args(parser):
     parser.add_argument('--symkey_name', type=str, default=None, help="Name of the cryptographic key used to access the API keys")
     parser.add_argument('--gapik_file', type=str, default=None, help="Name of the file that contains the key to use for the Google API")
     parser.add_argument('--real_time_log', action='store_true', help="Activate real time results window")
+    parser.add_argument('--stats_filepath', type=str, default=None, help="Path to the file to read the statistics from")
+    parser.add_argument('--model_path', action=StoreDictKeyPair, default=None, nargs='+', 
+                        help="Path to the directory where the model(s) is/are stored (format: name=path)")
     return parser
 
 def add_files_update_args(parser):
@@ -652,6 +678,9 @@ def validate_train_args(args):
 
     assert (args['bl_warmup_epochs'] == 0) or (args.get('baseline') == 'rollout')
     
+    if args.get('baseline') == 'pomo':
+        assert args.get('pomo_size', 0) > 0, "pomo_size must be > 0 when using pomo baseline"
+    
     if args.get('encoder') in SUB_NET_ENCS and args.get('n_encode_sublayers') is None:
         args['n_encode_sublayers'] = args['n_encode_layers']
     
@@ -770,16 +799,26 @@ def validate_test_sim_args(args):
     if args.get('cpu_cores') == 0:
         args['cpu_cores'] = cpu_count()
 
-    for cf in args['plastminute_cf']:
-        assert cf > 0 and cf < 100, "Policy last minute CF must be between 0 and 100"
-    for lvl in args['pregular_level']:
-        assert lvl >= 1 and lvl <= args['days'], "Policy regular level must be between 1 and number of days, inclusive"
-    for gp in args['gurobi_param']:
-        assert gp > 0, "Policy gurobi parameter must be greater than 0"
-    for hp in args['hexaly_param']:
-        assert hp > 0, "Policy hexaly parameter must be greater than 0"
-    for lac in args['lookahead_configs']:
-        assert lac in ['a', 'b'], "Policy lookahead configuration must be 'a' or 'b'"
+    if args.get('plastminute_cf'):
+        vals = args['plastminute_cf'] if isinstance(args['plastminute_cf'], list) else [args['plastminute_cf']]
+        for cf in vals:
+            assert cf > 0 and cf < 100, "Policy last minute CF must be between 0 and 100"
+    if args.get('pregular_level'):
+        vals = args['pregular_level'] if isinstance(args['pregular_level'], list) else [args['pregular_level']]
+        for lvl in vals:
+            assert lvl >= 1 and lvl <= args['days'], "Policy regular level must be between 1 and number of days, inclusive"
+    if args.get('gurobi_param'):
+        vals = args['gurobi_param'] if isinstance(args['gurobi_param'], list) else [args['gurobi_param']]
+        for gp in vals:
+            assert gp > 0, "Policy gurobi parameter must be greater than 0"
+    if args.get('hexaly_param'):
+        vals = args['hexaly_param'] if isinstance(args['hexaly_param'], list) else [args['hexaly_param']]
+        for hp in vals:
+            assert hp > 0, "Policy hexaly parameter must be greater than 0"
+    if args.get('lookahead_configs'):
+        vals = args['lookahead_configs'] if isinstance(args['lookahead_configs'], list) else [args['lookahead_configs']]
+        for lac in vals:
+            assert lac in ['a', 'b'], "Policy lookahead configuration must be 'a' or 'b'"
     return args
 
 def validate_file_system_args(args):

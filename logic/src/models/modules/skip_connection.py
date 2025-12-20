@@ -6,5 +6,5 @@ class SkipConnection(nn.Module):
         super(SkipConnection, self).__init__()
         self.module = module
 
-    def forward(self, input, mask=None):
-        return input + self.module(input, mask=mask)
+    def forward(self, input, *args, **kwargs):
+        return input + self.module(input, *args, **kwargs)
