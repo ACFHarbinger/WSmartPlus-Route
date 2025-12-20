@@ -4,7 +4,7 @@ import gurobipy as gp
 import torch.optim as optim
 
 from .definitions import ROOT_DIR
-from logic.src.models.gat_lstm_manager import GATLSTManager
+from logic.src.models import GATLSTManager
 from dotenv import dotenv_values
 from logic.src.utils.crypto_utils import decrypt_file_data
 from logic.src.utils.functions import load_model, get_inner_model, torch_load_cpu
@@ -139,8 +139,7 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
     from logic.src.models import (
         WarmupBaseline, ExponentialBaseline, RolloutBaseline,
         NoBaseline, CriticBaseline, CriticNetwork, POMOBaseline,
-        AttentionModel, TemporalAttentionModel,
-        DeepDecoderAttentionModel, HierarchicalTemporalAttentionModel,
+        AttentionModel, TemporalAttentionModel, DeepDecoderAttentionModel,
         GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
     )
     encoder_class = {
@@ -154,7 +153,6 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
     model_class = {
         'am': AttentionModel,
         'tam': TemporalAttentionModel,
-        'htam': HierarchicalTemporalAttentionModel,
         'ddam': DeepDecoderAttentionModel
     }.get(opts['model'], None)
     assert model_class is not None, \

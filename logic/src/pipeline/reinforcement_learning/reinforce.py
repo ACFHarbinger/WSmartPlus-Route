@@ -9,8 +9,7 @@ from .meta import (
     WeightContextualBandit, MORLWeightOptimizer, 
     HRLManager, CostWeightManager, RewardWeightOptimizer,
 )
-from logic.src.models.gat_lstm_manager import GATLSTManager
-from logic.src.models import WeightAdjustmentRNN
+from logic.src.models import WeightAdjustmentRNN, GATLSTManager
 from logic.src.utils.functions import move_to
 from logic.src.utils.log_utils import log_values, log_training, log_epoch, get_loss_stats
 from .post_processing import post_processing_optimization
