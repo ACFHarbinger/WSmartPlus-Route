@@ -7,10 +7,28 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      # Use the checkout action with your Personal Access Token (PAT) 
+      # to ensure the local environment has cross-repo permissions
+      - name: Checkout Private Repo
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          token: ${{ secrets.PUBLIC_REPO_TOKEN }}
+          fetch-depth: 0  # Essential to get full history for a successful push
+
       - name: Push to Public
+        env:
+          PAT_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
         run: |
-          git remote add public https://${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/ACFHarbinger/WSmartPlus-Route.git
+          # 1. Configure Git identity for the sync bot
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 2. Clean up any existing 'public' remote from previous attempts
+          git remote remove public || true 
+
+          # 3. Add the public repo as a remote using x-access-token for authentication
+          # This format overrides the default bot credentials that cause the 403 error
+          git remote add public https://x-access-token:${PAT_TOKEN}@github.com/ACFHarbinger/WSmartPlus-Route.git
+          
+          # 4. Force push the local branch to the public repository's main branch
           git push public main --force
