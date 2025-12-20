@@ -50,7 +50,8 @@ def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum
 
 def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflows, 
             day, model_env, model_ls, n_vehicles, area, realtime_log_path, waste_type, 
-            distpath_tup, current_collection_day, cached, device, lock=None, hrl_manager=None, bins_indices=None):
+            distpath_tup, current_collection_day, cached, device, lock=None, hrl_manager=None, bins_indices=None,
+            gate_prob_threshold=0.5, mask_prob_threshold=0.5):
     cost = 0
     tour = []
     output_dict = None
@@ -87,7 +88,8 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
         model_data, graph, profit_vars = model_ls
         daily_data = set_daily_waste(model_data, bins.c, device, fill)
         tour, cost, output_dict = model_env.compute_simulator_day(
-            daily_data, graph, dm_tensor, profit_vars, run_tsp, hrl_manager=hrl_manager, waste_history=bins.get_fill_history(device=device)
+            daily_data, graph, dm_tensor, profit_vars, run_tsp, hrl_manager=hrl_manager, 
+            waste_history=bins.get_fill_history(device=device), threshold=gate_prob_threshold, mask_threshold=mask_prob_threshold
         )
     elif 'gurobi' in policy:
         gp_param = float(policy.rsplit("_vrpp", 1)[1])

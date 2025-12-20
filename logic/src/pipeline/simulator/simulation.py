@@ -169,7 +169,7 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
         daily_log = {key: [] for key in DAY_METRICS}
     
     # Setup HRL Manager
-    hrl_manager = setup_hrl_manager(opts, device, configs)
+    hrl_manager = setup_hrl_manager(opts, device, configs, policy=policy, base_path=model_weights_path)
     waste_history = None
     if hrl_manager is not None:
         history_len = opts.get('mrl_history', 10)
@@ -189,7 +189,8 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
                 hook.before_day(day)
                 data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id,
                                                     overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], realtime_log_path, 
-                                                    opts['waste_type'], dist_tup, current_collection_day, cached, device, _lock, hrl_manager=hrl_manager)
+                                                    opts['waste_type'], dist_tup, current_collection_day, cached, device, _lock, hrl_manager=hrl_manager,
+                                                    gate_prob_threshold=opts.get('gate_prob_threshold', 0.5))
                 execution_time = time.process_time() - tic
                 new_data, coords, bins = data_ls
                 overflows, dlog, output_dict = output_ls
@@ -327,7 +328,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     daily_log = {key: [] for key in DAY_METRICS}
                 
                 # Setup HRL Manager
-                hrl_manager = setup_hrl_manager(opts, device, configs, pol_strip)
+                hrl_manager = setup_hrl_manager(opts, device, configs, policy=pol_strip, base_path=model_weights_path)
                 waste_history = None
                 if hrl_manager is not None:
                     history_len = opts.get('mrl_history', 10)
@@ -347,7 +348,9 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     hook.before_day(day)
                     data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id, 
                                                         overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], realtime_log_path, 
-                                                        opts['waste_type'], dist_tup, current_collection_day, cached, device, hrl_manager=hrl_manager)
+                                                        opts['waste_type'], dist_tup, current_collection_day, cached, device, hrl_manager=hrl_manager,
+                                                        gate_prob_threshold=opts.get('gate_prob_threshold', 0.5),
+                                                        mask_prob_threshold=opts.get('mask_prob_threshold', 0.5))
                     execution_time = time.process_time() - tic
                     new_data, coords, bins = data_ls
                     overflows, dlog, output_dict = output_ls

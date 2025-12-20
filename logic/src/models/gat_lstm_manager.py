@@ -81,7 +81,7 @@ class GATLSTManager(nn.Module):
         with torch.no_grad():
             # Assuming gate_head's last layer is a Linear layer
             self.gate_head[-1].bias.fill_(0)
-            self.gate_head[-1].bias[1] = 2.0 # Significant bias toward action 1 (Route)
+            # self.gate_head[-1].bias[1] = 2.0 # Removed bias
 
     def clear_memory(self):
         self.states_static = []
@@ -148,7 +148,7 @@ class GATLSTManager(nn.Module):
         
         return mask_logits, gate_logits, value
 
-    def select_action(self, static, dynamic, deterministic=False):
+    def select_action(self, static, dynamic, deterministic=False, threshold=0.5, mask_threshold=0.5):
         """
         Sample actions from policy.
         """
@@ -157,7 +157,19 @@ class GATLSTManager(nn.Module):
         # 1. Gate Decision
         gate_probs = F.softmax(gate_logits, dim=-1)
         if deterministic:
-            gate_action = torch.argmax(gate_probs, dim=-1)
+            # gate_action = torch.argmax(gate_probs, dim=-1)
+            gate_action = (gate_probs[..., 1] > threshold).long()
+            op_gate = ">" if gate_action.item() == 1 else "<="
+            act_gate = "ROUTING" if gate_action.item() == 1 else "SKIPPING"
+
+            # 2. Mask Decision
+            mask_probs = F.sigmoid(mask_logits).squeeze(-1)
+            mask_action = (mask_probs > mask_threshold).long()
+
+            # Mask (Average prob of visiting)
+            avg_mask_prob = mask_probs.mean().item()
+            # count how many nodes > mask_threshold
+            n_visit = (mask_probs > mask_threshold).sum().item()
         else:
             gate_dist = torch.distributions.Categorical(gate_probs)
             gate_action = gate_dist.sample()
@@ -227,7 +239,7 @@ class GATLSTManager(nn.Module):
             
         # Calculate Returns & Advantages (on CPU)
         returns = rewards
-        advantages = old_values - returns
+        advantages = returns - old_values
         if advantages.std() > 1e-8:
             advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
         else:

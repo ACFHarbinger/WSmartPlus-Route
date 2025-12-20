@@ -27,7 +27,7 @@ def setup_cost_weights(opts, def_val=1.):
     return cw_dict
 
 
-def setup_hrl_manager(opts, device, configs=None, policy=None):
+def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None):
     hrl_path = None
     if opts.get('model_path') is not None:
         hrl_path = opts['model_path'][policy]
@@ -43,6 +43,9 @@ def setup_hrl_manager(opts, device, configs=None, policy=None):
     if hrl_method != 'gating_mechanism' or hrl_path is None:
         return None
     
+    if base_path is not None and not os.path.exists(hrl_path):
+        hrl_path = os.path.join(base_path, hrl_path)
+
     # --- Logic from load_model to handle directory ---
     # Attempt to resolve path if it's a directory
     if os.path.isfile(hrl_path):
@@ -98,13 +101,8 @@ def setup_model(policy, general_path, model_paths, device, lock, temperature=1, 
         model.set_decode_type(decode_type, temp=temperature)
         return model, configs
 
-    if 'amgac' in policy:
-        return _load_model(general_path, model_paths['amgac'], device, temperature, decode_type, lock)
-    elif 'amgat' in policy:
-        return _load_model(general_path, model_paths['amgat'], device, temperature, decode_type, lock)
-    elif 'amtgc' in policy:
-        return _load_model(general_path, model_paths['amtgc'], device, temperature, decode_type, lock)
-    return None
+    pol_strip, _ = policy.rsplit("_", 1)
+    return _load_model(general_path, model_paths[pol_strip], device, temperature, decode_type, lock)
 
 
 def setup_env(policy, server=False, gplic_filename=None, symkey_name=None, env_filename=None):

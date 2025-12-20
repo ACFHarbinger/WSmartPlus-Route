@@ -393,11 +393,12 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 
                 # Coefficients
                 lambda_waste = 1.0     # Benefit of collecting waste
-                lambda_overflow = 10.0 # High penalty for letting bins overflow
-                lambda_risk = 0.1      # Penalty for leaving high waste in bins
+                lambda_cost = 1.0      # Light penalty to allow more routing
+                lambda_overflow = 10.0 # Heavy penalty to force collection
+                lambda_risk = 0.0      # Zero risk penalty
                 
                 # Total Reward: Collected - (Route Cost + Penalties)
-                hrl_reward = (lambda_waste * avg_waste_collected - (avg_route_cost + lambda_overflow * avg_overflow + lambda_risk * risk)) * 0.001
+                hrl_reward = (lambda_waste * avg_waste_collected - (lambda_cost * avg_route_cost + lambda_overflow * avg_overflow + lambda_risk * risk)) * 0.001
                 
                 daily_rewards.append(hrl_reward)
                 hrl_manager.rewards.append(hrl_reward) # Use simple storage for now
