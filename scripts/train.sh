@@ -22,7 +22,7 @@ DIST_M="gmaps"
 VERTEX_M="mmn"
 
 W_LEN=1.0
-W_OVER=0.0
+W_OVER=1.0
 W_WASTE=1.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
 # gamma W_LEN = 2.5, 1.75, 1.75, 1.75
@@ -72,7 +72,7 @@ SEED=42
 START=0
 EPOCHS=31
 TOTAL_EPOCHS=$(($START + $EPOCHS))
-PROBLEM="sdwcvrp"
+PROBLEM="cwcvrp"
 DATA_PROBLEM="wcvrp"
 DATASET_NAME="time${TOTAL_EPOCHS}"
 VAL_DATASET_NAME="${DATASET_NAME}_val"
