@@ -424,24 +424,30 @@ model_weights/
 
 # Build distribution
 /**/dist
+/**/build
 /**/wsmart_route.egg-info
 
 # WSmart Route simulator temporary files
 temp/
 cache/
+Resultados/
 **/WSmartRoute/
 WSmartRoute.zip
 
 # Datafiles that exceed Github memory limit
 data/wsr_simulator/bins_waste/Enchimentos_de_Sensores\[RioMaior\].csv
 
-# Local directories
-**/fill_history/
-**/datasets/
+# Datasets
+/data/datasets/
+/data/wsr_simulator/
+
+# Secrets
+assets/api
+assets/keys/
+
+# Local files and directories
 **/daily_*/
-Resultados/
-build/
-dist/
+**/fill_history/
 
 # To include
 !assets/logs
