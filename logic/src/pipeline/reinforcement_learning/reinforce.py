@@ -36,8 +36,9 @@ def _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_o
         step += 1
         daily_total_samples += pi.size(0)
         for key, val in zip(list(c_dict.keys()) + list(l_dict.keys()), list(c_dict.values()) + list(l_dict.values())):
-            if isinstance(val, torch.Tensor): daily_loss[key].append(val.detach()) 
-            #else daily_loss[key].append(torch.tensor([val], dtype=torch.float32))
+            if key in daily_loss and isinstance(val, torch.Tensor): 
+                daily_loss[key].append(val.detach()) 
+
     day_duration = time.time() - start_time
     table_df.loc[day] = get_loss_stats(daily_loss)
     log_epoch(('day', day), loss_keys, daily_loss, opts)      
@@ -68,7 +69,7 @@ def train_reinforce_over_time_rwa(model, optimizer, baseline, lr_scheduler, scal
         hidden_size=opts.get('mrl_embedding_dim', 64),
         lr=opts.get('mrl_lr', 0.001),
         device=opts['device'],
-        meta_batch_size=opts.get('rwa_batch_size', 8),
+        meta_batch_size=opts.get('mrl_batch_size', 8),
         min_weights=min_weights,
         max_weights=max_weights,
         meta_optimizer=opts.get('rwa_optimizer', 'adam')
@@ -316,12 +317,11 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
 
         while True:
             # Batch Manager Decision and Mask Creation
-            inference_batch_size = 1024 # Adjustable or from opts
+            inference_batch_size = opts.get('mrl_batch_size', 1024) # Adjustable or from opts
             n_samples = len(training_dataset)
             
             mask_actions_list = []
             gate_actions_list = []
-            
             for i in range(0, n_samples, inference_batch_size):
                 # Slice indices
                 batch_indices = slice(i, min(i + inference_batch_size, n_samples))
@@ -343,7 +343,8 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 waste_history[batch_indices] = batch_waste_history
                 
                 # Manager Decision
-                mask_action, gate_action, value = hrl_manager.select_action(static_locs, batch_waste_history)
+                with torch.no_grad():
+                    mask_action, gate_action, value = hrl_manager.select_action(static_locs, batch_waste_history)
                 
                 mask_actions_list.append(mask_action)
                 gate_actions_list.append(gate_action)
@@ -368,19 +369,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             )
             
             # 5. Reward Calculation
-            if daily_total_samples > 0:
-                # daily_loss has 'total' cost, 'overflows' (count/penalty), etc.
-                # Logic:
-                # If Gate=1: Cost > 0.
-                # If Gate=0: Cost should be small (depot loop), but Waste Accumulates.
-                # daily_loss accumulates based on what actually happened in 'model'.
-                # But 'update_time_dataset' calculates waste accumulation based on Routes.
-                # If Gate=0 -> Mask=AllTrue -> Route is empty/depot.
-                # update_time_dataset sees empty route -> Accumulates Waste.
-                # So Overflow is calculated correctly!
-                
-                # Reward = - (RouteCost + OverflowPenalty + Risk)
-                
+            if daily_total_samples > 0:             
                 # Route Cost: 'km' or 'length' from daily_loss.
                 avg_route_cost = torch.stack(daily_loss['length']).sum().item() / daily_total_samples
                 
