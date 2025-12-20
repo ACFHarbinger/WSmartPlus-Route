@@ -1,0 +1,16 @@
+name: Sync to Public Repo
+on:
+  push:
+    branches:
+      - main
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Push to Public
+        run: |
+          git remote add public https://${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/ACFHarbinger/WSmartPlus-Route.git
+          git push public main --force
