@@ -14,6 +14,7 @@ class GATLSTManager(nn.Module):
     def __init__(self,
                  input_dim_static=2,   # x, y
                  input_dim_dynamic=10, # waste history length
+                 global_input_dim=3,   # critical_ratio, avg_load, std_load
                  batch_size=1024,
                  hidden_dim=128,
                  lstm_hidden=64,
@@ -26,6 +27,7 @@ class GATLSTManager(nn.Module):
         self.batch_size = batch_size
         self.hidden_dim = hidden_dim
         self.input_dim_dynamic = input_dim_dynamic
+        self.global_input_dim = global_input_dim
         
         # 1. Temporal Encoder (LSTM)
         # Inputs: (Batch * N, Sequence, 1) - We treat each node's history as a sequence
@@ -54,16 +56,18 @@ class GATLSTManager(nn.Module):
         
         # Route Gate Head (Actor 2)
         # Global Pooling -> MLP -> (Batch, 2) -> Logits for [No Route, Route]
+        # Input: Hidden + Global Features
         self.gate_head = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
+            nn.Linear(hidden_dim + global_input_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 2)
         )
         
         # Critic (Value Function)
         # Global Pooling -> MLP -> (Batch, 1)
+        # Input: Hidden + Global Features
         self.critic = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
+            nn.Linear(hidden_dim + global_input_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 1)
         )
@@ -86,6 +90,7 @@ class GATLSTManager(nn.Module):
     def clear_memory(self):
         self.states_static = []
         self.states_dynamic = []
+        self.states_global = [] # New buffer
         self.actions_mask = []
         self.actions_gate = []
         self.log_probs_mask = []
@@ -120,9 +125,10 @@ class GATLSTManager(nn.Module):
         
         return x
 
-    def forward(self, static, dynamic):
+    def forward(self, static, dynamic, global_features):
         """
         Returns logits for mask and gate, and state value.
+        global_features: (Batch, global_input_dim)
         """
         # Encode
         x = self.feature_processing(static, dynamic) # (B, N, H)
@@ -140,42 +146,55 @@ class GATLSTManager(nn.Module):
         h_max = torch.max(h, dim=1)[0] # (B, H)
         h_global = h_mean + h_max      # Simple addition or concatenation
         
+        # Concatenate Global Features
+        # global_features: (B, G)
+        h_combined = torch.cat([h_global, global_features], dim=1) # (B, H+G)
+
         # Gate Logits
-        gate_logits = self.gate_head(h_global) # (B, 2)
+        gate_logits = self.gate_head(h_combined) # (B, 2)
         
         # Value
-        value = self.critic(h_global) # (B, 1)
+        value = self.critic(h_combined) # (B, 1)
         
         return mask_logits, gate_logits, value
 
-    def select_action(self, static, dynamic, deterministic=False, threshold=0.5, mask_threshold=0.5):
+    def select_action(self, static, dynamic, global_features=None, deterministic=False, force_action=None, threshold=0.5, mask_threshold=0.5):
         """
-        Sample actions from policy.
+        static: (Batch, N, 2) - Locations
+        dynamic: (Batch, N, 1) - Waste levels
+        global_features: (Batch, 3) - Global context
+        force_action: (Batch,) of 0/1 or None - Expert action to force
+        threshold: float - Probability threshold for gate=1 (Route) when deterministic
+        mask_threshold: float - Probability threshold for mask=1 (Unmask) when deterministic
         """
-        mask_logits, gate_logits, value = self.forward(static, dynamic)
+        mask_logits, gate_logits, value = self.forward(static, dynamic, global_features)
         
-        # 1. Gate Decision
+        # 1. Gate Decision (0=Skip, 1=Route)
         gate_probs = F.softmax(gate_logits, dim=-1)
-        if deterministic:
+        gate_dist = torch.distributions.Categorical(gate_probs)
+        
+        if force_action is not None and torch.is_tensor(force_action):
+            # Use forced action where specified (e.g. != -1)
+            # Assuming force_action has 0 or 1.
+            # We must sample first to get a base, then override.
+            # Or better: If force_action is passed, use it directly.
+            # But we might only force SOME in the batch.
+            # Let's assume force_action is (Batch,) with 0, 1, or -1 (standard).
+            
+            sampled_action = gate_dist.sample()
+            # If force_action is valid (0 or 1), use it. Else use sampled.
+            # Check for validity mask
+            force_mask = (force_action != -1)
+            gate_action = torch.where(force_mask, force_action, sampled_action)
+        elif deterministic:
             # gate_action = torch.argmax(gate_probs, dim=-1)
             gate_action = (gate_probs[..., 1] > threshold).long()
-            op_gate = ">" if gate_action.item() == 1 else "<="
-            act_gate = "ROUTING" if gate_action.item() == 1 else "SKIPPING"
-
-            # 2. Mask Decision
-            mask_probs = F.sigmoid(mask_logits).squeeze(-1)
-            mask_action = (mask_probs > mask_threshold).long()
-
-            # Mask (Average prob of visiting)
-            avg_mask_prob = mask_probs.mean().item()
-            # count how many nodes > mask_threshold
-            n_visit = (mask_probs > mask_threshold).sum().item()
         else:
-            gate_dist = torch.distributions.Categorical(gate_probs)
             gate_action = gate_dist.sample()
-            gate_log_prob = gate_dist.log_prob(gate_action)
             
-        # 2. Node Mask Decision
+        # 2. Mask Decision (Which nodes to mask/unmask)
+        # For simplicity, if we route (gate=1), we unmask all (mask=1)?
+        # Or let the model decide? The model outputs per-node mask logits.
         # (Batch, N, 2)
         mask_probs = F.softmax(mask_logits, dim=-1)
         if deterministic:
@@ -183,8 +202,6 @@ class GATLSTManager(nn.Module):
         else:
             mask_dist = torch.distributions.Categorical(mask_probs)
             mask_action = mask_dist.sample() # (Batch, N)
-            mask_log_prob = mask_dist.log_prob(mask_action).sum(dim=1) # Sum log probs over nodes? 
-            # Yes, standard for joint action over independent nodes assumption
             
         # Store for PPO
         if not deterministic:
@@ -195,6 +212,7 @@ class GATLSTManager(nn.Module):
             
             self.states_static.append(static.detach().cpu())
             self.states_dynamic.append(dynamic.detach().cpu())
+            self.states_global.append(global_features.detach().cpu()) # Store global features
             self.actions_gate.append(gate_action.detach().cpu())
             self.actions_mask.append(mask_action.detach().cpu())
             self.log_probs_gate.append(log_prob_gate.detach().cpu())
@@ -217,6 +235,7 @@ class GATLSTManager(nn.Module):
         # Flattening (Step, Batch, ...) -> (TotalSamples, ...)
         old_states_static = torch.cat(self.states_static)
         old_states_dynamic = torch.cat(self.states_dynamic)
+        old_states_global = torch.cat(self.states_global) # New
         old_mask_actions = torch.cat(self.actions_mask)
         old_gate_actions = torch.cat(self.actions_gate)
         old_log_probs_mask = torch.cat(self.log_probs_mask)
@@ -239,6 +258,7 @@ class GATLSTManager(nn.Module):
             
         # Calculate Returns & Advantages (on CPU)
         returns = rewards
+        # Advantage Normalization (Fixing the sign bug from previous session if present, but here using returns - old_values)
         advantages = returns - old_values
         if advantages.std() > 1e-8:
             advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
@@ -258,6 +278,7 @@ class GATLSTManager(nn.Module):
                 # Move batch to device
                 b_static = old_states_static[batch_idx].to(self.device)
                 b_dynamic = old_states_dynamic[batch_idx].to(self.device)
+                b_global = old_states_global[batch_idx].to(self.device) # New
                 b_mask_act = old_mask_actions[batch_idx].to(self.device)
                 b_gate_act = old_gate_actions[batch_idx].to(self.device)
                 b_old_log_mask = old_log_probs_mask[batch_idx].to(self.device)
@@ -266,7 +287,7 @@ class GATLSTManager(nn.Module):
                 b_adv = advantages[batch_idx].to(self.device)
                 
                 # Forward pass
-                mask_logits, gate_logits, values = self.forward(b_static, b_dynamic)
+                mask_logits, gate_logits, values = self.forward(b_static, b_dynamic, b_global)
                 values = values.squeeze(-1)
                 
                 # New Log Probs

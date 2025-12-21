@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import torch
+import torch.nn.functional as F
 import pandas as pd
 
 from tqdm import tqdm
@@ -283,13 +284,20 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
     if opts.get('hrl_method', 'weight_manager') == 'gating_mechanism':
         # --- Gating Mechanism HRL Logic ---        
         daily_rewards = []
-        model.train()
+        if opts.get('lr_model', 1e-4) > 0:
+            model.train()
+        else:
+            model.eval()
         set_decode_type(model, "sampling")
 
         # Initialize Dataset for Day Start
         day = opts['epoch_start']
         step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
 
+        if opts.get('lr_model', 1e-4) == 0:
+            for param in model.parameters():
+                param.requires_grad = False
+        
         # Initialize GATLSTManager
         hrl_manager = GATLSTManager(
             input_dim_static=2,
@@ -314,6 +322,8 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
         hrl_manager.optimizer = hrl_optimizer
 
         while True:
+            # RESET daily lookahead penalty
+            total_lookahead_penalty_ep = torch.zeros(epoch_size, device=opts['device'])
             # Batch Manager Decision and Mask Creation
             inference_batch_size = opts.get('mrl_batch_size', 1024) # Adjustable or from opts
             n_samples = len(training_dataset)
@@ -340,12 +350,67 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 # Write back to main history
                 waste_history[batch_indices] = batch_waste_history
                 
+                # Compute Global Features
+                # current_waste: (B, N)
+                # Heuristic: Assume 15% daily generation
+                daily_gen_est = 0.15
+                horizon = 3
+                
+                # 1. Critical Ratio Now (% > 0.9)
+                critical_mask = (current_waste > 0.9).float()
+                critical_ratio = critical_mask.mean(dim=1, keepdim=True) # (B, 1)
+                
+                # 2. Projected Critical Ratio (in 3 days)
+                # bins that WILL overflow if nothing is done
+                projected_waste = current_waste + (daily_gen_est * horizon)
+                projected_critical_mask = (projected_waste > 1.0).float()
+                critical_ratio_proj = projected_critical_mask.mean(dim=1, keepdim=True) # (B, 1)
+                
+                # 3. Projected Average Overflow
+                projected_overflow_val = F.relu(projected_waste - 1.0)
+                avg_proj_overflow = projected_overflow_val.mean(dim=1, keepdim=True) # (B, 1)
+                
+                # Combine: (B, 3)
+                global_features = torch.cat([critical_ratio, critical_ratio_proj, avg_proj_overflow], dim=1)
+                
+                # Accumulate Penalty
+                # avg_proj_overflow is (B, 1)
+                total_lookahead_penalty_ep[batch_indices] += avg_proj_overflow.squeeze(1)
+
+                # Expert Forcing (Strategy 4)
+                # ---------------------------
+                # Epsilon Decay: 1.0 -> 0.05 over training
+                # Assumes 50 epochs total.
+                progress = max(0, (day - opts['epoch_start']) / opts['n_epochs'])
+                epsilon = max(0.05, 1.0 - (progress * 2.0)) # Decay to 0 over first 50% epochs
+                
+                # Expert Trigger: If > 10% bins are critical (>90%), we MUST route.
+                # critical_ratio is (B, 1)
+                expert_trigger_mask = (critical_ratio > 0.1).float().squeeze(1) # (B)
+                
+                # Apply Epsilon Greedy
+                batch_size = critical_ratio.size(0)
+                rand_vals = torch.rand(batch_size, device=opts['device'])
+                force_mask = (rand_vals < epsilon) & (expert_trigger_mask > 0)
+                
+                # Construct forced action tensor
+                # -1: No force
+                #  1: Force Route
+                force_action = torch.full((batch_size,), -1, dtype=torch.long, device=opts['device'])
+                force_action[force_mask] = 1 # Force Route
+                
                 # Manager Decision
                 with torch.no_grad():
-                    mask_action, gate_action, value = hrl_manager.select_action(static_locs, batch_waste_history)
+                    mask_action, gate_action, value = hrl_manager.select_action(
+                        static_locs, batch_waste_history, global_features, 
+                        force_action=force_action
+                    )
                 
                 mask_actions_list.append(mask_action)
                 gate_actions_list.append(gate_action)
+                
+                # Step 5: Reward Calculation
+                # --------------------------
                 
             # Concatenate results
             mask_action_full = torch.cat(mask_actions_list, dim=0)
@@ -366,42 +431,44 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts, hrl_manager
             )
             
+            # DEBUG: Log Manager performance for the day
+            with torch.no_grad():
+                avg_gate_prob = hrl_manager.forward(static_locs, batch_waste_history, global_features)[1].softmax(-1)[:, 1].mean().item()
+                force_count = force_mask.sum().item()
+                print(f"DEBUG Day {day}: Avg Gate Prob (last batch)={avg_gate_prob:.4f}, Forced={force_count}/{batch_size}, Epsilon={epsilon:.3f}")
+
             # 5. Reward Calculation
             if daily_total_samples > 0:             
-                # Route Cost: 'km' or 'length' from daily_loss.
-                avg_route_cost = torch.stack(daily_loss['length']).sum().item() / daily_total_samples
+                # Route Cost: 'length' per instance
+                # Concatenate all batches for the day
+                inst_route_cost = torch.cat(daily_loss['length'], dim=0) # (TotalSamples)
                 
-                # Overflow: 'overflows' from daily_loss? 
-                # Note: daily_loss comes from 'model' output.
-                # Does model calculate overflow? Yes, usually.
+                # Overflow: 'overflows' per instance
                 if 'overflows' in daily_loss:
-                    avg_overflow = torch.stack(daily_loss['overflows']).sum().item() / daily_total_samples
+                    inst_overflow = torch.cat(daily_loss['overflows'], dim=0) # (TotalSamples)
                 else:
-                    avg_overflow = 0.0
+                    inst_overflow = torch.zeros(daily_total_samples, device=opts['device'])
                 
-                # Collected Waste Rewards: 'waste' from daily_loss (kg / 100)
+                # Collected Waste: 'waste' per instance
                 if 'waste' in daily_loss:
-                    avg_waste_collected = torch.stack(daily_loss['waste']).sum().item() / daily_total_samples
+                    inst_waste_collected = torch.cat(daily_loss['waste'], dim=0) # (TotalSamples)
                 else:
-                    avg_waste_collected = 0.0
+                    inst_waste_collected = torch.zeros(daily_total_samples, device=opts['device'])
                 
-                # Future Risk: Sum of Squared Waste.
-                # We can compute this from 'waste_history' (current state).
-                # Risk = Sum(W^2)
-                # current_waste is (B, N).
-                risk = (current_waste ** 2).sum(dim=1).mean().item()
+                # Future Risk: Lookahead Penalty (already computed per instance in total_lookahead_penalty_ep)
+                inst_lookahead = total_lookahead_penalty_ep # (TotalSamples)
                 
                 # Coefficients
-                lambda_waste = 1.0     # Benefit of collecting waste
-                lambda_cost = 1.0      # Light penalty to allow more routing
-                lambda_overflow = 10.0 # Heavy penalty to force collection
-                lambda_risk = 0.0      # Zero risk penalty
+                lambda_waste = 10.0
+                lambda_cost = 1.0
+                lambda_overflow = 50.0 # Heavy penalty for real overflows
+                lambda_lookahead = 20.0 # Dense penalty for projected overflows
                 
-                # Total Reward: Collected - (Route Cost + Penalties)
-                hrl_reward = (lambda_waste * avg_waste_collected - (lambda_cost * avg_route_cost + lambda_overflow * avg_overflow + lambda_risk * risk)) * 0.001
+                # Per-Instance Reward Tensor: (TotalSamples)
+                hrl_reward_tensor = (lambda_waste * inst_waste_collected.float() - (lambda_cost * inst_route_cost.float() + lambda_overflow * inst_overflow.float() + lambda_lookahead * inst_lookahead.float())) * 0.01
                 
-                daily_rewards.append(hrl_reward)
-                hrl_manager.rewards.append(hrl_reward) # Use simple storage for now
+                daily_rewards.append(hrl_reward_tensor.mean().item())
+                hrl_manager.rewards.append(hrl_reward_tensor) # Append the tensor
                 
                 # Update Manager
                 freq = opts.get('mrl_step', 10)
@@ -413,7 +480,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                     )
                     if loss is not None and tb_logger is not None:
                         tb_logger.log_value('hrl_manager_loss', loss, step)
-                    print(f"HRL Update Day {day}: Reward={hrl_reward:.4f} Loss={loss if loss else 0:.4f}")
+                    print(f"HRL Update Day {day}: MeanReward={hrl_reward_tensor.mean().item():.4f} Loss={loss if loss else 0:.4f}")
 
             day += 1
             if day >= opts['epoch_start'] + opts['n_epochs']: break
@@ -619,15 +686,18 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
         print(e)
         sys.exit(1)
 
-    if scaler is None:
-        # Perform backward pass
-        loss.backward()
-    else:
-        # Exit autocast context
+    if loss.requires_grad:
+        if scaler is None:
+            # Perform backward pass
+            loss.backward()
+        else:
+            # Exit autocast context
+            autocast_context.__exit__(None, None, None)
+            # Perform backward pass and unscale gradients
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+    elif scaler is not None:
         autocast_context.__exit__(None, None, None)
-        # Perform backward pass and unscale gradients
-        scaler.scale(loss).backward()
-        scaler.unscale_(optimizer)
 
     # Clip gradient norms and get (clipped) gradient norms for logging
     grad_norms = clip_grad_norms(optimizer.param_groups, opts['max_grad_norm'])
