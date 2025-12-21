@@ -11,7 +11,7 @@ class Normalization(nn.Module):
                 eps_alpha: float=1e-05, 
                 learn_affine: Optional[bool]=True, 
                 track_stats: Optional[bool]=False,  
-                mbval: Optional[float]=None, 
+                mbval: Optional[float]=0.1, 
                 n_groups: Optional[int]=None, 
                 kval: Optional[float]=None,
                 bias: Optional[bool]=True):

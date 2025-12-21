@@ -77,22 +77,18 @@ class GatedGraphConvolution(nn.Module):
         h = Uh + self.aggregate(Vh, mask, gates)  # B x V x H
 
         # Normalize node features
-        #h = self.norm_h(
-        #    h.view(batch_size*num_nodes, hidden_dim)
-        #).view(batch_size, num_nodes, hidden_dim) if self.norm_h else h
+        h = self.norm_h(h) if self.norm_h else h
         
         # Normalize edge features
-        #e = self.norm_e(
-        #    e.view(batch_size*num_nodes*num_nodes, hidden_dim)
-        #).view(batch_size, num_nodes, num_nodes, hidden_dim) if self.norm_e else e
+        # For edges, we need to flatten B, V, V. Normalization handles 3D/4D if mapped correctly.
+        # Normalization(hidden_dim) expects (N, H) or (B, N, H).
+        # For edge (B, V, V, H), we view as (B, V*V, H)
+        B, V, _, H = e.shape
+        e = self.norm_e(e.view(B, -1, H)).view(B, V, V, H) if self.norm_e else e
 
         # Apply non-linearity
-        #h = self.activation(h)
-        #e = self.activation(e)
-
-        # Make residual connection
-        #h = h_in + h
-        #e = e_in + e
+        h = self.activation(h)
+        e = self.activation(e)
 
         return h, e
 

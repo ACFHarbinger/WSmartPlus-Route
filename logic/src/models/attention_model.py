@@ -177,7 +177,7 @@ class AttentionModel(nn.Module):
         if self.checkpoint_encoder and self.training:  # Only checkpoint if we need gradients
             embeddings = torch.utils.checkpoint.checkpoint(self.embedder, self._init_embed(input), edges)
         else:
-            # Check if embedder accepts 'dist' (e.g. GatedGATEncoder)
+            # Check if embedder accepts 'dist' (e.g. GatedGraphAttConvEncoder)
             # We can check via inspection or just try/except, but clean way is check attribute or name
             if getattr(self.embedder, 'init_edge_embed', None) is not None:
                 embeddings = self.embedder(self._init_embed(input), edges, dist=dist_matrix)
@@ -280,6 +280,7 @@ class AttentionModel(nn.Module):
         ret_dict = {}
         ret_dict['overflows'] = cost_dict['overflows']
         ret_dict['kg'] = cost_dict['waste'] * 100
+        ret_dict['waste'] = cost_dict['waste']
         if dist_matrix.dim() == 2:
             ret_dict['km'] = travelled.sum(dim=1) + dist_matrix[0, src_vertices[:, 0]] + \
                 dist_matrix[dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0]
