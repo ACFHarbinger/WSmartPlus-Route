@@ -477,6 +477,7 @@ def add_test_sim_args(parser):
     parser.add_argument('--waste_filepath', type=str, default=None, help="Path to the file to read the waste fill for each day from")
     parser.add_argument('--run_tsp', action='store_true', help="Activate fast_tsp for all policies.")
     parser.add_argument('--cache_regular', action='store_false', help="Deactivate caching for policy regular.")
+    parser.add_argument('--no_cuda', action='store_true', help='Disable CUDA')
     parser.add_argument('--no_progress_bar', action='store_true', help='Disable progress bar')
     parser.add_argument('--server_run', action='store_true', help="Simulation will be executed in a remote server")
     parser.add_argument('--env_file', type=str, default='vars.env', help="Name of the file that contains the environment variables")

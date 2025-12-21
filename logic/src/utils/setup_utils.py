@@ -137,12 +137,13 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         WarmupBaseline, ExponentialBaseline, RolloutBaseline,
         NoBaseline, CriticBaseline, CriticNetwork, POMOBaseline,
         AttentionModel, TemporalAttentionModel, DeepDecoderAttentionModel,
-        GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
+        GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder, GatedGraphAttConvEncoder
     )
     encoder_class = {
         'gat': GraphAttentionEncoder,
         'gac': GraphAttConvEncoder,
-        'tgc': TransGraphConvEncoder
+        'tgc': TransGraphConvEncoder,
+        'ggac': GatedGraphAttConvEncoder
     }.get(opts['encoder'], None)
     assert encoder_class is not None, \
     "Unknown encoder: {}".format(encoder_class)

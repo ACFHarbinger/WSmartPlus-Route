@@ -120,7 +120,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
-        python3 main.py mrl_train --problem "$PROBLEM" --model am --encoder gat --epoch_size "$N_DATA" \
+        python main.py mrl_train --problem "$PROBLEM" --model am --encoder gat --epoch_size "$N_DATA" \
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --seed "$SEED" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
