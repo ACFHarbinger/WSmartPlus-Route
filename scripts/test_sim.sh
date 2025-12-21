@@ -109,7 +109,8 @@ if [ "$RUN_TSP" -eq 0 ]; then
     --lac "${LOOKAHEAD_CONFIGS[@]}" --hp "${HEXALY_PARAM[@]}" --problem "$PROBLEM" --days "$N_DAYS" \
     --waste_type "$WTYPE" --cc "$n_cores" --et "$EDGE_THRESH" --em "$EDGE_METHOD" --env_file "$ENV_FILE" \
     --gapik_file "$GOOGLE_API_FILE" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" --dm "$DIST_METHOD" \
-    --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" --gate_prob_threshold 0.5352 --mask_prob_threshold 0.5;
+    --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" \
+    --gate_prob_threshold 0.5 --mask_prob_threshold 0.5;
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi
@@ -122,10 +123,11 @@ else
     python main.py test_sim --policies "${POLICIES[@]}" --data_distribution "$DATA_DIST" --dt "$DECODE_TYPE" \
     --cc "$n_cores" --n_samples "$N_SAMPLES" --area "$AREA" --bin_idx_file "$IDX_PATH" --size "$N_BINS" --seed "$SEED" \
     --problem "$PROBLEM" --n_vehicles "$VEHICLES" --vm "$VERTEX_METHOD" --lac "${LOOKAHEAD_CONFIGS[@]}" --dm "$DIST_METHOD" \
-    --days "$N_DAYS" --lvl "${REGULAR_LEVEL[@]}" --cf "${LAST_MINUTE_CF[@]}" --gp "${GUROBI_PARAM[@]}" --hp "${HEXALY_PARAM[@]}" \
+    --lvl "${REGULAR_LEVEL[@]}" --cf "${LAST_MINUTE_CF[@]}" --gp "${GUROBI_PARAM[@]}" --hp "${HEXALY_PARAM[@]}" \
     --et "$EDGE_THRESH" --em "$EDGE_METHOD" --waste_type "$WTYPE" --env_file "$ENV_FILE" --gplic_file "$GP_LIC_FILE" \
     --gapik_file "$GOOGLE_API_FILE" --waste_filepath "$WASTE_PATH" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" \
-    --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" --gate_prob_threshold 0.5352 --mask_prob_threshold 0.5;
+    --days "$N_DAYS" --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" \
+    --gate_prob_threshold 0.5 --mask_prob_threshold 0.5;
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi

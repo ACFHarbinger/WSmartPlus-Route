@@ -135,9 +135,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --mrl_batch_size "$META_B_SIZE" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH" \
-        --lr_model 0 \
-        --load_path model_weights/cwcvrp_100/amgat_gamma1_20251220T161457/epoch-12.pt;
+        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
