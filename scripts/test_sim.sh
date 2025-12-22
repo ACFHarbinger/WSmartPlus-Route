@@ -54,7 +54,7 @@ GUROBI_PARAM=(0.84 1.00)
 HEXALY_PARAM=(0.84 1.00)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("amgat")
+POLICIES=("amgat_hrl")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
@@ -62,7 +62,7 @@ POLICIES=("amgat")
 #"am" "amgc" "transgcn"
 declare -A MODEL_PATHS
 MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat"
-MODEL_PATHS["amgat_hrl"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat_hrl"
+MODEL_PATHS["amgat_hrl"]="/home/pkhunter/Repositories/WSmart-Route/model_weights/cwcvrp_100/amgat_gamma1_20251222T091044"
 MODEL_PATHS["amgac"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgac_hrl"
 MODEL_PATHS["amtgc"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amtgc_hrl"
 

@@ -18,7 +18,7 @@ fi
 
 SEED=42
 START=0
-N_EPOCHS=31
+N_EPOCHS=100
 PROBLEM="wcvrp"
 AREA="riomaior"
 VERTEX_METHOD="mmn"

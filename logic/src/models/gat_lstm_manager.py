@@ -14,7 +14,7 @@ class GATLSTManager(nn.Module):
     def __init__(self,
                  input_dim_static=2,   # x, y
                  input_dim_dynamic=10, # waste history length
-                 global_input_dim=5,   # avg_waste, overflows, avg_len, visited_ratio, day
+                 global_input_dim=5,   # avg_waste, overflows, avg_len, visited_ratio, day (or customized)
                  batch_size=1024,
                  hidden_dim=128,
                  lstm_hidden=64,
@@ -158,12 +158,13 @@ class GATLSTManager(nn.Module):
         
         return mask_logits, gate_logits, value
 
-    def select_action(self, static, dynamic, global_features=None, deterministic=False, force_action=None, threshold=0.5, mask_threshold=0.5):
+    def select_action(self, static, dynamic, global_features=None, deterministic=False, force_action=None, force_node_mask=None, threshold=0.5, mask_threshold=0.5):
         """
         static: (Batch, N, 2) - Locations
         dynamic: (Batch, N, 1) - Waste levels
         global_features: (Batch, 3) - Global context
-        force_action: (Batch,) of 0/1 or None - Expert action to force
+        force_action: (Batch,) of 0/1 or None - Expert action to force (Gate)
+        force_node_mask: (Batch, N) of 0/1 or None - Expert action to force (Mask)
         threshold: float - Probability threshold for gate=1 (Route) when deterministic
         mask_threshold: float - Probability threshold for mask=1 (Unmask) when deterministic
         """
@@ -176,10 +177,6 @@ class GATLSTManager(nn.Module):
         if force_action is not None and torch.is_tensor(force_action):
             # Use forced action where specified (e.g. != -1)
             # Assuming force_action has 0 or 1.
-            # We must sample first to get a base, then override.
-            # Or better: If force_action is passed, use it directly.
-            # But we might only force SOME in the batch.
-            # Let's assume force_action is (Batch,) with 0, 1, or -1 (standard).
             
             sampled_action = gate_dist.sample()
             # If force_action is valid (0 or 1), use it. Else use sampled.
@@ -202,6 +199,13 @@ class GATLSTManager(nn.Module):
         else:
             mask_dist = torch.distributions.Categorical(mask_probs)
             mask_action = mask_dist.sample() # (Batch, N)
+            
+        # Apply force_node_mask if provided (Expert Forcing)
+        if force_node_mask is not None:
+            # force_node_mask should be (Batch, N) of 1s (force visit) and 0s (no force)
+            # We only force visit (action=1) for critical nodes.
+            # We assume force_node_mask=1 implies we MUST visit.
+            mask_action = torch.max(mask_action, force_node_mask.long())
             
         # Store for PPO
         if not deterministic:

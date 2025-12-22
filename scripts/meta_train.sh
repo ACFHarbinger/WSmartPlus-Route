@@ -21,7 +21,7 @@ EDGE_M="knn"
 DIST_M="gmaps"
 VERTEX_M="mmn"
 
-W_LEN=0.1
+W_LEN=0.01
 W_OVER=1000.0
 W_WASTE=10.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
@@ -83,7 +83,7 @@ WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}
 
 SEED=42
 START=0
-EPOCHS=31
+EPOCHS=100
 TOTAL_EPOCHS=$(($START + $EPOCHS))
 PROBLEM="cwcvrp"
 DATA_PROBLEM="wcvrp"
