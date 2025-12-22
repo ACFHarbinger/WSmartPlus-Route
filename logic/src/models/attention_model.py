@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from logic.src.utils.beam_search import CachedLookup
-from logic.src.or_policies import find_route, get_route_cost
+from logic.src.policies import find_route, get_route_cost
 from logic.src.utils.functions import compute_in_batches, add_attention_hooks, sample_many
 
 
