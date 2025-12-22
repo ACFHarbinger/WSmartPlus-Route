@@ -255,24 +255,24 @@ def policy_deps(mocker):
         'logic.src.pipeline.simulator.loader.load_area_and_waste_type_params',
         return_value=(4000, 0.16, 21.0, 1.0, 2.5) # Q, R, B, C, V
     )
-    mocker.patch('logic.src.or_policies.regular.load_area_and_waste_type_params', mock_load_params)
-    mocker.patch('logic.src.or_policies.last_minute.load_area_and_waste_type_params', mock_load_params)
+    mocker.patch('logic.src.policies.regular.load_area_and_waste_type_params', mock_load_params)
+    mocker.patch('logic.src.policies.last_minute.load_area_and_waste_type_params', mock_load_params)
     
     # Mock TSP solver (used by last_minute and regular)
     mock_find_route = mocker.patch(
-        'logic.src.or_policies.single_vehicle.find_route', 
+        'logic.src.policies.single_vehicle.find_route', 
         return_value=[0, 1, 3, 0] # Default mock tour
     )
-    mocker.patch('logic.src.or_policies.regular.find_route', mock_find_route)
-    mocker.patch('logic.src.or_policies.last_minute.find_route', mock_find_route)
+    mocker.patch('logic.src.policies.regular.find_route', mock_find_route)
+    mocker.patch('logic.src.policies.last_minute.find_route', mock_find_route)
     
     # Mock multi-tour splitter
     mock_get_multi_tour = mocker.patch(
-        'logic.src.or_policies.single_vehicle.get_multi_tour',
+        'logic.src.policies.single_vehicle.get_multi_tour',
         side_effect=lambda tour, *args: tour # Pass-through
     )
-    mocker.patch('logic.src.or_policies.regular.get_multi_tour', mock_get_multi_tour)
-    mocker.patch('logic.src.or_policies.last_minute.get_multi_tour', mock_get_multi_tour)
+    mocker.patch('logic.src.policies.regular.get_multi_tour', mock_get_multi_tour)
+    mocker.patch('logic.src.policies.last_minute.get_multi_tour', mock_get_multi_tour)
 
     return {
         "n_bins": 5,
@@ -766,13 +766,13 @@ def mock_run_day_deps(mocker):
     # Note: These patches affect the 'definition' modules. 
     # Tests in test_policies.py must patch the 'usage' module (day.py).
     mock_policy_regular = mocker.patch(
-        'logic.src.or_policies.regular.policy_regular', return_value=[0, 1, 2, 0] 
+        'logic.src.policies.regular.policy_regular', return_value=[0, 1, 2, 0] 
     )
     mock_send_output = mocker.patch(
         'logic.src.pipeline.simulator.day.send_daily_output_to_gui', autospec=True
     )
-    mocker.patch('logic.src.or_policies.single_vehicle.get_route_cost', return_value=50.0)
-    mocker.patch('logic.src.or_policies.single_vehicle.find_route', return_value=[0, 1, 0])
+    mocker.patch('logic.src.policies.single_vehicle.get_route_cost', return_value=50.0)
+    mocker.patch('logic.src.policies.single_vehicle.find_route', return_value=[0, 1, 0])
 
     return {
         'bins': mock_bins,
@@ -826,17 +826,17 @@ def mock_policy_dependencies(mocker):
     """Mocks common policy dependencies (loader, solver) for unit tests."""
     # Mock TSP solver (used by last_minute)
     mocker.patch(
-        'logic.src.or_policies.single_vehicle.find_route', 
+        'logic.src.policies.single_vehicle.find_route', 
         return_value=[0, 1, 3, 0] # Default mock tour for 2 bins
     )
     # Mock multi-tour splitter
     mocker.patch(
-        'logic.src.or_policies.single_vehicle.get_multi_tour',
+        'logic.src.policies.single_vehicle.get_multi_tour',
         side_effect=lambda tour, *args: tour # Pass-through
     )
     # Mock distance matrix used by single_vehicle helpers
     mocker.patch(
-        'logic.src.or_policies.single_vehicle.get_route_cost',
+        'logic.src.policies.single_vehicle.get_route_cost',
         return_value=50.0 
     )
 
@@ -847,23 +847,23 @@ def mock_lookahead_aux(mocker):
     
     # Mocks must be autospec=True to be bound correctly to the look_ahead module import
     mocker.patch(
-        'logic.src.or_policies.look_ahead.should_bin_be_collected',
+        'logic.src.policies.look_ahead.should_bin_be_collected',
         autospec=True,
         side_effect=lambda fill, rate: fill + rate >= 100
     )
     mocker.patch(
-        'logic.src.or_policies.look_ahead.update_fill_levels_after_first_collection',
+        'logic.src.policies.look_ahead.update_fill_levels_after_first_collection',
         autospec=True,
         # Returns fill levels after collected bins are reset
         return_value=np.array([0.0, 10.0, 30.0, 40.0, 50.0]) 
     )
     mocker.patch(
-        'logic.src.or_policies.look_ahead.get_next_collection_day',
+        'logic.src.policies.look_ahead.get_next_collection_day',
         autospec=True,
         return_value=5 # Mocked next overflow day
     )
     mocker.patch(
-        'logic.src.or_policies.look_ahead.add_bins_to_collect',
+        'logic.src.policies.look_ahead.add_bins_to_collect',
         autospec=True,
         return_value=[0, 1, 2] # Mocked final bin list
     )
