@@ -76,7 +76,7 @@ a = Analysis(
     key=None,
     # === Use collect_data for the required code directories ===
     collect_all=[
-        'src.or_policies',
+        'src.policies',
         'src.pipeline.simulator',
     ],
     collect_submodules=[],

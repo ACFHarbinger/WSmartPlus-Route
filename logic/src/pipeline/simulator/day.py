@@ -5,7 +5,7 @@ import numpy as np
 from logic.src.utils.definitions import DAY_METRICS
 from logic.src.utils.log_utils import send_daily_output_to_gui
 from logic.src.utils.functions import move_to
-from logic.src.or_policies import (
+from logic.src.policies import (
     policy_gurobi_vrpp, policy_hexaly_vrpp,
     get_route_cost, find_route, create_points, find_solutions,
     policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp,
