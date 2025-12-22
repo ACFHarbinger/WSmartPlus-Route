@@ -239,17 +239,34 @@ class AttentionModel(nn.Module):
             daily_gen_est = 0.15
             horizon = 3
 
+            # 1. Critical Ratio Now (% > 0.9)
             critical_mask = (current_waste > 0.9).float()
-            critical_ratio = critical_mask.mean(dim=1, keepdim=True)
+            critical_ratio = critical_mask.mean(dim=1, keepdim=True) # (B, 1)
             
-            projected_waste = current_waste + (daily_gen_est * horizon)
-            projected_critical_mask = (projected_waste > 1.0).float()
-            critical_ratio_proj = projected_critical_mask.mean(dim=1, keepdim=True)
+            # 2. Max Current Waste
+            max_current_waste = current_waste.max(dim=1, keepdim=True)[0] # (B, 1)
             
-            projected_overflow_val = F.relu(projected_waste - 1.0)
-            avg_proj_overflow = projected_overflow_val.mean(dim=1, keepdim=True)
-
-            global_features = torch.cat([critical_ratio, critical_ratio_proj, avg_proj_overflow], dim=1)
+            # 3. Projected Critical Ratio (in 3 days)
+            projected_waste_3d = current_waste + (daily_gen_est * 3)
+            projected_critical_mask_3d = (projected_waste_3d > 1.0).float()
+            critical_ratio_proj_3d = projected_critical_mask_3d.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # 4. Max Projected Waste (in 1 day) - OR Style
+            projected_waste_1d = current_waste + daily_gen_est
+            max_projected_waste_1d = projected_waste_1d.max(dim=1, keepdim=True)[0] # (B, 1)
+            
+            # 5. Projected Average Overflow (3 days)
+            projected_overflow_val_3d = F.relu(projected_waste_3d - 1.0)
+            avg_proj_overflow_3d = projected_overflow_val_3d.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # Combine: (B, 5)
+            global_features = torch.cat([
+                critical_ratio, 
+                max_current_waste, 
+                critical_ratio_proj_3d, 
+                max_projected_waste_1d, 
+                avg_proj_overflow_3d
+            ], dim=1)
             
             # Get Action (Deterministic)
             mask_action, gate_action, _ = hrl_manager.select_action(
@@ -264,9 +281,6 @@ class AttentionModel(nn.Module):
             # Apply Gate: If Gate=0, Mask ALL
             gate_mask = (gate_action == 0).unsqueeze(1).expand_as(mask)
             mask = mask | gate_mask
-            
-            # Important: If all nodes are masked for an instance, _inner might fail or produce empty route
-            # usually _inner handles masking.
         
         embeddings = self.embedder(self._init_embed(input), edges, dist=dist_matrix)
         _, pi = self._inner(input, edges, embeddings, cost_weights=None, dist_matrix=dist_matrix, mask=mask)
@@ -345,25 +359,34 @@ class AttentionModel(nn.Module):
 
             # 1. Critical Ratio Now (% > 0.9)
             critical_mask = (current_waste > 0.9).float()
-            critical_ratio = critical_mask.mean(dim=1, keepdim=True)
+            critical_ratio = critical_mask.mean(dim=1, keepdim=True) # (B, 1)
             
-            # 2. Projected Critical Ratio (in 3 days)
-            projected_waste = current_waste + (daily_gen_est * horizon)
-            projected_critical_mask = (projected_waste > 1.0).float()
-            critical_ratio_proj = projected_critical_mask.mean(dim=1, keepdim=True)
+            # 2. Max Current Waste
+            max_current_waste = current_waste.max(dim=1, keepdim=True)[0] # (B, 1)
             
-            # 3. Projected Average Overflow
-            projected_overflow_val = F.relu(projected_waste - 1.0)
-            avg_proj_overflow = projected_overflow_val.mean(dim=1, keepdim=True)
+            # 3. Projected Critical Ratio (in 3 days)
+            projected_waste_3d = current_waste + (daily_gen_est * 3)
+            projected_critical_mask_3d = (projected_waste_3d > 1.0).float()
+            critical_ratio_proj_3d = projected_critical_mask_3d.mean(dim=1, keepdim=True) # (B, 1)
             
-            global_features = torch.cat([critical_ratio, critical_ratio_proj, avg_proj_overflow], dim=1) # (B, 3)
+            # 4. Max Projected Waste (in 1 day) - OR Style
+            projected_waste_1d = current_waste + daily_gen_est
+            max_projected_waste_1d = projected_waste_1d.max(dim=1, keepdim=True)[0] # (B, 1)
+            
+            # 5. Projected Average Overflow (3 days)
+            projected_overflow_val_3d = F.relu(projected_waste_3d - 1.0)
+            avg_proj_overflow_3d = projected_overflow_val_3d.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # Combine: (B, 5)
+            global_features = torch.cat([
+                critical_ratio, 
+                max_current_waste, 
+                critical_ratio_proj_3d, 
+                max_projected_waste_1d, 
+                avg_proj_overflow_3d
+            ], dim=1) # (B, 5)
 
             mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, global_features, deterministic=True, threshold=threshold, mask_threshold=mask_threshold)
-            
-            # Heuristic Override: If Manager decides to Route (Gate=1), force Unmasking (Mask=1)
-            # This ensures the Worker can select all necessary nodes.
-            if gate_action.item() == 1:
-                mask_action = torch.ones_like(mask_action)
 
             # If Gate is closed (0), return empty immediately
             if gate_action.item() == 0:

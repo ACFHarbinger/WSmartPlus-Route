@@ -299,6 +299,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 param.requires_grad = False
         
         # Initialize GATLSTManager
+        opts['global_input_dim'] = 5 # (Attempt 8)
         hrl_manager = GATLSTManager(
             input_dim_static=2,
             input_dim_dynamic=opts.get('mrl_history', 10),
@@ -306,7 +307,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             lstm_hidden=opts.get('lstm_hidden', 64),
             batch_size=opts.get('mrl_batch_size', 1024),
             device=opts['device'],
-            global_input_dim=3  # Aligned with 3 global features generated below
+            global_input_dim=opts['global_input_dim']
         )
         
         # Setup Waste History Buffer (Batch, N, History)
@@ -361,50 +362,68 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 critical_mask = (current_waste > 0.9).float()
                 critical_ratio = critical_mask.mean(dim=1, keepdim=True) # (B, 1)
                 
-                # 2. Projected Critical Ratio (in 3 days)
-                # bins that WILL overflow if nothing is done
-                projected_waste = current_waste + (daily_gen_est * horizon)
-                projected_critical_mask = (projected_waste > 1.0).float()
-                critical_ratio_proj = projected_critical_mask.mean(dim=1, keepdim=True) # (B, 1)
+                # 2. Max Current Waste
+                max_current_waste = current_waste.max(dim=1, keepdim=True)[0] # (B, 1)
                 
-                # 3. Projected Average Overflow
-                projected_overflow_val = F.relu(projected_waste - 1.0)
-                avg_proj_overflow = projected_overflow_val.mean(dim=1, keepdim=True) # (B, 1)
+                # 3. Projected Critical Ratio (in 3 days)
+                projected_waste_3d = current_waste + (daily_gen_est * 3)
+                projected_critical_mask_3d = (projected_waste_3d > 1.0).float()
+                critical_ratio_proj_3d = projected_critical_mask_3d.mean(dim=1, keepdim=True) # (B, 1)
                 
-                # Combine: (B, 3)
-                global_features = torch.cat([critical_ratio, critical_ratio_proj, avg_proj_overflow], dim=1)
+                # 4. Max Projected Waste (in 1 day) - OR Style
+                projected_waste_1d = current_waste + daily_gen_est
+                max_projected_waste_1d = projected_waste_1d.max(dim=1, keepdim=True)[0] # (B, 1)
                 
-                # Accumulate Penalty
-                # avg_proj_overflow is (B, 1)
-                total_lookahead_penalty_ep[batch_indices] += avg_proj_overflow.squeeze(1)
+                # 5. Projected Average Overflow (3 days)
+                projected_overflow_val_3d = F.relu(projected_waste_3d - 1.0)
+                avg_proj_overflow_3d = projected_overflow_val_3d.mean(dim=1, keepdim=True) # (B, 1)
+                
+                # Combine: (B, 5)
+                global_features = torch.cat([
+                    critical_ratio, 
+                    max_current_waste, 
+                    critical_ratio_proj_3d, 
+                    max_projected_waste_1d, 
+                    avg_proj_overflow_3d
+                ], dim=1)
+                
+                # Accumulate Penalty (using 3-day projection)
+                total_lookahead_penalty_ep[batch_indices] += avg_proj_overflow_3d.squeeze(1)
 
-                # Expert Forcing (Strategy 4)
+                # Expert Forcing (Attempt 8: OR-Inspired)
                 # ---------------------------
-                # Epsilon Decay: 1.0 -> 0.05 over training
-                # Assumes 50 epochs total.
                 progress = max(0, (day - opts['epoch_start']) / opts['n_epochs'])
                 epsilon = max(0.05, 1.0 - (progress * 2.0)) # Decay to 0 over first 50% epochs
                 
-                # Expert Trigger: If > 10% bins are critical (>90%), we MUST route.
-                # critical_ratio is (B, 1)
-                expert_trigger_mask = (critical_ratio > 0.1).float().squeeze(1) # (B)
+                # Expert Strategy:
+                # - Force SKIP if max_projected_waste_1d < 0.9 (Safe to wait)
+                # - Force ROUTE if max_projected_waste_1d > 1.0 (Critical)
+                safe_skip_mask = (max_projected_waste_1d < 0.9).float().squeeze(1) # (B)
+                force_route_mask = (max_projected_waste_1d > 1.0).float().squeeze(1) # (B)
                 
-                # Apply Epsilon Greedy
-                batch_size = critical_ratio.size(0)
+                # Apply Epsilon Greedy Forcing
+                batch_size = current_waste.size(0)
                 rand_vals = torch.rand(batch_size, device=opts['device'])
-                force_mask = (rand_vals < epsilon) & (expert_trigger_mask > 0)
                 
-                # Construct forced action tensor
-                # -1: No force
-                #  1: Force Route
+                # Construct forced action tensor (-1: No force, 0: Force Skip, 1: Force Route)
                 force_action = torch.full((batch_size,), -1, dtype=torch.long, device=opts['device'])
-                force_action[force_mask] = 1 # Force Route
+                
+                # Only force during exploration
+                exploration_mask = (rand_vals < epsilon)
+                force_action[exploration_mask & (force_route_mask > 0)] = 1
+                force_action[exploration_mask & (safe_skip_mask > 0)] = 0
+                
+                # Critical Node Mask (Expert Forcing for Mask)
+                force_node_mask = None
+                if epsilon > 0.05:
+                    force_node_mask = (current_waste > 0.9).float() 
                 
                 # Manager Decision
                 with torch.no_grad():
                     mask_action, gate_action, value = hrl_manager.select_action(
                         static_locs, batch_waste_history, global_features, 
-                        force_action=force_action
+                        force_action=force_action,
+                        force_node_mask=force_node_mask
                     )
                 
                 mask_actions_list.append(mask_action)
@@ -434,7 +453,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             
             with torch.no_grad():
                 avg_gate_prob = hrl_manager.forward(static_locs, batch_waste_history, global_features)[1].softmax(-1)[:, 1].mean().item()
-                force_count = force_mask.sum().item()
+                force_count = (force_action != -1).sum().item()
 
             # 5. Reward Calculation
             if daily_total_samples > 0:             
@@ -458,13 +477,17 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 inst_lookahead = total_lookahead_penalty_ep # (TotalSamples)
                 
                 # Coefficients
-                lambda_waste = 10.0
-                lambda_cost = 1.0
-                lambda_overflow = 50.0 # Heavy penalty for real overflows
-                lambda_lookahead = 20.0 # Dense penalty for projected overflows
+                lambda_waste = 10.0    # Increased to encourage collection (Attempt 11)
+                lambda_cost = 2.0      # Restored to 2.0
+                lambda_overflow = 200.0 # Extremely high penalty for safety (Attempt 11)
+                lambda_lookahead = 0.0 # Removing future penalty
+                lambda_fixed_gate = 1.0 # Sensitive start-up cost (Attempt 11)
                 
+                # Gate Penalty: lambda_fixed_gate if gate=1
+                inst_gate_penalty = gate_action_full.float() * lambda_fixed_gate
+
                 # Per-Instance Reward Tensor: (TotalSamples)
-                hrl_reward_tensor = (lambda_waste * inst_waste_collected.float() - (lambda_cost * inst_route_cost.float() + lambda_overflow * inst_overflow.float() + lambda_lookahead * inst_lookahead.float())) * 0.01
+                hrl_reward_tensor = (lambda_waste * inst_waste_collected.float() - (lambda_cost * inst_route_cost.float() + lambda_overflow * inst_overflow.float() + lambda_lookahead * inst_lookahead.float() + inst_gate_penalty)) * 0.01
                 
                 daily_rewards.append(hrl_reward_tensor.mean().item())
                 hrl_manager.rewards.append(hrl_reward_tensor) # Append the tensor

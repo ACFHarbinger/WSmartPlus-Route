@@ -75,20 +75,35 @@ def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None):
         lstm_hidden = opts.get('lstm_hidden', 64)
         global_input_dim = opts.get('global_input_dim', 3)
          
+    # Load data first to inspect dimensions
+    load_data = torch_load_cpu(hrl_path)
+    if isinstance(load_data, dict) and 'manager' in load_data:
+        state_dict = load_data['manager']
+    else:
+        state_dict = load_data
+
+    # Detect global_input_dim from checkpoint if possible
+    # weight shape: (hidden_dim, hidden_dim + global_input_dim)
+    if 'gate_head.0.weight' in state_dict:
+        weight_shape = state_dict['gate_head.0.weight'].shape
+        # weight_shape[1] is hidden_dim + global_input_dim
+        # hidden_dim is usually 128 (gat_hidden)
+        in_dim = weight_shape[1]
+        detected_dim = in_dim - gat_hidden
+        if detected_dim > 0 and detected_dim != global_input_dim:
+            # print(f"Detected global_input_dim {detected_dim} from checkpoint (was {global_input_dim})")
+            global_input_dim = detected_dim
+
     manager = GATLSTManager(
         input_dim_static=2,
         input_dim_dynamic=mrl_history,
         hidden_dim=gat_hidden,
         lstm_hidden=lstm_hidden,
         device=device,
-        global_input_dim=3
+        global_input_dim=global_input_dim
     ).to(device)
     
-    load_data = torch_load_cpu(hrl_path)
-    if isinstance(load_data, dict) and 'manager' in load_data:
-        manager.load_state_dict(load_data['manager'])
-    else:
-        manager.load_state_dict(load_data)
+    manager.load_state_dict(state_dict)
     manager.eval()
     return manager
 
