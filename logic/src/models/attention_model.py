@@ -5,7 +5,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from logic.src.utils.beam_search import CachedLookup
-from logic.src.policies import find_route, get_route_cost
+from logic.src.policies import find_route, get_route_cost, get_multi_tour
+from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
 from logic.src.utils.functions import compute_in_batches, add_attention_hooks, sample_many
 
 
@@ -387,6 +388,7 @@ class AttentionModel(nn.Module):
             ], dim=1) # (B, 5)
 
             mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, global_features, deterministic=True, threshold=threshold, mask_threshold=mask_threshold)
+            
 
             # If Gate is closed (0), return empty immediately
             if gate_action.item() == 0:
@@ -405,7 +407,21 @@ class AttentionModel(nn.Module):
         _, pi = self._inner(input, edges, embeddings, None, dist_matrix, profit_vars=None, mask=mask)
         if run_tsp:
             try:
-                route, cost = find_route(dist_matrix.cpu().numpy(), pi[pi != 0].cpu().numpy())
+                pi_nodes = pi[pi != 0].cpu().numpy()
+                if len(pi_nodes) > 0:
+                    route = find_route(dist_matrix.cpu().numpy(), pi_nodes)
+                    # distC might be a CUDA tensor, ensure it is numpy for get_route_cost
+                    distC_np = distC.cpu().numpy() if torch.is_tensor(distC) else distC
+                    cost = get_route_cost(distC_np, route)
+
+                    # Attempt 54: Respect Capacity in Simulator Evaluation
+                    if profit_vars is not None and 'vehicle_capacity' in profit_vars:
+                        raw_wastes = input['waste'].squeeze(0).cpu().numpy()
+                        route = get_multi_tour(route, raw_wastes, profit_vars['vehicle_capacity'], dist_matrix.cpu().numpy())
+                        cost = get_route_cost(distC_np, route)
+                else:
+                    route = [0]
+                    cost = 0
             except:
                 route = []
                 cost = 0
@@ -419,7 +435,8 @@ class AttentionModel(nn.Module):
         attention_weights = torch.tensor([])
         if hook_data['weights']:
             attention_weights = torch.stack(hook_data['weights'])
-        return route.cpu().numpy().tolist(), cost, {'attention_weights': attention_weights, 'graph_masks': hook_data['masks']}
+        route_list = route if isinstance(route, list) else route.cpu().numpy().tolist()
+        return route_list, cost, {'attention_weights': attention_weights, 'graph_masks': hook_data['masks']}
 
     def beam_search(self, *args, **kwargs):
         return self.problem.beam_search(*args, **kwargs, model=self)

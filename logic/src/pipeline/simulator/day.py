@@ -89,7 +89,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
         daily_data = set_daily_waste(model_data, bins.c, device, fill)
         tour, cost, output_dict = model_env.compute_simulator_day(
             daily_data, graph, dm_tensor, profit_vars, run_tsp, hrl_manager=hrl_manager, 
-            waste_history=bins.get_fill_history(device=device), threshold=gate_prob_threshold, mask_threshold=mask_prob_threshold
+            waste_history=bins.get_level_history(device=device), threshold=gate_prob_threshold, mask_threshold=mask_prob_threshold
         )
     elif 'gurobi' in policy:
         gp_param = float(policy.rsplit("_vrpp", 1)[1])

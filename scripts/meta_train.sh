@@ -21,8 +21,8 @@ EDGE_M="knn"
 DIST_M="gmaps"
 VERTEX_M="mmn"
 
-W_LEN=0.01
-W_OVER=1000.0
+W_LEN=0.05
+W_OVER=100.0
 W_WASTE=10.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
 # gamma W_LEN = 2.5, 1.75, 1.75, 1.75
@@ -42,7 +42,7 @@ AGG="mean"
 AGG_G="mean"
 
 OPTIM="rmsprop"
-LR_MODEL=0.0001
+LR_MODEL=0.0000
 LR_CV=0.0001
 LR_SCHEDULER="lambda"
 LR_DECAY=1.0
@@ -104,6 +104,8 @@ TRAIN_DDAM=1
 TRAIN_TAM=1
 HORIZON=(0 0 0 0 3)
 WB_MODE="disabled" # 'online'|'offline'|'disabled'
+LOAD_PATH="/home/pkhunter/Repositories/WSmart-Route/model_weights/cwcvrp_100/amgat_gamma1_20251222T140137/epoch-99.pt"
+LR_MODEL=0.0
 
 echo "Starting training script..."
 echo "Problem: $PROBLEM"
@@ -135,7 +137,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --mrl_batch_size "$META_B_SIZE" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
+        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH" --load_path "$LOAD_PATH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
