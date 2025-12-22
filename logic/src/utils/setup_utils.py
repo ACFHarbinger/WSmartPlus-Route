@@ -68,17 +68,20 @@ def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None):
         mrl_history = configs.get('mrl_history', opts.get('mrl_history', 10))
         gat_hidden = configs.get('gat_hidden', opts.get('gat_hidden', 128))
         lstm_hidden = configs.get('lstm_hidden', opts.get('lstm_hidden', 64))
+        global_input_dim = configs.get('global_input_dim', opts.get('global_input_dim', 3))
     else:
         mrl_history = opts.get('mrl_history', 10)
         gat_hidden = opts.get('gat_hidden', 128)
         lstm_hidden = opts.get('lstm_hidden', 64)
+        global_input_dim = opts.get('global_input_dim', 3)
          
     manager = GATLSTManager(
         input_dim_static=2,
         input_dim_dynamic=mrl_history,
         hidden_dim=gat_hidden,
         lstm_hidden=lstm_hidden,
-        device=device
+        device=device,
+        global_input_dim=3
     ).to(device)
     
     load_data = torch_load_cpu(hrl_path)
