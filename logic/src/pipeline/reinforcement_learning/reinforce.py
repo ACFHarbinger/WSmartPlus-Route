@@ -432,11 +432,9 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts, hrl_manager
             )
             
-            # DEBUG: Log Manager performance for the day
             with torch.no_grad():
                 avg_gate_prob = hrl_manager.forward(static_locs, batch_waste_history, global_features)[1].softmax(-1)[:, 1].mean().item()
                 force_count = force_mask.sum().item()
-                print(f"DEBUG Day {day}: Avg Gate Prob (last batch)={avg_gate_prob:.4f}, Forced={force_count}/{batch_size}, Epsilon={epsilon:.3f}")
 
             # 5. Reward Calculation
             if daily_total_samples > 0:             

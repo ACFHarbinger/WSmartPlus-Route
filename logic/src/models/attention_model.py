@@ -230,7 +230,6 @@ class AttentionModel(nn.Module):
             # Static: Customer Locations (Batch, N, 2)
             static_feat = input['loc']
             # Dynamic: Waste History (Batch, N, History)
-            # Dynamic: Waste History (Batch, N, History)
             dynamic_feat = waste_history
             
             # Compute Global Features

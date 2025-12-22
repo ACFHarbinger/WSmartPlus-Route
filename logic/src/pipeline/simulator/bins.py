@@ -102,7 +102,7 @@ class Bins:
     
     def get_fill_history(self, device=None):
         if device is not None:
-            return torch.tensor(self.history, dtype=torch.float, device=device)
+            return torch.tensor(np.array(self.history), dtype=torch.float, device=device) / 100.
         else:
             return np.array(self.history)
 
