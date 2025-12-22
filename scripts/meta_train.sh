@@ -21,7 +21,7 @@ EDGE_M="knn"
 DIST_M="gmaps"
 VERTEX_M="mmn"
 
-W_LEN=0.01
+W_LEN=0.1
 W_OVER=1000.0
 W_WASTE=10.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
@@ -35,7 +35,7 @@ N_PRED_L=2
 N_DEC_L=2
 
 N_HEADS=8
-NORM="instance"
+NORM="batch"
 ACTI_F="gelu"
 DROPOUT=0.1
 AGG="mean"

@@ -124,13 +124,16 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
 
     if 'am' in pol_strip or "transgcn" in pol_strip:
         model_env, configs = setup_model(policy, model_weights_path, opts['model_path'], device, _lock, opts['temperature'], opts['decode_type'])
+        hrl_manager = setup_hrl_manager(opts, device, configs, policy=policy, base_path=model_weights_path)
     elif "vrpp" in pol_strip:
         model_env = setup_env(policy, opts['server_run'], opts['gplic_file'], opts['symkey_name'], opts['env_file'])
         model_tup = (None, None)
+        hrl_manager = None
         configs = None
     else:
         configs = None
         model_env = None
+        hrl_manager = None
         model_tup = (None, None)
 
     if opts['resume'] and saved_state is not None:
@@ -168,13 +171,6 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
         bins.set_indices(indices)
         daily_log = {key: [] for key in DAY_METRICS}
     
-    # Setup HRL Manager
-    hrl_manager = setup_hrl_manager(opts, device, configs, policy=policy, base_path=model_weights_path)
-    waste_history = None
-    if hrl_manager is not None:
-        history_len = opts.get('mrl_history', 10)
-        waste_history = torch.zeros(1, opts['size'], history_len).to(device)
-
     attention_dict = {}
     desc = f"{policy} #{sample_id}"
     colour = TQDM_COLOURS[pol_id % len(TQDM_COLOURS)]
@@ -194,13 +190,6 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
                 execution_time = time.process_time() - tic
                 new_data, coords, bins = data_ls
                 overflows, dlog, output_dict = output_ls
-                
-                # Update Waste History
-                if waste_history is not None:
-                    # bins.c is numpy array (N,) -> Tensor (1, N, 1)
-                    current_fill = torch.from_numpy(bins.c).float().to(device).view(1, -1, 1) / 100.0
-                    waste_history = torch.cat((waste_history[:, :, 1:], current_fill), dim=2)
-
                 with _counter.get_lock(): _counter.value += 1
                 if 'am' in pol_strip or "transgcn" in pol_strip:
                     if pol_strip not in attention_dict:
@@ -268,12 +257,15 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
             attention_dict = {pol_strip: []}
             model_env, configs = setup_model(policy, model_weights_path, opts['model_path'], device, 
                                             lock, opts['temperature'], opts['decode_type'])
+            hrl_manager = setup_hrl_manager(opts, device, configs, policy=pol_strip, base_path=model_weights_path)
         elif "vrpp" in pol_strip:
+            hrl_manager = None
             model_env = setup_env(policy, opts['server_run'], opts['gplic_file'], 
                                   opts['symkey_name'], opts['env_file'])
             configs = {"problem": opts['problem']}
         else:
             model_env = None
+            hrl_manager = None
             configs = {"problem": opts['problem']}
 
         for sample_id in sample_idx_ls[pol_id]:
@@ -326,14 +318,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     current_collection_day = 0
                     bins.set_indices(indices_ls[sample_id])
                     daily_log = {key: [] for key in DAY_METRICS}
-                
-                # Setup HRL Manager
-                hrl_manager = setup_hrl_manager(opts, device, configs, policy=pol_strip, base_path=model_weights_path)
-                waste_history = None
-                if hrl_manager is not None:
-                    history_len = opts.get('mrl_history', 10)
-                    waste_history = torch.zeros(1, opts['size'], history_len).to(device)
-        
+                 
                 hook = CheckpointHook(checkpoint, opts['checkpoint_days'], _get_current_state)
                 colour = TQDM_COLOURS[pol_id % len(TQDM_COLOURS)]
                 
@@ -354,12 +339,6 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     execution_time = time.process_time() - tic
                     new_data, coords, bins = data_ls
                     overflows, dlog, output_dict = output_ls
-                    
-                    # Update Waste History
-                    if waste_history is not None:
-                        current_fill = torch.from_numpy(bins.c).float().to(device).view(1, -1, 1) / 100.0
-                        waste_history = torch.cat((waste_history[:, :, 1:], current_fill), dim=2)
-
                     if 'am' in pol_strip or "transgcn" in pol_strip: 
                         attention_dict[pol_strip].append(output_dict)
                     for key, val in dlog.items():
