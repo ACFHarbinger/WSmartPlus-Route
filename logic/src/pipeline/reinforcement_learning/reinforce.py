@@ -306,6 +306,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             lstm_hidden=opts.get('lstm_hidden', 64),
             batch_size=opts.get('mrl_batch_size', 1024),
             device=opts['device'],
+            global_input_dim=3  # Aligned with 3 global features generated below
         )
         
         # Setup Waste History Buffer (Batch, N, History)
