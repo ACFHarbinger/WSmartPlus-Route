@@ -146,6 +146,10 @@ def setup_env(policy, server=False, gplic_filename=None, symkey_name=None, env_f
                         raise ValueError(f"Missing parameter {glp_key} for Gurobi license")
         else:
             params = {}
+            if gplic_filename is not None:
+                gplic_path = os.path.join(ROOT_DIR, "assets", "api", gplic_filename)
+                if os.path.exists(gplic_path):
+                    os.environ['GRB_LICENSE_FILE'] = gplic_path
         params['OutputFlag'] = 0
         return gp.Env(params=params)
     
