@@ -999,6 +999,7 @@ class TestSimulation:
         # --- 1. Setup Filesystem ---
         mock_root_dir = tmp_path
         mocker.patch('logic.src.pipeline.simulator.simulation.ROOT_DIR', str(mock_root_dir))
+        mocker.patch('logic.src.pipeline.simulator.checkpoints.ROOT_DIR', str(mock_root_dir))
         
         # Checkpoint dir
         checkpoint_dir_path = mock_root_dir / opts['checkpoint_dir']

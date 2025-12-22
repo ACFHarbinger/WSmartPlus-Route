@@ -14,7 +14,7 @@ class GATLSTManager(nn.Module):
     def __init__(self,
                  input_dim_static=2,   # x, y
                  input_dim_dynamic=10, # waste history length
-                 global_input_dim=3,   # critical_ratio, avg_load, std_load
+                 global_input_dim=5,   # avg_waste, overflows, avg_len, visited_ratio, day
                  batch_size=1024,
                  hidden_dim=128,
                  lstm_hidden=64,
