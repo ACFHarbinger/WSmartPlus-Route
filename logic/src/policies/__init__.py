@@ -8,4 +8,4 @@ from .look_ahead import (
 )
 
 from .look_ahead_aux import create_points, find_solutions
-from .single_vehicle import find_route, get_route_cost
+from .single_vehicle import find_route, get_route_cost, get_multi_tour

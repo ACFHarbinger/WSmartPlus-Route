@@ -282,7 +282,17 @@ def train_reinforce_over_time_morl(model, optimizer, baseline, lr_scheduler, sca
 
 def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
     if opts.get('hrl_method', 'weight_manager') == 'gating_mechanism':
-        # --- Gating Mechanism HRL Logic ---        
+        # --- Gating Mechanism HRL Logic ---
+        # Attempt 53: PID Controller State for Gate Cost
+        pid_kp = 5.0
+        pid_ki = 0.1
+        pid_kd = 0.0
+        pid_integral = 0.0
+        pid_prev_error = 0.0
+        # Attempt 59: Free Range Manager
+        pid_target = 3.0 
+        current_lambda_gate = 50.0 # Reset for Free Range
+
         daily_rewards = []
         if opts.get('lr_model', 1e-4) > 0:
             model.train()
@@ -405,18 +415,34 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 batch_size = current_waste.size(0)
                 rand_vals = torch.rand(batch_size, device=opts['device'])
                 
-                # Construct forced action tensor (-1: No force, 0: Force Skip, 1: Force Route)
-                force_action = torch.full((batch_size,), -1, dtype=torch.long, device=opts['device'])
+                # Attempt 59: DISABLE GATE EXPERT FORCING
+                # We want the manager to learn freely from the overflow penalties.
+                force_action = None 
                 
-                # Only force during exploration
+                # We still need exploration_mask for Node Forcing below!
+                progress = max(0, (day - opts['epoch_start']) / opts['n_epochs'])
+                epsilon = max(0.05, 1.0 - (progress * 2.0))
+                batch_size = current_waste.size(0)
+                rand_vals = torch.rand(batch_size, device=opts['device'])
                 exploration_mask = (rand_vals < epsilon)
-                force_action[exploration_mask & (force_route_mask > 0)] = 1
-                force_action[exploration_mask & (safe_skip_mask > 0)] = 0
                 
                 # Critical Node Mask (Expert Forcing for Mask)
-                force_node_mask = None
-                if epsilon > 0.05:
-                    force_node_mask = (current_waste > 0.9).float() 
+                # Always provide expert guidance for critical nodes (bins > 90% full)
+                # This ensures the model learns that at least the baseline nodes must be visited.
+                force_node_mask = (current_waste > 0.9).float() 
+                
+                # Identify Critical Nodes
+                critical_nodes_mask = (current_waste > 0.9).float()
+                
+                # Apply forcing only to exploration subset (matches gate forcing logic)
+                # exploration_mask is (B). critical_nodes_mask is (B, N).
+                # Expand exploration_mask to (B, N)
+                exploration_mask_expanded = exploration_mask.unsqueeze(1).expand_as(critical_nodes_mask)
+                
+                # Set force_node_mask where both are true
+                # Attempt 54: EXPERT FORCING FOR CRITICAL NODES
+                # Forced visit if bin > 90% full.
+                force_node_mask = critical_nodes_mask * exploration_mask_expanded.float()
                 
                 # Manager Decision
                 with torch.no_grad():
@@ -437,7 +463,15 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             gate_action_full = torch.cat(gate_actions_list, dim=0)
             
             # 3. Apply Decision
-            am_mask = (mask_action_full == 0) # True where we want to skip
+            # Attempt 52: Gate-Only Manager (Forced Unmasking)
+            # Ignore Manager's mask choice. If Gate=1, we route EVERYTHING (Unmasked).
+            # If Gate=0, we skip everything (handled by gate_expanded).
+            
+            # Attempt 57: Restoration of Selective Masking
+            # mask_action_full: 1 = Keep, 0 = Mask
+            # am_mask: True = Skip/Masked, False = Keep/Unmasked
+            am_mask = (mask_action_full == 0)
+            
             gate_expanded = gate_action_full.unsqueeze(1).expand_as(am_mask) # (B, N)
             final_mask = am_mask | (gate_expanded == 0)
             
@@ -453,12 +487,15 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             
             with torch.no_grad():
                 avg_gate_prob = hrl_manager.forward(static_locs, batch_waste_history, global_features)[1].softmax(-1)[:, 1].mean().item()
-                force_count = (force_action != -1).sum().item()
+                force_count = 0
+                if force_action is not None:
+                     force_count = (force_action != -1).sum().item()
 
             # 5. Reward Calculation
             if daily_total_samples > 0:             
-                # Route Cost: 'length' per instance
+                # Route Cost: 'length' per instance (Matrix Units: Meters/100)
                 # Concatenate all batches for the day
+                # Fix: Removed * 0.001 scale to align with Worker coefficients (Attempt 53c)
                 inst_route_cost = torch.cat(daily_loss['length'], dim=0) # (TotalSamples)
                 
                 # Overflow: 'overflows' per instance
@@ -475,18 +512,56 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                 
                 # Future Risk: Lookahead Penalty (already computed per instance in total_lookahead_penalty_ep)
                 inst_lookahead = total_lookahead_penalty_ep # (TotalSamples)
+
+                # Attempt 53: PID Lagrangian Control
+                # Dynamic Lambda based on Overflow Rate.
+                # Target: 5.0 (5%).
+                # If Overflows > 5.0 (Error > 0): Meaning we are skipping too much. 
+                # We need to ROUTE MORE. Value of Routing must INCREASE. Cost of Routing must DECREASE.
+                # So Lambda Gate must DECREASE.
+                # lambda = lambda - (Kp * err)
                 
-                # Coefficients
-                lambda_waste = 10.0    # Increased to encourage collection (Attempt 11)
-                lambda_cost = 2.0      # Restored to 2.0
-                lambda_overflow = 200.0 # Extremely high penalty for safety (Attempt 11)
-                lambda_lookahead = 0.0 # Removing future penalty
-                lambda_fixed_gate = 1.0 # Sensitive start-up cost (Attempt 11)
+                current_overflow = inst_overflow.float().mean().item()
+                pid_error = current_overflow - pid_target
                 
-                # Gate Penalty: lambda_fixed_gate if gate=1
+                # Update Integral
+                pid_integral += pid_error
+                # Update Derivative
+                pid_derivative = pid_error - pid_prev_error
+                pid_prev_error = pid_error
+                
+                # Calculate Output (Adjustment)
+                # We subtract output because Positive Error (Too many overflows) -> Decrease Lambda
+                adjustment = (pid_kp * pid_error) + (pid_ki * pid_integral) + (pid_kd * pid_derivative)
+                
+                # Apply Adjustment (Learning Rate for Lambda approx 0.1)
+                # target_overflow is implicitly handled by pid_target in pid_error
+                current_lambda_gate = current_lambda_gate - (adjustment * 0.5) 
+                
+                # Clamp (Increased to 5000 for Attempt 53b)
+                current_lambda_gate = max(0.0, min(5000.0, current_lambda_gate))
+                lambda_fixed_gate = current_lambda_gate
+                
+                # Attempt 58: High-Efficiency Selective (Ratio 200:1 -> 20 kg/km break-even)
+                # 1 bin (200 rewards) @ 20 kg/km (20 units per km * 1.0 = 20 penalty)
+                # 1kg = 1.0 reward. 1 unit (0.1km) = 1.0 penalty.
+                lambda_waste = 200.0
+                lambda_cost = 1.0
+                lambda_overflow = 20.0 
+                lambda_lookahead = 0.0 
+                
+                # inst_route_cost: Matrix Units (Meters/100). 1km = 10.0.
+                # In opts, w_length=0.05. So 1km = 0.5 penalty.
+                # Waste = 1.0 (Full bin) = 10.0 reward.
+                # Ratio Waste/KM = 20.0. 
+                
+                # Gate Penalty: lambda_fixed_gate matches Waste Reward scale (~10-50 per day)
                 inst_gate_penalty = gate_action_full.float() * lambda_fixed_gate
 
                 # Per-Instance Reward Tensor: (TotalSamples)
+                # Note: We don't scale length by 0.001 anymore. Use matrix units.
+                # daily_loss['length'] is (Batch, 1) or (TotalSamples, 1)?
+                # Problem.get_costs returns (B) for length.
                 hrl_reward_tensor = (lambda_waste * inst_waste_collected.float() - (lambda_cost * inst_route_cost.float() + lambda_overflow * inst_overflow.float() + lambda_lookahead * inst_lookahead.float() + inst_gate_penalty)) * 0.01
                 
                 daily_rewards.append(hrl_reward_tensor.mean().item())
@@ -498,11 +573,19 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
                     loss = hrl_manager.update(
                         lr=opts.get('mrl_lr', 3e-4),
                         ppo_epochs=opts.get('hrl_epochs', 4),
-                        clip_eps=opts.get('hrl_clip_eps', 0.2)
+                        clip_eps=opts.get('hrl_clip_eps', 0.2),
+                        gamma=0.95,
+                        lambda_mask_aux=opts.get('lambda_mask_aux', 1.0) 
                     )
                     if loss is not None and tb_logger is not None:
                         tb_logger.log_value('hrl_manager_loss', loss, step)
-                    print(f"HRL Update Day {day}: MeanReward={hrl_reward_tensor.mean().item():.4f} Loss={loss if loss else 0:.4f}")
+                    
+                    # Debug Logging Attempt 53 (PID Enhanced)
+                    d_waste = inst_waste_collected.float().mean().item()
+                    d_cost = inst_route_cost.float().mean().item()
+                    d_over = inst_overflow.float().mean().item()
+                    d_gate = inst_gate_penalty.float().mean().item()
+                    print(f"HRL Update Day {day}: Reward={hrl_reward_tensor.mean().item():.4f} | W={d_waste:.1f} C={d_cost:.1f} O={d_over:.1f} G={d_gate:.1f} L={lambda_fixed_gate:.1f}")
 
             day += 1
             if day >= opts['epoch_start'] + opts['n_epochs']: break

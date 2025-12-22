@@ -29,9 +29,10 @@ class GATLSTManager(nn.Module):
         self.input_dim_dynamic = input_dim_dynamic
         self.global_input_dim = global_input_dim
         
-        # 1. Temporal Encoder (LSTM)
-        # Inputs: (Batch * N, Sequence, 1) - We treat each node's history as a sequence
-        self.lstm = nn.LSTM(input_size=1, hidden_size=lstm_hidden, batch_first=True)
+        # 1. Temporal Encoder (Simplified: Current Waste Projector)
+        # Inputs: (Batch, N, 1) - Current Waste Only
+        self.waste_proj = nn.Linear(1, lstm_hidden)
+        # self.lstm = nn.LSTM(input_size=1, hidden_size=lstm_hidden, batch_first=True)
         
         # 2. Feature Fusion
         # Static (2) + Temporal Embedding (lstm_hidden) -> Hidden
@@ -48,8 +49,9 @@ class GATLSTManager(nn.Module):
         
         # Node Mask Head (Actor 1)
         # Output: (Batch, N, 2) -> Logits for [Skip, Visit]
+        # Input: Hidden + Skip Connection (lstm_hidden)
         self.mask_head = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
+            nn.Linear(hidden_dim + lstm_hidden, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 2)
         )
@@ -107,14 +109,18 @@ class GATLSTManager(nn.Module):
         """
         B, N, H_len = dynamic.size()
         
-        # Reshape dynamic for LSTM: (Batch*N, History, 1)
-        dyn_flat = dynamic.view(B*N, H_len, 1)
+        # Simplify: Use Current Waste (Last Step)
+        # dynamic: (Batch, N, History)
+        current_waste = dynamic[:, :, -1:] # (Batch, N, 1)
         
-        # Run LSTM
-        # out: (Batch*N, History, Hidden), (h_n, c_n)
-        _, (h_n, _) = self.lstm(dyn_flat)
-        # h_n: (1, Batch*N, Hidden) -> (Batch, N, Hidden)
-        temporal_embed = h_n.squeeze(0).view(B, N, -1)
+        # Project
+        temporal_embed = self.waste_proj(current_waste) # (Batch, N, lstm_hidden)
+        
+        # Original LSTM Logic (Commented out)
+        # Reshape dynamic for LSTM: (Batch*N, History, 1)
+        # dyn_flat = dynamic.view(B*N, H_len, 1)
+        # _, (h_n, _) = self.lstm(dyn_flat)
+        # temporal_embed = h_n.squeeze(0).view(B, N, -1)
         
         # Concatenate with static
         # static: (Batch, N, 2)
@@ -137,8 +143,19 @@ class GATLSTManager(nn.Module):
         # Transformer expects (Batch, Seq, F) with batch_first=True
         h = self.gat_encoder(x) # (B, N, H)
         
+        # SKIP CONNECTION: Concatenate temporal_embed (Waste Proj) to h
+        # Recalculate temporal_embed or return it from feature_processing?
+        # feature_processing assumes it's internal.
+        # Let's refactor feature_processing to return temporal_embed as well.
+        # OR just recompute it here since it's cheap (Linear).
+        current_waste = dynamic[:, :, -1:]
+        temporal_embed = self.waste_proj(current_waste)
+        
+        # h_skip: (B, N, H + lstm_hidden)
+        h_skip = torch.cat([h, temporal_embed], dim=-1)
+        
         # Node Mask Logits
-        mask_logits = self.mask_head(h) # (B, N, 2)
+        mask_logits = self.mask_head(h_skip) # (B, N, 2)
         
         # Global Pooling for Gate/Critic
         # Combine Mean (for general load) and Max (for urgency/overflows)
@@ -184,8 +201,11 @@ class GATLSTManager(nn.Module):
             force_mask = (force_action != -1)
             gate_action = torch.where(force_mask, force_action, sampled_action)
         elif deterministic:
-            # gate_action = torch.argmax(gate_probs, dim=-1)
-            gate_action = (gate_probs[..., 1] > threshold).long()
+            if threshold < 0:
+                 # Force Gate Open
+                 gate_action = torch.ones_like(gate_probs[..., 1]).long()
+            else:
+                 gate_action = (gate_probs[..., 1] > threshold).long()
         else:
             gate_action = gate_dist.sample()
             
@@ -195,10 +215,11 @@ class GATLSTManager(nn.Module):
         # (Batch, N, 2)
         mask_probs = F.softmax(mask_logits, dim=-1)
         if deterministic:
-            mask_action = torch.argmax(mask_probs, dim=-1)
+            mask_action = (mask_probs[..., 1] > mask_threshold).long()
         else:
             mask_dist = torch.distributions.Categorical(mask_probs)
             mask_action = mask_dist.sample() # (Batch, N)
+            
             
         # Apply force_node_mask if provided (Expert Forcing)
         if force_node_mask is not None:
@@ -225,9 +246,10 @@ class GATLSTManager(nn.Module):
         
         return mask_action, gate_action, value
 
-    def update(self, lr=3e-4, gamma=0.99, clip_eps=0.2, ppo_epochs=4):
+    def update(self, lr=3e-4, gamma=0.99, clip_eps=0.2, ppo_epochs=4, lambda_mask_aux=0.0):
         """
         PPO Update with combined loss for Gate and Mask.
+        Now uses proper temporal discounted returns.
         """
         if not self.rewards:
             return None
@@ -235,34 +257,37 @@ class GATLSTManager(nn.Module):
         if self.optimizer is None:
             self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
 
-        # Convert buffers to tensors (Keep on CPU initially to save VRAM)
-        # Flattening (Step, Batch, ...) -> (TotalSamples, ...)
-        old_states_static = torch.cat(self.states_static)
-        old_states_dynamic = torch.cat(self.states_dynamic)
-        old_states_global = torch.cat(self.states_global) # New
-        old_mask_actions = torch.cat(self.actions_mask)
-        old_gate_actions = torch.cat(self.actions_gate)
-        old_log_probs_mask = torch.cat(self.log_probs_mask)
-        old_log_probs_gate = torch.cat(self.log_probs_gate)
-        old_values = torch.cat(self.values).squeeze(-1)
+        # Convert buffers to tensors 
+        # T: Time steps (days), B: Batch size (instances)
+        # self.rewards is a list of T tensors, each of shape (B,)
         
-        # Rewards processing
-        sample = self.rewards[0]
-        if isinstance(sample, (int, float)) or (torch.is_tensor(sample) and sample.ndim == 0):
-            # Expand scalar reward to batch size
-            total_samples = old_states_static.shape[0] // len(self.rewards)
-            expanded_rewards = []
-            for r in self.rewards:
-                r_val = r if isinstance(r, (int, float)) else r.item()
-                # Use CPU tensor for expansion
-                expanded_rewards.append(torch.full((total_samples,), r_val))
-            rewards = torch.cat(expanded_rewards)
-        else:
-            rewards = torch.cat(self.rewards).cpu() # Ensure CPU
-            
         # Calculate Returns & Advantages (on CPU)
-        returns = rewards
-        # Advantage Normalization (Fixing the sign bug from previous session if present, but here using returns - old_values)
+        # Returns G_t = R_t + gamma * G_{t+1}
+        T = len(self.rewards)
+        B = self.rewards[0].size(0)
+        
+        rewards_tensor = torch.stack(self.rewards).cpu() # (T, B)
+        returns_tensor = torch.zeros_like(rewards_tensor) # (T, B)
+        
+        # Compute returns backwards
+        running_return = torch.zeros(B)
+        for t in reversed(range(T)):
+            running_return = rewards_tensor[t] + gamma * running_return
+            returns_tensor[t] = running_return
+            
+        # Flatten all buffers for PPO (TotalSamples = T * B)
+        returns = returns_tensor.flatten() # (T*B,)
+        
+        old_states_static = torch.cat(self.states_static)  # (T*B, N, 2)
+        old_states_dynamic = torch.cat(self.states_dynamic) # (T*B, N, H)
+        old_states_global = torch.cat(self.states_global)   # (T*B, G)
+        old_mask_actions = torch.cat(self.actions_mask)     # (T*B, N)
+        old_gate_actions = torch.cat(self.actions_gate)     # (T*B,)
+        old_log_probs_mask = torch.cat(self.log_probs_mask) # (T*B,)
+        old_log_probs_gate = torch.cat(self.log_probs_gate) # (T*B,)
+        old_values = torch.cat(self.values).squeeze(-1)    # (T*B,)
+        
+        # Advantage Calculation
         advantages = returns - old_values
         if advantages.std() > 1e-8:
             advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
@@ -314,7 +339,33 @@ class GATLSTManager(nn.Module):
                 
                 entropy = mask_dist.entropy().mean() + gate_dist.entropy().mean()
                 
-                loss = actor_loss + 0.5 * value_loss - 0.1 * entropy
+                # Attempt 60: Contrastive HRL Auxiliary Loss (Weighted)
+                # Force Mask Head to behave like Expert (Critical Node Mask)
+                # b_dynamic: (Batch, N, History). Last dim is current waste.
+                # Threshold same as Expert Forcing: > 0.9
+                current_waste = b_dynamic[:, :, -1]
+                target_mask = (current_waste > 0.9).float() 
+                
+                # Correct Logit for BCE: s1 - s0 (Keep - Skip)
+                logits_diff = mask_logits[:, :, 1] - mask_logits[:, :, 0]
+                
+                # Weighted BCE to handle Class Imbalance (Rare Full Bins)
+                pos_weight = torch.tensor([20.0]).to(self.device)
+                loss_mask_aux = F.binary_cross_entropy_with_logits(logits_diff, target_mask, pos_weight=pos_weight)
+                
+                # Check Stats (Logging)
+                if _ == 0 and i == 0:
+                     mask_probs = torch.sigmoid(logits_diff) # Recompute for stats
+                     # Calculate mean probability for Full vs Empty bins
+                     mask_full = (target_mask == 1.0)
+                     mask_empty = (target_mask == 0.0)
+                     
+                     p_full = mask_probs[mask_full].mean().item() if mask_full.any() else 0.0
+                     p_empty = mask_probs[mask_empty].mean().item() if mask_empty.any() else 0.0
+                     
+                     print(f" Mask Aux Stat: Full P(Keep)={p_full:.4f} | Empty P(Keep)={p_empty:.4f} | AuxLoss={loss_mask_aux.item():.4f}")
+
+                loss = actor_loss + 0.5 * value_loss - 0.1 * entropy + (lambda_mask_aux * loss_mask_aux)
                 
                 self.optimizer.zero_grad()
                 loss.backward()
