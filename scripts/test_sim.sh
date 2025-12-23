@@ -4,7 +4,7 @@
 VERBOSE=false
 
 # Default cores
-N_CORES=1
+N_CORES=22
 
 while getopts nc: flag
 do
@@ -33,7 +33,7 @@ fi
 SEED=42
 N_DAYS=31
 N_BINS=100
-N_SAMPLES=10
+N_SAMPLES=1
 PROBLEM="cwcvrp"
 
 AREA="riomaior"
@@ -54,7 +54,7 @@ GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("amgat_hrl")
+POLICIES=("policy_look_ahead_vrpp")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 

@@ -201,10 +201,10 @@ class GATLSTManager(nn.Module):
             gate_action = torch.where(force_mask, force_action, sampled_action)
         elif deterministic:
             if threshold < 0:
-                 # Force Gate Open
-                 gate_action = torch.ones_like(gate_probs[..., 1]).long()
+                # Force Gate Open
+                gate_action = torch.ones_like(gate_probs[..., 1]).long()
             else:
-                 gate_action = (gate_probs[..., 1] > threshold).long()
+                gate_action = (gate_probs[..., 1] > threshold).long()
         else:
             gate_action = gate_dist.sample()
             
