@@ -34,6 +34,8 @@ def policy_lookahead(
 
 
 def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_matrix, values, number_vehicles=8, env=None):
+    if number_vehicles == 0:
+        number_vehicles = len(binsids)
     binsids = [0] + [bin_id + 1 for bin_id in binsids]
     # Filter must_go_bins to ensure they are valid bin IDs (1..N)
     # Actually must_go_bins input are 0..N-1. We map to 1..N.
@@ -73,6 +75,8 @@ def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_m
     x = model.addVars(all_nodes, all_nodes, vtype=GRB.BINARY, name="x")
     g = model.addVars(real_nodes, vtype=GRB.BINARY, name="g")
     f = model.addVars(all_nodes, all_nodes, vtype=GRB.CONTINUOUS, name="f")
+    # Add Sequence variables u for MTZ Subtour Elimination (robust to 0 demand)
+    u = model.addVars(all_nodes, vtype=GRB.CONTINUOUS, name="u")
 
     # Objective: Maximize Profit - Cost - Penalty
     
@@ -158,6 +162,18 @@ def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_m
     # Load leaving depot is 0
     for j in real_nodes:
         model.addConstr(f[0,j] == 0)
+
+    # MTZ Constraints for Sequencing (u_i - u_j + N*x_ij <= N-1)
+    N_count = len(all_nodes)
+    for i in real_nodes:
+        for j in real_nodes:
+            if i != j:
+                model.addConstr(u[i] - u[j] + N_count * x[i,j] <= N_count - 1)
+    
+    # Boundary for u
+    for i in real_nodes:
+        model.addConstr(u[i] >= 1)
+        model.addConstr(u[i] <= N_count)
 
     # Max vehicles
     model.addConstr(quicksum(x[0,j] for j in real_nodes) <= number_vehicles)

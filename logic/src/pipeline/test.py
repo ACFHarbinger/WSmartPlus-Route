@@ -188,7 +188,7 @@ def simulator_testing(opts, data_size, device):
         else:
             log = {}
             log_std = None
-            for run in log_full:
+            for run in log_tmp:
                 log.update(run)
     else:
         print(f"Launching {task_count} WSmart Route simulations on a single CPU core...")
