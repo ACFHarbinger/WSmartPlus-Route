@@ -30,7 +30,20 @@ def setup_cost_weights(opts, def_val=1.):
 def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None):
     hrl_path = None
     if opts.get('model_path') is not None:
-        hrl_path = opts['model_path'][policy]
+        if policy in opts['model_path']:
+            hrl_path = opts['model_path'][policy]
+        else:
+            # Fallback: Try to find a match by stripping suffixes like _gamma1, _emp, etc.
+            # This is common in the simulator where policy names are augmented.
+            base_policy = policy.split('_gamma')[0].split('_emp')[0]
+            if base_policy in opts['model_path']:
+                hrl_path = opts['model_path'][base_policy]
+            else:
+                # Last resort: check if any key in model_path is a prefix of our policy name
+                for key in opts['model_path'].keys():
+                    if policy.startswith(key):
+                        hrl_path = opts['model_path'][key]
+                        break
     
     # Check prioritization: Configs > Opts
     hrl_method = None

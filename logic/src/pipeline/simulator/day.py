@@ -27,7 +27,7 @@ def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum
     dlog['day'] = day
     dlog['overflows'] = new_overflows
     dlog['kg_lost'] = sum_lost
-    if len(tour) > 2:
+    if len(tour) > 2 and cost > 0:
         rl_cost = new_overflows - total_collected + cost
         dlog['kg'] = total_collected
         dlog['ncol'] = ncol
