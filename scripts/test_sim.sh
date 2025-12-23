@@ -4,7 +4,7 @@
 VERBOSE=false
 
 # Default cores
-N_CORES=22
+N_CORES=1
 
 while getopts nc: flag
 do
@@ -54,7 +54,7 @@ GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("gurobi_vrpp")
+POLICIES=("amgat_hrl")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
@@ -62,7 +62,7 @@ POLICIES=("gurobi_vrpp")
 #"am" "amgc" "transgcn"
 declare -A MODEL_PATHS
 MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgac"
-MODEL_PATHS["amgat_hrl"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgac_hrl"
+MODEL_PATHS["amgat_hrl"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat_hrl"
 MODEL_PATHS["amgac"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgac_hrl"
 MODEL_PATHS["amtgc"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amtgc_hrl"
 
@@ -73,8 +73,8 @@ done
 
 VEHICLES=0
 REAL_TIME_LOG=1
-GATE_PROB_THRESHOLD="0.5"
-MASK_PROB_THRESHOLD="0.5"
+GATE_PROB_THRESHOLD="0.1"
+MASK_PROB_THRESHOLD="${MASK_PROB_THRESHOLD:-0.5}"
 EDGE_THRESH=0.0
 EDGE_METHOD="knn"
 VERTEX_METHOD="mmn"
@@ -106,7 +106,7 @@ if [ "$RUN_TSP" -eq 0 ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
     fi
-    python3 main.py test_sim --policies "${POLICIES[@]}" --data_distribution "$DATA_DIST" --run_tsp \
+    python main.py test_sim --policies "${POLICIES[@]}" --data_distribution "$DATA_DIST" --run_tsp \
     --n_samples "$N_SAMPLES" --bin_idx_file "$IDX_PATH" --size "$N_BINS" --seed "$SEED" --area "$AREA" \
     --n_vehicles "$VEHICLES" --vm "$VERTEX_METHOD" --cpd "$CHECKPOINTS" --gplic_file "$GP_LIC_FILE" \
     --lvl "${REGULAR_LEVEL[@]}" --cf "${LAST_MINUTE_CF[@]}" --gp "${GUROBI_PARAM[@]}" --dt "$DECODE_TYPE" \
@@ -124,7 +124,7 @@ else
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
     fi
-    python3 main.py test_sim --policies "${POLICIES[@]}" --data_distribution "$DATA_DIST" --dt "$DECODE_TYPE" \
+    python main.py test_sim --policies "${POLICIES[@]}" --data_distribution "$DATA_DIST" --dt "$DECODE_TYPE" \
     --cc "$n_cores" --n_samples "$N_SAMPLES" --area "$AREA" --bin_idx_file "$IDX_PATH" --size "$N_BINS" --seed "$SEED" \
     --problem "$PROBLEM" --n_vehicles "$VEHICLES" --vm "$VERTEX_METHOD" --lac "${LOOKAHEAD_CONFIGS[@]}" --dm "$DIST_METHOD" \
     --lvl "${REGULAR_LEVEL[@]}" --cf "${LAST_MINUTE_CF[@]}" --gp "${GUROBI_PARAM[@]}" --hp "${HEXALY_PARAM[@]}" \
