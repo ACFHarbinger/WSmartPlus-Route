@@ -21,9 +21,9 @@ EDGE_M="knn"
 DIST_M="gmaps"
 VERTEX_M="mmn"
 
-W_LEN=0.05
-W_OVER=100.0
-W_WASTE=10.0
+W_LEN=0.001
+W_OVER=500.0
+W_WASTE=100.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
 # gamma W_LEN = 2.5, 1.75, 1.75, 1.75
 
@@ -104,8 +104,10 @@ TRAIN_DDAM=1
 TRAIN_TAM=1
 HORIZON=(0 0 0 0 3)
 WB_MODE="disabled" # 'online'|'offline'|'disabled'
-LOAD_PATH="/home/pkhunter/Repositories/WSmart-Route/model_weights/cwcvrp_100/amgat_gamma1_20251222T140137/epoch-99.pt"
-LR_MODEL=0.0
+# Attempt 62: Overflow-Dominant Reward Shaping
+# Starting from base amgat checkpoint - training fresh HRL manager
+LOAD_PATH="/home/pkhunter/Repositories/WSmart-Route/model_weights/cwcvrp_100/amgat_gamma1_20251223T173420/epoch-99.pt"
+LR_MODEL=0.0  # Keep worker frozen
 
 echo "Starting training script..."
 echo "Problem: $PROBLEM"
@@ -122,7 +124,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
-        python main.py mrl_train --problem "$PROBLEM" --model am --encoder gat --epoch_size "$N_DATA" \
+        ./.venv/bin/python3 main.py mrl_train --problem "$PROBLEM" --model am --encoder gat --epoch_size "$N_DATA" \
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --seed "$SEED" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \

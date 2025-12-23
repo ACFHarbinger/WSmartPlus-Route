@@ -87,18 +87,21 @@ class GATLSTManager(nn.Module):
         with torch.no_grad():
             # Assuming gate_head's last layer is a Linear layer
             self.gate_head[-1].bias.fill_(0)
-            # self.gate_head[-1].bias[1] = 2.0 # Removed bias
+            
+            # Revert to Neutral Bias for Attempt 70
+            self.mask_head[-1].bias.fill_(0)
 
     def clear_memory(self):
         self.states_static = []
         self.states_dynamic = []
-        self.states_global = [] # New buffer
+        self.states_global = []
         self.actions_mask = []
         self.actions_gate = []
         self.log_probs_mask = []
         self.log_probs_gate = []
         self.rewards = []
         self.values = []
+        self.target_masks = [] # New buffer for target masks
         self.dones = []
 
     def feature_processing(self, static, dynamic):
@@ -175,7 +178,7 @@ class GATLSTManager(nn.Module):
         
         return mask_logits, gate_logits, value
 
-    def select_action(self, static, dynamic, global_features=None, deterministic=False, force_action=None, force_node_mask=None, threshold=0.5, mask_threshold=0.5):
+    def select_action(self, static, dynamic, global_features=None, deterministic=False, force_action=None, force_node_mask=None, threshold=0.5, mask_threshold=0.5, target_mask=None):
         """
         static: (Batch, N, 2) - Locations
         dynamic: (Batch, N, 1) - Waste levels
@@ -184,6 +187,7 @@ class GATLSTManager(nn.Module):
         force_node_mask: (Batch, N) of 0/1 or None - Expert action to force (Mask)
         threshold: float - Probability threshold for gate=1 (Route) when deterministic
         mask_threshold: float - Probability threshold for mask=1 (Unmask) when deterministic
+        target_mask: (Batch, N) of 0/1 or None - Expert target for mask auxiliary loss
         """
         mask_logits, gate_logits, value = self.forward(static, dynamic, global_features)
         
@@ -192,12 +196,7 @@ class GATLSTManager(nn.Module):
         gate_dist = torch.distributions.Categorical(gate_probs)
         
         if force_action is not None and torch.is_tensor(force_action):
-            # Use forced action where specified (e.g. != -1)
-            # Assuming force_action has 0 or 1.
-            
             sampled_action = gate_dist.sample()
-            # If force_action is valid (0 or 1), use it. Else use sampled.
-            # Check for validity mask
             force_mask = (force_action != -1)
             gate_action = torch.where(force_mask, force_action, sampled_action)
         elif deterministic:
@@ -210,9 +209,6 @@ class GATLSTManager(nn.Module):
             gate_action = gate_dist.sample()
             
         # 2. Mask Decision (Which nodes to mask/unmask)
-        # For simplicity, if we route (gate=1), we unmask all (mask=1)?
-        # Or let the model decide? The model outputs per-node mask logits.
-        # (Batch, N, 2)
         mask_probs = F.softmax(mask_logits, dim=-1)
         if deterministic:
             mask_action = (mask_probs[..., 1] > mask_threshold).long()
@@ -220,33 +216,40 @@ class GATLSTManager(nn.Module):
             mask_dist = torch.distributions.Categorical(mask_probs)
             mask_action = mask_dist.sample() # (Batch, N)
             
+        # Apply safety railing (Inference Only)
+        if deterministic:
+            curr_waste = dynamic[:, :, -1] 
+            safety_mask = (curr_waste > 0.85).long() # Proactive unmasking
+            mask_action = torch.max(mask_action, safety_mask)
             
-        # Apply force_node_mask if provided (Expert Forcing)
+        # Apply force_node_mask if provided (Expert Forcing - Training Only)
         if force_node_mask is not None:
-            # force_node_mask should be (Batch, N) of 1s (force visit) and 0s (no force)
-            # We only force visit (action=1) for critical nodes.
-            # We assume force_node_mask=1 implies we MUST visit.
             mask_action = torch.max(mask_action, force_node_mask.long())
             
         # Store for PPO
         if not deterministic:
-            # Mask Log Prob: Sum over nodes
-            # Gate Log Prob: Single scalar
             log_prob_mask = mask_dist.log_prob(mask_action).sum(dim=1)
             log_prob_gate = gate_dist.log_prob(gate_action)
             
             self.states_static.append(static.detach().cpu())
             self.states_dynamic.append(dynamic.detach().cpu())
-            self.states_global.append(global_features.detach().cpu()) # Store global features
+            self.states_global.append(global_features.detach().cpu()) 
             self.actions_gate.append(gate_action.detach().cpu())
             self.actions_mask.append(mask_action.detach().cpu())
             self.log_probs_gate.append(log_prob_gate.detach().cpu())
             self.log_probs_mask.append(log_prob_mask.detach().cpu())
             self.values.append(value.detach().cpu())
+            
+            # Store target mask for auxiliary loss
+            if target_mask is not None:
+                self.target_masks.append(target_mask.detach().cpu())
+            else:
+                # Fallback to current waste > 0.9
+                self.target_masks.append((dynamic[:, :, -1] > 0.9).float().detach().cpu())
         
         return mask_action, gate_action, value
 
-    def update(self, lr=3e-4, gamma=0.99, clip_eps=0.2, ppo_epochs=4, lambda_mask_aux=0.0):
+    def update(self, lr=3e-4, gamma=0.99, clip_eps=0.2, ppo_epochs=4, lambda_mask_aux=0.0, entropy_coef=0.1):
         """
         PPO Update with combined loss for Gate and Mask.
         Now uses proper temporal discounted returns.
@@ -286,6 +289,7 @@ class GATLSTManager(nn.Module):
         old_log_probs_mask = torch.cat(self.log_probs_mask) # (T*B,)
         old_log_probs_gate = torch.cat(self.log_probs_gate) # (T*B,)
         old_values = torch.cat(self.values).squeeze(-1)    # (T*B,)
+        old_target_masks = torch.cat(self.target_masks)    # (T*B, N)
         
         # Advantage Calculation
         advantages = returns - old_values
@@ -314,6 +318,7 @@ class GATLSTManager(nn.Module):
                 b_old_log_gate = old_log_probs_gate[batch_idx].to(self.device)
                 b_returns = returns[batch_idx].to(self.device)
                 b_adv = advantages[batch_idx].to(self.device)
+                b_target_mask = old_target_masks[batch_idx].to(self.device)
                 
                 # Forward pass
                 mask_logits, gate_logits, values = self.forward(b_static, b_dynamic, b_global)
@@ -331,44 +336,48 @@ class GATLSTManager(nn.Module):
                 
                 ratio = torch.exp(new_log_probs - old_log_probs)
                 
-                surr1 = ratio * b_adv
-                surr2 = torch.clamp(ratio, 1.0 - clip_eps, 1.0 + clip_eps) * b_adv
+                # Attempt 62: HICRA-Inspired Credit Assignment
+                # Weight gradient updates by overflow severity
+                # This focuses learning on high-impact decisions
+                b_overflow = (b_dynamic[:, :, -1] > 0.9).float().sum(dim=1)  # Count of critical nodes
+                credit_weight = 1.0 + (b_overflow * 0.5)  # Higher weight for instances with more critical nodes
+                credit_weight = credit_weight / credit_weight.mean()  # Normalize
+                
+                surr1 = ratio * b_adv * credit_weight
+                surr2 = torch.clamp(ratio, 1.0 - clip_eps, 1.0 + clip_eps) * b_adv * credit_weight
                 actor_loss = -torch.min(surr1, surr2).mean()
                 
                 value_loss = F.mse_loss(values, b_returns)
                 
                 entropy = mask_dist.entropy().mean() + gate_dist.entropy().mean()
                 
-                # Attempt 60: Contrastive HRL Auxiliary Loss (Weighted)
-                # Force Mask Head to behave like Expert (Critical Node Mask)
-                # b_dynamic: (Batch, N, History). Last dim is current waste.
-                # Threshold same as Expert Forcing: > 0.9
-                current_waste = b_dynamic[:, :, -1]
-                target_mask = (current_waste > 0.9).float() 
+                # Attempt 67: Precision Lookahead Masking
+                # Use target_mask provided during select_action (which mimics VRPP)
+                target_mask = b_target_mask 
                 
                 # Correct Logit for BCE: s1 - s0 (Keep - Skip)
                 logits_diff = mask_logits[:, :, 1] - mask_logits[:, :, 0]
                 
-                # Weighted BCE to handle Class Imbalance (Rare Full Bins)
-                pos_weight = torch.tensor([20.0]).to(self.device)
+                # Attempt 71: Pressure Mirroring
+                # Attempt 73: Intensify Expert Signal
+                pos_weight = torch.tensor([50.0]).to(self.device)
                 loss_mask_aux = F.binary_cross_entropy_with_logits(logits_diff, target_mask, pos_weight=pos_weight)
                 
                 # Check Stats (Logging)
                 if _ == 0 and i == 0:
-                     mask_probs = torch.sigmoid(logits_diff) # Recompute for stats
-                     # Calculate mean probability for Full vs Empty bins
+                     mask_probs = torch.sigmoid(logits_diff) 
                      mask_full = (target_mask == 1.0)
                      mask_empty = (target_mask == 0.0)
                      
                      p_full = mask_probs[mask_full].mean().item() if mask_full.any() else 0.0
                      p_empty = mask_probs[mask_empty].mean().item() if mask_empty.any() else 0.0
-                     
-                     print(f" Mask Aux Stat: Full P(Keep)={p_full:.4f} | Empty P(Keep)={p_empty:.4f} | AuxLoss={loss_mask_aux.item():.4f}")
+                     print(f" Mask Aux Stat (Attempt 73): Full P(Keep)={p_full:.4f} | Empty P(Keep)={p_empty:.4f} | AuxLoss={loss_mask_aux.item():.4f}")
 
-                loss = actor_loss + 0.5 * value_loss - 0.1 * entropy + (lambda_mask_aux * loss_mask_aux)
+                loss = actor_loss + 0.5 * value_loss - entropy_coef * entropy + (lambda_mask_aux * loss_mask_aux)
                 
                 self.optimizer.zero_grad()
                 loss.backward()
+                torch.nn.utils.clip_grad_norm_(self.parameters(), 1.0) # Clip gradients to prevent NaN
                 self.optimizer.step()
                 
                 total_loss += loss.item()

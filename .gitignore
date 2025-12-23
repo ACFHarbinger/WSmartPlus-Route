@@ -446,7 +446,6 @@ assets/api
 assets/keys/
 
 # Local files and directories
-reports/
 **/results/
 **/daily_*/
 **/fill_history/
