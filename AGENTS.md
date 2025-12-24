@@ -19,7 +19,7 @@ Testing: pytest (Rooted in logic/test and gui/test).
 
 ## 3. Core Architectural Boundaries
 Maintain strict separation of concerns across these primary modules:
-- Logic Layer (logic/src/)
+- **Logic Layer (logic/src/)**
     - models/: Neural architecture implementations.
     - subnets/: Discrete components like Encoders (GAT, GCN, MLP) and Decoders.
     - modules/: Atomic utility layers (Normalization, Multi-Head Attention).
@@ -27,7 +27,7 @@ Maintain strict separation of concerns across these primary modules:
     - state_*.py: Critical logic for state transitions, node masking, and reward calculation.
     - policies/: Traditional heuristic and exact algorithms (ALNS, Branch-Cut-and-Price).
     - pipeline/: Orchestration logic for train.py, eval.py, and test_sim.
-- GUI Layer (gui/src/)
+- **GUI Layer (gui/src/)**
     - tabs/: Module-specific UI views (Analysis, Training, Simulator).
     - helpers/: Threaded workers (e.g., chart_worker.py) for non-blocking UI.
     - windows/: Application window management.
