@@ -297,7 +297,6 @@ def add_mrl_train_args(parser):
     parser.add_argument('--mrl_batch_size', type=int, default=256, help="Batch size to use for Meta-Reinforcement Learning")
     parser.add_argument('--hrl_epochs', type=int, default=4, help="Number of epochs to use for Hierarchical Reinforcement Learning PPO")
     parser.add_argument('--hrl_clip_eps', type=float, default=0.2, help="Set the clip epsilon for Hierarchical Reinforcement Learning PPO")
-    parser.add_argument('--hrl_method', type=str, default='weight_manager', choices=['weight_manager', 'gating_mechanism'], help="Method for HRL Manager")
     parser.add_argument('--gat_hidden', type=int, default=128, help="Hidden dimension for GAT Manager")
     parser.add_argument('--lstm_hidden', type=int, default=64, help="Hidden dimension for LSTM in GAT Manager")
     parser.add_argument('--gate_prob_threshold', type=float, default=0.5, help="Threshold for routing decision gate")

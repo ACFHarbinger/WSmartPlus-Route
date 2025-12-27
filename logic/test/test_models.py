@@ -94,7 +94,8 @@ class TestGATLSTManager:
         manager.log_probs_mask.append(torch.zeros(1))
         manager.log_probs_gate.append(torch.zeros(1))
         manager.values.append(torch.zeros(1,1))
-        manager.rewards.append(1.0)
+        manager.rewards.append(torch.tensor([1.0]))
+        manager.target_masks.append(torch.zeros(1, 5))
         
         # Mock optimizer step
         manager.optimizer = MagicMock()

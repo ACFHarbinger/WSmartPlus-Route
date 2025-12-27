@@ -29,10 +29,9 @@ class GATLSTManager(nn.Module):
         self.input_dim_dynamic = input_dim_dynamic
         self.global_input_dim = global_input_dim
         
-        # 1. Temporal Encoder (Simplified: Current Waste Projector)
-        # Inputs: (Batch, N, 1) - Current Waste Only
-        self.waste_proj = nn.Linear(1, lstm_hidden)
-        # self.lstm = nn.LSTM(input_size=1, hidden_size=lstm_hidden, batch_first=True)
+        # 1. Temporal Encoder (Long Short-Term Memory)
+        # Inputs: (Batch, N, History)
+        self.lstm = nn.LSTM(input_size=1, hidden_size=lstm_hidden, batch_first=True)
         
         # 2. Feature Fusion
         # Static (2) + Temporal Embedding (lstm_hidden) -> Hidden
@@ -108,22 +107,15 @@ class GATLSTManager(nn.Module):
         """
         static: (Batch, N, 2)
         dynamic: (Batch, N, History)
-        Returns: (Batch, N, Hidden)
+        Returns: (Batch, N, Hidden), (Batch, N, lstm_hidden)
         """
         B, N, H_len = dynamic.size()
         
-        # Simplify: Use Current Waste (Last Step)
-        # dynamic: (Batch, N, History)
-        current_waste = dynamic[:, :, -1:] # (Batch, N, 1)
-        
-        # Project
-        temporal_embed = self.waste_proj(current_waste) # (Batch, N, lstm_hidden)
-        
-        # Original LSTM Logic (Commented out)
+        # LSTM Temporal Encoding
         # Reshape dynamic for LSTM: (Batch*N, History, 1)
-        # dyn_flat = dynamic.view(B*N, H_len, 1)
-        # _, (h_n, _) = self.lstm(dyn_flat)
-        # temporal_embed = h_n.squeeze(0).view(B, N, -1)
+        dyn_flat = dynamic.view(B * N, H_len, 1)
+        _, (h_n, _) = self.lstm(dyn_flat)
+        temporal_embed = h_n.squeeze(0).view(B, N, -1)
         
         # Concatenate with static
         # static: (Batch, N, 2)
@@ -132,7 +124,7 @@ class GATLSTManager(nn.Module):
         # Project to hidden
         x = self.feature_embedding(combined)
         
-        return x
+        return x, temporal_embed
 
     def forward(self, static, dynamic, global_features):
         """
@@ -140,20 +132,13 @@ class GATLSTManager(nn.Module):
         global_features: (Batch, global_input_dim)
         """
         # Encode
-        x = self.feature_processing(static, dynamic) # (B, N, H)
+        x, temporal_embed = self.feature_processing(static, dynamic) # (B, N, H)
         
         # Spatial Context
         # Transformer expects (Batch, Seq, F) with batch_first=True
         h = self.gat_encoder(x) # (B, N, H)
         
-        # SKIP CONNECTION: Concatenate temporal_embed (Waste Proj) to h
-        # Recalculate temporal_embed or return it from feature_processing?
-        # feature_processing assumes it's internal.
-        # Let's refactor feature_processing to return temporal_embed as well.
-        # OR just recompute it here since it's cheap (Linear).
-        current_waste = dynamic[:, :, -1:]
-        temporal_embed = self.waste_proj(current_waste)
-        
+        # SKIP CONNECTION: Concatenate temporal_embed (LSTM output) to h
         # h_skip: (B, N, H + lstm_hidden)
         h_skip = torch.cat([h, temporal_embed], dim=-1)
         

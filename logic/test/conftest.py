@@ -28,7 +28,6 @@ sys.path.insert(0, str(project_root))
 from logic.src.pipeline.simulator.bins import Bins
 from logic.src.pipeline.simulator import simulation
 from logic.src.pipeline.reinforcement_learning.meta.contextual_bandits import WeightContextualBandit
-from logic.src.pipeline.reinforcement_learning.meta.hierarchical import HRLManager
 from logic.src.pipeline.reinforcement_learning.meta.multi_objective import MORLWeightOptimizer
 from logic.src.pipeline.reinforcement_learning.meta.temporal_difference_learning import CostWeightManager
 from logic.src.pipeline.reinforcement_learning.meta.weight_optimizer import RewardWeightOptimizer
@@ -1114,21 +1113,6 @@ def bandit_setup():
         window_size=5
     )
     return bandit
-
-@pytest.fixture
-def hrl_setup():
-    initial_weights = {'w_waste': 1.0, 'w_over': 2.0}
-    manager = HRLManager(
-        initial_weights=initial_weights,
-        history_length=5,
-        hidden_size=32,
-        lr=1e-3,
-        device='cpu',
-        min_weights=[0.1, 0.1],
-        max_weights=[5.0, 5.0],
-        ppo_epochs=2
-    )
-    return manager
 
 @pytest.fixture
 def morl_setup():
