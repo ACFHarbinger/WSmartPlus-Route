@@ -58,7 +58,6 @@ EXP_BETA=0.8
 BL_ALPHA=0.05
 ACC_STEPS=1
 
-HRL_METHOD="gating_mechanism"
 GAT_HIDDEN=128
 LSTM_HIDDEN=64
 GATE_THRESH=0.7
@@ -139,7 +138,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --mrl_batch_size "$META_B_SIZE" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH" --load_path "$LOAD_PATH";
+        --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH" --load_path "$LOAD_PATH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -168,7 +167,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --mrl_batch_size "$META_B_SIZE" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
+        --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -198,7 +197,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" --mrl_batch_size "$META_B_SIZE" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
+        --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -228,7 +227,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --mrl_batch_size "$META_B_SIZE" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
+        --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -258,7 +257,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --mrl_batch_size "$META_B_SIZE" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
+        --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi

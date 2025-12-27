@@ -44,7 +44,6 @@ set BL_ALPHA=0.05
 set ACC_STEPS=1
 
 :: Meta/HRL Parameters
-set HRL_METHOD=gat_lstm
 set GAT_HIDDEN=128
 set LSTM_HIDDEN=64
 set GATE_THRESH=0.7
@@ -124,7 +123,7 @@ for /L %%i in (0,1,%DIST_COUNT%) do (
         --aggregation_graph %AGG_G% --dm_filepath "%DM_PATH%" ^
         --wandb_mode %WB_MODE% --distance_method %DM_METHOD% --mrl_method %META_METHOD% --mrl_lr %META_LR% ^
         --mrl_history %META_HISTORY% --mrl_step %META_STEP% --hrl_epochs %HRL_EPOCHS% --hrl_clip_eps %HRL_CLIP_EPS% ^
-        --hrl_method %HRL_METHOD% --gat_hidden %GAT_HIDDEN% --lstm_hidden %LSTM_HIDDEN% --gate_prob_threshold %GATE_THRESH%
+        --gat_hidden %GAT_HIDDEN% --lstm_hidden %LSTM_HIDDEN% --gate_prob_threshold %GATE_THRESH%
 
         if "%VERBOSE%"=="true" ( !CMD! ) else ( !CMD! >nul 2>&1 )
     )

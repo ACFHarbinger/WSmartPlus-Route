@@ -45,15 +45,7 @@ def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None):
                         hrl_path = opts['model_path'][key]
                         break
     
-    # Check prioritization: Configs > Opts
-    hrl_method = None
-    if configs is not None:
-        hrl_method = configs.get('hrl_method')
-    
-    if hrl_method is None:
-        hrl_method = opts.get('hrl_method')
-
-    if hrl_method != 'gating_mechanism' or hrl_path is None:
+    if 'mrl_method' not in configs or configs['mrl_method'] != 'hrl':
         return None
     
     if base_path is not None and not os.path.exists(hrl_path):
