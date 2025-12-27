@@ -75,7 +75,7 @@ Categorize your feedback and edits using these severity levels:
 ## 8. Known Constraints & "No-Go" Areas
 - Legacy Preservation: Never edit files with copy.py suffixes or those inside legacy/ folders.
 - Slurm Sensitivity: Cluster scripts (scripts/slurm.sh) use specific path mappings; verify before modifying.
-- Linux Stability: In the MSI Vector environment, always include --use-angle=vulkan and --disable-gpu-sandbox when      suggesting debug flags for the GUI.
+- Linux Stability: In the Linux environment, always include --use-angle=vulkan and --disable-gpu-sandbox when suggesting debug flags for the GUI.
 
 ## 9. Usage Note
 Reference this file during project-wide analysis. When refactoring components, ensure they align with the subnets/ hierarchy and Normalization standards defined here.
