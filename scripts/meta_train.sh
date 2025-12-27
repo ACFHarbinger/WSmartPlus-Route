@@ -21,9 +21,9 @@ EDGE_M="knn"
 DIST_M="gmaps"
 VERTEX_M="mmn"
 
-W_LEN=0.01
-W_OVER=1000.0
-W_WASTE=10.0
+W_LEN=0.001
+W_OVER=500.0
+W_WASTE=100.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
 # gamma W_LEN = 2.5, 1.75, 1.75, 1.75
 
@@ -35,14 +35,14 @@ N_PRED_L=2
 N_DEC_L=2
 
 N_HEADS=8
-NORM="instance"
+NORM="batch"
 ACTI_F="gelu"
 DROPOUT=0.1
 AGG="mean"
 AGG_G="mean"
 
 OPTIM="rmsprop"
-LR_MODEL=0.0001
+LR_MODEL=0.0000
 LR_CV=0.0001
 LR_SCHEDULER="lambda"
 LR_DECAY=1.0
@@ -58,7 +58,6 @@ EXP_BETA=0.8
 BL_ALPHA=0.05
 ACC_STEPS=1
 
-HRL_METHOD="gating_mechanism"
 GAT_HIDDEN=128
 LSTM_HIDDEN=64
 GATE_THRESH=0.7
@@ -83,7 +82,7 @@ WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}
 
 SEED=42
 START=0
-EPOCHS=31
+EPOCHS=100
 TOTAL_EPOCHS=$(($START + $EPOCHS))
 PROBLEM="cwcvrp"
 DATA_PROBLEM="wcvrp"
@@ -104,6 +103,10 @@ TRAIN_DDAM=1
 TRAIN_TAM=1
 HORIZON=(0 0 0 0 3)
 WB_MODE="disabled" # 'online'|'offline'|'disabled'
+# Attempt 62: Overflow-Dominant Reward Shaping
+# Starting from base amgat checkpoint - training fresh HRL manager
+LOAD_PATH="/home/pkhunter/Repositories/WSmart-Route/model_weights/cwcvrp_100/amgat_gamma1_20251223T173420/epoch-99.pt"
+LR_MODEL=0.0  # Keep worker frozen
 
 echo "Starting training script..."
 echo "Problem: $PROBLEM"
@@ -120,7 +123,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
-        python3 main.py mrl_train --problem "$PROBLEM" --model am --encoder gat --epoch_size "$N_DATA" \
+        ./.venv/bin/python3 main.py mrl_train --problem "$PROBLEM" --model am --encoder gat --epoch_size "$N_DATA" \
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --seed "$SEED" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
@@ -135,9 +138,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --mrl_batch_size "$META_B_SIZE" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH" \
-        --lr_model 0 \
-        --load_path model_weights/cwcvrp_100/amgat_gamma1_20251220T161457/epoch-12.pt;
+        --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH" --load_path "$LOAD_PATH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -166,7 +167,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --mrl_batch_size "$META_B_SIZE" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
+        --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -196,7 +197,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" --mrl_batch_size "$META_B_SIZE" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
+        --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -226,7 +227,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --mrl_batch_size "$META_B_SIZE" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
+        --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -256,7 +257,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --mrl_method "$META_METHOD" --mrl_lr "$META_LR" \
         --mrl_history "$META_HISTORY" --mrl_step "$META_STEP" --hrl_epochs "$HRL_EPOCHS" --hrl_clip_eps "$HRL_CLIP_EPS" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --mrl_batch_size "$META_B_SIZE" \
-        --hrl_method "$HRL_METHOD" --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
+        --gat_hidden "$GAT_HIDDEN" --lstm_hidden "$LSTM_HIDDEN" --gate_prob_threshold "$GATE_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi

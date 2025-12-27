@@ -4,11 +4,11 @@ import pandas as pd
 
 from unittest.mock import patch, MagicMock, PropertyMock
 from logic.src.pipeline.simulator.day import run_day
-from logic.src.or_policies.regular import policy_regular
-from logic.src.or_policies.hybrid_genetic_search import run_hgs
-from logic.src.or_policies.multi_vehicle import find_routes, find_routes_ortools
-from logic.src.or_policies.last_minute import policy_last_minute, policy_last_minute_and_path
-from logic.src.or_policies.look_ahead import (
+from logic.src.policies.regular import policy_regular
+from logic.src.policies.hybrid_genetic_search import run_hgs
+from logic.src.policies.multi_vehicle import find_routes, find_routes_ortools
+from logic.src.policies.last_minute import policy_last_minute, policy_last_minute_and_path
+from logic.src.policies.look_ahead import (
     policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp, 
     policy_lookahead_hgs, policy_lookahead_alns, policy_lookahead_bcp
 )
@@ -496,12 +496,12 @@ class TestLastMinutePolicies:
         # Mock find_route to return tour for [0, 2, 4, 0]
         # Use mocker to patch usage in last_minute
         mocker.patch(
-            'logic.src.or_policies.last_minute.find_route', 
+            'logic.src.policies.last_minute.find_route', 
             return_value=[0, 2, 4, 0]
         )
         # Mock load_params to return high capacity (9999)
         mocker.patch(
-            'logic.src.or_policies.last_minute.load_area_and_waste_type_params',
+            'logic.src.policies.last_minute.load_area_and_waste_type_params',
             return_value=(9999, 0.16, 21.0, 1.0, 2.5)
         )
         
@@ -544,11 +544,11 @@ class TestLastMinutePolicies:
         
         # Capacity mock: Set capacity low (200)
         mocker.patch(
-            'logic.src.or_policies.last_minute.load_area_and_waste_type_params',
+            'logic.src.policies.last_minute.load_area_and_waste_type_params',
             return_value=(200, 0.16, 21.0, 1.0, 2.5)
         )
         mocker.patch(
-            'logic.src.or_policies.last_minute.find_route', 
+            'logic.src.policies.last_minute.find_route', 
             return_value=[0, 2, 4, 0]
         )
 
@@ -600,8 +600,8 @@ class TestLookaheadPolicyLogic:
         """
         binsids = list(range(mock_policy_common_data['n_bins']))
         
-        with patch('logic.src.or_policies.look_ahead.should_bin_be_collected', return_value=False) as mock_should_collect, \
-             patch('logic.src.or_policies.look_ahead.get_next_collection_day') as mock_next_day:
+        with patch('logic.src.policies.look_ahead.should_bin_be_collected', return_value=False) as mock_should_collect, \
+             patch('logic.src.policies.look_ahead.get_next_collection_day') as mock_next_day:
             
             must_go = policy_lookahead(
                 binsids, 
@@ -624,7 +624,7 @@ class TestLookaheadPolicyLogic:
 
         # In this scenario, should_bin_be_collected will return True for at least one bin (e.g., Bin 1: 95 + 1.0 > 100)
         # This triggers the full internal chain which is mocked to return [0, 1, 2]
-        with patch('logic.src.or_policies.look_ahead.should_bin_be_collected', return_value=True):
+        with patch('logic.src.policies.look_ahead.should_bin_be_collected', return_value=True):
             must_go = policy_lookahead(
                 binsids, 
                 mock_policy_common_data['bins_waste'], 
@@ -703,13 +703,13 @@ class TestAdvancedLookaheadPolicies:
         Tests the execution flow and parameter passing for the Gurobi VRPP lookahead policy.
         Mocks gurobipy to avoid PyCapsule errors and simulate solution.
         """
-        from logic.src.or_policies.look_ahead import policy_lookahead_vrpp
+        from logic.src.policies.look_ahead import policy_lookahead_vrpp
 
         # --- Arrange ---
         # Mock Gurobi classes to prevent C-extension loading
-        mock_env_cls = mocker.patch('logic.src.or_policies.look_ahead.gp.Env', autospec=True)
-        mock_model_cls = mocker.patch('logic.src.or_policies.look_ahead.gp.Model', autospec=True)
-        mocker.patch('logic.src.or_policies.look_ahead.gp.quicksum', side_effect=sum)
+        mock_env_cls = mocker.patch('logic.src.policies.look_ahead.gp.Env', autospec=True)
+        mock_model_cls = mocker.patch('logic.src.policies.look_ahead.gp.Model', autospec=True)
+        mocker.patch('logic.src.policies.look_ahead.gp.quicksum', side_effect=sum)
         
         # Configure GRB constants
         mock_grb = MagicMock()
@@ -718,7 +718,7 @@ class TestAdvancedLookaheadPolicies:
         mock_grb.BINARY = 'B'
         mock_grb.CONTINUOUS = 'C'
         mock_grb.MAXIMIZE = 1
-        mocker.patch('logic.src.or_policies.look_ahead.GRB', mock_grb)
+        mocker.patch('logic.src.policies.look_ahead.GRB', mock_grb)
 
         # Setup Mock Model instance
         mock_model = MagicMock()
@@ -910,7 +910,7 @@ class TestAdvancedLookaheadPolicies:
         """
         Tests that HGS includes must-go bins even if they have 0 fill.
         """
-        from logic.src.or_policies.look_ahead import policy_lookahead_hgs
+        from logic.src.policies.look_ahead import policy_lookahead_hgs
         
         values = {
             'R': 1, 'C': 1, 'E': 1, 'B': 1, 'vehicle_capacity': 100,
@@ -948,13 +948,13 @@ class TestAdvancedLookaheadPolicies:
         # --- Arrange ---
         
         # Mock internal data processing helpers
-        mocker.patch('logic.src.or_policies.look_ahead.create_dataframe_from_matrix', return_value=MagicMock())
-        mocker.patch('logic.src.or_policies.look_ahead.convert_to_dict', return_value=MagicMock())
-        mocker.patch('logic.src.or_policies.look_ahead.compute_initial_solution', return_value=[])
+        mocker.patch('logic.src.policies.look_ahead.create_dataframe_from_matrix', return_value=MagicMock())
+        mocker.patch('logic.src.policies.look_ahead.convert_to_dict', return_value=MagicMock())
+        mocker.patch('logic.src.policies.look_ahead.compute_initial_solution', return_value=[])
         
         # Mock the core Simulated Annealing engine
         mock_annealing = mocker.patch(
-            'logic.src.or_policies.look_ahead.improved_simulated_annealing',
+            'logic.src.policies.look_ahead.improved_simulated_annealing',
             return_value=([0, 1, 2, 0], 100.0, 50.0, 1000.0, 100.0) # routes, profit, dist, kg, revenue
         )
         
@@ -993,12 +993,12 @@ class TestAdvancedLookaheadPolicies:
         """
         Tests the ALNS policy integration.
         """
-        from logic.src.or_policies.look_ahead import policy_lookahead_alns
+        from logic.src.policies.look_ahead import policy_lookahead_alns
         
         # --- Arrange ---
         # Mock run_alns
         mock_run_alns = mocker.patch(
-            'logic.src.or_policies.look_ahead.run_alns',
+            'logic.src.policies.look_ahead.run_alns',
             return_value=([[1, 2], [3]], 150.0) # routes (list of lists), cost
         )
         
@@ -1040,11 +1040,11 @@ class TestAdvancedLookaheadPolicies:
         """
         Tests the Branch-Cut-and-Price policy integration.
         """
-        from logic.src.or_policies.look_ahead import policy_lookahead_bcp
+        from logic.src.policies.look_ahead import policy_lookahead_bcp
         
         # --- Arrange ---
         mock_run_bcp = mocker.patch(
-            'logic.src.or_policies.look_ahead.run_bcp',
+            'logic.src.policies.look_ahead.run_bcp',
             return_value=([[1, 3], [2]], 200.0)
         )
         
@@ -1073,7 +1073,7 @@ class TestAdvancedLookaheadPolicies:
     @pytest.mark.unit
     def test_bcp_variant_ortools(self):
         """Test OR-Tools engine (default)"""
-        from logic.src.or_policies.branch_cut_and_price import run_bcp
+        from logic.src.policies.branch_cut_and_price import run_bcp
         
         dist_matrix = np.array([
             [0, 10, 100], 
@@ -1098,7 +1098,7 @@ class TestAdvancedLookaheadPolicies:
     @pytest.mark.unit
     def test_bcp_variant_vrpy(self):
         """Test VRPy engine"""
-        from logic.src.or_policies.branch_cut_and_price import run_bcp
+        from logic.src.policies.branch_cut_and_price import run_bcp
         
         dist_matrix = np.array([
             [0, 10, 100], 
@@ -1124,7 +1124,7 @@ class TestAdvancedLookaheadPolicies:
     def test_bcp_variant_gurobi(self, mocker):
         """Test Gurobi engine"""
         from gurobipy import GRB
-        from logic.src.or_policies.branch_cut_and_price import run_bcp
+        from logic.src.policies.branch_cut_and_price import run_bcp
         
         # Mock the Gurobi Model class itself
         mock_model = MagicMock()
@@ -1234,7 +1234,7 @@ class TestGurobiOptimizer:
         Mocks the Gurobi solver itself.
         """
         # --- Arrange ---
-        from logic.src.or_policies.gurobi_optimizer import policy_gurobi_vrpp
+        from logic.src.policies.gurobi_optimizer import policy_gurobi_vrpp
         
         # Mock Gurobi's Model.optimize() to immediately return OPTIMAL status
         mock_model = MagicMock()
@@ -1269,7 +1269,7 @@ class TestGurobiOptimizer:
             # This is complex to mock fully, but we mock the final extraction to confirm flow.
             return [[0, 1, 0]]
         
-        mocker.patch('logic.src.or_policies.gurobi_optimizer.policy_gurobi_vrpp', side_effect=mock_gurobi_solution_routes, autospec=True)
+        mocker.patch('logic.src.policies.gurobi_optimizer.policy_gurobi_vrpp', side_effect=mock_gurobi_solution_routes, autospec=True)
 
 
         # Test 1: Must-Go Bin (Prediction > 100)
@@ -1306,7 +1306,7 @@ class TestHexalyOptimizer:
         Mocks the Hexaly solver itself.
         """
         # --- Arrange ---
-        from logic.src.or_policies.hexaly_optimizer import policy_hexaly_vrpp
+        from logic.src.policies.hexaly_optimizer import policy_hexaly_vrpp
         
         # Define a mock for the HexalyOptimizer instance
         mock_hexaly = MagicMock()

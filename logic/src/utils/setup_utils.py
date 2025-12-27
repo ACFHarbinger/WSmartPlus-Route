@@ -30,17 +30,22 @@ def setup_cost_weights(opts, def_val=1.):
 def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None):
     hrl_path = None
     if opts.get('model_path') is not None:
-        hrl_path = opts['model_path'][policy]
+        if policy in opts['model_path']:
+            hrl_path = opts['model_path'][policy]
+        else:
+            # Fallback: Try to find a match by stripping suffixes like _gamma1, _emp, etc.
+            # This is common in the simulator where policy names are augmented.
+            base_policy = policy.split('_gamma')[0].split('_emp')[0]
+            if base_policy in opts['model_path']:
+                hrl_path = opts['model_path'][base_policy]
+            else:
+                # Last resort: check if any key in model_path is a prefix of our policy name
+                for key in opts['model_path'].keys():
+                    if policy.startswith(key):
+                        hrl_path = opts['model_path'][key]
+                        break
     
-    # Check prioritization: Configs > Opts
-    hrl_method = None
-    if configs is not None:
-        hrl_method = configs.get('hrl_method')
-    
-    if hrl_method is None:
-        hrl_method = opts.get('hrl_method')
-
-    if hrl_method != 'gating_mechanism' or hrl_path is None:
+    if 'mrl_method' not in configs or configs['mrl_method'] != 'hrl':
         return None
     
     if base_path is not None and not os.path.exists(hrl_path):
@@ -68,24 +73,42 @@ def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None):
         mrl_history = configs.get('mrl_history', opts.get('mrl_history', 10))
         gat_hidden = configs.get('gat_hidden', opts.get('gat_hidden', 128))
         lstm_hidden = configs.get('lstm_hidden', opts.get('lstm_hidden', 64))
+        global_input_dim = configs.get('global_input_dim', opts.get('global_input_dim', 3))
     else:
         mrl_history = opts.get('mrl_history', 10)
         gat_hidden = opts.get('gat_hidden', 128)
         lstm_hidden = opts.get('lstm_hidden', 64)
+        global_input_dim = opts.get('global_input_dim', 3)
          
+    # Load data first to inspect dimensions
+    load_data = torch_load_cpu(hrl_path)
+    if isinstance(load_data, dict) and 'manager' in load_data:
+        state_dict = load_data['manager']
+    else:
+        state_dict = load_data
+
+    # Detect global_input_dim from checkpoint if possible
+    # weight shape: (hidden_dim, hidden_dim + global_input_dim)
+    if 'gate_head.0.weight' in state_dict:
+        weight_shape = state_dict['gate_head.0.weight'].shape
+        # weight_shape[1] is hidden_dim + global_input_dim
+        # hidden_dim is usually 128 (gat_hidden)
+        in_dim = weight_shape[1]
+        detected_dim = in_dim - gat_hidden
+        if detected_dim > 0 and detected_dim != global_input_dim:
+            # print(f"Detected global_input_dim {detected_dim} from checkpoint (was {global_input_dim})")
+            global_input_dim = detected_dim
+
     manager = GATLSTManager(
         input_dim_static=2,
         input_dim_dynamic=mrl_history,
         hidden_dim=gat_hidden,
         lstm_hidden=lstm_hidden,
-        device=device
+        device=device,
+        global_input_dim=global_input_dim
     ).to(device)
     
-    load_data = torch_load_cpu(hrl_path)
-    if isinstance(load_data, dict) and 'manager' in load_data:
-        manager.load_state_dict(load_data['manager'])
-    else:
-        manager.load_state_dict(load_data)
+    manager.load_state_dict(state_dict)
     manager.eval()
     return manager
 
@@ -128,6 +151,10 @@ def setup_env(policy, server=False, gplic_filename=None, symkey_name=None, env_f
                         raise ValueError(f"Missing parameter {glp_key} for Gurobi license")
         else:
             params = {}
+            if gplic_filename is not None:
+                gplic_path = os.path.join(ROOT_DIR, "assets", "api", gplic_filename)
+                if os.path.exists(gplic_path):
+                    os.environ['GRB_LICENSE_FILE'] = gplic_path
         params['OutputFlag'] = 0
         return gp.Env(params=params)
     
@@ -137,12 +164,13 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         WarmupBaseline, ExponentialBaseline, RolloutBaseline,
         NoBaseline, CriticBaseline, CriticNetwork, POMOBaseline,
         AttentionModel, TemporalAttentionModel, DeepDecoderAttentionModel,
-        GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
+        GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder, GatedGraphAttConvEncoder
     )
     encoder_class = {
         'gat': GraphAttentionEncoder,
         'gac': GraphAttConvEncoder,
-        'tgc': TransGraphConvEncoder
+        'tgc': TransGraphConvEncoder,
+        'ggac': GatedGraphAttConvEncoder
     }.get(opts['encoder'], None)
     assert encoder_class is not None, \
     "Unknown encoder: {}".format(encoder_class)

@@ -1,6 +1,7 @@
 from .gat_encoder import GraphAttentionEncoder
 from .gac_encoder import GraphAttConvEncoder
 from .tgc_encoder import TransGraphConvEncoder
+from .ggac_encoder import GatedGraphAttConvEncoder
 from .gcn_encoder import GraphConvolutionEncoder
 from .ptr_encoder import PointerEncoder
 
