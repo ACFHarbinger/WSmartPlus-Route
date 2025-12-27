@@ -4,7 +4,7 @@
 VERBOSE=false
 
 # Default cores
-N_CORES=1
+N_CORES=22
 
 while getopts nc: flag
 do
@@ -33,7 +33,7 @@ fi
 SEED=42
 N_DAYS=31
 N_BINS=100
-N_SAMPLES=10
+N_SAMPLES=1
 PROBLEM="cwcvrp"
 
 AREA="riomaior"
@@ -44,23 +44,24 @@ STATS_PATH="" #"daily_waste/april_2024_summary.csv"
 
 SYM_KEY="skey"
 ENV_FILE="vars.env"
-GP_LIC_FILE="gurobi.lic.enc"
+GP_LIC_FILE="gurobi.lic"
 HEX_DAT_FILE="hexaly.dat.enc"
 GOOGLE_API_FILE="google.lic.enc"
 
 REGULAR_LEVEL=(3 4)
-LAST_MINUTE_CF=(70 90)
-GUROBI_PARAM=(0.84 1.00)
-HEXALY_PARAM=(0.84 1.00)
+LAST_MINUTE_CF=(70)
+GUROBI_PARAM=(0.84)
+HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("amgat_hrl")
+POLICIES=("policy_look_ahead_vrpp")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
 #"gurobi_vrpp" "hexaly_vrpp" 
 #"am" "amgc" "transgcn"
 declare -A MODEL_PATHS
+MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgac"
 MODEL_PATHS["amgat_hrl"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat_hrl"
 MODEL_PATHS["amgac"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgac_hrl"
 MODEL_PATHS["amtgc"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amtgc_hrl"
@@ -71,14 +72,17 @@ for key in "${!MODEL_PATHS[@]}"; do
 done
 
 VEHICLES=0
+REAL_TIME_LOG=1
+GATE_PROB_THRESHOLD="0.1"
+MASK_PROB_THRESHOLD="${MASK_PROB_THRESHOLD:-0.5}"
 EDGE_THRESH=0.0
 EDGE_METHOD="knn"
 VERTEX_METHOD="mmn"
 DIST_METHOD="gmaps"
 DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_plastic[riomaior].csv"
-WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}_seed${SEED}.pkl"
+WASTE_PATH=""
 
-RUN_TSP=1
+RUN_TSP=0
 CHECKPOINTS=30
 
 echo "Starting test execution with $n_cores cores..."
@@ -109,7 +113,8 @@ if [ "$RUN_TSP" -eq 0 ]; then
     --lac "${LOOKAHEAD_CONFIGS[@]}" --hp "${HEXALY_PARAM[@]}" --problem "$PROBLEM" --days "$N_DAYS" \
     --waste_type "$WTYPE" --cc "$n_cores" --et "$EDGE_THRESH" --em "$EDGE_METHOD" --env_file "$ENV_FILE" \
     --gapik_file "$GOOGLE_API_FILE" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" --dm "$DIST_METHOD" \
-    --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" --gate_prob_threshold 0.5352 --mask_prob_threshold 0.5;
+    --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" \
+    --gate_prob_threshold $GATE_PROB_THRESHOLD --mask_prob_threshold $MASK_PROB_THRESHOLD;
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi
@@ -122,10 +127,11 @@ else
     python main.py test_sim --policies "${POLICIES[@]}" --data_distribution "$DATA_DIST" --dt "$DECODE_TYPE" \
     --cc "$n_cores" --n_samples "$N_SAMPLES" --area "$AREA" --bin_idx_file "$IDX_PATH" --size "$N_BINS" --seed "$SEED" \
     --problem "$PROBLEM" --n_vehicles "$VEHICLES" --vm "$VERTEX_METHOD" --lac "${LOOKAHEAD_CONFIGS[@]}" --dm "$DIST_METHOD" \
-    --days "$N_DAYS" --lvl "${REGULAR_LEVEL[@]}" --cf "${LAST_MINUTE_CF[@]}" --gp "${GUROBI_PARAM[@]}" --hp "${HEXALY_PARAM[@]}" \
+    --lvl "${REGULAR_LEVEL[@]}" --cf "${LAST_MINUTE_CF[@]}" --gp "${GUROBI_PARAM[@]}" --hp "${HEXALY_PARAM[@]}" \
     --et "$EDGE_THRESH" --em "$EDGE_METHOD" --waste_type "$WTYPE" --env_file "$ENV_FILE" --gplic_file "$GP_LIC_FILE" \
     --gapik_file "$GOOGLE_API_FILE" --waste_filepath "$WASTE_PATH" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" \
-    --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" --gate_prob_threshold 0.5352 --mask_prob_threshold 0.5;
+    --days "$N_DAYS" --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" \
+    --gate_prob_threshold $GATE_PROB_THRESHOLD --mask_prob_threshold $MASK_PROB_THRESHOLD;
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi
