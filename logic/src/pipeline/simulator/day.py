@@ -5,7 +5,7 @@ import numpy as np
 from logic.src.utils.definitions import DAY_METRICS
 from logic.src.utils.log_utils import send_daily_output_to_gui
 from logic.src.utils.functions import move_to
-from logic.src.or_policies import (
+from logic.src.policies import (
     policy_gurobi_vrpp, policy_hexaly_vrpp,
     get_route_cost, find_route, create_points, find_solutions,
     policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp,
@@ -27,7 +27,7 @@ def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum
     dlog['day'] = day
     dlog['overflows'] = new_overflows
     dlog['kg_lost'] = sum_lost
-    if len(tour) > 2:
+    if len(tour) > 2 and cost > 0:
         rl_cost = new_overflows - total_collected + cost
         dlog['kg'] = total_collected
         dlog['ncol'] = ncol
@@ -89,7 +89,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
         daily_data = set_daily_waste(model_data, bins.c, device, fill)
         tour, cost, output_dict = model_env.compute_simulator_day(
             daily_data, graph, dm_tensor, profit_vars, run_tsp, hrl_manager=hrl_manager, 
-            waste_history=bins.get_fill_history(device=device), threshold=gate_prob_threshold, mask_threshold=mask_prob_threshold
+            waste_history=bins.get_level_history(device=device), threshold=gate_prob_threshold, mask_threshold=mask_prob_threshold
         )
     elif 'gurobi' in policy:
         gp_param = float(policy.rsplit("_vrpp", 1)[1])
@@ -141,7 +141,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
             }
             if 'vrpp' in policy:
                 values['time_limit'] = 28800
-                routes, _, _ = policy_lookahead_vrpp(bins.c, binsids, must_go_bins, distance_matrix, values, env=model_env)
+                routes, _, _ = policy_lookahead_vrpp(bins.c, binsids, must_go_bins, distance_matrix, values, number_vehicles=n_vehicles, env=model_env)
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
                     cost = get_route_cost(distance_matrix, tour)

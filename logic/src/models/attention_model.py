@@ -5,7 +5,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from logic.src.utils.beam_search import CachedLookup
-from logic.src.or_policies import find_route, get_route_cost
+from logic.src.policies import find_route, get_route_cost, get_multi_tour
+from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
 from logic.src.utils.functions import compute_in_batches, add_attention_hooks, sample_many
 
 
@@ -177,7 +178,12 @@ class AttentionModel(nn.Module):
         if self.checkpoint_encoder and self.training:  # Only checkpoint if we need gradients
             embeddings = torch.utils.checkpoint.checkpoint(self.embedder, self._init_embed(input), edges)
         else:
-            embeddings = self.embedder(self._init_embed(input), edges)
+            # Check if embedder accepts 'dist' (e.g. GatedGraphAttConvEncoder)
+            # We can check via inspection or just try/except, but clean way is check attribute or name
+            if getattr(self.embedder, 'init_edge_embed', None) is not None:
+                embeddings = self.embedder(self._init_embed(input), edges, dist=dist_matrix)
+            else:
+                embeddings = self.embedder(self._init_embed(input), edges)
 
         # profit_vars is not a direct argument to forward, it's derived or passed through input
         # Assuming it's handled within _inner or not needed here based on original code
@@ -216,7 +222,7 @@ class AttentionModel(nn.Module):
             return cost, ll, cost_dict, pi
         return cost, ll, cost_dict, None
     
-    def compute_batch_sim(self, input, dist_matrix, hrl_manager=None, waste_history=None):
+    def compute_batch_sim(self, input, dist_matrix, hrl_manager=None, waste_history=None, threshold=0.5, mask_threshold=0.5):
         hook_data = add_attention_hooks(self.embedder)
         edges = input.pop('edges') if 'edges' in input.keys() else None
         
@@ -227,8 +233,47 @@ class AttentionModel(nn.Module):
             # Dynamic: Waste History (Batch, N, History)
             dynamic_feat = waste_history
             
+            # Compute Global Features
+            current_waste = dynamic_feat[:, :, -1]
+            
+            # Heuristic: Assume 15% daily generation
+            daily_gen_est = 0.15
+            horizon = 3
+
+            # 1. Critical Ratio Now (% > 0.9)
+            critical_mask = (current_waste > 0.9).float()
+            critical_ratio = critical_mask.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # 2. Max Current Waste
+            max_current_waste = current_waste.max(dim=1, keepdim=True)[0] # (B, 1)
+            
+            # 3. Projected Critical Ratio (in 3 days)
+            projected_waste_3d = current_waste + (daily_gen_est * 3)
+            projected_critical_mask_3d = (projected_waste_3d > 1.0).float()
+            critical_ratio_proj_3d = projected_critical_mask_3d.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # 4. Max Projected Waste (in 1 day) - OR Style
+            projected_waste_1d = current_waste + daily_gen_est
+            max_projected_waste_1d = projected_waste_1d.max(dim=1, keepdim=True)[0] # (B, 1)
+            
+            # 5. Projected Average Overflow (3 days)
+            projected_overflow_val_3d = F.relu(projected_waste_3d - 1.0)
+            avg_proj_overflow_3d = projected_overflow_val_3d.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # Combine: (B, 5)
+            global_features = torch.cat([
+                critical_ratio, 
+                max_current_waste, 
+                critical_ratio_proj_3d, 
+                max_projected_waste_1d, 
+                avg_proj_overflow_3d
+            ], dim=1)
+            
             # Get Action (Deterministic)
-            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, deterministic=True, threshold=threshold)
+            mask_action, gate_action, _ = hrl_manager.select_action(
+                static_feat, dynamic_feat, global_features, 
+                deterministic=True, threshold=threshold, mask_threshold=mask_threshold
+            )
             
             # Construct Mask
             # mask_action: 1=Visit, 0=Skip. AM Mask: True=Masked(Skip), False=Keep.
@@ -237,12 +282,9 @@ class AttentionModel(nn.Module):
             # Apply Gate: If Gate=0, Mask ALL
             gate_mask = (gate_action == 0).unsqueeze(1).expand_as(mask)
             mask = mask | gate_mask
-            
-            # Important: If all nodes are masked for an instance, _inner might fail or produce empty route
-            # usually _inner handles masking.
         
-        embeddings = self.embedder(self._init_embed(input), edges)
-        _, pi = self._inner(input, edges, embeddings, cost_weights=None, mask=mask)
+        embeddings = self.embedder(self._init_embed(input), edges, dist=dist_matrix)
+        _, pi = self._inner(input, edges, embeddings, cost_weights=None, dist_matrix=dist_matrix, mask=mask)
         ucost, cost_dict, _ = self.problem.get_costs(input, pi, cw_dict=None)
         src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
         dst_mask = dst_vertices != 0
@@ -252,6 +294,7 @@ class AttentionModel(nn.Module):
         ret_dict = {}
         ret_dict['overflows'] = cost_dict['overflows']
         ret_dict['kg'] = cost_dict['waste'] * 100
+        ret_dict['waste'] = cost_dict['waste']
         if dist_matrix.dim() == 2:
             ret_dict['km'] = travelled.sum(dim=1) + dist_matrix[0, src_vertices[:, 0]] + \
                 dist_matrix[dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0]
@@ -305,9 +348,48 @@ class AttentionModel(nn.Module):
                 if dynamic_feat.size(2) > window_size:
                     # Take last 'window_size' steps
                     dynamic_feat = dynamic_feat[:, :, -window_size:]
-
-            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, deterministic=True, threshold=threshold, mask_threshold=mask_threshold)
             
+            # Compute Global Features
+            # dynamic_feat: (Batch, N, History)
+            # current_waste: (Batch, N) - assuming last step is current
+            current_waste = dynamic_feat[:, :, -1] 
+            
+            # Heuristic: Assume 15% daily generation
+            daily_gen_est = 0.15
+            horizon = 3
+
+            # 1. Critical Ratio Now (% > 0.9)
+            critical_mask = (current_waste > 0.9).float()
+            critical_ratio = critical_mask.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # 2. Max Current Waste
+            max_current_waste = current_waste.max(dim=1, keepdim=True)[0] # (B, 1)
+            
+            # 3. Projected Critical Ratio (in 3 days)
+            projected_waste_3d = current_waste + (daily_gen_est * 3)
+            projected_critical_mask_3d = (projected_waste_3d > 1.0).float()
+            critical_ratio_proj_3d = projected_critical_mask_3d.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # 4. Max Projected Waste (in 1 day) - OR Style
+            projected_waste_1d = current_waste + daily_gen_est
+            max_projected_waste_1d = projected_waste_1d.max(dim=1, keepdim=True)[0] # (B, 1)
+            
+            # 5. Projected Average Overflow (3 days)
+            projected_overflow_val_3d = F.relu(projected_waste_3d - 1.0)
+            avg_proj_overflow_3d = projected_overflow_val_3d.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # Combine: (B, 5)
+            global_features = torch.cat([
+                critical_ratio, 
+                max_current_waste, 
+                critical_ratio_proj_3d, 
+                max_projected_waste_1d, 
+                avg_proj_overflow_3d
+            ], dim=1) # (B, 5)
+
+            mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, global_features, deterministic=True, threshold=threshold, mask_threshold=mask_threshold)
+            
+
             # If Gate is closed (0), return empty immediately
             if gate_action.item() == 0:
                 for handle in hook_data['handles']:
@@ -317,11 +399,29 @@ class AttentionModel(nn.Module):
             # Construct Mask
             mask = (mask_action == 0)
         
-        embeddings = self.embedder(self._init_embed(input), edges)
-        _, pi = self._inner(input, edges, embeddings, None, dist_matrix, profit_vars, mask=mask)
+        if getattr(self.embedder, 'init_edge_embed', None) is not None:
+            embeddings = self.embedder(self._init_embed(input), edges, dist=dist_matrix)
+        else:
+            embeddings = self.embedder(self._init_embed(input), edges)
+
+        _, pi = self._inner(input, edges, embeddings, None, dist_matrix, profit_vars=None, mask=mask)
         if run_tsp:
             try:
-                route, cost = find_route(dist_matrix.cpu().numpy(), pi[pi != 0].cpu().numpy())
+                pi_nodes = pi[pi != 0].cpu().numpy()
+                if len(pi_nodes) > 0:
+                    route = find_route(dist_matrix.cpu().numpy(), pi_nodes)
+                    # distC might be a CUDA tensor, ensure it is numpy for get_route_cost
+                    distC_np = distC.cpu().numpy() if torch.is_tensor(distC) else distC
+                    cost = get_route_cost(distC_np, route)
+
+                    # Attempt 54: Respect Capacity in Simulator Evaluation
+                    if profit_vars is not None and 'vehicle_capacity' in profit_vars:
+                        raw_wastes = input['waste'].squeeze(0).cpu().numpy()
+                        route = get_multi_tour(route, raw_wastes, profit_vars['vehicle_capacity'], dist_matrix.cpu().numpy())
+                        cost = get_route_cost(distC_np, route)
+                else:
+                    route = [0]
+                    cost = 0
             except:
                 route = []
                 cost = 0
@@ -335,7 +435,8 @@ class AttentionModel(nn.Module):
         attention_weights = torch.tensor([])
         if hook_data['weights']:
             attention_weights = torch.stack(hook_data['weights'])
-        return route.cpu().numpy().tolist(), cost, {'attention_weights': attention_weights, 'graph_masks': hook_data['masks']}
+        route_list = route if isinstance(route, list) else route.cpu().numpy().tolist()
+        return route_list, cost, {'attention_weights': attention_weights, 'graph_masks': hook_data['masks']}
 
     def beam_search(self, *args, **kwargs):
         return self.problem.beam_search(*args, **kwargs, model=self)
@@ -529,6 +630,7 @@ class AttentionModel(nn.Module):
                 print('Sampled bad values, resampling!')
                 selected = probs.multinomial(1).squeeze(1)
         else:
+            print(f"DEBUG: decode_type is {repr(self.decode_type)}")
             assert False, "Unknown decode type"
         return selected
 

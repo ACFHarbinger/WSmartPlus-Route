@@ -94,7 +94,7 @@ def load_args(filename):
 
 def load_model(path, epoch=None):
     from logic.src.models import (
-        GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder,
+        GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder, GatedGraphAttConvEncoder,
         AttentionModel, TemporalAttentionModel, DeepDecoderAttentionModel
     )
     if os.path.isfile(path):
@@ -116,7 +116,8 @@ def load_model(path, epoch=None):
     encoder_class = {
         'gat': GraphAttentionEncoder,
         'gac': GraphAttConvEncoder,
-        'tgc': TransGraphConvEncoder
+        'tgc': TransGraphConvEncoder,
+        'ggac': GatedGraphAttConvEncoder
     }.get(args.get('encoder', 'gat'), None)
     assert encoder_class is not None, "Unknown encoder: {}".format(encoder_class)
 

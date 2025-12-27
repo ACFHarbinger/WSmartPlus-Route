@@ -2,12 +2,13 @@ import os
 import sys
 import time
 import torch
+import torch.nn.functional as F
 import pandas as pd
 
 from tqdm import tqdm
 from .meta import (
+    CostWeightManager, RewardWeightOptimizer,
     WeightContextualBandit, MORLWeightOptimizer, 
-    HRLManager, CostWeightManager, RewardWeightOptimizer,
 )
 from logic.src.models import WeightAdjustmentRNN, GATLSTManager
 from logic.src.utils.functions import move_to
@@ -280,236 +281,344 @@ def train_reinforce_over_time_morl(model, optimizer, baseline, lr_scheduler, sca
 
 
 def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
-    if opts.get('hrl_method', 'weight_manager') == 'gating_mechanism':
-        # --- Gating Mechanism HRL Logic ---        
-        daily_rewards = []
+    # --- Gating Mechanism HRL Logic ---
+    # Attempt 53: PID Controller State for Gate Cost
+    pid_kp = 5.0
+    pid_ki = 0.1
+    pid_kd = 0.0
+    pid_integral = 0.0
+    pid_prev_error = 0.0
+    # Attempt 64: Hardened VRPP Matching
+    pid_target = 0.05 # Target near-absolute zero overflows
+    current_lambda_gate = 1.0  # Start with near-zero routing penalty
+
+    daily_rewards = []
+    if opts.get('lr_model', 1e-4) > 0:
         model.train()
-        set_decode_type(model, "sampling")
+    else:
+        model.eval()
+    set_decode_type(model, "sampling")
 
-        # Initialize Dataset for Day Start
-        day = opts['epoch_start']
-        step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
-
-        # Initialize GATLSTManager
-        hrl_manager = GATLSTManager(
-            input_dim_static=2,
-            input_dim_dynamic=opts.get('mrl_history', 10),
-            hidden_dim=opts.get('gat_hidden', 128),
-            lstm_hidden=opts.get('lstm_hidden', 64),
-            batch_size=opts.get('mrl_batch_size', 1024),
-            device=opts['device'],
-        )
-        
-        # Setup Waste History Buffer (Batch, N, History)
-        # We need to maintain this manually as dataset evolves
-        # Initialize with zeros or initial waste
-        n_nodes = opts['graph_size']
-        epoch_size = opts['epoch_size']
-        history_len = opts.get('mrl_history', 10)
-        
-        waste_history = torch.zeros((epoch_size, n_nodes, history_len)).to(opts['device'])
-        
-        # Optimizer for Manager
-        hrl_optimizer = torch.optim.Adam(hrl_manager.parameters(), lr=opts.get('mrl_lr', 3e-4))
-        hrl_manager.optimizer = hrl_optimizer
-
-        while True:
-            # Batch Manager Decision and Mask Creation
-            inference_batch_size = opts.get('mrl_batch_size', 1024) # Adjustable or from opts
-            n_samples = len(training_dataset)
-            
-            mask_actions_list = []
-            gate_actions_list = []
-            for i in range(0, n_samples, inference_batch_size):
-                # Slice indices
-                batch_indices = slice(i, min(i + inference_batch_size, n_samples))
-                
-                # Extract batch data
-                # Using a list comprehension for slice is inefficient for huge lists but dataset.data is list
-                batch_data = training_dataset.data[batch_indices] # Assuming data is list or sliceable
-                
-                static_locs = torch.stack([x['loc'] for x in batch_data]).to(opts['device'])
-                current_waste = torch.stack([x['waste'] for x in batch_data]).to(opts['device'])
-                
-                # Update Waste History Slice
-                # Slice waste_history tensor
-                batch_waste_history = waste_history[batch_indices]
-                batch_waste_history = torch.roll(batch_waste_history, shifts=-1, dims=2)
-                batch_waste_history[:, :, -1] = current_waste
-                
-                # Write back to main history
-                waste_history[batch_indices] = batch_waste_history
-                
-                # Manager Decision
-                with torch.no_grad():
-                    mask_action, gate_action, value = hrl_manager.select_action(static_locs, batch_waste_history)
-                
-                mask_actions_list.append(mask_action)
-                gate_actions_list.append(gate_action)
-                
-            # Concatenate results
-            mask_action_full = torch.cat(mask_actions_list, dim=0)
-            gate_action_full = torch.cat(gate_actions_list, dim=0)
-            
-            # 3. Apply Decision
-            am_mask = (mask_action_full == 0) # True where we want to skip
-            gate_expanded = gate_action_full.unsqueeze(1).expand_as(am_mask) # (B, N)
-            final_mask = am_mask | (gate_expanded == 0)
-            
-            # Store in dataset for _train_single_day loop
-            for i in range(n_samples):
-                training_dataset.data[i]['hrl_mask'] = final_mask[i].cpu()
-            
-            # 4. Train Worker 
-            step, log_pi, daily_loss, daily_total_samples, _ = _train_single_day(
-                model, optimizer, baseline, lr_scheduler, scaler, None, training_dataset, 
-                val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts, hrl_manager
-            )
-            
-            # 5. Reward Calculation
-            if daily_total_samples > 0:             
-                # Route Cost: 'km' or 'length' from daily_loss.
-                avg_route_cost = torch.stack(daily_loss['length']).sum().item() / daily_total_samples
-                
-                # Overflow: 'overflows' from daily_loss? 
-                # Note: daily_loss comes from 'model' output.
-                # Does model calculate overflow? Yes, usually.
-                if 'overflows' in daily_loss:
-                    avg_overflow = torch.stack(daily_loss['overflows']).sum().item() / daily_total_samples
-                else:
-                    avg_overflow = 0.0
-                
-                # Collected Waste Rewards: 'waste' from daily_loss (kg / 100)
-                if 'waste' in daily_loss:
-                    avg_waste_collected = torch.stack(daily_loss['waste']).sum().item() / daily_total_samples
-                else:
-                    avg_waste_collected = 0.0
-                
-                # Future Risk: Sum of Squared Waste.
-                # We can compute this from 'waste_history' (current state).
-                # Risk = Sum(W^2)
-                # current_waste is (B, N).
-                risk = (current_waste ** 2).sum(dim=1).mean().item()
-                
-                # Coefficients
-                lambda_waste = 1.0     # Benefit of collecting waste
-                lambda_cost = 1.0      # Light penalty to allow more routing
-                lambda_overflow = 10.0 # Heavy penalty to force collection
-                lambda_risk = 0.0      # Zero risk penalty
-                
-                # Total Reward: Collected - (Route Cost + Penalties)
-                hrl_reward = (lambda_waste * avg_waste_collected - (lambda_cost * avg_route_cost + lambda_overflow * avg_overflow + lambda_risk * risk)) * 0.001
-                
-                daily_rewards.append(hrl_reward)
-                hrl_manager.rewards.append(hrl_reward) # Use simple storage for now
-                
-                # Update Manager
-                freq = opts.get('mrl_step', 10)
-                if len(hrl_manager.rewards) >= freq:
-                    loss = hrl_manager.update(
-                        lr=opts.get('mrl_lr', 3e-4),
-                        ppo_epochs=opts.get('hrl_epochs', 4),
-                        clip_eps=opts.get('hrl_clip_eps', 0.2)
-                    )
-                    if loss is not None and tb_logger is not None:
-                        tb_logger.log_value('hrl_manager_loss', loss, step)
-                    print(f"HRL Update Day {day}: Reward={hrl_reward:.4f} Loss={loss if loss else 0:.4f}")
-
-            day += 1
-            if day >= opts['epoch_start'] + opts['n_epochs']: break
-            training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
-            
-        log_training(loss_keys, table_df, opts)
-        return model, hrl_manager
-
-    # --- Original Weight Manager Logic ---
+    # Initialize Dataset for Day Start
     day = opts['epoch_start']
     step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
 
-    # Initialize HRL Manager
-    len_weights = len(cost_weights.keys())
-    min_weights = [opts['mrl_range'][0] for _ in range(len_weights)]
-    max_weights = [opts['mrl_range'][1] for _ in range(len_weights)]
-    hrl_manager = HRLManager(
-        initial_weights=cost_weights,
-        history_length=opts.get('mrl_history', 10),
-        hidden_size=opts.get('mrl_embedding_dim', 128),
-        lr=opts.get('mrl_lr', 3e-4),
+    if opts.get('lr_model', 1e-4) == 0:
+        for param in model.parameters():
+            param.requires_grad = False
+    
+    # Initialize GATLSTManager
+    opts['global_input_dim'] = 5 # (Attempt 8)
+    hrl_manager = GATLSTManager(
+        input_dim_static=2,
+        input_dim_dynamic=opts.get('mrl_history', 10),
+        hidden_dim=opts.get('gat_hidden', 128),
+        lstm_hidden=opts.get('lstm_hidden', 64),
+        batch_size=opts.get('mrl_batch_size', 1024),
         device=opts['device'],
-        min_weights=min_weights,
-        max_weights=max_weights,
-        ppo_epochs=opts.get('hrl_epochs', 4),
-        clip_eps=opts.get('hrl_clip_eps', 0.2)
+        global_input_dim=opts['global_input_dim']
     )
-
-    # Sync weights
-    current_weights_dict = hrl_manager.get_current_weights()
-    for k, v in current_weights_dict.items():
-        cost_weights[k] = v
-
-    # For tracking
-    daily_rewards = []
     
-    # Put model in train mode
-    model.train()
-    set_decode_type(model, "sampling")
+    # Setup Waste History Buffer (Batch, N, History)
+    # We need to maintain this manually as dataset evolves
+    # Initialize with zeros or initial waste
+    n_nodes = opts['graph_size']
+    epoch_size = opts['epoch_size']
+    history_len = opts.get('mrl_history', 10)
     
+    waste_history = torch.zeros((epoch_size, n_nodes, history_len)).to(opts['device'])
+    
+    # Optimizer for Manager
+    hrl_optimizer = torch.optim.Adam(hrl_manager.parameters(), lr=opts.get('mrl_lr', 3e-4))
+    hrl_manager.optimizer = hrl_optimizer
+
     while True:
-        # 1. HRL Manager selects new goals (weights) for the day
-        new_weights = hrl_manager.select_action()
-        for k, v in new_weights.items():
-            cost_weights[k] = v
+        # RESET daily lookahead penalty
+        total_lookahead_penalty_ep = torch.zeros(epoch_size, device=opts['device'])
+        # Batch Manager Decision and Mask Creation
+        inference_batch_size = opts.get('mrl_batch_size', 1024) # Adjustable or from opts
+        n_samples = len(training_dataset)
+        
+        mask_actions_list = []
+        gate_actions_list = []
+        for i in range(0, n_samples, inference_batch_size):
+            # Slice indices
+            batch_indices = slice(i, min(i + inference_batch_size, n_samples))
             
-        # 2. Train Worker (Low-Level Policy) for the day using these weights
-        # We reuse _train_single_day but don't pass a weight_optimizer because we manage it manually here
-        step, log_pi, daily_loss, daily_total_samples, _ = _train_single_day(
-            model, optimizer, baseline, lr_scheduler, scaler, None, 
-            training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts
-        )
+            # Extract batch data
+            # Using a list comprehension for slice is inefficient for huge lists but dataset.data is list
+            batch_data = training_dataset.data[batch_indices] # Assuming data is list or sliceable
+            
+            static_locs = torch.stack([x['loc'] for x in batch_data]).to(opts['device'])
+            current_waste = torch.stack([x['waste'] for x in batch_data]).to(opts['device'])
+            
+            # Update Waste History Slice
+            # Slice waste_history tensor
+            batch_waste_history = waste_history[batch_indices]
+            batch_waste_history = torch.roll(batch_waste_history, shifts=-1, dims=2)
+            batch_waste_history[:, :, -1] = current_waste
+            
+            # Write back to main history
+            waste_history[batch_indices] = batch_waste_history
+            
+            # Compute Global Features
+            # current_waste: (B, N)
+            # Heuristic: Assume 15% daily generation
+            daily_gen_est = 0.15
+            horizon = 3
+            
+            # 1. Critical Ratio Now (% > 0.9)
+            critical_mask = (current_waste > 0.9).float()
+            critical_ratio = critical_mask.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # 2. Max Current Waste
+            max_current_waste = current_waste.max(dim=1, keepdim=True)[0] # (B, 1)
+            
+            # 3. Projected Critical Ratio (in 2 & 3 days)
+            projected_waste_2d = current_waste + (daily_gen_est * 2)
+            projected_waste_3d = current_waste + (daily_gen_est * 3)
+            projected_critical_mask_2d = (projected_waste_2d > 0.95).float()
+            projected_critical_mask_3d = (projected_waste_3d > 1.0).float()
+            critical_ratio_proj_3d = projected_critical_mask_3d.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # 4. Max Projected Waste (in 1 day) - OR Style
+            projected_waste_1d = current_waste + daily_gen_est
+            max_projected_waste_1d = projected_waste_1d.max(dim=1, keepdim=True)[0] # (B, 1)
+            
+            # 5. Projected Average Overflow (3 days)
+            projected_overflow_val_3d = F.relu(projected_waste_3d - 1.0)
+            avg_proj_overflow_3d = projected_overflow_val_3d.mean(dim=1, keepdim=True) # (B, 1)
+            
+            # Combine: (B, 5)
+            global_features = torch.cat([
+                critical_ratio, 
+                max_current_waste, 
+                critical_ratio_proj_3d, 
+                max_projected_waste_1d, 
+                avg_proj_overflow_3d
+            ], dim=1)
+            
+            # Accumulate Penalty (using 3-day projection)
+            total_lookahead_penalty_ep[batch_indices] += avg_proj_overflow_3d.squeeze(1)
 
-        # 3. Calculate Reward for HRL Manager
-        # Reward is negative total cost (or specific objective). 
-        # Using 'total' cost from daily_loss
-        if daily_total_samples > 0:
-            # daily_loss['total'] is sum of costs. We want average cost as penalty.
-            # aggregated metric for state: values of each component
-            metrics = []
-            avg_cost = 0
-            # Order matters: must match hrl_manager.weight_names order
-            for name in hrl_manager.weight_names:
-                if name in daily_loss:
-                    val = torch.stack(daily_loss[name]).sum().item() / daily_total_samples
-                    metrics.append(val)
-                else:
-                    metrics.append(0.0)
+            # Expert Forcing (Attempt 8: OR-Inspired)
+            # ---------------------------
+            progress = max(0, (day - opts['epoch_start']) / opts['n_epochs'])
+            epsilon = max(0.05, 1.0 - (progress * 2.0)) # Decay to 0 over first 50% epochs
             
-            # Add TOTAL cost as the last metric
-            avg_total_cost = torch.stack(daily_loss['total']).sum().item() / daily_total_samples
-            metrics.append(avg_total_cost) # Last metric is total
+            # Expert Strategy:
+            # - Force SKIP if max_projected_waste_1d < 0.9 (Safe to wait)
+            # - Force ROUTE if max_projected_waste_1d > 1.0 (Critical)
+            safe_skip_mask = (max_projected_waste_1d < 0.9).float().squeeze(1) # (B)
+            force_route_mask = (max_projected_waste_1d > 1.0).float().squeeze(1) # (B)
             
-            hrl_reward = -avg_total_cost * 0.001 # Scale reward to reasonable range (~ -30) 
+            # Apply Epsilon Greedy Forcing
+            batch_size = current_waste.size(0)
+            rand_vals = torch.rand(batch_size, device=opts['device'])
             
-            # Store transition
-            hrl_manager.store_transition(metrics, hrl_reward)
-            daily_rewards.append(hrl_reward)
+            # Attempt 59: RE-ENABLE GATE EXPERT FORCING (REPORT IMPLEMENTATION)
+            # Expert Strategy:
+            # - Force SKIP (0) if max_projected_waste_1d < 0.9 (Safe to wait)
+            # - Force ROUTE (1) if max_projected_waste_1d > 1.0 (Critical)
+            safe_skip_mask = (max_projected_waste_1d < 0.9).float().squeeze(1) # (B)
+            force_route_mask = (max_projected_waste_1d > 1.0).float().squeeze(1) # (B)
             
-            # Update HRL Manager
-            update_freq = opts.get('mrl_step', 10)
-            if len(hrl_manager.rewards) >= update_freq:
-                loss = hrl_manager.update()
+            # Apply Epsilon Greedy Forcing
+            # annealed epsilon: 1.0 -> 0.05 over 50% of epochs
+            progress = max(0, (day - opts['epoch_start']) / opts['n_epochs'])
+            epsilon = max(0.05, 1.0 - (progress * 2.0))
+            
+            batch_size = current_waste.size(0)
+            rand_vals = torch.rand(batch_size, device=opts['device'])
+            exploration_mask = (rand_vals < epsilon)
+            
+            # Create force_action tensor (default -1 means "Manager Decides")
+            force_action = torch.full((batch_size,), -1, dtype=torch.long, device=opts['device'])
+            
+            # Apply Forcing Logic
+            # 1. Safe to Skip -> Force 0
+            force_action = torch.where(safe_skip_mask.bool() & exploration_mask, 
+                                        torch.tensor(0, device=opts['device']), force_action)
+            # 2. Critical -> Force 1 (Overrides Safe Skip if conflict, though unlikely with ranges)
+            force_action = torch.where(force_route_mask.bool() & exploration_mask, 
+                                        torch.tensor(1, device=opts['device']), force_action)
+
+            # We still need exploration_mask for Node Forcing below!
+            
+            # Critical Node Mask (Expert Forcing for Mask)
+            # Attempt 71: Pressure-Based Mirror (1 & 2 day Lookahead)
+            # Unmask if critical TODAY (>0.8) or tomorrow (>0.95)
+            # This mirrors VRPP's proactivity.
+            force_node_mask = ((projected_waste_1d > 0.8) | (projected_waste_2d > 0.95)).float()
+            
+            # Identify Critical Nodes for Feature Consistency
+            critical_nodes_mask = force_node_mask
+            
+            # Apply forcing only to exploration subset (matches gate forcing logic)
+            # exploration_mask is (B). critical_nodes_mask is (B, N).
+            # Expand exploration_mask to (B, N)
+            exploration_mask_expanded = exploration_mask.unsqueeze(1).expand_as(critical_nodes_mask)
+            
+            # Set force_node_mask where both are true
+            # Attempt 54: EXPERT FORCING FOR CRITICAL NODES
+            # Forced visit if bin > 90% full.
+            force_node_mask = critical_nodes_mask * exploration_mask_expanded.float()
+            
+            # Manager Decision
+            with torch.no_grad():
+                mask_action, gate_action, value = hrl_manager.select_action(
+                    static_locs, batch_waste_history, global_features, 
+                    force_action=force_action,
+                    force_node_mask=force_node_mask,
+                    target_mask=critical_nodes_mask
+                )
+            
+            mask_actions_list.append(mask_action)
+            gate_actions_list.append(gate_action)
+            
+            # Step 5: Reward Calculation
+            # --------------------------
+            
+        # Concatenate results
+        mask_action_full = torch.cat(mask_actions_list, dim=0)
+        gate_action_full = torch.cat(gate_actions_list, dim=0)
+        
+        # 3. Apply Decision
+        # Attempt 52: Gate-Only Manager (Forced Unmasking)
+        # Ignore Manager's mask choice. If Gate=1, we route EVERYTHING (Unmasked).
+        # If Gate=0, we skip everything (handled by gate_expanded).
+        
+        # Attempt 57: Restoration of Selective Masking
+        # mask_action_full: 1 = Keep, 0 = Mask
+        # am_mask: True = Skip/Masked, False = Keep/Unmasked
+        am_mask = (mask_action_full == 0)
+        
+        gate_expanded = gate_action_full.unsqueeze(1).expand_as(am_mask) # (B, N)
+        final_mask = am_mask | (gate_expanded == 0)
+        
+        # Store in dataset for _train_single_day loop
+        for i in range(n_samples):
+            training_dataset.data[i]['hrl_mask'] = final_mask[i].cpu()
+        
+        # 4. Train Worker 
+        step, log_pi, daily_loss, daily_total_samples, _ = _train_single_day(
+            model, optimizer, baseline, lr_scheduler, scaler, None, training_dataset, 
+            val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts, hrl_manager
+        )
+        
+        with torch.no_grad():
+            avg_gate_prob = hrl_manager.forward(static_locs, batch_waste_history, global_features)[1].softmax(-1)[:, 1].mean().item()
+            force_count = 0
+            if force_action is not None:
+                    force_count = (force_action != -1).sum().item()
+
+        # 5. Reward Calculation
+        if daily_total_samples > 0:             
+            # Route Cost: 'length' per instance (Matrix Units: Meters/100)
+            # Concatenate all batches for the day
+            # Fix: Removed * 0.001 scale to align with Worker coefficients (Attempt 53c)
+            inst_route_cost = torch.cat(daily_loss['length'], dim=0) # (TotalSamples)
+            
+            # Overflow: 'overflows' per instance
+            if 'overflows' in daily_loss:
+                inst_overflow = torch.cat(daily_loss['overflows'], dim=0) # (TotalSamples)
+            else:
+                inst_overflow = torch.zeros(daily_total_samples, device=opts['device'])
+            
+            # Collected Waste: 'waste' per instance
+            if 'waste' in daily_loss:
+                inst_waste_collected = torch.cat(daily_loss['waste'], dim=0) # (TotalSamples)
+            else:
+                inst_waste_collected = torch.zeros(daily_total_samples, device=opts['device'])
+            
+            # Future Risk: Lookahead Penalty (already computed per instance in total_lookahead_penalty_ep)
+            inst_lookahead = total_lookahead_penalty_ep # (TotalSamples)
+
+            # Attempt 53: PID Lagrangian Control for OVERFLOWS (REPORT IMPLEMENTATION)
+            # Dynamic Lambda based on Overflow Rate.
+            # Target: 0.05 (5%).
+            # If Overflows > 0.05 (Error > 0): Meaning we are failing constraints.
+            # We need to PENALIZE OVERFLOWS MORE. 
+            # lambda = lambda + (Kp * err)
+            
+            current_overflow = inst_overflow.float().mean().item()
+            pid_target = 0.05
+            pid_error = current_overflow - pid_target
+            
+            # Update Integral
+            pid_integral += pid_error
+            # Update Derivative
+            pid_derivative = pid_error - pid_prev_error
+            pid_prev_error = pid_error
+            
+            # Calculate Output (Adjustment)
+            kp_overflow = 50.0  # Reduced from 500.0 to prevent instability
+            ki_overflow = 5.0   # Reduced from 10.0
+            kd_overflow = 0.0
+            
+            adjustment = (kp_overflow * pid_error) + (ki_overflow * pid_integral) + (kd_overflow * pid_derivative)
+            
+            # Base restart value 10000.0, adjust from there
+            # Attempt 80: Cap limit to 2000.0 to prevent reward signal saturation
+            current_lambda_overflow = max(100.0, min(2000.0, 1000.0 + adjustment)) # Clamped range reduced greatly
+            
+            # Attempt 74: Mileage Recovery (Travel-Agnostic Routing)
+            # inst_skip_penalty = (1.0 - gate_action_full.float()) * current_lambda_gate 
+            inst_skip_penalty = 0.0 # Disabled in favor of overflow penalty control
+            inst_gate_penalty = inst_skip_penalty 
+            
+            lambda_waste = 300.0      
+            lambda_cost = 0.1 
+            lambda_overflow = current_lambda_overflow # DYNAMIC PID VALUE
+            lambda_lookahead = 200.0   
+            lambda_pruning = 5.0 
+            
+            inst_pruning_penalty = (mask_action_full.float().sum(dim=1)) * lambda_pruning
+            
+            # hrl_reward_tensor: (TotalSamples)
+            # Ensure all terms are 1D tensors of shape (TotalSamples,) to avoid broadcasting to (B, B)
+            # Slice inst_lookahead to match current batch/dataset size
+            inst_lookahead = inst_lookahead[:inst_waste_collected.size(0)]
+            
+            hrl_reward_tensor = (
+                lambda_waste * inst_waste_collected.float().flatten() - (
+                    lambda_cost * inst_route_cost.float().flatten() + 
+                    lambda_overflow * inst_overflow.float().flatten() + 
+                    lambda_lookahead * inst_lookahead.float().flatten() + 
+                    inst_gate_penalty + 
+                    inst_pruning_penalty.float().flatten()
+                )
+            ) * 0.0001 # Scale down by 10000 to keep rewards in [-10, 10] range instead of millions
+            
+            daily_rewards.append(hrl_reward_tensor.mean().item())
+            hrl_manager.rewards.append(hrl_reward_tensor) # Append the tensor
+            
+            # Update Manager
+            freq = opts.get('mrl_step', 10)
+            if len(hrl_manager.rewards) >= freq:
+                loss = hrl_manager.update(
+                    lr=opts.get('mrl_lr', 3e-4),
+                    ppo_epochs=opts.get('hrl_epochs', 4),
+                    clip_eps=opts.get('hrl_clip_eps', 0.2),
+                    gamma=0.95,
+                    lambda_mask_aux=50.0,
+                    entropy_coef=0.2  # Boosted entropy for exploration (Default 0.1)
+                )
                 if loss is not None and tb_logger is not None:
                     tb_logger.log_value('hrl_manager_loss', loss, step)
-                print(f"HRL Update Day {day}: Reward={hrl_reward:.4f} Loss={loss if loss else 0:.4f}")
+                    tb_logger.log_value('lambda_overflow', lambda_overflow, step)
+                
+                # Debug Logging Attempt 53 (PID Enhanced)
+                d_waste = inst_waste_collected.float().mean().item()
+                d_cost = inst_route_cost.float().mean().item()
+                d_over = inst_overflow.float().mean().item()
+                # d_gate = inst_gate_penalty.float().mean().item()
+                print(f"HRL Update Day {day}: Reward={hrl_reward_tensor.mean().item():.4f} | W={d_waste:.1f} C={d_cost:.1f} O={d_over:.1f} L_O={lambda_overflow:.1f}")
 
-        # Logging
-        if tb_logger is not None:
-            for k, v in new_weights.items():
-                tb_logger.log_value(f'hrl_weight_{k}', v, day)
-        
         day += 1
         if day >= opts['epoch_start'] + opts['n_epochs']: break
         training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
-
+        
     log_training(loss_keys, table_df, opts)
     return model, hrl_manager
 
@@ -619,15 +728,18 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
         print(e)
         sys.exit(1)
 
-    if scaler is None:
-        # Perform backward pass
-        loss.backward()
-    else:
-        # Exit autocast context
+    if loss.requires_grad:
+        if scaler is None:
+            # Perform backward pass
+            loss.backward()
+        else:
+            # Exit autocast context
+            autocast_context.__exit__(None, None, None)
+            # Perform backward pass and unscale gradients
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+    elif scaler is not None:
         autocast_context.__exit__(None, None, None)
-        # Perform backward pass and unscale gradients
-        scaler.scale(loss).backward()
-        scaler.unscale_(optimizer)
 
     # Clip gradient norms and get (clipped) gradient norms for logging
     grad_norms = clip_grad_norms(optimizer.param_groups, opts['max_grad_norm'])

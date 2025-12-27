@@ -35,6 +35,7 @@ class Bins:
         self.collected = np.zeros((n))
         self.ncollections = np.zeros((n))
         self.history = []
+        self.level_history = []
         self.travel = 0
         self.profit = 0
         self.ndays = 0
@@ -102,9 +103,15 @@ class Bins:
     
     def get_fill_history(self, device=None):
         if device is not None:
-            return torch.tensor(self.history, dtype=torch.float, device=device)
+            return torch.tensor(np.array(self.history), dtype=torch.float, device=device) / 100.
         else:
             return np.array(self.history)
+
+    def get_level_history(self, device=None):
+        if device is not None:
+            return torch.tensor(np.array(self.level_history), dtype=torch.float, device=device) / 100.
+        else:
+            return np.array(self.level_history)
 
     def predictdaystooverflow(self, cl):
         return self._predictdaystooverflow(self.means, self.std, self.c, cl)
@@ -117,7 +124,9 @@ class Bins:
 
     def set_sample_waste(self, sample_id):
         self.waste_fills = self.waste_fills[sample_id]
-        if self.start_with_fill: self.c = self.waste_fills[0]
+        if self.start_with_fill: 
+            self.c = self.waste_fills[0].copy()
+            self.level_history.append(self.c.copy())
 
     def collect(self, idsfull, cost=0):
         ids = set(idsfull)
@@ -161,6 +170,7 @@ class Bins:
 
         # New depositions for the overflow calculation
         self.c = np.minimum(self.c + todaysfilling, 100)
+        self.level_history.append(self.c.copy())
         self.c = np.maximum(self.c, 0)
         inoverflow = (self.c==100)
         self.inoverflow += (self.c==100)

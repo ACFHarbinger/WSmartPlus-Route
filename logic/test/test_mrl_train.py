@@ -5,7 +5,6 @@ import numpy as np
 from unittest.mock import MagicMock, patch
 
 from logic.src.pipeline.reinforcement_learning.meta.contextual_bandits import WeightContextualBandit
-from logic.src.pipeline.reinforcement_learning.meta.hierarchical import HRLManager
 from logic.src.pipeline.reinforcement_learning.meta.multi_objective import MORLWeightOptimizer
 from logic.src.pipeline.reinforcement_learning.meta.temporal_difference_learning import CostWeightManager
 from logic.src.pipeline.reinforcement_learning.meta.weight_optimizer import RewardWeightOptimizer
@@ -101,66 +100,6 @@ class TestWeightContextualBandit:
 
         context_key = bandit._context_to_key(context)
         assert bandit.context_rewards[context_key][0] == [10.0]
-
-
-class TestHRLManager:
-
-
-    def test_initialization(self, hrl_setup):
-        manager = hrl_setup
-        assert manager.num_weights == 2
-        assert manager.history_length == 5
-        # Check buffer initialization
-        assert len(manager.weight_history) == 0
-        assert len(manager.performance_history) == 0
-
-    def test_get_state(self, hrl_setup):
-        manager = hrl_setup
-        
-        # Should handle empty history with padding
-        state = manager.get_state()
-        assert state.shape == (1, (2 + 3) * 5) # (num_weights + 1_metrics) * history -> (2+3)*5 = 25
-        
-        # Add some history
-        manager.weight_history.append(torch.tensor([1.0, 2.0]))
-        manager.performance_history.append(torch.tensor([0.5, 0.1, 10.0]))
-        
-        state_after = manager.get_state()
-        assert state_after.shape == (1, 25)
-        # Verify it's not all zeros/padding now (hard to assert exact values due to normalization)
-        assert not torch.all(state_after == 0)
-
-    def test_select_action(self, hrl_setup):
-        manager = hrl_setup
-        weights_dict = manager.select_action()
-        
-        assert isinstance(weights_dict, dict)
-        assert 'w_waste' in weights_dict
-        assert 'w_over' in weights_dict
-        assert len(manager.actions) == 1
-        assert len(manager.states) == 1
-
-    def test_store_transition_and_update(self, hrl_setup):
-        manager = hrl_setup
-        
-        # Simulate a few steps
-        for _ in range(5):
-            manager.select_action()
-            metrics = [0.5, 0.1, 10.0]
-            reward = 1.0
-            manager.store_transition(metrics, reward, done=False)
-            
-        assert len(manager.rewards) == 5
-        assert len(manager.dones) == 5
-        
-        # Update
-        loss = manager.update()
-        assert loss is not None
-        assert isinstance(loss, float)
-        
-        # Verify buffers cleared
-        assert len(manager.states) == 0
-        assert len(manager.rewards) == 0
 
 
 class TestMORLWeightOptimizer:
