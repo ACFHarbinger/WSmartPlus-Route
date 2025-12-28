@@ -50,7 +50,7 @@ class ConfigsParser(argparse.ArgumentParser):
         # Get all actions to iterate over: main actions + current subparser actions
         actions_to_check = list(self._actions)
         
-        # Attempt to find the actions of the specific subparser command
+        # Try to find the actions of the specific subparser command
         command_name = None
         if args and not args[0].startswith('-'):
             command_name = args[0]
@@ -295,8 +295,10 @@ def add_mrl_train_args(parser):
     parser.add_argument('--mrl_embedding_dim', type=int, default=128, help='Dimension of input embedding for Reward Weight Adjustment model')
     parser.add_argument('--mrl_step', type=int, default=100, help='Update every mrl_step steps')
     parser.add_argument('--mrl_batch_size', type=int, default=256, help="Batch size to use for Meta-Reinforcement Learning")
+    parser.add_argument('--hrl_threshold', type=float, default=0.9, help="Set the critical threshold for Hierarchical Reinforcement Learning PPO")
     parser.add_argument('--hrl_epochs', type=int, default=4, help="Number of epochs to use for Hierarchical Reinforcement Learning PPO")
     parser.add_argument('--hrl_clip_eps', type=float, default=0.2, help="Set the clip epsilon for Hierarchical Reinforcement Learning PPO")
+    parser.add_argument('--global_input_dim', type=int, default=2, help="Dimension of global input for HRL Manager")
     parser.add_argument('--gat_hidden', type=int, default=128, help="Hidden dimension for GAT Manager")
     parser.add_argument('--lstm_hidden', type=int, default=64, help="Hidden dimension for LSTM in GAT Manager")
     parser.add_argument('--gate_prob_threshold', type=float, default=0.5, help="Threshold for routing decision gate")
@@ -312,6 +314,25 @@ def add_mrl_train_args(parser):
     parser.add_argument('--rwa_model', type=str, default='rnn', choices=['rnn'], help='Neural network to use for Reward Weight Adjustment')
     parser.add_argument('--rwa_optimizer', type=str, default='rmsprop', help="Optimizer: 'adamax'|'adam'|'adamw'|'radam'|'nadam'|'rmsprop'")
     parser.add_argument('--rwa_update_step', type=int, default=100, help='Update Reward Weight Adjustment weights every rwa_update_step steps')
+    
+    # HRL PID and Reward Shaping
+    parser.add_argument('--hrl_pid_target', type=float, default=0.05, help="Target overflow rate for PID control")
+    parser.add_argument('--hrl_kp', type=float, default=50.0, help="Kp factor for HRL PID overflow control")
+    parser.add_argument('--hrl_ki', type=float, default=5.0, help="Ki factor for HRL PID overflow control")
+    parser.add_argument('--hrl_kd', type=float, default=0.0, help="Kd factor for HRL PID overflow control")
+    parser.add_argument('--hrl_lambda_overflow_initial', type=float, default=1000.0, help="Initial lambda weight for overflows")
+    parser.add_argument('--hrl_lambda_overflow_min', type=float, default=100.0, help="Minimum lambda weight for overflows")
+    parser.add_argument('--hrl_lambda_overflow_max', type=float, default=2000.0, help="Maximum lambda weight for overflows")
+    parser.add_argument('--hrl_lambda_waste', type=float, default=300.0, help="Reward weight for collected waste")
+    parser.add_argument('--hrl_lambda_cost', type=float, default=0.1, help="Penalty weight for route cost/distance")
+    parser.add_argument('--hrl_lambda_pruning', type=float, default=5.0, help="Penalty weight for masking too many nodes")
+    parser.add_argument('--hrl_reward_scale', type=float, default=0.0001, help="Final scaling factor for HRL rewards")
+    
+    # HRL Training Hyperparameters
+    parser.add_argument('--hrl_gamma', type=float, default=0.95, help="Discount factor for manager PPO update")
+    parser.add_argument('--hrl_lambda_mask_aux', type=float, default=50.0, help="Weight for mask auxiliary loss")
+    parser.add_argument('--hrl_entropy_coef', type=float, default=0.2, help="Entropy coefficient for manager PPO update")
+    
     return parser
 
 def add_hp_optim_args(parser):

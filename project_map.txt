@@ -1,0 +1,521 @@
+.
+├── AGENTS.md
+├── app.spec
+├── assets
+│   ├── api
+│   │   ├── google.lic.enc
+│   │   ├── gurobi.lic
+│   │   └── hexaly.dat.enc
+│   ├── diagrams
+│   │   └── diagram.drawio
+│   ├── images
+│   │   ├── logo-wsmartroute.png
+│   │   └── logo-wsmartroute-white.png
+│   ├── keys
+│   │   ├── skey.pkl
+│   │   └── skey.salt
+│   ├── model_weights
+│   │   └── cwcvrp100_riomaior_plastic
+│   │       └── gamma1
+│   │           ├── amgat
+│   │           └── amgat_hrl
+│   └── output
+│       └── 31_days
+│           └── riomaior_100
+│               ├── daily_gamma1_1N.json
+│               ├── fill_history
+│               │   └── gamma1
+│               │       ├── gurobi_vrpp0.84_gamma142_sample0.xlsx
+│               │       ├── policy_last_minute70_gamma142_sample0.xlsx
+│               │       ├── policy_look_ahead_a_alns_gamma142_sample0.xlsx
+│               │       ├── policy_look_ahead_a_bcp_gamma142_sample0.xlsx
+│               │       ├── policy_look_ahead_a_gamma142_sample0.xlsx
+│               │       ├── policy_look_ahead_a_hgs_gamma142_sample0.xlsx
+│               │       ├── policy_look_ahead_a_sans_gamma142_sample0.xlsx
+│               │       ├── policy_look_ahead_a_vrpp_gamma142_sample0.xlsx
+│               │       ├── policy_regular3_gamma142_sample0.xlsx
+│               │       └── policy_regular4_gamma142_sample0.xlsx
+│               ├── log_mean_1N.json
+│               ├── log_realtime_gamma1_1N.jsonl
+│               └── temp
+│                   ├── checkpoint_gurobi_vrpp0.84_gamma1_0_day31.pkl
+│                   ├── checkpoint_policy_last_minute70_gamma1_0_day31.pkl
+│                   ├── checkpoint_policy_look_ahead_a_alns_gamma1_0_day31.pkl
+│                   ├── checkpoint_policy_look_ahead_a_bcp_gamma1_0_day31.pkl
+│                   ├── checkpoint_policy_look_ahead_a_gamma1_0_day31.pkl
+│                   ├── checkpoint_policy_look_ahead_a_hgs_gamma1_0_day31.pkl
+│                   ├── checkpoint_policy_look_ahead_a_sans_gamma1_0_day31.pkl
+│                   ├── checkpoint_policy_look_ahead_a_vrpp_gamma1_0_day31.pkl
+│                   ├── checkpoint_policy_regular3_gamma1_0_day31.pkl
+│                   └── checkpoint_policy_regular4_gamma1_0_day31.pkl
+├── env
+│   ├── conda.yml
+│   ├── dev_requirements.txt
+│   ├── pip_requirements.txt
+│   ├── requirements.txt
+│   ├── vars.env
+│   └── vars.Rprofile
+├── gui
+│   ├── AGENTS.md
+│   ├── src
+│   │   ├── components
+│   │   │   ├── clickable_header.py
+│   │   │   └── __init__.py
+│   │   ├── helpers
+│   │   │   ├── chart_worker.py
+│   │   │   ├── data_loader_worker.py
+│   │   │   ├── file_tailer_worker.py
+│   │   │   └── __init__.py
+│   │   ├── styles
+│   │   │   ├── globals.py
+│   │   │   └── __init__.py
+│   │   ├── tabs
+│   │   │   ├── analysis
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── input_analysis.py
+│   │   │   │   ├── output_analysis.py
+│   │   │   │   └── pandas_model.py
+│   │   │   ├── evaluation
+│   │   │   │   ├── eval_data_batching.py
+│   │   │   │   ├── eval_decoding.py
+│   │   │   │   ├── eval_input_output.py
+│   │   │   │   ├── eval_problem.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── file_system
+│   │   │   │   ├── fs_cryptography.py
+│   │   │   │   ├── fs_delete.py
+│   │   │   │   ├── fs_update.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── generate_data
+│   │   │   │   ├── gd_advanced.py
+│   │   │   │   ├── gd_general.py
+│   │   │   │   ├── gd_problem.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── hyperparam_optim.py
+│   │   │   ├── __init__.py
+│   │   │   ├── meta_rl_train.py
+│   │   │   ├── reinforcement_learning
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── rl_base.py
+│   │   │   │   ├── rl_costs.py
+│   │   │   │   ├── rl_data.py
+│   │   │   │   ├── rl_model.py
+│   │   │   │   ├── rl_optim.py
+│   │   │   │   ├── rl_output.py
+│   │   │   │   └── rl_training.py
+│   │   │   ├── scripts.py
+│   │   │   ├── test_simulator
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── ts_advanced.py
+│   │   │   │   ├── ts_input_output.py
+│   │   │   │   ├── ts_policy_parameters.py
+│   │   │   │   └── ts_settings.py
+│   │   │   └── test_suite.py
+│   │   ├── utils
+│   │   │   ├── app_definitions.py
+│   │   │   └── __init__.py
+│   │   └── windows
+│   │       ├── __init__.py
+│   │       ├── main_window.py
+│   │       └── ts_results_window.py
+│   └── test
+│       ├── conftest.py
+│       ├── __init__.py
+│       ├── test_components.py
+│       ├── test_helpers.py
+│       ├── test_tabs_analysis.py
+│       ├── test_tabs_evaluation.py
+│       ├── test_tabs_file_system.py
+│       ├── test_tabs_generate_data.py
+│       ├── test_tabs_reinforcement_learning.py
+│       ├── test_tabs_root.py
+│       ├── test_tabs_test_simulator.py
+│       └── test_ts_results_window.py
+├── logic
+│   ├── AGENTS.md
+│   ├── src
+│   │   ├── app.py
+│   │   ├── file_system.py
+│   │   ├── __init__.py
+│   │   ├── models
+│   │   │   ├── attention_model.py
+│   │   │   ├── critic_network.py
+│   │   │   ├── deep_decoder_am.py
+│   │   │   ├── gat_lstm_manager.py
+│   │   │   ├── hypernet.py
+│   │   │   ├── __init__.py
+│   │   │   ├── meta_rnn.py
+│   │   │   ├── modules
+│   │   │   │   ├── activation_function.py
+│   │   │   │   ├── distance_graph_convolution.py
+│   │   │   │   ├── efficient_graph_convolution copy.py
+│   │   │   │   ├── efficient_graph_convolution.py
+│   │   │   │   ├── feed_forward.py
+│   │   │   │   ├── gated_graph_convolution.py
+│   │   │   │   ├── graph_convolution.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── multi_head_attention.py
+│   │   │   │   ├── normalization.py
+│   │   │   │   ├── normalized_activation_function.py
+│   │   │   │   └── skip_connection.py
+│   │   │   ├── pointer_network.py
+│   │   │   ├── reinforce_baselines.py
+│   │   │   ├── subnets
+│   │   │   │   ├── gac_encoder.py
+│   │   │   │   ├── gat_decoder.py
+│   │   │   │   ├── gat_encoder.py
+│   │   │   │   ├── gcn_encoder.py
+│   │   │   │   ├── ggac_encoder.py
+│   │   │   │   ├── grf_predictor.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── mlp_encoder.py
+│   │   │   │   ├── ptr_decoder.py
+│   │   │   │   ├── ptr_encoder.py
+│   │   │   │   └── tgc_encoder.py
+│   │   │   └── temporal_am.py
+│   │   ├── pipeline
+│   │   │   ├── eval.py
+│   │   │   ├── __init__.py
+│   │   │   ├── reinforcement_learning
+│   │   │   │   ├── epoch.py
+│   │   │   │   ├── hpo.py
+│   │   │   │   ├── hyperparameter_optimization
+│   │   │   │   │   ├── dehb_config_repo.py
+│   │   │   │   │   ├── dehb.py
+│   │   │   │   │   ├── dehb_shb_manager.py
+│   │   │   │   │   ├── de.py
+│   │   │   │   │   └── __init__.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── meta
+│   │   │   │   │   ├── contextual_bandits.py
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── multi_objective.py
+│   │   │   │   │   ├── temporal_difference_learning.py
+│   │   │   │   │   └── weight_optimizer.py
+│   │   │   │   ├── post_processing.py
+│   │   │   │   └── reinforce.py
+│   │   │   ├── simulator
+│   │   │   │   ├── bins.py
+│   │   │   │   ├── checkpoints.py
+│   │   │   │   ├── day.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── loader.py
+│   │   │   │   ├── network.py
+│   │   │   │   ├── processor.py
+│   │   │   │   ├── simulation.py
+│   │   │   │   └── wsmart_bin_analysis
+│   │   │   │       ├── Deliverables
+│   │   │   │       │   ├── Arima_predictor.R
+│   │   │   │       │   ├── container.py
+│   │   │   │       │   ├── docs
+│   │   │   │       │   │   ├── _build
+│   │   │   │       │   │   │   ├── doctrees
+│   │   │   │       │   │   │   │   ├── environment.pickle
+│   │   │   │       │   │   │   │   ├── extract.doctree
+│   │   │   │       │   │   │   │   ├── index.doctree
+│   │   │   │       │   │   │   │   ├── load.doctree
+│   │   │   │       │   │   │   │   ├── modules.doctree
+│   │   │   │       │   │   │   │   └── transform.doctree
+│   │   │   │       │   │   │   └── html
+│   │   │   │       │   │   │       ├── extract.html
+│   │   │   │       │   │   │       ├── genindex.html
+│   │   │   │       │   │   │       ├── index.html
+│   │   │   │       │   │   │       ├── load.html
+│   │   │   │       │   │   │       ├── _modules
+│   │   │   │       │   │   │       │   ├── extract
+│   │   │   │       │   │   │       │   │   └── extract_tools.html
+│   │   │   │       │   │   │       │   ├── index.html
+│   │   │   │       │   │   │       │   ├── load
+│   │   │   │       │   │   │       │   │   └── load_tools.html
+│   │   │   │       │   │   │       │   └── transform
+│   │   │   │       │   │   │       │       └── t_Container.html
+│   │   │   │       │   │   │       ├── modules.html
+│   │   │   │       │   │   │       ├── objects.inv
+│   │   │   │       │   │   │       ├── py-modindex.html
+│   │   │   │       │   │   │       ├── search.html
+│   │   │   │       │   │   │       ├── searchindex.js
+│   │   │   │       │   │   │       ├── _sources
+│   │   │   │       │   │   │       │   ├── extract.rst.txt
+│   │   │   │       │   │   │       │   ├── index.rst.txt
+│   │   │   │       │   │   │       │   ├── load.rst.txt
+│   │   │   │       │   │   │       │   ├── modules.rst.txt
+│   │   │   │       │   │   │       │   └── transform.rst.txt
+│   │   │   │       │   │   │       ├── _static
+│   │   │   │       │   │   │       │   ├── basic.css
+│   │   │   │       │   │   │       │   ├── css
+│   │   │   │       │   │   │       │   │   ├── badge_only.css
+│   │   │   │       │   │   │       │   │   ├── fonts
+│   │   │   │       │   │   │       │   │   │   ├── fontawesome-webfont.eot
+│   │   │   │       │   │   │       │   │   │   ├── fontawesome-webfont.svg
+│   │   │   │       │   │   │       │   │   │   ├── fontawesome-webfont.ttf
+│   │   │   │       │   │   │       │   │   │   ├── fontawesome-webfont.woff
+│   │   │   │       │   │   │       │   │   │   ├── fontawesome-webfont.woff2
+│   │   │   │       │   │   │       │   │   │   ├── lato-bold-italic.woff
+│   │   │   │       │   │   │       │   │   │   ├── lato-bold-italic.woff2
+│   │   │   │       │   │   │       │   │   │   ├── lato-bold.woff
+│   │   │   │       │   │   │       │   │   │   ├── lato-bold.woff2
+│   │   │   │       │   │   │       │   │   │   ├── lato-normal-italic.woff
+│   │   │   │       │   │   │       │   │   │   ├── lato-normal-italic.woff2
+│   │   │   │       │   │   │       │   │   │   ├── lato-normal.woff
+│   │   │   │       │   │   │       │   │   │   ├── lato-normal.woff2
+│   │   │   │       │   │   │       │   │   │   ├── Roboto-Slab-Bold.woff
+│   │   │   │       │   │   │       │   │   │   ├── Roboto-Slab-Bold.woff2
+│   │   │   │       │   │   │       │   │   │   ├── Roboto-Slab-Regular.woff
+│   │   │   │       │   │   │       │   │   │   └── Roboto-Slab-Regular.woff2
+│   │   │   │       │   │   │       │   │   └── theme.css
+│   │   │   │       │   │   │       │   ├── doctools.js
+│   │   │   │       │   │   │       │   ├── documentation_options.js
+│   │   │   │       │   │   │       │   ├── file.png
+│   │   │   │       │   │   │       │   ├── jquery.js
+│   │   │   │       │   │   │       │   ├── js
+│   │   │   │       │   │   │       │   │   ├── badge_only.js
+│   │   │   │       │   │   │       │   │   ├── html5shiv.min.js
+│   │   │   │       │   │   │       │   │   ├── html5shiv-printshiv.min.js
+│   │   │   │       │   │   │       │   │   └── theme.js
+│   │   │   │       │   │   │       │   ├── language_data.js
+│   │   │   │       │   │   │       │   ├── minus.png
+│   │   │   │       │   │   │       │   ├── plus.png
+│   │   │   │       │   │   │       │   ├── pygments.css
+│   │   │   │       │   │   │       │   ├── searchtools.js
+│   │   │   │       │   │   │       │   ├── sphinx_highlight.js
+│   │   │   │       │   │   │       │   └── _sphinx_javascript_frameworks_compat.js
+│   │   │   │       │   │   │       └── transform.html
+│   │   │   │       │   │   ├── conf.py
+│   │   │   │       │   │   ├── extract.rst
+│   │   │   │       │   │   ├── index.rst
+│   │   │   │       │   │   ├── load.rst
+│   │   │   │       │   │   ├── make.bat
+│   │   │   │       │   │   ├── Makefile
+│   │   │   │       │   │   ├── modules.rst
+│   │   │   │       │   │   └── transform.rst
+│   │   │   │       │   ├── extract.py
+│   │   │   │       │   ├── __init__.py
+│   │   │   │       │   ├── predictors.py
+│   │   │   │       │   ├── save_load.py
+│   │   │   │       │   ├── simulation.py
+│   │   │   │       │   ├── transform.py
+│   │   │   │       │   └── Tutorials
+│   │   │   │       │       ├── Figueia_Drivers_1.ipynb
+│   │   │   │       │       ├── Figueira_Drivers_2.ipynb
+│   │   │   │       │       ├── Paper_benchamrk.ipynb
+│   │   │   │       │       ├── RioMaior_Drivers2024.ipynb
+│   │   │   │       │       ├── Rio_Maior_Sensors2024.ipynb
+│   │   │   │       │       ├── Rio_Maior_sensors_2.ipynb
+│   │   │   │       │       ├── Rio_Maior_sensors.ipynb
+│   │   │   │       │       └── Simulating.ipynb
+│   │   │   │       ├── __init__.py
+│   │   │   │       ├── python experiental
+│   │   │   │       │   └── predictors_python_experiement.py
+│   │   │   │       ├── README.md
+│   │   │   │       ├── R_experiemental
+│   │   │   │       │   ├── Clustering.R
+│   │   │   │       │   ├── Data_handle.R
+│   │   │   │       │   ├── FPCA_4H.R
+│   │   │   │       │   ├── FPCA.R
+│   │   │   │       │   └── Whole_network.R
+│   │   │   │       ├── R_predictors
+│   │   │   │       │   ├── acf_l2_pam_cluster_predictor.R
+│   │   │   │       │   ├── Arima_predictor_and_simple_ones.R
+│   │   │   │       │   ├── FPCA_Predict.R
+│   │   │   │       │   └── Predictor_Comparison.R
+│   │   │   │       ├── sample_gen.py
+│   │   │   │       └── valorsul_article_pictures.ipynb
+│   │   │   ├── test.py
+│   │   │   └── train.py
+│   │   ├── policies
+│   │   │   ├── adaptive_large_neighborhood_search.py
+│   │   │   ├── branch_cut_and_price.py
+│   │   │   ├── gurobi_optimizer.py
+│   │   │   ├── hexaly_optimizer.py
+│   │   │   ├── hybrid_genetic_search.py
+│   │   │   ├── __init__.py
+│   │   │   ├── last_minute.py
+│   │   │   ├── look_ahead_aux
+│   │   │   │   ├── check.py
+│   │   │   │   ├── computations.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── move.py
+│   │   │   │   ├── routes.py
+│   │   │   │   ├── sans_opt.py
+│   │   │   │   ├── search.py
+│   │   │   │   ├── select.py
+│   │   │   │   ├── solutions.py
+│   │   │   │   ├── swap.py
+│   │   │   │   └── update.py
+│   │   │   ├── look_ahead.py
+│   │   │   ├── multi_vehicle.py
+│   │   │   ├── regular.py
+│   │   │   └── single_vehicle.py
+│   │   ├── problems
+│   │   │   ├── __init__.py
+│   │   │   ├── vrpp
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── problem_vrpp.py
+│   │   │   │   ├── state_cvrpp.py
+│   │   │   │   └── state_vrpp.py
+│   │   │   └── wcvrp
+│   │   │       ├── __init__.py
+│   │   │       ├── problem_wcvrp.py
+│   │   │       ├── state_cwcvrp.py
+│   │   │       ├── state_sdwcvrp.py
+│   │   │       └── state_wcvrp.py
+│   │   └── utils
+│   │       ├── arg_parser.py
+│   │       ├── beam_search.py
+│   │       ├── boolmask.py
+│   │       ├── crypto_utils.py
+│   │       ├── data_utils.py
+│   │       ├── debug_utils.py
+│   │       ├── definitions.py
+│   │       ├── functions.py
+│   │       ├── graph_utils.py
+│   │       ├── __init__.py
+│   │       ├── io_utils.py
+│   │       ├── lexsort.py
+│   │       ├── log_utils.py
+│   │       ├── monkey_patch.py
+│   │       ├── plot_utils.py
+│   │       └── setup_utils.py
+│   └── test
+│       ├── conftest.py
+│       ├── __init__.py
+│       ├── test_arg_parser.py
+│       ├── test_definitions.py
+│       ├── test_generate_data.py
+│       ├── test_hp_optim.py
+│       ├── test_models.py
+│       ├── test_modules.py
+│       ├── test_mrl_train.py
+│       ├── test_policies.py
+│       ├── test_problems.py
+│       ├── test_simulator.py
+│       ├── test_subnets.py
+│       ├── test_suite.py
+│       └── test_train.py
+├── __main__.py
+├── main.py
+├── notebooks
+│   ├── collectioncompare.ipynb
+│   ├── collectioncompare_V.ipynb
+│   ├── data_files.ipynb
+│   ├── datasets.ipynb
+│   ├── generate_maps.ipynb
+│   ├── look_ahead_vrpp.ipynb
+│   ├── notebook_setup.py
+│   ├── optimization.ipynb
+│   ├── output.ipynb
+│   ├── output_show.ipynb
+│   ├── prototype.ipynb
+│   ├── VPP_OneFlow_Lookahead_Dynamic.ipynb
+│   ├── VRPP_Dynamic_Ajustado.ipynb
+│   └── VRP_Policy_Regular3day.ipynb
+├── project_map.txt
+├── pyproject.toml
+├── README.md
+├── reports
+│   ├── Deep Hierarchical Reinforcement Learning Advancements.pdf
+│   ├── Deep Hierarchical Reinforcement Learning Advancements.txt
+│   ├── Deep HRL for Periodic VRP.pdf
+│   ├── Deep HRL for Periodic VRP.txt
+│   ├── Deep Learning for Periodic VRP Scheduling.pdf
+│   ├── Deep Learning for Periodic VRP Scheduling.txt
+│   ├── HRL for Periodic VRP Tuning.pdf
+│   ├── HRL for Periodic VRP Tuning.txt
+│   ├── Machine Learning for Temporal Optimization.pdf
+│   ├── Machine Learning for Temporal Optimization.txt
+│   ├── Neural Combinatorial Optimization Research.pdf
+│   ├── Neural Combinatorial Optimization Research.txt
+│   ├── PCVRP Algorithm Research State-of-the-Art.pdf
+│   └── PCVRP Algorithm Research State-of-the-Art.txt
+├── scripts
+│   ├── evaluation.bat
+│   ├── evaluation.sh
+│   ├── gen_data.bat
+│   ├── gen_data.sh
+│   ├── hyperparam_optim.bat
+│   ├── hyperparam_optim.sh
+│   ├── meta_train.bat
+│   ├── meta_train.sh
+│   ├── setup_env.bat
+│   ├── setup_env.sh
+│   ├── slim_slurm.sh
+│   ├── slurm.sh
+│   ├── test_sim.bat
+│   ├── test_sim.sh
+│   ├── train.bat
+│   └── train.sh
+├── simulator.spec
+├── temp
+├── test_dehb_output
+├── uv.lock
+└── wandb
+    ├── debug-internal.log -> offline-run-20251223_172029-61uwudar/logs/debug-internal.log
+    ├── debug.log -> offline-run-20251223_172029-61uwudar/logs/debug.log
+    ├── latest-run -> offline-run-20251223_172029-61uwudar
+    ├── offline-run-20251222_020528-uuj035wf
+    │   ├── files
+    │   │   ├── output.log
+    │   │   └── requirements.txt
+    │   ├── logs
+    │   │   ├── debug-core.log -> /home/pkhunter/.cache/wandb/logs/core-debug-20251222_020528.log
+    │   │   ├── debug-internal.log
+    │   │   └── debug.log
+    │   ├── run-uuj035wf.wandb
+    │   └── tmp
+    │       └── code
+    ├── offline-run-20251222_021132-lo26t6h7
+    │   ├── files
+    │   │   ├── output.log
+    │   │   └── requirements.txt
+    │   ├── logs
+    │   │   ├── debug-core.log -> /home/pkhunter/.cache/wandb/logs/core-debug-20251222_021132.log
+    │   │   ├── debug-internal.log
+    │   │   └── debug.log
+    │   ├── run-lo26t6h7.wandb
+    │   └── tmp
+    │       └── code
+    ├── offline-run-20251223_171735-b0rgd1kp
+    │   ├── files
+    │   │   ├── output.log
+    │   │   └── requirements.txt
+    │   ├── logs
+    │   │   ├── debug-core.log -> /home/pkhunter/.cache/wandb/logs/core-debug-20251223_171735.log
+    │   │   ├── debug-internal.log
+    │   │   └── debug.log
+    │   ├── run-b0rgd1kp.wandb
+    │   └── tmp
+    │       └── code
+    ├── offline-run-20251223_171906-r6lgk0m7
+    │   ├── files
+    │   │   ├── output.log
+    │   │   └── requirements.txt
+    │   ├── logs
+    │   │   ├── debug-core.log -> /home/pkhunter/.cache/wandb/logs/core-debug-20251223_171906.log
+    │   │   ├── debug-internal.log
+    │   │   └── debug.log
+    │   ├── run-r6lgk0m7.wandb
+    │   └── tmp
+    │       └── code
+    └── offline-run-20251223_172029-61uwudar
+        ├── files
+        │   ├── media
+        │   │   ├── images
+        │   │   │   ├── length_cost_102_c317c032da3f8ca9c07c.png
+        │   │   │   ├── nll_105_8b7e71a8d213e2cc51ba.png
+        │   │   │   ├── overflows_cost_103_34464074f9a4b9975a5a.png
+        │   │   │   ├── reinforce_loss_106_53667979e5dd134b92e3.png
+        │   │   │   ├── total_cost_104_783ecf6666e36164a923.png
+        │   │   │   └── waste_cost_101_c9b96e57274fe69555bf.png
+        │   │   └── table
+        │   │       └── training_table_100_3e7b3988f01af374c45c.table.json
+        │   ├── output.log
+        │   └── requirements.txt
+        ├── logs
+        │   ├── debug-core.log -> /home/pkhunter/.cache/wandb/logs/core-debug-20251223_172029.log
+        │   ├── debug-internal.log
+        │   └── debug.log
+        ├── run-61uwudar.wandb
+        └── tmp
+            └── code
+
+104 directories, 415 files
