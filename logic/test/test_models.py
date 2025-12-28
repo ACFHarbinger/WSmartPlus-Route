@@ -67,7 +67,7 @@ class TestGATLSTManager:
         B, N = 2, 5
         static = torch.rand(B, N, 2)
         dynamic = torch.rand(B, N, 10)
-        global_features = torch.rand(B, 5)
+        global_features = torch.rand(B, 2)
         mask_logits, gate_logits, value = manager(static, dynamic, global_features)
         
         assert mask_logits.shape == (B, N, 2)
@@ -78,7 +78,7 @@ class TestGATLSTManager:
         manager = gat_lstm_setup
         static = torch.rand(1, 5, 2)
         dynamic = torch.rand(1, 5, 10)
-        global_features = torch.rand(1, 5)
+        global_features = torch.rand(1, 2)
         mask_action, gate_action, value = manager.select_action(static, dynamic, global_features, deterministic=True)
         assert mask_action.shape == (1, 5)
         assert gate_action.shape == (1,)
@@ -88,7 +88,7 @@ class TestGATLSTManager:
         # Fill memory
         manager.states_static.append(torch.rand(1,5,2))
         manager.states_dynamic.append(torch.rand(1,5,10))
-        manager.states_global.append(torch.rand(1,5))
+        manager.states_global.append(torch.rand(1,2))
         manager.actions_mask.append(torch.zeros(1,5))
         manager.actions_gate.append(torch.zeros(1))
         manager.log_probs_mask.append(torch.zeros(1))

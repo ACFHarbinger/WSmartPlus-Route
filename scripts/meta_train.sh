@@ -68,6 +68,7 @@ META_STEP=7
 META_B_SIZE=256
 HRL_EPOCHS=4
 HRL_CLIP_EPS=0.2
+HRL_THRESHOLD=0.9
 
 SIZE=100
 LOG_STEP=5
@@ -103,7 +104,6 @@ TRAIN_DDAM=1
 TRAIN_TAM=1
 HORIZON=(0 0 0 0 3)
 WB_MODE="disabled" # 'online'|'offline'|'disabled'
-# Attempt 62: Overflow-Dominant Reward Shaping
 # Starting from base amgat checkpoint - training fresh HRL manager
 LOAD_PATH="/home/pkhunter/Repositories/WSmart-Route/model_weights/cwcvrp_100/amgat_gamma1_20251223T173420/epoch-99.pt"
 LR_MODEL=0.0  # Keep worker frozen
@@ -131,7 +131,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --log_step "$LOG_STEP" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
-        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
+        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" --hrl_threshold "$HRL_THRESHOLD" \
         --temporal_horizon "${HORIZON[0]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY" \
         --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
@@ -160,7 +160,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --log_step "$LOG_STEP" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
-        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
+        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" --hrl_threshold "$HRL_THRESHOLD" \
         --temporal_horizon "${HORIZON[1]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY"  \
         --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
@@ -183,7 +183,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
         python main.py mrl_train --problem "$PROBLEM" --model am --encoder tgc --epoch_size "$N_DATA" \
-        --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" \
+        --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --hrl_threshold "$HRL_THRESHOLD" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
         --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
@@ -216,7 +216,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --seed "$SEED" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
-        --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
+        --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" --hrl_threshold "$HRL_THRESHOLD" \
         --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --area "$AREA" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
@@ -246,7 +246,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --seed "$SEED" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
-        --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
+        --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" --hrl_threshold "$HRL_THRESHOLD" \
         --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --area "$AREA" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
