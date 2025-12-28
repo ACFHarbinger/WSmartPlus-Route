@@ -52,7 +52,6 @@ def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None):
         hrl_path = os.path.join(base_path, hrl_path)
 
     # --- Logic from load_model to handle directory ---
-    # Attempt to resolve path if it's a directory
     if os.path.isfile(hrl_path):
         pass # hrl_path is already the file
     elif os.path.isdir(hrl_path):
