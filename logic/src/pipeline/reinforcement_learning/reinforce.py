@@ -370,7 +370,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             with torch.no_grad():
                 mask_action, gate_action, value = hrl_manager.select_action(
                     static_locs, batch_waste_history, global_features, 
-                    target_mask=critical_nodes_mask
+                    target_mask=critical_mask
                 )
             
             mask_actions_list.append(mask_action)
