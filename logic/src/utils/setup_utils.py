@@ -216,6 +216,9 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         shrink_size=opts['shrink_size'],
         pomo_size=opts.get('pomo_size', 0),
         temporal_horizon=opts['temporal_horizon'],
+        spatial_bias=opts.get('spatial_bias', False),
+        spatial_bias_scale=opts.get('spatial_bias_scale', 1.0),
+        entropy_weight=opts.get('entropy_weight', 0.0),
         predictor_layers=opts['n_predict_layers']
     ).to(opts['device'])
 

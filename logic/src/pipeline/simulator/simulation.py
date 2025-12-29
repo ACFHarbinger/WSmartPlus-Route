@@ -185,8 +185,8 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
                 hook.before_day(day)
                 data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id,
                                                     overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], realtime_log_path, 
-                                                    opts['waste_type'], dist_tup, current_collection_day, cached, device, _lock, hrl_manager=hrl_manager,
-                                                    gate_prob_threshold=opts.get('gate_prob_threshold', 0.5), mask_prob_threshold=opts.get('mask_prob_threshold', 0.5))
+                                                    opts['waste_type'], dist_tup, current_collection_day, cached, device, _lock, hrl_manager,
+                                                    opts['gate_prob_threshold'], opts['mask_prob_threshold'], opts['two_opt_max_iter'])
                 execution_time = time.process_time() - tic
                 new_data, coords, bins = data_ls
                 overflows, dlog, output_dict = output_ls
@@ -333,9 +333,8 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     hook.before_day(day)
                     data_ls, output_ls, cached = run_day(opts['size'], policy, bins, new_data, coords, opts['run_tsp'], sample_id, 
                                                         overflows, day, model_env, model_tup, opts['n_vehicles'], opts['area'], realtime_log_path, 
-                                                        opts['waste_type'], dist_tup, current_collection_day, cached, device, hrl_manager=hrl_manager,
-                                                        gate_prob_threshold=opts.get('gate_prob_threshold', 0.5),
-                                                        mask_prob_threshold=opts.get('mask_prob_threshold', 0.5))
+                                                        opts['waste_type'], dist_tup, current_collection_day, cached, device, None, hrl_manager,
+                                                        opts['gate_prob_threshold'], opts['mask_prob_threshold'], opts['two_opt_max_iter'])
                     execution_time = time.process_time() - tic
                     new_data, coords, bins = data_ls
                     overflows, dlog, output_dict = output_ls

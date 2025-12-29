@@ -24,6 +24,7 @@ from .epoch import (
 def _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_optimizer, day_dataset, 
                     val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts, manager=None):
     log_pi = []
+    log_costs = []
     daily_total_samples = 0
     daily_loss = {key: [] for key in loss_keys}  
     day_dataloader = torch.utils.data.DataLoader(baseline.wrap_dataset(day_dataset), batch_size=opts['batch_size'], pin_memory=True)
@@ -31,8 +32,9 @@ def _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_o
     for batch_id, batch in enumerate(tqdm(day_dataloader, disable=opts['no_progress_bar'])):
         current_weights = cost_weights if weight_optimizer is None else weight_optimizer.get_current_weights()
         batch = prepare_batch(batch, batch_id, day_dataset, day_dataloader, opts)
-        pi, c_dict, l_dict = train_batch_reinforce(model, optimizer, baseline, scaler, day, batch_id, step, batch, tb_logger, current_weights, opts, weight_optimizer)
+        pi, c_dict, l_dict, batch_cost = train_batch_reinforce(model, optimizer, baseline, scaler, day, batch_id, step, batch, tb_logger, current_weights, opts, weight_optimizer)
         log_pi.append(pi.detach().cpu())
+        log_costs.append(batch_cost.detach().cpu())
 
         step += 1
         daily_total_samples += pi.size(0)
@@ -45,7 +47,7 @@ def _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_o
     log_epoch(('day', day), loss_keys, daily_loss, opts)      
     _ = complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, 
                             day, step, day_duration, tb_logger, cost_weights, opts, manager)
-    return step, log_pi, daily_loss, daily_total_samples, current_weights
+    return step, log_pi, daily_loss, daily_total_samples, current_weights, log_costs
 
 
 def train_reinforce_over_time_rwa(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
@@ -86,7 +88,7 @@ def train_reinforce_over_time_rwa(model, optimizer, baseline, lr_scheduler, scal
     model.train()
     set_decode_type(model, "sampling")
     while True:
-        step, log_pi, _, _, current_weights = _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_optimizer, training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts)
+        step, log_pi, _, _, current_weights, log_costs = _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_optimizer, training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts)
         weight_history_df.loc[day] = current_weights
         if tb_logger is not None:
             for key, value in current_weights.items():
@@ -94,7 +96,7 @@ def train_reinforce_over_time_rwa(model, optimizer, baseline, lr_scheduler, scal
 
         day += 1
         if day >= opts['epoch_start'] + opts['n_epochs']: break    
-        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
+        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args, costs=log_costs)
     log_training(loss_keys, table_df, opts)
     if weight_optimizer is not None and 'output_dir' in opts:
         weight_history_df.to_csv(os.path.join(opts['output_dir'], "weight_history_final.csv"))
@@ -131,7 +133,7 @@ def train_reinforce_over_time_cb(model, optimizer, baseline, lr_scheduler, scale
     model.train()
     set_decode_type(model, "sampling")
     while True:
-        step, log_pi, daily_loss, daily_total_samples, current_weights = _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, bandit, training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts)
+        step, log_pi, daily_loss, daily_total_samples, current_weights, log_costs = _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, bandit, training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts)
         daily_selected_weights.append(current_weights)
         if daily_total_samples > 0:
             for ckey in cost_keys:
@@ -158,7 +160,7 @@ def train_reinforce_over_time_cb(model, optimizer, baseline, lr_scheduler, scale
                 cost_weights[key] = value
         day += 1
         if day >= opts['epoch_start'] + opts['n_epochs']: break
-        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts)
+        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, costs=log_costs)
     # At the end of training, get the best configuration
     best_config = bandit.get_best_config()
     print("Best weight configuration: ", end='')
@@ -197,7 +199,7 @@ def train_reinforce_over_time_tdl(model, optimizer, baseline, lr_scheduler, scal
     model.train()
     set_decode_type(model, "sampling")
     while True:
-        step, log_pi, daily_loss, daily_total_samples, _ = _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_manager, training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts)
+        step, log_pi, daily_loss, daily_total_samples, _, log_costs = _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_manager, training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts)
         if daily_total_samples > 0:
             for ckey in cost_keys:
                 daily_cost_components[ckey] = daily_loss[ckey].sum().item()
@@ -220,7 +222,7 @@ def train_reinforce_over_time_tdl(model, optimizer, baseline, lr_scheduler, scal
                 cost_weights[key] = value
         day += 1
         if day >= opts['epoch_start'] + opts['n_epochs']: break
-        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
+        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args, costs=log_costs)
     if not opts['no_tensorboard']:
         for d, reward in enumerate(daily_rewards):
             tb_logger.log_value('daily_reward', reward, d + opts['epoch_start'])
@@ -257,7 +259,7 @@ def train_reinforce_over_time_morl(model, optimizer, baseline, lr_scheduler, sca
     set_decode_type(model, "sampling")
     pareto_plot_interval = opts.get('pareto_plot_interval', 10)  # Days between Pareto front plots
     while True:
-        step, log_pi, _, _, _ = _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_optimizer, training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts)
+        step, log_pi, _, _, _, log_costs = _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_optimizer, training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts)
         
         # Plot Pareto front periodically
         if weight_optimizer is not None and day % pareto_plot_interval == 0:
@@ -269,7 +271,7 @@ def train_reinforce_over_time_morl(model, optimizer, baseline, lr_scheduler, sca
         
         day += 1
         if day >= opts['epoch_start'] + opts['n_epochs']: break
-        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
+        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args, costs=log_costs)
     log_training(loss_keys, table_df, opts)
     if weight_optimizer is not None:
         plot_path = f"{opts.get('output_dir', './checkpoints')}/pareto_front_final.png"
@@ -393,7 +395,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             training_dataset.data[i]['hrl_mask'] = final_mask[i].cpu()
         
         # 4. Train Worker 
-        step, log_pi, daily_loss, daily_total_samples, _ = _train_single_day(
+        step, log_pi, daily_loss, daily_total_samples, _, log_costs = _train_single_day(
             model, optimizer, baseline, lr_scheduler, scaler, None, training_dataset, 
             val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts, hrl_manager
         )
@@ -418,9 +420,6 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
             else:
                 inst_waste_collected = torch.zeros(daily_total_samples, device=opts['device'])
             
-            # Future Risk: Lookahead Penalty - DISABLED
-            # inst_lookahead = total_lookahead_penalty_ep # (TotalSamples)
-
             # PID Lagrangian Control for OVERFLOWS (REPORT IMPLEMENTATION)
             # Dynamic Lambda based on Overflow Rate.
             # Target: 0.05 (5%).
@@ -489,7 +488,7 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
 
         day += 1
         if day >= opts['epoch_start'] + opts['n_epochs']: break
-        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
+        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args, costs=log_costs)
         
     log_training(loss_keys, table_df, opts)
     return model, hrl_manager
@@ -503,10 +502,10 @@ def train_reinforce_over_time(model, optimizer, baseline, lr_scheduler, scaler, 
     model.train()
     set_decode_type(model, "sampling")
     while True:
-        step, log_pi, _, _, _ = _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, None, training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts)
+        step, log_pi, _, _, _, log_costs = _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, None, training_dataset, val_dataset, tb_logger, day, step, cost_weights, loss_keys, table_df, opts)
         day += 1
         if day >= opts['epoch_start'] + opts['n_epochs']: break
-        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args)
+        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day, opts, args, costs=log_costs)
     
     log_training(loss_keys, table_df, opts)
     if opts['post_processing_epochs'] > 0:
@@ -574,7 +573,7 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
             mask = move_to(mask, opts['device'])
             
         # Standard run on full batch
-        cost, log_likelihood, c_dict, pi = model(x, cost_weights=cost_weights, return_pi=opts['train_time'], pad=opts['train_time'], mask=mask)
+        cost, log_likelihood, c_dict, pi, entropy = model(x, cost_weights=cost_weights, return_pi=opts['train_time'], pad=opts['train_time'], mask=mask)
 
         # Evaluate baseline, get baseline loss if any (only for critic)
         # If POMO is used, calculate shared baseline (mean cost of all trajectories for the same instance)
@@ -593,7 +592,11 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
         # Calculate loss (and normalize for gradient accumulation if accumulation_steps > 1)
         # For inactive indices: LogLikelihood is 0. So (Cost-BL)*0 = 0. Loss contribution is 0. Correct.
         reinforce_loss = (cost - bl_val) * log_likelihood
-        loss = reinforce_loss.mean() + bl_loss
+        
+        # Entropy Regularization: maximize entropy by subtracting it from the loss
+        entropy_loss = -opts.get('entropy_weight', 0.0) * entropy if entropy is not None else 0.0
+        
+        loss = reinforce_loss.mean() + bl_loss + entropy_loss.mean()
         loss = loss / opts['accumulation_steps']
     except Exception as e:
         if scaler is not None: autocast_context.__exit__(None, None, None)
@@ -611,21 +614,27 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
             autocast_context.__exit__(None, None, None)
             # Perform backward pass and unscale gradients
             scaler.scale(loss).backward()
-            scaler.unscale_(optimizer)
     elif scaler is not None:
         autocast_context.__exit__(None, None, None)
 
-    # Clip gradient norms and get (clipped) gradient norms for logging
-    grad_norms = clip_grad_norms(optimizer.param_groups, opts['max_grad_norm'])
-    
-    # Perform optimization step with acculated gradients
+    # Perform optimization step with accumulated gradients
     if step % opts['accumulation_steps'] == 0:
+        if scaler is not None:
+            scaler.unscale_(optimizer)
+        
+        # Clip gradient norms and get (clipped) gradient norms for logging
+        grad_norms = clip_grad_norms(optimizer.param_groups, opts['max_grad_norm'])
+        
         if scaler is None:
             optimizer.step()
         else:
             scaler.step(optimizer)
             scaler.update()
         optimizer.zero_grad()
+    else:
+        # For non-step batches, we return 0 for both raw and clipped norms per group
+        dummy_norms = [torch.tensor([0.0])] * len(optimizer.param_groups)
+        grad_norms = (dummy_norms, dummy_norms)
 
     # Logging
     l_dict = {'nll': -log_likelihood, 'reinforce_loss': reinforce_loss, 'baseline_loss': bl_loss}
@@ -678,4 +687,4 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
                 if tb_logger is not None and (meta_loss is not None or updated is not None):
                     for i, name in enumerate(weight_optimizer.weight_names):
                         tb_logger.add_scalar(f'weight_{name}', weight_optimizer.current_weights[i].item(), step)
-    return pi, c_dict, l_dict
+    return pi, c_dict, l_dict, cost.detach()

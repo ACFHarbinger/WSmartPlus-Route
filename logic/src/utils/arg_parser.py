@@ -178,7 +178,7 @@ def add_train_args(parser):
 
     # Model
     parser.add_argument('--model', default='am', help="Model: 'am'|'tam'|'ddam'")
-    parser.add_argument('--encoder', default='gat', help="Encoder: 'gat'|gac'|'tgc'|'gcn'|'mlp'")
+    parser.add_argument('--encoder', default='gat', help="Encoder: 'gat'|gac'|'tgc'|'ggac'|'gcn'|'mlp'")
     parser.add_argument('--embedding_dim', type=int, default=128, help='Dimension of input embedding')
     parser.add_argument('--hidden_dim', type=int, default=512, help='Dimension of hidden layers in Enc/Dec')
     parser.add_argument('--n_encode_layers', type=int, default=3, help='Number of layers in the encoder/critic network')
@@ -209,6 +209,9 @@ def add_train_args(parser):
     parser.add_argument('--mask_inner', action='store_false', help="Mask inner values during decoding")
     parser.add_argument('--mask_logits', action='store_false', help="Mask logits during decoding")
     parser.add_argument('--mask_graph', action='store_true', help="Mask next node selection (using edges) during decoding")
+    parser.add_argument('--spatial_bias', action='store_true', help='Enable spatial bias in decoder attention')
+    parser.add_argument('--spatial_bias_scale', type=float, default=1.0, help='Scaling factor for the spatial bias penalty')
+    parser.add_argument('--entropy_weight', type=float, default=0.0, help='Weight for entropy regularization bonus')
 
     # Training
     parser.add_argument('--n_epochs', type=int, default=25, help='The number of epochs to train')
@@ -454,7 +457,7 @@ def add_eval_args(parser):
     parser.add_argument('--w_waste', type=float, default=1.0, help='Weight for waste in cost function')
     parser.add_argument('--w_overflows', type=float, default=1.0, help='Weight for overflows in cost function')
     parser.add_argument('--problem', type=str, default='cwcvrp', help="Problem to evaluate ('wcvrp'|'cwcvrp'|'sdwcvrp')")
-    parser.add_argument('--encoder', type=str, default='gat', help="Encoder to use ('gat'|'gac'|'tgc')")
+    parser.add_argument('--encoder', type=str, default='gat', help="Encoder to use ('gat'|'gac'|'tgc'|'ggac')")
     parser.add_argument('--load_path', help='Path to load model parameters and optimizer state from')
     return parser
 
@@ -497,6 +500,8 @@ def add_test_sim_args(parser):
     parser.add_argument('--dm_filepath', '--dmf', type=str, default=None, help="Path to the file to read/write the distance matrix from/to")
     parser.add_argument('--waste_filepath', type=str, default=None, help="Path to the file to read the waste fill for each day from")
     parser.add_argument('--run_tsp', action='store_true', help="Activate fast_tsp for all policies.")
+    parser.add_argument('--spatial_bias', action='store_true', help="Enable spatial bias in decoder attention")
+    parser.add_argument('--two_opt_max_iter', type=int, default=0, help='Maximum number of 2-opt iterations')
     parser.add_argument('--cache_regular', action='store_false', help="Deactivate caching for policy regular.")
     parser.add_argument('--no_cuda', action='store_true', help='Disable CUDA')
     parser.add_argument('--no_progress_bar', action='store_true', help='Disable progress bar')
