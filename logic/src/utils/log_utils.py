@@ -6,7 +6,7 @@ import pickle
 import datetime
 import statistics
 import numpy as np
-import pandas as pd  # Added pandas
+import pandas as pd
 import matplotlib.pyplot as plt
 import logic.src.utils.definitions as udef
 
@@ -29,19 +29,20 @@ def log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
         tb_logger.log_value('avg_cost', avg_cost, step)
         tb_logger.log_value('actor_loss', l_dict['reinforce_loss'].mean().item(), step)
         tb_logger.log_value('nll', l_dict['nll'].mean().item(), step)
-        tb_logger.log_value('grad_norm', grad_norms[0], step)
+        tb_logger.log_value('grad_norm', grad_norms[0].item(), step)
         tb_logger.log_value('grad_norm_clipped', grad_norms_clipped[0], step)
         if opts['baseline'] == 'critic':
             tb_logger.log_value('critic_loss', l_dict['baseline_loss'].item(), step)
-            tb_logger.log_value('critic_grad_norm', grad_norms[1], step)
-            tb_logger.log_value('critic_grad_norm_clipped', grad_norms_clipped[1], step)
+            tb_logger.log_value('critic_grad_norm', grad_norms[1].item(), step)
+            tb_logger.log_value('critic_grad_norm_clipped', grad_norms_clipped[1].item(), step)
 
-    """if opts['wandb_mode'] != 'disabled:
+    if opts['wandb_mode'] != 'disabled':
         wandb.log({'avg_cost': avg_cost, 'actor_loss': l_dict['reinforce_loss'].mean().item(), 
-            'nll': l_dict['nll'].mean().item(), 'grad_norm': grad_norms[0], 'grad_norm_clipped': grad_norms_clipped[0]})
+            'nll': l_dict['nll'].mean().item(), 'grad_norm': grad_norms[0].item(), 
+            'grad_norm_clipped': grad_norms_clipped[0]})
         if opts['baseline'] == 'critic':
-            wandb.log({'critic_loss': l_dict['baseline_loss'].item(), 'critic_grad_norm': grad_norms[1], 
-                'critic_grad_norm_clipped': grad_norms_clipped[1]})"""
+            wandb.log({'critic_loss': l_dict['baseline_loss'].item(), 'critic_grad_norm': grad_norms[1].item(), 
+                'critic_grad_norm_clipped': grad_norms_clipped[1].item()})
     return
 
 
