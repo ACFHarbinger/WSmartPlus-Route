@@ -11,8 +11,12 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QTimer
 from matplotlib.figure import Figure
+import webbrowser
+import subprocess
+import signal
+
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from ...windows import SimulationResultsWindow
+from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
 
 class OutputAnalysisTab(QWidget):
@@ -21,12 +25,13 @@ class OutputAnalysisTab(QWidget):
         self.json_data = None
         self.sim_windows = []
         self._all_loaded_json_paths = []
+        self.tb_process = None # Handle to the TensorBoard subprocess
         
         layout = QVBoxLayout(self)
         
         # --- Controls (UNCHANGED) ---
         control_layout = QHBoxLayout()
-        self.load_btn = QPushButton("Load Output File(s) (JSON/JSONL)")
+        self.load_btn = QPushButton("Load Output File(s) (JSON/JSONL/TBL)")
         self.load_btn.clicked.connect(self.load_files)
         control_layout.addWidget(self.load_btn)
 
@@ -102,7 +107,12 @@ class OutputAnalysisTab(QWidget):
                 win.close()
         self.sim_windows = []
         
-        QMessageBox.information(self, "Data Cleared", "All merged data and file paths have been cleared.")
+        # Terminate TensorBoard if running
+        if self.tb_process:
+            self.tb_process.terminate()
+            self.tb_process = None
+        
+        QMessageBox.information(self, "Data Cleared", "All merged data, file paths, and TensorBoard sessions have been cleared.")
 
 
     # --- MODIFIED METHOD: Clears all loaded data/files and the figure ---
@@ -188,22 +198,91 @@ class OutputAnalysisTab(QWidget):
         metrics['__File_IDs__'] = file_ids
         return metrics
 
+    def _process_tensorboard_file(self, fpath):
+        """Extracts scalar data from a TensorBoard event file."""
+        ea = EventAccumulator(fpath)
+        ea.Reload()
+
+        tags = ea.Tags()['scalars']
+        if not tags:
+            return {}
+
+        metrics = defaultdict(list)
+        
+        data_by_step = defaultdict(dict)
+        
+        filename = os.path.basename(fpath)
+        
+        for tag in tags:
+            events = ea.Scalars(tag)
+            for e in events:
+                data_by_step[e.step][tag] = e.value
+                data_by_step[e.step]['wall_time'] = e.wall_time
+
+        # Flatten into lists
+        sorted_steps = sorted(data_by_step.keys())
+        
+        count = len(sorted_steps)
+        metrics['step'] = sorted_steps
+        metrics['wall_time'] = [data_by_step[s].get('wall_time', 0) for s in sorted_steps]
+        
+        for tag in tags:
+            metrics[tag] = [data_by_step[s].get(tag, float('nan')) for s in sorted_steps]
+
+        metrics['__Policy_Names__'] = [f"{filename}" for _ in range(count)]
+        metrics['__Distributions__'] = ["tensorboard"] * count
+        metrics['__File_IDs__'] = [fpath] * count
+        
+        return metrics
+        
+    def _launch_tensorboard(self, logdir):
+        """Launches TensorBoard in a subprocess and opens the browser."""
+        # 1. Stop existing process if any
+        if self.tb_process:
+            self.tb_process.terminate()
+            self.tb_process = None
+            
+        try:
+            # 2. Launch new process
+            port = 6006 # Default port
+            cmd = ["tensorboard", "--logdir", logdir, "--port", str(port)]
+            self.tb_process = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            
+            # 3. Open Browser
+            url = f"http://localhost:{port}"
+            webbrowser.open(url)
+            
+            QMessageBox.information(self, "TensorBoard Launched", 
+                                    f"TensorBoard running at {url}\nLogdir: {logdir}")
+            
+        except Exception as e:
+            QMessageBox.warning(self, "TensorBoard Error", f"Failed to launch TensorBoard: {e}")
+
     def load_files(self):
-        # ... (Existing file dialog code) ...
         file_paths, _ = QFileDialog.getOpenFileNames(
-            self, "Open Output File(s)", "", "Output Files (*.json *.jsonl)"
+            self, "Open Output File(s)", "", "Output Files (*.json *.jsonl *.tfevents*)"
         )
         if not file_paths: return
 
         json_files = [f for f in file_paths if f.endswith('.json')]
         jsonl_files = [f for f in file_paths if f.endswith('.jsonl')]
+        tb_files = [f for f in file_paths if "tfevents" in f]
 
         for fpath in jsonl_files:
+            from ...windows import SimulationResultsWindow
             win = SimulationResultsWindow(policy_names=['External_Log'], log_path=fpath)
             win.show()
             self.sim_windows.append(win)
+            
+        # Launch TensorBoard if TB files are present
+        if tb_files:
+            # Find common parent directory or just use the directory of the first file
+            # Usually strict usage would be the logdir provided to TB.
+            # Using the parent directory of the first selected file is a safe bet.
+            tb_logdir = os.path.dirname(tb_files[0])
+            self._launch_tensorboard(tb_logdir)
 
-        if not json_files:
+        if not json_files and not tb_files:
             if jsonl_files:
                 self.text_view.setText(f"Opened {len(jsonl_files)} JSONL file(s) in external windows.")
             return
@@ -228,7 +307,8 @@ class OutputAnalysisTab(QWidget):
                 valid_keys_set = set()
             
             # 1. Collect all loaded file paths first
-            for fpath in json_files:
+            files_to_process = json_files + tb_files
+            for fpath in files_to_process:
                 self._all_loaded_json_paths.append(fpath)
 
             # 2. Build the list of files
@@ -237,7 +317,7 @@ class OutputAnalysisTab(QWidget):
                 summary_text += f"- {fpath}\n"
             
             # 3. Process each file
-            for fpath in json_files:
+            for fpath in files_to_process:
                 fname_prefix = os.path.basename(fpath)
                 
                 # --- NEW LOGIC: Extract Num Bins from parent directory ---
@@ -247,15 +327,19 @@ class OutputAnalysisTab(QWidget):
                 n_bins_val = int(bin_match.group(1)) if bin_match else 0
                 # -----------------------------------------------------
 
-                with open(fpath, 'r') as f:
-                    raw_data = json.load(f)
+                file_unique_id = fpath
+                pivoted_data = {}
 
-                file_unique_id = fpath 
-                
-                if isinstance(raw_data, dict) and raw_data and isinstance(next(iter(raw_data.values())), dict):
-                    pivoted_data = self._pivot_json_data(raw_data, filename_prefix=fname_prefix, file_id=file_unique_id) 
+                if "tfevents" in fpath:
+                     pivoted_data = self._process_tensorboard_file(fpath)
                 else:
-                    pivoted_data = raw_data
+                    with open(fpath, 'r') as f:
+                        raw_data = json.load(f)
+                    
+                    if isinstance(raw_data, dict) and raw_data and isinstance(next(iter(raw_data.values())), dict):
+                        pivoted_data = self._pivot_json_data(raw_data, filename_prefix=fname_prefix, file_id=file_unique_id) 
+                    else:
+                        pivoted_data = raw_data
 
                 current_names = pivoted_data.get('__Policy_Names__', [])
                 count = len(current_names)
@@ -282,6 +366,8 @@ class OutputAnalysisTab(QWidget):
             
             # Add "Num Bins" to valid keys so it appears in the dropdown
             valid_keys_set.add('Num Bins')
+            if 'step' in valid_keys_set:
+                valid_keys_set.add('step') # Make sure it's valid
             
             final_keys = sorted(list(valid_keys_set))
             
@@ -291,6 +377,12 @@ class OutputAnalysisTab(QWidget):
             self.x_key_combo.clear()
             self.x_key_combo.addItem("Policy Names") 
             self.x_key_combo.addItems(final_keys)
+            
+            # If we loaded tensorboard data, maybe default X to 'step'
+            if any("tfevents" in f for f in files_to_process) and 'step' in final_keys:
+                 index = self.x_key_combo.findText("step")
+                 if index >= 0:
+                     self.x_key_combo.setCurrentIndex(index)
 
             self.dist_combo.clear()
             self.dist_combo.addItem("All")
@@ -307,7 +399,7 @@ class OutputAnalysisTab(QWidget):
             self.tabs.setCurrentIndex(0)
 
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to process JSON files: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to process files: {e}")
 
     def _calculate_pareto_front(self, x_values, y_values):
         # ... (UNCHANGED) ...
