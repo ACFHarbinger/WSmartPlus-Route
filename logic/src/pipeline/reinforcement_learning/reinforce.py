@@ -32,14 +32,14 @@ def _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_o
         current_weights = cost_weights if weight_optimizer is None else weight_optimizer.get_current_weights()
         batch = prepare_batch(batch, batch_id, day_dataset, day_dataloader, opts)
         pi, c_dict, l_dict = train_batch_reinforce(model, optimizer, baseline, scaler, day, batch_id, step, batch, tb_logger, current_weights, opts, weight_optimizer)
-        log_pi.append(pi)
+        log_pi.append(pi.detach().cpu())
 
         step += 1
         daily_total_samples += pi.size(0)
         for key, val in zip(list(c_dict.keys()) + list(l_dict.keys()), list(c_dict.values()) + list(l_dict.values())):
             if key in daily_loss and isinstance(val, torch.Tensor): 
-                daily_loss[key].append(val.detach()) 
-
+                daily_loss[key].append(val.detach().cpu()) 
+    
     day_duration = time.time() - start_time
     table_df.loc[day] = get_loss_stats(daily_loss)
     log_epoch(('day', day), loss_keys, daily_loss, opts)      
@@ -541,7 +541,7 @@ def train_reinforce_epoch(model, optimizer, baseline, lr_scheduler, scaler, epoc
         _, c_dict, l_dict = train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, step, batch, tb_logger, cost_weights, opts)
         step += 1
         for key, val in zip(list(c_dict.keys()) + list(l_dict.keys()), list(c_dict.values()) + list(l_dict.values())):
-            if isinstance(val, torch.Tensor): epoch_loss[key].append(val.detach()) 
+            if isinstance(val, torch.Tensor): epoch_loss[key].append(val.detach().cpu()) 
 
     epoch_duration = time.time() - start_time
     log_epoch(('epoch', epoch), loss_keys, epoch_loss, opts)
@@ -597,6 +597,8 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
         loss = loss / opts['accumulation_steps']
     except Exception as e:
         if scaler is not None: autocast_context.__exit__(None, None, None)
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
         print(e)
         sys.exit(1)
 

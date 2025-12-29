@@ -325,6 +325,14 @@ def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
 def update_time_dataset(model, optimizer, dataset, routes, day, opts, args):
     data_size = dataset.size
     routes = torch.stack(routes).contiguous().view(-1, routes[0].size(1))
+    
+    # Check for POMO expansion
+    if routes.size(0) > dataset.size:
+        # Assuming routes are (Batch * POMO, SeqLen)
+        # We need to reduce to (Batch, SeqLen) for environment update
+        # Just take the first POMO sample for each instance (canonical)
+        pomo_size = routes.size(0) // dataset.size
+        routes = routes.view(dataset.size, pomo_size, -1)[:, 0, :]
     graphs = torch.stack([torch.cat((x['depot'].unsqueeze(0), x['loc'])) for x in dataset])
     
     # Put model in train mode!

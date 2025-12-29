@@ -73,19 +73,18 @@ class MultiHeadAttention(nn.Module):
         compatibility = self.norm_factor * torch.matmul(Q, K.transpose(2, 3))
 
         # Optionally apply mask to prevent attention
-        # Optionally apply mask to prevent attention
         if mask is not None:
             if mask.dim() == 2:
-                # (batch, graph) -> (1, batch, 1, graph) broadcastable to (heads, batch, query, graph)
-                mask = mask.view(1, batch_size, 1, graph_size)
+                # (batch, graph) -> (1, batch, n_query, graph) broadcastable to (heads, batch, query, graph)
+                mask = mask.view(1, batch_size, n_query, graph_size)
             else:
-                 # Original logic assumption: mask is capable of expanding to (batch, -1, -1) and then view(1, batch, n_q, graph)
-                 # If user provides (batch, n_query, graph), expand(batch, -1, -1) works if n_query matches?
-                 # If mask is already compatible, we leave it or reshape carefully.
-                 # Given original code was: mask.expand(batch_size, -1, -1).view(1, batch_size, n_query, graph_size).expand_as(compatibility)
-                 # We try to respect it but make it safer.
-                 # If mask is 3D (batch, n_query, graph) or (1, 1, graph)?
-                 pass
+                # Original logic assumption: mask is capable of expanding to (batch, -1, -1) and then view(1, batch, n_q, graph)
+                # If user provides (batch, n_query, graph), expand(batch, -1, -1) works if n_query matches?
+                # If mask is already compatible, we leave it or reshape carefully.
+                # Given original code was: mask.expand(batch_size, -1, -1).view(1, batch_size, n_query, graph_size).expand_as(compatibility)
+                # We try to respect it but make it safer.
+                # If mask is 3D (batch, n_query, graph) or (1, 1, graph)?
+                pass
 
             # Safe expand
             mask = mask.expand_as(compatibility)
