@@ -13,6 +13,7 @@ from .meta import (
 from logic.src.models import WeightAdjustmentRNN, GATLSTManager
 from logic.src.utils.functions import move_to
 from logic.src.utils.log_utils import log_values, log_training, log_epoch, get_loss_stats
+from logic.src.policies import local_search_2opt_vectorized
 from .post_processing import post_processing_optimization
 from .epoch import (
     set_decode_type, clip_grad_norms, 
@@ -40,7 +41,8 @@ def _train_single_day(model, optimizer, baseline, lr_scheduler, scaler, weight_o
         daily_total_samples += pi.size(0)
         for key, val in zip(list(c_dict.keys()) + list(l_dict.keys()), list(c_dict.values()) + list(l_dict.values())):
             if key in daily_loss and isinstance(val, torch.Tensor): 
-                daily_loss[key].append(val.detach().cpu()) 
+                # Ensure it's at least 1D for torch.cat later
+                daily_loss[key].append(val.detach().cpu().view(-1)) 
     
     day_duration = time.time() - start_time
     table_df.loc[day] = get_loss_stats(daily_loss)
@@ -589,14 +591,31 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
             elif bl_loss.dim() == 0:
                 bl_loss = bl_loss.unsqueeze(0)
 
-        # Calculate loss (and normalize for gradient accumulation if accumulation_steps > 1)
-        # For inactive indices: LogLikelihood is 0. So (Cost-BL)*0 = 0. Loss contribution is 0. Correct.
+        # Calculate standard reinforce loss
         reinforce_loss = (cost - bl_val) * log_likelihood
         
         # Entropy Regularization: maximize entropy by subtracting it from the loss
         entropy_loss = -opts.get('entropy_weight', 0.0) * entropy if entropy is not None else 0.0
         
-        loss = reinforce_loss.mean() + bl_loss + entropy_loss.mean()
+        # Look-Ahead update (Refine and Imitate)
+        imitation_loss = torch.tensor(0.0, device=opts['device'])
+        curr_imitation_weight = opts.get('imitation_weight', 0.0) * (opts.get('imitation_decay', 1.0) ** (epoch // opts.get('imitation_decay_step', 1)))
+        if curr_imitation_weight > 0 and opts.get('two_opt_max_iter', 0) > 0 and pi is not None:
+            dist_matrix = x.get('dist', None)
+            if dist_matrix is not None:
+                with torch.no_grad():
+                    # Prepend depot (0) to each trajectory in the batch
+                    pi_with_depot = torch.cat([torch.zeros((pi.size(0), 1), dtype=torch.long, device=pi.device), pi], dim=1)
+                    pi_opt_with_depot = local_search_2opt_vectorized(pi_with_depot, dist_matrix, opts['two_opt_max_iter'])
+                    # Remove the starting depot
+                    pi_opt = pi_opt_with_depot[:, 1:]
+                
+                # Imitation pass (Calculates log-likelihood of refined trajectories)
+                _, log_likelihood_opt, _, _, _ = model(x, cost_weights=cost_weights, return_pi=False, mask=mask, expert_pi=pi_opt)
+                imitation_loss = -log_likelihood_opt.mean()
+        
+        # Total loss
+        loss = reinforce_loss.mean() + bl_loss.mean() + entropy_loss.mean() + curr_imitation_weight * imitation_loss
         loss = loss / opts['accumulation_steps']
     except Exception as e:
         if scaler is not None: autocast_context.__exit__(None, None, None)
@@ -637,7 +656,7 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
         grad_norms = (dummy_norms, dummy_norms)
 
     # Logging
-    l_dict = {'nll': -log_likelihood, 'reinforce_loss': reinforce_loss, 'baseline_loss': bl_loss}
+    l_dict = {'nll': -log_likelihood, 'reinforce_loss': reinforce_loss, 'baseline_loss': bl_loss, 'imitation_loss': imitation_loss}
     if step % opts['log_step'] == 0: log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
     
     # Update optimizer with performance metrics if available

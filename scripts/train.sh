@@ -62,6 +62,11 @@ EXP_BETA=0.8
 BL_ALPHA=0.05
 ACC_STEPS=1
 
+IMITATION_W=1.0
+IMITATION_DECAY=0.91
+IMITATION_DECAY_STEP=1
+TWO_OPT_MAX_ITER=50
+
 SIZE=100
 AREA="riomaior"
 WTYPE="plastic"
@@ -124,7 +129,9 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --temporal_horizon "${HORIZON[0]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY" \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
-        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias;
+        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
+        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" \
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -151,7 +158,9 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --temporal_horizon "${HORIZON[1]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
-        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP";
+        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
+        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" \
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -179,7 +188,9 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --temporal_horizon "${HORIZON[2]}" --lr_scheduler "$LR_SCHEDULER" --n_encode_sublayers "$N_ENC_SL" \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
-        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP";
+        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
+        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" \
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -207,7 +218,9 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --temporal_horizon "${HORIZON[3]}" --lr_scheduler "$LR_SCHEDULER" --n_decode_layers "$N_DEC_L"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
-        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP";
+        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
+        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" \
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -235,7 +248,9 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --temporal_horizon "${HORIZON[4]}" --lr_scheduler "$LR_SCHEDULER" --n_predict_layers "$N_PRED_L"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
-        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP";
+        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
+        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" \
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi

@@ -212,6 +212,10 @@ def add_train_args(parser):
     parser.add_argument('--spatial_bias', action='store_true', help='Enable spatial bias in decoder attention')
     parser.add_argument('--spatial_bias_scale', type=float, default=1.0, help='Scaling factor for the spatial bias penalty')
     parser.add_argument('--entropy_weight', type=float, default=0.0, help='Weight for entropy regularization bonus')
+    parser.add_argument('--imitation_weight', type=float, default=0.0, help='Initial weight for imitation loss in Look-Ahead update')
+    parser.add_argument('--imitation_decay', type=float, default=0.99, help='Decay factor for imitation weight')
+    parser.add_argument('--imitation_decay_step', type=int, default=1, help='Epoch step for decaying imitation weight')
+    parser.add_argument('--two_opt_max_iter', type=int, default=0, help='Maximum number of iterations for 2-opt refinement in Look-Ahead update')
 
     # Training
     parser.add_argument('--n_epochs', type=int, default=25, help='The number of epochs to train')

@@ -169,7 +169,7 @@ class AttentionModel(nn.Module):
         if temp is not None:  # Do not change temperature if not provided
             self.temp = temp
 
-    def forward(self, input, cost_weights=None, return_pi=False, pad=False, mask=None):
+    def forward(self, input, cost_weights=None, return_pi=False, pad=False, mask=None, expert_pi=None):
         """
         :param input: (batch_size, graph_size, node_dim) input node features or dictionary with multiple tensors
         :param cost_weights: dictionary with weights for each term of the cost function
@@ -179,8 +179,8 @@ class AttentionModel(nn.Module):
         :param mask: (batch_size, graph_size) boolean mask where True indicates nodes to be masked (skipped)
         :return:
         """
-        edges = input.pop('edges') if 'edges' in input.keys() else None
-        dist_matrix = input.pop('dist') if 'dist' in input.keys() else None
+        edges = input.get('edges', None)
+        dist_matrix = input.get('dist', None)
         if self.checkpoint_encoder and self.training:  # Only checkpoint if we need gradients
             embeddings = torch.utils.checkpoint.checkpoint(self.embedder, self._init_embed(input), edges, use_reentrant=False)
         else:
@@ -222,12 +222,12 @@ class AttentionModel(nn.Module):
             
             expanded_mask = expand(mask)
             
-            _log_p, pi = self._inner(expanded_input, expanded_edges, expanded_embeddings, cost_weights, expanded_dist_matrix, profit_vars=None, mask=expanded_mask)
+            _log_p, pi = self._inner(expanded_input, expanded_edges, expanded_embeddings, cost_weights, expanded_dist_matrix, profit_vars=None, mask=expanded_mask, expert_pi=expert_pi)
             cost, cost_dict, mask = self.problem.get_costs(expanded_input, pi, cost_weights, expanded_dist_matrix)
         else:
             if dist_matrix is not None and dist_matrix.size(0) == 1 and embeddings.size(0) > 1:
                 dist_matrix = dist_matrix.expand(embeddings.size(0), -1, -1)
-            _log_p, pi = self._inner(input, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=mask)
+            _log_p, pi = self._inner(input, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=mask, expert_pi=expert_pi)
             cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, dist_matrix)
         
         # Log likelyhood and entropy
@@ -248,7 +248,7 @@ class AttentionModel(nn.Module):
     
     def compute_batch_sim(self, input, dist_matrix, hrl_manager=None, waste_history=None, threshold=0.5, mask_threshold=0.5):
         hook_data = add_attention_hooks(self.embedder)
-        edges = input.pop('edges') if 'edges' in input.keys() else None
+        edges = input.get('edges', None)
         
         mask = None
         if hrl_manager is not None and waste_history is not None:
@@ -387,10 +387,15 @@ class AttentionModel(nn.Module):
             hook_data['weights'].clear()
             hook_data['masks'].clear()
         
-        if getattr(self.embedder, 'init_edge_embed', None) is not None:
-            embeddings = self.embedder(self._init_embed(input), edges, dist=dist_matrix)
         else:
             embeddings = self.embedder(self._init_embed(input), edges)
+
+        # Ensure dist_matrix is expanded to batch size if present
+        if dist_matrix is not None:
+            if dist_matrix.dim() == 2:
+                dist_matrix = dist_matrix.unsqueeze(0)
+            if dist_matrix.size(0) == 1 and embeddings.size(0) > 1:
+                dist_matrix = dist_matrix.expand(embeddings.size(0), -1, -1)
 
         _, pi = self._inner(input, edges, embeddings, None, dist_matrix, profit_vars=None, mask=mask)
         if run_tsp:
@@ -512,7 +517,7 @@ class AttentionModel(nn.Module):
             )
         assert False, "Unsupported problem"
 
-    def _inner(self, nodes, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=None):
+    def _inner(self, nodes, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=None, expert_pi=None):
         outputs = []
         sequences = []
         state = self.problem.make_state(nodes, edges, cost_weights, dist_matrix, profit_vars=profit_vars, hrl_mask=mask)
@@ -523,7 +528,7 @@ class AttentionModel(nn.Module):
         # Perform decoding steps
         i = 0
         batch_size = state.ids.size(0)
-        while not (self.shrink_size is None and state.all_finished()):
+        while not (self.shrink_size is None and (state.all_finished() if expert_pi is None else i >= expert_pi.size(1))):
             if self.shrink_size is not None:
                 unfinished = torch.nonzero(state.get_finished() == 0)
                 if len(unfinished) == 0:
@@ -568,19 +573,22 @@ class AttentionModel(nn.Module):
                 log_p = log_p.masked_fill(current_mask, -math.inf)
                      
             # Select the indices of the next nodes in the sequences, result (batch_size) long
-            selected = self._select_node(log_p.exp()[:, 0, :], step_mask[:, 0, :])  # Squeeze out steps dimension
-            
-            # POMO: For the first customer choice, we force the selection
-            if self.pomo_size > 0 and i == 0:
-                # We assume the first choice after depot is a customer.
-                # In POMO, we want trajectory j for instance b to start with customer j+1
-                # selected is (B * pomo_size)
-                # We need to find B
-                current_batch_size = selected.size(0)
-                B = current_batch_size // self.pomo_size
-                # Forced actions: [1, 2, ..., pomo_size] repeated B times
-                forced_selected = torch.arange(1, self.pomo_size + 1, device=selected.device).repeat(B)
-                selected = forced_selected
+            if expert_pi is not None:
+                selected = expert_pi[:, i]
+            else:
+                selected = self._select_node(log_p.exp()[:, 0, :], step_mask[:, 0, :])  # Squeeze out steps dimension
+                
+                # POMO: For the first customer choice, we force the selection
+                if self.pomo_size > 0 and i == 0:
+                    # We assume the first choice after depot is a customer.
+                    # In POMO, we want trajectory j for instance b to start with customer j+1
+                    # selected is (B * pomo_size)
+                    # We need to find B
+                    current_batch_size = selected.size(0)
+                    B = current_batch_size // self.pomo_size
+                    # Forced actions: [1, 2, ..., pomo_size] repeated B times
+                    forced_selected = torch.arange(1, self.pomo_size + 1, device=selected.device).repeat(B)
+                    selected = forced_selected
 
             state = state.update(selected)
 
@@ -683,8 +691,6 @@ class AttentionModel(nn.Module):
 
         # Compute keys and values for the nodes
         glimpse_K, glimpse_V, logit_K = self._get_attention_node_data(fixed, state)
-
-        # Compute the mask
         mask = state.get_mask()
 
         graph_mask = None
