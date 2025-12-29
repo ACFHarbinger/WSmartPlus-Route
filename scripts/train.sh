@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Handle memory fragmentation
+#export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
 # Default to quiet mode
 VERBOSE=false
 
@@ -22,8 +25,8 @@ DIST_M="gmaps"
 VERTEX_M="mmn"
 
 W_LEN=1.0
-W_OVER=1000.0
-W_WASTE=100.0
+W_OVER=100.0
+W_WASTE=10.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
 # gamma W_LEN = 2.5, 1.75, 1.75, 1.75
 
@@ -43,17 +46,17 @@ AGG_G="avg"
 
 OPTIM="rmsprop"
 LR_MODEL=0.0001
-LR_CV=0.0001
 LR_SCHEDULER="lambda"
 LR_DECAY=1.0
 
 LOG_STEP=5
-B_SIZE=128
+B_SIZE=256
 N_DATA=1280
 N_VAL_DATA=0 #1280
 VAL_B_SIZE=0
 
 BL="exponential"
+POMO_SIZE=0
 MAX_NORM=1.0
 EXP_BETA=0.8
 BL_ALPHA=0.05
@@ -85,8 +88,8 @@ for dist in "${DATA_DISTS[@]}"; do
     DATASETS+=("data/datasets/${DATA_PROBLEM}/${DATA_PROBLEM}${SIZE}_${dist}_${DATASET_NAME}_seed${SEED}.pkl")
 done
 
-TRAIN_AM=1
-TRAIN_AMGC=0
+TRAIN_AM=0
+TRAIN_AMGC=1
 TRAIN_TRANSGCN=1
 TRAIN_DDAM=1
 TRAIN_TAM=1
@@ -119,7 +122,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[0]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY" \
-        --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --area "$AREA" \
+        --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP";
         if [ "$VERBOSE" = false ]; then
@@ -146,7 +149,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[1]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY"  \
-        --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --area "$AREA" \
+        --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP";
         if [ "$VERBOSE" = false ]; then
@@ -174,7 +177,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" --area "$AREA" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --seed "$SEED" \
         --temporal_horizon "${HORIZON[2]}" --lr_scheduler "$LR_SCHEDULER" --n_encode_sublayers "$N_ENC_SL" \
-        --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
+        --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP";
         if [ "$VERBOSE" = false ]; then
@@ -202,7 +205,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[3]}" --lr_scheduler "$LR_SCHEDULER" --n_decode_layers "$N_DEC_L"  \
-        --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
+        --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP";
         if [ "$VERBOSE" = false ]; then
@@ -230,7 +233,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[4]}" --lr_scheduler "$LR_SCHEDULER" --n_predict_layers "$N_PRED_L"  \
-        --batch_size "$B_SIZE" --lr_critic_value "$LR_CV" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
+        --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP";
         if [ "$VERBOSE" = false ]; then
