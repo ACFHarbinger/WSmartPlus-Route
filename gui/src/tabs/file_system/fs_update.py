@@ -307,7 +307,7 @@ class FileSystemUpdateTab(QWidget):
             selected_function = self.update_operation_combo.currentText()
             params["update_operation"] = OPERATION_MAP.get(selected_function, '')
 
-            # 3.2a Get update value (Attempt to cast to float as requested by type=float)
+            # 3.2a Get update value (Try to cast to float as requested by type=float)
             update_value_str = self.update_value_input.text().strip()
             try:
                 # Try to convert to float, otherwise keep as string/default

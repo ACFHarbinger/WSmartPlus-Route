@@ -235,38 +235,18 @@ class AttentionModel(nn.Module):
             
             # Compute Global Features
             current_waste = dynamic_feat[:, :, -1]
-            
-            # Heuristic: Assume 15% daily generation
-            daily_gen_est = 0.15
-            horizon = 3
 
-            # 1. Critical Ratio Now (% > 0.9)
-            critical_mask = (current_waste > 0.9).float()
+            # 1. Critical Ratio Now
+            critical_mask = (current_waste > hrl_manager.critical_threshold).float()
             critical_ratio = critical_mask.mean(dim=1, keepdim=True) # (B, 1)
             
             # 2. Max Current Waste
             max_current_waste = current_waste.max(dim=1, keepdim=True)[0] # (B, 1)
             
-            # 3. Projected Critical Ratio (in 3 days)
-            projected_waste_3d = current_waste + (daily_gen_est * 3)
-            projected_critical_mask_3d = (projected_waste_3d > 1.0).float()
-            critical_ratio_proj_3d = projected_critical_mask_3d.mean(dim=1, keepdim=True) # (B, 1)
-            
-            # 4. Max Projected Waste (in 1 day) - OR Style
-            projected_waste_1d = current_waste + daily_gen_est
-            max_projected_waste_1d = projected_waste_1d.max(dim=1, keepdim=True)[0] # (B, 1)
-            
-            # 5. Projected Average Overflow (3 days)
-            projected_overflow_val_3d = F.relu(projected_waste_3d - 1.0)
-            avg_proj_overflow_3d = projected_overflow_val_3d.mean(dim=1, keepdim=True) # (B, 1)
-            
-            # Combine: (B, 5)
+            # Combine: (B, 2)
             global_features = torch.cat([
                 critical_ratio, 
                 max_current_waste, 
-                critical_ratio_proj_3d, 
-                max_projected_waste_1d, 
-                avg_proj_overflow_3d
             ], dim=1)
             
             # Get Action (Deterministic)
@@ -353,39 +333,19 @@ class AttentionModel(nn.Module):
             # dynamic_feat: (Batch, N, History)
             # current_waste: (Batch, N) - assuming last step is current
             current_waste = dynamic_feat[:, :, -1] 
-            
-            # Heuristic: Assume 15% daily generation
-            daily_gen_est = 0.15
-            horizon = 3
 
-            # 1. Critical Ratio Now (% > 0.9)
-            critical_mask = (current_waste > 0.9).float()
+            # 1. Critical Ratio Now
+            critical_mask = (current_waste > hrl_manager.critical_threshold).float()
             critical_ratio = critical_mask.mean(dim=1, keepdim=True) # (B, 1)
             
             # 2. Max Current Waste
             max_current_waste = current_waste.max(dim=1, keepdim=True)[0] # (B, 1)
             
-            # 3. Projected Critical Ratio (in 3 days)
-            projected_waste_3d = current_waste + (daily_gen_est * 3)
-            projected_critical_mask_3d = (projected_waste_3d > 1.0).float()
-            critical_ratio_proj_3d = projected_critical_mask_3d.mean(dim=1, keepdim=True) # (B, 1)
-            
-            # 4. Max Projected Waste (in 1 day) - OR Style
-            projected_waste_1d = current_waste + daily_gen_est
-            max_projected_waste_1d = projected_waste_1d.max(dim=1, keepdim=True)[0] # (B, 1)
-            
-            # 5. Projected Average Overflow (3 days)
-            projected_overflow_val_3d = F.relu(projected_waste_3d - 1.0)
-            avg_proj_overflow_3d = projected_overflow_val_3d.mean(dim=1, keepdim=True) # (B, 1)
-            
-            # Combine: (B, 5)
+            # Combine: (B, 2)
             global_features = torch.cat([
                 critical_ratio, 
                 max_current_waste, 
-                critical_ratio_proj_3d, 
-                max_projected_waste_1d, 
-                avg_proj_overflow_3d
-            ], dim=1) # (B, 5)
+            ], dim=1) # (B, 2)
 
             mask_action, gate_action, _ = hrl_manager.select_action(static_feat, dynamic_feat, global_features, deterministic=True, threshold=threshold, mask_threshold=mask_threshold)
             
@@ -398,6 +358,9 @@ class AttentionModel(nn.Module):
             
             # Construct Mask
             mask = (mask_action == 0)
+            # Clear hooks after manager decision as we only want worker's attention weights
+            hook_data['weights'].clear()
+            hook_data['masks'].clear()
         
         if getattr(self.embedder, 'init_edge_embed', None) is not None:
             embeddings = self.embedder(self._init_embed(input), edges, dist=dist_matrix)
@@ -414,7 +377,7 @@ class AttentionModel(nn.Module):
                     distC_np = distC.cpu().numpy() if torch.is_tensor(distC) else distC
                     cost = get_route_cost(distC_np, route)
 
-                    # Attempt 54: Respect Capacity in Simulator Evaluation
+                    # Respect Capacity in Simulator Evaluation
                     if profit_vars is not None and 'vehicle_capacity' in profit_vars:
                         raw_wastes = input['waste'].squeeze(0).cpu().numpy()
                         route = get_multi_tour(route, raw_wastes, profit_vars['vehicle_capacity'], dist_matrix.cpu().numpy())
@@ -552,7 +515,7 @@ class AttentionModel(nn.Module):
                 else:
                     step_mask = step_mask | mask_padded
                 
-                # CRITICAL FIX: Mask logits (log_p) for HRL-masked nodes
+                # Mask logits (log_p) for HRL-masked nodes
                 # Ensure they have -inf log_prob so they have 0 probability
                 # log_p is (Batch, 1, GraphSize)
                 # Expand step_mask to broadcast if necessary
@@ -562,7 +525,6 @@ class AttentionModel(nn.Module):
                     current_mask = step_mask
                     
                 log_p = log_p.masked_fill(current_mask, -math.inf)
-
                      
             # Select the indices of the next nodes in the sequences, result (batch_size) long
             selected = self._select_node(log_p.exp()[:, 0, :], step_mask[:, 0, :])  # Squeeze out steps dimension

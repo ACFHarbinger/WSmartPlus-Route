@@ -102,11 +102,18 @@ def load_model(path, epoch=None):
         path = os.path.dirname(model_filename)
     elif os.path.isdir(path):
         if epoch is None:
-            epoch = max(
-                int(os.path.splitext(filename)[0].split("-")[1])
-                for filename in os.listdir(path)
-                if os.path.splitext(filename)[1] == '.pt'
-            )
+            pt_files = [f for f in os.listdir(path) if f.endswith('.pt')]
+            epochs = []
+            for f in pt_files:
+                name = os.path.splitext(f)[0]
+                if '-' in name:
+                    parts = name.split('-')
+                    if len(parts) == 2 and parts[0] == 'epoch' and parts[1].isdigit():
+                        epochs.append(int(parts[1]))
+            
+            if not epochs:
+                raise ValueError("No valid epoch files (epoch-N.pt) found in directory: {}".format(path))
+            epoch = max(epochs)
         model_filename = os.path.join(path, 'epoch-{}.pt'.format(epoch))
     else:
         assert False, "{} is not a valid directory or file".format(path)
