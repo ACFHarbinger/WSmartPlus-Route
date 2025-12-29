@@ -200,8 +200,11 @@ def prepare_epoch(optimizer, epoch, problem, tb_logger, cost_weights, opts):
     if not opts['no_tensorboard']:
         tb_logger.log_value('learnrate_pg0', optimizer.param_groups[0]['lr'], step)
     
-    loss_keys = list(cost_weights.keys()) + ['total', 'nll', 'reinforce_loss'] if opts['baseline'] is None \
-        else list(cost_weights.keys()) + ['total', 'nll', 'reinforce_loss', 'baseline_loss']
+    loss_keys = list(cost_weights.keys()) + ['total', 'nll', 'reinforce_loss']
+    if opts['baseline'] is not None:
+        loss_keys.append('baseline_loss')
+    if opts.get('imitation_weight', 0) > 0:
+        loss_keys.append('imitation_loss')
     if opts['train_time'] and opts['train_dataset'] is not None:
         training_dataset = problem.make_dataset(
             filename=opts['train_dataset'], area=opts['area'], waste_type=opts['waste_type'],

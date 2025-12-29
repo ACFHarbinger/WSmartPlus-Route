@@ -76,23 +76,34 @@ def local_search_2opt(tour, distance_matrix, max_iterations=200):
     return best_tour.tolist()
 
 
-def local_search_2opt_vectorized(tour, distance_matrix, max_iterations=200):
+def local_search_2opt_vectorized(tours, distance_matrix, max_iterations=200):
     """
-    Vectorized 2-opt local search using PyTorch to leverage GPU acceleration.
+    Vectorized 2-opt local search across a batch of tours using PyTorch.
+    Optimized to perform edge swaps for all batch instances in parallel.
     """
     device = distance_matrix.device
-    if not torch.is_tensor(tour):
-        tour = torch.tensor(tour, device=device, dtype=torch.long)
-    else:
-        tour = tour.detach().to(device, dtype=torch.long)
-        
-    n = tour.size(0)
-    if n < 4:
-        return tour
+    
+    # Handle single tour case
+    is_batch = tours.dim() == 2
+    if not is_batch:
+        tours = tours.unsqueeze(0)
+    
+    # Handle distance_matrix expansion
+    if distance_matrix.dim() == 2:
+        distance_matrix = distance_matrix.unsqueeze(0)
+    
+    B, N = tours.shape
+    if N < 4:
+        return tours if is_batch else tours.squeeze(0)
 
+    if distance_matrix.size(0) == 1 and B > 1:
+        distance_matrix = distance_matrix.expand(B, -1, -1)
+        
+    batch_indices = torch.arange(B, device=device).view(B, 1)
+    
     for _ in range(max_iterations):
         # Generate indices for all possible edge swaps (i, j)
-        indices = torch.arange(n, device=device)
+        indices = torch.arange(N, device=device)
         i = indices[1:-2]
         j = indices[2:-1]
         
@@ -103,28 +114,50 @@ def local_search_2opt_vectorized(tour, distance_matrix, max_iterations=200):
             
         I_vals = I[mask]
         J_vals = J[mask]
+        K = I_vals.size(0)
         
-        # Tour nodes at relevant indices
-        t_prev_i = tour[I_vals - 1]
-        t_curr_i = tour[I_vals]
-        t_curr_j = tour[J_vals]
-        t_next_j = tour[J_vals + 1]
+        # Tour nodes at relevant indices: (B, K)
+        t_prev_i = tours[:, I_vals - 1]
+        t_curr_i = tours[:, I_vals]
+        t_curr_j = tours[:, J_vals]
+        t_next_j = tours[:, J_vals + 1]
         
-        # Gain calculation: current_dist - new_dist
-        d_curr = distance_matrix[t_prev_i, t_curr_i] + distance_matrix[t_curr_j, t_next_j]
-        d_next = distance_matrix[t_prev_i, t_curr_j] + distance_matrix[t_curr_i, t_next_j]
+        # Gain calculation: (B, K)
+        # Use advanced indexing for batch
+        b_idx_exp = batch_indices.expand(B, K)
+        d_curr = distance_matrix[b_idx_exp, t_prev_i, t_curr_i] + distance_matrix[b_idx_exp, t_curr_j, t_next_j]
+        d_next = distance_matrix[b_idx_exp, t_prev_i, t_curr_j] + distance_matrix[b_idx_exp, t_curr_i, t_next_j]
         gains = d_curr - d_next
         
-        best_gain, best_idx = torch.max(gains, dim=0)
-        if best_gain > 1e-5:
-            # Apply the best edge swap found in this iteration
-            target_i = I_vals[best_idx]
-            target_j = J_vals[best_idx]
-            tour[target_i : target_j + 1] = torch.flip(tour[target_i : target_j + 1], dims=[0])
-        else:
+        # Find best gain for each instance in the batch
+        best_gain, best_idx = torch.max(gains, dim=1)
+        
+        # Determine which instances actually improved
+        improved = best_gain > 1e-5
+        if not improved.any():
             break
             
-    return tour
+        # Parallel segment reversal
+        # Construct transform indices (B, N)
+        target_i = I_vals[best_idx]
+        target_j = J_vals[best_idx]
+        
+        k = torch.arange(N, device=device).view(1, N).expand(B, N)
+        idx_map = torch.arange(N, device=device).view(1, N).expand(B, N).clone()
+        
+        # For instances that improved, reverse the [target_i, target_j] range
+        # reversal_mask: (B, N)
+        reversal_range_mask = (k >= target_i.view(B, 1)) & (k <= target_j.view(B, 1))
+        reversal_mask = reversal_range_mask & improved.view(B, 1)
+        
+        # idx[b, k] = target_i[b] + target_j[b] - k
+        rev_idx = target_i.view(B, 1) + target_j.view(B, 1) - k
+        idx_map[reversal_mask] = rev_idx[reversal_mask]
+        
+        # Apply the best edge swap for all batch elements simultaneously
+        tours = torch.gather(tours, 1, idx_map)
+        
+    return tours if is_batch else tours.squeeze(0)
 
 
 def get_route_cost(distancesC, tour):
