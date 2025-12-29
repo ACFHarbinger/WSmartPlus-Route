@@ -27,7 +27,7 @@ def setup_cost_weights(opts, def_val=1.):
     return cw_dict
 
 
-def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None):
+def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None, worker_model=None):
     hrl_path = None
     if opts.get('model_path') is not None:
         if policy in opts['model_path']:
@@ -104,7 +104,8 @@ def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None):
         hidden_dim=gat_hidden,
         lstm_hidden=lstm_hidden,
         device=device,
-        global_input_dim=global_input_dim
+        global_input_dim=global_input_dim,
+        shared_encoder=worker_model.embedder if (worker_model is not None and opts.get('shared_encoder', True)) else None
     ).to(device)
     
     manager.load_state_dict(state_dict)

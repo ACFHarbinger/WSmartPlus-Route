@@ -310,7 +310,8 @@ def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scal
         batch_size=opts.get('mrl_batch_size', 1024),
         device=opts['device'],
         global_input_dim=opts['global_input_dim'],
-        critical_threshold=opts['hrl_threshold']
+        critical_threshold=opts['hrl_threshold'],
+        shared_encoder=model.embedder if opts.get('shared_encoder', True) else None
     )
     
     # Setup Waste History Buffer (Batch, N, History)
