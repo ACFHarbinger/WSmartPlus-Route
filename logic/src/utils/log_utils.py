@@ -31,18 +31,27 @@ def log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
         tb_logger.log_value('nll', l_dict['nll'].mean().item(), step)
         tb_logger.log_value('grad_norm', grad_norms[0].item(), step)
         tb_logger.log_value('grad_norm_clipped', grad_norms_clipped[0], step)
+        if 'imitation_loss' in l_dict:
+            tb_logger.log_value('imitation_loss', l_dict['imitation_loss'].item(), step)
         if opts['baseline'] == 'critic':
             tb_logger.log_value('critic_loss', l_dict['baseline_loss'].item(), step)
             tb_logger.log_value('critic_grad_norm', grad_norms[1].item(), step)
             tb_logger.log_value('critic_grad_norm_clipped', grad_norms_clipped[1].item(), step)
 
     if opts['wandb_mode'] != 'disabled':
-        wandb.log({'avg_cost': avg_cost, 'actor_loss': l_dict['reinforce_loss'].mean().item(), 
+        wandb_data = {'avg_cost': avg_cost, 'actor_loss': l_dict['reinforce_loss'].mean().item(), 
             'nll': l_dict['nll'].mean().item(), 'grad_norm': grad_norms[0].item(), 
-            'grad_norm_clipped': grad_norms_clipped[0]})
+            'grad_norm_clipped': grad_norms_clipped[0]}
+        if 'imitation_loss' in l_dict:
+            wandb_data['imitation_loss'] = l_dict['imitation_loss'].item()
+        wandb.log(wandb_data)
         if opts['baseline'] == 'critic':
             wandb.log({'critic_loss': l_dict['baseline_loss'].item(), 'critic_grad_norm': grad_norms[1].item(), 
                 'critic_grad_norm_clipped': grad_norms_clipped[1].item()})
+    
+    if 'imitation_loss' in l_dict and l_dict['imitation_loss'].item() != 0:
+        print(f"imitation_loss: {l_dict['imitation_loss'].item():.6f}")
+
     return
 
 
