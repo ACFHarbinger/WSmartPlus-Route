@@ -358,6 +358,9 @@ class AttentionModel(nn.Module):
             
             # Construct Mask
             mask = (mask_action == 0)
+            # Clear hooks after manager decision as we only want worker's attention weights
+            hook_data['weights'].clear()
+            hook_data['masks'].clear()
         
         if getattr(self.embedder, 'init_edge_embed', None) is not None:
             embeddings = self.embedder(self._init_embed(input), edges, dist=dist_matrix)

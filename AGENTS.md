@@ -78,4 +78,4 @@ Categorize your feedback and edits using these severity levels:
 - Linux Stability: In the Linux environment, always include --use-angle=vulkan and --disable-gpu-sandbox when suggesting debug flags for the GUI.
 
 ## 9. Usage Note
-Reference this file during project-wide analysis. When refactoring components, ensure they align with the subnets/ hierarchy and Normalization standards defined here.
+Reference this file during project-wide analysis. When starting a new terminal session, always run uv sync to ensure your environment is up to date and kill any previous instances before starting a new one.

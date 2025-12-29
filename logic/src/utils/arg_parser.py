@@ -298,6 +298,7 @@ def add_mrl_train_args(parser):
     parser.add_argument('--hrl_threshold', type=float, default=0.9, help="Set the critical threshold for Hierarchical Reinforcement Learning PPO")
     parser.add_argument('--hrl_epochs', type=int, default=4, help="Number of epochs to use for Hierarchical Reinforcement Learning PPO")
     parser.add_argument('--hrl_clip_eps', type=float, default=0.2, help="Set the clip epsilon for Hierarchical Reinforcement Learning PPO")
+    parser.add_argument('--shared_encoder', action='store_true', default=True, help="Set to share the encoder between worker and manager in HRL")
     parser.add_argument('--global_input_dim', type=int, default=2, help="Dimension of global input for HRL Manager")
     parser.add_argument('--gat_hidden', type=int, default=128, help="Hidden dimension for GAT Manager")
     parser.add_argument('--lstm_hidden', type=int, default=64, help="Hidden dimension for LSTM in GAT Manager")

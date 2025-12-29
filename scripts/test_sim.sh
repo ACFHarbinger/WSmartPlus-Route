@@ -6,18 +6,24 @@ VERBOSE=false
 # Default cores
 N_CORES=22
 
-while getopts nc: flag
+RUN_TSP=0
+CHECKPOINTS=30
+WASTE_PATH=""
+
+while getopts "nc:P:d:N:W:I:M:V:Fv" flag
 do
     case "${flag}" in
         nc) n_cores=${OPTARG};;
+        P) AREA=${OPTARG};;
+        d) DATA_DIST=${OPTARG};;
+        N) N_BINS=${OPTARG};;
+        W) WTYPE=${OPTARG};;
+        I) POLICIES=(${OPTARG});;
+        M) CUSTOM_MODEL_PATH=${OPTARG};;
+        V) VEHICLES=${OPTARG};;
+        F) RUN_TSP=1;;
+        v) VERBOSE=true;;
     esac
-done
-
-# Handle --verbose if it appears after other arguments
-for arg in "$@"; do
-    if [[ "$arg" == "--verbose" ]]; then
-        VERBOSE=true
-    fi
 done
 
 # If not verbose, redirect all output to /dev/null
@@ -54,36 +60,38 @@ GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("policy_look_ahead_vrpp")
+POLICIES=("amggac")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
 #"gurobi_vrpp" "hexaly_vrpp" 
 #"am" "amgc" "transgcn"
 declare -A MODEL_PATHS
-MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgac"
+MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat"
 MODEL_PATHS["amgat_hrl"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat_hrl"
-MODEL_PATHS["amgac"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgac_hrl"
+MODEL_PATHS["amggac"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amggac"
 MODEL_PATHS["amtgc"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amtgc_hrl"
 
 MODEL_PATH_ARGS=()
 for key in "${!MODEL_PATHS[@]}"; do
-    MODEL_PATH_ARGS+=("$key=${MODEL_PATHS[$key]}")
+    if [[ -n "$CUSTOM_MODEL_PATH" && "${POLICIES[0]}" == "$key" ]]; then
+        MODEL_PATH_ARGS+=("$key=$CUSTOM_MODEL_PATH")
+    else
+        MODEL_PATH_ARGS+=("$key=${MODEL_PATHS[$key]}")
+    fi
 done
 
 VEHICLES=0
 REAL_TIME_LOG=1
 GATE_PROB_THRESHOLD="0.1"
-MASK_PROB_THRESHOLD="${MASK_PROB_THRESHOLD:-0.5}"
+MASK_PROB_THRESHOLD="${MASK_PROB_THRESHOLD:-0.1}"
 EDGE_THRESH=0.0
 EDGE_METHOD="knn"
 VERTEX_METHOD="mmn"
 DIST_METHOD="gmaps"
-DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_plastic[riomaior].csv"
-WASTE_PATH=""
-
-RUN_TSP=0
-CHECKPOINTS=30
+# Update dependent paths based on parsed arguments
+IDX_PATH="graphs_${N_BINS}V_1N_${WTYPE}.json"
+DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}[${AREA}].csv"
 
 echo "Starting test execution with $n_cores cores..."
 echo "========================================"
@@ -100,7 +108,7 @@ echo "========================================"
 echo ""
 
 # Add option --real_time_log to the command line if you want real time updates of the simulation
-if [ "$RUN_TSP" -eq 0 ]; then
+if [ "$RUN_TSP" -eq 1 ]; then
     echo "Running with fast_tsp..."
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
@@ -124,7 +132,7 @@ else
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
     fi
-    python main.py test_sim --policies "${POLICIES[@]}" --data_distribution "$DATA_DIST" --dt "$DECODE_TYPE" \
+    ./.venv/bin/python3 main.py test_sim --policies "${POLICIES[@]}" --data_distribution "$DATA_DIST" --dt "$DECODE_TYPE" \
     --cc "$n_cores" --n_samples "$N_SAMPLES" --area "$AREA" --bin_idx_file "$IDX_PATH" --size "$N_BINS" --seed "$SEED" \
     --problem "$PROBLEM" --n_vehicles "$VEHICLES" --vm "$VERTEX_METHOD" --lac "${LOOKAHEAD_CONFIGS[@]}" --dm "$DIST_METHOD" \
     --lvl "${REGULAR_LEVEL[@]}" --cf "${LAST_MINUTE_CF[@]}" --gp "${GUROBI_PARAM[@]}" --hp "${HEXALY_PARAM[@]}" \
