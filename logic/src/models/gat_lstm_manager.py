@@ -14,20 +14,39 @@ class GATLSTManager(nn.Module):
     def __init__(self,
                  input_dim_static=2,   # x, y
                  input_dim_dynamic=10, # waste history length
-                 global_input_dim=5,   # avg_waste, overflows, avg_len, visited_ratio, day (or customized)
+                 global_input_dim=2,   # avg_waste, max_waste (Only current)
+                 critical_threshold=0.9,
                  batch_size=1024,
                  hidden_dim=128,
                  lstm_hidden=64,
                  num_layers_gat=3,
                  num_heads=8,
                  dropout=0.1,
-                 device='cuda'):
+                 device='cuda',
+                 shared_encoder=None):
         super(GATLSTManager, self).__init__()
         self.device = device
         self.batch_size = batch_size
+        
+        # If shared_encoder is provided, we use its embed_dim if possible
+        if shared_encoder is not None:
+             # Most of our encoders (GAT, GGAC, etc.) have 'embed_dim' or nested attributes.
+             try:
+                 val = None
+                 if hasattr(shared_encoder, 'embed_dim'):
+                     val = shared_encoder.embed_dim
+                 elif hasattr(shared_encoder, 'layers'):
+                     val = shared_encoder.layers[0].att.module.embed_dim
+                 
+                 if isinstance(val, int):
+                     hidden_dim = val
+             except:
+                 pass
+             
         self.hidden_dim = hidden_dim
         self.input_dim_dynamic = input_dim_dynamic
         self.global_input_dim = global_input_dim
+        self.critical_threshold = critical_threshold
         
         # 1. Temporal Encoder (Long Short-Term Memory)
         # Inputs: (Batch, N, History)
@@ -39,10 +58,13 @@ class GATLSTManager(nn.Module):
         
         # 3. Spatial Encoder (GAT / Transformer)
         # Using TransformerEncoder as standard "GAT" on fully connected graph
-        encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_dim, nhead=num_heads, 
-                                                 dim_feedforward=hidden_dim*4, dropout=dropout,
-                                                 batch_first=True)
-        self.gat_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_gat)
+        if shared_encoder is not None:
+            self.gat_encoder = shared_encoder
+        else:
+            encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_dim, nhead=num_heads, 
+                                                     dim_feedforward=hidden_dim*4, dropout=dropout,
+                                                     batch_first=True)
+            self.gat_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_gat)
         
         # 4. Heads
         
@@ -87,7 +109,7 @@ class GATLSTManager(nn.Module):
             # Assuming gate_head's last layer is a Linear layer
             self.gate_head[-1].bias.fill_(0)
             
-            # Revert to Neutral Bias for Attempt 70
+            # Revert to Neutral Bias
             self.mask_head[-1].bias.fill_(0)
 
     def clear_memory(self):
@@ -163,13 +185,11 @@ class GATLSTManager(nn.Module):
         
         return mask_logits, gate_logits, value
 
-    def select_action(self, static, dynamic, global_features=None, deterministic=False, force_action=None, force_node_mask=None, threshold=0.5, mask_threshold=0.5, target_mask=None):
+    def select_action(self, static, dynamic, global_features=None, deterministic=False, threshold=0.5, mask_threshold=0.5, target_mask=None):
         """
         static: (Batch, N, 2) - Locations
         dynamic: (Batch, N, 1) - Waste levels
         global_features: (Batch, 3) - Global context
-        force_action: (Batch,) of 0/1 or None - Expert action to force (Gate)
-        force_node_mask: (Batch, N) of 0/1 or None - Expert action to force (Mask)
         threshold: float - Probability threshold for gate=1 (Route) when deterministic
         mask_threshold: float - Probability threshold for mask=1 (Unmask) when deterministic
         target_mask: (Batch, N) of 0/1 or None - Expert target for mask auxiliary loss
@@ -180,11 +200,7 @@ class GATLSTManager(nn.Module):
         gate_probs = F.softmax(gate_logits, dim=-1)
         gate_dist = torch.distributions.Categorical(gate_probs)
         
-        if force_action is not None and torch.is_tensor(force_action):
-            sampled_action = gate_dist.sample()
-            force_mask = (force_action != -1)
-            gate_action = torch.where(force_mask, force_action, sampled_action)
-        elif deterministic:
+        if deterministic:
             if threshold < 0:
                 # Force Gate Open
                 gate_action = torch.ones_like(gate_probs[..., 1]).long()
@@ -200,16 +216,6 @@ class GATLSTManager(nn.Module):
         else:
             mask_dist = torch.distributions.Categorical(mask_probs)
             mask_action = mask_dist.sample() # (Batch, N)
-            
-        # Apply safety railing (Inference Only)
-        if deterministic:
-            curr_waste = dynamic[:, :, -1] 
-            safety_mask = (curr_waste > 0.85).long() # Proactive unmasking
-            mask_action = torch.max(mask_action, safety_mask)
-            
-        # Apply force_node_mask if provided (Expert Forcing - Training Only)
-        if force_node_mask is not None:
-            mask_action = torch.max(mask_action, force_node_mask.long())
             
         # Store for PPO
         if not deterministic:
@@ -321,7 +327,7 @@ class GATLSTManager(nn.Module):
                 
                 ratio = torch.exp(new_log_probs - old_log_probs)
                 
-                # Attempt 62: HICRA-Inspired Credit Assignment
+                # HICRA-Inspired Credit Assignment
                 # Weight gradient updates by overflow severity
                 # This focuses learning on high-impact decisions
                 b_overflow = (b_dynamic[:, :, -1] > 0.9).float().sum(dim=1)  # Count of critical nodes
@@ -336,27 +342,16 @@ class GATLSTManager(nn.Module):
                 
                 entropy = mask_dist.entropy().mean() + gate_dist.entropy().mean()
                 
-                # Attempt 67: Precision Lookahead Masking
                 # Use target_mask provided during select_action (which mimics VRPP)
                 target_mask = b_target_mask 
                 
                 # Correct Logit for BCE: s1 - s0 (Keep - Skip)
                 logits_diff = mask_logits[:, :, 1] - mask_logits[:, :, 0]
                 
-                # Attempt 71: Pressure Mirroring
-                # Attempt 73: Intensify Expert Signal
+                # Pressure Mirroring
+                # Intensify Expert Signal
                 pos_weight = torch.tensor([50.0]).to(self.device)
                 loss_mask_aux = F.binary_cross_entropy_with_logits(logits_diff, target_mask, pos_weight=pos_weight)
-                
-                # Check Stats (Logging)
-                if _ == 0 and i == 0:
-                     mask_probs = torch.sigmoid(logits_diff) 
-                     mask_full = (target_mask == 1.0)
-                     mask_empty = (target_mask == 0.0)
-                     
-                     p_full = mask_probs[mask_full].mean().item() if mask_full.any() else 0.0
-                     p_empty = mask_probs[mask_empty].mean().item() if mask_empty.any() else 0.0
-                     print(f" Mask Aux Stat (Attempt 73): Full P(Keep)={p_full:.4f} | Empty P(Keep)={p_empty:.4f} | AuxLoss={loss_mask_aux.item():.4f}")
 
                 loss = actor_loss + 0.5 * value_loss - entropy_coef * entropy + (lambda_mask_aux * loss_mask_aux)
                 

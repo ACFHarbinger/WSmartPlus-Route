@@ -21,9 +21,9 @@ EDGE_M="knn"
 DIST_M="gmaps"
 VERTEX_M="mmn"
 
-W_LEN=0.05
-W_OVER=400.0
-W_WASTE=10.0
+W_LEN=1.0
+W_OVER=1000.0
+W_WASTE=100.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
 # gamma W_LEN = 2.5, 1.75, 1.75, 1.75
 
@@ -35,11 +35,11 @@ N_PRED_L=2
 N_DEC_L=2
 
 N_HEADS=8
-NORM="batch"
+NORM="instance"
 ACTI_F="gelu"
 DROPOUT=0.1
-AGG="mean"
-AGG_G="mean"
+AGG="sum"
+AGG_G="avg"
 
 OPTIM="rmsprop"
 LR_MODEL=0.0001
@@ -48,12 +48,12 @@ LR_SCHEDULER="lambda"
 LR_DECAY=1.0
 
 LOG_STEP=5
-B_SIZE=256
+B_SIZE=128
 N_DATA=1280
 N_VAL_DATA=0 #1280
 VAL_B_SIZE=0
 
-BL=""
+BL="exponential"
 MAX_NORM=1.0
 EXP_BETA=0.8
 BL_ALPHA=0.05
@@ -85,8 +85,8 @@ for dist in "${DATA_DISTS[@]}"; do
     DATASETS+=("data/datasets/${DATA_PROBLEM}/${DATA_PROBLEM}${SIZE}_${dist}_${DATASET_NAME}_seed${SEED}.pkl")
 done
 
-TRAIN_AM=0
-TRAIN_AMGC=1
+TRAIN_AM=1
+TRAIN_AMGC=0
 TRAIN_TRANSGCN=1
 TRAIN_DDAM=1
 TRAIN_TAM=1
@@ -135,7 +135,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
-        python main.py train --problem "$PROBLEM" --model am --encoder gac --epoch_size "$N_DATA" \
+        python main.py train --problem "$PROBLEM" --model am --encoder ggac --epoch_size "$N_DATA" \
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --seed "$SEED" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
