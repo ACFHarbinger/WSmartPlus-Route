@@ -1180,7 +1180,7 @@ def am_setup(mocker):
     mock_encoder = mocker.MagicMock()
     
     # Needs to return tensor on call
-    def mock_enc_fwd(x, edges, **kwargs):
+    def mock_enc_fwd(x, edges=None, **kwargs):
         batch, n, dim = x.size()
         return torch.zeros(batch, n, 128) # hidden_dim
     mock_encoder.side_effect = mock_enc_fwd
@@ -1219,7 +1219,7 @@ def tam_setup(mocker):
     mock_problem.get_costs.return_value = (torch.zeros(1), {}, None)
     
     mock_encoder = mocker.MagicMock()
-    def mock_enc_fwd(x, edges, **kwargs):
+    def mock_enc_fwd(x, edges=None, **kwargs):
         batch, n, dim = x.size()
         return torch.zeros(batch, n, 128)
     mock_encoder.side_effect = mock_enc_fwd
