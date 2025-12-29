@@ -124,7 +124,7 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
 
     if 'am' in pol_strip or "transgcn" in pol_strip:
         model_env, configs = setup_model(policy, model_weights_path, opts['model_path'], device, _lock, opts['temperature'], opts['decode_type'])
-        hrl_manager = setup_hrl_manager(opts, device, configs, policy=policy, base_path=model_weights_path)
+        hrl_manager = setup_hrl_manager(opts, device, configs, policy=policy, base_path=model_weights_path, worker_model=model_env)
     elif "vrpp" in pol_strip:
         model_env = setup_env(policy, opts['server_run'], opts['gplic_file'], opts['symkey_name'], opts['env_file'])
         model_tup = (None, None)
@@ -257,7 +257,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
             attention_dict = {pol_strip: []}
             model_env, configs = setup_model(policy, model_weights_path, opts['model_path'], device, 
                                             lock, opts['temperature'], opts['decode_type'])
-            hrl_manager = setup_hrl_manager(opts, device, configs, policy=pol_strip, base_path=model_weights_path)
+            hrl_manager = setup_hrl_manager(opts, device, configs, policy=pol_strip, base_path=model_weights_path, worker_model=model_env)
         elif "vrpp" in pol_strip:
             hrl_manager = None
             model_env = setup_env(policy, opts['server_run'], opts['gplic_file'], 

@@ -83,6 +83,27 @@ class TestGATLSTManager:
         assert mask_action.shape == (1, 5)
         assert gate_action.shape == (1,)
 
+    def test_shared_encoder(self, am_setup):
+        from logic.src.models.gat_lstm_manager import GATLSTManager
+        worker_model = am_setup
+        B, N = 1, 5
+        static = torch.rand(B, N, 2)
+        dynamic = torch.rand(B, N, 10)
+        global_features = torch.rand(B, 2)
+        
+        manager = GATLSTManager(
+            input_dim_static=2,
+            input_dim_dynamic=10,
+            hidden_dim=128,
+            shared_encoder=worker_model.embedder,
+            device='cpu'
+        )
+        
+        assert manager.gat_encoder is worker_model.embedder
+        
+        mask_logits, gate_logits, value = manager(static, dynamic, global_features)
+        assert mask_logits.shape == (B, N, 2)
+
     def test_update_logic(self, gat_lstm_setup):
         manager = gat_lstm_setup
         # Fill memory

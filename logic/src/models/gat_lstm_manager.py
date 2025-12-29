@@ -22,10 +22,27 @@ class GATLSTManager(nn.Module):
                  num_layers_gat=3,
                  num_heads=8,
                  dropout=0.1,
-                 device='cuda'):
+                 device='cuda',
+                 shared_encoder=None):
         super(GATLSTManager, self).__init__()
         self.device = device
         self.batch_size = batch_size
+        
+        # If shared_encoder is provided, we use its embed_dim if possible
+        if shared_encoder is not None:
+             # Most of our encoders (GAT, GGAC, etc.) have 'embed_dim' or nested attributes.
+             try:
+                 val = None
+                 if hasattr(shared_encoder, 'embed_dim'):
+                     val = shared_encoder.embed_dim
+                 elif hasattr(shared_encoder, 'layers'):
+                     val = shared_encoder.layers[0].att.module.embed_dim
+                 
+                 if isinstance(val, int):
+                     hidden_dim = val
+             except:
+                 pass
+             
         self.hidden_dim = hidden_dim
         self.input_dim_dynamic = input_dim_dynamic
         self.global_input_dim = global_input_dim
@@ -41,10 +58,13 @@ class GATLSTManager(nn.Module):
         
         # 3. Spatial Encoder (GAT / Transformer)
         # Using TransformerEncoder as standard "GAT" on fully connected graph
-        encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_dim, nhead=num_heads, 
-                                                 dim_feedforward=hidden_dim*4, dropout=dropout,
-                                                 batch_first=True)
-        self.gat_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_gat)
+        if shared_encoder is not None:
+            self.gat_encoder = shared_encoder
+        else:
+            encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_dim, nhead=num_heads, 
+                                                     dim_feedforward=hidden_dim*4, dropout=dropout,
+                                                     batch_first=True)
+            self.gat_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_gat)
         
         # 4. Heads
         
