@@ -6,7 +6,7 @@ from logic.src.utils.definitions import DAY_METRICS
 from logic.src.utils.log_utils import send_daily_output_to_gui
 from logic.src.utils.functions import move_to
 from logic.src.policies import (
-    policy_gurobi_vrpp, policy_hexaly_vrpp,
+    policy_gurobi_vrpp, policy_hexaly_vrpp, local_search_2opt,
     get_route_cost, find_route, create_points, find_solutions,
     policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp,
     policy_lookahead_alns, policy_lookahead_hgs, policy_lookahead_bcp,
@@ -50,8 +50,8 @@ def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum
 
 def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflows, 
             day, model_env, model_ls, n_vehicles, area, realtime_log_path, waste_type, 
-            distpath_tup, current_collection_day, cached, device, lock=None, hrl_manager=None, bins_indices=None,
-            gate_prob_threshold=0.5, mask_prob_threshold=0.5):
+            distpath_tup, current_collection_day, cached, device, lock=None, hrl_manager=None,
+            gate_prob_threshold=0.5, mask_prob_threshold=0.5, two_opt_max_iter=0):
     cost = 0
     tour = []
     output_dict = None
@@ -62,6 +62,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
 
     overflows += new_overflows
     distance_matrix, paths_between_states, dm_tensor, distancesC = distpath_tup
+
     policy = pol.rsplit('_', 1)[0]
     if 'policy_last_minute_and_path' in policy:
         cf = int(policy.rsplit("_and_path", 1)[1])
@@ -69,6 +70,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
             raise ValueError(f'Invalid cf value for policy_last_minute_and_path: {cf}')
         bins.setCollectionLvlandFreq(cf=cf/100)
         tour = policy_last_minute_and_path(bins.c, distancesC, paths_between_states, bins.collectlevl, waste_type, area, n_vehicles, coords)
+        if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
         cost = get_route_cost(distance_matrix, tour) if tour else 0
     elif 'policy_last_minute' in policy:
         cf = int(policy.rsplit("_last_minute", 1)[1])
@@ -76,12 +78,14 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
             raise ValueError(f'Invalid cf value for policy_last_minute: {cf}')
         bins.setCollectionLvlandFreq(cf=cf/100)
         tour = policy_last_minute(bins.c, distancesC, bins.collectlevl, waste_type, area, n_vehicles, coords)
+        if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
         cost = get_route_cost(distance_matrix, tour) if tour else 0
     elif 'policy_regular' in policy:
         lvl = int(policy.rsplit("_regular", 1)[1]) - 1
         if lvl < 0:
             raise ValueError(f'Invalid lvl value for policy_regular: {lvl + 1}')
         tour = policy_regular(bins.n, bins.c, distancesC, lvl, day, cached, waste_type, area, n_vehicles, coords)
+        if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
         cost = get_route_cost(distance_matrix, tour) if tour else 0
         if cached is not None and not cached and tour: cached = tour
     elif policy[:2] == 'am' or policy[:4] == 'ddam' or "transgcn" in policy:
@@ -89,7 +93,8 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
         daily_data = set_daily_waste(model_data, bins.c, device, fill)
         tour, cost, output_dict = model_env.compute_simulator_day(
             daily_data, graph, dm_tensor, profit_vars, run_tsp, hrl_manager=hrl_manager, 
-            waste_history=bins.get_level_history(device=device), threshold=gate_prob_threshold, mask_threshold=mask_prob_threshold
+            waste_history=bins.get_level_history(device=device), threshold=gate_prob_threshold, 
+            mask_threshold=mask_prob_threshold, two_opt_max_iter=two_opt_max_iter
         )
     elif 'gurobi' in policy:
         gp_param = float(policy.rsplit("_vrpp", 1)[1])
@@ -104,6 +109,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
 
         if routes:
             tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
+            if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
             cost = get_route_cost(distance_matrix, tour)
     elif 'hexaly' in policy:
         hex_param = float(policy.rsplit("_vrpp", 1)[1])
@@ -113,6 +119,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
                                         bins.std, waste_type, area, n_vehicles, time_limit=60)
         if routes:
             tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
+            if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
             cost = get_route_cost(distance_matrix, tour)
     elif 'policy_look_ahead' in policy:
         look_ahead_config = policy[policy.find('ahead_') + len('ahead_')]
@@ -144,6 +151,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
                 routes, _, _ = policy_lookahead_vrpp(bins.c, binsids, must_go_bins, distance_matrix, values, number_vehicles=n_vehicles, env=model_env)
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
+                    if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
                     cost = get_route_cost(distance_matrix, tour)
             elif 'sans' in policy:
                 values['time_limit'] = 60
@@ -163,12 +171,14 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
                 routes, _, _ = policy_lookahead_sans(new_data, coords, distance_matrix, params, must_go_bins, values)
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
+                    if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
                     cost = get_route_cost(distance_matrix, tour)
             elif 'hgs' in policy:
                 values['time_limit'] = 60
                 routes, _, _ = policy_lookahead_hgs(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
+                    if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
                     cost = get_route_cost(distance_matrix, tour)
             elif 'alns' in policy:
                 values['time_limit'] = 60
@@ -182,6 +192,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
                 routes, _, _ = policy_lookahead_alns(bins.c, binsids, must_go_bins, distance_matrix, values, coords, variant=variant)
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
+                    if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
                     cost = get_route_cost(distance_matrix, tour)
             elif 'bcp' in policy:
                 values['time_limit'] = 60
@@ -189,6 +200,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
                 routes, _, _ = policy_lookahead_bcp(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
+                    if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
                     cost = get_route_cost(distance_matrix, tour)
             else:
                 values['shift_duration'] = 390 # minutes
@@ -205,6 +217,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
                 
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]
+                    if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
                     cost = get_route_cost(distance_matrix, tour)
         else:
             tour = [0, 0]

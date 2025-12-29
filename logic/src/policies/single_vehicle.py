@@ -20,6 +20,113 @@ def find_route(C, to_collect):
     return tour2
 
 
+def local_search_2opt(tour, distance_matrix, max_iterations=200):
+    """
+    Standard 2-opt local search vectorized with NumPy.
+    """
+    if isinstance(tour, torch.Tensor):
+        tour = tour.cpu().numpy()
+    if torch.is_tensor(distance_matrix):
+        distance_matrix = distance_matrix.cpu().numpy()
+        
+    best_tour = np.array(tour)
+    n = len(best_tour)
+    if n < 4:
+        return best_tour.tolist()
+
+    # Ensure it starts and ends at depot (0)
+    if best_tour[0] != 0 or best_tour[-1] != 0:
+        return best_tour.tolist()
+    
+    for _ in range(max_iterations):
+        # i indices from 1 to n-3, j indices from i+1 to n-2
+        i = np.arange(1, n - 2)
+        j = np.arange(2, n - 1)
+        
+        I, J = np.meshgrid(i, j, indexing='ij')
+        mask = J > I
+        
+        if not np.any(mask):
+            break
+            
+        I_vals = I[mask]
+        J_vals = J[mask]
+        
+        # Tour nodes at relevant indices
+        t_prev_i = best_tour[I_vals - 1]
+        t_curr_i = best_tour[I_vals]
+        t_curr_j = best_tour[J_vals]
+        t_next_j = best_tour[J_vals + 1]
+        
+        # Gain calculation: current_dist - new_dist
+        d_curr = distance_matrix[t_prev_i, t_curr_i] + distance_matrix[t_curr_j, t_next_j]
+        d_next = distance_matrix[t_prev_i, t_curr_j] + distance_matrix[t_curr_i, t_next_j]
+        gains = d_curr - d_next
+        
+        best_idx = np.argmax(gains)
+        best_gain = gains[best_idx]
+        if best_gain > 1e-5:
+            # Apply the best edge swap found in this iteration
+            target_i = I_vals[best_idx]
+            target_j = J_vals[best_idx]
+            best_tour[target_i : target_j + 1] = best_tour[target_i : target_j + 1][::-1]
+        else:
+            break
+            
+    return best_tour.tolist()
+
+
+def local_search_2opt_vectorized(tour, distance_matrix, max_iterations=200):
+    """
+    Vectorized 2-opt local search using PyTorch to leverage GPU acceleration.
+    """
+    device = distance_matrix.device
+    if not torch.is_tensor(tour):
+        tour = torch.tensor(tour, device=device, dtype=torch.long)
+    else:
+        tour = tour.detach().to(device, dtype=torch.long)
+        
+    n = tour.size(0)
+    if n < 4:
+        return tour
+
+    for _ in range(max_iterations):
+        # Generate indices for all possible edge swaps (i, j)
+        indices = torch.arange(n, device=device)
+        i = indices[1:-2]
+        j = indices[2:-1]
+        
+        I, J = torch.meshgrid(i, j, indexing='ij')
+        mask = J > I
+        if not mask.any():
+            break
+            
+        I_vals = I[mask]
+        J_vals = J[mask]
+        
+        # Tour nodes at relevant indices
+        t_prev_i = tour[I_vals - 1]
+        t_curr_i = tour[I_vals]
+        t_curr_j = tour[J_vals]
+        t_next_j = tour[J_vals + 1]
+        
+        # Gain calculation: current_dist - new_dist
+        d_curr = distance_matrix[t_prev_i, t_curr_i] + distance_matrix[t_curr_j, t_next_j]
+        d_next = distance_matrix[t_prev_i, t_curr_j] + distance_matrix[t_curr_i, t_next_j]
+        gains = d_curr - d_next
+        
+        best_gain, best_idx = torch.max(gains, dim=0)
+        if best_gain > 1e-5:
+            # Apply the best edge swap found in this iteration
+            target_i = I_vals[best_idx]
+            target_j = J_vals[best_idx]
+            tour[target_i : target_j + 1] = torch.flip(tour[target_i : target_j + 1], dims=[0])
+        else:
+            break
+            
+    return tour
+
+
 def get_route_cost(distancesC, tour):
     if isinstance(tour, torch.Tensor) and isinstance(distancesC, torch.Tensor):
         return distancesC[tour[:-1], tour[1:]].sum().cpu().numpy().item()
