@@ -5,9 +5,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from logic.src.utils.beam_search import CachedLookup
-from logic.src.policies import find_route, get_route_cost, get_multi_tour
 from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
 from logic.src.utils.functions import compute_in_batches, add_attention_hooks, sample_many
+from logic.src.policies import find_route, get_route_cost, get_multi_tour, local_search_2opt_vectorized
 
 
 class AttentionModelFixed(typing.NamedTuple):
@@ -66,6 +66,9 @@ class AttentionModel(nn.Module):
                  shrink_size=None,
                  pomo_size=0,
                  temporal_horizon=0,
+                 spatial_bias=False,
+                 spatial_bias_scale=1.0,
+                 entropy_weight=0.0,
                  predictor_layers=None):
         super(AttentionModel, self).__init__()
         self.n_heads = n_heads
@@ -104,6 +107,9 @@ class AttentionModel(nn.Module):
         self.mask_logits = mask_logits
         self.mask_graph = mask_graph
         self.pomo_size = pomo_size
+        self.spatial_bias = spatial_bias
+        self.spatial_bias_scale = spatial_bias_scale
+        self.entropy_weight = entropy_weight
 
         self.problem = problem
         self.allow_partial = problem.NAME == 'sdwcvrp'
@@ -176,7 +182,7 @@ class AttentionModel(nn.Module):
         edges = input.pop('edges') if 'edges' in input.keys() else None
         dist_matrix = input.pop('dist') if 'dist' in input.keys() else None
         if self.checkpoint_encoder and self.training:  # Only checkpoint if we need gradients
-            embeddings = torch.utils.checkpoint.checkpoint(self.embedder, self._init_embed(input), edges)
+            embeddings = torch.utils.checkpoint.checkpoint(self.embedder, self._init_embed(input), edges, use_reentrant=False)
         else:
             # Check if embedder accepts 'dist' (e.g. GatedGraphAttConvEncoder)
             # We can check via inspection or just try/except, but clean way is check attribute or name
@@ -203,24 +209,42 @@ class AttentionModel(nn.Module):
             expanded_input = expand(input)
             expanded_embeddings = expand(embeddings)
             expanded_edges = expand(edges)
-            expanded_dist_matrix = expand(dist_matrix)
+            
+            # Efficiently expand dist_matrix for POMO
+            if dist_matrix is None:
+                expanded_dist_matrix = None
+            elif dist_matrix.size(0) == 1:
+                # Shared dist_matrix: expanded to (B*P, N, N) using view
+                expanded_dist_matrix = dist_matrix.expand(expanded_embeddings.size(0), -1, -1)
+            else:
+                # Per-instance: repeat interleave to (B*P, N, N)
+                expanded_dist_matrix = dist_matrix.repeat_interleave(self.pomo_size, dim=0)
+            
             expanded_mask = expand(mask)
             
             _log_p, pi = self._inner(expanded_input, expanded_edges, expanded_embeddings, cost_weights, expanded_dist_matrix, profit_vars=None, mask=expanded_mask)
             cost, cost_dict, mask = self.problem.get_costs(expanded_input, pi, cost_weights, expanded_dist_matrix)
         else:
+            if dist_matrix is not None and dist_matrix.size(0) == 1 and embeddings.size(0) > 1:
+                dist_matrix = dist_matrix.expand(embeddings.size(0), -1, -1)
             _log_p, pi = self._inner(input, edges, embeddings, cost_weights, dist_matrix, profit_vars=None, mask=mask)
             cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, dist_matrix)
         
-        # Log likelyhood is calculated within the model since returning it per action does not work well with
-        # DataParallel since sequences can be of different lengths
-        ll = self._calc_log_likelihood(_log_p, pi, mask)
+        # Log likelyhood and entropy
+        # Use return_entropy if training or specifically requested
+        res = self._calc_log_likelihood(_log_p, pi, mask, return_entropy=self.training)
+        if self.training:
+            ll, entropy = res
+        else:
+            ll = res
+            entropy = None
+
         if return_pi:
             if pad:
                 pad_dim = input['loc'].size(1) + 1
                 pi = F.pad(pi, (0, (pad_dim) - pi.size(-1)), value=0)
-            return cost, ll, cost_dict, pi
-        return cost, ll, cost_dict, None
+            return cost, ll, cost_dict, pi, entropy
+        return cost, ll, cost_dict, None, entropy
     
     def compute_batch_sim(self, input, dist_matrix, hrl_manager=None, waste_history=None, threshold=0.5, mask_threshold=0.5):
         hook_data = add_attention_hooks(self.embedder)
@@ -286,7 +310,8 @@ class AttentionModel(nn.Module):
             attention_weights = torch.stack(hook_data['weights'])
         return ucost, ret_dict, {'attention_weights': attention_weights, 'graph_masks': hook_data['masks']}
     
-    def compute_simulator_day(self, input, graph, distC, profit_vars=None, run_tsp=False, hrl_manager=None, waste_history=None, threshold=0.5, mask_threshold=0.5):
+    def compute_simulator_day(self, input, graph, distC, profit_vars=None, run_tsp=False, hrl_manager=None, 
+                              waste_history=None, threshold=0.5, mask_threshold=0.5, two_opt_max_iter=0):
         edges, dist_matrix = graph
         hook_data = add_attention_hooks(self.embedder)
         
@@ -390,6 +415,11 @@ class AttentionModel(nn.Module):
                 cost = 0
         else:
             route = torch.cat((torch.tensor([0]).to(pi.device), pi.squeeze(0)))
+
+            # Apply 2-opt refinement (GPU accelerated)
+            if two_opt_max_iter > 0:
+                route = local_search_2opt_vectorized(route, distC, two_opt_max_iter)
+            
             cost = get_route_cost(distC, route)
         
         for handle in hook_data['handles']:
@@ -440,7 +470,7 @@ class AttentionModel(nn.Module):
 
         return flat_parent[feas_ind], flat_action[feas_ind], flat_score[feas_ind]
 
-    def _calc_log_likelihood(self, _log_p, a, mask):
+    def _calc_log_likelihood(self, _log_p, a, mask, return_entropy=False):
         # Get log_p corresponding to selected actions
         log_p = _log_p.gather(2, a.unsqueeze(-1)).squeeze(-1)
 
@@ -451,7 +481,18 @@ class AttentionModel(nn.Module):
         assert (log_p > -1000).data.all(), "Logprobs should not be -inf, check sampling procedure!"
 
         # Calculate log_likelihood
-        return log_p.sum(1)
+        ll = log_p.sum(1)
+
+        if return_entropy:
+            # _log_p: (Batch, SeqLen, GraphSize)
+            probs = _log_p.exp()
+            # Entropy: -sum(p * log_p)
+            # Mask out -inf values for log_p calculation
+            log_p_safe = _log_p.clamp(min=-20)
+            entropy = -(probs * log_p_safe).sum(-1).mean(1) # Average over sequence
+            return ll, entropy
+
+        return ll
 
     def _init_embed(self, nodes, temporal_features=True):
         if self.is_vrpp or self.is_wc:
@@ -651,8 +692,20 @@ class AttentionModel(nn.Module):
             # Compute the graph mask, for masking next action based on graph structure 
             graph_mask = state.get_edges_mask()
 
+        # Spatial Bias: Penalize nodes that are physically far from the current location
+        dist_bias = None
+        if self.spatial_bias and state.dist_matrix is not None:
+            dist_matrix = state.dist_matrix 
+            current_node = state.get_current_node() # (B*P, 1)
+            
+            # dist_matrix is already (B*P, N, N) from forward() expansion
+            # index shape: (Batch * POMO, 1, N)
+            index = current_node.unsqueeze(-1).expand(-1, -1, dist_matrix.size(-1))
+            dist_bias = -self.spatial_bias_scale * dist_matrix.gather(1, index).detach()
+            # Shape: (Batch * POMO, 1, GraphSize)
+
         # Compute logits (unnormalized log_p)
-        log_p, glimpse = self._one_to_many_logits(query, glimpse_K, glimpse_V, logit_K, mask, graph_mask)
+        log_p, glimpse = self._one_to_many_logits(query, glimpse_K, glimpse_V, logit_K, mask, graph_mask, dist_bias=dist_bias)
         if normalize:
             log_p = torch.log_softmax(log_p / self.temp, dim=-1)
 
@@ -703,7 +756,7 @@ class AttentionModel(nn.Module):
         else:
             assert False, "Unsupported problem"
 
-    def _one_to_many_logits(self, query, glimpse_K, glimpse_V, logit_K, mask, graph_mask=None):
+    def _one_to_many_logits(self, query, glimpse_K, glimpse_V, logit_K, mask, graph_mask=None, dist_bias=None):
         batch_size, num_steps, embed_dim = query.size()
         key_size = val_size = embed_dim // self.n_heads
 
@@ -712,6 +765,12 @@ class AttentionModel(nn.Module):
 
         # Batch matrix multiplication to compute compatibilities (n_heads, batch_size, num_steps, graph_size)
         compatibility = torch.matmul(glimpse_Q, glimpse_K.transpose(-2, -1)) / math.sqrt(glimpse_Q.size(-1))
+
+        if dist_bias is not None:
+            # compatibility: (n_heads, batch, num_steps, 1, graph_size)
+            # dist_bias: (Batch, 1, GraphSize)
+            # We must explicitly align Batch to Batch
+            compatibility += dist_bias.unsqueeze(0).unsqueeze(2)
         if self.mask_inner:
             assert self.mask_logits, "Cannot mask inner without masking logits"
             compatibility[mask[None, :, :, None, :].expand_as(compatibility)] = -math.inf
@@ -731,6 +790,11 @@ class AttentionModel(nn.Module):
         # Batch matrix multiplication to compute logits (batch_size, num_steps, graph_size)
         # logits = 'compatibility'
         logits = torch.matmul(final_Q, logit_K.transpose(-2, -1)).squeeze(-2) / math.sqrt(final_Q.size(-1))
+
+        if dist_bias is not None:
+            # logits: (Batch, num_steps, GraphSize)
+            # dist_bias: (Batch, 1, GraphSize)
+            logits += dist_bias.unsqueeze(1) if logits.size(1) > 1 else dist_bias
 
         # From the logits compute the probabilities by clipping, masking and softmax
         if self.mask_logits and self.mask_graph:

@@ -24,9 +24,9 @@ EDGE_M="knn"
 DIST_M="gmaps"
 VERTEX_M="mmn"
 
-W_LEN=1.0
-W_OVER=1.0
-W_WASTE=1.0
+W_LEN=10.0
+W_OVER=10.0
+W_WASTE=10.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
 # gamma W_LEN = 2.5, 1.75, 1.75, 1.75
 
@@ -49,8 +49,8 @@ LR_MODEL=0.0001
 LR_SCHEDULER="lambda"
 LR_DECAY=1.0
 
-LOG_STEP=5
-B_SIZE=256
+LOG_STEP=10
+B_SIZE=128
 N_DATA=1280
 N_VAL_DATA=0 #1280
 VAL_B_SIZE=0
@@ -124,7 +124,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --temporal_horizon "${HORIZON[0]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY" \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
-        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP";
+        --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias;
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi

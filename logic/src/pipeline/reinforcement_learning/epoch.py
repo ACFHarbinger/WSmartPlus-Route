@@ -324,7 +324,10 @@ def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
 
 def update_time_dataset(model, optimizer, dataset, routes, day, opts, args, costs=None):
     data_size = dataset.size
-    routes = torch.stack(routes).contiguous().view(-1, routes[0].size(1))
+    if isinstance(routes, list):
+        routes = torch.cat(routes, 0)
+    
+    routes = routes.contiguous().view(-1, routes.size(-1))
     
     # Check for POMO expansion
     if routes.size(0) > dataset.size:
@@ -334,6 +337,8 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args, cost
         pomo_size = routes.size(0) // dataset.size
         routes = routes.view(dataset.size, pomo_size, -1)
         if costs is not None:
+            if isinstance(costs, list):
+                costs = torch.cat(costs, 0)
             costs = costs.view(dataset.size, pomo_size)
             best_idx = costs.argmin(dim=1)
             routes = routes[torch.arange(dataset.size), best_idx, :]

@@ -6,10 +6,6 @@ VERBOSE=false
 # Default cores
 N_CORES=22
 
-RUN_TSP=0
-CHECKPOINTS=30
-WASTE_PATH=""
-
 while getopts "nc:P:d:N:W:I:M:V:Fv" flag
 do
     case "${flag}" in
@@ -60,7 +56,7 @@ GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("amgat")
+POLICIES=("gurobi_vrpp")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
@@ -85,13 +81,21 @@ VEHICLES=0
 REAL_TIME_LOG=1
 GATE_PROB_THRESHOLD="0.1"
 MASK_PROB_THRESHOLD="${MASK_PROB_THRESHOLD:-0.1}"
-EDGE_THRESH=0.0
+
+EDGE_THRESH=1.0
 EDGE_METHOD="knn"
 VERTEX_METHOD="mmn"
 DIST_METHOD="gmaps"
+
 # Update dependent paths based on parsed arguments
 IDX_PATH="graphs_${N_BINS}V_1N_${WTYPE}.json"
 DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}[${AREA}].csv"
+WASTE_PATH=""
+CHECKPOINTS=30
+
+# Route postprocessing
+RUN_TSP=1
+TWO_OPT_MAX_ITER=0
 
 echo "Starting test execution with $n_cores cores..."
 echo "========================================"
@@ -108,7 +112,7 @@ echo "========================================"
 echo ""
 
 # Add option --real_time_log to the command line if you want real time updates of the simulation
-if [ "$RUN_TSP" -eq 1 ]; then
+if [ "$RUN_TSP" -eq 0 ]; then
     echo "Running with fast_tsp..."
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
@@ -122,7 +126,8 @@ if [ "$RUN_TSP" -eq 1 ]; then
     --waste_type "$WTYPE" --cc "$n_cores" --et "$EDGE_THRESH" --em "$EDGE_METHOD" --env_file "$ENV_FILE" \
     --gapik_file "$GOOGLE_API_FILE" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" --dm "$DIST_METHOD" \
     --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" \
-    --gate_prob_threshold $GATE_PROB_THRESHOLD --mask_prob_threshold $MASK_PROB_THRESHOLD;
+    --gate_prob_threshold $GATE_PROB_THRESHOLD --mask_prob_threshold $MASK_PROB_THRESHOLD \
+    --spatial_bias --two_opt_max_iter $TWO_OPT_MAX_ITER;
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi
@@ -139,7 +144,8 @@ else
     --et "$EDGE_THRESH" --em "$EDGE_METHOD" --waste_type "$WTYPE" --env_file "$ENV_FILE" --gplic_file "$GP_LIC_FILE" \
     --gapik_file "$GOOGLE_API_FILE" --waste_filepath "$WASTE_PATH" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" \
     --days "$N_DAYS" --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" \
-    --gate_prob_threshold $GATE_PROB_THRESHOLD --mask_prob_threshold $MASK_PROB_THRESHOLD;
+    --gate_prob_threshold $GATE_PROB_THRESHOLD --mask_prob_threshold $MASK_PROB_THRESHOLD \
+    --spatial_bias --two_opt_max_iter $TWO_OPT_MAX_ITER;
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi
