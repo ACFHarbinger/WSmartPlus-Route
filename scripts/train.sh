@@ -25,8 +25,8 @@ DIST_M="gmaps"
 VERTEX_M="mmn"
 
 W_LEN=1.0
-W_OVER=100.0
-W_WASTE=10.0
+W_OVER=1.0
+W_WASTE=1.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
 # gamma W_LEN = 2.5, 1.75, 1.75, 1.75
 

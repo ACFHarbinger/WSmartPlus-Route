@@ -102,16 +102,29 @@ class InputAnalysisTab(QWidget):
         # Emit signal to trigger worker thread loading
         self.load_request.emit(file_path)
 
-    @Slot(object) # object is a list of thread_safe_dicts
+    @Slot(object) # object is a list of (name, thread_safe_dict) OR just thread_safe_dicts (backward compat)
     def _handle_successful_load(self, thread_safe_list):
         self.load_btn.setEnabled(True)
         self.dfs = {}
         self.slice_selector.blockSignals(True)
         self.slice_selector.clear()
         
-        for i, data_dict in enumerate(thread_safe_list):
+        for i, item in enumerate(thread_safe_list):
+            # Check if item is (name, data) tuple or just data
+            if isinstance(item, (tuple, list)) and len(item) == 2 and isinstance(item[1], dict):
+                name, data_dict = item
+            else:
+                name = None
+                data_dict = item
+
             df = pd.DataFrame(data_dict)
-            key = f"Table {i+1} ({df.shape[0]}x{df.shape[1]})"
+            
+            # Construct Display Key
+            if name:
+                 key = f"{name} ({df.shape[0]}x{df.shape[1]})"
+            else:
+                 key = f"Table {i+1} ({df.shape[0]}x{df.shape[1]})"
+                 
             self.dfs[key] = df
             self.slice_selector.addItem(key)
 

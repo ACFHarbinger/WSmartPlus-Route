@@ -322,7 +322,7 @@ def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
     return batch
 
 
-def update_time_dataset(model, optimizer, dataset, routes, day, opts, args):
+def update_time_dataset(model, optimizer, dataset, routes, day, opts, args, costs=None):
     data_size = dataset.size
     routes = torch.stack(routes).contiguous().view(-1, routes[0].size(1))
     
@@ -332,7 +332,13 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args):
         # We need to reduce to (Batch, SeqLen) for environment update
         # Just take the first POMO sample for each instance (canonical)
         pomo_size = routes.size(0) // dataset.size
-        routes = routes.view(dataset.size, pomo_size, -1)[:, 0, :]
+        routes = routes.view(dataset.size, pomo_size, -1)
+        if costs is not None:
+            costs = costs.view(dataset.size, pomo_size)
+            best_idx = costs.argmin(dim=1)
+            routes = routes[torch.arange(dataset.size), best_idx, :]
+        else:
+            routes = routes[:, 0, :]
     graphs = torch.stack([torch.cat((x['depot'].unsqueeze(0), x['loc'])) for x in dataset])
     
     # Put model in train mode!
