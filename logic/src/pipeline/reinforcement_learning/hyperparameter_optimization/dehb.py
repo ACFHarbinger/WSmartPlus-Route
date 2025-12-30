@@ -5,7 +5,6 @@ import json
 import wandb
 import pickle
 import logging
-import traceback
 import numpy as np
 import pandas as pd
 import ConfigSpace as CS
@@ -14,7 +13,7 @@ import ConfigSpace.hyperparameters as CSHP
 from pathlib import Path
 from threading import Timer
 from distributed import Client
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 from copy import deepcopy
 from loguru import logger
 from .de import AsyncDifferentialEvolution
@@ -96,7 +95,7 @@ class DifferentialEvolutionHyperbandBase:
         # Hyperband related variables
         self.min_fidelity = min_fidelity
         self.max_fidelity = max_fidelity
-        if self.max_fidelity <= self.min_fidelity:
+        if self.max_fidelity is None or self.max_fidelity <= self.min_fidelity:
             self.logger.error("Only (Max Fidelity > Min Fidelity) is supported for DEHB.")
             if self.max_fidelity == self.min_fidelity:
                 self.logger.error(
@@ -138,11 +137,11 @@ class DifferentialEvolutionHyperbandBase:
         )
 
     def _pre_compute_fidelity_spacing(self):
-        self.max_SH_iter = None
-        self.fidelities = None
+        self.max_SH_iter = 0
+        self.fidelities = []
         if self.min_fidelity is not None and \
            self.max_fidelity is not None and \
-           self.eta is not None:
+           self.eta is not None and self.eta > 0:
             self.max_SH_iter = -int(np.log(self.min_fidelity / self.max_fidelity) / np.log(self.eta)) + 1
             self.fidelities = self.max_fidelity * np.power(self.eta,
                                                      -np.linspace(start=self.max_SH_iter - 1,
@@ -178,6 +177,9 @@ class DifferentialEvolutionHyperbandBase:
             A tuple containing number of configurations in the bracket
             and the respective fidelities
         """
+        if self.max_SH_iter == 0 or self.eta is None:
+            return 1, [self.max_fidelity]
+    
         # number of 'SH runs'
         s = self.max_SH_iter - 1 - (iteration % self.max_SH_iter)
         # fidelity spacing for this iteration
@@ -192,7 +194,7 @@ class DifferentialEvolutionHyperbandBase:
 
         return ns, fidelities
 
-    def get_incumbents(self) -> Tuple[Union[dict, CS.Configuration], float]:
+    def get_incumbents(self) -> Tuple[Optional[Union[dict, CS.Configuration]], float]:
         """Retrieve current incumbent configuration and score.
         
         Returns:
@@ -260,7 +262,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
             self.client = client
             self.n_workers = len(client.ncores())
         else:
-            self.n_workers = n_workers
+            self.n_workers = n_workers if n_workers is not None else 0
             if self.n_workers > 1:
                 self.client = Client(
                     n_workers=self.n_workers, processes=True, threads_per_worker=1, scheduler_port=0
@@ -923,12 +925,12 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
 
     def _load_checkpoint(self, run_dir: str):
         # Check if path exists, otherwise give warning
-        run_dir = Path(run_dir)
-        if not Path.exists(run_dir):
+        run_path = Path(run_dir)
+        if not run_path.exists():
             self.logger.warning("Path to run directory does not exist.")
             return False
         # Load dehb state
-        dehb_state_path = run_dir / "dehb_state.json"
+        dehb_state_path = run_path / "dehb_state.json"
         with dehb_state_path.open() as f:
             dehb_state = json.load(f)
         # Convert output_path of checkpoint to Path
@@ -966,7 +968,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         self.eta = hb_vars["eta"]
 
         # Load history
-        history_path = run_dir / "history.parquet.gzip"
+        history_path = run_path / "history.parquet.gzip"
         history = pd.read_parquet(history_path)
 
         # Replay history
@@ -998,7 +1000,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
             self._save_history()
             self._save_state()
 
-    def tell(self, job_info: dict, result: dict, replay: bool=False) -> None:
+    def tell(self, job_info: Union[dict, List[dict]], result: dict, replay: bool=False) -> None:
         """Feed a result back to the optimizer.
 
         In order to correctly interpret the results, the `job_info` dict, retrieved by `ask`,

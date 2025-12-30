@@ -136,22 +136,13 @@ class WeightContextualBandit:
                     tmp_mf_dict[feature] = 1.0
                 elif feature == 'length':
                     longest_length, _ = find_longest_path(self.dist_matrix)
-                    tmp_mf_dict[feature] == longest_length
+                    tmp_mf_dict[feature] = longest_length
                 else:
                     assert feature == 'day'
                     tmp_mf_dict[feature] = self.num_days
             else:
                 tmp_mf_dict[feature] = mf_dict[feature]
         self.max_feat_values = tmp_mf_dict
-    
-    def get_current_weights(self):
-        """
-        Get the current weight configuration.
-        
-        Returns:
-            dict: Current weight configuration
-        """
-        return self.current_config
     
     def _get_context_features(self, dataset, init_value=0.5):
         """

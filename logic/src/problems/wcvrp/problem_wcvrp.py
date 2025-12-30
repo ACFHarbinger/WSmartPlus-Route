@@ -357,7 +357,7 @@ class WCVRPDataset(Dataset):
 
         if focus_graph is not None and focus_size > 0:
             focus_path = os.path.join(os.getcwd(), "data", "wsr_simulator", "bins_selection", focus_graph)
-            tmp_coords, idx = load_focus_coords(size, None, area, waste_type, focus_path, focus_size=1)
+            tmp_coords, idx, _, _ = load_focus_coords(size, None, area, waste_type, focus_path, focus_size=1)
             dist_matrix = compute_distance_matrix(tmp_coords, dist_strat, dm_filepath=dist_matrix_path, focus_idx=idx)
             depot, loc, _, _ = load_focus_coords(size, vertex_strat, area, waste_type, focus_path, focus_size)
             graph = (torch.from_numpy(depot).float(), torch.from_numpy(loc).float())

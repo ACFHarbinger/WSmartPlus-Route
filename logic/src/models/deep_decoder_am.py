@@ -2,7 +2,6 @@ import math
 import torch
 import typing
 import torch.nn as nn
-import torch.nn.functional as F
 
 from . import AttentionModel
 from .subnets import GraphAttentionDecoder

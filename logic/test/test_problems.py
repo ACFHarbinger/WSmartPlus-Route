@@ -1,16 +1,15 @@
-
 import torch
 import pytest
 import numpy as np
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from logic.src.problems.vrpp import problem_vrpp
 from logic.src.problems.vrpp.state_vrpp import StateVRPP
-from logic.src.problems.vrpp.problem_vrpp import VRPP, VRPPDataset, generate_instance as gen_vrpp, CVRPP
+from logic.src.problems.vrpp.problem_vrpp import VRPP, VRPPDataset, CVRPP
 from logic.src.problems.vrpp.state_cvrpp import StateCVRPP
 from logic.src.problems.wcvrp import problem_wcvrp
 from logic.src.problems.wcvrp.state_wcvrp import StateWCVRP
-from logic.src.problems.wcvrp.problem_wcvrp import WCVRP, WCVRPDataset, generate_instance as gen_wcvrp
+from logic.src.problems.wcvrp.problem_wcvrp import WCVRP, WCVRPDataset
 
 
 class TestVRPP:

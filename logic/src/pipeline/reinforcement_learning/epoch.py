@@ -376,13 +376,13 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args, cost
             for day_id in range(day + 1, day + opts['temporal_horizon'] + 1):
                 fill_key = "fill{}".format(day_id)
                 if day_id > opts['n_epochs']:
-                    dataset[fill_key] = torch.zeros((dataset_dim, node_dim), dtype=torch.float).to(sorted_routes.device)
+                    dataset[fill_key] = torch.zeros((dataset_dim, waste.size(-1)), dtype=torch.float).to(sorted_routes.device)
                 elif fill_key in dataset[0].keys():
                     dataset[fill_key] = torch.stack([x[fill_key] for x in dataset])
                 else:
                     dataset[fill_key] = torch.from_numpy(generate_waste_prize(opts['graph_size'], opts['data_distribution'], graphs, data_size, *args)).float()
             if opts['model'] in ['tam']:
-                dataset.fill_history = get_inner_model(model).update_fill_history(dataset.fill_history, fill)
+                dataset.fill_history = get_inner_model(model).update_fill_history(dataset.fill_history, waste)
         else:
             if fillday in dataset[0].keys():
                 fill = torch.stack([x[fillday] for x in dataset])
