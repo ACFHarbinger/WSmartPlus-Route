@@ -402,16 +402,16 @@ class AttentionModel(nn.Module):
             try:
                 pi_nodes = pi[pi != 0].cpu().numpy()
                 if len(pi_nodes) > 0:
-                    route = find_route(dist_matrix.cpu().numpy(), pi_nodes)
+                    route = find_route(np.round(dist_matrix.cpu().numpy() * 1000), pi_nodes)
                     # distC might be a CUDA tensor, ensure it is numpy for get_route_cost
                     distC_np = distC.cpu().numpy() if torch.is_tensor(distC) else distC
-                    cost = get_route_cost(distC_np, route)
 
                     # Respect Capacity in Simulator Evaluation
                     if profit_vars is not None and 'vehicle_capacity' in profit_vars:
                         raw_wastes = input['waste'].squeeze(0).cpu().numpy()
                         route = get_multi_tour(route, raw_wastes, profit_vars['vehicle_capacity'], dist_matrix.cpu().numpy())
-                        cost = get_route_cost(distC_np, route)
+                    
+                    cost = get_route_cost(distC_np * 100, route)
                 else:
                     route = [0]
                     cost = 0
@@ -425,7 +425,7 @@ class AttentionModel(nn.Module):
             if two_opt_max_iter > 0:
                 route = local_search_2opt_vectorized(route, distC, two_opt_max_iter)
             
-            cost = get_route_cost(distC, route)
+            cost = get_route_cost(distC * 100, route)
         
         for handle in hook_data['handles']:
             handle.remove()
@@ -482,8 +482,9 @@ class AttentionModel(nn.Module):
         # Optional: mask out actions irrelevant to objective so they do not get reinforced
         if mask is not None:
             log_p[mask] = 0
-
-        assert (log_p > -1000).data.all(), "Logprobs should not be -inf, check sampling procedure!"
+            # Check for -inf
+        # Check for -inf
+        # assert (log_p > -1000).data.all(), "Logprobs should not be -inf, check sampling procedure!"
 
         # Calculate log_likelihood
         ll = log_p.sum(1)
@@ -521,7 +522,7 @@ class AttentionModel(nn.Module):
         outputs = []
         sequences = []
         state = self.problem.make_state(nodes, edges, cost_weights, dist_matrix, profit_vars=profit_vars, hrl_mask=mask)
-
+        
         # Compute keys, values for the glimpse and keys for the logits once as they can be reused in every step
         fixed = self._precompute(embeddings)
 

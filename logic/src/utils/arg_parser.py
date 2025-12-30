@@ -209,12 +209,12 @@ def add_train_args(parser):
     parser.add_argument('--mask_inner', action='store_false', help="Mask inner values during decoding")
     parser.add_argument('--mask_logits', action='store_false', help="Mask logits during decoding")
     parser.add_argument('--mask_graph', action='store_true', help="Mask next node selection (using edges) during decoding")
-    parser.add_argument('--spatial_bias', action='store_true', help='Enable spatial bias in decoder attention')
-    parser.add_argument('--spatial_bias_scale', type=float, default=1.0, help='Scaling factor for the spatial bias penalty')
-    parser.add_argument('--entropy_weight', type=float, default=0.0, help='Weight for entropy regularization bonus')
-    parser.add_argument('--imitation_weight', type=float, default=0.0, help='Initial weight for imitation loss in Look-Ahead update')
-    parser.add_argument('--imitation_decay', type=float, default=0.99, help='Decay factor for imitation weight')
-    parser.add_argument('--imitation_decay_step', type=int, default=1, help='Epoch step for decaying imitation weight')
+    parser.add_argument('--spatial_bias', action='store_true', help="Enable spatial bias in decoder attention")
+    parser.add_argument('--spatial_bias_scale', type=float, default=1.0, help="Scaling factor for the spatial bias penalty")
+    parser.add_argument('--entropy_weight', type=float, default=0.0, help="Weight for the entropy regularization")
+    parser.add_argument('--imitation_weight', type=float, default=0.0, help="Initial weight for the imitation loss guidance")
+    parser.add_argument('--imitation_decay', type=float, default=1.0, help="Decay factor for the imitation weight")
+    parser.add_argument('--imitation_decay_step', type=int, default=1, help="Number of epochs after which to apply imitation decay")
     parser.add_argument('--two_opt_max_iter', type=int, default=0, help='Maximum number of iterations for 2-opt refinement in Look-Ahead update')
 
     # Training

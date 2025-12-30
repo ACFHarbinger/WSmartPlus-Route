@@ -164,6 +164,10 @@ class StateSDWCVRP(NamedTuple):
         # Cannot visit the depot if just visited and still unserved nodes
         # For partial tours, we always allow the depot as a valid next action to finish
         mask_depot = torch.zeros_like(self.prev_a, dtype=torch.bool)
+
+        # Prevent 0 -> 0 transition (staying at depot) to force exploration
+        has_valid_customer = ~mask_loc.all(dim=-1)
+        mask_depot = mask_depot | ((self.prev_a == 0) & has_valid_customer)
         return torch.cat((mask_depot[:, :, None], mask_loc), -1).bool()
 
     def get_edges_mask(self):

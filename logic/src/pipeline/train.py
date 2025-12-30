@@ -258,6 +258,12 @@ if __name__ == "__main__":
         traceback.print_exc(file=sys.stderr)
         print(str(e), file=sys.stderr)
         exit_code = 1
+    except SystemExit as e:
+        # Preserve exit code from SystemExit
+        exit_code = e.code if isinstance(e.code, int) else 1
+    except BaseException:
+        # Catch KeyboardInterrupt etc.
+        exit_code = 1
     finally:
         sys.stdout.flush()
         sys.stderr.flush()

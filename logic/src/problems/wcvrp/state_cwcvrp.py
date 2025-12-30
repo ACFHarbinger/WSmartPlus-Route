@@ -207,8 +207,15 @@ class StateCWCVRP(NamedTuple):
         # Nodes that cannot be visited are already visited or would exceed capacity
         mask_loc = visited_loc.to(exceeds_cap.dtype) | exceeds_cap
         
-        # Depot can always be visited (to finish the tour)
+        # Depot can always be visited (to finish the tour) unless restricted below
         mask_depot = torch.zeros_like(self.prev_a, dtype=torch.bool)
+        
+        # Prevent 0 -> 0 transition (staying at depot) to force exploration
+        # BUT: Only mask depot if there is at least one other valid customer to go to.
+        # If all customers are masked (visited or exceed cap), we MUST allow depot (0)
+        # to avoid masking all actions, which causes NaNs in log_softmax.
+        has_valid_customer = ~mask_loc.all(dim=-1)
+        mask_depot = mask_depot | ((self.prev_a == 0) & has_valid_customer)
         return torch.cat((mask_depot[:, :, None], mask_loc), -1).bool()
 
     def get_edges_mask(self):

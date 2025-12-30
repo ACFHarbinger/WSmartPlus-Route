@@ -4,6 +4,7 @@ import time
 import torch
 import torch.nn.functional as F
 import pandas as pd
+import traceback
 
 from tqdm import tqdm
 from .meta import (
@@ -539,10 +540,10 @@ def train_reinforce_epoch(model, optimizer, baseline, lr_scheduler, scaler, epoc
     start_time = time.time()
     for batch_id, batch in enumerate(tqdm(training_dataloader, disable=opts['no_progress_bar'])):
         batch = prepare_batch(batch, batch_id, training_dataset, training_dataloader, opts)
-        _, c_dict, l_dict = train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, step, batch, tb_logger, cost_weights, opts)
+        _, c_dict, l_dict, _ = train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, step, batch, tb_logger, cost_weights, opts)
         step += 1
         for key, val in zip(list(c_dict.keys()) + list(l_dict.keys()), list(c_dict.values()) + list(l_dict.values())):
-            if isinstance(val, torch.Tensor): epoch_loss[key].append(val.detach().cpu()) 
+            if key in epoch_loss and isinstance(val, torch.Tensor): epoch_loss[key].append(val.detach().cpu().view(-1)) 
 
     epoch_duration = time.time() - start_time
     log_epoch(('epoch', epoch), loss_keys, epoch_loss, opts)
@@ -609,10 +610,25 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
                     pi_opt_with_depot = local_search_2opt_vectorized(pi_with_depot, dist_matrix, opts['two_opt_max_iter'])
                     # Remove the starting depot
                     pi_opt = pi_opt_with_depot[:, 1:]
+                    
+                    # SAFEGUARD: If 2-opt produced a route starting with 0 (0->0), 
+                    # it violates the conditional masking (Forced Exploration).
+                    # Revert these trajectories to the original pi.
+                    if pi_opt.size(1) > 0:
+                        invalid_start = (pi_opt[:, 0] == 0)
+                        if invalid_start.any():
+                            # print(f"Reverting {invalid_start.sum()} invalid 2-opt trajectories (0->0 start)")
+                            pi_opt = torch.where(invalid_start.unsqueeze(-1), pi, pi_opt)
                 
                 # Imitation pass (Calculates log-likelihood of refined trajectories)
                 _, log_likelihood_opt, _, _, _ = model(x, cost_weights=cost_weights, return_pi=False, mask=mask, expert_pi=pi_opt)
-                imitation_loss = -log_likelihood_opt.mean()
+                
+                # Filter out -inf (invalid trajectories that violate the mask)
+                valid_mask = (log_likelihood_opt > -1e9)
+                if valid_mask.any():
+                    imitation_loss = -log_likelihood_opt[valid_mask].mean()
+                else:
+                    imitation_loss = torch.tensor(0.0, device=opts['device'])
         
         # Total loss
         loss = reinforce_loss.mean() + bl_loss.mean() + entropy_loss.mean() + curr_imitation_weight * imitation_loss
@@ -621,7 +637,9 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
         if scaler is not None: autocast_context.__exit__(None, None, None)
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
-        print(e)
+        traceback.print_exc(file=sys.stderr)
+        print(f"Error in train_batch: {e}", file=sys.stderr)
+        sys.stderr.flush()
         sys.exit(1)
 
     if loss.requires_grad:
