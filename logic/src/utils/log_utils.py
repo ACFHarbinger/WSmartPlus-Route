@@ -209,6 +209,7 @@ def log_to_json(json_path, keys, dit, sort_log=True, sample_id=None, lock=None):
         else:
             old = new
 
+        e = None
         write_error = None
         try:
             with open(json_path, 'w') as fp:

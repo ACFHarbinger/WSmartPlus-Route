@@ -991,6 +991,9 @@ class TestSimulation:
         opts['area'] = 'riomaior'
         opts['size'] = 3
         opts['data_distribution'] = 'gamma'
+        opts['two_opt_max_iter'] = 100
+        opts['gate_prob_threshold'] = 0.5
+        opts['mask_prob_threshold'] = 0.5
 
         # Set N_BINS to 3 to satisfy len(ids) > 2 in Bins.collect
         # (Depot + 2 bins = 3 unique IDs)
@@ -1049,8 +1052,8 @@ class TestSimulation:
             return_value=(mock_dist_tup, np.zeros((4,4)))
         )
         mocker.patch(
-            'logic.src.pipeline.simulator.processor.process_model_data',
-            return_value=(None, None) 
+            'logic.src.pipeline.simulator.simulation.process_model_data',
+            return_value=({'waste': MagicMock()}, None, None) 
         )
         mock_model_env = MagicMock()
         # Return a tour that collects all 3 bins: [0, 1, 2, 3, 0] -> unique IDs {0, 1, 2, 3} (size 4) > 2
@@ -1242,6 +1245,9 @@ class TestSimulation:
         opts['policies'] = ['policy_gamma1']
         opts['days'] = 10
         opts['resume'] = True
+        opts['gate_prob_threshold'] = 0.5
+        opts['mask_prob_threshold'] = 0.5
+        opts['two_opt_max_iter'] = 100
 
         resume_daily_log = {
             'day': [1, 2, 3, 4, 5], 
@@ -1356,6 +1362,9 @@ class TestSimulation:
         opts['n_samples'] = 2
         opts['days'] = 5
         opts['policies'] = ['policy_gamma1']
+        opts['gate_prob_threshold'] = 0.5
+        opts['mask_prob_threshold'] = 0.5
+        opts['two_opt_max_iter'] = 100
         
         indices_ls = [None, None] # List of indices for 2 samples
         sample_idx_ls = [[0, 1]]  # Policy 0 runs samples 0 and 1

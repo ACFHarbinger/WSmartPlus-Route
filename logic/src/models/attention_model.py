@@ -1,11 +1,11 @@
 import math
 import torch
 import typing
+import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
 from logic.src.utils.beam_search import CachedLookup
-from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
 from logic.src.utils.functions import compute_in_batches, add_attention_hooks, sample_many
 from logic.src.policies import find_route, get_route_cost, get_multi_tour, local_search_2opt_vectorized
 

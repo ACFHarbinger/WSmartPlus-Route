@@ -2,9 +2,8 @@ import os
 import sys
 import time
 import torch
-import torch.nn.functional as F
-import pandas as pd
 import traceback
+import pandas as pd
 
 from tqdm import tqdm
 from .meta import (
@@ -109,7 +108,7 @@ def train_reinforce_over_time_rwa(model, optimizer, baseline, lr_scheduler, scal
 def train_reinforce_over_time_cb(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
     day = opts['epoch_start']
     epsilon_parameters = (opts['cb_min_epsilon'], opts['cb_epsilon_decay'])
-    step, training_dataset, loss_keys, table_df = prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
+    step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
 
     # Initialize the Contextual Bandit for weight selection
     bandit = WeightContextualBandit(

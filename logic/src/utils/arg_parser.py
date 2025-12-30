@@ -4,7 +4,7 @@ import sys
 import time
 import argparse
 
-from typing import Iterable
+from typing import Sequence
 from multiprocessing import cpu_count
 from logic.src.utils.functions import parse_softmax_temperature
 from logic.src.utils.definitions import (
@@ -19,7 +19,7 @@ class ConfigsParser(argparse.ArgumentParser):
     Custom ArgumentParser to handle string-based nargs correctly.
     """
     def _str_to_nargs(self, nargs):
-        if isinstance(nargs, Iterable) and len(nargs) == 1:    
+        if isinstance(nargs, Sequence) and len(nargs) == 1:    
             return nargs[0].split() if isinstance(nargs[0], str) else nargs
         else:
             return nargs

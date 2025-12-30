@@ -1,18 +1,15 @@
 import os
 import torch
-import copy
 import argparse
 import numpy as np
 import seaborn as sns
 import loss_landscapes
-import loss_landscapes.metrics
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from sklearn.decomposition import PCA
-from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard.writer import SummaryWriter
 from logic.src.problems.wcvrp.problem_wcvrp import CWCVRP
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder

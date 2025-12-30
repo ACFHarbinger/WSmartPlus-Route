@@ -135,7 +135,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
             if 'vrpp' in policy:
                 routes, _, _ = policy_lookahead_vrpp(
                     bins.c, binsids, must_go_bins, distance_matrix, values, 
-                    number_vehicles=n_vehicles, env=model_env, time_limit=28800
+                    number_vehicles=n_vehicles, env=model_env, time_limit=60
                 )
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes

@@ -36,10 +36,10 @@ def generate_key(salt_size: int = 16, key_length: int = 32, hash_iterations: int
     env_path = Path(os.path.join(ROOT_DIR, "env", env_filename))
     print(f"Filename: {env_path}")
     config = dotenv_values(env_path)
-    salt_size = _set_param(config, "SALT_SIZE", salt_size)
+    salt_size = int(_set_param(config, "SALT_SIZE", salt_size))
     salt = os.urandom(salt_size)
-    key_length = _set_param(config, "KEY_LENGTH", key_length)
-    hash_iterations = _set_param(config, "HASH_ITERATIONS", hash_iterations)
+    key_length = int(_set_param(config, "KEY_LENGTH", key_length))
+    hash_iterations = int(_set_param(config, "HASH_ITERATIONS", hash_iterations))
     password = _set_param(config, "KEY_PASSWORD")
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),

@@ -62,7 +62,6 @@ class Bins:
                 real_ids = [str(i) for i in real_ids]
             
             self.grid = GridBase(real_ids, data_dir, rate_type="crude", names=[waste_csv, info_csv, None], same_file=True)
-            self.grid.ids_map = {i: real_id for i, real_id in zip(self.indices, real_ids)}
         else:
             self.grid = grid
         if waste_file is not None:

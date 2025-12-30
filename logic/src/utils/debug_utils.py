@@ -14,12 +14,15 @@ def watch(var_name: str,
     Works with numpy arrays, lists, dicts, primitives – anything.
     """
     caller_frame = sys._getframe(frame_depth)
-    if callback is None:
-        def callback(old, new, frame):
+    active_callback = callback
+    if active_callback is None:
+        def default_callback(old, new, frame):
             stack = traceback.extract_stack(frame)[:-1]
             caller = stack[-1]
             print(f"DEBUG → {var_name}: {old} → {new}")
             print(f"        at {caller.filename}:{caller.lineno} in {caller.name}")
+
+        active_callback = default_callback
 
     old_value = [None]
 
@@ -36,7 +39,7 @@ def watch(var_name: str,
             new_value = frame.f_globals.get(var_name)
 
         if new_value is not old_value[0]:
-            callback(old_value[0], new_value, frame)
+            active_callback(old_value[0], new_value, frame)
             old_value[0] = new_value
         return tracer
 

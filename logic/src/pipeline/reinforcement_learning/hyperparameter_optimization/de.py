@@ -5,6 +5,7 @@ import ConfigSpace.util as CSU
 from typing import List
 from pathlib import Path
 from distributed import Client
+from numpy.typing import NDArray
 from .dehb_config_repo import ConfigRepository
 
 
@@ -59,12 +60,12 @@ class DifferentialEvolutionBase():
 
         # Global trackers
         self.inc_score : float
-        self.inc_config : np.ndarray[float]
+        self.inc_config : NDArray[np.float64]
         self.inc_id : int
-        self.population : np.ndarray[np.ndarray[float]]
-        self.population_ids :np.ndarray[int]
-        self.fitness : np.ndarray[float]
-        self.age : int
+        self.population : NDArray[np.float64]
+        self.population_ids :NDArray[np.int64]
+        self.fitness : NDArray[np.float64]
+        self.age : NDArray[np.int64]
         self.history : list[object]
         self.reset()
 
@@ -112,7 +113,7 @@ class DifferentialEvolutionBase():
 
         return self._min_pop_size
 
-    def init_population(self, pop_size: int) -> List:
+    def init_population(self, pop_size: int) -> NDArray[np.float64]:
         if self.configspace:
             # sample from CS s.t. conditional constraints (if any) are maintained
             population = self.cs.sample_configuration(size=pop_size)
@@ -127,7 +128,7 @@ class DifferentialEvolutionBase():
 
         return np.array(population)
 
-    def sample_population(self, size: int = 3, alt_pop: List = None) -> List:
+    def sample_population(self, size: int = 3, alt_pop: NDArray[np.float64] = None) -> NDArray[np.float64]:
         '''Samples 'size' individuals
 
         If alt_pop is None or a list/array of None, sample from own population

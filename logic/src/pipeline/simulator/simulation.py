@@ -371,8 +371,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                 # Save fill history and clear checkpoints after successful completion
                 save_matrix_to_excel(bins.get_fill_history(), results_dir, opts['seed'], 
                                     opts['data_distribution'], policy, sample_id)
-                hook.on_completion(policy, sample_id)
-                
+                hook.on_completion(policy, sample_id)  
             except CheckpointError as e:
                 failed_log.append(e.error_result)
                 if 'start_day' in locals() and 'day' in locals():

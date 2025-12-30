@@ -1,6 +1,5 @@
 import os
 import ray
-import sys
 import json
 import math
 import time
@@ -8,28 +7,19 @@ import torch
 import random
 import optuna
 import joblib
-import logging
-import traceback
 import numpy as np
-import pandas as pd
 
 from ray import tune
 from tqdm import tqdm
 from functools import partial
-from datetime import datetime
 from deap import base, creator, tools, algorithms
 from ray.tune.search import BasicVariantGenerator
-from ray.tune.schedulers import (
-    PopulationBasedTraining,
-    AsyncHyperBandScheduler, 
-    HyperBandScheduler, ASHAScheduler, 
-)
+from ray.tune.schedulers import HyperBandScheduler, ASHAScheduler
 from optuna.visualization import (
     plot_param_importances, 
     plot_intermediate_values,
     plot_optimization_history, 
 )
-
 from logic.src.utils.definitions import ROOT_DIR
 from logic.src.utils.data_utils import load_focus_coords
 from logic.src.utils.functions import load_data, load_problem, move_to
