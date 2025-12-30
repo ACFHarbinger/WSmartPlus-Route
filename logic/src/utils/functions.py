@@ -166,6 +166,9 @@ def load_model(path, epoch=None):
         checkpoint_encoder=args.get('checkpoint_encoder', False),
         shrink_size=args.get('shrink_size', None),
         temporal_horizon=args.get('temporal_horizon', 0),
+        spatial_bias=args.get('spatial_bias', False),
+        spatial_bias_scale=args.get('spatial_bias_scale', 1.0),
+        entropy_weight=args.get('entropy_weight', 0.0),
         predictor_layers=args.get('n_predict_layers', None)
     )
 

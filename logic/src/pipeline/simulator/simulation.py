@@ -67,7 +67,7 @@ def _setup_dist_path_tup(bins_coordinates, size, dist_method, dm_filepath, env_f
                                           gapik_file=gapik_file, symkey_name=symkey_name, focus_idx=focus_idx)
     dist_matrix_edges, shortest_paths, adj_matrix = apply_edges(dist_matrix, edge_thresh, edge_method)
     paths = get_paths_between_states(size+1, shortest_paths)
-    dm_tensor = torch.from_numpy(dist_matrix_edges).to(device)
+    dm_tensor = torch.from_numpy(dist_matrix_edges / 100.0).to(device)
     distC = np.round(dist_matrix_edges*10).astype('int32')
     return (dist_matrix_edges, paths, dm_tensor, distC), adj_matrix
 
@@ -147,7 +147,7 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
                                                     opts['env_file'], opts['gapik_file'], opts['symkey_name'], device, 
                                                     opts['edge_threshold'], opts['edge_method'], indices)
         if 'am' in pol_strip or "transgcn" in pol_strip:
-            model_tup = process_model_data(coords, dist_tup[-1], device, opts['vertex_method'], 
+            model_tup = process_model_data(coords, dist_tup[2], device, opts['vertex_method'], 
                                         configs, opts['edge_threshold'], opts['edge_method'], 
                                         opts['area'], opts['waste_type'], adj_matrix)
         if "gamma" in data_dist:
@@ -293,7 +293,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                                                                 opts['env_file'], opts['gapik_file'], opts['symkey_name'], device,
                                                                 opts['edge_threshold'], opts['edge_method'], indices_ls[sample_id])
                     if 'am' in pol_strip or "transgcn" in pol_strip:
-                        model_tup = process_model_data(coords, dist_tup[-1], device, opts['vertex_method'], 
+                        model_tup = process_model_data(coords, dist_tup[2], device, opts['vertex_method'], 
                                                        configs, opts['edge_threshold'], opts['edge_method'], 
                                                        opts['area'], opts['waste_type'], adj_matrix)
                     else:

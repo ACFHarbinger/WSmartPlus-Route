@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Handle memory fragmentation
-#export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 # Default to quiet mode
 VERBOSE=false
@@ -62,10 +62,10 @@ EXP_BETA=0.8
 BL_ALPHA=0.05
 ACC_STEPS=1
 
-IMITATION_W=1.0
+IMITATION_W=0.1
 IMITATION_DECAY=0.91
 IMITATION_DECAY_STEP=1
-TWO_OPT_MAX_ITER=50
+TWO_OPT_MAX_ITER=100
 
 SIZE=100
 AREA="riomaior"

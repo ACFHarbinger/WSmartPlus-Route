@@ -266,8 +266,13 @@ def process_model_data(coordinates, dist_matrix, device, method, configs,
         'bin_capacity': BIN_CAPACITY,
         'vehicle_capacity': VEHICLE_CAPACITY
     }
-    return ({key: val.unsqueeze(0) for key, val in model_data.items()}, 
-        (edges, torch.from_numpy(dist_matrix).float().to(device)), profit_vars)
+    
+    if isinstance(dist_matrix, torch.Tensor):
+        dm_tensor = dist_matrix.float().to(device)
+    else:
+        dm_tensor = torch.from_numpy(dist_matrix).float().to(device)
+
+    return ({key: val.unsqueeze(0) for key, val in model_data.items()}, (edges, dm_tensor), profit_vars)
 
 
 def create_dataframe_from_matrix(matrix):
