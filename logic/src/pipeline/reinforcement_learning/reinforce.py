@@ -621,14 +621,14 @@ def train_batch_reinforce(model, optimizer, baseline, scaler, epoch, batch_id, s
                             pi_opt = torch.where(invalid_start.unsqueeze(-1), pi, pi_opt)
                 
                 # Imitation pass (Calculates log-likelihood of refined trajectories)
-                _, log_likelihood_opt, _, _, _ = model(x, cost_weights=cost_weights, return_pi=False, mask=mask, expert_pi=pi_opt)
+                # Now using KL-Regularized Behavior Cloning
+                _, log_likelihood_opt, _, _, _ = model(x, cost_weights=cost_weights, return_pi=False, mask=mask, expert_pi=pi_opt, kl_loss=True)
                 
-                # Filter out -inf (invalid trajectories that violate the mask)
-                valid_mask = (log_likelihood_opt > -1e9)
-                if valid_mask.any():
-                    imitation_loss = -log_likelihood_opt[valid_mask].mean()
-                else:
-                    imitation_loss = torch.tensor(0.0, device=opts['device'])
+                # Model returns -KL_div for each sample in batch
+                # imitation_loss logic: we want to minimize KL. 
+                # log_likelihood_opt is -KL.
+                # So imitation_loss = -(-KL) = KL.
+                imitation_loss = -log_likelihood_opt.mean()
         
         # Total loss
         loss = reinforce_loss.mean() + bl_loss.mean() + entropy_loss.mean() + curr_imitation_weight * imitation_loss

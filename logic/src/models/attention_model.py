@@ -169,7 +169,7 @@ class AttentionModel(nn.Module):
         if temp is not None:  # Do not change temperature if not provided
             self.temp = temp
 
-    def forward(self, input, cost_weights=None, return_pi=False, pad=False, mask=None, expert_pi=None):
+    def forward(self, input, cost_weights=None, return_pi=False, pad=False, mask=None, expert_pi=None, **kwargs):
         """
         :param input: (batch_size, graph_size, node_dim) input node features or dictionary with multiple tensors
         :param cost_weights: dictionary with weights for each term of the cost function
@@ -232,7 +232,16 @@ class AttentionModel(nn.Module):
         
         # Log likelyhood and entropy
         # Use return_entropy if training or specifically requested
-        res = self._calc_log_likelihood(_log_p, pi, mask, return_entropy=self.training)
+        
+        # Determine if we should use KL-loss (only if expert_pi is present and explicitly requested)
+        use_kl = kwargs.get('kl_loss', False) and expert_pi is not None
+        
+        if expert_pi is not None and use_kl:
+            # For KL-BC, we calculate divergence against expert_pi
+            res = self._calc_log_likelihood(_log_p, expert_pi, mask, return_entropy=self.training, kl_loss=True)
+        else:
+            # Standard NLL or just inference
+            res = self._calc_log_likelihood(_log_p, pi, mask, return_entropy=self.training, kl_loss=False)
         if self.training:
             ll, entropy = res
         else:
@@ -475,7 +484,63 @@ class AttentionModel(nn.Module):
 
         return flat_parent[feas_ind], flat_action[feas_ind], flat_score[feas_ind]
 
-    def _calc_log_likelihood(self, _log_p, a, mask, return_entropy=False):
+    def _calc_log_likelihood(self, _log_p, a, mask, return_entropy=False, kl_loss=False):
+        if kl_loss:
+            # KL-Regularized Behavior Cloning: Reverse KL(pi || pi_expert)
+            # _log_p: Log-probs of current policy pi (Batch, Steps, N)
+            # a: Expert actions (Batch, Steps)
+            
+            # 1. Create label-smoothed target distribution from expert actions
+            # Probability 1 - epsilon for expert action, epsilon / (N-1) for others
+            epsilon = 0.01
+            n_actions = _log_p.size(-1)
+            
+            # Uniform distribution background (epsilon / (N-1))
+            # Note: We must be careful with masked actions.
+            # Ideally, only valid actions get probability mass.
+            # But simple smoothing over all N is robust enough for now.
+            target_probs = torch.full_like(_log_p, epsilon / (n_actions - 1))
+            
+            # Set expert action probability
+            target_probs.scatter_(-1, a.unsqueeze(-1), 1 - epsilon)
+            
+            # Log targets for KL
+            log_target = target_probs.log()
+            
+            # 2. Compute Reverse KL: sum( pi(a) * (log pi(a) - log pi_expert(a)) )
+            # _log_p contains -inf for masked actions. 
+            # probs = 0, log_p = -inf. 0 * (-inf - target) = NaN.
+            # We must mask this operation safely.
+            
+            # Identify valid actions (those not masked to -inf)
+            valid_mask = _log_p > -1e10
+            
+            # Create safe tensors for computation
+            # Replace -inf with 0 in log_p just for the multiplication (result will be masked out anyway)
+            log_p_safe = torch.where(valid_mask, _log_p, torch.zeros_like(_log_p))
+            probs_safe = log_p_safe.exp()
+            
+            # Compute term: p * (log_p - log_target)
+            # Note: if valid_mask is False, we use log_p_safe=0, probs_safe=1. 
+            # This yields 1 * (0 - log_target) = -log_target.
+            # But we will mask this out in the next step.
+            term = probs_safe * (log_p_safe - log_target)
+            
+            # Apply mask: Zero out contributions from invalid actions
+            kl_div_safe = torch.where(valid_mask, term, torch.zeros_like(term))
+            
+            # Sum over actions dimension
+            kl_div = kl_div_safe.sum(dim=-1)
+            
+            # Minimize KL -> Maximize Negative KL (since reinforce optimizes -output)
+            ll = -kl_div.sum(1)
+            
+            if return_entropy:
+                # Use safe tensors to avoid NaN in entropy (0 * -inf)
+                entropy = -(log_p_safe * probs_safe).sum(dim=-1).sum(1)
+                return ll, entropy
+            return ll
+
         # Get log_p corresponding to selected actions
         log_p = _log_p.gather(2, a.unsqueeze(-1)).squeeze(-1)
 
