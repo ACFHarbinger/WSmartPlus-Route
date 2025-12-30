@@ -1,16 +1,17 @@
-import os
 import torch
 import numpy as np
 
+from typing import Dict, List, Union
 from logic.src.utils.definitions import DAY_METRICS
 from logic.src.utils.log_utils import send_daily_output_to_gui
 from logic.src.utils.functions import move_to
 from logic.src.policies import (
-    policy_gurobi_vrpp, policy_hexaly_vrpp, local_search_2opt,
+    local_search_2opt,
     get_route_cost, find_route, create_points, find_solutions,
     policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp,
     policy_lookahead_alns, policy_lookahead_hgs, policy_lookahead_bcp,
     policy_last_minute, policy_last_minute_and_path, policy_regular, 
+    policy_vrpp
 )
 from .loader import load_area_and_waste_type_params
 
@@ -23,7 +24,7 @@ def set_daily_waste(model_data, waste, device, fill=None):
 
 
 def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum_lost, coordinates, profit):
-    dlog = {key: 0 for key in DAY_METRICS}
+    dlog: Dict[str, Union[int, float, List[int]]] = {key: 0 for key in DAY_METRICS}
     dlog['day'] = day
     dlog['overflows'] = new_overflows
     dlog['kg_lost'] = sum_lost
@@ -96,27 +97,12 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
             waste_history=bins.get_level_history(device=device), threshold=gate_prob_threshold, 
             mask_threshold=mask_prob_threshold, two_opt_max_iter=two_opt_max_iter
         )
-    elif 'gurobi' in policy:
-        gp_param = float(policy.rsplit("_vrpp", 1)[1])
-        if gp_param <= 0:
-            raise ValueError(f'Invalid gp_param value for gurobi_vrpp: {gp_param}')
-        try:
-            routes, _, _ = policy_gurobi_vrpp(bins.c, distance_matrix.tolist(), model_env, gp_param, 
-                                            bins.means, bins.std, waste_type, area, n_vehicles, time_limit=600)
-        except:
-            routes, _, _ = policy_gurobi_vrpp(bins.c, distance_matrix.tolist(), model_env, gp_param, 
-                                            bins.means, bins.std, waste_type, area, n_vehicles, time_limit=3600)
+    elif ('gurobi' in policy or 'hexaly' in policy) and 'vrpp' in policy:
+        routes, _, _ = policy_vrpp(
+            policy, bins.c, bins.means, bins.std, distance_matrix.tolist(),
+            model_env, waste_type, area, n_vehicles
+        )
 
-        if routes:
-            tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
-            if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
-            cost = get_route_cost(distance_matrix, tour)
-    elif 'hexaly' in policy:
-        hex_param = float(policy.rsplit("_vrpp", 1)[1])
-        if hex_param <= 0:
-            raise ValueError(f'Invalid hex_param value for hexaly_vrpp: {hex_param}')
-        routes, _, _ = policy_hexaly_vrpp(bins.c, distance_matrix.tolist(), hex_param, bins.means, 
-                                        bins.std, waste_type, area, n_vehicles, time_limit=60)
         if routes:
             tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
             if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
@@ -147,8 +133,10 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
                 'psi': 1,
             }
             if 'vrpp' in policy:
-                values['time_limit'] = 28800
-                routes, _, _ = policy_lookahead_vrpp(bins.c, binsids, must_go_bins, distance_matrix, values, number_vehicles=n_vehicles, env=model_env)
+                routes, _, _ = policy_lookahead_vrpp(
+                    bins.c, binsids, must_go_bins, distance_matrix, values, 
+                    number_vehicles=n_vehicles, env=model_env, time_limit=28800
+                )
                 if routes:
                     tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
                     if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
@@ -209,11 +197,15 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
                 new_data.loc[1:graph_size+1, 'Stock'] = (bins.c/100).astype('float32')
                 new_data.loc[1:graph_size+1, 'Accum_Rate'] = (bins.means/100).astype('float32')
                 try:
-                    routes, _, _ = find_solutions(new_data, coords, distance_matrix, chosen_combination,
-                                                must_go_bins, values, graph_size, points, time_limit=600)
+                    routes, _, _ = find_solutions(
+                        new_data, coords, distance_matrix, chosen_combination,
+                        must_go_bins, values, graph_size, points, time_limit=600
+                    )
                 except:
-                    routes, _, _ = find_solutions(new_data, coords, distance_matrix, chosen_combination,
-                                                must_go_bins, values, graph_size, points, time_limit=3600)
+                    routes, _, _ = find_solutions(
+                        new_data, coords, distance_matrix, chosen_combination,
+                        must_go_bins, values, graph_size, points, time_limit=3600
+                    )
                 
                 if routes:
                     tour = find_route(distancesC, np.array(routes[0])) if run_tsp else routes[0]

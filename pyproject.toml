@@ -287,8 +287,13 @@ name = "pyg"
 url = "https://data.pyg.org/whl/torch-2.2.2+cu121.html"
 format = "flat"
 
-[tool.pyright]
-typeCheckingMode = "off"
+[tool.basedpyright]
+typeCheckingMode = "basic"
+include = ["gui", "logic"]
+reportUnusedImport = "warning"
+
+# Create an override for __init__.py files
+ignore = ["**/__init__.py"]
 
 # =================================================================
 # PYTEST CONFIGURATION (from pytest.ini)
