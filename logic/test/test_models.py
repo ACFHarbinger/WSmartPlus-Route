@@ -1,12 +1,8 @@
-
-import pytest
 import torch
-import numpy as np
-from unittest.mock import MagicMock, call
 
+from unittest.mock import MagicMock
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.gat_lstm_manager import GATLSTManager
-from logic.src.models.temporal_am import TemporalAttentionModel
 from logic.src.models.reinforce_baselines import (
     WarmupBaseline, NoBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, BaselineDataset
 )
@@ -25,7 +21,8 @@ class TestAttentionModel:
         # Mocking embeddings return from embedder
         model.embedder.return_value = torch.zeros(batch_size, graph_size + 1, 128) # +1 for depot
         model._inner = MagicMock(return_value=(torch.zeros(batch_size, graph_size), torch.zeros(batch_size, graph_size)))
-        model._calc_log_likelihood = MagicMock(return_value=torch.zeros(batch_size))
+        # _calc_log_likelihood returns (ll, entropy) when training=True
+        model._calc_log_likelihood = MagicMock(return_value=(torch.zeros(batch_size), torch.zeros(batch_size)))
         
         input_data = {
             'depot': torch.rand(batch_size, 2),
@@ -37,7 +34,7 @@ class TestAttentionModel:
         for day in range(1, model.temporal_horizon + 1):
             input_data[f'fill{day}'] = torch.rand(batch_size, graph_size)
         
-        cost, ll, pi, _ = model(input_data)
+        cost, ll, cost_dict, pi, entropy = model(input_data)
         assert ll.shape == (batch_size,)
 
     def test_compute_batch_sim(self, am_setup):
@@ -185,7 +182,7 @@ class TestTemporalAttentionModel:
         model = tam_setup
         model.embedder.return_value = torch.zeros(1, 5, 128)
         model._inner = MagicMock(return_value=(torch.zeros(1, 5), torch.zeros(1, 5)))
-        model._calc_log_likelihood = MagicMock(return_value=torch.zeros(1))
+        model._calc_log_likelihood = MagicMock(return_value=(torch.zeros(1), torch.zeros(1)))
         
         input_data = {
             'depot': torch.rand(1, 2),

@@ -1,10 +1,7 @@
-import pytest
-import shutil
-import os
 import torch
 import numpy as np
-from unittest.mock import MagicMock, patch, ANY, call
 
+from unittest.mock import MagicMock, patch
 from logic.src.pipeline.reinforcement_learning.hpo import (
     compute_focus_dist_matrix,
     optimize_model,

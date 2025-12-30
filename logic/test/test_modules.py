@@ -1,9 +1,7 @@
 
-import pytest
 import torch
-import torch.nn as nn
-from unittest.mock import MagicMock, patch
 
+from unittest.mock import MagicMock
 from logic.src.models.modules.activation_function import ActivationFunction
 from logic.src.models.modules.distance_graph_convolution import DistanceAwareGraphConvolution
 from logic.src.models.modules.efficient_graph_convolution import EfficientGraphConvolution
@@ -14,6 +12,7 @@ from logic.src.models.modules.multi_head_attention import MultiHeadAttention
 from logic.src.models.modules.normalization import Normalization
 from logic.src.models.modules.normalized_activation_function import NormalizedActivationFunction
 from logic.src.models.modules.skip_connection import SkipConnection
+
 
 class TestActivationFunction:
     def test_relu(self):

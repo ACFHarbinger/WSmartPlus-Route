@@ -1,8 +1,7 @@
-
 import torch
 import pandas as pd
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from logic.src.pipeline.train import (
     run_training, 
     hyperparameter_optimization,
@@ -107,6 +106,37 @@ class TestTrainFunctions:
         mocker.patch('torch.save')
         
         # Mock training function
+        # Expects: model, optimizer -> (model, optimizer) or similar? 
+        # Actually train_reinforcement_learning loops and calls train_func.
+        # But here mock_train_func is the *second argument* to train_reinforcement_learning?
+        # No, train_reinforcement_learning(opts, model=None)...
+        # Wait, the test calls `train_reinforcement_learning(opts, mock_train_func)`.
+        # `train_reinforcement_learning` signature in `logic/src/pipeline/train.py`:
+        # def train_reinforcement_learning(opts, model=None, baseline=None):
+        # The test passes `mock_train_func` as `model`?
+        # Ah, the test in line 123 calls `train_reinforcement_learning(opts, mock_train_func)`.
+        # This implies `mock_train_func` is the MODEL.
+        # So `dataset` iteration inside `epoch` calls `model(x)`.
+        # But `train_reinforcement_learning` calls `reinforce.train_reinforce_over_time...`.
+        # I should check `train.py`.
+        # Assuming `mock_train_func` is passed as `model` and called?
+        # No, `mock_train_func` is likely expected to be `train_reinforce_...` function?
+        # But `train_reinforcement_learning` imports it.
+        # Let's verify `train_reinforcement_learning` args.
+        # View `train.py` if needed.
+        # Assuming the test is testing `train_reinforcement_learning` wrapper.
+        # If `train_reinforcement_learning` calls `reinforce.train_reinforce_over_time`, and that is mocked?
+        # The test doesn't seem to mock `reinforce.train...`.
+        # It mocks `logic.src.pipeline.train.setup_model_and_baseline`.
+        # It mocks `logic.src.pipeline.train.wandb`.
+        # It defines `mock_train_func`.
+        # Line 123: `train_reinforcement_learning(opts, mock_train_func)`.
+        # If `mock_train_func` is the model, then `train_reinforce_over_time` (which is actual code) will call it. 
+        # But `train_reinforce_over_time` requires a model.
+        # This test (line 97 `TestTrain`) seems to be testing `train.py`.
+        # I'll leave this one alone if it's just checking specific calls, unless it fails.
+        # The failure was in `TestReinforce` tests.
+        
         mock_train_func = MagicMock(return_value=(mock_model, MagicMock()))
         
         opts = {
@@ -142,14 +172,17 @@ class TestReinforce:
         opts = {
             'device': 'cpu', 'train_time': False, 'accumulation_steps': 1,
             'max_grad_norm': 1.0, 'log_step': 10, 'baseline': None,
-            'problem': 'vrpp', 'no_tensorboard': True
+            'problem': 'vrpp', 'no_tensorboard': True, 'wandb_mode': 'disabled'
         }
+        
+        # Configure model return values (5 values)
+        mock_train_model.return_value = (torch.tensor(0.0), torch.zeros(2), {}, torch.zeros(2,2), torch.tensor(0.0))
 
         # Mock baseline wrap/unwrap
         mock_baseline.unwrap_batch.return_value = (batch['inputs'], None) # x, bl_val
 
         # Call function
-        pi, c_dict, l_dict = reinforce.train_batch_reinforce(
+        pi, c_dict, l_dict, cost = reinforce.train_batch_reinforce(
             mock_train_model, mock_optimizer, mock_baseline, scaler, 
             epoch, batch_id, step, batch, tb_logger, cost_weights, opts
         )
@@ -168,7 +201,7 @@ class TestReinforce:
         mock_prepare = mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.prepare_batch', return_value={})
         mock_batch_train = mocker.patch(
             'logic.src.pipeline.reinforcement_learning.reinforce.train_batch_reinforce',
-            return_value=(torch.tensor([[1]]), {'c': 1}, {'l': 1})
+            return_value=(torch.tensor([[1]]), {'c': 1}, {'l': 1}, torch.tensor([10.0]))
         )
         mock_complete = mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.complete_train_pass', return_value=None)
         mock_log_epoch = mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.log_epoch')
@@ -195,10 +228,10 @@ class TestReinforce:
         """Verify Contextual Bandit update logic in train_reinforce_over_time_cb."""
         # Mocks
         mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.prepare_time_dataset', 
-                     return_value=(0, MagicMock(), ['length', 'waste', 'total'], pd.DataFrame()))
+                     return_value=(0, MagicMock(), ['length', 'waste', 'total'], pd.DataFrame(), None))
         mock_train_day = mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce._train_single_day')
         # Return: step, log_pi, daily_loss, daily_total_samples, current_weights
-        mock_train_day.return_value = (0, [], {'length': torch.tensor([10.0]), 'waste': torch.tensor([5.0])}, 10, {'length': 0.5, 'waste': 0.5})
+        mock_train_day.return_value = (0, [], {'length': torch.tensor([10.0]), 'waste': torch.tensor([5.0])}, 10, {'length': 0.5, 'waste': 0.5}, {})
         
         mock_bandit = mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.WeightContextualBandit')
         mock_bandit_instance = mock_bandit.return_value
@@ -228,7 +261,7 @@ class TestReinforce:
         mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.prepare_time_dataset', 
                      return_value=(0, mock_ds, [], pd.DataFrame(), ()))
         mock_train_day = mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce._train_single_day',
-                                      return_value=(0, [], {}, 0, {}))
+                                      return_value=(0, [], {}, 0, {}, {}))
         mock_update_ds = mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.update_time_dataset',
                                      return_value=mock_ds)
         mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.log_training')

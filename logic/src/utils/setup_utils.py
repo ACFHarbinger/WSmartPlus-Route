@@ -235,15 +235,6 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
     elif opts['baseline'] == 'critic' or opts['baseline'] == 'critic_lstm':
         baseline = CriticBaseline(
             (
-                CriticNetworkLSTM(
-                    2,
-                    opts['embedding_dim'],
-                    opts['hidden_dim'],
-                    opts['n_encode_layers'],
-                    opts['tanh_clipping']
-                )
-                if opts['baseline'] == 'critic_lstm'
-                else
                 CriticNetwork(
                     problem,
                     encoder_class,

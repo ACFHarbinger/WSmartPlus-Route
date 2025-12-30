@@ -1,8 +1,5 @@
-
-import pytest
 import torch
 import torch.nn as nn
-from unittest.mock import MagicMock
 
 from logic.src.models.subnets.gac_encoder import GraphAttConvEncoder
 from logic.src.models.subnets.gat_decoder import GraphAttentionDecoder

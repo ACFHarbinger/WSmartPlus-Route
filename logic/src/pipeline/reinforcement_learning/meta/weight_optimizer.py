@@ -103,7 +103,7 @@ class RewardWeightOptimizer:
             targets: Tensor of target rewards
         """
         if len(self.weight_history) < 2:
-            return None, None
+            return None, 0
         
         # Calculate sequence length based on available history
         seq_len = min(self.history_length, len(self.weight_history) - 1)
@@ -140,7 +140,7 @@ class RewardWeightOptimizer:
             targets = torch.tensor(targets, dtype=torch.float32).to(self.device)
             return features, targets
         
-        return None, None
+        return None, 0
     
     def meta_learning_step(self):
         """

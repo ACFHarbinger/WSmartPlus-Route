@@ -52,7 +52,7 @@ def load_focus_coords(graph_size, method, area, waste_type, focus_graph, focus_s
 
     _, coords = process_data(data, coords, depot, idx[0])
     if method is None:
-        return coords, idx
+        return coords, idx, None, None
 
     depot, loc = process_coordinates(coords, method)
     if focus_size > 0:
@@ -114,10 +114,10 @@ def generate_waste_prize(problem_size, distribution, graph, dataset_size=1, bins
         depot, loc = graph
         if dataset_size > 1:
             wp = np.linalg.norm(depot[:, None, :] - loc, axis=-1)
-            return (1 + (wp_ / wp_.max(axis=-1, keepdims=True) * 99).astype(int)) / 100.
+            return (1 + (wp / wp.max(axis=-1, keepdims=True) * 99).astype(int)) / 100.
         else:
-            wp_ = (depot[None, :] - loc).norm(p=2, dim=-1)
-            return (1 + (wp_ / wp_.max(dim=-1, keepdim=True)[0] * 99).int()).float() / 100.
+            wp = (depot[None, :] - loc).norm(p=2, dim=-1)
+            return (1 + (wp / wp.max(dim=-1, keepdim=True)[0] * 99).int()).float() / 100.
 
     if dataset_size == 1:
         return wp[0]

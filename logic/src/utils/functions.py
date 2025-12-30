@@ -188,10 +188,7 @@ def parse_softmax_temperature(raw_temp):
 
 
 def run_all_in_pool(func, directory, dataset, opts, use_multiprocessing=True):
-    # # Test
-    # res = func((directory, 'test_sim', *dataset[0]))
-    # return [res]
-    num_cpus = os.cpu_count() if opts.cpus is None else opts.cpus
+    num_cpus = (os.cpu_count() or 1) if opts.cpus is None else opts.cpus
     w = len(str(len(dataset) - 1))
     offset = getattr(opts, 'offset', None)
     if offset is None:
