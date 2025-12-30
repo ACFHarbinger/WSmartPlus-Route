@@ -1,6 +1,5 @@
 from .regular import policy_regular
-from .gurobi_optimizer import policy_gurobi_vrpp
-from .hexaly_optimizer import policy_hexaly_vrpp
+from .policy_vrpp import policy_vrpp
 from .last_minute import policy_last_minute, policy_last_minute_and_path
 from .look_ahead import (
     policy_lookahead, policy_lookahead_vrpp, policy_lookahead_sans, 
