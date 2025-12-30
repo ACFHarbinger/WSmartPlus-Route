@@ -5,10 +5,7 @@ import numpy as np
 import pandas as pd
 
 from .loader import load_area_and_waste_type_params
-from logic.src.utils.definitions import (
-    MAX_WASTE, MAX_LENGTHS,
-    EARTH_RADIUS, EARTH_WMP_RADIUS,
-)
+from logic.src.utils.definitions import MAX_WASTE, EARTH_RADIUS, EARTH_WMP_RADIUS
 from logic.src.utils.graph_utils import adj_to_idx, get_edge_idx_dist, get_adj_knn
 
 

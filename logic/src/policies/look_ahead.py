@@ -33,7 +33,7 @@ def policy_lookahead(
   return must_go_bins # bins that are mandatory to collect at the current day
 
 
-def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_matrix, values, number_vehicles=8, env=None):
+def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_matrix, values, number_vehicles=8, env=None, time_limit=600):
     if number_vehicles == 0:
         number_vehicles = len(binsids)
     binsids = [0] + [bin_id + 1 for bin_id in binsids]
@@ -47,7 +47,6 @@ def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_m
     Omega = values.get('Omega', 0.1) # Default to 0.1 from notebook
     delta = values.get('delta', 0)   # Default to 0 from notebook
     vehicle_capacity = values.get('vehicle_capacity')
-    time_limit = values.get('time_limit', 600)
 
     B = values.get('B', 19.0) # Density
     # volume is hardcoded 2.5 in loader.py.
