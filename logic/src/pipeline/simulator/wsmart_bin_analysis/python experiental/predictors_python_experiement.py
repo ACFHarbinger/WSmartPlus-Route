@@ -13,6 +13,7 @@ from statsmodels.tsa.statespace.sarimax import SARIMAX
 from sklearn.model_selection import ParameterGrid
 from tqdm import tqdm
 from multiprocessing import Pool
+from typing import Optional
 
 
 def fit_sarima(data, order, seasonal_order):
@@ -149,7 +150,7 @@ class Predictor():
 
         return self.cur_prediction
     
-    def get_normal_var(self) -> np.ndarray:
+    def get_normal_var(self) -> Optional[np.ndarray]:
 
         """
         Returns

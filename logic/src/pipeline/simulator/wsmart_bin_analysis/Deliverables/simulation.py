@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
+from typing import Union, cast
 from .predictors import Predictor
 from .save_load import load_rate_series, load_info, load_rate_global_wrapper
 
@@ -14,7 +15,7 @@ class GridBase():
     """
     def __init__(self, ids, data_dir, rate_type, info_ver = None, names = None, same_file = False) -> None:
         self.data:pd.DataFrame = None
-        self.__info:dict = None
+        self.__info:Union[dict, pd.DataFrame] = None
         self.__freq_table:pd.DataFrame = None
         self.__data_dir:str = None
 
@@ -26,7 +27,7 @@ class GridBase():
         self.data = self.data.select_dtypes(include='number').round(0)
         self.__freq_table = self.cacl_freq_tables()
 
-    def load_data(self, ids, data_dir, info_ver = None, names = None, rate_type = None, processed=True, same_file=False) -> tuple[pd.DataFrame, dict]:
+    def load_data(self, ids, data_dir, info_ver = None, names = None, rate_type = None, processed=True, same_file=False) -> tuple[pd.DataFrame, Union[dict, pd.DataFrame]]:
         """
         Parameters
         ----------
@@ -110,9 +111,9 @@ class GridBase():
             return fix10pad(series.value_counts(normalize=True).fillna(0).cumsum())
         
         freq_table = self.data.agg(count,axis=0)
-        return freq_table
+        return cast(pd.DataFrame, freq_table)
     
-    def get_mean_rate(self) -> dict[float]:
+    def get_mean_rate(self) -> np.ndarray:
         """
         Returns
         -------
@@ -139,15 +140,15 @@ class GridBase():
         """
         return self.data.var(axis=0, skipna=True, numeric_only=True).transform('sqrt').to_numpy()
     
-    def get_datarange(self) -> tuple[pd.Timestamp]:
+    def get_datarange(self) -> tuple[pd.Timestamp, pd.Timestamp]:
         """
         Returns
         -------
-        (start, end): pd.timestemp,
+        (start, end): pd.timestamp,
             start and end of the actual rate values
         """
         index = self.data.index
-        return index[0], index[-1]
+        return pd.Timestamp(index[0]), pd.Timestamp(index[-1])
     
     def sample(self, n_samples=1) -> np.ndarray:
         """
@@ -228,7 +229,7 @@ class GridBase():
             start = pd.to_datetime(start, format='%d-%m-%Y', errors='raise')
         return self.data.loc[start:end,:]
 
-    def get_info(self, i:int) -> dict:
+    def get_info(self, i:int) -> Union[dict, pd.DataFrame, pd.Series]:
         """
         Parameters
         ----------
@@ -414,7 +415,7 @@ class Simulation(GridBase):
 
         overfmask = (self.fill > 100)
         self.fill[overfmask] = 100
-        return np.sum(overfmask), prediction, p_error
+        return int(np.sum(overfmask)), prediction, p_error
 
 
 ### UTILS
