@@ -2,7 +2,6 @@ import torch
 
 from unittest.mock import MagicMock
 from logic.src.models.attention_model import AttentionModel
-from logic.src.models.gat_lstm_manager import GATLSTManager
 from logic.src.models.reinforce_baselines import (
     WarmupBaseline, NoBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, BaselineDataset
 )
@@ -149,6 +148,80 @@ class TestReinforceBaselines:
     def test_no_baseline(self):
         nb = NoBaseline()
         assert nb.eval(None, None) == (0, 0)
+
+    def test_critic_baseline(self):
+        critic = MagicMock()
+        critic.return_value = torch.tensor([1.0, 2.0])
+        critic.parameters.return_value = [torch.tensor([1.0])]
+        critic.state_dict.return_value = {'a': 1}
+        
+        cb = CriticBaseline(critic)
+        x = torch.randn(2, 5)
+        c = torch.tensor([1.0, 2.0])
+        
+        # Test eval
+        v, l = cb.eval(x, c)
+        assert torch.allclose(v, torch.tensor([1.0, 2.0]))
+        assert l == 0 # MSE loss between 1,2 and 1,2 is 0
+        
+        # Test learnable parameters
+        params = cb.get_learnable_parameters()
+        assert len(params) == 1
+        
+        # Test state dict (nested)
+        sd = cb.state_dict()
+        assert 'critic' in sd
+        assert sd['critic'] == {'a': 1}
+        
+    def test_rollout_baseline(self, mocker):
+        # Mocks
+        mock_model = MagicMock()
+        mock_problem = MagicMock()
+        mock_problem.make_dataset.return_value = [1, 2]
+        
+        # Mock rollout to return values for baseline
+        mocker.patch('logic.src.models.reinforce_baselines.rollout', return_value=torch.tensor([10.0, 20.0]))
+        
+        opts = {
+            'val_size': 2, 'graph_size': 5, 'area': 'a', 'waste_type': 'w', 'dm_filepath': 'p',
+            'edge_threshold': 1, 'edge_method': 'm', 'focus_graph': False, 'eval_focus_size': 0,
+            'data_distribution': 'd', 'vertex_method': 'v', 'distance_method': 'd', 'bl_alpha': 0.05
+        }
+        
+        # Initialize (dataset creation)
+        rb = RolloutBaseline(mock_model, mock_problem, opts)
+        assert rb.mean == 15.0
+        assert rb.epoch == 0
+        
+        # Test wrap/unwrap
+        # mock wrap_dataset calling rollout again
+        ds = rb.wrap_dataset([3, 4])
+        assert isinstance(ds, BaselineDataset)
+        assert len(ds) == 2
+        
+        # Test eval (inference only)
+        # We must set return_value on the COPIED model inside rb, not the original mock_model
+        rb.model.return_value = (torch.tensor([1.0]), None, None)
+        v, l = rb.eval(torch.tensor([1.0]), None)
+        assert v == torch.tensor([1.0])
+        assert l == 0
+        
+        # Test epoch_callback (update logic)
+        # Case 1: Improvement
+        mocker.patch('logic.src.models.reinforce_baselines.rollout', return_value=torch.tensor([5.0, 5.0])) # Mean 5 < 15
+        mocker.patch('logic.src.models.reinforce_baselines.stats.ttest_rel', return_value=(-5.0, 0.001)) # Significant
+        
+        candidate_model = MagicMock()
+        rb.epoch_callback(candidate_model, 1)
+        # Should have updated model
+        assert rb.epoch == 1
+        
+    def test_baseline_dataset(self):
+        ds = BaselineDataset([1, 2], [3, 4])
+        assert len(ds) == 2
+        item = ds[0]
+        assert item['data'] == 1
+        assert item['baseline'] == 3
 
 
 class TestTemporalAttentionModel:

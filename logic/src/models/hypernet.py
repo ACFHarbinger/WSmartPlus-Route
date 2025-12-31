@@ -1,9 +1,7 @@
-import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from tqdm import tqdm
 from .modules import Normalization, ActivationFunction
 
 
@@ -213,109 +211,3 @@ class HypernetworkOptimizer:
             }
             
             return weights_dict
-
-
-def train_over_time_with_hypernetwork(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
-    """
-    Enhanced training process using a hypernetwork for adaptive cost weight optimization
-    """
-    step, is_cuda, training_dataset = prepare_epoch(optimizer, 0, problem, tb_logger, opts)
-    
-    # Initialize hypernetwork optimizer
-    hyperopt = HypernetworkOptimizer(
-        cost_weight_keys=list(cost_weights.keys()),
-        constraint_value=opts['constraint'],
-        device=opts['device'],
-        lr=opts.get('hyper_lr', 1e-4),
-        buffer_size=opts.get('hyper_buffer_size', 100)
-    )
-    
-    if opts['temporal_horizon'] > 0 and opts['model'] in ['tam']:
-        training_dataset.fill_history = torch.zeros((opts['epoch_size'], opts['graph_size'], opts['temporal_horizon']))
-        training_dataset.fill_history[:, :, -1] = torch.stack([instance['waste'] for instance in training_dataset.data])
-    
-    # Put model in train mode!
-    model.train()
-    set_decode_type(model, "sampling")
-    
-    for day in range(opts['epoch_start'], opts['epoch_start'] + opts['n_epochs']):
-        log_pi = []
-        training_dataloader = torch.utils.data.DataLoader(
-            baseline.wrap_dataset(training_dataset), batch_size=opts['batch_size'], pin_memory=True)
-        
-        start_time = time.time()
-        
-        if scaler is None:
-            for batch_id, batch in enumerate(tqdm(training_dataloader, disable=opts['no_progress_bar'])):
-                if opts['temporal_horizon'] > 0 and opts['model'] in ['tam']:
-                    batch_idx = get_batch_indices(batch_id, training_dataloader, len(training_dataset))
-                    batch['fill_history'] = training_dataset.fill_history[batch_idx]
-                
-                if opts['encoder'] in ['gac', 'tgc'] and opts['focus_graph'] is not None:
-                    batch['edges'] = training_dataset.edges.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1)
-                
-                pi = train_batch_reinforce(model, optimizer, baseline, day, batch_id, step, batch, tb_logger, cost_weights, opts)
-                log_pi.append(pi)
-                step += 1
-        else:
-            for batch_id, batch in enumerate(tqdm(training_dataloader, disable=opts['no_progress_bar'])):
-                if opts['temporal_horizon'] > 0 and opts['model'] in ['tam']:
-                    batch_idx = get_batch_indices(batch_id, training_dataloader, len(training_dataset))
-                    batch['fill_history'] = training_dataset.fill_history[batch_idx]
-                
-                if opts['encoder'] in ['gac', 'tgc'] and opts['focus_graph'] is not None:
-                    batch['edges'] = training_dataset.edges.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1)
-                
-                pi = train_batch_scaler_reinforce(model, optimizer, baseline, scaler, day, batch_id, step, batch, tb_logger, cost_weights, opts)
-                log_pi.append(pi)
-                step += 1
-        
-        epoch_duration = time.time() - start_time
-        
-        # Run validation and collect validation metrics
-        default_weights = cost_weights
-        cost_weights, avg_cost, all_costs = complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, day, step, epoch_duration, tb_logger, is_cuda, cost_weights, opts)
-        
-        # Update hypernetwork buffer with this experience
-        metrics_tensor = torch.tensor([
-            torch.mean(all_costs['kg']) / torch.mean(all_costs['km']).clamp(min=1e-8),  # efficiency
-            torch.mean(all_costs['overflows'].float()),                                 # overflows
-            torch.mean(all_costs['kg']),                                                # kg
-            torch.mean(all_costs['km']),                                                # km
-            all_costs.get('kg_lost', torch.tensor(0.0)).mean(),                         # kg_lost
-            day / self.n_days                                                                 # day_progress
-        ], device=opts['device'])
-        
-        weights_tensor = torch.tensor([cost_weights[key] for key in hyperopt.cost_weight_keys], device=opts['device'])
-        
-        hyperopt.update_buffer(
-            metrics=metrics_tensor,
-            day=day,
-            weights=weights_tensor,
-            performance=avg_cost.item()
-        )
-        
-        # Train hypernetwork on collected experiences
-        hyperopt.train(epochs=opts.get('hyper_epochs', 10))
-        
-        # Get hypernetwork-generated weights for next iteration
-        if opts.get('use_hypernetwork', True) and day > opts['epoch_start'] + 5:
-            adaptive_weights = hyperopt.get_weights(all_costs, day, default_weights)
-            
-            # Log comparison of weights
-            print("\nWeight comparison:")
-            print("Default weights:", {k: f"{v:.2f}" for k, v in default_weights.items()})
-            print("Hypernetwork weights:", {k: f"{v:.2f}" for k, v in adaptive_weights.items()})
-            
-            # Use hypernetwork weights
-            cost_weights = adaptive_weights
-            
-            # Log to tensorboard
-            if tb_logger is not None:
-                for k, v in cost_weights.items():
-                    tb_logger.add_scalar(f'hyper_weights/{k}', v, step)
-        
-        log_pi = torch.stack(log_pi).contiguous().view(-1, log_pi[0].size(1))
-        training_dataset = update_day(model, optimizer, training_dataset, log_pi, day+1, opts)
-    
-    return
