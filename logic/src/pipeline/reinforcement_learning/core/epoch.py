@@ -6,7 +6,7 @@ import torch
 import pandas as pd
 
 from tqdm import tqdm
-from ..simulator.bins import Bins
+from ...simulator.bins import Bins
 from logic.src.utils.functions import move_to
 from logic.src.utils.data_utils import generate_waste_prize
 
@@ -54,9 +54,12 @@ def rollout(model, dataset, opts):
 
 
 def validate_update(model, dataset, cw_dict, opts):
+    from logic.src.policies.neural_agent import NeuralAgent
+    agent = NeuralAgent(get_inner_model(model))
+
     def _eval_model_bat(bat, dist_matrix):
         with torch.no_grad():
-            ucost, c_dict, attn_dict = get_inner_model(model).compute_batch_sim(move_to(bat, opts['device']), move_to(dist_matrix, opts['device']))
+            ucost, c_dict, attn_dict = agent.compute_batch_sim(move_to(bat, opts['device']), move_to(dist_matrix, opts['device']))
         return ucost, c_dict, attn_dict
 
     set_decode_type(model, "greedy")
@@ -78,6 +81,8 @@ def validate_update(model, dataset, cw_dict, opts):
 
         all_ucosts = torch.cat((all_ucosts, ucost), 0)
         for key, val in cost_dict.items():
+            if key not in all_costs:
+                all_costs[key] = []
             all_costs[key].append(val)
 
     for key, val in attention_dict.items():

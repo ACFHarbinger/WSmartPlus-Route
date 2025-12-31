@@ -1,3 +1,6 @@
+from logic.src.pipeline.reinforcement_learning.meta.weight_strategy import WeightAdjustmentStrategy
+
+
 def update_cost_weights_td(cost_weights, cost_components, td_error, learning_rate=0.01, weight_ranges=[0.01, 5.0]):
     """
     Update cost weights using Temporal Difference (TD) learning.
@@ -35,7 +38,7 @@ def update_cost_weights_td(cost_weights, cost_components, td_error, learning_rat
     return new_weights
 
 
-class CostWeightManager:
+class CostWeightManager(WeightAdjustmentStrategy):
     """
     Manages the dynamic adjustment of cost weights based on TD learning.
     """
@@ -65,7 +68,24 @@ class CostWeightManager:
         self.day = 0
         self.past_rewards = []
         self.expected_reward = None
+    
+    def propose_weights(self, context=None):
+        """
+        Implementation of Strategy interface.
+        """
+        return self.get_current_weights()
+
+    def feedback(self, reward, metrics, day=None, step=None):
+        """
+        Implementation of Strategy interface.
+        Update weights based on observed reward and cost components.
+        """
+        cost_components = {}
+        if isinstance(metrics, dict):
+            cost_components = metrics
         
+        self.update_weights(reward, cost_components)
+
     def update_weights(self, observed_reward, cost_components):
         """
         Update weights based on observed reward and cost components.

@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 from unittest.mock import MagicMock, patch
-from logic.src.pipeline.reinforcement_learning.hpo import (
+from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo import (
     compute_focus_dist_matrix,
     optimize_model,
     validate,
@@ -22,8 +22,8 @@ from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb 
 
 class TestHPOFunctions:
 
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.load_focus_coords')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.compute_distance_matrix')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.load_focus_coords')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.compute_distance_matrix')
     def test_compute_focus_dist_matrix(self, mock_compute_dist, mock_load_coords):
         mock_load_coords.return_value = np.zeros((5, 2))
         mock_compute_dist.return_value = np.zeros((5, 5))
@@ -34,12 +34,12 @@ class TestHPOFunctions:
         mock_load_coords.assert_called_once()
         mock_compute_dist.assert_called_once()
 
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.load_problem')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.load_data')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.setup_model_and_baseline')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.setup_optimizer_and_lr_scheduler')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.train_reinforce_epoch')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.validate')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.load_problem')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.load_data')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.setup_model_and_baseline')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.setup_optimizer_and_lr_scheduler')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.train_reinforce_epoch')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.validate')
     @patch('os.makedirs')
     @patch('builtins.open', new_callable=MagicMock)
     @patch('json.dump')
@@ -64,21 +64,51 @@ class TestHPOFunctions:
         mock_train.assert_called()
         mock_validate.assert_called()
 
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.get_inner_model')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.set_decode_type')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.move_to')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.get_inner_model')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.set_decode_type')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.move_to')
     @patch('torch.utils.data.DataLoader')
     def test_validate(self, mock_dataloader, mock_move_to, mock_set_decode, mock_get_inner, hpo_opts):
+        # Create mock model with explicit return value
         mock_model = MagicMock()
+        # Ensure the model returns a 5-element tuple when called
+        mock_model.side_effect = lambda *args, **kwargs: (
+            torch.tensor([1.0], requires_grad=True), 
+            torch.tensor([0.0]), 
+            {'overflows': torch.tensor([0.0]), 'kg': torch.tensor([10.0]), 'km': torch.tensor([5.0]), 'waste': torch.tensor([0.1])}, 
+            torch.tensor([[0, 1]]), 
+            torch.tensor([0.0])
+        )
+        # Mock attributes accessed by NeuralAgent
+        mock_model.embedder = MagicMock()
+        # Mock problem.get_costs because NeuralAgent calls it too
+        mock_model.problem = MagicMock()
+        mock_model.problem.get_costs.return_value = (
+            torch.tensor([1.0]), 
+            {'overflows': torch.tensor([0.0]), 'waste': torch.tensor([0.0]), 'km': torch.tensor([0.0])}, 
+            None
+        )
+
         mock_dataset = MagicMock()
         mock_dataloader.return_value = [MagicMock()] # Single batch
         
         mock_inner = MagicMock()
-        mock_inner.compute_batch_sim.return_value = (
-            torch.tensor([1.0]), 
-            {'overflows': torch.tensor([0.0]), 'kg': torch.tensor([10.0]), 'km': torch.tensor([5.0])}, 
-            {'attention_weights': torch.tensor([0.1]), 'graph_masks': torch.tensor([0])}
+        # NeuralAgent calls self.model(...) which is mock_inner
+        mock_inner.side_effect = lambda *args, **kwargs: (
+            torch.tensor([1.0], requires_grad=True), 
+            torch.tensor([0.0]), 
+            {'overflows': torch.tensor([0.0]), 'kg': torch.tensor([10.0]), 'km': torch.tensor([5.0]), 'waste': torch.tensor([0.1])}, 
+            torch.tensor([[0, 1]]), 
+            torch.tensor([0.0])
         )
+        mock_inner.embedder = MagicMock()
+        mock_inner.problem = MagicMock()
+        mock_inner.problem.get_costs.return_value = (
+            torch.tensor([1.0]), 
+            {'overflows': torch.tensor([0.0]), 'waste': torch.tensor([0.0]), 'km': torch.tensor([0.0])}, 
+            None
+        )
+        
         mock_get_inner.return_value = mock_inner
         
         # Mock move_to to return whatever is passed (or identity for tensors)
@@ -92,12 +122,12 @@ class TestHPOFunctions:
         assert isinstance(avg_cost, torch.Tensor)
         mock_set_decode.assert_called_with(mock_model, "greedy")
 
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.optimize_model')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.setup_cost_weights')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.algorithms.eaSimple')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.tools')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.creator')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.base.Toolbox')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.optimize_model')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.setup_cost_weights')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.algorithms.eaSimple')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tools')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.creator')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.base.Toolbox')
     def test_distributed_evolutionary_algorithm(self, mock_toolbox_cls, mock_creator, mock_tools, 
                                               mock_eaSimple, mock_setup_weights, mock_optimize, hpo_opts):
         mock_toolbox = mock_toolbox_cls.return_value
@@ -116,13 +146,13 @@ class TestHPOFunctions:
         assert 'w_lost' in best_params
         mock_eaSimple.assert_called()
 
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.optimize_model')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.optimize_model')
     @patch('optuna.create_study')
     @patch('joblib.dump')
     @patch('os.makedirs')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.plot_optimization_history')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.plot_param_importances')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.plot_intermediate_values')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.plot_optimization_history')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.plot_param_importances')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.plot_intermediate_values')
     @patch('builtins.open', new_callable=MagicMock)
     @patch('json.dump')    
     def test_bayesian_optimization(self, mock_json, mock_open, mock_plot_inter, mock_plot_param, mock_plot_hist,
@@ -148,9 +178,9 @@ class TestHPOFunctions:
         mock_study.optimize.assert_called()
 
 
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.tune.run')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.ray.init')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.HyperBandScheduler')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune.run')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.ray.init')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.HyperBandScheduler')
     def test_hyperband_optimization(self, mock_scheduler, mock_init, mock_tune_run, hpo_opts):
         mock_analysis = MagicMock()
         mock_analysis.get_best_config.return_value = {'w_lost': 0.1}
@@ -162,8 +192,8 @@ class TestHPOFunctions:
         assert best_config == {'w_lost': 0.1}
         mock_tune_run.assert_called()
 
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.tune.run')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.ray.init')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune.run')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.ray.init')
     def test_random_search(self, mock_init, mock_tune_run, hpo_opts):
         mock_analysis = MagicMock()
         mock_analysis.get_best_config.return_value = {'w_lost': 0.1}
@@ -175,9 +205,9 @@ class TestHPOFunctions:
         assert best_config == {'w_lost': 0.1}
         mock_tune_run.assert_called()
 
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.tune.run')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.ray.init')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.ASHAScheduler')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune.run')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.ray.init')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.ASHAScheduler')
     def test_grid_search(self, mock_asha, mock_init, mock_tune_run, hpo_opts):
         mock_result = MagicMock()
         mock_trial = MagicMock()
@@ -193,9 +223,9 @@ class TestHPOFunctions:
         assert best_config == {'w_lost': 0.1}
         mock_tune_run.assert_called()
 
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.DifferentialEvolutionHyperband')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.compute_focus_dist_matrix')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.optimize_model')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.DifferentialEvolutionHyperband')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.compute_focus_dist_matrix')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.optimize_model')
     def test_differential_evolutionary_hyperband_optimization(self, mock_optimize, mock_compute_dist, mock_dehb_cls, hpo_opts):
         mock_dehb = mock_dehb_cls.return_value
         mock_dehb.run.return_value = (None, 1.0, []) # traj, runtime, history
@@ -208,9 +238,9 @@ class TestHPOFunctions:
         assert best_config == {'w_lost': 0.1}
         mock_dehb.run.assert_called()
         
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.optimize_model')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.tune.report')
-    @patch('logic.src.pipeline.reinforcement_learning.hpo.tune.get_trial_id')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.optimize_model')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune.report')
+    @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune.get_trial_id')
     def test_ray_tune_trainable(self, mock_get_trial_id, mock_report, mock_optimize, hpo_opts):
         config = {'w_lost': 0.1, 'w_waste': 0.1, 'w_length': 0.1, 'w_overflows': 0.1}
         mock_optimize.return_value = (0.1, 0.1, {})
@@ -236,7 +266,7 @@ class TestDEHB:
 
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.logger')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.Client')
-    def test_dehb_init(self, mock_client, mock_logger, hpo_opts):
+    def test_dehb_init(self, mock_client, mock_logger, hpo_opts, tmp_path):
         cs = get_config_space(hpo_opts)
         f = MagicMock()
         
@@ -247,7 +277,7 @@ class TestDEHB:
             max_fidelity=10,
             n_workers=1,
             client=None, # Use None to avoid actual Dask client logic if possible or mock it
-            output_path='test_dehb_output'
+            output_path=str(tmp_path / 'test_dehb_output')
         )
         
         assert dehb.min_fidelity == 1

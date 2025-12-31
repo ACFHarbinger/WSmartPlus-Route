@@ -1,10 +1,11 @@
 import torch
+from logic.src.pipeline.reinforcement_learning.meta.weight_strategy import WeightAdjustmentStrategy
 
 
-class RewardWeightOptimizer:
+class RewardWeightOptimizer(WeightAdjustmentStrategy):
     """
     Manager for the meta-learning process of optimizing reward weights
-    based on historical performance data.
+    based on historical performance data. Uses an RNN to propose updates.
     """
     def __init__(self, 
                 model_class,
@@ -75,7 +76,39 @@ class RewardWeightOptimizer:
         
         # Keep track of step for logging
         self.meta_step = 0
-        
+
+    def propose_weights(self, context=None):
+        """
+        Implementation of Strategy interface.
+        Returns the current weights, potentially updated if history is sufficient.
+        """
+        # Internal update logic that was previously in main loop or update_weights
+        self.update_weights_internal()
+        return self.get_current_weights()
+
+    def feedback(self, reward, metrics, day=None, step=None):
+        """
+        Implementation of Strategy interface.
+        Updates history and performs a meta-learning step.
+        """
+        if isinstance(metrics, dict):
+            # Fallback logic to convert dict to list matching weight order, similar to original code assumption
+            # Original code in loop: list(c_dict.values()) + list(l_dict.values())
+            # Here we trust the caller passes a tensor or list if possible, or we might need to be specific.
+            # Ideally the Adapter/Trainer handles the conversion.
+            # If metrics is passed as a dict, we blindly convert values to list, assuming compatibility.
+            # This is risky but maintains previous behavior if caller is refactored carefully.
+            perf_values = list(metrics.values())
+        elif isinstance(metrics, (list, tuple)):
+            perf_values = metrics
+        elif isinstance(metrics, torch.Tensor):
+            perf_values = metrics
+        else:
+             raise ValueError("metrics must be a list or Tensor")
+
+        self.update_histories(perf_values, reward)
+        self.meta_learning_step()
+
     def update_histories(self, performance_metrics, reward):
         """
         Update histories with current weights and performance metrics
@@ -85,7 +118,9 @@ class RewardWeightOptimizer:
             reward: Total reward achieved with current weights
         """
         self.weight_history.append(self.current_weights.clone().cpu())
-        self.performance_history.append(torch.tensor(performance_metrics, dtype=torch.float32))
+        # Ensure tensor
+        p_tensor = torch.as_tensor(performance_metrics, dtype=torch.float32)
+        self.performance_history.append(p_tensor)
         self.reward_history.append(reward)
         
         # Keep history at desired length
@@ -118,10 +153,14 @@ class RewardWeightOptimizer:
             seq_features = []
             for i in range(start_idx, start_idx + seq_len):
                 # Combine weights and performance metrics
-                combined = torch.cat([
-                    self.weight_history[i].to(self.device),
-                    self.performance_history[i].to(self.device)
-                ])
+                # Ensure all on same device
+                w_hist = self.weight_history[i].to(self.device)
+                p_hist = self.performance_history[i].to(self.device)
+                
+                # Check shapes: performance metrics might be (N,) or (1, N) or (Batch, N) if sloppy
+                if p_hist.dim() > 1: p_hist = p_hist.view(-1)
+                
+                combined = torch.cat([w_hist, p_hist])
                 seq_features.append(combined)
             
             # Target is the reward after sequence
@@ -206,10 +245,11 @@ class RewardWeightOptimizer:
             seq_features = []
             for i in range(-self.history_length, 0):
                 # Combine weights and performance metrics
-                combined = torch.cat([
-                    self.weight_history[i].to(self.device),
-                    self.performance_history[i].to(self.device)
-                ])
+                w_hist = self.weight_history[i].to(self.device)
+                p_hist = self.performance_history[i].to(self.device)
+                if p_hist.dim() > 1: p_hist = p_hist.view(-1)
+
+                combined = torch.cat([w_hist, p_hist])
                 seq_features.append(combined)
             
             # Create batch with single sequence
@@ -226,7 +266,7 @@ class RewardWeightOptimizer:
             
             return new_weights
     
-    def update_weights(self, force_update=False):
+    def update_weights_internal(self, force_update=False):
         """
         Update current weights based on RNN recommendations
         

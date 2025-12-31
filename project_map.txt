@@ -15,16 +15,25 @@
 │   │   ├── skey.pkl
 │   │   └── skey.salt
 │   ├── model_weights
-│   │   └── cwcvrp100_riomaior_plastic
+│   │   ├── cwcvrp100_riomaior_plastic
+│   │   │   └── gamma1
+│   │   │       ├── amgat
+│   │   │       │   ├── args.json
+│   │   │       │   └── epoch-99.pt
+│   │   │       ├── amgat_hrl
+│   │   │       └── amggac
+│   │   └── cwcvrp20_riomaior_plastic
 │   │       └── gamma1
-│   │           ├── amgat
-│   │           └── amgat_hrl
+│   │           └── amgat
 │   └── output
 │       └── 31_days
 │           └── riomaior_100
 │               ├── daily_gamma1_1N.json
 │               ├── fill_history
 │               │   └── gamma1
+│               │       ├── amgat_gamma142_sample0.xlsx
+│               │       ├── amgat_hrl_gamma142_sample0.xlsx
+│               │       ├── amggac_gamma142_sample0.xlsx
 │               │       ├── gurobi_vrpp0.84_gamma142_sample0.xlsx
 │               │       ├── policy_last_minute70_gamma142_sample0.xlsx
 │               │       ├── policy_look_ahead_a_alns_gamma142_sample0.xlsx
@@ -38,6 +47,9 @@
 │               ├── log_mean_1N.json
 │               ├── log_realtime_gamma1_1N.jsonl
 │               └── temp
+│                   ├── checkpoint_amgat_gamma1_0_day31.pkl
+│                   ├── checkpoint_amgat_hrl_gamma1_0_day31.pkl
+│                   ├── checkpoint_amggac_gamma1_0_day31.pkl
 │                   ├── checkpoint_gurobi_vrpp0.84_gamma1_0_day31.pkl
 │                   ├── checkpoint_policy_last_minute70_gamma1_0_day31.pkl
 │                   ├── checkpoint_policy_look_ahead_a_alns_gamma1_0_day31.pkl
@@ -48,6 +60,209 @@
 │                   ├── checkpoint_policy_look_ahead_a_vrpp_gamma1_0_day31.pkl
 │                   ├── checkpoint_policy_regular3_gamma1_0_day31.pkl
 │                   └── checkpoint_policy_regular4_gamma1_0_day31.pkl
+├── data
+│   ├── datasets
+│   │   ├── vrpp
+│   │   │   ├── vrpp100_gamma1_time31_seed42.pkl
+│   │   │   ├── vrpp170_gamma1_time31_seed42.pkl
+│   │   │   ├── vrpp20_gamma1_time31_seed42.pkl
+│   │   │   └── vrpp50_gamma1_time31_seed42.pkl
+│   │   └── wcvrp
+│   │       ├── wcvrp100_emp_time31_seed42.pkl
+│   │       ├── wcvrp100_gamma1_time100_seed42.pkl
+│   │       ├── wcvrp100_gamma1_time31_seed42.pkl
+│   │       ├── wcvrp170_emp_time31_seed42.pkl
+│   │       ├── wcvrp170_gamma1_time100_seed42.pkl
+│   │       ├── wcvrp170_gamma1_time31_seed42.pkl
+│   │       ├── wcvrp20_emp_time31_seed42.pkl
+│   │       ├── wcvrp20_gamma1_time100_seed42.pkl
+│   │       ├── wcvrp20_gamma1_time31_seed42.pkl
+│   │       ├── wcvrp50_emp_time31_seed42.pkl
+│   │       ├── wcvrp50_gamma1_time100_seed42.pkl
+│   │       └── wcvrp50_gamma1_time31_seed42.pkl
+│   └── wsr_simulator
+│       ├── bins_selection
+│       │   ├── graphs_100V_10N.json
+│       │   ├── graphs_100V_1N.json
+│       │   ├── graphs_100V_1N_plastic.json
+│       │   ├── graphs_104V_1N_plastic.json
+│       │   ├── graphs_170V_1N_plastic.json
+│       │   ├── graphs_20V_1N_plastic.json
+│       │   ├── graphs_50V_1N_plastic.json
+│       │   └── maps
+│       │       ├── graphs_100V_1N1.html
+│       │       ├── graphs_100V_1N.html
+│       │       ├── graphs_170V_1N1.html
+│       │       ├── graphs_170V_1N.html
+│       │       ├── graphs_20V_1N1.html
+│       │       ├── graphs_20V_1N.html
+│       │       ├── graphs_50V_1N1.html
+│       │       └── graphs_50V_1N.html
+│       ├── bins_waste
+│       │   ├── Enchimentos_com_Recolhas[FigFoz].xlsx
+│       │   ├── Enchimentos_com_Recolhas[RioMaior].csv
+│       │   ├── Enchimentos_de_Sensores[FigFoz].csv
+│       │   ├── Enchimentos_de_Sensores[RioMaior]_part1.csv
+│       │   ├── Enchimentos_de_Sensores[RioMaior]_part2.csv
+│       │   ├── Enchimentos_de_Sensores[RioMaior]_part3.csv
+│       │   ├── historico_enchimentos_2021_2024_processado.xlsx
+│       │   ├── old_out_crude_rate[riomaior].csv
+│       │   ├── out_rate_crude[figdafoz].csv
+│       │   ├── out_rate_crude[riomaior].csv
+│       │   ├── Rio_Maior_Sensores_2021_2024_cleaned_104.csv
+│       │   ├── Rio_Maior_Sensores_april_2024_cleaned_170.csv
+│       │   ├── StockAndAccumulationRate - 50bins.xlsx
+│       │   ├── StockAndAccumulationRate - small.xlsx
+│       │   └── StockAndAccumulationRate.xlsx
+│       ├── coordinates
+│       │   ├── coordenadas_abril_2024_cleaned.xlsx
+│       │   ├── coordinates104.csv
+│       │   ├── Coordinates - 50bins.xlsx
+│       │   ├── Coordinates - [FigFoz].xlsx
+│       │   ├── Coordinates - small.xlsx
+│       │   ├── Coordinates_unique.xlsx
+│       │   ├── Coordinates.xlsx
+│       │   ├── Facilities.csv
+│       │   ├── intersection.csv
+│       │   ├── merged.csv
+│       │   ├── old_out_info[riomaior].csv
+│       │   ├── old_paper.csv
+│       │   ├── old_plastic.csv
+│       │   ├── out_info[figdafoz].csv
+│       │   ├── out_info[riomaior].csv
+│       │   ├── selected_coordinates
+│       │   │   ├── coordinates100_plastic[riomaior].xlsx
+│       │   │   ├── coordinates170_plastic[riomaior].xlsx
+│       │   │   ├── coordinates20_plastic[riomaior].xlsx
+│       │   │   └── coordinates50_plastic[riomaior].xlsx
+│       │   ├── union.csv
+│       │   └── unique.csv
+│       ├── daily_waste
+│       │   ├── april_2024_summary.csv
+│       │   ├── enchimentos_abril_2024_cleaned.xlsx
+│       │   ├── riomaior100_emp_wsr31_N10_seed42
+│       │   │   ├── tabela_versao_0.xlsx
+│       │   │   ├── tabela_versao_1.xlsx
+│       │   │   ├── tabela_versao_2.xlsx
+│       │   │   ├── tabela_versao_3.xlsx
+│       │   │   ├── tabela_versao_4.xlsx
+│       │   │   ├── tabela_versao_5.xlsx
+│       │   │   ├── tabela_versao_6.xlsx
+│       │   │   ├── tabela_versao_7.xlsx
+│       │   │   ├── tabela_versao_8.xlsx
+│       │   │   └── tabela_versao_9.xlsx
+│       │   ├── riomaior100_emp_wsr31_N10_seed42.pkl
+│       │   ├── riomaior100_emp_wsr31_N1_seed42.pkl
+│       │   ├── riomaior100_gamma1_wsr31_N10_seed42
+│       │   │   ├── tabela_versao_0.xlsx
+│       │   │   ├── tabela_versao_1.xlsx
+│       │   │   ├── tabela_versao_2.xlsx
+│       │   │   ├── tabela_versao_3.xlsx
+│       │   │   ├── tabela_versao_4.xlsx
+│       │   │   ├── tabela_versao_5.xlsx
+│       │   │   ├── tabela_versao_6.xlsx
+│       │   │   ├── tabela_versao_7.xlsx
+│       │   │   ├── tabela_versao_8.xlsx
+│       │   │   └── tabela_versao_9.xlsx
+│       │   ├── riomaior100_gamma1_wsr31_N10_seed42.pkl
+│       │   ├── riomaior100_gamma1_wsr31_N1_seed42.pkl
+│       │   ├── riomaior100_gamma2_wsr31_N10_seed42.pkl
+│       │   ├── riomaior100_gamma3_wsr31_N10_seed42.pkl
+│       │   ├── riomaior170_emp_wsr31_N10_seed42
+│       │   │   ├── tabela_versao_0.xlsx
+│       │   │   ├── tabela_versao_1.xlsx
+│       │   │   ├── tabela_versao_2.xlsx
+│       │   │   ├── tabela_versao_3.xlsx
+│       │   │   ├── tabela_versao_4.xlsx
+│       │   │   ├── tabela_versao_5.xlsx
+│       │   │   ├── tabela_versao_6.xlsx
+│       │   │   ├── tabela_versao_7.xlsx
+│       │   │   ├── tabela_versao_8.xlsx
+│       │   │   └── tabela_versao_9.xlsx
+│       │   ├── riomaior170_emp_wsr31_N10_seed42.pkl
+│       │   ├── riomaior170_gamma1_wsr31_N10_seed42
+│       │   │   ├── tabela_versao_0.xlsx
+│       │   │   ├── tabela_versao_1.xlsx
+│       │   │   ├── tabela_versao_2.xlsx
+│       │   │   ├── tabela_versao_3.xlsx
+│       │   │   ├── tabela_versao_4.xlsx
+│       │   │   ├── tabela_versao_5.xlsx
+│       │   │   ├── tabela_versao_6.xlsx
+│       │   │   ├── tabela_versao_7.xlsx
+│       │   │   ├── tabela_versao_8.xlsx
+│       │   │   └── tabela_versao_9.xlsx
+│       │   ├── riomaior170_gamma1_wsr31_N10_seed42.pkl
+│       │   ├── riomaior170_gamma1_wsr31_N1_seed42.pkl
+│       │   ├── riomaior170_gamma2_wsr31_N10_seed42.pkl
+│       │   ├── riomaior170_gamma3_wsr31_N10_seed42.pkl
+│       │   ├── riomaior20_emp_wsr31_N10_seed42
+│       │   │   ├── tabela_versao_0.xlsx
+│       │   │   ├── tabela_versao_1.xlsx
+│       │   │   ├── tabela_versao_2.xlsx
+│       │   │   ├── tabela_versao_3.xlsx
+│       │   │   ├── tabela_versao_4.xlsx
+│       │   │   ├── tabela_versao_5.xlsx
+│       │   │   ├── tabela_versao_6.xlsx
+│       │   │   ├── tabela_versao_7.xlsx
+│       │   │   ├── tabela_versao_8.xlsx
+│       │   │   └── tabela_versao_9.xlsx
+│       │   ├── riomaior20_emp_wsr31_N10_seed42.pkl
+│       │   ├── riomaior20_gamma1_wsr31_N10_seed42
+│       │   │   ├── tabela_versao_0.xlsx
+│       │   │   ├── tabela_versao_1.xlsx
+│       │   │   ├── tabela_versao_2.xlsx
+│       │   │   ├── tabela_versao_3.xlsx
+│       │   │   ├── tabela_versao_4.xlsx
+│       │   │   ├── tabela_versao_5.xlsx
+│       │   │   ├── tabela_versao_6.xlsx
+│       │   │   ├── tabela_versao_7.xlsx
+│       │   │   ├── tabela_versao_8.xlsx
+│       │   │   └── tabela_versao_9.xlsx
+│       │   ├── riomaior20_gamma1_wsr31_N10_seed42.pkl
+│       │   ├── riomaior20_gamma1_wsr31_N1_seed42.pkl
+│       │   ├── riomaior20_gamma2_wsr31_N10_seed42.pkl
+│       │   ├── riomaior20_gamma3_wsr31_N10_seed42.pkl
+│       │   ├── riomaior50_emp_wsr31_N10_seed42
+│       │   │   ├── tabela_versao_0.xlsx
+│       │   │   ├── tabela_versao_1.xlsx
+│       │   │   ├── tabela_versao_2.xlsx
+│       │   │   ├── tabela_versao_3.xlsx
+│       │   │   ├── tabela_versao_4.xlsx
+│       │   │   ├── tabela_versao_5.xlsx
+│       │   │   ├── tabela_versao_6.xlsx
+│       │   │   ├── tabela_versao_7.xlsx
+│       │   │   ├── tabela_versao_8.xlsx
+│       │   │   └── tabela_versao_9.xlsx
+│       │   ├── riomaior50_emp_wsr31_N10_seed42.pkl
+│       │   ├── riomaior50_gamma1_wsr31_N10_seed42
+│       │   │   ├── tabela_versao_0.xlsx
+│       │   │   ├── tabela_versao_1.xlsx
+│       │   │   ├── tabela_versao_2.xlsx
+│       │   │   ├── tabela_versao_3.xlsx
+│       │   │   ├── tabela_versao_4.xlsx
+│       │   │   ├── tabela_versao_5.xlsx
+│       │   │   ├── tabela_versao_6.xlsx
+│       │   │   ├── tabela_versao_7.xlsx
+│       │   │   ├── tabela_versao_8.xlsx
+│       │   │   └── tabela_versao_9.xlsx
+│       │   ├── riomaior50_gamma1_wsr31_N10_seed42.pkl
+│       │   ├── riomaior50_gamma1_wsr31_N1_seed42.pkl
+│       │   ├── riomaior50_gamma2_wsr31_N10_seed42.pkl
+│       │   └── riomaior50_gamma3_wsr31_N10_seed42.pkl
+│       ├── datasets
+│       └── distance_matrix
+│           ├── distance_104bins.xlsx
+│           ├── gmaps_distmat_plastic104[riomaior].csv
+│           ├── gmaps_distmat_plastic[riomaior].csv
+│           ├── gmaps_distmat_plastic[riomaior]_ordenado.csv
+│           ├── matriz_distancia_embalagens_com_base.xlsx
+│           ├── matriz_distancia_papel_com_base.xlsx
+│           ├── matriz_distancia_vidro_com_base.xlsx
+│           └── submatrix
+│               ├── gmaps_distmat100_plastic[riomaior].csv
+│               ├── gmaps_distmat170_plastic[riomaior].csv
+│               ├── gmaps_distmat20_plastic[riomaior].csv
+│               └── gmaps_distmat50_plastic[riomaior].csv
 ├── env
 │   ├── conda.yml
 │   ├── dev_requirements.txt
@@ -60,42 +275,90 @@
 │   ├── src
 │   │   ├── components
 │   │   │   ├── clickable_header.py
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── clickable_header.cpython-39.pyc
+│   │   │       └── __init__.cpython-39.pyc
 │   │   ├── helpers
 │   │   │   ├── chart_worker.py
 │   │   │   ├── data_loader_worker.py
 │   │   │   ├── file_tailer_worker.py
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── chart_worker.cpython-39.pyc
+│   │   │       ├── data_loader_worker.cpython-39.pyc
+│   │   │       ├── file_tailer_worker.cpython-39.pyc
+│   │   │       └── __init__.cpython-39.pyc
 │   │   ├── styles
 │   │   │   ├── globals.py
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── globals.cpython-39.pyc
+│   │   │       └── __init__.cpython-39.pyc
 │   │   ├── tabs
 │   │   │   ├── analysis
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── input_analysis.py
 │   │   │   │   ├── output_analysis.py
-│   │   │   │   └── pandas_model.py
+│   │   │   │   ├── pandas_model.py
+│   │   │   │   └── __pycache__
+│   │   │   │       ├── __init__.cpython-39.pyc
+│   │   │   │       ├── input_analysis.cpython-39.pyc
+│   │   │   │       ├── output_analysis.cpython-39.pyc
+│   │   │   │       └── pandas_model.cpython-39.pyc
 │   │   │   ├── evaluation
 │   │   │   │   ├── eval_data_batching.py
 │   │   │   │   ├── eval_decoding.py
 │   │   │   │   ├── eval_input_output.py
 │   │   │   │   ├── eval_problem.py
-│   │   │   │   └── __init__.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── __pycache__
+│   │   │   │       ├── eval_data_batching.cpython-39.pyc
+│   │   │   │       ├── eval_decoding.cpython-39.pyc
+│   │   │   │       ├── eval_input_output.cpython-39.pyc
+│   │   │   │       ├── eval_problem.cpython-39.pyc
+│   │   │   │       └── __init__.cpython-39.pyc
 │   │   │   ├── file_system
 │   │   │   │   ├── fs_cryptography.py
 │   │   │   │   ├── fs_delete.py
 │   │   │   │   ├── fs_update.py
-│   │   │   │   └── __init__.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── __pycache__
+│   │   │   │       ├── fs_cryptography.cpython-39.pyc
+│   │   │   │       ├── fs_delete.cpython-39.pyc
+│   │   │   │       ├── fs_update.cpython-39.pyc
+│   │   │   │       └── __init__.cpython-39.pyc
 │   │   │   ├── generate_data
 │   │   │   │   ├── gd_advanced.py
 │   │   │   │   ├── gd_general.py
 │   │   │   │   ├── gd_problem.py
-│   │   │   │   └── __init__.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── __pycache__
+│   │   │   │       ├── gd_advanced.cpython-39.pyc
+│   │   │   │       ├── gd_general.cpython-39.pyc
+│   │   │   │       ├── gd_problem.cpython-39.pyc
+│   │   │   │       └── __init__.cpython-39.pyc
 │   │   │   ├── hyperparam_optim.py
 │   │   │   ├── __init__.py
 │   │   │   ├── meta_rl_train.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── hyperparam_optim.cpython-39.pyc
+│   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   ├── meta_rl_train.cpython-39.pyc
+│   │   │   │   ├── scripts.cpython-39.pyc
+│   │   │   │   ├── test_suite.cpython-39.pyc
+│   │   │   │   └── test_suite.cpython-39-pytest-8.4.2.pyc
 │   │   │   ├── reinforcement_learning
 │   │   │   │   ├── __init__.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   │   ├── rl_base.cpython-39.pyc
+│   │   │   │   │   ├── rl_costs.cpython-39.pyc
+│   │   │   │   │   ├── rl_data.cpython-39.pyc
+│   │   │   │   │   ├── rl_model.cpython-39.pyc
+│   │   │   │   │   ├── rl_optim.cpython-39.pyc
+│   │   │   │   │   ├── rl_output.cpython-39.pyc
+│   │   │   │   │   └── rl_training.cpython-39.pyc
 │   │   │   │   ├── rl_base.py
 │   │   │   │   ├── rl_costs.py
 │   │   │   │   ├── rl_data.py
@@ -106,6 +369,12 @@
 │   │   │   ├── scripts.py
 │   │   │   ├── test_simulator
 │   │   │   │   ├── __init__.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   │   ├── ts_advanced.cpython-39.pyc
+│   │   │   │   │   ├── ts_input_output.cpython-39.pyc
+│   │   │   │   │   ├── ts_policy_parameters.cpython-39.pyc
+│   │   │   │   │   └── ts_settings.cpython-39.pyc
 │   │   │   │   ├── ts_advanced.py
 │   │   │   │   ├── ts_input_output.py
 │   │   │   │   ├── ts_policy_parameters.py
@@ -113,14 +382,34 @@
 │   │   │   └── test_suite.py
 │   │   ├── utils
 │   │   │   ├── app_definitions.py
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── app_definitions.cpython-39.pyc
+│   │   │       └── __init__.cpython-39.pyc
 │   │   └── windows
 │   │       ├── __init__.py
 │   │       ├── main_window.py
+│   │       ├── __pycache__
+│   │       │   ├── __init__.cpython-39.pyc
+│   │       │   ├── main_window.cpython-39.pyc
+│   │       │   └── ts_results_window.cpython-39.pyc
 │   │       └── ts_results_window.py
 │   └── test
 │       ├── conftest.py
 │       ├── __init__.py
+│       ├── __pycache__
+│       │   ├── conftest.cpython-39-pytest-8.4.2.pyc
+│       │   ├── __init__.cpython-39.pyc
+│       │   ├── test_components.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_helpers.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_tabs_analysis.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_tabs_evaluation.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_tabs_file_system.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_tabs_generate_data.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_tabs_reinforcement_learning.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_tabs_root.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_tabs_test_simulator.cpython-39-pytest-8.4.2.pyc
+│       │   └── test_ts_results_window.cpython-39-pytest-8.4.2.pyc
 │       ├── test_components.py
 │       ├── test_helpers.py
 │       ├── test_tabs_analysis.py
@@ -135,10 +424,21 @@
 │   ├── AGENTS.md
 │   ├── src
 │   │   ├── app.py
+│   │   ├── data
+│   │   │   ├── generate_data.py
+│   │   │   ├── generate_problem_data.py
+│   │   │   ├── generate_simulator_data.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── generate_data.cpython-39.pyc
+│   │   │       ├── generate_problem_data.cpython-39.pyc
+│   │   │       ├── generate_simulator_data.cpython-39.pyc
+│   │   │       └── __init__.cpython-39.pyc
 │   │   ├── file_system.py
 │   │   ├── __init__.py
 │   │   ├── models
 │   │   │   ├── attention_model.py
+│   │   │   ├── context_embedder.py
 │   │   │   ├── critic_network.py
 │   │   │   ├── deep_decoder_am.py
 │   │   │   ├── gat_lstm_manager.py
@@ -157,9 +457,35 @@
 │   │   │   │   ├── multi_head_attention.py
 │   │   │   │   ├── normalization.py
 │   │   │   │   ├── normalized_activation_function.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── activation_function.cpython-39.pyc
+│   │   │   │   │   ├── distance_graph_convolution.cpython-39.pyc
+│   │   │   │   │   ├── efficient_graph_convolution.cpython-39.pyc
+│   │   │   │   │   ├── feed_forward.cpython-39.pyc
+│   │   │   │   │   ├── gated_graph_convolution.cpython-39.pyc
+│   │   │   │   │   ├── graph_convolution.cpython-39.pyc
+│   │   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   │   ├── multi_head_attention.cpython-39.pyc
+│   │   │   │   │   ├── normalization.cpython-39.pyc
+│   │   │   │   │   ├── normalized_activation_function.cpython-39.pyc
+│   │   │   │   │   └── skip_connection.cpython-39.pyc
 │   │   │   │   └── skip_connection.py
 │   │   │   ├── pointer_network.py
-│   │   │   ├── reinforce_baselines.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── attention_model.cpython-39.pyc
+│   │   │   │   ├── context_embedder.cpython-39.pyc
+│   │   │   │   ├── critic_network.cpython-312.pyc
+│   │   │   │   ├── critic_network.cpython-39.pyc
+│   │   │   │   ├── deep_decoder_am.cpython-39.pyc
+│   │   │   │   ├── gat_lstm_manager.cpython-39.pyc
+│   │   │   │   ├── hierarchical_tam.cpython-39.pyc
+│   │   │   │   ├── hypernet.cpython-39.pyc
+│   │   │   │   ├── __init__.cpython-312.pyc
+│   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   ├── meta_rnn.cpython-39.pyc
+│   │   │   │   ├── pointer_network.cpython-39.pyc
+│   │   │   │   ├── reinforce_baselines.cpython-39.pyc
+│   │   │   │   └── temporal_am.cpython-39.pyc
 │   │   │   ├── subnets
 │   │   │   │   ├── gac_encoder.py
 │   │   │   │   ├── gat_decoder.py
@@ -171,29 +497,80 @@
 │   │   │   │   ├── mlp_encoder.py
 │   │   │   │   ├── ptr_decoder.py
 │   │   │   │   ├── ptr_encoder.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── ffw_predictor.cpython-39.pyc
+│   │   │   │   │   ├── gac_encoder.cpython-39.pyc
+│   │   │   │   │   ├── gat_decoder.cpython-39.pyc
+│   │   │   │   │   ├── gated_gat_encoder.cpython-39.pyc
+│   │   │   │   │   ├── gat_encoder.cpython-39.pyc
+│   │   │   │   │   ├── gcn_encoder.cpython-39.pyc
+│   │   │   │   │   ├── ggac_encoder.cpython-39.pyc
+│   │   │   │   │   ├── grf_predictor.cpython-39.pyc
+│   │   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   │   ├── mlp_encoder.cpython-39.pyc
+│   │   │   │   │   ├── ptr_decoder.cpython-39.pyc
+│   │   │   │   │   ├── ptr_encoder.cpython-39.pyc
+│   │   │   │   │   └── tgc_encoder.cpython-39.pyc
 │   │   │   │   └── tgc_encoder.py
 │   │   │   └── temporal_am.py
 │   │   ├── pipeline
 │   │   │   ├── eval.py
 │   │   │   ├── __init__.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── eval.cpython-39.pyc
+│   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   ├── test.cpython-39.pyc
+│   │   │   │   └── train.cpython-39.pyc
 │   │   │   ├── reinforcement_learning
-│   │   │   │   ├── epoch.py
-│   │   │   │   ├── hpo.py
+│   │   │   │   ├── core
+│   │   │   │   │   ├── epoch.py
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── post_processing.py
+│   │   │   │   │   ├── __pycache__
+│   │   │   │   │   │   ├── epoch.cpython-39.pyc
+│   │   │   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   │   │   ├── post_processing.cpython-39.pyc
+│   │   │   │   │   │   ├── reinforce_baselines.cpython-39.pyc
+│   │   │   │   │   │   ├── reinforce.cpython-39.pyc
+│   │   │   │   │   │   └── trainers.cpython-39.pyc
+│   │   │   │   │   ├── reinforce_baselines.py
+│   │   │   │   │   ├── reinforce.py
+│   │   │   │   │   └── trainers.py
 │   │   │   │   ├── hyperparameter_optimization
 │   │   │   │   │   ├── dehb_config_repo.py
 │   │   │   │   │   ├── dehb.py
 │   │   │   │   │   ├── dehb_shb_manager.py
 │   │   │   │   │   ├── de.py
-│   │   │   │   │   └── __init__.py
-│   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── hpo.py
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── __pycache__
+│   │   │   │   │       ├── de.cpython-39.pyc
+│   │   │   │   │       ├── dehb_config_repo.cpython-39.pyc
+│   │   │   │   │       ├── dehb.cpython-39.pyc
+│   │   │   │   │       ├── dehb_shb_manager.cpython-39.pyc
+│   │   │   │   │       ├── hpo.cpython-39.pyc
+│   │   │   │   │       └── __init__.cpython-39.pyc
 │   │   │   │   ├── meta
 │   │   │   │   │   ├── contextual_bandits.py
 │   │   │   │   │   ├── __init__.py
 │   │   │   │   │   ├── multi_objective.py
+│   │   │   │   │   ├── __pycache__
+│   │   │   │   │   │   ├── contextual_bandits.cpython-39.pyc
+│   │   │   │   │   │   ├── hierarchical.cpython-39.pyc
+│   │   │   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   │   │   ├── multi_objective.cpython-39.pyc
+│   │   │   │   │   │   ├── temporal_difference_learning.cpython-39.pyc
+│   │   │   │   │   │   ├── weight_optimizer.cpython-39.pyc
+│   │   │   │   │   │   └── weight_strategy.cpython-39.pyc
 │   │   │   │   │   ├── temporal_difference_learning.py
-│   │   │   │   │   └── weight_optimizer.py
-│   │   │   │   ├── post_processing.py
-│   │   │   │   └── reinforce.py
+│   │   │   │   │   ├── weight_optimizer.py
+│   │   │   │   │   └── weight_strategy.py
+│   │   │   │   └── __pycache__
+│   │   │   │       ├── epoch.cpython-39.pyc
+│   │   │   │       ├── hpo.cpython-39.pyc
+│   │   │   │       ├── __init__.cpython-39.pyc
+│   │   │   │       ├── post_processing.cpython-39.pyc
+│   │   │   │       └── reinforce.cpython-39.pyc
 │   │   │   ├── simulator
 │   │   │   │   ├── bins.py
 │   │   │   │   ├── checkpoints.py
@@ -202,6 +579,15 @@
 │   │   │   │   ├── loader.py
 │   │   │   │   ├── network.py
 │   │   │   │   ├── processor.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── bins.cpython-39.pyc
+│   │   │   │   │   ├── checkpoints.cpython-39.pyc
+│   │   │   │   │   ├── day.cpython-39.pyc
+│   │   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   │   ├── loader.cpython-39.pyc
+│   │   │   │   │   ├── network.cpython-39.pyc
+│   │   │   │   │   ├── processor.cpython-39.pyc
+│   │   │   │   │   └── simulation.cpython-39.pyc
 │   │   │   │   ├── simulation.py
 │   │   │   │   └── wsmart_bin_analysis
 │   │   │   │       ├── Deliverables
@@ -291,6 +677,14 @@
 │   │   │   │       │   ├── extract.py
 │   │   │   │       │   ├── __init__.py
 │   │   │   │       │   ├── predictors.py
+│   │   │   │       │   ├── __pycache__
+│   │   │   │       │   │   ├── container.cpython-39.pyc
+│   │   │   │       │   │   ├── extract.cpython-39.pyc
+│   │   │   │       │   │   ├── __init__.cpython-39.pyc
+│   │   │   │       │   │   ├── predictors.cpython-39.pyc
+│   │   │   │       │   │   ├── save_load.cpython-39.pyc
+│   │   │   │       │   │   ├── simulation.cpython-39.pyc
+│   │   │   │       │   │   └── transform.cpython-39.pyc
 │   │   │   │       │   ├── save_load.py
 │   │   │   │       │   ├── simulation.py
 │   │   │   │       │   ├── transform.py
@@ -304,6 +698,9 @@
 │   │   │   │       │       ├── Rio_Maior_sensors.ipynb
 │   │   │   │       │       └── Simulating.ipynb
 │   │   │   │       ├── __init__.py
+│   │   │   │       ├── __pycache__
+│   │   │   │       │   ├── __init__.cpython-39.pyc
+│   │   │   │       │   └── sample_gen.cpython-39.pyc
 │   │   │   │       ├── python experiental
 │   │   │   │       │   └── predictors_python_experiement.py
 │   │   │   │       ├── README.md
@@ -319,14 +716,34 @@
 │   │   │   │       │   ├── FPCA_Predict.R
 │   │   │   │       │   └── Predictor_Comparison.R
 │   │   │   │       ├── sample_gen.py
+│   │   │   │       ├── test
+│   │   │   │       │   ├── conftest.py
+│   │   │   │       │   ├── __init__.py
+│   │   │   │       │   ├── __pycache__
+│   │   │   │       │   │   ├── conftest.cpython-39-pytest-8.4.2.pyc
+│   │   │   │       │   │   ├── __init__.cpython-39.pyc
+│   │   │   │       │   │   ├── test_container.cpython-39-pytest-8.4.2.pyc
+│   │   │   │       │   │   ├── test_definitions.cpython-39-pytest-8.4.2.pyc
+│   │   │   │       │   │   ├── test_extract.cpython-39-pytest-8.4.2.pyc
+│   │   │   │       │   │   ├── test_predictors.cpython-39-pytest-8.4.2.pyc
+│   │   │   │       │   │   ├── test_save_load.cpython-39-pytest-8.4.2.pyc
+│   │   │   │       │   │   ├── test_simulation.cpython-39-pytest-8.4.2.pyc
+│   │   │   │       │   │   ├── test_suite.cpython-39-pytest-8.4.2.pyc
+│   │   │   │       │   │   └── test_transform.cpython-39-pytest-8.4.2.pyc
+│   │   │   │       │   ├── test_container.py
+│   │   │   │       │   ├── test_definitions.py
+│   │   │   │       │   ├── test_extract.py
+│   │   │   │       │   ├── test_predictors.py
+│   │   │   │       │   ├── test_save_load.py
+│   │   │   │       │   ├── test_simulation.py
+│   │   │   │       │   ├── test_suite.py
+│   │   │   │       │   └── test_transform.py
 │   │   │   │       └── valorsul_article_pictures.ipynb
 │   │   │   ├── test.py
 │   │   │   └── train.py
 │   │   ├── policies
 │   │   │   ├── adaptive_large_neighborhood_search.py
 │   │   │   ├── branch_cut_and_price.py
-│   │   │   ├── gurobi_optimizer.py
-│   │   │   ├── hexaly_optimizer.py
 │   │   │   ├── hybrid_genetic_search.py
 │   │   │   ├── __init__.py
 │   │   │   ├── last_minute.py
@@ -335,6 +752,18 @@
 │   │   │   │   ├── computations.py
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── move.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── check.cpython-39.pyc
+│   │   │   │   │   ├── computations.cpython-39.pyc
+│   │   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   │   ├── move.cpython-39.pyc
+│   │   │   │   │   ├── routes.cpython-39.pyc
+│   │   │   │   │   ├── sans_opt.cpython-39.pyc
+│   │   │   │   │   ├── search.cpython-39.pyc
+│   │   │   │   │   ├── select.cpython-39.pyc
+│   │   │   │   │   ├── solutions.cpython-39.pyc
+│   │   │   │   │   ├── swap.cpython-39.pyc
+│   │   │   │   │   └── update.cpython-39.pyc
 │   │   │   │   ├── routes.py
 │   │   │   │   ├── sans_opt.py
 │   │   │   │   ├── search.py
@@ -344,21 +773,60 @@
 │   │   │   │   └── update.py
 │   │   │   ├── look_ahead.py
 │   │   │   ├── multi_vehicle.py
+│   │   │   ├── neural_agent.py
+│   │   │   ├── policy_vrpp.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── adaptive_large_neighborhood_search.cpython-39.pyc
+│   │   │   │   ├── branch_cut_and_price.cpython-39.pyc
+│   │   │   │   ├── gurobi_optimizer.cpython-39.pyc
+│   │   │   │   ├── hexaly_optimizer.cpython-39.pyc
+│   │   │   │   ├── hybrid_genetic_search.cpython-39.pyc
+│   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   ├── last_minute.cpython-39.pyc
+│   │   │   │   ├── look_ahead.cpython-39.pyc
+│   │   │   │   ├── multi_vehicle.cpython-39.pyc
+│   │   │   │   ├── neural_agent.cpython-39.pyc
+│   │   │   │   ├── policy_vrpp.cpython-39.pyc
+│   │   │   │   ├── regular.cpython-39.pyc
+│   │   │   │   ├── single_vehicle.cpython-39.pyc
+│   │   │   │   └── vrpp_optimizer.cpython-39.pyc
 │   │   │   ├── regular.py
-│   │   │   └── single_vehicle.py
+│   │   │   ├── single_vehicle.py
+│   │   │   └── vrpp_optimizer.py
 │   │   ├── problems
 │   │   │   ├── __init__.py
+│   │   │   ├── __pycache__
+│   │   │   │   └── __init__.cpython-39.pyc
 │   │   │   ├── vrpp
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── problem_vrpp.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── __init__.cpython-39.pyc
+│   │   │   │   │   ├── problem_vrpp.cpython-39.pyc
+│   │   │   │   │   ├── state_cvrpp.cpython-39.pyc
+│   │   │   │   │   └── state_vrpp.cpython-39.pyc
 │   │   │   │   ├── state_cvrpp.py
 │   │   │   │   └── state_vrpp.py
 │   │   │   └── wcvrp
 │   │   │       ├── __init__.py
 │   │   │       ├── problem_wcvrp.py
+│   │   │       ├── __pycache__
+│   │   │       │   ├── __init__.cpython-39.pyc
+│   │   │       │   ├── problem_wcrp.cpython-39.pyc
+│   │   │       │   ├── problem_wcvrp.cpython-39.pyc
+│   │   │       │   ├── state_cwcvrp.cpython-39.pyc
+│   │   │       │   ├── state_sdwcvrp.cpython-39.pyc
+│   │   │       │   ├── state_wcrp.cpython-39.pyc
+│   │   │       │   └── state_wcvrp.cpython-39.pyc
 │   │   │       ├── state_cwcvrp.py
 │   │   │       ├── state_sdwcvrp.py
 │   │   │       └── state_wcvrp.py
+│   │   ├── __pycache__
+│   │   │   ├── app.cpython-39.pyc
+│   │   │   ├── file_system.cpython-312.pyc
+│   │   │   ├── file_system.cpython-39.pyc
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   └── __init__.cpython-39.pyc
 │   │   └── utils
 │   │       ├── arg_parser.py
 │   │       ├── beam_search.py
@@ -375,10 +843,53 @@
 │   │       ├── log_utils.py
 │   │       ├── monkey_patch.py
 │   │       ├── plot_utils.py
-│   │       └── setup_utils.py
+│   │       ├── __pycache__
+│   │       │   ├── arg_parser.cpython-312.pyc
+│   │       │   ├── arg_parser.cpython-39.pyc
+│   │       │   ├── beam_search.cpython-39.pyc
+│   │       │   ├── boolmask.cpython-39.pyc
+│   │       │   ├── crypto_utils.cpython-39.pyc
+│   │       │   ├── data_utils.cpython-39.pyc
+│   │       │   ├── definitions.cpython-312.pyc
+│   │       │   ├── definitions.cpython-39.pyc
+│   │       │   ├── functions.cpython-312.pyc
+│   │       │   ├── functions.cpython-39.pyc
+│   │       │   ├── graph_utils.cpython-39.pyc
+│   │       │   ├── __init__.cpython-312.pyc
+│   │       │   ├── __init__.cpython-39.pyc
+│   │       │   ├── io_utils.cpython-39.pyc
+│   │       │   ├── lexsort.cpython-39.pyc
+│   │       │   ├── log_utils.cpython-39.pyc
+│   │       │   ├── plot_utils.cpython-39.pyc
+│   │       │   └── setup_utils.cpython-39.pyc
+│   │       ├── setup_utils.py
+│   │       └── visualize_utils.py
 │   └── test
 │       ├── conftest.py
 │       ├── __init__.py
+│       ├── __pycache__
+│       │   ├── conftest.cpython-39-pytest-8.4.2.pyc
+│       │   ├── __init__.cpython-312.pyc
+│       │   ├── __init__.cpython-39.pyc
+│       │   ├── test_arg_parser.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_definitions.cpython-312.pyc
+│       │   ├── test_definitions.cpython-39.pyc
+│       │   ├── test_definitions.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_dir_refactor_verification.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_generate_data.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_hp_optim.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_models.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_modules.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_mrl_train.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_policies.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_problems.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_refactor_verification.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_simulator.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_subnets.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_suite.cpython-312.pyc
+│       │   ├── test_suite.cpython-39.pyc
+│       │   ├── test_suite.cpython-39-pytest-8.4.2.pyc
+│       │   └── test_train.cpython-39-pytest-8.4.2.pyc
 │       ├── test_arg_parser.py
 │       ├── test_definitions.py
 │       ├── test_generate_data.py
@@ -406,6 +917,8 @@
 │   ├── output.ipynb
 │   ├── output_show.ipynb
 │   ├── prototype.ipynb
+│   ├── __pycache__
+│   │   └── notebook_setup.cpython-39.pyc
 │   ├── VPP_OneFlow_Lookahead_Dynamic.ipynb
 │   ├── VRPP_Dynamic_Ajustado.ipynb
 │   └── VRP_Policy_Regular3day.ipynb
@@ -413,6 +926,8 @@
 ├── pyproject.toml
 ├── README.md
 ├── reports
+│   ├── Adapting Attention for Multi-Period CVRP.pdf
+│   ├── Adapting Attention for Multi-Period CVRP.txt
 │   ├── Deep Hierarchical Reinforcement Learning Advancements.pdf
 │   ├── Deep Hierarchical Reinforcement Learning Advancements.txt
 │   ├── Deep HRL for Periodic VRP.pdf
@@ -421,6 +936,10 @@
 │   ├── Deep Learning for Periodic VRP Scheduling.txt
 │   ├── HRL for Periodic VRP Tuning.pdf
 │   ├── HRL for Periodic VRP Tuning.txt
+│   ├── Hybrid IL-RL for CVRP Research.pdf
+│   ├── Hybrid IL-RL for CVRP Research.txt
+│   ├── Hybrid RL_IL for Periodic VRP.pdf
+│   ├── Hybrid RL_IL for Periodic VRP.txt
 │   ├── Machine Learning for Temporal Optimization.pdf
 │   ├── Machine Learning for Temporal Optimization.txt
 │   ├── Neural Combinatorial Optimization Research.pdf
@@ -446,76 +965,6 @@
 │   └── train.sh
 ├── simulator.spec
 ├── temp
-├── test_dehb_output
-├── uv.lock
-└── wandb
-    ├── debug-internal.log -> offline-run-20251223_172029-61uwudar/logs/debug-internal.log
-    ├── debug.log -> offline-run-20251223_172029-61uwudar/logs/debug.log
-    ├── latest-run -> offline-run-20251223_172029-61uwudar
-    ├── offline-run-20251222_020528-uuj035wf
-    │   ├── files
-    │   │   ├── output.log
-    │   │   └── requirements.txt
-    │   ├── logs
-    │   │   ├── debug-core.log -> /home/pkhunter/.cache/wandb/logs/core-debug-20251222_020528.log
-    │   │   ├── debug-internal.log
-    │   │   └── debug.log
-    │   ├── run-uuj035wf.wandb
-    │   └── tmp
-    │       └── code
-    ├── offline-run-20251222_021132-lo26t6h7
-    │   ├── files
-    │   │   ├── output.log
-    │   │   └── requirements.txt
-    │   ├── logs
-    │   │   ├── debug-core.log -> /home/pkhunter/.cache/wandb/logs/core-debug-20251222_021132.log
-    │   │   ├── debug-internal.log
-    │   │   └── debug.log
-    │   ├── run-lo26t6h7.wandb
-    │   └── tmp
-    │       └── code
-    ├── offline-run-20251223_171735-b0rgd1kp
-    │   ├── files
-    │   │   ├── output.log
-    │   │   └── requirements.txt
-    │   ├── logs
-    │   │   ├── debug-core.log -> /home/pkhunter/.cache/wandb/logs/core-debug-20251223_171735.log
-    │   │   ├── debug-internal.log
-    │   │   └── debug.log
-    │   ├── run-b0rgd1kp.wandb
-    │   └── tmp
-    │       └── code
-    ├── offline-run-20251223_171906-r6lgk0m7
-    │   ├── files
-    │   │   ├── output.log
-    │   │   └── requirements.txt
-    │   ├── logs
-    │   │   ├── debug-core.log -> /home/pkhunter/.cache/wandb/logs/core-debug-20251223_171906.log
-    │   │   ├── debug-internal.log
-    │   │   └── debug.log
-    │   ├── run-r6lgk0m7.wandb
-    │   └── tmp
-    │       └── code
-    └── offline-run-20251223_172029-61uwudar
-        ├── files
-        │   ├── media
-        │   │   ├── images
-        │   │   │   ├── length_cost_102_c317c032da3f8ca9c07c.png
-        │   │   │   ├── nll_105_8b7e71a8d213e2cc51ba.png
-        │   │   │   ├── overflows_cost_103_34464074f9a4b9975a5a.png
-        │   │   │   ├── reinforce_loss_106_53667979e5dd134b92e3.png
-        │   │   │   ├── total_cost_104_783ecf6666e36164a923.png
-        │   │   │   └── waste_cost_101_c9b96e57274fe69555bf.png
-        │   │   └── table
-        │   │       └── training_table_100_3e7b3988f01af374c45c.table.json
-        │   ├── output.log
-        │   └── requirements.txt
-        ├── logs
-        │   ├── debug-core.log -> /home/pkhunter/.cache/wandb/logs/core-debug-20251223_172029.log
-        │   ├── debug-internal.log
-        │   └── debug.log
-        ├── run-61uwudar.wandb
-        └── tmp
-            └── code
+└── uv.lock
 
-104 directories, 415 files
+137 directories, 831 files
