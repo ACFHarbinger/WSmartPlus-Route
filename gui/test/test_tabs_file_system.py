@@ -1,8 +1,7 @@
-
-import pytest
 from gui.src.tabs.file_system.fs_update import FileSystemUpdateTab
 from gui.src.tabs.file_system.fs_delete import FileSystemDeleteTab
 from gui.src.tabs.file_system.fs_cryptography import FileSystemCryptographyTab
+
 
 def test_fs_update_tab(qapp):
     tab = FileSystemUpdateTab()

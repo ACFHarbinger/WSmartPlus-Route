@@ -1,10 +1,10 @@
-
 import pytest
-import time
+
 from unittest.mock import MagicMock, patch, mock_open
 from PySide6.QtCore import QMutex
 from gui.src.helpers.chart_worker import ChartWorker
 from gui.src.helpers.file_tailer_worker import FileTailerWorker
+
 
 # --- ChartWorker Tests ---
 def test_chart_worker_process_data():

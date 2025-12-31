@@ -279,7 +279,7 @@ class MainWindow(QWidget):
                         actual_command = f'scripts/{script_name}'
                         if not actual_command.endswith('.sh'): actual_command += '.sh'
                     elif sys.platform.startswith('win'):
-                        actual_command = f'scripts\{script_name}'
+                        actual_command = f'scripts\\{script_name}'
                         if not actual_command.endswith('.bat'): actual_command += '.bat'
 
         return actual_command if actual_command else main_command_display

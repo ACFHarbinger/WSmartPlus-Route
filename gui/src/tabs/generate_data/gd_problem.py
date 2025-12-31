@@ -5,8 +5,8 @@ from PySide6.QtWidgets import (
 )
 from gui.src.utils.app_definitions import DATA_DISTRIBUTIONS, PROBLEM_TYPES
 from ...styles.globals import (
+    SECONDARY_BUTTON_STYLE,
     SECTION_HEADER_STYLE, SUCCESS_BUTTON_STYLE,
-    SECONDARY_BUTTON_STYLE, SUB_HEADER_STYLE
 )
 
 
