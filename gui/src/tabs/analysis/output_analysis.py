@@ -1,20 +1,18 @@
 import os
 import re 
 import json
+import webbrowser
+import subprocess
 
 from collections import defaultdict
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QPushButton, QLabel, QFileDialog, 
     QWidget, QVBoxLayout, QHBoxLayout, 
     QComboBox, QTabWidget, QTextEdit, 
     QMessageBox, QCheckBox
 )
-from PySide6.QtCore import QTimer
 from matplotlib.figure import Figure
-import webbrowser
-import subprocess
-import signal
-
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 

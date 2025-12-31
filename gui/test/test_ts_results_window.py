@@ -1,8 +1,5 @@
-
 import pytest
 import json
-from unittest.mock import MagicMock
-from gui.src.windows.ts_results_window import SimulationResultsWindow
 
 
 @pytest.fixture
