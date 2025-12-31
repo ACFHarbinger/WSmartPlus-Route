@@ -11,10 +11,7 @@ from logic.src.policies.policy_vrpp import policy_vrpp
 from logic.src.policies.hybrid_genetic_search import run_hgs
 from logic.src.policies.multi_vehicle import find_routes, find_routes_ortools
 from logic.src.policies.last_minute import policy_last_minute, policy_last_minute_and_path
-from logic.src.policies.look_ahead import (
-    policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp, 
-    policy_lookahead_hgs, policy_lookahead_alns, policy_lookahead_bcp
-)
+from logic.src.policies.look_ahead import policy_lookahead, policy_lookahead_sans, policy_lookahead_hgs
 
 
 # --- Test Class for `run_day` Policy Dispatcher ---
@@ -827,49 +824,7 @@ class TestAdvancedLookaheadPolicies:
             env=mock_env
         )
         
-        # --- Assert ---
-        # Route logic:
-        # policy_lookahead_vrpp returns [0] + contentores_coletados
-        # contentores_coletados are mapped back to ORIGINAL IDs?
-        # id_map = {i: binsids[i] for i in nodes}
-        # binsids array in function: [0, 1, 3] (if input [0, 2])
-        # id_map: {0:0, 1:1, 2:3}. No.
-        # nodes = range(len(internal_binsids)) = range(3) -> 0, 1, 2.
-        # internal_binsids: [0, 1, 3].
-        # id_map: {0:0, 1:1, 2:3}.
-        
-        # Route constructed: 0 -> 1 -> 3 -> 0.
-        # Edges in x: (0, 1), (1, 3), (3, 0).
-        # WAIT. x indices are indices into `nodes` (0..N).
-        # My active_edges used (0, 1), (1, 3), (3, 0).
-        # 1 maps to node 1. 3 maps to node... 3?
-        # But nodes are 0, 1, 2. (Len 3).
-        # So index 3 does not verify exist.
-        # Check binsids_input=[0, 2].
-        # internal binsids = [0] + [1, 3] = [0, 1, 3]. Length 3.
-        # Nodes: 0, 1, 2.
-        # internal[0]=0. internal[1]=1. internal[2]=3.
-        # I want route visiting all: 0 -> 1 -> 2 -> 0 (in node indices).
-        # This maps to bins: 0 -> 1 -> 3 -> 0.
-        # So active_edges should be (0, 1), (1, 2), (2, 0).
-        
-        # Re-defining active edges for the mock:
-        # We need to redefine the mock setup inside Act to correspond to logic we want?
-        # Or I change the setup above. I'll stick to input [0, 2] and edges (0,1), (1,2), (2,0).
-        pass # Placeholder for replacement content block logic
-        
         # Assertions
-        # Expected: [0, 1, 3, 0]?
-        # Function returns: [0] + [collected...].
-        # collected: [1, 3, 0]? No, 0 is depot.
-        # code: contentores_coletados.extend([id_map[j] for (i, j) in rota])
-        # rota: (0, 1), (1, 2), (2, 0).
-        # (0, 1) -> j=1 -> map[1]=1.
-        # (1, 2) -> j=2 -> map[2]=3.
-        # (2, 0) -> j=0 -> map[0]=0.
-        # Result: [1, 3, 0].
-        # Final return: [0, 1, 3, 0].
-        
         assert routes == [0, 1, 3, 0]
 
     @pytest.mark.unit
@@ -1032,6 +987,53 @@ class TestAdvancedLookaheadPolicies:
         assert routes == [0, 1, 2, 0, 3, 0]
         assert cost == 150.0
         assert profit == 0 # ALNS policy returns 0 profit in current implementation
+
+    @pytest.mark.unit
+    def test_policy_lookahead_alns_variants(self, mocker, mock_vrpp_inputs):
+        """
+        Tests that policy_lookahead_alns dispatches to the correct underlying function
+        based on the 'variant' argument.
+        """
+        from logic.src.policies.look_ahead import policy_lookahead_alns
+        
+        # Mocks
+        mock_run_alns = mocker.patch('logic.src.policies.look_ahead.run_alns', return_value=([], 0))
+        mock_run_alns_pkg = mocker.patch('logic.src.policies.look_ahead.run_alns_package', return_value=([], 0))
+        mock_run_alns_ort = mocker.patch('logic.src.policies.look_ahead.run_alns_ortools', return_value=([], 0))
+        
+        values = {'R': 1, 'C': 1, 'E': 1, 'B': 1, 'vehicle_capacity': 100}
+        fill_levels = np.array([50.0, 50.0])
+        binsids = [0, 1]
+        
+        # 1. Test Package Variant
+        policy_lookahead_alns(
+            fill_levels, binsids, [], mock_vrpp_inputs['distance_matrix'], values, [], variant='package'
+        )
+        mock_run_alns_pkg.assert_called_once()
+        mock_run_alns.assert_not_called()
+        mock_run_alns_ort.assert_not_called()
+        
+        # Reset
+        mock_run_alns_pkg.reset_mock()
+        
+        # 2. Test OR-Tools Variant
+        policy_lookahead_alns(
+            fill_levels, binsids, [], mock_vrpp_inputs['distance_matrix'], values, [], variant='ortools'
+        )
+        mock_run_alns_ort.assert_called_once()
+        mock_run_alns_pkg.assert_not_called()
+        mock_run_alns.assert_not_called()
+        
+        # Reset
+        mock_run_alns_ort.reset_mock()
+        
+        # 3. Test Default/Custom Variant
+        policy_lookahead_alns(
+            fill_levels, binsids, [], mock_vrpp_inputs['distance_matrix'], values, [], variant='custom'
+        )
+        mock_run_alns.assert_called_once()
+        mock_run_alns_pkg.assert_not_called()
+        mock_run_alns_ort.assert_not_called()
 
     @pytest.mark.unit
     def test_policy_lookahead_bcp(self, mocker, mock_vrpp_inputs):

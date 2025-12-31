@@ -279,6 +279,48 @@ class TestReinforce:
         assert mock_update_ds.call_count == 1
         mock_post.assert_called_once() # Post processing triggered
 
+    def test_train_over_time_with_hypernetwork(self, mocker, mock_train_model, mock_optimizer, mock_baseline):
+        """Verify hypernetwork training flow."""
+        # Mocks
+        mock_ds = MagicMock()
+        mock_ds.__len__.return_value = 1
+        mock_ds.__getitem__.return_value = {}
+        mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.prepare_time_dataset', 
+                     return_value=(0, mock_ds, [], pd.DataFrame(), ()))
+        
+        # We mock train_batch_reinforce to return batch_cost as 4th element (tensor)
+        mocker.patch(
+            'logic.src.pipeline.reinforcement_learning.reinforce.train_batch_reinforce',
+            return_value=(torch.tensor([[1]]), {}, {}, torch.tensor([10.0]))
+        )
+        
+        mock_update_ds = mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.update_time_dataset',
+                                     return_value=mock_ds)
+        mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.log_training')
+        mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.prepare_batch', return_value={})
+        
+        # Mock validation
+        mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.complete_train_pass',
+                     return_value=({}, torch.tensor(0.0), {'kg': torch.tensor([1.0]), 'km': torch.tensor([1.0]), 'overflows': torch.tensor([0.0])}))
+        
+        # Mock hypernetwork
+        mocker.patch('logic.src.pipeline.reinforcement_learning.reinforce.HypernetworkOptimizer')
+
+        opts = {
+            'epoch_start': 0, 'n_epochs': 2, 'no_tensorboard': True, 
+            'constraint': 1.0, 'device': 'cpu', 'temporal_horizon': 0,
+            'model': 'am', 'batch_size': 1, 'no_progress_bar': True,
+            'hyp_lr': 0.001, 'use_hypernetwork': True, 'no_cuda': True
+        }
+        
+        # Call function
+        reinforce.train_over_time_with_hypernetwork(
+            mock_train_model, mock_optimizer, mock_baseline, None, None, None, None, None, {}, opts
+        )
+        
+        # Verification
+        assert mock_update_ds.call_count == 2 # 2 days
+
 class TestEpoch:
     """Tests for epoch.py functions."""
 
