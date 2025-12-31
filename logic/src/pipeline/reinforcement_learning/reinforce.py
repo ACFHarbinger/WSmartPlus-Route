@@ -10,7 +10,7 @@ from .meta import (
     CostWeightManager, RewardWeightOptimizer,
     WeightContextualBandit, MORLWeightOptimizer, 
 )
-from logic.src.models import WeightAdjustmentRNN, GATLSTManager
+from logic.src.models import WeightAdjustmentRNN, GATLSTManager, HypernetworkOptimizer
 from logic.src.utils.functions import move_to
 from logic.src.utils.log_utils import log_values, log_training, log_epoch, get_loss_stats
 from logic.src.policies import local_search_2opt_vectorized
@@ -282,6 +282,104 @@ def train_reinforce_over_time_morl(model, optimizer, baseline, lr_scheduler, sca
             history_df = weight_optimizer.get_weight_history_dataframe()
             history_df.to_csv(os.path.join({opts['output_dir']}, "weight_history_final.csv"))
     return model, None
+
+
+def train_over_time_with_hypernetwork(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+    """
+    Enhanced training process using a hypernetwork for adaptive cost weight optimization
+    """
+    # Initialize using time dataset preparation to get correct args for updates
+    day = opts['epoch_start']
+    step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
+    
+    # Initialize hypernetwork optimizer
+    hyperopt = HypernetworkOptimizer(
+        cost_weight_keys=list(cost_weights.keys()),
+        constraint_value=opts['constraint'],
+        device=opts['device'],
+        lr=opts.get('hyper_lr', 1e-4),
+        buffer_size=opts.get('hyper_buffer_size', 100)
+    )
+    
+    if opts['temporal_horizon'] > 0 and opts['model'] in ['tam']:
+        # This might be redundant if prepare_time_dataset handles it, but keeping for safety if specific to hypernetwork flow
+        pass 
+    
+    # Put model in train mode!
+    model.train()
+    set_decode_type(model, "sampling")
+    
+    # Use 'day' from prepare_time_dataset which respects epoch_start
+    while day < opts['epoch_start'] + opts['n_epochs']:
+        log_pi = []
+        log_costs = []
+        training_dataloader = torch.utils.data.DataLoader(
+            baseline.wrap_dataset(training_dataset), batch_size=opts['batch_size'], pin_memory=True)
+        
+        start_time = time.time()
+        
+        for batch_id, batch in enumerate(tqdm(training_dataloader, disable=opts['no_progress_bar'])):
+            batch = prepare_batch(batch, batch_id, training_dataset, training_dataloader, opts)
+            
+            pi, _, _, batch_cost = train_batch_reinforce(model, optimizer, baseline, scaler, day, batch_id, step, batch, tb_logger, cost_weights, opts)
+            log_pi.append(pi)
+            log_costs.append(batch_cost.detach().cpu())
+            step += 1
+        
+        epoch_duration = time.time() - start_time
+        
+        # Run validation and collect validation metrics
+        default_weights = cost_weights.copy()
+        
+        # Determine is_cuda for validation
+        is_cuda = torch.cuda.is_available() and not opts['no_cuda']
+        
+        cost_weights, avg_cost, all_costs = complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, day, step, epoch_duration, tb_logger, is_cuda, cost_weights, opts)
+        
+        # Update hypernetwork buffer with this experience
+        metrics_tensor = torch.tensor([
+            torch.mean(all_costs['kg']) / torch.mean(all_costs['km']).clamp(min=1e-8),  # efficiency
+            torch.mean(all_costs['overflows'].float()),                                 # overflows
+            torch.mean(all_costs['kg']),                                                # kg
+            torch.mean(all_costs['km']),                                                # km
+            all_costs.get('kg_lost', torch.tensor(0.0)).mean(),                         # kg_lost
+            day / opts['n_epochs']                                                                 # day_progress
+        ], device=opts['device'])
+        
+        weights_tensor = torch.tensor([default_weights[key] for key in hyperopt.cost_weight_keys], device=opts['device'])
+        
+        hyperopt.update_buffer(
+            metrics=metrics_tensor,
+            day=day,
+            weights=weights_tensor,
+            performance=avg_cost.item()
+        )
+        
+        # Train hypernetwork on collected experiences
+        hyperopt.train(epochs=opts.get('hyper_epochs', 10))
+        
+        # Get hypernetwork-generated weights for next iteration
+        if opts.get('use_hypernetwork', True) and day > opts['epoch_start'] + 5:
+            adaptive_weights = hyperopt.get_weights(all_costs, day, default_weights)
+            
+            # Log comparison of weights
+            print("\nWeight comparison:")
+            print("Default weights:", {k: f"{v:.2f}" for k, v in default_weights.items()})
+            print("Hypernetwork weights:", {k: f"{v:.2f}" for k, v in adaptive_weights.items()})
+            
+            # Use hypernetwork weights
+            cost_weights = adaptive_weights
+            
+            # Log to tensorboard
+            if tb_logger is not None:
+                for k, v in cost_weights.items():
+                    tb_logger.add_scalar(f'hyper_weights/{k}', v, step)
+        
+        log_pi = torch.stack(log_pi).contiguous().view(-1, log_pi[0].size(1))
+        training_dataset = update_time_dataset(model, optimizer, training_dataset, log_pi, day+1, opts, args, costs=log_costs)
+        day += 1
+    
+    return model, hyperopt
 
 
 def train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):

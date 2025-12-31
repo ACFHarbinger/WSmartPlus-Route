@@ -8,5 +8,5 @@ from .subnets import GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvE
 
 from .gat_lstm_manager import GATLSTManager
 
-from .hypernet import Hypernetwork
+from .hypernet import Hypernetwork, HypernetworkOptimizer
 from .meta_rnn import WeightAdjustmentRNN
