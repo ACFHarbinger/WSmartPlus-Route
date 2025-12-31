@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from enum import Enum
 from datetime import datetime
 from datetime import timedelta
+from matplotlib.lines import Line2D
 from scipy.stats import ConstantInputWarning
 from scipy.stats import spearmanr
 
@@ -26,7 +27,7 @@ class Container():
     def __init__(self, my_df:pd.DataFrame, my_rec:pd.DataFrame, info: pd.DataFrame):
         self.df:pd.DataFrame = None
         self.info:pd.DataFrame = None
-        self.recs:pd.DataFrame = None,
+        self.recs:pd.DataFrame = None
         self.id:int = None
         self.tag:TAG = None 
 
@@ -61,7 +62,7 @@ class Container():
         """
         return self.df, self.recs, self.info
 
-    def get_collection_quantities(self) -> pd.DataFrame:
+    def get_collection_quantities(self) -> tuple[np.ndarray | None, np.ndarray | None]:
         """
         Generic getter for internal vars of bi
 
@@ -69,7 +70,7 @@ class Container():
         -------
         avg_dist:np.ndarray
             numpy array with 100 - average distance information for each collection event
-        spearman:np.ndarry
+        spearman:np.ndarray
             numpy array with spearman coeficieet information for each collection event scaled by 100
         """
         try:
@@ -191,7 +192,7 @@ class Container():
                                 name = 'Rate')
 
         df.index.name = 'Date'
-        return df
+        return df.to_frame()
 
     def get_crude_rate(self, freq) -> pd.Series:
         """
@@ -396,7 +397,7 @@ class Container():
             tmask = (shf > vec) & mask
             vec[tmask] = shf[tmask]
 
-            return vec, tmask.any()
+            return vec, bool(tmask.any())
         
         #mask should be pre.shifted by -one
         def min_loop(vec:np.ndarray, mask:np.ndarray) -> tuple[np.ndarray, bool]:
@@ -405,7 +406,7 @@ class Container():
             tmask = (shf < vec) & mask
             vec[tmask] = shf[tmask]
 
-            return vec, tmask.any()
+            return vec, bool(tmask.any())
 
         #max loop
         my_df = self.df.loc[self.recs.index[start_idx]:self.recs.index[end_idx], ['Fill', 'Rec']].copy(deep=True)
@@ -464,7 +465,7 @@ class Container():
                     continue
                 
                 deleted = self.adjust_one_collection(idx, c_trash=c_trash, max_fill = max_fill)
-                if deleted:
+                if deleted == 0:
                     deleted_collection_indexes += [index]
                 
                 deleted = self.adjust_one_collection(idx-1, c_trash = c_trash, max_fill = max_fill)
@@ -481,7 +482,7 @@ class Container():
             #previous plus new indexes
             ac_mask = ac_mask | mask
     
-    def adjust_one_collection(self, idx, c_trash:int, max_fill:int) -> bool:
+    def adjust_one_collection(self, idx: int, c_trash:int, max_fill:int) -> int:
         """        
         Parameters
         ----------
@@ -510,7 +511,8 @@ class Container():
                 new_date = self.df.index[new_index+base_index] - timedelta(seconds=1)
                 self.df.at[self.df.index[self.recs['End_Pointer'].iat[idx+1]],'Rec'] = 0
 
-                self.recs.rename(index={self.recs.index[idx+1]:new_date}, inplace=True)
+                old_date = self.recs.index.tolist()[idx+1]
+                self.recs.rename(index={old_date: new_date}, inplace=True)
                 self.recs.at[new_date, 'End_Pointer'] = new_index + base_index
 
                 self.df.loc[
@@ -666,9 +668,9 @@ class Container():
         plt.title('Container ID:' + str(int(self.info['ID'].item())) + '; Freguesia: ' + str(self.info['Freguesia'].item()))
         plt.xticks(rotation=45)
 
-        green_marker = plt.Line2D([0], [0], marker='o', color='w', label='1st Measure', markerfacecolor='green', markersize=3)
-        red_marker = plt.Line2D([0], [0], marker='o', color='w', label='Measures', markerfacecolor='red', markersize=3)
-        green_line = plt.Line2D([0], [1], color='green', linewidth=1, label='Collections')
+        green_marker = Line2D([0], [0], marker='o', color='w', label='1st Measure', markerfacecolor='green', markersize=3)
+        red_marker = Line2D([0], [0], marker='o', color='w', label='Measures', markerfacecolor='red', markersize=3)
+        green_line = Line2D([0], [1], color='green', linewidth=1, label='Collections')
 
         # Updating the legend with the green line
         plt.legend(handles=[green_marker, red_marker, green_line], loc = 'upper left')

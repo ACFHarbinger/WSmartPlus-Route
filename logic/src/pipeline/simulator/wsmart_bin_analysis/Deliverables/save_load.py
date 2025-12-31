@@ -1,5 +1,6 @@
 import pandas as pd
 
+from typing import Union
 from .container import Container
 
 
@@ -161,7 +162,7 @@ def load_info(id:int = None, ver:str = None, path:str = None, name:str = None) -
     return info
 
 
-def load_rate_series(id:int, rate_type:str, path:str = None, name:str = None) -> dict[int, pd.DataFrame, pd.DataFrame]:
+def load_rate_series(id:int, rate_type:str, path:str = None, name:str = None) -> dict[str, Union[int, pd.DataFrame]]:
     """
     Load Container structured information froma a csv file that has been created 
     by a save_container function
@@ -186,9 +187,8 @@ def load_rate_series(id:int, rate_type:str, path:str = None, name:str = None) ->
     df_rate.index = pd.to_datetime(df_rate.index)
     return {'id': id, 'data': df_rate}
 
-def load_rate_global_wrapper(rate_list:list[dict]) -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_rate_global_wrapper(rate_list:list[dict]) -> pd.DataFrame:
     data: list[pd.Series] = []
-    info: list[pd.Series] = []
     for tup in rate_list:
         assert isinstance(tup['data']['Rate'], pd.Series),  f"The with id {tup['id']} is not a pandas Series"
 
