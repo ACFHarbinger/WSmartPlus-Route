@@ -3,6 +3,7 @@ import numpy as np
 
 from typing import Dict, List, Union
 from logic.src.utils.definitions import DAY_METRICS
+from logic.src.policies.neural_agent import NeuralAgent
 from logic.src.utils.log_utils import send_daily_output_to_gui
 from logic.src.utils.functions import move_to
 from logic.src.policies import (
@@ -90,9 +91,10 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
         cost = get_route_cost(distance_matrix, tour) if tour else 0
         if cached is not None and not cached and tour: cached = tour
     elif policy[:2] == 'am' or policy[:4] == 'ddam' or "transgcn" in policy:
+        agent = NeuralAgent(model_env)
         model_data, graph, profit_vars = model_ls
         daily_data = set_daily_waste(model_data, bins.c, device, fill)
-        tour, cost, output_dict = model_env.compute_simulator_day(
+        tour, cost, output_dict = agent.compute_simulator_day(
             daily_data, graph, dm_tensor, profit_vars, run_tsp, hrl_manager=hrl_manager, 
             waste_history=bins.get_level_history(device=device), threshold=gate_prob_threshold, 
             mask_threshold=mask_prob_threshold, two_opt_max_iter=two_opt_max_iter

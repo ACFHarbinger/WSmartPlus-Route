@@ -751,7 +751,9 @@ def mock_run_day_deps(mocker):
     real_distancesC = real_dist_matrix.astype(np.int32)
 
     mock_model_env = MagicMock()
-    mock_model_ls = (MagicMock(), MagicMock(), MagicMock())
+    # Ensure graph is iterable: (edges, dist_matrix). dist_matrix must be a Tensor
+    mock_graph = (MagicMock(), torch.tensor(real_dist_matrix)) 
+    mock_model_ls = (MagicMock(), mock_graph, MagicMock())
     
     # 4. Construct distpath_tup with REAL arrays
     mock_dist_tup = (
@@ -1277,3 +1279,32 @@ def mock_adj_matrix():
     batch_size = 2
     num_nodes = 5
     return torch.ones(batch_size, num_nodes, num_nodes)
+
+
+# ============================================================================
+# Session Cleanup
+# ============================================================================
+
+def pytest_sessionfinish(session, exitstatus):
+    """
+    Cleanup artifacts that might be left over after tests, 
+    specifically 'test_dehb_output' directory and 'dummy.log'.
+    """
+    artifacts_to_clean = [
+        Path("test_dehb_output"),
+        Path("dummy.log")
+    ]
+    
+    # We use os.getcwd() to look in the current working directory where tests were run
+    cwd = Path.cwd()
+    
+    for artifact_name in artifacts_to_clean:
+        artifact_path = cwd / artifact_name
+        if artifact_path.exists():
+            try:
+                if artifact_path.is_dir():
+                    shutil.rmtree(artifact_path)
+                else:
+                    os.remove(artifact_path)
+            except Exception:
+                pass

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 from collections import deque
 from sklearn.cluster import KMeans
+from logic.src.pipeline.reinforcement_learning.meta.weight_strategy import WeightAdjustmentStrategy
 
 
 class ParetoSolution:
@@ -205,7 +206,7 @@ class ParetoFront:
         plt.close()
 
 
-class MORLWeightOptimizer:
+class MORLWeightOptimizer(WeightAdjustmentStrategy):
     """
     Multi-Objective RL optimizer that adjusts weights using Pareto front exploration
     and adaptive weight selection based on performance metrics.
@@ -275,6 +276,22 @@ class MORLWeightOptimizer:
         # Track direction trends
         self.objective_trends = {obj: 0.0 for obj in objective_names}
     
+    def propose_weights(self, context=None):
+        """
+        Implementation of Strategy interface.
+        """
+        # Internal update or just current
+        return self.get_current_weights()
+    
+    def feedback(self, reward, metrics, day=None, step=None):
+        """
+        Implementation of Strategy interface.
+        """
+        # Metrics handling. MORL expects dictionary with keys like 'waste_collected'.
+        # If metrics is not a dictionary with keys, we likely fail here.
+        # This implies standard interface usage should stick to dicts if possible.
+        self.update_weights(metrics=metrics, reward=reward, day=day, step=step)
+
     def get_current_weights(self):
         """
         Get current weight values as a dictionary

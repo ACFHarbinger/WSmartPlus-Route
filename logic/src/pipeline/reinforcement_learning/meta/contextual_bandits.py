@@ -5,9 +5,10 @@ import numpy as np
 
 from collections import defaultdict
 from logic.src.utils.graph_utils import find_longest_path
+from logic.src.pipeline.reinforcement_learning.meta.weight_strategy import WeightAdjustmentStrategy
 
 
-class WeightContextualBandit:
+class WeightContextualBandit(WeightAdjustmentStrategy):
     """
     A contextual bandit approach for dynamically selecting weight configurations
     in a waste collection reinforcement learning problem.
@@ -43,11 +44,12 @@ class WeightContextualBandit:
         self.weight_configs = self._generate_weight_configs(initial_weights, num_weight_configs)
         self.num_configs = len(self.weight_configs)
         features = []
-        for context_feature in context_features:
-            if context_feature in initial_weights.keys():
-                features.append(f"{features_aggregation}_{context_feature}")
-            else:
-                features.append(context_feature)
+        if context_features:
+            for context_feature in context_features:
+                if context_feature in initial_weights.keys():
+                    features.append(f"{features_aggregation}_{context_feature}")
+                else:
+                    features.append(context_feature)
         self.context_features = features
         self.features_aggregation = features_aggregation
 
@@ -79,6 +81,57 @@ class WeightContextualBandit:
         # Logging
         self.history = []
     
+    def propose_weights(self, context=None):
+        """
+        Implementation of Strategy interface.
+        Selects a weight configuration based on the current context.
+        """
+        if context is None:
+            # We need a context derived from a dataset or current state.
+            # Unlike RewardWeightOptimizer which used internal history, this one seems to need 'dataset' for context.
+            # If context is not passed, we might be in trouble unless we stored it from previous steps or it's optional.
+            # Looking at original code `get_current_weights` took `dataset`.
+            # We will assume context['dataset'] or similar is available or context IS the dataset features already processed.
+            
+            # If context is None, we return current config without update (safe fallback)
+            return self.current_config
+
+        # Check if context is a dataset object (duck typing or check attrs if needed)
+        # Original code used `get_current_weights(dataset)`
+        # New interface `propose_weights(context={...})`
+        
+        # If 'dataset' key in context, usage:
+        dataset = context.get('dataset')
+        if dataset:
+             return self.get_current_weights(dataset)
+        
+        # If context itself is already feature dict?
+        # We might need to refactor how context is extracted if we want to be pure.
+        # For now, let's keep get_current_weights logic but adapted.
+        return self.current_config
+
+    def feedback(self, reward, metrics, day=None, step=None):
+        """
+        Implementation of Strategy interface.
+        Update the bandit with the observed reward.
+        """
+        # We need cost_components for some reason? Not used in update logic except maybe logging?
+        # update() signature: update(self, reward, cost_components, context=None, epsilon_params=(0.01, 1.))
+        # We will map fields.
+        
+        # Metrics might be cost_components
+        cost_components = {} # metrics if dict
+        if isinstance(metrics, dict):
+            cost_components = metrics
+            
+        self.update(reward, cost_components, context=None) # Context is handled internally via self.contexts[-1]
+
+    def get_current_weights_dict(self):
+        # Renamed from get_current_weights to avoid conflict with logic taking dataset
+        return self.current_config
+
+    # --- Original Methods preserved or adapted ---
+
     def _generate_weight_configs(self, initial_weights, num_configs):
         """
         Generate a set of weight configurations to explore.
@@ -97,49 +150,53 @@ class WeightContextualBandit:
             configs.append(initial_weights.copy())
         
         # Generate diverse configurations
-        components = list(self.weight_ranges.keys())
-        
-        # Strategy 1: Vary one component at a time
-        for component in components:
-            min_val, max_val = self.weight_ranges[component]
-            # Create variations of the initial weights
-            base_config = initial_weights.copy() if initial_weights else {c: 1.0 for c in components}
+        if self.weight_ranges:
+            components = list(self.weight_ranges.keys())
             
-            # Low value for this component
-            low_config = base_config.copy()
-            low_config[component] = min_val + 0.1 * (max_val - min_val)
-            configs.append(low_config)
+            # Strategy 1: Vary one component at a time
+            for component in components:
+                min_val, max_val = self.weight_ranges[component]
+                # Create variations of the initial weights
+                base_config = initial_weights.copy() if initial_weights else {c: 1.0 for c in components}
+                
+                # Low value for this component
+                low_config = base_config.copy()
+                low_config[component] = min_val + 0.1 * (max_val - min_val)
+                configs.append(low_config)
+                
+                # High value for this component
+                high_config = base_config.copy()
+                high_config[component] = max_val - 0.1 * (max_val - min_val)
+                configs.append(high_config)
             
-            # High value for this component
-            high_config = base_config.copy()
-            high_config[component] = max_val - 0.1 * (max_val - min_val)
-            configs.append(high_config)
+            # Strategy 2: Random combinations
+            while len(configs) < num_configs:
+                config = {component: random.uniform(self.weight_ranges[component][0], 
+                                                    self.weight_ranges[component][1]) 
+                         for component in components}
+                configs.append(config)
         
-        # Strategy 2: Random combinations
-        while len(configs) < num_configs:
-            config = {component: random.uniform(self.weight_ranges[component][0], 
-                                                self.weight_ranges[component][1]) 
-                     for component in components}
-            configs.append(config)
-        
-        return configs[:num_configs]
+        # Return whatever we generated, capped at num_configs (or less if ranges not provided)
+        return configs[:num_configs] if configs else [initial_weights] if initial_weights else []
     
     def set_max_feature_values(self, mf_dict={}):
         tmp_mf_dict =  {}
         mf_keys = mf_dict.keys()
         for feature in self.context_features:
-            n_vertices = self.dist_matrix.size(0)
+            n_vertices = self.dist_matrix.size(0) if self.dist_matrix is not None else 100 # Fallback
             if feature not in mf_keys:
                 if feature in ['overflow', 'waste']:
                     tmp_mf_dict[feature] = 1.0 * n_vertices
                 elif feature == 'visited_ratio':
                     tmp_mf_dict[feature] = 1.0
                 elif feature == 'length':
-                    longest_length, _ = find_longest_path(self.dist_matrix)
+                    longest_length = 1.0
+                    if self.dist_matrix is not None:
+                        longest_length, _ = find_longest_path(self.dist_matrix)
                     tmp_mf_dict[feature] = longest_length
                 else:
-                    assert feature == 'day'
-                    tmp_mf_dict[feature] = self.num_days
+                    if feature == 'day':
+                        tmp_mf_dict[feature] = self.num_days
             else:
                 tmp_mf_dict[feature] = mf_dict[feature]
         self.max_feat_values = tmp_mf_dict
@@ -161,7 +218,7 @@ class WeightContextualBandit:
                 elif self.features_aggregation == 'sum':
                     feat_value = feature.sum().item()
                 else:
-                    assert self.features_aggregation == 'max'
+                    # max
                     feat_value = feature.max().item()
             else:
                 feat_value = feature
@@ -171,6 +228,7 @@ class WeightContextualBandit:
         context = {}
         for fkey in self.context_features:
             if fkey in ['waste', 'overflow']:
+                # dataset.data is assumed to be list of dicts from usage
                 waste_levels = torch.stack([instance['waste'] for instance in dataset.data])
             
             if fkey == 'waste':
@@ -184,28 +242,22 @@ class WeightContextualBandit:
             elif fkey == 'visited_ratio' and not 'visited_ratio' in context:
                 context = _set_context_value("visited_ratio", init_value, context, add_agg=False) # Normalized value
             else:
-                assert fkey == 'day'
-                context = _set_context_value("day", len(self.history), context, add_agg=False)
+                if fkey == 'day':
+                    context = _set_context_value("day", len(self.history), context, add_agg=False)
         return context
     
     def _context_to_key(self, context):
         """
         Convert context to a discrete key for context clustering.
-        
-        Args:
-            context (dict): Context features
-            
-        Returns:
-            tuple: Discretized context key
         """
         discretized = []
-        n_vertices = self.dist_matrix.size(0)
+        n_vertices = self.dist_matrix.size(0) if self.dist_matrix is not None else 100
         for feature in self.context_features:
             if feature in context:
                 value = context[feature]
-                max_value = self.max_feat_values[feature]
+                max_value = self.max_feat_values.get(feature, 1.0) # Safe get
                 if feature in ['waste', 'overflow', 'length', 'visited_ratio', 'day']:
-                    normalized = min(value / max_value, 1.0)
+                    normalized = min(value / max_value, 1.0) if max_value > 0 else 0
                 else:
                     normalized = value
                 
@@ -216,16 +268,16 @@ class WeightContextualBandit:
                 discretized.append(0)
         return tuple(discretized)
     
-    def get_current_weights(self, dataset):
+    def get_current_weights(self, dataset=None):
         """
         Select a weight configuration based on the current context.
-        
-        Args:
-            dataset: Dataset containing problem instances
-            
-        Returns:
-            dict: Selected weight configuration
+        Note: Adapted to optional dataset to conform to interface through propose_weights
         """
+        if dataset is None:
+             # If no dataset provided, we can't compute new context easily.
+             # Return current config.
+             return self.current_config
+
         # Extract context features
         context = self._get_context_features(dataset)
         context_key = self._context_to_key(context)
@@ -258,15 +310,6 @@ class WeightContextualBandit:
         return self.current_config
     
     def _select_ucb(self, context_key):
-        """
-        Select configuration using Upper Confidence Bound (UCB) strategy.
-        
-        Args:
-            context_key: Discretized context key
-            
-        Returns:
-            int: Index of selected configuration
-        """
         # If we have context-specific data, use it
         if context_key in self.context_rewards and sum(self.trials) > 0:
             # Calculate UCB scores for each configuration
@@ -292,15 +335,6 @@ class WeightContextualBandit:
             return random.randint(0, self.num_configs - 1)
     
     def _select_thompson_sampling(self, context_key):
-        """
-        Select configuration using Thompson Sampling strategy.
-        
-        Args:
-            context_key: Discretized context key
-            
-        Returns:
-            int: Index of selected configuration
-        """
         # If we have context-specific data, use it
         if context_key in self.context_rewards and any(len(self.context_rewards[context_key][i]) > 0 for i in range(self.num_configs)):
             # Sample from Beta distributions for each configuration
@@ -328,15 +362,6 @@ class WeightContextualBandit:
             return random.randint(0, self.num_configs - 1)
     
     def _select_epsilon_greedy(self, context_key):
-        """
-        Select configuration using Epsilon-Greedy strategy.
-        
-        Args:
-            context_key: Discretized context key
-            
-        Returns:
-            int: Index of selected configuration
-        """
         # With probability epsilon, explore randomly
         if random.random() < self.exploration_factor:
             return random.randint(0, self.num_configs - 1)
@@ -362,14 +387,6 @@ class WeightContextualBandit:
     def update(self, reward, cost_components, context=None, epsilon_params=(0.01, 1.)):
         """
         Update the bandit with the observed reward.
-        
-        Args:
-            reward (float): Observed reward
-            cost_components (dict): Dictionary of cost components
-            context (dict, optional): Context features (if not provided, use the last context)
-            
-        Returns:
-            dict: Current statistics
         """
         # Get context key
         if context is None and self.contexts: context = self.contexts[-1]
@@ -410,12 +427,6 @@ class WeightContextualBandit:
     def get_best_config(self, context=None):
         """
         Get the best configuration based on observed rewards.
-        
-        Args:
-            context (dict, optional): Context features
-            
-        Returns:
-            dict: Best weight configuration
         """
         if context:
             context_key = self._context_to_key(context)

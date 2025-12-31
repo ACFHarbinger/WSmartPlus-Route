@@ -94,9 +94,13 @@ class TestRunDayPolicyRouting:
 
     @pytest.mark.unit
     def test_run_day_calls_am(self, mocker, mock_run_day_deps):
-        """Test if 'am_policy_gamma1' calls model_env.compute_simulator_day."""
-        # Ensure the model_env mock is set up to return a tuple
-        mock_run_day_deps['model_env'].compute_simulator_day.return_value = ([0, 1, 0], 10.0, {})
+        """Test if 'am_policy_gamma1' calls NeuralAgent.compute_simulator_day."""
+        # Patch NeuralAgent in the policies module which day.py imports
+        mock_neural_agent_cls = mocker.patch('logic.src.policies.neural_agent.NeuralAgent')
+        mock_agent_instance = mock_neural_agent_cls.return_value
+        
+        # Configure the mock agent to return expected tuple
+        mock_agent_instance.compute_simulator_day.return_value = ([0, 1, 0], 10.0, {})
         
         run_day(
             graph_size=5,
@@ -107,7 +111,7 @@ class TestRunDayPolicyRouting:
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
         
-        mock_run_day_deps['model_env'].compute_simulator_day.assert_called_once()
+        mock_agent_instance.compute_simulator_day.assert_called_once()
 
 
     @pytest.mark.unit
