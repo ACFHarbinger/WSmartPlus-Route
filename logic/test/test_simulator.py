@@ -998,6 +998,9 @@ class TestSimulation:
         # Set N_BINS to 3 to satisfy len(ids) > 2 in Bins.collect
         # (Depot + 2 bins = 3 unique IDs)
         N_BINS = 3
+        
+        # Patch get_route_cost used by NeuralAgent
+        mocker.patch('logic.src.policies.neural_agent.get_route_cost', return_value=50.0)
 
         # --- 1. Setup Filesystem ---
         mock_root_dir = tmp_path
@@ -1046,18 +1049,27 @@ class TestSimulation:
         )
 
         # Mock network/model setup
-        mock_dist_tup = (np.zeros((4,4)), MagicMock(), MagicMock(), np.zeros((4,4)))
+        mock_dist_tup = (np.zeros((4,4)), MagicMock(), torch.zeros((4,4)), np.zeros((4,4)))
         mocker.patch(
             'logic.src.pipeline.simulator.simulation._setup_dist_path_tup',
             return_value=(mock_dist_tup, np.zeros((4,4)))
         )
         mocker.patch(
             'logic.src.pipeline.simulator.simulation.process_model_data',
-            return_value=({'waste': MagicMock()}, None, None) 
+            return_value=({'waste': MagicMock()}, (MagicMock(), MagicMock()), None) 
         )
         mock_model_env = MagicMock()
         # Return a tour that collects all 3 bins: [0, 1, 2, 3, 0] -> unique IDs {0, 1, 2, 3} (size 4) > 2
-        mock_model_env.compute_simulator_day.return_value = ([0, 1, 2, 3, 0], 50.0, {})
+        # WE MUST MOCK __call__ because NeuralAgent calls model(...)
+        mock_model_env.return_value = (
+            MagicMock(), # cost
+            MagicMock(), # ll
+            {'waste': np.array([10.0])}, # cost_dict with waste for NeuralAgent
+            torch.tensor([0, 1, 2, 3, 0]), # pi (tensor for .device access)
+            MagicMock()  # entropy
+        )
+        # mock_model_env.compute_simulator_day was NOT calling this. NeuralAgent calls model().
+        
         mock_configs = MagicMock()
         mock_configs.__getitem__.side_effect = lambda key: opts['problem'] if key == 'problem' else MagicMock()
         mocker.patch(

@@ -3,7 +3,7 @@ import torch
 import scipy.stats as stats
 import torch.nn.functional as F
 
-from logic.src.pipeline.reinforcement_learning.epoch import rollout, get_inner_model
+from logic.src.pipeline.reinforcement_learning.core.epoch import rollout, get_inner_model
 
 
 # Attention, Learn to Solve Routing Problems

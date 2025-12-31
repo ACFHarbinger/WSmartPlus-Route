@@ -28,13 +28,13 @@ from logic.src.utils.setup_utils import (
     setup_model_and_baseline, 
     setup_optimizer_and_lr_scheduler
 )
-from .epoch import set_decode_type, get_inner_model
-from ..simulator.network import compute_distance_matrix
-from .reinforce import (
+from logic.src.pipeline.reinforcement_learning.core.epoch import set_decode_type, get_inner_model
+from logic.src.pipeline.simulator.network import compute_distance_matrix
+from logic.src.pipeline.reinforcement_learning.core.reinforce import (
     train_reinforce_epoch, train_reinforce_over_time
 )
-from .hyperparameter_optimization import (
-    DifferentialEvolutionHyperband, get_config_space,
+from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb import (
+    DifferentialEvolutionHyperband, get_config_space
 )
 
 
@@ -109,9 +109,12 @@ def optimize_model(opts, cost_weights, metric="loss", dist_matrix=None):
 
 
 def validate(model, dataset, metric, dist_matrix, opts):
+    from logic.src.policies.neural_agent import NeuralAgent
+    agent = NeuralAgent(get_inner_model(model))
+
     def eval_model_bat(bat, dist_matrix):
         with torch.no_grad():
-            ucost, c_dict, attn_dict = get_inner_model(model).compute_batch_sim(move_to(bat, opts['device']), move_to(dist_matrix, opts['device']))
+            ucost, c_dict, attn_dict = agent.compute_batch_sim(move_to(bat, opts['device']), move_to(dist_matrix, opts['device']))
         return ucost, c_dict, attn_dict
 
     # Put in greedy evaluation mode!
@@ -128,6 +131,8 @@ def validate(model, dataset, metric, dist_matrix, opts):
 
         all_ucosts = torch.cat((all_ucosts, ucost), 0)
         for key, val in cost_dict.items():
+            if key not in all_costs:
+                all_costs[key] = []
             all_costs[key].append(val)
 
     for key, val in attention_dict.items():

@@ -1,8 +1,9 @@
 import torch
 
 from unittest.mock import MagicMock
+from logic.src.policies.neural_agent import NeuralAgent
 from logic.src.models.attention_model import AttentionModel
-from logic.src.models.reinforce_baselines import (
+from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
     WarmupBaseline, NoBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, BaselineDataset
 )
 
@@ -39,8 +40,22 @@ class TestAttentionModel:
     def test_compute_batch_sim(self, am_setup):
         model = am_setup
         model.embedder.return_value = torch.zeros(2, 6, 128)
-        model._inner = MagicMock(return_value=(None, torch.zeros(2, 6, dtype=torch.long))) # Return pi as indices
+        model._inner = MagicMock(return_value=(
+            torch.zeros(2, 6), # log_p
+            torch.arange(6).repeat(2,1) # selected
+        )) # Return pi as indices
         model.problem.get_costs.return_value = (torch.zeros(2), {'overflows': torch.zeros(2), 'waste': torch.zeros(2)}, None)
+        # Mock model forward to return expected tuple for NeuralAgent
+        # (cost, ll, cost_dict, pi, entropy)
+        model.forward = MagicMock(return_value=(
+            torch.zeros(2),
+            torch.zeros(2),
+            {'overflows': torch.zeros(2), 'waste': torch.zeros(2)},
+            torch.zeros(2, 6, dtype=torch.long),
+            torch.zeros(2)
+        ))
+
+        agent = NeuralAgent(model)
         
         input_data = {
             'depot': torch.zeros(2,2), 
@@ -52,7 +67,7 @@ class TestAttentionModel:
              input_data[f'fill{day}'] = torch.zeros(2,5)
         dist_matrix = torch.zeros(6, 6)
         
-        ucost, ret_dict, attn_dict = model.compute_batch_sim(input_data, dist_matrix)
+        ucost, ret_dict, attn_dict = agent.compute_batch_sim(input_data, dist_matrix)
         assert 'overflows' in ret_dict
         assert 'kg' in ret_dict 
 
@@ -180,7 +195,7 @@ class TestReinforceBaselines:
         mock_problem.make_dataset.return_value = [1, 2]
         
         # Mock rollout to return values for baseline
-        mocker.patch('logic.src.models.reinforce_baselines.rollout', return_value=torch.tensor([10.0, 20.0]))
+        mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.rollout', return_value=torch.tensor([10.0, 20.0]))
         
         opts = {
             'val_size': 2, 'graph_size': 5, 'area': 'a', 'waste_type': 'w', 'dm_filepath': 'p',
@@ -208,8 +223,8 @@ class TestReinforceBaselines:
         
         # Test epoch_callback (update logic)
         # Case 1: Improvement
-        mocker.patch('logic.src.models.reinforce_baselines.rollout', return_value=torch.tensor([5.0, 5.0])) # Mean 5 < 15
-        mocker.patch('logic.src.models.reinforce_baselines.stats.ttest_rel', return_value=(-5.0, 0.001)) # Significant
+        mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.rollout', return_value=torch.tensor([5.0, 5.0])) # Mean 5 < 15
+        mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.stats.ttest_rel', return_value=(-5.0, 0.001)) # Significant
         
         candidate_model = MagicMock()
         rb.epoch_callback(candidate_model, 1)
