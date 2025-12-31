@@ -1,8 +1,7 @@
-
-import pytest
 from gui.src.tabs.generate_data.gd_problem import GenDataProblemTab
 from gui.src.tabs.generate_data.gd_general import GenDataGeneralTab
 from gui.src.tabs.generate_data.gd_advanced import GenDataAdvancedTab
+
 
 def test_gd_problem_tab(qapp):
     tab = GenDataProblemTab()
