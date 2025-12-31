@@ -1,3 +1,4 @@
+from typing import cast
 import pandas as pd
 
 from .container import Container
@@ -73,8 +74,8 @@ def pre_process_data(
     # Keep just the instersection
     id = df_fill['ID'].drop_duplicates()
     id = id[id.isin(df_collection['ID'])]
-    df_fill = df_fill[df_fill['ID'].isin(id)]
-    df_collection = df_collection[df_collection['ID'].isin(id)]
+    df_fill = cast(pd.DataFrame, df_fill[df_fill['ID'].isin(id)])
+    df_collection = cast(pd.DataFrame, df_collection[df_collection['ID'].isin(id)])
 
     #Take care of datatypes
     pd.options.mode.chained_assignment = None 
@@ -98,10 +99,10 @@ def pre_process_data(
     df_fill.dropna(inplace=True)
 
     # Select required window
-    df_collection = df_collection[(df_collection['Date'] > pd.to_datetime(start_date, format = "%d/%m/%Y")) & 
-                                  (df_collection['Date'] < pd.to_datetime(end_date, format = "%d/%m/%Y"))]
-    df_fill = df_fill[(df_fill['Date'] > pd.to_datetime(start_date, format = "%d/%m/%Y")) & 
-                      (df_fill['Date'] < pd.to_datetime(end_date, format = "%d/%m/%Y"))]
+    df_collection = cast(pd.DataFrame, df_collection[(df_collection['Date'] > pd.to_datetime(start_date, format = "%d/%m/%Y")) & 
+                                  (df_collection['Date'] < pd.to_datetime(end_date, format = "%d/%m/%Y"))])
+    df_fill = cast(pd.DataFrame, df_fill[(df_fill['Date'] > pd.to_datetime(start_date, format = "%d/%m/%Y")) & 
+                      (df_fill['Date'] < pd.to_datetime(end_date, format = "%d/%m/%Y"))])
 
     #sort by ID and by Date in each ID
     df_fill.sort_values(['ID', 'Date'], inplace=True)
@@ -218,7 +219,7 @@ def import_same_file(src_fill:str, collect_id_header:str, sep:str = ',', path:st
     fill_df:pd.DataFrame =  pd.read_csv(path + src_fill, sep=sep, encoding_errors='replace')
     assert collect_id_header in list(fill_df.keys()), f"'{collect_id_header}' is not a valid key. Available keys are: {list(fill_df.keys())}"
 
-    rec_df = fill_df[~fill_df[collect_id_header].isna()]
+    rec_df = cast(pd.DataFrame, fill_df[~fill_df[collect_id_header].isna()])
     rec_df = rec_df.copy(deep=True)
     if print_first_line:
         print("FILL DF LINE 1: ")
@@ -227,7 +228,7 @@ def import_same_file(src_fill:str, collect_id_header:str, sep:str = ',', path:st
         print(rec_df.iloc[0])
     return fill_df, rec_df
 
-def container_global_sorted_wrapper(fill_:pd.DataFrame, collect_:pd.DataFrame, info:pd.DataFrame) -> tuple[dict, int]:
+def container_global_sorted_wrapper(fill_:pd.DataFrame, collect_:pd.DataFrame, info:pd.DataFrame) -> tuple[dict[int, Container], list[int]]:
     """
     Wrapper to iterate through containers dataframes and create a list of container classes and preforms initial
     pre-processing.

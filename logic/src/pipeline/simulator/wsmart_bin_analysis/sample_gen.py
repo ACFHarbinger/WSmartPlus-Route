@@ -38,7 +38,7 @@ class OldGridBase():
         freq_table = freq_table.apply(lambda s: fix10pad(s))
         return freq_table
 
-    def get_mean_rate(self) -> dict[float]:
+    def get_mean_rate(self) -> np.ndarray:
         """
         @return: The mean for each bin
         """
@@ -56,7 +56,7 @@ class OldGridBase():
         """
         return self.__data.var(axis=0, skipna=True, numeric_only=True).transform('sqrt').to_numpy()
     
-    def get_daterange(self) -> tuple[pd.Timestamp]:
+    def get_daterange(self) -> tuple[pd.Index, pd.Index]:
         """
         @return: The start and end of real values
         """
@@ -126,7 +126,7 @@ class OldGridBase():
         """
         return len(self.__info.index)
     
-    def load_data(self, processed=True) -> tuple[pd.Timestamp]:
+    def load_data(self, processed=True) -> tuple[pd.DataFrame, pd.DataFrame]:
         if processed:
             data_file = self.__data
         else:
