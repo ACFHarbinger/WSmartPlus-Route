@@ -12,17 +12,21 @@ from unittest.mock import MagicMock
 from pandas.testing import assert_frame_equal
 from logic.src.pipeline.simulator.bins import Bins
 from logic.src.pipeline.simulator import simulation
+from logic.src.pipeline.simulator import processor as processor_module
 from logic.src.pipeline.simulator.network import compute_distance_matrix, apply_edges
 from logic.src.pipeline.simulator.day import set_daily_waste, get_daily_results, run_day
 from logic.src.pipeline.simulator.checkpoints import checkpoint_manager, CheckpointError
 from logic.src.pipeline.simulator.loader import (
+    load_indices,
+    load_depot,
     load_simulator_data,
-    load_indices, load_depot, 
     load_area_and_waste_type_params
 )
+from logic.src.pipeline.simulator.loader import FileSystemRepository
 from logic.src.pipeline.simulator.processor import (
     process_data, process_coordinates,
     sort_dataframe, setup_df, haversine_distance,
+    save_matrix_to_excel, setup_basedata, setup_dist_path_tup
 )
 
 
@@ -292,7 +296,9 @@ class TestLoader:
             json.dump(mock_indices, f)
         
         # Mock udef.ROOT_DIR to point to tmp_path
-        mocker.patch('logic.src.utils.definitions.ROOT_DIR', str(tmp_path))
+        mocker.patch('logic.src.pipeline.simulator.loader.udef.ROOT_DIR', str(tmp_path))
+        # Update loader repository with new path
+        mocker.patch('logic.src.pipeline.simulator.loader._repository', FileSystemRepository(str(tmp_path)))
         
         indices = load_indices("test_indices.json", n_samples=2, n_nodes=3, data_size=100)
         assert indices == mock_indices
@@ -305,7 +311,10 @@ class TestLoader:
         indices_file = indices_dir / "new_indices.json"
         
         # Mock udef.ROOT_DIR
-        mocker.patch('logic.src.utils.definitions.ROOT_DIR', str(tmp_path))
+        mocker.patch('logic.src.pipeline.simulator.loader.udef.ROOT_DIR', str(tmp_path))
+        # Update loader repository with new path
+        mocker.patch('logic.src.pipeline.simulator.loader._repository', FileSystemRepository(str(tmp_path)))
+
         # Mock pd.Series.sample to be deterministic
         mocker.patch('pandas.Series.sample', side_effect=[
             pd.Series([10, 20]), pd.Series([30, 40])
@@ -893,7 +902,7 @@ class TestSimulation:
         mock_to_excel = mocker.patch('pandas.DataFrame.to_excel')
         
         # 3. Call the function
-        simulation.save_matrix_to_excel(
+        save_matrix_to_excel(
             matrix=np.array([[1]]),
             results_dir=str(tmp_path),
             seed=42,
@@ -916,7 +925,7 @@ class TestSimulation:
         mocker.patch('os.path.exists', return_value=False)
         mock_to_excel = mocker.patch('pandas.DataFrame.to_excel')
         
-        simulation.save_matrix_to_excel(
+        save_matrix_to_excel(
             matrix=np.array([[1, 2], [3, 4]]),
             results_dir=str(tmp_path),
             seed=42,
@@ -936,11 +945,11 @@ class TestSimulation:
         mock_data_df = pd.DataFrame({'ID': [1], 'shape': [(1,1)]}) 
         mock_coords_df = pd.DataFrame({'ID': [1], 'shape': [(1,1)]})
         
-        mocker.patch('logic.src.pipeline.simulator.simulation.load_depot', return_value=mock_depot_df)
-        mocker.patch('logic.src.pipeline.simulator.simulation.load_simulator_data', 
+        mocker.patch('logic.src.pipeline.simulator.processor.load_depot', return_value=mock_depot_df)
+        mocker.patch('logic.src.pipeline.simulator.processor.load_simulator_data', 
             return_value=(mock_data_df, mock_coords_df))
         
-        data, coords, depot = simulation._setup_basedata(1, 'data_dir', 'area', 'waste')
+        data, coords, depot = setup_basedata(1, 'data_dir', 'area', 'waste')
         
         assert data is mock_data_df
         assert coords is mock_coords_df
@@ -955,22 +964,22 @@ class TestSimulation:
         mock_paths = 'mock_shortest_paths'
         mock_adj = np.array([[1, 1], [1, 1]])
         
-        mocker.patch('logic.src.pipeline.simulator.simulation.compute_distance_matrix', 
+        mocker.patch('logic.src.pipeline.simulator.processor.compute_distance_matrix', 
                     return_value=mock_dist_matrix)
-        mocker.patch('logic.src.pipeline.simulator.simulation.apply_edges', 
+        mocker.patch('logic.src.pipeline.simulator.processor.apply_edges', 
                     return_value=(mock_dist_edges, mock_paths, mock_adj))
-        mocker.patch('logic.src.pipeline.simulator.simulation.get_paths_between_states', 
+        mocker.patch('logic.src.pipeline.simulator.processor.get_paths_between_states', 
                     return_value='all_paths')
         mock_torch_from_numpy = mocker.patch('torch.from_numpy', 
                                             return_value=torch.tensor(mock_dist_edges))
         
-        (dist_tup, adj_matrix) = simulation._setup_dist_path_tup(
+        (dist_tup, adj_matrix) = setup_dist_path_tup(
             mock_coords, 1, 'hsd', None, None, None, None, mock_torch_device, 50, 'knn'
         )
         
-        simulation.compute_distance_matrix.assert_called_once()
-        simulation.apply_edges.assert_called_once()
-        simulation.get_paths_between_states.assert_called_once_with(2, mock_paths)
+        processor_module.compute_distance_matrix.assert_called_once()
+        processor_module.apply_edges.assert_called_once()
+        processor_module.get_paths_between_states.assert_called_once_with(2, mock_paths)
         
         assert adj_matrix is mock_adj
         assert dist_tup[0] is mock_dist_edges
@@ -1025,7 +1034,7 @@ class TestSimulation:
         bins_raw_df = pd.DataFrame({'ID': [1, 2, 3], 'Lat': [40.1, 40.2, 40.3], 'Lng': [-8.1, -8.2, -8.3]})
         data_raw_df = pd.DataFrame({'ID': [1, 2, 3], 'Stock': [10, 20, 30], 'Accum_Rate': [0, 0, 0]})
         mocker.patch(
-            'logic.src.pipeline.simulator.simulation._setup_basedata',
+            'logic.src.pipeline.simulator.processor.setup_basedata',
             return_value=(data_raw_df, bins_raw_df, depot_df)
         )
 
@@ -1051,11 +1060,11 @@ class TestSimulation:
         # Mock network/model setup
         mock_dist_tup = (np.zeros((4,4)), MagicMock(), torch.zeros((4,4)), np.zeros((4,4)))
         mocker.patch(
-            'logic.src.pipeline.simulator.simulation._setup_dist_path_tup',
+            'logic.src.pipeline.simulator.processor.setup_dist_path_tup',
             return_value=(mock_dist_tup, np.zeros((4,4)))
         )
         mocker.patch(
-            'logic.src.pipeline.simulator.simulation.process_model_data',
+            'logic.src.pipeline.simulator.processor.process_model_data',
             return_value=({'waste': MagicMock()}, (MagicMock(), MagicMock()), None) 
         )
         mock_model_env = MagicMock()
@@ -1073,7 +1082,7 @@ class TestSimulation:
         mock_configs = MagicMock()
         mock_configs.__getitem__.side_effect = lambda key: opts['problem'] if key == 'problem' else MagicMock()
         mocker.patch(
-            'logic.src.pipeline.simulator.simulation.setup_model',
+            'logic.src.pipeline.simulator.states.setup_model',
             return_value=(mock_model_env, mock_configs)
         )
 
@@ -1130,13 +1139,13 @@ class TestSimulation:
 
         # Use `new_callable` to create a proper bound method
         mocker.patch.object(
-            simulation.Bins,
+            Bins,
             'stochasticFilling',
             side_effect=stochastic_filling_mock,
             autospec=True
         )
         mocker.patch.object(
-            simulation.Bins, 'setGammaDistribution', autospec=True, 
+            Bins, 'setGammaDistribution', autospec=True, 
             side_effect=lambda self, option: 
                 (setattr(self, 'dist_param1', np.ones(N_BINS)), 
                 setattr(self, 'dist_param2', np.ones(N_BINS)), 
@@ -1147,8 +1156,8 @@ class TestSimulation:
         # Since Bins is real, checking types:
         # We need to patch them on the Class or on the instance when it's created?
         # autospec=True on class allows instance method mocking.
-        mocker.patch.object(simulation.Bins, 'is_stochastic', return_value=True)
-        mocker.patch.object(simulation.Bins, 'get_fill_history', return_value=np.zeros((5, N_BINS)))
+        mocker.patch.object(Bins, 'is_stochastic', return_value=True)
+        mocker.patch.object(Bins, 'get_fill_history', return_value=np.zeros((5, N_BINS)))
 
         # --- 3. Act ---
         simulation._lock, simulation._counter = mock_lock_counter
@@ -1332,7 +1341,7 @@ class TestSimulation:
         mock_depot = pd.DataFrame({'ID': [0], 'Lat': [0], 'Lng': [0], 'Stock': [0], 'Accum_Rate': [0]})
 
         mocker.patch(
-            'logic.src.pipeline.simulator.simulation._setup_basedata', 
+            'logic.src.pipeline.simulator.processor.setup_basedata', 
             return_value=(mock_data, mock_coords, mock_depot)
         )
 
@@ -1340,20 +1349,20 @@ class TestSimulation:
         mock_dist_tup = (np.zeros((N+1, N+1)), MagicMock(), MagicMock(), np.zeros((N+1, N+1), dtype='int32'))
         mock_adj_matrix = np.zeros((N+1, N+1))
         mocker.patch(
-            'logic.src.pipeline.simulator.simulation._setup_dist_path_tup',
+            'logic.src.pipeline.simulator.processor.setup_dist_path_tup',
             return_value=(mock_dist_tup, mock_adj_matrix)
         )
         
         # Patch the Bins constructor to return a mock object
         mocker.patch(
-            'logic.src.pipeline.simulator.simulation.Bins',
+            'logic.src.pipeline.simulator.states.Bins',
             return_value=MagicMock()
         )
 
         # Mock the checkpoint manager to raise the error
         error_result = {'success': False, 'error': 'test error'}
         mocker.patch(
-            'logic.src.pipeline.simulator.simulation.checkpoint_manager', 
+            'logic.src.pipeline.simulator.states.checkpoint_manager', 
             side_effect=CheckpointError(error_result)
         )
         

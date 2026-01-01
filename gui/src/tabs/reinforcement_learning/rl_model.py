@@ -125,6 +125,17 @@ class RLModelTab(BaseReinforcementLearningTab):
         main_layout = QVBoxLayout()
         main_layout.addWidget(scroll)
         self.setLayout(main_layout)
+
+        # Connect signals
+        for widget in self.widgets.values():
+            if isinstance(widget, QComboBox):
+                widget.currentTextChanged.connect(lambda: self.paramsChanged.emit())
+            elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+                widget.valueChanged.connect(lambda: self.paramsChanged.emit())
+            elif isinstance(widget, QLineEdit):
+                widget.textChanged.connect(lambda: self.paramsChanged.emit())
+            elif isinstance(widget, QPushButton):
+                widget.toggled.connect(lambda: self.paramsChanged.emit())
         
     def get_params(self):
         params = {}

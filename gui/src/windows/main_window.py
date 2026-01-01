@@ -1,4 +1,3 @@
-import re
 import sys
 
 from PySide6.QtCore import QProcess
@@ -22,6 +21,7 @@ from ..styles.globals import (
     BORDER_COLOR, MUTED_TEXT_COLOR,
     TEXT_COLOR, LIGHT_QSS, DARK_QSS, 
 )
+from ..core.mediator import UIMediator
 
 
 class MainWindow(QWidget):
@@ -35,6 +35,10 @@ class MainWindow(QWidget):
         self.setWindowTitle("Machine Learning Models and Operations Research Solvers for Combinatorial Optimization Problems")
         self.setMinimumSize(1080, 900)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        # Initialize Mediator
+        self.mediator = UIMediator(self)
+        self.mediator.command_updated.connect(self.update_preview_text)
 
         # Theme tracking
         self.current_theme = 'light'
@@ -124,6 +128,12 @@ class MainWindow(QWidget):
             'File System Tools': self.file_system_tabs_map, 
             'Other Tools': self.other_tabs_map
         }
+        
+        # Register tabs with Mediator
+        for command, tabs in self.all_tabs.items():
+            for name, tab in tabs.items():
+                self.mediator.register_tab(command, name, tab)
+
         # --- End Tab Initialization ---
 
         # Tabs container
@@ -234,56 +244,6 @@ class MainWindow(QWidget):
                 tab_index=current_tab_index
             )
 
-    def get_actual_command(self, main_command_display):
-        """Maps the display name to the command-line argument dynamically."""
-        command_mapping = {
-            'Train Model': 'train',
-            'Generate Data': 'gen_data',
-            'Evaluate': 'eval',
-            'Test Simulator': 'test_sim',
-            'Analysis': 'analysis', # --- CHANGED: Added mapping ---
-        }
-        actual_command = command_mapping.get(main_command_display)
-        
-        # ... (Rest of logic remains same, Analysis generally doesn't generate a CLI command but we map it safely)
-        
-        if main_command_display == 'Train Model':
-            current_tab_title = self.tabs.tabText(self.tabs.currentIndex())
-            if current_tab_title == "Hyper-Parameter Optimization":
-                actual_command = 'hp_optim'
-            elif current_tab_title == "Meta-Learning":
-                actual_command = 'mrl_train'
-        elif main_command_display == 'File System Tools':
-            current_tab_title = self.tabs.tabText(self.tabs.currentIndex())
-            actual_command = 'file_system '
-            if current_tab_title == "Cryptography Settings":
-                actual_command += 'cryptography'
-            elif current_tab_title == "Update Settings":
-                actual_command += 'update'
-            elif current_tab_title == "Delete Settings":
-                actual_command += 'delete'
-        elif main_command_display == 'Other Tools':
-            current_tab_title = self.tabs.tabText(self.tabs.currentIndex())
-            if current_tab_title == 'Execute Script':
-                actual_command = 'scripts'
-            elif current_tab_title == 'Program Test Suite':
-                actual_command = 'test_suite'
-
-        if actual_command == 'scripts':
-            script_tab_widget = self.other_tabs_map['Execute Script']
-            if hasattr(script_tab_widget, 'get_params'):
-                script_params = script_tab_widget.get_params()
-                script_name = script_params.pop('script', None)
-                if script_name:
-                    if sys.platform.startswith('linux'):
-                        actual_command = f'scripts/{script_name}'
-                        if not actual_command.endswith('.sh'): actual_command += '.sh'
-                    elif sys.platform.startswith('win'):
-                        actual_command = f'scripts\\{script_name}'
-                        if not actual_command.endswith('.bat'): actual_command += '.bat'
-
-        return actual_command if actual_command else main_command_display
-
     def setup_tabs(self, command):
         """Dynamically loads the correct set of tabs based on the command."""
         while self.tabs.count() > 0:
@@ -298,79 +258,21 @@ class MainWindow(QWidget):
             placeholder.setLayout(QVBoxLayout())
             placeholder.layout().addWidget(QLabel(f"GUI for '{command}' coming soon."))
             self.tabs.addTab(placeholder, "Info")
-
+    
     def on_command_changed(self, command):
         """Handle command selection change and update UI."""
         self.setup_tabs(command)
         self.update_preview()
 
+    def update_preview_text(self, text):
+        """Slot to update the preview text edit."""
+        self.preview.setPlainText(text)
+
     def update_preview(self):
-        """Update the command preview by collecting parameters from current tabs."""
+        """Delegate preview update to Mediator."""
         main_command_display = self.command_combo.currentText()
-        
-        # --- CHANGED: Analysis tabs are purely GUI tools, no command preview needed really ---
-        if main_command_display == 'Analysis':
-            self.preview.setPlainText("# Analysis tools run directly within the GUI.\n# No command line argument required.")
-            return
-            
-        actual_command = self.get_actual_command(main_command_display)
-        all_params = {}
-        regex = r"(?<!-)-(?!-)"
-        
-        if main_command_display in ['File System Tools', 'Other Tools']:
-            current_tab_widget = self.tabs.currentWidget()
-            if hasattr(current_tab_widget, 'get_params'):
-                all_params.update(current_tab_widget.get_params())
-        elif main_command_display == 'Train Model':
-            current_tab_title = self.tabs.tabText(self.tabs.currentIndex())
-            for title, tab_widget in self.train_tabs_map.items():
-                if hasattr(tab_widget, 'get_params'):
-                    is_base_tab = title not in ["Hyper-Parameter Optimization", "Meta-Learning"]
-                    is_active_special_tab = (
-                        title == current_tab_title and
-                        title in ["Hyper-Parameter Optimization", "Meta-Learning"]
-                    )
-                    if is_base_tab or is_active_special_tab:
-                        all_params.update(tab_widget.get_params())
-        else:
-            for i in range(self.tabs.count()):
-                tab_widget = self.tabs.widget(i)
-                if hasattr(tab_widget, 'get_params'):
-                    all_params.update(tab_widget.get_params())
+        self.mediator.set_current_command(main_command_display)
 
-        if actual_command.startswith('scripts/') and 'script' in all_params:
-            all_params.pop('script')
-            cmd_parts = [f"bash {actual_command}"] if sys.platform.startswith('linux') else [actual_command]
-        else:
-            cmd_parts = [f"python main.py {actual_command}"]
-
-        for key, value in all_params.items():
-            if value is None or value == "":
-                continue
-
-            if isinstance(value, bool):
-                if key in ['mask_inner', 'mask_logits'] and value is False:
-                    cmd_parts.append(f"--no_{re.sub(regex, '_', key)}")
-                elif value is True:
-                    cmd_parts.append(f"--{re.sub(regex, '_', key)}")
-            elif isinstance(value, (int, float)):
-                cmd_parts.append(f"--{re.sub(regex, '_', key)} {value}")
-            elif isinstance(value, str):
-                list_keys = [
-                    'focus_graph', 'input_keys', 'graph_sizes', 'data_distributions',
-                    'policies', 'pregular_level', 'plastminute_cf',
-                    'lookahead_configs', 'gurobi_param', 'hexaly_param',
-                ]
-                if key in list_keys:
-                    parts = value.split()
-                    cmd_parts.append(f"--{key}")
-                    cmd_parts.extend(parts)
-                elif ' ' in value or '"' in value or "'" in value or key == 'update_operation':
-                    cmd_parts.append(f"--{key} '{value}'")
-                else:
-                    cmd_parts.append(f"--{key} {value}")
-        command_str = " \\\n  ".join(cmd_parts)
-        self.preview.setPlainText(command_str)
 
     def copy_to_clipboard(self):
         """Copy command to clipboard"""

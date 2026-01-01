@@ -3,13 +3,12 @@ import torch.nn as nn
 
 from . import AttentionModel
 
-
 class TemporalAttentionModel(AttentionModel):
     def __init__(self,
                  embedding_dim,
                  hidden_dim,
                  problem,
-                 encoder_class,
+                 component_factory,
                  n_encode_layers=2,
                  n_encode_sublayers=None,
                  n_decode_layers=None,
@@ -42,7 +41,7 @@ class TemporalAttentionModel(AttentionModel):
             embedding_dim,
             hidden_dim,
             problem,
-            encoder_class,
+            component_factory,
             n_encode_layers,
             n_encode_sublayers,
             n_decode_layers,
@@ -68,8 +67,9 @@ class TemporalAttentionModel(AttentionModel):
             af_uniform_range,
             n_heads,
             checkpoint_encoder,
-            shrink_size,
-            0 # temporal_horizon=0 for base init_embed
+            shrink_size=shrink_size,
+            pomo_size=0,
+            temporal_horizon=0 
         )
         self.temporal_horizon = temporal_horizon
         from .modules import ActivationFunction
@@ -89,14 +89,14 @@ class TemporalAttentionModel(AttentionModel):
         
         self.combine_embeddings = nn.Sequential(
             nn.Linear(embedding_dim * 2, embedding_dim),
-            ActivationFunction(self.activation, self.af_param, self.threshold, 
-                            self.replacement_value, self.n_params, self.uniform_range),
+            ActivationFunction(activation_function, af_param, af_threshold, 
+                            af_replacement_value, af_num_params, af_uniform_range),
             nn.Linear(embedding_dim, embedding_dim)
         )
     
-    def _init_embed(self, nodes):
-        # Get the base embeddings from parent class
-        base_embeddings = super()._init_embed(nodes, temporal_features=False)
+    def _get_initial_embeddings(self, nodes):
+        # Get the base embeddings from context embedder (without temporal features)
+        base_embeddings = self.context_embedder.init_node_embeddings(nodes, temporal_features=False)
         
         if 'fill_history' not in nodes or not self.predict_future:
             return base_embeddings
@@ -119,7 +119,7 @@ class TemporalAttentionModel(AttentionModel):
         )
         return combined_embeddings
     
-    def forward(self, input, cost_weights=None, return_pi=False, pad=False):
+    def forward(self, input, cost_weights=None, return_pi=False, pad=False, mask=None, expert_pi=None, **kwargs):
         if 'fill_history' not in input and self.predict_future:
             batch_size = input['loc'].size(0)
             graph_size = input['loc'].size(1)
@@ -133,7 +133,7 @@ class TemporalAttentionModel(AttentionModel):
                 device=input['loc'].device
             )
             input['fill_history'] = fill_history
-        return super().forward(input, cost_weights, return_pi, pad)
+        return super().forward(input, cost_weights, return_pi, pad, mask, expert_pi, **kwargs)
     
     def update_fill_history(self, fill_history, new_fills):
         updated_history = fill_history.clone()

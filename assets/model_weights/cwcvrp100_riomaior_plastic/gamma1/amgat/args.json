@@ -113,14 +113,14 @@
  "w_prize": null,
  "log_step": 10,
  "log_dir": "logs",
- "run_name": "amgat_gamma1_20251231T233608",
+ "run_name": "amgat_gamma1_20260101T033500",
  "output_dir": "assets/model_weights",
  "checkpoints_dir": "model_weights",
  "checkpoint_epochs": 1,
  "wandb_mode": "disabled",
  "no_tensorboard": false,
  "no_progress_bar": false,
- "save_dir": "model_weights/cwcvrp_100/amgat_gamma1_20251231T233608",
+ "save_dir": "model_weights/cwcvrp_100/amgat_gamma1_20260101T033500",
  "final_dir": "assets/model_weights/cwcvrp100_riomaior_plastic/gamma1/amgat",
  "device": "cuda:0"
 }

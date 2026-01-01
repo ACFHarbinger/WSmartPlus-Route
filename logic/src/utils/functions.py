@@ -93,8 +93,15 @@ def load_args(filename):
 
 
 def load_model(path, epoch=None):
+    from logic.src.models.model_factory import (
+        AttentionComponentFactory,
+        GCNComponentFactory,
+        GACComponentFactory,
+        TGCComponentFactory,
+        GGACComponentFactory,
+        MLPComponentFactory
+    )
     from logic.src.models import (
-        GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder, GatedGraphAttConvEncoder,
         AttentionModel, TemporalAttentionModel, DeepDecoderAttentionModel
     )
     if os.path.isfile(path):
@@ -120,13 +127,21 @@ def load_model(path, epoch=None):
 
     args = load_args(os.path.join(path, 'args.json'))
     problem = load_problem(args['problem'])
-    encoder_class = {
-        'gat': GraphAttentionEncoder,
-        'gac': GraphAttConvEncoder,
-        'tgc': TransGraphConvEncoder,
-        'ggac': GatedGraphAttConvEncoder
+    
+    # Map encoder name to Factory Class
+    factory_class = {
+        'gat': AttentionComponentFactory,
+        'gac': GACComponentFactory,
+        'tgc': TGCComponentFactory,
+        'ggac': GGACComponentFactory,
+        'mlp': MLPComponentFactory,
+        'gcn': GCNComponentFactory
     }.get(args.get('encoder', 'gat'), None)
-    assert encoder_class is not None, "Unknown encoder: {}".format(encoder_class)
+    
+    # Fallback/Check
+    assert factory_class is not None, "Unknown encoder type: {}".format(args.get('encoder', 'gat'))
+    
+    component_factory = factory_class()
 
     model_class = {
         'am': AttentionModel,
@@ -138,7 +153,7 @@ def load_model(path, epoch=None):
         args['embedding_dim'],
         args['hidden_dim'],
         problem,
-        encoder_class,
+        component_factory,
         args['n_encode_layers'],
         args['n_encode_sublayers'],
         args['n_decode_layers'],
@@ -174,8 +189,25 @@ def load_model(path, epoch=None):
 
     # Overwrite model parameters by parameters to load
     load_data = torch_load_cpu(model_filename)
-    model.load_state_dict({**model.state_dict(), **load_data.get('model', {})})
-    model, *_ = _load_model_file(model_filename, model)
+    loaded_state_dict = load_data.get('model', {})
+    
+    # Migration for Abstract Factory Refactoring
+    model_state_dict = model.state_dict()
+    new_state_dict = {}
+    for key, value in loaded_state_dict.items():
+        if key in model_state_dict:
+            new_state_dict[key] = value
+        elif 'decoder.' + key in model_state_dict:
+            new_state_dict['decoder.' + key] = value
+        elif 'context_embedder.' + key in model_state_dict:
+             new_state_dict['context_embedder.' + key] = value
+        else:
+            # Keep original key (might cause error if strict=True, but let's try)
+            new_state_dict[key] = value
+
+    model.load_state_dict({**model.state_dict(), **new_state_dict})
+    # model, *_ = _load_model_file(model_filename, model) # Removed as we manually loaded with migration above
+    print('  [*] Loaded model from {}'.format(model_filename))
     model.eval()  # Put in eval mode
     return model, args
 

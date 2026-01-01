@@ -8,8 +8,12 @@ from PySide6.QtWidgets import QWidget, QLabel
 #    pass
 
     
+from PySide6.QtCore import Signal
+
 class BaseReinforcementLearningTab(QWidget): #(QWidget, metaclass=MetaBaseTab)
     """Base class for all Reinforcement Learning parameter tabs"""
+    paramsChanged = Signal()
+
     def __init__(self):
         super().__init__()
         self.params = {}

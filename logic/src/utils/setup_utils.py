@@ -163,17 +163,29 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
     from logic.src.models import (
         WarmupBaseline, ExponentialBaseline, RolloutBaseline,
         NoBaseline, CriticBaseline, CriticNetwork, POMOBaseline,
-        AttentionModel, TemporalAttentionModel, DeepDecoderAttentionModel,
-        GraphAttentionEncoder, GraphAttConvEncoder, TransGraphConvEncoder, GatedGraphAttConvEncoder
+        AttentionModel, TemporalAttentionModel, DeepDecoderAttentionModel 
+        # Encoders removed from import as they are handled by factory
     )
-    encoder_class = {
-        'gat': GraphAttentionEncoder,
-        'gac': GraphAttConvEncoder,
-        'tgc': TransGraphConvEncoder,
-        'ggac': GatedGraphAttConvEncoder
+    from logic.src.models.model_factory import (
+        AttentionComponentFactory, 
+        GCNComponentFactory, 
+        GACComponentFactory, 
+        TGCComponentFactory, 
+        GGACComponentFactory
+    )
+    
+    factory_class = {
+        'gat': AttentionComponentFactory,
+        'gcn': GCNComponentFactory,
+        'gac': GACComponentFactory,
+        'tgc': TGCComponentFactory,
+        'ggac': GGACComponentFactory
     }.get(opts['encoder'], None)
-    assert encoder_class is not None, \
-    "Unknown encoder: {}".format(encoder_class)
+    
+    assert factory_class is not None, \
+    "Unknown encoder: {}".format(opts['encoder'])
+    
+    factory = factory_class()
 
     model_class = {
         'am': AttentionModel,
@@ -187,7 +199,7 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         opts['embedding_dim'],
         opts['hidden_dim'],
         problem,
-        encoder_class,
+        factory, # Changed from encoder_class to factory
         opts['n_encode_layers'],
         opts['n_encode_sublayers'],
         opts['n_decode_layers'],
@@ -237,13 +249,14 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
             (
                 CriticNetwork(
                     problem,
-                    encoder_class,
+                    factory,
                     opts['embedding_dim'],
                     opts['hidden_dim'],
                     opts['n_encode_layers'],
                     opts['n_other_layers'],
                     opts['normalization'],
                     opts['activation'],
+                    temporal_horizon=opts['temporal_horizon']
                 )
             ).to(opts['device'])
         )
