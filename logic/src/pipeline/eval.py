@@ -11,6 +11,7 @@ import itertools
 import numpy as np
 
 from tqdm import tqdm
+from typing import Optional
 from logic.src.utils.arg_parser import (
     ConfigsParser, 
     add_eval_args, 
@@ -24,7 +25,7 @@ from logic.src.utils.setup_utils import setup_cost_weights
 mp = torch.multiprocessing.get_context('spawn')
 
 
-def get_best(sequences, cost, ids=None, batch_size=None):
+def get_best(sequences, cost, ids: Optional[np.ndarray] = None, batch_size=None):
     """
     Ids contains [0, 0, 0, 1, 1, 2, ..., n, n, n] if 3 solutions found for 0th instance, 2 for 1st, etc
     :param sequences:

@@ -20,9 +20,10 @@ class TestAttentionModel:
         
         # Mocking embeddings return from embedder
         model.embedder.return_value = torch.zeros(batch_size, graph_size + 1, 128) # +1 for depot
-        model._inner = MagicMock(return_value=(torch.zeros(batch_size, graph_size), torch.zeros(batch_size, graph_size)))
+        # Mock decoder return value (log_p, pi)
+        model.decoder.return_value = (torch.zeros(batch_size, graph_size), torch.zeros(batch_size, graph_size))
         # _calc_log_likelihood returns (ll, entropy) when training=True
-        model._calc_log_likelihood = MagicMock(return_value=(torch.zeros(batch_size), torch.zeros(batch_size)))
+        model.decoder._calc_log_likelihood.return_value = (torch.zeros(batch_size), torch.zeros(batch_size))
         
         input_data = {
             'depot': torch.rand(batch_size, 2),
@@ -40,10 +41,19 @@ class TestAttentionModel:
     def test_compute_batch_sim(self, am_setup):
         model = am_setup
         model.embedder.return_value = torch.zeros(2, 6, 128)
-        model._inner = MagicMock(return_value=(
+        model.decoder.return_value = (
             torch.zeros(2, 6), # log_p
             torch.arange(6).repeat(2,1) # selected
-        )) # Return pi as indices
+        )
+        model.decoder._calc_log_likelihood.return_value = torch.zeros(2) # ll only if training=False or depending on usage?
+        # In compute_batch_sim, model(..., return_pi=True) is called.
+        # model.forward calls decoder.
+        # It calculates ll using decoder._calc_log_likelihood.
+        
+        # But wait, test_compute_batch_sim mocks model.forward later!
+        # So mocks on decoder might be irrelevant if model.forward is mocked.
+        # But lines 43-46 set mocks on _inner which are now useless.
+        # I'll update them anyway for correctness.
         model.problem.get_costs.return_value = (torch.zeros(2), {'overflows': torch.zeros(2), 'waste': torch.zeros(2)}, None)
         # Mock model forward to return expected tuple for NeuralAgent
         # (cost, ll, cost_dict, pi, entropy)
@@ -269,8 +279,8 @@ class TestTemporalAttentionModel:
     def test_forward_wraps_input(self, tam_setup):
         model = tam_setup
         model.embedder.return_value = torch.zeros(1, 5, 128)
-        model._inner = MagicMock(return_value=(torch.zeros(1, 5), torch.zeros(1, 5)))
-        model._calc_log_likelihood = MagicMock(return_value=(torch.zeros(1), torch.zeros(1)))
+        model.decoder.return_value = (torch.zeros(1, 5), torch.zeros(1, 5))
+        model.decoder._calc_log_likelihood.return_value = (torch.zeros(1), torch.zeros(1))
         
         input_data = {
             'depot': torch.rand(1, 2),

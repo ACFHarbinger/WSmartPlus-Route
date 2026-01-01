@@ -28,7 +28,7 @@ from logic.src.pipeline.train import (
 )
 from logic.src.data.generate_data import generate_datasets
 from logic.src.utils.arg_parser import parse_params 
-from logic.src.app import run_app_gui, launch_results_window
+from gui.src.app import run_app_gui, launch_results_window
 
 
 def run_test_suite(opts):

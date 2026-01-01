@@ -26,7 +26,6 @@ project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from logic.src.pipeline.simulator.bins import Bins
-from logic.src.pipeline.simulator import simulation
 from logic.src.pipeline.reinforcement_learning.meta.contextual_bandits import WeightContextualBandit
 from logic.src.pipeline.reinforcement_learning.meta.multi_objective import MORLWeightOptimizer
 from logic.src.pipeline.reinforcement_learning.meta.temporal_difference_learning import CostWeightManager
@@ -34,6 +33,8 @@ from logic.src.pipeline.reinforcement_learning.meta.weight_optimizer import Rewa
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.gat_lstm_manager import GATLSTManager
 from logic.src.models.temporal_am import TemporalAttentionModel
+from logic.src.models.model_factory import NeuralComponentFactory
+from logic.src.models.subnets.attention_decoder import AttentionDecoder
 
 
 # ============================================================================
@@ -432,12 +433,11 @@ def mock_dependencies(mocker):
     # Since they are imported via `from .generate_problem_data import *`, we mock 
     # them as attributes of the generate_data module.
 
-    mocker.patch('logic.src.data.generate_data.generate_vrpp_data', return_value=[(None, None)])
-    mocker.patch('logic.src.data.generate_data.generate_wcvrp_data', return_value=[(None, None)])
-
-    
-    # 2. Mock the WSR simulator data generator
-    mocker.patch('logic.src.data.generate_data.generate_wsr_data', return_value=[(None, None)])
+    # Mocks removed as these functions are no longer imported in generate_data.py
+    # and have been replaced by VRPInstanceBuilder.
+    # mocker.patch('logic.src.data.generate_data.generate_vrpp_data', return_value=[(None, None)])
+    # mocker.patch('logic.src.data.generate_data.generate_wcvrp_data', return_value=[(None, None)])
+    # mocker.patch('logic.src.data.generate_data.generate_wsr_data', return_value=[(None, None)])
     
     # 3. Mock the save utility
     mocker.patch('logic.src.data.generate_data.save_dataset', return_value=None)
@@ -535,6 +535,7 @@ def mock_bins_instance(mocker):
     mock_bins.travel = 50.0
     mock_bins.ndays = 10
     mock_bins.n = 2
+    mock_bins.profit = 100.0
     mock_bins.get_fill_history.return_value = np.array([[10, 20], [30, 40]])
     return mock_bins
 
@@ -545,46 +546,53 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     Mocks all major external dependencies for single_simulation
     and sequential_simulations.
     """
-    # 1. Patch ROOT_DIR
+    # 1. Patch ROOT_DIR in both modules to ensure consistency
+    mocker.patch('logic.src.pipeline.simulator.states.ROOT_DIR', str(tmp_path))
     mocker.patch('logic.src.pipeline.simulator.simulation.ROOT_DIR', str(tmp_path))
     
     # 2. Mock loader functions
-    mock_depot = pd.DataFrame({'ID': [0], 'Lat': [40], 'Lng': [-8]})
+    mock_depot = pd.DataFrame({'ID': [0], 'Lat': [40], 'Lng': [-8], 'Stock': [0], 'Accum_Rate': [0]})
     mock_data = pd.DataFrame({'ID': [1, 2], 'Stock': [10, 20], 'Accum_Rate': [0.1, 0.2]})
     mock_coords = pd.DataFrame({'ID': [1, 2], 'Lat': [40.1, 40.2], 'Lng': [-8.1, -8.2]})
-    mocker.patch('logic.src.pipeline.simulator.simulation.load_depot', return_value=mock_depot)
-    mocker.patch('logic.src.pipeline.simulator.simulation.load_simulator_data', 
+    mocker.patch('logic.src.pipeline.simulator.processor.load_depot', return_value=mock_depot)
+    mocker.patch('logic.src.pipeline.simulator.processor.load_simulator_data', 
                  return_value=(mock_data.copy(), mock_coords.copy()))
 
-    # 3. Mock processor functions
+    # Mock setup_basedata in states to return the tuple directly
+    mock_setup_basedata = mocker.patch('logic.src.pipeline.simulator.states.setup_basedata',
+                 return_value=(mock_data.copy(), mock_coords.copy(), mock_depot.copy()))
+
+    # 3. Mock processor functions (patched in states where imported)
     mock_proc_data = pd.DataFrame({'ID': [0, 1, 2], 'Stock': [0, 10, 20]})
     mock_proc_coords = pd.DataFrame({'ID': [0, 1, 2], 'Lat': [40, 40.1, 40.2], 'Lng': [-8, -8.1, -8.2]})
-    mocker.patch('logic.src.pipeline.simulator.simulation.process_data', 
+    mock_process_data = mocker.patch('logic.src.pipeline.simulator.states.process_data', 
                  return_value=(mock_proc_data.copy(), mock_proc_coords.copy()))
-    mocker.patch('logic.src.pipeline.simulator.simulation.process_model_data', 
+    mocker.patch('logic.src.pipeline.simulator.states.process_model_data', 
                  return_value=('mock_model_tup_0', 'mock_model_tup_1'))
 
-    # 4. Mock network functions
+    # 4. Mock network functions (patched in states where imported)
     mock_dist_tup = (np.array([[0, 1], [1, 0]]), 'mock_paths', 'mock_tensor', 'mock_distC')
     mock_adj_matrix = np.array([[1, 1], [1, 1]])
-    mocker.patch('logic.src.pipeline.simulator.simulation._setup_dist_path_tup', 
+    mock_setup_dist = mocker.patch('logic.src.pipeline.simulator.states.setup_dist_path_tup', 
                  return_value=(mock_dist_tup, mock_adj_matrix))
-    mocker.patch('logic.src.pipeline.simulator.simulation.compute_distance_matrix', 
+    # Still patch processor lower level functions if used elsewhere or implicitly? 
+    # But states.setup_dist_path_tup mock prevents calling them.
+    mocker.patch('logic.src.pipeline.simulator.processor.compute_distance_matrix', 
                  return_value=np.array([[0,1],[1,0]]))
-    mocker.patch('logic.src.pipeline.simulator.simulation.apply_edges', 
+    mocker.patch('logic.src.pipeline.simulator.processor.apply_edges', 
                  return_value=('mock_dist_edges', 'mock_paths', 'mock_adj'))
-    mocker.patch('logic.src.pipeline.simulator.simulation.get_paths_between_states', 
+    mocker.patch('logic.src.pipeline.simulator.processor.get_paths_between_states', 
                  return_value='mock_all_paths')
 
     # 5. Mock Bins class
-    mocker.patch('logic.src.pipeline.simulator.simulation.Bins', return_value=mock_bins_instance)
+    mocker.patch('logic.src.pipeline.simulator.states.Bins', return_value=mock_bins_instance)
 
     # 6. Mock setup functions
-    mocker.patch(
-        'logic.src.pipeline.simulator.simulation.setup_model',
+    mock_setup_model = mocker.patch(
+        'logic.src.pipeline.simulator.states.setup_model',
         return_value=(MagicMock(), MagicMock()) 
     )
-    mocker.patch('logic.src.utils.setup_utils.setup_env', 
+    mock_setup_env = mocker.patch('logic.src.utils.setup_utils.setup_env', 
                  return_value='mock_or_env')
 
     # 7. Mock day function
@@ -592,30 +600,31 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     mock_data_ls = (mock_proc_data, mock_proc_coords, mock_bins_instance)
     mock_output_ls = (0, mock_dlog, {}) # overflows, dlog, output_dict
     mock_run_day = mocker.patch( # CAPTURE the mock object here
-        'logic.src.pipeline.simulator.simulation.run_day', 
+        'logic.src.pipeline.simulator.states.run_day', 
         return_value=(mock_data_ls, mock_output_ls, None)
     )
 
     # 8. Mock checkpointing
     mock_cp_instance = mocker.MagicMock()
     mock_cp_instance.load_state.return_value = (None, 0) # Default: no resume
-    mocker.patch('logic.src.pipeline.simulator.simulation.SimulationCheckpoint', 
+    mocker.patch('logic.src.pipeline.simulator.states.SimulationCheckpoint', 
                  return_value=mock_cp_instance)
     
     # Mock the context manager and its hook
     mock_hook = mocker.MagicMock()
     mock_cm = mocker.MagicMock()
     mock_cm.__enter__.return_value = mock_hook # Yield the hook
-    mocker.patch('logic.src.pipeline.simulator.simulation.checkpoint_manager', 
+    mocker.patch('logic.src.pipeline.simulator.states.checkpoint_manager', 
                 return_value=mock_cm)
 
     # 9. Mock utilities
-    mocker.patch('logic.src.pipeline.simulator.simulation.log_to_json')
-    mocker.patch('logic.src.pipeline.simulator.simulation.output_stats',
-                 return_value=({}, {})) # mock_log, mock_log_std
-    mocker.patch('logic.src.pipeline.simulator.simulation.save_matrix_to_excel')
-    mocker.patch('logic.src.pipeline.simulator.simulation.time.process_time', return_value=1.0)
-    mocker.patch('os.makedirs', new_callable=lambda: lambda *args, **kwargs: None)
+    mock_log_to_json = mocker.MagicMock()
+    mocker.patch('logic.src.pipeline.simulator.states.log_to_json', mock_log_to_json)
+    mocker.patch('logic.src.pipeline.simulator.simulation.log_to_json', mock_log_to_json)
+    # output_stats removed
+    mock_save_excel = mocker.patch('logic.src.pipeline.simulator.states.save_matrix_to_excel')
+    mocker.patch('time.process_time', return_value=1.0)
+    # Removed os.makedirs patch to allow directory creation (since ROOT_DIR is tmp)
     mocker.patch('pandas.DataFrame.to_excel')
     mocker.patch('statistics.mean', return_value=1.0)
     mocker.patch('statistics.stdev', return_value=0.1)
@@ -655,7 +664,7 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
         return mock_instance
 
     mocker.patch(
-        'logic.src.pipeline.simulator.simulation.tqdm', 
+        'logic.src.pipeline.simulator.states.tqdm', 
         side_effect=mock_tqdm_factory, # Use side_effect to dynamically return the iterable mock
         autospec=True
     )
@@ -665,13 +674,14 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
         'checkpoint': mock_cp_instance,
         'hook': mock_hook,
         'run_day': mock_run_day,
-        'log_to_json': simulation.log_to_json,
-        'save_excel': simulation.save_matrix_to_excel,
+        'log_to_json': mock_log_to_json,
+        'save_excel': mock_save_excel,
         'bins': mock_bins_instance,
-        'setup_model': simulation.setup_model,
-        'setup_env': simulation.setup_env,
-        'process_data': simulation.process_data,
-        '_setup_dist_path_tup': simulation._setup_dist_path_tup,
+        'setup_model': mock_setup_model,
+        'setup_env': mock_setup_env,
+        'process_data': mock_process_data,
+        '_setup_basedata': mock_setup_basedata,
+        '_setup_dist_path_tup': mock_setup_dist,
     }
 
 
@@ -770,7 +780,7 @@ def mock_run_day_deps(mocker):
         'logic.src.policies.regular.policy_regular', return_value=[0, 1, 2, 0] 
     )
     mock_send_output = mocker.patch(
-        'logic.src.pipeline.simulator.day.send_daily_output_to_gui', autospec=True
+        'logic.src.pipeline.simulator.actions.send_daily_output_to_gui', autospec=True
     )
     mocker.patch('logic.src.policies.single_vehicle.get_route_cost', return_value=50.0)
     mocker.patch('logic.src.policies.single_vehicle.find_route', return_value=[0, 1, 0])
@@ -1187,11 +1197,24 @@ def am_setup(mocker):
         return torch.zeros(batch, n, 128) # hidden_dim
     mock_encoder.side_effect = mock_enc_fwd
 
+    # Mock Factory
+    class MockFactory(NeuralComponentFactory):
+        def create_encoder(self, **kwargs):
+            return mock_encoder
+        def create_decoder(self, **kwargs):
+            # Return a MagicMock that acts like AttentionDecoder? 
+            # Or real one? Tests verify forward flow. 
+            # If we return a Mock, model.decoder becomes that Mock.
+            # Then in tests we can configure it.
+            m_dec = mocker.MagicMock(spec=AttentionDecoder)
+            m_dec.forward.side_effect = lambda input, embeddings, *args, **kwargs: (torch.zeros(1), torch.zeros(1))
+            return m_dec
+
     model = AttentionModel(
         embedding_dim=128,
         hidden_dim=128,
         problem=mock_problem,
-        encoder_class=lambda **kwargs: mock_encoder,
+        component_factory=MockFactory(),
         n_encode_layers=1,
         n_heads=8,
         checkpoint_encoder=False
@@ -1249,11 +1272,19 @@ def tam_setup(mocker):
 
     mock_grfp.side_effect = mock_grfp_fwd
     
+    # Mock Factory for TAM
+    class MockTAMFactory(NeuralComponentFactory):
+        def create_encoder(self, **kwargs):
+            return mock_encoder
+        def create_decoder(self, **kwargs):
+             m_dec = mocker.MagicMock(spec=AttentionDecoder)
+             return m_dec
+
     model = TemporalAttentionModel(
         embedding_dim=128,
         hidden_dim=128,
         problem=mock_problem,
-        encoder_class=lambda **kwargs: mock_encoder,
+        component_factory=MockTAMFactory(),
         n_encode_layers=1,
         n_heads=8,
         temporal_horizon=5

@@ -4,7 +4,7 @@ import gurobipy as gp
 
 from gurobipy import GRB, quicksum
 from typing import List
-from numpy.typing import NDArray
+
 from logic.src.pipeline.simulator.processor import create_dataframe_from_matrix, convert_to_dict
 from .look_ahead_aux import (
     should_bin_be_collected, add_bins_to_collect,
@@ -18,8 +18,8 @@ from .adaptive_large_neighborhood_search import run_alns, run_alns_package, run_
 
 def policy_lookahead(
     binsids: List[int], 
-    current_fill_levels: NDArray[np.float64], 
-    accumulation_rates: NDArray[np.float64], 
+    current_fill_levels: np.ndarray, 
+    accumulation_rates: np.ndarray,  
     current_collection_day: int
   ):
   must_go_bins = []
