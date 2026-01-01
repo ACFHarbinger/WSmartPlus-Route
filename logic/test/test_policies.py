@@ -38,7 +38,7 @@ class TestRunDayPolicyRouting:
         # We need to capture the mock to ensure it's called, even if the one in conftest.py
         # for assertions might fail due to shadowing.
         mock_pol_regular_local = mocker.patch(
-            'logic.src.pipeline.simulator.day.policy_regular', 
+            'logic.src.policies.adapters.policy_regular', 
             return_value=[0, 1, 0] # Return a valid tour to avoid further errors
         )
 
@@ -69,7 +69,7 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_last_minute(self, mocker, mock_run_day_deps):
         """Test if 'policy_last_minute90_gamma1' calls policy_last_minute.""" 
         mock_pol_last_minute = mocker.patch(
-            'logic.src.pipeline.simulator.day.policy_last_minute',
+            'logic.src.policies.adapters.policy_last_minute',
             return_value=[0, 1, 0]
         )
         
@@ -95,8 +95,8 @@ class TestRunDayPolicyRouting:
     @pytest.mark.unit
     def test_run_day_calls_am(self, mocker, mock_run_day_deps):
         """Test if 'am_policy_gamma1' calls NeuralAgent.compute_simulator_day."""
-        # Patch NeuralAgent in the policies module which day.py imports
-        mock_neural_agent_cls = mocker.patch('logic.src.policies.neural_agent.NeuralAgent')
+        # Patch NeuralAgent in the adapters module where it is imported
+        mock_neural_agent_cls = mocker.patch('logic.src.policies.adapters.NeuralAgent')
         mock_agent_instance = mock_neural_agent_cls.return_value
         
         # Configure the mock agent to return expected tuple
@@ -118,7 +118,7 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_gurobi(self, mocker, mock_run_day_deps):
         """Test if 'gurobi_vrpp0.5_gamma1' calls policy_vrpp."""
         mock_pol_vrpp = mocker.patch(
-            'logic.src.pipeline.simulator.day.policy_vrpp',
+            'logic.src.policies.adapters.policy_vrpp',
             return_value=([0, 1, 0], 10.0, {})
         )
         
@@ -138,7 +138,7 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_hexaly(self, mocker, mock_run_day_deps):
         """Test if 'hexaly_vrpp0.8_gamma1' calls policy_vrpp."""
         mock_pol_vrpp = mocker.patch(
-            'logic.src.pipeline.simulator.day.policy_vrpp',
+            'logic.src.policies.adapters.policy_vrpp',
             return_value=([0, 1, 0], 10.0, {})
         )
         
@@ -157,12 +157,12 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_alns_package(self, mocker, mock_run_day_deps):
         """Test if 'policy_look_ahead_alns_package_gamma1' calls policy_lookahead_alns with variant='package'."""
         mock_pol = mocker.patch(
-            'logic.src.pipeline.simulator.day.policy_lookahead_alns',
+            'logic.src.policies.adapters.policy_lookahead_alns',
             return_value=([0, 1, 0], 10.0, 0)
         )
         # Mock policy_lookahead to return must_go_bins so logic enters the if block
-        mocker.patch('logic.src.pipeline.simulator.day.policy_lookahead', return_value=[0, 1])
-        mocker.patch('logic.src.pipeline.simulator.day.load_area_and_waste_type_params', return_value=(100, 1, 1, 1, 1))
+        mocker.patch('logic.src.policies.adapters.policy_lookahead', return_value=[0, 1])
+        mocker.patch('logic.src.policies.adapters.load_area_and_waste_type_params', return_value=(100, 1, 1, 1, 1))
         
         run_day(
             graph_size=5,
@@ -181,11 +181,11 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_alns_ortools(self, mocker, mock_run_day_deps):
         """Test if 'policy_look_ahead_alns_ortools_gamma1' calls policy_lookahead_alns with variant='ortools'."""
         mock_pol = mocker.patch(
-            'logic.src.pipeline.simulator.day.policy_lookahead_alns',
+            'logic.src.policies.adapters.policy_lookahead_alns',
             return_value=([0, 1, 0], 10.0, 0)
         )
-        mocker.patch('logic.src.pipeline.simulator.day.policy_lookahead', return_value=[0, 1])
-        mocker.patch('logic.src.pipeline.simulator.day.load_area_and_waste_type_params', return_value=(100, 1, 1, 1, 1))
+        mocker.patch('logic.src.policies.adapters.policy_lookahead', return_value=[0, 1])
+        mocker.patch('logic.src.policies.adapters.load_area_and_waste_type_params', return_value=(100, 1, 1, 1, 1))
 
         run_day(
             graph_size=5,

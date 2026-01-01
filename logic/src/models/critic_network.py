@@ -1,7 +1,7 @@
-import torch
 import torch.nn as nn
 
 from .modules import ActivationFunction
+from .context_embedder import WCContextEmbedder, VRPPContextEmbedder
 
 
 # Attention, Learn to Solve Routing Problems
@@ -9,7 +9,7 @@ class CriticNetwork(nn.Module):
     def __init__(
         self,
         problem,
-        encoder_class,
+        component_factory,
         embedding_dim,
         hidden_dim,
         n_layers,
@@ -19,11 +19,11 @@ class CriticNetwork(nn.Module):
         n_heads=8,
         aggregation_graph="avg",
         dropout_rate=0.,
+        temporal_horizon=0
     ):
         super(CriticNetwork, self).__init__()
         self.hidden_dim = hidden_dim
         self.embedding_dim = embedding_dim
-        self.encoder_class = encoder_class
         self.aggregation_graph = aggregation_graph
 
         self.is_wc = problem.NAME == 'wcvrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
@@ -34,11 +34,12 @@ class CriticNetwork(nn.Module):
         # Problem specific context parameters
         node_dim = 3  # x, y, demand / prize / waste -- vrpp has waste, wc has waste.
         
-        # Special embedding projection for depot node
-        self.init_embed_depot = nn.Linear(2, embedding_dim)
+        if self.is_wc:
+            self.context_embedder = WCContextEmbedder(embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)
+        else:
+            self.context_embedder = VRPPContextEmbedder(embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)
 
-        self.init_embed = nn.Linear(node_dim, embedding_dim)
-        self.encoder = self.encoder_class(
+        self.encoder = component_factory.create_encoder(
             n_heads=n_heads,
             embed_dim=embedding_dim,
             n_layers=n_layers,
@@ -56,19 +57,7 @@ class CriticNetwork(nn.Module):
         )
     
     def _init_embed(self, nodes):
-        if self.is_vrpp or self.is_wc:
-            features = ('waste',)
-            return torch.cat(  # [batch_size, graph_size+1, embed_dim]
-                (
-                    self.init_embed_depot(nodes['depot'])[:, None, :],
-                    self.init_embed(torch.cat((  # [batch_size, graph_size, embed_dim]
-                        nodes['loc'],  # [batch_size, graph_size, 2]
-                        *(nodes[feat][:, :, None] for feat in features)  # [batch_size, graph_size]
-                    ), -1))  # [batch_size, graph_size, node_dim]
-                ),
-                1
-            )
-        assert False, "Unsupported problem"
+        return self.context_embedder.init_node_embeddings(nodes)
 
     def forward(self, inputs):
         """

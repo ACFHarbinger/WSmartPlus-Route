@@ -13,8 +13,8 @@ from logic.src.utils.arg_parser import (
     validate_gen_data_args
 )
 from logic.src.utils.data_utils import check_extension, save_dataset
-from .generate_problem_data import *
-from .generate_simulator_data import generate_wsr_data
+from logic.src.utils.data_utils import check_extension, save_dataset
+from logic.src.data.builders import VRPInstanceBuilder
 
 
 def generate_datasets(opts):
@@ -66,7 +66,20 @@ def generate_datasets(opts):
                         " and using '{}' as the instance distribution".format(dist),
                         ":" if n_days == 0 else "..."
                     ))
+
+                    # Configure Builder
+                    builder = VRPInstanceBuilder()
+                    builder.set_dataset_size(opts['dataset_size']) \
+                           .set_problem_size(size) \
+                           .set_waste_type(opts['waste_type']) \
+                           .set_distribution(dist) \
+                           .set_area(opts['area']) \
+                           .set_focus_graph(graph, opts['focus_size']) \
+                           .set_method(opts['vertex_method']) \
+                           .set_is_vrpp(problem == "vrpp")
+                    
                     if opts['dataset_type'] == 'test_simulator':
+                        builder.set_num_days(n_days)
                         if 'filename' not in opts or opts['filename'] is None:
                             filename = os.path.join(datadir, 
                                 "{}{}{}_{}{}_N{}_seed{}.pkl".format(opts['area'], size,
@@ -78,10 +91,19 @@ def generate_datasets(opts):
                         
                         assert opts.get('f', opts.get('overwrite', False)) or not os.path.isfile(check_extension(filename)), \
                         "File already exists! Try running with -f option to overwrite."
-                        dataset = generate_wsr_data(size, n_days, opts['dataset_size'], opts['area'], 
-                                                    opts['waste_type'], dist, graph, opts['vertex_method'])
+                        
+                        full_dataset = builder.build()
+                        # Verify what generate_wsr_data returned. It returned just the waste list.
+                        # VRPInstanceBuilder returns list of (depot, loc, waste, max_waste).
+                        # We extract waste (index 2).
+                        dataset = [x[2] for x in full_dataset]
+                        
                         save_dataset(dataset, filename)
+
                     elif opts['dataset_type'] == 'train_time':
+                        builder.set_num_days(opts['n_epochs']) 
+                        # Note: original code used num_days=opts['n_epochs'] for train_time
+                        
                         if 'filename' not in opts or opts['filename'] is None:
                             if opts['is_gaussian']:
                                 filename = os.path.join(datadir, 
@@ -99,16 +121,14 @@ def generate_datasets(opts):
 
                         assert opts.get('f', opts.get('overwrite', False)) or not os.path.isfile(check_extension(filename)), \
                         "File already exists! Try running with -f option to overwrite."
-                        if problem == "vrpp":
-                            dataset = generate_vrpp_data(opts['dataset_size'], size, opts['waste_type'], dist, opts['area'], 
-                                                        graph, opts['focus_size'], opts['vertex_method'], num_days=opts['n_epochs'])
-                        else:
-                            assert problem == "wcvrp"
-                            dataset = generate_wcvrp_data(opts['dataset_size'], size, opts['waste_type'], dist, opts['area'], 
-                                                        graph, opts['focus_size'], opts['vertex_method'], num_days=opts['n_epochs'])
+                        
+                        dataset = builder.build()
                         save_dataset(dataset, filename)
                     else:
-                        assert opts['dataset_type'] == 'train'
+                        assert opts['dataset_type'] == 'train'                        
+                        # So for 'train', we generate 1 day per epoch file.
+                        builder.set_num_days(1)
+                        
                         for epoch in range(opts['epoch_start'], opts['n_epochs']):
                             print("- Generating epoch {} data".format(epoch))
                             if 'filename' not in opts or opts['filename'] is None:
@@ -128,14 +148,8 @@ def generate_datasets(opts):
 
                             assert opts['f'] or not os.path.isfile(check_extension(filename)), \
                             "File already exists! Try running with -f option to overwrite."
-                            if problem == "vrpp":
-                                dataset = generate_vrpp_data(opts['dataset_size'], size, opts['waste_type'], 
-                                dist, opts['area'], graph, opts['focus_size'], opts['vertex_method'])
-                            elif problem == "wcvrp":
-                                dataset = generate_wcvrp_data(opts['dataset_size'], size, opts['waste_type'], 
-                                dist, opts['area'], graph, opts['focus_size'], opts['vertex_method'])
-                            else:
-                                assert False, "Unknown problem: {}".format(problem)
+                            
+                            dataset = builder.build()
                             save_dataset(dataset, filename)
         except Exception as e:
             has_dists = len(distributions) >= 1 and distributions[0] is not None

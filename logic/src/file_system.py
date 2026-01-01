@@ -1,8 +1,9 @@
 import os
 import sys
 import shutil
-import traceback
 import argparse
+import traceback
+from typing import Dict, Any
 
 from .utils.definitions import ROOT_DIR
 from .utils.arg_parser import (
@@ -22,8 +23,7 @@ from .utils.io_utils import (
     process_pattern_files_statistics, preview_pattern_files_statistics,
 )
 
-
-def perform_cryptographic_operations(opts):
+def perform_cryptographic_operations(opts: Dict[str, Any]) -> None:
     try:
         if 'input_path' not in opts or opts['input_path'] is None:
             _, _ = generate_key(opts['salt_size'], opts['key_length'], opts['hash_iterations'], opts['symkey_name'], opts['env_file'])
@@ -40,8 +40,7 @@ def perform_cryptographic_operations(opts):
     except Exception as e:
         raise Exception(f"failed to perform cryptographic operations due to {repr(e)}")
 
-
-def update_file_system_entries(opts):
+def update_file_system_entries(opts: Dict[str, Any]) -> int:
     try:
         target_path = os.path.join(ROOT_DIR, opts['target_entry'])
         process_stats = 'stats_function' in opts and opts['stats_function'] is not None
@@ -73,49 +72,49 @@ def update_file_system_entries(opts):
                 process_file(target_path, opts['output_key'], opts['update_operation'], opts['update_value'], opts['input_keys'])
         else:
             raise ValueError(f"no file or directory found with path '{target_path}'")
+        return 1
     except Exception as e:
         raise Exception(f"failed to update file system entries due to {repr(e)}")
 
-
-def delete_file_system_entries(opts):
+def delete_file_system_entries(opts: Dict[str, Any]) -> int:
     try:
         directories_to_delete = []
-        if opts['wandb']:
+        if opts.get('wandb'):
             wandb_path = os.path.join(ROOT_DIR, "wandb")
             if os.path.exists(wandb_path):
                 directories_to_delete.append(("wandb logs", wandb_path))
         
-        if opts['log']:
+        if opts.get('log'):
             log_path = os.path.join(ROOT_DIR, opts['log_dir'])
             if os.path.exists(log_path):
                 directories_to_delete.append(("train logs", log_path))
         
-        if opts['output']:
+        if opts.get('output'):
             output_path = os.path.join(ROOT_DIR, opts['output_dir'])
             if os.path.exists(output_path):
                 directories_to_delete.append(("model outputs", output_path))
         
-        if opts['data']:
+        if opts.get('data'):
             data_path = os.path.join(ROOT_DIR, opts['data_dir'])
             if os.path.exists(data_path):
                 directories_to_delete.append(("datasets", data_path))
         
-        if opts['eval']:
+        if opts.get('eval'):
             eval_path = os.path.join(ROOT_DIR, opts['eval_dir'])
             if os.path.exists(eval_path):
                 directories_to_delete.append(("evaluation results", eval_path))
         
-        if opts['test_sim']:
+        if opts.get('test_sim'):
             test_sim_path = os.path.join(ROOT_DIR, "assets", opts['test_sim_dir'])
             if os.path.exists(test_sim_path):
                 directories_to_delete.append(("test sim outputs", test_sim_path))
         
-        if opts['test_checkpoint']:
+        if opts.get('test_checkpoint'):
             test_sim_checkpoint_path = os.path.join(ROOT_DIR, "assets", opts['test_sim_checkpoint_dir'])
             if os.path.exists(test_sim_checkpoint_path):
                 directories_to_delete.append(("test sim checkpoints", test_sim_checkpoint_path))
         
-        if opts['cache']:
+        if opts.get('cache'):
             cache_path1 = os.path.join(ROOT_DIR, "cache")
             cache_path2 = os.path.join(ROOT_DIR, "notebooks", "cache")
             if os.path.exists(cache_path1):
@@ -123,24 +122,20 @@ def delete_file_system_entries(opts):
             if os.path.exists(cache_path2):
                 directories_to_delete.append(("notebooks cache", cache_path2))
         
-        # If nothing exists to delete, inform user and return
         if not directories_to_delete:
             print("No directories exist for deletion based on the provided options.")
             return 0
         
-        if opts['delete_preview']:
-            # Show what will be deleted
+        if opts.get('delete_preview'):
             print("\nThe following directories exist and will be deleted:")
             print("-" * 60)
             for i, (description, path) in enumerate(directories_to_delete, 1):    
                 print(f"{i}. {description}:")
 
-            # Ask for confirmation
             if not confirm_proceed(operation_name='deletion'):
                 print("Deletion cancelled by user.")
                 return 0
         
-        # Proceed with deletion
         print("\nDeleting directories...")
         success_count = 0
         for description, path in directories_to_delete:
@@ -159,24 +154,17 @@ def delete_file_system_entries(opts):
     except Exception as e:
         raise Exception(f"failed to delete file system entries due to {repr(e)}")
 
-
-
 if __name__ == "__main__":
     exit_code = 0
-    
-    # Create a generic parser, add the file system arguments, parse, and validate.
     parser = ConfigsParser(
         description="File System Utility Runner (update/delete/cryptography)",
         formatter_class=argparse.RawTextHelpFormatter
     )
     add_files_args(parser) 
     try:
-        # Parse arguments from command line
         parsed_args = parser.parse_process_args(sys.argv[1:], "file_system")
-        
-        # Validate arguments and extract the inner command (e.g., 'update', 'delete', 'cryptography')
-        # validate_file_system_args returns (fs_command, validated_opts)
         comm, opts = validate_file_system_args(parsed_args)
+        
         if comm == 'update':
             update_file_system_entries(opts)
         elif comm == 'delete':
@@ -184,6 +172,7 @@ if __name__ == "__main__":
         else:
             assert comm == 'cryptography'
             perform_cryptographic_operations(opts)
+            
     except (argparse.ArgumentError, AssertionError) as e:
         exit_code = 1
         parser.print_help()
