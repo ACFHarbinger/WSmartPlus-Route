@@ -20,7 +20,8 @@ sys.path.insert(0, str(project_root))
 # Mock FigureCanvasQTAgg to be a QWidget so layouts accept it
 class MockCanvas(QWidget):
     def __init__(self, *args, **kwargs):
-        super().__init__()
+        parent = kwargs.get('parent')
+        super().__init__(parent)
     def setSizePolicy(self, *args): pass
     def updateGeometry(self): pass
     def draw_idle(self): pass
@@ -53,6 +54,8 @@ def qapp():
     if app is None:
         app = QApplication(sys.argv)
     yield app
+    # Process pending events like deleteLater()
+    app.processEvents()
 
 @pytest.fixture
 def results_window(qapp):

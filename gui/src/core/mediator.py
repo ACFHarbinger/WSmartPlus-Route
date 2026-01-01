@@ -12,7 +12,9 @@ class UIMediator(QObject):
     command_updated = Signal(str)
 
     def __init__(self, main_window):
-        super().__init__()
+        # Pass main_window as parent if it's a QObject to ensure proper cleanup
+        parent = main_window if isinstance(main_window, QObject) else None
+        super().__init__(parent)
         self.main_window = main_window
         self.tabs = {}
         self.current_command = None

@@ -1,6 +1,6 @@
 
 import pytest
-from PySide6.QtWidgets import QWidget, QApplication
+from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Signal
 from gui.src.core.mediator import UIMediator
 
@@ -31,12 +31,6 @@ class MockMainWindow:
     def currentIndex(self):
         return 0
 
-@pytest.fixture(scope="session")
-def qapp():
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication([])
-    yield app
 
 @pytest.fixture
 def mediator(qapp):
