@@ -361,12 +361,12 @@ class WCVRPDataset(Dataset):
             dist_matrix = compute_distance_matrix(tmp_coords, dist_strat, dm_filepath=dist_matrix_path, focus_idx=idx)
             depot, loc, _, _ = load_focus_coords(size, vertex_strat, area, waste_type, focus_path, focus_size)
             graph = (torch.from_numpy(depot).float(), torch.from_numpy(loc).float())
-            if num_edges > 0:
+            if num_edges > 0 and edge_strat is not None:
                 dist_matrix_edges, _, adj_matrix = apply_edges(dist_matrix, num_edges, edge_strat)
                 #adj_matrix = get_adj_knn(dist_matrix[1:, 1:], num_edges, negative=False)
                 self.edges = torch.from_numpy(adj_matrix)
                 #self.edges = torch.tensor(adj_to_idx(neg_adj_matrix)).to(dtype=torch.long)
-                if edge_strat is None: num_edges = 0
+                #if edge_strat is None: num_edges = 0
             else:
                 dist_matrix_edges = dist_matrix
                 self.edges = None

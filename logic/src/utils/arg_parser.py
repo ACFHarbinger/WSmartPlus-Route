@@ -402,12 +402,12 @@ def add_gen_data_args(parser):
     parser.add_argument("--name", type=str, help="Name to identify dataset")
     parser.add_argument("--filename", default=None, help="Filename of the dataset to create (ignores datadir)")
     parser.add_argument("--data_dir", default='datasets', help="Create datasets in data")
-    parser.add_argument("--problem", type=str, default='all', help="Problem: 'vrpp'|'wcvrp'|'all'")
-    parser.add_argument("--is_gaussian", type=int, default=0)
+    parser.add_argument("--problem", type=str, default='all', help="Problem: 'vrpp'|'wcvrp'|'swcvrp'|'all'")
+    parser.add_argument("--mu", type=float, default=None, nargs='+', help="Mean of Gaussian noise (implies Gaussian noise generation if set)")
+    parser.add_argument('--sigma', type=float, nargs='+', default=0.6, help="Variance of Gaussian noise")
     parser.add_argument('--data_distributions', nargs='+', default=['all'], help="Distributions to generate for problems")
     parser.add_argument("--dataset_size", type=int, default=128_000, help="Size of the dataset")
     parser.add_argument('--graph_sizes', type=int, nargs='+', default=[20, 50, 100], help="Sizes of problem instances")
-    parser.add_argument('--sigma', type=float, nargs='+', default=0.6)
     parser.add_argument('--penalty_factor', type=float, default=3.0, help="Penalty factor for problems")
     parser.add_argument("-f", action='store_true', dest="overwrite", help="Set true to overwrite")
     parser.add_argument('--seed', type=int, default=42, help="Random seed")
@@ -460,7 +460,7 @@ def add_eval_args(parser):
     parser.add_argument('--w_length', type=float, default=1.0, help='Weight for length in cost function')
     parser.add_argument('--w_waste', type=float, default=1.0, help='Weight for waste in cost function')
     parser.add_argument('--w_overflows', type=float, default=1.0, help='Weight for overflows in cost function')
-    parser.add_argument('--problem', type=str, default='cwcvrp', help="Problem to evaluate ('wcvrp'|'cwcvrp'|'sdwcvrp')")
+    parser.add_argument('--problem', type=str, default='cwcvrp', help="Problem to evaluate ('wcvrp'|'cwcvrp'|'sdwcvrp'|'scwcvrp')")
     parser.add_argument('--encoder', type=str, default='gat', help="Encoder to use ('gat'|'gac'|'tgc'|'ggac')")
     parser.add_argument('--load_path', help='Path to load model parameters and optimizer state from')
     return parser
@@ -802,6 +802,11 @@ def validate_gen_data_args(args):
         len(args.get('problem', [])) == 1 and len(args.get('graph_sizes', [])) == 1
         ), "Can only specify filename when generating a single dataset"
     
+    if args['problem'] in ['all', 'swcvrp']:
+        assert 'mu' in args and args['mu'] is not None, "Must specify mu when generating swcvrp datasets"
+        assert 'sigma' in args and args['sigma'] is not None, "Must specify sigma when generating swcvrp datasets"
+        assert len(args['mu']) == len(args['sigma']), "Must specify same number of mu and sigma values"
+
     assert 'focus_graphs' not in args or args['focus_graphs'] is None or len(args['focus_graphs']) == len(args.get('graph_sizes', []))
     
     if 'focus_graphs' not in args or args['focus_graphs'] is None: 

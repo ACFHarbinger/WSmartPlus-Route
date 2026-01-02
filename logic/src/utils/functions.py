@@ -15,13 +15,14 @@ def get_inner_model(model):
 
 
 def load_problem(name):
-    from logic.src.problems import VRPP, CVRPP, WCVRP, CWCVRP, SDWCVRP
+    from logic.src.problems import VRPP, CVRPP, WCVRP, CWCVRP, SDWCVRP, SCWCVRP
     problem = {
         'vrpp': VRPP,
         'cvrpp': CVRPP,
         'wcvrp': WCVRP,
         'cwcvrp': CWCVRP,
         'sdwcvrp': SDWCVRP,
+        'scwcvrp': SCWCVRP,
     }.get(name, None)
     assert problem is not None, "Currently unsupported problem: {}!".format(name)
     return problem
