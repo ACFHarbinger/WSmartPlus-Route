@@ -151,11 +151,13 @@ class InitializingState(SimState):
             
             # Setup Bins
             if "gamma" in ctx.data_dist:
-                ctx.bins = Bins(opts['size'], ctx.data_dir, ctx.data_dist[:-1], area=opts['area'], waste_type=opts['waste_type'], waste_file=opts['waste_filepath'])
+                ctx.bins = Bins(opts['size'], ctx.data_dir, ctx.data_dist[:-1], area=opts['area'], waste_type=opts['waste_type'], 
+                                waste_file=opts['waste_filepath'], noise_mean=opts['noise_mean'], noise_variance=opts['noise_variance'])
                 gamma_option = int(ctx.policy[-1]) - 1
                 ctx.bins.setGammaDistribution(option=gamma_option)
             else:
-                ctx.bins = Bins(opts['size'], ctx.data_dir, ctx.data_dist, area=opts['area'], waste_type=opts['waste_type'], waste_file=opts['waste_filepath'])
+                ctx.bins = Bins(opts['size'], ctx.data_dir, ctx.data_dist, area=opts['area'], waste_type=opts['waste_type'], 
+                                waste_file=opts['waste_filepath'], noise_mean=opts['noise_mean'], noise_variance=opts['noise_variance'])
 
             ctx.cached = [] if opts['cache_regular'] else None
             if opts['stats_filepath'] is not None:
