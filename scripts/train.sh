@@ -43,6 +43,8 @@ ACTI_F="gelu"
 DROPOUT=0.1
 AGG="sum"
 AGG_G="avg"
+CONNECTION="residual"
+HYPER_LANES=4
 
 OPTIM="rmsprop"
 LR_MODEL=0.0001
@@ -130,7 +132,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
-        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" \
+        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
@@ -159,7 +161,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
-        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" \
+        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
@@ -189,7 +191,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
-        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" \
+        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
@@ -219,7 +221,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
-        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" \
+        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
@@ -249,7 +251,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
-        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" \
+        --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1

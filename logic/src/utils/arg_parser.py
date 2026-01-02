@@ -285,6 +285,15 @@ def add_train_args(parser):
     parser.add_argument('--wandb_mode', default='offline', help="Weights and biases mode: 'online'|'offline'|'disabled'|None")
     parser.add_argument('--no_tensorboard', action='store_true', help='Disable logging TensorBoard files')
     parser.add_argument('--no_progress_bar', action='store_true', help='Disable progress bar')
+    
+    # --- New Arguments for Hyper-Connections ---
+    parser.add_argument('--connection_type', type=str, default='residual', 
+                        choices=['residual', 'static_hyper', 'dynamic_hyper'],
+                        help="Type of skip connection to use.")
+
+    parser.add_argument('--hyper_expansion', type=int, default=4,
+                        help="Expansion rate (number of streams) for Hyper-Connections.")
+    
     return parser
 
 def add_mrl_train_args(parser):
