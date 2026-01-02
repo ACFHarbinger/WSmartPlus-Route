@@ -58,6 +58,24 @@ class DynamicHyperConnection(nn.Module):
             nn.Linear(hyper_dim // 4, self.num_params)
         )
 
+        self._initialize_identity_bias()
+    
+    def _initialize_identity_bias(self):
+        """
+        Forces the predictor to output Identity for Width and Zero for others initially.
+        """
+        # Set weights to near-zero so bias dominates at initialization
+        nn.init.uniform_(self.predictor[-1].weight, -0.0001, 0.0001)
+        
+        n = self.n
+        # Width Mixer (A_r) target: Flattened Identity Matrix
+        target_width = torch.eye(n).flatten()
+        # Input (A_m) and Depth (B) targets: Zeros (or small random)
+        target_others = torch.zeros(2 * n)
+        
+        initial_bias = torch.cat([target_width, target_others])
+        self.predictor[-1].bias.data.copy_(initial_bias)
+
     def forward(self, H, *args, **kwargs):
         # H shape: (Batch, Seq, Dim, n)
         
