@@ -11,6 +11,7 @@ from logic.src.pipeline.reinforcement_learning.core.epoch import (
     prepare_epoch, prepare_batch, prepare_time_dataset,
     set_decode_type
 )
+from logic.src.utils.visualize_utils import visualize_epoch
 from logic.src.pipeline.reinforcement_learning.meta import (
     RewardWeightOptimizer, WeightContextualBandit, 
     CostWeightManager, MORLWeightOptimizer
@@ -130,14 +131,28 @@ class BaseReinforceTrainer(ABC):
             
             pi, c_dict, l_dict, batch_cost = self.train_batch(batch, batch_id)
             
-            log_pi.append(pi.detach().cpu())
+            if pi is not None:
+                log_pi.append(pi.detach().cpu())
             log_costs.append(batch_cost.detach().cpu())
             self.step += 1
-            daily_total_samples += pi.size(0)
+            if pi is not None:
+                current_batch_size = pi.size(0)
+            else:
+                # Infer from batch dict
+                first_val = next(iter(batch.values()))
+                if isinstance(first_val, torch.Tensor):
+                    current_batch_size = first_val.size(0)
+                else:
+                    current_batch_size = self.opts['batch_size']
+
+            daily_total_samples += current_batch_size
             
             for key, val in zip(list(c_dict.keys()) + list(l_dict.keys()), list(c_dict.values()) + list(l_dict.values())):
-                if key in daily_loss and isinstance(val, torch.Tensor): 
-                    daily_loss[key].append(val.detach().cpu().view(-1))
+                if key in daily_loss:
+                    if isinstance(val, torch.Tensor): 
+                        daily_loss[key].append(val.detach().cpu().view(-1))
+                    elif isinstance(val, (float, int)):
+                        daily_loss[key].append(torch.tensor([val], dtype=torch.float))
         
         day_duration = time.time() - start_time
         
@@ -241,6 +256,11 @@ class BaseReinforceTrainer(ABC):
 
     def post_day_processing(self):
         log_epoch(('day', self.day), list(self.daily_loss.keys()), self.daily_loss, self.opts)
+        
+        # Visualization Hook
+        if self.opts.get('visualize_step', 0) > 0 and (self.day + 1) % self.opts['visualize_step'] == 0:
+            visualize_epoch(self.model, self.problem, self.opts, self.day, tb_logger=self.tb_logger)
+            
         _ = complete_train_pass(
             self.model, self.optimizer, self.baseline, self.lr_scheduler, self.val_dataset,
             self.day, self.step, self.day_duration, self.tb_logger, self.cost_weights, self.opts, 

@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.decomposition import PCA
 from torch.utils.tensorboard.writer import SummaryWriter
-from logic.src.problems.wcvrp.problem_wcvrp import CWCVRP
+from logic.src.utils.functions import load_problem
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
 from logic.src.policies.single_vehicle import local_search_2opt_vectorized
@@ -18,6 +18,7 @@ from logic.src.policies.single_vehicle import local_search_2opt_vectorized
 # --- UTILS ---
 
 def get_batch(device, size=50, batch_size=32):
+    # TODO: This should ideally use the problem's generate_instance or make_dataset
     all_coords = torch.rand(batch_size, size+1, 2, device=device)
     depot = all_coords[:, 0, :]
     loc = all_coords[:, 1:, :]
@@ -37,9 +38,12 @@ class MyModelWrapper(torch.nn.Module):
     def forward(self, input, cost_weights=None, return_pi=False, pad=False, mask=None, expert_pi=None):
         return self.model(input, cost_weights, return_pi, pad, mask, expert_pi)
 
-def load_model_instance(model_path, device, size=100):
+def load_model_instance(model_path, device, size=100, problem_name='wcvrp'):
+    # This is a bit brittle as it assumes specific model args. 
+    # Ideally should load args from checkpoint or args.json
+    problem = load_problem(problem_name)
     model = AttentionModel(
-        embedding_dim=128, hidden_dim=512, problem=CWCVRP(),
+        embedding_dim=128, hidden_dim=512, problem=problem,
         encoder_class=GraphAttentionEncoder, n_encode_layers=3,
         mask_inner=True, mask_logits=True, normalization='instance',
         tanh_clipping=10.0, checkpoint_encoder=False, shrink_size=None,
@@ -47,7 +51,9 @@ def load_model_instance(model_path, device, size=100):
     ).to(device)
     
     checkpoint = torch.load(model_path, map_location=device)
-    model.load_state_dict(checkpoint['model'])
+    # Handle cases where checkpoint might be nested
+    state_dict = checkpoint['model'] if 'model' in checkpoint else checkpoint
+    model.load_state_dict(state_dict)
     model.eval()
     return model
 
@@ -60,19 +66,35 @@ def plot_weight_trajectories(checkpoint_dir, output_file):
     
     files = [f for f in os.listdir(checkpoint_dir) if f.endswith('.pt')]
     # Sort files by epoch number
-    files.sort(key=lambda x: int(x.split('-')[1].split('.')[0]) if '-' in x else 0)
+    files.sort(key=lambda x: int(x.split('-')[1].split('.')[0]) if '-' in x and 'epoch' in x else 0)
     
     weights = []
     epochs = []
     
     for f in files:
         path = os.path.join(checkpoint_dir, f)
-        checkpoint = torch.load(path, map_location='cpu')
-        flat_weight = torch.cat([p.flatten() for p in checkpoint['model'].values()]).numpy()
-        weights.append(flat_weight)
-        epochs.append(f.replace('.pt', ''))
+        try:
+            checkpoint = torch.load(path, map_location='cpu')
+            state_dict = checkpoint.get('model', checkpoint)
+            # Only take a subset of weights to avoid OOM or slow processing
+            # e.g. just encoder or first layer
+            flat_weight = torch.cat([p.flatten() for k, p in state_dict.items() if 'encoder' in k]).numpy()
+            if len(flat_weight) == 0: # Fallback if no encoder
+                 flat_weight = torch.cat([p.flatten() for p in state_dict.values()]).numpy()
+            weights.append(flat_weight)
+            epochs.append(f.replace('.pt', ''))
+        except Exception as e:
+            print(f"Skipping {f} due to error: {e}")
         
+    if not weights:
+        print("No weights found.")
+        return
+
     weights = np.array(weights)
+    if weights.shape[0] < 2:
+        print("Not enough checkpoints for trajectory.")
+        return
+
     pca = PCA(n_components=2)
     projected = pca.fit_transform(weights)
     
@@ -86,54 +108,60 @@ def plot_weight_trajectories(checkpoint_dir, output_file):
     plt.ylabel('PC2')
     plt.grid(True)
     plt.savefig(output_file)
+    plt.close()
     print(f"Trajectory saved to {output_file}")
 
-def log_weight_distributions(checkpoint_dir, log_dir):
-    print("Logging Weight Distributions to TensorBoard...")
-    writer = SummaryWriter(log_dir)
-    files = [f for f in os.listdir(checkpoint_dir) if f.endswith('.pt')]
-    files.sort(key=lambda x: int(x.split('-')[1].split('.')[0]) if '-' in x else 0)
+def log_weight_distributions(model, epoch, log_dir, writer=None):
+    close_writer = False
+    if writer is None:
+        print(f"Logging Weight Distributions to TensorBoard at {log_dir}...")
+        writer = SummaryWriter(log_dir)
+        close_writer = True
     
-    for f in files:
-        epoch = int(f.split('-')[1].split('.')[0]) if '-' in f else 0
-        path = os.path.join(checkpoint_dir, f)
-        checkpoint = torch.load(path, map_location='cpu')
-        for name, param in checkpoint['model'].items():
-            writer.add_histogram(name, param, epoch)
-    writer.close()
-    print(f"Distributions logged to {log_dir}")
+    for name, param in model.named_parameters():
+        writer.add_histogram(name, param, epoch)
+    
+    if close_writer:
+        writer.close()
+        print(f"Distributions logged.")
 
-def project_node_embeddings(model_path, x_batch, log_dir):
-    print("Projecting Node Embeddings to TensorBoard...")
-    device = torch.device('cpu')
-    model = load_model_instance(model_path, device)
-    
-    writer = SummaryWriter(log_dir)
+def project_node_embeddings(model, x_batch, log_dir, writer=None, epoch=0):
+    close_writer = False
+    if writer is None:
+        print(f"Projecting Node Embeddings to TensorBoard at {log_dir}...")
+        writer = SummaryWriter(log_dir)
+        close_writer = True
+        
+    model.eval()
     with torch.no_grad():
-        # Get embeddings from the embedder
-        # model.embedder(model._init_embed(x_batch))
-        # But AttentionModel._init_embed is internal. 
-        # Let's run a partial forward.
-        nodes = model._init_embed(x_batch)
-        embeddings = model.embedder(nodes) # (B, G, D)
+        # Get initial node embeddings
+        nodes = model._get_initial_embeddings(x_batch)
+        edges = x_batch.get('edges', None)
+        dist_matrix = x_batch.get('dist', None)
+        
+        # Check if embedder accepts dist (e.g. GAT with edge embeddings)
+        if getattr(model.embedder, 'init_edge_embed', None) is not None:
+             embeddings = model.embedder(nodes, edges, dist=dist_matrix)
+        else:
+             embeddings = model.embedder(nodes, edges)
         
         # Take the first sample in batch
         sample_embeddings = embeddings[0] # (G, D)
         labels = [f"Node_{i}" for i in range(sample_embeddings.size(0))]
         labels[0] = "Depot"
         
-        writer.add_embedding(sample_embeddings, metadata=labels, tag="Node_Embeddings")
-    writer.close()
-    print(f"Embeddings projected to {log_dir}")
+        writer.add_embedding(sample_embeddings, metadata=labels, tag=f"Node_Embeddings_Ep{epoch}")
+    
+    if close_writer:
+        writer.close()
+        print(f"Embeddings projected.")
 
-def plot_attention_heatmaps(model_path, output_dir):
+def plot_attention_heatmaps(model, output_dir, epoch=0):
     print("Plotting Attention Heatmaps...")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         
-    device = torch.device('cpu')
-    model = load_model_instance(model_path, device)
-    
+    model.eval()
     # Encoder attention weights
     # Structure: model.embedder.layers[i].att.module.W_query.weight etc.
     # Looking at gat_encoder.py: self.layers[i].att.module is MultiHeadAttention
@@ -147,9 +175,9 @@ def plot_attention_heatmaps(model_path, output_dir):
             if hasattr(mha, name):
                 param = getattr(mha, name)
                 if hasattr(param, 'weight'):
-                    weight = param.weight.data.numpy()
+                    weight = param.weight.data.cpu().numpy()
                 else:
-                    weight = param.data.numpy()
+                    weight = param.data.cpu().numpy()
                 
                 # Handle 3D weights (Multi-Head Attention)
                 if weight.ndim == 3:
@@ -162,16 +190,16 @@ def plot_attention_heatmaps(model_path, output_dir):
                 
                 plt.figure(figsize=(12, 10))
                 sns.heatmap(weight, cmap='RdBu_r', center=0)
-                plt.title(f'Layer {i} - {name} Weights')
-                plt.savefig(os.path.join(output_dir, f'layer_{i}_{name}.png'))
+                plt.title(f'Layer {i} - {name} Weights (Epoch {epoch})')
+                plt.savefig(os.path.join(output_dir, f'layer_{i}_{name}_ep{epoch}.png'))
                 plt.close()
                 
     print(f"Heatmaps saved to {output_dir}")
 
-# --- LOSS LANDSCAPE FUNCTIONS (Existing) ---
+# --- LOSS LANDSCAPE FUNCTIONS ---
 
 def imitation_loss_fn(m, x_batch, pi_target):
-    model_to_call = m.modules[0]
+    model_to_call = m.modules[0] if hasattr(m, 'modules') else m
     if hasattr(model_to_call, 'model'):
         model_to_call = model_to_call.model
     model_to_call.eval()
@@ -181,7 +209,7 @@ def imitation_loss_fn(m, x_batch, pi_target):
     return -log_likelihood.mean().item()
 
 def rl_loss_fn(m, x_batch):
-    model_to_call = m.modules[0]
+    model_to_call = m.modules[0] if hasattr(m, 'modules') else m
     if hasattr(model_to_call, 'model'):
         model_to_call = model_to_call.model
     model_to_call.eval()
@@ -190,12 +218,16 @@ def rl_loss_fn(m, x_batch):
         cost, _, _, _, _ = model_to_call(x_batch, return_pi=False)
     return cost.float().mean().item()
 
-def plot_loss_landscape(model_path, args):
-    device = torch.device('cpu')
-    model = load_model_instance(model_path, device, size=args.size)
-    x_batch = get_batch(device, size=args.size, batch_size=args.batch_size)
+def plot_loss_landscape(model, opts, output_dir, epoch=0, size=50, batch_size=16, resolution=10, span=1.0):
+    print("Computing Loss Landscape...")
+    os.makedirs(output_dir, exist_ok=True)
+    device = opts['device']
     
-    print("Generating expert targets...")
+    # Generate random batch for landscape
+    # TODO: Use problem.make_dataset if possible for consistency
+    x_batch = get_batch(device, size=size, batch_size=batch_size)
+    
+    print("Generating expert targets for landscape...")
     model.set_decode_type('greedy')
     with torch.no_grad():
         _, _, _, pi, _ = model(x_batch, return_pi=True)
@@ -208,41 +240,92 @@ def plot_loss_landscape(model_path, args):
 
     wrapped_model = MyModelWrapper(model)
 
-    if args.mode in ['imitation', 'both']:
-        print("Computing Imitation Landscape...")
-        metric = lambda m: imitation_loss_fn(m, x_batch, pi_target)
-        data = loss_landscapes.random_plane(wrapped_model, metric, distance=args.span, steps=args.resolution, deepcopy_model=True)
+    # Imitation
+    print("Computing Imitation Landscape...")
+    metric = lambda m: imitation_loss_fn(m, x_batch, pi_target)
+    try:
+        data = loss_landscapes.random_plane(wrapped_model, metric, distance=span, steps=resolution, deepcopy_model=True)
         
         plt.figure()
         plt.contour(data, levels=50)
-        plt.title('Imitation Loss Landscape')
-        plt.savefig('landscape_imitation.png')
+        plt.title(f'Imitation Loss Landscape (Epoch {epoch})')
+        plt.savefig(os.path.join(output_dir, f'landscape_imitation_ep{epoch}.png'))
+        plt.close()
         
         fig = plt.figure()
         ax = plt.axes(projection='3d')
-        X, Y = np.meshgrid(np.arange(args.resolution), np.arange(args.resolution))
+        X, Y = np.meshgrid(np.arange(resolution), np.arange(resolution))
         ax.plot_surface(X, Y, np.array(data), cmap='viridis')
-        plt.title('Imitation Loss Surface')
-        plt.savefig('surface_imitation.png')
+        plt.title(f'Imitation Loss Surface (Epoch {epoch})')
+        plt.savefig(os.path.join(output_dir, f'surface_imitation_ep{epoch}.png'))
+        plt.close()
+    except Exception as e:
+        print(f"Error computing imitation landscape: {e}")
 
-    if args.mode in ['rl', 'both']:
-        print("Computing RL Cost Landscape...")
-        metric = lambda m: rl_loss_fn(m, x_batch)
-        data = loss_landscapes.random_plane(wrapped_model, metric, distance=args.span, steps=args.resolution, deepcopy_model=True)
+    # RL
+    print("Computing RL Cost Landscape...")
+    metric = lambda m: rl_loss_fn(m, x_batch)
+    try:
+        data = loss_landscapes.random_plane(wrapped_model, metric, distance=span, steps=resolution, deepcopy_model=True)
         
         plt.figure()
         plt.contour(data, levels=50)
-        plt.title('RL Cost Landscape')
-        plt.savefig('landscape_rl.png')
+        plt.title(f'RL Cost Landscape (Epoch {epoch})')
+        plt.savefig(os.path.join(output_dir, f'landscape_rl_ep{epoch}.png'))
+        plt.close()
         
         fig = plt.figure()
         ax = plt.axes(projection='3d')
-        X, Y = np.meshgrid(np.arange(args.resolution), np.arange(args.resolution))
+        X, Y = np.meshgrid(np.arange(resolution), np.arange(resolution))
         ax.plot_surface(X, Y, np.array(data), cmap='magma')
-        plt.title('RL Cost Surface')
-        plt.savefig('surface_rl.png')
+        plt.title(f'RL Cost Surface (Epoch {epoch})')
+        plt.savefig(os.path.join(output_dir, f'surface_rl_ep{epoch}.png'))
+        plt.close()
+    except Exception as e:
+        print(f"Error computing RL landscape: {e}")
 
-# --- MAIN ---
+# --- MAIN CONTROLLER ---
+
+def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
+    """
+    Main entry point to be called from the training loop.
+    """
+    viz_modes = opts.get('viz_modes', [])
+    log_dir = opts.get('log_dir', 'logs')
+    # If using tensorboard logger class, get the log_dir from it if possible
+    if tb_logger is not None and hasattr(tb_logger, 'log_dir'):
+        # tb_logger is likely logic.src.utils.log_utils.Logger or similar wrapper
+        # Assuming it writes to some dir, or we just rely on opts['log_dir'] which is usually base
+        pass
+        
+    viz_output_dir = os.path.join(opts['output_dir'], 'visualizations')
+    os.makedirs(viz_output_dir, exist_ok=True)
+    
+    print(f"\n--- Visualizing Epoch {epoch} ---")
+
+    if 'distributions' in viz_modes or 'both' in viz_modes:
+        # Pass tb_logger writer if available, else will create one
+        writer = tb_logger.writer if tb_logger is not None and hasattr(tb_logger, 'writer') else None
+        log_weight_distributions(model, epoch, log_dir=os.path.join(log_dir, opts['run_name']), writer=writer)
+
+    if 'embeddings' in viz_modes:
+        x_batch = get_batch(opts['device'], size=opts['graph_size'], batch_size=1)
+        writer = tb_logger.writer if tb_logger is not None and hasattr(tb_logger, 'writer') else None
+        project_node_embeddings(model, x_batch, log_dir=os.path.join(log_dir, opts['run_name']), writer=writer, epoch=epoch)
+
+    if 'heatmaps' in viz_modes:
+        plot_attention_heatmaps(model, viz_output_dir, epoch=epoch)
+
+    if 'loss' in viz_modes or 'both' in viz_modes:
+        plot_loss_landscape(model, opts, viz_output_dir, epoch=epoch, 
+                            size=opts['graph_size'], batch_size=4, resolution=10) # Keep batch/res low for speed
+
+    if 'trajectory' in viz_modes:
+        # Trajectory needs history of checkpoints, so we pass the checkpoint dir
+        checkpoint_dir = opts['save_dir']
+        plot_weight_trajectories(checkpoint_dir, os.path.join(viz_output_dir, 'trajectory.png'))
+    
+    print("Visualization complete.\n")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -255,33 +338,44 @@ def main():
     parser.add_argument('--batch_size', type=int, default=16, help='Batch size for evaluation')
     parser.add_argument('--resolution', type=int, default=10, help='Resolution for landscapes')
     parser.add_argument('--span', type=float, default=1.0, help='Span for landscapes')
+    parser.add_argument('--problem', type=str, default='wcvrp', help='Problem type')
     
     parser.add_argument('--mode', type=str, required=True, 
                         choices=['trajectory', 'distributions', 'embeddings', 'heatmaps', 'loss', 'both'],
                         help='Visualization mode')
     
     args = parser.parse_args()
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     if args.mode == 'trajectory':
         if not args.checkpoint_dir: raise ValueError("--checkpoint_dir required for trajectory")
         plot_weight_trajectories(args.checkpoint_dir, os.path.join(args.output_dir, 'trajectory.png'))
-        
-    elif args.mode == 'distributions':
-        if not args.checkpoint_dir: raise ValueError("--checkpoint_dir required for distributions")
-        log_weight_distributions(args.checkpoint_dir, args.log_dir)
+        return # Trajectory doesn't need model loading
+
+    # Load model
+    if not args.model_path: raise ValueError("--model_path required for this mode")
+    model = load_model_instance(args.model_path, device, size=args.size, problem_name=args.problem)
+
+    if args.mode == 'distributions':
+        if not args.checkpoint_dir: 
+            # If no dir, just log current?
+             log_weight_distributions(model, 0, args.log_dir)
+        else:
+             # If checkpoint dir provided, maybe iterate? But main logic above assumes single model.
+             # For standalone, maybe we just do the one.
+             log_weight_distributions(model, 0, args.log_dir)
         
     elif args.mode == 'embeddings':
-        if not args.model_path: raise ValueError("--model_path required for embeddings")
-        x_batch = get_batch(torch.device('cpu'), size=args.size, batch_size=1)
-        project_node_embeddings(args.model_path, x_batch, args.log_dir)
+        x_batch = get_batch(device, size=args.size, batch_size=1)
+        project_node_embeddings(model, x_batch, args.log_dir)
         
     elif args.mode == 'heatmaps':
-        if not args.model_path: raise ValueError("--model_path required for heatmaps")
-        plot_attention_heatmaps(args.model_path, args.output_dir)
+        plot_attention_heatmaps(model, args.output_dir)
         
     elif args.mode == 'loss' or args.mode == 'both':
-        if not args.model_path: raise ValueError("--model_path required for loss landscape")
-        plot_loss_landscape(args.model_path, args)
+        fake_opts = {'device': device}
+        plot_loss_landscape(model, fake_opts, args.output_dir, size=args.size, batch_size=args.batch_size, 
+                            resolution=args.resolution, span=args.span)
 
 if __name__ == "__main__":
     main()
