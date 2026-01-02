@@ -43,7 +43,7 @@ ACTI_F="gelu"
 DROPOUT=0.1
 AGG="sum"
 AGG_G="avg"
-CONNECTION="residual"
+CONNECTION="static_hyper"
 HYPER_LANES=4
 
 OPTIM="rmsprop"
@@ -126,14 +126,14 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
-        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
+        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --hyper_expansion "$HYPER_LANES" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[0]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY" \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --exp_beta "$EXP_BETA";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -155,14 +155,14 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
-        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
+        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --hyper_expansion "$HYPER_LANES" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[1]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --exp_beta "$EXP_BETA";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -178,11 +178,11 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
         python main.py train --problem "$PROBLEM" --model am --encoder tgc --epoch_size "$N_DATA" \
-        --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" \
+        --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --normalization "$NORM" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
         --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
-        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" \
+        --focus_graph "$F_GRAPH" --train_dataset "${DATASETS[id]}" --hyper_expansion "$HYPER_LANES" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" --area "$AREA" \
@@ -215,14 +215,14 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --area "$AREA" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
-        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
+        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --hyper_expansion "$HYPER_LANES" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[3]}" --lr_scheduler "$LR_SCHEDULER" --n_decode_layers "$N_DEC_L"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --exp_beta "$EXP_BETA";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -245,14 +245,14 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --area "$AREA" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
-        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --exp_beta "$EXP_BETA" \
+        --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --hyper_expansion "$HYPER_LANES" \
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[4]}" --lr_scheduler "$LR_SCHEDULER" --n_predict_layers "$N_PRED_L"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --distance_method "$DIST_METHOD" --dm_filepath "$DM_PATH" \
         --wandb_mode "$WB_MODE" --distance_method "$DM_METHOD" --log_step "$LOG_STEP" --spatial_bias \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --exp_beta "$EXP_BETA";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi

@@ -286,6 +286,12 @@ def add_train_args(parser):
     parser.add_argument('--no_tensorboard', action='store_true', help='Disable logging TensorBoard files')
     parser.add_argument('--no_progress_bar', action='store_true', help='Disable progress bar')
     
+    # Visualization
+    parser.add_argument('--visualize_step', type=int, default=50, help='Frequency of visualization (epochs). Default 0 (disabled).')
+    parser.add_argument('--viz_modes', type=str, nargs='+', default=['trajectory', 'distributions', 'embeddings', 'heatmaps', 'loss'], 
+                        choices=['trajectory', 'distributions', 'embeddings', 'heatmaps', 'loss', 'both'],
+                        help='Visualization modes to run during training.')
+    
     # --- New Arguments for Hyper-Connections ---
     parser.add_argument('--connection_type', type=str, default='residual', 
                         choices=['residual', 'static_hyper', 'dynamic_hyper'],

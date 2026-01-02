@@ -56,13 +56,21 @@ def log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
 
 
 def log_epoch(x_tup, loss_keys, epoch_loss, opts):
+    log_str = f"Finished {x_tup[0]} {x_tup[1]} log:"
     for id, key in enumerate(loss_keys):
         if not epoch_loss.get(key):
             continue
         lname = key if key in udef.LOSS_KEYS else f"{key}_cost"
-        lmean = torch.cat(epoch_loss[key]).float().mean().item()
+        # Handle cases where epoch_loss[key] might be empty or contain non-tensors
+        try:
+            lmean = torch.cat(epoch_loss[key]).float().mean().item()
+        except:
+            lmean = 0.0
+             
+        log_str += f" {lname}: {lmean:.4f}"
         if opts['wandb_mode'] != 'disabled':
             wandb.log({x_tup[0]: x_tup[1], lname: lmean}, commit=(key == loss_keys[-1]))
+    print(log_str)
     return
 
 
