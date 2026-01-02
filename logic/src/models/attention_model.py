@@ -45,7 +45,9 @@ class AttentionModel(nn.Module):
                  spatial_bias=False,
                  spatial_bias_scale=1.0,
                  entropy_weight=0.0,
-                 predictor_layers=None):
+                 predictor_layers=None,
+                 connection_type='residual',
+                 hyper_expansion=4):
         super(AttentionModel, self).__init__()
         self.n_heads = n_heads
         self.embedding_dim = embedding_dim
@@ -58,7 +60,7 @@ class AttentionModel(nn.Module):
         self.temporal_horizon = temporal_horizon
         
         # Initialize Context Embedder Strategy
-        self.is_wc = problem.NAME == 'wcvrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
+        self.is_wc = problem.NAME == 'wcvrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp' or problem.NAME == 'scwcvrp'
         self.is_vrpp = problem.NAME == 'vrpp' or problem.NAME == 'cvrpp'
         node_dim = 3
         if self.is_wc:
@@ -92,7 +94,9 @@ class AttentionModel(nn.Module):
             n_params=af_num_params,
             uniform_range=af_uniform_range,
             dropout_rate=dropout_rate,
-            agg=aggregation
+            agg=aggregation,
+            connection_type=connection_type,
+            expansion_rate=hyper_expansion
         )
 
         self.decoder = component_factory.create_decoder(

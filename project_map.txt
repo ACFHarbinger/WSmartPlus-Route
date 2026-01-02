@@ -89,15 +89,17 @@
 │       │   ├── graphs_170V_1N_plastic.json
 │       │   ├── graphs_20V_1N_plastic.json
 │       │   ├── graphs_50V_1N_plastic.json
-│       │   └── maps
-│       │       ├── graphs_100V_1N1.html
-│       │       ├── graphs_100V_1N.html
-│       │       ├── graphs_170V_1N1.html
-│       │       ├── graphs_170V_1N.html
-│       │       ├── graphs_20V_1N1.html
-│       │       ├── graphs_20V_1N.html
-│       │       ├── graphs_50V_1N1.html
-│       │       └── graphs_50V_1N.html
+│       │   ├── maps
+│       │   │   ├── graphs_100V_1N1.html
+│       │   │   ├── graphs_100V_1N.html
+│       │   │   ├── graphs_170V_1N1.html
+│       │   │   ├── graphs_170V_1N.html
+│       │   │   ├── graphs_20V_1N1.html
+│       │   │   ├── graphs_20V_1N.html
+│       │   │   ├── graphs_50V_1N1.html
+│       │   │   └── graphs_50V_1N.html
+│       │   ├── new_indices.json
+│       │   └── test_indices.json
 │       ├── bins_waste
 │       │   ├── Enchimentos_com_Recolhas[FigFoz].xlsx
 │       │   ├── Enchimentos_com_Recolhas[RioMaior].csv
@@ -271,14 +273,18 @@
 │   ├── vars.env
 │   └── vars.Rprofile
 ├── gui
-│   ├── AGENTS.md
 │   ├── src
+│   │   ├── app.py
 │   │   ├── components
 │   │   │   ├── clickable_header.py
 │   │   │   ├── __init__.py
 │   │   │   └── __pycache__
 │   │   │       ├── clickable_header.cpython-39.pyc
 │   │   │       └── __init__.cpython-39.pyc
+│   │   ├── core
+│   │   │   ├── mediator.py
+│   │   │   └── __pycache__
+│   │   │       └── mediator.cpython-39.pyc
 │   │   ├── helpers
 │   │   │   ├── chart_worker.py
 │   │   │   ├── data_loader_worker.py
@@ -289,6 +295,10 @@
 │   │   │       ├── data_loader_worker.cpython-39.pyc
 │   │   │       ├── file_tailer_worker.cpython-39.pyc
 │   │   │       └── __init__.cpython-39.pyc
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── app.cpython-39.pyc
+│   │   │   └── __init__.cpython-39.pyc
 │   │   ├── styles
 │   │   │   ├── globals.py
 │   │   │   ├── __init__.py
@@ -402,6 +412,7 @@
 │       │   ├── __init__.cpython-39.pyc
 │       │   ├── test_components.cpython-39-pytest-8.4.2.pyc
 │       │   ├── test_helpers.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_mediator.cpython-39-pytest-8.4.2.pyc
 │       │   ├── test_tabs_analysis.cpython-39-pytest-8.4.2.pyc
 │       │   ├── test_tabs_evaluation.cpython-39-pytest-8.4.2.pyc
 │       │   ├── test_tabs_file_system.cpython-39-pytest-8.4.2.pyc
@@ -412,6 +423,7 @@
 │       │   └── test_ts_results_window.cpython-39-pytest-8.4.2.pyc
 │       ├── test_components.py
 │       ├── test_helpers.py
+│       ├── test_mediator.py
 │       ├── test_tabs_analysis.py
 │       ├── test_tabs_evaluation.py
 │       ├── test_tabs_file_system.py
@@ -421,15 +433,15 @@
 │       ├── test_tabs_test_simulator.py
 │       └── test_ts_results_window.py
 ├── logic
-│   ├── AGENTS.md
 │   ├── src
-│   │   ├── app.py
 │   │   ├── data
+│   │   │   ├── builders.py
 │   │   │   ├── generate_data.py
 │   │   │   ├── generate_problem_data.py
 │   │   │   ├── generate_simulator_data.py
 │   │   │   ├── __init__.py
 │   │   │   └── __pycache__
+│   │   │       ├── builders.cpython-39.pyc
 │   │   │       ├── generate_data.cpython-39.pyc
 │   │   │       ├── generate_problem_data.cpython-39.pyc
 │   │   │       ├── generate_simulator_data.cpython-39.pyc
@@ -445,25 +457,30 @@
 │   │   │   ├── hypernet.py
 │   │   │   ├── __init__.py
 │   │   │   ├── meta_rnn.py
+│   │   │   ├── model_factory.py
 │   │   │   ├── modules
 │   │   │   │   ├── activation_function.py
+│   │   │   │   ├── connections.py
 │   │   │   │   ├── distance_graph_convolution.py
 │   │   │   │   ├── efficient_graph_convolution copy.py
 │   │   │   │   ├── efficient_graph_convolution.py
 │   │   │   │   ├── feed_forward.py
 │   │   │   │   ├── gated_graph_convolution.py
 │   │   │   │   ├── graph_convolution.py
+│   │   │   │   ├── hyper_connection.py
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── multi_head_attention.py
 │   │   │   │   ├── normalization.py
 │   │   │   │   ├── normalized_activation_function.py
 │   │   │   │   ├── __pycache__
 │   │   │   │   │   ├── activation_function.cpython-39.pyc
+│   │   │   │   │   ├── connections.cpython-39.pyc
 │   │   │   │   │   ├── distance_graph_convolution.cpython-39.pyc
 │   │   │   │   │   ├── efficient_graph_convolution.cpython-39.pyc
 │   │   │   │   │   ├── feed_forward.cpython-39.pyc
 │   │   │   │   │   ├── gated_graph_convolution.cpython-39.pyc
 │   │   │   │   │   ├── graph_convolution.cpython-39.pyc
+│   │   │   │   │   ├── hyper_connection.cpython-39.pyc
 │   │   │   │   │   ├── __init__.cpython-39.pyc
 │   │   │   │   │   ├── multi_head_attention.cpython-39.pyc
 │   │   │   │   │   ├── normalization.cpython-39.pyc
@@ -483,10 +500,12 @@
 │   │   │   │   ├── __init__.cpython-312.pyc
 │   │   │   │   ├── __init__.cpython-39.pyc
 │   │   │   │   ├── meta_rnn.cpython-39.pyc
+│   │   │   │   ├── model_factory.cpython-39.pyc
 │   │   │   │   ├── pointer_network.cpython-39.pyc
 │   │   │   │   ├── reinforce_baselines.cpython-39.pyc
 │   │   │   │   └── temporal_am.cpython-39.pyc
 │   │   │   ├── subnets
+│   │   │   │   ├── attention_decoder.py
 │   │   │   │   ├── gac_encoder.py
 │   │   │   │   ├── gat_decoder.py
 │   │   │   │   ├── gat_encoder.py
@@ -498,6 +517,7 @@
 │   │   │   │   ├── ptr_decoder.py
 │   │   │   │   ├── ptr_encoder.py
 │   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── attention_decoder.cpython-39.pyc
 │   │   │   │   │   ├── ffw_predictor.cpython-39.pyc
 │   │   │   │   │   ├── gac_encoder.cpython-39.pyc
 │   │   │   │   │   ├── gat_decoder.cpython-39.pyc
@@ -572,6 +592,7 @@
 │   │   │   │       ├── post_processing.cpython-39.pyc
 │   │   │   │       └── reinforce.cpython-39.pyc
 │   │   │   ├── simulator
+│   │   │   │   ├── actions.py
 │   │   │   │   ├── bins.py
 │   │   │   │   ├── checkpoints.py
 │   │   │   │   ├── day.py
@@ -580,15 +601,19 @@
 │   │   │   │   ├── network.py
 │   │   │   │   ├── processor.py
 │   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── actions.cpython-39.pyc
 │   │   │   │   │   ├── bins.cpython-39.pyc
 │   │   │   │   │   ├── checkpoints.cpython-39.pyc
 │   │   │   │   │   ├── day.cpython-39.pyc
 │   │   │   │   │   ├── __init__.cpython-39.pyc
 │   │   │   │   │   ├── loader.cpython-39.pyc
+│   │   │   │   │   ├── metrics.cpython-39.pyc
 │   │   │   │   │   ├── network.cpython-39.pyc
 │   │   │   │   │   ├── processor.cpython-39.pyc
-│   │   │   │   │   └── simulation.cpython-39.pyc
+│   │   │   │   │   ├── simulation.cpython-39.pyc
+│   │   │   │   │   └── states.cpython-39.pyc
 │   │   │   │   ├── simulation.py
+│   │   │   │   ├── states.py
 │   │   │   │   └── wsmart_bin_analysis
 │   │   │   │       ├── Deliverables
 │   │   │   │       │   ├── Arima_predictor.R
@@ -742,6 +767,7 @@
 │   │   │   ├── test.py
 │   │   │   └── train.py
 │   │   ├── policies
+│   │   │   ├── adapters.py
 │   │   │   ├── adaptive_large_neighborhood_search.py
 │   │   │   ├── branch_cut_and_price.py
 │   │   │   ├── hybrid_genetic_search.py
@@ -776,6 +802,7 @@
 │   │   │   ├── neural_agent.py
 │   │   │   ├── policy_vrpp.py
 │   │   │   ├── __pycache__
+│   │   │   │   ├── adapters.cpython-39.pyc
 │   │   │   │   ├── adaptive_large_neighborhood_search.cpython-39.pyc
 │   │   │   │   ├── branch_cut_and_price.cpython-39.pyc
 │   │   │   │   ├── gurobi_optimizer.cpython-39.pyc
@@ -797,6 +824,14 @@
 │   │   │   ├── __init__.py
 │   │   │   ├── __pycache__
 │   │   │   │   └── __init__.cpython-39.pyc
+│   │   │   ├── swcvrp
+│   │   │   │   ├── problem_swcvrp.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── problem_scwvrp.cpython-39.pyc
+│   │   │   │   │   ├── problem_swcvrp.cpython-39.pyc
+│   │   │   │   │   ├── state_scwcvrp.cpython-39.pyc
+│   │   │   │   │   └── state_scwvrp.cpython-39.pyc
+│   │   │   │   └── state_scwcvrp.py
 │   │   │   ├── vrpp
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── problem_vrpp.py
@@ -872,6 +907,7 @@
 │       │   ├── __init__.cpython-312.pyc
 │       │   ├── __init__.cpython-39.pyc
 │       │   ├── test_arg_parser.cpython-39-pytest-8.4.2.pyc
+│       │   ├── test_builders.cpython-39-pytest-8.4.2.pyc
 │       │   ├── test_definitions.cpython-312.pyc
 │       │   ├── test_definitions.cpython-39.pyc
 │       │   ├── test_definitions.cpython-39-pytest-8.4.2.pyc
@@ -903,8 +939,6 @@
 │       ├── test_subnets.py
 │       ├── test_suite.py
 │       └── test_train.py
-├── __main__.py
-├── main.py
 ├── notebooks
 │   ├── collectioncompare.ipynb
 │   ├── collectioncompare_V.ipynb
@@ -964,7 +998,4 @@
 │   ├── train.bat
 │   └── train.sh
 ├── simulator.spec
-├── temp
 └── uv.lock
-
-137 directories, 831 files
