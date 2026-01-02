@@ -18,7 +18,9 @@ class VRPInstanceBuilder:
         self._focus_size = 0
         self._method = None
         self._num_days = 1
-        self._is_vrpp = False # Toggles minor differences if any
+        self._problem_name = None
+        self._noise_mean = 0.0
+        self._noise_variance = 0.0
 
     def set_dataset_size(self, size: int):
         self._dataset_size = size
@@ -53,8 +55,13 @@ class VRPInstanceBuilder:
         self._num_days = num_days
         return self
     
-    def set_is_vrpp(self, is_vrpp: bool):
-        self._is_vrpp = is_vrpp
+    def set_problem_name(self, problem_name: str):
+        self._problem_name = problem_name
+        return self
+
+    def set_noise(self, mean: float, variance: float):
+        self._noise_mean = mean
+        self._noise_variance = variance
         return self
 
     def build(self):
@@ -104,17 +111,37 @@ class VRPInstanceBuilder:
             waste = generate_waste_prize(
                 self._problem_size, self._distribution, coords, self._dataset_size, bins
             )
+            if self._dataset_size == 1 and len(waste.shape) == 1:
+                waste = waste[None, :]
             fill_values.append(waste)
         
         # Transpose to (dataset_size, num_days, problem_size)
         fill_values = np.transpose(np.array(fill_values), (1, 0, 2))
         
-        # Construct the waste list correctly
-        waste_list = fill_values.tolist()
-        
-        return list(zip(
-            depot.tolist(),
-            loc.tolist(),
-            waste_list,
-            np.full(self._dataset_size, MAX_WASTE).tolist()
-        ))
+        # Construct the output list
+        if self._problem_name == 'swcvrp':
+            # SWCVRP Case: Generate Noisy Waste
+            real_waste_list = fill_values.tolist()
+            
+            # Generate Noise
+            noise = np.random.normal(self._noise_mean, np.sqrt(self._noise_variance), fill_values.shape)
+            noisy_fill_values = np.clip(fill_values + noise, 0, MAX_WASTE)
+            noisy_waste_list = noisy_fill_values.tolist()
+            
+            return list(zip(
+                depot.tolist(),
+                loc.tolist(),
+                real_waste_list,
+                noisy_waste_list,
+                np.full(self._dataset_size, MAX_WASTE).tolist()
+            ))
+        else:
+            # Standard WCVRP/VRPP Case
+            waste_list = fill_values.tolist()
+            
+            return list(zip(
+                depot.tolist(),
+                loc.tolist(),
+                waste_list,
+                np.full(self._dataset_size, MAX_WASTE).tolist()
+            ))
