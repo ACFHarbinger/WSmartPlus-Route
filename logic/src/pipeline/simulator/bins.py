@@ -11,16 +11,21 @@ from .loader import load_area_and_waste_type_params
 
 
 class Bins:
-    def __init__(self, n, data_dir, sample_dist="gamma", grid=None, area=None, waste_type=None, indices=None, waste_file=None):
+    def __init__(self, n, data_dir, sample_dist="gamma", grid=None, area=None, waste_type=None, 
+                 indices=None, waste_file=None, noise_mean=0.0, noise_variance=0.0):
         assert sample_dist in ["emp", "gamma"]
         self.n = n
+        self.noise_mean = noise_mean
+        self.noise_variance = noise_variance
         _, revenue, density, expenses, bin_volume = load_area_and_waste_type_params(area, waste_type)
         self.revenue = revenue
         self.density = density
         self.expenses = expenses
         self.volume = bin_volume
 
+        
         self.c = np.zeros((n))
+        self.real_c = np.zeros((n))
         self.means = np.zeros((n))
         self.std = np.zeros((n))
         self.day_count = 0
@@ -124,23 +129,38 @@ class Bins:
     def set_sample_waste(self, sample_id):
         self.waste_fills = self.waste_fills[sample_id]
         if self.start_with_fill: 
-            self.c = self.waste_fills[0].copy()
+            self.real_c = self.waste_fills[0].copy()
+            noise = np.random.normal(self.noise_mean, np.sqrt(self.noise_variance), self.n) if self.noise_variance > 0 else np.zeros(self.n)
+            self.c = np.clip(self.real_c + noise, 0, 100)
             self.level_history.append(self.c.copy())
 
     def collect(self, idsfull, cost=0):
+        # Update mean and standard deviation using Welford's method
+        todaysfilling = np.array(self.history[-1])
+        old_means = self.means.copy()
+
+        self.day_count += 1
+        delta = todaysfilling - old_means
+        self.means += delta / self.day_count
+        self.square_diff += delta * (todaysfilling - self.means)
+        self.std = self.__get_stdev()
+
+        # Check if tour has bins to collect
         ids = set(idsfull)
         total_collected = np.zeros((self.n))
         if len(ids) <= 2: 
-            return total_collected, 0, 0, 0
-        
+            return total_collected, 0, 0, 0     
+
+        # Collect waste
         ids.remove(0)
         self.ndays += 1
         ids = np.array(list(ids)) - 1
-        collected = (self.c[ids] / 100) * self.volume * self.density
+        collected = (self.real_c[ids] / 100) * self.volume * self.density
         self.collected[ids] += collected
         self.ncollections[ids] += 1
         total_collected[ids] += collected
-        self.c[ids] = 0
+        self.real_c[ids] = 0
+        self.c[ids] = 0 # Observed bins are also emptied
         self.travel += cost
         profit = np.sum(total_collected) * self.revenue - cost * self.expenses
         self.profit += profit 
@@ -151,28 +171,27 @@ class Bins:
         Processes the filling data, handles overflows, updates state variables, 
         and calculates returns.
         """
-        # Update mean and standard deviation using Welford's method
         self.history.append(todaysfilling)
-        todaysfilling = np.array(todaysfilling)
-        old_means = self.means.copy()
-
-        self.day_count += 1
-        delta = todaysfilling - old_means
-        self.means += delta / self.day_count
-        self.square_diff += delta * (todaysfilling - self.means)
-        self.std = self.__get_stdev()
 
         # Lost overflows
-        todays_lost = (np.maximum(self.c + todaysfilling - 100, 0) / 100) * self.volume * self.density
+        todays_lost = (np.maximum(self.real_c + todaysfilling - 100, 0) / 100) * self.volume * self.density
         todaysfilling = np.minimum(todaysfilling, 100)    
         self.lost += todays_lost
 
         # New depositions for the overflow calculation
-        self.c = np.minimum(self.c + todaysfilling, 100)
+        self.real_c = np.minimum(self.real_c + todaysfilling, 100)
+        
+        # Inject noise into observed c
+        if self.noise_variance > 0:
+            noise = np.random.normal(self.noise_mean, np.sqrt(self.noise_variance), self.n)
+            self.c = np.clip(self.real_c + noise, 0, 100)
+        else:
+            self.c = self.real_c.copy()
+            
         self.level_history.append(self.c.copy())
-        self.c = np.maximum(self.c, 0)
-        inoverflow = (self.c==100)
-        self.inoverflow += (self.c==100)
+        self.real_c = np.maximum(self.real_c, 0)
+        inoverflow = (self.real_c==100)
+        self.inoverflow += (self.real_c==100)
         return int(np.sum(inoverflow)), np.array(todaysfilling), np.array(self.c), np.sum(todays_lost)
 
     def stochasticFilling(self, n_samples=1, only_fill=False):
