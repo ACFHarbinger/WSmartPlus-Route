@@ -13,7 +13,6 @@ from logic.src.utils.arg_parser import (
     validate_gen_data_args
 )
 from logic.src.utils.data_utils import check_extension, save_dataset
-from logic.src.utils.data_utils import check_extension, save_dataset
 from logic.src.data.builders import VRPInstanceBuilder
 
 
@@ -27,6 +26,7 @@ def generate_datasets(opts):
     distributions_per_problem = {
         'vrpp': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
         'wcvrp': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
+        'swcvrp': ['empty', 'const', 'unif', 'dist', 'emp', *gamma_dists],
     }
 
     # Define the problem distribution(s)
@@ -76,7 +76,19 @@ def generate_datasets(opts):
                            .set_area(opts['area']) \
                            .set_focus_graph(graph, opts['focus_size']) \
                            .set_method(opts['vertex_method']) \
-                           .set_is_vrpp(problem == "vrpp")
+                           .set_problem_name(problem)
+                    
+                    if opts.get('mu') is not None:
+                        sigma = opts.get('sigma', 1.0)
+                        if isinstance(sigma, list):
+                            sigma = sigma[0]
+                        builder.set_noise(opts['mu'], sigma**2 if sigma > 0 else 0.0)
+                    elif problem == 'swcvrp':
+                        sigma = opts.get('sigma', 1.0)
+                        if isinstance(sigma, list):
+                            sigma = sigma[0]
+                        mu = opts.get('mu', 0.0)
+                        builder.set_noise(mu if mu is not None else 0.0, sigma**2 if sigma > 0 else 1.0)
                     
                     if opts['dataset_type'] == 'test_simulator':
                         builder.set_num_days(n_days)
