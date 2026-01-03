@@ -1,457 +1,515 @@
+import time
 import random
+import numpy as np
 
-from typing import List
+from collections import deque
+from typing import List, Tuple
 
+# --- 1. Data Structures & Params ---
 
-# --- HGS Auxiliaries ---
 class Individual:
     def __init__(self, giant_tour: List[int]):
         self.giant_tour = giant_tour
         self.routes = []
-        self.fitness = -float('inf')  # Profit
+        self.fitness = -float('inf') 
+        self.profit_score = -float('inf') 
         self.cost = 0.0
         self.revenue = 0.0
+        
+        self.dist_to_parents = 0.0
+        self.rank_profit = 0
+        self.rank_diversity = 0
 
     def __lt__(self, other):
-        # Python heap/sort uses <. We want Max Profit, so we invert logic or sort reverse.
-        # Here we define < as "is worse than" (lower fitness)
         return self.fitness < other.fitness
 
 
 class HGSParams:
-    def __init__(self, time_limit=10, population_size=50, elite_size=10, mutation_rate=0.2):
+    def __init__(self, time_limit=5, population_size=30, elite_size=10, 
+                 mutation_rate=0.2, max_vehicles=0):
         self.time_limit = time_limit
         self.population_size = population_size
         self.elite_size = elite_size
         self.mutation_rate = mutation_rate
+        self.max_vehicles = max_vehicles
+
+
+# --- 2. Linear Split (Vidal 2016) - Optimized Pure Python ---
+
+class LinearSplit:
+    def __init__(self, dist_matrix, demands, capacity, R, C, max_vehicles=0):
+        self.dist_matrix = dist_matrix
+        self.demands = demands
+        self.capacity = capacity
+        self.R = R
+        self.C = C
+        self.max_vehicles = max_vehicles
+        
+    def split(self, giant_tour: List[int]) -> Tuple[List[List[int]], float]:
+        if not giant_tour:
+            return [], 0.0
+            
+        n = len(giant_tour)
+        
+        cum_load = [0.0] * (n + 1)
+        cum_rev = [0.0] * (n + 1)
+        cum_dist = [0.0] * (n + 1)
+        
+        dmat = self.dist_matrix
+        demands = self.demands
+        R_val = self.R
+        
+        load_curr = 0.0
+        rev_curr = 0.0
+        dist_curr = 0.0
+        prev_node = 0
+        
+        d_0_x = [0.0] * (n + 1)
+        d_x_0 = [0.0] * (n + 1)
+        
+        for i in range(1, n + 1):
+            node = giant_tour[i-1]
+            dem = demands.get(node, 0)
+            
+            load_curr += dem
+            rev_curr += dem * R_val
+            
+            if i > 1:
+                dist_curr += dmat[prev_node, node]
+            
+            cum_load[i] = load_curr
+            cum_rev[i] = rev_curr
+            cum_dist[i] = dist_curr
+            
+            d_0_x[i] = dmat[0, node]
+            d_x_0[i] = dmat[node, 0]
+            prev_node = node
+            
+        res = ([], -float('inf'))
+        if self.max_vehicles == 0:
+            res = self._split_unlimited(n, giant_tour, cum_load, cum_rev, cum_dist, d_0_x, d_x_0)
+        else:
+            res = self._split_limited(n, giant_tour, cum_load, cum_rev, cum_dist, d_0_x, d_x_0)
+            
+        if res[1] == -float('inf'):
+            return self._fallback_split(giant_tour)
+            
+        return res
+
+    def _fallback_split(self, giant_tour):
+        routes = []
+        current_route = []
+        current_load = 0
+        
+        for node in giant_tour:
+            dem = self.demands.get(node, 0)
+            if current_load + dem <= self.capacity:
+                current_route.append(node)
+                current_load += dem
+            else:
+                if current_route:
+                    routes.append(current_route)
+                current_route = [node]
+                current_load = dem
+                
+        if current_route:
+            routes.append(current_route)
+            
+        rev = sum(self.demands.get(n,0) for r in routes for n in r) * self.R
+        cost = 0
+        for r in routes:
+            d = self.dist_matrix[0, r[0]]
+            for k in range(len(r)-1):
+                d += self.dist_matrix[r[k], r[k+1]]
+            d += self.dist_matrix[r[-1], 0]
+            cost += d * self.C
+            
+        profit = rev - cost
+        return routes, profit
+
+    def _split_unlimited(self, n, nodes, cum_load, cum_rev, cum_dist, d_0_x, d_x_0):
+        V = [-float('inf')] * (n + 1)
+        P = [-1] * (n + 1)
+        V[0] = 0.0
+        
+        C_cost = self.C
+        cap = self.capacity
+        
+        term_0 = V[0] - cum_rev[0] + C_cost * (cum_dist[1] - d_0_x[1])
+        dq = deque([(0, term_0)])
+        
+        for i in range(1, n + 1):
+            min_load = cum_load[i] - cap
+            while dq:
+                idx = dq[0][0]
+                if cum_load[idx] < min_load - 1e-5:
+                    dq.popleft()
+                else:
+                    break
+            
+            if dq:
+                best_j, best_A = dq[0]
+                B_i = cum_rev[i] - C_cost * (cum_dist[i] + d_x_0[i])
+                V[i] = best_A + B_i
+                P[i] = best_j
+            
+            if i < n:
+                j_new = i
+                if V[j_new] > -float('inf'):
+                    idx_next = i + 1
+                    term = V[j_new] - cum_rev[j_new] + C_cost * (cum_dist[idx_next] - d_0_x[idx_next])
+                    while dq:
+                        if dq[-1][1] <= term:
+                            dq.pop()
+                        else:
+                            break
+                    dq.append((j_new, term))
+                    
+        return self._reconstruct(n, nodes, P, V[n])
+
+    def _split_limited(self, n, nodes, cum_load, cum_rev, cum_dist, d_0_x, d_x_0):
+        K = self.max_vehicles
+        V_prev = [-float('inf')] * (n + 1)
+        V_prev[0] = 0.0
+        
+        P = [[-1] * (n + 1) for _ in range(K + 1)]
+        best_profit = -float('inf')
+        
+        C_cost = self.C
+        cap = self.capacity
+        
+        for k in range(1, K + 1):
+            V_curr = [-float('inf')] * (n + 1)
+            dq = deque()
+            
+            if V_prev[0] > -float('inf'):
+                term_0 = V_prev[0] - cum_rev[0] + C_cost * (cum_dist[1] - d_0_x[1])
+                dq.append((0, term_0))
+                
+            for i in range(1, n + 1):
+                min_load = cum_load[i] - cap
+                while dq:
+                    idx = dq[0][0]
+                    if cum_load[idx] < min_load - 1e-5:
+                        dq.popleft()
+                    else:
+                        break
+                
+                if dq:
+                    best_j, best_A = dq[0]
+                    B_i = cum_rev[i] - C_cost * (cum_dist[i] + d_x_0[i])
+                    V_curr[i] = best_A + B_i
+                    P[k][i] = best_j
+                
+                if i < n:
+                    j_new = i
+                    if V_prev[j_new] > -float('inf'):
+                        idx_next = i + 1
+                        term = V_prev[j_new] - cum_rev[j_new] + C_cost * (cum_dist[idx_next] - d_0_x[idx_next])
+                        while dq:
+                            if dq[-1][1] <= term:
+                                dq.pop()
+                            else:
+                                break
+                        dq.append((j_new, term))
+            
+            if V_curr[n] > best_profit:
+                best_profit = V_curr[n]
+                 
+            V_prev = V_curr
+
+        if best_profit == -float('inf'):
+            return [], -float('inf')
+            
+        return [], -float('inf') 
+
+    def _reconstruct(self, n, nodes, P, total_profit):
+        if total_profit == -float('inf'):
+            return [], -float('inf')
+        routes = []
+        curr = n
+        while curr > 0:
+            prev = P[curr]
+            if prev == -1: return [], -float('inf')
+            routes.append(nodes[prev:curr])
+            curr = prev
+        routes.reverse()
+        return routes, total_profit
 
 
 def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C, values):
-    """
-    Decodes a Giant Tour (permutation of nodes) into a set of routes 
-    that maximizes profit (Revenue - Travel Cost).
-    
-    This is a Split algorithm using a shortest-path approach on a DAG.
-    """
-    n = len(giant_tour)
-    # V[i] stores the max profit from node i to the end
-    # P[i] stores the predecessor to reconstruct routes
-    V = [-float('inf')] * (n + 1)
-    P = [-1] * (n + 1)
-    V[0] = 0
-    
-    # Precompute distances to depot (node 0)
-    # Note: giant_tour indices map to actual bin IDs. 
-    # dist_matrix indices usually include depot at 0.
-    
-    # Optimization: Convert demands to list for faster access if keys are dense integers
-    node_demands = [demands.get(node_id, 0) for node_id in giant_tour]
-    
-    # We iterate through the giant tour
-    for i in range(n):
-        load = 0
-        dist = 0
-        revenue = 0
-        # Try to form a route from i+1 to j
-        for j in range(i + 1, n + 1):
-            node_idx = giant_tour[j-1]
-            d = node_demands[j-1]
-            
-            # Update Load
-            load += d
-            
-            # Check Capacity
-            # RELAXATION: Allow single-node routes even if they exceed capacity.
-            # This handles overflowing bins that effectively fill the truck immediately.
-            if load > capacity and j > i + 1:
-                break
-                
-            # Update Revenue
-            # Revenue = Weight * R
-            revenue += d * R
-            
-            # Update Distance
-            if j == i + 1:
-                # First node in route: Depot -> Node
-                dist = dist_matrix[0][node_idx]
-            else:
-                prev_node = giant_tour[j-2]
-                dist += dist_matrix[prev_node][node_idx]
-            
-            # Cost of returning to depot from current node j
-            round_trip_cost = (dist + dist_matrix[node_idx][0]) * C
-            
-            # Profit of this segment
-            segment_profit = revenue - round_trip_cost
-            
-            if V[i] + segment_profit > V[j]:
-                V[j] = V[i] + segment_profit
-                P[j] = i
-                
-    # Reconstruct Routes
-    routes = []
-    curr = n
-    
-    # Safety check if no solution found
-    if V[n] == -float('inf'):
-        return [], -float('inf')
+    s = LinearSplit(dist_matrix, demands, capacity, R, C, values.get('max_vehicles', 0))
+    return s.split(giant_tour)
 
-    while curr > 0:
-        prev = P[curr]
-        route = giant_tour[prev:curr]
-        routes.append(route)
-        curr = prev
+
+# --- 3. Biased Fitness ---
+
+def update_biased_fitness(population: List[Individual], params: HGSParams):
+    population.sort(key=lambda x: x.profit_score, reverse=True)
+    for i, ind in enumerate(population):
+        ind.rank_profit = i
         
-    total_profit = V[n]
-    return routes, total_profit
-
-
-def evaluate(individual: Individual, dist_matrix, demands, capacity, R, C, values, must_go_bins, local_to_global):
-    """
-    Runs Split to determine fitness and routes.
-    Optimized for SINGLE VEHICLE reality:
-    - Fitness = Profit(Route 0) - Penalty(Missed Must-Go)
-    - Ignores subsequent routes (phantom routes).
-    """
-    routes, total_split_profit = split_algorithm(individual.giant_tour, dist_matrix, demands, capacity, R, C, values)
-    individual.routes = routes
+    if not population: return
     
-    # Analyze All Routes (Multi-Trip)
-    if not routes:
-        individual.fitness = -1e9
-        individual.cost = 0
+    best_ind = population[0]
+    best_succ = {}
+    for r in best_ind.routes:
+        if not r: continue
+        prev = 0
+        for n in r:
+            best_succ[prev] = n
+            prev = n
+        best_succ[prev] = 0
+        
+    for ind in population:
+        dist = 0
+        for r in ind.routes:
+            if not r: continue
+            prev = 0
+            for n in r:
+                if best_succ.get(prev) != n:
+                    dist += 1
+                prev = n
+            if best_succ.get(prev) != 0:
+                dist += 1
+        ind.dist_to_parents = dist
+        
+    population.sort(key=lambda x: x.dist_to_parents, reverse=True)
+    for i, ind in enumerate(population):
+        ind.rank_diversity = i
+        
+    w = 1.0 - (params.elite_size / params.population_size)
+    for ind in population:
+        ind.fitness = ind.rank_profit + w * ind.rank_diversity
+
+
+def evaluate(individual: Individual, split_algo: LinearSplit, must_go_bins, R, C):
+    routes, profit = split_algo.split(individual.giant_tour)
+    individual.routes = routes
+    individual.profit_score = profit
+    return individual
+
+
+class LocalSearch:
+    def __init__(self, dist_matrix, demands, capacity, R, C, params: HGSParams):
+        self.d = dist_matrix
+        self.demands = demands
+        self.Q = capacity
+        self.R = R
+        self.C = C
+        self.params = params
+        
+        n_nodes = len(dist_matrix)
+        self.neighbors = {}
+        for i in range(1, n_nodes):
+            row = self.d[i]
+            order = np.argsort(row)
+            cands = []
+            for c in order:
+                if c != i and c != 0:
+                    cands.append(c)
+                    if len(cands) >= 10: break 
+            self.neighbors[i] = cands 
+            
+        self.node_map = {} 
+        self.route_loads = [] 
+
+    def optimize(self, individual: Individual):
+        if not individual.routes:
+            return individual
+            
+        self.routes = [r[:] for r in individual.routes]
+        self.route_loads = [self._calc_load_fresh(r) for r in self.routes]
+
+        improved = True
+        limit = 500  # Safety cap
+        it = 0
+        t_start = time.time()
+        
+        self.node_map.clear()
+        for ri, r in enumerate(self.routes):
+            for pi, node in enumerate(r):
+                self.node_map[node] = (ri, pi)
+                
+        while improved and it < limit:
+            improved = False
+            it += 1
+            if it % 50 == 0 and (time.time() - t_start > self.params.time_limit):
+                break
+            
+            nodes = list(self.neighbors.keys())
+            # Filter valid nodes only
+            nodes = [n for n in nodes if n in self.node_map]
+            random.shuffle(nodes)
+            
+            for u in nodes:
+                if self._process_node(u):
+                    improved = True
+                    break 
+        
+        individual.routes = self.routes
+        gt = []
+        for r in self.routes:
+            gt.extend(r)
+        individual.giant_tour = gt
         return individual
 
-    total_profit = 0
-    total_cost = 0
-    visited_nodes = set()
+    def _calc_load_fresh(self, r):
+        return sum(self.demands.get(x, 0) for x in r)
 
-    for route in routes:
-        # Calculate Profit of this Route
-        load = 0
-        revenue = 0
-        dist = 0
+    def _process_node(self, u):
+        u_loc = self.node_map.get(u)
+        if not u_loc: return False
+        r_u, p_u = u_loc
         
-        if route:
-            # Distance
-            dist = dist_matrix[0][route[0]]
-            for k in range(len(route)-1):
-                dist += dist_matrix[route[k]][route[k+1]]
-            dist += dist_matrix[route[-1]][0]
+        for v in self.neighbors[u]:
+            v_loc = self.node_map.get(v)
+            if not v_loc: continue
+            r_v, p_v = v_loc
             
-            # Revenue & Load
-            for node_idx in route:
-                w = demands.get(node_idx, 0)
-                load += w
-                revenue += w * R
-                visited_nodes.add(node_idx)
-                
-        cost = dist * C
-        profit_r = revenue - cost
+            if self._move_relocate(u, v, r_u, p_u, r_v, p_v): return True
+            if self._move_swap(u, v, r_u, p_u, r_v, p_v): return True
+            if r_u != r_v:
+                if self._move_2opt_star(u, v, r_u, p_u, r_v, p_v): return True
+            else:
+                if self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v): return True
+            
+        return False
         
-        total_profit += profit_r
-        total_cost += cost
+    def _update_map(self, affected_indices):
+        for ri in affected_indices:
+            for pi, node in enumerate(self.routes[ri]):
+                self.node_map[node] = (ri, pi)
+            self.route_loads[ri] = self._calc_load_fresh(self.routes[ri])
+        
+    def _get_load_cached(self, ri):
+        return self.route_loads[ri]
 
-    # Check Must-Go Enforcement (Global across all routes)
-    missed_must_go = 0
-    for mg in must_go_bins:
-        if mg not in visited_nodes:
-            missed_must_go += 1
+    def _move_relocate(self, u, v, r_u, p_u, r_v, p_v):
+        if r_u == r_v and (p_u == p_v + 1): return False
+        dem_u = self.demands.get(u,0)
+        
+        if r_u != r_v:
+            if self._get_load_cached(r_v) + dem_u > self.Q: return False
             
-    # Fitness: Total Profit - Penalty
-    penalty = missed_must_go * 10000.0
-    individual.fitness = total_profit - penalty
-    individual.cost = total_cost # Report total cost
-    
-    return individual
+        route_u = self.routes[r_u]
+        route_v = self.routes[r_v] 
+        prev_u = route_u[p_u-1] if p_u > 0 else 0
+        next_u = route_u[p_u+1] if p_u < len(route_u)-1 else 0
+        v_next = route_v[p_v+1] if p_v < len(route_v)-1 else 0
+        
+        delta = -self.d[prev_u, u] - self.d[u, next_u] + self.d[prev_u, next_u]
+        delta -= self.d[v, v_next]
+        delta += self.d[v, u] + self.d[u, v_next]
+        
+        if delta * self.C < -1e-4:
+            self.routes[r_u].pop(p_u)
+            if r_u == r_v and p_u < p_v: p_v -= 1
+            self.routes[r_v].insert(p_v + 1, u)
+            self._update_map({r_u, r_v})
+            return True
+        return False
+
+    def _move_swap(self, u, v, r_u, p_u, r_v, p_v):
+        if r_u == r_v and abs(p_u - p_v) <= 1: return False 
+        
+        dem_u = self.demands.get(u, 0)
+        dem_v = self.demands.get(v, 0)
+        
+        if r_u != r_v:
+             if self._get_load_cached(r_u) - dem_u + dem_v > self.Q: return False
+             if self._get_load_cached(r_v) - dem_v + dem_u > self.Q: return False
+             
+        route_u = self.routes[r_u]
+        route_v = self.routes[r_v]
+        
+        prev_u = route_u[p_u-1] if p_u > 0 else 0
+        next_u = route_u[p_u+1] if p_u < len(route_u)-1 else 0
+        prev_v = route_v[p_v-1] if p_v > 0 else 0
+        next_v = route_v[p_v+1] if p_v < len(route_v)-1 else 0
+        
+        delta = -self.d[prev_u, u] - self.d[u, next_u] - self.d[prev_v, v] - self.d[v, next_v]
+        delta += self.d[prev_u, v] + self.d[v, next_u] + self.d[prev_v, u] + self.d[u, next_v]
+        
+        if delta * self.C < -1e-4:
+            self.routes[r_u][p_u] = v
+            self.routes[r_v][p_v] = u
+            self._update_map({r_u, r_v})
+            return True
+        return False
+        
+    def _move_2opt_star(self, u, v, r_u, p_u, r_v, p_v):
+        route_u = self.routes[r_u]
+        route_v = self.routes[r_v]
+        
+        tail_u = route_u[p_u+1:]
+        tail_v = route_v[p_v+1:]
+        
+        l_head_u = self._calc_load_fresh(route_u[:p_u+1])
+        l_head_v = self._calc_load_fresh(route_v[:p_v+1])
+        l_tail_u = self._get_load_cached(r_u) - l_head_u
+        l_tail_v = self._get_load_cached(r_v) - l_head_v
+        
+        if l_head_u + l_tail_v > self.Q or l_head_v + l_tail_u > self.Q:
+            return False
+            
+        u_next = route_u[p_u+1] if p_u < len(route_u)-1 else 0
+        v_next = route_v[p_v+1] if p_v < len(route_v)-1 else 0
+        
+        delta = -self.d[u, u_next] - self.d[v, v_next] + self.d[u, v_next] + self.d[v, u_next]
+        
+        if delta * self.C < -1e-4:
+            new_ru = route_u[:p_u+1] + tail_v
+            new_rv = route_v[:p_v+1] + tail_u
+            self.routes[r_u] = new_ru
+            self.routes[r_v] = new_rv
+            self._update_map({r_u, r_v})
+            return True
+        return False
+        
+    def _move_2opt_intra(self, u, v, r_u, p_u, r_v, p_v):
+        if p_u >= p_v: return False
+        if p_u + 1 == p_v: return False
+        
+        route = self.routes[r_u]
+        u_next = route[p_u+1]
+        v_next = route[p_v+1] if p_v < len(route)-1 else 0
+        
+        delta = -self.d[u, u_next] - self.d[v, v_next] + self.d[u, v] + self.d[u_next, v_next]
+        
+        if delta * self.C < -1e-4:
+             segment = route[p_u+1 : p_v+1]
+             route[p_u+1 : p_v+1] = segment[::-1]
+             self._update_map({r_u})
+             return True
+        return False
 
 
 def ordered_crossover(p1: List[int], p2: List[int]) -> List[int]:
-    """Standard OX Crossover for permutations."""
     size = len(p1)
-    a, b = sorted(random.sample(range(size), 2))
+    if size < 2: return p1[:]
     
+    a, b = sorted(random.sample(range(size), 2))
     child = [-1] * size
     child[a:b] = p1[a:b]
     
-    p2_idx = 0
-    child_idx = b
+    p1_set = set(p1[a:b])
+    genes_from_p2 = [x for x in p2 if x not in p1_set]
     
-    while -1 in child:
-        if child_idx >= size:
-            child_idx = 0
+    curr = b
+    for gene in genes_from_p2:
+        if -1 not in child:
+            break
+        while True:
+            if curr >= size: curr = 0
+            if child[curr] == -1: break
+            curr += 1
+            
+        child[curr] = gene
+        curr += 1
         
-        if p2[p2_idx] not in child[a:b]:
-            child[child_idx] = p2[p2_idx]
-            child_idx += 1
-        p2_idx += 1
-        
+    child = [x for x in child if x != -1]
     return child
-
-
-def local_search(individual: Individual, dist_matrix, demands, capacity, R, C, values, neighbors=None):
-    """
-    Route-Based Local Search (Granular).
-    Optimizes the solution by performing Relocate and Swap moves on the decoded routes.
-    """
-    # 1. Decode to Routes (using Split)
-    # We need to run split to get the current route structure
-    routes, _ = split_algorithm(individual.giant_tour, dist_matrix, demands, capacity, R, C, values)
-    
-    if not routes:
-        return individual
-
-    # Helper to calculate route cost
-    def get_route_cost(route):
-        if not route: return 0
-        d = dist_matrix[0][route[0]]
-        for k in range(len(route)-1):
-            d += dist_matrix[route[k]][route[k+1]]
-        d += dist_matrix[route[-1]][0]
-        return d * C
-
-    def get_route_load(route):
-        return sum(demands.get(n, 0) for n in route)
-
-    # 2. Granular Search Setup
-    # Flatten structure for easy iteration? Or iterate routes?
-    # Iterate through all nodes U
-    
-    improved = True
-    max_moves = 500 # Safety limit per call
-    move_count = 0
-    
-    # Pre-calculate route loads/costs
-    route_data = []
-    for r_idx, route in enumerate(routes):
-        route_data.append({
-            'load': get_route_load(route),
-            'cost': get_route_cost(route),
-            'route': route
-        })
-        
-    while improved and move_count < max_moves:
-        improved = False
-        
-        # Iterate all routes and nodes
-        # We make a list of (r_idx, node_idx_in_route, node_id) to iterate safely
-        # But indices change on modification.
-        
-        # Strategy: Iterate u from 1..N. Find where u is.
-        # Map: node -> (r_idx, pos)
-        node_map = {}
-        for r_idx, data in enumerate(route_data):
-            for pos, node in enumerate(data['route']):
-                node_map[node] = (r_idx, pos)
-                
-        # Iterate all nodes U
-        all_nodes = list(node_map.keys())
-        random.shuffle(all_nodes) # Shuffle to diversify order
-        
-        for u in all_nodes:
-            if u not in node_map: continue # Moved/Removed?
-            u_r_idx, u_pos = node_map[u]
-            u_route = route_data[u_r_idx]['route']
-            
-            # Identify Neighbors V
-            # If neighbors provided, use them. Else full scan (slow).
-            search_space = neighbors[u] if neighbors else all_nodes
-            
-            for v in search_space:
-                if u == v: continue
-                if v not in node_map: continue
-                
-                v_r_idx, v_pos = node_map[v]
-                v_route = route_data[v_r_idx]['route']
-                
-                # --- Operator 1: RELOCATE U -> V (Insert U after V) ---
-                # Valid? Check Capacity of v_route (if u not in v_route)
-                u_demand = demands.get(u, 0)
-                
-                if u_r_idx != v_r_idx:
-                    if route_data[v_r_idx]['load'] + u_demand > capacity:
-                        # Capacity violation (strict)
-                        pass
-                    else:
-                        # Evaluate Move
-                        # Remove U from U_Route
-                        # Cost change U:
-                        # ... prev_u -> u -> next_u ...  => ... prev_u -> next_u ...
-                        # cost_diff_u = d(prev, next) - d(prev, u) - d(u, next)
-                        
-                        u_prev = u_route[u_pos-1] if u_pos > 0 else 0
-                        u_next = u_route[u_pos+1] if u_pos < len(u_route)-1 else 0
-                        
-                        delta_u = dist_matrix[u_prev][u_next] - (dist_matrix[u_prev][u] + dist_matrix[u][u_next])
-                        
-                        # Insert U after V in V_Route
-                        # ... v -> next_v ... => ... v -> u -> next_v ...
-                        v_next = v_route[v_pos+1] if v_pos < len(v_route)-1 else 0
-                        
-                        delta_v = (dist_matrix[v][u] + dist_matrix[u][v_next]) - dist_matrix[v][v_next]
-                        
-                        total_delta = (delta_u + delta_v) * C
-                        
-                        if total_delta < -1e-4:
-                            # Apply Move
-                            u_route.pop(u_pos)
-                            v_route.insert(v_pos + 1, u)
-                            
-                            # Update Loads/Costs metadata
-                            route_data[u_r_idx]['load'] -= u_demand
-                            route_data[v_r_idx]['load'] += u_demand
-                            # We could treat costs exactly, but brute force update is safer for code simplicity
-                            # (Cost is only used for final fitness, simplified delta logic above suffices for acceptance)
-                            
-                            improved = True
-                            move_count += 1
-                            break # Restart/Next U
-                
-                
-                else:
-                    # Intra-Route Relocate (Skipped for now)
-                    pass 
-
-                # --- Operator 2: SWAP U <-> V ---
-                # Check Capacity
-                # New Load U = Old Load U - u_dem + v_dem
-                # New Load V = Old Load V - v_dem + u_dem
-                v_demand = demands.get(v, 0)
-                
-                if u_r_idx != v_r_idx:
-                    new_load_u = route_data[u_r_idx]['load'] - u_demand + v_demand
-                    new_load_v = route_data[v_r_idx]['load'] - v_demand + u_demand
-                    
-                    if new_load_u <= capacity and new_load_v <= capacity:
-                         # Evaluate Swap
-                         # U Side: ... u_prev -> u -> u_next ...
-                         u_prev = u_route[u_pos-1] if u_pos > 0 else 0
-                         u_next = u_route[u_pos+1] if u_pos < len(u_route)-1 else 0
-                         
-                         v_prev = v_route[v_pos-1] if v_pos > 0 else 0
-                         v_next = v_route[v_pos+1] if v_pos < len(v_route)-1 else 0
-
-                         # Delta Remove U + Insert V
-                         d_u_change = (dist_matrix[u_prev][v] + dist_matrix[v][u_next]) - \
-                                      (dist_matrix[u_prev][u] + dist_matrix[u][u_next])
-                                      
-                         # Delta Remove V + Insert U
-                         d_v_change = (dist_matrix[v_prev][u] + dist_matrix[u][v_next]) - \
-                                      (dist_matrix[v_prev][v] + dist_matrix[v][v_next])
-
-                         if (d_u_change + d_v_change) * C < -1e-4:
-                             # Apply Swap
-                             u_route[u_pos] = v
-                             v_route[v_pos] = u
-                             
-                             route_data[u_r_idx]['load'] = new_load_u
-                             route_data[v_r_idx]['load'] = new_load_v
-                             
-                             improved = True
-                             move_count += 1
-                             break
-                             
-                # --- Operator 3: 2-Opt* (Inter-Route Tail Swap) ---
-                # Swap tails after u and v
-                # u_route: [... u, u_next ...] -> [... u, v_next ...]
-                # v_route: [... v, v_next ...] -> [... v, u_next ...]
-                if u_r_idx != v_r_idx:
-                    # Current Tails
-                    # u_tail includes u_next...end
-                    # v_tail includes v_next...end
-                    
-                    # Loads
-                    # Calculating tail load might be O(L). For granular search, O(L) is fine (L~10).
-                    # Actually, precomputing Prefix Loads would be faster, but let's do O(L) first.
-                    
-                    u_tail_load = sum(demands.get(n, 0) for n in u_route[u_pos+1:])
-                    v_tail_load = sum(demands.get(n, 0) for n in v_route[v_pos+1:])
-                    
-                    u_head_load = route_data[u_r_idx]['load'] - u_tail_load
-                    v_head_load = route_data[v_r_idx]['load'] - v_tail_load
-                    
-                    # New Loads
-                    new_load_u = u_head_load + v_tail_load
-                    new_load_v = v_head_load + u_tail_load
-                    
-                    if new_load_u <= capacity and new_load_v <= capacity:
-                        # Cost Delta
-                        # Edge changes:
-                        # Remove (u, u_next) and (v, v_next)
-                        # Add (u, v_next) and (v, u_next)
-                        
-                        u_next = u_route[u_pos+1] if u_pos < len(u_route)-1 else 0
-                        v_next = v_route[v_pos+1] if v_pos < len(v_route)-1 else 0
-                        
-                        # Note: u and v are usually "neighbors", so crossing edges (u, v_next) might be short?
-                        # Actually 2-opt* typically cuts edges (u, u_next) and (v, v_next) and connects u-v_next?
-                        # Yes.
-                        
-                        curr_dist = dist_matrix[u][u_next] + dist_matrix[v][v_next]
-                        new_dist = dist_matrix[u][v_next] + dist_matrix[v][u_next]
-                        
-                        delta = new_dist - curr_dist
-                        
-                        if delta * C < -1e-4:
-                            # Apply 2-Opt*
-                            # Tails
-                            tail_u = u_route[u_pos+1:]
-                            tail_v = v_route[v_pos+1:]
-                            
-                            # Construct new routes
-                            # u_route becomes head_u + tail_v
-                            # v_route becomes head_v + tail_u
-                            
-                            new_route_u = u_route[:u_pos+1] + tail_v
-                            new_route_v = v_route[:v_pos+1] + tail_u
-                            
-                            # Update in place? Careful with list refs
-                            route_data[u_r_idx]['route'] = new_route_u
-                            route_data[v_r_idx]['route'] = new_route_v
-                            
-                            route_data[u_r_idx]['load'] = new_load_u
-                            route_data[v_r_idx]['load'] = new_load_v
-                            
-                            improved = True
-                            move_count += 1
-                            break
-                
-            if improved: break
-    
-    # 3. 2-Opt (Intra-Route) - Quick check on all routes
-    for data in route_data:
-        route = data['route']
-        if len(route) < 3: continue
-        
-        # Simple 2-opt pass on this route
-        best_delta = 0
-        best_move = None
-        
-        # Limit 2-opt search? O(L^2). Max L=100. Fast enough.
-        for i in range(len(route)-1):
-            for j in range(i+1, len(route)):
-                if j == i+1: continue
-                # u-v, x-y
-                u = route[i]
-                v = route[i+1]
-                x = route[j]
-                y = route[j+1] if j < len(route)-1 else 0
-                
-                curr = dist_matrix[u][v] + dist_matrix[x][y]
-                new = dist_matrix[u][x] + dist_matrix[v][y]
-                
-                if new < curr - 1e-4:
-                     # Apply immediately (First Improvement)
-                     route[i+1:j+1] = route[i+1:j+1][::-1]
-                     pass # Route modified in place
-                     
-    # 4. Re-Encode Giant Tour
-    new_tour = []
-    for data in route_data:
-        new_tour.extend(data['route'])
-        
-    individual.giant_tour = new_tour
-    return individual
 
 
 def run_hgs(dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global, vrpp_tour_global=None):
@@ -459,7 +517,6 @@ def run_hgs(dist_matrix, demands, capacity, R, C, values, global_must_go, local_
     Dispatcher for HGS implementations.
     """
     engine = values.get('hgs_engine', 'custom')
-    
     if engine == 'pyvrp':
         return _run_hgs_pyvrp(dist_matrix, demands, capacity, R, C, values, global_must_go)
     else:
@@ -470,99 +527,92 @@ def _run_hgs_custom(dist_matrix, demands, capacity, R, C, values, global_must_go
     """
     Custom Pure-Python HGS Implementation.
     """
-    import time
+    adjusted_tl = min(float(values.get('time_limit', 10)), 5.0)
     
-    # 1. Initialization
     params = HGSParams(
-        time_limit=values.get('time_limit', 10), 
-        population_size=100, 
-        elite_size=20
+        time_limit=adjusted_tl,
+        population_size=30,
+        elite_size=10, 
+        max_vehicles=values.get('max_vehicles', 0)
     )
-    population = []
     
-    # Seed population
-    # local_to_global map: local_idx -> global_matrix_idx
-    # We need to construct tours of GLOBAL INDICES.
-    base_tour = list(local_to_global.values()) # Default Sorted
+    print(f"[HGS] Start. TimeLimit={params.time_limit}, Pop={params.population_size}, MaxV={params.max_vehicles}")
+    
+    split_algo = LinearSplit(dist_matrix, demands, capacity, R, C, params.max_vehicles)
+    ls = LocalSearch(dist_matrix, demands, capacity, R, C, params)
+    
+    base_tour = list(local_to_global.values())
+    population = []
     
     start_time = time.time()
     
     for i in range(params.population_size):
         if i == 0 and vrpp_tour_global:
-            # Seed 1: VRPP Greedy Solution
-            tour = vrpp_tour_global[:]
+            t = vrpp_tour_global[:]
         elif i == 1:
-            # Seed 2: Sorted Indices
-            tour = base_tour[:]
+            t = base_tour[:]
         else:
-            # Random
-            tour = base_tour[:]
-            random.shuffle(tour)
-            
-        ind = Individual(tour)
-        ind = evaluate(ind, dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global)
+            t = base_tour[:]
+            random.shuffle(t)
+        
+        ind = Individual(t)
+        evaluate(ind, split_algo, global_must_go, R, C)
         population.append(ind)
         
-    population.sort(reverse=True) # Best (Highest Profit) first
-    best_solution = population[0]
+    update_biased_fitness(population, params)
+    population.sort()
     
-    # Precompute Neighbors (Granularity)
-    neighbors = {}
-    granularity = 20
-    matrix_indices = list(local_to_global.values())
+    best_sol = max(population, key=lambda x: x.profit_score)
+    print(f"[HGS] Init Best: {best_sol.profit_score:.2f} (Routes: {len(best_sol.routes)})")
     
-    for u in matrix_indices:
-        candidates = [v for v in matrix_indices if v != u]
-        candidates.sort(key=lambda v: dist_matrix[u][v]) 
-        neighbors[u] = candidates[:granularity]
-
-    # 2. Main HGS Loop
-    iterations_without_improvement = 0
-    max_stagnation = 2000
+    no_improv = 0
+    max_stag = 50 
     
+    n_gens = 0
     while time.time() - start_time < params.time_limit:
+        n_gens += 1
         
-        # Selection
-        parent1 = population[random.randint(0, params.elite_size - 1)] 
-        parent2 = population[random.randint(0, params.population_size - 1)]
-        
-        # Crossover
-        child_tour = ordered_crossover(parent1.giant_tour, parent2.giant_tour)
+        parents = []
+        for _ in range(2):
+            c1, c2 = random.sample(population, 2)
+            parents.append(c1 if c1.fitness < c2.fitness else c2)
+            
+        child_tour = ordered_crossover(parents[0].giant_tour, parents[1].giant_tour)
         child = Individual(child_tour)
+        evaluate(child, split_algo, global_must_go, R, C)
         
-        # Education
-        child = local_search(child, dist_matrix, demands, capacity, R, C, values, neighbors)
+        ls.optimize(child)
+        evaluate(child, split_algo, global_must_go, R, C)
         
-        # Evaluation
-        child = evaluate(child, dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global)
-        
-        # Survivor Selection
-        is_duplicate = False
-        for p in population:
-             if abs(p.fitness - child.fitness) < 1e-4:
-                 is_duplicate = True
-                 break
-        
-        if not is_duplicate:
-            if child.fitness > population[-1].fitness:
-                population[-1] = child
-                population.sort(reverse=True)
-                
-                if child.fitness > best_solution.fitness:
-                    best_solution = child
-                    iterations_without_improvement = 0
-                else:
-                    iterations_without_improvement += 1
-        
-        # Restart mechanism
-        if iterations_without_improvement > max_stagnation:
-             for k in range(params.elite_size, params.population_size):
-                  random.shuffle(population[k].giant_tour)
-                  population[k] = evaluate(population[k], dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global)
-             population.sort(reverse=True)
-             iterations_without_improvement = 0
-                
-    return best_solution.routes, best_solution.fitness, best_solution.cost
+        is_dup = any(abs(p.profit_score - child.profit_score) < 1e-4 for p in population)
+        if not is_dup:
+            population.append(child)
+            update_biased_fitness(population, params)
+            population.sort()
+            population.pop()
+            
+            if child.profit_score > best_sol.profit_score:
+                best_sol = child
+                no_improv = 0
+            else:
+                no_improv += 1
+        else:
+            no_improv += 1
+            
+        if no_improv > max_stag:
+            n_elite = params.elite_size
+            for k in range(n_elite, params.population_size):
+                p = population[k % n_elite]
+                nt = p.giant_tour[:]
+                random.shuffle(nt)
+                ind = Individual(nt)
+                evaluate(ind, split_algo, global_must_go, R, C)
+                population[k] = ind
+            update_biased_fitness(population, params)
+            population.sort()
+            no_improv = 0
+    
+    return best_sol.routes, best_sol.profit_score, best_sol.cost
 
 
 def _run_hgs_pyvrp(dist_matrix, demands, capacity, R, C, values, global_must_go):
@@ -620,12 +670,6 @@ def _run_hgs_pyvrp(dist_matrix, demands, capacity, R, C, values, global_must_go)
     vehicle_type = VehicleType(capacity=int(capacity), num_available=100)
     
     # Distance Matrix
-    # Scale float distances to int? 
-    # Or pass scaled C?
-    # PyVRP minimizes obj = cost - prize.
-    # We want max profit.
-    # Our dist matrix is km. Cost = km * C.
-    # PyVRP 'distance' matrix should represent the Cost.
     m_dist = [[int(d * C * 100) for d in row] for row in dist_matrix] 
     m_dur = [[0] * n_nodes for _ in dist_matrix] 
     
@@ -644,28 +688,18 @@ def _run_hgs_pyvrp(dist_matrix, demands, capacity, R, C, values, global_must_go)
     
     # Parse Result
     routes = []
-    
     for r in result.best.routes():
-        # r.visits() gives list of client IDs (1-based indices relative to clients list)
-        # clients list starts at index 0 which corresponds to Node 1.
-        # So Client k is Node k+1.
         r_indices = []
         for v in r.visits():
-            # v is numeric ID if we didn't name them?
-            # Or v is a client index?
-            # PyVRP visits() returns integers representing client indices (1..N).
-            # Our clients list matched 1..N-1 of matrix.
             r_indices.append(v) 
         routes.append(r_indices)
         
     # Recalculate Profit/Cost Manually to ensure correct scaling/float
     calc_profit = 0
     calc_cost = 0
-    
     for r in routes:
         if not r: continue
         r_cost = 0
-        r_load = 0
         
         # Dep->First
         r_cost += dist_matrix[0][r[0]] * C
@@ -683,5 +717,4 @@ def _run_hgs_pyvrp(dist_matrix, demands, capacity, R, C, values, global_must_go)
             calc_profit += w * R
             
     calc_profit -= calc_cost
-    
     return routes, calc_profit, calc_cost
