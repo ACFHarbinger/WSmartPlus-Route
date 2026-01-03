@@ -425,6 +425,7 @@ model_weights/
 # Build distribution
 /**/dist
 /**/build
+/**/target
 /**/wsmart_route.egg-info
 
 # WSmart Route simulator temporary files
