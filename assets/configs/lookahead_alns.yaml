@@ -1,0 +1,5 @@
+lookahead:
+  alns:
+    time_limit: 60
+    Iterations: 5000
+    variant: default

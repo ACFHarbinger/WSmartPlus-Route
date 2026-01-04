@@ -16,7 +16,8 @@ def policy_vrpp(
     model_env: Optional[gp.Env],
     waste_type: str,
     area: str,
-    n_vehicles: int
+    n_vehicles: int,
+    config: Optional[dict] = None
 ) -> Tuple[Optional[List[int]], float, float]:
     """
     High-level policy wrapper for VRPP.
@@ -40,6 +41,9 @@ def policy_vrpp(
         'Q': Q, 'R': R, 'B': B, 'C': C, 'V': V, 
         'Omega': 0.1, 'delta': 0, 'psi': 1
     }
+    
+    if config:
+        values.update(config)
 
     n_bins = len(bins_c)
     binsids = np.arange(0, n_bins + 1).tolist()
