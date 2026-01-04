@@ -6,7 +6,7 @@ VERBOSE=false
 # Default cores
 N_CORES=22
 
-while getopts "nc:P:d:N:W:I:M:V:Fv" flag
+while getopts "nc:P:d:N:W:I:M:V:FvC:" flag
 do
     case "${flag}" in
         nc) n_cores=${OPTARG};;
@@ -19,6 +19,7 @@ do
         V) VEHICLES=${OPTARG};;
         F) RUN_TSP=1;;
         v) VERBOSE=true;;
+        C) CONFIG_PATH=${OPTARG};;
     esac
 done
 
@@ -77,6 +78,25 @@ for key in "${!MODEL_PATHS[@]}"; do
     fi
 done
 
+declare -A CONFIG_PATHS
+CONFIG_PATHS["hgs"]="assets/configs/lookahead_hgs.yaml"
+CONFIG_PATHS["alns"]="assets/configs/lookahead_alns.yaml"
+CONFIG_PATHS["sans"]="assets/configs/lookahead_sans.yaml"
+CONFIG_PATHS["bcp"]="assets/configs/lookahead_bcp.yaml"
+CONFIG_PATHS["vrpp"]="assets/configs/vrpp.yaml"
+CONFIG_PATHS["lookahead_a"]="assets/configs/lookahead_a.yaml"
+CONFIG_PATHS["lookahead_b"]="assets/configs/lookahead_b.yaml"
+
+CONFIG_PATH_ARGS=()
+for key in "${!CONFIG_PATHS[@]}"; do
+    CONFIG_PATH_ARGS+=("$key=${CONFIG_PATHS[$key]}")
+done
+
+if [[ -n "$CONFIG_PATH" ]]; then
+    # Add manual config path to the list (user override)
+    CONFIG_PATH_ARGS+=("$CONFIG_PATH")
+fi
+
 VEHICLES=0
 REAL_TIME_LOG=1
 GATE_PROB_THRESHOLD="0.1"
@@ -127,7 +147,7 @@ if [ "$RUN_TSP" -eq 0 ]; then
     --gapik_file "$GOOGLE_API_FILE" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" --dm "$DIST_METHOD" \
     --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" \
     --gate_prob_threshold $GATE_PROB_THRESHOLD --mask_prob_threshold $MASK_PROB_THRESHOLD \
-    --spatial_bias --two_opt_max_iter $TWO_OPT_MAX_ITER;
+    --spatial_bias --two_opt_max_iter $TWO_OPT_MAX_ITER --config_path "${CONFIG_PATH_ARGS[@]}";
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi
@@ -145,7 +165,7 @@ else
     --gapik_file "$GOOGLE_API_FILE" --waste_filepath "$WASTE_PATH" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" \
     --days "$N_DAYS" --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" \
     --gate_prob_threshold $GATE_PROB_THRESHOLD --mask_prob_threshold $MASK_PROB_THRESHOLD \
-    --spatial_bias --two_opt_max_iter $TWO_OPT_MAX_ITER;
+    --spatial_bias --two_opt_max_iter $TWO_OPT_MAX_ITER --config_path "${CONFIG_PATH_ARGS[@]}";
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi

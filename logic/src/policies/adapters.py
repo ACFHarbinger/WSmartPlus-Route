@@ -34,8 +34,15 @@ class RegularPolicyAdapter(PolicyAdapter):
         coords = kwargs['coords']
         distance_matrix = kwargs['distance_matrix']
         two_opt_max_iter = kwargs.get('two_opt_max_iter', 0)
+        config = kwargs.get('config', {})
+        regular_config = config.get('regular', {})
 
         lvl = int(policy.rsplit("_regular", 1)[1]) - 1
+        
+        # Override from config if present
+        if 'level' in regular_config:
+            lvl = int(regular_config['level']) - 1
+            
         if lvl < 0: raise ValueError(f'Invalid lvl value for policy_regular: {lvl + 1}')
         tour = policy_regular(bins.n, bins.c, distancesC, lvl, day, cached, waste_type, area, n_vehicles, coords)
         if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
@@ -55,14 +62,26 @@ class LastMinutePolicyAdapter(PolicyAdapter):
         distance_matrix = kwargs['distance_matrix']
         two_opt_max_iter = kwargs.get('two_opt_max_iter', 0)
         paths_between_states = kwargs.get('paths_between_states')
+        config = kwargs.get('config', {})
+        last_minute_config = config.get('last_minute', {})
 
         if 'policy_last_minute_and_path' in policy:
             cf = int(policy.rsplit("_and_path", 1)[1])
+            
+            # Override from config if present
+            if 'cf' in last_minute_config:
+                cf = int(last_minute_config['cf'])
+                
             if cf <= 0: raise ValueError(f'Invalid cf value for policy_last_minute_and_path: {cf}')
             bins.setCollectionLvlandFreq(cf=cf/100)
             tour = policy_last_minute_and_path(bins.c, distancesC, paths_between_states, bins.collectlevl, waste_type, area, n_vehicles, coords)
         else:
             cf = int(policy.rsplit("_last_minute", 1)[1])
+            
+            # Override from config if present
+            if 'cf' in last_minute_config:
+                cf = int(last_minute_config['cf'])
+                
             if cf <= 0: raise ValueError(f'Invalid cf value for policy_last_minute: {cf}')
             bins.setCollectionLvlandFreq(cf=cf/100)
             tour = policy_last_minute(bins.c, distancesC, bins.collectlevl, waste_type, area, n_vehicles, coords)
@@ -78,7 +97,6 @@ class NeuralPolicyAdapter(PolicyAdapter):
         bins = kwargs['bins']
         device = kwargs['device']
         fill = kwargs['fill']
-        graph_size = kwargs['graph_size']
         dm_tensor = kwargs['dm_tensor']
         run_tsp = kwargs['run_tsp']
         hrl_manager = kwargs.get('hrl_manager')
@@ -116,10 +134,13 @@ class VRPPPolicyAdapter(PolicyAdapter):
         distancesC = kwargs['distancesC']
         run_tsp = kwargs['run_tsp']
         two_opt_max_iter = kwargs.get('two_opt_max_iter', 0)
+        config = kwargs.get('config', {})
+        
+        vrpp_config = config.get('vrpp', {})
 
         routes, _, _ = policy_vrpp(
             policy, bins.c, bins.means, bins.std, distance_matrix.tolist(),
-            model_env, waste_type, area, n_vehicles
+            model_env, waste_type, area, n_vehicles, config=vrpp_config
         )
         tour = []
         cost = 0
@@ -146,11 +167,18 @@ class LookAheadPolicyAdapter(PolicyAdapter):
         run_tsp = kwargs['run_tsp']
         two_opt_max_iter = kwargs.get('two_opt_max_iter', 0)
 
+        last_minute_config = kwargs.get('config', {}).get('lookahead', {})
+
         look_ahead_config = policy[policy.find('ahead_') + len('ahead_')]
         possible_configurations = {
             'a': [500,75,0.95,0,0.095,0,0], 
             'b': [2000,75,0.7,0,0.095,0,0]
         }
+        
+        # Override from config if present
+        if look_ahead_config in last_minute_config:
+            possible_configurations[look_ahead_config] = last_minute_config[look_ahead_config]
+        
         try:
             chosen_combination = possible_configurations[look_ahead_config]
         except KeyError:
@@ -169,38 +197,55 @@ class LookAheadPolicyAdapter(PolicyAdapter):
             values = {
                 'R': R, 'C': C, 'E': E, 'B': B, 
                 'vehicle_capacity': vehicle_capacity,
-                'Omega': 0.1,
-                'delta': 0,  
-                'psi': 1,
+                'Omega': last_minute_config.get('Omega', 0.1),
+                'delta': last_minute_config.get('delta', 0),  
+                'psi': last_minute_config.get('psi', 1),
             }
             routes = None
             if 'vrpp' in policy:
+                # VRPP specific lookahead config? Usually handled by generic values but let's be safe
+                vrpp_la_config = last_minute_config.get('vrpp', {})
+                # values.update(vrpp_la_config) # If we want full override
+                
                 routes, _, _ = policy_lookahead_vrpp(
                     bins.c, binsids, must_go_bins, distance_matrix, values, 
-                    number_vehicles=n_vehicles, env=model_env, time_limit=60
+                    number_vehicles=n_vehicles, env=model_env, time_limit=vrpp_la_config.get('time_limit', 60)
                 )
             elif 'sans' in policy:
-                values['time_limit'] = 60
-                values['perc_bins_can_overflow'] = 0 
-                T_min, T_init, iterations_per_T, alpha = 0.01, 75, 5000, 0.95
+                sans_config = last_minute_config.get('sans', {})
+                values['time_limit'] = sans_config.get('time_limit', 60)
+                values['perc_bins_can_overflow'] = sans_config.get('perc_bins_can_overflow', 0)
+                
+                T_min = sans_config.get('T_min', 0.01)
+                T_init = sans_config.get('T_init', 75)
+                iterations_per_T = sans_config.get('iterations_per_T', 5000)
+                alpha = sans_config.get('alpha', 0.95)
+                
                 params = (T_init, iterations_per_T, alpha, T_min)
                 new_data.loc[1:, 'Stock'] = bins.c.astype('float32')
                 new_data.loc[1:, 'Accum_Rate'] = bins.means.astype('float32')
                 routes, _, _ = policy_lookahead_sans(new_data, coords, distance_matrix, params, must_go_bins, values)
                 if routes: routes = routes[0]
             elif 'hgs' in policy:
-                values['time_limit'] = 60
+                hgs_config = last_minute_config.get('hgs', {})
+                values['time_limit'] = hgs_config.get('time_limit', 60)
                 routes, _, _ = policy_lookahead_hgs(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
             elif 'alns' in policy:
-                values['time_limit'] = 60
-                values['Iterations'] = 5000
-                variant = 'default'
+                alns_config = last_minute_config.get('alns', {})
+                values['time_limit'] = alns_config.get('time_limit', 60)
+                values['Iterations'] = alns_config.get('Iterations', 5000)
+                variant = alns_config.get('variant', 'default')
+                # Overwrite if encoded in name? Or trust config?
                 if 'package' in policy: variant = 'package'
                 elif 'ortools' in policy: variant = 'ortools'
+                # If config specifies something else, maybe config wins? user request implies config is master.
+                if alns_config.get('variant'): variant = alns_config.get('variant')
+                
                 routes, _, _ = policy_lookahead_alns(bins.c, binsids, must_go_bins, distance_matrix, values, coords, variant=variant)
             elif 'bcp' in policy:
-                values['time_limit'] = 60
-                values['Iterations'] = 50
+                bcp_config = last_minute_config.get('bcp', {})
+                values['time_limit'] = bcp_config.get('time_limit', 60)
+                values['Iterations'] = bcp_config.get('Iterations', 50)
                 routes, _, _ = policy_lookahead_bcp(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
             else:
                 values['shift_duration'] = 390

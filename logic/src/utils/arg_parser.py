@@ -536,6 +536,8 @@ def add_test_sim_args(parser):
     parser.add_argument('--stats_filepath', type=str, default=None, help="Path to the file to read the statistics from")
     parser.add_argument('--model_path', action=StoreDictKeyPair, default=None, nargs='+', 
                         help="Path to the directory where the model(s) is/are stored (format: name=path)")
+    parser.add_argument('--config_path', action=StoreDictKeyPair, default=None, nargs='+', 
+                        help="Path to the YAML/XML configuration file(s) (format: name=path)")
     return parser
 
 def add_files_update_args(parser):

@@ -25,7 +25,7 @@ class Individual:
 
 
 class HGSParams:
-    def __init__(self, time_limit=5, population_size=30, elite_size=10, 
+    def __init__(self, time_limit=10, population_size=50, elite_size=10, 
                  mutation_rate=0.2, max_vehicles=0):
         self.time_limit = time_limit
         self.population_size = population_size
@@ -527,16 +527,12 @@ def _run_hgs_custom(dist_matrix, demands, capacity, R, C, values, global_must_go
     """
     Custom Pure-Python HGS Implementation.
     """
-    adjusted_tl = min(float(values.get('time_limit', 10)), 5.0)
-    
     params = HGSParams(
-        time_limit=adjusted_tl,
-        population_size=30,
-        elite_size=10, 
+        time_limit=values.get('time_limit', 10),
+        population_size=values.get('population_size', 30),
+        elite_size=values.get('elite_size', 10), 
         max_vehicles=values.get('max_vehicles', 0)
     )
-    
-    print(f"[HGS] Start. TimeLimit={params.time_limit}, Pop={params.population_size}, MaxV={params.max_vehicles}")
     
     split_algo = LinearSplit(dist_matrix, demands, capacity, R, C, params.max_vehicles)
     ls = LocalSearch(dist_matrix, demands, capacity, R, C, params)
@@ -545,7 +541,6 @@ def _run_hgs_custom(dist_matrix, demands, capacity, R, C, values, global_must_go
     population = []
     
     start_time = time.time()
-    
     for i in range(params.population_size):
         if i == 0 and vrpp_tour_global:
             t = vrpp_tour_global[:]
