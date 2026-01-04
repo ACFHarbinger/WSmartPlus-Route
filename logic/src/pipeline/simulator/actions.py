@@ -37,8 +37,10 @@ class PolicyExecutionAction(SimulationAction):
         policy_name = context['policy_name']
         adapter = PolicyFactory.get_adapter(policy_name)
         
-        # Provide updated context (e.g. fill might be needed by neural agent)
         # NeuralPolicyAdapter expects 'fill' in context, which FillAction just put there.
+        
+        # Extract config
+        config = context.get('config', {})
         
         tour, cost, extra_output = adapter.execute(**context)
         

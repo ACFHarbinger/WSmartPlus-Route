@@ -7,6 +7,7 @@ from tqdm import tqdm
 from logic.src.utils.definitions import ROOT_DIR, TQDM_COLOURS, SIM_METRICS, DAY_METRICS
 from logic.src.utils.log_utils import log_to_json
 from logic.src.utils.setup_utils import setup_model, setup_env, setup_hrl_manager
+from logic.src.utils.config_loader import load_config
 
 from .bins import Bins
 from .checkpoints import checkpoint_manager, SimulationCheckpoint, CheckpointError
@@ -60,6 +61,7 @@ class SimulationContext:
         self.attention_dict = {}
         self.execution_time = 0
         self.tic = 0
+        self.config = None
         
         # Progress Bar items
         self.tqdm_pos = variables_dict.get('tqdm_pos', 0)
@@ -102,6 +104,45 @@ class InitializingState(SimState):
         # Ensure results directory exists
         if not os.path.exists(ctx.results_dir):
             os.makedirs(ctx.results_dir, exist_ok=True)
+
+        # Load Configuration
+        # config_path is now expected to be a dict {key: path} or None
+        ctx.config = {}
+        config_paths = opts.get('config_path')
+        
+        if config_paths:
+            if isinstance(config_paths, dict):
+                for key, path in config_paths.items():
+                    try:
+                        loaded = load_config(path)
+                        # Store in ctx.config under the key, OR merge if we want a unified config?
+                        # Strategy: Store all under 'configs' and also try to resolve 'active' config?
+                        # For simplicity, let's merge them into ctx.config? 
+                        # But conflicts might arise.
+                        # Better strategy: ctx.config will be the dictionary of {key: loaded_content}
+                        # And run_day will pick the right one?
+                        # Or checking strict match?
+                        
+                        # Let's merge everything into ctx.config so lookup is easy (e.g. ctx.config['lookahead']['hgs'])
+                        # But wait, if we load two lookahead files, they might clash.
+                        # If key is unique (e.g. 'hgs', 'sans'), we can store them as ctx.config[key] = loaded
+                        
+                        # If loaded has a root key (e.g. 'lookahead'), we might want to merge deep.
+                        # For now, let's just store the full loaded dict under the cli key if the cli key is explicit.
+                        # User said "similar to model_path" where keys are policies.
+                        # So ctx.config[key] = load_config(path) is reasonable.
+                        
+                        ctx.config[key] = loaded
+                        print(f"Loaded configuration for '{key}' from {path}")
+                    except Exception as e:
+                        print(f"Warning: Failed to load config file {path}: {e}")
+            else:
+                 # Legacy fall back if it's a string (though arg_parser should prevent this)
+                 try:
+                    ctx.config = load_config(config_paths) # Assuming single path
+                    print(f"Loaded configuration from {config_paths}")
+                 except Exception:
+                     pass
             
         # Setup Data
         data, bins_coordinates, depot = setup_basedata(opts['size'], ctx.data_dir, opts['area'], opts['waste_type'])
@@ -193,11 +234,28 @@ class RunningState(SimState):
                 for day in iterator:
                     hook.before_day(day)
                     
+                    # Select specific config for this policy if available
+                    # Strategy: Check if any key in ctx.config is a substring of ctx.policy
+                    current_policy_config = {}
+                    
+                    # 1. Base config (if any unkeyed config exists or common sections)
+                    # For now ctx.config is {key: dict}.
+                    
+                    # 2. Merge matching configs
+                    # If I have keys 'lookahead' and 'hgs' and policy is 'policy_look_ahead_hgs', merge both.
+                    for key, cfg in ctx.config.items():
+                         if key in ctx.policy:
+                             # Merge cfg into current_policy_config
+                             # Simple update for now (shallow merge of top keys)
+                             # Deep merge would be better but keeping it simple.
+                             current_policy_config.update(cfg)
+                             
                     data_ls, output_ls, ctx.cached = run_day(
                         opts['size'], ctx.policy, ctx.bins, ctx.new_data, ctx.coords, opts['run_tsp'], ctx.sample_id,
                         ctx.overflows, day, ctx.model_env, ctx.model_tup, opts['n_vehicles'], opts['area'], realtime_log_path, 
                         opts['waste_type'], ctx.dist_tup, ctx.current_collection_day, ctx.cached, ctx.device, 
-                        ctx.lock, ctx.hrl_manager, opts['gate_prob_threshold'], opts['mask_prob_threshold'], opts['two_opt_max_iter']
+                        ctx.lock, ctx.hrl_manager, opts['gate_prob_threshold'], opts['mask_prob_threshold'], opts['two_opt_max_iter'],
+                        config=current_policy_config
                     )
                     
                     ctx.execution_time = time.process_time() - ctx.tic

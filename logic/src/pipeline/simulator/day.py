@@ -44,7 +44,7 @@ def send_daily_output_to_gui(*args, **kwargs):
 def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflows, 
             day, model_env, model_ls, n_vehicles, area, realtime_log_path, waste_type, 
             distpath_tup, current_collection_day, cached, device, lock=None, hrl_manager=None,
-            gate_prob_threshold=0.5, mask_prob_threshold=0.5, two_opt_max_iter=0):
+            gate_prob_threshold=0.5, mask_prob_threshold=0.5, two_opt_max_iter=0, config=None):
     
     # Prepare context
     distance_matrix, paths_between_states, dm_tensor, distancesC = distpath_tup
@@ -80,6 +80,7 @@ def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflo
         'realtime_log_path': realtime_log_path,
         'overflows': overflows,
         'graph_size': graph_size,
+        'config': config if config is not None else {}, # Pass config
         
         # Outputs placeholders
         'output_dict': None,
