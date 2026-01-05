@@ -2,7 +2,8 @@ import torch
 import numpy as np
 
 from logic.src.utils.functions import add_attention_hooks
-from logic.src.policies import find_route, get_route_cost, get_multi_tour, local_search_2opt_vectorized
+from logic.src.policies import find_route, get_route_cost, get_multi_tour
+from logic.src.pipeline.reinforcement_learning.core.post_processing import local_search_2opt_vectorized
 
 
 class NeuralAgent:

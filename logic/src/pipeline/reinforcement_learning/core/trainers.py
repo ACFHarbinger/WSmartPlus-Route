@@ -1,21 +1,22 @@
 import time
 import torch
+import numpy as np
 
 from abc import ABC
 from tqdm import tqdm
 from logic.src.utils.functions import move_to
 from logic.src.utils.log_utils import log_epoch
-from logic.src.policies import local_search_2opt_vectorized
 from logic.src.pipeline.reinforcement_learning.core.epoch import (
-    complete_train_pass, update_time_dataset,
     prepare_epoch, prepare_batch, prepare_time_dataset,
-    set_decode_type
+    complete_train_pass, update_time_dataset, set_decode_type,
 )
 from logic.src.utils.visualize_utils import visualize_epoch
+from logic.src.pipeline.reinforcement_learning.core.post_processing import local_search_2opt_vectorized
 from logic.src.pipeline.reinforcement_learning.meta import (
     RewardWeightOptimizer, WeightContextualBandit, 
     CostWeightManager, MORLWeightOptimizer
 )
+from logic.src.pipeline.reinforcement_learning.policies.hgs_vectorized import VectorizedHGS
 from logic.src.models import WeightAdjustmentRNN, HypernetworkOptimizer, GATLSTManager
 
 
@@ -204,19 +205,112 @@ class BaseReinforceTrainer(ABC):
             
             if curr_imitation_weight > 0 and self.opts.get('two_opt_max_iter', 0) > 0 and pi is not None:
                 dist_matrix = x.get('dist', None)
-                if dist_matrix is not None:
-                    with torch.no_grad():
-                        pi_with_depot = torch.cat([torch.zeros((pi.size(0), 1), dtype=torch.long, device=pi.device), pi], dim=1)
-                        pi_opt_with_depot = local_search_2opt_vectorized(pi_with_depot, dist_matrix, self.opts['two_opt_max_iter'])
-                        pi_opt = pi_opt_with_depot[:, 1:]
-                        if pi_opt.size(1) > 0:
-                            invalid_start = (pi_opt[:, 0] == 0)
-                            if invalid_start.any():
-                                pi_opt = torch.where(invalid_start.unsqueeze(-1), pi, pi_opt)
+                expert_pi = None
+                
+                if self.opts.get('imitation_mode', '2opt') == 'hgs':
+                    # HGS requires demands and capacity
+                    # Assuming x['waste'] is normalized demand and capacity is 1.0 (typical for RL)
+                    # or recover from opts
+                    demands = x.get('waste', None)
+                    # Flatten demands if needed? x['waste'] is usually (B, N) or (B, N, 1) or (B, 1, N)
+                    if demands is not None:
+                        if demands.dim() == 3: demands = demands.squeeze(1).squeeze(1)
+                        if demands.dim() == 2 and demands.size(1) == 1: demands = demands.squeeze(1)
+                        
+                        # Pad with depot demand (0) if size matches graph_size (customers only)
+                        # Assuming dist_matrix is (B, N+1, N+1) and demands is (B, N)
+                        if demands.size(1) == dist_matrix.size(1) - 1:
+                            demands = torch.cat([torch.zeros((demands.size(0), 1), device=demands.device), demands], dim=1)
+                        
+                    vehicle_capacity = 1.0 # Default for normalized envs
                     
-                    _, log_likelihood_opt, _, _, _ = self.model(x, cost_weights=self.cost_weights, return_pi=False, mask=mask, expert_pi=pi_opt, kl_loss=True)
+                    if demands is not None and dist_matrix is not None:
+                        # Expand dist_matrix if shared (B=1)
+                        if dist_matrix.size(0) == 1 and pi.size(0) > 1:
+                            dist_matrix = dist_matrix.expand(pi.size(0), -1, -1)
+                        
+                        hgs = VectorizedHGS(dist_matrix, demands, vehicle_capacity, device=self.opts['device'])
+                        
+                        # Prepare Giant Tours from pi (Constructive solution with 0s)
+                        # Remove 0s to get permutation
+                        pi_giant_list = []
+                        valid_hgs_indices = []
+                        expected_len = dist_matrix.size(1) - 1 # N nodes
+                        
+                        pi_cpu = pi.detach().cpu().numpy()
+                        for i in range(pi.size(0)):
+                            # Filter 0s
+                            tour = pi_cpu[i]
+                            giant = tour[tour != 0]
+                            # Check if valid permutation (length check is a good proxy for now)
+                            # Actually, we should check unique count too?
+                            # For speed, just check length.
+                            if len(giant) == expected_len:
+                                pi_giant_list.append(giant)
+                                valid_hgs_indices.append(i)
+                            else:
+                                # Fallback or keep empty placeholder?
+                                # We can't batch mix valid/invalid easily in HGS.
+                                pass
+                        
+                        expert_pi = torch.zeros((pi.size(0), pi.size(1)), dtype=torch.long, device=self.opts['device'])
+                        if len(valid_hgs_indices) > 0:
+                            # Convert list of numpy arrays to a single numpy array first for performance (avoid warning)
+                            giant_tours_np = torch.from_numpy(np.array(pi_giant_list)).to(self.opts['device'])
+                            
+                            # Filter demands/dist if they vary per batch (not shared)
+                            # If dist_matrix is (B, ...), we need to subset.
+                            hgs_dist = dist_matrix
+                            if dist_matrix.size(0) == pi.size(0):
+                                hgs_dist = dist_matrix[valid_hgs_indices]
+                            elif dist_matrix.size(0) == 1 and pi.size(0) > 1:
+                                # Keep shared
+                                hgs_dist = dist_matrix
+                                
+                            hgs_demands = demands
+                            if demands.size(0) == pi.size(0):
+                                hgs_demands = demands[valid_hgs_indices]
+                                
+                            # Re-init HGS with correct subset size/device if needed?
+                            # VectorizedHGS uses the passed dist/demands.
+                            hgs_solver = VectorizedHGS(hgs_dist, hgs_demands, vehicle_capacity, device=self.opts['device'])
+                            
+                            # Solve HGS
+                            try:
+                                expert_pi_valid, _ = hgs_solver.solve(giant_tours_np)
+                                
+                                # Scatter back
+                                # expert_pi_valid is (B_sub, L_sub)
+                                for idx, batch_idx in enumerate(valid_hgs_indices):
+                                    row = expert_pi_valid[idx]
+                                    # row might be padded
+                                    # Copy into expert_pi
+                                    # Ensure size fits
+                                    copy_len = min(len(row), expert_pi.size(1))
+                                    expert_pi[batch_idx, :copy_len] = row[:copy_len]
+                            except Exception as e:
+                                pass
+
+                        # HGS returns routes [0, ..., 0].
+                        # So we should strip the first 0.
+                        if expert_pi.size(1) > 0 and expert_pi[0, 0] == 0:
+                            expert_pi = expert_pi[:, 1:]
+                
+                else: 
+                    # Default 2-opt
+                    if dist_matrix is not None:
+                         with torch.no_grad():
+                             pi_with_depot = torch.cat([torch.zeros((pi.size(0), 1), dtype=torch.long, device=pi.device), pi], dim=1)
+                             pi_opt_with_depot = local_search_2opt_vectorized(pi_with_depot, dist_matrix, self.opts['two_opt_max_iter'])
+                             expert_pi = pi_opt_with_depot[:, 1:]
+                             if expert_pi.size(1) > 0:
+                                 invalid_start = (expert_pi[:, 0] == 0)
+                                 if invalid_start.any():
+                                     expert_pi = torch.where(invalid_start.unsqueeze(-1), pi, expert_pi)
+
+                if expert_pi is not None:
+                    _, log_likelihood_opt, _, _, _ = self.model(x, cost_weights=self.cost_weights, return_pi=False, mask=mask, expert_pi=expert_pi, kl_loss=True)
                     imitation_loss = -log_likelihood_opt.mean()
-            
             loss = reinforce_loss.mean() + bl_loss.mean() + entropy_loss.mean() + curr_imitation_weight * imitation_loss
             loss = loss / self.opts['accumulation_steps']
             
