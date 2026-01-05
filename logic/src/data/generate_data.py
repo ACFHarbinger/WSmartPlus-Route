@@ -117,12 +117,12 @@ def generate_datasets(opts):
                         # Note: original code used num_days=opts['n_epochs'] for train_time
                         
                         if 'filename' not in opts or opts['filename'] is None:
-                            if opts['is_gaussian']:
+                            if opts.get('mu', None) is not None:
                                 filename = os.path.join(datadir, 
                                 "{}{}{}_{}{}_seed{}_{}_{}.pkl".format(problem, size, 
                                 "_{}".format(dist) if dist is not None else "",
                                 opts['name'], n_days if n_days > 1 else "", 
-                                opts['seed'], 'gaussian', opts['sigma']))
+                                opts['seed'], f'gaussian{opts["mu"]}', f'_{opts["sigma"]}'))
                             else:
                                 filename = os.path.join(datadir, 
                                 "{}{}{}_{}{}_seed{}.pkl".format(problem, size, 
@@ -144,12 +144,12 @@ def generate_datasets(opts):
                         for epoch in range(opts['epoch_start'], opts['n_epochs']):
                             print("- Generating epoch {} data".format(epoch))
                             if 'filename' not in opts or opts['filename'] is None:
-                                if opts['is_gaussian']:
+                                if opts.get('mu', None) is not None:
                                     filename = os.path.join(datadir, 
                                     "{}{}{}_{}{}_seed{}_{}_{}.pkl".format(problem, size, 
                                     "_{}".format(dist) if dist is not None else "",
                                     opts['name'], epoch if opts['n_epochs'] > 1 else "", 
-                                    opts['seed'], 'gaussian', opts['sigma']))
+                                    opts['seed'], f'gaussian{opts["mu"]}', f'_{opts["sigma"]}'))
                                 else:
                                     filename = os.path.join(datadir, 
                                     "{}{}{}_{}{}_seed{}.pkl".format(problem, size, 
