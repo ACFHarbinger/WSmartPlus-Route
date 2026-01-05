@@ -13,7 +13,7 @@ from torch.utils.tensorboard.writer import SummaryWriter
 from logic.src.utils.functions import load_problem
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
-from logic.src.policies.single_vehicle import local_search_2opt_vectorized
+from logic.src.pipeline.reinforcement_learning.core.post_processing import local_search_2opt_vectorized
 
 # --- UTILS ---
 

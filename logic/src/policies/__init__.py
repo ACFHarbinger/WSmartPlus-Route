@@ -8,6 +8,6 @@ from .look_ahead import (
 
 from .look_ahead_aux import create_points, find_solutions
 from .single_vehicle import (
-    find_route, get_route_cost, get_multi_tour, 
-    local_search_2opt, local_search_2opt_vectorized
+    find_route, get_route_cost, 
+    get_multi_tour, local_search_2opt
 )
