@@ -236,4 +236,3 @@ class GATLSTManager(nn.Module):
                 self.target_masks.append((dynamic[:, :, -1] > 0.9).float().detach().cpu())
         
         return mask_action, gate_action, value
-

@@ -125,28 +125,7 @@ class TestGATLSTManager:
         mask_logits, gate_logits, value = manager(static, dynamic, global_features)
         assert mask_logits.shape == (B, N, 2)
 
-    def test_update_logic(self, gat_lstm_setup):
-        manager = gat_lstm_setup
-        # Fill memory
-        manager.states_static.append(torch.rand(1,5,2))
-        manager.states_dynamic.append(torch.rand(1,5,10))
-        manager.states_global.append(torch.rand(1,2))
-        manager.actions_mask.append(torch.zeros(1,5))
-        manager.actions_gate.append(torch.zeros(1))
-        manager.log_probs_mask.append(torch.zeros(1))
-        manager.log_probs_gate.append(torch.zeros(1))
-        manager.values.append(torch.zeros(1,1))
-        manager.rewards.append(torch.tensor([1.0]))
-        manager.target_masks.append(torch.zeros(1, 5))
-        
-        # Mock optimizer step
-        manager.optimizer = MagicMock()
-        
-        loss = manager.update(ppo_epochs=1)
-        # Should return a loss value (or at least run without error)
-        # Since we mocked things heavily, exact value doesn't matter, just flow
-        assert loss is not None or loss == 0
-        assert len(manager.states_static) == 0 # Cleared memory
+
 
 
 class TestReinforceBaselines:

@@ -24,7 +24,7 @@ class TestVRPInstanceBuilder:
                    .set_focus_graph('dummy.json', 10) \
                    .set_method('mmn') \
                    .set_num_days(5) \
-                   .set_is_vrpp(True)
+                   .set_problem_name('vrpp')
         
         # Verify method chaining works (returns self)
         assert isinstance(b, VRPInstanceBuilder)
@@ -116,7 +116,7 @@ class TestGenerateData:
         mock_instance.set_focus_graph.return_value = mock_instance
         mock_instance.set_method.return_value = mock_instance
         mock_instance.set_num_days.return_value = mock_instance
-        mock_instance.set_is_vrpp.return_value = mock_instance
+        mock_instance.set_problem_name.return_value = mock_instance
         
         # Configure build to return a dummy dataset
         # Format: list of tuples (depot, loc, waste, max_waste)
@@ -152,7 +152,7 @@ class TestGenerateData:
         mock_builder.set_distribution.assert_called_with('gamma1')
         mock_builder.set_area.assert_called_with(gen_data_opts['area'])
         mock_builder.set_method.assert_called_with(gen_data_opts['vertex_method'])
-        mock_builder.set_is_vrpp.assert_called_with(problem == 'vrpp')
+        mock_builder.set_problem_name.assert_called_with(problem)
         mock_builder.build.assert_called_once()
 
 
