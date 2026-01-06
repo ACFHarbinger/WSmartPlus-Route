@@ -319,7 +319,8 @@ class TestGenDataCommand:
             '--focus_graphs', 'path/to/graph.txt',
             '--focus_size', '100',
             '--area', 'riomaior',
-            '--waste_type', 'plastic'
+            '--waste_type', 'plastic',
+            '--problem', 'vrpp'
         ]
         with patch.object(sys, 'argv', args):
             command, args_dict = parse_params()

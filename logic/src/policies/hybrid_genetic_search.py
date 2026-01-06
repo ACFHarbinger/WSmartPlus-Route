@@ -527,6 +527,8 @@ def _run_hgs_custom(dist_matrix, demands, capacity, R, C, values, global_must_go
     """
     Custom Pure-Python HGS Implementation.
     """
+    dist_matrix = np.array(dist_matrix)
+    
     params = HGSParams(
         time_limit=values.get('time_limit', 10),
         population_size=values.get('population_size', 30),
