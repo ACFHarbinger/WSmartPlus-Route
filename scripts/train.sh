@@ -101,7 +101,7 @@ TRAIN_AMGC=1
 TRAIN_TRANSGCN=1
 TRAIN_DDAM=1
 TRAIN_TAM=1
-HORIZON=(0 0 0 0 3)
+HORIZON=(5 0 0 0 3)
 WB_MODE="disabled" # 'online'|'offline'|'disabled'
 
 echo "Starting training script..."
@@ -134,7 +134,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --imitation_mode "$IMITATION_MODE" \
         --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --exp_beta "$EXP_BETA" --spatial_bias \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --gamma 0.99;
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi

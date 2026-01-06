@@ -217,6 +217,7 @@ def add_train_args(parser):
     parser.add_argument('--imitation_decay_step', type=int, default=1, help="Number of epochs after which to apply imitation decay")
     parser.add_argument('--imitation_mode', type=str, default='2opt', choices=['2opt', 'hgs'], help="Method for imitation learning expert ('2opt'|'hgs')")
     parser.add_argument('--two_opt_max_iter', type=int, default=0, help='Maximum number of iterations for 2-opt refinement in Look-Ahead update')
+    parser.add_argument('--gamma', type=float, default=0.99, help='Discount factor for future rewards')
 
     # Training
     parser.add_argument('--n_epochs', type=int, default=25, help='The number of epochs to train')
