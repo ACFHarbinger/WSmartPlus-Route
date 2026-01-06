@@ -218,6 +218,10 @@ def add_train_args(parser):
     parser.add_argument('--imitation_mode', type=str, default='2opt', choices=['2opt', 'hgs'], help="Method for imitation learning expert ('2opt'|'hgs')")
     parser.add_argument('--two_opt_max_iter', type=int, default=0, help='Maximum number of iterations for 2-opt refinement in Look-Ahead update')
     parser.add_argument('--gamma', type=float, default=0.99, help='Discount factor for future rewards')
+    parser.add_argument('--rl_algorithm', type=str, default='reinforce', choices=['reinforce', 'ppo'], help='RL algorithm to use')
+    parser.add_argument('--ppo_epochs', type=int, default=3, help='Number of epochs for PPO update')
+    parser.add_argument('--ppo_eps_clip', type=float, default=0.2, help='PPO clip parameter')
+    parser.add_argument('--ppo_mini_batch_size', type=int, default=32, help='Mini-batch size for PPO update')
 
     # Training
     parser.add_argument('--n_epochs', type=int, default=25, help='The number of epochs to train')

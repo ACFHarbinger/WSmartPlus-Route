@@ -295,7 +295,8 @@ def complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, e
             tb_logger.log_value('val_avg_cost', avg_reward, step)
 
     baseline.epoch_callback(model, epoch)
-    lr_scheduler.step() # lr_scheduler should be called at end of epoch
+    if lr_scheduler is not None:
+        lr_scheduler.step() # lr_scheduler should be called at end of epoch
     if opts['device'] == "cuda":
         torch.cuda.empty_cache()
     return None

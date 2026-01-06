@@ -460,3 +460,28 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         
         # If no data at all, return current config
         return self.current_config
+
+    def state_dict(self):
+        """Return the state of the bandit."""
+        return {
+            'alpha': self.alpha,
+            'beta': self.beta,
+            'trials': self.trials,
+            'total_trials': self.total_trials,
+            'history': self.history,
+            'contexts': self.contexts,
+            'context_rewards': dict(self.context_rewards)
+        }
+
+    def load_state_dict(self, state_dict):
+        """Load the state of the bandit."""
+        self.alpha = state_dict['alpha']
+        self.beta = state_dict['beta']
+        self.trials = state_dict['trials']
+        self.total_trials = state_dict['total_trials']
+        self.history = state_dict['history']
+        self.contexts = state_dict['contexts']
+        # Reconstruct context_rewards as defaultdict
+        self.context_rewards = defaultdict(lambda: defaultdict(list))
+        for k, v in state_dict['context_rewards'].items():
+            self.context_rewards[k] = defaultdict(list, v)

@@ -77,7 +77,7 @@ class HypernetworkOptimizer:
     """
     Manages the hypernetwork training and integration with the main RL training loop.
     """
-    def __init__(self, cost_weight_keys, constraint_value, device, lr=1e-4, buffer_size=100):
+    def __init__(self, cost_weight_keys, constraint_value, device, problem, lr=1e-4, buffer_size=100):
         self.input_dim = 6  # [efficiency, overflows, kg, km, kg_lost, day_progress]
         self.output_dim = len(cost_weight_keys)
         self.cost_weight_keys = cost_weight_keys
@@ -86,8 +86,7 @@ class HypernetworkOptimizer:
         
         # Create hypernetwork
         self.hypernetwork = Hypernetwork(
-            input_dim=self.input_dim,
-            output_dim=self.output_dim,
+            problem=problem,
             hidden_dim=64
         ).to(device)
         
