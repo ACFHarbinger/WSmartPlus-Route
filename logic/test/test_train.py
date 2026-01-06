@@ -7,8 +7,12 @@ from logic.src.pipeline.train import (
     train_reinforcement_learning,
     train_meta_reinforcement_learning
 )
-from logic.src.pipeline.reinforcement_learning.core import reinforce, epoch, post_processing
-from logic.src.pipeline.reinforcement_learning.core.reinforce import train_reinforce_over_time_cb
+from logic.src.pipeline.reinforcement_learning.worker_train import (
+    train_reinforce_epoch, train_reinforce_over_time, 
+    train_reinforce_over_time_cb, train_over_time_with_hypernetwork
+)
+from logic.src.pipeline.reinforcement_learning.core import epoch, post_processing
+
 
 
 class TestTrain:
@@ -24,16 +28,21 @@ class TestTrain:
         mock_train_func.assert_called_once()
         # Should call with epoch loop if train_time is False
         assert mock_train_func.call_args[0][0] == args
-        assert mock_train_func.call_args[0][1] == reinforce.train_reinforce_epoch
+        assert mock_train_func.call_args[0][1] == train_reinforce_epoch
 
     def test_run_training_dispatches_train_time(self, mocker):
-        """Verify run_training uses train_reinforce_over_time if train_time is True."""
-        mock_train_func = mocker.patch('logic.src.pipeline.train.train_reinforcement_learning')
+        """Verify run_training dispatches to train_reinforce_over_time when train_time is True."""
+        mock_train = mocker.patch('logic.src.pipeline.train.train_reinforcement_learning')
         
-        args = {'seed': 42, 'train_time': True}
+        # When train_time is True, run_training passes 'train_reinforce_over_time' function.
+        # We check if the passed function is the correct one.
+        # Since we imported it from worker_train in this test file, we can compare.
+        
+        args = {'seed': 123, 'train_time': True}
         run_training(args, 'train')
         
-        assert mock_train_func.call_args[0][1] == reinforce.train_reinforce_over_time
+        mock_train.assert_called_once()
+        assert mock_train.call_args[0][1] == train_reinforce_over_time
 
     def test_run_training_dispatches_hp_optim(self, mocker):
         """Verify run_training dispatches to hyperparameter_optimization."""
@@ -181,14 +190,14 @@ class TestReinforce:
         mock_baseline.unwrap_batch.return_value = (batch['inputs'], None) # x, bl_val
 
         # Create Trainer
-        from logic.src.pipeline.reinforcement_learning.core.trainers import StandardTrainer
+        from logic.src.pipeline.reinforcement_learning.core.reinforce import StandardTrainer
         trainer = StandardTrainer(
             mock_train_model, mock_optimizer, mock_baseline, None, scaler, 
             None, 'vrpp', tb_logger, cost_weights, opts
         )
 
         # Call function
-        pi, c_dict, l_dict, cost = trainer.train_batch(batch, batch_id)
+        pi, c_dict, l_dict, cost, _ = trainer.train_batch(batch, batch_id)
 
         # Assertions
         assert 'nll' in l_dict
@@ -199,11 +208,11 @@ class TestReinforce:
     def test_train_single_day(self, mocker, mock_train_model, mock_optimizer, mock_baseline):
         """Verify train_day interacts with dataset and dependencies using StandardTrainer."""
         # Mocks
-        mocker.patch('logic.src.pipeline.reinforcement_learning.core.trainers.tqdm', side_effect=lambda x, **kwargs: x)
+        mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce.tqdm', side_effect=lambda x, **kwargs: x)
         mocker.patch('time.time', return_value=0.0)
         # Mock dependencies used by train_day
-        mocker.patch('logic.src.pipeline.reinforcement_learning.core.trainers.prepare_batch', return_value={})
-        mock_complete = mocker.patch('logic.src.pipeline.reinforcement_learning.core.trainers.complete_train_pass', return_value=None)
+        mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce.prepare_batch', return_value={})
+        mock_complete = mocker.patch('logic.src.pipeline.reinforcement_learning.core.base.complete_train_pass', return_value=None)
         
         # Configure mock model to work during train_batch inside train_day loop
         mock_train_model.return_value = (torch.tensor(0.0, requires_grad=True), torch.zeros(2), {}, torch.zeros(2,2), torch.tensor(0.0))
@@ -220,7 +229,7 @@ class TestReinforce:
         cost_weights = {}
         
         # Create Trainer
-        from logic.src.pipeline.reinforcement_learning.core.trainers import StandardTrainer
+        from logic.src.pipeline.reinforcement_learning.core.reinforce import StandardTrainer
         trainer = StandardTrainer(
             mock_train_model, mock_optimizer, mock_baseline, None, None, 
             val_dataset, 'vrpp', None, cost_weights, opts
@@ -236,12 +245,16 @@ class TestReinforce:
 
     def test_mrl_cb_update(self, mocker, mock_train_model, mock_optimizer, mock_baseline):
         """Verify train_reinforce_over_time_cb delegates to ContextualBanditTrainer."""
-        mock_trainer_cls = mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce.ContextualBanditTrainer')
+        mock_trainer_cls = mocker.patch('logic.src.pipeline.reinforcement_learning.worker_train.ContextualBanditTrainer')
         mock_trainer = mock_trainer_cls.return_value
+        mocker.patch('logic.src.pipeline.reinforcement_learning.core.epoch.torch.save')
         
-        opts = {'mrl_method': 'cb', 'epoch_start': 0}
-        reinforce.train_reinforce_over_time_cb(
-            mock_train_model, mock_optimizer, mock_baseline, None, None, None, None, None, {}, opts
+        opts = {'mrl_method': 'cb', 'epoch_start': 0, 'n_epochs': 1, 'baseline': 'rollout', 'epoch_size': 10, 'data_distribution': 'const', 'batch_size': 2, 'graph_size': 20, 'distance_method': 'euclidean', 'vertex_method': 'center', 'area': 1.0, 'problem': 'vrpp', 'edge_threshold': 0, 'edge_method': None, 'focus_size': 0, 'train_time': True, 'run_name': 'test', 'waste_type': 'organic', 'focus_graph': None, 'dm_filepath': None, 'no_tensorboard': True, 'temporal_horizon': 0, 'train_dataset': None, 'no_progress_bar': True, 'checkpoint_epochs': 0, 'save_dir': '.', 'val_size': 0}
+        cost_weights = {'weight1': 1.0}
+        mock_problem = MagicMock()
+        mock_problem.make_dataset.return_value = MagicMock()
+        train_reinforce_over_time_cb(
+            mock_train_model, mock_optimizer, mock_baseline, None, None, None, mock_problem, None, cost_weights, opts
         )
         
         mock_trainer_cls.assert_called_once()
@@ -249,12 +262,16 @@ class TestReinforce:
 
     def test_train_reinforce_over_time(self, mocker, mock_train_model, mock_optimizer, mock_baseline):
         """Verify train_reinforce_over_time delegates to TimeTrainer."""
-        mock_trainer_cls = mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce.TimeTrainer')
+        mock_trainer_cls = mocker.patch('logic.src.pipeline.reinforcement_learning.worker_train.TimeTrainer')
         mock_trainer = mock_trainer_cls.return_value
+        mocker.patch('logic.src.pipeline.reinforcement_learning.core.epoch.torch.save')
         
-        opts = {'epoch_start': 0}
-        reinforce.train_reinforce_over_time(
-            mock_train_model, mock_optimizer, mock_baseline, None, None, None, None, None, {}, opts
+        mock_problem = MagicMock()
+        mock_problem.make_dataset.return_value = MagicMock()
+        
+        opts = {'epoch_start': 0, 'epoch_size': 10, 'data_distribution': 'const', 'problem': 'vrpp', 'n_epochs': 1, 'train_time': True, 'run_name': 'test', 'batch_size': 2, 'no_tensorboard': True, 'baseline': 'rollout', 'train_dataset': None, 'graph_size': 20, 'distance_method': 'euclidean', 'vertex_method': 'center', 'area': 1.0, 'edge_threshold': 0, 'edge_method': None, 'focus_size': 0, 'waste_type': 'organic', 'focus_graph': None, 'dm_filepath': None, 'temporal_horizon': 0, 'no_progress_bar': True, 'checkpoint_epochs': 0, 'save_dir': '.', 'val_size': 0}
+        train_reinforce_over_time(
+            mock_train_model, mock_optimizer, mock_baseline, None, None, None, mock_problem, None, {}, opts
         )
         
         mock_trainer_cls.assert_called_once()
@@ -262,12 +279,16 @@ class TestReinforce:
 
     def test_train_over_time_with_hypernetwork(self, mocker, mock_train_model, mock_optimizer, mock_baseline):
         """Verify train_over_time_with_hypernetwork delegates to HyperNetworkTrainer."""
-        mock_trainer_cls = mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce.HyperNetworkTrainer')
+        mock_trainer_cls = mocker.patch('logic.src.pipeline.reinforcement_learning.worker_train.HyperNetworkTrainer')
         mock_trainer = mock_trainer_cls.return_value
+        mocker.patch('logic.src.pipeline.reinforcement_learning.core.epoch.torch.save')
         
-        opts = {'use_hypernetwork': True, 'epoch_start': 0}
-        reinforce.train_over_time_with_hypernetwork(
-            mock_train_model, mock_optimizer, mock_baseline, None, None, None, None, None, {}, opts
+        mock_problem = MagicMock()
+        mock_problem.make_dataset.return_value = MagicMock()
+        
+        opts = {'use_hypernetwork': True, 'epoch_start': 0, 'epoch_size': 10, 'device': 'cpu', 'n_epochs': 1, 'problem': 'vrpp', 'baseline': 'rollout', 'train_time': True, 'run_name': 'test', 'data_distribution': 'const', 'no_tensorboard': True, 'batch_size': 2, 'train_dataset': None, 'graph_size': 20, 'distance_method': 'euclidean', 'vertex_method': 'center', 'area': 1.0, 'edge_threshold': 0, 'edge_method': None, 'focus_size': 0, 'waste_type': 'organic', 'focus_graph': None, 'dm_filepath': None, 'temporal_horizon': 0, 'no_progress_bar': True, 'checkpoint_epochs': 0, 'save_dir': '.', 'val_size': 0}
+        train_over_time_with_hypernetwork(
+            mock_train_model, mock_optimizer, mock_baseline, None, None, None, mock_problem, None, {}, opts
         )
         
         mock_trainer_cls.assert_called_once()
@@ -368,3 +389,55 @@ class TestPostProcessing:
         assert isinstance(pp_model, post_processing.EfficiencyOptimizer)
 
 
+
+class TestPPO:
+    """Tests for PPO Trainer implementation."""
+
+    def test_ppo_step(self, mock_ppo_deps):
+        """Verify PPOTrainer execution step."""
+        from logic.src.pipeline.reinforcement_learning.core.ppo import PPOTrainer
+        
+        # Setup opts
+        opts = {
+            'rl_algorithm': 'ppo',
+            'train_time': True,
+            'device': torch.device('cpu'),
+            'no_progress_bar': True,
+            'ppo_epochs': 3,
+            'ppo_eps_clip': 0.2,
+            'ppo_mini_batch_size': 2,
+            'batch_size': 2, # Match dataset size/batching
+            # Trainer needs these
+            'epoch_start': 0,
+            'model': 'am',
+            'temporal_horizon': 0,
+            'focus_graph': None,
+            'encoder': 'gat',
+            'accumulation_steps': 1
+        }
+        
+        deps = mock_ppo_deps
+        
+        trainer = PPOTrainer(
+            deps['model'], 
+            deps['optimizer'], 
+            deps['baseline'], 
+            None, # lr_scheduler
+            None, # scaler
+            deps['val_dataset'], 
+            deps['problem'], 
+            None, # tb_logger
+            {'cost': 1.0}, # cost_weights
+            opts
+        )
+        trainer.training_dataset = deps['training_dataset']
+        trainer.step = 0
+        
+        # Test generic training day
+        # Should call train_day_ppo -> train_batch -> update_ppo
+        trainer.train_day()
+        
+        # Basic assertions
+        # train_batch called (implied by execution success)
+        # optimizer step called
+        assert deps['optimizer'].step.call_count >= 1
