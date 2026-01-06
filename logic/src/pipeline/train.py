@@ -25,7 +25,7 @@ from logic.src.utils.setup_utils import (
     setup_optimizer_and_lr_scheduler
 )
 from logic.src.pipeline.reinforcement_learning.core.epoch import validate
-from logic.src.pipeline.reinforcement_learning.core.reinforce import (
+from logic.src.pipeline.reinforcement_learning.worker_train import (
     train_reinforce_epoch, train_reinforce_over_time, 
     train_reinforce_over_time_cb, train_reinforce_over_time_tdl, 
     train_reinforce_over_time_morl, train_reinforce_over_time_rwa,

@@ -1339,3 +1339,55 @@ def pytest_sessionfinish(session, exitstatus):
                     os.remove(artifact_path)
             except Exception:
                 pass
+
+@pytest.fixture
+def mock_ppo_deps(mocker):
+    """
+    Fixture providing mocks specifically for PPO training tests.
+    Returns a dictionary containing mock objects for trainer initialization.
+    """
+    # Mock Model with PPO-specific return values
+    mock_model = MagicMock()
+    # forward returns: cost, ll, cost_dict, pi, entropy
+    mock_model.return_value = (
+        torch.tensor([1.0, 1.0]), # cost
+        torch.tensor([-1.0, -1.0], requires_grad=True), # ll
+        {}, # cost_dict
+        torch.tensor([[0, 1], [0, 1]]), # pi
+        torch.tensor([0.5, 0.5]) # entropy
+    )
+    mock_model.to = lambda x: mock_model
+
+    # Mock Optimizer and Baseline
+    mock_optimizer = MagicMock()
+    mock_baseline = MagicMock()
+    # Baseline mocks
+    mock_baseline.wrap_dataset = lambda x: x
+    mock_baseline.unwrap_batch = lambda x: (x, None)
+    mock_baseline.eval.return_value = torch.tensor([1.0, 1.0])
+
+    # Mock Problem
+    mock_problem = MagicMock()
+    mock_problem.NAME = 'cwcvrp'
+    mock_problem.get_costs.return_value = (torch.tensor([1.0, 1.0]), {}, None)
+
+    # Mock Dataset
+    dataset_list = [
+        {'loc': torch.rand(10, 2), 'demand': torch.rand(10), 
+         'hrl_mask': torch.zeros(10, 10), 'full_mask': torch.zeros(10, 11)} 
+        for _ in range(4)
+    ]
+    mock_dataset = MagicMock()
+    mock_dataset.__getitem__ = lambda self, idx: dataset_list[idx]
+    mock_dataset.__len__ = lambda self: len(dataset_list)
+    mock_dataset.dist_matrix = None
+    mock_dataset.has_dist = False
+
+    return {
+        'model': mock_model,
+        'optimizer': mock_optimizer,
+        'baseline': mock_baseline,
+        'problem': mock_problem,
+        'training_dataset': mock_dataset,
+        'val_dataset': []
+    }

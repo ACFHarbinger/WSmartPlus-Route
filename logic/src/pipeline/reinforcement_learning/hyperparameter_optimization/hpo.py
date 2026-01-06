@@ -30,7 +30,7 @@ from logic.src.utils.setup_utils import (
 )
 from logic.src.pipeline.reinforcement_learning.core.epoch import set_decode_type, get_inner_model
 from logic.src.pipeline.simulator.network import compute_distance_matrix
-from logic.src.pipeline.reinforcement_learning.core.reinforce import (
+from logic.src.pipeline.reinforcement_learning.worker_train import (
     train_reinforce_epoch, train_reinforce_over_time
 )
 from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb import (
