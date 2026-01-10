@@ -283,11 +283,6 @@ class TimeTrainer(StandardTrainer):
         self.gamma = opts.get('gamma', 0.99) 
 
     def initialize_training_dataset(self):
-        dset = self.problem.make_dataset(
-            size=self.opts['epoch_size'],
-            num_samples=self.opts['epoch_size'],
-            distribution=self.opts['data_distribution']
-        )
         step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(
             self.optimizer, self.day, self.problem, self.tb_logger, self.cost_weights, self.opts
         )
