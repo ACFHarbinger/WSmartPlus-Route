@@ -147,7 +147,7 @@ if [ "$RUN_TSP" -eq 0 ]; then
     --gapik_file "$GOOGLE_API_FILE" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" --dm "$DIST_METHOD" \
     --waste_filepath "$WASTE_PATH" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" \
     --gate_prob_threshold $GATE_PROB_THRESHOLD --mask_prob_threshold $MASK_PROB_THRESHOLD \
-    --spatial_bias --two_opt_max_iter $TWO_OPT_MAX_ITER --config_path "${CONFIG_PATH_ARGS[@]}";
+    --two_opt_max_iter $TWO_OPT_MAX_ITER --config_path "${CONFIG_PATH_ARGS[@]}";
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi
@@ -165,7 +165,7 @@ else
     --gapik_file "$GOOGLE_API_FILE" --waste_filepath "$WASTE_PATH" --symkey_name "$SYM_KEY" --dm_filepath "$DM_PATH" \
     --days "$N_DAYS" --cpd "$CHECKPOINTS" --stats_filepath "$STATS_PATH" --model_path "${MODEL_PATH_ARGS[@]}" \
     --gate_prob_threshold $GATE_PROB_THRESHOLD --mask_prob_threshold $MASK_PROB_THRESHOLD \
-    --spatial_bias --two_opt_max_iter $TWO_OPT_MAX_ITER --config_path "${CONFIG_PATH_ARGS[@]}";
+    --two_opt_max_iter $TWO_OPT_MAX_ITER --config_path "${CONFIG_PATH_ARGS[@]}";
     if [ "$VERBOSE" = false ]; then
         exec >/dev/null 2>&1
     fi
