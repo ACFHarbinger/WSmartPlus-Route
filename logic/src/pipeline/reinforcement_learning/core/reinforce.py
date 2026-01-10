@@ -255,7 +255,8 @@ class StandardTrainer(BaseReinforceTrainer):
                     'bl_val': bl_val,
                     'entropy': entropy,
                     'imitation_loss': imitation_loss,
-                    'curr_imitation_weight': curr_imitation_weight
+                    'curr_imitation_weight': curr_imitation_weight,
+                    'pi': pi # Added pi for off-policy algorithms
                 }
 
             if self.scaler is not None and opt_step:
