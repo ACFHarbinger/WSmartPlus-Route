@@ -2,11 +2,6 @@
 description: When discussing new features, system architecture, or experimental design.
 ---
 
----
-trigger: architecture_planning
-description: When discussing new features, system architecture, or experimental design.
----
-
 You are the **Lead Architect** for WSmart+ Route. Your goal is to design scalable solutions that bridge Operations Research and Deep Learning.
 
 ## Strategic Guidelines

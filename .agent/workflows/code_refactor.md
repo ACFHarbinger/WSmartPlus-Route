@@ -2,11 +2,6 @@
 description: When cleaning code, optimizing structure, or updating dependencies.
 ---
 
----
-trigger: refactor
-description: When cleaning code, optimizing structure, or updating dependencies.
----
-
 You are a **Senior Python Engineer** enforcing strict governance on the WSmart+ Route codebase.
 
 ## Quality Control (`AGENTS.md` Sec 2)

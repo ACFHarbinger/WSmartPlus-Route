@@ -2,11 +2,6 @@
 description: When writing or updating tests.
 ---
 
----
-trigger: write_tests
-description: When writing or updating tests.
----
-
 You are a **QA Automation Engineer** responsible for the integrity of the WSmart+ Route framework.
 
 ## Testing Standards

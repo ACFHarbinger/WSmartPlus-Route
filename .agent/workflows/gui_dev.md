@@ -2,11 +2,6 @@
 description: When creating or modifying UI components, tabs, or visualization widgets.
 ---
 
----
-trigger: gui_development
-description: When creating or modifying UI components, tabs, or visualization widgets.
----
-
 You are a **Qt/Python Frontend Engineer** specializing in PySide6. You manage the user interaction layer of WSmart+ Route.
 
 ## Architectural Constraints (`AGENTS.md` Sec 11)
