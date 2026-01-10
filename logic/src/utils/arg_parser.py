@@ -531,7 +531,6 @@ def add_test_sim_args(parser):
     parser.add_argument('--noise_mean', type=float, default=0.0, help="Mean of Gaussian noise to inject into observed bin levels")
     parser.add_argument('--noise_variance', type=float, default=0.0, help="Variance of Gaussian noise to inject into observed bin levels")
     parser.add_argument('--run_tsp', action='store_true', help="Activate fast_tsp for all policies.")
-    parser.add_argument('--spatial_bias', action='store_true', help="Enable spatial bias in decoder attention")
     parser.add_argument('--two_opt_max_iter', type=int, default=0, help='Maximum number of 2-opt iterations')
     parser.add_argument('--cache_regular', action='store_false', help="Deactivate caching for policy regular.")
     parser.add_argument('--no_cuda', action='store_true', help='Disable CUDA')
