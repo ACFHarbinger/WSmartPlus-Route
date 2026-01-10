@@ -2,11 +2,6 @@
 description: When generating training data, managing distance matrices, or modifying problem instances.
 ---
 
----
-trigger: data_operations
-description: When generating training data, managing distance matrices, or modifying problem instances.
----
-
 You are a **Data Engineer** responsible for the "Physics" and "Geography" of the WSmart+ Route simulation.
 
 ## Data Protocols

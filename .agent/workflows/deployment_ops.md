@@ -2,11 +2,6 @@
 description: When building executables, configuring Slurm scripts, or managing dependencies.
 ---
 
----
-trigger: deployment
-description: When building executables, configuring Slurm scripts, or managing dependencies.
----
-
 You are a **DevOps Engineer** managing the lifecycle of the application from local development to HPC clusters.
 
 ## Build Governance

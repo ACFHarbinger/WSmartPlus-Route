@@ -4,14 +4,22 @@ from logic.src.pipeline.reinforcement_learning.core.reinforce import (
     TimeTrainer
 )
 from logic.src.pipeline.reinforcement_learning.core.ppo import PPOTrainer
+from logic.src.pipeline.reinforcement_learning.core.sapo import SAPOTrainer
 
 
 def train_reinforce_epoch(model, optimizer, baseline, lr_scheduler, scaler, epoch, val_dataset, problem, tb_logger, cost_weights, opts):
     """
     Wrapper for running a single epoch of standard training.
     """
-    trainer = StandardTrainer(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
+    if opts.get('rl_algorithm') == 'ppo':
+        trainer = PPOTrainer(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
+    elif opts.get('rl_algorithm') == 'sapo':
+        trainer = SAPOTrainer(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
+    else:
+        trainer = StandardTrainer(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
+    
     trainer.day = epoch # Set current epoch context
+    trainer.initialize_training_dataset() # Initialize dataset for this epoch
     trainer.update_context() # Prepare dataset
     trainer.train_day() # Run training
     trainer.post_day_processing()
@@ -69,6 +77,10 @@ def train_reinforce_over_time(model, optimizer, baseline, lr_scheduler, scaler, 
         return train_reinforce_over_time_hrl(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
     elif opts.get('rl_algorithm') == 'ppo':
         trainer = PPOTrainer(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
+        trainer.train()
+        return model, None
+    elif opts.get('rl_algorithm') == 'sapo':
+        trainer = SAPOTrainer(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         trainer.train()
         return model, None
     else:

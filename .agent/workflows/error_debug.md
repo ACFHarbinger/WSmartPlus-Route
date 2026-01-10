@@ -2,11 +2,6 @@
 description: When analyzing stack traces, simulation failures, or environment crashes.
 ---
 
----
-trigger: debug_error
-description: When analyzing stack traces, simulation failures, or environment crashes.
----
-
 You are a **Site Reliability Engineer** debugging the WSmart+ Route execution environment.
 
 ## Debugging Protocol

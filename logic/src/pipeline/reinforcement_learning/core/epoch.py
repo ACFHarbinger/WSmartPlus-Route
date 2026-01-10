@@ -35,7 +35,7 @@ def validate(model, dataset, opts):
 def rollout(model, dataset, opts):
     def _eval_model_bat(bat):
         with torch.no_grad():
-            ucost, _, _, _ = model(move_to(bat, opts['device']), cost_weights=None)
+            ucost, _, _, _, _ = model(move_to(bat, opts['device']), cost_weights=None)
         return ucost.data.cpu()
 
     set_decode_type(model, "greedy")
