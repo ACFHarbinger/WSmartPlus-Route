@@ -74,6 +74,7 @@ class Bins:
                 self.waste_fills = pickle.load(file)
         else:
             self.waste_fills = None
+        self.noisy_waste_fills = None
 
     def __get_stdev(self):
         if self.day_count > 1:
@@ -127,11 +128,20 @@ class Bins:
             self.indices = list(range(self.n))
 
     def set_sample_waste(self, sample_id):
-        self.waste_fills = self.waste_fills[sample_id]
+        # Check if the data contains both real and noisy values
+        if isinstance(self.waste_fills[sample_id], (list, tuple)) and len(self.waste_fills[sample_id]) == 2:
+            self.noisy_waste_fills = self.waste_fills[sample_id][1]
+            self.waste_fills = self.waste_fills[sample_id][0]
+        else:
+            self.waste_fills = self.waste_fills[sample_id]
+            
         if self.start_with_fill: 
             self.real_c = self.waste_fills[0].copy()
-            noise = np.random.normal(self.noise_mean, np.sqrt(self.noise_variance), self.n) if self.noise_variance > 0 else np.zeros(self.n)
-            self.c = np.clip(self.real_c + noise, 0, 100)
+            if self.noisy_waste_fills is not None:
+                self.c = self.noisy_waste_fills[0].copy()
+            else:
+                noise = np.random.normal(self.noise_mean, np.sqrt(self.noise_variance), self.n) if self.noise_variance > 0 else np.zeros(self.n)
+                self.c = np.clip(self.real_c + noise, 0, 100)
             self.level_history.append(self.c.copy())
 
     def collect(self, idsfull, cost=0):
@@ -166,7 +176,7 @@ class Bins:
         self.profit += profit 
         return total_collected, np.sum(collected), ids.size, profit
     
-    def _process_filling(self, todaysfilling):
+    def _process_filling(self, todaysfilling, noisyfilling=None):
         """
         Processes the filling data, handles overflows, updates state variables, 
         and calculates returns.
@@ -182,7 +192,9 @@ class Bins:
         self.real_c = np.minimum(self.real_c + todaysfilling, 100)
         
         # Inject noise into observed c
-        if self.noise_variance > 0:
+        if noisyfilling is not None:
+            self.c = np.minimum(self.c + noisyfilling, 100)
+        elif self.noise_variance > 0:
             noise = np.random.normal(self.noise_mean, np.sqrt(self.noise_variance), self.n)
             self.c = np.clip(self.real_c + noise, 0, 100)
         else:
@@ -213,7 +225,10 @@ class Bins:
     
     def loadFilling(self, day):
         todaysfilling = self.waste_fills[day] if self.start_with_fill else self.waste_fills[day-1]
-        return self._process_filling(todaysfilling)
+        noisyfilling = None
+        if self.noisy_waste_fills is not None:
+            noisyfilling = self.noisy_waste_fills[day] if self.start_with_fill else self.noisy_waste_fills[day-1]
+        return self._process_filling(todaysfilling, noisyfilling)
 
     def __setDistribution(self, param1, param2):
         if len(param1)==1:

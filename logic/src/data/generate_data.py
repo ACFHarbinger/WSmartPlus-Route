@@ -108,7 +108,10 @@ def generate_datasets(opts):
                         # Verify what generate_wsr_data returned. It returned just the waste list.
                         # VRPInstanceBuilder returns list of (depot, loc, waste, max_waste).
                         # We extract waste (index 2).
-                        dataset = [x[2] for x in full_dataset]
+                        if len(full_dataset[0]) == 5:
+                            dataset = [(x[2], x[3]) for x in full_dataset]
+                        else:
+                            dataset = [x[2] for x in full_dataset]
                         
                         save_dataset(dataset, filename)
 
