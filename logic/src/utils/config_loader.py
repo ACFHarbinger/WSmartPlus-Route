@@ -1,3 +1,11 @@
+"""
+Configuration loading utilities.
+
+This module provides functions for:
+- Loading YAML configuration files.
+- Loading XML configuration files and converting them to dictionaries.
+"""
+
 import os
 import yaml
 import xml.etree.ElementTree as ET
@@ -41,6 +49,15 @@ def load_xml_config(config_path: str) -> dict:
         root = tree.getroot()
 
         def xml_to_dict(element):
+            """
+            Helper to convert XML element to dictionary.
+
+            Args:
+                element: The XML element.
+
+            Returns:
+                dict or list or str/int/float: The parsed data.
+            """
             # Helper to convert XML element to dictionary
             if len(element) == 0:
                 try:

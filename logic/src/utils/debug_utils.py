@@ -1,16 +1,15 @@
-import sys
-import traceback
-
-from types import FrameType
-from typing import Any, Callable, Optional
-
-
 """
 Debugging utilities for the WSmart+ Route framework.
 
 This module provides tools for monitoring runtime state, including:
 - Variable watching (tracing value changes).
 """
+
+import sys
+import traceback
+
+from types import FrameType
+from typing import Any, Callable, Optional
 
 
 def watch(
@@ -36,6 +35,14 @@ def watch(
     if active_callback is None:
 
         def default_callback(old, new, frame):
+            """
+            Default callback for the tracer.
+
+            Args:
+                old: Old value.
+                new: New value.
+                frame: Current stack frame.
+            """
             stack = traceback.extract_stack(frame)[:-1]
             caller = stack[-1]
             print(f"DEBUG → {var_name}: {old} → {new}")
@@ -46,6 +53,17 @@ def watch(
     old_value = [None]
 
     def tracer(frame: FrameType, event: str, arg) -> Callable:
+        """
+        Trace function for sys.settrace.
+
+        Args:
+            frame: Stack frame.
+            event: Event type.
+            arg: Argument.
+
+        Returns:
+            The tracer function.
+        """
         if event != "line":
             return tracer
         if frame is not caller_frame:
@@ -68,8 +86,8 @@ def watch(
         try:
             initial = caller_frame.f_globals[var_name]
         except KeyError:
-            raise NameError(f"Name '{var_name}' not found in locals or globals")
+            raise NameError(f"Variable '{var_name}' not found in local or global scope")
 
     old_value[0] = initial
-    caller_frame.f_trace = tracer
     sys.settrace(tracer)
+    print(f"Watching variable: '{var_name}' (Initial: {initial})")

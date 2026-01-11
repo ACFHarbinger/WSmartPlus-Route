@@ -1,3 +1,13 @@
+"""
+Logging utilities for training, evaluation, and simulation.
+
+This module provides tools for:
+- Configuring WandB logging.
+- Creating and managing log directories.
+- Logging metrics (scalar, histograms, heatmaps).
+- Aggregating and visualizing log data.
+"""
+
 import os
 import json
 import wandb
@@ -14,17 +24,6 @@ from collections import Counter
 from logic.src.utils.definitions import DAY_METRICS
 from logic.src.utils.io_utils import read_json, compose_dirpath
 
-
-"""
-Logging utilities for training, evaluation, and simulation.
-
-This module provides functions for:
-- Logging training metrics (cost, loss, gradients) to TensorBoard and WandB.
-- Summarizing epoch and validation statistics.
-- Visualizing loss curves with Matplotlib.
-- Saving simulation logs to JSON and Pickle formats.
-- Interfacing with the GUI for real-time visualization updates.
-"""
 
 
 def log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts):

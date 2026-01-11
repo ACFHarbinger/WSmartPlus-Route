@@ -1,3 +1,13 @@
+"""
+Visualization utilities for the routing problems.
+
+This module provides functions for:
+- Visualizing routing solutions and graphs.
+- Plotting loss landscapes (if used).
+- Creating PCA visualizations of embeddings.
+- Interfacing with TensorBoard for visual logging.
+"""
+
 import os
 import torch
 import argparse
@@ -68,6 +78,7 @@ class MyModelWrapper(torch.nn.Module):
     """
 
     def __init__(self, model):
+        """Initializes the wrapper."""
         super().__init__()
         self.model = model
 
@@ -80,6 +91,7 @@ class MyModelWrapper(torch.nn.Module):
         mask=None,
         expert_pi=None,
     ):
+        """Forward pass of the model."""
         return self.model(input, cost_weights, return_pi, pad, mask, expert_pi)
 
 
@@ -408,6 +420,7 @@ def plot_loss_landscape(
     print("Computing Imitation Landscape...")
 
     def imitation_metric(m):
+        """Computes imitation loss for the current model state."""
         return imitation_loss_fn(m, x_batch, pi_target)
 
     try:
@@ -441,6 +454,7 @@ def plot_loss_landscape(
     print("Computing RL Cost Landscape...")
 
     def rl_metric(m):
+        """Computes RL cost for the current model state."""
         return rl_loss_fn(m, x_batch)
 
     try:
@@ -550,6 +564,7 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
 
 
 def main():
+    """Main execution entry point for visualization debugging."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", type=str, help="Path to model checkpoint")
     parser.add_argument(

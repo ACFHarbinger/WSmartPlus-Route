@@ -1,3 +1,13 @@
+"""
+Data utility functions for the WSmart+ Route framework.
+
+This module provides tools for:
+- Saving and loading datasets (pickle format).
+- Data collators for PyTorch DataLoaders.
+- Loading and processing graph coordinates and waste data.
+- Generating synthetic waste levels and prize distributions.
+"""
+
 import os
 import json
 import math
@@ -8,17 +18,6 @@ import numpy as np
 from logic.src.utils.functions import get_path_until_string
 from logic.src.pipeline.simulator.loader import load_depot, load_simulator_data
 from logic.src.pipeline.simulator.processor import process_data, process_coordinates
-
-
-"""
-Data utility functions for the WSmart+ Route framework.
-
-This module provides tools for:
-- Saving and loading datasets (pickle format).
-- Data collators for PyTorch DataLoaders.
-- Loading and processing graph coordinates and waste data.
-- Generating synthetic waste levels and prize distributions.
-"""
 
 
 def check_extension(filename):
@@ -153,6 +152,16 @@ def _get_fill_gamma(dataset_size, problem_size, gamma_option):
     """
 
     def __set_distribution_param(size, param):
+        """
+        Sets a distribution parameter if not already present.
+
+        Args:
+            size (int): Size to match.
+            param (list): Parameter list.
+
+        Returns:
+            list: Adjusted parameter list.
+        """
         param_len = len(param)
         if size == param_len:
             return param
