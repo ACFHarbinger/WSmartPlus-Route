@@ -16,10 +16,6 @@ Key Functions:
       corresponding execution logic.
 """
 
-import warnings
-warnings.filterwarnings("ignore", category=FutureWarning, 
-    message="jax.tree_util.register_keypaths is deprecated")
-
 import io
 import os
 import sys
@@ -45,6 +41,10 @@ from logic.src.pipeline.train import (
 from logic.src.data.generate_data import generate_datasets
 from logic.src.utils.arg_parser import parse_params 
 from gui.src.app import run_app_gui, launch_results_window
+
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, 
+    message="jax.tree_util.register_keypaths is deprecated")
 
 
 def run_test_suite(opts):
