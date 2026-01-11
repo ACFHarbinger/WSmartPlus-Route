@@ -1,3 +1,15 @@
+"""
+Vectorized Hybrid Genetic Search (HGS) Policy.
+
+This module implements a vectorized version of the Hybrid Genetic Search algorithm for
+Vehicle Routing Problems (VRP), optimized for GPU execution using PyTorch.
+
+It includes:
+- `vectorized_linear_split`: Split-based decoding of giant tours.
+- Vectorized local search operators (Swap, Relocate, 2-Opt*).
+- `VectorizedPopulation`: Management of the genetic population.
+- `VectorizedHGS`: The main solver class.
+"""
 import torch
 import time
 
@@ -92,6 +104,22 @@ def vectorized_linear_split(giant_tours, dist_matrix, demands, vehicle_capacity,
 def _vectorized_split_limited(B, N, device, max_vehicles, capacity, cum_load, cum_dist_pad, d_0_i, d_i_0, giant_tours):
     """
     Limited split using K-step updates (like K shortest path layers).
+    Constrains the solution to use at most `max_vehicles` routes.
+
+    Args:
+        B (int): Batch size.
+        N (int): Number of nodes.
+        device: Torch device.
+        max_vehicles (int): Maximum number of vehicles allowed.
+        capacity (float): Vehicle capacity.
+        cum_load (torch.Tensor): Cumulative load tensor.
+        cum_dist_pad (torch.Tensor): Cumulative distance tensor (padded).
+        d_0_i (torch.Tensor): Distance from depot to nodes.
+        d_i_0 (torch.Tensor): Distance from nodes to depot.
+        giant_tours (torch.Tensor): Giant tour indices.
+
+    Returns:
+        tuple: (routes_batch, costs)
     """
     # Precompute Cost Matrix for all i, j? 
     # Or batched operations?
@@ -247,6 +275,19 @@ def _vectorized_split_limited(B, N, device, max_vehicles, capacity, cum_load, cu
 
 
 def _reconstruct_routes(B, N, giant_tours, P, costs):
+    """
+    Reconstructs the routes from the predecessor matrix P obtained from the Split algorithm.
+
+    Args:
+        B (int): Batch size.
+        N (int): Number of nodes.
+        giant_tours (torch.Tensor): Giant tour indices.
+        P (torch.Tensor): Predecessor matrix (B, N+1).
+        costs (torch.Tensor): Costs vector (B,).
+
+    Returns:
+        tuple: (list of routes per batch item, costs)
+    """
     routes_batch = []
     P_cpu = P.cpu().numpy()
     giant_tours_cpu = giant_tours.cpu().numpy()
@@ -277,6 +318,20 @@ def _reconstruct_routes(B, N, giant_tours, P, costs):
 
 
 def _reconstruct_limited(B, N, giant_tours, P_k, best_k, costs):
+    """
+    Reconstructs routes for the limited vehicle split algorithm.
+
+    Args:
+        B (int): Batch size.
+        N (int): Number of nodes.
+        giant_tours (torch.Tensor): Giant tour indices.
+        P_k (torch.Tensor): Predecessor matrix with k dimension (B, max_k + 1, N + 1).
+        best_k (torch.Tensor): Index of the best number of vehicles used for each batch item.
+        costs (torch.Tensor): Costs vector.
+
+    Returns:
+        tuple: (list of routes, costs)
+    """
     routes_batch = []
     P_cpu = P_k.cpu().numpy()
     k_cpu = best_k.cpu().numpy()
@@ -452,6 +507,15 @@ def calc_broken_pairs_distance(population):
 def vectorized_swap(tours, dist_matrix, max_iterations=200):
     """
     Vectorized Swap operator.
+    Exchanges two nodes within the same route for multiple batch items simultaneously.
+
+    Args:
+        tours (torch.Tensor): Current tours (B, max_len).
+        dist_matrix (torch.Tensor): Distance matrix (B, N, N) or compatible broadcast shape.
+        max_iterations (int): Number of random swap attempts.
+
+    Returns:
+        torch.Tensor: Updated tours.
     """
     device = tours.device
     B, max_len = tours.shape
@@ -586,6 +650,15 @@ def vectorized_swap(tours, dist_matrix, max_iterations=200):
 def vectorized_relocate(tours, dist_matrix, max_iterations=200):
     """
     Vectorized Relocate operator. Moves a node to a new position.
+    Removes a node from its current position and re-inserts it elsewhere if it yields an improvement.
+
+    Args:
+        tours (torch.Tensor): Current tours (B, max_len).
+        dist_matrix (torch.Tensor): Distance matrix.
+        max_iterations (int): Number of attempts.
+
+    Returns:
+        torch.Tensor: Updated tours.
     """
     device = tours.device
     B, max_len = tours.shape
@@ -691,7 +764,15 @@ def vectorized_relocate(tours, dist_matrix, max_iterations=200):
 def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200):
     """
     Vectorized 2-opt* operator. (Tail Swap).
-    Exchanges tails of two different routes.
+    Exchanges tails of two different routes. Useful for improving solutions by reconnecting routes.
+
+    Args:
+        tours (torch.Tensor): Current tours (B, max_len).
+        dist_matrix (torch.Tensor): Distance matrix.
+        max_iterations (int): Number of attempts.
+
+    Returns:
+        torch.Tensor: Updated tours.
     """
     device = tours.device
     B, max_len = tours.shape
@@ -799,6 +880,15 @@ def vectorized_swap_star(tours, dist_matrix, max_iterations=100):
     """
     Vectorized Swap* operator.
     Exchanges u and v between different routes, re-inserting them at best positions.
+    This is a more powerful move that combines swapping nodes between routes with re-optimizing their insertion points.
+
+    Args:
+        tours (torch.Tensor): Current tours (B, max_len).
+        dist_matrix (torch.Tensor): Distance matrix.
+        max_iterations (int): Number of attempts.
+
+    Returns:
+        torch.Tensor: Updated tours.
     """
     device = tours.device
     B, max_len = tours.shape
@@ -930,11 +1020,21 @@ def vectorized_swap_star(tours, dist_matrix, max_iterations=100):
     return tours
 
 
-
-
-
-
 class VectorizedPopulation:
+    """
+    Manages a population of solutions for the HGS algorithm.
+
+    Handles:
+    - Storage of solutions (giant tours), costs, and fitness metrics.
+    - Diversity calculation (Broken Pairs Distance).
+    - Biased fitness computation (ranking by cost and diversity).
+    - Survivor selection.
+
+    Args:
+        size (int): Maximum population size.
+        device: Torch device.
+        alpha_diversity (float): Weight for diversity in biased fitness calculation.
+    """
     def __init__(self, size, device, alpha_diversity=0.5):
         self.max_size = size
         self.device = device
@@ -946,10 +1046,13 @@ class VectorizedPopulation:
         
     def initialize(self, initial_pop, initial_costs):
         """
+        Initializes the population with a set of starting solutions.
+
         Args:
-            initial_pop: (B, N) or (B, P0, N)
-            initial_costs: (B,) or (B, P0)
+            initial_pop (torch.Tensor): Initial solutions (giant tours). Shape (B, N) or (B, P0, N).
+            initial_costs (torch.Tensor): Costs of initial solutions. Shape (B,) or (B, P0).
         """
+
         if initial_pop.dim() == 2:
             initial_pop = initial_pop.unsqueeze(1) # (B, 1, N)
         
@@ -963,11 +1066,14 @@ class VectorizedPopulation:
         
     def add_individuals(self, candidates, costs):
         """
-        Merge new individuals and select survivors.
+        Merges new individuals into the population and selects survivors based on biased fitness.
+        Maintains the population size at or below `max_size`.
+
         Args:
-            candidates: (B, C, N)
-            costs: (B, C)
+            candidates (torch.Tensor): New solutions to add. Shape (B, C, N).
+            costs (torch.Tensor): Costs of new solutions. Shape (B, C).
         """
+
         if candidates.dim() == 2:
             candidates = candidates.unsqueeze(1)
             costs = costs.unsqueeze(1)
@@ -1010,9 +1116,12 @@ class VectorizedPopulation:
 
     def compute_biased_fitness(self):
         """
-        Compute Biased Fitness = Rank(Cost) + alpha * Rank(Diversity)
+        Computer Biased Fitness for all individuals in the population.
+        Biased Fitness = Rank(Cost) + alpha * Rank(Diversity).
         Lower is better for both ranks (0 is best).
+        Updates `self.biased_fitness` and `self.diversity_scores`.
         """
+
         B, P, N = self.population.size()
         
         # 1. Rank by Cost (Ascending: lower cost is better, Rank 0)
@@ -1033,9 +1142,15 @@ class VectorizedPopulation:
 
     def get_parents(self, n_offspring=1):
         """
-        Binary tournament selection.
-        Returns: parents1 (B, n_offspring, N), parents2 (B, n_offspring, N)
+        Selects parents for crossover using binary tournament selection based on biased fitness.
+
+        Args:
+            n_offspring (int): Number of offspring to produce (pairs of parents).
+
+        Returns:
+            tuple: (parents1, parents2). Both valid tensors of shape (B, n_offspring, N).
         """
+
         B, P, N = self.population.size()
         
         def tournament():
@@ -1054,6 +1169,18 @@ class VectorizedPopulation:
         return p1, p2
 
 class VectorizedHGS:
+    """
+    Main class for the Vectorized Hybrid Genetic Search (HGS) algorithm.
+    Orchestrates the evolution process, including initialization, selection, crossover,
+    local search (education), and survivor selection.
+
+    Args:
+        dist_matrix (torch.Tensor): Distance matrix.
+        demands (torch.Tensor): Demands tensor.
+        vehicle_capacity (float/torch.Tensor): Vehicle capacity.
+        time_limit (float): Time limit for the search in seconds.
+        device: Torch device.
+    """
     def __init__(self, dist_matrix, demands, vehicle_capacity, time_limit=1.0, device='cuda'):
         self.dist_matrix = dist_matrix
         self.demands = demands
@@ -1063,7 +1190,18 @@ class VectorizedHGS:
         
     def solve(self, initial_solutions, n_generations=50, population_size=10, elite_size=5, time_limit=None, max_vehicles=0):
         """
-        Run HGS starting from initial solutions (Expert Imitation Mode).
+        Runs the HGS algorithm starting from a set of initial solutions (Expert Imitation Mode).
+
+        Args:
+            initial_solutions (torch.Tensor): Initial solutions (giant tours) (B, N).
+            n_generations (int): Number of generations to run.
+            population_size (int): Size of the genetic population.
+            elite_size (int): Number of elite individuals to preserve during restarting.
+            time_limit (float, optional): Override time limit in seconds.
+            max_vehicles (int, optional): Maximum number of vehicles allowed (0 for unlimited).
+
+        Returns:
+            tuple: (best_routes, best_cost)
         """
         B, N = initial_solutions.size()
         start_time = time.time()

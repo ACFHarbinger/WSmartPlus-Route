@@ -1,3 +1,51 @@
+"""
+Neural Network-Based Meta-Learning for Reward Weight Optimization.
+
+This module implements a deep learning approach to meta-learning where an RNN model
+learns to predict optimal weight adjustments based on historical performance data.
+The approach treats weight optimization as a sequence-to-sequence learning problem.
+
+The neural meta-learner observes:
+    - Historical weight configurations
+    - Performance metrics (waste, overflows, distance)
+    - Achieved rewards
+
+And learns to predict:
+    - Weight adjustments that improve future performance
+    - Exploration strategies for new weight configurations
+    - Adaptation patterns for different problem characteristics
+
+Architecture:
+    - Input: Concatenated [weights, performance_metrics] sequences
+    - RNN Core: Captures temporal dependencies in weight-performance relationships
+    - Output: Weight adjustment vectors
+    - Loss: Weighted combination of reward prediction and exploration variance
+
+Classes:
+    RewardWeightOptimizer: RNN-based meta-learner for weight optimization
+
+Key Features:
+    - Automatic feature extraction from performance history
+    - Batch-based meta-learning updates
+    - Gradient clipping for training stability
+    - Bounded weight constraints
+    - Multiple optimizer support (Adam, AdamW, RAdam, etc.)
+
+Example:
+    optimizer = RewardWeightOptimizer(
+        model_class=MetaRNN,
+        initial_weights={'w_waste': 1.0, 'w_over': 2.0},
+        history_length=10,
+        hidden_size=64,
+        lr=0.001
+    )
+
+    # During training
+    weights = optimizer.propose_weights()
+    # ... run episode ...
+    optimizer.feedback(reward, metrics)
+"""
+
 import torch
 from logic.src.pipeline.reinforcement_learning.meta.weight_strategy import WeightAdjustmentStrategy
 

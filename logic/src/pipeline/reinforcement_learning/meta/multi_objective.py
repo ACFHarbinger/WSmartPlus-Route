@@ -1,3 +1,54 @@
+"""
+Multi-Objective Reinforcement Learning (MORL) Weight Optimizer.
+
+This module implements a Pareto-based approach to multi-objective optimization in
+reinforcement learning. Instead of using fixed weight combinations, it dynamically
+explores the Pareto front of solutions and adapts weights based on performance trends.
+
+The MORL approach addresses the fundamental challenge of balancing competing objectives:
+    - Waste Collection Efficiency (maximize waste collected per km traveled)
+    - Overflow Prevention (minimize bins exceeding capacity)
+    - Route Length Minimization (minimize total distance traveled)
+
+Key Concepts:
+    - Pareto Dominance: A solution dominates another if it's better in all objectives
+    - Pareto Front: Set of non-dominated solutions representing optimal trade-offs
+    - Reference Points: Representative solutions sampled from the Pareto front
+    - Adaptive Weight Selection: Dynamic adjustment based on performance trends
+
+Components:
+    1. ParetoSolution: Encapsulates a solution with its weights and objectives
+    2. ParetoFront: Maintains the non-dominated set with clustering-based pruning
+    3. MORLWeightOptimizer: Main strategy implementing exploration and exploitation
+
+Exploration Strategies:
+    - Random perturbation around current weights
+    - Selection from Pareto front reference points
+    - Trend-based adaptive weight adjustment
+
+Classes:
+    ParetoSolution: Represents a single solution on the Pareto front
+    ParetoFront: Maintains and prunes the set of non-dominated solutions
+    MORLWeightOptimizer: Main MORL weight adjustment strategy
+
+Example:
+    optimizer = MORLWeightOptimizer(
+        initial_weights={'w_waste': 1.0, 'w_over': 2.0, 'w_len': 0.5},
+        objective_names=['waste_efficiency', 'overflow_rate'],
+        exploration_factor=0.2,
+        adaptation_rate=0.1
+    )
+
+    # During training
+    weights = optimizer.propose_weights()
+    # ... run episode ...
+    optimizer.feedback(reward, metrics, day=day)
+
+    # Analyze results
+    df = optimizer.get_weight_history_dataframe()
+    optimizer.pareto_front.plot_front(save_path='pareto_front.png')
+"""
+
 import copy
 import numpy as np
 import pandas as pd

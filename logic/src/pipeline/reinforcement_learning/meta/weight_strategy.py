@@ -1,3 +1,22 @@
+"""
+Abstract Strategy Pattern for Weight Adjustment.
+
+This module defines the base interface for all weight adjustment strategies used in
+meta-learning. The WeightAdjustmentStrategy provides a common contract that ensures
+all implementations can be used interchangeably in the training pipeline.
+
+The strategy pattern allows the training orchestrator to be decoupled from the specific
+weight adjustment algorithm, enabling easy experimentation with different meta-learning
+approaches without modifying the core training logic.
+
+Classes:
+    WeightAdjustmentStrategy: Abstract base class defining the weight adjustment interface
+
+Design Pattern:
+    Strategy Pattern - defines a family of algorithms (weight adjustment strategies),
+    encapsulates each one, and makes them interchangeable.
+"""
+
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
