@@ -8,6 +8,12 @@ from logic.src.pipeline.simulator.processor import process_coordinates
 
 
 class VRPInstanceBuilder:
+    """
+    Builder pattern for creating Vehicle Routing Problem (VRP) instances.
+
+    This class provides a fluent interface to configure and generate VRP datasets
+    with various parameters such as problem size, distribution, area, and waste type.
+    """
     def __init__(self):
         self._dataset_size = 10
         self._problem_size = 20
@@ -23,49 +29,68 @@ class VRPInstanceBuilder:
         self._noise_variance = 0.0
 
     def set_dataset_size(self, size: int):
+        """Sets the number of instances to generate."""
         self._dataset_size = size
         return self
 
     def set_problem_size(self, size: int):
+        """Sets the number of nodes (graph size) for the problem."""
         self._problem_size = size
         return self
 
     def set_waste_type(self, waste_type: str):
+        """Sets the type of waste (e.g., 'plastic', 'paper')."""
         self._waste_type = waste_type
         return self
 
     def set_distribution(self, distribution: str):
+        """Sets the data distribution for generating waste levels."""
         self._distribution = distribution
         return self
 
     def set_area(self, area: str):
+        """Sets the geographical area for the problem instance."""
         self._area = area
         return self
 
     def set_focus_graph(self, focus_graph: str = None, focus_size: int = 0):
+        """Sets parameters for focusing on a specific subgraph."""
         self._focus_graph = focus_graph
         self._focus_size = focus_size
         return self
 
     def set_method(self, method: str):
+        """Sets the method used for vertex generation/selection."""
         self._method = method
         return self
 
     def set_num_days(self, num_days: int):
+        """Sets the number of simulation days."""
         self._num_days = num_days
         return self
     
     def set_problem_name(self, problem_name: str):
+        """Sets the name of the problem (e.g., 'vrpp', 'wcvrp')."""
         self._problem_name = problem_name
         return self
 
     def set_noise(self, mean: float, variance: float):
+        """Sets the mean and variance for noise injection."""
         self._noise_mean = mean
         self._noise_variance = variance
         return self
 
     def build(self):
-        """Generates the dataset based on configured parameters."""
+        """
+        Generates the dataset based on configured parameters.
+
+        Returns:
+            list: A list of problem instances, where each instance is a tuple containing:
+                  - depot (list): Coordinates of the depot.
+                  - loc (list): Coordinates of customer nodes.
+                  - waste (list): Waste levels (or demand) for nodes.
+                  - max_waste (float): Maximum capacity or waste limit.
+        """
         if self._focus_graph is not None:
             assert self._focus_size > 0, "Focus size must be positive when using focus graph"
             
