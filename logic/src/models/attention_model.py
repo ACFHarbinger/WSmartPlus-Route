@@ -1,3 +1,6 @@
+"""
+This module contains the Attention Model implementation for solving Vehicle Routing Problems.
+"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -9,6 +12,13 @@ from logic.src.models.model_factory import NeuralComponentFactory
 
 
 class AttentionModel(nn.Module):
+    """
+    Attention Model for Vehicle Routing Problems.
+    
+    This model uses an Encoder-Decoder architecture with Multi-Head Attention to solve
+    various VRP instances (VRPP, WCVRP, CWCVRP). It encodes the problem graph and
+    constructively decodes the solution one step at a time.
+    """
     def __init__(self,
                  embedding_dim,
                  hidden_dim,
@@ -48,6 +58,49 @@ class AttentionModel(nn.Module):
                  predictor_layers=None,
                  connection_type='residual',
                  hyper_expansion=4):
+        """
+        Initialize the Attention Model.
+
+        Args:
+            embedding_dim (int): Dimension of the embedding vectors.
+            hidden_dim (int): Dimension of the hidden layers.
+            problem (object): The problem instance wrapper (e.g., CVRRP, WCVRP).
+            component_factory (NeuralComponentFactory): Factory to create sub-components.
+            n_encode_layers (int, optional): Number of encoder layers. Defaults to 2.
+            n_encode_sublayers (int, optional): Number of sub-layers in encoder. Defaults to None.
+            n_decode_layers (int, optional): Number of decoder layers. Defaults to None.
+            dropout_rate (float, optional): Dropout rate. Defaults to 0.1.
+            aggregation (str, optional): Aggregation method. Defaults to "sum".
+            aggregation_graph (str, optional): Graph aggregation method. Defaults to "avg".
+            tanh_clipping (float, optional): Tanh clipping value for logits. Defaults to 10.0.
+            mask_inner (bool, optional): Whether to mask inner attention. Defaults to True.
+            mask_logits (bool, optional): Whether to mask logits. Defaults to True.
+            mask_graph (bool, optional): Whether to mask graph attention. Defaults to False.
+            normalization (str, optional): Normalization type. Defaults to 'batch'.
+            norm_learn_affine (bool, optional): Learn affine parameters in norm. Defaults to True.
+            norm_track_stats (bool, optional): Track running stats in norm. Defaults to False.
+            norm_eps_alpha (float, optional): Epsilon/Alpha for norm. Defaults to 1e-05.
+            norm_momentum_beta (float, optional): Momentum/Beta for norm. Defaults to 0.1.
+            lrnorm_k (float, optional): K parameter for Local Response Norm. Defaults to 1.0.
+            gnorm_groups (int, optional): Groups for Group Norm. Defaults to 3.
+            activation_function (str, optional): Activation function name. Defaults to 'gelu'.
+            af_param (float, optional): Parameter for activation function. Defaults to 1.0.
+            af_threshold (float, optional): Threshold for activation function. Defaults to 6.0.
+            af_replacement_value (float, optional): Replacement value for activation function. Defaults to 6.0.
+            af_num_params (int, optional): Number of parameters for activation function. Defaults to 3.
+            af_uniform_range (list, optional): Uniform range for activation params. Defaults to [0.125, 1/3].
+            n_heads (int, optional): Number of attention heads. Defaults to 8.
+            checkpoint_encoder (bool, optional): Whether to checkpoint encoder during training. Defaults to False.
+            shrink_size (int, optional): Size to shrink the problem graph to. Defaults to None.
+            pomo_size (int, optional): Size for POMO (Policy Optimization with Multiple Optima). Defaults to 0.
+            temporal_horizon (int, optional): Horizon for temporal features. Defaults to 0.
+            spatial_bias (bool, optional): Whether to use spatial bias in attention. Defaults to False.
+            spatial_bias_scale (float, optional): Scale for spatial bias. Defaults to 1.0.
+            entropy_weight (float, optional): Weight for entropy regularization. Defaults to 0.0.
+            predictor_layers (int, optional): Number of layers in predictor. Defaults to None.
+            connection_type (str, optional): Connection type (e.g., 'residual'). Defaults to 'residual'.
+            hyper_expansion (int, optional): Expansion factor for hypernetworks. Defaults to 4.
+        """
         super(AttentionModel, self).__init__()
         self.n_heads = n_heads
         self.embedding_dim = embedding_dim
@@ -119,12 +172,48 @@ class AttentionModel(nn.Module):
              self.decoder.set_step_context_dim(step_context_dim)
 
     def set_decode_type(self, decode_type, temp=None):
+        """
+        Set the decoding strategy for the model.
+
+        Args:
+            decode_type (str): The decoding strategy ('greedy' or 'sampling').
+            temp (float, optional): Temperature for sampling. Defaults to None.
+        """
         self.decoder.set_decode_type(decode_type, temp)
 
     def _get_initial_embeddings(self, input):
+        """
+        Get initial node embeddings from the context embedder.
+
+        Args:
+            input (dict): The input data dictionary.
+
+        Returns:
+            torch.Tensor: Initial node embeddings.
+        """
         return self.context_embedder.init_node_embeddings(input)
 
     def forward(self, input, cost_weights=None, return_pi=False, pad=False, mask=None, expert_pi=None, **kwargs):
+        """
+        Forward pass of the Attention Model.
+
+        Args:
+            input (dict): The input data containing problem state.
+            cost_weights (torch.Tensor, optional): Weights for different cost components. Defaults to None.
+            return_pi (bool, optional): Whether to return the action probabilities/sequence. Defaults to False.
+            pad (bool, optional): Whether to pad the solution sequence. Defaults to False.
+            mask (torch.Tensor, optional): Mask for valid actions. Defaults to None.
+            expert_pi (torch.Tensor, optional): Expert policy for KL divergence. Defaults to None.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            tuple: (cost, log_likelihood, cost_dict, pi, entropy)
+                   - cost: The total cost of the solution (negative reward).
+                   - log_likelihood: Log-likelihood of the solution.
+                   - cost_dict: Dictionary of individual cost components.
+                   - pi (optional): The sequence of selected nodes.
+                   - entropy (optional): Entropy of the policy.
+        """
         edges = input.get('edges', None)
         dist_matrix = input.get('dist', None) # Using 'dist' key consistent with original
         
@@ -144,9 +233,21 @@ class AttentionModel(nn.Module):
             
             if self.pomo_size > 0:
                 def expand(t):
-                    if t is None: return None
-                    if isinstance(t, torch.Tensor): return t.repeat_interleave(self.pomo_size, dim=0)
-                    if isinstance(t, dict): return {k: expand(v) for k, v in t.items()}
+                    """
+                    Expand tensor or dictionary of tensors for POMO.
+                    
+                    Args:
+                        t (torch.Tensor or dict or None): Input to expand.
+                        
+                    Returns:
+                        Expanded input.
+                    """
+                    if t is None:
+                        return None
+                    if isinstance(t, torch.Tensor):
+                        return t.repeat_interleave(self.pomo_size, dim=0)
+                    if isinstance(t, dict):
+                        return {k: expand(v) for k, v in t.items()}
                     return t
                 
                 expanded_input = expand(input)
@@ -191,16 +292,65 @@ class AttentionModel(nn.Module):
         return cost, ll, cost_dict, None, entropy
 
     def beam_search(self, *args, **kwargs):
+        """
+        Perform beam search decoding.
+
+        Args:
+            *args: Variable length argument list passed to the problem's beam_search.
+            **kwargs: Arbitrary keyword arguments passed to the problem's beam_search.
+
+        Returns:
+            list: The result of the beam search.
+        """
         return self.problem.beam_search(*args, **kwargs, model=self)
 
     def precompute_fixed(self, input, edges):
+        """
+        Precompute fixed embeddings for the input.
+
+        Args:
+            input (dict): The input data.
+            edges (torch.Tensor): Edge information for the graph.
+
+        Returns:
+            CachedLookup: A cached lookup object containing precomputed decoder state.
+        """
         embeddings = self.embedder(self.context_embedder.init_node_embeddings(input), edges)
         return CachedLookup(self.decoder._precompute(embeddings))
 
     def propose_expansions(self, beam, fixed, expand_size=None, normalize=False, max_calc_batch_size=4096):
+        """
+        Propose expansions for beam search.
+
+        Args:
+            beam (object): The current beam state.
+            fixed (object): The precomputed fixed embeddings.
+            expand_size (int, optional): The number of expansions to propose. Defaults to None.
+            normalize (bool, optional): Whether to normalize the probabilities. Defaults to False.
+            max_calc_batch_size (int, optional): Maximum batch size for calculation. Defaults to 4096.
+
+        Returns:
+            tuple: (log_p, mask)
+                   - log_p: Log probabilities of the expansions.
+                   - mask: Mask of valid expansions.
+        """
         return self.decoder.propose_expansions(beam, fixed, expand_size, normalize, max_calc_batch_size)
 
     def sample_many(self, input, cost_weights=None, batch_rep=1, iter_rep=1):
+        """
+        Sample multiple solutions for the same input (e.g., for POMO or validation).
+
+        Args:
+            input (dict): The input data.
+            cost_weights (torch.Tensor, optional): Weights for different cost components. Defaults to None.
+            batch_rep (int, optional): Batch replication factor. Defaults to 1.
+            iter_rep (int, optional): Iteration replication factor. Defaults to 1.
+
+        Returns:
+            tuple: (costs, pis)
+                   - costs: Costs for all sampled solutions.
+                   - pis: Sequences of actions for all solutions.
+        """
         edges = input.pop('edges') if 'edges' in input.keys() else None
         # This requires decoder delegation
         return sample_many(

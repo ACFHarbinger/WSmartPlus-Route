@@ -1,9 +1,17 @@
+"""
+This module contains the Temporal Attention Model implementation.
+"""
 import torch
 import torch.nn as nn
 
 from . import AttentionModel
 
 class TemporalAttentionModel(AttentionModel):
+    """
+    Attention Model extended with temporal features (waste history).
+
+    Integrates a fill level predictor and processes historical waste data.
+    """
     def __init__(self,
                  embedding_dim,
                  hidden_dim,
@@ -37,6 +45,43 @@ class TemporalAttentionModel(AttentionModel):
                  shrink_size=None,
                  temporal_horizon=5,  
                  predictor_layers=2):  
+        """
+        Initialize the Temporal Attention Model.
+
+        Args:
+            embedding_dim (int): Dimension of the embedding vectors.
+            hidden_dim (int): Dimension of the hidden layers.
+            problem (object): The problem instance wrapper.
+            component_factory (NeuralComponentFactory): Factory to create sub-components.
+            n_encode_layers (int, optional): Number of encoder layers. Defaults to 2.
+            n_encode_sublayers (int, optional): Number of sub-layers in encoder. Defaults to None.
+            n_decode_layers (int, optional): Number of decoder layers. Defaults to None.
+            dropout_rate (float, optional): Dropout rate. Defaults to 0.1.
+            aggregation (str, optional): Aggregation method. Defaults to "sum".
+            aggregation_graph (str, optional): Graph aggregation method. Defaults to "mean".
+            tanh_clipping (float, optional): Tanh clipping value. Defaults to 10.0.
+            mask_inner (bool, optional): Whether to mask inner attention. Defaults to True.
+            mask_logits (bool, optional): Whether to mask logits. Defaults to True.
+            mask_graph (bool, optional): Whether to mask graph attention. Defaults to False.
+            normalization (str, optional): Normalization type. Defaults to 'batch'.
+            norm_learn_affine (bool, optional): Learn affine parameters. Defaults to True.
+            norm_track_stats (bool, optional): Track running stats. Defaults to False.
+            norm_eps_alpha (float, optional): Epsilon/Alpha for norm. Defaults to 1e-05.
+            norm_momentum_beta (float, optional): Momentum/Beta for norm. Defaults to 0.1.
+            lrnorm_k (float, optional): K parameter for Local Response Norm. Defaults to 1.0.
+            gnorm_groups (int, optional): Groups for Group Norm. Defaults to 3.
+            activation_function (str, optional): Activation function name. Defaults to 'gelu'.
+            af_param (float, optional): Parameter for activation function. Defaults to 1.0.
+            af_threshold (float, optional): Threshold for activation function. Defaults to 6.0.
+            af_replacement_value (float, optional): Replacement value for activation function. Defaults to 6.0.
+            af_num_params (int, optional): Number of parameters for activation function. Defaults to 3.
+            af_uniform_range (list, optional): Uniform range for activation params. Defaults to [0.125, 1/3].
+            n_heads (int, optional): Number of attention heads. Defaults to 8.
+            checkpoint_encoder (bool, optional): Whether to checkpoint encoder. Defaults to False.
+            shrink_size (int, optional): Size to shrink the problem graph to. Defaults to None.
+            temporal_horizon (int, optional): Horizon for temporal features. Defaults to 5.
+            predictor_layers (int, optional): Number of layers in predictor. Defaults to 2.
+        """
         super(TemporalAttentionModel, self).__init__(
             embedding_dim,
             hidden_dim,
@@ -120,6 +165,23 @@ class TemporalAttentionModel(AttentionModel):
         return combined_embeddings
     
     def forward(self, input, cost_weights=None, return_pi=False, pad=False, mask=None, expert_pi=None, **kwargs):
+        """
+        Forward pass of the Temporal Attention Model.
+        
+        Handles temporal feature prediction and updates if needed.
+
+        Args:
+            input (dict): The input data dictionary.
+            cost_weights (torch.Tensor, optional): Weights for different cost components. Defaults to None.
+            return_pi (bool, optional): Whether to return the action sequence. Defaults to False.
+            pad (bool, optional): Whether to pad the solution sequence. Defaults to False.
+            mask (torch.Tensor, optional): Mask for valid actions. Defaults to None.
+            expert_pi (torch.Tensor, optional): Expert policy. Defaults to None.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            tuple: (cost, log_likelihood, cost_dict, pi, entropy)
+        """
         if 'fill_history' not in input and self.predict_future:
             batch_size = input['loc'].size(0)
             graph_size = input['loc'].size(1)
@@ -136,12 +198,33 @@ class TemporalAttentionModel(AttentionModel):
         return super().forward(input, cost_weights, return_pi, pad, mask, expert_pi, **kwargs)
     
     def update_fill_history(self, fill_history, new_fills):
+        """
+        Update the fill history with new fill levels (rolling window).
+
+        Args:
+            fill_history (torch.Tensor): Current fill history.
+            new_fills (torch.Tensor): New fill levels to append.
+
+        Returns:
+            torch.Tensor: Updated fill history.
+        """
         updated_history = fill_history.clone()
         updated_history[:, :, :-1] = fill_history[:, :, 1:]
         updated_history[:, :, -1] = new_fills
         return updated_history
     
     def compute_simulator_day(self, input, graph, run_tsp=False):
+        """
+        Compute one simulation day, updating fill history if present.
+
+        Args:
+            input (dict): Input data.
+            graph (object): The graph object.
+            run_tsp (bool, optional): Whether to run TSP locally. Defaults to False.
+
+        Returns:
+            dict: Simulation results.
+        """
         if 'fill_history' in input and 'current_fill' in input:
             input['fill_history'] = self.update_fill_history(
                 input['fill_history'], 
