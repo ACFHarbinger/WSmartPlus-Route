@@ -1,3 +1,6 @@
+"""
+This module contains the Critic Network implementation for RL baselines.
+"""
 import torch.nn as nn
 
 from .modules import ActivationFunction
@@ -6,6 +9,11 @@ from .context_embedder import WCContextEmbedder, VRPPContextEmbedder
 
 # Attention, Learn to Solve Routing Problems
 class CriticNetwork(nn.Module):
+    """
+    Critic Network for estimating the value of a problem state in Reinforcement Learning.
+    
+    Used as a baseline to reduce variance in gradient estimation (e.g., in PPO/REINFORCE).
+    """
     def __init__(
         self,
         problem,
@@ -21,6 +29,23 @@ class CriticNetwork(nn.Module):
         dropout_rate=0.,
         temporal_horizon=0
     ):
+        """
+        Initialize the Critic Network.
+
+        Args:
+            problem (object): The problem instance wrapper.
+            component_factory (NeuralComponentFactory): Factory to create sub-components.
+            embedding_dim (int): Dimension of the embedding vectors.
+            hidden_dim (int): Dimension of the hidden layers.
+            n_layers (int): Number of encoder layers.
+            n_sublayers (int): Number of sub-layers in encoder.
+            encoder_normalization (str, optional): Normalization type for encoder. Defaults to 'batch'.
+            activation (str, optional): Activation function name. Defaults to 'gelu'.
+            n_heads (int, optional): Number of attention heads. Defaults to 8.
+            aggregation_graph (str, optional): Graph aggregation method ('avg', 'sum', 'max'). Defaults to "avg".
+            dropout_rate (float, optional): Dropout rate. Defaults to 0.0.
+            temporal_horizon (int, optional): Horizon for temporal features. Defaults to 0.
+        """
         super(CriticNetwork, self).__init__()
         self.hidden_dim = hidden_dim
         self.embedding_dim = embedding_dim
@@ -61,8 +86,13 @@ class CriticNetwork(nn.Module):
 
     def forward(self, inputs):
         """
-        :param inputs: (batch_size, graph_size, input_dim)
-        :return:
+        Forward pass of the Critic Network.
+
+        Args:
+            inputs (dict): The input data dictionary containing problem state (nodes, edges, etc.).
+
+        Returns:
+            torch.Tensor: The estimated value of the current state.
         """
         edges = inputs.pop('edges')
         embeddings = self.encoder(self._init_embed(inputs), edges)

@@ -1,3 +1,6 @@
+"""
+This module contains the Pointer Network model implementation.
+"""
 import math
 import torch
 import torch.nn as nn
@@ -7,6 +10,12 @@ from .subnets import PointerEncoder, PointerDecoder
 
 # Attention, Learn to Solve Routing Problems
 class PointerNetwork(nn.Module):
+    """
+    Pointer Network implementing the Attention Model logic for VRP.
+    
+    References:
+        Vinyals et al. (2015) - Pointer Networks.
+    """
     def __init__(self,
                  embedding_dim,
                  hidden_dim,
@@ -17,6 +26,20 @@ class PointerNetwork(nn.Module):
                  mask_logits=True,
                  normalization=None,
                  **kwargs):
+        """
+        Initialize the Pointer Network.
+
+        Args:
+            embedding_dim (int): Dimension of the embedding vectors.
+            hidden_dim (int): Dimension of the hidden layers.
+            problem (object): The problem instance wrapper.
+            n_encode_layers (int, optional): Number of encoder layers. Defaults to None.
+            tanh_clipping (float, optional): Tanh clipping value. Defaults to 10.0.
+            mask_inner (bool, optional): Whether to mask inner attention. Defaults to True.
+            mask_logits (bool, optional): Whether to mask logits. Defaults to True.
+            normalization (str, optional): Normalization type. Defaults to None.
+            **kwargs: Arbitrary keyword arguments.
+        """
         super(PointerNetwork, self).__init__()
         self.problem = problem
         self.input_dim = 2
@@ -40,9 +63,26 @@ class PointerNetwork(nn.Module):
         self.embedding.data.uniform_(-std, std)
 
     def set_decode_type(self, decode_type):
+        """
+        Set the decoding strategy for the model.
+
+        Args:
+            decode_type (str): The decoding strategy ('greedy' or 'sampling').
+        """
         self.decoder.decode_type = decode_type
 
     def forward(self, inputs, eval_tours=None, return_pi=False):
+        """
+        Forward pass of the Pointer Network.
+
+        Args:
+            inputs (torch.Tensor): Input tensor of shape [batch_size, graph_size, input_dim].
+            eval_tours (torch.Tensor, optional): Tours for evaluation/Teacher Forcing. Defaults to None.
+            return_pi (bool, optional): Whether to return the action sequence. Defaults to False.
+
+        Returns:
+            tuple: (cost, log_likelihood, [pi])
+        """
         batch_size, graph_size, input_dim = inputs.size()
         embedded_inputs = torch.mm(
             inputs.transpose(0, 1).contiguous().view(-1, input_dim),

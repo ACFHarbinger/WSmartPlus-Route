@@ -1,3 +1,6 @@
+"""
+This module contains the Deep Decoder Attention Model architecture.
+"""
 import math
 import torch
 import typing
@@ -16,6 +19,15 @@ class DeepAttentionModelFixed(typing.NamedTuple):
     context_node_projected: torch.Tensor
     mha_key: torch.Tensor
     def __getitem__(self, key):
+        """
+        Slice the fixed data.
+
+        Args:
+            key (slice or torch.Tensor): The slicing key.
+
+        Returns:
+            DeepAttentionModelFixed: A new instance with sliced data.
+        """
         if torch.is_tensor(key) or isinstance(key, slice):
             return DeepAttentionModelFixed(
                 node_embeddings=self.node_embeddings[key],
@@ -26,6 +38,12 @@ class DeepAttentionModelFixed(typing.NamedTuple):
 
 
 class DeepDecoderAttentionModel(AttentionModel):
+    """
+    Attention Model with a Deep Decoder architecture.
+    
+    Extends the standard AttentionModel to support a deeper decoder structure with
+    more advanced configuration options (Graph Attention Decoder).
+    """
     def __init__(self,
                  embedding_dim,
                  hidden_dim,
@@ -59,6 +77,43 @@ class DeepDecoderAttentionModel(AttentionModel):
                  shrink_size=None,
                  temporal_horizon=0,
                  predictor_layers=None):
+        """
+        Initialize the Deep Decoder Attention Model.
+
+        Args:
+            embedding_dim (int): Dimension of the embedding vectors.
+            hidden_dim (int): Dimension of the hidden layers.
+            problem (object): The problem instance wrapper.
+            encoder_class (object): The class for the encoder.
+            n_encode_layers (int, optional): Number of encoder layers. Defaults to 2.
+            n_encode_sublayers (int, optional): Number of sub-layers int encoder. Defaults to None.
+            n_decode_layers (int, optional): Number of decoder layers. Defaults to 2.
+            dropout_rate (float, optional): Dropout rate. Defaults to 0.1.
+            aggregation (str, optional): Aggregation method. Defaults to "sum".
+            aggregation_graph (str, optional): Graph aggregation method. Defaults to "avg".
+            tanh_clipping (float, optional): Tanh clipping value. Defaults to 10.0.
+            mask_inner (bool, optional): Whether to mask inner attention. Defaults to True.
+            mask_logits (bool, optional): Whether to mask logits. Defaults to True.
+            mask_graph (bool, optional): Whether to mask graph attention. Defaults to False.
+            normalization (str, optional): Normalization type. Defaults to 'batch'.
+            norm_learn_affine (bool, optional): Learn affine parameters. Defaults to True.
+            norm_track_stats (bool, optional): Track running stats. Defaults to False.
+            norm_eps_alpha (float, optional): Epsilon/Alpha for norm. Defaults to 1e-05.
+            norm_momentum_beta (float, optional): Momentum/Beta for norm. Defaults to 0.1.
+            lrnorm_k (float, optional): K parameter for Local Response Norm. Defaults to 1.0.
+            gnorm_groups (int, optional): Groups for Group Norm. Defaults to 3.
+            activation_function (str, optional): Activation function name. Defaults to 'gelu'.
+            af_param (float, optional): Parameter for activation function. Defaults to 1.0.
+            af_threshold (float, optional): Threshold for activation function. Defaults to 6.0.
+            af_replacement_value (float, optional): Replacement value for activation function. Defaults to 6.0.
+            af_num_params (int, optional): Number of parameters for activation function. Defaults to 3.
+            af_uniform_range (list, optional): Uniform range for activation params. Defaults to [0.125, 1/3].
+            n_heads (int, optional): Number of attention heads. Defaults to 8.
+            checkpoint_encoder (bool, optional): Whether to checkpoint encoder. Defaults to False.
+            shrink_size (int, optional): Shrink size. Defaults to None.
+            temporal_horizon (int, optional): Temporal horizon. Defaults to 0.
+            predictor_layers (int, optional): Number of layers in predictor. Defaults to None.
+        """
         super(DeepDecoderAttentionModel, self).__init__(
             embedding_dim,
             hidden_dim,
