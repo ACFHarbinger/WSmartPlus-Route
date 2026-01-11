@@ -1,4 +1,6 @@
+"""Tests for the training pipeline and loop execution."""
 import torch
+import pytest
 
 from unittest.mock import MagicMock
 from logic.src.pipeline.train import (
@@ -396,7 +398,7 @@ class TestPPO:
     def test_ppo_step(self, mock_ppo_deps):
         """Verify PPOTrainer execution step."""
         from logic.src.pipeline.reinforcement_learning.core.ppo import PPOTrainer
-        
+
         # Setup opts
         opts = {
             'rl_algorithm': 'ppo',
@@ -415,29 +417,337 @@ class TestPPO:
             'encoder': 'gat',
             'accumulation_steps': 1
         }
-        
+
         deps = mock_ppo_deps
-        
+
         trainer = PPOTrainer(
-            deps['model'], 
-            deps['optimizer'], 
-            deps['baseline'], 
+            deps['model'],
+            deps['optimizer'],
+            deps['baseline'],
             None, # lr_scheduler
             None, # scaler
-            deps['val_dataset'], 
-            deps['problem'], 
+            deps['val_dataset'],
+            deps['problem'],
             None, # tb_logger
             {'cost': 1.0}, # cost_weights
             opts
         )
         trainer.training_dataset = deps['training_dataset']
         trainer.step = 0
-        
+
         # Test generic training day
         # Should call train_day_ppo -> train_batch -> update_ppo
         trainer.train_day()
-        
+
         # Basic assertions
         # train_batch called (implied by execution success)
         # optimizer step called
         assert deps['optimizer'].step.call_count >= 1
+
+
+class TestDRGRPO:
+    """Tests for DR-GRPO Trainer implementation."""
+
+    @pytest.mark.unit
+    def test_dr_grpo_init(self, mocker, mock_dr_grpo, mock_dr_grpo_config):
+        """Test initialization of DR-GRPO trainer."""
+        from logic.src.pipeline.reinforcement_learning.core.dr_grpo import DRGRPOTrainer
+
+        opts = {
+            'batch_size': 4,
+            'dr_grpo_group_size': 8,
+            'dr_grpo_epsilon': 0.2,
+            'dr_grpo_epochs': 3,
+            'ppo_mini_batch_size': 16,
+            'device': 'cpu',
+            'no_progress_bar': True,
+            'w_waste': 1.0, 'w_length': 1.0, 'w_overflows': 1.0, 'w_lost': 1.0, 'w_penalty': 1.0, 'w_prize': 1.0,
+            'lr_model': 1e-4, 'lr_critic_value': 1e-4, 'max_grad_norm': 1.0, 'entropy_weight': 0.01,
+            'model': 'am', 'problem': 'vrpp', 'baseline': None, 'enable_scaler': False,
+            'epoch_start': 0
+        }
+
+        trainer = DRGRPOTrainer(
+            mock_dr_grpo['model'],
+            mock_dr_grpo['optimizer'],
+            mock_dr_grpo['baseline'],
+            MagicMock(), # lr_scheduler
+            MagicMock(), # scaler
+            mock_dr_grpo['training_dataset'],
+            mock_dr_grpo['problem'],
+            MagicMock(), # tb_logger
+            {k: opts[k] for k in ['w_waste', 'w_length', 'w_overflows', 'w_lost', 'w_penalty', 'w_prize']},
+            opts
+        )
+
+        assert trainer.group_size == 8
+        assert trainer.epsilon == 0.2
+        assert trainer.dr_grpo_epochs == 3
+        mock_dr_grpo['model'].set_decode_type.assert_called_with('sampling')
+
+    @pytest.mark.unit
+    def test_dr_grpo_train_day(self, mocker, mock_dr_grpo, mock_dr_grpo_config):
+        """Test training step for a single day in DR-GRPO."""
+        from logic.src.pipeline.reinforcement_learning.core.dr_grpo import DRGRPOTrainer
+
+        opts = {
+            'batch_size': 2,
+            'dr_grpo_group_size': 4, # G=4
+            'dr_grpo_epsilon': 0.2,
+            'dr_grpo_epochs': 1,
+            'ppo_mini_batch_size': 8, # Process all (2*4=8)
+            'device': 'cpu',
+            'no_progress_bar': True,
+            'w_waste': 1.0, 'w_length': 1.0, 'w_overflows': 1.0, 'w_lost': 1.0, 'w_penalty': 1.0, 'w_prize': 1.0,
+            'lr_model': 1e-4, 'lr_critic_value': 1e-4, 'max_grad_norm': 1.0, 'entropy_weight': 0.0,
+            'model': 'am', 'problem': 'vrpp', 'baseline': 'rollout', 'bl_alpha': 0.1, 'enable_scaler': False,
+            'epoch_start': 0, 'temporal_horizon': 0, 'focus_graph': None, 'focus_size': 0, 'train_time': False
+        }
+
+        trainer = DRGRPOTrainer(
+            mock_dr_grpo['model'],
+            mock_dr_grpo['optimizer'],
+            mock_dr_grpo['baseline'],
+            MagicMock(),
+            MagicMock(),
+            mock_dr_grpo['training_dataset'],
+            mock_dr_grpo['problem'],
+            MagicMock(),
+            {k: opts[k] for k in ['w_waste', 'w_length', 'w_overflows', 'w_lost', 'w_penalty', 'w_prize']},
+            opts
+        )
+
+        # Mock init_dataset to set valid dataset
+        trainer.training_dataset = mock_dr_grpo['training_dataset']
+
+        trainer.train_day()
+
+        # Check that optimizer step was called
+        assert mock_dr_grpo['optimizer'].step.called
+        assert mock_dr_grpo['optimizer'].zero_grad.called
+
+
+class TestGSPO:
+    """Tests for GSPO Trainer implementation."""
+
+    def test_gspo_init(self, mock_gspo_deps):
+        """Verify GSPOTrainer initialization."""
+        from logic.src.pipeline.reinforcement_learning.core.gspo import GSPOTrainer
+
+        opts = {
+            'rl_algorithm': 'gspo',
+            'epoch_start': 0,
+            'gspo_epsilon': 0.15,
+            'gspo_epochs': 2,
+            'batch_size': 4,
+            'device': torch.device('cpu'),
+            'temporal_horizon': 0
+        }
+
+        trainer = GSPOTrainer(
+            mock_gspo_deps['model'],
+            mock_gspo_deps['optimizer'],
+            mock_gspo_deps['baseline'],
+            None, None,
+            mock_gspo_deps['val_dataset'],
+            mock_gspo_deps['problem'],
+            None,
+            {'cost': 1.0},
+            opts
+        )
+
+        assert trainer.epsilon == 0.15
+        assert trainer.gspo_epochs == 2
+
+    def test_gspo_update_step(self, mock_gspo_deps):
+        """Verify GSPOTrainer execution includes GSPO update loop."""
+        from logic.src.pipeline.reinforcement_learning.core.gspo import GSPOTrainer
+        import logic.src.pipeline.reinforcement_learning.core.gspo as gspo_module
+
+        deps = mock_gspo_deps
+        opts = {
+            'rl_algorithm': 'gspo',
+            'train_time': False,
+            'device': torch.device('cpu'),
+            'no_progress_bar': True,
+            'gspo_epochs': 2,
+            'batch_size': 4,
+            'epoch_start': 0,
+            'model': 'am',
+            'temporal_horizon': 0,
+            'focus_graph': None,
+            'encoder': 'gat',
+            'accumulation_steps': 1,
+            'gspo_epsilon': 0.2,
+            'entropy_weight': 0.01,
+            'baseline': 'rollout'
+        }
+
+        trainer = GSPOTrainer(
+            deps['model'],
+            deps['optimizer'],
+            deps['baseline'],
+            None, None,
+            deps['val_dataset'],
+            deps['problem'],
+            None,
+            {'cost': 1.0},
+            opts
+        )
+        trainer.training_dataset = deps['training_dataset']
+        trainer.step = 0
+
+        # Mock DataLoader
+        dummy_batch = {'depot': torch.randn(4, 2)}
+
+        # Patch DataLoader inside gspo.py
+        original_dl = torch.utils.data.DataLoader
+
+        class MockDL:
+             """Mock Data Loader."""
+             def __init__(self, *args, **kwargs):
+                 """Initialize mock data loader."""
+                 pass
+             def __iter__(self):
+                 """Iterate over mock batches."""
+                 yield dummy_batch
+
+        gspo_module.torch.utils.data.DataLoader = MockDL
+        gspo_module.prepare_batch = MagicMock(return_value=dummy_batch)
+
+        try:
+             trainer.train_day()
+        finally:
+             gspo_module.torch.utils.data.DataLoader = original_dl
+
+        # Assertions
+        # 1. Collection: 1 call
+        # 2. Update: gspo_epochs * batch_count (2 * 1) = 2 calls
+        # Total = 3 calls
+        assert deps['model'].call_count >= 3
+
+        # Optimizer step called once per update
+        # 2 updates
+        assert deps['optimizer'].step.call_count == 2
+
+
+class TestSAPO:
+    """Tests for SAPO Trainer implementation and loss logic."""
+
+    def test_sapo_init(self, mock_sapo_deps):
+        """Verify SAPOTrainer initialization and hyperparameter loading."""
+        from logic.src.pipeline.reinforcement_learning.core.sapo import SAPOTrainer
+
+        opts = {
+            'rl_algorithm': 'sapo',
+            'epoch_start': 0,
+            'sapo_tau_pos': 0.2,
+            'sapo_tau_neg': 0.9,
+            'ppo_epochs': 2,
+            'batch_size': 4,
+            'device': torch.device('cpu'),
+            'temporal_horizon': 0
+        }
+
+        trainer = SAPOTrainer(
+            mock_sapo_deps['model'],
+            mock_sapo_deps['optimizer'],
+            mock_sapo_deps['baseline'],
+            None, # lr_scheduler
+            None, # scaler
+            mock_sapo_deps['val_dataset'],
+            mock_sapo_deps['problem'],
+            None, # tb_logger
+            {'cost': 1.0}, # cost_weights
+            opts
+        )
+
+        assert trainer.tau_pos == 0.2
+        assert trainer.tau_neg == 0.9
+        assert trainer.ppo_epochs == 2
+
+    def test_sapo_update_step(self, mock_sapo_deps):
+        """Verify SAPOTrainer execution includes SAPO update loop."""
+        from logic.src.pipeline.reinforcement_learning.core.sapo import SAPOTrainer
+        import logic.src.pipeline.reinforcement_learning.core.sapo as sapo_module
+
+        deps = mock_sapo_deps
+        opts = {
+            'rl_algorithm': 'sapo',
+            'train_time': False, # Standard
+            'device': torch.device('cpu'),
+            'no_progress_bar': True,
+            'ppo_epochs': 2, # Run update loop twice
+            'ppo_mini_batch_size': 2,
+            'batch_size': 4,
+            'epoch_start': 0,
+            'model': 'am',
+            'temporal_horizon': 0,
+            'focus_graph': None,
+            'encoder': 'gat',
+            'accumulation_steps': 1,
+            'sapo_tau_pos': 0.1,
+            'sapo_tau_neg': 1.0,
+            'entropy_weight': 0.01,
+            'baseline': 'rollout'
+        }
+
+        trainer = SAPOTrainer(
+            deps['model'],
+            deps['optimizer'],
+            deps['baseline'],
+            None, None,
+            deps['val_dataset'],
+            deps['problem'],
+            None,
+            {'cost': 1.0},
+            opts
+        )
+        trainer.training_dataset = deps['training_dataset']
+        trainer.step = 0
+
+        # Mock DataLoader to return a batch
+        dummy_batch = {'loc': torch.randn(4, 10, 2), 'depot': torch.randn(4, 2)}
+
+        # Run one training day
+        # Patch DataLoader inside sapo.py
+        original_dl = torch.utils.data.DataLoader
+
+        # Mock DataLoader iterator
+        class MockDL:
+             """Mock Data Loader."""
+             def __init__(self, *args, **kwargs):
+                 """Initialize mock data loader."""
+                 pass
+             def __iter__(self):
+                 """Iterate over mock batches."""
+                 yield dummy_batch
+
+        sapo_module.torch.utils.data.DataLoader = MockDL
+        sapo_module.prepare_batch = MagicMock(return_value=dummy_batch)
+
+        try:
+             trainer.train_day()
+        finally:
+             # Restore
+             sapo_module.torch.utils.data.DataLoader = original_dl
+
+        # Assertions
+        # 1. Collection phase: train_batch called once per batch (1 batch)
+        # 2. Update phase: update_sapo called.
+        # Inside update_sapo: model() called PPO_EPOCHS times per batch.
+        # We have 1 batch from collection. PPO epochs = 2.
+        # So model() should be called 1 (collection) + 2 (update) = 3 times.
+
+        # Actually in update_phase, we iterate rollouts.
+        # rollouts = 1.
+        # inner loop loops ppo_epochs = 2.
+        # Each epoch splits into mini_batches. Batch size 4, mini 2 => 2 mini batches.
+        # So 2 epochs * 2 mini-batches = 4 updates.
+        # Total model calls = 1 (collection) + 4 (update) = 5.
+
+        assert deps['model'].call_count >= 5
+
+        # Check optimizer step
+        # Called once per mini-batch update => 4 times.
+        assert deps['optimizer'].step.call_count == 4

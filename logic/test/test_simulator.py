@@ -1,3 +1,4 @@
+"""Tests for the WSmart+ Route simulator engine."""
 import os
 import json
 import torch
@@ -358,6 +359,7 @@ class TestLoader:
 
         # Configure the mock to return the correct DataFrame
         def csv_side_effect(path):
+            """Mock side effect for read_csv."""
             if 'crude_rate' in path:
                 return mock_rate_data.copy()
             if 'info' in path:
@@ -413,6 +415,7 @@ class TestLoader:
             mock_rate_data[col] = mock_rate_data[col].astype(float)
         
         def csv_side_effect(path):
+            """Mock side effect for read_csv."""
             if 'crude_rate' in path: return mock_rate_data.copy()
             if 'info' in path: return mock_info_data.copy()
         mock_read_csv.side_effect = csv_side_effect
@@ -458,6 +461,7 @@ class TestLoader:
         mock_coords = pd.DataFrame({'ID': [2, 1, 3], 'Lat': [1, 2, 3], 'Lng': [1, 2, 3]})
         
         def excel_side_effect(path):
+            """Mock side effect for read_excel."""
             if 'StockAndAccumulationRate' in path: return mock_data.copy()
             if 'Coordinates' in path: return mock_coords.copy()
         mock_read_excel.side_effect = excel_side_effect
@@ -1106,6 +1110,7 @@ class TestSimulation:
 
         # --- CRITICAL: Correct way to mock instance method with side_effect ---
         def stochastic_filling_mock(self, n_samples=1, only_fill=False):
+            """Mock for stochastic filling behavior."""
             # Debug: Check if loop is running
             print(f"DEBUG: stochasticFilling called. ndays={self.ndays}. n_samples={n_samples}, only_fill={only_fill}")
             # This function WILL receive `self` (the Bins instance) automatically

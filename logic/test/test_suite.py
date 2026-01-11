@@ -38,13 +38,14 @@ from .test_definitions import TEST_MODULES
 
 class PyTestRunner:
     """Manages test execution with pytest"""
-    def __init__(self, test_dir: str = 'tests'):
-        self.test_dir = Path(test_dir)
+    def __init__(self, root_dir: str = 'tests'):
+        """Initialize the test runner."""
+        self.root_dir = Path(root_dir)
         self.available_modules = self._discover_test_modules()
     
     def _discover_test_modules(self) -> List[str]:
         """Discover all test modules in the test directory"""
-        if not self.test_dir.exists():
+        if not self.root_dir.exists():
             return []
         
         test_files = list(self.test_dir.glob('test_*.py'))

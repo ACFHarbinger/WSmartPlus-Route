@@ -1,3 +1,4 @@
+"""Tests for data generation."""
 import pytest
 import numpy as np
 
@@ -7,15 +8,19 @@ from logic.src.data.generate_data import generate_datasets
 
 
 class TestVRPInstanceBuilder:
+    """Tests for VRPInstanceBuilder."""
     @pytest.fixture
     def builder(self):
+        """Fixture for VRPInstanceBuilder."""
         return VRPInstanceBuilder()
 
     def test_default_initialization(self, builder):
+        """Test default initialization values."""
         # We can't access private members easily, but we can verify build output with mocks
         pass
 
     def test_parameter_setting(self, builder):
+        """Test parameter setting methods."""
         b = builder.set_dataset_size(50) \
                    .set_problem_size(20) \
                    .set_waste_type('plastic') \
@@ -31,6 +36,7 @@ class TestVRPInstanceBuilder:
         # Use simple name mangling check if needed, or assume it works if build uses them.
 
     def test_build_simple_random(self, builder, mocker):
+        """Test building simple random instance."""
         # Mock dependencies to avoid actual data generation
         mocker.patch('logic.src.data.builders.load_focus_coords')
         mocker.patch('logic.src.data.builders.process_coordinates')
@@ -53,6 +59,7 @@ class TestVRPInstanceBuilder:
             assert max_waste == MAX_WASTE
 
     def test_build_with_focus_graph(self, builder, mocker):
+        """Test building with focus graph."""
         # Mock dependencies
         mock_load = mocker.patch('logic.src.data.builders.load_focus_coords', return_value=(
             np.zeros((10, 2)), # depot
@@ -75,26 +82,27 @@ class TestVRPInstanceBuilder:
         assert len(dataset) == 10
         
     def test_build_multiday(self, builder, mocker):
-         mocker.patch('logic.src.data.builders.generate_waste_prize', side_effect=[
-             np.zeros((10, 20)), np.ones((10, 20))
-         ])
+        """Test building multi-day instance."""
+        mocker.patch('logic.src.data.builders.generate_waste_prize', side_effect=[
+            np.zeros((10, 20)), np.ones((10, 20))
+        ])
          
-         builder.set_dataset_size(10).set_problem_size(20).set_num_days(2)
+        builder.set_dataset_size(10).set_problem_size(20).set_num_days(2)
+        
+        dataset = builder.build()
          
-         dataset = builder.build()
-         
-         assert len(dataset) == 10
-         # check waste structure for first item
-         # waste list should be [day1_waste, day2_waste] for that instance?
-         # Logic: generate_waste_prize returns (batch, nodes).
-         # fill_values collects them: [(batch, nodes), (batch, nodes)] -> (days, batch, nodes) (via list)
-         # transposed: (batch, days, nodes).
-         # item[2] is fill_values[i].tolist() -> List of Days.
-         
-         waste_instance_0 = dataset[0][2]
-         assert len(waste_instance_0) == 2 # 2 days
-         assert waste_instance_0[0] == [0.0]*20
-         assert waste_instance_0[1] == [1.0]*20
+        assert len(dataset) == 10
+        # check waste structure for first item
+        # waste list should be [day1_waste, day2_waste] for that instance?
+        # Logic: generate_waste_prize returns (batch, nodes).
+        # fill_values collects them: [(batch, nodes), (batch, nodes)] -> (days, batch, nodes) (via list)
+        # transposed: (batch, days, nodes).
+        # item[2] is fill_values[i].tolist() -> List of Days.
+        
+        waste_instance_0 = dataset[0][2]
+        assert len(waste_instance_0) == 2 # 2 days
+        assert waste_instance_0[0] == [0.0]*20
+        assert waste_instance_0[1] == [1.0]*20
 
 
 
@@ -103,6 +111,7 @@ class TestGenerateData:
     
     @pytest.fixture
     def mock_builder(self, mocker):
+        """Fixture for mocked VRPInstanceBuilder."""
         # Mock the VRPInstanceBuilder class
         MockBuilderClass = mocker.patch('logic.src.data.generate_data.VRPInstanceBuilder')
         mock_instance = MockBuilderClass.return_value
