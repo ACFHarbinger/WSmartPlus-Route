@@ -1,3 +1,13 @@
+"""
+DEHB Configuration Repository.
+
+This module provides the `ConfigRepository` class, which is responsible for managing
+and bookkeeping configurations throughout the DEHB optimization process.
+It tracks:
+- Configurations (`ConfigItem`)
+- Their results across different fidelities (`ResultItem`)
+- Population history
+"""
 from __future__ import annotations
 
 import json

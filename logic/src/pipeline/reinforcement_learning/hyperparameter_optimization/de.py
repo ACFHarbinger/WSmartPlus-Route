@@ -1,3 +1,14 @@
+"""
+Differential Evolution (DE) Algorithms Module.
+
+This module provides implementations of Differential Evolution, a population-based optimization algorithm.
+It includes:
+- `DifferentialEvolution`: Standard DE implementation.
+- `AsyncDifferentialEvolution`: A variant that supports asynchronous updates, useful for parallel evaluations.
+- `DifferentialEvolutionBase`: Abstract base class defining the common interface and operations.
+
+The module supports both continuous and discrete/categorical changes via ConfigSpace or direct mappings.
+"""
 import numpy as np
 import ConfigSpace as CS
 import ConfigSpace.util as CSU
@@ -11,11 +22,30 @@ from .dehb_config_repo import ConfigRepository
 
 # Adapted from https://github.com/automl/DEHB/blob/master/src/dehb/optimizers/de.py
 class DifferentialEvolutionBase():
-    '''Base class for Differential Evolution
-    '''
+    """
+    Base class for Differential Evolution (DE) algorithms.
+
+    Provides the fundamental structure for DE, including population initialization,
+    mutation, crossover, and boundary handling.
+
+    Args:
+        cs (ConfigSpace.ConfigurationSpace, optional): Configuration space of the problem.
+        f (callable, optional): Objective function to evaluate.
+        dimensions (int, optional): Number of dimensions (hyperparameters). Required if cs is None.
+        pop_size (int, optional): Population size.
+        max_age (int, optional): Maximum age of individuals in the population.
+        mutation_factor (float, optional): Mutation factor (F) for DE operations.
+        crossover_prob (float, optional): Crossover probability (CR) for DE operations.
+        strategy (str, optional): DE strategy to use (e.g., "rand1_bin").
+        boundary_fix_type (str, optional): Strategy to handle out-of-bounds ("random" or "clip").
+        config_repository (ConfigRepository, optional): Repository to store configurations and results.
+        seed (int, optional): Seed for reproducibility.
+        **kwargs: Additional keyword arguments.
+    """
     def __init__(self, cs=None, f=None, dimensions=None, pop_size=None, max_age=None,
                  mutation_factor=None, crossover_prob=None, strategy=None,
                  boundary_fix_type='random', config_repository=None, seed=None, **kwargs):
+        """Initialize the DE base optimizer with RNG and configuration space metadata."""
         if seed is None:
             seed = int(np.random.default_rng().integers(0, 2**32 - 1))
         elif isinstance(seed, np.random.Generator):
@@ -70,6 +100,7 @@ class DifferentialEvolutionBase():
         self.reset()
 
     def reset(self, *, reset_seeds: bool = True):
+        """Reset populations, incumbents, and RNG state for a fresh run."""
         self.inc_score = np.inf
         self.inc_config = None
         self.inc_id = -1
@@ -86,6 +117,7 @@ class DifferentialEvolutionBase():
         self.history = []
 
     def _shuffle_pop(self):
+        """Shuffle population members and keep fitness/age aligned."""
         pop_order = np.arange(len(self.population))
         self.rng.shuffle(pop_order)
         self.population = self.population[pop_order]
@@ -93,6 +125,7 @@ class DifferentialEvolutionBase():
         self.age = self.age[pop_order]
 
     def _sort_pop(self):
+        """Sort population by fitness with randomized tie-breaking."""
         pop_order = np.argsort(self.fitness)
         self.rng.shuffle(pop_order)
         self.population = self.population[pop_order]
@@ -100,6 +133,7 @@ class DifferentialEvolutionBase():
         self.age = self.age[pop_order]
 
     def _set_min_pop_size(self):
+        """Set minimum population size based on mutation strategy needs."""
         if self.mutation_strategy in ['rand1', 'rand2dir', 'randtobest1']:
             self._min_pop_size = 3
         elif self.mutation_strategy in ['currenttobest1', 'best1']:
@@ -114,6 +148,7 @@ class DifferentialEvolutionBase():
         return self._min_pop_size
 
     def init_population(self, pop_size: int) -> NDArray[np.float64]:
+        """Initialize a population in unit hypercube or ConfigSpace representation."""
         if self.configspace:
             # sample from CS s.t. conditional constraints (if any) are maintained
             population = self.cs.sample_configuration(size=pop_size)
@@ -244,25 +279,51 @@ class DifferentialEvolutionBase():
         return np.array(vector)
 
     def f_objective(self):
+        """Evaluate objective; must be implemented in subclasses."""
         raise NotImplementedError("The function needs to be defined in the sub class.")
 
     def mutation(self):
+        """Apply mutation to create a mutant vector."""
         raise NotImplementedError("The function needs to be defined in the sub class.")
 
     def crossover(self):
+        """Apply crossover between target and mutant vectors."""
         raise NotImplementedError("The function needs to be defined in the sub class.")
 
     def evolve(self):
+        """Run a single evolution step; subclasses define behavior."""
         raise NotImplementedError("The function needs to be defined in the sub class.")
 
     def run(self):
+        """Run the optimizer; subclasses define the full loop."""
         raise NotImplementedError("The function needs to be defined in the sub class.")
 
 
 class DifferentialEvolution(DifferentialEvolutionBase):
+    """
+    Standard Differential Evolution (DE) implementation.
+
+    Inherits from DifferentialEvolutionBase and implements the standard DE evolution cycle.
+
+    Args:
+        cs (ConfigSpace, optional): Configuration space.
+        f (callable, optional): Objective function.
+        dimensions (int, optional): Dimensions.
+        pop_size (int, optional): Population size. Default: 20.
+        max_age (int, optional): Max age. Default: inf.
+        mutation_factor (float, optional): Mutation factor.
+        crossover_prob (float, optional): Crossover probability.
+        strategy (str, optional): Strategy. Default: 'rand1_bin'.
+        encoding (bool, optional): Whether to use encoding. Default: False.
+        dim_map (dict, optional): Dimension map.
+        seed (int, optional): Seed.
+        config_repository (ConfigRepository, optional): Config repository.
+        **kwargs: Additional args.
+    """
     def __init__(self, cs=None, f=None, dimensions=None, pop_size=20, max_age=np.inf,
                  mutation_factor=None, crossover_prob=None, strategy='rand1_bin', encoding=False,
                  dim_map=None, seed=None, config_repository=None, **kwargs):
+        """Initialize a synchronous DE optimizer with optional encoding support."""
         super().__init__(cs=cs, f=f, dimensions=dimensions, pop_size=pop_size, max_age=max_age,
                          mutation_factor=mutation_factor, crossover_prob=crossover_prob,
                          strategy=strategy, seed=seed, config_repository=config_repository,
@@ -291,12 +352,14 @@ class DifferentialEvolution(DifferentialEvolutionBase):
             self.client.close()
 
     def reset(self, *, reset_seeds: bool = True):
+        """Reset run trackers and incumbents for a fresh DE run."""
         super().reset(reset_seeds=reset_seeds)
         self.traj = []
         self.runtime = []
         self.history = []
 
     def _set_min_pop_size(self):
+        """Set minimum population size based on mutation strategy needs."""
         if self.mutation_strategy in ['rand1', 'rand2dir', 'randtobest1']:
             self._min_pop_size = 3
         elif self.mutation_strategy in ['currenttobest1', 'best1']:
@@ -311,6 +374,7 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return self._min_pop_size
 
     def map_to_original(self, vector):
+        """Map an encoded vector to original dimensions using the dimension map."""
         dimensions = len(self.dim_map.keys())
         new_vector = self.rng.uniform(size=dimensions)
         for i in range(dimensions):
@@ -318,6 +382,7 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return new_vector
 
     def f_objective(self, x, fidelity=None, **kwargs):
+        """Evaluate the objective for a given config or vector."""
         if self.f is None:
             raise NotImplementedError("An objective function needs to be passed.")
         if self.encoding:
@@ -427,12 +492,14 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return mutant
 
     def mutation_currenttobest1(self, current, best, r1, r2):
+        """Perform the current-to-best/1 mutation variant."""
         diff1 = best - current
         diff2 = r1 - r2
         mutant = current + self.mutation_factor * diff1 + self.mutation_factor * diff2
         return mutant
 
     def mutation_rand2dir(self, r1, r2, r3):
+        """Perform the rand/2 directional mutation variant."""
         diff = r1 - r2 - r3
         mutant = r1 + self.mutation_factor * diff / 2
         return mutant
@@ -578,6 +645,7 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return mutants
 
     def run(self, generations=1, verbose=False, fidelity=None, reset=True, **kwargs):
+        """Run DE for a fixed number of generations and return trackers."""
         # checking if a run exists
         if not hasattr(self, 'traj') or reset:
             self.reset()
@@ -602,6 +670,27 @@ class DifferentialEvolution(DifferentialEvolutionBase):
 
 
 class AsyncDifferentialEvolution(DifferentialEvolution):
+    """
+    Asynchronous Differential Evolution.
+
+    Extends DE to support asynchronous updates, allowing for better efficiency in parallel environments
+    where evaluations might finish at different times.
+
+    Args:
+        cs (ConfigSpace, optional): Configuration space.
+        f (callable, optional): Objective function.
+        dimensions (int, optional): Dimensions.
+        pop_size (int, optional): Population size.
+        max_age (int, optional): Max age.
+        mutation_factor (float, optional): Mutation factor.
+        crossover_prob (float, optional): Crossover probability.
+        strategy (str, optional): Strategy.
+        async_strategy (str): Strategy for asynchronous updates ("deferred", "immediate", "random", "worst").
+        seed (int, optional): Seed.
+        rng (np.random.Generator, optional): Random number generator.
+        config_repository (ConfigRepository, optional): Config repository.
+        **kwargs: Additional args.
+    """
     def __init__(self, cs=None, f=None, dimensions=None, pop_size=None, max_age=np.inf,
                  mutation_factor=None, crossover_prob=None, strategy='rand1_bin',
                  async_strategy='immediate', seed=None, rng=None, config_repository=None, **kwargs):
@@ -696,6 +785,7 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
         return population[selection]
 
     def eval_pop(self, population=None, population_ids=None, fidelity=None, **kwargs):
+        """Evaluate a population and return fitness, runtime, and history."""
         pop = self.population if population is None else population
         pop_ids = self.population_ids if population_ids is None else population_ids
         pop_size = self.pop_size if population is None else len(pop)
@@ -853,6 +943,7 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
         return traj, runtime, history
 
     def run(self, generations=1, verbose=False, fidelity=None, reset=True, **kwargs):
+        """Run asynchronous DE for the specified generations."""
         # checking if a run exists
         if not hasattr(self, "traj") or reset:
             self.reset()
