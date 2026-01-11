@@ -1,3 +1,4 @@
+"""Graph Convolutional layer with distance-aware edge weighting."""
 import math
 import torch
 import torch.nn as nn
@@ -6,6 +7,12 @@ from torch_geometric.utils import scatter
 
 
 class DistanceAwareGraphConvolution(nn.Module):
+    """
+    Graph Convolution that incorporates distance information into the message passing.
+    
+    Supports different aggregation methods (sum, mean, max) and handles
+    edge features related to physical distance.
+    """
     def __init__(
         self,
         in_channels: int,
@@ -14,6 +21,14 @@ class DistanceAwareGraphConvolution(nn.Module):
         aggregation: str = "sum",
         bias: bool = True
     ):
+        """
+        Args:
+            in_channels: Dimension of input node features.
+            out_channels: Dimension of output node features.
+            distance_influence: Method to incorporate distance ('inverse', 'exponential', 'learnable').
+            aggregation: Aggregation method ('sum', 'mean', 'max').
+            bias: Whether to use a bias term.
+        """
         super(DistanceAwareGraphConvolution, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -46,6 +61,7 @@ class DistanceAwareGraphConvolution(nn.Module):
         self.init_parameters()
         
     def init_parameters(self):
+        """Initializes the parameters of the layer using uniform distribution."""
         for param in self.parameters():
             if param.dim() > 1:
                 stdv = 1. / math.sqrt(param.size(-1))

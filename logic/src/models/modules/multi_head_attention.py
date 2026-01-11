@@ -1,17 +1,31 @@
+"""Multi-Head Attention mechanism for transformer architectures."""
 import math
 import torch
 import torch.nn as nn
-
 from typing import Optional
 
 
 class MultiHeadAttention(nn.Module):
+    """
+    Multi-Head Attention mechanism.
+    
+    Allows the model to jointly attend to information from different representation subspaces
+    at different positions. Implements scaled dot-product attention.
+    """
     def __init__(self, 
                 n_heads:int,
                 input_dim:int,
                 embed_dim: Optional[int]=None,
                 val_dim: Optional[int]=None,
                 key_dim: Optional[int]=None):
+        """
+        Args:
+            n_heads: Number of attention heads.
+            input_dim: Dimensionality of the input features.
+            embed_dim: Total embedding dimension (output dimension).
+            val_dim: Dimension of value vectors per head.
+            key_dim: Dimension of key/query vectors per head.
+        """
         super(MultiHeadAttention, self).__init__()
         if val_dim is None:
             assert embed_dim is not None, "Provide either embed_dim or val_dim"
@@ -34,17 +48,25 @@ class MultiHeadAttention(nn.Module):
         self.last_attn = (None, None)
 
     def init_parameters(self):
+        """Initializes the parameters of the attention layers using Xavier uniform initialization."""
         for param in self.parameters():
             stdv = 1. / math.sqrt(param.size(-1))
             param.data.uniform_(-stdv, stdv)
 
     def forward(self, q, h=None, mask=None):
         """
-        :param q: queries (batch_size, n_query, input_dim)
-        :param h: data (batch_size, graph_size, input_dim)
-        :param mask: mask (batch_size, n_query, graph_size) or viewable as that (i.e. can be 2 dim if n_query == 1)
-        Mask should contain 1 if attention is not possible (i.e. mask is negative adjacency)
-        :return:
+        Computes the multi-head attention.
+
+        Args:
+            q: Queries tensor of shape (batch_size, n_query, input_dim).
+            h: Key/Value keys tensor of shape (batch_size, graph_size, input_dim). 
+               If None, defaults to q (self-attention).
+            mask: Attention mask of shape (batch_size, n_query, graph_size).
+                  Should contain 1 (or > -inf) if attention is not possible, usually used as additive mask.
+
+        Returns:
+            context: Context vectors (aggregated values) of shape (batch_size, n_query, embed_dim).
+            attn: Attention weights (batch_size, n_heads, n_query, graph_size).
         """
         if h is None:
             h = q  # compute self-attention

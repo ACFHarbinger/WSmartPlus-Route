@@ -1,3 +1,4 @@
+"""Optimized Graph Convolution implementation with multiple aggregators."""
 import torch
 
 from torch import Tensor
@@ -13,6 +14,13 @@ from torch_geometric.typing import SparseTensor, OptTensor, Adj, torch_sparse
 
 # Adapted from https://github.com/shyam196/egc
 class EfficientGraphConvolution(MessagePassing):
+    """
+    Efficient Graph Convolution (EGC) with multiple aggregators.
+    
+    This layer computes node updates using a linear combination of different 
+    neighborhood aggregations (mean, max, sum, var, std, symnorm) and self-features.
+    Supports multi-head weights and basis functions for efficiency.
+    """
     _cached_edge_index: Optional[Tuple[Tensor, OptTensor]]
     _cached_adj_t: Optional[SparseTensor]
     def __init__(
@@ -27,6 +35,21 @@ class EfficientGraphConvolution(MessagePassing):
         bias: bool = True,
         sigmoid: bool = False,
         **kwargs):
+        """
+        Args:
+            in_channels: Dimension of input features.
+            out_channels: Dimension of output features.
+            aggrs: Iterable of aggregator names to use (e.g., "sum", "mean", "symnorm").
+            num_heads: Number of attention heads.
+            num_bases: Number of basis functions for the weight matrix.
+            cached: If set to `True`, the layer will cache the computation of
+                :obj:`edge_index` and :obj:`symnorm_weight` on first execution,
+                and will use the cached values for further executions.
+            add_self_loops: If set to `False`, will not add self-loops to the
+                input graph.
+            bias: Whether to use a bias term.
+            sigmoid: If set to `True`, applies a sigmoid activation to the weighting coefficients.
+        """
         super(EfficientGraphConvolution, self).__init__(node_dim=1, **kwargs)
         if out_channels % num_heads != 0:
             raise ValueError("out_channels must be divisible by the number of heads")
@@ -57,6 +80,7 @@ class EfficientGraphConvolution(MessagePassing):
         self.reset_parameters()
 
     def reset_parameters(self):
+        """Resets the parameters of the layer using Glorot initialization."""
         glorot(self.bases_weight)
         self.comb_weight.reset_parameters()
         zeros(self.bias)
@@ -64,7 +88,16 @@ class EfficientGraphConvolution(MessagePassing):
         self._cached_edge_index = None
 
     def forward(self, x: Tensor, edge_index: Adj) -> Tensor:
-        """"""
+        """
+        Forward pass for Efficient Graph Convolution.
+
+        Args:
+            x: Node features tensor of shape (batch_size, num_nodes, in_channels).
+            edge_index: Graph adjacency information.
+
+        Returns:
+            Updated node features tensor.
+        """
         symnorm_weight: OptTensor = None
         if "symnorm" in self.aggregators:
             if isinstance(edge_index, Tensor):
@@ -154,6 +187,9 @@ class EfficientGraphConvolution(MessagePassing):
         return out
 
     def message(self, x_j: Tensor) -> Tensor:
+        """
+        Passes messages along edges.
+        """
         return x_j
 
     def aggregate(
@@ -163,6 +199,9 @@ class EfficientGraphConvolution(MessagePassing):
         dim_size: Optional[int] = None,
         symnorm_weight: OptTensor = None,
     ) -> Tensor:
+        """
+        Aggregates messages from neighbors using multiple aggregators.
+        """
         aggregated = []
         inputs = inputs.permute(1, 0, 2)
         for aggregator in self.aggregators:
@@ -194,6 +233,9 @@ class EfficientGraphConvolution(MessagePassing):
         return torch.stack(aggregated, dim=1)
 
     def message_and_aggregate(self, adj_t: SparseTensor, x: Tensor) -> Tensor:
+        """
+        Performs message passing and aggregation in a single step for sparse tensors.
+        """
         aggregated = []
         if len(self.aggregators) > 1 and "symnorm" in self.aggregators:
             adj_t_nonorm = adj_t.set_value(None)
@@ -223,6 +265,7 @@ class EfficientGraphConvolution(MessagePassing):
         return torch.stack(aggregated, dim=1)
 
     def __repr__(self):
+        """String representation of the layer."""
         return "{}({}, {}, {})".format(
             self.__class__.__name__,
             self.in_channels,

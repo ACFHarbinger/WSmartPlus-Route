@@ -1,3 +1,4 @@
+"""Standard Graph Convolutional Network (GCN) layer."""
 import math
 import torch
 import torch.nn as nn
@@ -6,11 +7,24 @@ from torch_geometric.utils import scatter
 
 
 class GraphConvolution(nn.Module):
+    """
+    Standard Graph Convolution layer.
+    
+    Performs message passing by aggregating features from neighbors:
+    h_i' = W * h_i + Agg({h_j})
+    """
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
                  aggregation: str = "sum",
                  bias: bool = True):
+        """
+        Args:
+            in_channels: Dimension of input node features.
+            out_channels: Dimension of output node features.
+            aggregation: Aggregation method ('sum', 'mean', 'max').
+            bias: Whether to include a learnable bias term.
+        """
         super(GraphConvolution, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -24,6 +38,7 @@ class GraphConvolution(nn.Module):
         self.init_parameters()
         
     def init_parameters(self):
+        """Initializes the parameters of the layer using uniform distribution."""
         for param in self.parameters():
             stdv = 1. / math.sqrt(param.size(-1))
             param.data.uniform_(-stdv, stdv)
