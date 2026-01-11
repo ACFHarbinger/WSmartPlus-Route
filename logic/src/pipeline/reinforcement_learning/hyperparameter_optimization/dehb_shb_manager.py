@@ -1,11 +1,30 @@
+"""
+DEHB Successive Halving Bracket Manager.
+
+This module implements the `SynchronousHalvingBracketManager`, which handles the logic for
+Successive Halving (SH) brackets within the DEHB algorithm. It manages:
+- Job allocation for different fidelities (rungs)
+- Synchronization of brackets
+- Promotions to higher fidelities
+"""
 import numpy as np
 
 
 # Adapted from https://github.com/automl/DEHB/blob/master/src/dehb/utils/bracket_manager.py
 class SynchronousHalvingBracketManager(object):
-    """ Synchronous Successive Halving utilities
+    """
+    Manages Successive Halving (SH) brackets for DEHB.
+
+    This class tracks the state of configurations within a bracket, handling job allocation,
+    completion, and promotion to higher fidelities in a synchronous manner.
+
+    Args:
+        n_configs (list[int]): Number of configurations per rung.
+        fidelities (list[float]): Fidelity levels for each rung.
+        bracket_id (int, optional): Identifier for this bracket.
     """
     def __init__(self, n_configs, fidelities, bracket_id=None):
+        """Initialize the bracket state for synchronous successive halving."""
         assert len(n_configs) == len(fidelities)
         self.n_configs = n_configs
         self.fidelities = fidelities
@@ -140,6 +159,7 @@ class SynchronousHalvingBracketManager(object):
             self.sh_bracket[fidelity] += waiting
 
     def __repr__(self):
+        """Return a formatted table of bracket status per fidelity."""
         cell_width = 10
         cell = "{{:^{}}}".format(cell_width)
         fidelity_cell = "{{:^{}.2f}}".format(cell_width)
