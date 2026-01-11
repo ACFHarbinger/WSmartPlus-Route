@@ -1,3 +1,20 @@
+"""
+Vehicle Routing Problem with Profits (VRPP) policy module.
+
+This module implements a high-level wrapper for VRPP-based waste collection.
+It handles the prediction of which bins will overflow (must-go bins) and
+dispatches to the appropriate solver (Gurobi or Hexaly).
+
+VRPP formulation:
+- Objective: Maximize (Revenue - Travel Cost - Vehicle Cost)
+- Nodes have profits (collected waste revenue)
+- Nodes can be optionally visited (prize collecting)
+- Must-go nodes: Bins predicted to overflow (high penalty if skipped)
+- Capacity constraints on all vehicles
+
+The policy uses statistical prediction (mean + σ * std) to identify
+critical bins that require collection.
+"""
 import numpy as np
 import gurobipy as gp
 
@@ -20,8 +37,34 @@ def policy_vrpp(
     config: Optional[dict] = None
 ) -> Tuple[Optional[List[int]], float, float]:
     """
-    High-level policy wrapper for VRPP.
-    Calculates must_go bins and dispatches to the appropriate optimizer (Gurobi/Hexaly).
+    Execute VRPP-based waste collection policy.
+
+    Predicts which bins will overflow and solves a Prize-Collecting VRP to
+    maximize profit (revenue from collected waste minus travel and vehicle costs).
+
+    Must-go prediction: bins where (current + mean + param*std) >= 100%
+
+    Args:
+        policy (str): Policy name (e.g., 'gurobi_vrpp_0.5', 'hexaly_vrpp_1.0').
+            Format: '{optimizer}_vrpp_{param}' where param is the std multiplier
+        bins_c (NDArray[np.float64]): Current bin fill levels (0-100%)
+        bins_means (NDArray[np.float64]): Mean daily accumulation rates
+        bins_std (NDArray[np.float64]): Std deviation of accumulation rates
+        distance_matrix (List[List[float]]): Distance matrix (N x N)
+        model_env (Optional[gp.Env]): Gurobi environment (for Gurobi only)
+        waste_type (str): Waste type identifier (e.g., 'plastic')
+        area (str): Geographic area identifier (e.g., 'riomaior')
+        n_vehicles (int): Number of vehicles available
+        config (Optional[dict]): Additional configuration parameters
+
+    Returns:
+        Tuple[Optional[List[int]], float, float]: Routes, profit, and cost
+            - routes: Sequence of node IDs including depot returns, or None if failed
+            - profit: Total profit (revenue - cost)
+            - cost: Total travel cost
+
+    Raises:
+        ValueError: If policy format is invalid or param <= 0
     """
     optimizer = 'gurobi' if 'gurobi' in policy else 'hexaly'
     try:

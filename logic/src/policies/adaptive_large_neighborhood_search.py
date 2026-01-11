@@ -1,11 +1,32 @@
+"""
+Adaptive Large Neighborhood Search (ALNS) policy module.
+
+This module implements multiple variants of the Adaptive Large Neighborhood Search
+metaheuristic for solving the Capacitated Vehicle Routing Problem with Profits (CVRPP).
+
+The module provides three implementation variants:
+1. Custom ALNS: Pure Python implementation with destroy/repair operators
+2. ALNS Package: Integration with the `alns` Python package
+3. OR-Tools ALNS: Uses Google OR-Tools with Guided Local Search metaheuristic
+
+ALNS iteratively improves solutions by:
+- Destroy operators: Remove nodes from current solution (random, worst, cluster removal)
+- Repair operators: Re-insert removed nodes optimally (greedy, regret-2 insertion)
+- Adaptive weighting: Operator selection based on historical performance
+- Acceptance: Simulated annealing for accepting worse solutions
+
+Reference:
+    Pisinger, D., & Ropke, S. (2007). A general heuristic for vehicle routing problems.
+    Computers & Operations Research, 34(8), 2403-2435.
+"""
 import math
 import time
 import copy
 import random
 import numpy as np
 
-from typing import List
-from alns import ALNS 
+from typing import List, Tuple
+from alns import ALNS
 from alns.stop import MaxRuntime
 from alns.select import RouletteWheel
 from alns.accept import SimulatedAnnealing
@@ -14,6 +35,18 @@ from ortools.constraint_solver import routing_enums_pb2
 
 
 class ALNSParams:
+    """
+    Configuration parameters for the ALNS solver.
+
+    Attributes:
+        time_limit (int): Maximum runtime in seconds. Default: 10
+        max_iterations (int): Maximum number of ALNS iterations. Default: 1000
+        start_temp (float): Initial temperature for simulated annealing. Default: 100
+        cooling_rate (float): Temperature decay factor per iteration. Default: 0.995
+        reaction_factor (float): Learning rate for operator weight updates (rho). Default: 0.1
+        min_removal (int): Minimum number of nodes to remove. Default: 1
+        max_removal_pct (float): Maximum percentage of nodes to remove. Default: 0.3
+    """
     def __init__(self, time_limit=10, max_iterations=1000, 
                  start_temp=100, cooling_rate=0.995, 
                  reaction_factor=0.1, 
@@ -27,7 +60,34 @@ class ALNSParams:
         self.max_removal_pct = max_removal_pct
 
 class ALNSSolver:
+    """
+    Custom implementation of Adaptive Large Neighborhood Search for CVRP.
+
+    This solver uses destroy and repair operators to iteratively improve solutions.
+    Operator selection is adaptive based on historical performance using roulette wheel selection.
+
+    Attributes:
+        dist_matrix (np.ndarray): Distance matrix where dist_matrix[i][j] is distance from i to j
+        demands (dict): Demand/weight for each customer node {node_id: demand_value}
+        capacity (float): Vehicle capacity constraint
+        R (float): Revenue per unit of demand collected
+        C (float): Cost per unit of distance traveled
+        params (ALNSParams): Algorithm parameters
+        destroy_ops (List): List of destroy operator functions
+        repair_ops (List): List of repair operator functions
+    """
     def __init__(self, dist_matrix, demands, capacity, R, C, params: ALNSParams):
+        """
+        Initialize the ALNS solver.
+
+        Args:
+            dist_matrix (np.ndarray): Distance matrix (N x N) including depot at index 0
+            demands (dict): Dictionary mapping node IDs to demand values
+            capacity (float): Maximum vehicle capacity
+            R (float): Revenue per unit of collected demand
+            C (float): Cost coefficient per distance unit
+            params (ALNSParams): Configuration parameters for ALNS
+        """
         self.dist_matrix = dist_matrix
         self.demands = demands
         self.capacity = capacity
@@ -51,6 +111,18 @@ class ALNSSolver:
         self.repair_counts = [0] * len(self.repair_ops)
 
     def solve(self, initial_solution=None):
+        """
+        Execute the ALNS algorithm to find high-quality routing solutions.
+
+        Args:
+            initial_solution (List[List[int]], optional): Initial set of routes.
+                If None, a random greedy solution is constructed.
+
+        Returns:
+            Tuple[List[List[int]], float]: Best routes found and their total cost
+                - routes: List of routes where each route is a list of node IDs
+                - cost: Total travel cost (distance * C)
+        """
         # Initial Solution Construction (if needed)
         if initial_solution:
             current_routes = initial_solution
@@ -129,7 +201,16 @@ class ALNSSolver:
             
         return best_routes, best_cost
 
-    def select_operator(self, weights):
+    def select_operator(self, weights: List[float]) -> int:
+        """
+        Select an operator index using roulette wheel selection.
+
+        Args:
+            weights (List[float]): Weights for each operator.
+
+        Returns:
+            int: Index of the selected operator.
+        """
         total = sum(weights)
         r = random.uniform(0, total)
         curr = 0
@@ -140,6 +221,15 @@ class ALNSSolver:
         return len(weights) - 1
 
     def calculate_cost(self, routes: List[List[int]]) -> float:
+        """
+        Calculate the total weighted travel cost for a set of routes.
+
+        Args:
+            routes (List[List[int]]): List of routes (node sequences).
+
+        Returns:
+            float: Total distance multiplied by the cost coefficient.
+        """
         total_dist = 0
         for route in routes:
             if not route: continue
@@ -152,7 +242,13 @@ class ALNSSolver:
 
     # --- Operators ---
     
-    def build_initial_solution(self):
+    def build_initial_solution(self) -> List[List[int]]:
+        """
+        Construct an initial feasible solution using a greedy shuffle-and-split heuristic.
+
+        Returns:
+            List[List[int]]: Initial routing solution.
+        """
         # Simple Savings or Greedy
         # Let's use a dummy one-route-per-node to start, usually ALNS fixes it fast
         # Or better: random shuffle giant tour and split
@@ -173,7 +269,17 @@ class ALNSSolver:
         if curr_route: routes.append(curr_route)
         return routes
 
-    def random_removal(self, routes, n_remove):
+    def random_removal(self, routes: List[List[int]], n_remove: int) -> Tuple[List[List[int]], List[int]]:
+        """
+        Randomly remove n_remove nodes from the current routes.
+
+        Args:
+            routes (List[List[int]]): Current routes.
+            n_remove (int): Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
+        """
         removed = []
         # Flatten
         all_nodes = []
@@ -197,7 +303,17 @@ class ALNSSolver:
         routes = [r for r in routes if r]
         return routes, removed
 
-    def worst_removal(self, routes, n_remove):
+    def worst_removal(self, routes: List[List[int]], n_remove: int) -> Tuple[List[List[int]], List[int]]:
+        """
+        Remove nodes that contribute most to the current routing cost.
+
+        Args:
+            routes (List[List[int]]): Current routes.
+            n_remove (int): Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
+        """
         # Remove nodes that contribute most to the cost
         costs = []
         for r_idx, route in enumerate(routes):
@@ -245,7 +361,17 @@ class ALNSSolver:
         routes = [r for r in routes if r]
         return routes, removed
 
-    def cluster_removal(self, routes, n_remove):
+    def cluster_removal(self, routes: List[List[int]], n_remove: int) -> Tuple[List[List[int]], List[int]]:
+        """
+        Remove a cluster of nodes based on spatial proximity (Shaw Removal variant).
+
+        Args:
+            routes (List[List[int]]): Current routes.
+            n_remove (int): Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
+        """
         # Pick a random node, remove it and its k nearest neighbors
         # Simplified Shaw
         if not any(routes): return routes, []
@@ -298,7 +424,17 @@ class ALNSSolver:
         routes = [r for r in routes if r]
         return routes, final_removed
 
-    def greedy_insertion(self, routes, removed_nodes):
+    def greedy_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
+        """
+        Insert removed nodes into their best (cheapest) positions greedily.
+
+        Args:
+            routes (List[List[int]]): Partial routes.
+            removed_nodes (List[int]): Nodes to be re-inserted.
+
+        Returns:
+            List[List[int]]: New routes after insertion.
+        """
         # Insert each node in best position
         random.shuffle(removed_nodes) # Randomize order
         
@@ -344,7 +480,20 @@ class ALNSSolver:
                 
         return routes
 
-    def regret_2_insertion(self, routes, removed_nodes):
+    def regret_2_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
+        """
+        Insert removed nodes based on the regret-2 criterion.
+
+        Nodes with the highest difference between their second-best and best
+        insertion costs are prioritized.
+
+        Args:
+            routes (List[List[int]]): Partial routes.
+            removed_nodes (List[int]): Nodes to be re-inserted.
+
+        Returns:
+            List[List[int]]: New routes after insertion.
+        """
         # Regret-2: max(2nd_best - best)
         # More computationally expensive
         # For simplify/speed, let's just stick to a specialized structure 
@@ -412,6 +561,22 @@ class ALNSSolver:
         return routes
 
 def run_alns(dist_matrix, demands, capacity, R, C, values):
+    """
+    Run custom ALNS solver for CVRP.
+
+    Args:
+        dist_matrix (np.ndarray): Distance matrix (N x N) with depot at index 0
+        demands (dict): Node demands {node_id: demand_value}
+        capacity (float): Vehicle capacity constraint
+        R (float): Revenue per unit demand
+        C (float): Cost per unit distance
+        values (dict): Configuration dictionary containing:
+            - time_limit (int): Maximum runtime in seconds (default: 10)
+            - Iterations (int): Maximum iterations (default: 2000)
+
+    Returns:
+        Tuple[List[List[int]], float]: Routes and total travel cost
+    """
     params = ALNSParams(
         time_limit=values.get('time_limit', 10),
         max_iterations=values.get('Iterations', 2000)
@@ -424,7 +589,20 @@ def run_alns(dist_matrix, demands, capacity, R, C, values):
 # --- ALNS Package Implementation ---
 class ALNSState:
     """
-    State representation for the alns package.
+    State representation for the `alns` Python package.
+
+    Encapsulates the current solution state including routes, unassigned nodes,
+    and profit calculation for Prize-Collecting VRP.
+
+    Attributes:
+        routes (List[List[int]]): Current routing solution
+        unassigned (List[int]): Nodes not yet assigned to routes
+        dist_matrix: Distance matrix reference
+        demands (dict): Node demand values
+        capacity (float): Vehicle capacity
+        R (float): Revenue coefficient
+        C (float): Cost coefficient
+        values (dict): Additional problem parameters
     """
     def __init__(self, routes: List[List[int]], unassigned: List[int], 
                  dist_matrix, demands, capacity, R, C, values):
@@ -484,11 +662,27 @@ class ALNSState:
         return total_profit
         
     @property
-    def cost(self):
+    def cost(self) -> float:
+        """
+        The cost of the current state (identical to the negative profit).
+
+        Returns:
+            float: Current objective value.
+        """
         return self.objective()
 
 # Operators for ALNS package
-def alns_pkg_random_removal(state, random_state):
+def alns_pkg_random_removal(state: ALNSState, random_state: np.random.RandomState) -> ALNSState:
+    """
+    Random removal operator for the `alns` package.
+
+    Args:
+        state (ALNSState): Current state.
+        random_state (np.random.RandomState): Random number generator.
+
+    Returns:
+        ALNSState: New state with nodes removed.
+    """
     new_state = state.copy()
     all_nodes = [n for r in new_state.routes for n in r]
     if not all_nodes:
@@ -507,7 +701,17 @@ def alns_pkg_random_removal(state, random_state):
     new_state._score = new_state.calculate_profit()
     return new_state
 
-def alns_pkg_worst_removal(state, random_state):
+def alns_pkg_worst_removal(state: ALNSState, random_state: np.random.RandomState) -> ALNSState:
+    """
+    Worst removal operator for the `alns` package.
+
+    Args:
+        state (ALNSState): Current state.
+        random_state (np.random.RandomState): Random number generator.
+
+    Returns:
+        ALNSState: New state with nodes removed.
+    """
     new_state = state.copy()
     all_nodes = [n for r in new_state.routes for n in r]
     if not all_nodes: return new_state
@@ -535,7 +739,17 @@ def alns_pkg_worst_removal(state, random_state):
     new_state._score = new_state.calculate_profit()
     return new_state
 
-def alns_pkg_greedy_insertion(state, random_state):
+def alns_pkg_greedy_insertion(state: ALNSState, random_state: np.random.RandomState) -> ALNSState:
+    """
+    Greedy insertion operator for the `alns` package.
+
+    Args:
+        state (ALNSState): Current state.
+        random_state (np.random.RandomState): Random number generator.
+
+    Returns:
+        ALNSState: New state with nodes inserted.
+    """
     new_state = state.copy()
     random_state.shuffle(new_state.unassigned)
     while new_state.unassigned:
@@ -566,7 +780,21 @@ def alns_pkg_greedy_insertion(state, random_state):
 
 def run_alns_package(dist_matrix, demands, capacity, R, C, values):
     """
-    Runner for ALNS package implementation.
+    Run ALNS using the `alns` Python package with Prize-Collecting VRP.
+
+    This implementation uses the `alns` library's framework with custom
+    destroy/repair operators and Simulated Annealing acceptance criterion.
+
+    Args:
+        dist_matrix (np.ndarray): Distance matrix (N x N) with depot at index 0
+        demands (dict): Node demands {node_id: demand_value}
+        capacity (float): Vehicle capacity constraint
+        R (float): Revenue per unit demand
+        C (float): Cost per unit distance
+        values (dict): Configuration with 'time_limit' (default: 10 seconds)
+
+    Returns:
+        Tuple[List[List[int]], float]: Routes and total distance cost
     """
     n_nodes = len(dist_matrix) - 1
     nodes = list(range(1, n_nodes + 1))
@@ -606,7 +834,22 @@ def run_alns_package(dist_matrix, demands, capacity, R, C, values):
 # --- OR-Tools ALNS Implementation ---
 def run_alns_ortools(dist_matrix, demands, capacity, R, C, values):
     """
-    Runner for ALNS using OR-Tools (Guided Local Search).
+    Run ALNS using Google OR-Tools with Guided Local Search.
+
+    Uses OR-Tools' constraint programming solver with the Guided Local Search
+    metaheuristic, which is a variant of ALNS. Solves Capacitated VRP with
+    active nodes only (nodes present in demands dictionary).
+
+    Args:
+        dist_matrix (np.ndarray): Full distance matrix (N x N) with depot at index 0
+        demands (dict): Node demands {node_id: demand_value}. Only these nodes are active.
+        capacity (float): Vehicle capacity constraint
+        R (float): Revenue per unit demand (unused in this variant)
+        C (float): Cost per unit distance
+        values (dict): Configuration with 'time_limit' (default: 10 seconds)
+
+    Returns:
+        Tuple[List[List[int]], float]: Routes (in global node IDs) and total cost
     """
     # 1. Identify active nodes (Depot + keys in demands)
     active_nodes = [0] + sorted(list(demands.keys()))

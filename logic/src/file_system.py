@@ -1,3 +1,14 @@
+"""
+File System Utility Module.
+
+This module provides high-level utilities for managing the WSmart+ project's 
+file system, including:
+1. Cryptographic operations: Key generation, encryption, and decryption.
+2. Entry updates: Batch processing of file contents based on patterns.
+3. Entry deletion: Cleanup of logs, models, datasets, and cache directories.
+
+It acts as a CLI entry point for administrative and data-management tasks.
+"""
 import os
 import sys
 import shutil
@@ -24,6 +35,20 @@ from .utils.io_utils import (
 )
 
 def perform_cryptographic_operations(opts: Dict[str, Any]) -> None:
+    """
+    Perform cryptographic tasks based on the provided options.
+
+    Tasks include:
+    - Key generation: If no input path is provided, generates a new symmetric key.
+    - Encryption: Encrypts a file using a stored key and verifies the result.
+
+    Args:
+        opts (Dict[str, Any]): Configuration options containing paths, key names, 
+            and encryption parameters.
+
+    Raises:
+        Exception: If any cryptographic operation fails.
+    """
     try:
         if 'input_path' not in opts or opts['input_path'] is None:
             _, _ = generate_key(opts['salt_size'], opts['key_length'], opts['hash_iterations'], opts['symkey_name'], opts['env_file'])
@@ -41,6 +66,25 @@ def perform_cryptographic_operations(opts: Dict[str, Any]) -> None:
         raise Exception(f"failed to perform cryptographic operations due to {repr(e)}")
 
 def update_file_system_entries(opts: Dict[str, Any]) -> int:
+    """
+    Apply content updates or statistical processing to files/directories.
+
+    Logic:
+    1. Identifies the target entry (file or directory).
+    2. Optional preview: Shows changes/statistics and asks for confirmation.
+    3. Execution: Processes files matching a pattern or a specific target path.
+
+    Args:
+        opts (Dict[str, Any]): Configuration options containing target paths, 
+            filename patterns, update operations, and preview flags.
+
+    Returns:
+        int: 1 if successful, 0 if cancelled by user.
+
+    Raises:
+        ValueError: If target path does not exist.
+        Exception: If file processing fails.
+    """
     try:
         target_path = os.path.join(ROOT_DIR, opts['target_entry'])
         process_stats = 'stats_function' in opts and opts['stats_function'] is not None
@@ -77,6 +121,24 @@ def update_file_system_entries(opts: Dict[str, Any]) -> int:
         raise Exception(f"failed to update file system entries due to {repr(e)}")
 
 def delete_file_system_entries(opts: Dict[str, Any]) -> int:
+    """
+    Batch delete project-related directories based on provided flags.
+
+    Supported categories:
+    - WandB logs, training logs, model outputs.
+    - Datasets, evaluation results, test sim outputs/checkpoints.
+    - Local cache directories.
+
+    Args:
+        opts (Dict[str, Any]): Configuration options containing boolean flags for 
+            each directory category and directory names.
+
+    Returns:
+        int: 0 after completion or cancellation.
+
+    Raises:
+        Exception: If listing or deletion operations fail.
+    """
     try:
         directories_to_delete = []
         if opts.get('wandb'):

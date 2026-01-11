@@ -1,3 +1,26 @@
+"""
+Last-Minute (Reactive) routing policy module.
+
+This module implements reactive waste collection policies that trigger collection
+only when bin fill levels exceed a specified threshold. This is a demand-driven
+approach that responds to actual waste accumulation rather than following a fixed schedule.
+
+The module provides two variants:
+1. policy_last_minute: Collect bins above threshold
+2. policy_last_minute_and_path: Collect threshold bins + opportunistic collection
+   along the shortest paths between visited bins (reduces future trips)
+
+Key Features:
+- Threshold-based triggering (e.g., collect when fill level > 80%)
+- Single and multi-vehicle support
+- Capacity-aware routing (insert depot returns when vehicle full)
+- Opportunistic collection along paths for efficiency
+
+This policy is useful for:
+- Sparse or irregular waste generation patterns
+- Reducing unnecessary trips to nearly-empty bins
+- Benchmarking against fixed-schedule policies
+"""
 import numpy as np
 
 from typing import List
@@ -9,14 +32,32 @@ from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
 
 
 def policy_last_minute(
-        bins: NDArray[np.float64], 
-        distancesC: NDArray[np.int32], 
+        bins: NDArray[np.float64],
+        distancesC: NDArray[np.int32],
         lvl: NDArray[np.float64],
-        waste_type: str='plastic', 
-        area: str='riomaior', 
+        waste_type: str='plastic',
+        area: str='riomaior',
         n_vehicles: int=1,
         coords: DataFrame=None
     ):
+    """
+    Execute a last-minute (reactive) collection policy.
+
+    Collects only bins whose fill level exceeds the threshold. If any bins
+    exceed the threshold, generates a route covering all such bins.
+
+    Args:
+        bins (NDArray[np.float64]): Current fill levels for all bins (0-100%)
+        distancesC (NDArray[np.int32]): Distance matrix for routing
+        lvl (NDArray[np.float64]): Threshold fill levels per bin (same shape as bins)
+        waste_type (str): Type of waste being collected. Default: 'plastic'
+        area (str): Geographic area name. Default: 'riomaior'
+        n_vehicles (int): Number of vehicles available. Default: 1
+        coords (DataFrame, optional): Bin coordinates (for multi-vehicle routing)
+
+    Returns:
+        List[int]: Tour as a sequence of node IDs. Returns [0] if no bins exceed threshold.
+    """
     tour = []
     to_collect = np.nonzero(bins > lvl)[0] + 1
     if len(to_collect) > 0:
@@ -33,14 +74,42 @@ def policy_last_minute(
 
 def policy_last_minute_and_path(
         bins: NDArray[np.float64],
-        distancesC: NDArray[np.int32], 
-        paths_between_states: List[List[int]], 
+        distancesC: NDArray[np.int32],
+        paths_between_states: List[List[int]],
         lvl: NDArray[np.float64],
-        waste_type: str='plastic', 
-        area: str='riomaior', 
+        waste_type: str='plastic',
+        area: str='riomaior',
         n_vehicles: int=1,
         coords: DataFrame=None
     ):
+    """
+    Execute last-minute policy with opportunistic path-based collection.
+
+    Similar to policy_last_minute, but also opportunistically collects bins
+    along the shortest paths between threshold-exceeding bins, if capacity allows.
+    This reduces future collection trips by serving nearby bins "on the way".
+
+    Algorithm:
+    1. Identify bins exceeding threshold
+    2. Generate initial route covering these bins
+    3. For each edge in the route, check bins along the shortest path
+    4. Collect path bins if they haven't been visited and capacity allows
+
+    Args:
+        bins (NDArray[np.float64]): Current fill levels for all bins (0-100%)
+        distancesC (NDArray[np.int32]): Distance matrix for routing
+        paths_between_states (List[List[int]]): Precomputed shortest paths.
+            paths_between_states[i][j] is the path from node i to node j
+        lvl (NDArray[np.float64]): Threshold fill levels per bin
+        waste_type (str): Type of waste being collected. Default: 'plastic'
+        area (str): Geographic area name. Default: 'riomaior'
+        n_vehicles (int): Number of vehicles available. Default: 1
+        coords (DataFrame, optional): Bin coordinates (for multi-vehicle routing)
+
+    Returns:
+        List[int]: Tour including threshold bins and opportunistic path bins.
+            Returns [0] if no bins exceed threshold.
+    """
     tour = []
     to_collect = np.nonzero(bins > lvl)[0] + 1
     if len(to_collect) > 0:

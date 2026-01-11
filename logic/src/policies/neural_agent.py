@@ -1,3 +1,24 @@
+"""
+Neural Agent wrapper for deep reinforcement learning models.
+
+This module provides the interface between the simulation environment and
+neural routing models (Attention Models, GCN-based models, etc.).
+
+The NeuralAgent handles:
+- Batched inference for simulation evaluation
+- Hierarchical Reinforcement Learning (HRL) integration
+- Attention weight extraction for interpretability
+- Post-processing (TSP refinement, 2-opt optimization)
+- Masking and gating decisions from manager networks
+
+Key Components:
+- compute_batch_sim: Batch processing for training/evaluation
+- compute_simulator_day: Single-day routing for simulation
+- HRL support: Manager-worker architecture with gating and masking
+
+The agent serves as an adapter between the problem-agnostic neural models
+and the domain-specific waste collection simulator.
+"""
 import torch
 import numpy as np
 
@@ -8,8 +29,14 @@ from logic.src.pipeline.reinforcement_learning.core.post_processing import local
 
 class NeuralAgent:
     """
-    Agent meant to interface between the environment/simulator and the Neural Model.
-    Handles simulation steps, HRL gating, and constructing returns from the model.
+    Agent interface between simulator/environment and neural routing models.
+
+    Handles model inference, hierarchical decision-making (HRL), and
+    post-processing for waste collection routing.
+
+    Attributes:
+        model: The neural routing model (AttentionModel, etc.)
+        problem: Problem instance (VRPP, WCVRP, etc.) for cost calculation
     """
     def __init__(self, model):
         self.model = model
@@ -17,7 +44,24 @@ class NeuralAgent:
 
     def compute_batch_sim(self, input, dist_matrix, hrl_manager=None, waste_history=None, threshold=0.5, mask_threshold=0.5):
         """
-        Compute simulation step for a batch of data.
+        Compute simulation step for a batch of problem instances.
+
+        Used during training and batch evaluation. Optionally integrates with
+        HRL manager for gating (decide whether to route) and masking (which bins to visit).
+
+        Args:
+            input (dict): Batch of problem data with 'loc', 'waste', etc.
+            dist_matrix (torch.Tensor): Distance matrix (B x N x N) or (N x N)
+            hrl_manager (optional): HRL manager network for gating decisions
+            waste_history (torch.Tensor, optional): Historical waste levels (B x N x T)
+            threshold (float): Gating probability threshold. Default: 0.5
+            mask_threshold (float): Masking probability threshold. Default: 0.5
+
+        Returns:
+            Tuple[torch.Tensor, dict, dict]: Costs, result metrics, and attention data
+                - ucost: Unweighted costs tensor
+                - ret_dict: Dictionary with 'overflows', 'kg', 'waste', 'km'
+                - output_dict: Dictionary with 'attention_weights', 'graph_masks'
         """
         hook_data = add_attention_hooks(self.model.embedder)
         
@@ -114,8 +158,42 @@ class NeuralAgent:
             
         return ucost, ret_dict, {'attention_weights': attention_weights, 'graph_masks': graph_masks}
 
-    def compute_simulator_day(self, input, graph, distC, profit_vars=None, run_tsp=False, hrl_manager=None, 
+    def compute_simulator_day(self, input, graph, distC, profit_vars=None, run_tsp=False, hrl_manager=None,
                           waste_history=None, threshold=0.5, mask_threshold=0.5, two_opt_max_iter=0):
+        """
+        Execute neural routing policy for a single simulation day.
+
+        Main entry point for simulator integration. Generates a collection route
+        for the current day using the trained neural model.
+
+        HRL Integration:
+        - If hrl_manager provided: Manager decides whether to route (gate)
+          and which bins to mask (selective collection)
+        - If gate closed: Returns empty route [0]
+        - If gate open: Worker model constructs route respecting mask
+
+        Post-processing:
+        - run_tsp=True: Refine route using fast_tsp
+        - two_opt_max_iter>0: Apply 2-opt local search (GPU accelerated)
+
+        Args:
+            input (dict): Problem instance with 'loc', 'waste', etc.
+            graph (tuple): (edges, dist_matrix) for the model
+            distC (torch.Tensor or np.ndarray): Distance matrix for cost calculation
+            profit_vars (dict, optional): VRPP parameters (vehicle_capacity, R, C, etc.)
+            run_tsp (bool): Whether to refine route with TSP solver. Default: False
+            hrl_manager (optional): HRL manager network
+            waste_history (torch.Tensor, optional): Historical bin levels (Days x N) or (N x Days)
+            threshold (float): Gating probability threshold. Default: 0.5
+            mask_threshold (float): Masking probability threshold. Default: 0.5
+            two_opt_max_iter (int): 2-opt iterations. 0 disables. Default: 0
+
+        Returns:
+            Tuple[List[int], float, dict]: Route, cost, and attention data
+                - route: List of node IDs [0, node1, ..., 0]
+                - cost: Total tour distance * 100
+                - output_dict: {'attention_weights', 'graph_masks'}
+        """
         edges, dist_matrix = graph
         hook_data = add_attention_hooks(self.model.embedder)
         

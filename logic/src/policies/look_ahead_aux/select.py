@@ -1,3 +1,11 @@
+"""
+Selection and set-membership logic for route bin management.
+
+Provides utilities for adding and removing bins from the active routing set. 
+Handles the logic for managing the pool of 'removed' (uncollected) bins, 
+enabling constructive and destructive perturbations during optimization.
+"""
+
 from random import sample as rsample
 from copy import deepcopy
 from .routes import organize_route
@@ -21,6 +29,17 @@ __all__ = [
 
 # Function to remove one bin from one route (Drop one bin from one random chosen route)
 def remove_bin(routes_list, removed_bins, bins_cannot_removed):
+    """
+    Remove a random bin from one of the routes and add it to the removed set.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (List[int]): Global set of uncollected bins.
+        bins_cannot_removed (List[int]): Mandatory bins.
+
+    Returns:
+        Tuple[List[List[int]], List[int]]: Updated solution and removed set.
+    """
     bin_to_remove = None
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list,1)[0]
@@ -45,6 +64,16 @@ def remove_bin(routes_list, removed_bins, bins_cannot_removed):
 
 # Function to add bin from the removed bins set to one route (Add one bin from the removed bins set to one random chosen route)
 def add_bin(routes_list, removed_bins):
+    """
+    Pick a random bin from the removed set and add it to a random route.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (List[int]): Set of available removed bins.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     if len(routes_list) > 0:
         if len(removed_bins) > 0:
             bin_to_add = rsample(removed_bins,1)[0]
@@ -57,6 +86,25 @@ def add_bin(routes_list, removed_bins):
 
 
 def insert_bins(routes_list, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values):
+    """
+    Greedily insert bins from the removed set into the current routes if it improves profit.
+
+    Continues until no more profitable insertions are found.
+
+    Args:
+        routes_list (List[List[int]]): Initial routes.
+        removed_bins (List[int]): Available bins.
+        p_vehicle (float): Vehicle penalty.
+        p_load (float): Load penalty.
+        p_route_difference (float): Difference penalty.
+        p_shift (float): Shift penalty.
+        data (pd.DataFrame): Weights context.
+        distance_matrix (np.ndarray): Distance data.
+        values (Dict): Constants.
+
+    Returns:
+        List[List[int]]: Optimized routing solution.
+    """
     inserted_bins = []
     previous_solution = deepcopy(routes_list)
     previous_profit = compute_profit(previous_solution, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values)
@@ -89,6 +137,24 @@ def insert_bins(routes_list, removed_bins, p_vehicle, p_load, p_route_difference
 
 
 def remove_bins_end(routes_list, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values):
+    """
+    Greedily remove bins from the current routes if it increases total profit.
+
+    Args:
+        routes_list (List[List[int]]): Initial routes.
+        removed_bins (List[int]): Target set for dropped bins.
+        p_vehicle (float): Vehicle penalty.
+        p_load (float): Load penalty.
+        p_route_difference (float): Difference penalty.
+        p_shift (float): Shift penalty.
+        data (pd.DataFrame): Bin metrics.
+        bins_cannot_removed (List[int]): Mandatory bins.
+        distance_matrix (np.ndarray): Metric matrix.
+        values (Dict): Constants.
+
+    Returns:
+        List[List[int]]: Optimized routing solution.
+    """
     previous_solution = deepcopy(routes_list)
     previous_profit = compute_profit(previous_solution, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values)
     for it, i in enumerate(previous_solution):
@@ -110,6 +176,17 @@ def remove_bins_end(routes_list, removed_bins, p_vehicle, p_load, p_route_differ
 
 # Function to remove n bin from route randomly
 def remove_n_bins_random(routes_list, removed_bins, bins_cannot_removed):
+    """
+    Remove n random bins from the routing solution.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (List[int]): Target set for removed bins.
+        bins_cannot_removed (List[int]): Mandatory bins.
+
+    Returns:
+        List[List[int]]: Routing solution with fewer bins.
+    """
     bins_to_remove_random = []
     possible_n = [2,3,4,5]
     chosen_n = rsample(possible_n,1)[0]
@@ -143,6 +220,17 @@ def remove_n_bins_random(routes_list, removed_bins, bins_cannot_removed):
 
 # Function to remove n bin from route consecutively
 def remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed):
+    """
+    Remove n consecutive bins from a route.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (List[int]): Target set.
+        bins_cannot_removed (List[int]): Mandatory nodes.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     bins_to_remove_consecutive = []
     possible_n = [2,3,4,5]
     chosen_n = rsample(possible_n,1)[0]
@@ -237,6 +325,16 @@ def add_n_bins_consecutive(routes_list, removed_bins):
 
 #Add one route random
 def add_route_random(routes_list, distance_matrix):
+    """
+    Add a new route with a single bin chosen randomly from existing routes.
+
+    Args:
+        routes_list (List[List[int]]): All routes.
+        distance_matrix (np.ndarray): For sequencing.
+
+    Returns:
+        List[List[int]]: Updated set of routes.
+    """
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list,1)[0]
 

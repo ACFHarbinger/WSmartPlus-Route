@@ -1,10 +1,42 @@
+"""
+Single-vehicle routing utilities module.
+
+This module provides helper functions for solving single-vehicle routing problems
+including TSP construction, local search optimization, and capacity management.
+
+Key Functions:
+--------------
+- find_route: Solve TSP using fast_tsp library
+- local_search_2opt: Improve tours with 2-opt local search
+- get_multi_tour: Split single tour into multiple depot trips (capacity aware)
+- get_route_cost: Calculate total tour distance
+- get_partial_tour: Remove bins to meet capacity constraints
+- dist_matrix_from_graph: Compute all-pairs shortest paths from NetworkX graph
+
+These utilities are used by higher-level policies (Regular, LastMinute, etc.)
+to generate and optimize single-vehicle collection routes.
+"""
 import torch
 import fast_tsp
 import numpy as np
 import networkx as nx
+from typing import List, Tuple
 
 
 def find_route(C, to_collect):
+    """
+    Solve TSP for a subset of nodes using the fast_tsp library.
+
+    Constructs a tour visiting all nodes in to_collect, starting and ending at depot (0).
+    Uses fast_tsp's heuristic TSP solver for quick solutions.
+
+    Args:
+        C (np.ndarray): Distance matrix (N x N) with depot at index 0
+        to_collect (array-like): Node IDs to visit (excluding depot)
+
+    Returns:
+        List[int]: Tour starting and ending at depot. Format: [0, node1, node2, ..., 0]
+    """
     to_collect_tmp = [0] + list(to_collect)
     tmpC = C[to_collect_tmp, :][:, to_collect_tmp]
     tour = fast_tsp.find_tour(tmpC)
@@ -22,7 +54,18 @@ def find_route(C, to_collect):
 
 def local_search_2opt(tour, distance_matrix, max_iterations=200):
     """
-    Standard 2-opt local search vectorized with NumPy.
+    Improve tour using 2-opt local search (vectorized with NumPy).
+
+    Iteratively swaps edge pairs to reduce total tour distance. Uses vectorized
+    NumPy operations for performance. Stops when no improving move is found.
+
+    Args:
+        tour (array-like or torch.Tensor): Tour to improve (must start/end at depot)
+        distance_matrix (np.ndarray or torch.Tensor): Distance matrix
+        max_iterations (int): Maximum number of improvement rounds. Default: 200
+
+    Returns:
+        List[int]: Improved tour (same format as input)
     """
     if isinstance(tour, torch.Tensor):
         tour = tour.cpu().numpy()
@@ -77,6 +120,19 @@ def local_search_2opt(tour, distance_matrix, max_iterations=200):
 
 
 def get_route_cost(distancesC, tour):
+    """
+    Calculate total distance cost of a tour.
+
+    Sums the edge distances along the tour path.
+    Supports both NumPy arrays and PyTorch tensors.
+
+    Args:
+        distancesC (np.ndarray or torch.Tensor): Distance matrix
+        tour (list or np.ndarray or torch.Tensor): Sequence of node IDs
+
+    Returns:
+        float: Total tour distance
+    """
     if isinstance(tour, torch.Tensor) and isinstance(distancesC, torch.Tensor):
         return distancesC[tour[:-1], tour[1:]].sum().cpu().numpy().item()
     else:
@@ -86,6 +142,16 @@ def get_route_cost(distancesC, tour):
 
 
 def get_path_cost(G, p):
+    """
+    Calculate path cost in a NetworkX graph.
+
+    Args:
+        G (networkx.Graph): Graph with edge weights
+        p (List[int]): Path as sequence of node IDs
+
+    Returns:
+        float: Total path cost (sum of edge weights)
+    """
     l = p[0]
     c = 0
     for id_i in range(1, len(p)):
@@ -98,6 +164,22 @@ def get_path_cost(G, p):
 
 
 def get_multi_tour(tour, bins_waste, max_capacity, distance_matrix):
+    """
+    Insert depot return trips to satisfy vehicle capacity constraints.
+
+    Given a TSP tour that may violate capacity, inserts depot visits (0) whenever
+    cumulative load would exceed max_capacity. This converts a single long tour
+    into multiple depot round-trips.
+
+    Args:
+        tour (List[int]): Initial TSP tour (may violate capacity)
+        bins_waste (np.ndarray): Waste amounts for each bin
+        max_capacity (float): Vehicle capacity limit
+        distance_matrix (np.ndarray): Distance matrix (for future cost calculation)
+
+    Returns:
+        List[int]: Modified tour with depot returns inserted. Format: [0, ..., 0, ..., 0]
+    """
     depot_trips = 0
     final_tour = tour
     vehicle_collected = 0
@@ -121,20 +203,45 @@ def get_multi_tour(tour, bins_waste, max_capacity, distance_matrix):
     return final_tour
 
 
-def get_partial_tour(tour, bins, max_capacity, distance_matrix, cost):
-    tmp_tour = [x - 1 for x in tour if x != 0]
+def get_partial_tour(tour: List[int], bins: np.ndarray, max_capacity: float, 
+                     distance_matrix: np.ndarray, cost: float) -> Tuple[np.ndarray, float]:
+    """
+    Reduce a tour to fit within vehicle capacity by removing bins with minimal waste.
+
+    Args:
+        tour (List[int]): Current tour.
+        bins (np.ndarray): Waste amounts for each bin.
+        max_capacity (float): Vehicle capacity limit.
+        distance_matrix (np.ndarray): Distance matrix.
+        cost (float): Current routing cost.
+
+    Returns:
+        Tuple[np.ndarray, float]: (Reduced tour, updated cost).
+    """
+    tmp_tour = np.array([x - 1 for x in tour if x != 0])
     total_waste = np.sum(bins[tmp_tour])
     while total_waste > max_capacity:
         min_waste_bin_idx = np.argmin(bins[tmp_tour])
         bin_to_remove = tmp_tour[min_waste_bin_idx]
         total_waste -= bins[bin_to_remove]
-        cost -= distance_matrix[tmp_tour[min_waste_bin_idx - 1], bin_to_remove]
+        cost -= float(distance_matrix[tmp_tour[min_waste_bin_idx - 1], bin_to_remove])
         tmp_tour = np.delete(tmp_tour, min_waste_bin_idx)
     return tmp_tour, cost
 
 
 # Create matrix will all distances
-def dist_matrix_from_graph(G):
+def dist_matrix_from_graph(G: nx.Graph) -> Tuple[np.ndarray, List[List[List[int]]]]:
+    """
+    Compute all-pairs shortest path distances and paths from a NetworkX graph.
+
+    Args:
+        G (nx.Graph): Input graph with nodes 0..N-1 and weighted edges.
+
+    Returns:
+        Tuple[np.ndarray, List[List[List[int]]]]: (Distance matrix, Path matrix).
+            Distance matrix is N x N numpy array of shortest path lengths.
+            Path matrix contains the sequence of nodes for each shortest path.
+    """
     paths_between_states = []
     n_vertices = len(G.nodes)
     dist_matrix = np.zeros((n_vertices, n_vertices), int)
