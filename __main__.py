@@ -1,5 +1,16 @@
 #!/usr/bin/env python
 
+"""
+Entry Point for Package Execution.
+
+This script allows the project to be executed as a package (e.g., `python -m WSmart-Route`).
+It initializes the `ConfigsParser`, handles argument parsing and consistency validation,
+and dispatches execution to the appropriate pipeline (Train, Test, MRL, HPO).
+
+It acts as a lightweight wrapper around the core logic pipelines, ensuring that critical
+modules like `test` and `train` can be invoked via a unified CLI interface.
+"""
+
 import os
 import sys
 import argparse

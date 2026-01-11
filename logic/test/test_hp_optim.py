@@ -28,7 +28,7 @@ class TestHPOFunctions:
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.load_focus_coords')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.compute_distance_matrix')
     @pytest.mark.unit
-    def test_compute_focus_dist_matrix(self, mock_compute_dist, mock_load_coords, mock_hpo_data):
+    def test_compute_focus_dist_matrix(self, mock_compute_dist, mock_load_coords):
         """Test calculation of focus distance matrix."""
         mock_load_coords.return_value = np.zeros((5, 2))
         mock_compute_dist.return_value = np.zeros((5, 5))
@@ -51,7 +51,7 @@ class TestHPOFunctions:
     @pytest.mark.unit
     def test_optimize_model(self, mock_json_dump, mock_open, mock_makedirs,
                           mock_validate, mock_train, mock_setup_opt, mock_setup_model,
-                          mock_load_data, mock_load_prob, hpo_opts, mock_hpo_data, mocker):
+                          mock_load_data, mock_load_prob, hpo_opts, mocker):
         """Test model optimization step."""
         mock_prob = MagicMock()
         mock_prob.make_dataset.return_value = MagicMock()
@@ -75,7 +75,7 @@ class TestHPOFunctions:
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.move_to')
     @patch('torch.utils.data.DataLoader')
     @pytest.mark.unit
-    def test_validate(self, mock_dataloader, mock_move_to, mock_set_decode, mock_get_inner, hpo_opts, mock_hpo_data, mocker):
+    def test_validate(self, mock_dataloader, mock_move_to, mock_set_decode, mock_get_inner, hpo_opts, mocker):
         """Test validation step."""
         # Create mock model with explicit return value
         mock_model = MagicMock()
@@ -119,10 +119,10 @@ class TestHPOFunctions:
         
         mock_get_inner.return_value = mock_inner
         
-        # Mock move_to to return whatever is passed (or identity for tensors)
-        def side_effect(*args, **kwargs):
-            """Mock side effect for load_coords."""
-            return np.random.rand(5, 2)
+        # Mock move_to to return whatever is passed (identity)
+        def side_effect(obj, *args, **kwargs):
+            """Return the object passed as the first argument (identity mock)."""
+            return obj
         mock_move_to.side_effect = side_effect
 
         dist_matrix = torch.zeros(5, 5)
