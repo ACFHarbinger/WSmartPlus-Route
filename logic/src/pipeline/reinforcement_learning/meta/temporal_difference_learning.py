@@ -1,3 +1,39 @@
+"""
+Temporal Difference Learning for Cost Weight Adaptation.
+
+This module implements TD-based meta-learning for dynamically adjusting cost weights
+during reinforcement learning training. The approach uses temporal difference errors
+to update weights based on their contribution to the observed reward signal.
+
+The TD learning approach is particularly effective for:
+    - Online weight adaptation during training
+    - Balancing multiple cost components (waste, overflows, distance)
+    - Handling non-stationary reward distributions
+    - Learning from sparse feedback signals
+
+Key Concepts:
+    - TD Error: Difference between observed and expected reward
+    - Weight Update: Proportional to TD error and component contribution
+    - Learning Rate Decay: Gradual reduction of adaptation rate over time
+    - Moving Average Baseline: Smoothed expected reward estimation
+
+Classes:
+    CostWeightManager: Main TD-based weight adjustment strategy
+
+Functions:
+    update_cost_weights_td: Core TD learning update rule for weight adjustment
+
+Example:
+    manager = CostWeightManager(
+        initial_weights={'waste': 1.0, 'over': 2.0, 'len': 0.5},
+        learning_rate=0.01,
+        decay_rate=0.999
+    )
+
+    # After each step
+    weights = manager.update_weights(observed_reward, cost_components)
+"""
+
 from logic.src.pipeline.reinforcement_learning.meta.weight_strategy import WeightAdjustmentStrategy
 
 
