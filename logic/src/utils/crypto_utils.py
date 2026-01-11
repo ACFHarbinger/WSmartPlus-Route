@@ -1,3 +1,9 @@
+"""
+Utilities for data encryption and decryption using Fernet (symmetric key).
+
+Handles key generation, loading, and file encryption/decryption.
+"""
+
 import os
 import struct
 import base64
@@ -12,16 +18,6 @@ from cryptography.hazmat.primitives import hashes
 from dotenv import load_dotenv, dotenv_values, set_key
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-
-
-"""
-Cryptography utilities for secure file handling.
-
-This module provides functions for:
-- Generating and loading symmetric encryption keys (Fernet).
-- Encrypting and decrypting files and directories.
-- Encrypting and decrypting zip archives.
-"""
 
 
 def _set_param(config, param_name, param_value=None):

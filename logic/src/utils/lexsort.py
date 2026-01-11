@@ -1,3 +1,7 @@
+"""
+Lexicographical sort for PyTorch.
+"""
+
 import torch
 import numpy as np
 

@@ -1,3 +1,13 @@
+"""
+General helper functions for neural models and training pipelines.
+
+This module provides utilities for:
+- Initializing and manipulating PyTorch models (inner model retrieval).
+- Loading problem instances.
+- Performing vectorized operations.
+- Managing multiprocessing and threading for data processing.
+"""
+
 import os
 import json
 import torch
@@ -108,7 +118,16 @@ def move_to(var, device):
 
 
 def _load_model_file(load_path, model):
-    """Loads the model with parameters from the file and returns optimizer state dict if it is in the file"""
+    """
+    Loads the model with parameters from the file and returns optimizer state dict if it is in the file.
+
+    Args:
+        load_path (str): Path to the checkpoint.
+        model (nn.Module): Model to load parameters into.
+
+    Returns:
+        dict: Optimizer state dict if present, else None.
+    """
     # Load the model parameters from a saved state
     load_optimizer_state_dict = None
     print("  [*] Loading model from {}".format(load_path))
@@ -405,6 +424,7 @@ def compute_in_batches(f, calc_batch_size, *args, n=None):
 
     # Allow for functions that return None
     def safe_cat(chunks, dim=0):
+        """Concatenates tensors safely, handling empty chunks."""
         if chunks[0] is None:
             assert all(chunk is None for chunk in chunks)
             return None
@@ -430,6 +450,7 @@ def add_attention_hooks(model_module):
     attention_weights = []
 
     def hook(module, input, output):
+        """Forward hook to capture attention weights."""
         if hasattr(module, "last_attn") and module.last_attn is not None:
             graph_masks.append(module.last_attn[-1])
             attention_weights.append(module.last_attn[0])

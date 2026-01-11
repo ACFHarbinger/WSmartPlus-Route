@@ -1,15 +1,14 @@
-import torch
-import typing
-
-from logic.src.utils.lexsort import torch_lexsort
-
-
 """
 Beam Search implementation for combinatorial optimization problems.
 
 This module provides a generic beam search decoder that can be used with
 autoregressive neural implementations (like Attention Model).
 """
+
+import torch
+import typing
+
+from logic.src.utils.lexsort import torch_lexsort
 
 
 def beam_search(*args, **kwargs):
@@ -118,9 +117,11 @@ class BatchBeam(typing.NamedTuple):
     # Indicates for each row to which batch it belongs (0, 0, 0, 1, 1, 2, ...), managed by state
     @property
     def ids(self):
+        """Returns flattened batch identifiers."""
         return self.state.ids.view(-1)  # Need to flat as state has steps dimension
 
     def __getitem__(self, key):
+        """Allows indexing/slicing of the beam state."""
         if torch.is_tensor(key) or isinstance(
             key, slice
         ):  # If tensor, idx all tensors by this tensor:
@@ -139,6 +140,7 @@ class BatchBeam(typing.NamedTuple):
 
     @staticmethod
     def initialize(state):
+        """Initializes the beam with the starting state."""
         batch_size = len(state.ids)
         device = state.ids.device
         return BatchBeam(
@@ -151,6 +153,7 @@ class BatchBeam(typing.NamedTuple):
         )
 
     def propose_expansions(self):
+        """Proposes valid expansions from the current state."""
         mask = self.state.get_mask()
         # Mask always contains a feasible action
         expansions = torch.nonzero(mask[:, 0, :] == 0)
@@ -158,6 +161,7 @@ class BatchBeam(typing.NamedTuple):
         return parent, action, None
 
     def expand(self, parent, action, score=None):
+        """Expands the beam with chosen actions."""
         return self._replace(
             score=score,  # The score is cleared upon expanding as it is no longer valid, or it must be provided
             state=self.state[parent].update(
@@ -168,16 +172,20 @@ class BatchBeam(typing.NamedTuple):
         )
 
     def topk(self, k):
+        """Selects the top-k beam candidates per batch."""
         idx_topk = segment_topk_idx(self.score, k, self.ids)
         return self[idx_topk]
 
     def all_finished(self):
+        """Checks if all beams have finished decoding."""
         return self.state.all_finished()
 
     def cpu(self):
+        """Moves beam data to CPU."""
         return self.to(torch.device("cpu"))
 
     def to(self, device):
+        """Moves beam data to the specified device."""
         if device == self.device:
             return self
         return self._replace(
@@ -188,9 +196,11 @@ class BatchBeam(typing.NamedTuple):
         )
 
     def clear_state(self):
+        """Clears the state to save memory."""
         return self._replace(state=None)
 
     def size(self):
+        """Returns the current beam size (number of active paths)."""
         return self.state.ids.size(0)
 
 
@@ -272,11 +282,13 @@ class CachedLookup(object):
     """
 
     def __init__(self, data):
+        """Initializes the lookup cache."""
         self.orig = data
         self.key = None
         self.current = None
 
     def __getitem__(self, key):
+        """Retrieves data with caching."""
         assert not isinstance(key, slice), (
             "CachedLookup does not support slicing, "
             "you can slice the result of an index operation instead"

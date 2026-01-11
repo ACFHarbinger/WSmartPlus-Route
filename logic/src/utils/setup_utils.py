@@ -1,15 +1,3 @@
-import os
-import torch
-import gurobipy as gp
-import torch.optim as optim
-
-from .definitions import ROOT_DIR
-from logic.src.models import GATLSTManager
-from dotenv import dotenv_values
-from logic.src.utils.crypto_utils import decrypt_file_data
-from logic.src.utils.functions import load_model, get_inner_model, torch_load_cpu
-
-
 """
 Setup utilities for initializing models, environments, and optimizers.
 
@@ -21,6 +9,16 @@ This module encapsulates the logic for:
 - Creating model/baseline pairs
 - Configuring optimizers and learning rate schedulers
 """
+
+import os
+import torch
+import gurobipy as gp
+import torch.optim as optim
+from .definitions import ROOT_DIR
+from logic.src.models import GATLSTManager
+from dotenv import dotenv_values
+from logic.src.utils.crypto_utils import decrypt_file_data
+from logic.src.utils.functions import load_model, get_inner_model, torch_load_cpu
 
 
 def setup_cost_weights(opts, def_val=1.0):
@@ -217,6 +215,7 @@ def setup_env(
         if server:
 
             def convert_int(param):
+                """Helper to convert string parameters to int if possible."""
                 return int(param) if param.isdigit() else param
 
             if gplic_filename is not None:

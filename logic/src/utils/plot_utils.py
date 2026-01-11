@@ -1,3 +1,13 @@
+"""
+Plotting utilities for the WSmart+ Route framework.
+
+This module provides functions for generating various plots:
+- Static line charts (training curves, Pareto fronts).
+- TSP and VRP route visualizations using Matplotlib.
+- Attention map heatmaps.
+- Interactive visualizations.
+"""
+
 import os
 import math
 import numpy as np
@@ -11,15 +21,7 @@ from matplotlib.collections import PatchCollection
 from logic.src.utils.io_utils import compose_dirpath
 
 
-"""
-Plotting utilities for the WSmart+ Route framework.
 
-This module provides functions for generating various plots:
-- Static line charts (training curves, Pareto fronts).
-- TSP and VRP route visualizations using Matplotlib.
-- Attention map heatmaps.
-- Interactive visualizations.
-"""
 
 
 def draw_graph(distance_matrix):
@@ -79,6 +81,16 @@ def plot_linechart(
     """
 
     def plot_graphs_out(plot_func, graph_log, x_values, linestyles, markers):
+        """
+        Helper to plot graphs for different policies.
+
+        Args:
+            plot_func: Function to plot a single line.
+            graph_log: Log data.
+            x_values: X-axis values.
+            linestyles: Line styles.
+            markers: Markers.
+        """
         points_by_nbins = {}
         for id, lg in enumerate(zip(*graph_log)):
             if x_values is None:

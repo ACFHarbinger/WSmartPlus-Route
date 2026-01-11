@@ -1,9 +1,3 @@
-import os
-import statistics
-
-from pathlib import Path
-
-
 """
 Global definitions, constants, and mappings for the WSmart+ Route framework.
 
@@ -16,6 +10,11 @@ This module contains:
 - Function maps for operations and statistics
 - GUI and Test Suite configurations
 """
+
+import os
+import statistics
+
+from pathlib import Path
 
 
 # Paths

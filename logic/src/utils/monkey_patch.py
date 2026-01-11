@@ -1,10 +1,3 @@
-import torch
-
-from copy import deepcopy
-from itertools import chain
-from collections import defaultdict, Iterable
-
-
 """
 Monkey patches for PyTorch functionality.
 
@@ -12,6 +5,12 @@ This module patches `torch.optim.Optimizer.load_state_dict` to ensure robust han
 of device mapping when loading optimizer states, specifically casting tensors to the
 correct device matching the model parameters.
 """
+
+import torch
+
+from copy import deepcopy
+from itertools import chain
+from collections import defaultdict, Iterable
 
 
 # Attention, Learn to Solve Routing Problems
@@ -86,6 +85,16 @@ def load_state_dict(self, state_dict):
 
     # Update parameter groups, setting their 'params' value
     def update_group(group, new_group):
+        """
+        Updates an optimizer parameter group.
+
+        Args:
+            group (dict): The current group.
+            new_group (dict): The new group data.
+
+        Returns:
+            dict: The updated group.
+        """
         new_group["params"] = group["params"]
         return new_group
 
