@@ -1,3 +1,4 @@
+"""Pointer Network Decoder."""
 import math
 import torch
 import numpy as np
@@ -5,8 +6,16 @@ import torch.nn as nn
 
 
 class PointerAttention(nn.Module):
-    """A generic attention module for a decoder in seq2seq"""
+    """A generic attention module for a decoder in seq2seq."""
     def __init__(self, dim, use_tanh=False, C=10):
+        """
+        Initializes PointerAttention.
+
+        Args:
+            dim: Dimension of attention vector.
+            use_tanh: Whether to use tanh exploration.
+            C: Tanh exploration constant.
+        """
         super(PointerAttention, self).__init__()
         self.use_tanh = use_tanh
         self.project_query = nn.Linear(dim, dim)
@@ -19,11 +28,14 @@ class PointerAttention(nn.Module):
         
     def forward(self, query, ref):
         """
-        Args: 
-            query: is the hidden state of the decoder at the current
-                time step. batch x dim
-            ref: the set of hidden states from the encoder. 
-                sourceL x batch x hidden_dim
+        Calculate attention logits.
+
+        Args:
+            query: Hidden state of the decoder at the current time step (batch x dim).
+            ref: Set of hidden states from the encoder (sourceL x batch x hidden_dim).
+        
+        Returns:
+            Projected reference and logits.
         """
         # ref is now [batch_size x hidden_dim x sourceL]
         ref = ref.permute(1, 2, 0)
@@ -45,6 +57,9 @@ class PointerAttention(nn.Module):
 
 
 class PointerDecoder(nn.Module):
+    """
+    Standard Pointer Network Decoder.
+    """
     def __init__(self, 
             embedding_dim,
             hidden_dim,
@@ -53,6 +68,18 @@ class PointerDecoder(nn.Module):
             n_glimpses=1,
             mask_glimpses=True,
             mask_logits=True):
+        """
+        Initializes the PointerDecoder.
+
+        Args:
+            embedding_dim: Embedding dimension.
+            hidden_dim: Hidden dimension.
+            tanh_exploration: Tanh exploration constant.
+            use_tanh: Whether to use tanh.
+            n_glimpses: Number of glimpses.
+            mask_glimpses: Whether to mask glimpses.
+            mask_logits: Whether to mask logits.
+        """
         super(PointerDecoder, self).__init__()
 
         self.embedding_dim = embedding_dim
@@ -70,9 +97,13 @@ class PointerDecoder(nn.Module):
         self.sm = nn.Softmax(dim=1)
 
     def update_mask(self, mask, selected):
+        """Updates the mask based on selected nodes."""
         return mask.clone().scatter_(1, selected.unsqueeze(-1), True)
 
     def recurrence(self, x, h_in, prev_mask, prev_idxs, step, context):
+        """
+        Performs one step of recurrence.
+        """
         logit_mask = self.update_mask(prev_mask, prev_idxs) if prev_idxs is not None else prev_mask
         logits, h_out = self.calc_logits(x, h_in, logit_mask, context, self.mask_glimpses, self.mask_logits)
 
@@ -91,6 +122,7 @@ class PointerDecoder(nn.Module):
         return h_out, log_p, probs, logit_mask
 
     def calc_logits(self, x, h_in, logit_mask, context, mask_glimpses=None, mask_logits=None):
+        """Calculates logits for the next step."""
         if mask_glimpses is None:
             mask_glimpses = self.mask_glimpses
 
@@ -118,13 +150,17 @@ class PointerDecoder(nn.Module):
 
     def forward(self, decoder_input, embedded_inputs, hidden, context, eval_tours=None):
         """
+        Forward pass.
+
         Args:
-            decoder_input: The initial input to the decoder
-                size is [batch_size x embedding_dim]. Trainable parameter.
+            decoder_input: The initial input to the decoder [batch_size x embedding_dim].
             embedded_inputs: [sourceL x batch_size x embedding_dim]
-            hidden: the prev hidden state, size is [batch_size x hidden_dim]. 
-                Initially this is set to (enc_h[-1], enc_c[-1])
-            context: encoder outputs, [sourceL x batch_size x hidden_dim] 
+            hidden: The prev hidden state [batch_size x hidden_dim].
+            context: Encoder outputs [sourceL x batch_size x hidden_dim].
+            eval_tours: (Optional) tours to evaluate against.
+
+        Returns:
+            (outputs, selections), hidden
         """
         batch_size = context.size(1)
         outputs = []
@@ -155,6 +191,7 @@ class PointerDecoder(nn.Module):
         return (torch.stack(outputs, 1), torch.stack(selections, 1)), hidden
 
     def decode(self, probs, mask):
+        """Decodes probabilities to actions based on decode_type."""
         if self.decode_type == "greedy":
             _, idxs = probs.max(1)
             assert not mask.gather(1, idxs.unsqueeze(-1)).data.any(), \

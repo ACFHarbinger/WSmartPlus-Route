@@ -1,3 +1,4 @@
+"""Graph Convolution Encoder."""
 import torch
 
 from torch import nn
@@ -5,10 +6,23 @@ from ..modules import GatedGraphConvolution
 
 
 class GraphConvolutionEncoder(nn.Module):
-    """Configurable GCN Encoder
+    """
+    Encoder based on Gated Graph Convolutions.
     """
     def __init__(self, n_layers, hidden_dim, agg="sum", norm="layer", 
                  learn_affine=True, track_norm=False, gated=True, *args, **kwargs):
+        """
+        Initializes the GCN Encoder.
+
+        Args:
+            n_layers: Number of layers.
+            hidden_dim: Hidden dimension.
+            agg: Aggregation method.
+            norm: Normalization type.
+            learn_affine: Whether to learn affine parameters.
+            track_norm: Whether to track normalization stats.
+            gated: Whether to use gated convolutions.
+        """
         super(GraphConvolutionEncoder, self).__init__()
 
         self.init_embed_edges = nn.Embedding(2, hidden_dim)
