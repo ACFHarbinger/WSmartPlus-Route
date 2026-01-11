@@ -1,3 +1,33 @@
+"""
+Policy Adapter module - Unified interface for all routing policies.
+
+This module implements the Adapter design pattern to provide a consistent
+interface for executing diverse routing policies within the simulator.
+
+Architecture:
+-------------
+- **PolicyAdapter**: Abstract base class defining execute() interface
+- **Concrete Adapters**: Policy-specific implementations
+  - RegularPolicyAdapter: Fixed-schedule periodic collection
+  - LastMinutePolicyAdapter: Reactive threshold-based collection
+  - NeuralPolicyAdapter: Deep RL models (Attention Models, GCNs)
+  - VRPPPolicyAdapter: Prize-Collecting VRP (Gurobi/Hexaly)
+  - LookAheadPolicyAdapter: Rolling-horizon optimization
+
+- **PolicyFactory**: Factory method for selecting appropriate adapter
+
+Benefits:
+---------
+1. Decouples simulator from policy implementations
+2. Enables runtime policy switching
+3. Standardizes parameter passing and result format
+4. Simplifies adding new policies
+
+Usage:
+------
+    adapter = PolicyFactory.get_adapter("am_gat")
+    tour, cost, output = adapter.execute(**context)
+"""
 import torch
 import numpy as np
 
@@ -10,18 +40,30 @@ from logic.src.policies import (
     get_route_cost, find_route, create_points, find_solutions,
     policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp,
     policy_lookahead_alns, policy_lookahead_hgs, policy_lookahead_bcp,
-    policy_last_minute, policy_last_minute_and_path, policy_regular, 
+    policy_last_minute, policy_last_minute_and_path, policy_regular,
     policy_vrpp
 )
 from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
 
 
 class PolicyAdapter(ABC):
+    """
+    Abstract base class for policy adapters.
+
+    All policy adapters must implement the execute() method which takes
+    a context dictionary and returns (tour, cost, additional_output).
+    """
     @abstractmethod
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
         pass
 
 class RegularPolicyAdapter(PolicyAdapter):
+    """
+    Adapter for regular (periodic) collection policy.
+
+    Executes fixed-schedule collection where all bins are visited every N days.
+    Supports route caching for efficiency and both single/multi-vehicle routing.
+    """
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
         policy = kwargs['policy']
         bins = kwargs['bins']
@@ -51,6 +93,12 @@ class RegularPolicyAdapter(PolicyAdapter):
         return tour, cost, cached
 
 class LastMinutePolicyAdapter(PolicyAdapter):
+    """
+    Adapter for last-minute (reactive) collection policy.
+
+    Executes threshold-based collection with optional path-based opportunistic
+    collection. Only routes when bins exceed configured fill thresholds.
+    """
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
         policy = kwargs['policy']
         bins = kwargs['bins']
@@ -91,6 +139,12 @@ class LastMinutePolicyAdapter(PolicyAdapter):
         return tour, cost, None
 
 class NeuralPolicyAdapter(PolicyAdapter):
+    """
+    Adapter for neural network-based policies.
+
+    Executes deep reinforcement learning models (Attention Models, GCN-based)
+    with optional HRL manager integration for gating and masking decisions.
+    """
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
         model_env = kwargs['model_env']
         model_ls = kwargs['model_ls']
@@ -123,6 +177,12 @@ class NeuralPolicyAdapter(PolicyAdapter):
         return tour, cost, output_dict
 
 class VRPPPolicyAdapter(PolicyAdapter):
+    """
+    Adapter for VRPP (Vehicle Routing Problem with Profits) policy.
+
+    Executes Prize-Collecting VRP using Gurobi or Hexaly solvers.
+    Optimizes profit while deciding which bins to collect.
+    """
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
         policy = kwargs['policy']
         bins = kwargs['bins']
@@ -151,6 +211,12 @@ class VRPPPolicyAdapter(PolicyAdapter):
         return tour, cost, None
 
 class LookAheadPolicyAdapter(PolicyAdapter):
+    """
+    Adapter for look-ahead (rolling-horizon) policies.
+
+    Executes optimization over a future time window to decide collections.
+    Supports multiple solver backends: VRPP, SANS, HGS, ALNS, BCP, or OR solvers.
+    """
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
         policy = kwargs['policy']
         graph_size = kwargs['graph_size']
@@ -270,8 +336,34 @@ class LookAheadPolicyAdapter(PolicyAdapter):
 
 
 class PolicyFactory:
+    """
+    Factory for creating policy adapters.
+
+    Implements the Factory Method pattern to instantiate the appropriate
+    PolicyAdapter based on the policy name string.
+
+    Policy Name Patterns:
+    ---------------------
+    - 'policy_regular*': RegularPolicyAdapter
+    - 'policy_last_minute*': LastMinutePolicyAdapter
+    - 'am*', 'ddam*', 'transgcn*': NeuralPolicyAdapter
+    - '*vrpp*' with 'gurobi' or 'hexaly': VRPPPolicyAdapter
+    - 'policy_look_ahead*': LookAheadPolicyAdapter
+    """
     @staticmethod
     def get_adapter(policy_name: str) -> PolicyAdapter:
+        """
+        Create and return the appropriate PolicyAdapter for the given policy name.
+
+        Args:
+            policy_name (str): Policy identifier string
+
+        Returns:
+            PolicyAdapter: Concrete adapter instance
+
+        Raises:
+            ValueError: If policy name doesn't match any known pattern
+        """
         if 'policy_last_minute' in policy_name:
             return LastMinutePolicyAdapter()
         elif 'policy_regular' in policy_name:

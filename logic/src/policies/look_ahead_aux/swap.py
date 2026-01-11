@@ -1,3 +1,11 @@
+"""
+Node exchange operators for solution perturbation and neighborhood search.
+
+Provides intra-route and inter-route bin swapping logic. Includes routines 
+for swapping single points or entire sequences (segments) between routes, 
+supporting randomized and consecutive exchange strategies.
+"""
+
 from copy import deepcopy
 from random import sample as rsample
 
@@ -13,6 +21,15 @@ __all__ = [
 
 # Function to swap in 1 route (Choose one route, pick two bins from the route and swap them)
 def swap_1_route(routes_list):
+    """
+    Intra-route perturbation: Swap two random bins within the same route.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list,1)[0]
         if len(chosen_route) > 3:
@@ -28,6 +45,16 @@ def swap_1_route(routes_list):
 
 # Function to swap two bins between two different routes (Choose two routes and swap two bins between routes)
 def swap_2_routes(routes_list):
+    """
+    Inter-route perturbation: Swap one bin from one route with another bin 
+    from a different route.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     if len(routes_list) > 1:
         chosen_route_1 = rsample(routes_list,1)[0]
         chosen_route_2 = chosen_route_1
@@ -43,6 +70,15 @@ def swap_2_routes(routes_list):
 
 # Function to swap n random bins inside a route
 def swap_n_route_random(routes_list):
+    """
+    Intra-route perturbation: Swap n pairs of random bins within their routes.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     chosen_n = None
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list,1)[0]
@@ -170,6 +206,16 @@ def swap_n_route_random(routes_list):
 
 # Function to swap n random bins inside a route
 def swap_n_route_consecutive(routes_list):
+    """
+    Intra-route perturbation: Swap two consecutive sequences of n bins 
+    within the same route.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     chosen_n = None
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list,1)[0]
@@ -292,6 +338,15 @@ def swap_n_route_consecutive(routes_list):
 
 # Function to swap n random bins between two different routes
 def swap_n_2_routes_random(routes_list):
+    """
+    Inter-route perturbation: Swap n random bins between two different routes.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     possible_n = [2,3,4,5]
     chosen_n = rsample(possible_n,1)[0]
     if len(routes_list) > 0:
@@ -441,6 +496,16 @@ def swap_n_2_routes_random(routes_list):
 
 # Function to swap n consecutive bins between two different routes
 def swap_n_2_routes_consecutive(routes_list):
+    """
+    Inter-route perturbation: Swap two consecutive sequences of n bins 
+    between two different routes.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     possible_n = [2,3,4,5]
     chosen_n = rsample(possible_n,1)[0]
     if len(routes_list) > 0:
@@ -457,9 +522,9 @@ def swap_n_2_routes_consecutive(routes_list):
                     bin_2 = rsample(chosen_route_2[1:len(chosen_route_2)-2],1)[0]
                     bin_2_position = chosen_route_2.index(bin_2)
                     chosen_route_1[bin_1_position],chosen_route_2[bin_2_position] = chosen_route_2[bin_2_position],chosen_route_1[bin_1_position]
-                    bin_3 = chosen_route_1[bin_1_position+1]
+                    chosen_route_1[bin_1_position+1]
                     bin_3_position = bin_1_position + 1
-                    bin_4 = chosen_route_2[bin_2_position+1]
+                    chosen_route_2[bin_2_position+1]
                     bin_4_position = bin_2_position + 1
                     chosen_route_1[bin_3_position],chosen_route_2[bin_4_position] = chosen_route_2[bin_4_position],chosen_route_1[bin_3_position]
                 elif chosen_n == 3:
@@ -468,14 +533,14 @@ def swap_n_2_routes_consecutive(routes_list):
                     bin_2 = rsample(chosen_route_2[1:len(chosen_route_2)-3],1)[0]
                     bin_2_position = chosen_route_2.index(bin_2)
                     chosen_route_1[bin_1_position],chosen_route_2[bin_2_position] = chosen_route_2[bin_2_position],chosen_route_1[bin_1_position]
-                    bin_3 = chosen_route_1[bin_1_position + 1]
+                    chosen_route_1[bin_1_position + 1]
                     bin_3_position = bin_1_position + 1
-                    bin_4 = chosen_route_2[bin_2_position + 1]
+                    chosen_route_2[bin_2_position + 1]
                     bin_4_position = bin_2_position + 1
                     chosen_route_1[bin_3_position],chosen_route_2[bin_4_position] = chosen_route_2[bin_4_position],chosen_route_1[bin_3_position]
-                    bin_5 = chosen_route_1[bin_1_position + 2]
+                    chosen_route_1[bin_1_position + 2]
                     bin_5_position = bin_1_position + 2
-                    bin_6 = chosen_route_2[bin_2_position + 2]
+                    chosen_route_2[bin_2_position + 2]
                     bin_6_position = bin_2_position + 2
                     chosen_route_1[bin_5_position],chosen_route_2[bin_6_position] = chosen_route_2[bin_6_position],chosen_route_1[bin_5_position]
                 elif chosen_n == 4:
@@ -484,45 +549,31 @@ def swap_n_2_routes_consecutive(routes_list):
                     bin_2 = rsample(chosen_route_2[1:len(chosen_route_2)-4],1)[0]
                     bin_2_position = chosen_route_2.index(bin_2)
                     chosen_route_1[bin_1_position],chosen_route_2[bin_2_position] = chosen_route_2[bin_2_position],chosen_route_1[bin_1_position]
-                    bin_3 = chosen_route_1[bin_1_position + 1]
                     bin_3_position = bin_1_position + 1
-                    bin_4 = chosen_route_2[bin_2_position + 1]
                     bin_4_position = bin_2_position + 1
                     chosen_route_1[bin_3_position],chosen_route_2[bin_4_position] = chosen_route_2[bin_4_position],chosen_route_1[bin_3_position]
-                    bin_5 = chosen_route_1[bin_1_position + 2]
                     bin_5_position = bin_1_position + 2
-                    bin_6 = chosen_route_2[bin_2_position + 2]
                     bin_6_position = bin_2_position + 2
                     chosen_route_1[bin_5_position],chosen_route_2[bin_6_position] = chosen_route_2[bin_6_position],chosen_route_1[bin_5_position]
-                    bin_7 = chosen_route_1[bin_1_position + 3]
                     bin_7_position = bin_1_position + 3
-                    bin_8 = chosen_route_2[bin_2_position + 3]
                     bin_8_position = bin_2_position + 3
                     chosen_route_1[bin_7_position],chosen_route_2[bin_8_position] = chosen_route_2[bin_8_position],chosen_route_1[bin_7_position]
-                else:
+                else: # chosen_n == 5
                     bin_1 = rsample(chosen_route_1[1:len(chosen_route_1)-5],1)[0]
                     bin_1_position = chosen_route_1.index(bin_1)
                     bin_2 = rsample(chosen_route_2[1:len(chosen_route_2)-5],1)[0]
                     bin_2_position = chosen_route_2.index(bin_2)
                     chosen_route_1[bin_1_position],chosen_route_2[bin_2_position] = chosen_route_2[bin_2_position],chosen_route_1[bin_1_position]
-                    bin_3 = chosen_route_1[bin_1_position + 1]
                     bin_3_position = bin_1_position + 1
-                    bin_4 = chosen_route_2[bin_2_position + 1]
                     bin_4_position = bin_2_position + 1
                     chosen_route_1[bin_3_position],chosen_route_2[bin_4_position] = chosen_route_2[bin_4_position],chosen_route_1[bin_3_position]
-                    bin_5 = chosen_route_1[bin_1_position + 2]
                     bin_5_position = bin_1_position + 2
-                    bin_6 = chosen_route_2[bin_2_position + 2]
                     bin_6_position = bin_2_position + 2
                     chosen_route_1[bin_5_position],chosen_route_2[bin_6_position] = chosen_route_2[bin_6_position],chosen_route_1[bin_5_position]
-                    bin_7 = chosen_route_1[bin_1_position + 3]
                     bin_7_position = bin_1_position + 3
-                    bin_8 = chosen_route_2[bin_2_position + 3]
                     bin_8_position = bin_2_position + 3
                     chosen_route_1[bin_7_position],chosen_route_2[bin_8_position] = chosen_route_2[bin_8_position],chosen_route_1[bin_7_position]
-                    bin_9 = chosen_route_1[bin_1_position + 4]
                     bin_9_position = bin_1_position + 4
-                    bin_10 = chosen_route_2[bin_2_position + 4]
                     bin_10_position = bin_2_position + 4
                     chosen_route_1[bin_9_position],chosen_route_2[bin_10_position] = chosen_route_2[bin_10_position],chosen_route_1[bin_9_position]
     return chosen_n

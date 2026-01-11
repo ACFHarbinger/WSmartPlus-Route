@@ -1,4 +1,25 @@
+"""
+Branch-Cut-and-Price (BCP) solver module for Prize-Collecting CVRP.
 
+This module provides a unified interface to multiple exact and hybrid solvers:
+1. OR-Tools: Constraint Programming with Guided Local Search
+2. VRPy: Column Generation (Branch-and-Price) using NetworkX graphs
+3. Gurobi: Mixed-Integer Programming with lazy subtour elimination
+
+The module dispatches to the appropriate solver based on configuration and
+handles Prize-Collecting CVRP where nodes can be optionally visited with
+penalties for skipped nodes equal to their revenue.
+
+Key Features:
+- Penalty-based prize collection (nodes can be dropped at a cost)
+- Must-go nodes enforcement (infinite penalty if dropped)
+- Capacity constraints for all vehicles
+- Multiple solver backends for flexibility
+
+Reference:
+    Feillet, D., et al. (2005). An exact algorithm for the elementary shortest
+    path problem with resource constraints. Networks, 44(3), 216-229.
+"""
 import logging
 import networkx as nx
 import gurobipy as gp
@@ -11,9 +32,26 @@ from ortools.constraint_solver import routing_enums_pb2
 
 def run_bcp(dist_matrix, demands, capacity, R, C, values, must_go_indices=None, env=None):
     """
-    Main Dispatcher for BCP Algorithms.
-    Default engine: 'ortools'.
-    Config: values['bcp_engine'] in ['ortools', 'vrpy', 'gurobi']
+    Main dispatcher for Branch-Cut-and-Price solvers.
+
+    Selects and runs the appropriate BCP solver based on configuration.
+    Supports Prize-Collecting CVRP with optional must-go nodes.
+
+    Args:
+        dist_matrix (np.ndarray): Distance matrix (N x N) with depot at index 0
+        demands (dict): Node demands {node_id: demand_value}
+        capacity (float): Vehicle capacity constraint
+        R (float): Revenue per unit demand
+        C (float): Cost per unit distance
+        values (dict): Configuration with 'bcp_engine' in ['ortools', 'vrpy', 'gurobi'].
+            Default: 'ortools'. Also supports 'time_limit' (default: 30 seconds)
+        must_go_indices (set, optional): Node IDs that must be visited
+        env (gp.Env, optional): Gurobi environment (for Gurobi engine only)
+
+    Returns:
+        Tuple[List[List[int]], float]: Routes and total cost
+            - routes: List of routes, each containing node IDs
+            - cost: Total travel cost (distance * C)
     """
     engine = values.get('bcp_engine', 'ortools')
     
@@ -28,7 +66,26 @@ def run_bcp(dist_matrix, demands, capacity, R, C, values, must_go_indices=None, 
 
 def _run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indices=None):
     """
-    Solves Prize Collecting CVRP using Google OR-Tools.
+    Solve Prize-Collecting CVRP using Google OR-Tools.
+
+    Uses OR-Tools' constraint programming routing solver with:
+    - Disjunction for optional node visits (Prize Collecting)
+    - Penalties equal to revenue for skipped nodes
+    - Infinite penalty for must-go nodes
+    - PATH_CHEAPEST_ARC first solution strategy
+    - GUIDED_LOCAL_SEARCH for improvement
+
+    Args:
+        dist_matrix (np.ndarray): Distance matrix (N x N)
+        demands (dict): Node demands {node_id: demand_value}
+        capacity (float): Vehicle capacity
+        R (float): Revenue per unit demand
+        C (float): Cost per unit distance
+        values (dict): Config with 'time_limit' (default: 30)
+        must_go_indices (set, optional): Nodes that must be visited
+
+    Returns:
+        Tuple[List[List[int]], float]: Routes and total cost
     """
     # 1. Prepare Data
     if must_go_indices is None:
@@ -133,9 +190,30 @@ def _run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indic
 
 def _run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values):
     """
-    Solves CVRP using VRPy (Column Generation).
-    Note: VRPy does not support Prize Collecting elegantly via simple configuration.
-    This implementation solves the standard CVRP for ALL nodes provided in demands.
+    Solve CVRP using VRPy (Column Generation / Branch-and-Price).
+
+    Note: VRPy does not natively support Prize-Collecting CVRP via simple
+    configuration. This implementation solves standard CVRP for ALL nodes
+    present in the demands dictionary (no node dropping).
+
+    Uses NetworkX DiGraph representation with:
+    - Source/Sink virtual nodes for depot
+    - Edge costs scaled by C coefficient
+    - Load capacity constraints
+    - Column generation solver from VRPy library
+
+    Args:
+        dist_matrix (np.ndarray): Distance matrix (N x N)
+        demands (dict): Node demands {node_id: demand_value}
+        capacity (float): Vehicle capacity
+        R (float): Revenue per unit demand (unused in this variant)
+        C (float): Cost per unit distance
+        values (dict): Config with 'time_limit' (default: 30)
+
+    Returns:
+        Tuple[List[List[int]], float]: Routes and total cost
+            - routes: List of routes excluding Source/Sink
+            - cost: Total objective value from VRPy
     """
     if VehicleRoutingProblem is None:
         logging.error("VRPy not installed or import failed.")
@@ -186,8 +264,31 @@ def _run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values):
 
 def _run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indices=None, env=None):
     """
-    Solves CVRP using Gurobi (MIP Formulation).
-    Implementation: 2-index Flow Formulation with Lazy Subtour Elimination Constraints.
+    Solve Prize-Collecting CVRP using Gurobi MIP solver.
+
+    Implements 2-index flow formulation with:
+    - Binary edge variables x[i,j] for routing
+    - Binary visit variables y[i] for Prize Collecting
+    - MTZ (Miller-Tucker-Zemlin) constraints for capacity and subtour elimination
+    - Objective: Minimize travel cost + penalties for dropped nodes
+    - Must-go nodes enforced via y[i] = 1 constraints
+
+    Formulation:
+        min: sum(dist[i][j] * C * x[i,j]) + sum((1 - y[i]) * revenue[i])
+        s.t.: Flow conservation, capacity (MTZ), visit logic
+
+    Args:
+        dist_matrix (np.ndarray): Distance matrix (N x N)
+        demands (dict): Node demands {node_id: demand_value}
+        capacity (float): Vehicle capacity
+        R (float): Revenue per unit demand
+        C (float): Cost per unit distance
+        values (dict): Config with 'time_limit' (default: 30), 'MIPGap' (default: 0.05)
+        must_go_indices (set, optional): Nodes that must be visited
+        env (gp.Env, optional): Gurobi environment for license control
+
+    Returns:
+        Tuple[List[List[int]], float]: Routes and objective value
     """
     if must_go_indices is None:
         must_go_indices = set()

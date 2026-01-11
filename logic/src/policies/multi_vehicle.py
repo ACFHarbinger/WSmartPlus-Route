@@ -1,6 +1,24 @@
+"""
+Multi-vehicle routing utilities module.
 
+This module provides functions for solving multi-vehicle routing problems (VRP)
+with capacity constraints. It supports two solver backends:
+1. PyVRP: Modern Python library with HGS (Hybrid Genetic Search)
+2. OR-Tools: Google's constraint programming solver with Guided Local Search
+
+Both solvers handle:
+- Multiple vehicles with capacity constraints
+- Depot-based routing (all routes start/end at depot)
+- Distance minimization
+- Dynamic fleet sizing (n_vehicles=0 for automatic)
+
+These utilities are used by policies that require multi-vehicle support
+(Regular, LastMinute, LookAhead, etc.) when n_vehicles > 1.
+"""
 import pyvrp
 import numpy as np
+
+from typing import List, Tuple
 
 from pyvrp.stop import MaxRuntime
 from ortools.constraint_solver import pywrapcp
@@ -9,21 +27,22 @@ from ortools.constraint_solver import routing_enums_pb2
 
 def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0):
     """
-    Find routes using PyVRP.
-    
+    Solve multi-vehicle VRP using PyVRP.
+
+    Constructs routes for multiple vehicles visiting a subset of nodes,
+    respecting capacity constraints. Uses PyVRP's Hybrid Genetic Search.
+
     Args:
-        dist_mat (np.ndarray): Distance matrix.
-        demands (np.ndarray): Demand of each node (index matches dist_mat).
-        max_caps (int): Capacity per vehicle.
-        to_collect (list/array): Indices of bins to collect (1-based, usually).
-        n_vehicles (int): Number of vehicles.
-        coords (pd.DataFrame, optional): Coordinates of nodes.
-        depot (int): Depot index (usually 0).
-        
+        dist_mat (np.ndarray): Full distance matrix (N x N)
+        demands (np.ndarray): Demand for each node (0-indexed, depot demand = 0)
+        max_caps (int): Vehicle capacity limit
+        to_collect (list/array): Node IDs to visit (1-based indexing)
+        n_vehicles (int): Number of vehicles. If 0, uses unlimited fleet.
+        coords (pd.DataFrame, optional): Node coordinates (unused in PyVRP variant)
+        depot (int): Depot node ID. Default: 0
+
     Returns:
-        tuple: (tour, cost)
-            tour: Flattened list of nodes visited, e.g. [0, 1, 2, 0, 3, 0].
-            cost: Total cost.
+        List[int]: Flattened tour with depot separators. Format: [0, route1..., 0, route2..., 0]
     """
     # Mapping: subset index -> original index
     # Internal PyVRP: 0 is depot. 1..N are clients.
@@ -95,6 +114,24 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
 
 
 def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0):
+    """
+    Solve multi-vehicle VRP using Google OR-Tools.
+
+    Alternative to PyVRP using OR-Tools' constraint programming solver
+    with PATH_CHEAPEST_ARC initialization and GUIDED_LOCAL_SEARCH.
+
+    Args:
+        dist_mat (np.ndarray): Full distance matrix (N x N)
+        demands (np.ndarray): Demand for each node (0-indexed)
+        max_caps (int): Vehicle capacity limit
+        to_collect (list/array): Node IDs to visit (1-based indexing)
+        n_vehicles (int): Number of vehicles. If 0, uses unlimited fleet.
+        coords (pd.DataFrame, optional): Node coordinates (unused)
+        depot (int): Depot node ID. Default: 0
+
+    Returns:
+        List[int]: Flattened tour with depot separators
+    """
     # Mapping: subset index -> original index
     subset_indices = [depot] + list(to_collect)
     
@@ -114,7 +151,10 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coo
     manager = pywrapcp.RoutingIndexManager(len(distancesC), n_vehicles, 0)
     routing = pywrapcp.RoutingModel(manager)
 
-    def distance_callback(from_index, to_index):
+    def distance_callback(from_index: int, to_index: int) -> int:
+        """
+        Returns the distance between the two nodes.
+        """
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
         return int(distancesC[from_node][to_node])
@@ -122,7 +162,10 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coo
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
-    def demand_callback(from_index):
+    def demand_callback(from_index: int) -> int:
+        """
+        Returns the demand of the node.
+        """
         from_node = manager.IndexToNode(from_index)
         return int(sub_demands[from_node])
 
@@ -175,7 +218,24 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coo
     return tour_flat
 
 
-def get_solution_costs(demands, n_vehicles, manager, routing, solution, distancesC):
+def get_solution_costs(demands: List[int], n_vehicles: int, manager: pywrapcp.RoutingIndexManager, 
+                       routing: pywrapcp.RoutingModel, solution: pywrapcp.Assignment, 
+                       distancesC: List[List[int]]) -> Tuple[List[List[int]], List[int], List[int], List[int]]:
+    """
+    Extract routes and costs from the OR-Tools solution.
+
+    Args:
+        demands (List[int]): Node demands.
+        n_vehicles (int): Number of vehicles.
+        manager (pywrapcp.RoutingIndexManager): Routing manager.
+        routing (pywrapcp.RoutingModel): Routing model.
+        solution (pywrapcp.Assignment): Solver solution.
+        distancesC (List[List[int]]): Distance matrix.
+
+    Returns:
+        Tuple[List[List[int]], List[int], List[int], List[int]]: 
+            (Tours, costs, distances, loads) for each vehicle.
+    """
     dist_ls = []
     load_ls = []
     tours = []

@@ -1,16 +1,53 @@
+"""
+High-level local search orchestration for the look-ahead policy.
+
+Coordinates the application of various mutation operators (moves, swaps, 
+insertions, removals) through randomized and deterministic search strategies. 
+Includes both standard and reversed local search passes designed to refine 
+greedy initial solutions.
+"""
+
 # Functions for local search
 import numpy as np
 
 from copy import deepcopy
-from .move import *
-from .swap import *
-from .select import *
+from .move import (
+    move_1_route, move_2_routes, move_n_route_random,
+    move_n_route_consecutive, move_n_2_routes_random,
+    move_n_2_routes_consecutive
+)
+from .swap import (
+    swap_1_route, swap_2_routes, swap_n_route_random,
+    swap_n_route_consecutive, swap_n_2_routes_random,
+    swap_n_2_routes_consecutive
+)
+from .select import (
+    remove_bin, add_bin, remove_n_bins_random,
+    remove_n_bins_consecutive, add_n_bins_random,
+    add_n_bins_consecutive, add_route_random,
+    add_route_consecutive, add_route_with_removed_bins_random,
+    add_route_with_removed_bins_consecutive
+)
 from .routes import rearrange_part_route
 from .computations import compute_profit, compute_real_profit
 
 
 # Strategy to choose procedure randomly
 def local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed):
+    """
+    Perform a multi-operator local search on the routing solution.
+
+    Randomly selects move and swap operators to explore the neighborhood.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+        removed_bins (List[int]): Set of bins not currently collected.
+        distance_matrix (np.ndarray): Distance matrix.
+        bins_cannot_removed (List[int]): Bins that must remain in the routes.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     procedures = ['Move 1 route', 'Swap 1 route', 'Move 2 routes', 'Swap 2 routes', 'Drop bin', 'Add bin', \
                   'Move n 1 route random', 'Move n 1 route consecutive', 'Swap n 1 route random', 'Swap n 1 route consecutive', \
                   'Move n 2 routes random', 'Move n 2 routes consecutive', 'Swap n 2 routes random', 'Swap n 2 routes consecutive', \
@@ -80,6 +117,24 @@ def local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed
 
 
 def local_search_2(previous_solution, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values):
+    """
+    Apply a deterministic set of local search operators to improve a solution.
+
+    Tries 2-opt, uncrossing, and reordering. Accept only improvements.
+
+    Args:
+        previous_solution (List[List[int]]): Solution to improve.
+        p_vehicle (float): Vehicle penalty.
+        p_load (float): Load penalty.
+        p_route_difference (float): Imbalance penalty.
+        p_shift (float): Shift penalty.
+        data (pd.DataFrame): Bin weights data.
+        distance_matrix (np.ndarray): Shortest path matrix.
+        values (Dict): Parameter dictionary.
+
+    Returns:
+        List[List[int]]: Improved routing solution.
+    """
     previous_profit = compute_profit(previous_solution, p_vehicle, p_load,p_route_difference, p_shift, data, distance_matrix, values)
     routes_list = deepcopy(previous_solution)
     for it, i in enumerate(previous_solution):
@@ -99,7 +154,6 @@ def local_search_2(previous_solution, p_vehicle, p_load, p_route_difference, p_s
                 # Identify route of bin to move
                 for z in previous_solution:
                     if bin_to_move in z:
-                        route_to_remove = z
                         index_route_to_remove = previous_solution.index(z)
                         if index_route_to_remove == idx_route:
                             position_bin_to_move = i.index(bin_to_move)
@@ -135,7 +189,6 @@ def local_search_2(previous_solution, p_vehicle, p_load, p_route_difference, p_s
                     bin_to_move = row.index(b)
                     for z in previous_solution:
                         if bin_to_move in z:
-                            route_to_remove = z
                             index_route_to_remove = previous_solution.index(z)
                             if index_route_to_remove == idx_route:
                                 position_bin_to_move = i.index(bin_to_move)
@@ -172,6 +225,22 @@ def local_search_2(previous_solution, p_vehicle, p_load, p_route_difference, p_s
 
 
 def local_search_reversed(previous_solution, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values):
+    """
+    Similar to local_search_2 but applies operators in a different order or variant.
+
+    Args:
+        previous_solution (List[List[int]]): Solution to improve.
+        p_vehicle (float): Vehicle penalty.
+        p_load (float): Load penalty.
+        p_route_difference (float): Imbalance penalty.
+        p_shift (float): Shift penalty.
+        data (pd.DataFrame): Bin weights data.
+        distance_matrix (np.ndarray): Shortest path matrix.
+        values (Dict): Parameter dictionary.
+
+    Returns:
+        List[List[int]]: Modified routing solution.
+    """
     previous_profit = compute_profit(previous_solution, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values)
     routes_list = deepcopy(previous_solution)
     for it, i in reversed(list(enumerate(previous_solution))):
@@ -191,7 +260,6 @@ def local_search_reversed(previous_solution, p_vehicle, p_load, p_route_differen
                 # Identify route of bin to move
                 for z in previous_solution:
                     if bin_to_move in z:
-                        route_to_remove = z
                         index_route_to_remove = previous_solution.index(z)
                         if index_route_to_remove == idx_route:
                             position_bin_to_move = i.index(bin_to_move)
@@ -227,7 +295,6 @@ def local_search_reversed(previous_solution, p_vehicle, p_load, p_route_differen
                     bin_to_move = row.index(b)
                     for z in previous_solution:
                         if bin_to_move in z:
-                            route_to_remove = z
                             index_route_to_remove = previous_solution.index(z)
                             if index_route_to_remove == idx_route:
                                 position_bin_to_move = i.index(bin_to_move)
