@@ -1,3 +1,11 @@
+"""
+Simulation Testing Pipeline.
+
+This script manages large-scale simulation experiments to evaluate the performance of different
+routing policies (Neural, OR-based, Heuristics) over extended periods (e.g., 31 days).
+It leverages multiprocessing to run multiple independent simulations in parallel and 
+reports aggregate metrics like Profit, Cost, and Waste components.
+"""
 import os
 import sys
 import time
@@ -30,6 +38,17 @@ from logic.src.pipeline.simulator.simulation import (
 
 
 def simulator_testing(opts, data_size, device):
+    """
+    Orchestrates the parallel execution of multiple simulation runs.
+
+    Handles task allocation (multiprocessing Pool), result collection, 
+    progress tracking via tqdm, and final logging/GUI reporting.
+
+    Args:
+        opts (dict): Validated configuration options.
+        data_size (int): Total number of bins in the area.
+        device (torch.device): Computation device for neural policies.
+    """
     manager = mp.Manager()
     lock = manager.Lock()
     sample_idx_dict = {pol: list(range(opts['n_samples'])) for pol in opts['policies']}
@@ -203,6 +222,19 @@ def simulator_testing(opts, data_size, device):
 
 
 def run_wsr_simulator_test(opts):
+    """
+    Main entry point for the simulation test script.
+
+    Performs initial setup, including:
+    1. Seed initialization.
+    2. Area-specific bin count determination.
+    3. Policy name expansion (e.g., expanding 'regular' to 'regular1', 'regular2').
+    4. Output directory preparation.
+    5. Dispatching to the simulation testing engine.
+
+    Args:
+        opts (dict): Validated configuration options.
+    """
     # Set the random seed and execute the program
     random.seed(opts['seed'])
     np.random.seed(opts['seed'])
