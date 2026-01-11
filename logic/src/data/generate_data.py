@@ -17,6 +17,17 @@ from logic.src.data.builders import VRPInstanceBuilder
 
 
 def generate_datasets(opts):
+    """
+    Generates VRP datasets based on the provided configuration options.
+
+    Args:
+        opts (dict): A dictionary containing configuration parameters for data generation.
+                     Expected keys include 'seed', 'problem', 'dataset_type', 'graph_sizes',
+                     'waste_type', 'area', 'vertex_method', 'dataset_size', etc.
+    
+    Raises:
+        Exception: If directory creation fails or data generation encounters an error.
+    """
     # Set the random seed and execute the program
     random.seed(opts['seed'])
     np.random.seed(opts['seed'])
