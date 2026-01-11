@@ -1,3 +1,11 @@
+"""
+Node relocation operators for intra-route and inter-route perturbations.
+
+Contains primary mutation procedures that move single or multiple bins 
+randomly or consecutively within the same route or between different routes. 
+These operators form the core of the local search neighborhood exploration.
+"""
+
 from random import sample as rsample
 
 __all__ = [
@@ -12,6 +20,15 @@ __all__ = [
 
 # Function to move 1 route (Choose one route and move one bin from one place in the route to another place in the route)
 def move_1_route(routes_list):
+    """
+    Intra-route perturbation: Move one bin to a different position in the same route.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list,1)[0]
         if len(chosen_route) > 3:
@@ -27,6 +44,15 @@ def move_1_route(routes_list):
 
 # Function to move one bin from one route to another route (Choose two routes and move one element from one route to the other route)
 def move_2_routes(routes_list):
+    """
+    Inter-route perturbation: Move one bin from one route to another.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     if len(routes_list) > 0:
         if len(routes_list) > 1:
             chosen_route_1 = rsample(routes_list,1)[0]
@@ -58,6 +84,15 @@ def move_2_routes(routes_list):
 
 # Function to move n random bins inside a route
 def move_n_route_random(routes_list):
+    """
+    Intra-route perturbation: Move n random bins to new positions within their routes.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     chosen_n = None
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list,1)[0]
@@ -185,6 +220,16 @@ def move_n_route_random(routes_list):
 
 # Function to move n consecutive bins inside a route
 def move_n_route_consecutive(routes_list):
+    """
+    Intra-route perturbation: Move a sequence of consecutive bins to a new position 
+    in the same route.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     chosen_n = None
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list,1)[0]
@@ -266,6 +311,15 @@ def move_n_route_consecutive(routes_list):
 
 # Function to move several bins from one route to another route randomly
 def move_n_2_routes_random(routes_list):
+    """
+    Inter-route perturbation: Move n random bins from one route to another.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     possible_n = [2,3,4,5]
     chosen_n = rsample(possible_n,1)[0]
     if len(routes_list) > 0:
@@ -403,6 +457,16 @@ def move_n_2_routes_random(routes_list):
 
 #function to move several bins from one route to another route consecutively
 def move_n_2_routes_consecutive(routes_list):
+    """
+    Inter-route perturbation: Move a sequence of consecutive bins from one route 
+    to another.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+
+    Returns:
+        List[List[int]]: Mutated routing solution.
+    """
     possible_n = [2,3,4,5]
     chosen_n = rsample(possible_n,1)[0]
     if len(routes_list) > 0:

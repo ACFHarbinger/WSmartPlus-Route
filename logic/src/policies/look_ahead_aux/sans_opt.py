@@ -1,3 +1,11 @@
+"""
+Adaptive mutation and neighborhood operators for SANS-style optimization.
+
+Implements specialized local search operators including cross-exchange, 
+relocation, Or-opt moves, and 2-opt swaps tailored for the SANS (Simulated 
+Annealing with Adaptive Neighborhood Selection) policy variant.
+"""
+
 import copy
 import random
 
@@ -14,6 +22,15 @@ __all__ = [
 
 
 def get_neighbors(route):
+    """
+    Generate the neighborhood of a route through 2-opt swaps.
+
+    Args:
+        route (List[int]): Current route.
+
+    Returns:
+        List[List[int]]: List of neighboring routes.
+    """
     neighbors = []
     if len(route) <= 3:
         return [route]
@@ -27,6 +44,15 @@ def get_neighbors(route):
 
 
 def get_2opt_neighbors(route):
+    """
+    Generate 2-opt neighbors for a route.
+
+    Args:
+        route (List[int]): Proposed node sequence.
+
+    Returns:
+        List[List[int]]: Candidate neighboring routes.
+    """
     neighbors = []
     n = len(route)
     if n <= 4:
@@ -40,6 +66,15 @@ def get_2opt_neighbors(route):
 
 
 def relocate_within_route(route):
+    """
+    Relocate a random bin to a different position in the same route.
+
+    Args:
+        route (List[int]): Node sequence.
+
+    Returns:
+        List[int]: Mutated route.
+    """
     if len(route) <= 3:
         return route[:]
     new_route = route[:]
@@ -50,6 +85,15 @@ def relocate_within_route(route):
 
 
 def cross_exchange(routes):
+    """
+    Exchange segments between two different routes.
+
+    Args:
+        routes (List[List[int]]): Set of routes.
+
+    Returns:
+        List[List[int]]: Mutated solution.
+    """
     if len(routes) < 2:
         return routes[:]
     
@@ -71,6 +115,15 @@ def cross_exchange(routes):
 
 
 def or_opt_move(route):
+    """
+    Apply Or-opt operator (move a segment of 1-3 nodes) within a route.
+
+    Args:
+        route (List[int]): Node sequence.
+
+    Returns:
+        List[int]: Mutated route.
+    """
     if len(route) <= 4:
         return route[:]
     
@@ -86,6 +139,18 @@ def or_opt_move(route):
 
 
 def move_between_routes(routes, data, vehicle_capacity, id_to_index):
+    """
+    Move a random bin from one route to another, respecting capacity constraints.
+
+    Args:
+        routes (List[List[int]]): Set of routes.
+        data (pd.DataFrame): Bin weights data.
+        vehicle_capacity (float): Tanker capacity.
+        id_to_index (Dict): Mapping.
+
+    Returns:
+        List[List[int]]: Mutated solution.
+    """
     moves = []
     stocks = dict(zip(data['#bin'], data['Stock']))
     for i in range(len(routes)):
@@ -126,6 +191,16 @@ def insert_bin_in_route(route, bin_id, id_to_index, distance_matrix):
 
 
 def mutate_route_by_swapping_bins(route, num_bins=1):
+    """
+    Swap random nodes within a route.
+
+    Args:
+        route (List[int]): Route to mutate.
+        num_bins (int): Number of nodes to swap.
+
+    Returns:
+        List[int]: Mutated route.
+    """
     new_route = route[:]
     indices = [i for i in range(1, len(route)-1)]
     if len(indices) < num_bins * 2:
@@ -274,7 +349,7 @@ def add_n_bins_consecutive(routes_list, removed_bins, stocks, vehicle_capacity, 
     for route in new_routes:
         carga = sum(stocks.get(b, 0) for b in route if b != 0)
         if carga + sum(stocks[b] for b in bins_to_add) <= vehicle_capacity:
-            insert_pos = random.randint(1, len(route) - 1)
+            random.randint(1, len(route) - 1)
             for b in bins_to_add:
                 route = insert_bin_in_route(route, b, id_to_index, distance_matrix)
                 removed_bins.remove(b)

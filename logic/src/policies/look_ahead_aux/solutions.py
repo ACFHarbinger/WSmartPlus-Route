@@ -1,3 +1,12 @@
+"""
+Core solution generation and optimization framework for look-ahead policies.
+
+Integrates construction heuristics, simulated annealing, and local search 
+improvement loops to find high-quality routing configurations. Manages the 
+lifecycle of solution discovery, from initial greedy builds to refined, 
+multi-neighborhood optimized plans.
+"""
+
 import time
 import math
 import copy
@@ -5,16 +14,50 @@ import random
 import numpy as np
 
 from copy import deepcopy
-from .sans_opt import *
-from .select import insert_bins, remove_bins_end
+from .sans_opt import (
+    relocate_within_route, cross_exchange,
+    or_opt_move, move_between_routes, mutate_route_by_swapping_bins,
+    get_2opt_neighbors, insert_bin_in_route
+)
+from .move import (
+    move_n_route_random, move_n_route_consecutive
+)
+from .swap import (
+    swap_n_route_random, swap_n_route_consecutive
+)
+from .select import (
+    insert_bins, remove_bins_end, remove_n_bins_random,
+    remove_n_bins_consecutive, add_n_bins_random,
+    add_n_bins_consecutive, add_route_with_removed_bins_random,
+    add_route_with_removed_bins_consecutive
+)
 from .routes import uncross_arcs_in_routes, uncross_arcs_in_sans_routes
 from .search import local_search, local_search_2, local_search_reversed
 from .computations import compute_profit, compute_real_profit, compute_total_cost
-from .check import check_solution_admissibility, check_bins_overflowing_feasibility
+from .check import (
+    check_solution_admissibility, check_bins_overflowing_feasibility
+)
 
 
 # Lookahead base policy
 def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bins, vehicle_capacity, E, B):
+    """
+    Construct a feasible initial solution for the routing problem.
+
+    Processes overflow predictions and builds routes using a construction heuristic.
+
+    Args:
+        data (pd.DataFrame): Bin weights and metadata.
+        bins_coordinates (List): Lat/Lon pairs.
+        distance_matrix (np.ndarray): Shortest path distances.
+        number_of_bins (int): Scale of the problem.
+        vehicle_capacity (float): Max tanker capacity.
+        E (float): Bin volume.
+        B (float): Bin density.
+
+    Returns:
+        Tuple: (routes, removed_bins, bins_cannot_removed, points).
+    """
     bins = list(data['#bin'][1:number_of_bins+1])
     depot = list(data['#bin'][0:1])
 
@@ -68,7 +111,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
                 row_new = np.delete(row,previous_bin)
                 
                 # Get the index of the bin with the minimum distance from the previous one
-                minimum_distance = min(row_new)
+                min(row_new)
                 min_idx = row_new.argmin()
 
                 # Get the correct bin id (because of deleting the 0 distance)
@@ -109,7 +152,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
                 corresponding_row = data[data['#bin'] == next_bin_idx]
                 stock = (corresponding_row.iloc[0]['Stock'] + corresponding_row.iloc[0]['Accum_Rate']) * E * B
                 space_occupied += stock
-                if space_occupied < vehicle_capacity and not next_bin_idx in globals()['route_{0}'.format(i)]:
+                if space_occupied < vehicle_capacity and next_bin_idx not in globals()['route_{0}'.format(i)]:
                     # Add bin to the route
                     globals()['route_{0}'.format(i)].append(next_bin_idx)
                     bins.pop(bin_index_in_bins)
@@ -128,7 +171,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
                 row_new = np.delete(row,previous_bin)
                 
                 # Get the index of the bin with the minimum distance from the previous one
-                minimum_distance = min(row_new)
+                min(row_new)
                 min_idx = row_new.argmin()
 
                 # Get the correct bin id (because of deleting the 0 distance)
@@ -169,7 +212,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
                 corresponding_row = data[data['#bin'] == next_bin_idx]
                 stock = (corresponding_row.iloc[0]['Stock'] + corresponding_row.iloc[0]['Accum_Rate']) * E * B
                 space_occupied += stock
-                if space_occupied < vehicle_capacity and not next_bin_idx in globals()['route_{0}'.format(i)]:
+                if space_occupied < vehicle_capacity and next_bin_idx not in globals()['route_{0}'.format(i)]:
                     # Add bin to the route
                     globals()['route_{0}'.format(i)].append(next_bin_idx)
                     
@@ -192,7 +235,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
 
                 # Iterate through sorted list until the closest bin that is not in any route is found
                 while j <= len(row_sorted[1:]) and stop != 'B':
-                    row_sorted_list = row_sorted.tolist()
+                    _ = row_sorted.tolist()
                     possible_indexes = [index for index, value in enumerate(row) if value == row_sorted[j]]
                     for z in possible_indexes:
                         if z in bins:
@@ -213,7 +256,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
                 corresponding_row = data[data['#bin'] == next_bin_idx]
                 stock = (corresponding_row.iloc[0]['Stock'] + corresponding_row.iloc[0]['Accum_Rate']) * E * B
                 space_occupied += stock
-                if space_occupied < vehicle_capacity and not next_bin_idx in globals()['route_{0}'.format(i)]:
+                if space_occupied < vehicle_capacity and next_bin_idx not in globals()['route_{0}'.format(i)]:
                     # Add bin to the route
                     globals()['route_{0}'.format(i)].append(next_bin_idx)
                     
@@ -235,6 +278,23 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
 
 
 def find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, must_go_bins, values, n_bins, points, time_limit):
+    """
+    Find high-quality routing solutions using a randomized local search procedure.
+
+    Args:
+        data (pd.DataFrame): Bin and weight context.
+        bins_coordinates (List): Locations.
+        distance_matrix (np.ndarray): distances.
+        chosen_combination (Tuple): Parameter set (vehicle penalty, load penalty, etc).
+        must_go_bins (List[int]): Nodes that must be visited.
+        values (Dict): Global constants.
+        n_bins (int): Problem size.
+        points (Dict): Coordinates map.
+        time_limit (float): Max execution time.
+
+    Returns:
+        List[List[int]]: Optimized routing solution.
+    """
     number_iterations = chosen_combination[0]
     T_initial = chosen_combination[1]
     T_param = chosen_combination[2]
@@ -262,7 +322,7 @@ def find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, 
     initial_sol = initial_solution
     previous_sol = initial_sol
     initial_sol_profit = compute_profit(initial_sol, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values)
-    initial_sol_real_profit = compute_real_profit(initial_sol, p_vehicle, data, distance_matrix, values)
+    _ = compute_real_profit(initial_sol, p_vehicle, data, distance_matrix, values)
     previous_sol_profit = initial_sol_profit
     routes_list = deepcopy(initial_solution)
     count = 0
@@ -279,7 +339,7 @@ def find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, 
         status = check_bins_overflowing_feasibility(data,routes_list, n_bins, values['perc_bins_can_overflow'], values['E'], values['B'])
 
         # Check candidate route admissibility
-        admissible = check_solution_admissibility(routes_list, removed_bins, n_bins)
+        _ = check_solution_admissibility(routes_list, removed_bins, n_bins)
         if status == 'pass':
             # Compare current profit with previous profit
             delta = current_sol_profit - previous_sol_profit
@@ -365,12 +425,12 @@ def find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, 
                     removed_bins.append(u)
 
         routes_list = deepcopy(previous_sol)
-        previous_sol_real_profit = compute_real_profit(previous_sol, p_vehicle,data, distance_matrix, values)
+        _ = compute_real_profit(previous_sol, p_vehicle,data, distance_matrix, values)
         if (time.perf_counter()-tic) > time_limit:
             break
 
     SA_sol = deepcopy(previous_sol)
-    SA_sol_real_profit = compute_real_profit(SA_sol, p_vehicle, data, distance_matrix, values)
+    _ = compute_real_profit(SA_sol, p_vehicle, data, distance_matrix, values)
     # end SA
 
     # Uncross after SA
@@ -503,6 +563,19 @@ def find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, 
 
 # Lookahead sans policy
 def compute_initial_solution(data, bins_coordinates, distance_matrix, vehicle_capacity, id_to_index):
+    """
+    Simplified initial solution builder for SANS policy.
+
+    Args:
+        data (pd.DataFrame): Bin metadata.
+        bins_coordinates (List): Coordinates.
+        distance_matrix (np.ndarray): Distances.
+        vehicle_capacity (float): Tanker capacity.
+        id_to_index (Dict): Mapping.
+
+    Returns:
+        Tuple: (initial_routes, removed_bins).
+    """
     depot = data['#bin'].iloc[0]
     all_bins = list(data['#bin'][1:])
     bins_coordinates = {b: coord for b, coord in bins_coordinates.items() if b in all_bins or b == depot}
@@ -560,6 +633,35 @@ def improved_simulated_annealing(
         density=20, C=1.0, must_go_bins=None, removed_bins=None, verbose=False,
         perc_bins_can_overflow=0.0, volume=2.5, density_val=20, max_vehicles=None
     ):
+    """
+    Refine routing solutions using a multi-neighborhood Simulated Annealing algorithm.
+
+    Args:
+        routes (List[List[int]]): Initial routes.
+        distance_matrix (np.ndarray): Distances.
+        time_limit (float): Max runtime.
+        id_to_index (Dict): Node ID mapping.
+        data (pd.DataFrame): Dataset.
+        vehicle_capacity (float): Vehicle limit.
+        T_init (float): Start temperature.
+        T_min (float): Stop temperature.
+        alpha (float): Cooling rate.
+        iterations_per_T (int): Steps at each temperature level.
+        R (float): Revenue factor.
+        V (float): Bin volume.
+        density (float): Waste density.
+        C (float): Distance cost factor.
+        must_go_bins (List): Invariant nodes.
+        removed_bins (List): Uncollected nodes.
+        verbose (bool): Log progress.
+        perc_bins_can_overflow (float): Threshold.
+        volume (float): Bin size.
+        density_val (float): Density.
+        max_vehicles (int): Hard fleet limit.
+
+    Returns:
+        Tuple: (best_routes, best_removed_bins, stats_history).
+    """
     def _power_function_decay(T_init, i, T_param):
         return T_init / (i ** T_param)
     
@@ -611,7 +713,8 @@ def improved_simulated_annealing(
         stocks = dict(zip(data['#bin'], data['Stock']))
         current_load = 0
         for b in route0:
-            if b == 0: continue
+            if b == 0:
+                continue
             bin_kg = stocks.get(b, 0) * V * density / 100.0
             
             if current_load + bin_kg <= vehicle_capacity:
@@ -644,7 +747,8 @@ def improved_simulated_annealing(
     iter_count = 0
     while T > T_min:
         if time.time() - start_time > time_limit:
-            if verbose: print("[DEBUG] Time limit reached.")
+            if verbose:
+                print("[DEBUG] Time limit reached.")
             break
 
         for _ in range(iterations_per_T):
@@ -729,7 +833,8 @@ def improved_simulated_annealing(
                 r = random.choice(range(len(new_solution)))
                 new_solution[r] = or_opt_move(new_solution[r])
             elif op == "insert":
-                if not new_solution: continue
+                if not new_solution:
+                    continue
                 r = random.choice(range(len(new_solution)))
                 all_bins = set(data['#bin']) - {0}
                 used_bins = set(b for route in new_solution for b in route)
@@ -756,7 +861,8 @@ def improved_simulated_annealing(
                 route0 = new_solution[0]
                 current_load = 0
                 for b in route0:
-                    if b == 0: continue
+                    if b == 0:
+                        continue
                     # Optimization: pre-calculate bin weights? Or just do it here.
                     bin_kg = stocks.get(b, 0) * V * density / 100.0
                     if current_load + bin_kg <= vehicle_capacity:
@@ -810,7 +916,8 @@ def improved_simulated_annealing(
                 print(f"Temperature cooled to {T:.4f}")
 
         if no_improvement_count > 500:
-            if verbose: print("[INFO] Reaquecendo temperatura.")
+            if verbose:
+                print("[INFO] Reaquecendo temperatura.")
             T = T_init          # start again from the original temperature
             no_improvement_count = 0
 
