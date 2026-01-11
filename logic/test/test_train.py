@@ -449,7 +449,7 @@ class TestDRGRPO:
     """Tests for DR-GRPO Trainer implementation."""
 
     @pytest.mark.unit
-    def test_dr_grpo_init(self, mocker, mock_dr_grpo, mock_dr_grpo_config):
+    def test_dr_grpo_init(self, mocker, mock_dr_grpo_deps):
         """Test initialization of DR-GRPO trainer."""
         from logic.src.pipeline.reinforcement_learning.core.dr_grpo import DRGRPOTrainer
 
@@ -468,13 +468,13 @@ class TestDRGRPO:
         }
 
         trainer = DRGRPOTrainer(
-            mock_dr_grpo['model'],
-            mock_dr_grpo['optimizer'],
-            mock_dr_grpo['baseline'],
+            mock_dr_grpo_deps['model'],
+            mock_dr_grpo_deps['optimizer'],
+            mock_dr_grpo_deps['baseline'],
             MagicMock(), # lr_scheduler
             MagicMock(), # scaler
-            mock_dr_grpo['training_dataset'],
-            mock_dr_grpo['problem'],
+            mock_dr_grpo_deps['training_dataset'],
+            mock_dr_grpo_deps['problem'],
             MagicMock(), # tb_logger
             {k: opts[k] for k in ['w_waste', 'w_length', 'w_overflows', 'w_lost', 'w_penalty', 'w_prize']},
             opts
@@ -483,10 +483,10 @@ class TestDRGRPO:
         assert trainer.group_size == 8
         assert trainer.epsilon == 0.2
         assert trainer.dr_grpo_epochs == 3
-        mock_dr_grpo['model'].set_decode_type.assert_called_with('sampling')
+        mock_dr_grpo_deps['model'].set_decode_type.assert_called_with('sampling')
 
     @pytest.mark.unit
-    def test_dr_grpo_train_day(self, mocker, mock_dr_grpo, mock_dr_grpo_config):
+    def test_dr_grpo_train_day(self, mocker, mock_dr_grpo_deps):
         """Test training step for a single day in DR-GRPO."""
         from logic.src.pipeline.reinforcement_learning.core.dr_grpo import DRGRPOTrainer
 
@@ -505,26 +505,26 @@ class TestDRGRPO:
         }
 
         trainer = DRGRPOTrainer(
-            mock_dr_grpo['model'],
-            mock_dr_grpo['optimizer'],
-            mock_dr_grpo['baseline'],
+            mock_dr_grpo_deps['model'],
+            mock_dr_grpo_deps['optimizer'],
+            mock_dr_grpo_deps['baseline'],
             MagicMock(),
             MagicMock(),
-            mock_dr_grpo['training_dataset'],
-            mock_dr_grpo['problem'],
+            mock_dr_grpo_deps['training_dataset'],
+            mock_dr_grpo_deps['problem'],
             MagicMock(),
             {k: opts[k] for k in ['w_waste', 'w_length', 'w_overflows', 'w_lost', 'w_penalty', 'w_prize']},
             opts
         )
 
         # Mock init_dataset to set valid dataset
-        trainer.training_dataset = mock_dr_grpo['training_dataset']
+        trainer.training_dataset = mock_dr_grpo_deps['training_dataset']
 
         trainer.train_day()
 
         # Check that optimizer step was called
-        assert mock_dr_grpo['optimizer'].step.called
-        assert mock_dr_grpo['optimizer'].zero_grad.called
+        assert mock_dr_grpo_deps['optimizer'].step.called
+        assert mock_dr_grpo_deps['optimizer'].zero_grad.called
 
 
 class TestGSPO:

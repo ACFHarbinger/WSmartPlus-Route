@@ -60,6 +60,9 @@ class StandardTrainer(BaseReinforceTrainer):
     for more advanced training strategies.
     """
     def initialize_training_dataset(self):
+        """
+        Initialize the training dataset (no-op for standard trainer).
+        """
         pass
 
     def train_day(self):
@@ -132,6 +135,17 @@ class StandardTrainer(BaseReinforceTrainer):
         self.daily_total_samples = daily_total_samples
 
     def train_batch(self, batch, batch_id, opt_step=True):
+        """
+        Train on a single batch of data.
+
+        Args:
+            batch: Batch of data tokens.
+            batch_id (int): Identifier for the batch.
+            opt_step (bool): Whether to perform an optimizer step (backprop).
+
+        Returns:
+            Tuple: (pi, cost_dict, loss_dict, cost_mean, state_tensors)
+        """
         # Logic extracted from train_batch_reinforce
         x, bl_val = self.baseline.unwrap_batch(batch)
         x = move_to(x, self.opts['device'])
@@ -181,8 +195,10 @@ class StandardTrainer(BaseReinforceTrainer):
                     demands = x.get('waste', None)
                     # Flatten demands if needed? x['waste'] is usually (B, N) or (B, N, 1) or (B, 1, N)
                     if demands is not None:
-                        if demands.dim() == 3: demands = demands.squeeze(1).squeeze(1)
-                        if demands.dim() == 2 and demands.size(1) == 1: demands = demands.squeeze(1)
+                        if demands.dim() == 3: 
+                            demands = demands.squeeze(1).squeeze(1)
+                        if demands.dim() == 2 and demands.size(1) == 1: 
+                            demands = demands.squeeze(1)
                         
                         # Pad with depot demand (0) if size matches graph_size (customers only)
                         # Assuming dist_matrix is (B, N+1, N+1) and demands is (B, N)
@@ -235,10 +251,10 @@ class StandardTrainer(BaseReinforceTrainer):
                                     row = expert_pi_valid[idx]
                                     copy_len = min(len(row), expert_pi.size(1))
                                     expert_pi[batch_idx, :copy_len] = row[:copy_len]
-                            except Exception as e:
+                            except Exception:
                                 pass
                                     
-                        if expert_pi.size(1) > 0 and expert_pi[0, 0] == 0:
+                        if expert_pi is not None and expert_pi.size(1) > 0 and expert_pi[0, 0] == 0:
                             expert_pi = expert_pi[:, 1:]
 
                 elif self.opts.get('imitation_mode', '2opt') == '2opt':
@@ -308,9 +324,11 @@ class StandardTrainer(BaseReinforceTrainer):
 
             return pi, c_dict, l_dict, cost.mean(), state_tensors
             
-        except Exception as e:
-            if self.scaler is not None: autocast_context.__exit__(None, None, None)
-            raise e
+        except Exception:
+            if self.scaler is not None: 
+                autocast_context.__exit__(None, None, None)
+            raise
+
 
 class TimeTrainer(StandardTrainer):
     """
@@ -343,6 +361,9 @@ class TimeTrainer(StandardTrainer):
         gamma: Discount factor for future rewards
     """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+        """
+        Initialize the TimeTrainer.
+        """
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
 
         self.horizon_buffer = []
@@ -350,6 +371,9 @@ class TimeTrainer(StandardTrainer):
         self.gamma = opts.get('gamma', 0.99) 
 
     def initialize_training_dataset(self):
+        """
+        Initialize the time-dependent training dataset.
+        """
         step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(
             self.optimizer, self.day, self.problem, self.tb_logger, self.cost_weights, self.opts
         )
@@ -358,6 +382,9 @@ class TimeTrainer(StandardTrainer):
         self.data_init_args = args
 
     def train_day(self):
+        """
+        Execute training for a single day, handling horizon logic if configured.
+        """
         if self.horizon > 1:
             self.train_day_horizon()
         else:
@@ -370,6 +397,9 @@ class TimeTrainer(StandardTrainer):
         pass
 
     def update_context(self):
+        """
+        Update the training context (dataset) for the next day.
+        """
         if self.day > self.opts['epoch_start']:
             prev_pi = getattr(self, 'log_pi', None)
             prev_costs = getattr(self, 'log_costs', None)
@@ -381,6 +411,9 @@ class TimeTrainer(StandardTrainer):
                 )
 
     def train_day_horizon(self):
+        """
+        Execute training day with temporal horizon logic (multi-step returns).
+        """
         log_pi = []
         log_costs = []
         set_decode_type(self.model, "sampling")
@@ -430,8 +463,12 @@ class TimeTrainer(StandardTrainer):
         self.daily_total_samples = daily_total_samples
 
     def accumulate_and_update(self):
+        """
+        Compute discounted returns and perform update using accumulated horizon buffer.
+        """
         num_days = len(self.horizon_buffer)
-        if num_days == 0: return
+        if num_days == 0: 
+            return
         num_batches = len(self.horizon_buffer[0])
         
         total_loss = torch.tensor(0.0, device=self.opts['device'])
@@ -501,10 +538,16 @@ class RWATrainer(StandardTrainer):
     throughout training rather than keeping them fixed.
     """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+        """
+        Initialize the RWATrainer.
+        """
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.weight_optimizer = RewardWeightOptimizer(num_objectives=len(cost_weights))
 
     def setup_meta_learner(self):
+        """
+        Initialize the Reward Weight Optimizer (RWO) meta-model.
+        """
         model_class = None
         if self.opts['rwo_model'] == 'rnn':
             model_class = WeightAdjustmentRNN
@@ -527,6 +570,9 @@ class RWATrainer(StandardTrainer):
         )
 
     def update_context(self):
+        """
+        Update context hook (no-op for RWA).
+        """
         pass
 
 class ContextualBanditTrainer(TimeTrainer):
@@ -545,10 +591,16 @@ class ContextualBanditTrainer(TimeTrainer):
     Combines with TimeTrainer to handle time-dependent training scenarios.
     """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+        """
+        Initialize the ContextualBanditTrainer.
+        """
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.weight_optimizer = None
 
     def setup_meta_learner(self):
+        """
+        Initialize the Contextual Bandit weight optimizer.
+        """
         self.weight_optimizer = WeightContextualBandit(
             num_weight_configs=10, 
             initial_weights=self.cost_weights
@@ -556,11 +608,17 @@ class ContextualBanditTrainer(TimeTrainer):
         )
 
     def update_context(self):
+        """
+        Update weights via Bandit proposal.
+        """
         if self.weight_optimizer:
              weights = self.weight_optimizer.propose_weights(context=None)
              self.cost_weights.update(weights)
 
     def process_feedback(self):
+        """
+        Provide feedback (reward) to the Bandit optimizer.
+        """
         if self.weight_optimizer:
             avg_cost = sum([torch.stack(c).mean().item() for c in self.log_costs]) / len(self.log_costs)
             reward = -avg_cost
@@ -574,6 +632,9 @@ class TDLTrainer(StandardTrainer):
     The manager adjusts weights to balance multiple objectives dynamically during training.
     """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+        """
+        Initialize the TDLTrainer.
+        """
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.weight_optimizer = CostWeightManager(num_objectives=len(cost_weights))
 
@@ -586,6 +647,9 @@ class MORLTrainer(StandardTrainer):
     (e.g., minimizing distance vs. minimizing overflows vs. maximizing waste collected).
     """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+        """
+        Initialize the MORLTrainer.
+        """
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.weight_optimizer = MORLWeightOptimizer(num_objectives=len(cost_weights))
 
@@ -600,6 +664,9 @@ class HyperNetworkTrainer(TimeTrainer):
     Combines meta-learning with time-dependent training for dynamic waste collection.
     """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+        """
+        Initialize the HyperNetworkTrainer.
+        """
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.hyper_optimizer = HypernetworkOptimizer(
             cost_weight_keys=list(cost_weights.keys()),
@@ -621,5 +688,8 @@ class HRLTrainer(StandardTrainer):
     helps tackle the joint routing and scheduling challenge more effectively.
     """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+        """
+        Initialize the HRLTrainer.
+        """
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.hrl_manager = GATLSTManager(device=opts['device'])

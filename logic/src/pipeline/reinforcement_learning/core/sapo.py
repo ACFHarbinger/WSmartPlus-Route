@@ -22,21 +22,27 @@ class SAPOTrainer(TimeTrainer):
     - tau_pos for positive advantages (more aggressive updates)
     - tau_neg for negative advantages (more conservative updates)
     """
+
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the SAPOTrainer.
+        """
         super().__init__(*args, **kwargs)
         self.ppo_epochs = self.opts.get('ppo_epochs', 3)
         self.mini_batch_size = self.opts.get('ppo_mini_batch_size', self.opts['batch_size'])
         self.tau_pos = self.opts.get('sapo_tau_pos', 0.1)
         self.tau_neg = self.opts.get('sapo_tau_neg', 1.0)
 
-        # Ensure tau_neg > tau_pos as per SAPO design for stability
-        if self.tau_neg <= self.tau_pos:
-            print(f"WARNING: SAPO tau_neg ({self.tau_neg}) should be greater than tau_pos ({self.tau_pos}) for stability.")
-
     def train_day(self):
+        """
+        Execute training for a single day using SAPO logic.
+        """
         self.train_day_sapo()
 
     def train_day_sapo(self):
+        """
+        Collect trajectories and update policy using SAPO.
+        """
         log_pi = []
         log_costs = []
         

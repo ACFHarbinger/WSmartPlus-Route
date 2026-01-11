@@ -1,3 +1,9 @@
+"""
+Data generation scripts for VRP/VRPP.
+
+This module provides utilities to generate synthetic datasets for Value Routing Problems (VRP)
+and their variants (VRPP, WCVRP) with configurable parameters.
+"""
 import os
 import sys
 import torch

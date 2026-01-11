@@ -13,7 +13,16 @@ from logic.src.pipeline.reinforcement_learning.core.reinforce import TimeTrainer
 
 
 class PPOTrainer(TimeTrainer):
+    """
+    Proximal Policy Optimization (PPO) Trainer.
+
+    Train the model using the PPO algorithm, which constrains policy updates
+    using a clipped surrogate objective function to prevent large, destructive updates.
+    """
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the PPOTrainer.
+        """
         super().__init__(*args, **kwargs)
         self.ppo_epochs = self.opts.get('ppo_epochs', 3)
         self.eps_clip = self.opts.get('ppo_eps_clip', 0.2)
@@ -21,10 +30,16 @@ class PPOTrainer(TimeTrainer):
         self.mini_batch_size = self.opts.get('ppo_mini_batch_size', self.opts['batch_size'])
 
     def train_day(self):
+        """
+        Execute training for a single day using PPO logic.
+        """
         # Always use PPO collection regardless of horizon (treat day as horizon block)
         self.train_day_ppo()
 
     def train_day_ppo(self):
+        """
+        Collect trajectories and update policy using PPO.
+        """
         log_pi = []
         log_costs = []
         
@@ -180,7 +195,7 @@ class PPOTrainer(TimeTrainer):
                     mb_old_pi = old_pi[mb_idx]
                     mb_old_log_probs = old_log_probs[mb_idx]
                     mb_advantages = advantages[mb_idx]
-                    mb_returns = returns[mb_idx]
+                    # mb_returns = returns[mb_idx]
                     
                     # Forward pass with expert_pi to get new log_probs and entropy
                     # We pass kl_loss=True to 'forward' if we want KL, but for PPO we just need probabilities.

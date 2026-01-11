@@ -117,6 +117,21 @@ def rollout(model, dataset, opts):
 
 
 def validate_update(model, dataset, cw_dict, opts):
+    """
+    Validate model and update cost weights (for Meta-Learning).
+
+    Performs a validation run, calculates performance metrics (efficiency, overflows),
+    and proposes new cost function weights to guide the model towards constraints.
+
+    Args:
+        model: Neural model.
+        dataset: Validation dataset.
+        cw_dict (dict): Current cost function weights.
+        opts (dict): Options dictionary.
+
+    Returns:
+        tuple: (new_cw, avg_cost, all_costs)
+    """
     from logic.src.policies.neural_agent import NeuralAgent
     agent = NeuralAgent(get_inner_model(model))
 
@@ -169,7 +184,7 @@ def validate_update(model, dataset, cw_dict, opts):
     
     # Calculate target ratios based on the better performing model
     target_efficiency = 12.5  # Target kg/km based on the better model
-    target_overflow_ratio = 1.5  # Target overflow level compared to the better model
+    # target_overflow_ratio = 1.5  # Target overflow level compared to the better model
     
     # Calculate how far current metrics are from targets
     efficiency_gap = (target_efficiency - efficiency) / target_efficiency
@@ -181,6 +196,10 @@ def validate_update(model, dataset, cw_dict, opts):
     
     # Calculate adjustment factors with bounded sigmoid to prevent runaway updates
     def bounded_sigmoid(x):
+        """
+        Compute bounded sigmoid function: 2 / (1 + exp(-2x)) - 1.
+        Maps input to range (-1, 1).
+        """
         return 2.0 / (1.0 + torch.exp(-2.0 * x)) - 1.0
     
     # Proportional adjustments capped by max_adaptation
@@ -189,7 +208,7 @@ def validate_update(model, dataset, cw_dict, opts):
     waste_adjust = -max_adaptation * bounded_sigmoid(waste_ratio * 5.0)  # Penalize waste more aggressively
     
     # Baseline weight distribution (thirds if no previous history)
-    constraint_third = opts['constraint'] / 3
+    # constraint_third = opts['constraint'] / 3
     
     # Update weights with damping to prevent oscillation
     damping = 0.7  # Damping factor to prevent oscillation (0.7 means 70% new, 30% old)
@@ -335,6 +354,23 @@ def prepare_epoch(optimizer, epoch, problem, tb_logger, cost_weights, opts):
 
 
 def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts):
+    """
+    Prepare the dataset for time-based training (e.g., WCVRP simulation).
+
+    Initializes or updates the dataset for the current simulation day, handling
+    bin selection, waste generation, and temporal horizon setup.
+
+    Args:
+        optimizer: Optimizer.
+        day (int): Current simulation day.
+        problem: Problem environment.
+        tb_logger: Logger.
+        cost_weights (dict): Cost weights.
+        opts (dict): Options.
+
+    Returns:
+        tuple: (step, training_dataset, loss_keys, table_df, args)
+    """
     if opts['problem'] in ['vrpp', 'cvrpp', 'wcvrp', 'cwcvrp', 'sdwcvrp'] and opts['data_distribution'] == 'emp':
         data_dir = os.path.join(os.getcwd(), "data", "wsr_simulator")
         with open(os.path.join(data_dir, 'bins_selection', opts['focus_graph'])) as js:

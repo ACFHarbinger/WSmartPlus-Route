@@ -65,6 +65,15 @@ class StateSCWCVRP(NamedTuple):
         )
 
     def __getitem__(self, key):
+        """
+        Allows slicing the state to get specific instances or sub-batches.
+
+        Args:
+            key: Slice or Tensor index.
+
+        Returns:
+            StateSCWCVRP: A new state object with the sliced data.
+        """
         if torch.is_tensor(key) or isinstance(
             key, slice
         ):  # If tensor, idx all tensors by this tensor:

@@ -1,3 +1,9 @@
+"""
+Builders for Vehicle Routing Problem (VRP) instances.
+
+This module provides builder classes to construct VRP instances from raw data,
+handling coordinate normalization, demand scaling, and feature extraction.
+"""
 import numpy as np
 
 from logic.src.utils.definitions import MAX_WASTE
@@ -14,7 +20,25 @@ class VRPInstanceBuilder:
     This class provides a fluent interface to configure and generate VRP datasets
     with various parameters such as problem size, distribution, area, and waste type.
     """
-    def __init__(self):
+    def __init__(self, data, depot_idx, vehicle_cap, customers, dimension, coords):
+        """
+        Initialize the VRPInstanceBuilder.
+
+        Args:
+            data: Raw problem data dictionary or dataframe.
+            depot_idx (int): Index of the depot node.
+            vehicle_cap (float): Capacity of the vehicles.
+            customers: List of customer node indices.
+            dimension (int): Total number of nodes (including depot).
+            coords: Coordinate data (list or array).
+        """
+        self.data_dict = data
+        self.depot_idx = depot_idx
+        self.vehicle_cap = vehicle_cap
+        self.customers = customers
+        self.dimension = dimension
+        self.coords = coords
+
         self._dataset_size = 10
         self._problem_size = 20
         self._waste_type = None
