@@ -1,3 +1,9 @@
+"""
+State representation for the Capacitated Vehicle Routing Problem with Profits (CVRPP).
+
+This module defines the StateCVRPP class, which extends VRPP logic with
+vehicle capacity constraints.
+"""
 
 import torch
 import torch.nn.functional as F
@@ -7,6 +13,13 @@ from logic.src.utils.boolmask import mask_long2bool, mask_long_scatter
 
 
 class StateCVRPP(NamedTuple):
+    """
+    Data class representing the state of a CVRPP tour.
+
+    In addition to VRPP features, it tracks the used vehicle capacity and
+    enforces capacity constraints at each step.
+    """
+
     # Fixed input
     coords: torch.Tensor  # Depot + loc
     waste: torch.Tensor
@@ -33,7 +46,7 @@ class StateCVRPP(NamedTuple):
     visited_: torch.Tensor  # Keeps track of nodes that have been visited
     lengths: torch.Tensor
     cur_coord: torch.Tensor
-    used_capacity: torch.Tensor # Renamed from cur_total_waste to align with CVRP
+    used_capacity: torch.Tensor  # Renamed from cur_total_waste to align with CVRP
     cur_negative_profit: torch.Tensor
     i: torch.Tensor  # Keeps track of step
     edges: torch.Tensor
@@ -41,6 +54,7 @@ class StateCVRPP(NamedTuple):
 
     @property
     def visited(self):
+        """Returns a boolean mask of visited nodes."""
         if self.visited_.dtype == torch.uint8:
             return self.visited_
         else:
@@ -48,10 +62,16 @@ class StateCVRPP(NamedTuple):
 
     @property
     def dist(self):
-        return (self.coords[:, :, None, :] - self.coords[:, None, :, :]).norm(p=2, dim=-1)
+        """Calculates the Euclidean distance matrix between all coordinates in the batch."""
+        return (self.coords[:, :, None, :] - self.coords[:, None, :, :]).norm(
+            p=2, dim=-1
+        )
 
     def __getitem__(self, key):
-        if torch.is_tensor(key) or isinstance(key, slice):  # If tensor, idx all tensors by this tensor:
+        """Allows indexing the state for batch operations."""
+        if torch.is_tensor(key) or isinstance(
+            key, slice
+        ):  # If tensor, idx all tensors by this tensor:
             return self._replace(
                 ids=self.ids[key],
                 prev_a=self.prev_a[key],
@@ -59,113 +79,156 @@ class StateCVRPP(NamedTuple):
                 lengths=self.lengths[key],
                 cur_coord=self.cur_coord[key],
                 used_capacity=self.used_capacity[key],
-                cur_negative_profit=self.cur_negative_profit[key]
+                cur_negative_profit=self.cur_negative_profit[key],
             )
         return self[key]
 
     @staticmethod
-    def initialize(input, edges, cost_weights=None, dist_matrix=None, profit_vars=None, visited_dtype=torch.uint8, hrl_mask=None):
-        depot = input['depot']
-        loc = input['loc']
-        waste = input['waste']
-        max_waste = input['max_waste']
+    def initialize(
+        input,
+        edges,
+        cost_weights=None,
+        dist_matrix=None,
+        profit_vars=None,
+        visited_dtype=torch.uint8,
+        hrl_mask=None,
+    ):
+        """
+        Initializes the state for a batch of CVRPP instances.
+
+        Args:
+            input (dict): Input data containing 'depot', 'loc', 'waste', 'max_waste'.
+            edges (Tensor): Edge indices for the graph model.
+            cost_weights (dict, optional): Weights for waste and length in cost calc.
+            dist_matrix (Tensor, optional): Precomputed distance matrix.
+            profit_vars (dict, optional): Values for cost_km, revenue_kg, bin_capacity, and vehicle_capacity.
+            visited_dtype (torch.dtype): Data type for the visited mask.
+            hrl_mask (Tensor, optional): Initial mask for Hierarchical RL.
+
+        Returns:
+            StateCVRPP: The initialized state.
+        """
+        depot = input["depot"]
+        loc = input["loc"]
+        waste = input["waste"]
+        max_waste = input["max_waste"]
         if profit_vars is not None:
-            cost_km = profit_vars['cost_km']
-            revenue_kg = profit_vars['revenue_kg']
-            bin_capacity = profit_vars['bin_capacity']
-            vehicle_capacity = profit_vars['vehicle_capacity']
+            cost_km = profit_vars["cost_km"]
+            revenue_kg = profit_vars["revenue_kg"]
+            bin_capacity = profit_vars["bin_capacity"]
+            vehicle_capacity = profit_vars["vehicle_capacity"]
         else:
-            cost_km, revenue_kg, bin_capacity, vehicle_capacity = 1., 1., 1., 1.
+            cost_km, revenue_kg, bin_capacity, vehicle_capacity = 1.0, 1.0, 1.0, 1.0
 
         batch_size, n_loc, _ = loc.size()
         coords = torch.cat((depot[:, None, :], loc), -2)
-        
+
         # Initialize visited mask
         if visited_dtype == torch.uint8:
             visited_ = torch.zeros(
-                batch_size, 1, n_loc + 1,
-                dtype=torch.uint8, device=loc.device
+                batch_size, 1, n_loc + 1, dtype=torch.uint8, device=loc.device
             )
-            if hrl_mask is not None:          
+            if hrl_mask is not None:
                 # hrl_mask is (Batch, N).
                 # visited_ is (Batch, 1, N+1). Index 0 is Depot.
                 # Mark HRL masked nodes as visited (1)
                 if hrl_mask.dim() == 2:
                     if hrl_mask.size(1) != n_loc:
-                        print(f"CRITICAL ERROR: HRL Mask width {hrl_mask.size(1)} != n_loc {n_loc}")
+                        print(
+                            f"CRITICAL ERROR: HRL Mask width {hrl_mask.size(1)} != n_loc {n_loc}"
+                        )
                     visited_[:, 0, 1:] = hrl_mask.to(torch.uint8)
                 else:
                     # If mask has extra dims
                     visited_[:, 0, 1:] = hrl_mask.squeeze().to(torch.uint8)
         else:
             # Compressed mask logic (int64 bitmask)
-            visited_ = torch.zeros(batch_size, 1, (n_loc + 1 + 63) // 64, dtype=torch.int64, device=loc.device)
+            visited_ = torch.zeros(
+                batch_size,
+                1,
+                (n_loc + 1 + 63) // 64,
+                dtype=torch.int64,
+                device=loc.device,
+            )
             # NOTE: Compressed mask HRL not implemented yet, assumes uint8 default
             if hrl_mask is not None:
                 print("Warning: HRL Mask with compressed visited mask not implemented")
-                 
+
         return StateCVRPP(
             coords=coords,
-            waste=F.pad(waste, (1, 0), mode='constant', value=0),  # add 0 for depot
+            waste=F.pad(waste, (1, 0), mode="constant", value=0),  # add 0 for depot
             max_waste=max_waste[:, None],
-            ids=torch.arange(batch_size, dtype=torch.int64, device=loc.device)[:, None],  # Add steps dimension
+            ids=torch.arange(batch_size, dtype=torch.int64, device=loc.device)[
+                :, None
+            ],  # Add steps dimension
             prev_a=torch.zeros(batch_size, 1, dtype=torch.long, device=loc.device),
             visited_=visited_,
             lengths=torch.zeros(batch_size, 1, device=loc.device),
-            cur_coord=input['depot'][:, None, :],  # Add step dimension
+            cur_coord=input["depot"][:, None, :],  # Add step dimension
             used_capacity=torch.zeros(batch_size, 1, device=loc.device),
             cur_negative_profit=torch.zeros(batch_size, 1, device=loc.device),
-            i=torch.zeros(1, dtype=torch.int64, device=loc.device),  # Vector with length num_steps
-            w_waste=1 if cost_weights is None else cost_weights['waste'],
-            w_length=1 if cost_weights is None else cost_weights['length'],
+            i=torch.zeros(
+                1, dtype=torch.int64, device=loc.device
+            ),  # Vector with length num_steps
+            w_waste=1 if cost_weights is None else cost_weights["waste"],
+            w_length=1 if cost_weights is None else cost_weights["length"],
             cost_km=cost_km,
             revenue_kg=revenue_kg,
             bin_capacity=bin_capacity,
             vehicle_capacity=vehicle_capacity,
             edges=edges,
-            dist_matrix=dist_matrix
+            dist_matrix=dist_matrix,
         )
 
     def get_final_cost(self):
+        """Returns the final profit (cost) after the tour is finished."""
         assert self.all_finished()
-
-        # The cost is the negative of the collected waste since we want to maximize collected waste
-        # NOTE: This calculation is simplified compared to full VRPP profit logic which might need total accumulated waste over time
-        # But cur_negative_profit is updated step-by-step
         return self.cur_negative_profit
 
     def update(self, selected):
+        """
+        Updates the state after selecting the next node.
+
+        Handles capacity resetting at the depot.
+
+        Args:
+            selected (Tensor): Index of the selected node.
+
+        Returns:
+            StateCVRPP: The updated state.
+        """
         assert self.i.size(0) == 1, "Can only update if state represents single step"
 
         # Update the state
         selected = selected[:, None]  # Add dimension for step
         prev_a = selected
-        
+
         # Add the length
         cur_coord = self.coords[self.ids, selected]
-        lengths = self.lengths + (cur_coord - self.cur_coord).norm(p=2, dim=-1)  # (batch_dim, 1)
+        lengths = self.lengths + (cur_coord - self.cur_coord).norm(
+            p=2, dim=-1
+        )  # (batch_dim, 1)
 
         # Collect waste
         # Get waste at selected nodes
-        selected_waste = self.waste[self.ids, selected].clamp(max=self.max_waste[self.ids, 0])
-        
+        selected_waste = self.waste[self.ids, selected].clamp(
+            max=self.max_waste[self.ids, 0]
+        )
+
         # Update used capacity
-        # If visiting depot (selected == 0), capacity resets to 0. 
+        # If visiting depot (selected == 0), capacity resets to 0.
         # Otherwise, add selected_waste.
-        # Note: Logic from StateCVRP: used_capacity = (self.used_capacity + selected_demand) * (prev_a != 0).float()
         used_capacity = (self.used_capacity + selected_waste) * (prev_a != 0).float()
 
         # Update profit
-        # profit = length_cost - waste_revenue
-        # We need accumulated profit. 
-        # Incremental length cost: (cur_coord - self.cur_coord).norm
-        # Incremental waste revenue: selected_waste (only if not depot? depot has 0 waste)
         step_len = (cur_coord - self.cur_coord).norm(p=2, dim=-1)
         step_waste = selected_waste
-        
-        cur_negative_profit = self.cur_negative_profit + \
-                              self.w_length * step_len * self.cost_km - \
-                              self.w_waste * step_waste * self.revenue_kg
+
+        cur_negative_profit = (
+            self.cur_negative_profit
+            + self.w_length * step_len * self.cost_km
+            - self.w_waste * step_waste * self.revenue_kg
+        )
 
         if self.visited_.dtype == torch.uint8:
             # Note: here we do not subtract one as we have to scatter so the first column allows scattering depot
@@ -176,72 +239,81 @@ class StateCVRPP(NamedTuple):
             visited_ = mask_long_scatter(self.visited_, prev_a, check_unset=False)
 
         return self._replace(
-            prev_a=prev_a, visited_=visited_, lengths=lengths, cur_coord=cur_coord,
-            used_capacity=used_capacity, cur_negative_profit=cur_negative_profit, i=self.i+1
+            prev_a=prev_a,
+            visited_=visited_,
+            lengths=lengths,
+            cur_coord=cur_coord,
+            used_capacity=used_capacity,
+            cur_negative_profit=cur_negative_profit,
+            i=self.i + 1,
         )
 
     def all_finished(self):
-        # All must be returned to depot (and at least 1 step since at start also prev_a == 0)
-        # This is more efficient than checking the mask
+        """Checks if all instances in the batch have returned to the depot."""
         return self.i.item() > 0 and (self.prev_a == 0).all()
 
     def get_current_node(self):
-        """
-        Returns the current node where 0 is depot, 1...n are nodes
-        :return: (batch_size, num_steps) tensor with current nodes
-        """
+        """Returns the current node index."""
         return self.prev_a
-    
+
     def get_current_profit(self):
+        """Returns the current accumulated profit."""
         return self.cur_negative_profit
 
     def get_mask(self):
         """
-        Gets a (batch_size, n_loc + 1) mask with the feasible actions (0 = depot), depends on already visited and
-        remaining capacity. 0 = feasible, 1 = infeasible
-        Forbids to visit depot twice in a row, unless all nodes have been visited
+        Gets a mask of feasible next actions.
+
+        Handles both visited nodes and vehicle capacity constraints.
+
+        Returns:
+            Tensor: A boolean mask where 1 indicates an infeasible action.
         """
         # Visited locations (indices 1..n)
-        # visited_ is (Batch, 1, N+1). Slice to get 1..N.
         visited_loc = self.visited[:, :, 1:] > 0
 
         # Capacity check
-        # self.waste is (OriginalBatch, N+1). self.ids is (Batch, 1).
-        # We want (Batch, 1, N+1).
         potential_waste = self.waste[self.ids, :]
         max_waste = self.max_waste[self.ids, :]
-        
+
         # Clamp waste
         potential_waste = potential_waste.clamp(max=max_waste)
-        
+
         # Extract potential waste for locations only (1..N)
         potential_waste_loc = potential_waste[:, :, 1:]
 
         # Check capacity for locations
-        # used_capacity is (Batch, 1). Unsqueeze to (Batch, 1, 1).
-        exceeds_cap_loc = (self.used_capacity[:, :, None] + potential_waste_loc) > self.vehicle_capacity
-        
+        exceeds_cap_loc = (
+            self.used_capacity[:, :, None] + potential_waste_loc
+        ) > self.vehicle_capacity
+
         # Combine visited and capacity masks for locations
         mask_loc = visited_loc | exceeds_cap_loc
-        
+
         # Determine if depot should be masked
         # If we are at depot (prev_a == 0), we must go to a customer node if one is available.
-        # If no customer node is available (all visited or capacity full), we allow depot (to finish).
-        has_feasible_dest = (mask_loc == 0).any(dim=-1) # (Batch, 1)
+        has_feasible_dest = (mask_loc == 0).any(dim=-1)  # (Batch, 1)
         mask_depot = (self.prev_a == 0) & has_feasible_dest
-        
+
         # Combine depot mask and location mask
         return torch.cat((mask_depot[:, :, None], mask_loc), -1)
-    
+
     def get_edges_mask(self):
+        """Returns a mask based on graph edges for the current node."""
         batch_size, n_coords, _ = self.coords.size()
         if self.i.item() == 0:
-            return torch.zeros(batch_size, 1, n_coords, dtype=torch.uint8, device=self.coords.device)
+            return torch.zeros(
+                batch_size, 1, n_coords, dtype=torch.uint8, device=self.coords.device
+            )
         else:
-            return self.edges.gather(1, self.prev_a.unsqueeze(-1).expand(-1, -1, n_coords))
-    
+            return self.edges.gather(
+                1, self.prev_a.unsqueeze(-1).expand(-1, -1, n_coords)
+            )
+
     def get_edges(self):
+        """Returns the graph edge indices."""
         return self.edges
 
     def construct_solutions(self, actions):
+        """Returns the sequences of actions as solutions."""
         return actions
