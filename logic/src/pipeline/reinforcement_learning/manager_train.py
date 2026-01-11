@@ -1,11 +1,38 @@
+"""
+Manager Training Script.
+
+This module contains the logic for training the "Manager" agent using Proximal Policy Optimization (PPO).
+The Manager is responsible for high-level decisions, such as gating (when to trigger the worker)
+and masking (which nodes to consider).
+
+Key Functions:
+- `update_manager_ppo`: Performs a PPO update step for the manager's policy.
+"""
 import torch
 import torch.nn.functional as F
 
+
 def update_manager_ppo(manager, optimizer=None, lr=3e-4, gamma=0.99, clip_eps=0.2, ppo_epochs=4, lambda_mask_aux=0.0, entropy_coef=0.1):
     """
-    PPO Update with combined loss for Gate and Mask.
-    Now uses proper temporal discounted returns.
-    Moves training logic out of the model class.
+    Performs a Proximal Policy Optimization (PPO) update on the Manager agent.
+
+    This function calculates returns and advantages from the collected rollouts,
+    constructs the PPO loss (including clipped surrogate objective, value loss, and entropy bonus),
+    and updates the manager's parameters.
+
+    Args:
+        manager (nn.Module): The Manager neural network model.
+        optimizer (torch.optim.Optimizer, optional): Optimizer for the manager.
+                                                     If None, a new Adam optimizer is created.
+        lr (float): Learning rate (used if creating a new optimizer).
+        gamma (float): Discount factor for future rewards.
+        clip_eps (float): PPO clipping epsilon.
+        ppo_epochs (int): Number of epochs to optimize the PPO objective on the collected batch.
+        lambda_mask_aux (float): Coefficient for an auxiliary mask loss (if applicable).
+        entropy_coef (float): Coefficient for entropy regularization.
+
+    Returns:
+        float or None: The total loss of the update, or None if no rewards were collected.
     """
     if not manager.rewards:
         return None

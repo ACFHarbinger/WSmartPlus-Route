@@ -1,3 +1,13 @@
+"""
+Training and Optimization Pipeline.
+
+This script serves as the primary entry point for:
+1. Standard Reinforcement Learning training (`train`).
+2. Meta-Reinforcement Learning training (`mrl_train`) with dynamic weight adaptation.
+3. Hyperparameter Optimization (`hp_optim`) using various algorithms (DEHB, GS, RS, etc.).
+
+It orchestrates environment setup, data loading, model initialization, and training loop execution.
+"""
 import os
 import sys
 import json
@@ -39,6 +49,16 @@ from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo i
 
 
 def hyperparameter_optimization(opts):
+    """
+    Orchestrates the Hyperparameter Optimization (HPO) process.
+
+    This function sets up the results directory, logs the HPO configuration,
+    dispatches to the selected HPO method (e.g., DEHB, Random Search),
+    and optionally runs a final training session with the best discovered parameters.
+
+    Args:
+        opts (dict): Configuration options including HPO methods and search spaces.
+    """
     if opts['cpu_cores'] > 1: update_lock_wait_time(opts['cpu_cores'])    
 
     # Create directories for optimization results
@@ -87,6 +107,15 @@ def hyperparameter_optimization(opts):
 
 
 def train_meta_reinforcement_learning(opts):
+    """
+    Dispatches Meta-Reinforcement Learning training.
+
+    Selects the training function based on the requested MRL method (CB, TDL, MORL, etc.)
+    and initiates the RL pipeline.
+
+    Args:
+        opts (dict): Configuration options.
+    """
     # Run the selected meta-reinforcement learning method
     #if opts['rl_algorithm'] == 'reinforce':
     if opts['mrl_method'] == 'cb':
@@ -107,6 +136,25 @@ def train_meta_reinforcement_learning(opts):
     return train_reinforcement_learning(opts, train_func)
 
 def train_reinforcement_learning(opts, train_function, cost_weights=None):
+    """
+    The core Reinforcement Learning training pipeline.
+
+    This function performs the full setup and execution of an RL training run:
+    1. Sets up logging (Tensorboard, WandB).
+    2. Initializes the problem environment and loading mechanism.
+    3. Sets up the model, baseline, optimizer, and LR scheduler.
+    4. Handles checkpoint resuming.
+    5. Executes the training loop (epoch-based or time-based).
+    6. Saves the final model and arguments.
+
+    Args:
+        opts (dict): Configuration options.
+        train_function (callable): The training routine to execute (e.g., `train_reinforce_epoch`).
+        cost_weights (dict, optional): Weights for different cost components.
+
+    Returns:
+        tuple: (model, manager) - The trained model and associated Manager agent (if any).
+    """
     if cost_weights is None: cost_weights = setup_cost_weights(opts)
 
     # Optionally configure tensorboard
@@ -212,6 +260,13 @@ def train_reinforcement_learning(opts, train_function, cost_weights=None):
 
 
 def run_training(args, command):
+    """
+    High-level dispatcher for the training script CLI.
+
+    Args:
+        args (dict): Validated command-line arguments.
+        command (str): Action to perform ('train', 'mrl_train', 'hp_optim').
+    """
     # Set the random seed and execute the program
     random.seed(args['seed'])
     np.random.seed(args['seed'])
