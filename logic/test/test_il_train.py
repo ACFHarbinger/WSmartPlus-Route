@@ -1,4 +1,5 @@
 
+"""Tests for Imitation Learning training pipelines."""
 import pytest
 import torch
 import time
@@ -17,12 +18,15 @@ from logic.src.pipeline.reinforcement_learning.core.post_processing import local
 
 
 class TestHGS:
+    """Tests for HGS policies."""
     @pytest.fixture
     def device(self):
+        """Fixture for device."""
         return 'cpu'
 
     @pytest.fixture
     def mock_dist_matrix(self, device):
+        """Fixture for a mock distance matrix."""
         # Simple Euclidean distance for points (0,0), (0,1), (1,0), (1,1)
         pts = torch.tensor([[0.,0.], [0.,1.], [1.,0.], [1.,1.]], device=device)
         diff = pts.unsqueeze(1) - pts.unsqueeze(0)
@@ -31,6 +35,7 @@ class TestHGS:
 
     @pytest.fixture
     def sample_data(self, device):
+        """Fixture for sample data (distance matrix and demands)."""
         # 5 nodes + depot (0)
         pts = torch.tensor([[0.,0.], [1.,0.], [2.,0.], [3.,0.], [4.,0.], [5.,0.]], device=device)
         diff = pts.unsqueeze(1) - pts.unsqueeze(0)
@@ -38,7 +43,9 @@ class TestHGS:
         demands = torch.tensor([0., 1., 1., 1., 1., 1.], device=device)
         return dist, demands
 
+    @pytest.mark.unit
     def test_broken_pairs_distance(self, device):
+        """Test calculation of broken pairs distance."""
         B, P, N = 2, 4, 3
         pop = torch.tensor([[1, 2, 3]], device=device).expand(B, P, N)
         diversity = calc_broken_pairs_distance(pop)
@@ -53,12 +60,15 @@ class TestHGS:
         assert torch.isclose(diversity[0, 0], torch.tensor(0.5, device=device))
         assert torch.isclose(diversity[0, 1], torch.tensor(0.5, device=device))
 
+    @pytest.mark.unit
     def test_vectorized_swap(self, device, mock_dist_matrix):
+        """Test vectorized swap operator."""
         tours = torch.tensor([[0, 1, 2, 3, 0]], device=device)
         dist = mock_dist_matrix.unsqueeze(0)
         new_tours = vectorized_swap(tours.clone(), dist, max_iterations=200)
         
         def calc_cost(t):
+            """Calculate route cost."""
             c = 0
             for k in range(len(t)-1):
                 c += dist[0, t[k], t[k+1]]
@@ -68,13 +78,16 @@ class TestHGS:
         new_cost = calc_cost(new_tours[0])
         assert new_cost <= orig_cost + 1e-5
 
+    @pytest.mark.unit
     def test_vectorized_relocate(self, device, mock_dist_matrix):
+        """Test vectorized relocate operator."""
         tours = torch.tensor([[0, 1, 2, 3, 0]], device=device)
         dist = mock_dist_matrix.unsqueeze(0)
         new_tours = vectorized_relocate(tours.clone(), dist, max_iterations=200)
         orig_cost = 4.414 # Known cost for 0-1-2-3-0
         
         def calc_cost(t):
+            """Calculate route cost."""
             c = 0
             for k in range(len(t)-1):
                 c += dist[0, t[k], t[k+1]]
@@ -83,7 +96,9 @@ class TestHGS:
         new_cost = calc_cost(new_tours[0])
         assert new_cost <= orig_cost + 1e-5
 
+    @pytest.mark.unit
     def test_vectorized_two_opt_star(self, device):
+        """Test vectorized two-opt* operator."""
         # Crossing path scenario
         pts = torch.tensor([[0.,0.], [0.,1.], [0.,2.], [1.,1.], [1.,2.]], device=device)
         diff = pts.unsqueeze(1) - pts.unsqueeze(0)
@@ -93,6 +108,7 @@ class TestHGS:
         new_tours = vectorized_two_opt_star(tours.clone(), dist, max_iterations=100)
         
         def calc_cost(t):
+            """Calculate route cost."""
             c = 0
             for k in range(len(t)-1):
                 c += dist[0, t[k], t[k+1]]
@@ -107,7 +123,9 @@ class TestHGS:
         assert len(nodes) == 4
         assert set(nodes.tolist()) == {1, 2, 3, 4}
 
+    @pytest.mark.unit
     def test_vectorized_swap_star(self, device):
+        """Test vectorized swap* operator."""
         pts = torch.tensor([[0.,0.], [0.,1.], [0.,2.], [1.,1.], [1.,2.]], device=device)
         diff = pts.unsqueeze(1) - pts.unsqueeze(0)
         dist = torch.sqrt((diff**2).sum(dim=2)).unsqueeze(0)
@@ -116,6 +134,7 @@ class TestHGS:
         new_tours = vectorized_swap_star(tours.clone(), dist, max_iterations=100)
         
         def calc_cost(t):
+            """Calculate route cost."""
             c = 0
             for k in range(len(t)-1):
                 c += dist[0, t[k], t[k+1]]
@@ -130,7 +149,9 @@ class TestHGS:
         assert len(nodes) == 4
         assert set(nodes.tolist()) == {1, 2, 3, 4}
 
+    @pytest.mark.unit
     def test_population_diversity(self, device):
+        """Test population diversity calculation."""
         B, P, N = 1, 10, 5
         pop = VectorizedPopulation(size=5, device=device, alpha_diversity=1.0)
         population = torch.stack([torch.randperm(N, device=device) + 1 for _ in range(P)]).unsqueeze(0)
@@ -142,7 +163,9 @@ class TestHGS:
         assert pop.diversity_scores.shape == (B, P)
         assert pop.biased_fitness.shape == (B, P)
 
+    @pytest.mark.unit
     def test_vectorized_ordered_crossover(self):
+        """Test vectorized ordered crossover operator."""
         B, N = 4, 10
         p1 = torch.stack([torch.randperm(N) + 1 for _ in range(B)])
         p2 = torch.stack([torch.randperm(N) + 1 for _ in range(B)])
@@ -154,7 +177,9 @@ class TestHGS:
             assert nodes.min() == 1
             assert nodes.max() == N
 
+    @pytest.mark.unit
     def test_vectorized_linear_split(self, device, sample_data):
+        """Test vectorized linear split for route construction."""
         dist, demands = sample_data
         # 5 nodes + depot. Demands = 1 each.
         # Capacity = 2.
@@ -208,8 +233,9 @@ class TestHGS:
         all_nodes = sorted(all_nodes)
         assert all_nodes == [1, 2, 3, 4, 5]
 
-
+    @pytest.mark.unit
     def test_time_limit(self, device, sample_data):
+        """Test time limit enforcement."""
         dist, demands = sample_data
         B = 2
         dist_b = dist.unsqueeze(0).expand(B, -1, -1)
@@ -223,7 +249,9 @@ class TestHGS:
         end_t = time.time()
         assert (end_t - start_t) < 1.0
 
+    @pytest.mark.unit
     def test_max_vehicles_constraint(self, device, sample_data):
+        """Test maximum vehicles constraint."""
         dist, demands = sample_data
         B = 1
         dist_b = dist.unsqueeze(0)
@@ -237,7 +265,9 @@ class TestHGS:
         routes_inf, costs_inf = hgs.solve(tours, n_generations=1, population_size=5, max_vehicles=1)
         assert costs_inf[0] == float('inf') or costs_inf[0] > 1e9
 
-    def test_stagnation_restart_runs(self, device, sample_data):
+    @pytest.mark.unit
+    def test_stagnation_restart_runs(self, mocker, device, sample_data):
+        """Test restart mechanism on stagnation."""
         dist, demands = sample_data
         B = 1
         dist_b = dist.unsqueeze(0)
@@ -250,11 +280,15 @@ class TestHGS:
 
 
 class TestVectorized2OptIL:
+    """Tests for Vectorized 2-Opt Imitation Learning."""
     @pytest.fixture
     def device(self):
+        """Fixture for device."""
         return 'cpu'
 
+    @pytest.mark.unit
     def test_2opt_basic_improvement(self, device):
+        """Test basic 2-opt improvement."""
         # Scenario: Crossing paths
         # 0 at (0,0), 1 at (0,1), 2 at (1,0), 3 at (1,1)
         # Tour: 0 -> 1 -> 2 -> 3 -> 0
@@ -284,6 +318,7 @@ class TestVectorized2OptIL:
         optimized_tours = local_search_2opt_vectorized(tours.clone(), dist_matrix, max_iterations=50)
         
         def calc_cost(t, d):
+            """Calculate route cost."""
             c = 0
             for k in range(len(t)-1):
                 c += d[0, t[k], t[k+1]]
@@ -295,7 +330,9 @@ class TestVectorized2OptIL:
         assert opt_cost < orig_cost - 0.1
         assert abs(opt_cost - 4.0) < 1e-5
 
+    @pytest.mark.unit
     def test_2opt_batch_consistency(self, device):
+        """Test batch consistency of 2-opt."""
         # Two identical tours in batch should produce identical results
         pts = torch.tensor([[0.,0.], [0.,1.], [1.,0.], [1.,1.]], device=device)
         diff = pts.unsqueeze(1) - pts.unsqueeze(0)
@@ -313,7 +350,9 @@ class TestVectorized2OptIL:
         # Both should be improved
         assert (optimized[0] == torch.tensor([0, 1, 3, 2, 0], device=device)).all()
 
+    @pytest.mark.unit
     def test_2opt_stability(self, device):
+        """Test stability of 2-opt."""
         # Optimal tour shouldn't change
         # 0 -> 1 -> 3 -> 2 -> 0 is optimal 4.0
         

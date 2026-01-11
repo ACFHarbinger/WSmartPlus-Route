@@ -1,3 +1,5 @@
+"""Tests for hyperparameter optimization pipelines (DEHB, Ray Tune)."""
+import pytest
 import torch
 import numpy as np
 
@@ -21,10 +23,13 @@ from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb 
 
 
 class TestHPOFunctions:
+    """Tests for HPO helper functions."""
 
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.load_focus_coords')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.compute_distance_matrix')
-    def test_compute_focus_dist_matrix(self, mock_compute_dist, mock_load_coords):
+    @pytest.mark.unit
+    def test_compute_focus_dist_matrix(self, mock_compute_dist, mock_load_coords, mock_hpo_data):
+        """Test calculation of focus distance matrix."""
         mock_load_coords.return_value = np.zeros((5, 2))
         mock_compute_dist.return_value = np.zeros((5, 5))
         
@@ -43,10 +48,11 @@ class TestHPOFunctions:
     @patch('os.makedirs')
     @patch('builtins.open', new_callable=MagicMock)
     @patch('json.dump')
+    @pytest.mark.unit
     def test_optimize_model(self, mock_json_dump, mock_open, mock_makedirs,
                           mock_validate, mock_train, mock_setup_opt, mock_setup_model,
-                          mock_load_data, mock_load_prob, hpo_opts):
-        
+                          mock_load_data, mock_load_prob, hpo_opts, mock_hpo_data, mocker):
+        """Test model optimization step."""
         mock_prob = MagicMock()
         mock_prob.make_dataset.return_value = MagicMock()
         mock_load_prob.return_value = mock_prob
@@ -68,7 +74,9 @@ class TestHPOFunctions:
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.set_decode_type')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.move_to')
     @patch('torch.utils.data.DataLoader')
-    def test_validate(self, mock_dataloader, mock_move_to, mock_set_decode, mock_get_inner, hpo_opts):
+    @pytest.mark.unit
+    def test_validate(self, mock_dataloader, mock_move_to, mock_set_decode, mock_get_inner, hpo_opts, mock_hpo_data, mocker):
+        """Test validation step."""
         # Create mock model with explicit return value
         mock_model = MagicMock()
         # Ensure the model returns a 5-element tuple when called
@@ -112,8 +120,9 @@ class TestHPOFunctions:
         mock_get_inner.return_value = mock_inner
         
         # Mock move_to to return whatever is passed (or identity for tensors)
-        def side_effect(x, dev):
-            return x
+        def side_effect(*args, **kwargs):
+            """Mock side effect for load_coords."""
+            return np.random.rand(5, 2)
         mock_move_to.side_effect = side_effect
 
         dist_matrix = torch.zeros(5, 5)
@@ -128,8 +137,10 @@ class TestHPOFunctions:
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tools')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.creator')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.base.Toolbox')
+    @pytest.mark.unit
     def test_distributed_evolutionary_algorithm(self, mock_toolbox_cls, mock_creator, mock_tools, 
-                                              mock_eaSimple, mock_setup_weights, mock_optimize, hpo_opts):
+                                              mock_eaSimple, mock_setup_weights, mock_optimize, hpo_opts, mocker):
+        """Test Evolutionary Algorithm execution."""
         mock_toolbox = mock_toolbox_cls.return_value
         
         # Mock population and best individual
@@ -154,9 +165,11 @@ class TestHPOFunctions:
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.plot_param_importances')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.plot_intermediate_values')
     @patch('builtins.open', new_callable=MagicMock)
-    @patch('json.dump')    
-    def test_bayesian_optimization(self, mock_json, mock_open, mock_plot_inter, mock_plot_param, mock_plot_hist,
-                                 mock_makedirs, mock_dump, mock_create_study, mock_optimize, hpo_opts):
+    @patch('json.dump')
+    @pytest.mark.unit
+    def test_bayesian_optimization(self, mock_json_dump, mock_open, mock_plot_inter, mock_plot_param, mock_plot_hist,
+                                 mock_makedirs, mock_dump, mock_create_study, mock_optimize, hpo_opts, mocker):
+        """Test Bayesian Optimization execution."""
         mock_study = MagicMock()
         mock_trial = MagicMock()
         mock_trial.value = 0.1
@@ -181,7 +194,9 @@ class TestHPOFunctions:
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune.run')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.ray.init')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.HyperBandScheduler')
-    def test_hyperband_optimization(self, mock_scheduler, mock_init, mock_tune_run, hpo_opts):
+    @pytest.mark.unit
+    def test_hyperband_optimization(self, mock_scheduler, mock_init, mock_tune_run, hpo_opts, mocker):
+        """Test Hyperband Optimization execution."""
         mock_analysis = MagicMock()
         mock_analysis.get_best_config.return_value = {'w_lost': 0.1}
         mock_analysis.get_best_trial.return_value = MagicMock(last_result={'score': 0.1})
@@ -194,7 +209,9 @@ class TestHPOFunctions:
 
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune.run')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.ray.init')
-    def test_random_search(self, mock_init, mock_tune_run, hpo_opts):
+    @pytest.mark.unit
+    def test_random_search(self, mock_init, mock_tune_run, hpo_opts, mocker):
+        """Test Random Search execution."""
         mock_analysis = MagicMock()
         mock_analysis.get_best_config.return_value = {'w_lost': 0.1}
         mock_analysis.get_best_trial.return_value = MagicMock(last_result={'score': 0.1})
@@ -208,7 +225,9 @@ class TestHPOFunctions:
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune.run')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.ray.init')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.ASHAScheduler')
-    def test_grid_search(self, mock_asha, mock_init, mock_tune_run, hpo_opts):
+    @pytest.mark.unit
+    def test_grid_search(self, mock_asha, mock_init, mock_tune_run, hpo_opts, mocker):
+        """Test Grid Search execution."""
         mock_result = MagicMock()
         mock_trial = MagicMock()
         mock_trial.config = {'w_lost': 0.1}
@@ -226,7 +245,9 @@ class TestHPOFunctions:
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.DifferentialEvolutionHyperband')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.compute_focus_dist_matrix')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.optimize_model')
-    def test_differential_evolutionary_hyperband_optimization(self, mock_optimize, mock_compute_dist, mock_dehb_cls, hpo_opts):
+    @pytest.mark.unit
+    def test_differential_evolutionary_hyperband_optimization(self, mock_optimize, mock_compute_dist, mock_dehb_cls, hpo_opts, mocker):
+        """Test DEHB execution."""
         mock_dehb = mock_dehb_cls.return_value
         mock_dehb.run.return_value = (None, 1.0, []) # traj, runtime, history
         mock_dehb.get_incumbents.return_value = ({'w_lost': 0.1}, 0.1)
@@ -241,7 +262,9 @@ class TestHPOFunctions:
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.optimize_model')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune.report')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune.get_trial_id')
-    def test_ray_tune_trainable(self, mock_get_trial_id, mock_report, mock_optimize, hpo_opts):
+    @pytest.mark.unit
+    def test_ray_tune_trainable(self, mock_get_trial_id, mock_report, mock_optimize, hpo_opts, mocker):
+        """Test Ray Tune trainable creation."""
         config = {'w_lost': 0.1, 'w_waste': 0.1, 'w_length': 0.1, 'w_overflows': 0.1}
         mock_optimize.return_value = (0.1, 0.1, {})
         mock_get_trial_id.return_value = "trial_id"
@@ -253,8 +276,11 @@ class TestHPOFunctions:
 
 
 class TestDEHB:
-    
+    """Tests for DEHB integration."""
+
+    @pytest.mark.unit
     def test_get_config_space(self, hpo_opts):
+        """Test configuration space definition."""
         cs = get_config_space(hpo_opts)
         assert hasattr(cs, 'get_hyperparameters')
         hps = cs.get_hyperparameters()
@@ -266,7 +292,9 @@ class TestDEHB:
 
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.logger')
     @patch('logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.Client')
-    def test_dehb_init(self, mock_client, mock_logger, hpo_opts, tmp_path):
+    @pytest.mark.unit
+    def test_dehb_init(self, mock_client, mock_logger, hpo_opts, tmp_path, mocker):
+        """Test DEHB initialization."""
         cs = get_config_space(hpo_opts)
         f = MagicMock()
         

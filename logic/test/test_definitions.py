@@ -1,3 +1,4 @@
+"""Tests for project definitions and constants."""
 # Test module mapping
 TEST_MODULES = {
     'parser': 'test_arg_parser.py',

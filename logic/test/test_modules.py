@@ -1,4 +1,5 @@
 
+"""Tests for neural network modules."""
 import torch
 
 from unittest.mock import MagicMock
@@ -15,20 +16,27 @@ from logic.src.models.modules.skip_connection import SkipConnection
 
 
 class TestActivationFunction:
+    """Tests for activation function wrappers."""
+
     def test_relu(self):
+        """Verifies ReLU activation."""
         model = ActivationFunction('relu')
         x = torch.tensor([-1.0, 1.0])
         out = model(x)
         assert torch.equal(out, torch.tensor([0.0, 1.0]))
 
     def test_threshold(self):
+        """Verifies threshold activation."""
         model = ActivationFunction('relu', tval=0.5, rval=10.0)
         x = torch.tensor([0.0, 0.4, 0.6, 1.0])
         out = model(x)
         assert torch.equal(out, torch.tensor([0.0, 0.4, 10.0, 10.0]))
 
 class TestDistanceAwareGraphConvolution:
+    """Tests for DistanceAwareGraphConvolution."""
+
     def test_forward_batch(self):
+        """Verifies batched forward pass with distance."""
         batch = 2
         nodes = 5
         feat = 3
@@ -43,6 +51,7 @@ class TestDistanceAwareGraphConvolution:
         assert out.shape == (batch, nodes, out_feat)
 
     def test_forward_no_dist(self):
+        """Verifies forward pass without distance."""
         batch = 2
         nodes = 5
         feat = 3
@@ -55,7 +64,10 @@ class TestDistanceAwareGraphConvolution:
         assert out.shape == (batch, nodes, out_feat)
 
 class TestEfficientGraphConvolution:
+    """Tests for EfficientGraphConvolution."""
+
     def test_init_and_forward(self):
+        """Verifies initialization and forward pass."""
         feat = 16
         out_feat = 16 
         model = EfficientGraphConvolution(feat, out_feat, num_heads=2, num_bases=2)
@@ -69,14 +81,20 @@ class TestEfficientGraphConvolution:
         assert out.shape == (batch, nodes, out_feat)
 
 class TestFeedForward:
+    """Tests for FeedForward (MLP) module."""
+
     def test_forward(self):
+        """Verifies MLP forward pass."""
         model = FeedForward(10, 5)
         x = torch.randn(2, 10)
         out = model(x)
         assert out.shape == (2, 5)
 
 class TestGatedGraphConvolution:
+    """Tests for GatedGraphConvolution."""
+
     def test_forward(self):
+        """Verifies gated graph convolution logic."""
         hidden = 16
         model = GatedGraphConvolution(hidden, aggregation='mean')
         
@@ -91,7 +109,10 @@ class TestGatedGraphConvolution:
         assert e_out.shape == (batch, nodes, nodes, hidden)
 
 class TestGraphConvolution:
+    """Tests for GraphConvolution."""
+
     def test_forward_batched_mean(self, mock_node_features, mock_adj_matrix):
+        """Verifies batched mean aggregation."""
         model = GraphConvolution(16, 16, aggregation='mean')
         h = mock_node_features
         mask = mock_adj_matrix
@@ -100,7 +121,10 @@ class TestGraphConvolution:
         assert out.shape == (2, 5, 16)
 
 class TestMultiHeadAttention:
+    """Tests for MultiHeadAttention."""
+
     def test_forward_2d_mask(self):
+        """Verifies MHA with 2D mask."""
         dim = 16
         heads = 2
         # Fixed: pass embed_dim
@@ -116,6 +140,7 @@ class TestMultiHeadAttention:
         assert out.shape == (batch, 1, dim)
 
     def test_forward_3d_mask(self):
+        """Verifies MHA with 3D mask."""
         dim = 16
         heads = 2
         model = MultiHeadAttention(heads, dim, embed_dim=dim)
@@ -129,7 +154,10 @@ class TestMultiHeadAttention:
         assert out.shape == (batch, 1, dim)
 
 class TestNormalization:
+    """Tests for Normalization wrapper."""
+
     def test_group_norm(self):
+        """Verifies GroupNorm support."""
         model = Normalization(16, norm_name='group', n_groups=None)
         x = torch.randn(2, 16, 5) # GroupNorm expects (N, C, L)
         # Normalization class handles view internally?
@@ -143,19 +171,24 @@ class TestNormalization:
         pass
 
     def test_layer_norm(self):
+        """Verifies LayerNorm support."""
         model = Normalization(16, norm_name='layer')
         x = torch.randn(2, 5, 16)
         out = model(x)
         assert out.shape == x.shape
 
 class TestNormalizedActivationFunction:
+    """Tests for NormalizedActivationFunction."""
+
     def test_softmax(self):
+        """Verifies Softmax output."""
         model = NormalizedActivationFunction('softmax', dim=-1)
         x = torch.randn(2, 5)
         out = model(x)
         assert torch.allclose(out.sum(dim=-1), torch.ones(2))
 
     def test_adaptive_log_softmax(self):
+        """Verifies AdaptiveLogSoftmax behavior."""
         dim = 128 # Fixed: Increased dim
         n_classes = 10
         model = NormalizedActivationFunction('adaptivelogsoftmax', dim=dim, n_classes=n_classes)
@@ -172,7 +205,10 @@ class TestNormalizedActivationFunction:
         pass
 
 class TestSkipConnection:
+    """Tests for SkipConnection."""
+
     def test_forward_args(self):
+        """Verifies argument propagation in skip connections."""
         inner = MagicMock()
         inner.return_value = torch.ones(1)
         model = SkipConnection(inner)

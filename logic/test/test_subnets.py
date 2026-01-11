@@ -1,3 +1,4 @@
+"""Tests for neural sub-networks (encoders/decoders)."""
 import torch
 import torch.nn as nn
 
@@ -13,11 +14,15 @@ from logic.src.models.subnets.tgc_encoder import TransGraphConvEncoder
 
 
 class TestGACEncoder:
+    """Tests for GraphAttConvEncoder."""
+
     def test_init(self):
+        """Verifies initialization."""
         model = GraphAttConvEncoder(n_heads=2, embed_dim=16, n_layers=1, n_groups=4)
         assert isinstance(model, nn.Module)
 
     def test_forward(self):
+        """Verifies forward pass."""
         embed_dim = 16
         model = GraphAttConvEncoder(n_heads=2, embed_dim=embed_dim, n_layers=1, n_groups=4)
         batch = 2
@@ -29,7 +34,10 @@ class TestGACEncoder:
         assert output.shape == (batch, graph_size, embed_dim)
 
 class TestGATDecoder:
+    """Tests for GraphAttentionDecoder."""
+
     def test_forward(self):
+        """Verifies forward pass."""
         embed_dim = 16
         model = GraphAttentionDecoder(n_heads=2, embed_dim=embed_dim, n_layers=1, n_groups=4)
         batch = 2
@@ -48,7 +56,10 @@ class TestGATDecoder:
         assert output.shape == (batch, 1, 2)
 
 class TestGATEncoder:
+    """Tests for GraphAttentionEncoder."""
+
     def test_forward(self):
+        """Verifies forward pass."""
         embed_dim = 16
         model = GraphAttentionEncoder(n_heads=2, embed_dim=embed_dim, n_layers=1, n_groups=4)
         batch = 2
@@ -59,7 +70,10 @@ class TestGATEncoder:
         assert output.shape == (batch, graph_size, embed_dim)
 
 class TestGCNEncoder:
+    """Tests for GraphConvolutionEncoder."""
+
     def test_forward(self):
+        """Verifies forward pass."""
         hidden = 16
         # Fixed Normalization to handle default n_groups or pass n_groups if we can.
         # GCNEncoder uses default GraphConvolution.
@@ -77,7 +91,10 @@ class TestGCNEncoder:
         assert output.shape == (batch, graph_size, hidden)
 
 class TestGatedRecurrentFillPredictor:
+    """Tests for GatedRecurrentFillPredictor."""
+
     def test_forward(self):
+        """Verifies fill prediction."""
         hidden = 16
         model = GatedRecurrentFillPredictor(input_dim=1, hidden_dim=hidden, num_layers=1, activation='relu')
         batch = 2
@@ -88,7 +105,10 @@ class TestGatedRecurrentFillPredictor:
         assert output.shape == (batch, 1)
 
 class TestMLPEncoder:
+    """Tests for MLPEncoder."""
+
     def test_forward(self):
+        """Verifies MLP encoder forward pass."""
         dim = 16
         model = MLPEncoder(n_layers=1, hidden_dim=dim)
         batch = 2
@@ -99,7 +119,10 @@ class TestMLPEncoder:
         assert output.shape == (batch, nodes, dim)
 
 class TestPointerDecoder:
+    """Tests for PointerDecoder."""
+
     def test_forward(self):
+        """Verifies pointer decoder logic."""
         embed_dim = 16
         hidden_dim = 16
         model = PointerDecoder(
@@ -124,7 +147,10 @@ class TestPointerDecoder:
         assert selections.shape == (batch, seq)
 
 class TestPointerEncoder:
+    """Tests for PointerEncoder."""
+
     def test_forward(self):
+        """Verifies pointer encoder logic."""
         input_dim = 10
         hidden_dim = 16
         model = PointerEncoder(input_dim, hidden_dim)
@@ -142,7 +168,10 @@ class TestPointerEncoder:
         assert out.shape == (seq, batch, hidden_dim)
 
 class TestTGCEncoder:
+    """Tests for TransGraphConvEncoder."""
+
     def test_forward(self):
+        """Verifies transformer graph conv encoder."""
         embed_dim = 16
         # n_groups=4 compatible with 16
         model = TransGraphConvEncoder(n_heads=2, embed_dim=embed_dim, n_layers=1, n_sublayers=1, n_groups=4)

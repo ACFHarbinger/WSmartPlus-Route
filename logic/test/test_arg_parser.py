@@ -1,3 +1,4 @@
+"""Tests for CLI argument parsing utilities."""
 import sys
 import copy
 import pytest

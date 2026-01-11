@@ -919,6 +919,7 @@ def mock_optimizer_data(mock_policy_common_data):
 
 @pytest.fixture
 def hgs_inputs():
+    """Provide standard inputs for HGS tests."""
     # Simple scenario: Depot + 4 nodes
     # Distances: linear 0--1--2--3--4
     dist_matrix = [
@@ -978,7 +979,9 @@ def disable_wandb():
 
 @pytest.fixture(scope="session", autouse=True)
 def cleanup_test_root(request):
+    """Cleanup test root directory after session."""
     def finalizer():
+        """Finalizer to clean up test output."""
         path_to_clean = Path("assets/test_output")
         if path_to_clean.exists():
             shutil.rmtree(path_to_clean)
@@ -1048,6 +1051,7 @@ def mock_baseline(mocker):
 
 @pytest.fixture
 def hpo_opts():
+    """Provide standard HPO options."""
     return {
         'problem': 'wcvrp',
         'graph_size': 20,
@@ -1107,6 +1111,7 @@ def hpo_opts():
 
 @pytest.fixture
 def bandit_setup():
+    """Setup WeightContextualBandit instance."""
     initial_weights = {'w_waste': 1.0, 'w_over': 1.0}
     weight_ranges = {'w_waste': (0.1, 5.0), 'w_over': (0.1, 5.0)}
     context_features = ['waste', 'overflow', 'day']
@@ -1128,6 +1133,7 @@ def bandit_setup():
 
 @pytest.fixture
 def morl_setup():
+    """Setup MORLWeightOptimizer instance."""
     initial_weights = {'w_waste': 1.0, 'w_over': 1.0, 'w_len': 1.0}
     optimizer = MORLWeightOptimizer(
         initial_weights=initial_weights,
@@ -1142,6 +1148,7 @@ def morl_setup():
 
 @pytest.fixture
 def cwm_setup():
+    """Setup CostWeightManager instance."""
     initial_weights = {'waste': 1.0, 'over': 1.0, 'len': 1.0}
     manager = CostWeightManager(
         initial_weights=initial_weights,
@@ -1154,12 +1161,16 @@ def cwm_setup():
 
 @pytest.fixture
 def rwo_setup():
+    """Setup RewardWeightOptimizer instance."""
     # Helper mock class for RWO
     class MockModel(torch.nn.Module):
+        """Mock Neural Model for RewardWeightOptimizer."""
         def __init__(self, input_size, hidden_size, output_size):
+            """Initialize mock model."""
             super().__init__()
             self.layer = torch.nn.Linear(input_size, output_size)
         def forward(self, x):
+            """Mock forward pass."""
             return self.layer(x[:, -1, :]), None 
 
     initial_weights = {'w1': 1.0, 'w2': 1.0}
@@ -1192,16 +1203,21 @@ def am_setup(mocker):
     mock_encoder = mocker.MagicMock()
     
     # Needs to return tensor on call
+    # Needs to return tensor on call
     def mock_enc_fwd(x, edges=None, **kwargs):
+        """Mock encoder forward pass."""
         batch, n, dim = x.size()
         return torch.zeros(batch, n, 128) # hidden_dim
     mock_encoder.side_effect = mock_enc_fwd
 
     # Mock Factory
     class MockFactory(NeuralComponentFactory):
+        """Mock factory for neural components."""
         def create_encoder(self, **kwargs):
+            """Create mock encoder."""
             return mock_encoder
         def create_decoder(self, **kwargs):
+            """Create mock decoder."""
             # Return a MagicMock that acts like AttentionDecoder? 
             # Or real one? Tests verify forward flow. 
             # If we return a Mock, model.decoder becomes that Mock.
@@ -1245,6 +1261,7 @@ def tam_setup(mocker):
     
     mock_encoder = mocker.MagicMock()
     def mock_enc_fwd(x, edges=None, **kwargs):
+        """Mock encoder forward pass."""
         batch, n, dim = x.size()
         return torch.zeros(batch, n, 128)
     mock_encoder.side_effect = mock_enc_fwd
@@ -1255,9 +1272,12 @@ def tam_setup(mocker):
     # Assuming standard imports work.
     
     class MockActivationFunction(torch.nn.Module):
+        """Mock activation function."""
         def __init__(self, *args, **kwargs):
+            """Initialize mock activation function."""
             super().__init__()
         def forward(self, x):
+            """Mock forward pass."""
             return x
 
     mocker.patch('logic.src.models.modules.ActivationFunction', new=MockActivationFunction)
@@ -1268,15 +1288,20 @@ def tam_setup(mocker):
     
     mock_grfp = mock_grfp_cls.return_value
     def mock_grfp_fwd(x, h=None):
+        """Mock GRFP forward pass."""
         return torch.zeros(x.shape[0], 1)
 
     mock_grfp.side_effect = mock_grfp_fwd
     
     # Mock Factory for TAM
+    # Mock Factory for TAM
     class MockTAMFactory(NeuralComponentFactory):
+        """Mock factory for TAM components."""
         def create_encoder(self, **kwargs):
+            """Create mock encoder."""
             return mock_encoder
         def create_decoder(self, **kwargs):
+             """Create mock decoder."""
              m_dec = mocker.MagicMock(spec=AttentionDecoder)
              return m_dec
 
@@ -1373,8 +1398,8 @@ def mock_ppo_deps(mocker):
 
     # Mock Dataset
     dataset_list = [
-        {'loc': torch.rand(10, 2), 'demand': torch.rand(10), 
-         'hrl_mask': torch.zeros(10, 10), 'full_mask': torch.zeros(10, 11)} 
+        {'loc': torch.rand(10, 2), 'demand': torch.rand(10),
+         'hrl_mask': torch.zeros(10, 10), 'full_mask': torch.zeros(10, 11)}
         for _ in range(4)
     ]
     mock_dataset = MagicMock()
@@ -1390,4 +1415,196 @@ def mock_ppo_deps(mocker):
         'problem': mock_problem,
         'training_dataset': mock_dataset,
         'val_dataset': []
+    }
+
+
+@pytest.fixture
+def mock_dr_grpo_deps():
+    """
+    Fixture providing mocks specifically for DR-GRPO training tests.
+    Returns a dictionary containing mock objects for trainer initialization.
+    """
+    model = MagicMock()
+
+    # Dynamic return value for model dependent on input size
+    # Dynamic return value for model dependent on input size
+    def model_side_effect(input, return_pi=False, expert_pi=None, imitation_mode=False, **kwargs):
+        """Mock model side effect."""
+        if isinstance(input, dict):
+            first_val = next(iter(input.values()))
+            current_batch_size = first_val.size(0)
+        else:
+            current_batch_size = 4
+
+        # Returns: cost, log_probs, cost_dict, pi, entropy
+        # pi shape: [Batch, SeqLen]
+        seq_len = 5
+        return (
+            torch.randn(current_batch_size, requires_grad=True), # cost
+            torch.randn(current_batch_size, requires_grad=True), # log_probs
+            {'total': torch.randn(current_batch_size)},          # cost_dict
+            torch.randn(current_batch_size, seq_len),            # pi
+            torch.randn(current_batch_size, requires_grad=True)  # entropy
+        )
+
+    model.side_effect = model_side_effect
+    model.to = MagicMock(return_value=model)
+    model.train = MagicMock()
+    model.eval = MagicMock()
+    model.__call__ = MagicMock(side_effect=model_side_effect)
+
+    # Allow setting attributes
+    model.decode_type = 'sampling'
+    model.set_decode_type = MagicMock()
+
+    optimizer = MagicMock()
+    baseline = MagicMock()
+    baseline.wrap_dataset.side_effect = lambda x: x
+    baseline.unwrap_batch.side_effect = lambda x: (x, None)
+
+    def baseline_eval_side_effect(input, c=None):
+         """Mock baseline eval side effect."""
+         if isinstance(input, dict):
+             first = next(iter(input.values()))
+             bs = first.size(0)
+         else:
+             bs = 4
+         return (torch.zeros(bs), torch.zeros(1))
+
+    baseline.eval.side_effect = baseline_eval_side_effect
+
+    dataset = MagicMock()
+    dataset.__len__.return_value = 4
+    # Return a tensor that can be repeated
+    dataset.__getitem__ = MagicMock(return_value={'input': torch.tensor([1.0, 2.0])})
+
+    problem = MagicMock()
+    problem.NAME = 'vrpp'
+
+    return {
+        'model': model,
+        'optimizer': optimizer,
+        'baseline': baseline,
+        'training_dataset': dataset,
+        'val_dataset': dataset,
+        'problem': problem
+    }
+
+
+@pytest.fixture
+def mock_gspo_deps():
+    """
+    Fixture providing mocks specifically for GSPO training tests.
+    Returns a dictionary containing mock objects for trainer initialization.
+    """
+    # Mock dependencies
+    model = MagicMock()
+
+    # Dynamic return value for model dependent on input size
+    # Dynamic return value for model dependent on input size
+    def model_side_effect(input, *args, **kwargs):
+        """Mock model side effect."""
+        if isinstance(input, dict):
+            first_val = next(iter(input.values()))
+            current_batch_size = first_val.size(0)
+        else:
+            current_batch_size = 4
+
+        # Returns: cost, log_probs, cost_dict, pi, entropy
+        # pi shape: [Batch, SeqLen]
+        seq_len = 5
+        return (
+            torch.randn(current_batch_size, requires_grad=True), # cost
+            torch.randn(current_batch_size, requires_grad=True), # log_probs
+            {'total': torch.randn(current_batch_size)},          # cost_dict
+            torch.randn(current_batch_size, seq_len),            # pi
+            torch.randn(current_batch_size, requires_grad=True)  # entropy
+        )
+
+    model.side_effect = model_side_effect
+    model.to = MagicMock(return_value=model)
+    model.train = MagicMock()
+    model.eval = MagicMock()
+
+    optimizer = MagicMock()
+    baseline = MagicMock()
+    baseline.wrap_dataset.side_effect = lambda x: x
+    baseline.unwrap_batch.side_effect = lambda x: (x, None)
+    baseline.eval.return_value = (torch.zeros(4), torch.zeros(1))
+
+    dataset = MagicMock()
+    dataset.__len__.return_value = 4
+    dataset.__getitem__ = MagicMock(return_value={'input': torch.tensor([1])})
+
+    problem = MagicMock()
+    problem.NAME = 'vrpp'
+
+    return {
+        'model': model,
+        'optimizer': optimizer,
+        'baseline': baseline,
+        'training_dataset': dataset,
+        'val_dataset': dataset,
+        'problem': problem
+    }
+
+
+@pytest.fixture
+def mock_sapo_deps():
+    """
+    Fixture providing mocks specifically for SAPO training tests.
+    Returns a dictionary containing mock objects for trainer initialization.
+    """
+    # Mock dependencies
+    model = MagicMock()
+    # Model returns: cost, log_probs, cost_dict, pi, entropy
+    # Shapes: cost (B), log_probs (B), cost_dict (dict), pi (B, Seq), entropy (B)
+    msg_len = 5
+    batch_size = 4
+
+    def model_side_effect(input, *args, **kwargs):
+        """Mock model side effect."""
+        # Check input batch size. Input is dict, e.g. input['depot']
+        if isinstance(input, dict):
+            first_val = next(iter(input.values()))
+            current_batch_size = first_val.size(0)
+        else:
+            current_batch_size = 4
+
+        return (
+            torch.randn(current_batch_size, requires_grad=True), # cost
+            torch.randn(current_batch_size, requires_grad=True), # log_probs
+            {'total': torch.randn(current_batch_size)},          # cost_dict
+            torch.randn(current_batch_size, msg_len),            # pi
+            torch.randn(current_batch_size, requires_grad=True)  # entropy
+        )
+
+    model.side_effect = model_side_effect
+    # Ensure model is callable
+    model.to = MagicMock(return_value=model)
+    model.train = MagicMock()
+    model.eval = MagicMock()
+
+    optimizer = MagicMock()
+    baseline = MagicMock()
+    # baseline.wrap_dataset returns the dataset itself (identity)
+    baseline.wrap_dataset.side_effect = lambda x: x
+    baseline.unwrap_batch.side_effect = lambda x: (x, None)
+    baseline.eval.return_value = (torch.zeros(4), torch.zeros(1))
+
+    dataset = MagicMock()
+    dataset.__len__.return_value = 4
+    # Mock dataset iteration
+    dataset.__getitem__ = MagicMock(return_value={'input': torch.tensor([1])})
+
+    problem = MagicMock()
+    problem.NAME = 'vrpp'
+
+    return {
+        'model': model,
+        'optimizer': optimizer,
+        'baseline': baseline,
+        'training_dataset': dataset,
+        'val_dataset': dataset,
+        'problem': problem
     }
