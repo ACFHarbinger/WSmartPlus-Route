@@ -218,7 +218,7 @@ def add_train_args(parser):
     parser.add_argument('--imitation_mode', type=str, default='2opt', choices=['2opt', 'hgs'], help="Method for imitation learning expert ('2opt'|'hgs')")
     parser.add_argument('--two_opt_max_iter', type=int, default=0, help='Maximum number of iterations for 2-opt refinement in Look-Ahead update')
     parser.add_argument('--gamma', type=float, default=0.99, help='Discount factor for future rewards')
-    parser.add_argument('--rl_algorithm', type=str, default='reinforce', choices=['reinforce', 'ppo', 'sapo', 'gspo'], help='RL algorithm to use')
+    parser.add_argument('--rl_algorithm', type=str, default='ppo', choices=['reinforce', 'ppo', 'sapo', 'gspo', 'dr_grpo'], help='RL algorithm to use')
     parser.add_argument('--ppo_epochs', type=int, default=3, help='Number of epochs for PPO update')
     parser.add_argument('--ppo_eps_clip', type=float, default=0.2, help='PPO clip parameter')
     parser.add_argument('--ppo_mini_batch_size', type=int, default=32, help='Mini-batch size for PPO update')
@@ -226,6 +226,11 @@ def add_train_args(parser):
     parser.add_argument('--sapo_tau_neg', type=float, default=1.0, help='Temperature for negative advantages in SAPO')
     parser.add_argument('--gspo_epsilon', type=float, default=0.2, help='GSPO epsilon clip')
     parser.add_argument('--gspo_epochs', type=int, default=3, help='Number of GSPO epochs')
+    
+    # DR-GRPO Args
+    parser.add_argument('--dr_grpo_group_size', type=int, default=8, help='Group size (G) for DR-GRPO')
+    parser.add_argument('--dr_grpo_epsilon', type=float, default=0.2, help='DR-GRPO epsilon clip')
+    parser.add_argument('--dr_grpo_epochs', type=int, default=3, help='Number of DR-GRPO epochs')
 
     # Training
     parser.add_argument('--n_epochs', type=int, default=25, help='The number of epochs to train')
