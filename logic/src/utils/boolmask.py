@@ -1,7 +1,3 @@
-import torch
-import torch.nn.functional as F
-
-
 """
 Boolean Mask Utilities.
 
@@ -9,6 +5,9 @@ This module provides optimized functions for converting between different
 mask representations (boolean, byte, long) and performing masked scatter operations
 efficiently on GPU.
 """
+
+import torch
+import torch.nn.functional as F
 
 
 # Attention, Learn to Solve Routing Problems

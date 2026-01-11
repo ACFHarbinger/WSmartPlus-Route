@@ -1,3 +1,13 @@
+"""
+Input/Output utilities for file handling, serialization, and data processing.
+
+This module provides functions for:
+- Reading and writing JSON files with thread locking.
+- Zipping and extracting directories.
+- Splitting and reassembling large files (CSV/Excel).
+- Processing nested dictionary/list structures (e.g., for log updates).
+"""
+
 import os
 import json
 import glob
@@ -10,15 +20,7 @@ import logic.src.utils.definitions as udef
 from collections.abc import Iterable
 
 
-"""
-Input/Output utilities for file handling, serialization, and data processing.
 
-This module provides functions for:
-- Reading and writing JSON files with thread locking.
-- Zipping and extracting directories.
-- Splitting and reassembling large files (CSV/Excel).
-- Processing nested dictionary/list structures (e.g., for log updates).
-"""
 
 
 def read_output(json_path, policies, lock=None):
@@ -125,12 +127,14 @@ def split_file(file_path, max_part_size, output_dir):
         df = pd.read_csv(file_path)
 
         def write_chunk(df, file):
+            """Writes chunk to CSV."""
             df.to_csv(file, index=False)
 
     else:
         df = pd.read_excel(file_path)
 
         def write_chunk(df, file):
+            """Writes chunk to Excel."""
             df.to_excel(file, index=False)
 
     # Split the file's DataFrame into chunks
@@ -1209,6 +1213,7 @@ def confirm_proceed(default_no=True, operation_name="update"):
     """
 
     def timeout_handler(signum, frame):
+        """Raises TimeoutError on signal."""
         raise TimeoutError()
 
     # Set timeout
@@ -1236,7 +1241,27 @@ def confirm_proceed(default_no=True, operation_name="update"):
 
 
 def compose_dirpath(fun):
+    """
+    Decorator to compose directory paths based on home_dir, ndays, num_bins, etc.
+
+    Args:
+        fun (callable): Function to decorate.
+
+    Returns:
+        callable: Decorated function.
+    """
+
     def inner(home_dir, ndays, nbins, output_dir, area, *args, **kwargs):
+        """
+        Inner wrapper function.
+
+        Args:
+            home_dir (str): Home directory.
+            ndays (int): Number of days.
+            nbins (int or list): Number of bins or list of them.
+            output_dir (str): Output directory name.
+            area (str): Area name.
+        """
         if not isinstance(nbins, Iterable):
             dir_path = os.path.join(
                 home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{nbins}"

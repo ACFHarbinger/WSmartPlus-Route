@@ -1,9 +1,3 @@
-import torch
-import numpy as np
-import osmnx as ox
-import networkx as nx
-
-
 """
 Graph processing utilities.
 
@@ -13,6 +7,14 @@ This module provides functions for:
 - Interfacing with OpenStreetMap (OSM) for realistic graph generation.
 - Finding specific paths (e.g., longest path in DAG).
 """
+
+import torch
+import numpy as np
+import osmnx as ox
+import networkx as nx
+
+
+
 
 
 def generate_adj_matrix(
@@ -330,6 +332,15 @@ def find_longest_path(dist_matrix, start_vertex=0):
     longest_length = torch.tensor(float("-inf"), device=dist_matrix.device)
 
     def backtrack(current, visited, path, current_length):
+        """
+        Recursive backtracking helper to find longest path.
+
+        Args:
+            current: Current node index.
+            visited: Set of visited nodes.
+            path: Current path list.
+            current_length: Current length of the path.
+        """
         nonlocal longest_length, longest_path
         # If all nodes are visited, check if we can return to start_node
         if len(path) == n_vertices:

@@ -1,3 +1,18 @@
+"""
+Argument parsing module for the WSmart+ Route framework.
+
+This module provides a unified interface for parsing command-line arguments
+across all entry points of the application, including:
+- Training (Reinforcement Learning & Meta-RL)
+- Hyperparameter Optimization
+- Data Generation
+- Model Evaluation
+- Simulation Testing
+- File System Operations
+- GUI Launching
+- Test Suite Execution
+"""
+
 import os
 import re
 import sys
@@ -21,20 +36,7 @@ from logic.src.utils.definitions import (
 )
 
 
-"""
-Argument parsing module for the WSmart+ Route framework.
 
-This module provides a unified interface for parsing command-line arguments
-across all entry points of the application, including:
-- Training (Reinforcement Learning & Meta-RL)
-- Hyperparameter Optimization
-- Data Generation
-- Model Evaluation
-- Simulation Testing
-- File System Operations
-- GUI Launching
-- Test Suite Execution
-"""
 
 
 class ConfigsParser(argparse.ArgumentParser):
@@ -156,6 +158,13 @@ class ConfigsParser(argparse.ArgumentParser):
         return command, filtered_args if command is None else filtered_args
 
     def error_message(self, message, print_help=True):
+        """
+        Prints error message and optionally help.
+
+        Args:
+            message (str): Error message.
+            print_help (bool, optional): Whether to print help. Defaults to True.
+        """
         print(message, end=" ")
         if print_help:
             self.print_help()
@@ -163,7 +172,10 @@ class ConfigsParser(argparse.ArgumentParser):
 
 
 class LowercaseAction(argparse.Action):
+    """Action to convert argument value to lowercase."""
+
     def __call__(self, parser, namespace, values, option_string=None):
+        """Executes the action."""
         if values is not None:
             values = str(values).lower()
         setattr(namespace, self.dest, values)
@@ -176,6 +188,7 @@ class StoreDictKeyPair(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """Executes the action, parsing key=value pairs."""
         my_dict = {}
         for kv in values:
             if "=" in kv:
@@ -193,11 +206,15 @@ def UpdateFunctionMapActionFactory(inplace=False):
     """Factory function to create custom Action with flag"""
 
     class UpdateFunctionMapAction(argparse.Action):
+        """Action to map string update function names to actual functions."""
+
         def __init__(self, option_strings, dest, nargs=None, **kwargs):
+            """Initializes the action."""
             super().__init__(option_strings, dest, nargs=nargs, **kwargs)
             self.inplace = inplace
 
         def __call__(self, parser, namespace, values, option_string=None):
+            """Executes the action, mapping string names to functions."""
             if values is not None:
                 if self.inplace:
                     values = OPERATION_MAP.get(str(values).replace(" ", ""), None)
