@@ -1,7 +1,31 @@
+/*!
+ * Population management with diversity control.
+ *
+ * Maintains separate pools of feasible and infeasible solutions,
+ * using biased fitness (cost + diversity) for survivor selection.
+ */
+
 use crate::individual::Individual;
 use crate::params::Params;
 use std::cmp::Ordering;
 
+/**
+ * Population of solutions with diversity management.
+ *
+ * # Structure
+ *
+ * - **Feasible pool**: Solutions satisfying all constraints
+ * - **Infeasible pool**: Solutions with constraint violations
+ * - **Best solution**: Best feasible solution found so far
+ *
+ * # Biased Fitness
+ *
+ * Each individual's fitness is a combination of:
+ * - **Cost rank**: Position when sorted by penalized cost
+ * - **Diversity rank**: Average distance to `nb_close` nearest neighbors
+ *
+ * This prevents premature convergence by rewarding diverse solutions.
+ */
 pub struct Population {
     pub feasible: Vec<Individual>,
     pub infeasible: Vec<Individual>,
@@ -10,6 +34,7 @@ pub struct Population {
 }
 
 impl Population {
+    /** Creates a new empty population. */
     pub fn new(params: &Params) -> Self {
         Self {
             feasible: Vec::with_capacity(params.ap.mu + params.ap.lambda),
@@ -19,6 +44,13 @@ impl Population {
         }
     }
 
+    /**
+     * Adds an individual to the population.
+     *
+     * - Updates best solution if this is a better feasible solution
+     * - Adds to feasible or infeasible pool based on constraint satisfaction
+     * - Skips if an identical solution (same penalized cost) already exists
+     */
     pub fn add(&mut self, indiv: Individual) {
         if indiv.eval.is_feasible {
             match &self.best_solution {
@@ -48,6 +80,18 @@ impl Population {
         list.push(indiv);
     }
 
+    /**
+     * Updates biased fitness for all individuals.
+     *
+     * # Steps
+     *
+     * 1. Rank solutions by penalized cost (cost rank)
+     * 2. Calculate diversity contribution (average distance to nearest neighbors)
+     * 3. Rank solutions by diversity (diversity rank)
+     * 4. Compute biased fitness: `cost_rank + (1 - elite_ratio) × diversity_rank`
+     *
+     * Elite solutions (top `nb_elite`) get lower diversity weight.
+     */
     pub fn update_biased_fitnesses(&mut self, params: &Params) {
         // Fix E0502: Use associated functions to avoid borrowing self while borrowing fields
         Self::rank_by_cost_static(&mut self.feasible);

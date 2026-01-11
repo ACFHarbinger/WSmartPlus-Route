@@ -1,6 +1,33 @@
+/*!
+ * Problem instance parameters and precomputed optimization structures.
+ *
+ * This module defines the `Params` struct, which encapsulates all problem instance data
+ * and precomputed structures needed for efficient optimization.
+ */
 use crate::algorithm_parameters::AlgorithmParameters;
 use std::time::Instant;
 
+/**
+ * Problem instance parameters.
+ *
+ * This struct stores all problem data and precomputed optimization structures.
+ * It is shared across algorithm components using `Arc<Params>` for thread-safe access.
+ *
+ * # Fields
+ *
+ * * `dist_matrix` - Symmetric distance matrix (N+1 × N+1, depot at index 0)
+ * * `demands` - Node demands (depot = 0)
+ * * `coords` - Node coordinates for geometric optimization
+ * * `polar_angles` - Precomputed polar angles (0-65535) relative to depot
+ * * `vehicle_capacity` - Maximum load capacity per vehicle
+ * * `r_coeff` - Revenue coefficient (profit per unit of demand served)
+ * * `c_coeff` - Cost coefficient (cost per unit of distance)
+ * * `n_clients` - Number of customers (excludes depot)
+ * * `max_vehicles` - Fleet size limit (0 = unlimited)
+ * * `correlated_vertices` - Granular search neighborhoods (top-k nearest neighbors)
+ * * `ap` - Algorithm hyperparameters
+ * * `start_time` - Algorithm start timestamp for time limit enforcement
+ */
 pub struct Params {
     pub ap: AlgorithmParameters,
     pub dist_matrix: Vec<Vec<f64>>,
@@ -17,6 +44,37 @@ pub struct Params {
 }
 
 impl Params {
+    /**
+     * Creates a new problem instance with precomputed optimization structures.
+     *
+     * # Arguments
+     *
+     * * `dist_matrix` - Distance matrix (must be symmetric)
+     * * `demands` - Node demands
+     * * `coords` - Node coordinates (may be empty)
+     * * `vehicle_capacity` - Vehicle capacity
+     * * `r` - Revenue coefficient
+     * * `c` - Cost coefficient
+     * * `ap` - Algorithm parameters
+     * * `max_vehicles` - Fleet size limit
+     *
+     * # Initialization
+     *
+     * 1. Computes problem size (`n_clients`)
+     * 2. Builds **granular search neighborhoods** (top-k closest neighbors for each node)
+     * 3. Computes **polar angles** for geometric sector optimization
+     * 4. Validates geometric consistency (if coordinates provided)
+     *
+     * # Granular Search
+     *
+     * For each customer, stores the indices of the `nb_granular` closest neighbors.
+     * This reduces local search complexity from O(N²) to O(N×k).
+     *
+     * # Polar Angles
+     *
+     * Maps each node's angle (relative to depot) to 0-65535 range.
+     * Used in SWAP* operator for geometric pruning.
+     */
     pub fn new(
         dist_matrix: Vec<Vec<f64>>,
         demands: Vec<f64>,
@@ -81,6 +139,12 @@ impl Params {
         params
     }
 
+    /**
+     * Validates that the distance matrix is consistent with Euclidean distances.
+     *
+     * Warns if `dist_matrix[i][j] < euclidean_distance(i, j)`, which indicates
+     * a geometric inconsistency (e.g., road network distances vs. straight-line).
+     */
     fn check_geometric_validity(&self) {
         if !self.coords.is_empty() {
             for i in 0..=self.n_clients {

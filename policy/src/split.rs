@@ -1,17 +1,43 @@
+/*!
+ * Split algorithm for giant tour decomposition.
+ *
+ * Converts a giant tour (permutation of customers) into feasible vehicle routes
+ * using dynamic programming to maximize profit.
+ */
+
 use crate::individual::Individual;
 use crate::params::Params;
 use std::sync::Arc;
 
+/**
+ * Split algorithm for route construction.
+ *
+ * # Problem
+ *
+ * Given a giant tour (permutation of customers), find the optimal way to
+ * partition it into vehicle routes to maximize profit while respecting capacity.
+ *
+ * # Variants
+ *
+ * - **Simple Split**: Unlimited fleet, maximizes total profit
+ * - **Limited Fleet Split**: Fixed `max_vehicles`, uses 2D DP
+ */
 pub struct Split {
     params: Arc<Params>,
 }
 
 impl Split {
+    /** Creates a new Split algorithm instance. */
     pub fn new(params: Arc<Params>) -> Self {
         Self { params }
     }
 
-    /// Splits the giant tour into optimal routes
+    /**
+     * Splits the giant tour into optimal routes.
+     *
+     * Chooses between Simple Split (unlimited fleet) and Limited Fleet Split
+     * based on `max_vehicles` parameter.
+     */
     pub fn split(&self, indiv: &mut Individual, penalty_capacity: f64) {
         if self.params.max_vehicles > 0 {
             self.split_lf(indiv, penalty_capacity);
@@ -20,7 +46,23 @@ impl Split {
         }
     }
 
-    /// Maximum Profit Single-Source Shortest Path (Classic Split)
+    /**
+     * Simple Split: Unlimited fleet, maximize profit.
+     *
+     * # Dynamic Programming
+     *
+     * ```text
+     * v[i] = maximum profit serving first i customers
+     * v[i] = max over j < i of:
+     *         v[j] + profit(route from tour[j..i])
+     *
+     * profit(route) = revenue - cost - penalties
+     * ```
+     *
+     * # Complexity
+     *
+     * O(N²) where N is the number of customers.
+     */
     fn split_simple(&self, indiv: &mut Individual, penalty_capacity: f64) {
         let n = self.params.n_clients;
         let tour = &indiv.giant_tour;
@@ -73,7 +115,7 @@ impl Split {
         self.reconstruct(indiv, n, &p);
     }
 
-    /// Limited Fleet Split (Fixed max_vehicles)
+    /** Limited Fleet Split (Fixed max_vehicles) */
     fn split_lf(&self, indiv: &mut Individual, penalty_capacity: f64) {
         let n = self.params.n_clients;
         let tour = &indiv.giant_tour;
