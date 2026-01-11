@@ -1,3 +1,10 @@
+"""
+Evaluation Pipeline.
+
+This script manages model evaluation and inference across one or multiple GPUs.
+It supports various decoding strategies (Greedy, Sampling, Beam Search) and 
+calculates key performance metrics (Cost, Distance, Waste, Overflows).
+"""
 import os
 import sys
 import math
@@ -63,6 +70,23 @@ def eval_dataset_mp(args):
 
 
 def eval_dataset(dataset_path, width, softmax_temp, opts, method=None):
+    """
+    Evaluates a model on a given dataset.
+
+    This function handles the evaluation workflow, including model loading,
+    optional multiprocessing (one process per GPU), dataset creation,
+    and results aggregation/logging.
+
+    Args:
+        dataset_path (str): Path to the dataset file.
+        width (int): Decoding width (beam size or number of samples).
+        softmax_temp (float): Softmax temperature for sampling.
+        opts (dict): Configuration options.
+        method (str, optional): Specific evaluation method/baseline name.
+
+    Returns:
+        tuple: (costs, tours, durations) - Evaluation statistics and results.
+    """
     # Even with multiprocessing, we load the model here since it contains the name where to write results
     model, _ = load_model(opts.get('load_path', opts['model']), method)
     use_cuda = torch.cuda.is_available()
@@ -132,6 +156,23 @@ def eval_dataset(dataset_path, width, softmax_temp, opts, method=None):
 
 
 def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
+    """
+    Inner evaluation loop for a single batch/process.
+
+    Performs inference using the specified decoding strategy (Greedy, Sampling, or Beam Search)
+    and collects per-instance metrics.
+
+    Args:
+        model (nn.Module): The model to evaluate.
+        dataset (Dataset): The dataset instance.
+        width (int): Decoding width.
+        softmax_temp (float): Sampling temperature.
+        opts (dict): Configuration options.
+        device (torch.device): Computation device.
+
+    Returns:
+        list: A list of result dictionaries for each instance in the dataset.
+    """
     model.to(device)
     model.eval()
     model.set_decode_type(
@@ -214,6 +255,14 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
 
 
 def run_evaluate_model(opts):
+    """
+    Main entry point for the evaluation script.
+
+    Iterates through datasets and decoding widths to run evaluations.
+
+    Args:
+        opts (dict): Configuration options.
+    """
     # Set the random seed and execute the program
     random.seed(opts['seed'])
     np.random.seed(opts['seed'])
