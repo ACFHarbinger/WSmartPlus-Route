@@ -1,3 +1,4 @@
+"""Tests for high-level neural models."""
 import torch
 
 from unittest.mock import MagicMock
@@ -8,12 +9,16 @@ from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
 )
 
 class TestAttentionModel:
+    """Tests for the AttentionModel architecture."""
+
     def test_initialization(self, am_setup):
+        """Verifies model initialization parameters."""
         model = am_setup
         assert isinstance(model, AttentionModel)
         assert model.n_heads == 8 
 
     def test_forward(self, am_setup):
+        """Verifies forward pass output shapes and types."""
         model = am_setup
         batch_size = 2
         graph_size = 5
@@ -39,6 +44,7 @@ class TestAttentionModel:
         assert ll.shape == (batch_size,)
 
     def test_compute_batch_sim(self, am_setup):
+        """Verifies simulation batch computation."""
         model = am_setup
         model.embedder.return_value = torch.zeros(2, 6, 128)
         model.decoder.return_value = (
@@ -83,7 +89,10 @@ class TestAttentionModel:
 
 
 class TestGATLSTManager:
+    """Tests for the GATLSTManager architecture."""
+
     def test_forward(self, gat_lstm_setup):
+        """Verifies forward pass logic."""
         manager = gat_lstm_setup
         B, N = 2, 5
         static = torch.rand(B, N, 2)
@@ -96,6 +105,7 @@ class TestGATLSTManager:
         assert value.shape == (B, 1)
 
     def test_select_action_deterministic(self, gat_lstm_setup):
+        """Verifies deterministic action selection."""
         manager = gat_lstm_setup
         static = torch.rand(1, 5, 2)
         dynamic = torch.rand(1, 5, 10)
@@ -105,6 +115,7 @@ class TestGATLSTManager:
         assert gate_action.shape == (1,)
 
     def test_shared_encoder(self, am_setup):
+        """Verifies shared encoder initialization."""
         from logic.src.models.gat_lstm_manager import GATLSTManager
         worker_model = am_setup
         B, N = 1, 5
@@ -129,7 +140,10 @@ class TestGATLSTManager:
 
 
 class TestReinforceBaselines:
+    """Tests for REINFORCE baseline implementations."""
+
     def test_warmup_baseline(self, mock_baseline):
+        """Verifies warmup alpha updates."""
         wb = WarmupBaseline(mock_baseline, n_epochs=2, warmup_exp_beta=0.8)
         assert wb.alpha == 0
         
@@ -138,6 +152,7 @@ class TestReinforceBaselines:
         assert wb.alpha == 0.5
     
     def test_exponential_baseline(self):
+        """Verifies exponential moving average updates."""
         eb = ExponentialBaseline(beta=0.8)
         c = torch.tensor([10.0, 20.0])
         v, l = eb.eval(None, c)
@@ -150,10 +165,12 @@ class TestReinforceBaselines:
         assert v2 == 17.0
 
     def test_no_baseline(self):
+        """Verifies no-op baseline."""
         nb = NoBaseline()
         assert nb.eval(None, None) == (0, 0)
 
     def test_critic_baseline(self):
+        """Verifies critic network evaluation and state dicts."""
         critic = MagicMock()
         critic.return_value = torch.tensor([1.0, 2.0])
         critic.parameters.return_value = [torch.tensor([1.0])]
@@ -178,6 +195,7 @@ class TestReinforceBaselines:
         assert sd['critic'] == {'a': 1}
         
     def test_rollout_baseline(self, mocker):
+        """Verifies rollout baseline evaluation and updates."""
         # Mocks
         mock_model = MagicMock()
         mock_problem = MagicMock()
@@ -221,6 +239,7 @@ class TestReinforceBaselines:
         assert rb.epoch == 1
         
     def test_baseline_dataset(self):
+        """Verifies dataset wrapping."""
         ds = BaselineDataset([1, 2], [3, 4])
         assert len(ds) == 2
         item = ds[0]
@@ -229,7 +248,10 @@ class TestReinforceBaselines:
 
 
 class TestTemporalAttentionModel:
+    """Tests for the TemporalAttentionModel."""
+
     def test_init_embed_uses_fill_predictor(self, tam_setup):
+        """Verifies fill history embedding."""
         model = tam_setup
         batch_size = 2
         graph_size = 4 # Excl depot
@@ -256,6 +278,7 @@ class TestTemporalAttentionModel:
         assert torch.all(updated[:, :, 0] == 0)
 
     def test_forward_wraps_input(self, tam_setup):
+        """Verifies input wrapping with fill history."""
         model = tam_setup
         model.embedder.return_value = torch.zeros(1, 5, 128)
         model.decoder.return_value = (torch.zeros(1, 5), torch.zeros(1, 5))

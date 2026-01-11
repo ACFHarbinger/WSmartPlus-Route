@@ -1,3 +1,4 @@
+"""Tests for policy implementations and adapters."""
 import sys
 import pytest
 import numpy as np
@@ -16,6 +17,7 @@ from logic.src.policies.look_ahead import policy_lookahead, policy_lookahead_san
 
 # --- Test Class for `run_day` Policy Dispatcher ---
 class TestRunDayPolicyRouting:
+    """Tests for the run_day policy dispatcher."""
     
     # Common arguments required by run_day()
     _RUN_DAY_CONST_ARGS = {
@@ -201,7 +203,10 @@ class TestRunDayPolicyRouting:
 
 
 class TestMultiVehiclePolicies:
+    """Tests for multi-vehicle routing policies."""
+
     def test_find_routes_basic(self):
+        """Test basic multi-vehicle routing logic."""
         # 0 is depot. 1, 2, 3 are bins.
         # to_collect = [1, 2, 3] (indices in 0-based system, 0 is depot)
         # Distances: symmetric, simple.
@@ -239,6 +244,7 @@ class TestMultiVehiclePolicies:
         # Depending on how cost is calculated.
         
     def test_find_routes_two_vehicles(self):
+        """Test routing with forced multi-vehicle usage."""
         # Make it impossible for 1 vehicle (capacity 2, total demand 4)
         dist_matrix = np.zeros((5, 5), dtype=np.int32)
         # Just need it to run without error and respect constraints roughly
@@ -262,6 +268,7 @@ class TestMultiVehiclePolicies:
         assert zero_counts >= 3 
         
     def test_find_routes_unlimited_vehicles(self):
+        """Test routing with unlimited vehicles (auto-scaling)."""
         # Use 0 vehicles -> unlimited.
         # Scenario: Needs 3 vehicles (capacity 2, demand 5).
         dist_matrix = np.full((6, 6), 10, dtype=np.int32)
@@ -281,6 +288,7 @@ class TestMultiVehiclePolicies:
         assert trips >= 3
 
     def test_find_routes_ortools_basic(self):
+        """Test basic routing with OR-Tools."""
         # Same basic test but for OR-Tools
         dist_matrix = np.array([
             [0, 10, 10, 10], # 0 (Depot)
@@ -319,6 +327,7 @@ class TestMultiVehiclePolicies:
         # [0, 2, 0] -> flat: [0, 1, 0, 2, 0]
 
     def test_find_routes_excess_vehicles(self):
+        """Test routing behavior with excess vehicle availability."""
         # Scenario: Needs 3 vehicles (capacity 2, demand 5).
         # Provide 10 vehicles.
         # Solver should use 3.
@@ -655,6 +664,7 @@ class TestAdvancedLookaheadPolicies:
     """
     @pytest.mark.unit
     def test_hgs_custom(self, hgs_inputs):
+        """Tests the custom HGS engine integration."""
         dist_matrix, demands, capacity, R, C, global_must_go, local_to_global, vrpp_tour_global = hgs_inputs
         values = {'hgs_engine': 'custom', 'time_limit': 1}
         routes, fitness, cost = run_hgs(dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global, vrpp_tour_global)
@@ -665,6 +675,7 @@ class TestAdvancedLookaheadPolicies:
 
     @pytest.mark.unit
     def test_hgs_pyvrp(self, hgs_inputs):
+        """Tests the PyVRP HGS engine integration."""
         dist_matrix, demands, capacity, R, C, global_must_go, local_to_global, vrpp_tour_global = hgs_inputs
         values = {'hgs_engine': 'pyvrp', 'time_limit': 1}
         routes, fitness, cost = run_hgs(dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global, vrpp_tour_global)
@@ -672,6 +683,7 @@ class TestAdvancedLookaheadPolicies:
 
     @pytest.mark.unit
     def test_policy_integration_custom(self, hgs_inputs):
+        """Tests the integration of HGS policy with coords and simulation data."""
         current_fill_levels = np.array([50.0, 50.0, 50.0, 50.0])
         binsids = [0, 1, 2, 3]
         must_go_bins = [1, 3]
@@ -747,11 +759,13 @@ class TestAdvancedLookaheadPolicies:
 
         # Helper to create var mocks with .X attribute
         def create_var_mock(*indices, vtype=None, name=None, **kwargs):
+            """Helper to create var mocks with .X attribute."""
             # indices is the first arg to addVars.
             # It returns a dict-like object (tupledict).
             vars_dict = MagicMock()
             
             def get_item(key):
+                """Mock item retrieval for variable dict."""
                 m = MagicMock()
                 # If this is 'x' variable and edge is active, X=1.
                 if name == "x" and key in active_edges:
@@ -801,9 +815,11 @@ class TestAdvancedLookaheadPolicies:
         
         # Mock getAttr to return dict-like accessor for x values
         def get_attr_side_effect(attr, *args):
+            """Mock getAttr to return dict-like accessor for x values."""
             if attr == 'x':
                 d = MagicMock()
                 def get_val(key):
+                    """Helper to get value from mocked dict."""
                     if key in active_edges: return 1.0
                     return 0.0
                 d.__getitem__.side_effect = get_val
@@ -1142,6 +1158,7 @@ class TestAdvancedLookaheadPolicies:
 
         # Simple Mock Adjacency: 0 -> 1 -> 0
         def get_adj_mock(i):
+            """Mock adjacency list logic."""
             if i == 0:
                 return [1]
             elif i == 1:
@@ -1151,6 +1168,7 @@ class TestAdvancedLookaheadPolicies:
 
         # MOCK THE ENVIRONMENT ITSELF TO BE NONE IN THE FUNCTION
         def mock_gurobi_model_creation(name, env=None):
+            """Mock Gurobi Model creation."""
             if env:
                 # If env is provided, just return the mock model without using the env
                 return mock_model
@@ -1162,6 +1180,7 @@ class TestAdvancedLookaheadPolicies:
 
         # Helper to configure a mock variable with arithmetic/comparison operators
         def configure_mock_var(m):
+            """Helper to configure a mock variable with arithmetic/comparison operators."""
             m.__add__ = MagicMock(return_value=m)
             m.__radd__ = MagicMock(return_value=m)
             m.__sub__ = MagicMock(return_value=m)
@@ -1185,6 +1204,7 @@ class TestAdvancedLookaheadPolicies:
                     x_vars_mock[i, j] = m
         
         def mock_addVar(vtype=None, name=None, **kwargs):
+            """Mock addVar to return distinct mocks for named x vars."""
             if name and name.startswith("x_"):
                 # Parse indices from name "x_0_1"
                 try:
@@ -1258,6 +1278,7 @@ class TestGurobiOptimizer:
         # Ensure that variables returned by mdl.addVars support <= operator
         # created vars are MagicMocks.
         def create_var_mock(*args, **kwargs):
+            """Mock variable creation."""
             m = MagicMock()
             m.__le__ = MagicMock(return_value=MagicMock()) # Return a constraint mock
             m.__ge__ = MagicMock(return_value=MagicMock())
