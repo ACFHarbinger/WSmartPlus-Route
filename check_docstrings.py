@@ -1,8 +1,33 @@
+"""
+Docstring Compliance Checker.
+
+This script traverses Python files in specified directories or file paths,
+parses them using the `ast` module, and checks for the presence of docstrings
+in modules, classes, and functions.
+
+It identifies missing docstrings to help maintain documentation standards
+across the codebase.
+
+Usage:
+    python check_docstrings.py <path1> [path2 ...]
+"""
+
 import ast
 import os
 import sys
 
 def check_path(path):
+    """
+    Check a single file for missing docstrings using AST parsing.
+
+    Args:
+        path (str): The file path to check.
+
+    Returns:
+        list: A list of strings describing any missing docstrings found.
+              Returns an empty list if the file is not a Python file,
+              has syntax errors, or is fully documented.
+    """
     missing = []
     if os.path.isfile(path):
         if not path.endswith(".py"):
@@ -28,6 +53,15 @@ def check_path(path):
     return missing
 
 def check_docstrings_recursive(directory):
+    """
+    Recursively check a directory for Python files with missing docstrings.
+
+    Args:
+        directory (str): The root directory to search.
+
+    Returns:
+        list: A list of strings describing missing docstrings in all found Python files.
+    """
     missing = []
     for root, dirs, files in os.walk(directory):
         for file in files:
