@@ -1,3 +1,34 @@
+"""
+Data Processing and Transformation Pipeline for Simulation Setup.
+
+This module implements data normalization, coordinate transformation, and
+model input preparation for the WSmart-Route simulator. It bridges raw
+data (CSV files) with runtime representations (PyTorch tensors, numpy arrays).
+
+Key Responsibilities:
+    - Geographic coordinate normalization (9 projection methods)
+    - DataFrame preprocessing (sorting, indexing, type casting)
+    - Neural model input preparation (tensors, edges, distance matrices)
+    - Result persistence (Excel exports)
+
+The SimulationDataMapper class centralizes all data transformations,
+following the Data Mapper pattern to decouple data structures from
+business logic.
+
+Coordinate Normalization Methods:
+    - mmn: Min-Max normalization [0, 1]
+    - mun: Mean normalization
+    - smsd: Standardization (z-score)
+    - ecp: Equidistant Cylindrical Projection
+    - wmp: Web Mercator Projection
+    - hdp: Haversine Distance Projection
+    - c3d: 3D Cartesian coordinates
+    - s4d: 4D Spherical coordinates
+
+Classes:
+    SimulationDataMapper: Central data transformation hub
+"""
+
 import os
 import json
 import torch
@@ -14,15 +45,33 @@ from logic.src.utils.graph_utils import adj_to_idx, get_edge_idx_dist, get_adj_k
 class SimulationDataMapper:
     """
     Data Mapper for the WSmart+ Route simulator.
-    Handles data transformation, normalization, and mapping between raw inputs and model formats.
+
+    Centralizes all data transformations between raw data sources (CSV/Excel)
+    and runtime representations (PyTorch tensors, NumPy arrays). Implements
+    the Data Mapper pattern to isolate data structure knowledge.
+
+    Key Methods:
+        - format_coordinates: Normalize geographic coords (9 projection modes)
+        - process_model_input: Prepare neural model inputs (tensors, graphs)
+        - setup_df: Merge depot and bin data into unified DataFrames
+        - save_results: Export simulation outputs to Excel
+
+    This class is stateless and thread-safe. All methods operate on
+    input parameters without modifying internal state.
     """
 
     def sort_dataframe(self, df: pd.DataFrame, metric_tosort: str, ascending_order: bool = True) -> pd.DataFrame:
+        """
+        Sorts a DataFrame by a metric and ensures that metric is the first column.
+        """
         df = df.sort_values(by=metric_tosort, ascending=ascending_order)
         columns = [metric_tosort] + [col for col in df.columns if col != metric_tosort]
         return cast(pd.DataFrame, df[columns])
 
     def get_df_types(self, df: pd.DataFrame, prec: str = "32") -> Dict[str, str]:
+        """
+        Infers and maps column data types to specific precisions (e.g., float32).
+        """
         df_types = dict(df.dtypes)
         for key, val in df_types.items():
             if key == 'ID':
@@ -37,6 +86,9 @@ class SimulationDataMapper:
         return df_types
 
     def setup_df(self, depot: pd.DataFrame, df: pd.DataFrame, col_names: List[str], index_name: Optional[str] = "#bin") -> pd.DataFrame:
+        """
+        Merges depot data with bin data and sets up a unified indexing scheme.
+        """
         df = df.loc[:, col_names].copy() # Ensure copy to avoid setting on slice
         df.loc[-1] = depot.loc[0, col_names].values
         df.index = df.index + 1
@@ -50,6 +102,9 @@ class SimulationDataMapper:
         return df
 
     def sample_df(self, df: pd.DataFrame, n_elems: int, depot: Optional[pd.DataFrame] = None, output_path: Optional[str] = None) -> pd.DataFrame:
+        """
+        Samples a subset of rows from a DataFrame and optionally adds the depot.
+        """
         df = df.sample(n=n_elems)
         df_types = self.get_df_types(df)
         if depot is not None:
@@ -67,6 +122,9 @@ class SimulationDataMapper:
         return df
 
     def process_indices(self, df: pd.DataFrame, indices: Optional[List[int]]) -> pd.DataFrame:
+        """
+        Extracts a subset of rows or columns from a DataFrame based on indices.
+        """
         if indices is None:
             df = df.copy()
         else:
@@ -78,6 +136,9 @@ class SimulationDataMapper:
         return df
 
     def process_raw_data(self, data: pd.DataFrame, bins_coordinates: pd.DataFrame, depot: pd.DataFrame, indices: Optional[List[int]] = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        Higher-level method to filter and prepare both statistic and coordinate data.
+        """
         new_data = self.process_indices(data, indices)
         coords = self.process_indices(bins_coordinates, indices)
         coords = self.setup_df(depot, coords, ['ID', 'Lat', 'Lng'])
@@ -289,38 +350,52 @@ _mapper = SimulationDataMapper()
 
 
 def sort_dataframe(df, metric_tosort, ascending_order=True):
+    """Wrapper for SimulationDataMapper.sort_dataframe."""
     return _mapper.sort_dataframe(df, metric_tosort, ascending_order)
 
 def get_df_types(df, prec="32"):
+    """Wrapper for SimulationDataMapper.get_df_types."""
     return _mapper.get_df_types(df, prec)
 
 def setup_df(depot, df, col_names, index_name="#bin"):
+    """Wrapper for SimulationDataMapper.setup_df."""
     return _mapper.setup_df(depot, df, col_names, index_name)
 
 def sample_df(df, n_elems, depot=None, output_path=None):
+    """Wrapper for SimulationDataMapper.sample_df."""
     return _mapper.sample_df(df, n_elems, depot, output_path)
 
 def process_indices(df, indices):
+    """Wrapper for SimulationDataMapper.process_indices."""
     return _mapper.process_indices(df, indices)
 
 def process_data(data, bins_coordinates, depot, indices=None):
+    """Wrapper for SimulationDataMapper.process_raw_data."""
     return _mapper.process_raw_data(data, bins_coordinates, depot, indices)
 
 def haversine_distance_old(lat1, lng1, lat2, lng2):
-    # Deprecated: use network.haversine_distance
+    """
+    Deprecated: use network.haversine_distance.
+    Included for backward compatibility with older simulation scripts.
+    """
     return haversine_distance(lat1, lng1, lat2, lng2)
 
 def process_coordinates(coords, method, col_names=['Lat', 'Lng']):
+    """Wrapper for SimulationDataMapper.format_coordinates."""
     return _mapper.format_coordinates(coords, method, col_names)
 
 def process_model_data(coordinates, dist_matrix, device, method, configs, 
                     edge_threshold, edge_method, area, waste_type, adj_matrix=None):
+    """Wrapper for SimulationDataMapper.process_model_input."""
     return _mapper.process_model_input(
         coordinates, dist_matrix, device, method, configs, 
         edge_threshold, edge_method, area, waste_type, adj_matrix
     )
 
 def create_dataframe_from_matrix(matrix):
+    """
+    Converts a simulation result matrix into a formatted DataFrame for reporting.
+    """
     enchimentos = [row[-1] for row in matrix]
     ids_rota = np.arange(len(matrix))
     data = pd.DataFrame({
@@ -331,6 +406,10 @@ def create_dataframe_from_matrix(matrix):
     return data
 
 def convert_to_dict(bins_coordinates):
+    """
+    Converts a coordinates DataFrame into a dictionary indexed by bin ID.
+    Used for mapping-related visualizations.
+    """
     coordinates_dict = {}
     for _, row in bins_coordinates.iterrows():
         bin_id = row['ID']
@@ -340,9 +419,13 @@ def convert_to_dict(bins_coordinates):
     return coordinates_dict
 
 def save_matrix_to_excel(matrix, results_dir, seed, data_dist, policy, sample_id):
+    """Wrapper for SimulationDataMapper.save_results."""
     return _mapper.save_results(matrix, results_dir, seed, data_dist, policy, sample_id)
 
 def setup_basedata(n_bins, data_dir, area, waste_type):
+    """
+    High-level initialization sequence to load all required simulation data.
+    """
     depot = load_depot(data_dir, area)
     data, bins_coordinates = load_simulator_data(data_dir, n_bins, area, waste_type)
     assert data.shape == bins_coordinates.shape
@@ -350,6 +433,9 @@ def setup_basedata(n_bins, data_dir, area, waste_type):
 
 def setup_dist_path_tup(bins_coordinates, size, dist_method, dm_filepath, env_filename, 
                         gapik_file, symkey_name, device, edge_thresh, edge_method, focus_idx=None):
+    """
+    Combined setup for distance matrix, shortest paths, and sparsification.
+    """
     dist_matrix = compute_distance_matrix(bins_coordinates, dist_method, dm_filepath=dm_filepath, env_filename=env_filename, 
                                           gapik_file=gapik_file, symkey_name=symkey_name, focus_idx=focus_idx)
     dist_matrix_edges, shortest_paths, adj_matrix = apply_edges(dist_matrix, edge_thresh, edge_method)

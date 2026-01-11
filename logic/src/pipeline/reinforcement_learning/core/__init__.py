@@ -12,7 +12,7 @@ Key Algorithms:
 - **PPO (`ppo.py`)**: Proximal Policy Optimization.
   - Class: `PPO`.
   - Implements the clipped objective function for more stable training updates.
-- **DR-GRPO (`dr_grpo.py`)**: Deep Reinforcement Group Relative Policy Optimization.
+- **DR-GRPO (`dr_grpo.py`)**: Group Relative Policy Optimization Done Right.
   - Class: `DR_GRPO`.
   - Specialized for group-wise relative advantages.
 - **GSPO (`gspo.py`)**: Group Shared Policy Optimization.

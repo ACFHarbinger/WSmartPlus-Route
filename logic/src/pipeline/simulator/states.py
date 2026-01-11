@@ -1,3 +1,34 @@
+"""
+State Pattern Implementation for Simulation Lifecycle Management.
+
+This module implements the State Pattern to manage the three phases of
+simulation execution: Initialization, Running, and Finishing. Each phase
+is encapsulated in a separate state class with well-defined transitions.
+
+Architecture:
+    - SimulationContext: Maintains simulation state and manages transitions
+    - SimState: Abstract base class for states
+    - InitializingState: Setup (data loading, model loading, checkpoints)
+    - RunningState: Day-by-day execution loop
+    - FinishingState: Result aggregation and persistence
+
+State Transitions:
+    InitializingState → RunningState → FinishingState → None (end)
+
+The State Pattern provides:
+    - Clear separation of lifecycle phases
+    - Explicit state transitions
+    - Centralized state management
+    - Resumption from checkpoints (re-enter RunningState)
+
+Classes:
+    SimulationContext: Context object holding simulation state
+    SimState: Abstract state interface
+    InitializingState: Initialization phase
+    RunningState: Execution phase
+    FinishingState: Finalization phase
+"""
+
 import os
 import time
 import numpy as np
@@ -17,10 +48,46 @@ from .processor import process_data, process_model_data, setup_basedata, setup_d
 
 class SimulationContext:
     """
-    Context for the Simulation State Machine.
-    Holds shared state and manages transitions.
+    Context object for the Simulation State Machine.
+
+    Manages the full lifecycle of a single simulation run, coordinating
+    transitions between initialization, execution, and finalization states.
+
+    The context holds all simulation state:
+        - Configuration (opts, device, policy)
+        - Data (bins, coordinates, distance matrices)
+        - Models (neural networks, solvers)
+        - Runtime (checkpoints, progress bars, locks)
+        - Results (logs, execution times)
+
+    State transitions are triggered by calling transition_to(new_state),
+    which updates current_state and delegates control to the new state's
+    handle() method.
+
+    Attributes:
+        opts: Simulation configuration dictionary
+        device: torch.device for neural models
+        policy: Policy identifier string
+        bins: Bins state manager
+        model_env: Loaded neural model or solver
+        checkpoint: SimulationCheckpoint for persistence
+        current_state: Active state object
+        result: Final result dictionary (populated on completion)
     """
+
     def __init__(self, opts, device, indices, sample_id, pol_id, model_weights_path, variables_dict):
+        """
+        Initializes the simulation context with configuration and shared variables.
+
+        Args:
+            opts: Dictionary of simulation options.
+            device: torch.device for tensor computations.
+            indices: List of bin indices for the current sample.
+            sample_id: Identifier for the current data sample.
+            pol_id: Index of the current policy in opts['policies'].
+            model_weights_path: Path to neural model weights.
+            variables_dict: Shared variables (locks, counters, progress bars).
+        """
         self.opts = opts
         self.device = device
         self.indices = indices
@@ -70,16 +137,34 @@ class SimulationContext:
         self.transition_to(InitializingState())
 
     def transition_to(self, state):
+        """
+        Transitions the context to a new state.
+
+        Args:
+            state: The new SimState object to transition to.
+        """
         self.current_state = state
         if self.current_state is not None:
             self.current_state.context = self
         
     def run(self):
+        """
+        Main execution loop that runs the state machine until completion.
+
+        Returns:
+            The simulation result dictionary.
+        """
         while self.current_state is not None:
             self.current_state.handle()
         return self.result
 
     def get_current_state_tuple(self):
+        """
+        Retrieves a tuple of current simulation variables for checkpointing.
+
+        Returns:
+            A tuple containing simulation state data.
+        """
         # Helper for checkpoints
         return (
             self.new_data, self.coords, self.dist_tup, None, # adj_matrix not strictly stored in context unless added
@@ -93,11 +178,21 @@ class SimState(ABC):
 
     @abstractmethod
     def handle(self):
+        """
+        Executes the logic associated with the current simulation state.
+        This method is responsible for moving the context to the next state.
+        """
         pass
 
 
 class InitializingState(SimState):
     def handle(self):
+        """
+        Handles the initialization phase of the simulation.
+        
+        Loads data, setups models, and initializes indices and distributions.
+        Transitions to RunningState upon completion.
+        """
         opts = self.context.opts
         ctx = self.context
         
@@ -214,6 +309,12 @@ class InitializingState(SimState):
 
 class RunningState(SimState):
     def handle(self):
+        """
+        Handles the day-by-day simulation execution.
+        
+        Runs the daily simulation loop, manages checkpoints, and updates progress.
+        Transitions to FinishingState after all days are processed.
+        """
         ctx = self.context
         opts = ctx.opts
         
@@ -288,6 +389,12 @@ class RunningState(SimState):
 
 class FinishingState(SimState):
     def handle(self):
+        """
+        Handles the finalization phase of the simulation.
+        
+        Aggregates results, saves logs to disk, and performs cleanup.
+        Sets the final result in the context and ends the state machine.
+        """
         ctx = self.context
         opts = ctx.opts
         
