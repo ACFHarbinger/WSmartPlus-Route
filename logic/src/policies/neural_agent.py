@@ -39,6 +39,12 @@ class NeuralAgent:
         problem: Problem instance (VRPP, WCVRP, etc.) for cost calculation
     """
     def __init__(self, model):
+        """
+        Initializes the NeuralAgent.
+
+        Args:
+            model: The neural routing model (e.g., AttentionModel).
+        """
         self.model = model
         self.problem = model.problem
 

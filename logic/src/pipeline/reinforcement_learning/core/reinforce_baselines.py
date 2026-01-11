@@ -140,7 +140,15 @@ class WarmupBaseline(Baseline):
         n_epochs: Number of epochs for the warmup period
         warmup_exp_beta: Beta parameter for the ExponentialBaseline used during warmup
     """
-    def __init__(self, baseline, n_epochs=1, warmup_exp_beta=0.8, ):
+    def __init__(self, baseline, n_epochs=1, warmup_exp_beta=0.8):
+        """
+        Initialize the WarmupBaseline.
+
+        Args:
+            baseline: The target baseline to transition to.
+            n_epochs (int): Number of epochs for the warmup period.
+            warmup_exp_beta (float): Beta for the exponential baseline.
+        """
         super(Baseline, self).__init__()
         self.baseline = baseline
         assert n_epochs > 0, "n_epochs to warmup must be positive"
@@ -149,26 +157,38 @@ class WarmupBaseline(Baseline):
         self.n_epochs = n_epochs
 
     def wrap_dataset(self, dataset):
+        """
+        Wrap dataset using current alpha-weighted baseline logic.
+        """
         if self.alpha > 0:
             return self.baseline.wrap_dataset(dataset)
         return self.warmup_baseline.wrap_dataset(dataset)
 
     def unwrap_batch(self, batch):
+        """
+        Unwrap batch using current alpha-weighted baseline logic.
+        """
         if self.alpha > 0:
             return self.baseline.unwrap_batch(batch)
         return self.warmup_baseline.unwrap_batch(batch)
 
     def eval(self, x, c):
+        """
+        Evaluate the warmup baseline (interpolation).
+        """
         if self.alpha == 1:
             return self.baseline.eval(x, c)
         if self.alpha == 0:
             return self.warmup_baseline.eval(x, c)
-        v, l = self.baseline.eval(x, c)
+        v, loss = self.baseline.eval(x, c)
         vw, lw = self.warmup_baseline.eval(x, c)
         # Return convex combination of baseline and of loss
-        return self.alpha * v + (1 - self.alpha) * vw, self.alpha * l + (1 - self.alpha) * lw
+        return self.alpha * v + (1 - self.alpha) * vw, self.alpha * loss + (1 - self.alpha) * lw
 
     def epoch_callback(self, model, epoch):
+        """
+        Update alpha based on current epoch.
+        """
         # Need to call epoch callback of inner model (also after first epoch if we have not used it)
         self.baseline.epoch_callback(model, epoch)
         if epoch < self.n_epochs:
@@ -176,10 +196,16 @@ class WarmupBaseline(Baseline):
             print("Set warmup alpha = {}".format(self.alpha))
 
     def state_dict(self):
+        """
+        Return state dict of inner baseline.
+        """
         # Checkpointing within warmup stage makes no sense, only save inner baseline
         return self.baseline.state_dict()
 
     def load_state_dict(self, state_dict):
+        """
+        Load state dict of inner baseline.
+        """
         # Checkpointing within warmup stage makes no sense, only load inner baseline
         self.baseline.load_state_dict(state_dict)
 
@@ -221,6 +247,12 @@ class ExponentialBaseline(Baseline):
         beta: Smoothing parameter (default: 0.8). Higher values = more smoothing.
     """
     def __init__(self, beta):
+        """
+        Initialize the ExponentialBaseline.
+        
+        Args:
+            beta (float): Smoothing factor (0.8 means 80% old value, 20% new value).
+        """
         super(Baseline, self).__init__()
         self.beta = beta
         self.v = None
@@ -245,11 +277,17 @@ class ExponentialBaseline(Baseline):
         return self.v, 0  # No loss
 
     def state_dict(self):
+        """
+        Return the state dict (current average value).
+        """
         return {
             'v': self.v
         }
 
     def load_state_dict(self, state_dict):
+        """
+        Load the state dict.
+        """
         self.v = state_dict['v']
 
 
@@ -274,10 +312,19 @@ class POMOBaseline(Baseline):
         pomo_size: Number of augmentations per instance (K)
     """
     def __init__(self, pomo_size):
+        """
+        Initialize the POMOBaseline.
+        
+        Args:
+            pomo_size (int): Number of augmentations/rotations per instance.
+        """
         super(Baseline, self).__init__()
         self.pomo_size = pomo_size
 
     def eval(self, x, c):
+        """
+        Evaluate POMO baseline (mean reward across augmentations).
+        """
         # c: [batch_size * pomo_size]
         B_pomo = c.size(0)
         B = B_pomo // self.pomo_size
@@ -290,8 +337,9 @@ class POMOBaseline(Baseline):
         mean_rewards = rewards.mean(dim=1)
         
         # Repeat mean rewards to match c shape: [B * pomo_size]
+        # Repeat mean rewards to match c shape: [B * pomo_size]
         v = mean_rewards.repeat_interleave(self.pomo_size)
-        
+    
         return v, 0  # No critic loss
 
 
@@ -320,6 +368,12 @@ class CriticBaseline(Baseline):
         critic: Neural network that maps states to value estimates
     """
     def __init__(self, critic):
+        """
+        Initialize the CriticBaseline.
+        
+        Args:
+            critic: The critic network module.
+        """
         super(Baseline, self).__init__()
         self.critic = critic
 
@@ -341,17 +395,29 @@ class CriticBaseline(Baseline):
         return v.detach(), F.mse_loss(v, c.detach())
 
     def get_learnable_parameters(self):
+        """
+        Get learnable parameters of the critic.
+        """
         return list(self.critic.parameters())
 
     def epoch_callback(self, model, epoch):
+        """
+        Callback at end of epoch (no-op for CriticBaseline).
+        """
         pass
 
     def state_dict(self):
+        """
+        Return state dict of the critic.
+        """
         return {
             'critic': self.critic.state_dict()
         }
 
     def load_state_dict(self, state_dict):
+        """
+        Load state dict into the critic.
+        """
         critic_state_dict = state_dict.get('critic', {})
         if not isinstance(critic_state_dict, dict):  # backwards compatibility
             critic_state_dict = critic_state_dict.state_dict()
@@ -392,12 +458,29 @@ class RolloutBaseline(Baseline):
         epoch: Current epoch number
     """
     def __init__(self, model, problem, opts, epoch=0):
+        """
+        Initialize the RolloutBaseline.
+        
+        Args:
+            model: The policy model to use for rollouts.
+            problem: The problem instance generator.
+            opts: Configuration options.
+            epoch (int): Current epoch (default: 0).
+        """
         super(Baseline, self).__init__()
         self.problem = problem
         self.opts = opts
         self._update_model(model, epoch)
 
     def _update_model(self, model, epoch, dataset=None):
+        """
+        Update the baseline model with a deep copy of the current model.
+
+        Args:
+            model: Current policy model.
+            epoch (int): Current epoch.
+            dataset: Optional dataset to use validation (default: generated).
+        """
         self.model = copy.deepcopy(model)
         # Always generate baseline dataset when updating model to prevent overfitting to the baseline dataset
 
@@ -425,15 +508,18 @@ class RolloutBaseline(Baseline):
         self.epoch = epoch
 
     def wrap_dataset(self, dataset):
+        """Wrap the dataset with rollout baseline values."""
         print("Evaluating baseline on dataset...")
         # Need to convert baseline to 2D to prevent converting to double, see
         # https://discuss.pytorch.org/t/dataloader-gives-double-instead-of-float/717/3
         return BaselineDataset(dataset, rollout(self.model, dataset, self.opts).view(-1, 1))
 
     def unwrap_batch(self, batch):
+        """Unwrap the batch."""
         return batch['data'], batch['baseline'].view(-1)  # Flatten result to undo wrapping as 2D
 
     def eval(self, x, c):
+        """Evaluate the rollout baseline."""
         # Use volatile mode for efficient inference (single batch so we do not use rollout function)
         with torch.no_grad():
             v, _, _ = self.model(x)
@@ -465,6 +551,7 @@ class RolloutBaseline(Baseline):
                 self._update_model(model, epoch)
 
     def state_dict(self):
+        """Return state dict including model, dataset, and epoch."""
         return {
             'model': self.model,
             'dataset': self.dataset,
@@ -472,6 +559,7 @@ class RolloutBaseline(Baseline):
         }
 
     def load_state_dict(self, state_dict):
+        """Load state dict."""
         # We make it such that it works whether model was saved as data parallel or not
         load_model = copy.deepcopy(self.model)
         get_inner_model(load_model).load_state_dict(get_inner_model(state_dict['model']).state_dict())
@@ -479,17 +567,45 @@ class RolloutBaseline(Baseline):
 
 
 class BaselineDataset(torch.utils.data.Dataset):
+    """
+    dataset wrapping baseline values for training.
+
+    Wraps the original dataset and corresponding baseline values to provide
+    clean access during training batches.
+    """
     def __init__(self, dataset=None, baseline=None):
+        """
+        Initialize the BaselineDataset.
+
+        Args:
+            dataset: Original training dataset.
+            baseline: Tensor of baseline values corresponding to the dataset.
+        """
         super(BaselineDataset, self).__init__()
         self.dataset = dataset
         self.baseline = baseline
         assert (len(self.dataset) == len(self.baseline))
 
     def __getitem__(self, item):
+        """
+        Get a data item and its baseline value.
+
+        Args:
+            item (int): Index.
+
+        Returns:
+            dict: {'data': ..., 'baseline': ...}
+        """
         return {
             'data': self.dataset[item],
             'baseline': self.baseline[item]
         }
 
     def __len__(self):
+        """
+        Get the dataset length.
+
+        Returns:
+            int: Length.
+        """
         return len(self.dataset)

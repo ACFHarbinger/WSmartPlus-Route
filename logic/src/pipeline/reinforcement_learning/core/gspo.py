@@ -19,6 +19,9 @@ class GSPOTrainer(TimeTrainer):
     Optimizes policy at the sequence level using group-based advantage normalization.
     """
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the GSPOTrainer.
+        """
         super().__init__(*args, **kwargs)
         self.epsilon = self.opts.get('gspo_epsilon', 0.2)
         self.gspo_epochs = self.opts.get('gspo_epochs', 3)

@@ -278,6 +278,7 @@ class SCWCVRP(object):
         fixed = model.precompute_fixed(input)
 
         def propose_expansions(beam):
+            """Proposes expansions for the beam using the model."""
             return model.propose_expansions(
                 beam,
                 fixed,
