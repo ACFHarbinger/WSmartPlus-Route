@@ -1,3 +1,4 @@
+"""Normalization layer wrapper supporting various types (Batch, Layer, Instance)."""
 import math
 import torch.nn as nn
 
@@ -5,6 +6,9 @@ from typing import Optional
 
 
 class Normalization(nn.Module):
+    """
+    Wrapper for various Normalization layers (Batch, Layer, Instance).
+    """
     def __init__(self, 
                 embed_dim: int, 
                 norm_name: str='batch', 
@@ -15,6 +19,20 @@ class Normalization(nn.Module):
                 n_groups: Optional[int]=None, 
                 kval: Optional[float]=None,
                 bias: Optional[bool]=True):
+        """
+        Initializes the normalization layer.
+
+        Args:
+            embed_dim: Embedding dimension.
+            norm_name: Type of normalization ('batch', 'layer', 'instance', 'group', 'local_response').
+            eps_alpha: Epsilon value for numerical stability.
+            learn_affine: If True, learn affine parameters (weight and bias).
+            track_stats: If True, track running statistics for BatchNorm/InstanceNorm.
+            mbval: Momentum for running statistics or beta for LocalResponseNorm.
+            n_groups: Number of groups for GroupNorm.
+            kval: k value for LocalResponseNorm.
+            bias: If True, add bias for LayerNorm.
+        """
         super(Normalization, self).__init__()
         
         if norm_name == 'instance':
@@ -38,11 +56,22 @@ class Normalization(nn.Module):
             self.init_parameters()
 
     def init_parameters(self):
+        """Initializes the affine parameters if applicable."""
         for param in self.parameters():
             stdv = 1. / math.sqrt(param.size(-1))
             param.data.uniform_(-stdv, stdv)
 
     def forward(self, input, mask=None):
+        """
+        Applies the normalization to the input.
+
+        Args:
+            input: Input tensor.
+            mask: Optional mask (currently not used by normalization layers).
+
+        Returns:
+            Normalized tensor.
+        """
         if isinstance(self.normalizer, nn.BatchNorm1d):
             return self.normalizer(input.view(-1, input.size(-1))).view(*input.size())
         elif isinstance(self.normalizer, nn.InstanceNorm1d):

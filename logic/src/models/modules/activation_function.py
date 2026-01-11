@@ -1,3 +1,4 @@
+"""Activation functions wrapper for neural networks."""
 import math
 import torch
 import torch.nn as nn
@@ -6,6 +7,12 @@ from typing import Optional, Tuple
 
 
 class ActivationFunction(nn.Module):
+    """
+    Wrapper for various activation functions in PyTorch.
+    
+    Provides a unified interface to instantiate different activation functions
+    by name, with support for parameters like threshold, negative slope, etc.
+    """
     def __init__(self, 
                 af_name: str='relu', 
                 fparam: Optional[float]=None,
@@ -14,8 +21,21 @@ class ActivationFunction(nn.Module):
                 n_params: Optional[int]=None,
                 urange: Optional[Tuple[float, float]]=None,
                 inplace: Optional[bool]=False):
+        """
+        Initializes the activation function.
+
+        Args:
+            af_name: Name of the activation function (e.g., 'relu', 'leakyrelu').
+            fparam: Float parameter for activations (e.g., alpha for ELU, negative_slope for LeakyReLU).
+            tval: Threshold value (used in Softshrink, Hardshrink, etc.).
+            rval: Replacement value (used in global replacement logic if needed).
+            n_params: Number of parameters for PReLU.
+            urange: Uniform range for RReLU (lower, upper).
+            inplace: Whether to perform the operation in-place.
+        """
         super(ActivationFunction, self).__init__()
-        if tval and rval is None and not af_name == 'softplus': rval = tval # Replacement value = threshold
+        if tval and rval is None and not af_name == 'softplus': 
+            rval = tval # Replacement value = threshold
         if af_name == 'relu':
             self.activation = nn.ReLU(inplace=inplace)
         elif af_name == 'leakyrelu':
@@ -78,11 +98,22 @@ class ActivationFunction(nn.Module):
             self.apply_threshold = False
 
     def init_parameters(self):
+        """Initializes the parameters of the activation function using uniform distribution."""
         for param in self.parameters():
             stdv = 1. / math.sqrt(param.size(-1))
             param.data.uniform_(-stdv, stdv)
 
     def forward(self, input, mask=None):
+        """
+        Applies the activation function to the input.
+
+        Args:
+            input: Input tensor.
+            mask: Optional mask (not used by default activations but kept for interface).
+
+        Returns:
+            Output tensor.
+        """
         out = self.activation(input)
         if self.apply_threshold:
             out = torch.where(out > self.tval, self.rval, out)
