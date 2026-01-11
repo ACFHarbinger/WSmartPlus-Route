@@ -1,3 +1,15 @@
+"""
+Base Trainer Module for REINFORCE-based Training Loops.
+
+This module provides an abstract base class implementing the Template Method design pattern
+for REINFORCE-style policy gradient training. It defines the common training loop structure
+while allowing subclasses to customize specific steps like dataset initialization and
+day/epoch training logic.
+
+The Template Method pattern ensures consistency across different training variants
+(Standard, Time-based, HRL, Meta-learning) while enabling customization where needed.
+"""
+
 from abc import ABC, abstractmethod
 
 from logic.src.utils.log_utils import log_epoch
@@ -7,6 +19,34 @@ from logic.src.utils.visualize_utils import visualize_epoch
 class BaseReinforceTrainer(ABC):
     """
     Abstract base trainer implementing the Template Method pattern for REINFORCE training loops.
+
+    This class provides the skeleton of a REINFORCE training algorithm, defining the overall
+    training flow while delegating specific steps to subclasses. It manages the training loop,
+    logging, checkpointing, and coordination with meta-learners for dynamic weight adjustment.
+
+    The training loop follows this structure:
+    1. Setup meta-learner (if applicable)
+    2. Initialize training dataset
+    3. For each day/epoch:
+        a. Update context (meta-learning hook)
+        b. Train for one day/epoch (implemented by subclasses)
+        c. Post-day processing (logging, visualization, checkpointing)
+        d. Process feedback (meta-learning hook)
+
+    Attributes:
+        model: The neural network model to train
+        optimizer: PyTorch optimizer for model parameters
+        baseline: Baseline object for variance reduction in policy gradients
+        lr_scheduler: Learning rate scheduler (optional)
+        scaler: GradScaler for mixed precision training (optional)
+        val_dataset: Validation dataset
+        problem: Problem environment (VRPP, WCVRP, etc.)
+        tb_logger: TensorBoard logger
+        cost_weights: Dictionary of weights for multi-objective cost function
+        opts: Training options/hyperparameters dictionary
+        step: Global training step counter
+        day: Current training day/epoch
+        weight_optimizer: Meta-learner for dynamic weight adjustment (optional)
     """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
         self.model = model
@@ -27,24 +67,64 @@ class BaseReinforceTrainer(ABC):
     def setup_meta_learner(self):
         """
         Initialize the meta-learner if needed.
+
+        This hook is called once at the beginning of training to set up any meta-learning
+        components (e.g., weight optimizers, contextual bandits, hypernetworks).
+        Subclasses that use meta-learning should override this method.
+
+        The default implementation does nothing.
         """
         pass
 
     def update_context(self):
         """
         Update context/weights before the day/epoch starts.
+
+        This hook is called at the beginning of each training day/epoch, before train_day().
+        It allows the trainer to:
+        - Update cost function weights based on meta-learning
+        - Adjust hyperparameters dynamically
+        - Update the training dataset (for time-based training)
+        - Prepare any context-specific state
+
+        The default implementation does nothing.
         """
         pass
 
     def process_feedback(self):
         """
         Provide feedback to the meta-learner after training step/day.
+
+        This hook is called at the end of each training day/epoch, after post_day_processing().
+        It allows the trainer to:
+        - Send performance metrics to meta-learners
+        - Update meta-learning models based on training results
+        - Adjust strategies for the next iteration
+
+        The default implementation does nothing.
         """
         pass
 
     def train(self):
         """
         Main training loop (Template Method).
+
+        This method orchestrates the entire training process using the Template Method pattern.
+        It defines the skeleton of the algorithm while allowing subclasses to customize
+        specific steps through hook methods.
+
+        Flow:
+        1. setup_meta_learner() - Initialize meta-learning components
+        2. Synchronize initial weights if meta-learner exists
+        3. initialize_training_dataset() - Prepare training data
+        4. For each day/epoch until max_days:
+            a. update_context() - Pre-day hook
+            b. train_day() - Execute one day of training (implemented by subclasses)
+            c. post_day_processing() - Logging, visualization, checkpointing
+            d. process_feedback() - Meta-learning feedback
+            e. Check stopping criteria
+
+        This method should not be overridden by subclasses.
         """
         self.setup_meta_learner()
         
@@ -77,20 +157,60 @@ class BaseReinforceTrainer(ABC):
                 break
 
     def initialize_training_dataset(self):
+        """
+        Initialize or load the training dataset.
+
+        This hook is called once before the training loop starts. Subclasses should override
+        this method to:
+        - Load or generate the training dataset
+        - Set up time-dependent data structures (for time-based training)
+        - Configure data-specific parameters
+
+        The default implementation does nothing (assumes dataset is set elsewhere or not needed).
+        """
         pass
 
     @abstractmethod
     def train_day(self):
         """
-        Execute training for a single day (iterate over dataloader).
-        Must be implemented by subclasses.
+        Execute training for a single day/epoch (iterate over dataloader).
+
+        This is the core training method that must be implemented by all subclasses.
+        It should:
+        1. Iterate over batches in the training dataset
+        2. For each batch:
+            - Forward pass through the model
+            - Compute loss (REINFORCE, PPO, or variant)
+            - Backward pass and optimizer step
+        3. Accumulate metrics for logging
+
+        Expected side effects:
+        - Updates self.daily_loss with loss metrics
+        - Updates self.step counter
+        - May update self.log_pi and self.log_costs for time-based training
+
+        This method is called once per day/epoch by the train() template method.
         """
         pass
 
     def post_day_processing(self):
         """
         Common post-day processing: Logging, Visualization, Checkpointing.
-        Subclasses can override, but usually calling super() or this implementation is sufficient.
+
+        This method is called automatically after each train_day() execution. It handles:
+        1. Logging metrics to TensorBoard and console (via log_epoch)
+        2. Visualization of routes/solutions (if enabled via visualize_step option)
+        3. Model validation on val_dataset
+        4. Checkpointing model state
+        5. Learning rate scheduling
+        6. Baseline updates
+
+        Subclasses can override this method to add custom post-processing, but should
+        typically call super().post_day_processing() to maintain standard behavior.
+
+        Expects:
+        - self.daily_loss to be set by train_day()
+        - self.day_duration to be set by train_day() (optional)
         """
         # Note: self.daily_loss must be set by train_day
         if hasattr(self, 'daily_loss'):
@@ -107,13 +227,40 @@ class BaseReinforceTrainer(ABC):
         )
 
     def _should_stop(self):
+        """
+        Check if training should stop early.
+
+        This internal method is called at the end of each training day/epoch to determine
+        if training should terminate before reaching max_days. Subclasses can override this
+        to implement custom stopping criteria (e.g., convergence detection, performance thresholds).
+
+        Returns:
+            bool: True if training should stop, False to continue
+        """
         return False
 
     def train_batch(self, batch, batch_id, opt_step=True):
-        # Logic extracted from train_batch_reinforce in reinforce.py
-        # This seems to be shared logic used by most trainers.
-        # Moving it here for reuse if possible, or keep in specific trainers?
-        # Trainers typically inherit from BaseReinforceTrainer, so having it here or in a Mixin is good.
-        # But 'train_day' calls 'train_batch'.
-        # Let's put abstract method here or implement default.
+        """
+        Train on a single batch.
+
+        This method contains the core logic for processing a single batch. Most trainers
+        inherit this implementation from StandardTrainer in reinforce.py, but it's defined
+        here as a placeholder.
+
+        Args:
+            batch: Dictionary containing batch data (inputs, targets, etc.)
+            batch_id: Index of the current batch in the dataloader
+            opt_step: If True, perform optimizer step; if False, only compute gradients
+
+        Returns:
+            tuple: (pi, c_dict, l_dict, cost, state_tensors)
+                - pi: Action sequences/tours generated by the model
+                - c_dict: Dictionary of cost components (overflows, kg, km, etc.)
+                - l_dict: Dictionary of loss components (total, reinforce_loss, baseline_loss, etc.)
+                - cost: Scalar or tensor representing total cost
+                - state_tensors: Dictionary of intermediate tensors (for off-policy algorithms)
+
+        Raises:
+            NotImplementedError: Subclasses must implement or inherit this method
+        """
         raise NotImplementedError

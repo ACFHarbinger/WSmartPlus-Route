@@ -1,3 +1,23 @@
+"""
+REINFORCE Trainer Implementations.
+
+This module provides concrete implementations of REINFORCE-based trainers for various
+training scenarios. All trainers inherit from BaseReinforceTrainer and implement
+specific training strategies:
+
+- StandardTrainer: Basic REINFORCE with optional imitation learning
+- TimeTrainer: Sequential time-dependent training with environment state evolution
+- RWATrainer: Reward Weight Adaptation using learnable meta-models
+- ContextualBanditTrainer: Dynamic weight selection using contextual bandits
+- TDLTrainer: Task-Dependent Learning with adaptive cost weights
+- MORLTrainer: Multi-Objective Reinforcement Learning
+- HyperNetworkTrainer: Meta-learning with hypernetworks
+- HRLTrainer: Hierarchical Reinforcement Learning with manager-worker architecture
+
+Each trainer implements the train_day() method to define its specific training logic
+while inheriting the common training loop structure from BaseReinforceTrainer.
+"""
+
 import time
 import torch
 import numpy as np
@@ -9,7 +29,7 @@ from logic.src.pipeline.reinforcement_learning.core.epoch import (
 )
 from logic.src.pipeline.reinforcement_learning.core.post_processing import local_search_2opt_vectorized
 from logic.src.pipeline.reinforcement_learning.meta import (
-    RewardWeightOptimizer, WeightContextualBandit, 
+    RewardWeightOptimizer, WeightContextualBandit,
     CostWeightManager, MORLWeightOptimizer
 )
 from logic.src.pipeline.reinforcement_learning.policies.hgs_vectorized import VectorizedHGS
@@ -18,6 +38,27 @@ from logic.src.pipeline.reinforcement_learning.core.base import BaseReinforceTra
 
 
 class StandardTrainer(BaseReinforceTrainer):
+    """
+    Standard REINFORCE trainer with optional imitation learning.
+
+    Implements vanilla policy gradient training with:
+    - REINFORCE algorithm for policy optimization
+    - Baseline for variance reduction (exponential, critic, rollout, or POMO)
+    - Optional imitation learning from expert solutions (2-opt or HGS)
+    - Gradient accumulation support
+    - Mixed precision training via GradScaler
+
+    The train_batch method implements the core REINFORCE update:
+    1. Sample action from policy: a ~ π(·|s)
+    2. Compute reward/cost: R = cost(a, s)
+    3. Calculate advantage: A = R - baseline(s)
+    4. Policy gradient loss: L = A * log π(a|s)
+    5. Optional imitation loss: L_imit = -log π(a_expert|s)
+    6. Total loss: L_total = L + λ * L_imit
+
+    This trainer is used for standard (non-temporal) problems or as a base
+    for more advanced training strategies.
+    """
     def initialize_training_dataset(self):
         pass
 
@@ -273,14 +314,39 @@ class StandardTrainer(BaseReinforceTrainer):
 
 class TimeTrainer(StandardTrainer):
     """
-    Trainer for time-dependent Reinforcement Learning.
-    Handles sequential updates of 'waste' or other time-variant features in the dataset.
+    Trainer for time-dependent Reinforcement Learning with environment state evolution.
+
+    Extends StandardTrainer to handle sequential waste collection scenarios where:
+    - Bin fill levels change over time (waste accumulation)
+    - Routes from day N affect the state on day N+1
+    - The agent must learn long-term planning strategies
+    - Multi-step returns are computed when using temporal horizons
+
+    Key Features:
+    - Sequential dataset updates: Visited bins are emptied, unvisited bins accumulate waste
+    - Temporal horizon support: Can look ahead H days for better decision making
+    - Discounted return computation: G_t = R_t + γ * G_{t+1}
+    - Compatible with temporal models (TAM) that use fill history
+
+    Workflow:
+    1. Train on day D with current bin states
+    2. Generate routes using the policy
+    3. Update dataset: empty visited bins, add daily waste to all bins
+    4. Repeat for day D+1 with updated state
+
+    This creates a non-stationary training environment that better reflects
+    real-world waste collection dynamics.
+
+    Attributes:
+        horizon_buffer: List storing rollouts across multiple days for multi-step returns
+        horizon: Number of days to accumulate before computing returns
+        gamma: Discount factor for future rewards
     """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
-        
-        self.horizon_buffer = [] 
-        self.horizon = opts.get('temporal_horizon', 1) 
+
+        self.horizon_buffer = []
+        self.horizon = opts.get('temporal_horizon', 1)
         self.gamma = opts.get('gamma', 0.99) 
 
     def initialize_training_dataset(self):
@@ -419,6 +485,21 @@ class TimeTrainer(StandardTrainer):
 
 
 class RWATrainer(StandardTrainer):
+    """
+    Reward Weight Adaptation (RWA) Trainer.
+
+    Uses a meta-learning model (RNN or other) to dynamically adapt cost function weights
+    during training. The meta-model observes training performance and adjusts weights to
+    optimize for better solutions.
+
+    The RewardWeightOptimizer learns to predict optimal weight configurations based on:
+    - Historical performance metrics
+    - Current cost distribution
+    - Training dynamics
+
+    This approach automates the hyperparameter tuning of cost weights, adapting them
+    throughout training rather than keeping them fixed.
+    """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.weight_optimizer = RewardWeightOptimizer(num_objectives=len(cost_weights))
@@ -449,6 +530,20 @@ class RWATrainer(StandardTrainer):
         pass
 
 class ContextualBanditTrainer(TimeTrainer):
+    """
+    Contextual Bandit Trainer for dynamic weight selection.
+
+    Uses a multi-armed bandit approach to select from a discrete set of weight configurations.
+    The bandit algorithm (e.g., UCB, Thompson Sampling) learns which weight configurations
+    work best in different contexts/situations.
+
+    Unlike RWA which learns continuous weight adaptations, this trainer:
+    - Maintains a fixed portfolio of weight configurations
+    - Selects one configuration per day based on exploration-exploitation tradeoff
+    - Updates selection probabilities based on observed rewards
+
+    Combines with TimeTrainer to handle time-dependent training scenarios.
+    """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.weight_optimizer = None
@@ -472,16 +567,38 @@ class ContextualBanditTrainer(TimeTrainer):
             self.weight_optimizer.feedback(reward, metrics=None, day=self.day)
 
 class TDLTrainer(StandardTrainer):
+    """
+    Task-Dependent Learning (TDL) Trainer.
+
+    Manages cost weights adaptively based on task characteristics using a CostWeightManager.
+    The manager adjusts weights to balance multiple objectives dynamically during training.
+    """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.weight_optimizer = CostWeightManager(num_objectives=len(cost_weights))
 
 class MORLTrainer(StandardTrainer):
+    """
+    Multi-Objective Reinforcement Learning (MORL) Trainer.
+
+    Optimizes for multiple objectives simultaneously using a MORLWeightOptimizer.
+    Learns to find Pareto-optimal solutions that balance competing objectives
+    (e.g., minimizing distance vs. minimizing overflows vs. maximizing waste collected).
+    """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.weight_optimizer = MORLWeightOptimizer(num_objectives=len(cost_weights))
 
 class HyperNetworkTrainer(TimeTrainer):
+    """
+    HyperNetwork Meta-Learning Trainer.
+
+    Uses a hypernetwork to generate model parameters or weights based on task context.
+    The hypernetwork learns to produce optimal configurations for different problem instances
+    or environmental conditions, enabling fast adaptation to new scenarios.
+
+    Combines meta-learning with time-dependent training for dynamic waste collection.
+    """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.hyper_optimizer = HypernetworkOptimizer(
@@ -492,6 +609,17 @@ class HyperNetworkTrainer(TimeTrainer):
         )
 
 class HRLTrainer(StandardTrainer):
+    """
+    Hierarchical Reinforcement Learning (HRL) Trainer.
+
+    Implements a two-level hierarchy:
+    - Manager (GATLSTManager): Decides WHEN to dispatch collection vehicles
+    - Worker (Attention Model): Decides WHICH route to take when dispatched
+
+    The manager observes temporal bin fill patterns and outputs gating probabilities,
+    while the worker focuses on solving the routing subproblem. This decomposition
+    helps tackle the joint routing and scheduling challenge more effectively.
+    """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
         super().__init__(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts)
         self.hrl_manager = GATLSTManager(device=opts['device'])

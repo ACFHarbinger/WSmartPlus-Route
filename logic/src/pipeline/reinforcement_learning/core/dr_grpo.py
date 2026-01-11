@@ -1,3 +1,10 @@
+"""
+DR-GRPO (GRPO done Right) Implementation.
+
+This module implements the DR-GRPO algorithm as described in recent RL literature.
+It improves upon standard GRPO by using group sampling, unnormalized centered advantages,
+and a sequence-level objective without length normalization.
+"""
 import time
 import torch
 from tqdm import tqdm
@@ -125,7 +132,14 @@ class DRGRPOTrainer(TimeTrainer):
 
     def update_dr_grpo(self, rollouts):
         """
-        DR-GRPO Update Logic.
+        Perform DR-GRPO updates using collected rollouts.
+
+        This method calculates the unnormalized advantages for each group and
+        updates the policy using the clipped DR-GRPO objective.
+
+        Args:
+            rollouts: List of rollout dictionaries containing batch data,
+                      actions, log probs, and rewards.
         """
         if not rollouts:
             return
