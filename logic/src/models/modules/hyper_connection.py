@@ -1,13 +1,21 @@
+"""Static and Dynamic Hyper-Network connections."""
 import torch
 import torch.nn as nn
 
 
 class StaticHyperConnection(nn.Module):
     """
-    Static Hyper-Connections:
-    Learns fixed matrices A_r (width), A_m (input), and B (depth) to route information.
+    Hyper-connection with static width/depth expansion.
     """
     def __init__(self, module: nn.Module, hyper_dim: int, expansion_rate: int = 4):
+        """
+        Initializes the static hyper-connection.
+
+        Args:
+            module: The neural network module to wrap.
+            hyper_dim: Hyper-network dimension.
+            expansion_rate: Width/depth expansion rate.
+        """
         super().__init__()
         self.module = module
         self.n = expansion_rate
@@ -18,6 +26,9 @@ class StaticHyperConnection(nn.Module):
         self.depth_mixer = nn.Parameter(torch.randn(1, self.n) * 0.01)
 
     def forward(self, H, *args, **kwargs):
+        """
+        Forward pass for static hyper connection.
+        """
         # H shape: (Batch, Seq, Dim, n)
         
         # 1. Collapse streams for the sub-layer (A_m)
@@ -39,23 +50,33 @@ class StaticHyperConnection(nn.Module):
 
 class DynamicHyperConnection(nn.Module):
     """
-    Dynamic Hyper-Connections:
-    Uses a lightweight predictor to generate A_r, A_m, and B specific to each token's input.
+    Dynamic Hyper-Connection Network (DyHCN).
+    
+    Dynamically generates connection weights based on input context using a predictor network.
+    Uses 'streams' (n) concepts to mix information.
     """
-    def __init__(self, module: nn.Module, hyper_dim: int, expansion_rate: int = 4):
-        super().__init__()
+    def __init__(self, module, embed_dim, n=4):
+        """
+        Initializes the dynamic hyper-connection.
+
+        Args:
+            module: The sub-module to wrap.
+            embed_dim: Embedding dimension.
+            n: Number of streams.
+        """
+        super(DynamicHyperConnection, self).__init__()
         self.module = module
-        self.n = expansion_rate
-        self.hyper_dim = hyper_dim
+        self.n = n
+        self.embed_dim = embed_dim
         
         # Calculate total parameters needed for matrices: n*n (width) + n (input) + n (depth)
         self.num_params = (self.n * self.n) + self.n + self.n
         
         # Predictor Network: Maps input embedding -> Matrix Weights
         self.predictor = nn.Sequential(
-            nn.Linear(hyper_dim, hyper_dim // 4),
+            nn.Linear(embed_dim, embed_dim // 4),
             nn.ReLU(),
-            nn.Linear(hyper_dim // 4, self.num_params)
+            nn.Linear(embed_dim // 4, self.num_params)
         )
 
         self._initialize_identity_bias()
@@ -77,6 +98,17 @@ class DynamicHyperConnection(nn.Module):
         self.predictor[-1].bias.data.copy_(initial_bias)
 
     def forward(self, H, *args, **kwargs):
+        """
+        Applies the dynamic hyper-connection.
+
+        Args:
+            H: Input tensor of shape (Batch, Seq, Dim, n).
+            *args: Additional arguments for the sub-module.
+            **kwargs: Additional keyword arguments for the sub-module.
+
+        Returns:
+            Updated tensor.
+        """
         # H shape: (Batch, Seq, Dim, n)
         
         # 1. Generate a proxy input for the predictor (e.g., mean of streams)

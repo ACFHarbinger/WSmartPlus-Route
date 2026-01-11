@@ -1,3 +1,4 @@
+"""Gated Graph Convolution (GatedGCN) with explicit edge updates."""
 import math
 import torch
 import torch.nn as nn
@@ -16,6 +17,12 @@ class GatedGraphConvolution(nn.Module):
         - X. Bresson and T. Laurent. An experimental study of neural networks for variable graphs. In International Conference on Learning Representations, 2018.
         - V. P. Dwivedi, C. K. Joshi, T. Laurent, Y. Bengio, and X. Bresson. Benchmarking graph neural networks. arXiv preprint arXiv:2003.00982, 2020.
     """
+    """
+    Gated Graph Convolution Layer (GatedGCN).
+    
+    Explicitly models edge features and uses a gating mechanism to control
+    information flow between neighbors. Updates both node and edge features.
+    """
     def __init__(self, 
                 hidden_dim: int,
                 aggregation: str = "sum",
@@ -24,6 +31,16 @@ class GatedGraphConvolution(nn.Module):
                 learn_affine: bool = True,
                 gated: bool = True,
                 bias: bool = True):
+        """
+        Args:
+            hidden_dim: Dimension of hidden features (input and output are assumed same size).
+            aggregation: Aggregation method ('sum', 'mean', 'max').
+            norm: Normalization type ('batch', 'layer', 'instance').
+            activation: Activation function name.
+            learn_affine: Whether normalization layers have learnable affine parameters.
+            gated: Whether to use the gating mechanism.
+            bias: Whether to use a bias term in linear layers.
+        """
         super(GatedGraphConvolution, self).__init__()
         self.hidden_dim = hidden_dim
         self.aggregation = aggregation
@@ -43,6 +60,7 @@ class GatedGraphConvolution(nn.Module):
         self.activation = ActivationFunction(activation)
     
     def reset_parameters(self):
+        """Initializes the parameters of the layer using uniform distribution."""
         for param in self.parameters():
             stdv = 1. / math.sqrt(param.size(-1))
             param.data.uniform_(-stdv, stdv)
