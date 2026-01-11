@@ -1,27 +1,115 @@
+"""
+Data Loading and Repository Pattern for Simulation Initialization.
+
+This module implements the Repository Pattern to abstract data access for
+simulation setup. It loads geographic coordinates, waste statistics, and
+area-specific parameters from the filesystem.
+
+Architecture:
+    - SimulationRepository: Abstract interface for data access
+    - FileSystemRepository: Concrete implementation using CSV/Excel files
+    - Module-level functions: Convenience    - [x] `loader.py` (Missing methods in Repository classes and standalone functions)
+    - [/] `network.py` (Missing methods in Distance strategies and path functions)
+    - Historical waste data (fill rates, accumulation)
+    - Area parameters (vehicle capacity, revenue, density, expenses)
+    - Depot locations (waste processing facilities)
+
+Geographic Areas:
+    - Rio Maior (Portugal): 317 bins, real sensor data
+    - Figueira da Foz: 1094 bins
+    - Mix RM/BAC: Virtual test instances (20-225 bins)
+
+Classes:
+    SimulationRepository: Abstract data access interface
+    FileSystemRepository: File-based data loader
+"""
+
 import os
 import json
 import pandas as pd
 import logic.src.utils.definitions as udef
 from abc import ABC, abstractmethod
 
+
 class SimulationRepository(ABC):
+    """
+    Abstract interface for simulation data access.
+
+    Defines the contract for loading geographic, waste, and configuration
+    data required to initialize simulations. Implementations can source
+    data from files, databases, APIs, or other backends.
+
+    Methods:
+        get_indices: Load or generate bin subset indices
+        get_depot: Retrieve depot (facility) coordinates
+        get_simulator_data: Load waste statistics and bin coordinates
+        get_area_params: Get area-specific parameters (capacity, revenue, etc.)
+    """
+
     @abstractmethod
     def get_indices(self, filename, n_samples, n_nodes, data_size, lock=None):
+        """
+        Loads or generates a list of bin indices for simulation samples.
+
+        Args:
+            filename: JSON file containing pre-selected indices.
+            n_samples: Number of random samples to generate if file missing.
+            n_nodes: Number of bins per sample.
+            data_size: Total number of bins available in the dataset.
+            lock: Optional multiprocessing Lock for file I/O.
+
+        Returns:
+            List[List[int]]: Nested list of bin indices.
+        """
         pass
-        
+
     @abstractmethod
     def get_depot(self, area, data_dir=None):
+        """
+        Retrieves the depot coordinates for a given area.
+
+        Args:
+            area: Name of the geographic area.
+            data_dir: Optional override for the data directory.
+
+        Returns:
+            pd.DataFrame: DataFrame containing depot ID, Lat, Lng, and metadata.
+        """
         pass
-        
+
     @abstractmethod
     def get_simulator_data(self, number_of_bins, area='Rio Maior', waste_type=None, lock=None, data_dir=None):
+        """
+        Loads waste statistics and coordinate data for the simulator.
+
+        Args:
+            number_of_bins: Target number of nodes.
+            area: Geographic area name.
+            waste_type: Waste stream type.
+            lock: Optional multiprocessing Lock.
+            data_dir: Optional override for the data directory.
+
+        Returns:
+            Tuple[pd.DataFrame, pd.DataFrame]: (Waste statistics, Bin coordinates).
+        """
         pass
-        
+
     @abstractmethod
     def get_area_params(self, area, waste_type):
         pass
 
+
 class FileSystemRepository(SimulationRepository):
+    """
+    File-based implementation of SimulationRepository.
+
+    Loads data from CSV, Excel, and JSON files stored in the project's
+    data/wsr_simulator directory. Supports multiple geographic areas
+    and waste types with area-specific file naming conventions.
+
+    Attributes:
+        default_data_dir: Root directory for simulation data files
+    """
     def __init__(self, data_root_dir):
         self.default_data_dir = os.path.join(data_root_dir, "data", "wsr_simulator")
     
@@ -29,6 +117,9 @@ class FileSystemRepository(SimulationRepository):
         return override_dir if override_dir else self.default_data_dir
     
     def get_indices(self, filename, n_samples, n_nodes, data_size, lock=None):
+        """
+        Implementation of get_indices that persists generated indices to JSON.
+        """
         graphs_file_path = os.path.join(self.default_data_dir, 'bins_selection', filename)
         if os.path.isfile(graphs_file_path):
             if lock is not None: lock.acquire(timeout=udef.LOCK_TIMEOUT)
@@ -60,6 +151,9 @@ class FileSystemRepository(SimulationRepository):
         return indices
 
     def get_depot(self, area, data_dir=None):
+        """
+        Implementation of get_depot that reads from Facilities.csv.
+        """
         src_area = area.translate(str.maketrans('', '', '-_ ')).lower()
         d_dir = self._get_data_dir(data_dir)
         facilities = pd.read_csv(os.path.join(d_dir, 'coordinates', 'Facilities.csv'))
@@ -71,6 +165,9 @@ class FileSystemRepository(SimulationRepository):
         return pd.concat([depot_df, new_cols], axis=1)
 
     def get_simulator_data(self, number_of_bins, area='Rio Maior', waste_type=None, lock=None, data_dir=None):
+        """
+        Implementation of get_simulator_data that handles area-specific file logic.
+        """
         d_dir = self._get_data_dir(data_dir)
         def _preprocess_county_date(data, date_str="Date"):
             data[date_str] = pd.to_datetime(data[date_str], format = "%Y-%m-%d")
@@ -182,6 +279,28 @@ class FileSystemRepository(SimulationRepository):
         return data.sort_values(by='ID').reset_index(drop=True), bins_coordinates.sort_values(by='ID').reset_index(drop=True)
 
     def get_area_params(self, area, waste_type):
+        """
+        Retrieves area and waste-type specific simulation parameters.
+
+        Returns physical and economic parameters calibrated for specific
+        geographic areas and waste streams. Values are based on real-world
+        data from Portuguese waste management operations.
+
+        Args:
+            area: Geographic area ('Rio Maior', 'Figueira da Foz', etc.)
+            waste_type: Waste stream ('paper', 'plastic', 'glass')
+
+        Returns:
+            Tuple containing:
+                - vehicle_capacity: Max bin capacity units per vehicle (%)
+                - revenue: Revenue per kg of collected waste (€/kg)
+                - density: Waste density (kg/L)
+                - expenses: Cost per km traveled (€/km)
+                - bin_volume: Individual bin volume (L)
+
+        Raises:
+            AssertionError: If waste_type or area not recognized
+        """
         expenses = 1 
         bin_volume = 2.5 
         src_area = area.translate(str.maketrans('', '', '-_ ')).lower()
@@ -221,15 +340,26 @@ class FileSystemRepository(SimulationRepository):
 _repository = FileSystemRepository(udef.ROOT_DIR)
 
 def load_indices(filename, n_samples, n_nodes, data_size, lock=None):
+    """
+    Convenience wrapper to load indices from the singleton repository.
+    """
     return _repository.get_indices(filename, n_samples, n_nodes, data_size, lock)
 
 def load_depot(data_dir, area='Rio Maior'):
+    """
+    Convenience wrapper to load depot coords from the singleton repository.
+    """
     return _repository.get_depot(area, data_dir=data_dir)
 
 def load_simulator_data(data_dir, number_of_bins, area='Rio Maior', waste_type=None, lock=None):
+    """
+    Convenience wrapper to load simulator data from the singleton repository.
+    """
     return _repository.get_simulator_data(number_of_bins, area, waste_type, lock, data_dir=data_dir)
 
 def load_area_and_waste_type_params(area, waste_type):
+    """
+    Convenience wrapper to load area params from the singleton repository.
+    """
     return _repository.get_area_params(area, waste_type)
-
 

@@ -1,3 +1,31 @@
+"""
+High-Level Simulation Orchestration and Parallelization.
+
+This module provides the top-level entry points for running simulations:
+single runs, sequential batches, and parallel execution via multiprocessing.
+
+Responsibilities:
+    - Worker process initialization (shared locks/counters)
+    - Sequential simulation loops with progress tracking
+    - Aggregate statistics computation (mean, std dev)
+    - JSON logging and result persistence
+
+Architecture:
+    - single_simulation: Worker function for one (policy, sample) pair
+    - sequential_simulations: Runs multiple samples sequentially
+    - init_single_sim_worker: Multiprocessing initializer
+    - display_log_metrics: Pretty-prints results to terminal
+
+The simulation execution delegates to SimulationContext (states.py)
+which manages the state machine for each run.
+
+Functions:
+    init_single_sim_worker: Initialize globals for parallel workers
+    single_simulation: Execute one simulation run
+    sequential_simulations: Execute batch of runs sequentially
+    display_log_metrics: Format and display aggregated results
+"""
+
 import os
 import statistics
 
@@ -12,9 +40,18 @@ from .states import SimulationContext
 _lock = None
 _counter = None
 
+
 def init_single_sim_worker(lock_from_main, counter_from_main):
     """
-    Initializes globals for the single_simulation worker.
+    Initializes global shared resources for parallel simulation workers.
+    
+    This function is called by the multiprocessing Pool during its worker
+    initialization phase. It sets process-global variables to ensure all
+    simulations can access the shared lock and counter.
+
+    Args:
+        lock_from_main: Multiprocessing Lock for file I/O synchronization.
+        counter_from_main: Multiprocessing Value for overall progress tracking.
     """
     global _lock
     global _counter
@@ -23,6 +60,23 @@ def init_single_sim_worker(lock_from_main, counter_from_main):
 
 
 def display_log_metrics(output_dir, size, n_samples, days, area, policies, log, log_std=None, lock=None):
+    """
+    Pretty-prints aggregated simulation results to the console.
+
+    Formats and displays metrics for multiple policies, including mean values
+    and standard deviations if multiple samples were processed.
+
+    Args:
+        output_dir: Base directory for results.
+        size: Graph size (number of bins).
+        n_samples: Number of samples/seeds processed.
+        days: Simulation duration in days.
+        area: Geographic area name.
+        policies: List of policy names.
+        log: Dict mapping policy name to mean metrics list.
+        log_std: Dict mapping policy name to std dev metrics list (optional).
+        lock: Thread/process lock for safe printing/logging.
+    """
     if n_samples > 1:
         output_dir = os.path.join(ROOT_DIR, "assets", output_dir, str(days) + "_days", str(area) + '_' + str(size))
         dit = {}
@@ -48,6 +102,24 @@ def display_log_metrics(output_dir, size, n_samples, days, area, policies, log, 
 
 
 def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_path, n_cores):
+    """
+    Executes a single simulation run for one (policy, sample) pair.
+
+    Worker function for parallel execution via multiprocessing. Retrieves
+    shared locks/counters from globals and delegates to SimulationContext.
+
+    Args:
+        opts: Simulation configuration dictionary
+        device: torch.device for neural models
+        indices: Bin subset indices for this sample
+        sample_id: Sample/seed identifier
+        pol_id: Policy index in opts['policies']
+        model_weights_path: Path to pretrained model weights
+        n_cores: Number of CPU cores (for progress bar positioning)
+
+    Returns:
+        Result dictionary from SimulationContext.run()
+    """
     # Retrieve the shared objects via the global variables initialized by init_worker
     global _lock
     global _counter
@@ -63,6 +135,30 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
 
 
 def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weights_path, lock):
+    """
+    Executes multiple simulation runs sequentially with aggregation.
+
+    Runs all (policy, sample) pairs in sequence, computing mean and standard
+    deviation across samples. Displays overall progress bar and handles
+    checkpoint errors gracefully.
+
+    Args:
+        opts: Simulation configuration dictionary
+        device: torch.device for neural models
+        indices_ls: List of bin index arrays (one per sample)
+        sample_idx_ls: List of sample IDs for each policy
+        model_weights_path: Path to pretrained model weights
+        lock: Threading lock for file I/O synchronization
+
+    Returns:
+        Tuple containing:
+            - log: Dict[policy] -> List[mean_metrics]
+            - log_std: Dict[policy] -> List[std_metrics] (None if n_samples=1)
+            - failed_log: List of error result dictionaries
+
+    Note:
+        If opts['resume']=True, loads existing logs instead of recomputing.
+    """
     log = {}
     failed_log = []
     if opts['n_samples'] > 1:
