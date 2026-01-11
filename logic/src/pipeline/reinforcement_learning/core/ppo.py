@@ -1,3 +1,9 @@
+"""
+Proximal Policy Optimization (PPO) Implementation.
+
+This module implements the standard PPO algorithm, a popular policy gradient method
+that uses a clipped surrogate objective to ensure stable policy updates.
+"""
 import time
 import torch
 from tqdm import tqdm
@@ -115,6 +121,15 @@ class PPOTrainer(TimeTrainer):
         self.daily_total_samples = daily_total_samples
 
     def update_ppo(self, rollouts):
+        """
+        Perform PPO updates on collected rollouts.
+
+        This method iterates through the collected data (multiple epochs) and performs
+        mini-batch updates using the PPO clipped objective.
+
+        Args:
+            rollouts: List of dictionaries containing rollout data.
+        """
         if not rollouts: 
             return
 

@@ -1,3 +1,9 @@
+"""
+Soft Adaptive Policy Optimization (SAPO) Implementation.
+
+This module implements SAPO, which adaptively adjusts clipping based on the sign
+of the advantage, using soft gates instead of hard clipping for smoother updates.
+"""
 import time
 import torch
 
@@ -119,6 +125,15 @@ class SAPOTrainer(TimeTrainer):
         self.daily_total_samples = daily_total_samples
 
     def update_sapo(self, rollouts):
+        """
+        Perform SAPO updates on collected rollouts.
+
+        Calculates advantages and applies the Soft Adaptive Policy Optimization update,
+        using an asymmetric soft-clipping mechanism based on advantage sign.
+
+        Args:
+            rollouts: List of rollout dictionaries.
+        """
         if not rollouts: 
             return
 

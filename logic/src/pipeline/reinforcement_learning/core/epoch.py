@@ -1,3 +1,20 @@
+"""
+Epoch Management Utilities for REINFORCE Training.
+
+This module provides utility functions for managing training epochs, validation,
+dataset preparation, and model updates during the REINFORCE training loop.
+
+Key responsibilities:
+- Dataset initialization and time-based updates
+- Validation rollouts and metric computation
+- Gradient clipping and normalization
+- Batch preparation and preprocessing
+- Model state management (DataParallel unwrapping)
+
+These functions are used by trainer classes to orchestrate the training flow
+while keeping the core logic modular and reusable.
+"""
+
 import os
 import json
 import time
@@ -12,16 +29,48 @@ from logic.src.utils.data_utils import generate_waste_prize
 
 
 def set_decode_type(model, decode_type):
+    """
+    Set the decoding strategy for the model.
+
+    This function handles DataParallel-wrapped models by accessing the underlying module.
+
+    Args:
+        model: Neural model (potentially wrapped in DataParallel)
+        decode_type: String specifying decode type ('greedy', 'sampling', 'beam_search')
+    """
     if isinstance(model, torch.nn.DataParallel):
         model = model.module
     model.set_decode_type(decode_type)
 
 
 def get_inner_model(model):
+    """
+    Extract the inner model from a DataParallel wrapper.
+
+    Args:
+        model: PyTorch model (potentially wrapped in DataParallel)
+
+    Returns:
+        The unwrapped model instance
+    """
     return model.module if isinstance(model, torch.nn.DataParallel) else model
 
 
 def validate(model, dataset, opts):
+    """
+    Validate the model on a dataset using greedy decoding.
+
+    Performs a rollout on the validation dataset with greedy decoding to assess
+    model performance. Prints validation statistics and returns the average cost.
+
+    Args:
+        model: Neural model to validate
+        dataset: Validation dataset
+        opts: Options dictionary containing device, batch size, etc.
+
+    Returns:
+        torch.Tensor: Average cost across all validation instances
+    """
     # Validate
     print('Validating...')
     cost = rollout(model, dataset, opts)
@@ -33,13 +82,27 @@ def validate(model, dataset, opts):
 
 
 def rollout(model, dataset, opts):
+    """
+    Perform a complete rollout over a dataset.
+
+    Evaluates the model on all instances in the dataset using greedy decoding.
+    Handles temporal models (TAM) by initializing fill history if needed.
+
+    Args:
+        model: Neural model to evaluate
+        dataset: Dataset to roll out on
+        opts: Options dictionary with configuration parameters
+
+    Returns:
+        torch.Tensor: Costs for all instances in the dataset [num_instances]
+    """
     def _eval_model_bat(bat):
         with torch.no_grad():
             ucost, _, _, _, _ = model(move_to(bat, opts['device']), cost_weights=None)
         return ucost.data.cpu()
 
     set_decode_type(model, "greedy")
-    model.eval()    
+    model.eval()
     if opts['temporal_horizon'] > 0 and opts['model'] in ['tam']:
         dataset.fill_history = torch.zeros((opts['val_size'], opts['graph_size'], opts['temporal_horizon']))
         dataset.fill_history[:, :, -1] = torch.stack([instance['waste'] for instance in dataset.data])
@@ -47,7 +110,7 @@ def rollout(model, dataset, opts):
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=opts['eval_batch_size'], pin_memory=True)
     costs = []
     for bat_id, bat in enumerate(tqdm(dataloader, disable=opts['no_progress_bar'])):
-        bat = prepare_batch(bat, bat_id, dataset, dataloader, opts)      
+        bat = prepare_batch(bat, bat_id, dataset, dataloader, opts)
         cost = _eval_model_bat(bat)
         costs.append(cost)
     return torch.cat(costs, 0)
@@ -180,11 +243,19 @@ def validate_update(model, dataset, cw_dict, opts):
 
 def clip_grad_norms(param_groups, max_norm=math.inf):
     """
-    Clips the norms for all param groups to max_norm and returns gradient norms before clipping
-    :param optimizer:
-    :param max_norm:
-    :param gradient_norms_log:
-    :return: grad_norms, clipped_grad_norms: list with (clipped) gradient norms per group
+    Clip gradient norms for all parameter groups.
+
+    Applies gradient norm clipping to prevent exploding gradients during training.
+    Returns both original and clipped gradient norms for monitoring.
+
+    Args:
+        param_groups: List of parameter groups from optimizer (optimizer.param_groups)
+        max_norm: Maximum allowed gradient norm (default: math.inf for no clipping)
+
+    Returns:
+        tuple: (grad_norms, clipped_grad_norms)
+            - grad_norms: List of original gradient norms (L2) per parameter group
+            - clipped_grad_norms: List of clipped gradient norms per parameter group
     """
     grad_norms = [
         torch.nn.utils.clip_grad_norm_(
@@ -199,6 +270,29 @@ def clip_grad_norms(param_groups, max_norm=math.inf):
 
 
 def prepare_epoch(optimizer, epoch, problem, tb_logger, cost_weights, opts):
+    """
+    Prepare a training epoch by initializing dataset and logging configuration.
+
+    This function is called at the start of each training epoch to:
+    1. Log the epoch/day start with current learning rate
+    2. Initialize the loss tracking keys
+    3. Create or load the training dataset
+    4. Calculate the global step counter
+
+    Args:
+        optimizer: PyTorch optimizer
+        epoch: Current epoch/day number
+        problem: Problem environment (VRPP, WCVRP, etc.)
+        tb_logger: TensorBoard logger
+        cost_weights: Dictionary of cost function weights
+        opts: Training options dictionary
+
+    Returns:
+        tuple: (step, training_dataset, loss_keys)
+            - step: Global step counter for this epoch
+            - training_dataset: Dataset for this epoch
+            - loss_keys: List of loss component names to track
+    """
     print("Start train {} {}, lr={} for run {}".format(
         "day" if opts['train_time'] else "epoch", epoch, optimizer.param_groups[0]['lr'], opts['run_name']))
     step = epoch * (opts['epoch_size'] // opts['batch_size'])
@@ -272,6 +366,34 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
 
 
 def complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, epoch, step, epoch_duration, tb_logger, cost_weights, opts, manager=None):
+    """
+    Complete a training epoch with validation, checkpointing, and cleanup.
+
+    This function is called at the end of each training epoch to:
+    1. Log epoch completion time
+    2. Save model checkpoint (if configured)
+    3. Run validation on val_dataset
+    4. Update baseline model
+    5. Step learning rate scheduler
+    6. Clear CUDA cache
+
+    Args:
+        model: Neural model being trained
+        optimizer: PyTorch optimizer
+        baseline: Baseline object for variance reduction
+        lr_scheduler: Learning rate scheduler (or None)
+        val_dataset: Validation dataset
+        epoch: Current epoch/day number
+        step: Global step counter
+        epoch_duration: Time taken for this epoch (seconds)
+        tb_logger: TensorBoard logger
+        cost_weights: Dictionary of cost function weights
+        opts: Training options dictionary
+        manager: Meta-learning manager (optional)
+
+    Returns:
+        None
+    """
     print("Finished {} {}, took {} s".format(
         "day" if opts['train_time'] else "epoch", epoch, time.strftime('%H:%M:%S', time.gmtime(epoch_duration))))
     if (opts['checkpoint_epochs'] != 0 and epoch % opts['checkpoint_epochs'] == 0) or epoch == opts['n_epochs'] - 1:
@@ -303,6 +425,26 @@ def complete_train_pass(model, optimizer, baseline, lr_scheduler, val_dataset, e
 
 
 def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
+    """
+    Prepare a batch for model input by adding dataset-specific information.
+
+    This function augments the batch dictionary with:
+    1. Fill history for temporal models (TAM)
+    2. Proper fill day indexing for multi-day horizons
+    3. Edge information for graph-based encoders
+    4. Distance matrix for routing problems
+
+    Args:
+        batch: Dictionary containing batch data from dataloader
+        batch_id: Index of current batch
+        dataset: The dataset being iterated
+        dataloader: The dataloader producing batches
+        opts: Options dictionary with model configuration
+        day: Current day for time-based training (default: 1)
+
+    Returns:
+        dict: Augmented batch dictionary ready for model input
+    """
     if opts['model'] in ['tam'] and opts['temporal_horizon'] > 0:
         batch_size = dataloader.batch_size
         start_idx = batch_id * batch_size
@@ -332,6 +474,31 @@ def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
 
 
 def update_time_dataset(model, optimizer, dataset, routes, day, opts, args, costs=None):
+    """
+    Update dataset state for time-based training after a day's routes.
+
+    This function simulates the passage of time in waste collection by:
+    1. Emptying bins that were visited in the routes
+    2. Adding new waste accumulation (daily fill)
+    3. Generating future fill amounts for the temporal horizon
+    4. Updating fill history for temporal models (TAM)
+    5. Handling POMO augmentation if used
+
+    The dataset is modified in-place to reflect the state for the next training day.
+
+    Args:
+        model: Neural model (used for TAM fill history updates)
+        optimizer: PyTorch optimizer
+        dataset: Dataset to update
+        routes: Generated routes from previous day [batch_size, max_seq_len]
+        day: Current day number
+        opts: Options dictionary
+        args: Additional arguments (e.g., bins object for empirical data)
+        costs: Costs for POMO samples (optional, for selecting best route)
+
+    Returns:
+        Dataset: The updated dataset (modified in-place)
+    """
     data_size = dataset.size
     if isinstance(routes, list):
         routes = torch.cat(routes, 0)
