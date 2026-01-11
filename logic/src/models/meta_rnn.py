@@ -1,3 +1,6 @@
+"""
+This module contains the Meta RNN model for dynamic weight adjustment.
+"""
 import torch.nn as nn
 
 
@@ -9,11 +12,13 @@ class WeightAdjustmentRNN(nn.Module):
     """
     def __init__(self, input_size, hidden_size, output_size, num_layers=1):
         """
+        Initialize the WeightAdjustmentRNN.
+
         Args:
-            input_size: Size of input features (current weights + performance metrics)
-            hidden_size: Size of RNN hidden state
-            output_size: Size of output (number of weights to adjust)
-            num_layers: Number of recurrent layers
+            input_size (int): Size of input features (current weights + performance metrics).
+            hidden_size (int): Size of RNN hidden state.
+            output_size (int): Size of output (number of weights to adjust).
+            num_layers (int, optional): Number of recurrent layers. Defaults to 1.
         """
         super(WeightAdjustmentRNN, self).__init__()
         self.hidden_size = hidden_size
@@ -52,14 +57,16 @@ class WeightAdjustmentRNN(nn.Module):
     
     def forward(self, x, hidden=None):
         """
-        Forward pass through the RNN
+        Forward pass through the RNN.
         
         Args:
-            x: Input tensor of shape [batch_size, seq_len, input_size]
-            hidden: Initial hidden state
+            x (torch.Tensor): Input tensor of shape [batch_size, seq_len, input_size].
+            hidden (tuple, optional): Initial hidden state. Defaults to None.
             
         Returns:
-            Weight adjustment recommendations and final hidden state
+            tuple: (weight_adjustments, hidden)
+                   - weight_adjustments: Predicted weight adjustments.
+                   - hidden: Final hidden state.
         """
         lstm_out, hidden = self.lstm(x, hidden)
         

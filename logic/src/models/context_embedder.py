@@ -1,3 +1,6 @@
+"""
+This module contains the Context Embedder implementations for various VRP variants.
+"""
 import torch
 import torch.nn as nn
 from abc import ABC, abstractmethod
@@ -9,6 +12,14 @@ class ContextEmbedder(nn.Module, ABC):
     Responsible for initializing node embeddings and determining step context dimensions.
     """
     def __init__(self, embedding_dim, node_dim, temporal_horizon):
+        """
+        Initialize the ContextEmbedder.
+
+        Args:
+            embedding_dim (int): Dimension of the embedding.
+            node_dim (int): Dimension of node features.
+            temporal_horizon (int): Temporal horizon for features.
+        """
         super(ContextEmbedder, self).__init__()
         self.embedding_dim = embedding_dim
         self.node_dim = node_dim
@@ -23,40 +34,62 @@ class ContextEmbedder(nn.Module, ABC):
         self.init_embed = None 
 
     @abstractmethod
-    def init_node_embeddings(self, nodes, temporal_features=True):
+    def init_node_embeddings(self, input):
         """
-        Compute initial embeddings for all nodes.
-        
+        Initialize node embeddings from input data.
+
         Args:
-            nodes: Dictionary of node features (loc, diff, etc.)
-            temporal_features: Boolean to include temporal features
-            
-        Returns:
-            Embeddings tensor [batch_size, graph_size+1, embedding_dim]
+            input (dict): Input data dictionary.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses.
         """
-        pass
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def step_context_dim(self):
         """
-        Return the dimension of the step context vector.
+        Get the dimension of the step context.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses.
         """
-        pass
+        raise NotImplementedError()
 
 
 class WCContextEmbedder(ContextEmbedder):
     """
-    Context Embedder for Waste Collection (WC) families (wcvrp, cwcvrp, sdwcvrp).
+    Context Embedder for Waste Collection (WC) problems.
     """
     def __init__(self, embedding_dim, node_dim=3, temporal_horizon=0):
+        """
+        Initialize the WCContextEmbedder.
+
+        Args:
+            embedding_dim (int): Dimension of the embedding.
+            node_dim (int, optional): Dimension of node features. Defaults to 3.
+            temporal_horizon (int, optional): Temporal horizon for features. Defaults to 0.
+        """
         super(WCContextEmbedder, self).__init__(embedding_dim, node_dim, temporal_horizon)
         
-        # Input: loc(2) + waste(1) + temporal_horizon
+        # Input: loc(2) + waste(1) + temporal_horizon + capacity/etc?
+        # Actually in WC we usually have loc(2) + current_fill(1) + history...
         input_dim = node_dim + temporal_horizon
         self.init_embed = nn.Linear(input_dim, embedding_dim)
+        self.init_embed_depot = nn.Linear(2, embedding_dim)  # Depot is just loc(2)
 
     def init_node_embeddings(self, nodes, temporal_features=True):
+        """
+        Initialize node embeddings for WC problems.
+
+        Args:
+            nodes (dict): Dictionary of node features.
+            temporal_features (bool, optional): Whether to include temporal features. Defaults to True.
+
+        Returns:
+            torch.Tensor: Combined embeddings for depot and nodes.
+        """
         if temporal_features:
             features = tuple(['waste'] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
         else:
@@ -82,6 +115,12 @@ class WCContextEmbedder(ContextEmbedder):
 
     @property
     def step_context_dim(self):
+        """
+        Get the dimension of the step context for WC.
+
+        Returns:
+            int: Step context dimension (embedding_dim + 2).
+        """
         # WC uses embedding_dim + 2 (usually related to capacity/remaining length/etc)
         return self.embedding_dim + 2
 
@@ -91,6 +130,14 @@ class VRPPContextEmbedder(ContextEmbedder):
     Context Embedder for VRP with Profits (VRPP) families (vrpp, cvrpp).
     """
     def __init__(self, embedding_dim, node_dim=3, temporal_horizon=0):
+        """
+        Initialize the VRPPContextEmbedder.
+
+        Args:
+            embedding_dim (int): Dimension of the embedding.
+            node_dim (int, optional): Dimension of node features. Defaults to 3.
+            temporal_horizon (int, optional): Temporal horizon for features. Defaults to 0.
+        """
         super(VRPPContextEmbedder, self).__init__(embedding_dim, node_dim, temporal_horizon)
         
         # Input: loc(2) + waste(1) + temporal_horizon
@@ -100,8 +147,19 @@ class VRPPContextEmbedder(ContextEmbedder):
         
         input_dim = node_dim + temporal_horizon
         self.init_embed = nn.Linear(input_dim, embedding_dim)
+        self.init_embed_depot = nn.Linear(2, embedding_dim) # Added this line as it was missing from the original and needed for init_node_embeddings
 
     def init_node_embeddings(self, nodes, temporal_features=True):
+        """
+        Initialize node embeddings for VRPP problems.
+
+        Args:
+            nodes (dict): Dictionary of node features.
+            temporal_features (bool, optional): Whether to include temporal features. Defaults to True.
+
+        Returns:
+            torch.Tensor: Combined embeddings for depot and nodes.
+        """
         # Logic identical to WC in original code, reused here
         if temporal_features:
             features = tuple(['waste'] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
@@ -123,5 +181,11 @@ class VRPPContextEmbedder(ContextEmbedder):
 
     @property
     def step_context_dim(self):
+        """
+        Get the dimension of the step context for VRPP.
+
+        Returns:
+            int: Step context dimension (embedding_dim + 1).
+        """
         # VRPP uses embedding_dim + 1
         return self.embedding_dim + 1

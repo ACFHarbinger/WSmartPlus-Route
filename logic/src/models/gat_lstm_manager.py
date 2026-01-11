@@ -1,4 +1,6 @@
-
+"""
+This module contains the GAT-LSTM Manager agent implementation for Hierarchical RL.
+"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -24,6 +26,23 @@ class GATLSTManager(nn.Module):
                  dropout=0.1,
                  device='cuda',
                  shared_encoder=None):
+        """
+        Initialize the GATLSTManager.
+
+        Args:
+            input_dim_static (int, optional): Static input dimension (e.g., coordinates). Defaults to 2.
+            input_dim_dynamic (int, optional): Dynamic input dimension (e.g., waste history). Defaults to 10.
+            global_input_dim (int, optional): Global input dimension (e.g., avg waste). Defaults to 2.
+            critical_threshold (float, optional): Threshold for critical waste levels. Defaults to 0.9.
+            batch_size (int, optional): Batch size. Defaults to 1024.
+            hidden_dim (int, optional): Hidden dimension size. Defaults to 128.
+            lstm_hidden (int, optional): LSTM hidden dimension. Defaults to 64.
+            num_layers_gat (int, optional): Number of GAT layers. Defaults to 3.
+            num_heads (int, optional): Number of attention heads. Defaults to 8.
+            dropout (float, optional): Dropout rate. Defaults to 0.1.
+            device (str, optional): Computation device. Defaults to 'cuda'.
+            shared_encoder (nn.Module, optional): Shared encoder instance. Defaults to None.
+        """
         super(GATLSTManager, self).__init__()
         self.device = device
         self.batch_size = batch_size
@@ -40,7 +59,7 @@ class GATLSTManager(nn.Module):
                  
                  if isinstance(val, int):
                      hidden_dim = val
-             except:
+             except Exception:
                  pass
              
         self.hidden_dim = hidden_dim
@@ -110,6 +129,9 @@ class GATLSTManager(nn.Module):
             self.mask_head[-1].bias.fill_(0)
 
     def clear_memory(self):
+        """
+        Clear the memory buffers used for PPO.
+        """
         self.states_static = []
         self.states_dynamic = []
         self.states_global = []
@@ -124,9 +146,16 @@ class GATLSTManager(nn.Module):
 
     def feature_processing(self, static, dynamic):
         """
-        static: (Batch, N, 2)
-        dynamic: (Batch, N, History)
-        Returns: (Batch, N, Hidden), (Batch, N, lstm_hidden)
+        Process static and dynamic features using LSTM and Linear layers.
+
+        Args:
+            static (torch.Tensor): Static features (Batch, N, 2).
+            dynamic (torch.Tensor): Dynamic features (Batch, N, History).
+
+        Returns:
+            tuple: (x, temporal_embed)
+                   - x: Combined features projected to hidden dimension (Batch, N, Hidden).
+                   - temporal_embed: Temporal embeddings from LSTM (Batch, N, lstm_hidden).
         """
         B, N, H_len = dynamic.size()
         
@@ -147,8 +176,18 @@ class GATLSTManager(nn.Module):
 
     def forward(self, static, dynamic, global_features):
         """
-        Returns logits for mask and gate, and state value.
-        global_features: (Batch, global_input_dim)
+        Forward pass of the Manager Agent.
+
+        Args:
+            static (torch.Tensor): Static features.
+            dynamic (torch.Tensor): Dynamic features.
+            global_features (torch.Tensor): Global features (Batch, global_input_dim).
+
+        Returns:
+            tuple: (mask_logits, gate_logits, value)
+                   - mask_logits: Logits for node masking.
+                   - gate_logits: Logits for route gating.
+                   - value: Estimated state value.
         """
         # Encode
         x, temporal_embed = self.feature_processing(static, dynamic) # (B, N, H)
@@ -184,12 +223,19 @@ class GATLSTManager(nn.Module):
 
     def select_action(self, static, dynamic, global_features=None, deterministic=False, threshold=0.5, mask_threshold=0.5, target_mask=None):
         """
-        static: (Batch, N, 2) - Locations
-        dynamic: (Batch, N, 1) - Waste levels
-        global_features: (Batch, 3) - Global context
-        threshold: float - Probability threshold for gate=1 (Route) when deterministic
-        mask_threshold: float - Probability threshold for mask=1 (Unmask) when deterministic
-        target_mask: (Batch, N) of 0/1 or None - Expert target for mask auxiliary loss
+        Select actions (gate and mask) based on the current state.
+
+        Args:
+            static (torch.Tensor): Static features (Batch, N, 2).
+            dynamic (torch.Tensor): Dynamic features (Batch, N, History).
+            global_features (torch.Tensor, optional): Global features. Defaults to None.
+            deterministic (bool, optional): Whether to act deterministically. Defaults to False.
+            threshold (float, optional): Probability threshold for gate=1 (Route) when deterministic. Defaults to 0.5.
+            mask_threshold (float, optional): Probability threshold for mask=1 (Unmask) when deterministic. Defaults to 0.5.
+            target_mask (torch.Tensor, optional): Expert target for mask auxiliary loss. Defaults to None.
+
+        Returns:
+            tuple: (mask_action, gate_action, value)
         """
         mask_logits, gate_logits, value = self.forward(static, dynamic, global_features)
         

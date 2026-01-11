@@ -1,3 +1,6 @@
+"""
+This module contains the Hypernetwork implementation for adaptive cost weight generation.
+"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,6 +14,19 @@ class Hypernetwork(nn.Module):
     Takes temporal and performance metrics as input and outputs cost weights.
     """
     def __init__(self, problem, n_days=365, embedding_dim=16, hidden_dim=64, normalization='layer', activation='relu', learn_affine=True, bias=True):
+        """
+        Initialize the Hypernetwork.
+
+        Args:
+            problem (object): The problem instance wrapper.
+            n_days (int, optional): Number of days in the year. Defaults to 365.
+            embedding_dim (int, optional): Dimension of time embedding. Defaults to 16.
+            hidden_dim (int, optional): Dimension of hidden layers. Defaults to 64.
+            normalization (str, optional): Normalization type. Defaults to 'layer'.
+            activation (str, optional): Activation function. Defaults to 'relu'.
+            learn_affine (bool, optional): Whether to learn affine parameters in norm. Defaults to True.
+            bias (bool, optional): Whether to use bias in linear layers. Defaults to True.
+        """
         super(Hypernetwork, self).__init__()
         self.problem = problem
         self.is_wc = problem.NAME == 'wcvrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
@@ -41,6 +57,9 @@ class Hypernetwork(nn.Module):
         self.init_weights()
     
     def init_weights(self):
+        """
+        Initialize weights for the linear layers using Xavier Uniform initialization.
+        """
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 nn.init.xavier_uniform_(m.weight)
@@ -77,7 +96,21 @@ class HypernetworkOptimizer:
     """
     Manages the hypernetwork training and integration with the main RL training loop.
     """
+    """
+    Manages the hypernetwork training and integration with the main RL training loop.
+    """
     def __init__(self, cost_weight_keys, constraint_value, device, problem, lr=1e-4, buffer_size=100):
+        """
+        Initialize the HypernetworkOptimizer.
+
+        Args:
+            cost_weight_keys (list): List of keys for cost weights.
+            constraint_value (float): Constraint value for weight normalization.
+            device (torch.device): Device to run the model on.
+            problem (object): The problem instance.
+            lr (float, optional): Learning rate. Defaults to 1e-4.
+            buffer_size (int, optional): Size of the experience buffer. Defaults to 100.
+        """
         self.input_dim = 6  # [efficiency, overflows, kg, km, kg_lost, day_progress]
         self.output_dim = len(cost_weight_keys)
         self.cost_weight_keys = cost_weight_keys
@@ -102,6 +135,15 @@ class HypernetworkOptimizer:
         self.best_weights = None
     
     def update_buffer(self, metrics, day, weights, performance):
+        """
+        Add experience to buffer.
+
+        Args:
+            metrics (torch.Tensor): Performance metrics.
+            day (int): Current day.
+            weights (torch.Tensor): Applied weights.
+            performance (float): Resulting performance value.
+        """
         """Add experience to buffer"""
         self.buffer.append({
             'metrics': metrics,
@@ -120,6 +162,12 @@ class HypernetworkOptimizer:
             self.best_weights = weights.clone()
     
     def train(self, epochs=10):
+        """
+        Train hypernetwork on buffered experiences.
+
+        Args:
+            epochs (int, optional): Number of training epochs. Defaults to 10.
+        """
         """Train hypernetwork on buffered experiences"""
         if len(self.buffer) < 10:  # Need minimum samples to train
             return
