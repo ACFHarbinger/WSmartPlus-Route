@@ -1,3 +1,10 @@
+
+"""
+Group Sequence Policy Optimization (GSPO) Implementation.
+
+This module implements the GSPO algorithm which optimizes policy at the sequence level
+using group-based advantage normalization, where the group is defined as the mini-batch.
+"""
 import time
 import torch
 from tqdm import tqdm

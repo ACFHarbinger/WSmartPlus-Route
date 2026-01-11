@@ -1,3 +1,26 @@
+"""
+Baseline Methods for Variance Reduction in REINFORCE.
+
+This module implements various baseline strategies to reduce the variance of policy gradient
+estimators in REINFORCE-style training. Baselines subtract a state-dependent value from the
+reward to center the advantage, improving gradient estimation without introducing bias.
+
+Available Baselines:
+- NoBaseline: No variance reduction (baseline = 0)
+- ExponentialBaseline: Exponential moving average of returns
+- POMOBaseline: POMO (Policy Optimization with Multiple Optima) averaging
+- CriticBaseline: Learned value function via critic network
+- RolloutBaseline: Self-critic using greedy policy rollouts
+- WarmupBaseline: Gradual transition between two baselines
+
+Mathematical Foundation:
+The policy gradient estimator is: ∇_θ J(θ) = E[∇_θ log π_θ(a|s) * (R - b(s))]
+where b(s) is a baseline that depends only on state, not action.
+A good baseline reduces variance while maintaining unbiasedness.
+
+Reference: Attention, Learn to Solve Routing Problems (Kool et al., 2019)
+"""
+
 import copy
 import torch
 import scipy.stats as stats
@@ -8,29 +31,115 @@ from logic.src.pipeline.reinforcement_learning.core.epoch import rollout, get_in
 
 # Attention, Learn to Solve Routing Problems
 class Baseline(object):
+    """
+    Abstract base class for all baseline methods.
+
+    Baselines provide a state-dependent value estimate b(s) that is subtracted from
+    rewards to compute advantages: A = R - b(s). This reduces gradient variance
+    without introducing bias (since E[b(s)] doesn't depend on actions).
+
+    Subclasses must implement the eval() method and can override other methods
+    to customize behavior (dataset wrapping, parameter learning, etc.).
+    """
     def wrap_dataset(self, dataset):
+        """
+        Optionally wrap the dataset to attach precomputed baseline values.
+
+        Args:
+            dataset: Training dataset
+
+        Returns:
+            Wrapped or original dataset
+        """
         return dataset
 
     def unwrap_batch(self, batch):
+        """
+        Extract data and baseline values from a batch.
+
+        Args:
+            batch: Batch from dataloader (potentially wrapped)
+
+        Returns:
+            tuple: (batch_data, baseline_values)
+        """
         return batch, None
 
     def eval(self, x, c):
+        """
+        Evaluate the baseline for a given state and cost.
+
+        Args:
+            x: State/input batch
+            c: Cost/reward for the batch
+
+        Returns:
+            tuple: (baseline_value, baseline_loss)
+                - baseline_value: Estimated baseline b(x)
+                - baseline_loss: Loss for training the baseline (if learnable)
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
+        """
         raise NotImplementedError("Override this method")
 
     def get_learnable_parameters(self):
+        """
+        Get parameters that should be optimized during training.
+
+        Returns:
+            list: List of PyTorch parameters (empty for non-learnable baselines)
+        """
         return []
 
     def epoch_callback(self, model, epoch):
+        """
+        Callback executed at the end of each training epoch.
+
+        Allows baselines to update their state (e.g., RolloutBaseline updates
+        its model if the current policy improves).
+
+        Args:
+            model: Current policy model
+            epoch: Current epoch number
+        """
         pass
 
     def state_dict(self):
+        """
+        Get baseline state for checkpointing.
+
+        Returns:
+            dict: State dictionary for saving
+        """
         return {}
 
     def load_state_dict(self, state_dict):
+        """
+        Load baseline state from checkpoint.
+
+        Args:
+            state_dict: Previously saved state dictionary
+        """
         pass
 
 
 class WarmupBaseline(Baseline):
+    """
+    Gradual transition from a simple baseline to a more complex one.
+
+    Useful for stabilizing training at the start when a RolloutBaseline or CriticBaseline
+    might be unreliable. Starts with an ExponentialBaseline and gradually transitions to
+    the target baseline over n_epochs using linear interpolation.
+
+    The baseline value is computed as: b(x) = α * b_target(x) + (1 - α) * b_warmup(x)
+    where α increases from 0 to 1 over the warmup period.
+
+    Args:
+        baseline: Target baseline to transition to
+        n_epochs: Number of epochs for the warmup period
+        warmup_exp_beta: Beta parameter for the ExponentialBaseline used during warmup
+    """
     def __init__(self, baseline, n_epochs=1, warmup_exp_beta=0.8, ):
         super(Baseline, self).__init__()
         self.baseline = baseline
@@ -76,17 +185,57 @@ class WarmupBaseline(Baseline):
 
 
 class NoBaseline(Baseline):
+    """
+    No baseline - returns zero for all states.
+
+    This is the simplest baseline (no variance reduction). Useful for:
+    - Debugging/ablation studies
+    - Problems with naturally low variance
+    - Sanity checks
+
+    Results in the raw REINFORCE gradient estimator with high variance.
+    """
     def eval(self, x, c):
+        """Returns zero baseline and zero loss."""
         return 0, 0  # No baseline, no loss
 
 
 class ExponentialBaseline(Baseline):
+    """
+    Exponential moving average (EMA) of returns as baseline.
+
+    Maintains a running average: v_t = β * v_{t-1} + (1 - β) * R_t
+    where β ∈ [0, 1] controls the smoothing (higher β = more smoothing).
+
+    Pros:
+    - Simple and fast
+    - No additional parameters to learn
+    - Works well for stationary reward distributions
+
+    Cons:
+    - Not state-dependent (same baseline for all states)
+    - Can be slow to adapt to non-stationary rewards
+    - Less effective than learned baselines
+
+    Args:
+        beta: Smoothing parameter (default: 0.8). Higher values = more smoothing.
+    """
     def __init__(self, beta):
         super(Baseline, self).__init__()
         self.beta = beta
         self.v = None
 
     def eval(self, x, c):
+        """
+        Update and return the exponential moving average.
+
+        Args:
+            x: State (unused, baseline is state-independent)
+            c: Current costs/rewards
+
+        Returns:
+            tuple: (baseline_value, 0) - no loss since non-learnable
+        """
         if self.v is None:
             v = c.mean()
         else:
@@ -105,6 +254,25 @@ class ExponentialBaseline(Baseline):
 
 
 class POMOBaseline(Baseline):
+    """
+    POMO (Policy Optimization with Multiple Optima) Baseline.
+
+    Uses the average cost across multiple augmentations of the same problem instance
+    as the baseline. For each problem instance, POMO generates multiple solutions
+    (e.g., starting from different depot rotations) and uses their mean as the baseline.
+
+    This provides a strong, instance-specific baseline without requiring additional
+    model evaluations, since the augmentations are generated in parallel during training.
+
+    Key idea: For instance i with K augmentations:
+    - Costs: [c_i1, c_i2, ..., c_iK]
+    - Baseline for each: b_ik = mean([c_i1, c_i2, ..., c_iK])
+
+    Reference: POMO paper (Kwon et al., 2020)
+
+    Args:
+        pomo_size: Number of augmentations per instance (K)
+    """
     def __init__(self, pomo_size):
         super(Baseline, self).__init__()
         self.pomo_size = pomo_size
@@ -128,11 +296,46 @@ class POMOBaseline(Baseline):
 
 
 class CriticBaseline(Baseline):
+    """
+    Learned value function baseline using a critic network.
+
+    Trains a separate neural network (critic) to estimate V(s), the expected return
+    from state s. The critic is trained via supervised learning to predict actual
+    returns, minimizing MSE: L = (V(s) - R)²
+
+    This is similar to the Actor-Critic architecture, but here the critic is only
+    used as a baseline (not for policy improvement).
+
+    Pros:
+    - State-dependent baseline (more effective variance reduction)
+    - Can capture complex value patterns
+    - Commonly used in modern RL
+
+    Cons:
+    - Requires additional network and training
+    - Can be unstable if critic training diverges
+    - Adds computational overhead
+
+    Args:
+        critic: Neural network that maps states to value estimates
+    """
     def __init__(self, critic):
         super(Baseline, self).__init__()
         self.critic = critic
 
     def eval(self, x, c):
+        """
+        Evaluate critic and compute training loss.
+
+        Args:
+            x: State batch
+            c: Actual costs/returns
+
+        Returns:
+            tuple: (value_estimate, mse_loss)
+                - value_estimate: V(x) detached (for baseline)
+                - mse_loss: MSE between V(x) and actual returns (for training)
+        """
         v = self.critic(x)
         # Detach v since actor should not backprop through baseline, only for loss
         return v.detach(), F.mse_loss(v, c.detach())
@@ -156,6 +359,38 @@ class CriticBaseline(Baseline):
 
 
 class RolloutBaseline(Baseline):
+    """
+    Self-critical baseline using greedy rollouts of the current policy.
+
+    Maintains a snapshot of the policy from a previous epoch and uses its greedy
+    solutions as the baseline. This is a form of "self-play" where the policy
+    competes against its past self.
+
+    Algorithm:
+    1. Periodically save a copy of the current policy
+    2. Generate greedy solutions using the saved policy for baseline values
+    3. Train current policy using these solutions as baseline
+    4. Update saved policy if current policy significantly improves
+
+    Pros:
+    - Very strong baseline (actual solutions, not estimates)
+    - Automatically adapts as policy improves
+    - No additional parameters to learn
+    - Provides automatic curriculum (baseline gets harder over time)
+
+    Cons:
+    - Computationally expensive (requires additional rollouts)
+    - Memory intensive (stores copy of model)
+    - Can be slow to update in early training
+
+    Reference: "Attention, Learn to Solve Routing Problems" (Kool et al., 2019)
+
+    Args:
+        model: Current policy model
+        problem: Problem environment for generating datasets
+        opts: Training options
+        epoch: Current epoch number
+    """
     def __init__(self, model, problem, opts, epoch=0):
         super(Baseline, self).__init__()
         self.problem = problem
