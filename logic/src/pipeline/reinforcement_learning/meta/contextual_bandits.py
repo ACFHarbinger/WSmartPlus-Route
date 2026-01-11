@@ -1,3 +1,57 @@
+"""
+Contextual Bandit Approach for Weight Configuration Selection.
+
+This module implements a contextual multi-armed bandit framework for dynamically
+selecting weight configurations based on the current problem context. Rather than
+learning continuous weight adjustments, it treats weight selection as a discrete
+decision problem over a predefined set of configurations.
+
+The contextual bandit approach is well-suited for:
+    - Problems with discrete, interpretable weight configurations
+    - Scenarios where context significantly affects optimal weights
+    - Environments requiring fast adaptation to changing conditions
+    - Situations where exploration-exploitation trade-off is critical
+
+Key Concepts:
+    - Arms: Each weight configuration is a separate "arm" to pull
+    - Context: Problem state features (waste levels, day, overflow rates)
+    - Reward: Performance feedback from using a configuration
+    - Exploration: Trying new configurations to discover better options
+    - Exploitation: Using known good configurations for current context
+
+Exploration Strategies:
+    1. UCB (Upper Confidence Bound): Balance mean reward with uncertainty
+    2. Thompson Sampling: Bayesian approach using Beta distributions
+    3. Epsilon-Greedy: Random exploration with probability epsilon
+
+Context Features:
+    - Waste levels (avg/sum/max across bins)
+    - Overflow counts and rates
+    - Tour length statistics
+    - Visited node ratios
+    - Simulation day (temporal context)
+
+Classes:
+    WeightContextualBandit: Main contextual bandit strategy for weight selection
+
+Example:
+    bandit = WeightContextualBandit(
+        initial_weights={'w_waste': 1.0, 'w_over': 2.0, 'w_len': 0.5},
+        context_features=['waste', 'overflow', 'day'],
+        exploration_strategy='ucb',
+        num_weight_configs=10,
+        weight_ranges={'w_waste': (0.1, 5.0), 'w_over': (0.1, 5.0)}
+    )
+
+    # During training
+    weights = bandit.propose_weights(context={'dataset': train_data})
+    # ... run episode ...
+    bandit.feedback(reward, metrics)
+
+    # Get best configuration for a context
+    best_weights = bandit.get_best_config(context)
+"""
+
 import math
 import torch
 import random
