@@ -1,3 +1,17 @@
+"""
+Hyperparameter Optimization Module
+
+This module implements advanced hyperparameter optimization (HPO) algorithms for tuning reinforcement learning agents in the WSmart-Route framework. It provides a unified interface for multiple optimization strategies, from classical grid search to state-of-the-art evolutionary hyperband methods.
+
+Available Algorithms:
+    - Grid Search: Exhaustive search over a specified parameter grid.
+    - Random Search: Samples hyperparameters randomly from a continuous search space.
+    - Bayesian Optimization (Optuna): Intelligent search using Tree-structured Parzen Estimator (TPE).
+    - Hyperband Optimization: Adaptive resource allocation using Successive Halving.
+    - Distributed Evolutionary Algorithm (DEAP): Genetic algorithm for non-convex landscapes.
+    - Differential Evolution Hyperband (DEHB): State-of-the-art combination of DE and Hyperband.
+"""
+
 import os
 import ray
 import json
@@ -39,12 +53,44 @@ from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb 
 
 
 def compute_focus_dist_matrix(graph_size, focus_graph, area="Rio Maior", method="og"):
+    """
+    Computes the distance matrix for a focus graph area.
+
+    Args:
+        graph_size (int): Size of the graph.
+        focus_graph (str): Path or identifier for the focus graph.
+        area (str, optional): Geographical area. Defaults to "Rio Maior".
+        method (str, optional): Distance computation method. Defaults to "og".
+
+    Returns:
+        torch.Tensor: The computed distance matrix.
+    """
     coords = load_focus_coords(graph_size, None, area, focus_graph)
     dist_matrix = compute_distance_matrix(coords, method)
     return torch.from_numpy(dist_matrix)
 
 
 def optimize_model(opts, cost_weights, metric="loss", dist_matrix=None):
+    """
+    Trains a model with given hyperparameters and returns evaluation metrics.
+
+    This is the core worker function used by all HPO algorithms to evaluate a specific configuration.
+
+    Args:
+        opts (dict): Options dictionary containing all configuration parameters.
+        cost_weights (dict): Dictionary of cost weights to test (w_lost, w_waste, etc.).
+        metric (str, optional): Metric to optimize ("loss", "overflows", "kg/km", "both"). Defaults to "loss".
+        dist_matrix (torch.Tensor, optional): Precomputed distance matrix for evaluation. Defaults to None.
+
+    Returns:
+        tuple: (validation_result, mean_unicost, all_costs)
+            - validation_result (float): The primary metric value (e.g., avg cost) used for optimization.
+            - mean_unicost (float): Mean unit cost.
+            - all_costs (dict): Detailed cost breakdown.
+    
+    Raises:
+        Exception: If save directories cannot be created.
+    """
     # Create directory for saving model checkpoints
     try:
         os.makedirs(os.path.join(ROOT_DIR, opts['save_dir']), exist_ok=True)
@@ -109,10 +155,24 @@ def optimize_model(opts, cost_weights, metric="loss", dist_matrix=None):
 
 
 def validate(model, dataset, metric, dist_matrix, opts):
+    """
+    Evaluates a trained model on a validation dataset.
+
+    Args:
+        model (nn.Module): The trained neural network model.
+        dataset (Dataset): Validation dataset.
+        metric (str): Metric to evaluate ("overflows", "kg/km", "both", or other for raw cost).
+        dist_matrix (torch.Tensor): Distance matrix for cost calculation.
+        opts (dict): Configuration options.
+
+    Returns:
+        tuple: (avg_cost, mean_ucost, all_costs)
+    """
     from logic.src.policies.neural_agent import NeuralAgent
     agent = NeuralAgent(get_inner_model(model))
 
     def eval_model_bat(bat, dist_matrix):
+        """Evaluate a batch in greedy mode and return cost/attention outputs."""
         with torch.no_grad():
             ucost, c_dict, attn_dict = agent.compute_batch_sim(move_to(bat, opts['device']), move_to(dist_matrix, opts['device']))
         return ucost, c_dict, attn_dict
@@ -156,7 +216,29 @@ def validate(model, dataset, metric, dist_matrix, opts):
 
 
 def distributed_evolutionary_algorithm(opts):
+    """
+    Genetic algorithm for hyperparameter optimization using DEAP library.
+
+    Use Case: Non-convex, multi-modal optimization landscapes.
+
+    Features:
+        - Two-point crossover
+        - Polynomial bounded mutation
+        - Tournament selection
+        - Configurable population size and generations
+
+    Args:
+        opts (dict): Options dictionary. Must contain:
+            - 'hop_range': [min, max] range for hyperparameters.
+            - 'n_pop': Population size.
+            - 'n_gen': Number of generations.
+            - 'eta', 'indpb', 'tournsize', 'cxpb', 'mutpb': GA parameters.
+
+    Returns:
+        dict: The best hyperparameter configuration found.
+    """
     def __individual_to_opts(individual, opts):
+        """Convert a GA individual into a full opts dictionary."""
         w_lost, w_waste, w_length, w_overflows = individual
         new_opts = {key: val for key, val in opts.items() if 'w_' not in key}
         if new_opts['problem'] == 'wcvrp':
@@ -167,6 +249,7 @@ def distributed_evolutionary_algorithm(opts):
         return new_opts
 
     def _create_hyperparameter_configuration(opts):
+        """Sample a random hyperparameter configuration for GA initialization."""
         if opts['problem'] == 'wcvrp':
             wl = random.uniform(opts['hop_range'][0], opts['hop_range'][1]) 
             p = random.uniform(opts['hop_range'][0], opts['hop_range'][1])
@@ -175,6 +258,7 @@ def distributed_evolutionary_algorithm(opts):
             return [wl, p, l, o]
 
     def _fitness_function(individual, cost_weights, opts):
+        """Evaluate an individual's fitness using the training loop."""
         new_opts = __individual_to_opts(individual, opts)
         avg_cost, _, _ = optimize_model(new_opts, cost_weights)
         return avg_cost,
@@ -218,6 +302,23 @@ def distributed_evolutionary_algorithm(opts):
 
 
 def bayesian_optimization(opts):
+    """
+    Uses Tree-structured Parzen Estimator (TPE) for intelligent hyperparameter search with pruning via Optuna.
+
+    Use Case: Expensive objective functions where you need sample-efficient optimization.
+
+    Features:
+        - TPE sampler for smart exploration.
+        - Median pruning for early termination of poor trials.
+        - Visualization (optimization history, parameter importance, intermediate values).
+        - SQLite-based persistence for resumable experiments.
+
+    Args:
+        opts (dict): Options dictionary.
+
+    Returns:
+        dict: The best hyperparameter configuration found.
+    """
     # Create a directory to save optimization results
     opt_dir = os.path.join(ROOT_DIR, opts['save_dir'], 'optuna_opt')
     try:
@@ -230,6 +331,7 @@ def bayesian_optimization(opts):
     storage_name = f"sqlite:///{os.path.join(opt_dir, 'optuna_study.db')}"
     try:
         def _objective(trial):
+            """Optuna objective that trains and returns the validation metric."""
             # Define the hyperparameters for Optuna to optimize
             if opts['problem'] == 'wcvrp':
                 cost_weights = {
@@ -327,39 +429,58 @@ def bayesian_optimization(opts):
 
 
 def _ray_tune_trainable(opts, config, checkpoint_dir=None):
-        # Update opts with the hyperparameters from config
-        current_opts = opts.copy()
-        if current_opts['problem'] == 'wcvrp':
-            current_opts['w_lost'] = config['w_lost']
-            current_opts['w_waste'] = config['w_waste']
-            current_opts['w_length'] = config['w_length']
-            current_opts['w_overflows'] = config['w_overflows']
-        
-        # Create unique run name and dirs for this trial
-        trial_id = tune.get_trial_id()
-        current_opts['run_name'] = f"{current_opts['run_name']}_{trial_id}"
-        current_opts['log_dir'] = os.path.join(current_opts['log_dir'], trial_id)
-        current_opts['save_dir'] = os.path.join(current_opts['save_dir'], trial_id)
-        
-        # Set epochs to a smaller number for early iterations of Hyperband
-        current_opts['n_epochs'] = current_opts.get('hop_epochs', 10)
-        
-        # Checkpoint loading if resuming
-        if checkpoint_dir:
-            checkpoint_path = os.path.join(checkpoint_dir, "checkpoint")
-            current_opts['resume'] = checkpoint_path
-        
-        validation_result, _, _ = optimize_model(current_opts, config)
-        
-        # Assuming validate() returns a dict with metrics or a scalar value
-        if isinstance(validation_result, dict):
-            tune.report(**validation_result)
-        else:
-            tune.report(score=validation_result)
-        return
+    """
+    Internal wrapper function for Ray Tune trainable API.
+    """
+    # Update opts with the hyperparameters from config
+    current_opts = opts.copy()
+    if current_opts['problem'] == 'wcvrp':
+        current_opts['w_lost'] = config['w_lost']
+        current_opts['w_waste'] = config['w_waste']
+        current_opts['w_length'] = config['w_length']
+        current_opts['w_overflows'] = config['w_overflows']
+    
+    # Create unique run name and dirs for this trial
+    trial_id = tune.get_trial_id()
+    current_opts['run_name'] = f"{current_opts['run_name']}_{trial_id}"
+    current_opts['log_dir'] = os.path.join(current_opts['log_dir'], trial_id)
+    current_opts['save_dir'] = os.path.join(current_opts['save_dir'], trial_id)
+    
+    # Set epochs to a smaller number for early iterations of Hyperband
+    current_opts['n_epochs'] = current_opts.get('hop_epochs', 10)
+    
+    # Checkpoint loading if resuming
+    if checkpoint_dir:
+        checkpoint_path = os.path.join(checkpoint_dir, "checkpoint")
+        current_opts['resume'] = checkpoint_path
+    
+    validation_result, _, _ = optimize_model(current_opts, config)
+    
+    # Assuming validate() returns a dict with metrics or a scalar value
+    if isinstance(validation_result, dict):
+        tune.report(**validation_result)
+    else:
+        tune.report(score=validation_result)
+    return
 
 
 def hyperband_optimization(opts):
+    """
+    Adaptive resource allocation using the Hyperband algorithm with Ray Tune.
+
+    Use Case: When you want to efficiently allocate computational budget across many configurations.
+
+    Features:
+        - Successive halving with adaptive fidelity.
+        - Ray Tune integration for distributed execution.
+        - Configurable reduction factor (eta).
+
+    Args:
+        opts (dict): Options dictionary.
+
+    Returns:
+        dict: The best hyperparameter configuration found.
+    """
     # Initialize Ray
     gpu_num = 0 if not torch.cuda.is_available() or opts['no_cuda'] \
         else torch.cuda.device_count()
@@ -425,6 +546,22 @@ def hyperband_optimization(opts):
 
 
 def random_search(opts):
+    """
+    Samples hyperparameters randomly from a continuous search space using Ray Tune.
+
+    Use Case: Large search spaces where grid search is infeasible; good baseline for comparison.
+
+    Features:
+        - Uniform sampling from continuous ranges.
+        - Configurable number of trials.
+        - Supports parallel execution.
+
+    Args:
+        opts (dict): Options dictionary.
+
+    Returns:
+        dict: The best hyperparameter configuration found.
+    """
     # Initialize Ray
     gpu_num = 0 if not torch.cuda.is_available() or opts['no_cuda'] \
         else torch.cuda.device_count()
@@ -481,7 +618,24 @@ def random_search(opts):
 
 
 def grid_search(opts):
+    """
+    Exhaustive search over a specified parameter grid using Ray Tune with ASHA scheduling.
+
+    Use Case: Small hyperparameter spaces where you want to explore all combinations systematically.
+
+    Features:
+        - Parallel execution via Ray.
+        - Early stopping with ASHA scheduler.
+        - Progress reporting with Ray CLIReporter.
+
+    Args:
+        opts (dict): Options dictionary.
+
+    Returns:
+        dict: The best hyperparameter configuration found.
+    """
     def tune_hyperparameters(config, opts):
+        """Train and report a grid-search configuration to Ray Tune."""
         # Update opts with tuning parameters
         tune_opts = opts.copy()
         for key, value in config.items():
@@ -575,7 +729,25 @@ def grid_search(opts):
 
 
 def differential_evolutionary_hyperband_optimization(opts):
+    """
+    State-of-the-art combination of Differential Evolution and Hyperband for efficient multi-fidelity optimization.
+
+    Use Case: When you have access to multi-fidelity evaluations (e.g., training for different numbers of epochs).
+
+    Features:
+        - Asynchronous execution with Dask.
+        - Multi-fidelity optimization.
+        - Adaptive population management.
+        - Checkpoint saving for long-running experiments.
+
+    Args:
+        opts (dict): Options dictionary.
+
+    Returns:
+        dict: The best hyperparameter configuration found.
+    """
     def _objective_function(config, fidelity, **kwargs):
+        """Evaluate a DEHB configuration and return fitness/cost info."""
         metric = kwargs.get("metric", "loss")
         dist_matrix = kwargs.get("dist_matrix", None)
         # Update the options with the current configuration
@@ -636,6 +808,16 @@ def differential_evolutionary_hyperband_optimization(opts):
 
 
 def merge_with_training_args(training_args, hop_args):
+    """
+    Merges HPO arguments with training arguments, prioritizing HPO args.
+
+    Args:
+        training_args (dict): Base training arguments.
+        hop_args (dict): Hyperparameter optimization arguments.
+
+    Returns:
+        dict: Merged dictionary.
+    """
     # Only add HOP args that don't already exist or that are explicitly specified
     merged = training_args.copy()
     for key, value in hop_args.items():

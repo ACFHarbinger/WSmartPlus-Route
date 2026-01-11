@@ -1,3 +1,15 @@
+"""
+Differential Evolution Hyperband (DEHB) Module.
+
+This module implements the DEHB algorithm (Differential Evolution Hyperband), a robust
+hyperparameter optimization method that combines Differential Evolution (for global search
+in the hyperparameter space) with Hyperband (for efficient resource allocation via
+Successive Halving).
+
+Key components:
+- `DifferentialEvolutionHyperbandBase`: Base class containing the core logic.
+- `DEHB`: The main optimizer class.
+"""
 import os
 import sys
 import time
@@ -28,6 +40,7 @@ _logger_props = {
 }
 
 def get_config_space(opts):
+    """Build the ConfigSpace for the given optimization options."""
     cs = CS.ConfigurationSpace()
     if opts['problem'] == 'wcvrp':
         cs.add(CSHP.UniformFloatHyperparameter("w_lost", lower=opts['hop_range'][0], upper=opts['hop_range'][1]))
@@ -40,10 +53,35 @@ def get_config_space(opts):
 
 # Adapted from https://github.com/automl/DEHB/blob/master/src/dehb/optimizers/dehb.py
 class DifferentialEvolutionHyperbandBase:
+    """
+    Base class for Differential Evolution Hyperband (DEHB) optimizer.
+
+    This class handles the core logic of DEHB, including initializing the optimization,
+    managing the population, and coordinating with the Successive Halving bracket manager.
+
+    Args:
+        cs (ConfigSpace.ConfigurationSpace, optional): The configuration space to sample from.
+        f (callable, optional): The objective function to minimize.
+        dimensions (int, optional): Number of dimensions (hyperparameters). Required if cs is None.
+        mutation_factor (float, optional): Mutation factor (F) for DE.
+        crossover_prob (float, optional): Crossover probability (CR) for DE.
+        strategy (str, optional): DE mutation strategy (e.g., "rand1_bin").
+        min_fidelity (float, optional): Minimum fidelity level (e.g., min epochs).
+        max_fidelity (float, optional): Maximum fidelity level (e.g., max epochs).
+        eta (float, optional): Halving parameter for Hyperband.
+        min_clip (int, optional): Minimum number of configurations per bracket.
+        max_clip (int, optional): Maximum number of configurations per bracket.
+        seed (int, optional): Random seed.
+        boundary_fix_type (str, optional): How to handle out-of-bounds parameters ("random" or "clip").
+        max_age (int, optional): Max age for DE individuals.
+        resume (bool, optional): Whether to resume from a previous run.
+        **kwargs: Additional keyword arguments.
+    """
     def __init__(self, cs=None, f=None, dimensions=None, mutation_factor=None,
                  crossover_prob=None, strategy=None, min_fidelity=None,
                  max_fidelity=None, eta=None, min_clip=None, max_clip=None, seed=None,
                  boundary_fix_type="random", max_age=np.inf, resume=False, **kwargs):
+        """Initialize the DEHB base optimizer state and configuration."""
         # Check for deprecated parameters
         if "max_budget" in kwargs or "min_budget" in kwargs:
             raise TypeError("Parameters min_budget and max_budget have been deprecated since " \
@@ -137,6 +175,7 @@ class DifferentialEvolutionHyperbandBase:
         )
 
     def _pre_compute_fidelity_spacing(self):
+        """Precompute fidelity levels and bracket sizes for Hyperband."""
         self.max_SH_iter = 0
         self.fidelities = []
         if self.min_fidelity is not None and \
@@ -148,6 +187,7 @@ class DifferentialEvolutionHyperbandBase:
                                                                   stop=0, num=self.max_SH_iter))
 
     def reset(self, *, reset_seeds: bool = True):
+        """Reset optimization state, trackers, and RNG."""
         self.inc_score = np.inf
         self.inc_config = None
         self.population = None
@@ -162,6 +202,7 @@ class DifferentialEvolutionHyperbandBase:
         self.logger.info("\n\nRESET at {}\n\n".format(time.strftime("%x %X %Z")))
 
     def _init_population(self):
+        """Initialize the DEHB population; implemented in subclasses."""
         raise NotImplementedError("Redefine!")
 
     def _get_next_iteration(self, iteration: int) -> Tuple[np.array, np.array]:
@@ -205,9 +246,11 @@ class DifferentialEvolutionHyperbandBase:
         return self.inc_config, self.inc_score
 
     def _f_objective(self):
+        """Evaluate the objective; implemented in subclasses."""
         raise NotImplementedError("The function needs to be defined in the sub class.")
 
     def run(self):
+        """Run optimization; implemented in subclasses."""
         raise NotImplementedError("The function needs to be defined in the sub class.")
 
 
@@ -234,6 +277,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
                 save_freq="incumbent",
                 resume=False,
                 **kwargs):
+        """Initialize a multi-worker DEHB optimizer with Dask support."""
         super().__init__(cs=cs, f=f, dimensions=dimensions, mutation_factor=mutation_factor,
                          crossover_prob=crossover_prob, strategy=strategy, min_fidelity=min_fidelity,
                          max_fidelity=max_fidelity, eta=eta, min_clip=min_clip, max_clip=max_clip, 
@@ -384,6 +428,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
             self.gpu_usage[_id] = 0
 
     def _timeout_handler(self) -> None:
+        """Handle runtime budget exhaustion by checkpointing state."""
         self.logger.warning("Runtime budget exhausted. Saving optimization checkpoint now.")
         self.save()
         # Important to set this flag to true after saving
@@ -416,6 +461,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         return self.de[self.fidelities[0]].configspace_to_vector(config)
 
     def reset(self, *, reset_seeds: bool = True):
+        """Reset DEHB state, subpopulations, and Dask client."""
         super().reset(reset_seeds=reset_seeds)
         if self.n_workers > 1 and hasattr(self, "client") and isinstance(self.client, Client):
             self.client.restart()
@@ -442,6 +488,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         self._runtime_budget_timer = None
 
     def _init_population(self, pop_size):
+        """Initialize a population in vector form for a given size."""
         if self.use_configspace:
             population = self.cs.sample_configuration(size=pop_size)
             population = [self.configspace_to_vector(individual) for individual in population]
@@ -459,11 +506,13 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         return
 
     def _update_trackers(self, traj, runtime, history):
+        """Append trajectory, runtime, and history entries."""
         self.traj.append(traj)
         self.runtime.append(runtime)
         self.history.append(history)
 
     def _update_incumbents(self, config, score, info):
+        """Update the incumbent configuration and score."""
         self.inc_config = config
         self.inc_score = score
         self.inc_info = info
@@ -516,6 +565,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         return bracket
 
     def _get_worker_count(self):
+        """Return the number of active workers available for execution."""
         if isinstance(self.client, Client):
             return len(self.client.ncores())
         else:
@@ -741,6 +791,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         return jobs
 
     def _get_gpu_id_with_low_load(self):
+        """Select a GPU with minimal load and update usage counters."""
         candidates = []
         for k, v in self.gpu_usage.items():
             if v == min(self.gpu_usage.values()):
@@ -799,6 +850,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         self.futures = np.delete(self.futures, [i for i, _ in done_list]).tolist()
 
     def _adjust_budgets(self, fevals=None, brackets=None):
+        """Adjust requested budgets relative to current run state."""
         # only update budgets if it is not the first run
         if fevals is not None and len(self.traj) > 0:
             fevals = len(self.traj) + fevals
@@ -808,6 +860,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         return fevals, brackets
 
     def _get_state(self):
+        """Collect a JSON-serializable snapshot of DEHB state."""
         state = {}
         # DE parameters
         serializable_de_params = self.de_params.copy()
@@ -831,6 +884,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         return state
 
     def _save_state(self):
+        """Persist the DEHB state JSON to disk."""
         # Get state
         state = self._get_state()
         # Write state to disk
@@ -861,6 +915,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         return False
 
     def _save_incumbent(self):
+        """Persist the current incumbent configuration to disk."""
         # Return early if there is no incumbent yet
         if self.inc_config is None:
             return
@@ -880,6 +935,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
             self.logger.warning(f"Incumbent not saved: {e!r}")
 
     def _save_history(self, name="history.parquet.gzip"):
+        """Persist optimization history to a parquet file."""
         # Return early if there is no history yet
         if self.history is None:
             return
@@ -896,10 +952,12 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
             self.logger.warning(f"History not saved: {e!r}")
 
     def _log_debug(self):
+        """Log bracket state details at debug level."""
         for bracket in self.active_brackets:
             self.logger.debug(f"Bracket ID {bracket.bracket_id}:\n{bracket!s}")
 
     def _log_runtime(self, fevals, brackets, total_cost):
+        """Log progress for the selected budget type."""
         if fevals is not None:
             remaining = (len(self.traj), fevals, "function evaluation(s) done")
         elif brackets is not None:
@@ -913,6 +971,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         )
 
     def _log_job_submission(self, job_info: dict):
+        """Log details of a submitted evaluation job."""
         fidelity = job_info["fidelity"]
         config_id = job_info["config_id"]
         self.logger.info(
@@ -924,6 +983,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
         )
 
     def _load_checkpoint(self, run_dir: str):
+        """Load DEHB state and replay history from a checkpoint directory."""
         # Check if path exists, otherwise give warning
         run_path = Path(run_dir)
         if not run_path.exists():
@@ -1220,6 +1280,34 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
 
 
 class DEHB(DifferentialEvolutionHyperbandBase):
+    """
+    Differential Evolution Hyperband (DEHB) optimizer.
+
+    DEHB combines Differential Evolution (DE) for efficient search in the hyperparameter space
+    with Hyperband (HB) for efficient resource allocation via Successive Halving.
+
+    Args:
+        cs (ConfigSpace.ConfigurationSpace): Configuration space definition.
+        f (callable): Objective function to minimize.
+        dimensions (int, optional): Number of dimensions (if cs is None).
+        mutation_factor (float): Mutation factor (F). Default: 0.5.
+        crossover_prob (float): Crossover probability (CR). Default: 0.5.
+        strategy (str): DE strategy. Default: "rand1_bin".
+        min_budget (float, optional): Minimum budget (deprecated, use min_fidelity).
+        max_budget (float, optional): Maximum budget (deprecated, use max_fidelity).
+        eta (float): Hyperband eta parameter. Default: 3.
+        min_clip (int, optional): Min config clip.
+        max_clip (int, optional): Max config clip.
+        configspace (bool): Whether to use ConfigSpace. Default: True.
+        boundary_fix_type (str): Boundary fix type. Default: "random".
+        max_age (int): Max age. Default: inf.
+        async_strategy (str): Asynchronous strategy. Default: "immediate".
+        wandb_project (str, optional): Weights & Biases project name.
+        wandb_entity (str, optional): Weights & Biases entity name.
+        wandb_tags (list, optional): Weights & Biases tags.
+        maximize (bool): Whether to maximize the objective. Default: False (minimize).
+        **kwargs: Additional arguments.
+    """
     def __init__(
         self,
         cs,
@@ -1243,6 +1331,7 @@ class DEHB(DifferentialEvolutionHyperbandBase):
         maximize=False,
         **kwargs,
     ):
+        """Initialize a single-worker DEHB wrapper with optional W&B logging."""
         # Set output path and ensure it exists
         output_path = kwargs.get("output_path", "./dehb_results")
         kwargs["output_path"] = output_path
