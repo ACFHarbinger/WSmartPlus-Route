@@ -1,3 +1,30 @@
+/**
+ * Algorithm hyperparameters for Hybrid Genetic Search.
+ *
+ * Controls the behavior of the genetic algorithm, including population size,
+ * diversity management, penalty adjustment, and termination criteria.
+ *
+ * # Default Values
+ *
+ * ```
+ * AlgorithmParameters {
+ *     nb_granular: 20,         // Granular search neighborhood size
+ *     mu: 25,                  // Population size
+ *     lambda: 40,              // Offspring population size
+ *     nb_elite: 4,             // Number of elite solutions
+ *     nb_close: 5,             // Neighbors for diversity calculation
+ *     nb_iter_penalty_management: 100,  // Penalty adjustment frequency
+ *     target_feasible: 0.2,    // Target ratio of feasible solutions
+ *     penalty_decrease: 0.85,  // Penalty decrease multiplier
+ *     penalty_increase: 1.2,   // Penalty increase multiplier
+ *     seed: 0,                 // Random seed
+ *     nb_iter: 20000,          // Maximum iterations
+ *     time_limit: 0.0,         // Time limit in seconds (0 = no limit)
+ *     use_swap_star: true,     // Enable SWAP* operator
+ *     max_vehicles: 0,         // Fleet size limit (0 = unlimited)
+ * }
+ * ```
+ */
 #[derive(Clone)]
 pub struct AlgorithmParameters {
     pub nb_granular: usize,
