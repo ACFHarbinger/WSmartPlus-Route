@@ -1,20 +1,67 @@
+/*!
+ * Local search operators for route improvement.
+ *
+ * Implements neighborhood operators: Relocate, Swap, 2-Opt, SWAP*.
+ * Uses linked lists for O(1) move evaluation.
+ */
+
 use crate::circle_sector::CircleSector;
 use crate::individual::Individual;
 use crate::params::Params;
 use rand::rng;
 use rand::seq::SliceRandom;
 
+/**
+ * Local search engine.
+ *
+ * # Operators
+ *
+ * - **Relocate**: Move 1-2 nodes between routes
+ * - **Swap**: Exchange 1-2 nodes between routes
+ * - **2-Opt**: Eliminate edge crossings within a route
+ * - **2-Opt\***: Inter-route edge exchange
+ * - **SWAP\***: Geometric sector-based node exchanges
+ *
+ * # Granular Search
+ *
+ * Only explores moves involving nodes in each other's `correlated_vertices`
+ * (top-k nearest neighbors), reducing complexity from O(N²) to O(N×k).
+ */
 pub struct LocalSearch {
     penalty_capacity: f64,
 }
 
 impl LocalSearch {
+    /** Creates a new local search instance. */
     pub fn new() -> Self {
         Self {
             penalty_capacity: 1.0,
         }
     }
 
+    /**
+     * Runs local search until no improving move is found.
+     *
+     * # Algorithm
+     *
+     * 1. Initialize route IDs and node order
+     * 2. While improved and loop_cnt < max_loops:
+     *    - Try relocate operators
+     *    - Try swap operators
+     *    - Try 2-Opt intra-route
+     *    - Try 2-Opt* inter-route
+     *    - Try SWAP* (if enabled)
+     * 3. Rebuild `chrom_r` from linked lists
+     * 4. Re-evaluate solution
+     *
+     * # Complexity
+     *
+     * O(M × N × k × L) where:
+     * - M = number of operators
+     * - N = number of customers
+     * - k = granular neighborhood size
+     * - L = average number of loops until convergence
+     */
     pub fn run(&mut self, indiv: &mut Individual, params: &Params, penalty_capacity: f64) {
         self.penalty_capacity = penalty_capacity;
 

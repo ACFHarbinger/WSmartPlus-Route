@@ -1,3 +1,60 @@
+/*!
+ * # Rust Policy Module - Hybrid Genetic Search for VRPP
+ *
+ * This Rust module implements a high-performance **Hybrid Genetic Search (HGS)** algorithm
+ * for solving the **Vehicle Routing Problem with Profits (VRPP)**. It is compiled as a
+ * Python extension using PyO3, providing the WSmart-Route framework with fast baseline solvers.
+ *
+ * ## Architecture
+ *
+ * The HGS algorithm combines:
+ * - **Genetic Algorithm** - Population-based evolutionary search
+ * - **Local Search** - Neighborhood-based improvement operators
+ * - **Split Algorithm** - Giant tour decomposition for route construction
+ * - **Geometric Optimization** - Angular sector pruning for efficiency
+ *
+ * ## Objective Function
+ *
+ * Maximizes **Profit = Revenue - Cost - Penalties**
+ * - **Revenue**: `R × Σ demands_served`
+ * - **Cost**: `C × total_distance`
+ * - **Penalties**: Soft constraint violations (capacity excess)
+ *
+ * ## Python Interface
+ *
+ * ```python
+ * from policy import solve, solve_batch
+ *
+ * # Single instance
+ * routes, profit, cost = solve(
+ *     dist_matrix=[[0, 10], [10, 0]],
+ *     demands=[0, 5],
+ *     coords=[(0, 0), (1, 1)],
+ *     capacity=100.0,
+ *     r=1.0,
+ *     c=1.0,
+ *     time_limit=10.0,
+ *     pop_size=25,
+ *     seed=42,
+ *     max_vehicles=3
+ * )
+ *
+ * # Batch processing (parallel)
+ * routes_batch, profits, costs = solve_batch(
+ *     dist_matrices=[...],
+ *     demands_batch=[...],
+ *     coords_batch=[...],
+ *     capacity=100.0,
+ *     r=1.0,
+ *     c=1.0,
+ *     time_limit=10.0,
+ *     nb_granular=20,
+ *     seed=42,
+ *     max_vehicles=3
+ * )
+ * ```
+ */
+
 mod algorithm_parameters;
 mod circle_sector;
 mod genetic;
@@ -14,7 +71,29 @@ use pyo3::prelude::*;
 use rayon::prelude::*;
 use std::sync::Arc;
 
-/// Single Instance Solver
+/**
+ * Solves a single VRPP instance using the Hybrid Genetic Search algorithm.
+ *
+ * # Arguments
+ *
+ * * `dist_matrix` - Symmetric distance matrix (N+1 × N+1, index 0 is depot)
+ * * `demands` - Node demands (depot = 0)
+ * * `coords` - Node coordinates for geometric optimization
+ * * `capacity` - Vehicle capacity
+ * * `r` - Revenue coefficient
+ * * `c` - Cost coefficient per unit distance
+ * * `time_limit` - Maximum runtime in seconds
+ * * `nb_granular` - Neighborhood size for granular search
+ * * `seed` - Random seed for reproducibility
+ * * `max_vehicles` - Fleet size limit (0 = unlimited)
+ *
+ * # Returns
+ *
+ * A tuple containing:
+ * - `routes`: List of routes (each route is a list of node indices)
+ * - `profit`: Total profit (revenue - cost)
+ * - `cost`: Total transportation cost
+ */
 fn solve_instance(
     dist_matrix: Vec<Vec<f64>>,
     demands: Vec<f64>,
@@ -49,6 +128,46 @@ fn solve_instance(
     ga.run()
 }
 
+/**
+ * Solves a single VRPP instance (Python API).
+ *
+ * # Arguments
+ *
+ * * `dist_matrix` - Symmetric distance matrix (N+1 × N+1, index 0 is depot)
+ * * `demands` - Node demands (depot = 0)
+ * * `coords` - Node coordinates for geometric optimization
+ * * `capacity` - Vehicle capacity
+ * * `r` - Revenue coefficient (internally boosted by 100× to ensure profitability)
+ * * `c` - Cost coefficient per unit distance
+ * * `time_limit` - Maximum runtime in seconds
+ * * `_pop_size` - Unused (kept for API compatibility)
+ * * `seed` - Optional random seed (default: 0)
+ * * `max_vehicles` - Optional fleet size limit (default: 0 = unlimited)
+ *
+ * # Returns
+ *
+ * A PyResult containing:
+ * - `routes`: List of routes
+ * - `profit`: Total profit
+ * - `cost`: Total cost
+ *
+ * # Example
+ *
+ * ```python
+ * routes, profit, cost = solve(
+ *     dist_matrix=[[0, 10], [10, 0]],
+ *     demands=[0, 5],
+ *     coords=[(0, 0), (1, 1)],
+ *     capacity=100.0,
+ *     r=1.0,
+ *     c=1.0,
+ *     time_limit=10.0,
+ *     pop_size=25,
+ *     seed=42,
+ *     max_vehicles=3
+ * )
+ * ```
+ */
 #[pyfunction]
 fn solve(
     dist_matrix: Vec<Vec<f64>>,
@@ -79,6 +198,36 @@ fn solve(
     Ok((routes, profit, cost))
 }
 
+/**
+ * Solves multiple VRPP instances in parallel using Rayon (Python API).
+ *
+ * Each instance is solved independently with a unique seed (`seed + i`).
+ * This function is optimized for batch processing of similar instances.
+ *
+ * # Arguments
+ *
+ * * `dist_matrices` - List of distance matrices
+ * * `demands_batch` - List of demand arrays
+ * * `coords_batch` - List of coordinate arrays (may be empty)
+ * * `capacity` - Vehicle capacity (shared across all instances)
+ * * `r` - Revenue coefficient
+ * * `c` - Cost coefficient
+ * * `time_limit` - Time limit per instance
+ * * `nb_granular` - Granular search neighborhood size
+ * * `seed` - Base random seed (incremented for each instance)
+ * * `max_vehicles` - Fleet size limit
+ *
+ * # Returns
+ *
+ * A PyResult containing:
+ * - `routes_batch`: List of route solutions
+ * - `profits_batch`: List of profits
+ * - `costs_batch`: List of costs
+ *
+ * # Errors
+ *
+ * Returns `PyValueError` if batch sizes don't match.
+ */
 #[pyfunction]
 fn solve_batch(
     dist_matrices: Vec<Vec<Vec<f64>>>,
@@ -148,6 +297,13 @@ fn solve_batch(
     Ok((routes_batch, profits_batch, costs_batch))
 }
 
+/**
+ * Python module definition.
+ *
+ * Exposes two functions to Python:
+ * - `solve`: Single instance solver
+ * - `solve_batch`: Parallel batch solver
+ */
 #[pymodule]
 fn policy(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(solve, m)?)?;

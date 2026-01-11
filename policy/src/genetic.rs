@@ -1,3 +1,10 @@
+/*!
+ * Hybrid Genetic Search algorithm for VRPP.
+ *
+ * Combines genetic algorithm with local search and dynamic penalty management
+ * to solve the Vehicle Routing Problem with Profits.
+ */
+
 use crate::individual::Individual;
 use crate::local_search::LocalSearch;
 use crate::params::Params;
@@ -6,6 +13,23 @@ use crate::split::Split;
 use rand::prelude::*;
 use std::sync::Arc;
 
+/**
+ * Main genetic algorithm orchestrator.
+ *
+ * # Algorithm Flow
+ *
+ * 1. **Initialization**: Generate 4×μ random solutions, apply Split + LS, prune to μ
+ * 2. **Evolution Loop** (until time limit or max iterations):
+ *    - Select two parents via tournament
+ *    - Crossover (Order Crossover)
+ *    - Split offspring giant tour
+ *    - Local search (with repair if infeasible)
+ *    - Add to population
+ *    - Update biased fitness
+ *    - Prune population
+ *    - Adjust penalties periodically
+ * 3. **Termination**: Return best feasible solution (or best infeasible if none)
+ */
 pub struct Genetic {
     params: Arc<Params>,
     population: Population,
@@ -15,6 +39,7 @@ pub struct Genetic {
 }
 
 impl Genetic {
+    /** Creates a new genetic algorithm instance. */
     pub fn new(params: Arc<Params>) -> Self {
         Self {
             population: Population::new(&params),
@@ -25,6 +50,16 @@ impl Genetic {
         }
     }
 
+    /**
+     * Runs the genetic algorithm.
+     *
+     * # Returns
+     *
+     * A tuple containing:
+     * - `routes`: Best routes found
+     * - `profit`: Total profit
+     * - `cost`: Total transportation cost
+     */
     pub fn run(&mut self) -> (Vec<Vec<usize>>, f64, f64) {
         let mut rng = StdRng::seed_from_u64(self.params.ap.seed);
         let pop_size = self.params.ap.mu;
@@ -148,7 +183,17 @@ impl Genetic {
         }
     }
 
-    // ... [adjust_penalties and crossover_ox remain unchanged] ...
+    /**
+     * Dynamically adjusts penalty coefficients to maintain feasible/infeasible balance.
+     *
+     * # Strategy
+     *
+     * - If too few feasible solutions (< target - 5%): increase penalty
+     * - If too many feasible solutions (> target + 5%): decrease penalty
+     * - Clamps penalty to [0.1, 10000.0]
+     *
+     * Target is typically 20% feasible, 80% infeasible.
+     */
     fn adjust_penalties(&mut self) {
         let n_feasible = self.population.feasible.len();
         let total = n_feasible + self.population.infeasible.len();
@@ -172,6 +217,27 @@ impl Genetic {
         }
     }
 
+    /**
+     * Order Crossover (OX) operator.
+     *
+     * # Algorithm
+     *
+     * 1. Select random segment from parent 1
+     * 2. Copy segment to child
+     * 3. Fill remaining positions with genes from parent 2 (in order)
+     *
+     * # Example
+     *
+     * ```text
+     * P1: [1, 2, 3, 4, 5]
+     * P2: [3, 4, 1, 5, 2]
+     * Segment: [2, 3] (indices 1-2)
+     *
+     * Child: [4, 2, 3, 5, 1]
+     *        ↑   ↑  ↑  from P1
+     *        └─────────── from P2 (in order: 4, 5, 1)
+     * ```
+     */
     fn crossover_ox(&self, p1: &[usize], p2: &[usize], rng: &mut StdRng) -> Vec<usize> {
         let n = p1.len();
         let i = rng.random_range(0..n);

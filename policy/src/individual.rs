@@ -1,14 +1,67 @@
+/*!
+ * Solution representation and evaluation for VRPP.
+ *
+ * Defines the `Individual` struct, which represents a candidate solution using:
+ * - **Giant Tour**: Permutation of customers (for crossover)
+ * - **Routes**: Decoded vehicle routes (for evaluation)
+ * - **Linked Lists**: O(1) neighborhood moves (for local search)
+ */
+
 use crate::params::Params;
 
+/**
+ * Cost evaluation metrics for a solution.
+ *
+ * Stores distance, capacity violations, profit, and feasibility status.
+ */
 #[derive(Clone, Debug)]
 pub struct CostEval {
+    /** Total travel distance (sum of all route distances) */
     pub distance: f64,
+    /** Sum of capacity violations across all routes */
     pub capacity_excess: f64,
-    pub penalized_cost: f64, // Used for internal optimization (fitness)
-    pub profit: f64,         // True VRPP Profit
+    /** Fitness value for optimization: `cost - revenue + penalty × capacity_excess` */
+    pub penalized_cost: f64,
+    /** True VRPP objective: `revenue - cost` */
+    pub profit: f64,
+    /** `true` if `capacity_excess < 1e-3` */
     pub is_feasible: bool,
 }
 
+/**
+ * A candidate solution to the VRPP.
+ *
+ * # Representations
+ *
+ * An individual has three equivalent representations:
+ *
+ * 1. **Giant Tour** (`giant_tour`): Permutation of customers [1..N]
+ *    - Used for genetic operators (crossover, mutation)
+ *    - Easy to manipulate, fixed-length
+ *
+ * 2. **Routes** (`chrom_r`): List of vehicle routes
+ *    - Used for evaluation and visualization
+ *    - Variable-length, vehicle-structured
+ *
+ * 3. **Linked Lists** (`successors`, `predecessors`): Index-based pointers
+ *    - Used for local search (O(1) insertions/deletions)
+ *    - Efficient for neighborhood moves
+ *
+ * # Example
+ *
+ * ```
+ * Giant Tour: [3, 1, 5, 2, 4]
+ *
+ * Split → Routes: [[1, 3], [2, 5, 4]]
+ *
+ * Linked Lists:
+ *   Route 1: 0 → 1 → 3 → 0
+ *   Route 2: 0 → 2 → 5 → 4 → 0
+ *
+ * successors:  [1, 3, 5, 0, 0, 4, ...]
+ * predecessors:[0, 0, 0, 1, 5, 2, ...]
+ * ```
+ */
 #[derive(Clone)]
 pub struct Individual {
     pub giant_tour: Vec<usize>,
@@ -25,6 +78,12 @@ pub struct Individual {
 }
 
 impl Individual {
+    /**
+     * Creates a new individual with an empty evaluation.
+     *
+     * The giant tour is stored, but routes and linked lists are uninitialized.
+     * Call `split()` and `evaluate()` to compute routes and costs.
+     */
     pub fn new(giant_tour: Vec<usize>) -> Self {
         Self {
             giant_tour,
@@ -43,6 +102,32 @@ impl Individual {
         }
     }
 
+    /**
+     * Evaluates the solution based on its routes (`chrom_r`).
+     *
+     * # Steps
+     *
+     * 1. Initializes linked lists from routes
+     * 2. For each route:
+     *    - Calculates distance: `depot → r[0] → ... → r[n] → depot`
+     *    - Calculates load: `Σ demands`
+     *    - Tracks capacity violations
+     * 3. Computes profit: `revenue - transport_cost`
+     *
+     * # Example
+     *
+     * ```
+     * Route: [1, 3, 5]
+     * Demands: [10, 20, 15]
+     * Capacity: 50
+     *
+     * load = 45 ≤ 50  ✓ Feasible
+     * distance = dist[0][1] + dist[1][3] + dist[3][5] + dist[5][0]
+     * revenue = 45 × r_coeff
+     * cost = distance × c_coeff
+     * profit = revenue - cost
+     * ```
+     */
     pub fn evaluate(&mut self, params: &Params) {
         self.eval.distance = 0.0;
         self.eval.capacity_excess = 0.0;
@@ -123,6 +208,23 @@ impl Individual {
         // We will update this in `compute_penalized_cost`.
     }
 
+    /**
+     * Computes the penalized cost for fitness-based selection.
+     *
+     * # Formula
+     *
+     * ```text
+     * penalized_cost = transport_cost - revenue + (penalty × capacity_excess)
+     * ```
+     *
+     * Lower (more negative) penalized cost is better.
+     *
+     * # Why Penalized Cost?
+     *
+     * - Allows exploration of infeasible solutions
+     * - Solutions with small violations can still be competitive
+     * - Penalty is dynamically adjusted to maintain feasible/infeasible balance
+     */
     pub fn compute_penalized_cost(
         &mut self,
         penalty_capacity: f64,
