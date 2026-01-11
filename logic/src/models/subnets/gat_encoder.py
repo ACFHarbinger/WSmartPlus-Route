@@ -1,3 +1,4 @@
+"""Graph Attention Encoder."""
 import torch.nn as nn
 
 from ..modules import (
@@ -8,8 +9,12 @@ from ..modules.connections import get_connection_module
 
 
 class FeedForwardSubLayer(nn.Module):
+    """
+    Sub-layer containing a Feed-Forward Network and activation.
+    """
     def __init__(self, embed_dim, feed_forward_hidden, activation, af_param,
                 threshold, replacement_value, n_params, dist_range, bias=True):
+        """Initializes the FeedForwardSubLayer."""
         super(FeedForwardSubLayer, self).__init__()
         self.sub_layers = nn.Sequential(
             FeedForward(embed_dim, feed_forward_hidden, bias=bias),
@@ -18,38 +23,54 @@ class FeedForwardSubLayer(nn.Module):
         ) if feed_forward_hidden > 0 else FeedForward(embed_dim, embed_dim)
 
     def forward(self, h, mask=None):
+        """Forward pass."""
         return self.sub_layers(h)
 
 
 class MultiHeadAttentionLayer(nn.Module):
+    """
+    Single layer of the Graph Attention Encoder.
+    Uses connections factory for potential hyper-connections.
+    """
     def __init__(self, n_heads, embed_dim, feed_forward_hidden, normalization, 
                 epsilon_alpha, learn_affine, track_stats, mbeta, lr_k, n_groups,
                 activation, af_param, threshold, replacement_value, n_params, uniform_range,
-                connection_type='residual', expansion_rate=4):
+                connection_type='skip', expansion_rate=4):
+        """Initializes the MultiHeadAttentionLayer."""
         super(MultiHeadAttentionLayer, self).__init__()
         
         self.att = get_connection_module(
-            connection_type,
-            MultiHeadAttention(n_heads, input_dim=embed_dim, embed_dim=embed_dim),
-            embed_dim,
-            expansion_rate
+            module=MultiHeadAttention(n_heads, input_dim=embed_dim, embed_dim=embed_dim),
+            embed_dim=embed_dim,
+            connection_type=connection_type,
+            expansion_rate=expansion_rate
         )
         
         self.norm1 = Normalization(embed_dim, normalization, epsilon_alpha, 
                                 learn_affine, track_stats, mbeta, n_groups, lr_k)
         
         self.ff = get_connection_module(
-            connection_type,
-            FeedForwardSubLayer(embed_dim, feed_forward_hidden, activation, af_param,
+            module=FeedForwardSubLayer(embed_dim, feed_forward_hidden, activation, af_param,
                                 threshold, replacement_value, n_params, uniform_range),
-            embed_dim,
-            expansion_rate
+            embed_dim=embed_dim,
+            connection_type=connection_type,
+            expansion_rate=expansion_rate
         )
         
         self.norm2 = Normalization(embed_dim, normalization, epsilon_alpha, 
                                 learn_affine, track_stats, mbeta, n_groups, lr_k)
     
-    def forward(self, h, mask):
+    def forward(self, h, mask=None):
+        """
+        Forward pass.
+        
+        Args:
+            h: Input features.
+            mask: Attention mask.
+            
+        Returns:
+            Updated features.
+        """
         h = self.att(h, mask=mask)
         
         # Handle Norm for Hyper-Connections (4D input)
@@ -74,6 +95,10 @@ class MultiHeadAttentionLayer(nn.Module):
 
 
 class GraphAttentionEncoder(nn.Module):
+    """
+    Encoder composed of stacked MultiHeadAttentionLayers.
+    Supports standard Transformer architecture and Hyper-Networks.
+    """
     def __init__(self, 
                 n_heads, 
                 embed_dim, 
@@ -95,8 +120,35 @@ class GraphAttentionEncoder(nn.Module):
                 uniform_range=[0.125, 1/3],
                 dropout_rate=0.1,
                 agg=None,
-                connection_type='residual',
+                connection_type='skip',
                 expansion_rate=4):
+        """
+        Initializes the GraphAttentionEncoder.
+
+        Args:
+            n_heads: Number of attention heads.
+            embed_dim: Embedding dimension.
+            n_layers: Number of layers.
+            n_sublayers: (Unused) Number of sublayers.
+            feed_forward_hidden: Hidden dimension of FFN.
+            normalization: Normalization type.
+            epsilon_alpha: Epsilon value.
+            learn_affine: Whether to learn affine parameters.
+            track_stats: Whether to track stats.
+            momentum_beta: Momentum value.
+            locresp_k: K value for LocalResponseNorm.
+            n_groups: Number of groups for GroupNorm.
+            activation: Activation function.
+            af_param: Activation parameter.
+            threshold: Activation threshold.
+            replacement_value: Replacement value.
+            n_params: Number of parameters.
+            uniform_range: Range for uniform distribution.
+            dropout_rate: Dropout rate.
+            agg: (Unused) Aggregation type.
+            connection_type: Type of connection ('skip', 'static_hyper', etc.).
+            expansion_rate: Expansion rate for hyper-connections.
+        """
         super(GraphAttentionEncoder, self).__init__()
         
         self.conn_type = connection_type
@@ -112,6 +164,16 @@ class GraphAttentionEncoder(nn.Module):
         self.dropout = nn.Dropout(dropout_rate)
 
     def forward(self, x, edges=None):
+        """
+        Forward pass.
+
+        Args:
+            x: Input features (Batch, GraphSize, EmbedDim).
+            edges: (Optional) Edge indices or mask.
+
+        Returns:
+            Encoded features (Batch, GraphSize, EmbedDim).
+        """
         # 1. Expand Input (x -> H) if using Hyper-Connections
         if 'hyper' in self.conn_type:
             # x: (B, S, D) -> H: (B, S, D, n)
