@@ -1,4 +1,20 @@
 #!/usr/bin/env python
+"""
+Main Entry Point for the WSmart-Route Application.
+
+This module serves as the primary gateway for executing various components of the 
+project, including the WSmart-Route simulator, reinforcement learning training 
+pipelines, test suite execution, and the Graphical User Interface (GUI).
+
+It dispatches commands based on arguments parsed by `logic.src.utils.arg_parser`
+to the appropriate subsystems (Logic, GUI, Test).
+
+Key Functions:
+    - run_test_suite: Orchestrates the execution of unit and integration tests.
+    - pretty_print_args: Formats and displays command-line arguments for logging.
+    - main: The central dispatcher that routes the parsed CLI arguments to the 
+      corresponding execution logic.
+"""
 
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, 
@@ -32,6 +48,33 @@ from gui.src.app import run_app_gui, launch_results_window
 
 
 def run_test_suite(opts):
+    """
+    Execute the project's test suite based on provided options.
+
+    Args:
+        opts (dict): A dictionary containing test configuration parameters:
+            - test_dir (str): Directory containing tests.
+            - list (bool): If True, lists available test modules.
+            - list_tests (bool): If True, lists collected tests.
+            - module (list): Specific modules to run.
+            - test_class (str): Specific class to run.
+            - test_method (str): Specific method to run.
+            - verbose (int): Verbosity level (0-2).
+            - coverage (bool): Enable coverage reporting.
+            - markers (str): Filter tests by markers.
+            - failed_first (bool): Run previously failed tests first.
+            - maxfail (int): Stop after N failures.
+            - capture (str): Stack capture method ('fd', 'sys', 'no').
+            - tb (str): Traceback style.
+            - parallel (bool): Enable parallel execution.
+            - keyword (str): Filter by keyword expression.
+
+    Returns:
+        int: Exit code (0 for success, non-zero for failure).
+
+    Raises:
+        Exception: If test execution encounters a fatal error not handled by the runner.
+    """
     try:
         # Initialize test runner
         runner = PyTestRunner(test_dir=opts['test_dir'])
@@ -65,6 +108,21 @@ def run_test_suite(opts):
 
 
 def pretty_print_args(comm, opts, inner_comm=None):
+    """
+    Format and print dictionary arguments in a clean, readable structure.
+
+    This function utilizes `pprint` to format the options dictionary and then
+    applies custom string manipulation to present it as a labeled block.
+
+    Args:
+        comm (str): The primary command name (e.g., 'train', 'gen_data').
+        opts (dict): The dictionary of options/arguments to print.
+        inner_comm (str, optional): A sub-command name (e.g., 'update' for 'file_system').
+            Defaults to None.
+
+    Raises:
+        Exception: If formatting or printing fails.
+    """
     try:
         # Capture the pprint output
         printer = pprint.PrettyPrinter(width=1, indent=1, sort_dicts=False)
@@ -85,6 +143,20 @@ def pretty_print_args(comm, opts, inner_comm=None):
 
 
 def main(args):
+    """
+    Main dispatch function for the application.
+
+    Routes execution to the appropriate sub-system based on the command provided
+    in `args`. Handles top-level exception reporting and clean exit procedures.
+
+    Args:
+        args (tuple): A tuple returning from `parse_params`, containing:
+            - comm (str or tuple): The command string or (command, sub_command) tuple.
+            - opts (dict): The dictionary of configuration options.
+
+    Sys.Exit:
+        Exits with code 0 on success, 1 on error.
+    """
     comm, opts = args
     exit_code = 0
     try:
@@ -135,6 +207,16 @@ def main(args):
 
                         # Define the handler function that terminates the subprocess
                         def handle_interrupt(signum, frame):
+                            """
+                            Handle SIGINT (Ctrl+C) during real-time simulation.
+
+                            Terminates the simulation subprocess and forces a clean exit
+                            to prevent zombie processes or hung UIs.
+
+                            Args:
+                                signum (int): The signal number.
+                                frame (frame): The current stack frame.
+                            """
                             print("\nCtrl+C received. Terminating simulation process...")
                             if simulation_process.is_alive():
                                 simulation_process.terminate()

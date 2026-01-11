@@ -255,6 +255,13 @@ class DifferentialEvolutionHyperbandBase:
 
 
 class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
+    """
+    Differential Evolution Hyperband (DEHB) Optimizer.
+
+    Combines Differential Evolution and Hyperband for robust and efficient hyperparameter optimization.
+    Manages the optimization process, including population initialization, evolutionary updates, Also supports Dask for distributed execution.
+    and Successive Halving brackets.
+    """
     def __init__(self,
                 cs=None,
                 f=None,
