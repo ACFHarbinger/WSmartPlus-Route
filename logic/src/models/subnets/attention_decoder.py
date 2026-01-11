@@ -1,3 +1,4 @@
+"""Standard Attention Decoder for constructive routing problems."""
 import math
 import torch
 import typing
@@ -18,6 +19,7 @@ class AttentionModelFixed(typing.NamedTuple):
     logit_key: torch.Tensor
 
     def __getitem__(self, key):
+        """Allows slicing the fixed context."""
         if torch.is_tensor(key) or isinstance(key, slice):
             return AttentionModelFixed(
                 node_embeddings=self.node_embeddings[key],
@@ -30,20 +32,42 @@ class AttentionModelFixed(typing.NamedTuple):
 
 
 class AttentionDecoder(nn.Module):
+    """
+    Decoder based on Multi-Head Attention (MHA).
+    
+    Decodes the problem embedding into a sequence of nodes (visits) using
+    an attention mechanism. Supports greedy decoding, sampling, and beam search.
+    """
     def __init__(self,
-                 embedding_dim,
-                 hidden_dim,
+                 embedding_dim: int,
+                 hidden_dim: int,
                  problem,
-                 n_heads=8,
-                 tanh_clipping=10.,
-                 mask_inner=True,
-                 mask_logits=True,
-                 mask_graph=False,
-                 shrink_size=None,
-                 pomo_size=0,
-                 spatial_bias=False,
-                 spatial_bias_scale=1.0,
-                 decode_type=None):
+                 n_heads: int = 8,
+                 tanh_clipping: float = 10.,
+                 mask_inner: bool = True,
+                 mask_logits: bool = True,
+                 mask_graph: bool = False,
+                 shrink_size: int = None,
+                 pomo_size: int = 0,
+                 spatial_bias: bool = False,
+                 spatial_bias_scale: float = 1.0,
+                 decode_type: str = None):
+        """
+        Args:
+            embedding_dim: Dimension of input embeddings.
+            hidden_dim: Dimension of hidden layers.
+            problem: The problem instance (defines environment and constraints).
+            n_heads: Number of attention heads.
+            tanh_clipping: Clipping value for tanh in logits.
+            mask_inner: Whether to mask invalid moves in the attention mechanism.
+            mask_logits: Whether to mask invalid moves in the final logits.
+            mask_graph: Whether to use graph masking.
+            shrink_size: Threshold for shrinking the batch size (for completed instances).
+            pomo_size: Number of starting nodes for POMO.
+            spatial_bias: Whether to use spatial bias in attention.
+            spatial_bias_scale: Scale factor for spatial bias.
+            decode_type: Decoding strategy ('greedy', 'sampling').
+        """
         super(AttentionDecoder, self).__init__()
         
         self.embedding_dim = embedding_dim
@@ -75,9 +99,11 @@ class AttentionDecoder(nn.Module):
         self.temp = 1.0
 
     def set_step_context_dim(self, dim):
+        """Sets the dimension of the step context projection."""
         self.project_step_context = nn.Linear(dim, self.embedding_dim, bias=False)
 
     def set_decode_type(self, decode_type, temp=None):
+        """Sets the decoding type and temperature."""
         self.decode_type = decode_type
         if temp is not None:
             self.temp = temp
@@ -337,6 +363,7 @@ class AttentionDecoder(nn.Module):
         return ll
 
     def _get_log_p_topk(self, fixed, state, k=None, normalize=True):
+        """Gets top-k log probabilities and their indices."""
         log_p, _ = self._get_log_p(fixed, state, normalize=normalize)
         if k is not None and k < log_p.size(-1):
             return log_p.topk(k, -1)
@@ -346,6 +373,16 @@ class AttentionDecoder(nn.Module):
         )
 
     def propose_expansions(self, beam, fixed, expand_size=None, normalize=False, max_calc_batch_size=4096):
+        """
+        Proposes expansions for beam search.
+
+        Args:
+            beam: The beam object.
+            fixed: Fixed context.
+            expand_size: Size to expand to.
+            normalize: Whether to normalize probabilities.
+            max_calc_batch_size: Max batch size for calculation.
+        """
         log_p_topk, ind_topk = compute_in_batches(
             lambda b: self._get_log_p_topk(fixed[b.ids], b.state, k=expand_size, normalize=normalize),
             max_calc_batch_size, beam, n=beam.size()

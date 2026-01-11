@@ -1,4 +1,5 @@
 
+"""Gated Graph Attention Convolution Encoder."""
 import torch
 import torch.nn as nn
 from ..modules import (
@@ -8,10 +9,14 @@ from ..modules import (
 )
 
 class AttentionGatedConvolutionLayer(nn.Module):
+    """
+    Combined Layer with MHA, Gated GCN, and Feed-Forward Network.
+    """
     def __init__(self, n_heads, embed_dim, feed_forward_hidden, normalization, 
                  epsilon_alpha, learn_affine, track_stats, mbeta, lr_k, n_groups,
                  activation, af_param, threshold, replacement_value, n_params, uniform_range,
                  gated=True, agg='sum', bias=True):
+        """Initializes the AttentionGatedConvolutionLayer."""
         super(AttentionGatedConvolutionLayer, self).__init__()
         
         # 1. Multi-Head Attention (Global Context)
@@ -50,6 +55,17 @@ class AttentionGatedConvolutionLayer(nn.Module):
                                 learn_affine, track_stats, mbeta, n_groups, lr_k)
 
     def forward(self, h, e, mask=None):
+        """
+        Forward pass.
+        
+        Args:
+            h: Node embeddings.
+            e: Edge embeddings.
+            mask: Attention/Adjacency mask.
+            
+        Returns:
+            Updated node and edge embeddings.
+        """
         # 1. MHA
         h = self.att(h, mask=mask)
         h = self.norm1(h)
@@ -81,6 +97,9 @@ class AttentionGatedConvolutionLayer(nn.Module):
         return h, e
 
 class GatedGraphAttConvEncoder(nn.Module):
+    """
+    Encoder stack using AttentionGatedConvolutionLayers.
+    """
     def __init__(self, 
                 n_heads, 
                 embed_dim, 
@@ -102,6 +121,31 @@ class GatedGraphAttConvEncoder(nn.Module):
                 uniform_range=[0.125, 1/3],
                 dropout_rate=0.1,
                 agg='sum'):
+        """
+        Initializes the GatedGraphAttConvEncoder.
+
+        Args:
+            n_heads: Number of attention heads.
+            embed_dim: Embedding dimension.
+            n_layers: Number of layers.
+            n_sublayers: (Unused) Number of sublayers.
+            feed_forward_hidden: Hidden dimension.
+            normalization: Normalization type.
+            epsilon_alpha: Epsilon.
+            learn_affine: Learn affine parameters.
+            track_stats: Track stats.
+            momentum_beta: Momentum.
+            locresp_k: K value.
+            n_groups: Number of groups.
+            activation: Activation function.
+            af_param: Activation parameter.
+            threshold: Activation threshold.
+            replacement_value: Replacement value.
+            n_params: Number of parameters.
+            uniform_range: Uniform range.
+            dropout_rate: Dropout rate.
+            agg: Aggregation method.
+        """
         super(GatedGraphAttConvEncoder, self).__init__()
         self.embed_dim = embed_dim
         
@@ -121,9 +165,15 @@ class GatedGraphAttConvEncoder(nn.Module):
 
     def forward(self, x, edges=None, dist=None):
         """
-        x: (B, N, D)
-        edges: (B, N, N) boolean mask (optional)
-        dist: (B, N, N) distance matrix
+        Forward pass.
+
+        Args:
+            x: Input node features (B, N, D).
+            edges: Adjacency/Attention mask (B, N, N).
+            dist: Distance matrix (B, N, N).
+
+        Returns:
+            Encoded node embeddings.
         """
         if dist is None:
             # Fallback if no dist provided (should warn)

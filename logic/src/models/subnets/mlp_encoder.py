@@ -1,17 +1,21 @@
+"""MLP Encoder."""
 import torch.nn as nn
 import torch.nn.functional as F
 
 
 class MLPLayer(nn.Module):
-    """Simple MLP layer with ReLU activation
+    """
+    Simple MLP layer with ReLU activation.
     """
     def __init__(self, hidden_dim, norm="layer", learn_affine=True, track_norm=False):
         """
+        Initializes the MLP Layer.
+
         Args:
-            hidden_dim: Hidden dimension size (int)
-            norm: Feature normalization scheme ("layer"/"batch"/None)
-            learn_affine: Whether the normalizer has learnable affine parameters (True/False)
-            track_norm: Whether batch statistics are used to compute normalization mean/std (True/False)
+            hidden_dim: Hidden dimension size.
+            norm: Feature normalization scheme ("layer"/"batch"/None).
+            learn_affine: Whether the normalizer has learnable affine parameters.
+            track_norm: Whether batch statistics are used to compute normalization mean/std.
         """
         super(MLPLayer, self).__init__()
 
@@ -27,6 +31,7 @@ class MLPLayer(nn.Module):
         }.get(self.norm, None)
 
     def forward(self, x):
+        """Forward pass."""
         batch_size, num_nodes, hidden_dim = x.shape
         x_in = x
 
@@ -53,6 +58,16 @@ class MLPEncoder(nn.Module):
     """
     def __init__(self, n_layers, hidden_dim, norm="layer",
                  learn_affine=True, track_norm=False, *args, **kwargs):
+        """
+        Initializes the MLP Encoder.
+
+        Args:
+            n_layers: Number of MLP layers.
+            hidden_dim: Hidden dimension size.
+            norm: Normalization type.
+            learn_affine: Whether to learn affine parameters.
+            track_norm: Whether to track normalization stats.
+        """
         super(MLPEncoder, self).__init__()
         self.layers = nn.ModuleList(
             MLPLayer(hidden_dim, norm, learn_affine, track_norm) for _ in range(n_layers)
@@ -60,8 +75,12 @@ class MLPEncoder(nn.Module):
 
     def forward(self, x, graph=None):
         """
+        Forward pass.
+        
         Args:
-            input: Input node features (B x V x H)
+            x: Input node features (B x V x H)
+            graph: (Unused) Graph structure.
+            
         Returns:
             Updated node features (B x V x H)
         """
