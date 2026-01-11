@@ -51,6 +51,18 @@ class ALNSParams:
                  start_temp=100, cooling_rate=0.995, 
                  reaction_factor=0.1, 
                  min_removal=1, max_removal_pct=0.3):
+        """
+        Initialize ALNS parameters.
+
+        Args:
+            time_limit (int): Max runtime in seconds.
+            max_iterations (int): Max iterations.
+            start_temp (float): Initial temperature.
+            cooling_rate (float): Cooling rate.
+            reaction_factor (float): Reaction factor.
+            min_removal (int): Min nodes to remove.
+            max_removal_pct (float): Max percentage of nodes to remove.
+        """
         self.time_limit = time_limit
         self.max_iterations = max_iterations
         self.start_temp = start_temp
@@ -398,7 +410,8 @@ class ALNSSolver:
         # Find neighbors
         candidates = []
         for v in self.nodes:
-            if v == seed_node or v not in node_map: continue
+            if v == seed_node or v not in node_map:
+                continue
             dist = self.dist_matrix[seed_node][v]
             candidates.append((v, dist))
             
@@ -517,7 +530,8 @@ class ALNSSolver:
                 # Check existing routes
                 for r_idx, route in enumerate(routes):
                     load = sum(self.demands.get(n,0) for n in route)
-                    if load + self.demands.get(node,0) > self.capacity: continue
+                    if load + self.demands.get(node,0) > self.capacity:
+                        continue
                     
                     for i in range(len(route) + 1):
                         prev = 0 if i == 0 else route[i-1]
@@ -606,6 +620,19 @@ class ALNSState:
     """
     def __init__(self, routes: List[List[int]], unassigned: List[int], 
                  dist_matrix, demands, capacity, R, C, values):
+        """
+        Initialize the ALNS state.
+
+        Args:
+            routes (List[List[int]]): Current routes.
+            unassigned (List[int]): Unassigned nodes.
+            dist_matrix: Distance matrix.
+            demands: Node demands.
+            capacity: Vehicle capacity.
+            R: Revenue coefficient.
+            C: Cost coefficient.
+            values: configuration values.
+        """
         self.routes = routes
         self.unassigned = unassigned
         self.dist_matrix = dist_matrix
@@ -617,6 +644,7 @@ class ALNSState:
         self._score = self.calculate_profit()
 
     def copy(self):
+        """Returns a deep copy of the state."""
         return ALNSState(
             copy.deepcopy(self.routes), 
             copy.deepcopy(self.unassigned),
@@ -629,16 +657,29 @@ class ALNSState:
         )
 
     def objective(self):
+        """
+        Calculates the objective value for ALNS (minimization).
+
+        Returns:
+            float: Negative profit (since ALNS minimizes).
+        """
         # ALNS package minimizes objective.
         # We want to maximize profit. So minimize negative profit.
         return -self._score
 
     def calculate_profit(self):
+        """
+        Calculates the total profit of the current solution.
+
+        Returns:
+            float: Total profit (Revenue - Cost).
+        """
         total_profit = 0
         visited = set()
         
         for route in self.routes:
-            if not route: continue
+            if not route:
+                continue
             
             dist = 0
             load = 0
@@ -714,7 +755,8 @@ def alns_pkg_worst_removal(state: ALNSState, random_state: np.random.RandomState
     """
     new_state = state.copy()
     all_nodes = [n for r in new_state.routes for n in r]
-    if not all_nodes: return new_state
+    if not all_nodes:
+        return new_state
     
     costs = []
     for r_idx, route in enumerate(new_state.routes):
@@ -821,7 +863,8 @@ def run_alns_package(dist_matrix, demands, capacity, R, C, values):
     
     total_dist_cost = 0
     for route in best_state.routes:
-        if not route: continue
+        if not route:
+            continue
         d = dist_matrix[0][route[0]]
         for i in range(len(route)-1):
             d += dist_matrix[route[i]][route[i+1]]
@@ -881,6 +924,7 @@ def run_alns_ortools(dist_matrix, demands, capacity, R, C, values):
     routing = pywrapcp.RoutingModel(manager)
 
     def distance_callback(from_index, to_index):
+        """Returns distance between two nodes."""
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
         return sub_matrix[from_node][to_node]
@@ -889,6 +933,7 @@ def run_alns_ortools(dist_matrix, demands, capacity, R, C, values):
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
     def demand_callback(from_index):
+        """Returns demand of a node."""
         from_node = manager.IndexToNode(from_index)
         return scaled_demands[from_node]
 

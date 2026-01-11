@@ -173,6 +173,18 @@ def move_between_routes(routes, data, vehicle_capacity, id_to_index):
 
 
 def insert_bin_in_route(route, bin_id, id_to_index, distance_matrix):
+    """
+    Insert a bin into a route at the position minimizing cost increase.
+
+    Args:
+        route (List[int]): Current route.
+        bin_id (int): Bin to insert.
+        id_to_index (Dict): Mapping from bin ID to matrix index.
+        distance_matrix (np.ndarray): Distance matrix.
+
+    Returns:
+        List[int]: New route with the inserted bin.
+    """
     best_pos = None
     min_increase = float('inf')
     for i in range(1, len(route)):
@@ -213,6 +225,16 @@ def mutate_route_by_swapping_bins(route, num_bins=1):
 
 
 def remove_bins_from_route(route, num_bins=1):
+    """
+    Remove random bins from a route.
+
+    Args:
+        route (List[int]): Route to mutate.
+        num_bins (int): Number of bins to remove.
+
+    Returns:
+        List[int]: New route with bins removed.
+    """
     new_route = route[:]
     indices = [i for i in range(1, len(route)-1)]
     if len(indices) <= num_bins:
@@ -224,6 +246,16 @@ def remove_bins_from_route(route, num_bins=1):
 
 
 def move_n_route_random(routes_list, n=2):
+    """
+    Move n random bins from one route to another.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        n (int): Number of bins to move.
+
+    Returns:
+        List[List[int]]: New routes.
+    """
     new_routes = copy.deepcopy(routes_list)
     non_empty = [r for r in new_routes if len(r) > 2]
     if len(non_empty) < 1:
@@ -241,6 +273,16 @@ def move_n_route_random(routes_list, n=2):
 
 
 def swap_n_route_random(routes_list, n=2):
+    """
+    Swap n random bins between two routes.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        n (int): Number of bins to swap.
+
+    Returns:
+        List[List[int]]: New routes.
+    """
     new_routes = copy.deepcopy(routes_list)
     candidates = [r for r in new_routes if len(r) > n + 2]
     if len(candidates) < 2:
@@ -254,6 +296,18 @@ def swap_n_route_random(routes_list, n=2):
 
 
 def remove_n_bins_random(routes_list, removed_bins, bins_cannot_removed, n=2):
+    """
+    Remove n random bins from routes and add to removed set.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (Set): Set of removed bins to update.
+        bins_cannot_removed (List[int]): Bins that cannot be removed.
+        n (int): Number of bins to remove per route.
+
+    Returns:
+        List[List[int]]: New routes.
+    """
     new_routes = copy.deepcopy(routes_list)
     for route in new_routes:
         candidates = [b for b in route[1:-1] if b not in bins_cannot_removed]
@@ -265,6 +319,21 @@ def remove_n_bins_random(routes_list, removed_bins, bins_cannot_removed, n=2):
 
 
 def add_n_bins_random(routes_list, removed_bins, stocks, vehicle_capacity, id_to_index, distance_matrix, n=2):
+    """
+    Add n random bins from removed set to routes.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (Set): Set of removed bins.
+        stocks (Dict): Bin demand values.
+        vehicle_capacity (float): Vehicle capacity.
+        id_to_index (Dict): ID to index mapping.
+        distance_matrix (np.ndarray): Distance matrix.
+        n (int): Number of bins to add.
+
+    Returns:
+        List[List[int]]: New routes.
+    """
     new_routes = copy.deepcopy(routes_list)
     bins_to_add = random.sample(list(removed_bins), min(n, len(removed_bins)))
     for b in bins_to_add:
@@ -278,6 +347,18 @@ def add_n_bins_random(routes_list, removed_bins, stocks, vehicle_capacity, id_to
 
 
 def add_route_with_removed_bins_random(routes_list, removed_bins, stocks, vehicle_capacity):
+    """
+    Create a new route from random removed bins.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (Set): Set of removed bins.
+        stocks (Dict): Bin demand values.
+        vehicle_capacity (float): Vehicle capacity.
+
+    Returns:
+        List[List[int]]: New routes with added route.
+    """
     new_routes = copy.deepcopy(routes_list)
     if not removed_bins:
         return new_routes
@@ -298,6 +379,16 @@ def add_route_with_removed_bins_random(routes_list, removed_bins, stocks, vehicl
 
 
 def move_n_route_consecutive(routes_list, n=2):
+    """
+    Move n consecutive bins from one route to another.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        n (int): Number of bins to move.
+
+    Returns:
+        List[List[int]]: New routes.
+    """
     new_routes = copy.deepcopy(routes_list)
     non_empty = [r for r in new_routes if len(r) > n + 2]
     if not non_empty:
@@ -313,6 +404,16 @@ def move_n_route_consecutive(routes_list, n=2):
 
 
 def swap_n_route_consecutive(routes_list, n=2):
+    """
+    Swap n consecutive bins between two routes.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        n (int): Number of bins to swap.
+
+    Returns:
+        List[List[int]]: New routes.
+    """
     new_routes = copy.deepcopy(routes_list)
     valid_routes = [r for r in new_routes if len(r) > n + 2]
     if len(valid_routes) < 2:
@@ -328,6 +429,18 @@ def swap_n_route_consecutive(routes_list, n=2):
 
 
 def remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed, n=2):
+    """
+    Remove n consecutive bins from routes where allowed.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (Set): Set of removed bins.
+        bins_cannot_removed (List[int]): Bins that cannot be removed.
+        n (int): Number of consecutive bins to remove.
+
+    Returns:
+        List[List[int]]: New routes.
+    """
     new_routes = copy.deepcopy(routes_list)
     for route in new_routes:
         indices = [i for i in range(1, len(route) - n - 1)
@@ -342,6 +455,21 @@ def remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed, n=
 
 
 def add_n_bins_consecutive(routes_list, removed_bins, stocks, vehicle_capacity, id_to_index, distance_matrix, n=2):
+    """
+    Add n separate bins from removed set to routes using insertion.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (Set): Set of removed bins.
+        stocks (Dict): Bin demand values.
+        vehicle_capacity (float): Vehicle capacity.
+        id_to_index (Dict): ID to index mapping.
+        distance_matrix (np.ndarray): Distance matrix.
+        n (int): Number of bins to add.
+
+    Returns:
+        List[List[int]]: New routes.
+    """
     new_routes = copy.deepcopy(routes_list)
     if len(removed_bins) < n:
         return new_routes
@@ -358,6 +486,18 @@ def add_n_bins_consecutive(routes_list, removed_bins, stocks, vehicle_capacity, 
 
 
 def add_route_with_removed_bins_consecutive(routes_list, removed_bins, stocks, vehicle_capacity):
+    """
+    Create a new route from removed bins (sorted by ID).
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (Set): Set of removed bins.
+        stocks (Dict): Bin demand values.
+        vehicle_capacity (float): Vehicle capacity.
+
+    Returns:
+        List[List[int]]: New routes with added route.
+    """
     new_routes = copy.deepcopy(routes_list)
     if len(removed_bins) == 0:
         return new_routes

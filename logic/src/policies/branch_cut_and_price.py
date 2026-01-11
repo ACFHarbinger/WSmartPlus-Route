@@ -103,6 +103,7 @@ def _run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indic
     
     # 2. Add Distance Callback
     def distance_callback(from_index, to_index):
+        """Returns the distance between the two nodes."""
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
         return scaled_dist_matrix[from_node][to_node]
@@ -112,6 +113,7 @@ def _run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indic
     
     # 3. Add Capacity Constraint
     def demand_callback(from_index):
+        """Returns the demand of the node."""
         from_node = manager.IndexToNode(from_index)
         if from_node == 0:
             return 0
@@ -161,7 +163,8 @@ def _run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indic
     if solution:
         for vehicle_id in range(num_vehicles):
             index = routing.Start(vehicle_id)
-            if routing.IsEnd(index): continue
+            if routing.IsEnd(index):
+                continue
             
             if routing.IsEnd(solution.Value(routing.NextVar(index))):
                 continue
@@ -402,7 +405,8 @@ def _run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indice
             curr = start_node
             while curr != 0:
                 route.append(curr)
-                if not adj[curr]: break # Should not happen in valid flow
+                if not adj[curr]:
+                    break # Should not happen in valid flow
                 curr = adj[curr][0] # Should be 1 outgoing
             routes.append(route)
             

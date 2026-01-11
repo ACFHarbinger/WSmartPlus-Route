@@ -12,7 +12,7 @@ class TestVRPInstanceBuilder:
     @pytest.fixture
     def builder(self):
         """Fixture for VRPInstanceBuilder."""
-        return VRPInstanceBuilder()
+        return VRPInstanceBuilder(data=None, depot_idx=0, vehicle_cap=1.0, customers=[], dimension=0, coords=[])
 
     def test_default_initialization(self, builder):
         """Test default initialization values."""

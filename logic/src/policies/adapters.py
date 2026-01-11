@@ -55,6 +55,15 @@ class PolicyAdapter(ABC):
     """
     @abstractmethod
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
+        """
+        Execute the policy with the given arguments.
+
+        Args:
+            **kwargs: Policy-specific arguments.
+
+        Returns:
+            Tuple[List[int], float, Any]: The tour, cost, and any additional output.
+        """
         pass
 
 class RegularPolicyAdapter(PolicyAdapter):
@@ -65,6 +74,27 @@ class RegularPolicyAdapter(PolicyAdapter):
     Supports route caching for efficiency and both single/multi-vehicle routing.
     """
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
+        """
+        Execute the regular policy.
+
+        Args:
+            **kwargs: Context dictionary containing:
+                - policy: Policy name string.
+                - bins: Bins object.
+                - distancesC: Cost matrix.
+                - day: Current simulation day.
+                - cached: Cached routes (optional).
+                - waste_type: Waste type configuration.
+                - area: Area configuration.
+                - n_vehicles: Number of vehicles.
+                - coords: Bin coordinates.
+                - distance_matrix: Distance matrix.
+                - two_opt_max_iter: Max iterations for 2-opt.
+                - config: Configuration dictionary.
+
+        Returns:
+            Tuple[List[int], float, Any]: Tuple containing the tour, cost, and cached routes.
+        """
         policy = kwargs['policy']
         bins = kwargs['bins']
         distancesC = kwargs['distancesC']
@@ -100,6 +130,26 @@ class LastMinutePolicyAdapter(PolicyAdapter):
     collection. Only routes when bins exceed configured fill thresholds.
     """
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
+        """
+        Execute the last-minute policy.
+
+        Args:
+            **kwargs: Context dictionary containing:
+                - policy: Policy name string.
+                - bins: Bins object.
+                - distancesC: Cost matrix.
+                - waste_type: Waste type configuration.
+                - area: Area configuration.
+                - n_vehicles: Number of vehicles.
+                - coords: Bin coordinates.
+                - distance_matrix: Distance matrix.
+                - two_opt_max_iter: Max iterations for 2-opt.
+                - paths_between_states: Precomputed paths (optional).
+                - config: Configuration dictionary.
+
+        Returns:
+            Tuple[List[int], float, Any]: Tuple containing the tour, cost, and None (no output dict used).
+        """
         policy = kwargs['policy']
         bins = kwargs['bins']
         distancesC = kwargs['distancesC']
@@ -146,6 +196,26 @@ class NeuralPolicyAdapter(PolicyAdapter):
     with optional HRL manager integration for gating and masking decisions.
     """
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
+        """
+        Execute the neural policy.
+
+        Args:
+            **kwargs: Context dictionary containing:
+                - model_env: The neural model.
+                - model_ls: Tuple of (model_data, graph, profit_vars).
+                - bins: Bins object.
+                - device: Torch device.
+                - fill: Current fill levels.
+                - dm_tensor: Distance matrix tensor.
+                - run_tsp: Boolean to run TSP refinement.
+                - hrl_manager: HRL manager (optional).
+                - gate_prob_threshold: Gating threshold.
+                - mask_prob_threshold: Masking threshold.
+                - two_opt_max_iter: 2-opt iterations.
+
+        Returns:
+            Tuple[List[int], float, Any]: Tuple containing the tour, cost, and output dictionary (attention weights, etc.).
+        """
         model_env = kwargs['model_env']
         model_ls = kwargs['model_ls']
         bins = kwargs['bins']
@@ -184,6 +254,26 @@ class VRPPPolicyAdapter(PolicyAdapter):
     Optimizes profit while deciding which bins to collect.
     """
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
+        """
+        Execute the VRPP policy.
+
+        Args:
+            **kwargs: Context dictionary containing:
+                - policy: Policy name.
+                - bins: Bins object.
+                - distance_matrix: Distance matrix.
+                - model_env: Solver environment/model.
+                - waste_type: Waste type config.
+                - area: Area config.
+                - n_vehicles: Number of vehicles.
+                - distancesC: Cost matrix.
+                - run_tsp: Run TSP refinement.
+                - two_opt_max_iter: 2-opt iterations.
+                - config: Configuration dict.
+
+        Returns:
+            Tuple[List[int], float, Any]: Tuple with tour, cost, and None.
+        """
         policy = kwargs['policy']
         bins = kwargs['bins']
         distance_matrix = kwargs['distance_matrix']
@@ -218,6 +308,30 @@ class LookAheadPolicyAdapter(PolicyAdapter):
     Supports multiple solver backends: VRPP, SANS, HGS, ALNS, BCP, or OR solvers.
     """
     def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
+        """
+        Execute the look-ahead policy.
+
+        Args:
+            **kwargs: Context dictionary containing:
+                - policy: Policy name/config string.
+                - graph_size: Number of nodes.
+                - bins: Bins object.
+                - new_data: Dataframe for some solvers.
+                - coords: Bin coordinates.
+                - current_collection_day: Current day index.
+                - area: Area config.
+                - waste_type: Waste type config.
+                - n_vehicles: Number of vehicles.
+                - model_env: Solver environment.
+                - distance_matrix: Distance matrix.
+                - distancesC: Cost matrix.
+                - run_tsp: Run TSP refinement.
+                - two_opt_max_iter: 2-opt iterations.
+                - config: Configuration dict.
+
+        Returns:
+            Tuple[List[int], float, Any]: Tuple with tour, cost, and None.
+        """
         policy = kwargs['policy']
         graph_size = kwargs['graph_size']
         bins = kwargs['bins']

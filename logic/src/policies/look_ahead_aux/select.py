@@ -288,6 +288,16 @@ def remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed):
 
 # Function to add n bin from the removed bins set to any route randomly
 def add_n_bins_random(routes_list, removed_bins):
+    """
+    Add n random bins from the removed set to random routes.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (List[int]): Set of removed bins.
+
+    Returns:
+        Tuple[List[int], int]: List of added bins and the number n chosen.
+    """
     bins_to_add_random = []
     possible_n = [2,3,4,5]
     chosen_n = rsample(possible_n,1)[0]
@@ -306,6 +316,16 @@ def add_n_bins_random(routes_list, removed_bins):
 
 # Function to add n bin from the removed bins set to any route randomly
 def add_n_bins_consecutive(routes_list, removed_bins):
+    """
+    Add n consecutive bins from the removed set (treated as list) to a random route.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (List[int]): Set/List of removed bins.
+
+    Returns:
+        Tuple[List[int], int]: List of added bins and the number n chosen.
+    """
     bins_to_add_consecutive = []
     possible_n = [2,3,4,5]
     chosen_n = rsample(possible_n,1)[0]
@@ -359,6 +379,16 @@ def add_route_random(routes_list, distance_matrix):
 
 # Add one route consecutive
 def add_route_consecutive(routes_list, distance_matrix):
+    """
+    Create a new route by extracting a consecutive segment from an existing route.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        distance_matrix (np.ndarray): Distance matrix for route organization.
+
+    Returns:
+        int: The number of bins moved to the new route.
+    """
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list,1)[0]
 
@@ -390,7 +420,18 @@ def add_route_consecutive(routes_list, distance_matrix):
 
 
 # Add one route with bins from removed bins
-def add_route_with_removed_bins_random(routes_list,removed_bins,distance_matrix):
+def add_route_with_removed_bins_random(routes_list, removed_bins, distance_matrix):
+    """
+    Create a new route using a random subset of removed bins.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (List[int]): Pool of removed bins.
+        distance_matrix (np.ndarray): Distance matrix.
+
+    Returns:
+        Tuple[int, List[int]]: Number of bins used and the list of bins used.
+    """
     length_removed_bins = len(removed_bins)
     possible_percent = [0.2,0.3,0.4,0.5]
     chosen_n = rsample(possible_percent,1)[0]
@@ -408,7 +449,18 @@ def add_route_with_removed_bins_random(routes_list,removed_bins,distance_matrix)
 
 
 # Add one route with bins from removed bins consecutive
-def add_route_with_removed_bins_consecutive(routes_list,removed_bins,distance_matrix):
+def add_route_with_removed_bins_consecutive(routes_list, removed_bins, distance_matrix):
+    """
+    Create a new route using a consecutive sequence of removed bins.
+
+    Args:
+        routes_list (List[List[int]]): Current routes.
+        removed_bins (List[int]): Pool of removed bins.
+        distance_matrix (np.ndarray): Distance matrix.
+
+    Returns:
+        Tuple[int, List[int]]: Number of bins used and the list of bins used.
+    """
     length_removed_bins = len(removed_bins)
     possible_percent = [0.2,0.3,0.4,0.5]
     chosen_n = rsample(possible_percent,1)[0]

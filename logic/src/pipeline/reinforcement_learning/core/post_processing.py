@@ -43,6 +43,13 @@ class EfficiencyOptimizer(nn.Module):
         hidden_dim: Hidden layer size (default: 64)
     """
     def __init__(self, input_dim, hidden_dim=64):
+        """
+        Initialize the EfficiencyOptimizer.
+
+        Args:
+            input_dim (int): Dimension of the input features.
+            hidden_dim (int): Dimension of the hidden layer.
+        """
         super(EfficiencyOptimizer, self).__init__()
         self.network = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
@@ -220,13 +227,13 @@ def local_search_2opt_vectorized(tours, distance_matrix, max_iterations=200):
         i = indices[1:-2]
         j = indices[2:-1]
         
-        I, J = torch.meshgrid(i, j, indexing='ij')
-        mask = J > I
+        I_grid, J_grid = torch.meshgrid(i, j, indexing='ij')
+        mask = J_grid > I_grid
         if not mask.any():
             break
             
-        I_vals = I[mask]
-        J_vals = J[mask]
+        I_vals = I_grid[mask]
+        J_vals = J_grid[mask]
         K = I_vals.size(0)
         
         # Tour nodes at relevant indices: (B, K)

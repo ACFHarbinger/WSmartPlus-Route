@@ -168,6 +168,7 @@ class VRPP(object):
         fixed = model.precompute_fixed(input)
 
         def propose_expansions(beam):
+            """Proposes expansions for the beam using the model."""
             return model.propose_expansions(
                 beam,
                 fixed,
@@ -351,6 +352,7 @@ class CVRPP(object):
         fixed = model.precompute_fixed(input)
 
         def propose_expansions(beam):
+            """Proposes expansions for the beam using the model."""
             return model.propose_expansions(
                 beam,
                 fixed,
@@ -606,6 +608,7 @@ class VRPPDataset(Dataset):
         """Updates instances in the dataset."""
 
         def __update_item(inst, key, value):
+            """Helper to update a single dictionary instance."""
             inst[key] = value
             return inst
 

@@ -1,3 +1,9 @@
+"""
+Look-ahead policy module.
+
+This module implements policies that look ahead into the future to optimize
+collection schedules compared to immediate greedy or periodic policies.
+"""
 import numpy as np
 import pandas as pd
 import gurobipy as gp
@@ -74,7 +80,7 @@ def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_m
   R = values.get('R')
   C = values.get('C') # expenses
   Omega = values.get('Omega', 0.1) 
-  delta = values.get('delta', 0)   
+  # delta = values.get('delta', 0)   
   vehicle_capacity = values.get('vehicle_capacity')
 
   B = values.get('B', 19.0) 
@@ -89,7 +95,7 @@ def policy_lookahead_vrpp(current_fill_levels, binsids, must_go_bins, distance_m
   model.Params.MIPGap = 0.0
 
   real_nodes = binsids[1:] 
-  depot = 0
+  # depot = 0
   fictitious_node = max(binsids) + 1
   all_nodes = binsids + [fictitious_node]
 
@@ -235,8 +241,8 @@ def policy_lookahead_sans(data, bins_coordinates, distance_matrix, params, must_
   T_init, iterations_per_T, alpha, T_min, *_ = params
 
   density, V, vehicle_capacity = values['B'], values['E'], values['vehicle_capacity'] 
-  R, C, Omega = values['R'], values['C'], values['Omega'] 
-  E, B, time_limit = 1, 1, values['time_limit']
+  R, C, _ = values['R'], values['C'], values['Omega'] 
+  _, _, time_limit = 1, 1, values['time_limit']
 
   iframe = isinstance(data, pd.DataFrame)
   if iframe:

@@ -49,6 +49,21 @@ class BaseReinforceTrainer(ABC):
         weight_optimizer: Meta-learner for dynamic weight adjustment (optional)
     """
     def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+        """
+        Initialize the BaseReinforceTrainer.
+
+        Args:
+            model: Neural network model.
+            optimizer: Optimizer.
+            baseline: Baseline for updates.
+            lr_scheduler: Learning rate scheduler.
+            scaler: GradScaler for mixed precision.
+            val_dataset: Validation dataset.
+            problem: Problem instance.
+            tb_logger: TensorBoard logger.
+            cost_weights: Cost weights dict.
+            opts: Options dictionary.
+        """
         self.model = model
         self.optimizer = optimizer
         self.baseline = baseline

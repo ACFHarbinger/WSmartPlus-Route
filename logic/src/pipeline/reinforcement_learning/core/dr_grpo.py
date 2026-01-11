@@ -23,6 +23,9 @@ class DRGRPOTrainer(TimeTrainer):
     3. No sequence length normalization in the objective function.
     """
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the DRGRPOTrainer.
+        """
         super().__init__(*args, **kwargs)
         self.group_size = self.opts.get('dr_grpo_group_size', 8)
         self.epsilon = self.opts.get('dr_grpo_epsilon', 0.2)
