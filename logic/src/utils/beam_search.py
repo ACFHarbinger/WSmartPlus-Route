@@ -4,12 +4,40 @@ import typing
 from logic.src.utils.lexsort import torch_lexsort
 
 
+"""
+Beam Search implementation for combinatorial optimization problems.
+
+This module provides a generic beam search decoder that can be used with
+autoregressive neural implementations (like Attention Model).
+"""
+
+
 def beam_search(*args, **kwargs):
+    """
+    Orchestrates beam search decoding on a batch of states.
+
+    Args:
+        *args: positional args passed to _beam_search
+        **kwargs: keyword args passed to _beam_search
+
+    Returns:
+        tuple: (score, solutions, cost, ids, batch_size)
+    """
     beams, final_state = _beam_search(*args, **kwargs)
     return get_beam_search_results(beams, final_state)
 
 
 def get_beam_search_results(beams, final_state):
+    """
+    Reconstructs solutions from the final beam state.
+
+    Args:
+        beams (list): List of Beam objects from each step.
+        final_state (State): The final state after decoding.
+
+    Returns:
+        tuple: (score, solutions, cost, ids, batch_size)
+    """
     beam = beams[-1]  # Final beam
     if final_state is None:
         return None, None, None, None, beam.batch_size
@@ -19,10 +47,28 @@ def get_beam_search_results(beams, final_state):
     parents = [beam.parent for beam in beams[1:]]
 
     solutions = final_state.construct_solutions(backtrack(parents, actions))
-    return beam.score, solutions, final_state.get_final_cost()[:, 0], final_state.ids.view(-1), beam.batch_size
+    return (
+        beam.score,
+        solutions,
+        final_state.get_final_cost()[:, 0],
+        final_state.ids.view(-1),
+        beam.batch_size,
+    )
 
 
 def _beam_search(state, beam_size, propose_expansions=None, keep_states=False):
+    """
+    Internal beam search execution.
+
+    Args:
+        state (State): Initial state.
+        beam_size (int): Width of the beam.
+        propose_expansions (callable, optional): Custom expansion logic.
+        keep_states (bool, optional): Whether to store all intermediate states.
+
+    Returns:
+        tuple: (beams, final_state)
+    """
     beam = BatchBeam.initialize(state)
 
     # Initial state
@@ -32,7 +78,11 @@ def _beam_search(state, beam_size, propose_expansions=None, keep_states=False):
     while not beam.all_finished():
 
         # Use the model to propose and score expansions
-        parent, action, score = beam.propose_expansions() if propose_expansions is None else propose_expansions(beam)
+        parent, action, score = (
+            beam.propose_expansions()
+            if propose_expansions is None
+            else propose_expansions(beam)
+        )
         if parent is None:
             return beams, None
 
@@ -55,7 +105,10 @@ class BatchBeam(typing.NamedTuple):
     Since the beam size of different entries in the batch may vary, the tensors are not (batch_size, beam_size, ...)
     but rather (sum_i beam_size_i, ...), i.e. flattened. This makes some operations a bit cumbersome.
     """
-    score: torch.Tensor  # Current heuristic score of each entry in beam (used to select most promising)
+
+    score: (
+        torch.Tensor
+    )  # Current heuristic score of each entry in beam (used to select most promising)
     state: None  # To track the state
     parent: torch.Tensor
     action: torch.Tensor
@@ -68,13 +121,15 @@ class BatchBeam(typing.NamedTuple):
         return self.state.ids.view(-1)  # Need to flat as state has steps dimension
 
     def __getitem__(self, key):
-        if torch.is_tensor(key) or isinstance(key, slice):  # If tensor, idx all tensors by this tensor:
+        if torch.is_tensor(key) or isinstance(
+            key, slice
+        ):  # If tensor, idx all tensors by this tensor:
             return self._replace(
                 # ids=self.ids[key],
                 score=self.score[key] if self.score is not None else None,
                 state=self.state[key],
                 parent=self.parent[key] if self.parent is not None else None,
-                action=self.action[key] if self.action is not None else None
+                action=self.action[key] if self.action is not None else None,
             )
         return self[key]
 
@@ -92,7 +147,7 @@ class BatchBeam(typing.NamedTuple):
             parent=None,
             action=None,
             batch_size=batch_size,
-            device=device
+            device=device,
         )
 
     def propose_expansions(self):
@@ -105,9 +160,11 @@ class BatchBeam(typing.NamedTuple):
     def expand(self, parent, action, score=None):
         return self._replace(
             score=score,  # The score is cleared upon expanding as it is no longer valid, or it must be provided
-            state=self.state[parent].update(action),  # Pass ids since we replicated state
+            state=self.state[parent].update(
+                action
+            ),  # Pass ids since we replicated state
             parent=parent,
-            action=action
+            action=action,
         )
 
     def topk(self, k):
@@ -118,7 +175,7 @@ class BatchBeam(typing.NamedTuple):
         return self.state.all_finished()
 
     def cpu(self):
-        return self.to(torch.device('cpu'))
+        return self.to(torch.device("cpu"))
 
     def to(self, device):
         if device == self.device:
@@ -127,7 +184,7 @@ class BatchBeam(typing.NamedTuple):
             score=self.score.to(device) if self.score is not None else None,
             state=self.state.to(device),
             parent=self.parent.to(device) if self.parent is not None else None,
-            action=self.action.to(device) if self.action is not None else None
+            action=self.action.to(device) if self.action is not None else None,
         )
 
     def clear_state(self):
@@ -139,13 +196,15 @@ class BatchBeam(typing.NamedTuple):
 
 def segment_topk_idx(x, k, ids):
     """
-    Finds the topk per segment of data x given segment ids (0, 0, 0, 1, 1, 2, ...).
-    Note that there may be fewer than k elements in a segment so the returned length index can vary.
-    x[result], ids[result] gives the sorted elements per segment as well as corresponding segment ids after sorting.
-    :param x:
-    :param k:
-    :param ids:
-    :return:
+    Finds the topk per segment of data x given segment ids.
+
+    Args:
+        x (Tensor): Data tensor to sort.
+        k (int): Number of top elements to select per segment.
+        ids (Tensor): Segment identifiers (sorted).
+
+    Returns:
+        Tensor: Indices of the topk elements.
     """
     assert x.dim() == 1
     assert ids.dim() == 1
@@ -166,10 +225,14 @@ def segment_topk_idx(x, k, ids):
     # This way ids does not need to be increasing or adjacent, as long as each group is a single range
     group_offsets = splits.new_zeros((splits.max() + 1,))
     group_offsets[ids[splits]] = splits
-    offsets = group_offsets[ids]  # Look up offsets based on ids, effectively repeating for the repetitions per id
+    offsets = group_offsets[
+        ids
+    ]  # Look up offsets based on ids, effectively repeating for the repetitions per id
 
     # We want topk so need to sort x descending so sort -x (be careful with unsigned data type!)
-    idx_sorted = torch_lexsort((-(x if x.dtype != torch.uint8 else x.int()).detach(), ids))
+    idx_sorted = torch_lexsort(
+        (-(x if x.dtype != torch.uint8 else x.int()).detach(), ids)
+    )
 
     # This will filter first k per group (example k = 2)
     # ids     = [0, 0, 0, 1, 1, 1, 1, 2]
@@ -183,6 +246,16 @@ def segment_topk_idx(x, k, ids):
 
 
 def backtrack(parents, actions):
+    """
+    Reconstructs action sequences by backtracking through parents.
+
+    Args:
+        parents (list): List of parent indices for each step.
+        actions (list): List of actions taken at each step.
+
+    Returns:
+        Tensor: Reconstructed sequences [batch_size, seq_len].
+    """
     # Now backtrack to find aligned action sequences in reversed order
     cur_parent = parents[-1]
     reversed_aligned_sequences = [actions[-1]]
@@ -194,14 +267,20 @@ def backtrack(parents, actions):
 
 
 class CachedLookup(object):
+    """
+    Helper class for cached data access in beam search.
+    """
+
     def __init__(self, data):
         self.orig = data
         self.key = None
         self.current = None
 
     def __getitem__(self, key):
-        assert not isinstance(key, slice), "CachedLookup does not support slicing, " \
-                                           "you can slice the result of an index operation instead"
+        assert not isinstance(key, slice), (
+            "CachedLookup does not support slicing, "
+            "you can slice the result of an index operation instead"
+        )
 
         if torch.is_tensor(key):  # If tensor, idx all tensors by this tensor:
             if self.key is None:

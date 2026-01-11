@@ -5,17 +5,36 @@ from types import FrameType
 from typing import Any, Callable, Optional
 
 
-def watch(var_name: str,
-          callback: Optional[Callable[[Any, Any, FrameType], None]] = None,
-          *,
-          frame_depth: int = 1) -> None:
+"""
+Debugging utilities for the WSmart+ Route framework.
+
+This module provides tools for monitoring runtime state, including:
+- Variable watching (tracing value changes).
+"""
+
+
+def watch(
+    var_name: str,
+    callback: Optional[Callable[[Any, Any, FrameType], None]] = None,
+    *,
+    frame_depth: int = 1,
+) -> None:
     """
     Watch a variable by name. Prints every change with line number.
     Works with numpy arrays, lists, dicts, primitives – anything.
+
+    Args:
+        var_name (str): Name of the variable to watch.
+        callback (callable, optional): Custom callback (old, new, frame) -> None.
+        frame_depth (int, optional): Stack depth to watch from. Defaults to 1.
+
+    Raises:
+        NameError: If variable is not found in locals or globals.
     """
     caller_frame = sys._getframe(frame_depth)
     active_callback = callback
     if active_callback is None:
+
         def default_callback(old, new, frame):
             stack = traceback.extract_stack(frame)[:-1]
             caller = stack[-1]
@@ -27,7 +46,7 @@ def watch(var_name: str,
     old_value = [None]
 
     def tracer(frame: FrameType, event: str, arg) -> Callable:
-        if event != 'line':
+        if event != "line":
             return tracer
         if frame is not caller_frame:
             return tracer
@@ -50,7 +69,7 @@ def watch(var_name: str,
             initial = caller_frame.f_globals[var_name]
         except KeyError:
             raise NameError(f"Name '{var_name}' not found in locals or globals")
-    
+
     old_value[0] = initial
     caller_frame.f_trace = tracer
     sys.settrace(tracer)
