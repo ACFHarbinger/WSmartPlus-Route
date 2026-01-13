@@ -59,15 +59,14 @@ class VRPP(BaseProblem):
         return VRPPDataset(*args, **kwargs)
 
     @staticmethod
-    def make_state(*args, **kwargs):
+    def make_state(input, edges=None, cost_weights=None, dist_matrix=None, *args, **kwargs):
         """Initializes the VRPP state."""
         if "profit_vars" not in kwargs or kwargs["profit_vars"] is None:
             kwargs["profit_vars"] = {
                 "cost_km": COST_KM,
                 "revenue_kg": REVENUE_KG,
-                "bin_capacity": BIN_CAPACITY,
             }
-        return StateVRPP.initialize(*args, **kwargs)
+        return StateVRPP.initialize(input, edges, cost_weights=cost_weights, dist_matrix=dist_matrix, *args, **kwargs)
 
 
 class CVRPP(BaseProblem):
@@ -122,7 +121,7 @@ class CVRPP(BaseProblem):
         return VRPPDataset(*args, **kwargs)
 
     @staticmethod
-    def make_state(*args, **kwargs):
+    def make_state(input, edges=None, cost_weights=None, dist_matrix=None, *args, **kwargs):
         """Initializes the CVRPP state."""
         if "profit_vars" not in kwargs or kwargs["profit_vars"] is None:
             kwargs["profit_vars"] = {
@@ -131,7 +130,7 @@ class CVRPP(BaseProblem):
                 "bin_capacity": BIN_CAPACITY,
                 "vehicle_capacity": VEHICLE_CAPACITY,
             }
-        return StateCVRPP.initialize(*args, **kwargs)
+        return StateCVRPP.initialize(input, edges, cost_weights=cost_weights, dist_matrix=dist_matrix, *args, **kwargs)
 
 
 def make_instance(edge_threshold, edge_strategy, args):

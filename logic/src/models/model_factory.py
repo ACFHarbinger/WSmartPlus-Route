@@ -85,3 +85,23 @@ class MLPComponentFactory(NeuralComponentFactory):
     def create_decoder(self, **kwargs) -> nn.Module:
         """Create Attention Decoder."""
         return AttentionDecoder(**kwargs)
+
+class MoEComponentFactory(NeuralComponentFactory):
+    """Factory for Mixture of Experts Models."""
+    def __init__(self, num_experts=4, k=2, noisy_gating=True):
+        self.num_experts = num_experts
+        self.k = k
+        self.noisy_gating = noisy_gating
+
+    def create_encoder(self, **kwargs) -> nn.Module:
+        """Create MoE Graph Attention Encoder."""
+        from logic.src.models.subnets.moe_encoder import MoEGraphAttentionEncoder
+        # Inject MoE params
+        kwargs['num_experts'] = self.num_experts
+        kwargs['k'] = self.k
+        kwargs['noisy_gating'] = self.noisy_gating
+        return MoEGraphAttentionEncoder(**kwargs)
+
+    def create_decoder(self, **kwargs) -> nn.Module:
+        """Create Attention Decoder."""
+        return AttentionDecoder(**kwargs)

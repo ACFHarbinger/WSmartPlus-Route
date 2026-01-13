@@ -119,3 +119,7 @@ class StateVRPP(NamedTuple):
         mask = visited_ | visited_[:, :, 0:1]
         mask[:, :, 0] = 0
         return mask
+
+    def get_current_profit(self):
+        """Returns the current profit (negative cost)."""
+        return -self.cur_negative_profit

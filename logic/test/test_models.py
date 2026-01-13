@@ -2,11 +2,24 @@
 import torch
 
 from unittest.mock import MagicMock
+import torch.nn as nn
+import logic.src.problems.vrpp.problem_vrpp as problem_module
 from logic.src.policies.neural_agent import NeuralAgent
 from logic.src.models.attention_model import AttentionModel
 from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
     WarmupBaseline, NoBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, BaselineDataset
 )
+from logic.src.models.modules.moe import MoE
+from logic.src.models.modules.moe_feed_forward import MoEFeedForward
+from logic.src.models.subnets.moe_encoder import MoEGraphAttentionEncoder
+from logic.src.models.moe_model import MoEAttentionModel, MoETemporalAttentionModel
+from logic.src.problems.vrpp.problem_vrpp import CVRPP
+
+# Patch globals that are expected to be initialized by Dataset
+problem_module.COST_KM = 1.0
+problem_module.REVENUE_KG = 1.0
+problem_module.BIN_CAPACITY = 100.0
+problem_module.VEHICLE_CAPACITY = 1000.0
 
 class TestAttentionModel:
     """Tests for the AttentionModel architecture."""
@@ -295,3 +308,115 @@ class TestTemporalAttentionModel:
         model(input_data)
         assert 'fill_history' in input_data
         assert input_data['fill_history'].shape[-1] == 5 # horizon
+
+class TestMoE:
+    """Tests for MoE module."""
+    
+    def test_moe_forward(self):
+        """Test basic forward pass of MoE."""
+        batch_size = 2
+        seq_len = 5
+        d_model = 16
+        num_experts = 4
+        k = 2
+        
+        moe = MoE(input_size=d_model, output_size=d_model, num_experts=num_experts, k=k, noisy_gating=False)
+        x = torch.rand(batch_size, seq_len, d_model)
+        
+        output = moe(x)
+        assert output.shape == (batch_size, seq_len, d_model)
+
+
+class TestMoEFeedForward:
+    """Tests for MoEFeedForward wrapper."""
+    
+    def test_moe_ff_structure(self):
+        """Test structure and forward pass."""
+        d_model = 16
+        d_ff = 32
+        
+        moe_ff = MoEFeedForward(
+            embed_dim=d_model, 
+            feed_forward_hidden=d_ff, 
+            activation='relu', 
+            af_param=1.0, 
+            threshold=6.0, 
+            replacement_value=6.0, 
+            n_params=3, 
+            dist_range=[0.1, 0.2],
+            num_experts=3,
+            k=1
+        )
+        
+        assert len(moe_ff.moe.experts) == 3
+        # Check if experts are Sequential (FF -> Act -> FF)
+        assert isinstance(moe_ff.moe.experts[0], nn.Sequential)
+        
+        x = torch.rand(2, 5, d_model)
+        out = moe_ff(x)
+        assert out.shape == (2, 5, d_model)
+
+class TestMoEEncoder:
+    """Tests for MoE Encoder."""
+    
+    def test_encoder_integration(self):
+        """Test MoEGraphAttentionEncoder."""
+        d_model = 16
+        encoder = MoEGraphAttentionEncoder(
+            n_heads=2,
+            embed_dim=d_model,
+            n_layers=2,
+            feed_forward_hidden=32,
+            num_experts=4,
+            k=2
+        )
+        
+        x = torch.rand(2, 5, d_model)
+        out = encoder(x, edges=None)
+        assert out.shape == (2, 5, d_model)
+
+class TestMoEModel:
+    """Tests for High-Level MoE Model."""
+    
+    def test_model_initialization_and_forward(self):
+        """Test MoEAttentionModel initialization and forward pass."""
+        # Mock problem
+        problem = CVRPP()
+        
+        model = MoEAttentionModel(
+            embedding_dim=16,
+            hidden_dim=32,
+            problem=problem,
+            n_encode_layers=1,
+            n_heads=2,
+            num_experts=3,
+            k=1
+        )
+        
+        # Check factory injection
+        assert isinstance(model.embedder, MoEGraphAttentionEncoder)
+        
+        input_data = {
+            'depot': torch.rand(2, 2),
+            'loc': torch.rand(2, 5, 2),
+            'demand': torch.rand(2, 5),
+            'waste': torch.rand(2, 5),
+            'max_waste': torch.rand(2)
+        }
+        
+        model.set_decode_type('greedy')
+        cost, ll, cost_dict, pi, entropy = model(input_data, return_pi=True)
+        assert pi.ndim == 2
+        assert pi.size(0) == 2
+
+    def test_temporal_model_initialization(self):
+        """Test MoETemporalAttentionModel initialization."""
+        problem = CVRPP()
+        model = MoETemporalAttentionModel(
+            embedding_dim=16,
+            hidden_dim=32,
+            problem=problem,
+            n_encode_layers=1,
+            temporal_horizon=5
+        )
+        assert isinstance(model.embedder, MoEGraphAttentionEncoder)
