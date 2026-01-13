@@ -319,7 +319,7 @@ class Bins:
         # Check if tour has bins to collect
         ids = set(idsfull)
         total_collected = np.zeros((self.n))
-        if len(ids) <= 2: 
+        if len(ids) < 2: 
             return total_collected, 0, 0, 0     
 
         # Collect waste
