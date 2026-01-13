@@ -244,7 +244,7 @@ class BaseReinforceTrainer(ABC):
         )
 
         # --- Curriculum Update Logic ---
-        if self.opts.get('imitation_weight', 0.0) > 0:
+        if self.opts.get('imitation_weight', 0.0) >= self.opts.get('imitation_threshold', 0.05):
             # 1. Decay
             if (self.day + 1) % self.opts['imitation_decay_step'] == 0:
                 self.opts['imitation_weight'] *= self.opts['imitation_decay']
@@ -273,8 +273,7 @@ class BaseReinforceTrainer(ABC):
             avg_length = get_mean_metric('length') * self.cost_weights['length']
             avg_overflows = get_mean_metric('overflows') * self.cost_weights['overflows']
             avg_waste = get_mean_metric('waste') * self.cost_weights['waste']
-            avg_model_cost = avg_length + avg_overflows + avg_waste
-            print(f"[Curriculum] Reannealing: Model Cost {avg_model_cost:.4f} vs Expert Cost {avg_expert_cost:.4f}")
+            avg_model_cost = - avg_waste + avg_length + avg_overflows
             
             threshold = self.opts.get('reannealing_threshold', 0.05)
             

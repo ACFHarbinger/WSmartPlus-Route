@@ -19,6 +19,8 @@ while inheriting the common training loop structure from BaseReinforceTrainer.
 """
 
 import time
+import os
+import yaml
 import torch
 import numpy as np
 from tqdm import tqdm
@@ -186,7 +188,7 @@ class StandardTrainer(BaseReinforceTrainer):
             curr_imitation_weight = self.opts.get('imitation_weight', 0.0) # Decay handled externally
             
             expert_cost_tensor = None
-            if curr_imitation_weight >= self.opts['lr_model'] and pi is not None:
+            if curr_imitation_weight >= self.opts.get('imitation_threshold', 0.05) and pi is not None:
                 dist_matrix = x.get('dist', None)
                 expert_pi = None
                 
@@ -252,10 +254,39 @@ class StandardTrainer(BaseReinforceTrainer):
                             hgs_demands = demands
                             if demands.size(0) == pi.size(0):
                                 hgs_demands = demands[valid_hgs_indices]
+                            
+                            # Clamp demands to capacity to ensure feasibility for HGS
+                            # This handles overflows (demand > 1.0) by treating them as full loads.
+                            hgs_demands = torch.clamp(hgs_demands, max=vehicle_capacity)
+                            
+                            # Load HGS Config Params
+                            hgs_params = {
+                                'n_generations': 50,
+                                'population_size': 10,
+                                'elite_size': 5,
+                                'time_limit': 1.0
+                            }
+                            if self.opts.get('hgs_config_path'):
+                                cfg_path = self.opts['hgs_config_path']
+                                if os.path.exists(cfg_path):
+                                    try:
+                                        with open(cfg_path, 'r') as f:
+                                            loaded_cfg = yaml.safe_load(f)
+                                            # Update matching keys
+                                            for k in hgs_params:
+                                                if k in loaded_cfg:
+                                                    hgs_params[k] = loaded_cfg[k]
+                                    except Exception as e:
+                                        print(f"Warning: Failed to load HGS config {cfg_path}: {e}")
 
-                            hgs_solver = VectorizedHGS(hgs_dist, hgs_demands, vehicle_capacity, device=self.opts['device'])
+                            hgs_solver = VectorizedHGS(hgs_dist, hgs_demands, vehicle_capacity, time_limit=hgs_params['time_limit'], device=self.opts['device'])
                             try:
-                                expert_pi_valid, _ = hgs_solver.solve(giant_tours_np)
+                                expert_pi_valid, _ = hgs_solver.solve(
+                                    giant_tours_np, 
+                                    n_generations=hgs_params['n_generations'],
+                                    population_size=hgs_params['population_size'],
+                                    elite_size=hgs_params['elite_size']
+                                )
                                 # Dynamic padding for expert_pi based on HGS output length
                                 max_hgs_len = max(len(r) for r in expert_pi_valid) if expert_pi_valid else 0
                                 if max_hgs_len > 0:
