@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Colors for output
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
 #SBATCH --job-name=test-g1
 #SBATCH --time=2-00:00:00
 
@@ -43,13 +56,17 @@ if [[ -z $script ]]; then
 fi
 
 if [[ "$script" == "train" ]]; then
+    echo -e "${BLUE}Executing SLIM Slurm Task: [TRAIN]${NC}"
     bash scripts/train.sh
 elif [[ "$script" == "hyperparam_optim" ]]; then
+    echo -e "${BLUE}Executing SLIM Slurm Task: [HYPERPARAM_OPTIM]${NC}"
     bash scripts/hyperparam_optim.sh
 elif [[ "$script" == "test" ]]; then
+    echo -e "${BLUE}Executing SLIM Slurm Task: [TEST]${NC}"
     bash scripts/test_sim.sh -nc "$NUMBER_OF_CORES"
 elif [[ "$script" == "gen_data" ]]; then
+    echo -e "${BLUE}Executing SLIM Slurm Task: [GEN_DATA]${NC}"
     bash scripts/gen_data.sh
 else
-    echo "Unknown bash script: $script"
+    echo -e "${RED}Unknown bash script: $script${NC}"
 fi

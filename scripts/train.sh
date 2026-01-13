@@ -3,13 +3,22 @@
 # Handle memory fragmentation
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-# Default to quiet mode
-VERBOSE=false
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
 
-# Handle --verbose if it appears after other arguments
+# Default to verbose mode
+VERBOSE=true
+
+# Handle --quiet if it appears after other arguments
 for arg in "$@"; do
-    if [[ "$arg" == "--verbose" ]]; then
-        VERBOSE=true
+    if [[ "$arg" == "--quiet" ]]; then
+        VERBOSE=false
     fi
 done
 
@@ -46,6 +55,7 @@ AGG_G="avg"
 CONNECTION="static_hyper"
 HYPER_LANES=4
 
+RL_ALGO="reinforce"
 OPTIM="rmsprop"
 LR_MODEL=0.0001
 LR_SCHEDULER="lambda"
@@ -64,7 +74,7 @@ EXP_BETA=0.8
 BL_ALPHA=0.05
 ACC_STEPS=1
 
-IMITATION_W=0.1
+IMITATION_W=1.0
 IMITATION_DECAY=0.91
 IMITATION_DECAY_STEP=1
 TWO_OPT_MAX_ITER=100
@@ -104,17 +114,20 @@ TRAIN_TAM=1
 HORIZON=(5 0 0 0 3)
 WB_MODE="disabled" # 'online'|'offline'|'disabled'
 
-echo "Starting training script..."
-echo "Problem: $PROBLEM"
-echo "Graph size: $SIZE"
-echo "Area: $AREA"
-echo "Epochs: $EPOCHS"
+echo -e "${BLUE}Starting training script...${NC}"
+echo -e "${CYAN}---------------------------------------${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Problem:    ${MAGENTA}$PROBLEM${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Graph size: ${MAGENTA}$SIZE${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Area:       ${MAGENTA}$AREA${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Epochs:     ${MAGENTA}$EPOCHS${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Device:     ${MAGENTA}CUDA Accelerator${NC}"
+echo -e "${CYAN}---------------------------------------${NC}"
 echo ""
 
 for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
-    echo "Processing data distribution: ${DATA_DISTS[id]}"
+    echo -e "${BLUE}[PROCESS]${NC} Data distribution: ${YELLOW}${DATA_DISTS[id]}${NC}"
     if [ "$TRAIN_AM" -eq 0 ]; then
-        echo "===== Training AM model ====="
+        echo -e "${BLUE}===== [TRAIN] AM model =====${NC}"
         if [ "$VERBOSE" = false ]; then
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -124,7 +137,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
         --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
-        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" \
+        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --rl_algorithm "$RL_ALGO" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --hyper_expansion "$HYPER_LANES" \
@@ -139,11 +152,11 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec >/dev/null 2>&1
         fi
     else
-        echo "Skipping AM training (TRAIN_AM=$TRAIN_AM)"
+        echo -e "${YELLOW}[SKIP]${NC} Skipping AM training (TRAIN_AM=$TRAIN_AM)"
     fi
     if [ "$TRAIN_AMGC" -eq 0 ]; then
         echo ""
-        echo "===== Training AMGC model ====="
+        echo -e "${BLUE}===== [TRAIN] AMGC model =====${NC}"
         if [ "$VERBOSE" = false ]; then
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -160,7 +173,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[1]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
-        --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" \
+        --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --rl_algorithm "$RL_ALGO" \
         --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias --imitation_mode "$IMITATION_MODE" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
@@ -168,12 +181,12 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec >/dev/null 2>&1
         fi
     else
-        echo "Skipping AMGC training (TRAIN_AMGC=$TRAIN_AMGC)"
+        echo -e "${YELLOW}[SKIP]${NC} Skipping AMGC training (TRAIN_AMGC=$TRAIN_AMGC)"
     fi
 
     if [ "$TRAIN_TRANSGCN" -eq 0 ]; then
         echo ""
-        echo "===== Training TRANSGCN model ====="
+        echo -e "${BLUE}===== [TRAIN] TRANSGCN model =====${NC}"
         if [ "$VERBOSE" = false ]; then
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -190,7 +203,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --seed "$SEED" \
         --temporal_horizon "${HORIZON[2]}" --lr_scheduler "$LR_SCHEDULER" --n_encode_sublayers "$N_ENC_SL" \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
-        --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" \
+        --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --rl_algorithm "$RL_ALGO" \
         --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias --imitation_mode "$IMITATION_MODE" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
@@ -198,12 +211,12 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec >/dev/null 2>&1
         fi
     else
-        echo "Skipping TRANSGCN training (TRAIN_TRANSGCN=$TRAIN_TRANSGCN)"
+        echo -e "${YELLOW}[SKIP]${NC} Skipping TRANSGCN training (TRAIN_TRANSGCN=$TRAIN_TRANSGCN)"
     fi
 
     if [ "$TRAIN_DDAM" -eq 0 ]; then
         echo ""
-        echo "===== Training DDAM model ====="
+        echo -e "${BLUE}===== [TRAIN] DDAM model =====${NC}"
         if [ "$VERBOSE" = false ]; then
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -221,19 +234,19 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --temporal_horizon "${HORIZON[3]}" --lr_scheduler "$LR_SCHEDULER" --n_decode_layers "$N_DEC_L"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" \
-        --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias \
+        --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias --rl_algorithm "$RL_ALGO" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
     else
-        echo "Skipping DDAM training (TRAIN_DDAM=$TRAIN_DDAM)"
+        echo -e "${YELLOW}[SKIP]${NC} Skipping DDAM training (TRAIN_DDAM=$TRAIN_DDAM)"
     fi
 
     if [ "$TRAIN_TAM" -eq 0 ]; then
         echo ""
-        echo "===== Training TAM model ====="
+        echo -e "${BLUE}===== [TRAIN] TAM model =====${NC}"
         if [ "$VERBOSE" = false ]; then
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -250,7 +263,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[4]}" --lr_scheduler "$LR_SCHEDULER" --n_predict_layers "$N_PRED_L"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
-        --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" \
+        --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --rl_algorithm "$RL_ALGO" \
         --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias --imitation_mode "$IMITATION_MODE" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
@@ -258,9 +271,9 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec >/dev/null 2>&1
         fi
     else
-        echo "Skipping TAM training (TRAIN_TAM=$TRAIN_TAM)"
+        echo -e "${YELLOW}[SKIP]${NC} Skipping TAM training (TRAIN_TAM=$TRAIN_TAM)"
     fi
 done
 
 echo ""
-echo "===== Training completed for all distributions ====="
+echo -e "${GREEN}✓ [DONE] Training completed for all distributions${NC}"

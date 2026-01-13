@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Default to quiet mode
-VERBOSE=false
+# Default to verbose mode
+VERBOSE=true
 
 # Default cores
 N_CORES=22
@@ -22,6 +22,15 @@ do
         C) CONFIG_PATH=${OPTARG};;
     esac
 done
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
 
 # If not verbose, redirect all output to /dev/null
 if [ "$VERBOSE" = false ]; then
@@ -117,23 +126,22 @@ CHECKPOINTS=30
 RUN_TSP=1
 TWO_OPT_MAX_ITER=0
 
-echo "Starting test execution with $n_cores cores..."
-echo "========================================"
-echo "Test Configuration"
-echo "========================================"
-echo "Cores: $n_cores"
-echo "Problem: $PROBLEM"
-echo "Area: $AREA"
-echo "Policies: $POLICIES"
-echo "Samples: $N_SAMPLES"
-echo "Days: $N_DAYS"
-echo "Fast TSP Mode: $RUN_TSP"
-echo "========================================"
+echo -e "${BLUE}Starting test execution with $n_cores cores...${NC}"
+echo -e "${CYAN}---------------------------------------${NC}"
+echo -e "${CYAN}[PARAM]${NC} Cores:      ${MAGENTA}$n_cores${NC}"
+echo -e "${CYAN}[PARAM]${NC} Problem:    ${MAGENTA}$PROBLEM${NC}"
+echo -e "${CYAN}[PARAM]${NC} Area:       ${MAGENTA}$AREA${NC}"
+echo -e "${CYAN}[PARAM]${NC} Policies:   ${MAGENTA}$POLICIES${NC}"
+echo -e "${CYAN}[PARAM]${NC} Samples:    ${MAGENTA}$N_SAMPLES${NC}"
+echo -e "${CYAN}[PARAM]${NC} Days:       ${MAGENTA}$N_DAYS${NC}"
+echo -e "${CYAN}[PARAM]${NC} Fast TSP:   ${MAGENTA}$RUN_TSP${NC}"
+echo -e "${CYAN}---------------------------------------${NC}"
+echo ""
 echo ""
 
 # Add option --real_time_log to the command line if you want real time updates of the simulation
 if [ "$RUN_TSP" -eq 0 ]; then
-    echo "Running with fast_tsp..."
+    echo -e "${BLUE}Running with fast_tsp...${NC}"
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -152,7 +160,7 @@ if [ "$RUN_TSP" -eq 0 ]; then
         exec >/dev/null 2>&1
     fi
 else
-    echo "Running without fast_tsp..."
+    echo -e "${BLUE}Running without fast_tsp...${NC}"
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -172,6 +180,4 @@ else
 fi
 
 echo ""
-echo "========================================"
-echo "Test completed successfully"
-echo "========================================"
+echo -e "${GREEN}✓ [SUCCESS] Simulation test completed successfully.${NC}"
