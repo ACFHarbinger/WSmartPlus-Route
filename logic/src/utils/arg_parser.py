@@ -565,6 +565,12 @@ def add_train_args(parser):
         help="Initial weight for the imitation loss guidance",
     )
     parser.add_argument(
+        "--imitation_threshold",
+        type=float,
+        default=0.05,
+        help="Stop threshold for the imitation loss guidance",
+    )
+    parser.add_argument(
         "--imitation_decay",
         type=float,
         default=1.0,
@@ -594,6 +600,12 @@ def add_train_args(parser):
         default="2opt",
         choices=["2opt", "hgs"],
         help="Method for imitation learning expert ('2opt'|'hgs')",
+    )
+    parser.add_argument(
+        "--hgs_config_path",
+        type=str,
+        default=None,
+        help="Path to HGS configuration file (YAML)",
     )
     parser.add_argument(
         "--two_opt_max_iter",
