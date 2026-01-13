@@ -191,8 +191,7 @@ class GSPOTrainer(TimeTrainer):
                         mb_input,
                         cost_weights=self.cost_weights,
                         return_pi=False,
-                        expert_pi=mb_old_pi,
-                        imitation_mode=True
+                        expert_pi=mb_old_pi
                     )
 
                     # GSPO: Sequence-level importance ratio

@@ -308,6 +308,48 @@ class NeuralAgent:
              input_for_model['edges'] = edges
         if 'dist' not in input_for_model and dist_matrix is not None:
              input_for_model['dist'] = dist_matrix
+             
+        # Populate temporal features (fill1, fill2, ...) if model has temporal_horizon > 0
+        horizon = getattr(self.model, 'temporal_horizon', 0)
+        if horizon > 0 and waste_history is not None:
+            # waste_history: (Days, N) or (N, Days). After processing/hrl: dynamic_feat (1, N, History)
+            # If hrl_manager was used, dynamic_feat is already processed. If not, we process it now.
+            if hrl_manager is None:
+                # static_feat/dynamic_feat logic from HRL block above
+                if input['loc'].dim() == 2:
+                    h_static = input['loc'].unsqueeze(0)
+                else:
+                    h_static = input['loc']
+                
+                if waste_history.dim() == 2:
+                    h_feat = waste_history.unsqueeze(0)
+                else:
+                    h_feat = waste_history # (1, Days, N)
+                
+                N_bins = h_static.size(1)
+                if h_feat.size(1) != N_bins and h_feat.size(2) == N_bins:
+                    h_feat = h_feat.permute(0, 2, 1) # (1, N, Days)
+                
+                if h_feat.max() > 2.0:
+                    h_feat = h_feat / 100.0
+                dynamic_feat = h_feat
+            else:
+                # dynamic_feat already defined in HRL block
+                pass
+            
+            for h in range(1, horizon + 1):     
+                # Extraction:
+                if dynamic_feat.size(2) >= horizon + 1:
+                    hist_slice = dynamic_feat[:, :, -horizon-1:-1]
+                    input_for_model[f'fill{h}'] = hist_slice[:, :, h-1]
+                else:
+                    # Pad with zeros if history is too short (first few days of sim)
+                    # or replicate last available? Zeros is safer.
+                    padding = horizon + 1 - dynamic_feat.size(2)
+                    # dynamic_feat: (1, N, Hist)
+                    # If Hist=1 (only today), we need 'horizon' zeros.
+                    # We can use current waste as a fallback or just zeros.
+                    input_for_model[f'fill{h}'] = torch.zeros_like(dynamic_feat[:, :, 0])
 
         # Expand dist_matrix for post-processing if needed (like in original code)
         if dist_matrix is not None:

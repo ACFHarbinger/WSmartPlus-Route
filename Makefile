@@ -148,6 +148,12 @@ run-hpo:
 	@echo -e "$(BLUE)📜 Running HPO script...$(NC)"
 	bash scripts/hyperparam_optim.sh
 
+
+run-sim:
+	$(call print_header)
+	@echo -e "$(BLUE)📜 Running Simulation script...$(NC)"
+	bash scripts/test_sim.sh
+
 # --- Test & Quality ---
 
 test:

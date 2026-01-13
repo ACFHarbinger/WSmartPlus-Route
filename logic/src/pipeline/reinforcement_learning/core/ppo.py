@@ -207,8 +207,7 @@ class PPOTrainer(TimeTrainer):
                         mb_input, 
                         cost_weights=self.cost_weights, 
                         return_pi=False, 
-                        expert_pi=mb_old_pi,
-                        imitation_mode=True # To enable pure evaluation mode
+                        expert_pi=mb_old_pi
                     )
                     # Note: AttentionModel.forward with expert_pi returns log_probs of those actions.
                     

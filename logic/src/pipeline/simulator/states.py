@@ -232,12 +232,12 @@ class InitializingState(SimState):
                     except Exception as e:
                         print(f"Warning: Failed to load config file {path}: {e}")
             else:
-                 # Legacy fall back if it's a string (though arg_parser should prevent this)
-                 try:
+                # Legacy fall back if it's a string (though arg_parser should prevent this)
+                try:
                     ctx.config = load_config(config_paths) # Assuming single path
                     print(f"Loaded configuration from {config_paths}")
-                 except Exception:
-                     pass
+                except Exception:
+                    pass
             
         # Setup Data
         data, bins_coordinates, depot = setup_basedata(opts['size'], ctx.data_dir, opts['area'], opts['waste_type'])
