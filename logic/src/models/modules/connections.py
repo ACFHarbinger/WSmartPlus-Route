@@ -25,7 +25,7 @@ def get_connection_module(module, embed_dim, connection_type='skip', **kwargs):
     Returns:
         The connection module.
     """
-    if connection_type == 'skip':
+    if connection_type == 'skip' or connection_type == 'residual':
         return SkipConnection(module)
     elif connection_type == 'static_hyper':
         return StaticHyperConnection(module, embed_dim, **kwargs)

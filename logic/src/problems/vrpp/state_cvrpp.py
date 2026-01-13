@@ -136,3 +136,7 @@ class StateCVRPP(NamedTuple):
         has_valid_customer = ~mask_loc.all(dim=-1)
         mask_depot = mask_depot | ((self.prev_a == 0) & has_valid_customer)
         return torch.cat((mask_depot[:, :, None], mask_loc), -1).bool()
+
+    def get_current_profit(self):
+        """Returns the current profit (negative cost)."""
+        return -self.cur_negative_profit
