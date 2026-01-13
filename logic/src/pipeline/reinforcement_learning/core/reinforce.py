@@ -184,7 +184,7 @@ class StandardTrainer(BaseReinforceTrainer):
             imitation_loss = torch.tensor(0.0, device=self.opts['device'])
             curr_imitation_weight = self.opts.get('imitation_weight', 0.0) * (self.opts.get('imitation_decay', 1.0) ** (self.day // self.opts.get('imitation_decay_step', 1)))
             
-            if curr_imitation_weight > 0 and self.opts.get('two_opt_max_iter', 0) > 0 and pi is not None:
+            if curr_imitation_weight >= self.opts['lr_model'] and pi is not None:
                 dist_matrix = x.get('dist', None)
                 expert_pi = None
                 
@@ -224,12 +224,20 @@ class StandardTrainer(BaseReinforceTrainer):
                             tour = pi_cpu[i]
                             giant = tour[tour != 0]
                             # Check if valid permutation (length check is a good proxy for now)
-                            # For speed, just check length.
+                            # If partial tour, complete with random unvisited nodes for HGS
+                            if len(giant) < expected_len:
+                                # Find nodes in range [1, expected_len] not in giant
+                                all_nodes = np.arange(1, expected_len + 1)
+                                missing = np.setdiff1d(all_nodes, giant)
+                                if len(missing) > 0:
+                                    np.random.shuffle(missing)
+                                    giant = np.concatenate([giant, missing])
+                            
                             if len(giant) == expected_len:
                                 pi_giant_list.append(giant)
                                 valid_hgs_indices.append(i)
                             else:
-                                pass # Discard invalid routes
+                                pass # Discard if still invalid somehow
 
                         if pi_giant_list:
                              # Convert list of numpy arrays to a single numpy array first
@@ -246,11 +254,13 @@ class StandardTrainer(BaseReinforceTrainer):
                             hgs_solver = VectorizedHGS(hgs_dist, hgs_demands, vehicle_capacity, device=self.opts['device'])
                             try:
                                 expert_pi_valid, _ = hgs_solver.solve(giant_tours_np)
-                                expert_pi = torch.zeros((pi.size(0), pi.size(1)), dtype=torch.long, device=self.opts['device'])
-                                for idx, batch_idx in enumerate(valid_hgs_indices):
-                                    row = expert_pi_valid[idx]
-                                    copy_len = min(len(row), expert_pi.size(1))
-                                    expert_pi[batch_idx, :copy_len] = row[:copy_len]
+                                # Dynamic padding for expert_pi based on HGS output length
+                                max_hgs_len = max(len(r) for r in expert_pi_valid) if expert_pi_valid else 0
+                                if max_hgs_len > 0:
+                                    expert_pi = torch.zeros((pi.size(0), max_hgs_len), dtype=torch.long, device=self.opts['device'])
+                                    for idx, batch_idx in enumerate(valid_hgs_indices):
+                                        row = expert_pi_valid[idx]
+                                        expert_pi[batch_idx, :len(row)] = torch.tensor(row, device=self.opts['device'])
                             except Exception:
                                 pass
                                     
@@ -267,12 +277,12 @@ class StandardTrainer(BaseReinforceTrainer):
                             expert_pi = pi_opt_with_depot[:, 1:]
                                     
                 if expert_pi is not None:
+                    # Use robust MLE (kl_loss=False + clamping in decoder) for imitation
                     _, expert_log_likelihood, _, _, _ = self.model(
                         x, cost_weights=self.cost_weights, 
                         return_pi=False, 
                         pad=self.opts['train_time'],
-                        expert_pi=expert_pi,
-                        imitation_mode=True
+                        expert_pi=expert_pi
                     )
                     imitation_loss = -expert_log_likelihood.mean()
             

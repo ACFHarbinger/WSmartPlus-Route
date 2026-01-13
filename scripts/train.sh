@@ -62,9 +62,10 @@ LR_SCHEDULER="lambda"
 LR_DECAY=1.0
 
 LOG_STEP=10
+VIZ_STEP=100
 B_SIZE=128
-N_DATA=1280
-N_VAL_DATA=0 #1280
+N_DATA=128
+N_VAL_DATA=0 #128
 VAL_B_SIZE=0
 
 BL="exponential"
@@ -111,7 +112,7 @@ TRAIN_AMGC=1
 TRAIN_TRANSGCN=1
 TRAIN_DDAM=1
 TRAIN_TAM=1
-HORIZON=(5 0 0 0 3)
+HORIZON=(0 0 0 0 3)
 WB_MODE="disabled" # 'online'|'offline'|'disabled'
 
 echo -e "${BLUE}Starting training script...${NC}"
@@ -132,7 +133,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
-        python main.py train --problem "$PROBLEM" --model am --encoder gat --epoch_size "$N_DATA" \
+        uv run python main.py train --problem "$PROBLEM" --model am --encoder gat --epoch_size "$N_DATA" \
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --seed "$SEED" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
@@ -145,7 +146,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --temporal_horizon "${HORIZON[0]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY" \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --imitation_mode "$IMITATION_MODE" \
-        --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --exp_beta "$EXP_BETA" --spatial_bias \
+        --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --exp_beta "$EXP_BETA" --spatial_bias --visualize_step "$VIZ_STEP" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --gamma 0.99;
         if [ "$VERBOSE" = false ]; then
@@ -161,7 +162,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
-        python main.py train --problem "$PROBLEM" --model am --encoder ggac --epoch_size "$N_DATA" \
+        uv run python main.py train --problem "$PROBLEM" --model am --encoder ggac --epoch_size "$N_DATA" \
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --seed "$SEED" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
@@ -170,7 +171,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --hyper_expansion "$HYPER_LANES" \
-        --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
+        --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --visualize_step "$VIZ_STEP" \
         --temporal_horizon "${HORIZON[1]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --rl_algorithm "$RL_ALGO" \
@@ -191,7 +192,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
-        python main.py train --problem "$PROBLEM" --model am --encoder tgc --epoch_size "$N_DATA" \
+        uv run python main.py train --problem "$PROBLEM" --model am --encoder tgc --epoch_size "$N_DATA" \
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --normalization "$NORM" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
@@ -206,7 +207,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --rl_algorithm "$RL_ALGO" \
         --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias --imitation_mode "$IMITATION_MODE" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --visualize_step "$VIZ_STEP";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -221,7 +222,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
-        python main.py train --problem "$PROBLEM" --model ddam --encoder gat --epoch_size "$N_DATA" \
+        uv run python main.py train --problem "$PROBLEM" --model ddam --encoder gat --epoch_size "$N_DATA" \
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --seed "$SEED" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
@@ -233,7 +234,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[3]}" --lr_scheduler "$LR_SCHEDULER" --n_decode_layers "$N_DEC_L"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
-        --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" \
+        --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --visualize_step "$VIZ_STEP" \
         --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias --rl_algorithm "$RL_ALGO" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
         --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
@@ -251,7 +252,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
         fi
-        python main.py train --problem "$PROBLEM" --model tam --encoder gat --epoch_size "$N_DATA" \
+        uv run python main.py train --problem "$PROBLEM" --model tam --encoder gat --epoch_size "$N_DATA" \
         --data_distribution "${DATA_DISTS[id]}" --graph_size "$SIZE" --n_epochs "$EPOCHS" --seed "$SEED" \
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
@@ -260,7 +261,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --hyper_expansion "$HYPER_LANES" \
-        --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
+        --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --visualize_step "$VIZ_STEP" \
         --temporal_horizon "${HORIZON[4]}" --lr_scheduler "$LR_SCHEDULER" --n_predict_layers "$N_PRED_L"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --rl_algorithm "$RL_ALGO" \
