@@ -579,7 +579,7 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args, cost
         waste = waste[:, 1:].clamp_(max=max_waste)
 
         # Add daily waste filling
-        fillday = f'fill{day}'
+        fillday = f'fill{day + 1}'
         if opts['temporal_horizon'] > 0:
             waste += torch.stack([x[fillday] for x in dataset])
             for day_id in range(day + 1, day + opts['temporal_horizon'] + 1):

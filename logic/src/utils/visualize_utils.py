@@ -42,7 +42,7 @@ This module provides tools for:
 # --- UTILS ---
 
 
-def get_batch(device, size=50, batch_size=32):
+def get_batch(device, size=50, batch_size=32, temporal_horizon=0):
     """
     Generates a random batch of VRP-like data for visualization purposes.
 
@@ -50,6 +50,7 @@ def get_batch(device, size=50, batch_size=32):
         device (torch.device): Device to creating tensors on.
         size (int, optional): Graph size. Defaults to 50.
         batch_size (int, optional): Batch size. Defaults to 32.
+        temporal_horizon (int, optional): Temporal horizon for features. Defaults to 0.
 
     Returns:
         dict: Batch dictionary with keys 'depot', 'loc', 'dist', 'demand', etc.
@@ -62,7 +63,7 @@ def get_batch(device, size=50, batch_size=32):
     waste = torch.rand(batch_size, size, device=device)
     max_waste = torch.ones(batch_size, device=device)
 
-    return {
+    batch = {
         "depot": depot,
         "loc": loc,
         "dist": dist_tensor,
@@ -70,6 +71,12 @@ def get_batch(device, size=50, batch_size=32):
         "waste": waste,
         "max_waste": max_waste,
     }
+
+    # Add dummy temporal features if needed
+    for i in range(1, temporal_horizon + 1):
+        batch[f"fill{i}"] = torch.rand(batch_size, size, device=device)
+
+    return batch
 
 
 class MyModelWrapper(torch.nn.Module):
@@ -169,15 +176,21 @@ def plot_weight_trajectories(checkpoint_dir, output_file):
         try:
             checkpoint = torch.load(path, map_location="cpu")
             state_dict = checkpoint.get("model", checkpoint)
-            # Only take a subset of weights to avoid OOM or slow processing
-            # e.g. just encoder or first layer
-            flat_weight = torch.cat(
-                [p.flatten() for k, p in state_dict.items() if "encoder" in k]
-            ).numpy()
-            if len(flat_weight) == 0:  # Fallback if no encoder
-                flat_weight = torch.cat(
-                    [p.flatten() for p in state_dict.values()]
-                ).numpy()
+            
+            # More robust weight extraction: try encoder, then embed, then any model param
+            weights_to_flat = []
+            for k, p in state_dict.items():
+                if "encoder" in k.lower() or "embed" in k.lower() or "model" in k.lower():
+                    weights_to_flat.append(p.flatten())
+            
+            if not weights_to_flat:
+                weights_to_flat = [p.flatten() for p in state_dict.values() if isinstance(p, torch.Tensor)]
+                
+            if not weights_to_flat:
+                print(f"No valid tensors found in {f}")
+                continue
+
+            flat_weight = torch.cat(weights_to_flat).numpy()
             weights.append(flat_weight)
             epochs.append(f.replace(".pt", ""))
         except Exception as e:
@@ -329,49 +342,47 @@ def plot_attention_heatmaps(model, output_dir, epoch=0):
 # --- LOSS LANDSCAPE FUNCTIONS ---
 
 
-def imitation_loss_fn(m, x_batch, pi_target):
+def imitation_loss_fn(m, x_batch, pi_target, cost_weights=None):
     """
     Computes imitation loss (log likelihood of target) for loss landscape.
-    Note: Returns negation because loss landscape plots typically visualize 'loss' where lower is better/blue.
-    Wait, actually landscapes visualize Z. If we want to visualize Likelihood, we might want negative log likelihood (NLL) as loss.
-    Here we return -log_likelihood, which is NLL (Loss).
-
-    Args:
-        m (nn.Module): Wrapped model.
-        x_batch (dict): Input batch.
-        pi_target (Tensor): Target tour.
-
-    Returns:
-        float: Negative Log Likelihood.
     """
     model_to_call = m.modules[0] if hasattr(m, "modules") else m
     if hasattr(model_to_call, "model"):
         model_to_call = model_to_call.model
     model_to_call.eval()
+
+    # Ensure cost_weights are on the same device as the model
+    dev = next(model_to_call.parameters()).device
+    if cost_weights is not None:
+        cost_weights = {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in cost_weights.items()}
+    elif hasattr(model_to_call, 'cost_weights'):
+         cost_weights = {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in model_to_call.cost_weights.items()}
+
     with torch.no_grad():
-        res = model_to_call(x_batch, return_pi=False, expert_pi=pi_target)
+        res = model_to_call(x_batch, cost_weights=cost_weights, return_pi=False, expert_pi=pi_target)
         log_likelihood = res[1]
     return -log_likelihood.mean().item()
 
 
-def rl_loss_fn(m, x_batch):
+def rl_loss_fn(m, x_batch, cost_weights=None):
     """
     Computes RL loss (greedy cost) for loss landscape.
-
-    Args:
-        m (nn.Module): Wrapped model.
-        x_batch (dict): Input batch.
-
-    Returns:
-        float: Mean cost.
     """
     model_to_call = m.modules[0] if hasattr(m, "modules") else m
     if hasattr(model_to_call, "model"):
         model_to_call = model_to_call.model
     model_to_call.eval()
+
+    # Ensure cost_weights are on the same device as the model
+    dev = next(model_to_call.parameters()).device
+    if cost_weights is not None:
+        cost_weights = {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in cost_weights.items()}
+    elif hasattr(model_to_call, 'cost_weights'):
+         cost_weights = {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in model_to_call.cost_weights.items()}
+
     with torch.no_grad():
         model_to_call.set_decode_type("greedy")
-        cost, _, _, _, _ = model_to_call(x_batch, return_pi=False)
+        cost, _, _, _, _ = model_to_call(x_batch, cost_weights=cost_weights, return_pi=False)
     return cost.float().mean().item()
 
 
@@ -397,7 +408,12 @@ def plot_loss_landscape(
 
     # Generate random batch for landscape
     # TODO: Use problem.make_dataset if possible for consistency
-    x_batch = get_batch(device, size=size, batch_size=batch_size)
+    x_batch = get_batch(
+        device,
+        size=size,
+        batch_size=batch_size,
+        temporal_horizon=opts.get("temporal_horizon", 0),
+    )
 
     print("Generating expert targets for landscape...")
     model.set_decode_type("greedy")
@@ -415,13 +431,31 @@ def plot_loss_landscape(
         pi_target = pi_opt[:, 1:]
 
     wrapped_model = MyModelWrapper(model)
+    
+    # Ensure all tensors are on the same device as the model
+    # loss-landscapes might deepcopy the model, we want to be sure our batch matches
+    model_device = next(model.parameters()).device
+    
+    # Helper to move dict of tensors to device
+    def move_dict_to_device(d, dev):
+        return {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in d.items()}
+
+    x_batch = move_dict_to_device(x_batch, model_device)
+    pi_target = pi_target.to(model_device)
 
     # Imitation
-    print("Computing Imitation Landscape...")
+    print(f"Computing Imitation Landscape on {model_device}...")
+    
+    # Store original cost weights to pass to metrics
+    orig_cost_weights = getattr(model, 'cost_weights', None)
 
     def imitation_metric(m):
         """Computes imitation loss for the current model state."""
-        return imitation_loss_fn(m, x_batch, pi_target)
+        # Visualization is now CPU-only for robustness
+        m_dev = torch.device("cpu")
+        x_m = move_dict_to_device(x_batch, m_dev)
+        pi_m = pi_target.to(m_dev)
+        return imitation_loss_fn(m, x_m, pi_m, cost_weights=orig_cost_weights)
 
     try:
         data = loss_landscapes.random_plane(
@@ -451,11 +485,13 @@ def plot_loss_landscape(
         print(f"Error computing imitation landscape: {e}")
 
     # RL
-    print("Computing RL Cost Landscape...")
+    print(f"Computing RL Cost Landscape on {model_device}...")
 
     def rl_metric(m):
         """Computes RL cost for the current model state."""
-        return rl_loss_fn(m, x_batch)
+        m_dev = torch.device("cpu")
+        x_m = move_dict_to_device(x_batch, m_dev)
+        return rl_loss_fn(m, x_m, cost_weights=orig_cost_weights)
 
     try:
         data = loss_landscapes.random_plane(
@@ -491,74 +527,54 @@ def plot_loss_landscape(
 def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
     """
     Main entry point for visualization during training.
-    Executes selected visualization modes (distributions, embeddings, loss, etc.).
-
-    Args:
-        model (nn.Module): The model.
-        problem (class): Problem class (unused currently but kept for interface).
-        opts (dict): Options dictionary.
-        epoch (int): Current epoch number.
-        tb_logger (Logger, optional): TensorBoard logger instance.
     """
     viz_modes = opts.get("viz_modes", [])
+    if not viz_modes:
+        return
+        
     log_dir = opts.get("log_dir", "logs")
-    # If using tensorboard logger class, get the log_dir from it if possible
-    if tb_logger is not None and hasattr(tb_logger, "log_dir"):
-        # tb_logger is likely logic.src.utils.log_utils.Logger or similar wrapper
-        # Assuming it writes to some dir, or we just rely on opts['log_dir'] which is usually base
-        pass
-
     viz_output_dir = os.path.join(opts["output_dir"], "visualizations")
     os.makedirs(viz_output_dir, exist_ok=True)
 
     print(f"\n--- Visualizing Epoch {epoch} ---")
 
-    if "distributions" in viz_modes or "both" in viz_modes:
-        # Pass tb_logger writer if available, else will create one
-        writer = (
-            tb_logger.writer
-            if tb_logger is not None and hasattr(tb_logger, "writer")
-            else None
-        )
-        log_weight_distributions(
-            model, epoch, log_dir=os.path.join(log_dir, opts["run_name"]), writer=writer
-        )
+    # Move model to CPU for visualization to avoid device mismatch issues with deepcopies/landscapes
+    orig_device = next(model.parameters()).device
+    model.cpu()
+    
+    # Temporarily update opts device
+    viz_opts = opts.copy()
+    viz_opts["device"] = torch.device("cpu")
+    
+    # Move cost weights to CPU if they exist
+    if hasattr(model, 'cost_weights'):
+        model.cost_weights = {k: v.cpu() if isinstance(v, torch.Tensor) else v for k, v in model.cost_weights.items()}
 
-    if "embeddings" in viz_modes:
-        x_batch = get_batch(opts["device"], size=opts["graph_size"], batch_size=1)
-        writer = (
-            tb_logger.writer
-            if tb_logger is not None and hasattr(tb_logger, "writer")
-            else None
-        )
-        project_node_embeddings(
-            model,
-            x_batch,
-            log_dir=os.path.join(log_dir, opts["run_name"]),
-            writer=writer,
-            epoch=epoch,
-        )
+    try:
+        if "distributions" in viz_modes or "both" in viz_modes:
+            writer = tb_logger.writer if tb_logger is not None and hasattr(tb_logger, "writer") else None
+            log_weight_distributions(model, epoch, log_dir=os.path.join(log_dir, opts["run_name"]), writer=writer)
 
-    if "heatmaps" in viz_modes:
-        plot_attention_heatmaps(model, viz_output_dir, epoch=epoch)
+        if "embeddings" in viz_modes:
+            x_batch = get_batch(viz_opts["device"], size=opts["graph_size"], batch_size=1, temporal_horizon=opts.get("temporal_horizon", 0))
+            writer = tb_logger.writer if tb_logger is not None and hasattr(tb_logger, "writer") else None
+            project_node_embeddings(model, x_batch, log_dir=os.path.join(log_dir, opts["run_name"]), writer=writer, epoch=epoch)
 
-    if "loss" in viz_modes or "both" in viz_modes:
-        plot_loss_landscape(
-            model,
-            opts,
-            viz_output_dir,
-            epoch=epoch,
-            size=opts["graph_size"],
-            batch_size=4,
-            resolution=10,
-        )  # Keep batch/res low for speed
+        if "heatmaps" in viz_modes:
+            plot_attention_heatmaps(model, viz_output_dir, epoch=epoch)
 
-    if "trajectory" in viz_modes:
-        # Trajectory needs history of checkpoints, so we pass the checkpoint dir
-        checkpoint_dir = opts["save_dir"]
-        plot_weight_trajectories(
-            checkpoint_dir, os.path.join(viz_output_dir, "trajectory.png")
-        )
+        if "loss" in viz_modes or "both" in viz_modes:
+            plot_loss_landscape(model, viz_opts, viz_output_dir, epoch=epoch, size=opts["graph_size"], batch_size=4, resolution=10)
+
+        if "trajectory" in viz_modes:
+            checkpoint_dir = opts["save_dir"]
+            plot_weight_trajectories(checkpoint_dir, os.path.join(viz_output_dir, "trajectory.png"))
+
+    finally:
+        # Restore model to original device
+        model.to(orig_device)
+        if hasattr(model, 'cost_weights'):
+            model.cost_weights = {k: v.to(orig_device) if isinstance(v, torch.Tensor) else v for k, v in model.cost_weights.items()}
 
     print("Visualization complete.\n")
 

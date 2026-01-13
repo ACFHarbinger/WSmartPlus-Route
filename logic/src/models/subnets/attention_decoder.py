@@ -134,7 +134,8 @@ class AttentionDecoder(nn.Module):
                     state = state[unfinished]
                     fixed = fixed[unfinished]
 
-            log_p, step_mask = self._get_log_p(fixed, state)
+            mask_val = -math.inf if expert_pi is None else -50.0 # Use soft masking for expert evaluations
+            log_p, step_mask = self._get_log_p(fixed, state, mask_val=mask_val)
 
             if mask is not None:
                 if mask.size(1) == step_mask.size(2) - 1:
@@ -153,7 +154,7 @@ class AttentionDecoder(nn.Module):
                 else:
                     current_mask = step_mask
                     
-                log_p = log_p.masked_fill(current_mask, -math.inf)
+                log_p = log_p.masked_fill(current_mask, mask_val)
                      
             if expert_pi is not None:
                 selected = expert_pi[:, i]
@@ -220,7 +221,7 @@ class AttentionDecoder(nn.Module):
             .permute(3, 0, 1, 2, 4)
         )
 
-    def _get_log_p(self, fixed, state, normalize=True):
+    def _get_log_p(self, fixed, state, normalize=True, mask_val=-math.inf):
         query = fixed.context_node_projected + \
                 self.project_step_context(self._get_parallel_step_context(fixed.node_embeddings, state))
 
@@ -238,7 +239,7 @@ class AttentionDecoder(nn.Module):
             index = current_node.unsqueeze(-1).expand(-1, -1, dist_matrix.size(-1))
             dist_bias = -self.spatial_bias_scale * dist_matrix.gather(1, index).detach()
 
-        log_p, glimpse = self._one_to_many_logits(query, glimpse_K, glimpse_V, logit_K, mask, graph_mask, dist_bias=dist_bias)
+        log_p, glimpse = self._one_to_many_logits(query, glimpse_K, glimpse_V, logit_K, mask, graph_mask, dist_bias=dist_bias, mask_val=mask_val)
         if normalize:
             log_p = torch.log_softmax(log_p / self.temp, dim=-1)
 
@@ -296,7 +297,7 @@ class AttentionDecoder(nn.Module):
             )
         return fixed.glimpse_key, fixed.glimpse_val, fixed.logit_key
 
-    def _one_to_many_logits(self, query, glimpse_K, glimpse_V, logit_K, mask, graph_mask=None, dist_bias=None):
+    def _one_to_many_logits(self, query, glimpse_K, glimpse_V, logit_K, mask, graph_mask=None, dist_bias=None, mask_val=-math.inf):
         batch_size, num_steps, embed_dim = query.size()
         key_size = val_size = embed_dim // self.n_heads
 
@@ -321,11 +322,11 @@ class AttentionDecoder(nn.Module):
             logits += dist_bias.unsqueeze(1) if logits.size(1) > 1 else dist_bias
 
         if self.mask_logits and self.mask_graph:
-            logits[graph_mask] = -math.inf
+            logits[graph_mask] = mask_val
         if self.tanh_clipping > 0:
             logits = torch.tanh(logits) * self.tanh_clipping
         if self.mask_logits:
-            logits[mask] = -math.inf
+            logits[mask] = mask_val
         return logits, glimpse.squeeze(-2)
     
     def _calc_log_likelihood(self, _log_p, a, mask, return_entropy=False, kl_loss=False):
@@ -337,8 +338,9 @@ class AttentionDecoder(nn.Module):
             log_target = target_probs.log()
             
             valid_mask = _log_p > -1e10
-            log_p_safe = torch.where(valid_mask, _log_p, torch.zeros_like(_log_p))
-            probs_safe = log_p_safe.exp()
+            # Use very small log_p for invalid masks to avoid exp(0)=1
+            log_p_safe = torch.where(valid_mask, _log_p, torch.tensor(-100.0, device=_log_p.device))
+            probs_safe = torch.where(valid_mask, _log_p.exp(), torch.zeros_like(_log_p))
             
             term = probs_safe * (log_p_safe - log_target)
             kl_div_safe = torch.where(valid_mask, term, torch.zeros_like(term))
@@ -351,8 +353,24 @@ class AttentionDecoder(nn.Module):
             return ll
 
         log_p = _log_p.gather(2, a.unsqueeze(-1)).squeeze(-1)
+        
+        # Soft clamping for imitation. 
+        # If masked actions are selected (by an expert), we still want a gradient.
+        # Standard masked _log_p has -inf. clamp(-inf, min) has 0 gradient.
+        # We now handle this by allowing providing a 'soft_masking' flag or 
+        # just using a robust -inf replacement here if we detect it.
+        
         if mask is not None:
             log_p[mask] = 0
+            
+        # If any log_p is -inf, it's because it was masked.
+        # To get a gradient, we replace -inf with a large finite value 
+        # BEFORE the sum, but we do it in a way that preserves the gradient 
+        # of the underlying logits if possible... 
+        # Wait, the best way is to not mask in the first place or use label smoothing.
+        # For now, we use a robust clamp that handles -inf by mapping it to a finite value.
+        # Note: torch.clamp(-inf) is -50.
+        log_p = torch.clamp(log_p, min=-50.0)
             
         ll = log_p.sum(1)
         if return_entropy:
