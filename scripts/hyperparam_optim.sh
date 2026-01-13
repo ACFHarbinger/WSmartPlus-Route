@@ -1,14 +1,24 @@
 #!/bin/bash
 
-# Default to quiet mode
-VERBOSE=false
+# Default to verbose mode
+VERBOSE=true
 
-# Handle --verbose if it appears after other arguments
+# Handle --quiet if it appears after other arguments
 for arg in "$@"; do
-    if [[ "$arg" == "--verbose" ]]; then
-        VERBOSE=true
+    if [[ "$arg" == "--quiet" ]]; then
+        VERBOSE=false
     fi
 done
+
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
 
 # If not verbose, redirect all output to /dev/null
 if [ "$VERBOSE" = false ]; then
@@ -93,14 +103,17 @@ TRAIN_TAM=1
 HORIZON=(0 0 0 0 3)
 WB_MODE="disabled"
 
-echo "Starting hyperparameter optimization..."
-echo "Problem: $PROBLEM"
-echo "Graph size: $SIZE"
-echo "Area: $AREA"
+echo -e "${BLUE}Starting hyperparameter optimization module...${NC}"
+echo -e "${CYAN}---------------------------------------${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Problem:    ${MAGENTA}$PROBLEM${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Graph size: ${MAGENTA}$SIZE${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Area:       ${MAGENTA}$AREA${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Method:     ${MAGENTA}$HOP_METHOD${NC}"
+echo -e "${CYAN}---------------------------------------${NC}"
 echo ""
 
 if [ "$TRAIN_AM" -eq 0 ]; then
-    echo "===== Training AM model ====="
+    echo -e "${BLUE}===== [OPTIM] AM model =====${NC}"
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -120,12 +133,12 @@ if [ "$TRAIN_AM" -eq 0 ]; then
         exec >/dev/null 2>&1
     fi
 else
-    echo "Skipping AM training (TRAIN_AM=$TRAIN_AM)"
+    echo -e "${YELLOW}[SKIP]${NC} Skipping AM optimization (TRAIN_AM=$TRAIN_AM)"
 fi
 
 if [ "$TRAIN_AMGC" -eq 0 ]; then
     echo ""
-    echo "===== Training AMGC model ====="
+    echo -e "${BLUE}===== [OPTIM] AMGC model =====${NC}"
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -145,12 +158,12 @@ if [ "$TRAIN_AMGC" -eq 0 ]; then
         exec >/dev/null 2>&1
     fi
 else
-    echo "Skipping AMGC training (TRAIN_AMGC=$TRAIN_AMGC)"
+    echo -e "${YELLOW}[SKIP]${NC} Skipping AMGC optimization (TRAIN_AMGC=$TRAIN_AMGC)"
 fi
 
 if [ "$TRAIN_TRANSGCN" -eq 0 ]; then
     echo ""
-    echo "===== Training TRANSGCN model ====="
+    echo -e "${BLUE}===== [OPTIM] TRANSGCN model =====${NC}"
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -171,12 +184,12 @@ if [ "$TRAIN_TRANSGCN" -eq 0 ]; then
         exec >/dev/null 2>&1
     fi
 else
-    echo "Skipping TRANSGCN training (TRAIN_TRANSGCN=$TRAIN_TRANSGCN)"
+    echo -e "${YELLOW}[SKIP]${NC} Skipping TRANSGCN optimization (TRAIN_TRANSGCN=$TRAIN_TRANSGCN)"
 fi
 
 if [ "$TRAIN_DDAM" -eq 0 ]; then
     echo ""
-    echo "===== Training DDAM model ====="
+    echo -e "${BLUE}===== [OPTIM] DDAM model =====${NC}"
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -196,12 +209,12 @@ if [ "$TRAIN_DDAM" -eq 0 ]; then
         exec >/dev/null 2>&1
     fi
 else
-    echo "Skipping DDAM training (TRAIN_DDAM=$TRAIN_DDAM)"
+    echo -e "${YELLOW}[SKIP]${NC} Skipping DDAM optimization (TRAIN_DDAM=$TRAIN_DDAM)"
 fi
 
 if [ "$TRAIN_TAM" -eq 0 ]; then
     echo ""
-    echo "===== Training TAM model ====="
+    echo -e "${BLUE}===== [OPTIM] TAM model =====${NC}"
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -221,8 +234,8 @@ if [ "$TRAIN_TAM" -eq 0 ]; then
         exec >/dev/null 2>&1
     fi
 else
-    echo "Skipping TAM training (TRAIN_TAM=$TRAIN_TAM)"
+    echo -e "${YELLOW}[SKIP]${NC} Skipping TAM optimization (TRAIN_TAM=$TRAIN_TAM)"
 fi
 
 echo ""
-echo "===== Hyperparameter optimization completed ====="
+echo -e "${GREEN}✓ [DONE] Hyperparameter optimization completed.${NC}"

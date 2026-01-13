@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Colors for output
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
 #SBATCH --job-name=train
 #SBATCH --time=2-00:00:00
 
@@ -58,6 +71,10 @@ if [[ -z $gs ]]; then
 fi
 
 if [[ "$command" == "train" ]]; then
+    echo -e "${BLUE}Starting Slurm Job: [TRAIN]${NC}"
+    echo -e "${CYAN}[SLURM]${NC} Model:   ${MAGENTA}${model[0]}${NC}"
+    echo -e "${CYAN}[SLURM]${NC} Problem: ${MAGENTA}$problem${NC}"
+    echo -e "${CYAN}[SLURM]${NC} Size:    ${MAGENTA}$gs${NC}"
     while getopts b:d:n:s:e:l:et: flag
     do
         case "${flag}" in
@@ -100,6 +117,10 @@ if [[ "$command" == "train" ]]; then
     --batch_size "$bs" --data_distribution "$dd" --n_epochs "$ne" --eval_batch_size "$ebs" \
     --graph_size "$gs" --epoch_start "$es" --edge_threshold "$et" --n_other_layers 2;
 elif [[ "$command" == "test" ]]; then
+    echo -e "${BLUE}Starting Slurm Job: [TEST]${NC}"
+    echo -e "${CYAN}[SLURM]${NC} Policies: ${MAGENTA}${model[*]}${NC}"
+    echo -e "${CYAN}[SLURM]${NC} Problem:  ${MAGENTA}$problem${NC}"
+    echo -e "${CYAN}[SLURM]${NC} Size:     ${MAGENTA}$gs${NC}"
     while getopts d:o:s:l:cf:nv:dd: flag
     do
         case "${flag}" in
@@ -145,5 +166,5 @@ elif [[ "$command" == "test" ]]; then
     --days "$days" --output_dir "$od" --n_samples "$ns" --cpu_cores "$NUMBER_OF_CORES" --server_run --resume; 
     #--lvl "${lvl[@]}" --cf "${cf[@]}" --n_vehicles "$nv"
 else
-    echo "Unknown command: $command"
+    echo -e "${RED}Unknown command: $command${NC}"
 fi

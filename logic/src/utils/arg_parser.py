@@ -453,8 +453,35 @@ def add_train_args(parser):
     parser.add_argument(
         "--activation",
         default="gelu",
-        help="Activation function: 'gelu'|'gelu_tanh'|'tanh'|'tanhshrink'|'mish'|'hardshrink'|'hardtanh'|'hardswish'|'glu'|"
-        "'relu'|'leakyrelu'|'silu'|'selu'|'elu'|'celu'|'prelu'|'rrelu'|'sigmoid'|'logsigmoid'|'hardsigmoid'|'threshold'|'softplus'|'softshrink'|'softsign'",
+        choices=[
+            "gelu",
+            "gelu_tanh",
+            "tanh",
+            "tanhshrink",
+            "mish",
+            "hardshrink",
+            "hardtanh",
+            "hardswish",
+            "glu",
+            "relu",
+            "leakyrelu",
+            "silu",
+            "selu",
+            "elu",
+            "celu",
+            "prelu",
+            "rrelu",
+            "sigmoid",
+            "logsigmoid",
+            "hardsigmoid",
+            "threshold",
+            "softplus",
+            "softshrink",
+            "softsign",
+        ],
+        help="Activation function: 'gelu'|'gelu_tanh'|'tanh'|'tanhshrink'|'mish'|'hardshrink'|'hardtanh'|'hardswish'|"
+        "'glu'|'relu'|'leakyrelu'|'silu'|'selu'|'elu'|'celu'|'prelu'|'rrelu'|'sigmoid'|'logsigmoid'|'hardsigmoid'|"
+        "'threshold'|'softplus'|'softshrink'|'softsign'",
     )
     parser.add_argument(
         "--af_param",
@@ -568,7 +595,7 @@ def add_train_args(parser):
     parser.add_argument(
         "--rl_algorithm",
         type=str,
-        default="ppo",
+        default="reinforce",
         choices=["reinforce", "ppo", "sapo", "gspo", "dr_grpo"],
         help="RL algorithm to use",
     )
