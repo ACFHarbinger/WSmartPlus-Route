@@ -82,6 +82,7 @@ class StandardTrainer(BaseReinforceTrainer):
             loss_keys.append('baseline_loss')
         if self.opts.get('imitation_weight', 0) > 0:
             loss_keys.append('imitation_loss')
+            loss_keys.append('expert_cost')
 
         daily_loss = {key: [] for key in loss_keys}  
         
@@ -182,8 +183,9 @@ class StandardTrainer(BaseReinforceTrainer):
             entropy_loss = -self.opts.get('entropy_weight', 0.0) * entropy if entropy is not None else 0.0
             
             imitation_loss = torch.tensor(0.0, device=self.opts['device'])
-            curr_imitation_weight = self.opts.get('imitation_weight', 0.0) * (self.opts.get('imitation_decay', 1.0) ** (self.day // self.opts.get('imitation_decay_step', 1)))
+            curr_imitation_weight = self.opts.get('imitation_weight', 0.0) # Decay handled externally
             
+            expert_cost_tensor = None
             if curr_imitation_weight >= self.opts['lr_model'] and pi is not None:
                 dist_matrix = x.get('dist', None)
                 expert_pi = None
@@ -240,7 +242,7 @@ class StandardTrainer(BaseReinforceTrainer):
                                 pass # Discard if still invalid somehow
 
                         if pi_giant_list:
-                             # Convert list of numpy arrays to a single numpy array first
+                            # Convert list of numpy arrays to a single numpy array first
                             giant_tours_np = torch.from_numpy(np.array(pi_giant_list)).to(self.opts['device'])
                             
                             hgs_dist = dist_matrix
@@ -272,8 +274,7 @@ class StandardTrainer(BaseReinforceTrainer):
                         if dist_matrix.size(0) == 1 and pi.size(0) > 1:
                             dist_matrix = dist_matrix.expand(pi.size(0), -1, -1)
                         with torch.no_grad():
-                            pi_with_depot = torch.cat([torch.zeros((pi.size(0), 1), dtype=torch.long, device=pi.device), pi], dim=1)
-                            pi_opt_with_depot = local_search_2opt_vectorized(pi_with_depot, dist_matrix, self.opts['two_opt_max_iter'])
+                            pi_opt_with_depot = local_search_2opt_vectorized(pi, dist_matrix, self.opts['two_opt_max_iter'])
                             expert_pi = pi_opt_with_depot[:, 1:]
                                     
                 if expert_pi is not None:
@@ -285,6 +286,12 @@ class StandardTrainer(BaseReinforceTrainer):
                         expert_pi=expert_pi
                     )
                     imitation_loss = -expert_log_likelihood.mean()
+                    
+                    # Compute Expert Cost for Reannealing
+                    with torch.no_grad():
+                        expert_cost, _, _ = self.problem.get_costs(x, expert_pi, self.cost_weights, dist_matrix)
+                        expert_cost_tensor = expert_cost.mean()
+
             
             loss = reinforce_loss.mean() + bl_loss.mean() + entropy_loss.mean() + curr_imitation_weight * imitation_loss
             loss = loss / self.opts.get('accumulation_steps', 1)
@@ -313,6 +320,9 @@ class StandardTrainer(BaseReinforceTrainer):
             }
             if curr_imitation_weight > 0:
                 l_dict['imitation_loss'] = imitation_loss.item() if isinstance(imitation_loss, torch.Tensor) else imitation_loss
+            
+            if expert_cost_tensor is not None:
+                l_dict['expert_cost'] = expert_cost_tensor.item() if isinstance(expert_cost_tensor, torch.Tensor) else expert_cost_tensor
 
             state_tensors = None
             if not opt_step:

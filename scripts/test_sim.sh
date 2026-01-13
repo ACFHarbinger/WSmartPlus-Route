@@ -17,7 +17,7 @@ do
         I) POLICIES=(${OPTARG});;
         M) CUSTOM_MODEL_PATH=${OPTARG};;
         V) VEHICLES=${OPTARG};;
-        F) RUN_TSP=1;;
+        F) RUN_TSP=0;;
         v) VERBOSE=true;;
         C) CONFIG_PATH=${OPTARG};;
     esac
