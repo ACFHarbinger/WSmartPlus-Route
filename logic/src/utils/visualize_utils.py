@@ -339,6 +339,86 @@ def plot_attention_heatmaps(model, output_dir, epoch=0):
     print(f"Heatmaps saved to {output_dir}")
 
 
+def plot_logit_lens(model, x_batch, output_file, epoch=0):
+    """
+    Implements the 'Logit Lens' technique for Attention Models.
+    Project intermediate encoder layer outputs through the decoder's
+    attention mechanism to see what the 'best' node is at each layer.
+
+    Args:
+        model (nn.Module): The Attention Model.
+        x_batch (dict): Input batch.
+        output_file (str): Filename to save the heatmap.
+        epoch (int): Current epoch.
+    """
+    print("Computing Logit Lens...")
+    model.eval()
+    
+    # Ensure compatible devices
+    dev = next(model.parameters()).device
+    x_batch = {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in x_batch.items()}
+    
+    with torch.no_grad():
+        h = model._get_initial_embeddings(x_batch)
+        edges = x_batch.get("edges", None)
+        
+        all_probs = []
+        
+        # Helper to get first step probs
+        def get_probs(embeddings):
+            fixed = model.decoder._precompute(embeddings)
+            # Correctly instantiate state with all required arguments
+            state = model.problem.make_state(
+                x_batch, 
+                edges=edges, 
+                cost_weights=getattr(model, 'cost_weights', None), 
+                dist_matrix=x_batch.get("dist")
+            )
+            log_p, _ = model.decoder._get_log_p(fixed, state)
+            return log_p.exp() # (Batch, 1, Nodes)
+
+        # 0. Initial Embeddings (Layer 0)
+        all_probs.append(get_probs(h))
+        
+        # 1. Intermediate Layers
+        curr = h
+        if hasattr(model.embedder, 'layers'):
+            for i, layer in enumerate(model.embedder.layers):
+                curr = layer(curr, mask=edges)
+                all_probs.append(get_probs(curr))
+        
+        # Final dropout/projection if any
+        if hasattr(model.embedder, 'dropout'):
+            curr = model.embedder.dropout(curr)
+            # Only add if it changed something or if we want to see the final output
+            # Usually redundant if dropout is 0 during eval, but good for completeness
+            # all_probs.append(get_probs(curr))
+
+        # Shape: (Batch, NumLayers, Nodes)
+        probs_tensor = torch.cat(all_probs, dim=1).cpu().numpy()
+        
+        # Visualize first sample in batch
+        sample_probs = probs_tensor[0] # (L, N)
+        
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(sample_probs, cmap="viridis", annot=False)
+        plt.title(f"Logit Lens - Probability Distribution per Layer (Epoch {epoch})")
+        plt.xlabel("Node Index")
+        plt.ylabel("Encoder Layer Index")
+        
+        # Highlight top prediction per layer
+        top_indices = np.argmax(sample_probs, axis=1)
+        for layer_idx, node_idx in enumerate(top_indices):
+            plt.text(node_idx + 0.5, layer_idx + 0.5, f"{node_idx}", 
+                     color="white", ha="center", va="center", weight='bold', fontsize=8)
+
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        plt.savefig(output_file)
+        plt.close()
+    
+    print(f"Logit Lens saved to {output_file}")
+
+
 # --- LOSS LANDSCAPE FUNCTIONS ---
 
 
@@ -563,6 +643,10 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
         if "heatmaps" in viz_modes:
             plot_attention_heatmaps(model, viz_output_dir, epoch=epoch)
 
+        if "logit_lens" in viz_modes:
+            x_batch = get_batch(viz_opts["device"], size=opts["graph_size"], batch_size=1, temporal_horizon=opts.get("temporal_horizon", 0))
+            plot_logit_lens(model, x_batch, os.path.join(viz_output_dir, f"logit_lens_ep{epoch}.png"), epoch=epoch)
+
         if "loss" in viz_modes or "both" in viz_modes:
             plot_loss_landscape(model, viz_opts, viz_output_dir, epoch=epoch, size=opts["graph_size"], batch_size=4, resolution=10)
 
@@ -612,6 +696,7 @@ def main():
             "distributions",
             "embeddings",
             "heatmaps",
+            "logit_lens",
             "loss",
             "both",
         ],
@@ -651,6 +736,10 @@ def main():
 
     elif args.mode == "heatmaps":
         plot_attention_heatmaps(model, args.output_dir)
+
+    elif args.mode == "logit_lens":
+        x_batch = get_batch(device, size=args.size, batch_size=1)
+        plot_logit_lens(model, x_batch, os.path.join(args.output_dir, "logit_lens.png"))
 
     elif args.mode == "loss" or args.mode == "both":
         fake_opts = {"device": device}
