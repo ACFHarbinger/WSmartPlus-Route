@@ -1,14 +1,24 @@
 #!/bin/bash
 
-# Default to quiet mode
-VERBOSE=false
+# Default to verbose mode
+VERBOSE=true
 
-# Handle --verbose if it appears after other arguments
+# Handle --quiet if it appears after other arguments
 for arg in "$@"; do
-    if [[ "$arg" == "--verbose" ]]; then
-        VERBOSE=true
+    if [[ "$arg" == "--quiet" ]]; then
+        VERBOSE=false
     fi
 done
+
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
 
 # If not verbose, redirect all output to /dev/null
 if [ "$VERBOSE" = false ]; then
@@ -136,13 +146,15 @@ fi
 # EXECUTION
 # ==============================================================================
 
-echo "=========================================="
-echo "Starting Algorithm Evaluation"
-echo "Model: $MODEL_PATH"
-echo "Datasets: ${DATASET_ARGS}"
-echo "Decode Strategy: $DECODE_STRATEGY (Width: ${WIDTH_ARGS})"
-echo "Output File: ${OUTPUT_FILE:-None}"
-echo "=========================================="
+echo -e "${BLUE}╔══════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║       ALGORITHM EVALUATION MODULE        ║${NC}"
+echo -e "${BLUE}╚══════════════════════════════════════════╝${NC}"
+echo -e "${CYAN}[PARAM]${NC} Model:            ${MAGENTA}$MODEL_PATH${NC}"
+echo -e "${CYAN}[PARAM]${NC} Datasets:         ${MAGENTA}${DATASET_ARGS}${NC}"
+echo -e "${CYAN}[PARAM]${NC} Decode Strategy:  ${MAGENTA}$DECODE_STRATEGY${NC}"
+echo -e "${CYAN}[PARAM]${NC} Width:            ${MAGENTA}${WIDTH_ARGS}${NC}"
+echo -e "${CYAN}[PARAM]${NC} Output File:      ${MAGENTA}${OUTPUT_FILE:-None}${NC}"
+echo ""
 echo ""
 
 # Execute the command

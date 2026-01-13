@@ -3,12 +3,29 @@
 # Default to verbose mode
 VERBOSE=true
 
-# Handle --verbose if it appears after other arguments
+# Handle --quiet if it appears after other arguments
 for arg in "$@"; do
-    if [[ "$arg" == "--silent" ]]; then
+    if [[ "$arg" == "--quiet" ]]; then
         VERBOSE=false
     fi
 done
+
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
 
 # If not verbose, redirect all output to /dev/null
 if [ "$VERBOSE" = false ]; then
@@ -18,14 +35,15 @@ fi
 # Set manager to 'uv' if no argument is provided, otherwise use the argument
 MANAGER=${1:-uv}
 
-echo "Using manager: $MANAGER"
+echo -e "${BLUE}Starting environment setup...${NC}"
+echo -e "${BLUE}[INFO]${NC} Using manager: ${YELLOW}$MANAGER${NC}"
 
 # Check manager type and execute appropriate commands
 if [ "$MANAGER" = "uv" ]; then
     # Check if uv is installed
     if ! command -v uv &> /dev/null; then
-        echo "Warning: uv is not installed or not in PATH"
-        echo "Installing uv..."
+        echo -e "${YELLOW}Warning: uv is not installed or not in PATH${NC}"
+        echo -e "${BLUE}Installing uv...${NC}"
 
         # Install uv using the official installer and capture install path
         INSTALL_PATH=$(curl -LsSf https://astral.sh/uv/install.sh | sh 2>&1 | grep -oP 'installing to \K.*' | head -1)
@@ -46,8 +64,8 @@ if [ "$MANAGER" = "uv" ]; then
 elif [ "$MANAGER" = "conda" ]; then
     # Check if conda is installed
     if ! command -v conda &> /dev/null; then
-        echo "Warning: conda is not installed or not in PATH"
-        echo "Installing conda..."
+        echo -e "${YELLOW}Warning: conda is not installed or not in PATH${NC}"
+        echo -e "${BLUE}Installing conda...${NC}"
         
         # Download conda installer
         echo "Downloading Anaconda installer..."
@@ -94,4 +112,4 @@ else
     exit 1
 fi
 
-echo "Setup completed successfully with $MANAGER"
+echo -e "${GREEN}✓ [SUCCESS] Setup completed successfully with $MANAGER.${NC}"

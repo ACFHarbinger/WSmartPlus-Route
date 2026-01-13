@@ -1,14 +1,24 @@
 #!/bin/bash
 
-# Default to quiet mode
-VERBOSE=false
+# Default to verbose mode
+VERBOSE=true
 
-# Handle --verbose if it appears after other arguments
+# Handle --quiet if it appears after other arguments
 for arg in "$@"; do
-    if [[ "$arg" == "--verbose" ]]; then
-        VERBOSE=true
+    if [[ "$arg" == "--quiet" ]]; then
+        VERBOSE=false
     fi
 done
+
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
 
 # If not verbose, redirect all output to /dev/null
 if [ "$VERBOSE" = false ]; then
@@ -49,10 +59,17 @@ GENERATE_DATASET=1
 GENERATE_VAL_DATASET=1
 GENERATE_TEST_DATASET=0
 
-echo "Starting data generation..."
+echo -e "${BLUE}Starting data generation module...${NC}"
+echo -e "${CYAN}---------------------------------------${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Problem:    ${MAGENTA}$PROBLEM${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Area:       ${MAGENTA}$AREA${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Sizes:      ${MAGENTA}${SIZES[*]}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Waste Type: ${MAGENTA}$WTYPE${NC}"
+echo -e "${CYAN}---------------------------------------${NC}"
+echo ""
 
 if [ "$GENERATE_DATASET" -eq 0 ]; then
-    echo "Generating main dataset..."
+    echo -e "${BLUE}Generating main dataset...${NC}"
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -68,7 +85,7 @@ if [ "$GENERATE_DATASET" -eq 0 ]; then
 fi
 
 if [ "$GENERATE_VAL_DATASET" -eq 0 ]; then
-    echo "Generating validation dataset..."
+    echo -e "${BLUE}Generating validation dataset...${NC}"
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -84,7 +101,7 @@ if [ "$GENERATE_VAL_DATASET" -eq 0 ]; then
 fi
 
 if [ "$GENERATE_TEST_DATASET" -eq 0 ]; then
-    echo "Generating test dataset..."
+    echo -e "${BLUE}Generating test dataset...${NC}"
     if [ "$VERBOSE" = false ]; then
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -99,4 +116,4 @@ if [ "$GENERATE_TEST_DATASET" -eq 0 ]; then
     fi
 fi
 
-echo "Done!"
+echo -e "${GREEN}✓ [DONE] Data generation process completed.${NC}"
