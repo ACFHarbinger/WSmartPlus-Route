@@ -533,7 +533,7 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
         return
         
     log_dir = opts.get("log_dir", "logs")
-    viz_output_dir = os.path.join(opts["output_dir"], "visualizations")
+    viz_output_dir = os.path.join(log_dir, "visualizations")
     os.makedirs(viz_output_dir, exist_ok=True)
 
     print(f"\n--- Visualizing Epoch {epoch} ---")
@@ -590,7 +590,7 @@ def main():
         "--output_dir", type=str, default="visualizations", help="Output directory"
     )
     parser.add_argument(
-        "--log_dir", type=str, default="runs/viz", help="TensorBoard log directory"
+        "--log_dir", type=str, default="logs", help="TensorBoard log directory"
     )
 
     parser.add_argument("--size", type=int, default=100, help="Problem size")

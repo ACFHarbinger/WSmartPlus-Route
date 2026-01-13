@@ -33,9 +33,10 @@ EDGE_M="knn"
 DIST_M="gmaps"
 VERTEX_M="mmn"
 
-W_LEN=10.0
-W_OVER=10.0
-W_WASTE=10.0
+GAMMA=0.99
+W_LEN=1.0
+W_OVER=1.0
+W_WASTE=1.0
 # emp W_LEN = 1.5, 1.0, 1.0, 1.0
 # gamma W_LEN = 2.5, 1.75, 1.75, 1.75
 
@@ -78,8 +79,10 @@ ACC_STEPS=1
 IMITATION_W=1.0
 IMITATION_DECAY=0.91
 IMITATION_DECAY_STEP=1
+REHEAT_PAT=3
+REHEAT_THRESH=0.1
+IMITATION_MODE="2opt"
 TWO_OPT_MAX_ITER=100
-IMITATION_MODE="hgs"
 
 SIZE=100
 AREA="riomaior"
@@ -138,7 +141,7 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
         --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
-        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --rl_algorithm "$RL_ALGO" \
+        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --spatial_bias \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --hyper_expansion "$HYPER_LANES" \
@@ -146,9 +149,10 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --temporal_horizon "${HORIZON[0]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY" \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --imitation_mode "$IMITATION_MODE" \
-        --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --exp_beta "$EXP_BETA" --spatial_bias --visualize_step "$VIZ_STEP" \
+        --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --exp_beta "$EXP_BETA" --visualize_step "$VIZ_STEP" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --gamma 0.99;
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --gamma "$GAMMA" \
+        --reannealing_patience "$REHEAT_PAT" --reannealing_threshold "$REHEAT_THRESH"  --rl_algorithm "$RL_ALGO";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -167,17 +171,18 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --train_time --vertex_method "$VERTEX_M" --epoch_start "$START" --max_grad_norm "$MAX_NORM" \
         --val_size "$N_VAL_DATA" --w_length "$W_LEN" --w_waste "$W_WASTE" --w_overflows "$W_OVER" \
         --embedding_dim "$EMBED_DIM" --activation "$ACTI_F" --accumulation_steps "$ACC_STEPS" \
-        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" \
+        --focus_graph "$F_GRAPH" --normalization "$NORM" --train_dataset "${DATASETS[id]}" --gamma "$GAMMA" \
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --hyper_expansion "$HYPER_LANES" \
-        --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --visualize_step "$VIZ_STEP" \
+        --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[1]}" --lr_scheduler "$LR_SCHEDULER" --lr_decay "$LR_DECAY"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --area "$AREA" \
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --rl_algorithm "$RL_ALGO" \
         --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias --imitation_mode "$IMITATION_MODE" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" \
+        --reannealing_patience "$REHEAT_PAT" --reannealing_threshold "$REHEAT_THRESH" --visualize_step "$VIZ_STEP";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -207,7 +212,8 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --rl_algorithm "$RL_ALGO" \
         --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias --imitation_mode "$IMITATION_MODE" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --visualize_step "$VIZ_STEP";
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --gamma "$GAMMA" \
+        --reannealing_patience "$REHEAT_PAT" --reannealing_threshold "$REHEAT_THRESH" --visualize_step "$VIZ_STEP";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -237,7 +243,8 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --visualize_step "$VIZ_STEP" \
         --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias --rl_algorithm "$RL_ALGO" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --gamma "$GAMMA" \
+        --reannealing_patience "$REHEAT_PAT" --reannealing_threshold "$REHEAT_THRESH";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi
@@ -261,13 +268,14 @@ for ((id = 0; id < ${#DATA_DISTS[@]}; id++)); do
         --optimizer "$OPTIM" --hidden_dim "$HIDDEN_DIM" --n_heads "$N_HEADS" --dropout "$DROPOUT" \
         --waste_type "$WTYPE" --focus_size "$F_SIZE" --n_encode_layers "$N_ENC_L" --lr_model "$LR_MODEL" \
         --eval_focus_size "$VAL_F_SIZE" --distance_method "$DIST_M" --hyper_expansion "$HYPER_LANES" \
-        --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" --visualize_step "$VIZ_STEP" \
+        --edge_threshold "$EDGE_T" --edge_method "$EDGE_M" --eval_batch_size "$VAL_B_SIZE" \
         --temporal_horizon "${HORIZON[4]}" --lr_scheduler "$LR_SCHEDULER" --n_predict_layers "$N_PRED_L"  \
         --batch_size "$B_SIZE" --pomo_size "$POMO_SIZE" --bl_alpha "$BL_ALPHA" --lr_decay "$LR_DECAY" \
         --aggregation_graph "$AGG_G" --dm_filepath "$DM_PATH" --exp_beta "$EXP_BETA" --rl_algorithm "$RL_ALGO" \
         --wandb_mode "$WB_MODE" --log_step "$LOG_STEP" --spatial_bias --imitation_mode "$IMITATION_MODE" \
         --imitation_weight "$IMITATION_W" --imitation_decay "$IMITATION_DECAY" --connection_type "$CONNECTION" \
-        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER";
+        --imitation_decay_step "$IMITATION_DECAY_STEP" --two_opt_max_iter "$TWO_OPT_MAX_ITER" --gamma "$GAMMA" \
+        --reannealing_patience "$REHEAT_PAT" --reannealing_threshold "$REHEAT_THRESH" --visualize_step "$VIZ_STEP";
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1
         fi

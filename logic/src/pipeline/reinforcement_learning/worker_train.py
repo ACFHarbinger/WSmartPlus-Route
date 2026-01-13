@@ -50,7 +50,7 @@ def train_reinforce_epoch(model, optimizer, baseline, lr_scheduler, scaler, epoc
     trainer.update_context() # Prepare dataset
     trainer.train_day() # Run training
     trainer.post_day_processing()
-    return None # Return value not strictly used in loop usually
+    return model, None
 
 
 def train_reinforce_over_time_rwa(model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
