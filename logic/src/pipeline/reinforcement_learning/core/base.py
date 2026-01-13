@@ -9,12 +9,14 @@ day/epoch training logic.
 The Template Method pattern ensures consistency across different training variants
 (Standard, Time-based, HRL, Meta-learning) while enabling customization where needed.
 """
+import torch
+import numpy as np
 
 from abc import ABC, abstractmethod
-
 from logic.src.utils.log_utils import log_epoch
-from logic.src.pipeline.reinforcement_learning.core.epoch import complete_train_pass
 from logic.src.utils.visualize_utils import visualize_epoch
+from logic.src.pipeline.reinforcement_learning.core.epoch import complete_train_pass
+
 
 class BaseReinforceTrainer(ABC):
     """
@@ -240,6 +242,54 @@ class BaseReinforceTrainer(ABC):
             self.day, self.step, getattr(self, 'day_duration', 0), self.tb_logger, self.cost_weights, self.opts, 
             manager=self.weight_optimizer
         )
+
+        # --- Curriculum Update Logic ---
+        if self.opts.get('imitation_weight', 0.0) > 0:
+            # 1. Decay
+            if (self.day + 1) % self.opts['imitation_decay_step'] == 0:
+                self.opts['imitation_weight'] *= self.opts['imitation_decay']
+                print(f"[Curriculum] Decay Step: Imitation Weight updated to {self.opts['imitation_weight']:.6f}")
+                
+            # 2. Reannealing
+            # Safe extraction helper using torch
+            def get_mean_metric(key):
+                """Get mean metric value from daily loss"""
+                if key not in self.daily_loss: return 0.0
+                vals = self.daily_loss[key]
+                if not vals: return 0.0
+                # vals is a list of tensors or floats
+                if isinstance(vals[0], torch.Tensor):
+                    return torch.cat(vals).float().mean().item()
+                return np.mean(vals)
+            
+            avg_expert_cost = get_mean_metric('expert_cost')
+            
+            # Implementation detail: Use a running counter stored in self
+            if not hasattr(self, 'reannealing_counter'):
+                self.reannealing_counter = 0
+                self.initial_im_weight = self.opts.get('imitation_weight', 0.0)
+
+            # Reconstruct model cost robustly since 'total' mixes cost and loss
+            avg_length = get_mean_metric('length') * self.cost_weights['length']
+            avg_overflows = get_mean_metric('overflows') * self.cost_weights['overflows']
+            avg_waste = get_mean_metric('waste') * self.cost_weights['waste']
+            avg_model_cost = avg_length + avg_overflows + avg_waste
+            print(f"[Curriculum] Reannealing: Model Cost {avg_model_cost:.4f} vs Expert Cost {avg_expert_cost:.4f}")
+            
+            threshold = self.opts.get('reannealing_threshold', 0.05)
+            
+            # print(f"[Curriculum] Reannealing: Model Cost {avg_model_cost:.4f} vs Expert Cost {avg_expert_cost:.4f}")
+
+            if avg_model_cost > avg_expert_cost * (1 + threshold):
+                self.reannealing_counter += 1
+            else:
+                self.reannealing_counter = 0
+                
+            if self.reannealing_counter >= self.opts.get('reannealing_patience', 5):
+                print(f"[Curriculum] Reannealing: Resetting imitation weight to {self.initial_im_weight}")
+                self.opts['imitation_weight'] = self.initial_im_weight
+                self.reannealing_counter = 0
+            # -------------------------------
 
     def _should_stop(self):
         """

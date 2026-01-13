@@ -577,6 +577,18 @@ def add_train_args(parser):
         help="Number of epochs after which to apply imitation decay",
     )
     parser.add_argument(
+        "--reannealing_threshold",
+        type=float,
+        default=0.05,
+        help="Performance gap threshold (percentage) to trigger reannealing",
+    )
+    parser.add_argument(
+        "--reannealing_patience",
+        type=int,
+        default=5,
+        help="Number of consecutive epochs of underperformance before reannealing",
+    )
+    parser.add_argument(
         "--imitation_mode",
         type=str,
         default="2opt",
