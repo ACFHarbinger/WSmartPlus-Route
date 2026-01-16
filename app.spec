@@ -33,7 +33,7 @@ a = Analysis(
     runtime_hooks=[],
     excludes=[
         # Exclude unnecessary packages to reduce size
-        'tkinter', 'test', 'pytest', 'matplotlib.tests', 'numpy.tests', 
+        'tkinter', 'test', 'pytest', 'matplotlib.tests', 'numpy.tests',
         'onnxscript', 'pysqlite2', 'MySQLdb', 'psycopg2', 'expecttest',
         'scipy.tests', 'pandas.tests', 'torch.test', 'PIL.tests', 'torchaudio',
         'hypothesis', 'torch.onnx._internal.fx.passes', 'importlib_resources.trees'

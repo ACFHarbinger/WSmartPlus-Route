@@ -8,16 +8,17 @@ This module provides tools for:
 - Generating synthetic waste levels and prize distributions.
 """
 
-import os
 import json
 import math
-import torch
+import os
 import pickle
-import numpy as np
 
-from logic.src.utils.functions import get_path_until_string
+import numpy as np
+import torch
+
 from logic.src.pipeline.simulator.loader import load_depot, load_simulator_data
-from logic.src.pipeline.simulator.processor import process_data, process_coordinates
+from logic.src.pipeline.simulator.processor import process_coordinates, process_data
+from logic.src.utils.functions import get_path_until_string
 
 
 def check_extension(filename):
@@ -51,9 +52,7 @@ def save_dataset(dataset, filename):
         try:
             os.makedirs(filedir, exist_ok=True)
         except Exception:
-            raise Exception(
-                "directories to save datasets do not exist and could not be created"
-            )
+            raise Exception("directories to save datasets do not exist and could not be created")
 
     with open(check_extension(filename), "wb") as f:
         pickle.dump(dataset, f, pickle.HIGHEST_PROTOCOL)
@@ -85,9 +84,7 @@ def collate_fn(batch):
         dict: Collated batch.
     """
     # batch = [{key: val if val is not None else torch.empty(1) for key, val in sample.items()} for sample in batch]
-    batch = [
-        {key: val for key, val in sample.items() if val is not None} for sample in batch
-    ]
+    batch = [{key: val for key, val in sample.items() if val is not None} for sample in batch]
 
     # Empty lists can break collate
     if len(batch) == 0:
@@ -223,9 +220,7 @@ def generate_waste_prize(problem_size, distribution, graph, dataset_size=1, bins
             return (1 + (wp / wp.max(axis=-1, keepdims=True) * 99).astype(int)) / 100.0
         else:
             wp = (depot[None, :] - loc).norm(p=2, dim=-1)
-            return (
-                1 + (wp / wp.max(dim=-1, keepdim=True)[0] * 99).int()
-            ).float() / 100.0
+            return (1 + (wp / wp.max(dim=-1, keepdim=True)[0] * 99).int()).float() / 100.0
 
     if dataset_size == 1:
         return wp[0]

@@ -8,12 +8,12 @@ used across all command-specific parsers.
 import argparse
 import sys
 from typing import Sequence
-from multiprocessing import cpu_count
-from logic.src.utils.functions import parse_softmax_temperature
+
 from logic.src.utils.definitions import (
     OPERATION_MAP,
     STATS_FUNCTION_MAP,
 )
+
 
 class ConfigsParser(argparse.ArgumentParser):
     """
@@ -66,11 +66,7 @@ class ConfigsParser(argparse.ArgumentParser):
 
         if command_name:
             subparsers_action = next(
-                (
-                    a
-                    for a in actions_to_check
-                    if isinstance(a, argparse._SubParsersAction)
-                ),
+                (a for a in actions_to_check if isinstance(a, argparse._SubParsersAction)),
                 None,
             )
 
@@ -94,10 +90,7 @@ class ConfigsParser(argparse.ArgumentParser):
 
         subnamespace = super().parse_args(args)
         parsed_args_dict = vars(subnamespace)
-        filtered_args = {
-            key: value if value != "" else None
-            for key, value in parsed_args_dict.items()
-        }
+        filtered_args = {key: value if value != "" else None for key, value in parsed_args_dict.items()}
 
         command = filtered_args.pop("command")
         return command, filtered_args
@@ -111,16 +104,20 @@ class ConfigsParser(argparse.ArgumentParser):
             self.print_help()
         raise
 
+
 class LowercaseAction(argparse.Action):
     """Action to convert argument value to lowercase."""
+
     def __call__(self, parser, namespace, values, option_string=None):
         """Invoke action: lowercase input string."""
         if values is not None:
             values = str(values).lower()
         setattr(namespace, self.dest, values)
 
+
 class StoreDictKeyPair(argparse.Action):
     """Custom action to parse key=value into a dictionary."""
+
     def __call__(self, parser, namespace, values, option_string=None):
         """Invoke action: parse key=value strings into dictionary."""
         my_dict = {}
@@ -129,19 +126,21 @@ class StoreDictKeyPair(argparse.Action):
                 k, v = kv.split("=", 1)
                 my_dict[k] = v
             else:
-                raise argparse.ArgumentError(
-                    self, f"Could not parse argument '{kv}' as key=value format"
-                )
+                raise argparse.ArgumentError(self, f"Could not parse argument '{kv}' as key=value format")
         setattr(namespace, self.dest, my_dict)
+
 
 def UpdateFunctionMapActionFactory(inplace=False):
     """Factory for mapping string update functions."""
+
     class UpdateFunctionMapAction(argparse.Action):
         """Action that maps input strings to update functions."""
+
         def __init__(self, option_strings, dest, nargs=None, **kwargs):
             """Initialize the update function map action."""
             super().__init__(option_strings, dest, nargs=nargs, **kwargs)
             self.inplace = inplace
+
         def __call__(self, parser, namespace, values, option_string=None):
             """Invoke action: map string to update function."""
             if values is not None:
@@ -152,4 +151,5 @@ def UpdateFunctionMapActionFactory(inplace=False):
             if values is None:
                 raise ValueError(f"Invalid update function: {values}")
             setattr(namespace, self.dest, values)
+
     return UpdateFunctionMapAction

@@ -70,4 +70,3 @@ Documentation is built using Sphinx.
 1. Ensure all code is documented (docstrings).
 2. Run `just lint` and `just test` before committing.
 3. Use Type Hints where possible.
-

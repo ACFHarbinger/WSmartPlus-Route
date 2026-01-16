@@ -4,12 +4,11 @@ Simulation state encapsulation and context management.
 This module provides the SimulationDayContext dataclass which groups
 all state variables for a single simulation day.
 """
-from dataclasses import dataclass, fields
-from typing import Any, Dict, Optional, Union, List, Tuple
+
 from collections.abc import Mapping
-import pandas as pd
-import numpy as np
-import torch
+from dataclasses import dataclass, fields
+from typing import Any, Dict, List, Optional, Tuple
+
 
 @dataclass
 class SimulationDayContext(Mapping):
@@ -53,7 +52,7 @@ class SimulationDayContext(Mapping):
         mask_prob_threshold: Threshold for masking probability.
         two_opt_max_iter: Max iterations for 2-opt local search.
         config: Configuration dictionary.
-        
+
         # Helper/Mutable attributes often added during run_day
         daily_log: Dictionary for daily logs.
         output_dict: Dictionary for output results.
@@ -69,6 +68,7 @@ class SimulationDayContext(Mapping):
         total_fill: Total fill levels.
         extra_output: Any extra output from policy.
     """
+
     # Required/Core Fields
     graph_size: int = 0
     full_policy: str = ""
@@ -134,7 +134,7 @@ class SimulationDayContext(Mapping):
     def __setitem__(self, key: str, value: Any) -> None:
         """Allow setting context fields via dictionary syntax."""
         setattr(self, key, value)
-        
+
     def get(self, key: str, default: Any = None) -> Any:
         """Safely get a value from the context with an optional default."""
         return getattr(self, key, default)

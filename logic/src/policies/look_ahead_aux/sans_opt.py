@@ -1,8 +1,8 @@
 """
 Adaptive mutation and neighborhood operators for SANS-style optimization.
 
-Implements specialized local search operators including cross-exchange, 
-relocation, Or-opt moves, and 2-opt swaps tailored for the SANS (Simulated 
+Implements specialized local search operators including cross-exchange,
+relocation, Or-opt moves, and 2-opt swaps tailored for the SANS (Simulated
 Annealing with Adaptive Neighborhood Selection) policy variant.
 """
 
@@ -10,14 +10,25 @@ import copy
 import random
 
 __all__ = [
-    'get_neighbors', 'get_2opt_neighbors', 'relocate_within_route',
-    'cross_exchange', 'or_opt_move', 'move_between_routes',
-    'insert_bin_in_route', 'mutate_route_by_swapping_bins',
-    'remove_bins_from_route', 'move_n_route_random', 'swap_n_route_random',
-    'remove_n_bins_random', 'add_n_bins_random', 'add_route_with_removed_bins_random',
-    'move_n_route_consecutive', 'swap_n_route_consecutive',
-    'remove_n_bins_consecutive', 'add_n_bins_consecutive', 
-    'add_route_with_removed_bins_consecutive'
+    "get_neighbors",
+    "get_2opt_neighbors",
+    "relocate_within_route",
+    "cross_exchange",
+    "or_opt_move",
+    "move_between_routes",
+    "insert_bin_in_route",
+    "mutate_route_by_swapping_bins",
+    "remove_bins_from_route",
+    "move_n_route_random",
+    "swap_n_route_random",
+    "remove_n_bins_random",
+    "add_n_bins_random",
+    "add_route_with_removed_bins_random",
+    "move_n_route_consecutive",
+    "swap_n_route_consecutive",
+    "remove_n_bins_consecutive",
+    "add_n_bins_consecutive",
+    "add_route_with_removed_bins_consecutive",
 ]
 
 
@@ -36,7 +47,7 @@ def get_neighbors(route):
         return [route]
 
     for i in range(1, len(route) - 2):
-        for j in range(i+1, len(route) - 1):
+        for j in range(i + 1, len(route) - 1):
             new_route = route[:]
             new_route[i], new_route[j] = new_route[j], new_route[i]
             neighbors.append(new_route)
@@ -60,7 +71,7 @@ def get_2opt_neighbors(route):
 
     for i in range(1, n - 2):
         for j in range(i + 1, n - 1):
-            new_route = route[:i] + route[i:j+1][::-1] + route[j+1:]
+            new_route = route[:i] + route[i : j + 1][::-1] + route[j + 1 :]
             neighbors.append(new_route)
     return neighbors
 
@@ -78,7 +89,7 @@ def relocate_within_route(route):
     if len(route) <= 3:
         return route[:]
     new_route = route[:]
-    i, j = sorted(random.sample(range(1, len(route)-1), 2))
+    i, j = sorted(random.sample(range(1, len(route) - 1), 2))
     bin_moved = new_route.pop(i)
     new_route.insert(j, bin_moved)
     return new_route
@@ -96,7 +107,7 @@ def cross_exchange(routes):
     """
     if len(routes) < 2:
         return routes[:]
-    
+
     new_routes = copy.deepcopy(routes)
     r1, r2 = random.sample(range(len(new_routes)), 2)
     route1, route2 = new_routes[r1], new_routes[r2]
@@ -105,7 +116,7 @@ def cross_exchange(routes):
 
     i1 = random.randint(1, len(route1) - 2)
     i2 = random.randint(1, len(route2) - 2)
-    
+
     new_route1 = route1[:i1] + route2[i2:-1] + [0]
     new_route2 = route2[:i2] + route1[i1:-1] + [0]
 
@@ -126,12 +137,12 @@ def or_opt_move(route):
     """
     if len(route) <= 4:
         return route[:]
-    
+
     new_route = route[:]
     k = random.choice([1, 2])  # tamanho do segmento a ser movido
     start = random.randint(1, len(route) - k - 1)
-    segment = new_route[start:start + k]
-    del new_route[start:start + k]
+    segment = new_route[start : start + k]
+    del new_route[start : start + k]
 
     insert_pos = random.randint(1, len(new_route) - 1)
     new_route = new_route[:insert_pos] + segment + new_route[insert_pos:]
@@ -152,7 +163,7 @@ def move_between_routes(routes, data, vehicle_capacity, id_to_index):
         List[List[int]]: Mutated solution.
     """
     moves = []
-    stocks = dict(zip(data['#bin'], data['Stock']))
+    stocks = dict(zip(data["#bin"], data["Stock"]))
     for i in range(len(routes)):
         for j in range(len(routes)):
             if i == j:
@@ -186,7 +197,7 @@ def insert_bin_in_route(route, bin_id, id_to_index, distance_matrix):
         List[int]: New route with the inserted bin.
     """
     best_pos = None
-    min_increase = float('inf')
+    min_increase = float("inf")
     for i in range(1, len(route)):
         prev_bin = route[i - 1]
         next_bin = route[i]
@@ -214,12 +225,12 @@ def mutate_route_by_swapping_bins(route, num_bins=1):
         List[int]: Mutated route.
     """
     new_route = route[:]
-    indices = [i for i in range(1, len(route)-1)]
+    indices = [i for i in range(1, len(route) - 1)]
     if len(indices) < num_bins * 2:
         return new_route
     selected = random.sample(indices, num_bins * 2)
     for i in range(0, len(selected), 2):
-        a, b = selected[i], selected[i+1]
+        a, b = selected[i], selected[i + 1]
         new_route[a], new_route[b] = new_route[b], new_route[a]
     return new_route
 
@@ -236,7 +247,7 @@ def remove_bins_from_route(route, num_bins=1):
         List[int]: New route with bins removed.
     """
     new_route = route[:]
-    indices = [i for i in range(1, len(route)-1)]
+    indices = [i for i in range(1, len(route) - 1)]
     if len(indices) <= num_bins:
         return new_route
     to_remove = random.sample(indices, num_bins)
@@ -318,7 +329,15 @@ def remove_n_bins_random(routes_list, removed_bins, bins_cannot_removed, n=2):
     return new_routes
 
 
-def add_n_bins_random(routes_list, removed_bins, stocks, vehicle_capacity, id_to_index, distance_matrix, n=2):
+def add_n_bins_random(
+    routes_list,
+    removed_bins,
+    stocks,
+    vehicle_capacity,
+    id_to_index,
+    distance_matrix,
+    n=2,
+):
     """
     Add n random bins from removed set to routes.
 
@@ -395,8 +414,8 @@ def move_n_route_consecutive(routes_list, n=2):
         return new_routes
     r = random.choice(non_empty)
     idx = random.randint(1, len(r) - n - 1)
-    subseq = r[idx:idx + n]
-    r = r[:idx] + r[idx + n:]
+    subseq = r[idx : idx + n]
+    r = r[:idx] + r[idx + n :]
     insert_r = random.choice(non_empty)
     insert_pos = random.randint(1, len(insert_r) - 1)
     insert_r = insert_r[:insert_pos] + subseq + insert_r[insert_pos:]
@@ -421,10 +440,10 @@ def swap_n_route_consecutive(routes_list, n=2):
     r1, r2 = random.sample(valid_routes, 2)
     i1 = random.randint(1, len(r1) - n - 1)
     i2 = random.randint(1, len(r2) - n - 1)
-    s1 = r1[i1:i1 + n]
-    s2 = r2[i2:i2 + n]
-    r1 = r1[:i1] + s2 + r1[i1 + n:]
-    r2 = r2[:i2] + s1 + r2[i2 + n:]
+    s1 = r1[i1 : i1 + n]
+    s2 = r2[i2 : i2 + n]
+    r1 = r1[:i1] + s2 + r1[i1 + n :]
+    r2 = r2[:i2] + s1 + r2[i2 + n :]
     return [r1 if x == r1 else r2 if x == r2 else x for x in new_routes]
 
 
@@ -443,8 +462,9 @@ def remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed, n=
     """
     new_routes = copy.deepcopy(routes_list)
     for route in new_routes:
-        indices = [i for i in range(1, len(route) - n - 1)
-                   if all(route[j] not in bins_cannot_removed for j in range(i, i + n))]
+        indices = [
+            i for i in range(1, len(route) - n - 1) if all(route[j] not in bins_cannot_removed for j in range(i, i + n))
+        ]
         if not indices:
             continue
         i = random.choice(indices)
@@ -454,7 +474,15 @@ def remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed, n=
     return new_routes
 
 
-def add_n_bins_consecutive(routes_list, removed_bins, stocks, vehicle_capacity, id_to_index, distance_matrix, n=2):
+def add_n_bins_consecutive(
+    routes_list,
+    removed_bins,
+    stocks,
+    vehicle_capacity,
+    id_to_index,
+    distance_matrix,
+    n=2,
+):
     """
     Add n separate bins from removed set to routes using insertion.
 

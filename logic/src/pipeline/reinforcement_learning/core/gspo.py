@@ -1,16 +1,21 @@
-
 """
 Group Sequence Policy Optimization (GSPO) Implementation.
 
 This module implements the GSPO algorithm which optimizes policy at the sequence level
 using group-based advantage normalization, where the group is defined as the mini-batch.
 """
+
 import time
+
 import torch
 from tqdm import tqdm
-from logic.src.utils.functions import move_to
-from logic.src.pipeline.reinforcement_learning.core.epoch import set_decode_type, prepare_batch
+
+from logic.src.pipeline.reinforcement_learning.core.epoch import (
+    prepare_batch,
+    set_decode_type,
+)
 from logic.src.pipeline.reinforcement_learning.core.reinforce import TimeTrainer
+from logic.src.utils.functions import move_to
 
 
 class GSPOTrainer(TimeTrainer):
@@ -18,14 +23,15 @@ class GSPOTrainer(TimeTrainer):
     Group Sequence Policy Optimization (GSPO) Trainer.
     Optimizes policy at the sequence level using group-based advantage normalization.
     """
+
     def __init__(self, *args, **kwargs):
         """
         Initialize the GSPOTrainer.
         """
         super().__init__(*args, **kwargs)
-        self.epsilon = self.opts.get('gspo_epsilon', 0.2)
-        self.gspo_epochs = self.opts.get('gspo_epochs', 3)
-        self.mini_batch_size = self.opts.get('ppo_mini_batch_size', self.opts['batch_size'])
+        self.epsilon = self.opts.get("gspo_epsilon", 0.2)
+        self.gspo_epochs = self.opts.get("gspo_epochs", 3)
+        self.mini_batch_size = self.opts.get("ppo_mini_batch_size", self.opts["batch_size"])
 
     def train_day(self):
         """
@@ -51,13 +57,19 @@ class GSPOTrainer(TimeTrainer):
         set_decode_type(self.model, "sampling")
 
         daily_total_samples = 0
-        loss_keys = list(self.cost_weights.keys()) + ['total', 'nll', 'reinforce_loss', 'baseline_loss', 'imitation_loss']
+        loss_keys = list(self.cost_weights.keys()) + [
+            "total",
+            "nll",
+            "reinforce_loss",
+            "baseline_loss",
+            "imitation_loss",
+        ]
         daily_loss = {key: [] for key in loss_keys}
 
         day_dataloader = torch.utils.data.DataLoader(
             self.baseline.wrap_dataset(self.training_dataset),
-            batch_size=self.opts['batch_size'],
-            pin_memory=True
+            batch_size=self.opts["batch_size"],
+            pin_memory=True,
         )
 
         start_time = time.time()
@@ -65,10 +77,10 @@ class GSPOTrainer(TimeTrainer):
         # Memory to store rollouts for multi-epoch updates
         rollouts = []
 
-        for batch_id, batch in enumerate(tqdm(day_dataloader, disable=self.opts['no_progress_bar'])):
+        for batch_id, batch in enumerate(tqdm(day_dataloader, disable=self.opts["no_progress_bar"])):
             batch = prepare_batch(batch, batch_id, self.training_dataset, day_dataloader, self.opts)
 
-            if self.weight_optimizer and hasattr(self.weight_optimizer, 'get_current_weights'):
+            if self.weight_optimizer and hasattr(self.weight_optimizer, "get_current_weights"):
                 current_weights = self.weight_optimizer.get_current_weights()
                 self.cost_weights.update(current_weights)
 
@@ -77,26 +89,28 @@ class GSPOTrainer(TimeTrainer):
 
             if pi is not None:
                 # Store rollout data
-                cost_tensor = state_tensors['cost']
+                cost_tensor = state_tensors["cost"]
                 if isinstance(cost_tensor, torch.Tensor):
                     rewards = -cost_tensor.detach()
                 else:
-                    rewards = -torch.tensor(cost_tensor, device=self.opts['device'])
+                    rewards = -torch.tensor(cost_tensor, device=self.opts["device"])
 
-                bl_val = state_tensors['bl_val']
+                bl_val = state_tensors["bl_val"]
                 if bl_val is not None and isinstance(bl_val, torch.Tensor):
                     values = bl_val.detach()
                 else:
                     values = bl_val
 
-                rollouts.append({
-                    'batch': batch,
-                    'actions': pi.detach(),
-                    'old_log_probs': state_tensors['log_likelihood'].detach(),
-                    'rewards': rewards,
-                    'values': values,
-                    'mask': None
-                })
+                rollouts.append(
+                    {
+                        "batch": batch,
+                        "actions": pi.detach(),
+                        "old_log_probs": state_tensors["log_likelihood"].detach(),
+                        "rewards": rewards,
+                        "values": values,
+                        "mask": None,
+                    }
+                )
 
                 log_pi.append(pi.detach().cpu())
 
@@ -114,11 +128,14 @@ class GSPOTrainer(TimeTrainer):
                 if isinstance(first_val, torch.Tensor):
                     current_batch_size = first_val.size(0)
                 else:
-                    current_batch_size = self.opts['batch_size']
+                    current_batch_size = self.opts["batch_size"]
 
             daily_total_samples += current_batch_size
 
-            for key, val in zip(list(c_dict.keys()) + list(l_dict.keys()), list(c_dict.values()) + list(l_dict.values())):
+            for key, val in zip(
+                list(c_dict.keys()) + list(l_dict.keys()),
+                list(c_dict.values()) + list(l_dict.values()),
+            ):
                 if key in daily_loss:
                     if isinstance(val, torch.Tensor):
                         daily_loss[key].append(val.detach().cpu().view(-1))
@@ -151,11 +168,11 @@ class GSPOTrainer(TimeTrainer):
         for _ in range(self.gspo_epochs):
             # Iterate over all collected batches
             for data in rollouts:
-                batch = data['batch']
-                old_pi = data['actions']
-                old_log_probs = data['old_log_probs']
-                rewards = data['rewards']
-                values = data['values']
+                batch = data["batch"]
+                old_pi = data["actions"]
+                old_log_probs = data["old_log_probs"]
+                rewards = data["rewards"]
+                values = data["values"]
 
                 # Calculate returns and advantages
                 returns = rewards
@@ -179,8 +196,10 @@ class GSPOTrainer(TimeTrainer):
                     mb_idx = indices[i : i + self.mini_batch_size]
 
                     # Slice mini-batch data
-                    mb_input = {k: v[mb_idx] if isinstance(v, torch.Tensor) else v for k, v in batch.items() if k != 'edges'}
-                    mb_input = move_to(mb_input, self.opts['device'])
+                    mb_input = {
+                        k: v[mb_idx] if isinstance(v, torch.Tensor) else v for k, v in batch.items() if k != "edges"
+                    }
+                    mb_input = move_to(mb_input, self.opts["device"])
 
                     mb_old_pi = old_pi[mb_idx]
                     mb_old_log_probs = old_log_probs[mb_idx]
@@ -191,7 +210,7 @@ class GSPOTrainer(TimeTrainer):
                         mb_input,
                         cost_weights=self.cost_weights,
                         return_pi=False,
-                        expert_pi=mb_old_pi
+                        expert_pi=mb_old_pi,
                     )
 
                     # GSPO: Sequence-level importance ratio
@@ -209,10 +228,10 @@ class GSPOTrainer(TimeTrainer):
                     actor_loss = -torch.min(surr1, surr2).mean()
 
                     # Total loss with entropy regularization
-                    loss = actor_loss - self.opts.get('entropy_weight', 0.0) * entropy.mean()
+                    loss = actor_loss - self.opts.get("entropy_weight", 0.0) * entropy.mean()
 
                     # Optimization step
                     self.optimizer.zero_grad()
                     loss.backward()
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.opts.get('max_grad_norm', 1.0))
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.opts.get("max_grad_norm", 1.0))
                     self.optimizer.step()

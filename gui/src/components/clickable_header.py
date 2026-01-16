@@ -8,7 +8,7 @@ class ClickableHeaderWidget(QWidget):
         super().__init__(*args, **kwargs)
         self._toggle_function = toggle_function
         self.setCursor(Qt.PointingHandCursor)
-    
+
     def mousePressEvent(self, event):
         """Overrides the mouse press event to make the whole widget clickable."""
         # Ensure only left clicks are processed

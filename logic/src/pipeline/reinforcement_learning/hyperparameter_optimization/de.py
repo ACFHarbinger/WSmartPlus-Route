@@ -9,19 +9,21 @@ It includes:
 
 The module supports both continuous and discrete/categorical changes via ConfigSpace or direct mappings.
 """
-import numpy as np
+
+from pathlib import Path
+from typing import List
+
 import ConfigSpace as CS
 import ConfigSpace.util as CSU
-
-from typing import List
-from pathlib import Path
+import numpy as np
 from distributed import Client
 from numpy.typing import NDArray
+
 from .dehb_config_repo import ConfigRepository
 
 
 # Adapted from https://github.com/automl/DEHB/blob/master/src/dehb/optimizers/de.py
-class DifferentialEvolutionBase():
+class DifferentialEvolutionBase:
     """
     Base class for Differential Evolution (DE) algorithms.
 
@@ -42,9 +44,22 @@ class DifferentialEvolutionBase():
         seed (int, optional): Seed for reproducibility.
         **kwargs: Additional keyword arguments.
     """
-    def __init__(self, cs=None, f=None, dimensions=None, pop_size=None, max_age=None,
-                 mutation_factor=None, crossover_prob=None, strategy=None,
-                 boundary_fix_type='random', config_repository=None, seed=None, **kwargs):
+
+    def __init__(
+        self,
+        cs=None,
+        f=None,
+        dimensions=None,
+        pop_size=None,
+        max_age=None,
+        mutation_factor=None,
+        crossover_prob=None,
+        strategy=None,
+        boundary_fix_type="random",
+        config_repository=None,
+        seed=None,
+        **kwargs,
+    ):
         """Initialize the DE base optimizer with RNG and configuration space metadata."""
         if seed is None:
             seed = int(np.random.default_rng().integers(0, 2**32 - 1))
@@ -89,14 +104,14 @@ class DifferentialEvolutionBase():
             self.config_repository = ConfigRepository()
 
         # Global trackers
-        self.inc_score : float
-        self.inc_config : NDArray[np.float64]
-        self.inc_id : int
-        self.population : NDArray[np.float64]
-        self.population_ids :NDArray[np.int64]
-        self.fitness : NDArray[np.float64]
-        self.age : NDArray[np.int64]
-        self.history : list[object]
+        self.inc_score: float
+        self.inc_config: NDArray[np.float64]
+        self.inc_id: int
+        self.population: NDArray[np.float64]
+        self.population_ids: NDArray[np.int64]
+        self.fitness: NDArray[np.float64]
+        self.age: NDArray[np.int64]
+        self.history: list[object]
         self.reset()
 
     def reset(self, *, reset_seeds: bool = True):
@@ -134,13 +149,13 @@ class DifferentialEvolutionBase():
 
     def _set_min_pop_size(self):
         """Set minimum population size based on mutation strategy needs."""
-        if self.mutation_strategy in ['rand1', 'rand2dir', 'randtobest1']:
+        if self.mutation_strategy in ["rand1", "rand2dir", "randtobest1"]:
             self._min_pop_size = 3
-        elif self.mutation_strategy in ['currenttobest1', 'best1']:
+        elif self.mutation_strategy in ["currenttobest1", "best1"]:
             self._min_pop_size = 2
-        elif self.mutation_strategy in ['best2']:
+        elif self.mutation_strategy in ["best2"]:
             self._min_pop_size = 4
-        elif self.mutation_strategy in ['rand2']:
+        elif self.mutation_strategy in ["rand2"]:
             self._min_pop_size = 5
         else:
             self._min_pop_size = 1
@@ -164,11 +179,11 @@ class DifferentialEvolutionBase():
         return np.array(population)
 
     def sample_population(self, size: int = 3, alt_pop: NDArray[np.float64] = None) -> NDArray[np.float64]:
-        '''Samples 'size' individuals
+        """Samples 'size' individuals
 
         If alt_pop is None or a list/array of None, sample from own population
         Else sample from the specified alternate population (alt_pop)
-        '''
+        """
         if isinstance(alt_pop, list) or isinstance(alt_pop, np.ndarray):
             idx = [indv is None for indv in alt_pop]
             if any(idx):
@@ -185,7 +200,7 @@ class DifferentialEvolutionBase():
             return self.population[selection]
 
     def boundary_check(self, vector: np.ndarray) -> np.ndarray:
-        '''
+        """
         Checks whether each of the dimensions of the input vector are within [0, 1].
         If not, values of those dimensions are replaced with the type of fix selected.
 
@@ -199,34 +214,32 @@ class DifferentialEvolutionBase():
         Returns
         -------
         array
-        '''
+        """
         violations = np.where((vector > 1) | (vector < 0))[0]
         if len(violations) == 0:
             return vector
-        if self.fix_type == 'random':
+        if self.fix_type == "random":
             vector[violations] = self.rng.uniform(low=0.0, high=1.0, size=len(violations))
         else:
             vector[violations] = np.clip(vector[violations], a_min=0, a_max=1)
         return vector
 
     def vector_to_configspace(self, vector: np.ndarray) -> CS.Configuration:
-        '''Converts numpy array to CS object
+        """Converts numpy array to CS object
 
         Works when self.cs is a CS object and the input vector is in the domain [0, 1].
-        '''
+        """
         # creates a CS object dict with all hyperparameters present, the inactive too
-        new_config = CSU.impute_inactive_values(
-            self.cs.get_default_configuration()
-        ).get_dictionary()
+        new_config = CSU.impute_inactive_values(self.cs.get_default_configuration()).get_dictionary()
         # iterates over all hyperparameters and normalizes each based on its type
         for i, hyper in enumerate(self.cs.get_hyperparameters()):
-            if type(hyper) == CS.OrdinalHyperparameter:
-                ranges = np.arange(start=0, stop=1, step=1/len(hyper.sequence))
-                param_value = hyper.sequence[np.where((vector[i] < ranges) == False)[0][-1]]
-            elif type(hyper) == CS.CategoricalHyperparameter:
-                ranges = np.arange(start=0, stop=1, step=1/len(hyper.choices))
-                param_value = hyper.choices[np.where((vector[i] < ranges) == False)[0][-1]]
-            elif type(hyper) == CS.Constant:
+            if isinstance(hyper, CS.OrdinalHyperparameter):
+                ranges = np.arange(start=0, stop=1, step=1 / len(hyper.sequence))
+                param_value = hyper.sequence[np.where(not (vector[i] < ranges))[0][-1]]
+            elif isinstance(hyper, CS.CategoricalHyperparameter):
+                ranges = np.arange(start=0, stop=1, step=1 / len(hyper.choices))
+                param_value = hyper.choices[np.where(not (vector[i] < ranges))[0][-1]]
+            elif isinstance(hyper, CS.Constant):
                 param_value = hyper.default_value
             else:  # handles UniformFloatHyperparameter & UniformIntegerHyperparameter
                 # rescaling continuous values
@@ -235,25 +248,23 @@ class DifferentialEvolutionBase():
                     param_value = np.exp(np.log(hyper.lower) + vector[i] * log_range)
                 else:
                     param_value = hyper.lower + (hyper.upper - hyper.lower) * vector[i]
-                if type(hyper) == CS.UniformIntegerHyperparameter:
+                if isinstance(hyper, CS.UniformIntegerHyperparameter):
                     param_value = int(np.round(param_value))  # converting to discrete (int)
                 else:
                     param_value = float(param_value)
             new_config[hyper.name] = param_value
         # the mapping from unit hypercube to the actual config space may lead to illegal
         # configurations based on conditions defined, which need to be deactivated/removed
-        new_config = CSU.deactivate_inactive_hyperparameters(
-            configuration = new_config, configuration_space=self.cs
-        )
+        new_config = CSU.deactivate_inactive_hyperparameters(configuration=new_config, configuration_space=self.cs)
         return new_config
 
     def configspace_to_vector(self, config: CS.Configuration) -> np.ndarray:
-        '''Converts CS object to numpy array scaled to [0,1]
+        """Converts CS object to numpy array scaled to [0,1]
 
         Works when self.cs is a CS object and the input config is a CS object.
         Handles conditional spaces implicitly by replacing illegal parameters with default values
         to maintain the dimensionality of the vector.
-        '''
+        """
         # the imputation replaces illegal parameter values with their default
         config = CSU.impute_inactive_values(config)
         dimensions = len(self.cs.get_hyperparameters())
@@ -261,14 +272,14 @@ class DifferentialEvolutionBase():
         for name in config:
             i = self.hps[name]
             hyper = self.cs.get_hyperparameter(name)
-            if type(hyper) == CS.OrdinalHyperparameter:
+            if isinstance(hyper, CS.OrdinalHyperparameter):
                 nlevels = len(hyper.sequence)
                 vector[i] = hyper.sequence.index(config[name]) / nlevels
-            elif type(hyper) == CS.CategoricalHyperparameter:
+            elif isinstance(hyper, CS.CategoricalHyperparameter):
                 nlevels = len(hyper.choices)
                 vector[i] = hyper.choices.index(config[name]) / nlevels
-            elif type(hyper) == CS.Constant:
-                vector[i] = 0 # set constant to 0, so that it wont be affected by mutation
+            elif isinstance(hyper, CS.Constant):
+                vector[i] = 0  # set constant to 0, so that it wont be affected by mutation
             else:
                 bounds = (hyper.lower, hyper.upper)
                 param_value = config[name]
@@ -320,17 +331,40 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         config_repository (ConfigRepository, optional): Config repository.
         **kwargs: Additional args.
     """
-    def __init__(self, cs=None, f=None, dimensions=None, pop_size=20, max_age=np.inf,
-                 mutation_factor=None, crossover_prob=None, strategy='rand1_bin', encoding=False,
-                 dim_map=None, seed=None, config_repository=None, **kwargs):
+
+    def __init__(
+        self,
+        cs=None,
+        f=None,
+        dimensions=None,
+        pop_size=20,
+        max_age=np.inf,
+        mutation_factor=None,
+        crossover_prob=None,
+        strategy="rand1_bin",
+        encoding=False,
+        dim_map=None,
+        seed=None,
+        config_repository=None,
+        **kwargs,
+    ):
         """Initialize a synchronous DE optimizer with optional encoding support."""
-        super().__init__(cs=cs, f=f, dimensions=dimensions, pop_size=pop_size, max_age=max_age,
-                         mutation_factor=mutation_factor, crossover_prob=crossover_prob,
-                         strategy=strategy, seed=seed, config_repository=config_repository,
-                         **kwargs)
+        super().__init__(
+            cs=cs,
+            f=f,
+            dimensions=dimensions,
+            pop_size=pop_size,
+            max_age=max_age,
+            mutation_factor=mutation_factor,
+            crossover_prob=crossover_prob,
+            strategy=strategy,
+            seed=seed,
+            config_repository=config_repository,
+            **kwargs,
+        )
         if self.strategy is not None:
-            self.mutation_strategy = self.strategy.split('_')[0]
-            self.crossover_strategy = self.strategy.split('_')[1]
+            self.mutation_strategy = self.strategy.split("_")[0]
+            self.crossover_strategy = self.strategy.split("_")[1]
         else:
             self.mutation_strategy = self.crossover_strategy = None
         self.encoding = encoding
@@ -338,16 +372,14 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         self._set_min_pop_size()
 
     def __getstate__(self):
-        """ Allows the object to picklable while having Dask client as a class attribute.
-        """
+        """Allows the object to picklable while having Dask client as a class attribute."""
         d = dict(self.__dict__)
         d["client"] = None  # hack to allow Dask client to be a class attribute
         d["logger"] = None  # hack to allow logger object to be a class attribute
         return d
 
     def __del__(self):
-        """ Ensures a clean kill of the Dask client and frees up a port.
-        """
+        """Ensures a clean kill of the Dask client and frees up a port."""
         if hasattr(self, "client") and isinstance(self.client, Client):
             self.client.close()
 
@@ -360,13 +392,13 @@ class DifferentialEvolution(DifferentialEvolutionBase):
 
     def _set_min_pop_size(self):
         """Set minimum population size based on mutation strategy needs."""
-        if self.mutation_strategy in ['rand1', 'rand2dir', 'randtobest1']:
+        if self.mutation_strategy in ["rand1", "rand2dir", "randtobest1"]:
             self._min_pop_size = 3
-        elif self.mutation_strategy in ['currenttobest1', 'best1']:
+        elif self.mutation_strategy in ["currenttobest1", "best1"]:
             self._min_pop_size = 2
-        elif self.mutation_strategy in ['best2']:
+        elif self.mutation_strategy in ["best2"]:
             self._min_pop_size = 4
-        elif self.mutation_strategy in ['rand2']:
+        elif self.mutation_strategy in ["rand2"]:
             self._min_pop_size = 5
         else:
             self._min_pop_size = 1
@@ -407,8 +439,7 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return res
 
     def init_eval_pop(self, fidelity=None, eval=True, **kwargs):
-        '''Creates new population of 'pop_size' and evaluates individuals.
-        '''
+        """Creates new population of 'pop_size' and evaluates individuals."""
         self.population = self.init_population(self.pop_size)
         self.population_ids = self.config_repository.announce_population(self.population, fidelity)
         self.fitness = np.array([np.inf for i in range(self.pop_size)])
@@ -439,11 +470,11 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return traj, runtime, history
 
     def eval_pop(self, population=None, population_ids=None, fidelity=None, **kwargs):
-        '''Evaluates a population
+        """Evaluates a population
 
         If population=None, the current population's fitness will be evaluated
         If population!=None, this population will be evaluated
-        '''
+        """
         pop = self.population if population is None else population
         pop_ids = self.population_ids if population_ids is None else population_ids
         pop_size = self.pop_size if population is None else len(pop)
@@ -477,15 +508,13 @@ class DifferentialEvolution(DifferentialEvolutionBase):
             return traj, runtime, history, np.array(fitnesses), np.array(ages)
 
     def mutation_rand1(self, r1, r2, r3):
-        '''Performs the 'rand1' type of DE mutation
-        '''
+        """Performs the 'rand1' type of DE mutation"""
         diff = r2 - r3
         mutant = r1 + self.mutation_factor * diff
         return mutant
 
     def mutation_rand2(self, r1, r2, r3, r4, r5):
-        '''Performs the 'rand2' type of DE mutation
-        '''
+        """Performs the 'rand2' type of DE mutation"""
         diff1 = r2 - r3
         diff2 = r4 - r5
         mutant = r1 + self.mutation_factor * diff1 + self.mutation_factor * diff2
@@ -505,39 +534,38 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return mutant
 
     def mutation(self, current=None, best=None, alt_pop=None):
-        '''Performs DE mutation
-        '''
-        if self.mutation_strategy == 'rand1':
+        """Performs DE mutation"""
+        if self.mutation_strategy == "rand1":
             r1, r2, r3 = self.sample_population(size=3, alt_pop=alt_pop)
             mutant = self.mutation_rand1(r1, r2, r3)
 
-        elif self.mutation_strategy == 'rand2':
+        elif self.mutation_strategy == "rand2":
             r1, r2, r3, r4, r5 = self.sample_population(size=5, alt_pop=alt_pop)
             mutant = self.mutation_rand2(r1, r2, r3, r4, r5)
 
-        elif self.mutation_strategy == 'rand2dir':
+        elif self.mutation_strategy == "rand2dir":
             r1, r2, r3 = self.sample_population(size=3, alt_pop=alt_pop)
             mutant = self.mutation_rand2dir(r1, r2, r3)
 
-        elif self.mutation_strategy == 'best1':
+        elif self.mutation_strategy == "best1":
             r1, r2 = self.sample_population(size=2, alt_pop=alt_pop)
             if best is None:
                 best = self.population[np.argmin(self.fitness)]
             mutant = self.mutation_rand1(best, r1, r2)
 
-        elif self.mutation_strategy == 'best2':
+        elif self.mutation_strategy == "best2":
             r1, r2, r3, r4 = self.sample_population(size=4, alt_pop=alt_pop)
             if best is None:
                 best = self.population[np.argmin(self.fitness)]
             mutant = self.mutation_rand2(best, r1, r2, r3, r4)
 
-        elif self.mutation_strategy == 'currenttobest1':
+        elif self.mutation_strategy == "currenttobest1":
             r1, r2 = self.sample_population(size=2, alt_pop=alt_pop)
             if best is None:
                 best = self.population[np.argmin(self.fitness)]
             mutant = self.mutation_currenttobest1(current, best, r1, r2)
 
-        elif self.mutation_strategy == 'randtobest1':
+        elif self.mutation_strategy == "randtobest1":
             r1, r2, r3 = self.sample_population(size=3, alt_pop=alt_pop)
             if best is None:
                 best = self.population[np.argmin(self.fitness)]
@@ -546,8 +574,7 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return mutant
 
     def crossover_bin(self, target, mutant):
-        '''Performs the binomial crossover of DE
-        '''
+        """Performs the binomial crossover of DE"""
         cross_points = self.rng.random(self.dimensions) < self.crossover_prob
         if not np.any(cross_points):
             cross_points[self.rng.integers(0, self.dimensions)] = True
@@ -555,28 +582,25 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return offspring
 
     def crossover_exp(self, target, mutant):
-        '''Performs the exponential crossover of DE
-        '''
+        """Performs the exponential crossover of DE"""
         n = self.rng.integers(0, self.dimensions)
         L = 0
-        while ((self.rng.random() < self.crossover_prob) and L < self.dimensions):
-            idx = (n+L) % self.dimensions
+        while (self.rng.random() < self.crossover_prob) and L < self.dimensions:
+            idx = (n + L) % self.dimensions
             target[idx] = mutant[idx]
             L = L + 1
         return target
 
     def crossover(self, target, mutant):
-        '''Performs DE crossover
-        '''
-        if self.crossover_strategy == 'bin':
+        """Performs DE crossover"""
+        if self.crossover_strategy == "bin":
             offspring = self.crossover_bin(target, mutant)
-        elif self.crossover_strategy == 'exp':
+        elif self.crossover_strategy == "exp":
             offspring = self.crossover_exp(target, mutant)
         return offspring
 
     def selection(self, trials, trial_ids, fidelity=None, **kwargs):
-        '''Carries out a parent-offspring competition given a set of trial population
-        '''
+        """Carries out a parent-offspring competition given a set of trial population"""
         traj = []
         runtime = []
         history = []
@@ -609,8 +633,7 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return traj, runtime, history
 
     def evolve_generation(self, fidelity=None, best=None, alt_pop=None, **kwargs):
-        '''Performs a complete DE evolution: mutation -> crossover -> selection
-        '''
+        """Performs a complete DE evolution: mutation -> crossover -> selection"""
         trials = []
         trial_ids = []
         for j in range(self.pop_size):
@@ -627,15 +650,14 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         return traj, runtime, history
 
     def sample_mutants(self, size, population=None):
-        '''Generates 'size' mutants from the population using rand1
-        '''
+        """Generates 'size' mutants from the population using rand1"""
         if population is None:
             population = self.population
         elif len(population) < 3:
             population = np.vstack((self.population, population))
 
         old_strategy = self.mutation_strategy
-        self.mutation_strategy = 'rand1'
+        self.mutation_strategy = "rand1"
         mutants = self.rng.uniform(low=0.0, high=1.0, size=(size, self.dimensions))
         for i in range(size):
             mutant = self.mutation(current=None, best=None, alt_pop=population)
@@ -647,7 +669,7 @@ class DifferentialEvolution(DifferentialEvolutionBase):
     def run(self, generations=1, verbose=False, fidelity=None, reset=True, **kwargs):
         """Run DE for a fixed number of generations and return trackers."""
         # checking if a run exists
-        if not hasattr(self, 'traj') or reset:
+        if not hasattr(self, "traj") or reset:
             self.reset()
             if verbose:
                 print("Initializing and evaluating new population...")
@@ -657,7 +679,7 @@ class DifferentialEvolution(DifferentialEvolutionBase):
             print("Running evolutionary search...")
         for i in range(generations):
             if verbose:
-                print("Generation {:<2}/{:<2} -- {:<0.7}".format(i+1, generations, self.inc_score))
+                print("Generation {:<2}/{:<2} -- {:<0.7}".format(i + 1, generations, self.inc_score))
             traj, runtime, history = self.evolve_generation(fidelity=fidelity, **kwargs)
             self.traj.extend(traj)
             self.runtime.extend(runtime)
@@ -666,7 +688,11 @@ class DifferentialEvolution(DifferentialEvolutionBase):
         if verbose:
             print("\nRun complete!")
 
-        return np.array(self.traj), np.array(self.runtime), np.array(self.history, dtype=object)
+        return (
+            np.array(self.traj),
+            np.array(self.runtime),
+            np.array(self.history, dtype=object),
+        )
 
 
 class AsyncDifferentialEvolution(DifferentialEvolution):
@@ -691,10 +717,24 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
         config_repository (ConfigRepository, optional): Config repository.
         **kwargs: Additional args.
     """
-    def __init__(self, cs=None, f=None, dimensions=None, pop_size=None, max_age=np.inf,
-                 mutation_factor=None, crossover_prob=None, strategy='rand1_bin',
-                 async_strategy='immediate', seed=None, rng=None, config_repository=None, **kwargs):
-        '''Extends DE to be Asynchronous with variations
+
+    def __init__(
+        self,
+        cs=None,
+        f=None,
+        dimensions=None,
+        pop_size=None,
+        max_age=np.inf,
+        mutation_factor=None,
+        crossover_prob=None,
+        strategy="rand1_bin",
+        async_strategy="immediate",
+        seed=None,
+        rng=None,
+        config_repository=None,
+        **kwargs,
+    ):
+        """Extends DE to be Asynchronous with variations
 
         Parameters
         ----------
@@ -709,23 +749,36 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
             'worst' - the worst individual will be chosen as the target
                 the winner of the selection step is included in the population right away
             {immediate, worst, random} implement Asynchronous-DE
-        '''
-        super().__init__(cs=cs, f=f, dimensions=dimensions, pop_size=pop_size, max_age=max_age,
-                         mutation_factor=mutation_factor, crossover_prob=crossover_prob,
-                         strategy=strategy, seed=seed, rng=rng, config_repository=config_repository,
-                         **kwargs)
+        """
+        super().__init__(
+            cs=cs,
+            f=f,
+            dimensions=dimensions,
+            pop_size=pop_size,
+            max_age=max_age,
+            mutation_factor=mutation_factor,
+            crossover_prob=crossover_prob,
+            strategy=strategy,
+            seed=seed,
+            rng=rng,
+            config_repository=config_repository,
+            **kwargs,
+        )
         if self.strategy is not None:
-            self.mutation_strategy = self.strategy.split('_')[0]
-            self.crossover_strategy = self.strategy.split('_')[1]
+            self.mutation_strategy = self.strategy.split("_")[0]
+            self.crossover_strategy = self.strategy.split("_")[1]
         else:
             self.mutation_strategy = self.crossover_strategy = None
         self.async_strategy = async_strategy
-        assert self.async_strategy in ['immediate', 'random', 'worst', 'deferred'], \
-                "{} is not a valid choice for type of DE".format(self.async_strategy)
+        assert self.async_strategy in [
+            "immediate",
+            "random",
+            "worst",
+            "deferred",
+        ], "{} is not a valid choice for type of DE".format(self.async_strategy)
 
     def _add_random_population(self, pop_size, population=None, fitness=[], age=[]):
-        '''Adds random individuals to the population
-        '''
+        """Adds random individuals to the population"""
         new_pop = self.init_population(pop_size=pop_size)
         new_fitness = np.array([np.inf] * pop_size)
         new_age = np.array([self.max_age] * pop_size)
@@ -742,19 +795,18 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
         return population, fitness, age
 
     def _init_mutant_population(self, pop_size, population, target=None, best=None):
-        '''Generates pop_size mutants from the passed population
-        '''
+        """Generates pop_size mutants from the passed population"""
         mutants = self.rng.uniform(low=0.0, high=1.0, size=(pop_size, self.dimensions))
         for i in range(pop_size):
             mutants[i] = self.mutation(current=target, best=best, alt_pop=population)
         return mutants
 
     def _sample_population(self, size=3, alt_pop=None, target=None):
-        '''Samples 'size' individuals for mutation step
+        """Samples 'size' individuals for mutation step
 
         If alt_pop is None or a list/array of None, sample from own population
         Else sample from the specified alternate population
-        '''
+        """
         population = None
         if isinstance(alt_pop, list) or isinstance(alt_pop, np.ndarray):
             idx = [indv is None for indv in alt_pop]  # checks if all individuals are valid
@@ -773,7 +825,7 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
             # the target individual should not be a part of the candidates for mutation
             for i, pop in enumerate(population):
                 if all(target == pop):
-                    population = np.concatenate((population[:i], population[i + 1:]))
+                    population = np.concatenate((population[:i], population[i + 1 :]))
                     break
         if len(population) < self._min_pop_size:
             # compensate if target was part of the population and deleted earlier
@@ -815,39 +867,38 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
         return traj, runtime, history, np.array(fitnesses), np.array(ages)
 
     def mutation(self, current=None, best=None, alt_pop=None):
-        '''Performs DE mutation
-        '''
-        if self.mutation_strategy == 'rand1':
+        """Performs DE mutation"""
+        if self.mutation_strategy == "rand1":
             r1, r2, r3 = self._sample_population(size=3, alt_pop=alt_pop, target=current)
             mutant = self.mutation_rand1(r1, r2, r3)
 
-        elif self.mutation_strategy == 'rand2':
+        elif self.mutation_strategy == "rand2":
             r1, r2, r3, r4, r5 = self._sample_population(size=5, alt_pop=alt_pop, target=current)
             mutant = self.mutation_rand2(r1, r2, r3, r4, r5)
 
-        elif self.mutation_strategy == 'rand2dir':
+        elif self.mutation_strategy == "rand2dir":
             r1, r2, r3 = self._sample_population(size=3, alt_pop=alt_pop, target=current)
             mutant = self.mutation_rand2dir(r1, r2, r3)
 
-        elif self.mutation_strategy == 'best1':
+        elif self.mutation_strategy == "best1":
             r1, r2 = self._sample_population(size=2, alt_pop=alt_pop, target=current)
             if best is None:
                 best = self.population[np.argmin(self.fitness)]
             mutant = self.mutation_rand1(best, r1, r2)
 
-        elif self.mutation_strategy == 'best2':
+        elif self.mutation_strategy == "best2":
             r1, r2, r3, r4 = self._sample_population(size=4, alt_pop=alt_pop, target=current)
             if best is None:
                 best = self.population[np.argmin(self.fitness)]
             mutant = self.mutation_rand2(best, r1, r2, r3, r4)
 
-        elif self.mutation_strategy == 'currenttobest1':
+        elif self.mutation_strategy == "currenttobest1":
             r1, r2 = self._sample_population(size=2, alt_pop=alt_pop, target=current)
             if best is None:
                 best = self.population[np.argmin(self.fitness)]
             mutant = self.mutation_currenttobest1(current, best, r1, r2)
 
-        elif self.mutation_strategy == 'randtobest1':
+        elif self.mutation_strategy == "randtobest1":
             r1, r2, r3 = self._sample_population(size=3, alt_pop=alt_pop, target=current)
             if best is None:
                 best = self.population[np.argmin(self.fitness)]
@@ -856,8 +907,7 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
         return mutant
 
     def sample_mutants(self, size, population=None):
-        '''Samples 'size' mutants from the population
-        '''
+        """Samples 'size' mutants from the population"""
         if population is None:
             population = self.population
 
@@ -870,8 +920,7 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
         return mutants
 
     def evolve_generation(self, fidelity=None, best=None, alt_pop=None, **kwargs):
-        '''Performs a complete DE evolution, mutation -> crossover -> selection
-        '''
+        """Performs a complete DE evolution, mutation -> crossover -> selection"""
         traj = []
         runtime = []
         history = []
@@ -901,9 +950,12 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
                 trial = self.boundary_check(trial)
                 trial_id = self.config_repository.announce_config(trial, float(fidelity or 0))
                 # evaluating a single trial population for the i-th individual
-                de_traj, de_runtime, de_history, fitnesses, costs = \
-                    self.eval_pop(trial.reshape(1, self.dimensions),
-                                  np.array([trial_id]), fidelity=fidelity, **kwargs)
+                de_traj, de_runtime, de_history, fitnesses, costs = self.eval_pop(
+                    trial.reshape(1, self.dimensions),
+                    np.array([trial_id]),
+                    fidelity=fidelity,
+                    **kwargs,
+                )
                 # one-vs-one selection
                 ## can replace the i-the population despite not completing one iteration
                 if fitnesses[0] <= self.fitness[i]:
@@ -928,9 +980,12 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
                 trial = self.boundary_check(trial)
                 trial_id = self.config_repository.announce_config(trial, float(fidelity or 0))
                 # evaluating a single trial population for the i-th individual
-                de_traj, de_runtime, de_history, fitnesses, costs = \
-                    self.eval_pop(trial.reshape(1, self.dimensions), np.array([trial_id]),
-                                   fidelity=fidelity, **kwargs)
+                de_traj, de_runtime, de_history, fitnesses, costs = self.eval_pop(
+                    trial.reshape(1, self.dimensions),
+                    np.array([trial_id]),
+                    fidelity=fidelity,
+                    **kwargs,
+                )
                 # one-vs-one selection
                 ## can replace the i-the population despite not completing one iteration
                 if fitnesses[0] <= self.fitness[i]:
@@ -955,9 +1010,8 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
             print("Running evolutionary search...")
         for i in range(generations):
             if verbose:
-                print("Generation {:<2}/{:<2} -- {:<0.7}".format(i+1, generations, self.inc_score))
-            traj, runtime, history = self.evolve_generation(fidelity=fidelity,
-                                                            best=self.inc_config, **kwargs)
+                print("Generation {:<2}/{:<2} -- {:<0.7}".format(i + 1, generations, self.inc_score))
+            traj, runtime, history = self.evolve_generation(fidelity=fidelity, best=self.inc_config, **kwargs)
             self.traj.extend(traj)
             self.runtime.extend(runtime)
             self.history.extend(history)
@@ -965,4 +1019,8 @@ class AsyncDifferentialEvolution(DifferentialEvolution):
         if verbose:
             print("\nRun complete!")
 
-        return np.array(self.traj), np.array(self.runtime), np.array(self.history, dtype=object)
+        return (
+            np.array(self.traj),
+            np.array(self.runtime),
+            np.array(self.history, dtype=object),
+        )

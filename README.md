@@ -29,7 +29,7 @@ To use the [UV Python package and project manager](https://github.com/astral-sh/
 uv sync
 ```
 
-Afterwards, you can initialize the virtual environment by running one of the following commands: 
+Afterwards, you can initialize the virtual environment by running one of the following commands:
 - On the Linux CLI: `source .venv/bin/activate`
 - On the Windows CMD: `.venv\Scripts\activate.bat`
 - On the Windows PS: `.venv\Scripts\Activate.ps1`
@@ -147,10 +147,10 @@ python main.py train --model transgcn --graph_size 20 --edge_threshold 0.2 --edg
 ```
 
 #### Multiple GPUs
-By default, training will happen *on all available GPUs*. To disable CUDA at all, add the flag `--no_cuda`. 
+By default, training will happen *on all available GPUs*. To disable CUDA at all, add the flag `--no_cuda`.
 Set the environment variable `CUDA_VISIBLE_DEVICES` to only use specific GPUs:
 ```bash
-CUDA_VISIBLE_DEVICES=0,1 python main.py train 
+CUDA_VISIBLE_DEVICES=0,1 python main.py train
 ```
 Note that using multiple GPUs has limited efficiency for small problem sizes (up to 50 vertices).
 

@@ -2,10 +2,13 @@
 State representation for the Waste Collection Vehicle Routing Problem (WCVRP).
 """
 
+from typing import NamedTuple
+
 import torch
 import torch.nn.functional as F
-from typing import NamedTuple
+
 from logic.src.utils.boolmask import mask_long_scatter
+
 from ..base import BaseState, refactor_state
 
 
@@ -50,10 +53,17 @@ class StateWCVRP(NamedTuple):
         return self[key]
 
     @staticmethod
-    def initialize(input, edges, cost_weights=None, dist_matrix=None, visited_dtype=torch.uint8, hrl_mask=None):
+    def initialize(
+        input,
+        edges,
+        cost_weights=None,
+        dist_matrix=None,
+        visited_dtype=torch.uint8,
+        hrl_mask=None,
+    ):
         """Initializes the state for a batch of instances."""
         common = BaseState.initialize_common(input, visited_dtype)
-        
+
         if hrl_mask is not None:
             if hrl_mask.dim() == 2:
                 common["visited_"][:, 0, 1:] = hrl_mask.to(torch.uint8)
@@ -83,9 +93,7 @@ class StateWCVRP(NamedTuple):
         """Calculates the final cost after the tour is finished."""
         assert self.all_finished()
         return (
-            self.w_overflows * self.cur_overflows
-            + self.w_length * self.lengths
-            - self.w_waste * self.cur_total_waste
+            self.w_overflows * self.cur_overflows + self.w_length * self.lengths - self.w_waste * self.cur_total_waste
         )
 
     def update(self, selected):

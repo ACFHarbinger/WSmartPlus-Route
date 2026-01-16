@@ -185,18 +185,18 @@ class AttentionModel(nn.Module):
    def __init__(self, embedding_dim=128, n_heads=8, n_layers=3):
        super(AttentionModel, self).__init__()
        self.embedding_dim = embedding_dim
-       
+
        # 1. Initial Embedding
        # Depots and Customers have different input features (coords + demand)
        self.init_embed_depot = nn.Linear(2, embedding_dim)
        self.init_embed_cust = nn.Linear(3, embedding_dim) # x, y, demand
-       
+
        # 2. Encoder (Transformer)
        encoder_layer = nn.TransformerEncoderLayer(
            d_model=embedding_dim, nhead=n_heads, dim_feedforward=512
        )
        self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
-       
+
        # 3. Decoder (Pointer Network with Context)
        self.project_fixed_context = nn.Linear(embedding_dim, embedding_dim)
        self.project_step_context = nn.Linear(2 * embedding_dim + 1, embedding_dim)
@@ -210,54 +210,54 @@ class AttentionModel(nn.Module):
        # Separate depot (node 0) and customers
        depot = input_data[:, 0, :2]
        customers = input_data[:, 1:, :]
-       
+
        emb_depot = self.init_embed_depot(depot)
        emb_cust = self.init_embed_cust(customers)
        embeddings = torch.cat([emb_depot.unsqueeze(1), emb_cust], dim=1) # (B, N, D)
-       
+
        # Pass through Transformer
        # (Transpose for PyTorch Transformer: Seq_Len, Batch, Dim)
        embeddings = self.encoder(embeddings.transpose(0, 1)).transpose(0, 1)
-       
+
        # Graph Embedding (Mean pooling)
        graph_embedding = embeddings.mean(dim=1)
-       
+
        # --- DECODING STEP (Autoregressive) ---
        outputs =
        log_probs =
-       
+
        # Initial State
        batch_size, num_nodes, _ = embeddings.size()
        mask = torch.zeros(batch_size, num_nodes, dtype=torch.bool).to(input_data.device)
-       
+
        # Start at depot
        prev_node = torch.zeros(batch_size, dtype=torch.long).to(input_data.device)
        current_capacity = torch.ones(batch_size).to(input_data.device) # Normalized capacity = 1.0
-       
+
        # Loop for max steps (usually > N due to depot returns)
-       for _ in range(num_nodes * 2): 
+       for _ in range(num_nodes * 2):
            # Context: Graph Emb + Prev Node Emb + Remaining Capacity
            context = torch.cat([
                graph_embedding,
                embeddings[torch.arange(batch_size), prev_node],
                current_capacity.unsqueeze(1)
            ], dim=1)
-           
+
            # Query-Key-Value mechanism for Pointer
            # (Simplified computation for brevity)
            query = self.project_step_context(context).unsqueeze(2) # (B, D, 1)
            keys = self.project_out(embeddings).transpose(1, 2)     # (B, D, N)
            scores = torch.bmm(keys.transpose(1, 2), query).squeeze(2) # (B, N)
-           
+
            # Application of MASK (Capacity Constraints)
            # Mask nodes that are visited OR demand > capacity
            # Note: Masking logic must update dynamically.
            # Here we assume 'mask' is updated outside this snippet for clarity.
            scores = scores.masked_fill(mask, float('-inf'))
-           
+
            # Probability Distribution
            probs = F.softmax(scores, dim=-1)
-           
+
            # Select Action
            if decode_type == "greedy":
                selected = probs.argmax(dim=1)
@@ -265,19 +265,19 @@ class AttentionModel(nn.Module):
                m = Categorical(probs)
                selected = m.sample()
                log_probs.append(m.log_prob(selected))
-           
+
            outputs.append(selected)
            prev_node = selected
-           
+
            # Update Capacity and Mask (Pseudocode logic)
            # if selected!= 0 (depot):
            #    current_capacity -= demand[selected]
            #    mask[selected] = True
            # else:
            #    current_capacity = 1.0
-           
+
            # Break if all customers visited
-           
+
        return torch.stack(outputs, 1), torch.stack(log_probs, 1)
 
 5.2 Hybrid Loss Implementation
@@ -293,22 +293,22 @@ class HybridTrainer:
    def __init__(self, model, optimizer):
        self.model = model
        self.optimizer = optimizer
-       
+
    def train_step_imitation(self, batch_data, expert_tours):
        """
        Phase 1: Imitation Learning (Behavior Cloning)
        expert_tours: (Batch, Seq_Len) indices of optimal tour
        """
        self.optimizer.zero_grad()
-       
+
        # Forward pass forcing the expert actions (Teacher Forcing)
-       # Note: In production, we need to pass expert_tours to the forward 
+       # Note: In production, we need to pass expert_tours to the forward
        # method to ensure context is updated correctly based on expert moves.
        _, log_probs = self.model(batch_data, teacher_forcing=expert_tours)
-       
+
        # Cross Entropy Loss: Maximize log_prob of expert actions
        loss = -log_probs.mean()
-       
+
        loss.backward()
        self.optimizer.step()
        return loss.item()
@@ -318,26 +318,26 @@ class HybridTrainer:
        Phase 2: Reinforcement Learning (POMO Baseline)
        """
        self.optimizer.zero_grad()
-       
+
        # 1. Generate N trajectories (POMO multi-start)
        # We assume batch_data is expanded to (Batch * N, Nodes, Feats)
        # to simulate starting from every node.
        tours, log_probs = self.model(batch_data, decode_type="sampling")
-       
+
        # 2. Calculate Reward (Negative Tour Length)
        rewards = -self.calculate_tour_length(tours, batch_data) # (Batch, N)
-       
+
        # 3. Calculate POMO Baseline
        # Mean reward across the N different start nodes for the SAME instance
        baseline = rewards.mean(dim=1, keepdim=True)
-       
+
        # 4. Advantage
        advantage = rewards - baseline
-       
+
        # 5. REINFORCE Loss
        # We minimize negative expected reward
        loss = -(advantage.detach() * log_probs.sum(dim=1)).mean()
-       
+
        loss.backward()
        self.optimizer.step()
        return loss.item()

@@ -13,9 +13,7 @@ This module contains:
 
 import os
 import statistics
-
 from pathlib import Path
-
 
 # Paths
 path = Path(os.getcwd())
