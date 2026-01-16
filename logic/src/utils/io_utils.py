@@ -8,19 +8,17 @@ This module provides functions for:
 - Processing nested dictionary/list structures (e.g., for log updates).
 """
 
-import os
-import json
 import glob
+import json
+import os
 import shutil
 import signal
 import zipfile
-import pandas as pd
-import logic.src.utils.definitions as udef
-
 from collections.abc import Iterable
 
+import pandas as pd
 
-
+import logic.src.utils.definitions as udef
 
 
 def read_output(json_path, policies, lock=None):
@@ -139,14 +137,10 @@ def split_file(file_path, max_part_size, output_dir):
 
     # Split the file's DataFrame into chunks
     num_rows = df.shape[0]
-    rows_per_chunk = int(
-        max_part_size // (df.memory_usage(deep=True).sum() // num_rows)
-    )
+    rows_per_chunk = int(max_part_size // (df.memory_usage(deep=True).sum() // num_rows))
     for i in range(0, num_rows, rows_per_chunk):
         chunk = df.iloc[i : i + rows_per_chunk]
-        chunk_file = os.path.join(
-            output_dir, f"{file_name}_part{chunk_number}{file_ext}"
-        )
+        chunk_file = os.path.join(output_dir, f"{file_name}_part{chunk_number}{file_ext}")
         write_chunk(chunk, chunk_file)
         chunk_files.append(chunk_file)
         chunk_number += 1
@@ -173,9 +167,7 @@ def chunk_zip_content(zip_path, max_part_size, data_dir):
     try:
         os.makedirs(temp_dir, exist_ok=True)
     except Exception:
-        raise Exception(
-            "directories to save zip files do not exist and could not be created"
-        )
+        raise Exception("directories to save zip files do not exist and could not be created")
 
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
         zip_ref.extractall(temp_dir)
@@ -221,11 +213,7 @@ def reassemble_files(data_dir):
         if filename is not None and (filename not in file or file_id == num_files - 1):
             comb_df = pd.concat(dfs, ignore_index=True)
             out_path = os.path.join(data_dir, "{}{}".format(filename, file_ext))
-            (
-                comb_df.to_csv(out_path, index=False)
-                if file_ext == ".csv"
-                else comb_df.to_excel(out_path, index=False)
-            )
+            (comb_df.to_csv(out_path, index=False) if file_ext == ".csv" else comb_df.to_excel(out_path, index=False))
             data_files.append(os.path.basename(out_path))
             filename, file_ext = None, None
             print(f"File reassembled and saved to: {out_path}")
@@ -281,7 +269,6 @@ def process_dict_of_dicts(data_dict, output_key="km", process_func=None, update_
     modified = False
     for key, value in data_dict.items():
         if isinstance(value, dict) and output_key in value:
-
             target_value = value[output_key]
 
             if isinstance(target_value, (int, float)):
@@ -289,9 +276,7 @@ def process_dict_of_dicts(data_dict, output_key="km", process_func=None, update_
                 modified = True
                 old_val = target_value
                 value[output_key] = process_func(old_val, update_val)
-                print(
-                    f"   -- Updated '{output_key}' in '{key}': {old_val} → {value[output_key]}"
-                )
+                print(f"   -- Updated '{output_key}' in '{key}': {old_val} → {value[output_key]}")
 
             elif isinstance(target_value, list):
                 # Case 2: List of numeric values (New logic)
@@ -301,9 +286,7 @@ def process_dict_of_dicts(data_dict, output_key="km", process_func=None, update_
                         list_modified = True
                         old_val = item
                         target_value[i] = process_func(old_val, update_val)
-                        print(
-                            f"   -- Updated '{output_key}[{i}]' in '{key}': {old_val} → {target_value[i]}"
-                        )
+                        print(f"   -- Updated '{output_key}[{i}]' in '{key}': {old_val} → {target_value[i]}")
 
                 if list_modified:
                     modified = True
@@ -311,9 +294,7 @@ def process_dict_of_dicts(data_dict, output_key="km", process_func=None, update_
 
             else:
                 # Handle non-list, non-numeric values
-                print(
-                    f"   -- Warning: '{output_key}' value is not numeric or a list in '{key}'"
-                )
+                print(f"   -- Warning: '{output_key}' value is not numeric or a list in '{key}'")
 
     return modified
 
@@ -342,9 +323,7 @@ def process_list_of_dicts(data_list, output_key="km", process_func=None, update_
     return modified
 
 
-def process_dict_two_inputs(
-    data_dict, input_key1, input_key2_or_val, output_key, process_func
-):
+def process_dict_two_inputs(data_dict, input_key1, input_key2_or_val, output_key, process_func):
     """
     Process a dictionary of dictionaries and apply process_func using two inputs.
     Format: [output_key] = process_func([input_key1], [input_key2_or_val])
@@ -379,14 +358,10 @@ def process_dict_two_inputs(
 
             # --- Perform Calculation ---
             if input_val2 is not None:
-                if isinstance(input_val1, (int, float)) and isinstance(
-                    input_val2, (int, float)
-                ):
+                if isinstance(input_val1, (int, float)) and isinstance(input_val2, (int, float)):
                     # Check for single numeric value for input 1 and 2
                     if process_func.__name__ == "/" and input_val2 == 0:
-                        print(
-                            f"   -- WARNING: Skipping division by zero in '{key}' (Input 2 is zero)"
-                        )
+                        print(f"   -- WARNING: Skipping division by zero in '{key}' (Input 2 is zero)")
                         continue
 
                     new_val = process_func(input_val1, input_val2)
@@ -394,12 +369,11 @@ def process_dict_two_inputs(
                     modified = True
                     input2_name = input_key2_or_val if is_two_keys else "value"
                     print(
-                        f"   -- Calculated '{output_key}' in '{key}' ({input_key1} {process_func.__name__} {input2_name}): {new_val}"
+                        f"   -- Calculated '{output_key}' in '{key}' "
+                        f"({input_key1} {process_func.__name__} {input2_name}): {new_val}"
                     )
                 elif (
-                    isinstance(input_val1, list)
-                    and isinstance(input_val2, list)
-                    and len(input_val1) == len(input_val2)
+                    isinstance(input_val1, list) and isinstance(input_val2, list) and len(input_val1) == len(input_val2)
                 ):
                     # Check for list of numeric values for both inputs
                     new_list = []
@@ -408,18 +382,13 @@ def process_dict_two_inputs(
                     for i in range(len(input_val1)):
                         item1 = input_val1[i]
                         item2 = input_val2[i]
-                        if isinstance(item1, (int, float)) and isinstance(
-                            item2, (int, float)
-                        ):
+                        if isinstance(item1, (int, float)) and isinstance(item2, (int, float)):
                             if process_func.__name__ == "/" and item2 == 0:
-                                print(
-                                    f"   -- WARNING: Skipping division by zero for list item {i} in '{key}'"
-                                )
+                                print(f"   -- WARNING: Skipping division by zero for list item {i} in '{key}'")
                                 # Try to keep the original output value if it exists, otherwise use None
                                 new_list.append(
                                     value_dict.get(output_key, [])[i]
-                                    if output_key in value_dict
-                                    and i < len(value_dict[output_key])
+                                    if output_key in value_dict and i < len(value_dict[output_key])
                                     else None
                                 )
                                 continue
@@ -428,14 +397,14 @@ def process_dict_two_inputs(
                             new_list.append(new_item)
                             list_modified = True
                             print(
-                                f"   -- Calculated list item {i} of '{output_key}' in '{key}' ({input_key1}[{i}] {process_func.__name__} {input2_name}[{i}]): {new_item}"
+                                f"   -- Calculated list item {i} of '{output_key}' in '{key}' "
+                                f"({input_key1}[{i}] {process_func.__name__} {input2_name}[{i}]): {new_item}"
                             )
                         else:
                             # If non-numeric, try to keep the original output value if it exists
                             new_list.append(
                                 value_dict.get(output_key, [])[i]
-                                if output_key in value_dict
-                                and i < len(value_dict[output_key])
+                                if output_key in value_dict and i < len(value_dict[output_key])
                                 else None
                             )
 
@@ -444,14 +413,13 @@ def process_dict_two_inputs(
                         modified = True
                 else:
                     print(
-                        f"   -- Warning: Input values for '{input_key1}' and '{input_key2_or_val}' are not compatible numeric types or lists in '{key}'"
+                        f"   -- Warning: Input values for '{input_key1}' and '{input_key2_or_val}' "
+                        f"are not compatible numeric types or lists in '{key}'"
                     )
     return modified
 
 
-def process_list_two_inputs(
-    data_list, input_key1, input_key2_or_val, output_key, process_func
-):
+def process_list_two_inputs(data_list, input_key1, input_key2_or_val, output_key, process_func):
     """
     Process a list of dictionaries of dictionaries using two inputs.
 
@@ -471,9 +439,7 @@ def process_list_two_inputs(
     for item in data_list:
         if isinstance(item, dict):
             # Recursively process each dictionary in the list
-            if process_dict_two_inputs(
-                item, input_key1, input_key2_or_val, output_key, process_func
-            ):
+            if process_dict_two_inputs(item, input_key1, input_key2_or_val, output_key, process_func):
                 modified = True
     return modified
 
@@ -502,25 +468,17 @@ def find_single_input_values(data, current_path="", output_key="km"):
                     # Handle list of numeric values
                     for i, item in enumerate(value):
                         if isinstance(item, (int, float)):
-                            location = (
-                                f"{current_path}.{key}[{i}]"
-                                if current_path
-                                else f"{key}[{i}]"
-                            )
+                            location = f"{current_path}.{key}[{i}]" if current_path else f"{key}[{i}]"
                             output_values.append((location, item))
             elif isinstance(value, (dict, list)):
                 # Recurse into nested structures
                 new_path = f"{current_path}.{key}" if current_path else key
-                output_values.extend(
-                    find_single_input_values(value, new_path, output_key)
-                )
+                output_values.extend(find_single_input_values(value, new_path, output_key))
     elif isinstance(data, list):
         for i, item in enumerate(data):
             if isinstance(item, (dict, list)):
                 new_path = f"{current_path}[{i}]" if current_path else f"[{i}]"
-                output_values.extend(
-                    find_single_input_values(item, new_path, output_key)
-                )
+                output_values.extend(find_single_input_values(item, new_path, output_key))
 
     return output_values
 
@@ -562,18 +520,12 @@ def find_two_input_values(data, current_path="", input_key1=None, input_key2=Non
                 # Case 1: Single numeric values
                 location = current_path if current_path else "root"
                 output_values.append((location, val1, val2))
-            elif (
-                isinstance(val1, list)
-                and isinstance(val2, list)
-                and len(val1) == len(val2)
-            ):
+            elif isinstance(val1, list) and isinstance(val2, list) and len(val1) == len(val2):
                 # Case 2: Lists of numeric values (only if input_key2 is also a list)
                 for i in range(len(val1)):
                     item1 = val1[i]
                     item2 = val2[i]
-                    if isinstance(item1, (int, float)) and isinstance(
-                        item2, (int, float)
-                    ):
+                    if isinstance(item1, (int, float)) and isinstance(item2, (int, float)):
                         location = f"{current_path}[{i}]" if current_path else f"[{i}]"
                         output_values.append((location, item1, item2))
 
@@ -582,16 +534,12 @@ def find_two_input_values(data, current_path="", input_key1=None, input_key2=Non
             if isinstance(value, (dict, list)):
                 new_path = f"{current_path}.{key}" if current_path else key
                 # Note: We pass the original input_key2 to maintain the structure/literal value
-                output_values.extend(
-                    find_two_input_values(value, new_path, input_key1, input_key2)
-                )
+                output_values.extend(find_two_input_values(value, new_path, input_key1, input_key2))
     elif isinstance(data, list):
         for i, item in enumerate(data):
             if isinstance(item, (dict, list)):
                 new_path = f"{current_path}[{i}]" if current_path else f"[{i}]"
-                output_values.extend(
-                    find_two_input_values(item, new_path, input_key1, input_key2)
-                )
+                output_values.extend(find_two_input_values(item, new_path, input_key1, input_key2))
 
     return output_values
 
@@ -646,23 +594,15 @@ def process_pattern_files(
             if isinstance(data, dict):
                 # Case 1: dict of dicts
                 if has_2_inputs:
-                    modified = process_dict_two_inputs(
-                        data, input_keys[0], key_value, output_key, process_func
-                    )
+                    modified = process_dict_two_inputs(data, input_keys[0], key_value, output_key, process_func)
                 else:
-                    modified = process_dict_of_dicts(
-                        data, output_key, process_func, update_val
-                    )
+                    modified = process_dict_of_dicts(data, output_key, process_func, update_val)
             elif isinstance(data, list):
                 # Case 2: list of dicts of dicts
                 if has_2_inputs:
-                    modified = process_list_two_inputs(
-                        data, input_keys[0], key_value, output_key, process_func
-                    )
+                    modified = process_list_two_inputs(data, input_keys[0], key_value, output_key, process_func)
                 else:
-                    modified = process_list_of_dicts(
-                        data, output_key, process_func, update_val
-                    )
+                    modified = process_list_of_dicts(data, output_key, process_func, update_val)
             else:
                 print(f"- Warning: Unexpected data structure in {file_path}")
                 continue
@@ -673,9 +613,7 @@ def process_pattern_files(
                     json.dump(data, file, indent=2)
                 print(f"- Successfully updated '{file_path}'")
             else:
-                print(
-                    f"- Warning: could not find '{output_key}' field(s) to modify in '{file_path}'"
-                )
+                print(f"- Warning: could not find '{output_key}' field(s) to modify in '{file_path}'")
         except json.JSONDecodeError as e:
             print(f"- ERROR {e}: could not read contents from '{file_path}'")
         except Exception as e:
@@ -732,14 +670,13 @@ def preview_changes(
 
             if has_2_inputs:
                 # Two-input mode: find pairs of keys (input_key2 can be a string key or a value)
-                key_values_found = find_two_input_values(
-                    data, input_key1=key1, input_key2=key_value
-                )
+                key_values_found = find_two_input_values(data, input_key1=key1, input_key2=key_value)
                 if key_values_found:
                     for location, value1, value2 in key_values_found:
                         new_value = process_func(value1, value2)
                         print(
-                            f"- Would calculate and write to key '{output_key}' at '{location}': {value1} {process_func.__name__} {input2_name} → {new_value}"
+                            f"- Would calculate and write to key '{output_key}' at '{location}': "
+                            f"{value1} {process_func.__name__} {input2_name} → {new_value}"
                         )
                 else:
                     print(f"- No suitable input pairs ({key1}, {input2_name}) found")
@@ -750,7 +687,8 @@ def preview_changes(
                     for location, old_value in key_values_found:
                         new_value = process_func(old_value, update_val)
                         print(
-                            f"- Would update file '{location}' and key '{output_key}': {old_value} {process_func.__name__} {update_val} → {new_value}"
+                            f"- Would update file '{location}' and key '{output_key}': "
+                            f"{old_value} {process_func.__name__} {update_val} → {new_value}"
                         )
                 else:
                     print(f"- No '{output_key}' values found")
@@ -758,9 +696,7 @@ def preview_changes(
             print(f"- ERROR {e}: could not read '{file_path}'")
 
 
-def process_file(
-    file_path, output_key="km", process_func=None, update_val=0, input_keys=(None, None)
-):
+def process_file(file_path, output_key="km", process_func=None, update_val=0, input_keys=(None, None)):
     """
     Modify a single file by path.
 
@@ -804,23 +740,15 @@ def process_file(
         if isinstance(data, dict):
             # Case 1: dict of dicts
             if has_2_inputs:
-                modified = process_dict_two_inputs(
-                    data, input_keys[0], key_value, output_key, process_func
-                )
+                modified = process_dict_two_inputs(data, input_keys[0], key_value, output_key, process_func)
             else:
-                modified = process_dict_of_dicts(
-                    data, output_key, process_func, update_val
-                )
+                modified = process_dict_of_dicts(data, output_key, process_func, update_val)
         elif isinstance(data, list):
             # Case 2: list of dicts of dicts
             if has_2_inputs:
-                modified = process_list_two_inputs(
-                    data, input_keys[0], key_value, output_key, process_func
-                )
+                modified = process_list_two_inputs(data, input_keys[0], key_value, output_key, process_func)
             else:
-                modified = process_list_of_dicts(
-                    data, output_key, process_func, update_val
-                )
+                modified = process_list_of_dicts(data, output_key, process_func, update_val)
         else:
             print(f"- Warning: Unexpected data structure in {file_path}")
             return False
@@ -832,9 +760,7 @@ def process_file(
             print(f"- Successfully updated '{file_path}'")
             return True
         else:
-            print(
-                f"- Warning: could not find '{output_key}' field(s) to modify in '{file_path}'"
-            )
+            print(f"- Warning: could not find '{output_key}' field(s) to modify in '{file_path}'")
             return False
     except json.JSONDecodeError as e:
         print(f"- ERROR {e}: could not read contents from '{file_path}'")
@@ -844,9 +770,7 @@ def process_file(
         return False
 
 
-def preview_file_changes(
-    file_path, output_key="km", process_func=None, update_val=0, input_keys=(None, None)
-):
+def preview_file_changes(file_path, output_key="km", process_func=None, update_val=0, input_keys=(None, None)):
     """
     Preview changes for a single file without modifying it.
 
@@ -889,14 +813,13 @@ def preview_file_changes(
 
         if has_2_inputs:
             # Two-input mode: find pairs of keys
-            key_values_found = find_two_input_values(
-                data, input_key1=key1, input_key2=key_value
-            )
+            key_values_found = find_two_input_values(data, input_key1=key1, input_key2=key_value)
             if key_values_found:
                 for location, value1, value2 in key_values_found:
                     new_value = process_func(value1, value2)
                     print(
-                        f"- Would calculate and write to key '{output_key}' at '{location}': {value1} {process_func.__name__} {input2_name} → {new_value}"
+                        f"- Would calculate and write to key '{output_key}' at '{location}': "
+                        f"{value1} {process_func.__name__} {input2_name} → {new_value}"
                     )
             else:
                 print(f"- No suitable input pairs ({key1}, {input2_name}) found")
@@ -907,7 +830,8 @@ def preview_file_changes(
                 for location, old_value in key_values_found:
                     new_value = process_func(old_value, update_val)
                     print(
-                        f"- Would update file '{location}' and key '{output_key}': {old_value} {process_func.__name__} {update_val} → {new_value}"
+                        f"- Would update file '{location}' and key '{output_key}': "
+                        f"{old_value} {process_func.__name__} {update_val} → {new_value}"
                     )
             else:
                 print(f"- No '{output_key}' values found")
@@ -961,9 +885,7 @@ def process_pattern_files_statistics(
                 grouped_values = {}
                 for location, value in key_values_found:
                     # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
-                    field_name = (
-                        location.split(".", 1)[-1] if "." in location else location
-                    )
+                    field_name = location.split(".", 1)[-1] if "." in location else location
 
                     if field_name not in grouped_values:
                         grouped_values[field_name] = []
@@ -989,18 +911,14 @@ def process_pattern_files_statistics(
                 print(f"- Successfully wrote output to '{output_path}'")
                 processed_count += 1
             else:
-                print(
-                    f"- Warning: could not find '{output_key}' field(s) to process in '{file_path}'"
-                )
+                print(f"- Warning: could not find '{output_key}' field(s) to process in '{file_path}'")
         except json.JSONDecodeError as e:
             print(f"- ERROR {e}: could not read contents from '{file_path}'")
         except Exception as e:
             print("Last field:", field_name)
             print(f"- ERROR {e}: could not process '{file_path}'")
 
-    print(
-        f"\nProcessing completed: {processed_count}/{len(files)} files processed successfully"
-    )
+    print(f"\nProcessing completed: {processed_count}/{len(files)} files processed successfully")
     return processed_count
 
 
@@ -1045,9 +963,7 @@ def preview_pattern_files_statistics(
                 grouped_values = {}
                 for location, value in key_values_found:
                     # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
-                    field_name = (
-                        location.split(".", 1)[-1] if "." in location else location
-                    )
+                    field_name = location.split(".", 1)[-1] if "." in location else location
 
                     if field_name not in grouped_values:
                         grouped_values[field_name] = []
@@ -1062,7 +978,8 @@ def preview_pattern_files_statistics(
                     if values:
                         new_value = process_func(values)
                         print(
-                            f"- Would write to '{output_path}': '{field_name}.{output_key}' = {process_func.__name__}({values}) = {new_value}"
+                            f"- Would write to '{output_path}': '{field_name}.{output_key}' = "
+                            f"{process_func.__name__}({values}) = {new_value}"
                         )
 
                 files_with_changes += 1
@@ -1073,9 +990,7 @@ def preview_pattern_files_statistics(
     print(f"\nSummary: {files_with_changes}/{len(files)} files would be processed")
 
 
-def process_file_statistics(
-    file_path, output_filename="output.json", output_key="km", process_func=None
-):
+def process_file_statistics(file_path, output_filename="output.json", output_key="km", process_func=None):
     """
     Process a single file and write output to a new file with specified filename in the same directory.
 
@@ -1140,9 +1055,7 @@ def process_file_statistics(
             print(f"- Successfully wrote output to '{output_path}'")
             return True
         else:
-            print(
-                f"- Warning: could not find '{output_key}' field(s) to process in '{file_path}'"
-            )
+            print(f"- Warning: could not find '{output_key}' field(s) to process in '{file_path}'")
             return False
     except json.JSONDecodeError as e:
         print(f"- ERROR {e}: could not read contents from '{file_path}'")
@@ -1152,9 +1065,7 @@ def process_file_statistics(
         return False
 
 
-def preview_file_statistics(
-    file_path, output_filename="output.json", output_key="km", process_func=None
-):
+def preview_file_statistics(file_path, output_filename="output.json", output_key="km", process_func=None):
     """
     Preview changes for a single file statistics operation without modifying it
     """
@@ -1195,7 +1106,8 @@ def preview_file_statistics(
                 if values:
                     new_value = process_func(values)
                     print(
-                        f"- Would write to '{output_path}': '{field_name}.{output_key}' = {process_func.__name__}({values}) = {new_value}"
+                        f"- Would write to '{output_path}': '{field_name}.{output_key}' = "
+                        f"{process_func.__name__}({values}) = {new_value}"
                     )
 
             return True
@@ -1220,7 +1132,9 @@ def confirm_proceed(default_no=True, operation_name="update"):
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(udef.CONFIRM_TIMEOUT)
     try:
-        prompt = f"\nProceed with {operation_name}? (y/n) [{'n' if default_no else 'y'}] (timeout {udef.CONFIRM_TIMEOUT}s): "
+        prompt = (
+            f"\nProceed with {operation_name}? (y/n) [{'n' if default_no else 'y'}] (timeout {udef.CONFIRM_TIMEOUT}s): "
+        )
         response = input(prompt).strip().lower()
         signal.alarm(0)  # Cancel timeout
         if response in ["y", "yes"]:
@@ -1234,9 +1148,7 @@ def confirm_proceed(default_no=True, operation_name="update"):
         print(f"\nTimeout reached. Defaulting to {'no' if default_no else 'yes'}.")
         return not default_no
     except KeyboardInterrupt:
-        print(
-            f"\nOperation interrupted by user. Defaulting to {'no' if default_no else 'yes'}."
-        )
+        print(f"\nOperation interrupted by user. Defaulting to {'no' if default_no else 'yes'}.")
         return not default_no
 
 
@@ -1263,18 +1175,12 @@ def compose_dirpath(fun):
             area (str): Area name.
         """
         if not isinstance(nbins, Iterable):
-            dir_path = os.path.join(
-                home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{nbins}"
-            )
+            dir_path = os.path.join(home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{nbins}")
             return fun(dir_path, *args, **kwargs)
 
         dir_paths = []
         for gs in nbins:
-            dir_paths.append(
-                os.path.join(
-                    home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{gs}"
-                )
-            )
+            dir_paths.append(os.path.join(home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{gs}"))
         return fun(dir_paths, *args, **kwargs)
 
     return inner

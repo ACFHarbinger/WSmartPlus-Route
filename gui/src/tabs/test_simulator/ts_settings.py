@@ -1,32 +1,43 @@
 from PySide6.QtWidgets import (
-    QWidget, QSpinBox, QComboBox, QSizePolicy,
-    QFormLayout, QHBoxLayout, QVBoxLayout,
-    QPushButton, QLabel, QScrollArea,
+    QComboBox,
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
 )
+
 from gui.src.utils.app_definitions import (
+    DATA_DISTRIBUTIONS,
+    PROBLEM_TYPES,
     SIMULATOR_TEST_POLICIES,
-    PROBLEM_TYPES, DATA_DISTRIBUTIONS, 
 )
+
 from ...styles.globals import (
+    SECONDARY_BUTTON_STYLE,
+    SECTION_HEADER_STYLE,
     SUCCESS_BUTTON_STYLE,
-    SECONDARY_BUTTON_STYLE, SECTION_HEADER_STYLE
 )
 
 
 class TestSimSettingsTab(QWidget):
     def __init__(self):
         super().__init__()
-        
+
         # 1. Create the content widget to hold all elements
         self.content_widget = QWidget()
-        
+
         # 2. Use the QFormLayout for the content widget
         content_layout = QFormLayout(self.content_widget)
         content_layout.setSpacing(8)
         content_layout.setContentsMargins(5, 5, 5, 5)
-        
+
         self.selected_policies = set()
-        
+
         policy_header = QLabel("Test Policies")
         policy_header.setStyleSheet(SECTION_HEADER_STYLE)
         content_layout.addRow(policy_header)
@@ -36,7 +47,7 @@ class TestSimSettingsTab(QWidget):
         policies_layout = QVBoxLayout(policies_container)
         policies_layout.setContentsMargins(0, 0, 0, 0)
         policies_layout.setSpacing(6)
-        
+
         # Policy Buttons
         self.policy_buttons = {}
         row_layout = None
@@ -44,11 +55,11 @@ class TestSimSettingsTab(QWidget):
             if i % 3 == 0:
                 row_layout = QHBoxLayout()
                 policies_layout.addLayout(row_layout)
-            
+
             btn = QPushButton(policy_name)
             btn.setCheckable(True)
-            btn.setObjectName("toggleStyleButton") # Apply new toggle style ID
-            
+            btn.setObjectName("toggleStyleButton")  # Apply new toggle style ID
+
             btn.clicked.connect(lambda checked, p=policy_name: self.toggle_policy(p, checked))
             row_layout.addWidget(btn)
             self.policy_buttons[policy_name] = btn
@@ -60,11 +71,11 @@ class TestSimSettingsTab(QWidget):
         # Select All / Deselect All Buttons
         all_btn_layout = QHBoxLayout()
         self.btn_select_all = QPushButton("Select All")
-        self.btn_select_all.setStyleSheet(SUCCESS_BUTTON_STYLE) # Apply new green style
+        self.btn_select_all.setStyleSheet(SUCCESS_BUTTON_STYLE)  # Apply new green style
         self.btn_select_all.clicked.connect(self.select_all_policies)
-        
+
         self.btn_deselect_all = QPushButton("Deselect All")
-        self.btn_deselect_all.setStyleSheet(SECONDARY_BUTTON_STYLE) # Apply new secondary style
+        self.btn_deselect_all.setStyleSheet(SECONDARY_BUTTON_STYLE)  # Apply new secondary style
         self.btn_deselect_all.clicked.connect(self.deselect_all_policies)
 
         all_btn_layout.addWidget(self.btn_select_all)
@@ -72,21 +83,21 @@ class TestSimSettingsTab(QWidget):
         policies_layout.addLayout(all_btn_layout)
 
         content_layout.addRow(policies_container)
-        
-        # --- Test Environment --- 
-        content_layout.addRow(self.create_separator()) # Use styled separator
-        
+
+        # --- Test Environment ---
+        content_layout.addRow(self.create_separator())  # Use styled separator
+
         env_header = QLabel("Test Environment")
         env_header.setStyleSheet(SECTION_HEADER_STYLE)
         content_layout.addRow(env_header)
-        
+
         # 2. --data_distribution
         self.data_dist_input = QComboBox()
         self.data_dist_input.addItems(DATA_DISTRIBUTIONS.keys())
         self.data_dist_input.setCurrentText("Gamma 1")
         # No inline style needed, handled by main_window.py
         content_layout.addRow("Waste Fill Data Distribution:", self.data_dist_input)
-         
+
         # 3. --problem
         self.problem_input = QComboBox()
         self.problem_input.addItems(PROBLEM_TYPES)
@@ -112,30 +123,27 @@ class TestSimSettingsTab(QWidget):
         # 8. --seed
         self.seed_input = QSpinBox(value=42, minimum=0, maximum=100000)
         content_layout.addRow("Random Seed:", self.seed_input)
-        
+
         # --- Make Tab Scrollable ---
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(self.content_widget)
         # Remove border from scroll area itself to blend with tab pane
-        scroll_area.setStyleSheet("QScrollArea { border: none; }") 
-        
+        scroll_area.setStyleSheet("QScrollArea { border: none; }")
+
         # Ensure the content widget takes minimum space vertically
-        self.content_widget.setSizePolicy(
-            QSizePolicy.Policy.Preferred, 
-            QSizePolicy.Policy.MinimumExpanding
-        )
-        
+        self.content_widget.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding)
+
         # 4. Set the QScrollArea as the main layout of TestSimSettingsTab
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(scroll_area)
-    
+
     def create_separator(self):
         """Creates a modern, thin horizontal separator."""
         separator = QWidget()
         separator.setFixedHeight(1)
-        separator.setStyleSheet("background-color: #DDE3E8;") # BORDER_COLOR
+        separator.setStyleSheet("background-color: #DDE3E8;")  # BORDER_COLOR
         return separator
 
     # Policy Management Methods (Unchanged)
@@ -144,12 +152,12 @@ class TestSimSettingsTab(QWidget):
             self.selected_policies.add(policy_name)
         else:
             self.selected_policies.discard(policy_name)
-    
+
     def select_all_policies(self):
         for policy_name in SIMULATOR_TEST_POLICIES.keys():
             self.selected_policies.add(policy_name)
             self.policy_buttons[policy_name].setChecked(True)
-            
+
     def deselect_all_policies(self):
         self.selected_policies.clear()
         for policy_name in SIMULATOR_TEST_POLICIES.keys():
@@ -166,9 +174,9 @@ class TestSimSettingsTab(QWidget):
             "n_vehicles": self.n_vehicles_input.value(),
             "seed": self.seed_input.value(),
         }
-        
+
         policies_str = " ".join([SIMULATOR_TEST_POLICIES[pol] for pol in self.selected_policies])
-        if policies_str: 
+        if policies_str:
             params["policies"] = policies_str
-            
+
         return params

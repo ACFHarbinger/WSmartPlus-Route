@@ -1,4 +1,5 @@
 """Gated Recurrent Fill Predictor."""
+
 import torch
 import torch.nn as nn
 
@@ -7,18 +8,21 @@ class GatedRecurrentFillPredictor(nn.Module):
     """
     Predicts bin fill levels using a GRU-based recurrent network.
     """
-    def __init__(self, 
-                input_dim=1,
-                hidden_dim=64,
-                num_layers=2,
-                dropout=0.1,
-                activation='relu',
-                af_param=1.0,
-                threshold=6.0,
-                replacement_value=6.0,
-                n_params=3,
-                uniform_range=[0.125, 1/3],
-                bidirectional=False):
+
+    def __init__(
+        self,
+        input_dim=1,
+        hidden_dim=64,
+        num_layers=2,
+        dropout=0.1,
+        activation="relu",
+        af_param=1.0,
+        threshold=6.0,
+        replacement_value=6.0,
+        n_params=3,
+        uniform_range=[0.125, 1 / 3],
+        bidirectional=False,
+    ):
         """
         Initializes the GRF Predictor.
 
@@ -37,6 +41,7 @@ class GatedRecurrentFillPredictor(nn.Module):
         """
         super(GatedRecurrentFillPredictor, self).__init__()
         from ..modules import ActivationFunction
+
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
         self.bidirectional = bidirectional
@@ -46,17 +51,24 @@ class GatedRecurrentFillPredictor(nn.Module):
             num_layers=num_layers,
             batch_first=True,
             dropout=dropout,
-            bidirectional=bidirectional
+            bidirectional=bidirectional,
         )
-        
+
         # Output dimension will be doubled if bidirectional
         output_dim = hidden_dim * 2 if bidirectional else hidden_dim
         self.predictor = nn.Sequential(
             nn.Linear(output_dim, hidden_dim),
-            ActivationFunction(activation, af_param, threshold, replacement_value, n_params, uniform_range),
-            nn.Linear(hidden_dim, 1)
+            ActivationFunction(
+                activation,
+                af_param,
+                threshold,
+                replacement_value,
+                n_params,
+                uniform_range,
+            ),
+            nn.Linear(hidden_dim, 1),
         )
-    
+
     def forward(self, fill_history):
         """
         Forward pass.

@@ -77,6 +77,14 @@ src.models.model\_factory module
    :undoc-members:
    :show-inheritance:
 
+src.models.moe\_model module
+----------------------------
+
+.. automodule:: src.models.moe_model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.models.pointer\_network module
 ----------------------------------
 

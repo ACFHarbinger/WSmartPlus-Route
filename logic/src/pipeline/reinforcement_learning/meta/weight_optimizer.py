@@ -47,7 +47,10 @@ Example:
 """
 
 import torch
-from logic.src.pipeline.reinforcement_learning.meta.weight_strategy import WeightAdjustmentStrategy
+
+from logic.src.pipeline.reinforcement_learning.meta.weight_strategy import (
+    WeightAdjustmentStrategy,
+)
 
 
 class RewardWeightOptimizer(WeightAdjustmentStrategy):
@@ -55,17 +58,20 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
     Manager for the meta-learning process of optimizing reward weights
     based on historical performance data. Uses an RNN to propose updates.
     """
-    def __init__(self, 
-                model_class,
-                initial_weights,
-                history_length=10,
-                hidden_size=64,
-                lr=0.001,
-                device='cuda',
-                meta_batch_size=8,
-                min_weights=None,
-                max_weights=None,
-                meta_optimizer=None):
+
+    def __init__(
+        self,
+        model_class,
+        initial_weights,
+        history_length=10,
+        hidden_size=64,
+        lr=0.001,
+        device="cuda",
+        meta_batch_size=8,
+        min_weights=None,
+        max_weights=None,
+        meta_optimizer=None,
+    ):
         """
         Args:
             initial_weights: Dict of weight names and initial values
@@ -82,46 +88,50 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         self.num_weights = len(self.weight_names)
         self.history_length = history_length
         self.meta_batch_size = meta_batch_size
-        
+
         # Initialize current weights
         self.current_weights = torch.tensor(list(initial_weights.values()), dtype=torch.float32, device=device)
-        
+
         # Set weight constraints
-        self.min_weights = torch.tensor(min_weights if min_weights else [0.0] * self.num_weights, 
-                                      dtype=torch.float32, device=device)
-        self.max_weights = torch.tensor(max_weights if max_weights else [float('inf')] * self.num_weights, 
-                                      dtype=torch.float32, device=device)
-        
+        self.min_weights = torch.tensor(
+            min_weights if min_weights else [0.0] * self.num_weights,
+            dtype=torch.float32,
+            device=device,
+        )
+        self.max_weights = torch.tensor(
+            max_weights if max_weights else [float("inf")] * self.num_weights,
+            dtype=torch.float32,
+            device=device,
+        )
+
         # Initialize feature extraction parameters
         self.num_perf_metrics = len(self.weight_names) + 1  # overflows, length, waste, total_reward
-        
+
         # Define input size: current weights + performance metrics
         input_size = self.num_weights + self.num_perf_metrics
-        
+
         # Initialize DNN meta-learner
-        self.meta_model = model_class(
-            input_size=input_size,
-            hidden_size=hidden_size,
-            output_size=self.num_weights
-        ).to(device)
-        
+        self.meta_model = model_class(input_size=input_size, hidden_size=hidden_size, output_size=self.num_weights).to(
+            device
+        )
+
         # Initialize optimizer for the meta-learner
-        optimizer_params = [{'params': self.meta_model.parameters(), 'lr': lr}]
+        optimizer_params = [{"params": self.meta_model.parameters(), "lr": lr}]
         self.optimizer = {
-            'adam': torch.optim.Adam(optimizer_params),
-            'adamax': torch.optim.Adamax(optimizer_params),
-            'adamw': torch.optim.AdamW(optimizer_params),
-            'radam': torch.optim.RAdam(optimizer_params),
-            'nadam': torch.optim.NAdam(optimizer_params),
-            'rmsprop': torch.optim.RMSprop(optimizer_params)
+            "adam": torch.optim.Adam(optimizer_params),
+            "adamax": torch.optim.Adamax(optimizer_params),
+            "adamw": torch.optim.AdamW(optimizer_params),
+            "radam": torch.optim.RAdam(optimizer_params),
+            "nadam": torch.optim.NAdam(optimizer_params),
+            "rmsprop": torch.optim.RMSprop(optimizer_params),
         }.get(meta_optimizer, None)
         assert self.optimizer is not None, "Unknown optimizer: {}".format(meta_optimizer)
-        
+
         # Initialize histories for weights and performance
         self.weight_history = []
         self.performance_history = []
         self.reward_history = []
-        
+
         # Keep track of step for logging
         self.meta_step = 0
 
@@ -152,7 +162,7 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         elif isinstance(metrics, torch.Tensor):
             perf_values = metrics
         else:
-             raise ValueError("metrics must be a list or Tensor")
+            raise ValueError("metrics must be a list or Tensor")
 
         self.update_histories(perf_values, reward)
         self.meta_learning_step()
@@ -160,7 +170,7 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
     def update_histories(self, performance_metrics, reward):
         """
         Update histories with current weights and performance metrics
-        
+
         Args:
             performance_metrics: List of the cost function terms
             reward: Total reward achieved with current weights
@@ -170,31 +180,31 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         p_tensor = torch.as_tensor(performance_metrics, dtype=torch.float32)
         self.performance_history.append(p_tensor)
         self.reward_history.append(reward)
-        
+
         # Keep history at desired length
         if len(self.weight_history) > self.history_length:
             self.weight_history.pop(0)
             self.performance_history.pop(0)
             self.reward_history.pop(0)
-    
+
     def prepare_meta_learning_batch(self):
         """
         Prepare batch for meta-learning by combining weights and performance history
-        
+
         Returns:
             features: Tensor of shape [batch_size, seq_len, input_size]
             targets: Tensor of target rewards
         """
         if len(self.weight_history) < 2:
             return None, 0
-        
+
         # Calculate sequence length based on available history
         seq_len = min(self.history_length, len(self.weight_history) - 1)
-        
+
         # Create features by combining weights and performance metrics
         features = []
         targets = []
-        
+
         # Start from different points to create a batch
         for start_idx in range(len(self.weight_history) - seq_len):
             # Create sequence of [weights, performance_metrics]
@@ -204,90 +214,91 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
                 # Ensure all on same device
                 w_hist = self.weight_history[i].to(self.device)
                 p_hist = self.performance_history[i].to(self.device)
-                
+
                 # Check shapes: performance metrics might be (N,) or (1, N) or (Batch, N) if sloppy
-                if p_hist.dim() > 1: p_hist = p_hist.view(-1)
-                
+                if p_hist.dim() > 1:
+                    p_hist = p_hist.view(-1)
+
                 combined = torch.cat([w_hist, p_hist])
                 seq_features.append(combined)
-            
+
             # Target is the reward after sequence
             target = self.reward_history[start_idx + seq_len]
-            
+
             features.append(torch.stack(seq_features))
             targets.append(target)
-            
+
             # Break if we have enough samples
             if len(features) >= self.meta_batch_size:
                 break
-        
+
         # Stack into tensors
         if features:
             features = torch.stack(features).to(self.device)
             targets = torch.tensor(targets, dtype=torch.float32).to(self.device)
             return features, targets
-        
+
         return None, 0
-    
+
     def meta_learning_step(self):
         """
         Perform a meta-learning step to update the RNN model
-        
+
         Returns:
             loss: Training loss for this step, or None if not enough data
         """
         features, targets = self.prepare_meta_learning_batch()
-        
+
         if features is None:
             return None
-        
+
         # Set model to training mode
         self.meta_model.train()
-        
+
         # Zero gradients
         self.optimizer.zero_grad()
-        
+
         # Forward pass
         weight_adjustments, _ = self.meta_model(features)
-        
+
         # Predict next weights
-        pred_weights = features[:, -1, :self.num_weights] + weight_adjustments
+        pred_weights = features[:, -1, : self.num_weights] + weight_adjustments
         pred_weights = torch.clamp(pred_weights, self.min_weights, self.max_weights)
-        
+
         # Use MSE loss between predicted weights and ideal weights
         # Here we're assuming that weights leading to higher rewards are better
         # So we scale the loss by the negative reward
         weights_variance = torch.var(pred_weights, dim=0).sum()
         reward_pred = -targets  # Negative because we want to maximize reward
-        
+
         # Weighted loss: optimize for reward while encouraging exploration
         alpha = 0.8  # Balance between reward optimization and exploration
         loss = alpha * reward_pred.mean() + (1 - alpha) * weights_variance
-        
+
         # Backward pass and optimize
         loss.backward()
         torch.nn.utils.clip_grad_norm_(self.meta_model.parameters(), max_norm=1.0)
         self.optimizer.step()
-        
+
         # Log metrics
         self.meta_step += 1
-        
+
         return loss.item()
-    
+
     def recommend_weights(self):
         """
         Generate weight adjustment recommendations based on history
-        
+
         Returns:
             New weights after applying recommended adjustments
         """
         if len(self.weight_history) < self.history_length:
             # Not enough history, return current weights
             return self.current_weights
-        
+
         # Set model to evaluation mode
         self.meta_model.eval()
-        
+
         with torch.no_grad():
             # Prepare input sequence from recent history
             seq_features = []
@@ -295,49 +306,50 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
                 # Combine weights and performance metrics
                 w_hist = self.weight_history[i].to(self.device)
                 p_hist = self.performance_history[i].to(self.device)
-                if p_hist.dim() > 1: p_hist = p_hist.view(-1)
+                if p_hist.dim() > 1:
+                    p_hist = p_hist.view(-1)
 
                 combined = torch.cat([w_hist, p_hist])
                 seq_features.append(combined)
-            
+
             # Create batch with single sequence
             features = torch.stack(seq_features).unsqueeze(0).to(self.device)
-            
+
             # Get weight adjustment recommendations
             weight_adjustments, _ = self.meta_model(features)
-            
+
             # Apply adjustments to current weights
             new_weights = self.current_weights + weight_adjustments.squeeze(0)
-            
+
             # Ensure weights stay within bounds
             new_weights = torch.clamp(new_weights, self.min_weights, self.max_weights)
-            
+
             return new_weights
-    
+
     def update_weights_internal(self, force_update=False):
         """
         Update current weights based on RNN recommendations
-        
+
         Args:
             force_update: Whether to force an update even with limited history
-            
+
         Returns:
             Boolean indicating if weights were updated
         """
         if len(self.weight_history) < self.history_length and not force_update:
             return False
-        
+
         # Get recommended weights
         new_weights = self.recommend_weights()
-        
+
         # Update current weights
         self.current_weights = new_weights
         return True
-    
+
     def get_current_weights(self):
         """
         Get current weight values as a dictionary
-        
+
         Returns:
             Dictionary mapping weight names to values
         """

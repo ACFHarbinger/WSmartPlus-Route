@@ -8,18 +8,13 @@ This module provides functions for:
 - Finding specific paths (e.g., longest path in DAG).
 """
 
-import torch
+import networkx as nx
 import numpy as np
 import osmnx as ox
-import networkx as nx
+import torch
 
 
-
-
-
-def generate_adj_matrix(
-    size, num_edges, undirected=False, add_depot=True, negative=False
-):
+def generate_adj_matrix(size, num_edges, undirected=False, add_depot=True, negative=False):
     """
     Generates a random adjacency matrix.
 
@@ -43,9 +38,7 @@ def generate_adj_matrix(
     max_edges = int((size * (size - 1)) / 2) if undirected else int(size * (size - 1))
     if num_edges >= 0 and num_edges < max_edges:
         adj_matrix = np.zeros((size, size), dtype=int)
-        possible_edges = [
-            (i, j) for i in range(0, size) for j in range(0, size) if i != j
-        ]
+        possible_edges = [(i, j) for i in range(0, size) for j in range(0, size) if i != j]
 
         # For undirected graphs, avoid duplicate edges by ensuring (i, j) == (j, i)
         if undirected:
@@ -65,11 +58,7 @@ def generate_adj_matrix(
             adj_matrix = np.hstack((np.ones(size + 1, dtype=int), selected))
             adj_matrix[0, 0] = 0
     else:
-        adj_matrix = (
-            np.ones((size + 1, size + 1), dtype=int)
-            if add_depot
-            else np.ones((size, size), dtype=int)
-        )
+        adj_matrix = np.ones((size + 1, size + 1), dtype=int) if add_depot else np.ones((size, size), dtype=int)
         np.fill_diagonal(adj_matrix, 0)
 
     # Convert the adjacency matrix to edge_index
@@ -144,11 +133,7 @@ def get_edge_idx_dist(dist_matrix, num_edges, add_depot=True, undirected=True):
             np.fill_diagonal(adj_matrix, 0)
             return adj_to_idx(np.nonzero(adj_matrix), negative=False)
     else:
-        adj_matrix = (
-            np.ones((size + 1, size + 1), dtype=int)
-            if add_depot
-            else np.ones((size, size), dtype=int)
-        )
+        adj_matrix = np.ones((size + 1, size + 1), dtype=int) if add_depot else np.ones((size, size), dtype=int)
         np.fill_diagonal(adj_matrix, 0)
         return adj_to_idx(np.nonzero(adj_matrix), negative=False)
 
@@ -299,16 +284,12 @@ def get_adj_osm(coords, size, args, add_depot=True, negative=True):
     assert df.shape[0] == size
 
     # Find nearest locations to Open Street Maps vertices and build adjacency matrix
-    df["OSM_Node"] = df.apply(
-        lambda row: ox.distance.nearest_nodes(G, row["Lng"], row["Lat"]), axis=1
-    )
+    df["OSM_Node"] = df.apply(lambda row: ox.distance.nearest_nodes(G, row["Lng"], row["Lat"]), axis=1)
     adj_matrix = nx.to_numpy_array(G, nodelist=df["OSM_Node"], dtype=int)
 
     # Add connections to depot and remove self-connections
     if add_depot:
-        adj_matrix = np.pad(
-            adj_matrix, ((1, 0), (1, 0)), mode="constant", constant_values=1
-        )
+        adj_matrix = np.pad(adj_matrix, ((1, 0), (1, 0)), mode="constant", constant_values=1)
 
     np.fill_diagonal(adj_matrix, 0)
     return adj_matrix if not negative else 1 - adj_matrix
@@ -359,9 +340,7 @@ def find_longest_path(dist_matrix, start_vertex=0):
 
         # Explore neighbors
         for next_vertex in range(n_vertices):
-            if next_vertex not in visited and dist_matrix[current][
-                next_vertex
-            ] != float("-inf"):
+            if next_vertex not in visited and dist_matrix[current][next_vertex] != float("-inf"):
                 visited.add(next_vertex)
                 path.append(next_vertex)
                 backtrack(

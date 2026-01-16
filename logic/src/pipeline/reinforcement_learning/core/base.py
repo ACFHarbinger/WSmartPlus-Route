@@ -9,13 +9,15 @@ day/epoch training logic.
 The Template Method pattern ensures consistency across different training variants
 (Standard, Time-based, HRL, Meta-learning) while enabling customization where needed.
 """
-import torch
-import numpy as np
 
 from abc import ABC, abstractmethod
+
+import numpy as np
+import torch
+
+from logic.src.pipeline.reinforcement_learning.core.epoch import complete_train_pass
 from logic.src.utils.log_utils import log_epoch
 from logic.src.utils.visualize_utils import visualize_epoch
-from logic.src.pipeline.reinforcement_learning.core.epoch import complete_train_pass
 
 
 class BaseReinforceTrainer(ABC):
@@ -50,7 +52,20 @@ class BaseReinforceTrainer(ABC):
         day: Current training day/epoch
         weight_optimizer: Meta-learner for dynamic weight adjustment (optional)
     """
-    def __init__(self, model, optimizer, baseline, lr_scheduler, scaler, val_dataset, problem, tb_logger, cost_weights, opts):
+
+    def __init__(
+        self,
+        model,
+        optimizer,
+        baseline,
+        lr_scheduler,
+        scaler,
+        val_dataset,
+        problem,
+        tb_logger,
+        cost_weights,
+        opts,
+    ):
         """
         Initialize the BaseReinforceTrainer.
 
@@ -76,10 +91,10 @@ class BaseReinforceTrainer(ABC):
         self.tb_logger = tb_logger
         self.cost_weights = cost_weights
         self.opts = opts
-        
+
         self.step = 0
-        self.day = opts['epoch_start']
-        self.weight_optimizer = None # Meta-learner
+        self.day = opts["epoch_start"]
+        self.weight_optimizer = None  # Meta-learner
 
     def setup_meta_learner(self):
         """
@@ -144,27 +159,27 @@ class BaseReinforceTrainer(ABC):
         This method should not be overridden by subclasses.
         """
         self.setup_meta_learner()
-        
+
         # Initial weight synchronization if meta-learner exists
         if self.weight_optimizer:
-            if hasattr(self.weight_optimizer, 'propose_weights'):
+            if hasattr(self.weight_optimizer, "propose_weights"):
                 pass
-            elif hasattr(self.weight_optimizer, 'get_current_weights'):
+            elif hasattr(self.weight_optimizer, "get_current_weights"):
                 weights = self.weight_optimizer.get_current_weights()
                 self.cost_weights.update(weights)
 
-        # Initialize dataset 
+        # Initialize dataset
         self.initialize_training_dataset()
 
         # Training loop
-        max_days = self.opts['epoch_start'] + self.opts['n_epochs']
+        max_days = self.opts["epoch_start"] + self.opts["n_epochs"]
         while self.day < max_days:
             # Hook: Pre-day updates
             self.update_context()
 
             # Train for a single day/epoch
             self.train_day()
-            
+
             # Hook: Post-day processing
             self.post_day_processing()
             self.process_feedback()
@@ -230,63 +245,79 @@ class BaseReinforceTrainer(ABC):
         - self.day_duration to be set by train_day() (optional)
         """
         # Note: self.daily_loss must be set by train_day
-        if hasattr(self, 'daily_loss'):
-            log_epoch(('day', self.day), list(self.daily_loss.keys()), self.daily_loss, self.opts)
-        
+        if hasattr(self, "daily_loss"):
+            log_epoch(
+                ("day", self.day),
+                list(self.daily_loss.keys()),
+                self.daily_loss,
+                self.opts,
+            )
+
         # Visualization Hook
-        if self.opts.get('visualize_step', 0) > 0 and (self.day + 1) % self.opts['visualize_step'] == 0:
+        if self.opts.get("visualize_step", 0) > 0 and (self.day + 1) % self.opts["visualize_step"] == 0:
             visualize_epoch(self.model, self.problem, self.opts, self.day, tb_logger=self.tb_logger)
-            
+
         _ = complete_train_pass(
-            self.model, self.optimizer, self.baseline, self.lr_scheduler, self.val_dataset,
-            self.day, self.step, getattr(self, 'day_duration', 0), self.tb_logger, self.cost_weights, self.opts, 
-            manager=self.weight_optimizer
+            self.model,
+            self.optimizer,
+            self.baseline,
+            self.lr_scheduler,
+            self.val_dataset,
+            self.day,
+            self.step,
+            getattr(self, "day_duration", 0),
+            self.tb_logger,
+            self.cost_weights,
+            self.opts,
+            manager=self.weight_optimizer,
         )
 
         # --- Curriculum Update Logic ---
-        if self.opts.get('imitation_weight', 0.0) >= self.opts.get('imitation_threshold', 0.05):
+        if self.opts.get("imitation_weight", 0.0) >= self.opts.get("imitation_threshold", 0.05):
             # 1. Decay
-            if (self.day + 1) % self.opts['imitation_decay_step'] == 0:
-                self.opts['imitation_weight'] *= self.opts['imitation_decay']
+            if (self.day + 1) % self.opts["imitation_decay_step"] == 0:
+                self.opts["imitation_weight"] *= self.opts["imitation_decay"]
                 print(f"[Curriculum] Decay Step: Imitation Weight updated to {self.opts['imitation_weight']:.6f}")
-                
+
             # 2. Reannealing
             # Safe extraction helper using torch
             def get_mean_metric(key):
                 """Get mean metric value from daily loss"""
-                if key not in self.daily_loss: return 0.0
+                if key not in self.daily_loss:
+                    return 0.0
                 vals = self.daily_loss[key]
-                if not vals: return 0.0
+                if not vals:
+                    return 0.0
                 # vals is a list of tensors or floats
                 if isinstance(vals[0], torch.Tensor):
                     return torch.cat(vals).float().mean().item()
                 return np.mean(vals)
-            
-            avg_expert_cost = get_mean_metric('expert_cost')
-            
+
+            avg_expert_cost = get_mean_metric("expert_cost")
+
             # Implementation detail: Use a running counter stored in self
-            if not hasattr(self, 'reannealing_counter'):
+            if not hasattr(self, "reannealing_counter"):
                 self.reannealing_counter = 0
-                self.initial_im_weight = self.opts.get('imitation_weight', 0.0)
+                self.initial_im_weight = self.opts.get("imitation_weight", 0.0)
 
             # Reconstruct model cost robustly since 'total' mixes cost and loss
-            avg_length = get_mean_metric('length') * self.cost_weights['length']
-            avg_overflows = get_mean_metric('overflows') * self.cost_weights['overflows']
-            avg_waste = get_mean_metric('waste') * self.cost_weights['waste']
-            avg_model_cost = - avg_waste + avg_length + avg_overflows
-            
-            threshold = self.opts.get('reannealing_threshold', 0.05)
-            
+            avg_length = get_mean_metric("length") * self.cost_weights["length"]
+            avg_overflows = get_mean_metric("overflows") * self.cost_weights["overflows"]
+            avg_waste = get_mean_metric("waste") * self.cost_weights["waste"]
+            avg_model_cost = -avg_waste + avg_length + avg_overflows
+
+            threshold = self.opts.get("reannealing_threshold", 0.05)
+
             # print(f"[Curriculum] Reannealing: Model Cost {avg_model_cost:.4f} vs Expert Cost {avg_expert_cost:.4f}")
 
             if avg_model_cost > avg_expert_cost * (1 + threshold):
                 self.reannealing_counter += 1
             else:
                 self.reannealing_counter = 0
-                
-            if self.reannealing_counter >= self.opts.get('reannealing_patience', 5):
+
+            if self.reannealing_counter >= self.opts.get("reannealing_patience", 5):
                 print(f"[Curriculum] Reannealing: Resetting imitation weight to {self.initial_im_weight}")
-                self.opts['imitation_weight'] = self.initial_im_weight
+                self.opts["imitation_weight"] = self.initial_im_weight
                 self.reannealing_counter = 0
             # -------------------------------
 

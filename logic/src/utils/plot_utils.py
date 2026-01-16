@@ -8,20 +8,18 @@ This module provides functions for generating various plots:
 - Interactive visualizations.
 """
 
-import os
 import math
-import numpy as np
+import os
+
 import networkx as nx
-import seaborn as sns
+import numpy as np
 import plotly.express as px
-
+import seaborn as sns
 from matplotlib import pyplot as plt
-from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
+from matplotlib.patches import Rectangle
+
 from logic.src.utils.io_utils import compose_dirpath
-
-
-
 
 
 def draw_graph(distance_matrix):
@@ -144,9 +142,7 @@ def plot_linechart(
         # nbins = [20, 50, 100, 200]
         # for id in range(len(nbins)):
         #    graph_log[id, :, 0] /= nbins[id]
-        points_by_nbins = plot_graphs_out(
-            plot_func, graph_log, x_values, linestyles, markers
-        )
+        points_by_nbins = plot_graphs_out(plot_func, graph_log, x_values, linestyles, markers)
         if annotate:
             for lg in zip(*graph_log):
                 for id, xy in enumerate(zip(list(zip(*lg))[0], list(zip(*lg))[5])):
@@ -312,11 +308,7 @@ def plot_vehicle_routes(
         round_demand (bool, optional): Round demand values in labels. Defaults to False.
     """
     # Route is one sequence, separating different routes with 0 (depot)
-    routes = [
-        r[r != 0]
-        for r in np.split(route.cpu().numpy(), np.where(route == 0)[0])
-        if (r != 0).any()
-    ]
+    routes = [r[r != 0] for r in np.split(route.cpu().numpy(), np.where(route == 0)[0]) if (r != 0).any()]
     depot = data["depot"].cpu().numpy()
     locs = data["loc"].cpu().numpy()
     demands = data["demand"].cpu().numpy() * demand_scale
@@ -353,14 +345,8 @@ def plot_vehicle_routes(
             dist += np.sqrt((x - x_prev) ** 2 + (y - y_prev) ** 2)
 
             cap_rects.append(Rectangle((x, y), 0.01, 0.1))
-            used_rects.append(
-                Rectangle((x, y), 0.01, 0.1 * total_route_demand / capacity)
-            )
-            dem_rects.append(
-                Rectangle(
-                    (x, y + 0.1 * cum_demand / capacity), 0.01, 0.1 * d / capacity
-                )
-            )
+            used_rects.append(Rectangle((x, y), 0.01, 0.1 * total_route_demand / capacity))
+            dem_rects.append(Rectangle((x, y + 0.1 * cum_demand / capacity), 0.01, 0.1 * d / capacity))
 
             x_prev, y_prev = x, y
             cum_demand += d
@@ -390,12 +376,8 @@ def plot_vehicle_routes(
     ax1.set_title("{} routes, total distance {:.2f}".format(len(routes), total_dist))
     ax1.legend(handles=qvs)
 
-    pc_cap = PatchCollection(
-        cap_rects, facecolor="whitesmoke", alpha=1.0, edgecolor="lightgray"
-    )
-    pc_used = PatchCollection(
-        used_rects, facecolor="lightgray", alpha=1.0, edgecolor="lightgray"
-    )
+    pc_cap = PatchCollection(cap_rects, facecolor="whitesmoke", alpha=1.0, edgecolor="lightgray")
+    pc_used = PatchCollection(used_rects, facecolor="lightgray", alpha=1.0, edgecolor="lightgray")
     pc_dem = PatchCollection(dem_rects, facecolor="black", alpha=1.0, edgecolor="black")
 
     if visualize_demands:
@@ -425,8 +407,9 @@ def plot_attention_maps_wrapper(
         dir_path (str): Directory path to save the heatmap image.
         attention_dict (dict): Dictionary where:
                               - Keys are model names (str);
-                              - Values are lists of attention data for each sample, where each element is a dictionary containing:
-                                'attention_weights' tensor of shape [num_layers, n_heads, batch_size, graph_size, graph_size].
+                              - Values are lists of attention data for each sample, where each
+                                element is a dictionary containing: 'attention_weights' tensor of
+                                shape [num_layers, n_heads, batch_size, graph_size, graph_size].
         model_name (str): Name of the model to extract attention maps for.
         execution_function (function): Function that handles the plotting/saving logic.
         layer_idx (int): Index of the layer to visualize.
@@ -457,9 +440,7 @@ def plot_attention_maps_wrapper(
     if head_idx >= 0:
         if batch_idx >= 0:
             attn_map = attention_weights[layer_idx, head_idx, batch_idx].cpu().numpy()
-            title = "Attention Map (Layer {}, Head {}, Batch {})".format(
-                layer_idx, head_idx, batch_idx
-            )
+            title = "Attention Map (Layer {}, Head {}, Batch {})".format(layer_idx, head_idx, batch_idx)
             attention_filename = os.path.join(
                 dir_path,
                 "attention_maps",
@@ -467,12 +448,8 @@ def plot_attention_maps_wrapper(
                 f"layer{layer_idx}_head{head_idx}_map{sample_idx}.png",
             )
         else:
-            attn_map = (
-                attention_weights[layer_idx, head_idx, :].mean(dim=0).cpu().numpy()
-            )  # Average over batches
-            title = "Attention Map Average Over All Batches (Layer {}, Head {})".format(
-                layer_idx, head_idx
-            )
+            attn_map = attention_weights[layer_idx, head_idx, :].mean(dim=0).cpu().numpy()  # Average over batches
+            title = "Attention Map Average Over All Batches (Layer {}, Head {})".format(layer_idx, head_idx)
             attention_filename = os.path.join(
                 dir_path,
                 "attention_maps",
@@ -481,12 +458,8 @@ def plot_attention_maps_wrapper(
             )
     else:
         if batch_idx >= 0:
-            attn_map = (
-                attention_weights[layer_idx, :, batch_idx].mean(dim=0).cpu().numpy()
-            )  # Average over heads
-            title = "Attention Map Average Over All Heads (Layer {}, Batch {})".format(
-                layer_idx, batch_idx
-            )
+            attn_map = attention_weights[layer_idx, :, batch_idx].mean(dim=0).cpu().numpy()  # Average over heads
+            title = "Attention Map Average Over All Heads (Layer {}, Batch {})".format(layer_idx, batch_idx)
             attention_filename = os.path.join(
                 dir_path,
                 "attention_maps",
@@ -497,11 +470,7 @@ def plot_attention_maps_wrapper(
             attn_map = (
                 attention_weights[layer_idx, :, :].mean(dim=(0, 1)).cpu().numpy()
             )  # Average over heads and batches
-            title = (
-                "Attention Map Average Over All Heads and Batches (Layer {})".format(
-                    layer_idx
-                )
-            )
+            title = "Attention Map Average Over All Heads and Batches (Layer {})".format(layer_idx)
             attention_filename = os.path.join(
                 dir_path,
                 "attention_maps",
@@ -512,9 +481,7 @@ def plot_attention_maps_wrapper(
     try:
         os.makedirs(os.path.dirname(attention_filename), exist_ok=True)
     except Exception:
-        raise Exception(
-            "directories to save attention maps do not exist and could not be created"
-        )
+        raise Exception("directories to save attention maps do not exist and could not be created")
 
     # Dynamically set figure size based on map_size
     base_vertexsize = 0.5
@@ -527,9 +494,7 @@ def plot_attention_maps_wrapper(
     # Adjust annotations and font sizes to scale inversely with map_size
     max_ticsize = 8
     max_annotsize = 8
-    annot = (
-        True if map_size <= 55 else False
-    )  # Disable annotations for large graphs to avoid clutter
+    annot = True if map_size <= 55 else False  # Disable annotations for large graphs to avoid clutter
     tick_fontsize = max(max_ticsize, 14 - map_size // 10)
     annot_fontsize = max(max_annotsize, 12 - map_size // 10)
 
@@ -591,11 +556,7 @@ def visualize_interactive_plot(**kwargs):
         width=kwargs["figsize"],
         height=kwargs["figsize"],
     )
-    interactive_fig.update_xaxes(
-        tickvals=list(range(len(kwargs["x_labels"]))), ticktext=kwargs["x_labels"]
-    )
-    interactive_fig.update_yaxes(
-        tickvals=list(range(len(kwargs["y_labels"]))), ticktext=kwargs["y_labels"]
-    )
+    interactive_fig.update_xaxes(tickvals=list(range(len(kwargs["x_labels"]))), ticktext=kwargs["x_labels"])
+    interactive_fig.update_yaxes(tickvals=list(range(len(kwargs["y_labels"]))), ticktext=kwargs["y_labels"])
     interactive_fig.show()
     return

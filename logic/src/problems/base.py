@@ -1,10 +1,11 @@
 """
 Base classes and utilities for routing problems, datasets, and states.
 """
+
 import torch
+
 from logic.src.utils.beam_search import beam_search as beam_search_func
 from logic.src.utils.boolmask import mask_long2bool
-
 
 
 class BaseProblem(object):
@@ -17,7 +18,7 @@ class BaseProblem(object):
     def validate_tours(pi):
         """
         Validates that tours are valid (contain 0 to n-1, no duplicates except depot).
-        
+
         Args:
             pi (Tensor): The sequence of visited nodes (batch_size, tour_length).
         """
@@ -27,21 +28,19 @@ class BaseProblem(object):
 
         sorted_pi = pi.data.sort(1)[0]
         # Make sure each node visited once at most (except for depot)
-        assert (
-            (sorted_pi[:, 1:] == 0) | (sorted_pi[:, 1:] > sorted_pi[:, :-1])
-        ).all(), "Duplicate nodes found in tour"
+        assert ((sorted_pi[:, 1:] == 0) | (sorted_pi[:, 1:] > sorted_pi[:, :-1])).all(), "Duplicate nodes found in tour"
         return True
 
     @staticmethod
     def get_tour_length(dataset, pi, dist_matrix=None):
         """
         Calculates the tour length (L2 norm or from distance matrix).
-        
+
         Args:
             dataset (dict): Dataset containing 'depot', 'loc', etc.
             pi (Tensor): tour sequence.
             dist_matrix (Tensor, optional): Precomputed distance matrix.
-            
+
         Returns:
             Tensor: length of each tour in the batch.
         """
@@ -53,12 +52,12 @@ class BaseProblem(object):
             dst_mask = dst_vertices != 0
             pair_mask = (src_vertices != 0) & (dst_mask)
             dists = dist_matrix[0, src_vertices, dst_vertices] * pair_mask.float()
-            
+
             last_dst = torch.max(
                 dst_mask * torch.arange(dst_vertices.size(1), device=dst_vertices.device),
                 dim=1,
             ).indices
-            
+
             length = (
                 dist_matrix[
                     0,
@@ -73,9 +72,7 @@ class BaseProblem(object):
             )
         else:
             loc_with_depot = torch.cat((dataset["depot"][:, None, :], dataset["loc"]), 1)
-            d = loc_with_depot.gather(
-                1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1))
-            )
+            d = loc_with_depot.gather(1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1)))
             length = (
                 (d[:, 1:] - d[:, :-1]).norm(p=2, dim=-1).sum(1)
                 + (d[:, 0] - dataset["depot"]).norm(p=2, dim=-1)
@@ -94,7 +91,7 @@ class BaseProblem(object):
         compress_mask=False,
         model=None,
         max_calc_batch_size=4096,
-        **kwargs
+        **kwargs,
     ):
         """
         Standardized beam search implementation.
@@ -119,7 +116,7 @@ class BaseProblem(object):
             edges,
             cost_weights,
             visited_dtype=torch.int64 if compress_mask else torch.uint8,
-            **kwargs
+            **kwargs,
         )
         return beam_search_func(state, beam_size, propose_expansions)
 
@@ -128,6 +125,7 @@ class BaseDataset(torch.utils.data.Dataset):
     """
     Base class for routing datasets.
     """
+
     def __init__(self):
         """Initializes the dataset."""
         super(BaseDataset, self).__init__()
@@ -144,10 +142,12 @@ class BaseDataset(torch.utils.data.Dataset):
 
     def __setitem__(self, key, values):
         """Updates a specific field across all samples in the dataset."""
+
         def __update_item(inst, k, v):
             """Internal helper to update a dictionary item."""
             inst[k] = v
             return inst
+
         self.data = [__update_item(x, key, val) for x, val in zip(self.data, values)]
 
 
@@ -170,9 +170,7 @@ class BaseState(object):
     @property
     def dist(self):
         """Calculates the Euclidean distance matrix between all coordinates."""
-        return (self.coords[:, :, None, :] - self.coords[:, None, :, :]).norm(
-            p=2, dim=-1
-        )
+        return (self.coords[:, :, None, :] - self.coords[:, None, :, :]).norm(p=2, dim=-1)
 
     def all_finished(self):
         """Checks if all instances in the batch have returned to the depot."""
@@ -186,13 +184,9 @@ class BaseState(object):
         """Returns a mask based on graph edges for the current node."""
         batch_size, n_coords, _ = self.coords.size()
         if self.i.item() == 0:
-            return torch.zeros(
-                batch_size, 1, n_coords, dtype=torch.uint8, device=self.coords.device
-            )
+            return torch.zeros(batch_size, 1, n_coords, dtype=torch.uint8, device=self.coords.device)
         else:
-            return self.edges.gather(
-                1, self.prev_a.unsqueeze(-1).expand(-1, -1, n_coords)
-            )
+            return self.edges.gather(1, self.prev_a.unsqueeze(-1).expand(-1, -1, n_coords))
 
     def get_edges(self):
         """Returns the graph edge indices."""
@@ -211,19 +205,19 @@ class BaseState(object):
         loc = input["loc"]
         batch_size, n_loc, _ = loc.size()
         coords = torch.cat((depot[:, None, :], loc), -2)
-        
+
         ids = torch.arange(batch_size, dtype=torch.int64, device=loc.device)[:, None]
         prev_a = torch.zeros(batch_size, 1, dtype=torch.long, device=loc.device)
-        
+
         if visited_dtype == torch.uint8:
             visited_ = torch.zeros(batch_size, 1, n_loc + 1, dtype=torch.uint8, device=loc.device)
         else:
             visited_ = torch.zeros(batch_size, 1, (n_loc + 63) // 64, dtype=torch.int64, device=loc.device)
-            
+
         lengths = torch.zeros(batch_size, 1, device=loc.device)
         cur_coord = depot[:, None, :]
         i = torch.zeros(1, dtype=torch.int64, device=loc.device)
-        
+
         return {
             "coords": coords,
             "ids": ids,
@@ -233,7 +227,7 @@ class BaseState(object):
             "cur_coord": cur_coord,
             "i": i,
             "batch_size": batch_size,
-            "n_loc": n_loc
+            "n_loc": n_loc,
         }
 
 
@@ -245,4 +239,3 @@ def refactor_state(cls):
         if not name.startswith("__") and name != "initialize_common":
             setattr(cls, name, attr)
     return cls
-

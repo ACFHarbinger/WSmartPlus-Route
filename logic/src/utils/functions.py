@@ -8,15 +8,15 @@ This module provides utilities for:
 - Managing multiprocessing and threading for data processing.
 """
 
-import os
 import json
-import torch
-import numpy as np
 import multiprocessing as mp
-import torch.nn.functional as F
-
-from tqdm import tqdm
+import os
 from multiprocessing.dummy import Pool as ThreadPool
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from tqdm import tqdm
 
 
 # Attention, Learn to Solve Routing Problems
@@ -46,7 +46,7 @@ def load_problem(name):
     Raises:
         AssertionError: If problem name is unsupported.
     """
-    from logic.src.problems import VRPP, CVRPP, WCVRP, CWCVRP, SDWCVRP, SCWCVRP
+    from logic.src.problems import CVRPP, CWCVRP, SCWCVRP, SDWCVRP, VRPP, WCVRP
 
     problem = {
         "vrpp": VRPP,
@@ -70,9 +70,7 @@ def torch_load_cpu(load_path):
     Returns:
         Any: The loaded data.
     """
-    return torch.load(
-        load_path, map_location=lambda storage, loc: storage
-    )  # Load on CPU
+    return torch.load(load_path, map_location=lambda storage, loc: storage)  # Load on CPU
 
 
 def load_data(load_path, resume):
@@ -87,9 +85,7 @@ def load_data(load_path, resume):
         Any: Loaded data or empty dict if neither is provided (though assert prevents this).
     """
     load_data = {}
-    assert (
-        load_path is None or resume is None
-    ), "Only one of load path and resume can be given"
+    assert load_path is None or resume is None, "Only one of load path and resume can be given"
 
     load_path = load_path if load_path is not None else resume
     if load_path is not None:
@@ -98,7 +94,7 @@ def load_data(load_path, resume):
     return load_data
 
 
-def move_to(var, device):
+def move_to(var, device, non_blocking=False):
     """
     Recursively moves variables to the specified device.
     Supports dicts and Tensors.
@@ -106,6 +102,8 @@ def move_to(var, device):
     Args:
         var (Any): The variable to move.
         device (torch.device): The target device.
+        non_blocking (bool, optional): If True and if the variable is a Tensor on pinned memory,
+            the copy will be asynchronous with respect to the host. Defaults to False.
 
     Returns:
         Any: The variable on the new device.
@@ -113,8 +111,8 @@ def move_to(var, device):
     if var is None:
         return None
     if isinstance(var, dict):
-        return {k: move_to(v, device) for k, v in var.items()}
-    return var.to(device)
+        return {k: move_to(v, device, non_blocking=non_blocking) for k, v in var.items()}
+    return var.to(device, non_blocking=non_blocking)
 
 
 def _load_model_file(load_path, model):
@@ -132,9 +130,7 @@ def _load_model_file(load_path, model):
     load_optimizer_state_dict = None
     print("  [*] Loading model from {}".format(load_path))
 
-    load_data = torch.load(
-        os.path.join(os.getcwd(), load_path), map_location=lambda storage, loc: storage
-    )
+    load_data = torch.load(os.path.join(os.getcwd(), load_path), map_location=lambda storage, loc: storage)
     if isinstance(load_data, dict):
         load_optimizer_state_dict = load_data.get("optimizer", None)
         load_model_state_dict = load_data.get("model", load_data)
@@ -188,18 +184,18 @@ def load_model(path, epoch=None):
     Raises:
         ValueError: If no valid epoch files found in directory.
     """
-    from logic.src.models.model_factory import (
-        AttentionComponentFactory,
-        GCNComponentFactory,
-        GACComponentFactory,
-        TGCComponentFactory,
-        GGACComponentFactory,
-        MLPComponentFactory,
-    )
     from logic.src.models import (
         AttentionModel,
-        TemporalAttentionModel,
         DeepDecoderAttentionModel,
+        TemporalAttentionModel,
+    )
+    from logic.src.models.model_factory import (
+        AttentionComponentFactory,
+        GACComponentFactory,
+        GCNComponentFactory,
+        GGACComponentFactory,
+        MLPComponentFactory,
+        TGCComponentFactory,
     )
 
     if os.path.isfile(path):
@@ -217,11 +213,7 @@ def load_model(path, epoch=None):
                         epochs.append(int(parts[1]))
 
             if not epochs:
-                raise ValueError(
-                    "No valid epoch files (epoch-N.pt) found in directory: {}".format(
-                        path
-                    )
-                )
+                raise ValueError("No valid epoch files (epoch-N.pt) found in directory: {}".format(path))
             epoch = max(epochs)
         model_filename = os.path.join(path, "epoch-{}.pt".format(epoch))
     else:
@@ -241,9 +233,7 @@ def load_model(path, epoch=None):
     }.get(args.get("encoder", "gat"), None)
 
     # Fallback/Check
-    assert factory_class is not None, "Unknown encoder type: {}".format(
-        args.get("encoder", "gat")
-    )
+    assert factory_class is not None, "Unknown encoder type: {}".format(args.get("encoder", "gat"))
 
     component_factory = factory_class()
 
@@ -359,10 +349,7 @@ def run_all_in_pool(func, directory, dataset, opts, use_multiprocessing=True):
             tqdm(
                 pool.imap(
                     func,
-                    [
-                        (directory, str(i + offset).zfill(w), *problem)
-                        for i, problem in enumerate(ds)
-                    ],
+                    [(directory, str(i + offset).zfill(w), *problem) for i, problem in enumerate(ds)],
                 ),
                 total=len(ds),
                 mininterval=opts.progress_bar_mininterval,
@@ -400,10 +387,12 @@ def compute_in_batches(f, calc_batch_size, *args, n=None):
     Computes memory heavy function f(*args) in batches.
 
     Args:
-        f (callable): The function that is computed, should take only tensors as arguments and return tensor or tuple of tensors
+        f (callable): The function that is computed, should take only tensors as arguments and
+            return tensor or tuple of tensors
         calc_batch_size (int): The batch size to use when computing this function
         *args: Tensor arguments with equally sized first batch dimension
-        n (int, optional): the total number of elements, optional if it cannot be determined as args[0].size(0)
+        n (int, optional): the total number of elements, optional if it cannot be determined as
+            args[0].size(0)
 
     Returns:
         Tensor or tuple: f(*args), this should be one or multiple tensors with equally sized first batch dimension
@@ -417,10 +406,7 @@ def compute_in_batches(f, calc_batch_size, *args, n=None):
     # Run all batches
     # all_res = [f(*batch_args) for batch_args in zip(*[torch.chunk(arg, n_batches) for arg in args])]
     # We do not use torch.chunk such that it also works for other classes that support slicing
-    all_res = [
-        f(*(arg[i * calc_batch_size : (i + 1) * calc_batch_size] for arg in args))
-        for i in range(n_batches)
-    ]
+    all_res = [f(*(arg[i * calc_batch_size : (i + 1) * calc_batch_size] for arg in args)) for i in range(n_batches)]
 
     # Allow for functions that return None
     def safe_cat(chunks, dim=0):

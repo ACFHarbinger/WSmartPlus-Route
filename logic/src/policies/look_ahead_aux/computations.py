@@ -1,11 +1,12 @@
 """
 Mathematical and economic performance metrics for greedy routing policies.
 
-Provides utilities for calculating deterministic and stochastic components of 
-the objective function, including revenue from waste collection, operational 
-transportation costs, and various penalties (fleet size, vehicle load, 
+Provides utilities for calculating deterministic and stochastic components of
+the objective function, including revenue from waste collection, operational
+transportation costs, and various penalties (fleet size, vehicle load,
 schedule imbalance, and shift duration).
 """
+
 
 # Functions for computations
 # Computation of profit - Objective function result
@@ -28,8 +29,8 @@ def compute_waste_collection_revenue(routes_list, data, E, B, R):
     total_revenue = 0
     for i in routes_list:
         for j in i:
-            stock = data['Stock'][j]
-            accumulation_rate = data['Accum_Rate'][j]
+            stock = data["Stock"][j]
+            accumulation_rate = data["Accum_Rate"][j]
             bin_stock = stock + accumulation_rate
             revenue_per_bin = bin_stock * E * B * R
             total_revenue_route += revenue_per_bin
@@ -55,8 +56,8 @@ def compute_distance_per_route(routes_list, distance_matrix):
     distance_route_vector = []
     for i in routes_list:
         for j, element in enumerate(i):
-            if j < len(i)-1:
-                travelled_distance_route += distance_matrix[i[j]][i[j+1]]
+            if j < len(i) - 1:
+                travelled_distance_route += distance_matrix[i[j]][i[j + 1]]
         distance_route_vector.append(travelled_distance_route)
         travelled_distance_route = 0
     return distance_route_vector
@@ -82,7 +83,7 @@ def compute_route_time(routes_list, distance_route_vector):
     """
     route_time_vector = []
     for route_n, i in enumerate(routes_list):
-        route_time =  (len(i)-2)*3 + ((distance_route_vector[route_n]/40) * 60)
+        route_time = (len(i) - 2) * 3 + ((distance_route_vector[route_n] / 40) * 60)
         route_time_vector.append(route_time)
     return route_time_vector
 
@@ -139,7 +140,7 @@ def compute_route_time_difference_penalty(routes_list, p_route_difference, dista
     Returns:
         float: Calculated imbalance penalty.
     """
-    route_time_vector = compute_route_time(routes_list,distance_route_vector)
+    route_time_vector = compute_route_time(routes_list, distance_route_vector)
     if len(route_time_vector) >= 1:
         min_route_time = min(route_time_vector)
         max_route_time = max(route_time_vector)
@@ -203,8 +204,8 @@ def compute_load_excess_penalty(routes_list, p_load, data, vehicle_capacity):
     total_load_excess = 0
     for i in routes_list:
         for j in i:
-            stock = data['Stock'][j]
-            accumulation_rate = data['Accum_Rate'][j]
+            stock = data["Stock"][j]
+            accumulation_rate = data["Accum_Rate"][j]
             bin_stock = stock + accumulation_rate
             load_route += bin_stock
         load_excess_route = load_route - vehicle_capacity
@@ -218,7 +219,16 @@ def compute_load_excess_penalty(routes_list, p_load, data, vehicle_capacity):
 
 # Computation of profit - Objective function result
 # function to compute profit
-def compute_profit(routes_list, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values):
+def compute_profit(
+    routes_list,
+    p_vehicle,
+    p_load,
+    p_route_difference,
+    p_shift,
+    data,
+    distance_matrix,
+    values,
+):
     """
     Calculate the total objective value (Profit - Penalties).
 
@@ -230,28 +240,43 @@ def compute_profit(routes_list, p_vehicle, p_load, p_route_difference, p_shift, 
         p_shift (float): Shift penalty coefficient.
         data (pd.DataFrame): Bin data.
         distance_matrix (np.ndarray): Distance matrix.
-        values (Dict): Parameter dictionary containing keys like E, B, R, C, 
+        values (Dict): Parameter dictionary containing keys like E, B, R, C,
             vehicle_capacity, and shift_duration.
 
     Returns:
         float: Total calculated profit.
     """
     distance_route_vector = compute_distance_per_route(routes_list, distance_matrix)
-    total_revenue = compute_waste_collection_revenue(routes_list, data, values['E'], values['B'], values['R'])
-    transportation_cost = compute_transportation_cost(routes_list, distance_route_vector, values['C'])
-    vehicle_penalty = compute_vehicle_use_penalty(routes_list,p_vehicle)
-    route_difference_penalty = compute_route_time_difference_penalty(routes_list,p_route_difference,distance_route_vector)
-    load_excess_penalty = compute_load_excess_penalty(routes_list, p_load, data, values['vehicle_capacity'])
-    shift_excess_penalty = compute_shift_excess_penalty(routes_list, p_shift, distance_matrix, distance_route_vector, values['shift_duration'])
+    total_revenue = compute_waste_collection_revenue(routes_list, data, values["E"], values["B"], values["R"])
+    transportation_cost = compute_transportation_cost(routes_list, distance_route_vector, values["C"])
+    vehicle_penalty = compute_vehicle_use_penalty(routes_list, p_vehicle)
+    route_difference_penalty = compute_route_time_difference_penalty(
+        routes_list, p_route_difference, distance_route_vector
+    )
+    load_excess_penalty = compute_load_excess_penalty(routes_list, p_load, data, values["vehicle_capacity"])
+    shift_excess_penalty = compute_shift_excess_penalty(
+        routes_list,
+        p_shift,
+        distance_matrix,
+        distance_route_vector,
+        values["shift_duration"],
+    )
 
-    profit = total_revenue - transportation_cost - vehicle_penalty - route_difference_penalty - load_excess_penalty - shift_excess_penalty
+    profit = (
+        total_revenue
+        - transportation_cost
+        - vehicle_penalty
+        - route_difference_penalty
+        - load_excess_penalty
+        - shift_excess_penalty
+    )
     return profit
 
 
 # Profit without penalties
 def compute_real_profit(routes_list, p_vehicle, data, distance_matrix, values):
     """
-    Calculate the "real" profit (Revenue - Travel Cost - Vehicle penalty) 
+    Calculate the "real" profit (Revenue - Travel Cost - Vehicle penalty)
     excluding soft constraints.
 
     Args:
@@ -265,9 +290,9 @@ def compute_real_profit(routes_list, p_vehicle, data, distance_matrix, values):
         float: Physical profit.
     """
     distance_route_vector = compute_distance_per_route(routes_list, distance_matrix)
-    total_revenue = compute_waste_collection_revenue(routes_list, data, values['E'], values['B'], values['R'])
-    transportation_cost = compute_transportation_cost(routes_list, distance_route_vector, values['C'])
-    vehicle_penalty = compute_vehicle_use_penalty(routes_list,p_vehicle)
+    total_revenue = compute_waste_collection_revenue(routes_list, data, values["E"], values["B"], values["R"])
+    transportation_cost = compute_transportation_cost(routes_list, distance_route_vector, values["C"])
+    vehicle_penalty = compute_vehicle_use_penalty(routes_list, p_vehicle)
 
     profit = total_revenue - transportation_cost - vehicle_penalty
     return profit
@@ -282,15 +307,15 @@ def compute_total_profit(routes, distance_matrix, id_to_index, data, R, V, densi
     """
     total_kg = 0
     total_km = 0
-    stocks = dict(zip(data['#bin'], data['Stock']))
+    stocks = dict(zip(data["#bin"], data["Stock"]))
     for route in routes:
         if len(route) <= 2:
             continue
-        total_kg += ((sum(stocks.get(b, 0) for b in route if b != 0)/100) * V * (density))
+        total_kg += (sum(stocks.get(b, 0) for b in route if b != 0) / 100) * V * (density)
         for i in range(len(route) - 1):
-            a, b = route[i], route[i+1]
+            a, b = route[i], route[i + 1]
             total_km += distance_matrix[id_to_index[a], id_to_index[b]]
-            
+
     receita = total_kg * R
     custo = total_km * cost_per_km
     lucro = receita - custo
@@ -311,7 +336,7 @@ def compute_sans_route_cost(route, distance_matrix, id_to_index):
     """
     cost = 0
     for i in range(len(route) - 1):
-        a, b = route[i], route[i+1]
+        a, b = route[i], route[i + 1]
         cost += distance_matrix[id_to_index[a], id_to_index[b]]
     return cost
 
