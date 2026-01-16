@@ -98,7 +98,7 @@ def rollout(model, dataset, opts):
     """
     def _eval_model_bat(bat):
         with torch.no_grad():
-            ucost, _, _, _, _ = model(move_to(bat, opts['device']), cost_weights=None)
+            ucost, _, _, _, _ = model(move_to(bat, opts['device'], non_blocking=True), cost_weights=None)
         return ucost.data.cpu()
 
     set_decode_type(model, "greedy")
@@ -107,7 +107,7 @@ def rollout(model, dataset, opts):
         dataset.fill_history = torch.zeros((opts['val_size'], opts['graph_size'], opts['temporal_horizon']))
         dataset.fill_history[:, :, -1] = torch.stack([instance['waste'] for instance in dataset.data])
 
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=opts['eval_batch_size'], pin_memory=True)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=opts['eval_batch_size'], pin_memory=True, num_workers=opts.get('num_workers', 0))
     costs = []
     for bat_id, bat in enumerate(tqdm(dataloader, disable=opts['no_progress_bar'])):
         bat = prepare_batch(bat, bat_id, dataset, dataloader, opts)
@@ -137,7 +137,7 @@ def validate_update(model, dataset, cw_dict, opts):
 
     def _eval_model_bat(bat, dist_matrix):
         with torch.no_grad():
-            ucost, c_dict, attn_dict = agent.compute_batch_sim(move_to(bat, opts['device']), move_to(dist_matrix, opts['device']))
+            ucost, c_dict, attn_dict = agent.compute_batch_sim(move_to(bat, opts['device'], non_blocking=True), move_to(dist_matrix, opts['device'], non_blocking=True))
         return ucost, c_dict, attn_dict
 
     set_decode_type(model, "greedy")
@@ -147,9 +147,9 @@ def validate_update(model, dataset, cw_dict, opts):
         dataset.fill_history[:, :, -1] = torch.stack([instance['waste'] for instance in dataset.data])
 
     all_costs = {'overflows': [], 'kg': [], 'km': []}
-    all_ucosts = move_to(torch.tensor([]), opts['device'])
+    all_ucosts = move_to(torch.tensor([]), opts['device'], non_blocking=True)
     attention_dict = {'attention_weights': [], 'graph_masks': []}
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=opts['eval_batch_size'], pin_memory=True)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=opts['eval_batch_size'], pin_memory=True, num_workers=opts.get('num_workers', 0))
     print('Validating...')
     for bat_id, bat in enumerate(tqdm(dataloader, disable=opts['no_progress_bar'])):
         bat = prepare_batch(bat, bat_id, dataset, dataloader, opts)

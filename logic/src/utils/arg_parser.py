@@ -699,6 +699,12 @@ def add_train_args(parser):
     )
     parser.add_argument("--no_cuda", action="store_true", help="Disable CUDA")
     parser.add_argument(
+        "--num_workers",
+        type=int,
+        default=0,
+        help="Number of workers for data loading (0 to deactivate multiprocessing)",
+    )
+    parser.add_argument(
         "--enable_scaler",
         action="store_true",
         help="Enables CUDA scaler for automatic mixed precision training",
@@ -1798,6 +1804,24 @@ def add_test_sim_args(parser):
     )
     parser.add_argument(
         "--checkpoint_days",
+        type=int,
+        default=0,
+        help="Number of days interval to save simulation checkpoints (0 to deactivate checkpointing)",
+    )
+    parser.add_argument(
+        "--log_level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Logging level for the system logger",
+    )
+    parser.add_argument(
+        "--log_file",
+        type=str,
+        default="logs/simulation.log",
+        help="Path to the system log file",
+    )
+    parser.add_argument(
         "--cpd",
         type=int,
         default=5,

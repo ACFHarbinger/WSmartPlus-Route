@@ -13,3 +13,12 @@ repos:
       - id: ruff
         args: [ --fix ]
       - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: check-docstrings
+        name: Check Docstring Coverage
+        entry: uv run python logic/src/utils/check_docstrings.py
+        language: system
+        pass_filenames: false
+        always_run: true
