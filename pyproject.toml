@@ -294,6 +294,23 @@ reportOperatorIssue = "none"
 reportArgumentType = "none"
 reportCallIssue = "none"
 
+
+# =================================================================
+# RUFF CONFIGURATION (from ruff.toml)
+# =================================================================
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
+# Ignore E501 (line length) for notebooks specifically if they are messy
+ignore = ["E501"]
+select = ["E", "F", "I", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+# Be strict with source code, but ignore common notebook issues
+"*.ipynb" = ["E402", "F821", "F404", "W291", "W293", "E741", "E722", "F811", "F401", "F841"]
+
 # =================================================================
 # PYTEST CONFIGURATION (from pytest.ini)
 # =================================================================
@@ -424,11 +441,3 @@ output = "coverage.xml"
 
 [tool.coverage.json]
 output = "coverage.json"
-
-[tool.ruff]
-line-length = 120
-target-version = "py39"
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "W"]
-ignore = []
