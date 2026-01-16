@@ -96,7 +96,7 @@ F_GRAPH="graphs_${SIZE}V_1N_${WTYPE}.json"
 DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}[${AREA}].csv"
 WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}_seed${SEED}.pkl"
 
-SEED=42 
+SEED=42
 START=0
 EPOCHS=100
 TOTAL_EPOCHS=$(($START + $EPOCHS))

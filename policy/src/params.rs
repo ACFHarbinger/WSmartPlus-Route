@@ -157,7 +157,7 @@ impl Params {
                     let euclidean = (dx * dx + dy * dy).sqrt();
                     // A small tolerance for floating point errors
                     if self.dist_matrix[i][j] < euclidean - 1e-3 {
-                        eprintln!("Warning: Geometric consistency violation at {}->{}: dist_matrix={} < euclidean={}", 
+                        eprintln!("Warning: Geometric consistency violation at {}->{}: dist_matrix={} < euclidean={}",
                             i, j, self.dist_matrix[i][j], euclidean);
                     }
                 }

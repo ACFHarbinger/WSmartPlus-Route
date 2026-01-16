@@ -2,20 +2,30 @@ import multiprocessing as mp
 
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
-    QComboBox, QLabel, QWidget,
-    QSpinBox, QHBoxLayout, QPushButton,
-    QScrollArea, QVBoxLayout, QSizePolicy,
-    QLineEdit, QFormLayout, QDoubleSpinBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
 )
+
+from ..components import ClickableHeaderWidget
 from ..styles.globals import START_RED_STYLE
 from ..utils.app_definitions import HOP_METHODS, HOP_METRICS
-from ..components import ClickableHeaderWidget
 
 
 class HyperParamOptimParserTab(QWidget):
     """
     Tab for configuring Hyperparameter Optimization (HPO) arguments.
     """
+
     def __init__(self):
         super().__init__()
         scroll_area = QScrollArea()
@@ -27,14 +37,14 @@ class HyperParamOptimParserTab(QWidget):
         # --hop_method
         self.hop_method_combo = QComboBox()
         self.hop_method_combo.addItems(HOP_METHODS.keys())
-        self.hop_method_combo.setCurrentText('')
+        self.hop_method_combo.setCurrentText("")
         form_layout.addRow(QLabel("Optimization Method:"), self.hop_method_combo)
-        
+
         # --hop_range (nargs='+')
         self.hop_range_input = QLineEdit("0.0 2.0")
         self.hop_range_input.setPlaceholderText("Min-Max values (space separated)")
         form_layout.addRow(QLabel("Hyper-Parameter Range:"), self.hop_range_input)
-        
+
         # --hop_epochs
         self.hop_epochs_input = QSpinBox(minimum=1, maximum=50, value=7)
         form_layout.addRow(QLabel("Optimization Epochs:"), self.hop_epochs_input)
@@ -42,12 +52,12 @@ class HyperParamOptimParserTab(QWidget):
         # --metric
         self.metric_combo = QComboBox()
         self.metric_combo.addItems(HOP_METRICS.keys())
-        self.metric_combo.setCurrentText('Validation Loss')
+        self.metric_combo.setCurrentText("Validation Loss")
         form_layout.addRow(QLabel("Metric to Optimize:"), self.metric_combo)
 
         # --- Ray Tune Framework Settings ---
         form_layout.addRow(QLabel("<b>Ray Tune Framework Settings</b>"))
-        
+
         # --cpu_cores
         system_cpu_cores = mp.cpu_count()
         self.cpu_cores_input = QSpinBox(minimum=1, maximum=system_cpu_cores, value=1)
@@ -70,7 +80,7 @@ class HyperParamOptimParserTab(QWidget):
         self.local_mode_check.setChecked(False)
         self.local_mode_check.setStyleSheet(START_RED_STYLE)
         form_layout.addRow(QLabel("Local Mode:"), self.local_mode_check)
-        
+
         # --num_samples
         self.num_samples_input = QSpinBox(minimum=1, maximum=1000, value=20)
         form_layout.addRow(QLabel("Number of Samples:"), self.num_samples_input)
@@ -85,9 +95,7 @@ class HyperParamOptimParserTab(QWidget):
         # --- Timeout (Custom Header) ---
         # 1. Create a container widget for the header using the custom clickable class
         self.timeout_header_widget = ClickableHeaderWidget(self._toggle_timeout)
-        self.timeout_header_widget.setStyleSheet(
-            "QWidget { border: none; padding: 0; margin-top: 5px; }"
-        )
+        self.timeout_header_widget.setStyleSheet("QWidget { border: none; padding: 0; margin-top: 5px; }")
 
         to_header_layout = QHBoxLayout(self.timeout_header_widget)
         to_header_layout.setContentsMargins(0, 0, 0, 0)
@@ -97,11 +105,8 @@ class HyperParamOptimParserTab(QWidget):
         self.timeout_label = QLabel("Timeout")
 
         # CRITICAL: Remove expanding policy so the label shrinks to fit content
-        self.timeout_label.setSizePolicy(
-            QSizePolicy.Policy.Fixed, 
-            QSizePolicy.Policy.Preferred
-        )
-        
+        self.timeout_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
+
         # Apply the initial (collapsed) styling to the QLabel
         self.timeout_label.setStyleSheet(
             "QLabel { border: 1px solid #555555; border-radius: 4px; padding: 5px; background-color: transparent; }"
@@ -120,7 +125,7 @@ class HyperParamOptimParserTab(QWidget):
         to_header_layout.addWidget(self.timeout_label)
         to_header_layout.addStretch()
         to_header_layout.addWidget(self.timeout_toggle_button)
-        
+
         # 5. Add the header widget to the main layout, making it span the row
         form_layout.addRow(self.timeout_header_widget)
 
@@ -134,36 +139,35 @@ class HyperParamOptimParserTab(QWidget):
         self.timeout_input = QLineEdit()
         self.timeout_input.setPlaceholderText("Timeout in seconds")
         timeout_layout.addRow(QLabel("Timeout (s):"), self.timeout_input)
-        
+
         # 8. Add the content container to the main layout
         form_layout.addWidget(self.timeout_container)
 
         # 9. Initialize state: hidden
         self.is_timeout_visible = False
         self.timeout_container.hide()
-        
+
         # --n_startup_trials
         self.n_startup_trials_input = QSpinBox(minimum=0, maximum=500, value=5)
         form_layout.addRow(QLabel("Startup Trials (before pruning):"), self.n_startup_trials_input)
-        
+
         # --n_warmup_steps
         self.n_warmup_steps_input = QSpinBox(minimum=0, maximum=50, value=3)
         form_layout.addRow(QLabel("Warmup Steps (before pruning):"), self.n_warmup_steps_input)
-        
+
         # --interval_steps
         self.interval_steps_input = QSpinBox(minimum=1, maximum=10, value=1)
         form_layout.addRow(QLabel("Pruning Interval Steps:"), self.interval_steps_input)
 
-
         # --- Distributed Evolutionary Algorithm (DEA) ---
         form_layout.addRow(QLabel("<b>Distributed Evolutionary Algorithm (DEA)</b>"))
-        
+
         # --eta
         self.eta_input = QDoubleSpinBox(minimum=0.01, maximum=100.0, value=10.0)
         self.eta_input.setDecimals(2)
         self.eta_input.setSingleStep(0.5)
         form_layout.addRow(QLabel("Mutation Spread (eta):"), self.eta_input)
-        
+
         # --indpb
         self.indpb_input = QDoubleSpinBox(minimum=0.0, maximum=1.0, value=0.2)
         self.indpb_input.setDecimals(3)
@@ -219,24 +223,24 @@ class HyperParamOptimParserTab(QWidget):
 
         # --- Differential Evolutionary Hyperband Optimization (DEHBO) ---
         form_layout.addRow(QLabel("<b>Differential Evolutionary Hyperband Optimization (DEHBO)</b>"))
-        
+
         # --fevals
         self.fevals_input = QSpinBox(minimum=1, maximum=1000, value=100)
         form_layout.addRow(QLabel("Function Evaluations:"), self.fevals_input)
 
         # --- Random Search (RS) ---
         form_layout.addRow(QLabel("<b>Random Search (RS)</b>"))
-        
+
         # --max_failures
         self.max_failures_input = QSpinBox(minimum=1, maximum=10, value=3)
         form_layout.addRow(QLabel("Maximum Trial Failures:"), self.max_failures_input)
-        
+
         QVBoxLayout(self).addWidget(scroll_area)
         scroll_area.setWidget(content)
 
     def _toggle_timeout(self):
         """Toggles the visibility of the Timeout input field and updates the +/- sign."""
-        if self.is_timeout_visible: 
+        if self.is_timeout_visible:
             self.timeout_container.hide()
             self.timeout_toggle_button.setText("+")
 
@@ -247,11 +251,9 @@ class HyperParamOptimParserTab(QWidget):
         else:
             self.timeout_container.show()
             self.timeout_toggle_button.setText("-")
-            
+
             # Remove the border from the QLabel when expanded.
-            self.timeout_label.setStyleSheet(
-                "QLabel { border: none; padding: 5px; background-color: transparent; }"
-            )
+            self.timeout_label.setStyleSheet("QLabel { border: none; padding: 5px; background-color: transparent; }")
         self.is_timeout_visible = not self.is_timeout_visible
 
     def get_params(self):
@@ -260,20 +262,17 @@ class HyperParamOptimParserTab(QWidget):
             "hop_method": self.hop_method_combo.currentText(),
             "hop_epochs": self.hop_epochs_input.value(),
             "metric": HOP_METRICS[self.metric_combo.currentText()],
-            
             # Ray Tune
             "cpu_cores": self.cpu_cores_input.value(),
             "verbose": self.verbose_input.value(),
             "train_best": self.train_best_check.isChecked(),
             "local_mode": self.local_mode_check.isChecked(),
             "num_samples": self.num_samples_input.value(),
-            
             # BO/Optuna
             "n_trials": self.n_trials_input.value(),
             "n_startup_trials": self.n_startup_trials_input.value(),
             "n_warmup_steps": self.n_warmup_steps_input.value(),
             "interval_steps": self.interval_steps_input.value(),
-            
             # DEA
             "eta": self.eta_input.value(),
             "indpb": self.indpb_input.value(),
@@ -282,11 +281,9 @@ class HyperParamOptimParserTab(QWidget):
             "mutpb": self.mutpb_input.value(),
             "n_pop": self.n_pop_input.value(),
             "n_gen": self.n_gen_input.value(),
-            
             # HBO
             "max_tres": self.max_tres_input.value(),
             "reduction_factor": self.reduction_factor_input.value(),
-            
             # Other
             "fevals": self.fevals_input.value(),
             "max_failures": self.max_failures_input.value(),
@@ -294,7 +291,7 @@ class HyperParamOptimParserTab(QWidget):
         }
 
         # Handle nargs='+' and optional arguments
-        
+
         # --hop_range (nargs='+')
         hop_range_text = self.hop_range_input.text().strip()
         if hop_range_text:
@@ -305,7 +302,7 @@ class HyperParamOptimParserTab(QWidget):
                 params["hop_range"] = None
         else:
             params["hop_range"] = None
-        
+
         # --grid (nargs='+')
         grid_text = self.grid_input.text().strip()
         if grid_text:

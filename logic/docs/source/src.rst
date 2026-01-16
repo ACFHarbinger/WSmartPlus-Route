@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   src.cli
    src.data
    src.models
    src.pipeline

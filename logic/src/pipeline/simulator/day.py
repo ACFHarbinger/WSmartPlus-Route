@@ -18,16 +18,23 @@ Functions:
     run_day: Main orchestrator for single-day simulation
 """
 
+from typing import Any, Dict, List, Optional, Union
+
+import numpy as np
+import pandas as pd
 import torch
 
-
-from typing import Dict, List, Union
-import numpy as np
+from logic.src.pipeline.simulator.context import SimulationDayContext
 from logic.src.utils.definitions import DAY_METRICS
 from logic.src.utils.functions import move_to
 
 
-def set_daily_waste(model_data, waste, device, fill=None):
+def set_daily_waste(
+    model_data: Dict[str, Any],
+    waste: np.ndarray,
+    device: torch.device,
+    fill: Optional[np.ndarray] = None,
+) -> Dict[str, Any]:
     """
     Updates neural model input with current bin waste levels.
 
@@ -43,13 +50,32 @@ def set_daily_waste(model_data, waste, device, fill=None):
     Returns:
         Updated model_data dict with tensors on specified device
     """
-    model_data['waste'] = torch.as_tensor(waste, dtype=torch.float32).unsqueeze(0)/100.
-    if 'fill_history' in model_data:
-        model_data['current_fill'] = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0)/100.
-    return move_to(model_data, device)
+    # Create tensors on CPU and pin memory for faster host-to-device transfer
+    waste_tensor = torch.as_tensor(waste, dtype=torch.float32).unsqueeze(0).div(100.0)
+    if device.type == "cuda":
+        waste_tensor = waste_tensor.pin_memory()
+    model_data["waste"] = waste_tensor
+
+    if "fill_history" in model_data:
+        fill_tensor = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0).div(100.0)
+        if device.type == "cuda":
+            fill_tensor = fill_tensor.pin_memory()
+        model_data["current_fill"] = fill_tensor
+
+    return move_to(model_data, device, non_blocking=True)
 
 
-def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum_lost, coordinates, profit):
+def get_daily_results(
+    total_collected: float,
+    ncol: int,
+    cost: float,
+    tour: List[int],
+    day: int,
+    new_overflows: int,
+    sum_lost: float,
+    coordinates: pd.DataFrame,
+    profit: float,
+) -> Dict[str, Union[int, float, List[int]]]:
     """
     Formats raw simulation outputs into structured daily log dictionary.
 
@@ -72,137 +98,65 @@ def get_daily_results(total_collected, ncol, cost, tour, day, new_overflows, sum
             - day, overflows, kg_lost, kg, ncol, km, kg/km, cost, profit, tour
     """
     dlog: Dict[str, Union[int, float, List[int]]] = {key: 0 for key in DAY_METRICS}
-    dlog['day'] = day
-    dlog['overflows'] = new_overflows
-    dlog['kg_lost'] = sum_lost
-    if len(tour) > 2 and cost > 0:
+    dlog["day"] = day
+    dlog["overflows"] = new_overflows
+    dlog["kg_lost"] = sum_lost
+    if len(tour) > 2:
         rl_cost = new_overflows - total_collected + cost
-        dlog['kg'] = total_collected
-        dlog['ncol'] = ncol
-        dlog['km'] = cost
-        dlog['kg/km'] = total_collected / cost
-        dlog['cost'] = rl_cost
-        dlog['profit'] = profit
+        dlog["kg"] = total_collected
+        dlog["ncol"] = ncol
+        dlog["km"] = cost
+        dlog["kg/km"] = total_collected / cost if cost > 0 else 0
+        dlog["cost"] = rl_cost
+        dlog["profit"] = profit
         ids = np.array([x for x in tour if x != 0])
-        dlog['tour'] = [0] + coordinates.loc[ids, 'ID'].tolist() + [0]
+        dlog["tour"] = [0] + coordinates.loc[ids, "ID"].tolist() + [0]
     else:
-        dlog['kg'] = 0
-        dlog['ncol'] = 0
-        dlog['km'] = 0
-        dlog['kg/km'] = 0
-        dlog['cost'] = new_overflows
-        dlog['profit'] = 0
-        dlog['tour'] = [0]
+        dlog["kg"] = 0
+        dlog["ncol"] = 0
+        dlog["km"] = 0
+        dlog["kg/km"] = 0
+        dlog["cost"] = new_overflows
+        dlog["profit"] = 0
+        dlog["tour"] = [0]
     return dlog
+
 
 def send_daily_output_to_gui(*args, **kwargs):
     """
     Proxy function to send daily simulation updates to the GUI.
-    
+
     This function lazily imports the utility from log_utils to avoid
     circular dependencies and forwards all arguments.
     """
     from logic.src.utils.log_utils import send_daily_output_to_gui
+
     return send_daily_output_to_gui(*args, **kwargs)
 
-def run_day(graph_size, pol, bins, new_data, coords, run_tsp, sample_id, overflows,
-            day, model_env, model_ls, n_vehicles, area, realtime_log_path, waste_type,
-            distpath_tup, current_collection_day, cached, device, lock=None, hrl_manager=None,
-            gate_prob_threshold=0.5, mask_prob_threshold=0.5, two_opt_max_iter=0, config=None):
+
+def run_day(context: SimulationDayContext) -> SimulationDayContext:
     """
     Orchestrates a single simulation day using the Command Pattern.
 
     Executes the four-stage pipeline: Fill → Policy → Collect → Log.
-    All state and parameters are passed via a shared context dictionary.
+    All state and parameters are passed via the shared SimulationDayContext.
 
     Args:
-        graph_size: Number of bins in the problem
-        pol: Policy identifier string
-        bins: Bins state manager
-        new_data: Bin data DataFrame
-        coords: Bin coordinate DataFrame
-        run_tsp: Whether to run TSP post-optimization
-        sample_id: Sample/seed identifier
-        overflows: Cumulative overflow count
-        day: Current simulation day
-        model_env: Loaded neural model or solver environment
-        model_ls: Model configuration tuple
-        n_vehicles: Number of available vehicles
-        area: Geographic area name
-        realtime_log_path: Path for real-time GUI logging
-        waste_type: Waste stream type
-        distpath_tup: (distance_matrix, paths, dm_tensor, distancesC)
-        current_collection_day: Day counter for periodic policies
-        cached: Cache for regular policy
-        device: torch.device for neural models
-        lock: Thread lock for parallel simulations
-        hrl_manager: Hierarchical RL manager (optional)
-        gate_prob_threshold: HRL gating probability threshold
-        mask_prob_threshold: HRL masking probability threshold
-        two_opt_max_iter: 2-opt local search iterations
-        config: Policy-specific configuration dict
+        context: SimulationDayContext object containing all simulation state.
 
     Returns:
-        Tuple containing:
-            - data_ls: (new_data, coords, bins) updated state
-            - output_ls: (overflows, daily_log, output_dict) results
-            - cached: Updated policy cache
+        Updated SimulationDayContext.
     """
-
-    # Prepare context
-    distance_matrix, paths_between_states, dm_tensor, distancesC = distpath_tup
-    
-    context = {
-        'policy': pol.rsplit('_', 1)[0], # Stripped policy name
-        'full_policy': pol, # Original string including modifiers
-        'policy_name': pol.rsplit('_', 1)[0], # Base name for factory
-        'bins': bins,
-        'distpath_tup': distpath_tup,
-        'distance_matrix': distance_matrix,
-        'distancesC': distancesC,
-        'paths_between_states': paths_between_states,
-        'dm_tensor': dm_tensor,
-        'new_data': new_data,
-        'coords': coords,
-        'run_tsp': run_tsp,
-        'waste_type': waste_type,
-        'area': area,
-        'n_vehicles': n_vehicles,
-        'model_env': model_env,
-        'model_ls': model_ls,
-        'day': day,
-        'cached': cached,
-        'device': device,
-        'lock': lock,
-        'hrl_manager': hrl_manager,
-        'gate_prob_threshold': gate_prob_threshold,
-        'mask_prob_threshold': mask_prob_threshold,
-        'two_opt_max_iter': two_opt_max_iter,
-        'current_collection_day': current_collection_day,
-        'sample_id': sample_id,
-        'realtime_log_path': realtime_log_path,
-        'overflows': overflows,
-        'graph_size': graph_size,
-        'config': config if config is not None else {}, # Pass config
-        
-        # Outputs placeholders
-        'output_dict': None,
-        'cached': cached # Will be updated if modified
-    }
-    
     from logic.src.pipeline.simulator.actions import (
-        FillAction, PolicyExecutionAction, CollectAction, LogAction
+        CollectAction,
+        FillAction,
+        LogAction,
+        PolicyExecutionAction,
     )
-    
-    commands = [
-        FillAction(),
-        PolicyExecutionAction(),
-        CollectAction(),
-        LogAction()
-    ]
-    
+
+    commands = [FillAction(), PolicyExecutionAction(), CollectAction(), LogAction()]
+
     for command in commands:
         command.execute(context)
-        
-    # Extract results
-    return (new_data, coords, bins), (context['overflows'], context['daily_log'], context.get('output_dict')), context['cached']
+
+    return context

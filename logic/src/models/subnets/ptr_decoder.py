@@ -1,12 +1,15 @@
 """Pointer Network Decoder."""
+
 import math
-import torch
+
 import numpy as np
+import torch
 import torch.nn as nn
 
 
 class PointerAttention(nn.Module):
     """A generic attention module for a decoder in seq2seq."""
+
     def __init__(self, dim, use_tanh=False, C=10):
         """
         Initializes PointerAttention.
@@ -24,8 +27,8 @@ class PointerAttention(nn.Module):
         self.tanh = nn.Tanh()
 
         self.v = nn.Parameter(torch.FloatTensor(dim))
-        self.v.data.uniform_(-(1. / math.sqrt(dim)), 1. / math.sqrt(dim))
-        
+        self.v.data.uniform_(-(1.0 / math.sqrt(dim)), 1.0 / math.sqrt(dim))
+
     def forward(self, query, ref):
         """
         Calculate attention logits.
@@ -33,26 +36,25 @@ class PointerAttention(nn.Module):
         Args:
             query: Hidden state of the decoder at the current time step (batch x dim).
             ref: Set of hidden states from the encoder (sourceL x batch x hidden_dim).
-        
+
         Returns:
             Projected reference and logits.
         """
         # ref is now [batch_size x hidden_dim x sourceL]
         ref = ref.permute(1, 2, 0)
         q = self.project_query(query).unsqueeze(2)  # batch x dim x 1
-        e = self.project_ref(ref)  # batch_size x hidden_dim x sourceL 
+        e = self.project_ref(ref)  # batch_size x hidden_dim x sourceL
         # expand the query by sourceL
         # batch x dim x sourceL
-        expanded_q = q.repeat(1, 1, e.size(2)) 
+        expanded_q = q.repeat(1, 1, e.size(2))
         # batch x 1 x hidden_dim
-        v_view = self.v.unsqueeze(0).expand(
-                expanded_q.size(0), len(self.v)).unsqueeze(1)
+        v_view = self.v.unsqueeze(0).expand(expanded_q.size(0), len(self.v)).unsqueeze(1)
         # [batch_size x 1 x hidden_dim] * [batch_size x hidden_dim x sourceL]
         u = torch.bmm(v_view, self.tanh(expanded_q + e)).squeeze(1)
         if self.use_tanh:
             logits = self.C * self.tanh(u)
         else:
-            logits = u  
+            logits = u
         return e, logits
 
 
@@ -60,14 +62,17 @@ class PointerDecoder(nn.Module):
     """
     Standard Pointer Network Decoder.
     """
-    def __init__(self, 
-            embedding_dim,
-            hidden_dim,
-            tanh_exploration,
-            use_tanh,
-            n_glimpses=1,
-            mask_glimpses=True,
-            mask_logits=True):
+
+    def __init__(
+        self,
+        embedding_dim,
+        hidden_dim,
+        tanh_exploration,
+        use_tanh,
+        n_glimpses=1,
+        mask_glimpses=True,
+        mask_logits=True,
+    ):
         """
         Initializes the PointerDecoder.
 
@@ -115,7 +120,7 @@ class PointerDecoder(nn.Module):
             # Note that as a result the vector of probs may not sum to one (this is OK for .multinomial sampling)
             # But practically by not masking the logits, a model is learned over all sequences (also infeasible)
             # while only during sampling feasibility is enforced (a.k.a. by setting to 0. here)
-            probs[logit_mask] = 0.
+            probs[logit_mask] = 0.0
             # For consistency we should also mask out in log_p, but the values set to 0 will not be sampled and
             # Therefore not be used by the reinforce estimator
 
@@ -139,7 +144,7 @@ class PointerDecoder(nn.Module):
             # [batch_size x h_dim x sourceL] * [batch_size x sourceL x 1] =
             # [batch_size x h_dim x 1]
             g_l = torch.bmm(ref, self.sm(logits).unsqueeze(2)).squeeze(2)
-        
+
         _, logits = self.pointer(g_l, context)
 
         # Masking before softmax makes probs sum to one
@@ -167,14 +172,14 @@ class PointerDecoder(nn.Module):
         selections = []
         steps = range(embedded_inputs.size(0))
         idxs = None
-        mask = torch.autograd.Variable(embedded_inputs.data.new().bool().new(embedded_inputs.size(1), embedded_inputs.size(0)).zero_(), requires_grad=False)
+        mask = torch.autograd.Variable(
+            embedded_inputs.data.new().bool().new(embedded_inputs.size(1), embedded_inputs.size(0)).zero_(),
+            requires_grad=False,
+        )
         for i in steps:
             hidden, log_p, probs, mask = self.recurrence(decoder_input, hidden, mask, idxs, i, context)
             # select the next inputs for the decoder [batch_size x hidden_dim]
-            idxs = self.decode(
-                probs,
-                mask
-            ) if eval_tours is None else eval_tours[:, i]
+            idxs = self.decode(probs, mask) if eval_tours is None else eval_tours[:, i]
 
             idxs = idxs.detach()  # Otherwise pytorch complains it want's a reward, TODO implement this more properly?
 
@@ -182,7 +187,7 @@ class PointerDecoder(nn.Module):
             decoder_input = torch.gather(
                 embedded_inputs,
                 0,
-                idxs.contiguous().view(1, batch_size, 1).expand(1, batch_size, *embedded_inputs.size()[2:])
+                idxs.contiguous().view(1, batch_size, 1).expand(1, batch_size, *embedded_inputs.size()[2:]),
             ).squeeze(0)
 
             # use outs to point to next object
@@ -194,13 +199,14 @@ class PointerDecoder(nn.Module):
         """Decodes probabilities to actions based on decode_type."""
         if self.decode_type == "greedy":
             _, idxs = probs.max(1)
-            assert not mask.gather(1, idxs.unsqueeze(-1)).data.any(), \
-                "Decode greedy: infeasible action has maximum probability"
+            assert not mask.gather(
+                1, idxs.unsqueeze(-1)
+            ).data.any(), "Decode greedy: infeasible action has maximum probability"
         elif self.decode_type == "sampling":
             idxs = probs.multinomial(1).squeeze(1)
             # Check if sampling went OK, can go wrong due to bug on GPU
             while mask.gather(1, idxs.unsqueeze(-1)).data.any():
-                print(' [!] resampling due to race condition')
+                print(" [!] resampling due to race condition")
                 idxs = probs.multinomial().squeeze(1)
         else:
             assert False, "Unknown decode type"

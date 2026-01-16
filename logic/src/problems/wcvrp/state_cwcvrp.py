@@ -2,11 +2,14 @@
 State representation for the Capacitated Waste Collection Vehicle Routing Problem (CWCVRP).
 """
 
+from typing import NamedTuple
+
 import torch
 import torch.nn.functional as F
-from typing import NamedTuple
-from logic.src.utils.definitions import VEHICLE_CAPACITY
+
 from logic.src.utils.boolmask import mask_long2bool, mask_long_scatter
+from logic.src.utils.definitions import VEHICLE_CAPACITY
+
 from ..base import BaseState, refactor_state
 
 
@@ -54,12 +57,19 @@ class StateCWCVRP(NamedTuple):
         return self[key]
 
     @staticmethod
-    def initialize(input, edges, cost_weights=None, dist_matrix=None, visited_dtype=torch.uint8, hrl_mask=None):
+    def initialize(
+        input,
+        edges,
+        cost_weights=None,
+        dist_matrix=None,
+        visited_dtype=torch.uint8,
+        hrl_mask=None,
+    ):
         """Initializes the state for a batch of instances."""
         common = BaseState.initialize_common(input, visited_dtype)
-        
+
         if hrl_mask is not None:
-             common["visited_"][:, 0, 1:] = hrl_mask.squeeze().to(torch.uint8)
+            common["visited_"][:, 0, 1:] = hrl_mask.squeeze().to(torch.uint8)
 
         return StateCWCVRP(
             coords=common["coords"],
@@ -88,11 +98,7 @@ class StateCWCVRP(NamedTuple):
         length_cost = self.w_length * self.lengths + self.w_length * (
             self.coords[self.ids, 0, :] - self.cur_coord
         ).norm(p=2, dim=-1)
-        return (
-            self.w_overflows * self.cur_overflows
-            + length_cost
-            + self.w_waste * self.cur_total_waste
-        )
+        return self.w_overflows * self.cur_overflows + length_cost + self.w_waste * self.cur_total_waste
 
     def update(self, selected):
         """Updates the state after moving to a new node, accounting for vehicle capacity."""
@@ -107,9 +113,7 @@ class StateCWCVRP(NamedTuple):
         cur_total_waste = self.cur_total_waste + selected_waste
         used_capacity = (self.used_capacity + selected_waste) * (prev_a != 0).float()
 
-        cur_overflows = self.cur_overflows - torch.sum(
-            (self.waste[self.ids, selected] >= self.max_waste), dim=-1
-        )
+        cur_overflows = self.cur_overflows - torch.sum((self.waste[self.ids, selected] >= self.max_waste), dim=-1)
 
         if self.visited_.dtype == torch.uint8:
             visited_ = self.visited_.scatter(-1, prev_a[:, :, None], 1)
@@ -149,8 +153,7 @@ class StateCWCVRP(NamedTuple):
 
         waste_to_collect = self.waste[:, 1:].clamp(max=self.max_waste)
         exceeds_cap = (self.used_capacity[:, :, None] > 0) & (
-            waste_to_collect[:, None, :] + self.used_capacity[:, :, None]
-            > self.vehicle_capacity
+            waste_to_collect[:, None, :] + self.used_capacity[:, :, None] > self.vehicle_capacity
         )
 
         mask_loc = visited_loc.to(exceeds_cap.dtype) | exceeds_cap

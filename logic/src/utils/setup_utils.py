@@ -11,14 +11,17 @@ This module encapsulates the logic for:
 """
 
 import os
-import torch
+
 import gurobipy as gp
+import torch
 import torch.optim as optim
-from .definitions import ROOT_DIR
-from logic.src.models import GATLSTManager
 from dotenv import dotenv_values
+
+from logic.src.models import GATLSTManager
 from logic.src.utils.crypto_utils import decrypt_file_data
-from logic.src.utils.functions import load_model, get_inner_model, torch_load_cpu
+from logic.src.utils.functions import get_inner_model, load_model, torch_load_cpu
+
+from .definitions import ROOT_DIR
 
 
 def setup_cost_weights(opts, def_val=1.0):
@@ -43,18 +46,14 @@ def setup_cost_weights(opts, def_val=1.0):
     if opts["problem"] in ["wcvrp", "cwcvrp", "sdwcvrp"]:
         cw_dict["waste"] = opts["w_waste"] = _set_val(opts["w_waste"], def_val)
         cw_dict["length"] = opts["w_length"] = _set_val(opts["w_length"], def_val)
-        cw_dict["overflows"] = opts["w_overflows"] = _set_val(
-            opts["w_overflows"], def_val
-        )
+        cw_dict["overflows"] = opts["w_overflows"] = _set_val(opts["w_overflows"], def_val)
     elif opts["problem"] in ["vrpp", "cvrpp"]:
         cw_dict["waste"] = opts["w_waste"] = _set_val(opts["w_waste"], def_val)
         cw_dict["length"] = opts["w_length"] = _set_val(opts["w_length"], def_val)
     return cw_dict
 
 
-def setup_hrl_manager(
-    opts, device, configs=None, policy=None, base_path=None, worker_model=None
-):
+def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None, worker_model=None):
     """
     Initializes and loads the Manager model for Hierarchical RL.
 
@@ -113,9 +112,7 @@ def setup_hrl_manager(
         mrl_history = configs.get("mrl_history", opts.get("mrl_history", 10))
         gat_hidden = configs.get("gat_hidden", opts.get("gat_hidden", 128))
         lstm_hidden = configs.get("lstm_hidden", opts.get("lstm_hidden", 64))
-        global_input_dim = configs.get(
-            "global_input_dim", opts.get("global_input_dim", 3)
-        )
+        global_input_dim = configs.get("global_input_dim", opts.get("global_input_dim", 3))
     else:
         mrl_history = opts.get("mrl_history", 10)
         gat_hidden = opts.get("gat_hidden", 128)
@@ -149,9 +146,7 @@ def setup_hrl_manager(
         device=device,
         global_input_dim=global_input_dim,
         shared_encoder=(
-            worker_model.embedder
-            if (worker_model is not None and opts.get("shared_encoder", True))
-            else None
+            worker_model.embedder if (worker_model is not None and opts.get("shared_encoder", True)) else None
         ),
     ).to(device)
 
@@ -160,9 +155,7 @@ def setup_hrl_manager(
     return manager
 
 
-def setup_model(
-    policy, general_path, model_paths, device, lock, temperature=1, decode_type="greedy"
-):
+def setup_model(policy, general_path, model_paths, device, lock, temperature=1, decode_type="greedy"):
     """
     Sets up and loads a specific model based on policy.
 
@@ -190,14 +183,10 @@ def setup_model(
         return model, configs
 
     pol_strip, _ = policy.rsplit("_", 1)
-    return _load_model(
-        general_path, model_paths[pol_strip], device, temperature, decode_type, lock
-    )
+    return _load_model(general_path, model_paths[pol_strip], device, temperature, decode_type, lock)
 
 
-def setup_env(
-    policy, server=False, gplic_filename=None, symkey_name=None, env_filename=None
-):
+def setup_env(policy, server=False, gplic_filename=None, symkey_name=None, env_filename=None):
     """
     Sets up the solver environment (e.g., Gurobi).
 
@@ -221,16 +210,12 @@ def setup_env(
             if gplic_filename is not None:
                 gplic_path = os.path.join(ROOT_DIR, "assets", "api", gplic_filename)
                 if symkey_name:
-                    data = decrypt_file_data(
-                        gplic_path, symkey_name=symkey_name, env_filename=env_filename
-                    )
+                    data = decrypt_file_data(gplic_path, symkey_name=symkey_name, env_filename=env_filename)
                 else:
                     with open(gplic_path, "r") as gp_file:
                         data = gp_file.read()
                 params = {
-                    line.split("=")[0]: convert_int(line.split("=")[1])
-                    for line in data.split("\n")
-                    if "=" in line
+                    line.split("=")[0]: convert_int(line.split("=")[1]) for line in data.split("\n") if "=" in line
                 }
             else:
                 assert env_filename is not None
@@ -240,9 +225,7 @@ def setup_env(
                 params = {glp: convert_int(config.get(glp, "")) for glp in glp_ls}
                 for glp_key, glp_val in params.items():
                     if isinstance(glp_val, str) and glp_val == "":
-                        raise ValueError(
-                            f"Missing parameter {glp_key} for Gurobi license"
-                        )
+                        raise ValueError(f"Missing parameter {glp_key} for Gurobi license")
         else:
             params = {}
             if gplic_filename is not None:
@@ -267,24 +250,24 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         tuple: (model, baseline)
     """
     from logic.src.models import (
-        WarmupBaseline,
-        ExponentialBaseline,
-        RolloutBaseline,
-        NoBaseline,
+        AttentionModel,
         CriticBaseline,
         CriticNetwork,
-        POMOBaseline,
-        AttentionModel,
-        TemporalAttentionModel,
         DeepDecoderAttentionModel,
         # Encoders removed from import as they are handled by factory
+        ExponentialBaseline,
+        NoBaseline,
+        POMOBaseline,
+        RolloutBaseline,
+        TemporalAttentionModel,
+        WarmupBaseline,
     )
     from logic.src.models.model_factory import (
         AttentionComponentFactory,
-        GCNComponentFactory,
         GACComponentFactory,
-        TGCComponentFactory,
+        GCNComponentFactory,
         GGACComponentFactory,
+        TGCComponentFactory,
     )
 
     factory_class = {
@@ -380,9 +363,7 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         baseline = NoBaseline()
 
     if opts["bl_warmup_epochs"] > 0:
-        baseline = WarmupBaseline(
-            baseline, opts["bl_warmup_epochs"], warmup_exp_beta=opts["exp_beta"]
-        )
+        baseline = WarmupBaseline(baseline, opts["bl_warmup_epochs"], warmup_exp_beta=opts["exp_beta"])
 
     # Load baseline from data, make sure script is called with same type of baseline
     if "baseline" in data_load:
@@ -409,67 +390,54 @@ def setup_optimizer_and_lr_scheduler(model, baseline, data_load, opts):
         if len(baseline.get_learnable_parameters()) > 0
         else []
     )
-    optimizer = {
-        "adam": optim.Adam(optimizer_params),
-        "adamax": optim.Adamax(optimizer_params),
-        "adamw": optim.AdamW(optimizer_params),
-        "radam": optim.RAdam(optimizer_params),
-        "nadam": optim.NAdam(optimizer_params),
-        "sadam": optim.SparseAdam(optimizer_params),
-        "adadelta": optim.Adadelta(optimizer_params),
-        "adagrad": optim.Adagrad(optimizer_params),
-        "rmsprop": optim.RMSprop(optimizer_params),
-        "rprop": optim.Rprop(optimizer_params),
-        "lbfgs": optim.LBFGS(optimizer_params),
-        "asgd": optim.ASGD(optimizer_params),
-        "sgd": optim.SGD(optimizer_params),
+    optimizer_cls = {
+        "adam": optim.Adam,
+        "adamax": optim.Adamax,
+        "adamw": optim.AdamW,
+        "radam": optim.RAdam,
+        "nadam": optim.NAdam,
+        "sadam": optim.SparseAdam,
+        "adadelta": optim.Adadelta,
+        "adagrad": optim.Adagrad,
+        "rmsprop": optim.RMSprop,
+        "rprop": optim.Rprop,
+        "lbfgs": optim.LBFGS,
+        "asgd": optim.ASGD,
+        "sgd": optim.SGD,
     }.get(opts["optimizer"], None)
-    assert optimizer is not None, "Unknown optimizer: {}".format(opts["optimizer"])
+    assert optimizer_cls is not None, "Unknown optimizer: {}".format(opts["optimizer"])
+
+    optimizer = optimizer_cls(optimizer_params)
 
     # Load optimizer state, make sure script is called with same type of optimizer
     if "optimizer" in data_load:
         optimizer.load_state_dict(data_load["optimizer"])
         for state in optimizer.state.values():
             for k, v in state.items():
-                # if isinstance(v, torch.Tensor):
                 if torch.is_tensor(v):
                     state[k] = v.to(opts["device"])
 
     # Initialize learning rate scheduler!
-    lr_scheduler = {
-        "exp": optim.lr_scheduler.ExponentialLR(optimizer, opts["lr_decay"]),
-        "step": optim.lr_scheduler.StepLR(
-            optimizer, opts["lrs_step_size"], opts["lr_decay"]
+    scheduler_factory = {
+        "exp": lambda opt: optim.lr_scheduler.ExponentialLR(opt, opts["lr_decay"]),
+        "step": lambda opt: optim.lr_scheduler.StepLR(opt, opts["lrs_step_size"], opts["lr_decay"]),
+        "mult": lambda opt: optim.lr_scheduler.MultiplicativeLR(opt, lambda epoch: opts["lr_decay"]),
+        "lambda": lambda opt: optim.lr_scheduler.LambdaLR(opt, lambda epoch: opts["lr_decay"] ** epoch),
+        "const": lambda opt: optim.lr_scheduler.ConstantLR(opt, opts["lr_decay"], opts["lrs_total_steps"]),
+        "poly": lambda opt: optim.lr_scheduler.PolynomialLR(opt, opts["lrs_total_steps"], opts["lr_decay"]),
+        "multistep": lambda opt: optim.lr_scheduler.MultiStepLR(opt, opts["lrs_milestones"], opts["lr_decay"]),
+        "cosan": lambda opt: optim.lr_scheduler.CosineAnnealingLR(opt, opts["lrs_total_steps"], opts["lr_min_value"]),
+        "linear": lambda opt: optim.lr_scheduler.LinearLR(
+            opt, opts["lr_min_decay"], opts["lr_decay"], opts["lrs_total_steps"]
         ),
-        "mult": optim.lr_scheduler.MultiplicativeLR(
-            optimizer, lambda epoch: opts["lr_decay"]
-        ),
-        "lambda": optim.lr_scheduler.LambdaLR(
-            optimizer, lambda epoch: opts["lr_decay"] ** epoch
-        ),
-        "const": optim.lr_scheduler.ConstantLR(
-            optimizer, opts["lr_decay"], opts["lrs_total_steps"]
-        ),
-        "poly": optim.lr_scheduler.PolynomialLR(
-            optimizer, opts["lrs_total_steps"], opts["lr_decay"]
-        ),
-        "multistep": optim.lr_scheduler.MultiStepLR(
-            optimizer, opts["lrs_milestones"], opts["lr_decay"]
-        ),
-        "cosan": optim.lr_scheduler.CosineAnnealingLR(
-            optimizer, opts["lrs_total_steps"], opts["lr_min_value"]
-        ),
-        "linear": optim.lr_scheduler.LinearLR(
-            optimizer, opts["lr_min_decay"], opts["lr_decay"], opts["lrs_total_steps"]
-        ),
-        "cosanwr": optim.lr_scheduler.CosineAnnealingWarmRestarts(
-            optimizer,
+        "cosanwr": lambda opt: optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            opt,
             opts["lrs_restart_steps"],
             opts["lrs_rfactor"],
             opts["lr_min_value"],
         ),
-        "plateau": optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer,
+        "plateau": lambda opt: optim.lr_scheduler.ReduceLROnPlateau(
+            opt,
             opts["lrs_mode"],
             opts["lrs_dfactor"],
             opts["lrs_patience"],
@@ -480,7 +448,7 @@ def setup_optimizer_and_lr_scheduler(model, baseline, data_load, opts):
             opts["lr_min_decay"],
         ),
     }.get(opts["lr_scheduler"], None)
-    assert optimizer is not None, "Unknown learning rate scheduler: {}".format(
-        opts["lr_scheduler"]
-    )
+    assert scheduler_factory is not None, "Unknown learning rate scheduler: {}".format(opts["lr_scheduler"])
+
+    lr_scheduler = scheduler_factory(optimizer)
     return optimizer, lr_scheduler

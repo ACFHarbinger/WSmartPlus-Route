@@ -1,9 +1,9 @@
 """
 Temporal state transition and bin accumulation logic for simulation days.
 
-Manages the evolution of bin fill levels and determines optimal collection 
-schedules based on predicted overflow. Provides utilities for updating bin 
-states after collection and identifying 'must-go' candidates for upcoming 
+Manages the evolution of bin fill levels and determines optimal collection
+schedules based on predicted overflow. Provides utilities for updating bin
+states after collection and identifying 'must-go' candidates for upcoming
 planning cycles.
 """
 
@@ -25,9 +25,16 @@ def should_bin_be_collected(current_fill_level, accumulation_rate):
         return True
 
 
-def add_bins_to_collect(binsids, next_collection_day, must_go_bins, current_fill_levels, accumulation_rates, current_collection_day):
+def add_bins_to_collect(
+    binsids,
+    next_collection_day,
+    must_go_bins,
+    current_fill_levels,
+    accumulation_rates,
+    current_collection_day,
+):
     """
-    Predictively identify bins that will overflow before the next planned 
+    Predictively identify bins that will overflow before the next planned
     collection day and add them to the must-collect list.
 
     Args:
@@ -107,7 +114,7 @@ def calculate_next_collection_days(must_go_bins, current_fill_levels, accumulati
         while temporary_fill_levels[i] < 100:
             temporary_fill_levels[i] = temporary_fill_levels[i] + accumulation_rates[i]
             current_day = current_day + 1
-        next_collection_days[i] = current_day # assuming collection happens at the beginning of the day
+        next_collection_days[i] = current_day  # assuming collection happens at the beginning of the day
     return next_collection_days
 
 
@@ -124,7 +131,9 @@ def get_next_collection_day(must_go_bins, current_fill_levels, accumulation_rate
     Returns:
         int: Minimum days to next overflow.
     """
-    next_collection_days = calculate_next_collection_days(must_go_bins, current_fill_levels, accumulation_rates, binsids)
+    next_collection_days = calculate_next_collection_days(
+        must_go_bins, current_fill_levels, accumulation_rates, binsids
+    )
     next_collection_days_array = np.array(next_collection_days)
     next_collection_day = np.min(next_collection_days_array[np.nonzero(next_collection_days_array)])
     return next_collection_day

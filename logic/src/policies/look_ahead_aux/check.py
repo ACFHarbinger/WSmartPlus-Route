@@ -1,13 +1,14 @@
 """
 Consistency and feasibility validation for look-ahead routing solutions.
 
-This module provides routines to verify that routing solutions adhere to 
-physical constraints (tanker capacity) and temporal predictions (overflow 
-risk). It is used during the local search process to prune inadmissible 
+This module provides routines to verify that routing solutions adhere to
+physical constraints (tanker capacity) and temporal predictions (overflow
+risk). It is used during the local search process to prune inadmissible
 mutations and ensure valid final outputs for the simulator.
 """
 
 # Functions for condition checks
+
 
 # Check route feasibility
 # function to check routes feasibility regarding number of overflowing bins allowed
@@ -18,8 +19,8 @@ def check_bins_overflowing_feasibility(data, routes_list, number_of_bins, perc_b
     """
     Check if the solution is feasible regarding the number of overflowing bins.
 
-    A solution is considered feasible if the number of bins currently in the 
-    routes that were predicted to overflow (or are near capacity) satisfies 
+    A solution is considered feasible if the number of bins currently in the
+    routes that were predicted to overflow (or are near capacity) satisfies
      the tolerance threshold.
 
     Args:
@@ -35,9 +36,9 @@ def check_bins_overflowing_feasibility(data, routes_list, number_of_bins, perc_b
     """
     bins_overflowing = []
     for index, row in data.iterrows():
-        if row['Stock'] + row['Accum_Rate'] >= E * B:
-            bins_overflowing.append(row['#bin'])
-    
+        if row["Stock"] + row["Accum_Rate"] >= E * B:
+            bins_overflowing.append(row["#bin"])
+
     number_bins_overflowing = len(bins_overflowing)
     check = number_bins_overflowing - number_of_bins * perc_bins_can_overflow
     overflowing_bins_in_routes = []
@@ -49,9 +50,9 @@ def check_bins_overflowing_feasibility(data, routes_list, number_of_bins, perc_b
 
     total_ovf_bins_in_routes = sum(overflowing_bins_in_routes)
     if total_ovf_bins_in_routes >= check:
-        status = 'pass'
+        status = "pass"
     else:
-        status = 'fail'
+        status = "fail"
     return status
 
 
