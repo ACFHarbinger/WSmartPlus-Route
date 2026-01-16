@@ -139,3 +139,39 @@ def policy_last_minute_and_path(
     else:
         tour = [0]
     return tour
+
+
+def policy_profit_reactive(
+        bins: NDArray[np.float64],
+        distancesC: NDArray[np.int32],
+        waste_type: str = 'plastic',
+        area: str = 'riomaior',
+        n_vehicles: int = 1,
+        coords: DataFrame = None,
+        profit_threshold: float = 0.0
+    ):
+    """
+    Execute a profit-based reactive collection policy.
+
+    Collects bins only if their individual expected reward (waste * revenue_kg) 
+    exceeds a certain profit threshold.
+    """
+    (vehicle_capacity, revenue_kg, density, cost_km, volume) = load_area_and_waste_type_params(area, waste_type)
+    bin_capacity = volume * density
+    
+    # Calculate expected revenue per bin (in currency units)
+    # bins is 0-100%, so we multiply by bin_capacity / 100
+    expected_revenue = (bins / 100.0) * bin_capacity * revenue_kg
+    
+    to_collect = np.nonzero(expected_revenue > profit_threshold)[0] + 1
+    
+    tour = []
+    if len(to_collect) > 0:
+        if n_vehicles == 1:
+            tour = find_route(distancesC, to_collect)
+            tour = get_multi_tour(tour, bins, vehicle_capacity, distancesC)
+        else:
+           tour = find_routes(distancesC, bins, vehicle_capacity, to_collect, n_vehicles, coords)
+    else:
+        tour = [0]
+    return tour

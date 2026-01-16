@@ -40,7 +40,7 @@ from logic.src.policies import (
     get_route_cost, find_route, create_points, find_solutions,
     policy_lookahead, policy_lookahead_sans, policy_lookahead_vrpp,
     policy_lookahead_alns, policy_lookahead_hgs, policy_lookahead_bcp,
-    policy_last_minute, policy_last_minute_and_path, policy_regular,
+    policy_last_minute, policy_last_minute_and_path, policy_profit_reactive, policy_regular,
     policy_vrpp
 )
 from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
@@ -183,6 +183,46 @@ class LastMinutePolicyAdapter(PolicyAdapter):
             if cf <= 0: raise ValueError(f'Invalid cf value for policy_last_minute: {cf}')
             bins.setCollectionLvlandFreq(cf=cf/100)
             tour = policy_last_minute(bins.c, distancesC, bins.collectlevl, waste_type, area, n_vehicles, coords)
+        
+        if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
+        cost = get_route_cost(distance_matrix, tour) if tour else 0
+        return tour, cost, None
+
+class ProfitPolicyAdapter(PolicyAdapter):
+    """
+    Adapter for profit-based reactive collection policy.
+
+    Executes collection based on individual bin expected profit.
+    """
+    def execute(self, **kwargs) -> Tuple[List[int], float, Any]:
+        """
+        Execute the profit-based policy.
+        """
+        policy = kwargs['policy']
+        bins = kwargs['bins']
+        distancesC = kwargs['distancesC']
+        waste_type = kwargs['waste_type']
+        area = kwargs['area']
+        n_vehicles = kwargs['n_vehicles']
+        coords = kwargs['coords']
+        distance_matrix = kwargs['distance_matrix']
+        two_opt_max_iter = kwargs.get('two_opt_max_iter', 0)
+        config = kwargs.get('config', {})
+        profit_config = config.get('profit_reactive', {})
+
+        # Pattern: policy_profit_reactive_<threshold>
+        try:
+            threshold = float(policy.rsplit("_reactive", 1)[1])
+        except (IndexError, ValueError):
+            threshold = 0.0
+            
+        # Override from config
+        threshold = profit_config.get('threshold', threshold)
+            
+        tour = policy_profit_reactive(
+            bins.c, distancesC, waste_type, area, n_vehicles, coords, 
+            profit_threshold=threshold
+        )
         
         if two_opt_max_iter > 0: tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
         cost = get_route_cost(distance_matrix, tour) if tour else 0
@@ -486,6 +526,8 @@ class PolicyFactory:
             return NeuralPolicyAdapter()
         elif ('gurobi' in policy_name or 'hexaly' in policy_name) and 'vrpp' in policy_name:
             return VRPPPolicyAdapter()
+        elif 'policy_profit_reactive' in policy_name:
+            return ProfitPolicyAdapter()
         elif 'policy_look_ahead' in policy_name:
             return LookAheadPolicyAdapter()
         else:

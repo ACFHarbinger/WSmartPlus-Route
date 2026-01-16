@@ -9,10 +9,12 @@ This module provides tools for:
 """
 
 import os
+from typing import Dict
 import json
 import wandb
 import torch
 import pickle
+from loguru import logger
 import datetime
 import statistics
 import numpy as np
@@ -23,6 +25,16 @@ import logic.src.utils.definitions as udef
 from collections import Counter
 from logic.src.utils.definitions import DAY_METRICS
 from logic.src.utils.io_utils import read_json, compose_dirpath
+
+
+def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO"):
+    """
+    Configures loguru to log to both console and a file.
+    """
+    logger.remove()  # Remove default handler
+    logger.add(os.sys.stderr, level=level)
+    logger.add(log_path, rotation="10 MB", level=level)
+    return logger
 
 
 
@@ -843,3 +855,19 @@ def send_final_output_to_gui(log, log_std, n_samples, policies, log_path, lock=N
     finally:
         if lock is not None:
             lock.release()
+
+def final_simulation_summary(log: Dict, policy: str, n_samples: int):
+    """
+    Logs a high-level summary of the simulation results.
+    """
+    if policy not in log:
+        logger.warning(f"Policy {policy} not found in log for summary.")
+        return
+        
+    stats = log[policy]
+    logger.info(f"=== Simulation Summary: {policy} ({n_samples} samples) ===")
+    for metric in ["overflows", "kg", "km", "kg/km", "profit"]:
+        if metric in stats:
+            val = stats[metric]
+            logger.info(f" - {metric:10}: {val:>10.2f}")
+    logger.info("================================================")

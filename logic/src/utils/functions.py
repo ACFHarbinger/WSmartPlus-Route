@@ -98,7 +98,7 @@ def load_data(load_path, resume):
     return load_data
 
 
-def move_to(var, device):
+def move_to(var, device, non_blocking=False):
     """
     Recursively moves variables to the specified device.
     Supports dicts and Tensors.
@@ -106,6 +106,8 @@ def move_to(var, device):
     Args:
         var (Any): The variable to move.
         device (torch.device): The target device.
+        non_blocking (bool, optional): If True and if the variable is a Tensor on pinned memory, 
+            the copy will be asynchronous with respect to the host. Defaults to False.
 
     Returns:
         Any: The variable on the new device.
@@ -113,8 +115,8 @@ def move_to(var, device):
     if var is None:
         return None
     if isinstance(var, dict):
-        return {k: move_to(v, device) for k, v in var.items()}
-    return var.to(device)
+        return {k: move_to(v, device, non_blocking=non_blocking) for k, v in var.items()}
+    return var.to(device, non_blocking=non_blocking)
 
 
 def _load_model_file(load_path, model):
