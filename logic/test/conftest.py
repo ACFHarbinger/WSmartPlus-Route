@@ -597,11 +597,19 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
 
     # 7. Mock day function
     mock_dlog = {'day': 1, 'overflows': 0, 'kg_lost': 0, 'kg': 0, 'ncol': 0, 'km': 0, 'kg/km': 0, 'tour': [0]}
-    mock_data_ls = (mock_proc_data, mock_proc_coords, mock_bins_instance)
-    mock_output_ls = (0, mock_dlog, {}) # overflows, dlog, output_dict
+    
+    mock_return_ctx = mocker.MagicMock()
+    mock_return_ctx.new_data = mock_proc_data
+    mock_return_ctx.coords = mock_proc_coords
+    mock_return_ctx.bins = mock_bins_instance
+    mock_return_ctx.overflows = 0
+    mock_return_ctx.daily_log = mock_dlog
+    mock_return_ctx.output_dict = {}
+    mock_return_ctx.cached = None
+    
     mock_run_day = mocker.patch( # CAPTURE the mock object here
         'logic.src.pipeline.simulator.states.run_day', 
-        return_value=(mock_data_ls, mock_output_ls, None)
+        return_value=mock_return_ctx
     )
 
     # 8. Mock checkpointing
