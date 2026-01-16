@@ -233,10 +233,8 @@ def simulator_testing(opts, data_size, device):
                     log[pol] = [*map(statistics.mean, zip(*log_full[pol]))]
                     log_std[pol] = [*map(statistics.stdev, zip(*log_full[pol]))]
         else:
-            log = {}
+            log = {pol: res[0] for pol, res in log_tmp.items() if res}
             log_std = None
-            for run in log_tmp:
-                log.update(run)
     else:
         print(f"Launching {task_count} WSmart Route simulations on a single CPU core...")
         log, log_std, failed_log = sequential_simulations(opts, device, indices, sample_idx_ls, weights_path, lock)
