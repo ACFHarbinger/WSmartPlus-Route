@@ -116,10 +116,10 @@ echo.
 :: Loop through data distributions
 for %%D in (%DATA_DISTS%) do (
     echo Processing data distribution: %%D
-    
+
     :: Update dataset path for current distribution
     set CURRENT_DATASET=data/datasets/%PROBLEM%/%PROBLEM%%SIZE%_%%D_%DATASET_NAME%_seed%SEED%.pkl
-    
+
     :: Train AM model
     if %TRAIN_AM% equ 0 (
         echo ===== Training AM model =====

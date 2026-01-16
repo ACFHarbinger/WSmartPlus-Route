@@ -48,7 +48,7 @@ a = Analysis(
         ('app/src/utils/io_utils.py', 'app/src/utils'),
         ('app/src/utils/log_utils.py', 'app/src/utils'),
         ('app/src/utils/setup_utils.py', 'app/src/utils'),
-        
+
         # Include the __init__.py file to make 'utils' a package
         ('app/src/utils/__init__.py', 'app/src/utils'),
     ],

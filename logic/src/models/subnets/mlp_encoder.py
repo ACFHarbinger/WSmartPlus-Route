@@ -1,4 +1,5 @@
 """MLP Encoder."""
+
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -7,6 +8,7 @@ class MLPLayer(nn.Module):
     """
     Simple MLP layer with ReLU activation.
     """
+
     def __init__(self, hidden_dim, norm="layer", learn_affine=True, track_norm=False):
         """
         Initializes the MLP Layer.
@@ -27,7 +29,7 @@ class MLPLayer(nn.Module):
 
         self.norm = {
             "layer": nn.LayerNorm(hidden_dim, elementwise_affine=learn_affine),
-            "batch": nn.BatchNorm1d(hidden_dim, affine=learn_affine, track_running_stats=track_norm)
+            "batch": nn.BatchNorm1d(hidden_dim, affine=learn_affine, track_running_stats=track_norm),
         }.get(self.norm, None)
 
     def forward(self, x):
@@ -39,9 +41,11 @@ class MLPLayer(nn.Module):
         x = self.U(x)
 
         # Normalize features
-        x = self.norm(
-            x.view(batch_size*num_nodes, hidden_dim)
-        ).view(batch_size, num_nodes, hidden_dim) if self.norm else x
+        x = (
+            self.norm(x.view(batch_size * num_nodes, hidden_dim)).view(batch_size, num_nodes, hidden_dim)
+            if self.norm
+            else x
+        )
 
         # Apply non-linearity
         x = F.relu(x)
@@ -56,8 +60,17 @@ class MLPEncoder(nn.Module):
     """
     Simple MLP encoder with ReLU activation, independent of graph structure.
     """
-    def __init__(self, n_layers, hidden_dim, norm="layer",
-                 learn_affine=True, track_norm=False, *args, **kwargs):
+
+    def __init__(
+        self,
+        n_layers,
+        hidden_dim,
+        norm="layer",
+        learn_affine=True,
+        track_norm=False,
+        *args,
+        **kwargs,
+    ):
         """
         Initializes the MLP Encoder.
 
@@ -69,18 +82,16 @@ class MLPEncoder(nn.Module):
             track_norm: Whether to track normalization stats.
         """
         super(MLPEncoder, self).__init__()
-        self.layers = nn.ModuleList(
-            MLPLayer(hidden_dim, norm, learn_affine, track_norm) for _ in range(n_layers)
-        )
+        self.layers = nn.ModuleList(MLPLayer(hidden_dim, norm, learn_affine, track_norm) for _ in range(n_layers))
 
     def forward(self, x, graph=None):
         """
         Forward pass.
-        
+
         Args:
             x: Input node features (B x V x H)
             graph: (Unused) Graph structure.
-            
+
         Returns:
             Updated node features (B x V x H)
         """

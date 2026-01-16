@@ -8,26 +8,26 @@ This module provides functions for:
 - Interfacing with TensorBoard for visual logging.
 """
 
-import os
-import torch
 import argparse
-import numpy as np
-import seaborn as sns
+import os
+
 import loss_landscapes
 import matplotlib
+import numpy as np
+import seaborn as sns
+import torch
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-
 from sklearn.decomposition import PCA
 from torch.utils.tensorboard.writer import SummaryWriter
-from logic.src.utils.functions import load_problem
+
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
-from logic.src.pipeline.reinforcement_learning.core.post_processing import (
-    local_search_2opt_vectorized,
+from logic.src.pipeline.reinforcement_learning.policies.local_search import (
+    vectorized_two_opt,
 )
-
+from logic.src.utils.functions import load_problem
 
 """
 Visualization utilities for model analysis.
@@ -162,11 +162,7 @@ def plot_weight_trajectories(checkpoint_dir, output_file):
 
     files = [f for f in os.listdir(checkpoint_dir) if f.endswith(".pt")]
     # Sort files by epoch number
-    files.sort(
-        key=lambda x: (
-            int(x.split("-")[1].split(".")[0]) if "-" in x and "epoch" in x else 0
-        )
-    )
+    files.sort(key=lambda x: (int(x.split("-")[1].split(".")[0]) if "-" in x and "epoch" in x else 0))
 
     weights = []
     epochs = []
@@ -176,16 +172,16 @@ def plot_weight_trajectories(checkpoint_dir, output_file):
         try:
             checkpoint = torch.load(path, map_location="cpu")
             state_dict = checkpoint.get("model", checkpoint)
-            
+
             # More robust weight extraction: try encoder, then embed, then any model param
             weights_to_flat = []
             for k, p in state_dict.items():
                 if "encoder" in k.lower() or "embed" in k.lower() or "model" in k.lower():
                     weights_to_flat.append(p.flatten())
-            
+
             if not weights_to_flat:
                 weights_to_flat = [p.flatten() for p in state_dict.values() if isinstance(p, torch.Tensor)]
-                
+
             if not weights_to_flat:
                 print(f"No valid tensors found in {f}")
                 continue
@@ -281,9 +277,7 @@ def project_node_embeddings(model, x_batch, log_dir, writer=None, epoch=0):
         labels = [f"Node_{i}" for i in range(sample_embeddings.size(0))]
         labels[0] = "Depot"
 
-        writer.add_embedding(
-            sample_embeddings, metadata=labels, tag=f"Node_Embeddings_Ep{epoch}"
-        )
+        writer.add_embedding(sample_embeddings, metadata=labels, tag=f"Node_Embeddings_Ep{epoch}")
 
     if close_writer:
         writer.close()
@@ -353,42 +347,43 @@ def plot_logit_lens(model, x_batch, output_file, epoch=0):
     """
     print("Computing Logit Lens...")
     model.eval()
-    
+
     # Ensure compatible devices
     dev = next(model.parameters()).device
     x_batch = {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in x_batch.items()}
-    
+
     with torch.no_grad():
         h = model._get_initial_embeddings(x_batch)
         edges = x_batch.get("edges", None)
-        
+
         all_probs = []
-        
+
         # Helper to get first step probs
         def get_probs(embeddings):
+            """Compute probability distribution for a given set of embeddings."""
             fixed = model.decoder._precompute(embeddings)
             # Correctly instantiate state with all required arguments
             state = model.problem.make_state(
-                x_batch, 
-                edges=edges, 
-                cost_weights=getattr(model, 'cost_weights', None), 
-                dist_matrix=x_batch.get("dist")
+                x_batch,
+                edges=edges,
+                cost_weights=getattr(model, "cost_weights", None),
+                dist_matrix=x_batch.get("dist"),
             )
             log_p, _ = model.decoder._get_log_p(fixed, state)
-            return log_p.exp() # (Batch, 1, Nodes)
+            return log_p.exp()  # (Batch, 1, Nodes)
 
         # 0. Initial Embeddings (Layer 0)
         all_probs.append(get_probs(h))
-        
+
         # 1. Intermediate Layers
         curr = h
-        if hasattr(model.embedder, 'layers'):
+        if hasattr(model.embedder, "layers"):
             for i, layer in enumerate(model.embedder.layers):
                 curr = layer(curr, mask=edges)
                 all_probs.append(get_probs(curr))
-        
+
         # Final dropout/projection if any
-        if hasattr(model.embedder, 'dropout'):
+        if hasattr(model.embedder, "dropout"):
             curr = model.embedder.dropout(curr)
             # Only add if it changed something or if we want to see the final output
             # Usually redundant if dropout is 0 during eval, but good for completeness
@@ -396,26 +391,34 @@ def plot_logit_lens(model, x_batch, output_file, epoch=0):
 
         # Shape: (Batch, NumLayers, Nodes)
         probs_tensor = torch.cat(all_probs, dim=1).cpu().numpy()
-        
+
         # Visualize first sample in batch
-        sample_probs = probs_tensor[0] # (L, N)
-        
+        sample_probs = probs_tensor[0]  # (L, N)
+
         plt.figure(figsize=(12, 8))
         sns.heatmap(sample_probs, cmap="viridis", annot=False)
         plt.title(f"Logit Lens - Probability Distribution per Layer (Epoch {epoch})")
         plt.xlabel("Node Index")
         plt.ylabel("Encoder Layer Index")
-        
+
         # Highlight top prediction per layer
         top_indices = np.argmax(sample_probs, axis=1)
         for layer_idx, node_idx in enumerate(top_indices):
-            plt.text(node_idx + 0.5, layer_idx + 0.5, f"{node_idx}", 
-                     color="white", ha="center", va="center", weight='bold', fontsize=8)
+            plt.text(
+                node_idx + 0.5,
+                layer_idx + 0.5,
+                f"{node_idx}",
+                color="white",
+                ha="center",
+                va="center",
+                weight="bold",
+                fontsize=8,
+            )
 
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         plt.savefig(output_file)
         plt.close()
-    
+
     print(f"Logit Lens saved to {output_file}")
 
 
@@ -435,8 +438,10 @@ def imitation_loss_fn(m, x_batch, pi_target, cost_weights=None):
     dev = next(model_to_call.parameters()).device
     if cost_weights is not None:
         cost_weights = {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in cost_weights.items()}
-    elif hasattr(model_to_call, 'cost_weights'):
-         cost_weights = {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in model_to_call.cost_weights.items()}
+    elif hasattr(model_to_call, "cost_weights"):
+        cost_weights = {
+            k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in model_to_call.cost_weights.items()
+        }
 
     with torch.no_grad():
         res = model_to_call(x_batch, cost_weights=cost_weights, return_pi=False, expert_pi=pi_target)
@@ -457,8 +462,10 @@ def rl_loss_fn(m, x_batch, cost_weights=None):
     dev = next(model_to_call.parameters()).device
     if cost_weights is not None:
         cost_weights = {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in cost_weights.items()}
-    elif hasattr(model_to_call, 'cost_weights'):
-         cost_weights = {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in model_to_call.cost_weights.items()}
+    elif hasattr(model_to_call, "cost_weights"):
+        cost_weights = {
+            k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in model_to_call.cost_weights.items()
+        }
 
     with torch.no_grad():
         model_to_call.set_decode_type("greedy")
@@ -466,9 +473,7 @@ def rl_loss_fn(m, x_batch, cost_weights=None):
     return cost.float().mean().item()
 
 
-def plot_loss_landscape(
-    model, opts, output_dir, epoch=0, size=50, batch_size=16, resolution=10, span=1.0
-):
+def plot_loss_landscape(model, opts, output_dir, epoch=0, size=50, batch_size=16, resolution=10, span=1.0):
     """
     Computes and plots 2D and 3D loss landscapes for both Imitation Loss and RL Cost.
 
@@ -504,20 +509,19 @@ def plot_loss_landscape(
             x_dist = x_dist.unsqueeze(0)
         if x_dist.size(0) == 1:
             x_dist = x_dist.expand(pi.size(0), -1, -1)
-        pi_with_depot = torch.cat(
-            [torch.zeros((pi.size(0), 1), dtype=torch.long, device=device), pi], dim=1
-        )
-        pi_opt = local_search_2opt_vectorized(pi_with_depot, x_dist, max_iterations=100)
+        pi_with_depot = torch.cat([torch.zeros((pi.size(0), 1), dtype=torch.long, device=device), pi], dim=1)
+        pi_opt = vectorized_two_opt(pi_with_depot, x_dist, max_iterations=100)
         pi_target = pi_opt[:, 1:]
 
     wrapped_model = MyModelWrapper(model)
-    
+
     # Ensure all tensors are on the same device as the model
     # loss-landscapes might deepcopy the model, we want to be sure our batch matches
     model_device = next(model.parameters()).device
-    
+
     # Helper to move dict of tensors to device
     def move_dict_to_device(d, dev):
+        """Recursively move dictionary values to the specified device."""
         return {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in d.items()}
 
     x_batch = move_dict_to_device(x_batch, model_device)
@@ -525,9 +529,9 @@ def plot_loss_landscape(
 
     # Imitation
     print(f"Computing Imitation Landscape on {model_device}...")
-    
+
     # Store original cost weights to pass to metrics
-    orig_cost_weights = getattr(model, 'cost_weights', None)
+    orig_cost_weights = getattr(model, "cost_weights", None)
 
     def imitation_metric(m):
         """Computes imitation loss for the current model state."""
@@ -611,7 +615,7 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
     viz_modes = opts.get("viz_modes", [])
     if not viz_modes:
         return
-        
+
     log_dir = opts.get("log_dir", "logs")
     viz_output_dir = os.path.join(log_dir, "visualizations")
     os.makedirs(viz_output_dir, exist_ok=True)
@@ -621,34 +625,68 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
     # Move model to CPU for visualization to avoid device mismatch issues with deepcopies/landscapes
     orig_device = next(model.parameters()).device
     model.cpu()
-    
+
     # Temporarily update opts device
     viz_opts = opts.copy()
     viz_opts["device"] = torch.device("cpu")
-    
+
     # Move cost weights to CPU if they exist
-    if hasattr(model, 'cost_weights'):
+    if hasattr(model, "cost_weights"):
         model.cost_weights = {k: v.cpu() if isinstance(v, torch.Tensor) else v for k, v in model.cost_weights.items()}
 
     try:
         if "distributions" in viz_modes or "both" in viz_modes:
             writer = tb_logger.writer if tb_logger is not None and hasattr(tb_logger, "writer") else None
-            log_weight_distributions(model, epoch, log_dir=os.path.join(log_dir, opts["run_name"]), writer=writer)
+            log_weight_distributions(
+                model,
+                epoch,
+                log_dir=os.path.join(log_dir, opts["run_name"]),
+                writer=writer,
+            )
 
         if "embeddings" in viz_modes:
-            x_batch = get_batch(viz_opts["device"], size=opts["graph_size"], batch_size=1, temporal_horizon=opts.get("temporal_horizon", 0))
+            x_batch = get_batch(
+                viz_opts["device"],
+                size=opts["graph_size"],
+                batch_size=1,
+                temporal_horizon=opts.get("temporal_horizon", 0),
+            )
             writer = tb_logger.writer if tb_logger is not None and hasattr(tb_logger, "writer") else None
-            project_node_embeddings(model, x_batch, log_dir=os.path.join(log_dir, opts["run_name"]), writer=writer, epoch=epoch)
+            project_node_embeddings(
+                model,
+                x_batch,
+                log_dir=os.path.join(log_dir, opts["run_name"]),
+                writer=writer,
+                epoch=epoch,
+            )
 
         if "heatmaps" in viz_modes:
             plot_attention_heatmaps(model, viz_output_dir, epoch=epoch)
 
         if "logit_lens" in viz_modes:
-            x_batch = get_batch(viz_opts["device"], size=opts["graph_size"], batch_size=1, temporal_horizon=opts.get("temporal_horizon", 0))
-            plot_logit_lens(model, x_batch, os.path.join(viz_output_dir, f"logit_lens_ep{epoch}.png"), epoch=epoch)
+            x_batch = get_batch(
+                viz_opts["device"],
+                size=opts["graph_size"],
+                batch_size=1,
+                temporal_horizon=opts.get("temporal_horizon", 0),
+            )
+            plot_logit_lens(
+                model,
+                x_batch,
+                os.path.join(viz_output_dir, f"logit_lens_ep{epoch}.png"),
+                epoch=epoch,
+            )
 
         if "loss" in viz_modes or "both" in viz_modes:
-            plot_loss_landscape(model, viz_opts, viz_output_dir, epoch=epoch, size=opts["graph_size"], batch_size=4, resolution=10)
+            plot_loss_landscape(
+                model,
+                viz_opts,
+                viz_output_dir,
+                epoch=epoch,
+                size=opts["graph_size"],
+                batch_size=4,
+                resolution=10,
+            )
 
         if "trajectory" in viz_modes:
             checkpoint_dir = opts["save_dir"]
@@ -657,8 +695,10 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
     finally:
         # Restore model to original device
         model.to(orig_device)
-        if hasattr(model, 'cost_weights'):
-            model.cost_weights = {k: v.to(orig_device) if isinstance(v, torch.Tensor) else v for k, v in model.cost_weights.items()}
+        if hasattr(model, "cost_weights"):
+            model.cost_weights = {
+                k: v.to(orig_device) if isinstance(v, torch.Tensor) else v for k, v in model.cost_weights.items()
+            }
 
     print("Visualization complete.\n")
 
@@ -667,23 +707,13 @@ def main():
     """Main execution entry point for visualization debugging."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", type=str, help="Path to model checkpoint")
-    parser.add_argument(
-        "--checkpoint_dir", type=str, help="Directory with multiple checkpoints"
-    )
-    parser.add_argument(
-        "--output_dir", type=str, default="visualizations", help="Output directory"
-    )
-    parser.add_argument(
-        "--log_dir", type=str, default="logs", help="TensorBoard log directory"
-    )
+    parser.add_argument("--checkpoint_dir", type=str, help="Directory with multiple checkpoints")
+    parser.add_argument("--output_dir", type=str, default="visualizations", help="Output directory")
+    parser.add_argument("--log_dir", type=str, default="logs", help="TensorBoard log directory")
 
     parser.add_argument("--size", type=int, default=100, help="Problem size")
-    parser.add_argument(
-        "--batch_size", type=int, default=16, help="Batch size for evaluation"
-    )
-    parser.add_argument(
-        "--resolution", type=int, default=10, help="Resolution for landscapes"
-    )
+    parser.add_argument("--batch_size", type=int, default=16, help="Batch size for evaluation")
+    parser.add_argument("--resolution", type=int, default=10, help="Resolution for landscapes")
     parser.add_argument("--span", type=float, default=1.0, help="Span for landscapes")
     parser.add_argument("--problem", type=str, default="wcvrp", help="Problem type")
 
@@ -709,17 +739,13 @@ def main():
     if args.mode == "trajectory":
         if not args.checkpoint_dir:
             raise ValueError("--checkpoint_dir required for trajectory")
-        plot_weight_trajectories(
-            args.checkpoint_dir, os.path.join(args.output_dir, "trajectory.png")
-        )
+        plot_weight_trajectories(args.checkpoint_dir, os.path.join(args.output_dir, "trajectory.png"))
         return  # Trajectory doesn't need model loading
 
     # Load model
     if not args.model_path:
         raise ValueError("--model_path required for this mode")
-    model = load_model_instance(
-        args.model_path, device, size=args.size, problem_name=args.problem
-    )
+    model = load_model_instance(args.model_path, device, size=args.size, problem_name=args.problem)
 
     if args.mode == "distributions":
         if not args.checkpoint_dir:

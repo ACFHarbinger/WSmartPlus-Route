@@ -15,14 +15,13 @@ Both solvers handle:
 These utilities are used by policies that require multi-vehicle support
 (Regular, LastMinute, LookAhead, etc.) when n_vehicles > 1.
 """
-import pyvrp
-import numpy as np
 
 from typing import List, Tuple
 
+import numpy as np
+import pyvrp
+from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from pyvrp.stop import MaxRuntime
-from ortools.constraint_solver import pywrapcp
-from ortools.constraint_solver import routing_enums_pb2
 
 
 def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0):
@@ -48,11 +47,11 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
     # Internal PyVRP: 0 is depot. 1..N are clients.
     # We map indices 0..N of our subset problems to original indices.
     subset_indices = [depot] + list(to_collect)
-    
+
     # Create sub-matrices
     sub_dist = dist_mat[np.ix_(subset_indices, subset_indices)]
     # sub_demands is not direct slicing because demands is 0-indexed (bins) and subset_indices are 1-indexed (nodes)
-    
+
     # Build ProblemData
     # Clients (indices 1..N in subset)
     clients_list = []
@@ -63,53 +62,53 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
         d = int(demands[original_idx - 1])
         # Use delivery for demand
         clients_list.append(pyvrp.Client(x=0, y=0, delivery=d))
-         
+
     depots_list = [pyvrp.Depot(x=0, y=0)]
-    
+
     # If n_vehicles is 0, we treat it as unlimited -> set to number of clients
     if n_vehicles == 0:
         n_vehicles = len(clients_list)
 
     vehicle_types_list = [pyvrp.VehicleType(capacity=int(max_caps), num_available=n_vehicles)]
-    
+
     # Matrix
     # PyVRP expects List[numpy.ndarray[int]]
     matrix = sub_dist.astype(int)
-    
+
     data = pyvrp.ProblemData(
         clients=clients_list,
         depots=depots_list,
         vehicle_types=vehicle_types_list,
         distance_matrices=[matrix],
-        duration_matrices=[matrix]
+        duration_matrices=[matrix],
     )
-    
+
     # Solve
     # Seed is optional but good for determinism.
     res = pyvrp.solve(data, stop=MaxRuntime(2.0), seed=42)
-    
+
     tour_flat = []
-    
+
     # Parse result
     # res.best.routes() -> list of Route
     for route in res.best.routes():
-        # Each route starts and ends at depot implicitly or explicitly? 
+        # Each route starts and ends at depot implicitly or explicitly?
         # PyVRP Route object iterates over clients.
-        
+
         # Start new route with depot
         if not tour_flat:
             tour_flat.append(0)
-            
+
         # Add clients
-        for node_idx in route: 
+        for node_idx in route:
             # node_idx is 1-based index in `clients` list of ProblemData?
             # PyVRP convention: 0 is depot, 1 is first client.
             original_node = subset_indices[node_idx]
             tour_flat.append(original_node)
-            
+
         # End route with depot
         tour_flat.append(0)
-        
+
     return tour_flat
 
 
@@ -134,16 +133,16 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coo
     """
     # Mapping: subset index -> original index
     subset_indices = [depot] + list(to_collect)
-    
+
     # Create sub-matrices and cast to int for OR-Tools/compute_cost
     distancesC = dist_mat[np.ix_(subset_indices, subset_indices)].astype(int)
-    
+
     # Demands: map node idx to demand index (idx-1)
-    sub_demands = [0] # Depot
+    sub_demands = [0]  # Depot
     for idx in subset_indices[1:]:
         d = int(demands[idx - 1])
         sub_demands.append(d)
-        
+
     # Unlimited logic
     if n_vehicles == 0:
         n_vehicles = len(to_collect)
@@ -173,54 +172,58 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coo
     routing.AddDimensionWithVehicleCapacity(
         demand_callback_index,
         0,  # null capacity slack
-        [int(max_caps)] * n_vehicles, 
+        [int(max_caps)] * n_vehicles,
         True,  # start cumul to zero
         "Capacity",
     )
 
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-    search_parameters.first_solution_strategy = (
-        routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
-    )
-    search_parameters.local_search_metaheuristic = (
-        routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
-    )
+    search_parameters.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
+    search_parameters.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
     search_parameters.time_limit.FromSeconds(2)
 
     solution = routing.SolveWithParameters(search_parameters)
-    
+
     if not solution:
         return [0], 0
 
     # Ensure distancesC is passed as list of lists for compute_cost (unused now but keeps signal)
-    tours_subset, costs_subset, _, _ = get_solution_costs(sub_demands, n_vehicles, manager, routing, solution, distancesC.tolist())
-    
+    tours_subset, costs_subset, _, _ = get_solution_costs(
+        sub_demands, n_vehicles, manager, routing, solution, distancesC.tolist()
+    )
+
     # Flatten and Map Indices
     tour_flat = []
     for t in tours_subset:
         if not tour_flat:
             tour_flat.append(0)
-             
+
         for node_idx in t:
             # node_idx is now NODE index (from get_solution_costs)
-            if node_idx == 0: continue
-            
+            if node_idx == 0:
+                continue
+
             original_idx = subset_indices[node_idx]
-            
+
             if original_idx == 0 and tour_flat[-1] == 0:
                 continue
-                
+
             tour_flat.append(original_idx)
-             
+
         if tour_flat[-1] != 0:
             tour_flat.append(0)
-            
+
     return tour_flat
 
 
-def get_solution_costs(demands: List[int], n_vehicles: int, manager: pywrapcp.RoutingIndexManager, 
-                       routing: pywrapcp.RoutingModel, solution: pywrapcp.Assignment, 
-                       distancesC: List[List[int]]) -> Tuple[List[List[int]], List[int], List[int], List[int]]:
+def get_solution_costs(
+    demands: List[int],
+    n_vehicles: int,
+    manager: pywrapcp.RoutingIndexManager,
+    routing: pywrapcp.RoutingModel,
+    solution: pywrapcp.Assignment,
+    distancesC: List[List[int]],
+) -> Tuple[List[List[int]], List[int], List[int], List[int]]:
     """
     Extract routes and costs from the OR-Tools solution.
 
@@ -233,7 +236,7 @@ def get_solution_costs(demands: List[int], n_vehicles: int, manager: pywrapcp.Ro
         distancesC (List[List[int]]): Distance matrix.
 
     Returns:
-        Tuple[List[List[int]], List[int], List[int], List[int]]: 
+        Tuple[List[List[int]], List[int], List[int], List[int]]:
             (Tours, costs, distances, loads) for each vehicle.
     """
     dist_ls = []
@@ -244,23 +247,21 @@ def get_solution_costs(demands: List[int], n_vehicles: int, manager: pywrapcp.Ro
         index = routing.Start(vehicle_id)
         route_distance = 0
         route_load = 0
-        
+
         # Start node
         start_node = manager.IndexToNode(index)
         route = [start_node]
-        
+
         while not routing.IsEnd(index):
             node_index = manager.IndexToNode(index)
             route_load += demands[node_index]
             previous_index = index
             index = solution.Value(routing.NextVar(index))
-            route_distance += routing.GetArcCostForVehicle(
-                previous_index, index, vehicle_id
-            )
+            route_distance += routing.GetArcCostForVehicle(previous_index, index, vehicle_id)
             # Append next NODE index
             next_node = manager.IndexToNode(index)
             route.append(next_node)
-            
+
         dist_ls.append(route_distance)
         load_ls.append(route_load)
         tours.append(route)

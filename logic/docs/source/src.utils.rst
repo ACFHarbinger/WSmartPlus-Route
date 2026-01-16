@@ -4,14 +4,6 @@ src.utils package
 Submodules
 ----------
 
-src.utils.arg\_parser module
-----------------------------
-
-.. automodule:: src.utils.arg_parser
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 src.utils.beam\_search module
 -----------------------------
 
@@ -24,6 +16,14 @@ src.utils.boolmask module
 -------------------------
 
 .. automodule:: src.utils.boolmask
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.utils.check\_docstrings module
+----------------------------------
+
+.. automodule:: src.utils.check_docstrings
    :members:
    :undoc-members:
    :show-inheritance:

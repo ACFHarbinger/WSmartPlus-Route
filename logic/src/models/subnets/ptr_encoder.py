@@ -1,5 +1,7 @@
 """Pointer Network Encoder."""
+
 import math
+
 import torch
 import torch.nn as nn
 
@@ -8,10 +10,11 @@ class PointerEncoder(nn.Module):
     """
     Maps a graph represented as an input sequence to a hidden vector.
     """
+
     def __init__(self, input_dim, hidden_dim):
         """
         Initializes the PointerEncoder.
-        
+
         Args:
             input_dim: Input dimension.
             hidden_dim: Hidden dimension.
@@ -24,17 +27,17 @@ class PointerEncoder(nn.Module):
     def forward(self, x, hidden):
         """
         Forward pass.
-        
+
         Args:
             x: Input sequence.
             hidden: Initial hidden state.
         """
         output, hidden = self.lstm(x, hidden)
         return output, hidden
-    
+
     def init_hidden(self, hidden_dim):
         """Trainable initial hidden state"""
-        std = 1. / math.sqrt(hidden_dim)
+        std = 1.0 / math.sqrt(hidden_dim)
         enc_init_hx = nn.Parameter(torch.FloatTensor(hidden_dim))
         enc_init_hx.data.uniform_(-std, std)
 

@@ -7,8 +7,9 @@ This module provides functions for:
 """
 
 import os
-import yaml
 import xml.etree.ElementTree as ET
+
+import yaml
 
 
 def load_yaml_config(config_path: str) -> dict:

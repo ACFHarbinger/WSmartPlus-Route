@@ -2,11 +2,14 @@
 State representation for the Stochastic Capacitated Waste Collection Vehicle Routing Problem (SCWCVRP).
 """
 
+from typing import NamedTuple
+
 import torch
 import torch.nn.functional as F
-from typing import NamedTuple
-from logic.src.utils.definitions import VEHICLE_CAPACITY
+
 from logic.src.utils.boolmask import mask_long2bool, mask_long_scatter
+from logic.src.utils.definitions import VEHICLE_CAPACITY
+
 from ..base import BaseState, refactor_state
 
 
@@ -55,10 +58,17 @@ class StateSCWCVRP(NamedTuple):
         return self[key]
 
     @staticmethod
-    def initialize(input, edges, cost_weights=None, dist_matrix=None, visited_dtype=torch.uint8, **kwargs):
+    def initialize(
+        input,
+        edges,
+        cost_weights=None,
+        dist_matrix=None,
+        visited_dtype=torch.uint8,
+        **kwargs,
+    ):
         """Initializes the state for a batch of instances, using noisy waste for observability."""
         common = BaseState.initialize_common(input, visited_dtype)
-        
+
         return StateSCWCVRP(
             coords=common["coords"],
             real_waste=F.pad(input["real_waste"], (1, 0), mode="constant", value=0),
@@ -87,11 +97,7 @@ class StateSCWCVRP(NamedTuple):
         length_cost = self.w_length * self.lengths + self.w_length * (
             self.coords[self.ids, 0, :] - self.cur_coord
         ).norm(p=2, dim=-1)
-        return (
-            self.w_overflows * self.cur_overflows
-            + length_cost
-            + self.w_waste * self.cur_total_waste
-        )
+        return self.w_overflows * self.cur_overflows + length_cost + self.w_waste * self.cur_total_waste
 
     def update(self, selected):
         """Updates the state after moving to a new node, using real waste for transitions."""
@@ -104,7 +110,7 @@ class StateSCWCVRP(NamedTuple):
 
         remaining_cap = self.vehicle_capacity - self.used_capacity
         d = self.real_waste[self.ids, selected].clamp(max=self.max_waste)
-        
+
         actual_collected = d.clone()
         is_node = prev_a != 0
         violation_mask = is_node & (d > remaining_cap)
@@ -113,9 +119,7 @@ class StateSCWCVRP(NamedTuple):
         cur_total_waste = self.cur_total_waste + actual_collected
         used_capacity = (self.used_capacity + actual_collected) * is_node.float()
 
-        cur_overflows = self.cur_overflows - torch.sum(
-            (self.real_waste[self.ids, selected] >= self.max_waste), dim=-1
-        )
+        cur_overflows = self.cur_overflows - torch.sum((self.real_waste[self.ids, selected] >= self.max_waste), dim=-1)
 
         if self.visited_.dtype == torch.uint8:
             visited_ = self.visited_.scatter(-1, prev_a[:, :, None], 1)
@@ -151,8 +155,7 @@ class StateSCWCVRP(NamedTuple):
 
         waste_estimated = self.noisy_waste[:, 1:].clamp(max=self.max_waste)
         exceeds_cap = (self.used_capacity[:, :, None] > 0) & (
-            waste_estimated[:, None, :] + self.used_capacity[:, :, None]
-            > self.vehicle_capacity
+            waste_estimated[:, None, :] + self.used_capacity[:, :, None] > self.vehicle_capacity
         )
 
         mask_loc = visited_loc.to(exceeds_cap.dtype) | exceeds_cap

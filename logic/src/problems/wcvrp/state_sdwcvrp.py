@@ -2,10 +2,13 @@
 State representation for the Split Delivery Waste Collection Vehicle Routing Problem (SDWCVRP).
 """
 
+from typing import NamedTuple
+
 import torch
 import torch.nn.functional as F
-from typing import NamedTuple
+
 from logic.src.utils.definitions import VEHICLE_CAPACITY
+
 from ..base import BaseState, refactor_state
 
 
@@ -61,7 +64,7 @@ class StateSDWCVRP(NamedTuple):
     def initialize(input, edges, cost_weights=None, dist_matrix=None, **kwargs):
         """Initializes the state for a batch of instances."""
         common = BaseState.initialize_common(input)
-        
+
         return StateSDWCVRP(
             coords=common["coords"],
             waste=input["waste"],
@@ -89,11 +92,7 @@ class StateSDWCVRP(NamedTuple):
         length_cost = self.w_length * self.lengths + self.w_length * (
             self.coords[self.ids, 0, :] - self.cur_coord
         ).norm(p=2, dim=-1)
-        return (
-            self.w_overflows * self.cur_overflows
-            + length_cost
-            + self.w_waste * self.cur_total_waste
-        )
+        return self.w_overflows * self.cur_overflows + length_cost + self.w_waste * self.cur_total_waste
 
     def update(self, selected):
         """Updates the state after moving to a new node, supporting partial collection."""
@@ -107,16 +106,16 @@ class StateSDWCVRP(NamedTuple):
 
         batch_size = selected.size(0)
         rng = torch.arange(batch_size, device=device)[:, None]
-        
+
         remaining_cap = self.vehicle_capacity - self.used_capacity
         d = torch.min(self.wastes_with_depot[rng, selected], remaining_cap)
-        
+
         actual_collected = d.clone()
         used_capacity = (self.used_capacity + actual_collected) * (prev_a != 0).float()
-        
+
         wastes_with_depot = self.wastes_with_depot.clone()
         wastes_with_depot[rng, selected] -= actual_collected
-        
+
         cur_total_waste = self.cur_total_waste + actual_collected
         cur_overflows = torch.sum(wastes_with_depot[:, 1:] >= self.max_waste, dim=-1)
 

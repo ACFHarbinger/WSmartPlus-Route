@@ -67,10 +67,10 @@ HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
 POLICIES=("policy_last_minute")
-#"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans" 
+#"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans"
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
-#"policy_last_minute_and_path" "policy_last_minute" "policy_regular" 
-#"gurobi_vrpp" "hexaly_vrpp" 
+#"policy_last_minute_and_path" "policy_last_minute" "policy_regular"
+#"gurobi_vrpp" "hexaly_vrpp"
 #"amgat" "amggac" "amtgc"
 declare -A MODEL_PATHS
 MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat"

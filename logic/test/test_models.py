@@ -1,18 +1,25 @@
 """Tests for high-level neural models."""
-import torch
 
 from unittest.mock import MagicMock
+
+import torch
 import torch.nn as nn
+
 import logic.src.problems.vrpp.problem_vrpp as problem_module
-from logic.src.policies.neural_agent import NeuralAgent
 from logic.src.models.attention_model import AttentionModel
-from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
-    WarmupBaseline, NoBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, BaselineDataset
-)
 from logic.src.models.modules.moe import MoE
 from logic.src.models.modules.moe_feed_forward import MoEFeedForward
-from logic.src.models.subnets.moe_encoder import MoEGraphAttentionEncoder
 from logic.src.models.moe_model import MoEAttentionModel, MoETemporalAttentionModel
+from logic.src.models.subnets.moe_encoder import MoEGraphAttentionEncoder
+from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
+    BaselineDataset,
+    CriticBaseline,
+    ExponentialBaseline,
+    NoBaseline,
+    RolloutBaseline,
+    WarmupBaseline,
+)
+from logic.src.policies.neural_agent import NeuralAgent
 from logic.src.problems.vrpp.problem_vrpp import CVRPP
 
 # Patch globals that are expected to be initialized by Dataset
@@ -21,6 +28,7 @@ problem_module.REVENUE_KG = 1.0
 problem_module.BIN_CAPACITY = 100.0
 problem_module.VEHICLE_CAPACITY = 1000.0
 
+
 class TestAttentionModel:
     """Tests for the AttentionModel architecture."""
 
@@ -28,31 +36,37 @@ class TestAttentionModel:
         """Verifies model initialization parameters."""
         model = am_setup
         assert isinstance(model, AttentionModel)
-        assert model.n_heads == 8 
+        assert model.n_heads == 8
 
     def test_forward(self, am_setup):
         """Verifies forward pass output shapes and types."""
         model = am_setup
         batch_size = 2
         graph_size = 5
-        
+
         # Mocking embeddings return from embedder
-        model.embedder.return_value = torch.zeros(batch_size, graph_size + 1, 128) # +1 for depot
+        model.embedder.return_value = torch.zeros(batch_size, graph_size + 1, 128)  # +1 for depot
         # Mock decoder return value (log_p, pi)
-        model.decoder.return_value = (torch.zeros(batch_size, graph_size), torch.zeros(batch_size, graph_size))
+        model.decoder.return_value = (
+            torch.zeros(batch_size, graph_size),
+            torch.zeros(batch_size, graph_size),
+        )
         # _calc_log_likelihood returns (ll, entropy) when training=True
-        model.decoder._calc_log_likelihood.return_value = (torch.zeros(batch_size), torch.zeros(batch_size))
-        
+        model.decoder._calc_log_likelihood.return_value = (
+            torch.zeros(batch_size),
+            torch.zeros(batch_size),
+        )
+
         input_data = {
-            'depot': torch.rand(batch_size, 2),
-            'loc': torch.rand(batch_size, graph_size, 2),
-            'demand': torch.rand(batch_size, graph_size),
-            'waste': torch.rand(batch_size, graph_size),
+            "depot": torch.rand(batch_size, 2),
+            "loc": torch.rand(batch_size, graph_size, 2),
+            "demand": torch.rand(batch_size, graph_size),
+            "waste": torch.rand(batch_size, graph_size),
         }
         # Add fill history
         for day in range(1, model.temporal_horizon + 1):
-            input_data[f'fill{day}'] = torch.rand(batch_size, graph_size)
-        
+            input_data[f"fill{day}"] = torch.rand(batch_size, graph_size)
+
         cost, ll, cost_dict, pi, entropy = model(input_data)
         assert ll.shape == (batch_size,)
 
@@ -61,44 +75,52 @@ class TestAttentionModel:
         model = am_setup
         model.embedder.return_value = torch.zeros(2, 6, 128)
         model.decoder.return_value = (
-            torch.zeros(2, 6), # log_p
-            torch.arange(6).repeat(2,1) # selected
+            torch.zeros(2, 6),  # log_p
+            torch.arange(6).repeat(2, 1),  # selected
         )
-        model.decoder._calc_log_likelihood.return_value = torch.zeros(2) # ll only if training=False or depending on usage?
+        model.decoder._calc_log_likelihood.return_value = torch.zeros(
+            2
+        )  # ll only if training=False or depending on usage?
         # In compute_batch_sim, model(..., return_pi=True) is called.
         # model.forward calls decoder.
         # It calculates ll using decoder._calc_log_likelihood.
-        
+
         # But wait, test_compute_batch_sim mocks model.forward later!
         # So mocks on decoder might be irrelevant if model.forward is mocked.
         # But lines 43-46 set mocks on _inner which are now useless.
         # I'll update them anyway for correctness.
-        model.problem.get_costs.return_value = (torch.zeros(2), {'overflows': torch.zeros(2), 'waste': torch.zeros(2)}, None)
+        model.problem.get_costs.return_value = (
+            torch.zeros(2),
+            {"overflows": torch.zeros(2), "waste": torch.zeros(2)},
+            None,
+        )
         # Mock model forward to return expected tuple for NeuralAgent
         # (cost, ll, cost_dict, pi, entropy)
-        model.forward = MagicMock(return_value=(
-            torch.zeros(2),
-            torch.zeros(2),
-            {'overflows': torch.zeros(2), 'waste': torch.zeros(2)},
-            torch.zeros(2, 6, dtype=torch.long),
-            torch.zeros(2)
-        ))
+        model.forward = MagicMock(
+            return_value=(
+                torch.zeros(2),
+                torch.zeros(2),
+                {"overflows": torch.zeros(2), "waste": torch.zeros(2)},
+                torch.zeros(2, 6, dtype=torch.long),
+                torch.zeros(2),
+            )
+        )
 
         agent = NeuralAgent(model)
-        
+
         input_data = {
-            'depot': torch.zeros(2,2), 
-            'loc': torch.zeros(2,5,2), 
-            'demand': torch.zeros(2,5),
-            'waste': torch.zeros(2,5)
+            "depot": torch.zeros(2, 2),
+            "loc": torch.zeros(2, 5, 2),
+            "demand": torch.zeros(2, 5),
+            "waste": torch.zeros(2, 5),
         }
         for day in range(1, model.temporal_horizon + 1):
-             input_data[f'fill{day}'] = torch.zeros(2,5)
+            input_data[f"fill{day}"] = torch.zeros(2, 5)
         dist_matrix = torch.zeros(6, 6)
-        
+
         ucost, ret_dict, attn_dict = agent.compute_batch_sim(input_data, dist_matrix)
-        assert 'overflows' in ret_dict
-        assert 'kg' in ret_dict 
+        assert "overflows" in ret_dict
+        assert "kg" in ret_dict
 
 
 class TestGATLSTManager:
@@ -112,7 +134,7 @@ class TestGATLSTManager:
         dynamic = torch.rand(B, N, 10)
         global_features = torch.rand(B, 2)
         mask_logits, gate_logits, value = manager(static, dynamic, global_features)
-        
+
         assert mask_logits.shape == (B, N, 2)
         assert gate_logits.shape == (B, 2)
         assert value.shape == (B, 1)
@@ -130,26 +152,25 @@ class TestGATLSTManager:
     def test_shared_encoder(self, am_setup):
         """Verifies shared encoder initialization."""
         from logic.src.models.gat_lstm_manager import GATLSTManager
+
         worker_model = am_setup
         B, N = 1, 5
         static = torch.rand(B, N, 2)
         dynamic = torch.rand(B, N, 10)
         global_features = torch.rand(B, 2)
-        
+
         manager = GATLSTManager(
             input_dim_static=2,
             input_dim_dynamic=10,
             hidden_dim=128,
             shared_encoder=worker_model.embedder,
-            device='cpu'
+            device="cpu",
         )
-        
+
         assert manager.gat_encoder is worker_model.embedder
-        
+
         mask_logits, gate_logits, value = manager(static, dynamic, global_features)
         assert mask_logits.shape == (B, N, 2)
-
-
 
 
 class TestReinforceBaselines:
@@ -159,20 +180,20 @@ class TestReinforceBaselines:
         """Verifies warmup alpha updates."""
         wb = WarmupBaseline(mock_baseline, n_epochs=2, warmup_exp_beta=0.8)
         assert wb.alpha == 0
-        
+
         # Test alpha update
         wb.epoch_callback(None, 0)
         assert wb.alpha == 0.5
-    
+
     def test_exponential_baseline(self):
         """Verifies exponential moving average updates."""
         eb = ExponentialBaseline(beta=0.8)
         c = torch.tensor([10.0, 20.0])
-        v, l = eb.eval(None, c)
-        assert v == 15.0 # Mean
-        assert l == 0
-        
-        c2 = torch.tensor([20.0, 30.0]) # Mean 25
+        v, loss = eb.eval(None, c)
+        assert v == 15.0  # Mean
+        assert loss == 0
+
+        c2 = torch.tensor([20.0, 30.0])  # Mean 25
         v2, l2 = eb.eval(None, c2)
         # v2 = 0.8 * 15 + 0.2 * 25 = 12 + 5 = 17
         assert v2 == 17.0
@@ -187,77 +208,96 @@ class TestReinforceBaselines:
         critic = MagicMock()
         critic.return_value = torch.tensor([1.0, 2.0])
         critic.parameters.return_value = [torch.tensor([1.0])]
-        critic.state_dict.return_value = {'a': 1}
-        
+        critic.state_dict.return_value = {"a": 1}
+
         cb = CriticBaseline(critic)
         x = torch.randn(2, 5)
         c = torch.tensor([1.0, 2.0])
-        
+
         # Test eval
-        v, l = cb.eval(x, c)
+        v, loss = cb.eval(x, c)
         assert torch.allclose(v, torch.tensor([1.0, 2.0]))
-        assert l == 0 # MSE loss between 1,2 and 1,2 is 0
-        
+        assert loss == 0  # MSE loss between 1,2 and 1,2 is 0
+
         # Test learnable parameters
         params = cb.get_learnable_parameters()
         assert len(params) == 1
-        
+
         # Test state dict (nested)
         sd = cb.state_dict()
-        assert 'critic' in sd
-        assert sd['critic'] == {'a': 1}
-        
+        assert "critic" in sd
+        assert sd["critic"] == {"a": 1}
+
     def test_rollout_baseline(self, mocker):
         """Verifies rollout baseline evaluation and updates."""
         # Mocks
         mock_model = MagicMock()
         mock_problem = MagicMock()
         mock_problem.make_dataset.return_value = [1, 2]
-        
+
         # Mock rollout to return values for baseline
-        mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.rollout', return_value=torch.tensor([10.0, 20.0]))
-        
+        mocker.patch(
+            "logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.rollout",
+            return_value=torch.tensor([10.0, 20.0]),
+        )
+
         opts = {
-            'val_size': 2, 'graph_size': 5, 'area': 'a', 'waste_type': 'w', 'dm_filepath': 'p',
-            'edge_threshold': 1, 'edge_method': 'm', 'focus_graph': False, 'eval_focus_size': 0,
-            'data_distribution': 'd', 'vertex_method': 'v', 'distance_method': 'd', 'bl_alpha': 0.05
+            "val_size": 2,
+            "graph_size": 5,
+            "area": "a",
+            "waste_type": "w",
+            "dm_filepath": "p",
+            "edge_threshold": 1,
+            "edge_method": "m",
+            "focus_graph": False,
+            "eval_focus_size": 0,
+            "data_distribution": "d",
+            "vertex_method": "v",
+            "distance_method": "d",
+            "bl_alpha": 0.05,
         }
-        
+
         # Initialize (dataset creation)
         rb = RolloutBaseline(mock_model, mock_problem, opts)
         assert rb.mean == 15.0
         assert rb.epoch == 0
-        
+
         # Test wrap/unwrap
         # mock wrap_dataset calling rollout again
         ds = rb.wrap_dataset([3, 4])
         assert isinstance(ds, BaselineDataset)
         assert len(ds) == 2
-        
+
         # Test eval (inference only)
         # We must set return_value on the COPIED model inside rb, not the original mock_model
         rb.model.return_value = (torch.tensor([1.0]), None, None)
-        v, l = rb.eval(torch.tensor([1.0]), None)
+        v, loss = rb.eval(torch.tensor([1.0]), None)
         assert v == torch.tensor([1.0])
-        assert l == 0
-        
+        assert loss == 0
+
         # Test epoch_callback (update logic)
         # Case 1: Improvement
-        mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.rollout', return_value=torch.tensor([5.0, 5.0])) # Mean 5 < 15
-        mocker.patch('logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.stats.ttest_rel', return_value=(-5.0, 0.001)) # Significant
-        
+        mocker.patch(
+            "logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.rollout",
+            return_value=torch.tensor([5.0, 5.0]),
+        )  # Mean 5 < 15
+        mocker.patch(
+            "logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.stats.ttest_rel",
+            return_value=(-5.0, 0.001),
+        )  # Significant
+
         candidate_model = MagicMock()
         rb.epoch_callback(candidate_model, 1)
         # Should have updated model
         assert rb.epoch == 1
-        
+
     def test_baseline_dataset(self):
         """Verifies dataset wrapping."""
         ds = BaselineDataset([1, 2], [3, 4])
         assert len(ds) == 2
         item = ds[0]
-        assert item['data'] == 1
-        assert item['baseline'] == 3
+        assert item["data"] == 1
+        assert item["baseline"] == 3
 
 
 class TestTemporalAttentionModel:
@@ -267,24 +307,24 @@ class TestTemporalAttentionModel:
         """Verifies fill history embedding."""
         model = tam_setup
         batch_size = 2
-        graph_size = 4 # Excl depot
-        
+        graph_size = 4  # Excl depot
+
         # Prepare inputs including fill_history
-        input_data = {
-            'depot': torch.rand(batch_size, 2),
-            'loc': torch.rand(batch_size, graph_size, 2),
-            'fill_history': torch.rand(batch_size, graph_size, 5) # horizon 5
+        {
+            "depot": torch.rand(batch_size, 2),
+            "loc": torch.rand(batch_size, graph_size, 2),
+            "fill_history": torch.rand(batch_size, graph_size, 5),  # horizon 5
         }
-        
+
         # We need to mock _init_embed_depot/etc calls or rely on base class mocks if complex
         # But here we mocked encoder so it won't be called for real.
         # However, _init_embed is called BEFORE encoder.
         # We need to ensure base AttentionModel._init_embed works or is mocked.
-        
+
         # Let's mock the base _init_embed via super() is tricky.
         # Instead, verify update_fill_history logic which is easier and unique
-        
-        fh = torch.zeros(1, 5, 5) # 5 nodes, 5 steps
+
+        fh = torch.zeros(1, 5, 5)  # 5 nodes, 5 steps
         new_fill = torch.ones(1, 5)
         updated = model.update_fill_history(fh, new_fill)
         assert torch.all(updated[:, :, -1] == 1)
@@ -295,23 +335,27 @@ class TestTemporalAttentionModel:
         model = tam_setup
         model.embedder.return_value = torch.zeros(1, 5, 128)
         model.decoder.return_value = (torch.zeros(1, 5), torch.zeros(1, 5))
-        model.decoder._calc_log_likelihood.return_value = (torch.zeros(1), torch.zeros(1))
-        
+        model.decoder._calc_log_likelihood.return_value = (
+            torch.zeros(1),
+            torch.zeros(1),
+        )
+
         input_data = {
-            'depot': torch.rand(1, 2),
-            'loc': torch.rand(1, 4, 2),
-            'waste': torch.zeros(1, 4),
-            'demand': torch.zeros(1, 4)
+            "depot": torch.rand(1, 2),
+            "loc": torch.rand(1, 4, 2),
+            "waste": torch.zeros(1, 4),
+            "demand": torch.zeros(1, 4),
         }
-        
+
         # Calling forward should inject fill_history if missing
         model(input_data)
-        assert 'fill_history' in input_data
-        assert input_data['fill_history'].shape[-1] == 5 # horizon
+        assert "fill_history" in input_data
+        assert input_data["fill_history"].shape[-1] == 5  # horizon
+
 
 class TestMoE:
     """Tests for MoE module."""
-    
+
     def test_moe_forward(self):
         """Test basic forward pass of MoE."""
         batch_size = 2
@@ -319,46 +363,53 @@ class TestMoE:
         d_model = 16
         num_experts = 4
         k = 2
-        
-        moe = MoE(input_size=d_model, output_size=d_model, num_experts=num_experts, k=k, noisy_gating=False)
+
+        moe = MoE(
+            input_size=d_model,
+            output_size=d_model,
+            num_experts=num_experts,
+            k=k,
+            noisy_gating=False,
+        )
         x = torch.rand(batch_size, seq_len, d_model)
-        
+
         output = moe(x)
         assert output.shape == (batch_size, seq_len, d_model)
 
 
 class TestMoEFeedForward:
     """Tests for MoEFeedForward wrapper."""
-    
+
     def test_moe_ff_structure(self):
         """Test structure and forward pass."""
         d_model = 16
         d_ff = 32
-        
+
         moe_ff = MoEFeedForward(
-            embed_dim=d_model, 
-            feed_forward_hidden=d_ff, 
-            activation='relu', 
-            af_param=1.0, 
-            threshold=6.0, 
-            replacement_value=6.0, 
-            n_params=3, 
+            embed_dim=d_model,
+            feed_forward_hidden=d_ff,
+            activation="relu",
+            af_param=1.0,
+            threshold=6.0,
+            replacement_value=6.0,
+            n_params=3,
             dist_range=[0.1, 0.2],
             num_experts=3,
-            k=1
+            k=1,
         )
-        
+
         assert len(moe_ff.moe.experts) == 3
         # Check if experts are Sequential (FF -> Act -> FF)
         assert isinstance(moe_ff.moe.experts[0], nn.Sequential)
-        
+
         x = torch.rand(2, 5, d_model)
         out = moe_ff(x)
         assert out.shape == (2, 5, d_model)
 
+
 class TestMoEEncoder:
     """Tests for MoE Encoder."""
-    
+
     def test_encoder_integration(self):
         """Test MoEGraphAttentionEncoder."""
         d_model = 16
@@ -368,21 +419,22 @@ class TestMoEEncoder:
             n_layers=2,
             feed_forward_hidden=32,
             num_experts=4,
-            k=2
+            k=2,
         )
-        
+
         x = torch.rand(2, 5, d_model)
         out = encoder(x, edges=None)
         assert out.shape == (2, 5, d_model)
 
+
 class TestMoEModel:
     """Tests for High-Level MoE Model."""
-    
+
     def test_model_initialization_and_forward(self):
         """Test MoEAttentionModel initialization and forward pass."""
         # Mock problem
         problem = CVRPP()
-        
+
         model = MoEAttentionModel(
             embedding_dim=16,
             hidden_dim=32,
@@ -390,21 +442,21 @@ class TestMoEModel:
             n_encode_layers=1,
             n_heads=2,
             num_experts=3,
-            k=1
+            k=1,
         )
-        
+
         # Check factory injection
         assert isinstance(model.embedder, MoEGraphAttentionEncoder)
-        
+
         input_data = {
-            'depot': torch.rand(2, 2),
-            'loc': torch.rand(2, 5, 2),
-            'demand': torch.rand(2, 5),
-            'waste': torch.rand(2, 5),
-            'max_waste': torch.rand(2)
+            "depot": torch.rand(2, 2),
+            "loc": torch.rand(2, 5, 2),
+            "demand": torch.rand(2, 5),
+            "waste": torch.rand(2, 5),
+            "max_waste": torch.rand(2),
         }
-        
-        model.set_decode_type('greedy')
+
+        model.set_decode_type("greedy")
         cost, ll, cost_dict, pi, entropy = model(input_data, return_pi=True)
         assert pi.ndim == 2
         assert pi.size(0) == 2
@@ -417,6 +469,6 @@ class TestMoEModel:
             hidden_dim=32,
             problem=problem,
             n_encode_layers=1,
-            temporal_horizon=5
+            temporal_horizon=5,
         )
         assert isinstance(model.embedder, MoEGraphAttentionEncoder)

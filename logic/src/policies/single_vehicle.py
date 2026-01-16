@@ -16,11 +16,13 @@ Key Functions:
 These utilities are used by higher-level policies (Regular, LastMinute, etc.)
 to generate and optimize single-vehicle collection routes.
 """
-import torch
-import fast_tsp
-import numpy as np
-import networkx as nx
+
 from typing import List, Tuple
+
+import fast_tsp
+import networkx as nx
+import numpy as np
+import torch
 
 
 def find_route(C, to_collect):
@@ -42,7 +44,7 @@ def find_route(C, to_collect):
     tour = fast_tsp.find_tour(tmpC)
     zero_index = tour.index(0)
     tour = tour[zero_index:] + tour[:zero_index]
-    #cost = fast_tsp.compute_cost(tour, tmpC)
+    # cost = fast_tsp.compute_cost(tour, tmpC)
     tour2 = []
     for ii in range(0, len(tour) - 1):
         current_node = to_collect_tmp[tour[ii]]
@@ -71,7 +73,7 @@ def local_search_2opt(tour, distance_matrix, max_iterations=200):
         tour = tour.cpu().numpy()
     if torch.is_tensor(distance_matrix):
         distance_matrix = distance_matrix.cpu().numpy()
-        
+
     best_tour = np.array(tour)
     n = len(best_tour)
     if n < 4:
@@ -80,32 +82,32 @@ def local_search_2opt(tour, distance_matrix, max_iterations=200):
     # Ensure it starts and ends at depot (0)
     if best_tour[0] != 0 or best_tour[-1] != 0:
         return best_tour.tolist()
-    
+
     for _ in range(max_iterations):
         # i indices from 1 to n-3, j indices from i+1 to n-2
         i = np.arange(1, n - 2)
         j = np.arange(2, n - 1)
-        
-        I, J = np.meshgrid(i, j, indexing='ij')
-        mask = J > I
-        
+
+        idx_i, idx_j = np.meshgrid(i, j, indexing="ij")
+        mask = idx_j > idx_i
+
         if not np.any(mask):
             break
-            
-        I_vals = I[mask]
-        J_vals = J[mask]
-        
+
+        I_vals = idx_i[mask]
+        J_vals = idx_j[mask]
+
         # Tour nodes at relevant indices
         t_prev_i = best_tour[I_vals - 1]
         t_curr_i = best_tour[I_vals]
         t_curr_j = best_tour[J_vals]
         t_next_j = best_tour[J_vals + 1]
-        
+
         # Gain calculation: current_dist - new_dist
         d_curr = distance_matrix[t_prev_i, t_curr_i] + distance_matrix[t_curr_j, t_next_j]
         d_next = distance_matrix[t_prev_i, t_curr_j] + distance_matrix[t_curr_i, t_next_j]
         gains = d_curr - d_next
-        
+
         best_idx = np.argmax(gains)
         best_gain = gains[best_idx]
         if best_gain > 1e-5:
@@ -115,7 +117,7 @@ def local_search_2opt(tour, distance_matrix, max_iterations=200):
             best_tour[target_i : target_j + 1] = best_tour[target_i : target_j + 1][::-1]
         else:
             break
-            
+
     return best_tour.tolist()
 
 
@@ -152,14 +154,14 @@ def get_path_cost(G, p):
     Returns:
         float: Total path cost (sum of edge weights)
     """
-    l = p[0]
+    last_node = p[0]
     c = 0
     for id_i in range(1, len(p)):
         try:
-            c += G.get_edge_data(l, p[id_i])['weight']
-        except:
+            c += G.get_edge_data(last_node, p[id_i])["weight"]
+        except Exception:
             c += 1
-        l = p[id_i]
+        last_node = p[id_i]
     return c
 
 
@@ -193,18 +195,23 @@ def get_multi_tour(tour, bins_waste, max_capacity, distance_matrix):
             final_tour.insert(i + depot_trips, 0)
             vehicle_collected = col_waste
             depot_trips += 1
-            #cost += distance_matrix[tmp_tour[i - 1], 0] + distance_matrix[0, cur_bin]
+            # cost += distance_matrix[tmp_tour[i - 1], 0] + distance_matrix[0, cur_bin]
         else:
             final_tour.insert(i + depot_trips - 1, 0)
             vehicle_collected = 0
             depot_trips += 1
-            #if i < len(tmp_tour) - 1: 
-                #cost += distance_matrix[cur_bin, 0] + distance_matrix[0, tmp_tour[i + 1]]
+            # if i < len(tmp_tour) - 1:
+            # cost += distance_matrix[cur_bin, 0] + distance_matrix[0, tmp_tour[i + 1]]
     return final_tour
 
 
-def get_partial_tour(tour: List[int], bins: np.ndarray, max_capacity: float, 
-                     distance_matrix: np.ndarray, cost: float) -> Tuple[np.ndarray, float]:
+def get_partial_tour(
+    tour: List[int],
+    bins: np.ndarray,
+    max_capacity: float,
+    distance_matrix: np.ndarray,
+    cost: float,
+) -> Tuple[np.ndarray, float]:
     """
     Reduce a tour to fit within vehicle capacity by removing bins with minimal waste.
 
@@ -251,7 +258,7 @@ def dist_matrix_from_graph(G: nx.Graph) -> Tuple[np.ndarray, List[List[List[int]
             if id_i == id_j:
                 paths_between_states[id_i].append([])
                 continue
-            p = nx.dijkstra_path(G, source = id_i, target = id_j)
+            p = nx.dijkstra_path(G, source=id_i, target=id_j)
             paths_between_states[id_i].append(p)
             dist_matrix[id_i, id_j] = int(get_path_cost(G, p))
     return dist_matrix, paths_between_states

@@ -1,4 +1,5 @@
 """Residual skip connection implementation."""
+
 import torch.nn as nn
 
 
@@ -6,7 +7,8 @@ class SkipConnection(nn.Module):
     """
     Implements a residual connection: output = input + module(input).
     """
-    def __init__(self, module:nn.Module):
+
+    def __init__(self, module: nn.Module):
         """
         Initializes the skip connection.
 
