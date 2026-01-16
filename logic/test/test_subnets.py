@@ -82,7 +82,7 @@ class TestGCNEncoder:
         # Fixed Normalization to handle default n_groups or pass n_groups if we can.
         # GCNEncoder uses default GraphConvolution.
         # I fixed Normalization class to default n_groups=1 if None.
-        model = GraphConvolutionEncoder(n_layers=1, hidden_dim=hidden, n_groups=4)
+        model = GraphConvolutionEncoder(n_layers=1, feed_forward_hidden=hidden, n_groups=4)
         batch = 2
         graph_size = 5
         x = torch.randn(batch, graph_size, hidden)
