@@ -18,7 +18,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from dotenv import dotenv_values, load_dotenv, set_key
 
 from .definitions import ROOT_DIR
-from .io_utils import extract_zip, zip_directory
+from .io.files import extract_zip, zip_directory
 
 
 def _set_param(config, param_name, param_value=None):

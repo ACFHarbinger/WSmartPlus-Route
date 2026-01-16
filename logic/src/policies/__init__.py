@@ -13,8 +13,9 @@ from .adaptive_large_neighborhood_search import (
 )
 from .branch_cut_and_price import run_bcp
 from .hybrid_genetic_search import run_hgs
-from .last_minute import policy_last_minute, policy_last_minute_and_path
+from .last_minute import LastMinutePolicy, ProfitPolicy, policy_last_minute, policy_last_minute_and_path
 from .look_ahead import (
+    LookAheadPolicy,
     policy_lookahead,
     policy_lookahead_alns,
     policy_lookahead_bcp,
@@ -25,22 +26,15 @@ from .look_ahead import (
 from .look_ahead_aux.routes import create_points
 from .look_ahead_aux.solutions import find_solutions
 from .multi_vehicle import find_routes, find_routes_ortools
-from .neural_agent import NeuralAgent
-from .policy_vrpp import policy_vrpp
-from .regular import policy_regular
+from .neural_agent import NeuralAgent, NeuralPolicy
+from .policy_vrpp import VRPPPolicy, policy_vrpp
+from .regular import RegularPolicy, policy_regular
 from .single_vehicle import find_route, get_route_cost, local_search_2opt
 from .vrpp_optimizer import run_vrpp_optimizer
 
 __all__ = [
     "ALNSParams",
-    "LastMinutePolicyAdapter",
-    "LookAheadPolicyAdapter",
-    "NeuralAgent",
-    "NeuralPolicyAdapter",
-    "PolicyAdapter",
     "PolicyFactory",
-    "RegularPolicyAdapter",
-    "VRPPPolicyAdapter",
     "create_points",
     "create_policy",
     "find_route",
@@ -68,14 +62,17 @@ __all__ = [
 ]
 
 from .adapters import (
-    LastMinutePolicyAdapter,
-    LookAheadPolicyAdapter,
-    NeuralPolicyAdapter,
-    PolicyAdapter,
     PolicyFactory,
-    RegularPolicyAdapter,
-    VRPPPolicyAdapter,
 )
+
+# Backward compatibility aliases
+RegularPolicyAdapter = RegularPolicy
+LookAheadPolicyAdapter = LookAheadPolicy
+LastMinutePolicyAdapter = LastMinutePolicy
+NeuralPolicyAdapter = NeuralPolicy
+VRPPPolicyAdapter = VRPPPolicy
+ProfitPolicyAdapter = ProfitPolicy
+
 
 # Alias for backward compatibility and testing
 create_policy = PolicyFactory.get_adapter

@@ -19,7 +19,7 @@ from matplotlib import pyplot as plt
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
 
-from logic.src.utils.io_utils import compose_dirpath
+from .io.files import compose_dirpath
 
 
 def draw_graph(distance_matrix):
