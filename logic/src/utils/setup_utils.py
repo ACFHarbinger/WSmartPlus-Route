@@ -390,53 +390,54 @@ def setup_optimizer_and_lr_scheduler(model, baseline, data_load, opts):
         if len(baseline.get_learnable_parameters()) > 0
         else []
     )
-    optimizer = {
-        "adam": optim.Adam(optimizer_params),
-        "adamax": optim.Adamax(optimizer_params),
-        "adamw": optim.AdamW(optimizer_params),
-        "radam": optim.RAdam(optimizer_params),
-        "nadam": optim.NAdam(optimizer_params),
-        "sadam": optim.SparseAdam(optimizer_params),
-        "adadelta": optim.Adadelta(optimizer_params),
-        "adagrad": optim.Adagrad(optimizer_params),
-        "rmsprop": optim.RMSprop(optimizer_params),
-        "rprop": optim.Rprop(optimizer_params),
-        "lbfgs": optim.LBFGS(optimizer_params),
-        "asgd": optim.ASGD(optimizer_params),
-        "sgd": optim.SGD(optimizer_params),
+    optimizer_cls = {
+        "adam": optim.Adam,
+        "adamax": optim.Adamax,
+        "adamw": optim.AdamW,
+        "radam": optim.RAdam,
+        "nadam": optim.NAdam,
+        "sadam": optim.SparseAdam,
+        "adadelta": optim.Adadelta,
+        "adagrad": optim.Adagrad,
+        "rmsprop": optim.RMSprop,
+        "rprop": optim.Rprop,
+        "lbfgs": optim.LBFGS,
+        "asgd": optim.ASGD,
+        "sgd": optim.SGD,
     }.get(opts["optimizer"], None)
-    assert optimizer is not None, "Unknown optimizer: {}".format(opts["optimizer"])
+    assert optimizer_cls is not None, "Unknown optimizer: {}".format(opts["optimizer"])
+
+    optimizer = optimizer_cls(optimizer_params)
 
     # Load optimizer state, make sure script is called with same type of optimizer
     if "optimizer" in data_load:
         optimizer.load_state_dict(data_load["optimizer"])
         for state in optimizer.state.values():
             for k, v in state.items():
-                # if isinstance(v, torch.Tensor):
                 if torch.is_tensor(v):
                     state[k] = v.to(opts["device"])
 
     # Initialize learning rate scheduler!
-    lr_scheduler = {
-        "exp": optim.lr_scheduler.ExponentialLR(optimizer, opts["lr_decay"]),
-        "step": optim.lr_scheduler.StepLR(optimizer, opts["lrs_step_size"], opts["lr_decay"]),
-        "mult": optim.lr_scheduler.MultiplicativeLR(optimizer, lambda epoch: opts["lr_decay"]),
-        "lambda": optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: opts["lr_decay"] ** epoch),
-        "const": optim.lr_scheduler.ConstantLR(optimizer, opts["lr_decay"], opts["lrs_total_steps"]),
-        "poly": optim.lr_scheduler.PolynomialLR(optimizer, opts["lrs_total_steps"], opts["lr_decay"]),
-        "multistep": optim.lr_scheduler.MultiStepLR(optimizer, opts["lrs_milestones"], opts["lr_decay"]),
-        "cosan": optim.lr_scheduler.CosineAnnealingLR(optimizer, opts["lrs_total_steps"], opts["lr_min_value"]),
-        "linear": optim.lr_scheduler.LinearLR(
-            optimizer, opts["lr_min_decay"], opts["lr_decay"], opts["lrs_total_steps"]
+    scheduler_factory = {
+        "exp": lambda opt: optim.lr_scheduler.ExponentialLR(opt, opts["lr_decay"]),
+        "step": lambda opt: optim.lr_scheduler.StepLR(opt, opts["lrs_step_size"], opts["lr_decay"]),
+        "mult": lambda opt: optim.lr_scheduler.MultiplicativeLR(opt, lambda epoch: opts["lr_decay"]),
+        "lambda": lambda opt: optim.lr_scheduler.LambdaLR(opt, lambda epoch: opts["lr_decay"] ** epoch),
+        "const": lambda opt: optim.lr_scheduler.ConstantLR(opt, opts["lr_decay"], opts["lrs_total_steps"]),
+        "poly": lambda opt: optim.lr_scheduler.PolynomialLR(opt, opts["lrs_total_steps"], opts["lr_decay"]),
+        "multistep": lambda opt: optim.lr_scheduler.MultiStepLR(opt, opts["lrs_milestones"], opts["lr_decay"]),
+        "cosan": lambda opt: optim.lr_scheduler.CosineAnnealingLR(opt, opts["lrs_total_steps"], opts["lr_min_value"]),
+        "linear": lambda opt: optim.lr_scheduler.LinearLR(
+            opt, opts["lr_min_decay"], opts["lr_decay"], opts["lrs_total_steps"]
         ),
-        "cosanwr": optim.lr_scheduler.CosineAnnealingWarmRestarts(
-            optimizer,
+        "cosanwr": lambda opt: optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            opt,
             opts["lrs_restart_steps"],
             opts["lrs_rfactor"],
             opts["lr_min_value"],
         ),
-        "plateau": optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer,
+        "plateau": lambda opt: optim.lr_scheduler.ReduceLROnPlateau(
+            opt,
             opts["lrs_mode"],
             opts["lrs_dfactor"],
             opts["lrs_patience"],
@@ -447,5 +448,7 @@ def setup_optimizer_and_lr_scheduler(model, baseline, data_load, opts):
             opts["lr_min_decay"],
         ),
     }.get(opts["lr_scheduler"], None)
-    assert optimizer is not None, "Unknown learning rate scheduler: {}".format(opts["lr_scheduler"])
+    assert scheduler_factory is not None, "Unknown learning rate scheduler: {}".format(opts["lr_scheduler"])
+
+    lr_scheduler = scheduler_factory(optimizer)
     return optimizer, lr_scheduler

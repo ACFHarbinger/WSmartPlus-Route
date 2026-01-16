@@ -140,30 +140,32 @@ class AttentionModel(nn.Module):
         if not isinstance(component_factory, NeuralComponentFactory):
             pass
 
-        self.embedder = component_factory.create_encoder(
-            n_heads=self.n_heads,
-            embed_dim=self.embedding_dim,
-            n_layers=n_encode_layers,
-            n_sublayers=n_encode_sublayers,
-            feed_forward_hidden=self.hidden_dim,
-            normalization=normalization,
-            epsilon_alpha=norm_eps_alpha,
-            learn_affine=norm_learn_affine,
-            track_stats=norm_track_stats,
-            momentum_beta=norm_momentum_beta,
-            locresp_k=lrnorm_k,
-            n_groups=gnorm_groups,
-            activation=activation_function,
-            af_param=af_param,
-            threshold=af_threshold,
-            replacement_value=af_replacement_value,
-            n_params=af_num_params,
-            uniform_range=af_uniform_range,
-            dropout_rate=dropout_rate,
-            agg=aggregation,
-            connection_type=connection_type,
-            expansion_rate=hyper_expansion,
-        )
+        encoder_kwargs = {
+            "n_heads": self.n_heads,
+            "embed_dim": self.embedding_dim,
+            "n_layers": n_encode_layers,
+            "n_sublayers": n_encode_sublayers,
+            "feed_forward_hidden": self.hidden_dim,
+            "normalization": normalization,
+            "epsilon_alpha": norm_eps_alpha,
+            "learn_affine": norm_learn_affine,
+            "track_stats": norm_track_stats,
+            "momentum_beta": norm_momentum_beta,
+            "locresp_k": lrnorm_k,
+            "n_groups": gnorm_groups,
+            "activation": activation_function,
+            "af_param": af_param,
+            "threshold": af_threshold,
+            "replacement_value": af_replacement_value,
+            "n_params": af_num_params,
+            "uniform_range": af_uniform_range,
+            "dropout_rate": dropout_rate,
+            "agg": aggregation,
+            "connection_type": connection_type,
+            "expansion_rate": hyper_expansion,
+        }
+
+        self.embedder = component_factory.create_encoder(**encoder_kwargs)
 
         self.decoder = component_factory.create_decoder(
             embedding_dim=self.embedding_dim,
