@@ -5,18 +5,20 @@ This module implements policies that look ahead into the future to optimize
 collection schedules compared to immediate greedy or periodic policies.
 """
 
-from typing import List
+from typing import Any, List, Tuple
 
 import gurobipy as gp
 import numpy as np
 import pandas as pd
 from gurobipy import GRB, quicksum
 
+from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
 from logic.src.pipeline.simulator.processor import (
     convert_to_dict,
     create_dataframe_from_matrix,
 )
 
+from .adapters import IPolicy, PolicyRegistry
 from .adaptive_large_neighborhood_search import (
     run_alns,
     run_alns_ortools,
@@ -32,6 +34,9 @@ from .look_ahead_aux import (
     should_bin_be_collected,
     update_fill_levels_after_first_collection,
 )
+from .look_ahead_aux.routes import create_points
+from .look_ahead_aux.solutions import find_solutions
+from .single_vehicle import find_route, get_route_cost, local_search_2opt
 
 
 def policy_lookahead(
@@ -578,3 +583,171 @@ def policy_lookahead_bcp(
         final_sequence.append(0)
 
     return final_sequence, 0, cost
+
+
+@PolicyRegistry.register("policy_look_ahead")
+class LookAheadPolicy(IPolicy):
+    """
+    Look-ahead policy class.
+    Dispatches to various look-ahead strategies (VRPP, SANS, HGS, ALNS, BCP).
+    """
+
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+        """
+        Execute the look-ahead policy.
+        """
+        policy = kwargs["policy"]
+        graph_size = kwargs["graph_size"]
+        bins = kwargs["bins"]
+        new_data = kwargs["new_data"]
+        coords = kwargs["coords"]
+        current_collection_day = kwargs["current_collection_day"]
+        area = kwargs["area"]
+        waste_type = kwargs["waste_type"]
+        n_vehicles = kwargs["n_vehicles"]
+        model_env = kwargs["model_env"]
+        distance_matrix = kwargs["distance_matrix"]
+        distancesC = kwargs["distancesC"]
+        run_tsp = kwargs["run_tsp"]
+        two_opt_max_iter = kwargs.get("two_opt_max_iter", 0)
+
+        last_minute_config = kwargs.get("config", {}).get("lookahead", {})
+
+        look_ahead_config = policy[policy.find("ahead_") + len("ahead_")]
+        possible_configurations = {
+            "a": [500, 75, 0.95, 0, 0.095, 0, 0],
+            "b": [2000, 75, 0.7, 0, 0.095, 0, 0],
+        }
+
+        # Override from config if present
+        if look_ahead_config in last_minute_config:
+            possible_configurations[look_ahead_config] = last_minute_config[look_ahead_config]
+
+        try:
+            chosen_combination = possible_configurations[look_ahead_config]
+        except KeyError:
+            print("Possible policy_look_ahead configurations:")
+            for pos_pol, configs in possible_configurations.items():
+                print(f"{pos_pol} configuration: {configs}")
+            raise ValueError(f"Invalid policy_look_ahead configuration: {policy}")
+
+        binsids = np.arange(0, graph_size).tolist()
+        must_go_bins = policy_lookahead(binsids, bins.c, bins.means, current_collection_day)
+
+        tour = []
+        cost = 0
+        if len(must_go_bins) > 0:
+            vehicle_capacity, R, B, C, E = load_area_and_waste_type_params(area, waste_type)
+            values = {
+                "R": R,
+                "C": C,
+                "E": E,
+                "B": B,
+                "vehicle_capacity": vehicle_capacity,
+                "Omega": last_minute_config.get("Omega", 0.1),
+                "delta": last_minute_config.get("delta", 0),
+                "psi": last_minute_config.get("psi", 1),
+            }
+            routes = None
+            if "vrpp" in policy:
+                vrpp_la_config = last_minute_config.get("vrpp", {})
+                routes, _, _ = policy_lookahead_vrpp(
+                    bins.c,
+                    binsids,
+                    must_go_bins,
+                    distance_matrix,
+                    values,
+                    number_vehicles=n_vehicles,
+                    env=model_env,
+                    time_limit=vrpp_la_config.get("time_limit", 60),
+                )
+            elif "sans" in policy:
+                sans_config = last_minute_config.get("sans", {})
+                values["time_limit"] = sans_config.get("time_limit", 60)
+                values["perc_bins_can_overflow"] = sans_config.get("perc_bins_can_overflow", 0)
+
+                T_min = sans_config.get("T_min", 0.01)
+                T_init = sans_config.get("T_init", 75)
+                iterations_per_T = sans_config.get("iterations_per_T", 5000)
+                alpha = sans_config.get("alpha", 0.95)
+
+                params = (T_init, iterations_per_T, alpha, T_min)
+                new_data.loc[1:, "Stock"] = bins.c.astype("float32")
+                new_data.loc[1:, "Accum_Rate"] = bins.means.astype("float32")
+                routes, _, _ = policy_lookahead_sans(new_data, coords, distance_matrix, params, must_go_bins, values)
+                if routes:
+                    routes = routes[0]
+            elif "hgs" in policy:
+                hgs_config = last_minute_config.get("hgs", {})
+                values["time_limit"] = hgs_config.get("time_limit", 60)
+                routes, _, _ = policy_lookahead_hgs(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
+            elif "alns" in policy:
+                alns_config = last_minute_config.get("alns", {})
+                values["time_limit"] = alns_config.get("time_limit", 60)
+                values["Iterations"] = alns_config.get("Iterations", 5000)
+                variant = alns_config.get("variant", "default")
+
+                if "package" in policy:
+                    variant = "package"
+                elif "ortools" in policy:
+                    variant = "ortools"
+
+                if alns_config.get("variant"):
+                    variant = alns_config.get("variant")
+
+                routes, _, _ = policy_lookahead_alns(
+                    bins.c,
+                    binsids,
+                    must_go_bins,
+                    distance_matrix,
+                    values,
+                    coords,
+                    variant=variant,
+                )
+            elif "bcp" in policy:
+                bcp_config = last_minute_config.get("bcp", {})
+                values["time_limit"] = bcp_config.get("time_limit", 60)
+                values["Iterations"] = bcp_config.get("Iterations", 50)
+                routes, _, _ = policy_lookahead_bcp(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
+            else:
+                values["shift_duration"] = 390
+                values["perc_bins_can_overflow"] = 0
+                points = create_points(new_data, coords)
+                new_data.loc[1 : graph_size + 1, "Stock"] = (bins.c / 100).astype("float32")
+                new_data.loc[1 : graph_size + 1, "Accum_Rate"] = (bins.means / 100).astype("float32")
+                try:
+                    routes, _, _ = find_solutions(
+                        new_data,
+                        coords,
+                        distance_matrix,
+                        chosen_combination,
+                        must_go_bins,
+                        values,
+                        graph_size,
+                        points,
+                        time_limit=600,
+                    )
+                except Exception:
+                    routes, _, _ = find_solutions(
+                        new_data,
+                        coords,
+                        distance_matrix,
+                        chosen_combination,
+                        must_go_bins,
+                        values,
+                        graph_size,
+                        points,
+                        time_limit=3600,
+                    )
+                if routes:
+                    routes = routes[0]
+
+            if routes:
+                tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
+                if two_opt_max_iter > 0:
+                    tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
+                cost = get_route_cost(distance_matrix, tour)
+        else:
+            tour = [0, 0]
+            cost = 0
+        return tour, cost, None

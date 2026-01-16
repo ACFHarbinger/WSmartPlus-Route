@@ -240,6 +240,9 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
         max_adaptation = min(opts.get("adaptation_rate", 0.1), 0.2)
 
         def bounded_sigmoid(x):
+            """
+            Map input to a stable [-1, 1] range using a shifted and scaled sigmoid.
+            """
             return 2.0 / (1.0 + torch.exp(-2.0 * x)) - 1.0
 
         overflow_adjust = max_adaptation * bounded_sigmoid(overflow_gap)

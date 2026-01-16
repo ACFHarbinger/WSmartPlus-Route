@@ -25,7 +25,8 @@ from loguru import logger
 import logic.src.utils.definitions as udef
 import wandb
 from logic.src.utils.definitions import DAY_METRICS
-from logic.src.utils.io_utils import compose_dirpath, read_json
+
+from .io.files import compose_dirpath, read_json
 
 
 def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO"):
