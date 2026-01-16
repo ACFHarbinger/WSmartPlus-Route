@@ -346,22 +346,64 @@ class RunningState(SimState):
                     # If I have keys 'lookahead' and 'hgs' and policy is 'policy_look_ahead_hgs', merge both.
                     for key, cfg in ctx.config.items():
                          if key in ctx.policy:
-                             # Merge cfg into current_policy_config
-                             # Simple update for now (shallow merge of top keys)
-                             # Deep merge would be better but keeping it simple.
-                             current_policy_config.update(cfg)
-                             
-                    data_ls, output_ls, ctx.cached = run_day(
-                        opts['size'], ctx.policy, ctx.bins, ctx.new_data, ctx.coords, opts['run_tsp'], ctx.sample_id,
-                        ctx.overflows, day, ctx.model_env, ctx.model_tup, opts['n_vehicles'], opts['area'], realtime_log_path, 
-                        opts['waste_type'], ctx.dist_tup, ctx.current_collection_day, ctx.cached, ctx.device, 
-                        ctx.lock, ctx.hrl_manager, opts['gate_prob_threshold'], opts['mask_prob_threshold'], opts['two_opt_max_iter'],
+                            # Merge cfg into current_policy_config
+                            # Simple update for now (shallow merge of top keys)
+                            # Deep merge would be better but keeping it simple.
+                            current_policy_config.update(cfg)
+
+                    # Prepare SimulationDayContext
+                    distance_matrix, paths_between_states, dm_tensor, distancesC = ctx.dist_tup
+                    
+                    policy_stripped = ctx.policy.rsplit('_', 1)[0]
+                    
+                    from logic.src.pipeline.simulator.context import SimulationDayContext
+                    
+                    day_context = SimulationDayContext(
+                        graph_size=opts['size'],
+                        full_policy=ctx.policy,
+                        policy=policy_stripped,
+                        policy_name=policy_stripped,
+                        bins=ctx.bins,
+                        new_data=ctx.new_data,
+                        coords=ctx.coords,
+                        run_tsp=opts['run_tsp'],
+                        sample_id=ctx.sample_id,
+                        overflows=ctx.overflows,
+                        day=day,
+                        model_env=ctx.model_env,
+                        model_ls=ctx.model_tup,
+                        n_vehicles=opts['n_vehicles'],
+                        area=opts['area'],
+                        realtime_log_path=realtime_log_path,
+                        waste_type=opts['waste_type'],
+                        distpath_tup=ctx.dist_tup,
+                        distance_matrix=distance_matrix,
+                        distancesC=distancesC,
+                        paths_between_states=paths_between_states,
+                        dm_tensor=dm_tensor,
+                        current_collection_day=ctx.current_collection_day,
+                        cached=ctx.cached,
+                        device=ctx.device,
+                        lock=ctx.lock,
+                        hrl_manager=ctx.hrl_manager,
+                        gate_prob_threshold=opts['gate_prob_threshold'],
+                        mask_prob_threshold=opts['mask_prob_threshold'],
+                        two_opt_max_iter=opts['two_opt_max_iter'],
                         config=current_policy_config
                     )
+                             
+                    day_context = run_day(day_context)
                     
                     ctx.execution_time = time.process_time() - ctx.tic
-                    ctx.new_data, ctx.coords, ctx.bins = data_ls
-                    ctx.overflows, dlog, output_dict = output_ls
+                    
+                    # Update state from context results
+                    ctx.new_data = day_context.new_data
+                    ctx.coords = day_context.coords
+                    ctx.bins = day_context.bins
+                    ctx.overflows = day_context.overflows
+                    dlog = day_context.daily_log
+                    output_dict = day_context.output_dict
+                    ctx.cached = day_context.cached
                     
                     if ctx.counter:
                          with ctx.counter.get_lock(): ctx.counter.value += 1

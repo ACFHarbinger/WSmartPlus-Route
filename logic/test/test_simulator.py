@@ -29,6 +29,46 @@ from logic.src.pipeline.simulator.processor import (
     sort_dataframe, setup_df, haversine_distance,
     save_matrix_to_excel, setup_basedata, setup_dist_path_tup
 )
+from logic.src.pipeline.simulator.context import SimulationDayContext
+
+def make_day_context(**kwargs):
+    """Helper to create a default SimulationDayContext with overrides."""
+    defaults = {
+        'graph_size': 3,
+        'full_policy': 'policy_regular3_gamma1',
+        'policy': 'policy_regular3',
+        'policy_name': 'policy_regular3',
+        'bins': MagicMock(),
+        'new_data': MagicMock(),
+        'coords': MagicMock(),
+        'distance_matrix': MagicMock(),
+        'distpath_tup': (None, None, None, None), 
+        'distancesC': MagicMock(),
+        'paths_between_states': MagicMock(),
+        'dm_tensor': MagicMock(),
+        'run_tsp': True,
+        'sample_id': 0,
+        'overflows': 0,
+        'day': 1,
+        'model_env': MagicMock(),
+        'model_ls': MagicMock(),
+        'n_vehicles': 1,
+        'area': 'riomaior',
+        'realtime_log_path': 'mock_log.json',
+        'waste_type': 'paper',
+        'current_collection_day': 1,
+        'cached': None,
+        'device': torch.device('cpu'),
+        'lock': None,
+        'hrl_manager': None,
+        'gate_prob_threshold': 0.5,
+        'mask_prob_threshold': 0.5,
+        'two_opt_max_iter': 0,
+        'config': {}
+    }
+    defaults.update(kwargs)
+    return SimulationDayContext(**defaults)
+
 
 
 class TestBins:
@@ -780,16 +820,18 @@ class TestDay:
         # Access the mocks from the dictionary
         mock_send_output = mock_run_day_deps['mock_send_output']
 
-        run_day(
-            graph_size=3, pol='policy_regular3_gamma1', bins=mock_run_day_deps['bins'], 
+        run_day(make_day_context(
+            graph_size=3, full_policy='policy_regular3_gamma1', bins=mock_run_day_deps['bins'], 
             new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
             run_tsp=True, sample_id=0, overflows=0, day=1, 
             model_env=mock_run_day_deps['model_env'], 
             model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='riomaior', 
             realtime_log_path=None,
             waste_type='paper', distpath_tup=mock_run_day_deps['distpath_tup'], 
+            distancesC=mock_run_day_deps['distpath_tup'][3],
+            distance_matrix=mock_run_day_deps['distpath_tup'][0],
             current_collection_day=1, cached=None, device='cpu'
-        )
+        ))
         
         mock_run_day_deps['bins'].stochasticFilling.assert_called_once()
         mock_run_day_deps['bins'].loadFilling.assert_not_called()
@@ -806,16 +848,18 @@ class TestDay:
         # Access the mocks from the dictionary
         mock_send_output = mock_run_day_deps['mock_send_output']
 
-        run_day(
-            graph_size=3, pol='policy_regular3_gamma1', bins=mock_run_day_deps['bins'], 
+        run_day(make_day_context(
+            graph_size=3, full_policy='policy_regular3_gamma1', bins=mock_run_day_deps['bins'], 
             new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
             run_tsp=True, sample_id=0, overflows=0, day=5, 
             model_env=mock_run_day_deps['model_env'], 
             model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='riomaior', 
             realtime_log_path=None,
             waste_type='paper', distpath_tup=mock_run_day_deps['distpath_tup'], 
+            distancesC=mock_run_day_deps['distpath_tup'][3],
+            distance_matrix=mock_run_day_deps['distpath_tup'][0],
             current_collection_day=1, cached=None, device='cpu'
-        )
+        ))
         
         mock_run_day_deps['bins'].loadFilling.assert_called_once_with(5)
         mock_run_day_deps['bins'].stochasticFilling.assert_not_called()
@@ -825,62 +869,77 @@ class TestDay:
     def test_policy_last_minute_and_path_invalid_cf(self, mock_run_day_deps):
         """Test 'policy_last_minute_and_path' with an invalid cf value."""
         with pytest.raises(ValueError, match='Invalid cf value for policy_last_minute_and_path: -100'):
-            run_day(
-                graph_size=3, pol='policy_last_minute_and_path-100_gamma1', bins=mock_run_day_deps['bins'], 
+            run_day(make_day_context(
+                graph_size=3, full_policy='policy_last_minute_and_path-100_gamma1', 
+                policy='policy_last_minute_and_path-100', policy_name='policy_last_minute_and_path',
+                bins=mock_run_day_deps['bins'], 
                 new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
                 run_tsp=True, sample_id=0, overflows=0, day=1, 
                 model_env=mock_run_day_deps['model_env'], 
                 model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='riomaior',
                 realtime_log_path=None,
                 waste_type='paper', distpath_tup=mock_run_day_deps['distpath_tup'],
+                distancesC=mock_run_day_deps['distpath_tup'][3],
+                distance_matrix=mock_run_day_deps['distpath_tup'][0],
                 current_collection_day=1, cached=None, device='cpu'
-            ) 
+            )) 
 
 
     @pytest.mark.unit
     def test_policy_regular_invalid_lvl(self, mock_run_day_deps):
         """Test 'policy_regular' with an invalid lvl value."""
         with pytest.raises(ValueError, match='Invalid lvl value for policy_regular: 0'):
-            run_day(
-                graph_size=3, pol='policy_regular0_gamma1', bins=mock_run_day_deps['bins'], 
+            run_day(make_day_context(
+                graph_size=3, full_policy='policy_regular0_gamma1', 
+                policy='policy_regular0', policy_name='policy_regular',
+                bins=mock_run_day_deps['bins'], 
                 new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
                 run_tsp=True, sample_id=0, overflows=0, day=1, 
                 model_env=mock_run_day_deps['model_env'], 
                 model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='riomaior',
                 realtime_log_path=None,
                 waste_type='paper', distpath_tup=mock_run_day_deps['distpath_tup'],
+                distancesC=mock_run_day_deps['distpath_tup'][3],
+                distance_matrix=mock_run_day_deps['distpath_tup'][0],
                 current_collection_day=1, cached=None, device='cpu'
-            )
+            ))
 
     @pytest.mark.unit
     def test_policy_look_ahead_invalid_config(self, mock_run_day_deps):
         """Test 'policy_look_ahead' with an invalid configuration."""
         with pytest.raises(ValueError, match='Invalid policy_look_ahead configuration'):
-            run_day(
-                graph_size=3, pol='policy_look_ahead_z_gamma1', bins=mock_run_day_deps['bins'], 
+            run_day(make_day_context(
+                graph_size=3, full_policy='policy_look_ahead_z_gamma1', 
+                policy='policy_look_ahead_z', policy_name='policy_look_ahead',
+                bins=mock_run_day_deps['bins'], 
                 new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
                 run_tsp=True, sample_id=0, overflows=0, day=1, 
                 model_env=mock_run_day_deps['model_env'], 
                 model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='riomaior',
                 realtime_log_path=None,
                 waste_type='paper', distpath_tup=mock_run_day_deps['distpath_tup'],
+                distancesC=mock_run_day_deps['distpath_tup'][3],
+                distance_matrix=mock_run_day_deps['distpath_tup'][0],
                 current_collection_day=1, cached=None, device='cpu'
-            )
+            ))
 
     @pytest.mark.unit
     def test_unknown_policy(self, mock_run_day_deps):
         """Test that an unknown policy raises a ValueError."""
         with pytest.raises(ValueError, match='Unknown policy:'):
-            run_day(
-                graph_size=3, pol='this_policy_does_not_exist_gamma1', bins=mock_run_day_deps['bins'], 
+            run_day(make_day_context(
+                graph_size=3, full_policy='this_policy_does_not_exist_gamma1', 
+                policy='this_policy_does_not_exist', policy_name='this_policy_does_not_exist',
+                bins=mock_run_day_deps['bins'], 
                 new_data=mock_run_day_deps['new_data'], coords=mock_run_day_deps['coords'], 
                 run_tsp=True, sample_id=0, overflows=0, day=1, 
                 model_env=mock_run_day_deps['model_env'], 
                 model_ls=mock_run_day_deps['model_ls'], n_vehicles=1, area='riomaior',
                 realtime_log_path=None,
                 waste_type='paper', distpath_tup=mock_run_day_deps['distpath_tup'],
+                distancesC=mock_run_day_deps['distpath_tup'][3],
                 current_collection_day=1, cached=None, device='cpu'
-            )
+            ))
 
 
 class TestSimulation:
@@ -1043,7 +1102,7 @@ class TestSimulation:
         bins_raw_df = pd.DataFrame({'ID': [1, 2, 3], 'Lat': [40.1, 40.2, 40.3], 'Lng': [-8.1, -8.2, -8.3]})
         data_raw_df = pd.DataFrame({'ID': [1, 2, 3], 'Stock': [10, 20, 30], 'Accum_Rate': [0, 0, 0]})
         mocker.patch(
-            'logic.src.pipeline.simulator.processor.setup_basedata',
+            'logic.src.pipeline.simulator.states.setup_basedata',
             return_value=(data_raw_df, bins_raw_df, depot_df)
         )
 
@@ -1086,6 +1145,7 @@ class TestSimulation:
             torch.tensor([0, 1, 2, 3, 0]), # pi (tensor for .device access)
             MagicMock()  # entropy
         )
+        mock_model_env.temporal_horizon = 0
         # mock_model_env.compute_simulator_day was NOT calling this. NeuralAgent calls model().
         
         mock_configs = MagicMock()
@@ -1296,7 +1356,7 @@ class TestSimulation:
         mock_saved_state = (
             'mock_data', # new_data
             'mock_coords', # coords
-            'mock_dist_tup', # dist_tup
+            ('mock_d', 'mock_p', 'mock_t', 'mock_c'), # dist_tup
             'mock_adj', # adj_matrix
             mock_sim_dependencies['bins'], # bins
             'mock_model_tup', # model_tup
@@ -1352,7 +1412,7 @@ class TestSimulation:
         mock_depot = pd.DataFrame({'ID': [0], 'Lat': [0], 'Lng': [0], 'Stock': [0], 'Accum_Rate': [0]})
 
         mocker.patch(
-            'logic.src.pipeline.simulator.processor.setup_basedata', 
+            'logic.src.pipeline.simulator.states.setup_basedata', 
             return_value=(mock_data, mock_coords, mock_depot)
         )
 
