@@ -70,3 +70,4 @@ All notable changes to this project will be documented in this file.
 - Resolved infinite loops in `move.py` and `swap.py` within test mocks by updating `test_policies_aux.py` to use `random.sample` for bin selection.
 - Significantly improved code coverage for `file_system.py` (0% -> 51%) by adding tests for preview and statistics modes.
 - Improved coverage for `move.py` and `swap.py` to >90%.
+- Consolidated integration tests by merging `logic/test/test_policy_integration.py` into `logic/test/test_integration.py` and expanding coverage for simulation workflows.
