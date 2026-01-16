@@ -1,3 +1,10 @@
+"""
+Wrapper for Google OR-Tools to solve the prize-collecting VRP.
+
+This module adapts the WSmart-Route problem definition into a format
+compatible with OR-Tools' routing solver.
+"""
+
 import numpy as np
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
@@ -36,6 +43,7 @@ def run_alns_ortools(dist_matrix, demands, capacity, R, C, values):
     routing = pywrapcp.RoutingModel(manager)
 
     def distance_callback(from_index, to_index):
+        """Returns the distance between the two nodes."""
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
         return sub_matrix[from_node][to_node]
@@ -44,6 +52,7 @@ def run_alns_ortools(dist_matrix, demands, capacity, R, C, values):
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
     def demand_callback(from_index):
+        """Returns the demand of the node."""
         from_node = manager.IndexToNode(from_index)
         return scaled_demands[from_node]
 

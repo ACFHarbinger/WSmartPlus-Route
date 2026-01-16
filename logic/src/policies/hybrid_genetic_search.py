@@ -37,6 +37,17 @@ class HGSSolver:
         C: float,
         params: HGSParams,
     ):
+        """
+        Initialize the HGS solver.
+
+        Args:
+            dist_matrix: NxN distance matrix.
+            demands: Dictionary of node demands.
+            capacity: Maximum vehicle capacity.
+            R: Revenue multiplier.
+            C: Cost multiplier.
+            params: Detailed HGS parameters.
+        """
         self.d = dist_matrix
         self.demands = demands
         self.Q = capacity
@@ -51,6 +62,12 @@ class HGSSolver:
         self.ls = LocalSearch(dist_matrix, demands, capacity, R, C, params)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
+        """
+        Run the Hybrid Genetic Search algorithm.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
+        """
         population: List[Individual] = []
 
         # 1. Initial Population
@@ -93,6 +110,7 @@ class HGSSolver:
     def _select_parents(self, population: List[Individual]) -> Tuple[Individual, Individual]:
         # Binary Tournament
         def tournament():
+            """Perform a binary tournament selection."""
             i1, i2 = random.sample(population, 2)
             return i1 if i1.fitness < i2.fitness else i2
 

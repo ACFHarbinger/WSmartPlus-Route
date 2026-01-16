@@ -1,3 +1,10 @@
+"""
+Advanced settings tab for the test simulator.
+
+This module handles complex configuration options such as CPU core
+limits, graph normalization methods, and license/API key file management.
+"""
+
 import multiprocessing as mp
 import os
 
@@ -29,7 +36,12 @@ from ...styles.globals import START_GREEN_STYLE, START_RED_STYLE
 
 
 class TestSimAdvancedTab(QWidget):
+    """
+    Sub-tab for advanced system settings, graph normalization, and license management.
+    """
+
     def __init__(self):
+        """Initialize the advanced settings tab."""
         super().__init__()
         # 1. Setup the main layout for the tab (to hold the scroll area)
         main_layout = QVBoxLayout(self)
@@ -217,6 +229,7 @@ class TestSimAdvancedTab(QWidget):
         self.is_key_license_files_visible = not self.is_key_license_files_visible
 
     def get_params(self):
+        """Retrieve the configured advanced system parameters as a dictionary."""
         params = {
             # Advanced
             "cpu_cores": self.cpu_cores_input.value(),
