@@ -283,6 +283,12 @@ class SimulationDataMapper:
 
     def process_model_input(self, coordinates, dist_matrix, device, method, configs, 
                         edge_threshold, edge_method, area, waste_type, adj_matrix=None):
+        """
+        Prepares and normalizes input data for neural model consumption.
+
+        Converts raw coordinates and distance matrices into PyTorch tensors,
+        applies graph sparsification, and loads problem parameters.
+        """
         problem_size = len(dist_matrix) - 1
         depot, loc = self.format_coordinates(coordinates, method)
         model_data = {
@@ -333,6 +339,9 @@ class SimulationDataMapper:
         return ({key: val.unsqueeze(0) for key, val in model_data.items()}, (edges, dm_tensor), profit_vars)
 
     def save_results(self, matrix, results_dir, seed, data_dist, policy, sample_id):
+        """
+        Exports simulation fill history to Excel files.
+        """
         parent_dir = os.path.join(results_dir, 'fill_history', data_dist)
         if not os.path.exists(parent_dir):
             os.makedirs(parent_dir, exist_ok=True)

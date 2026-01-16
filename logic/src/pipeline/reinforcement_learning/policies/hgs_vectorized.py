@@ -1036,6 +1036,14 @@ class VectorizedPopulation:
         alpha_diversity (float): Weight for diversity in biased fitness calculation.
     """
     def __init__(self, size, device, alpha_diversity=0.5):
+        """
+        Initialize the population.
+
+        Args:
+            size (int): Max population size.
+            device: Computing device.
+            alpha_diversity (float): Diversity weight.
+        """
         self.max_size = size
         self.device = device
         self.alpha_diversity = alpha_diversity
@@ -1154,6 +1162,7 @@ class VectorizedPopulation:
         B, P, N = self.population.size()
         
         def tournament():
+            """Selects indices using binary tournament."""
             idx_a = torch.randint(0, P, (B, n_offspring), device=self.device)
             idx_b = torch.randint(0, P, (B, n_offspring), device=self.device)
             fit_a = torch.gather(self.biased_fitness, 1, idx_a)
@@ -1182,6 +1191,9 @@ class VectorizedHGS:
         device: Torch device.
     """
     def __init__(self, dist_matrix, demands, vehicle_capacity, time_limit=1.0, device='cuda'):
+        """
+        Initialize the HGS solver.
+        """
         self.dist_matrix = dist_matrix
         self.demands = demands
         self.vehicle_capacity = vehicle_capacity

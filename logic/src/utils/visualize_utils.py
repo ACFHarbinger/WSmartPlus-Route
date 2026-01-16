@@ -366,6 +366,7 @@ def plot_logit_lens(model, x_batch, output_file, epoch=0):
         
         # Helper to get first step probs
         def get_probs(embeddings):
+            """Compute probability distribution for a given set of embeddings."""
             fixed = model.decoder._precompute(embeddings)
             # Correctly instantiate state with all required arguments
             state = model.problem.make_state(
@@ -518,6 +519,7 @@ def plot_loss_landscape(
     
     # Helper to move dict of tensors to device
     def move_dict_to_device(d, dev):
+        """Recursively move dictionary values to the specified device."""
         return {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in d.items()}
 
     x_batch = move_dict_to_device(x_batch, model_device)

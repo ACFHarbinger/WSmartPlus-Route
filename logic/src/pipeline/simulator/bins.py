@@ -267,6 +267,12 @@ class Bins:
             self.indices = list(range(self.n))
 
     def set_sample_waste(self, sample_id):
+        """
+        Sets the current waste profile from the loaded waste_fills based on sample ID.
+
+        Args:
+            sample_id: Integer index of the sample to use.
+        """
         # Check if the data contains both real and noisy values
         if isinstance(self.waste_fills[sample_id], (list, tuple)) and len(self.waste_fills[sample_id]) == 2:
             self.noisy_waste_fills = self.waste_fills[sample_id][1]
@@ -483,6 +489,7 @@ class Bins:
             option: Integer 0-3 selecting the predefined profile.
         """
         def __set_param(param):
+            """Helper to broaden scalar params to vector of size n."""
             param_len = len(param)
             if self.n == param_len:
                 return param

@@ -36,6 +36,14 @@ src.pipeline.simulator.checkpoints module
    :undoc-members:
    :show-inheritance:
 
+src.pipeline.simulator.context module
+-------------------------------------
+
+.. automodule:: src.pipeline.simulator.context
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.pipeline.simulator.day module
 ---------------------------------
 

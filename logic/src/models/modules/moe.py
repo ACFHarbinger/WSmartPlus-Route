@@ -119,6 +119,21 @@ class MoE(nn.Module):
     """
 
     def __init__(self, input_size, output_size, num_neurons=None, experts=None, hidden_act="ReLU", out_bias=True, num_experts=4, k=2, noisy_gating=True, **kwargs):
+        """
+        Initialize the MoE layer.
+
+        Args:
+            input_size (int): Dimension of input features.
+            output_size (int): Dimension of output features.
+            num_neurons (list, optional): Hidden dimensions for MLP experts.
+            experts (list, optional): List of expert modules. If None, builds MLPs.
+            hidden_act (str): Activation function name for MLP experts.
+            out_bias (bool): Whether to include bias in output layer.
+            num_experts (int): Number of experts to create.
+            k (int): Number of experts to select per input.
+            noisy_gating (bool): Whether to use noisy gating for load balancing.
+            **kwargs: Extra arguments.
+        """
         super(MoE, self).__init__()
         self.noisy_gating = noisy_gating
         self.num_experts = num_experts
@@ -132,6 +147,7 @@ class MoE(nn.Module):
         elif num_neurons is not None and len(num_neurons) > 0:
              # Basic MLP implementation if not provided
              def build_mlp(dims):
+                """Builds a Multi-Layer Perceptron expert."""
                 layers = []
                 in_dim = input_size
                 for hidden in dims:

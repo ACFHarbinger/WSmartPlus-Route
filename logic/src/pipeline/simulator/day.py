@@ -76,12 +76,12 @@ def get_daily_results(total_collected: float, ncol: int, cost: float, tour: List
     dlog['day'] = day
     dlog['overflows'] = new_overflows
     dlog['kg_lost'] = sum_lost
-    if len(tour) > 2 and cost > 0:
+    if len(tour) > 2:
         rl_cost = new_overflows - total_collected + cost
         dlog['kg'] = total_collected
         dlog['ncol'] = ncol
         dlog['km'] = cost
-        dlog['kg/km'] = total_collected / cost
+        dlog['kg/km'] = total_collected / cost if cost > 0 else 0
         dlog['cost'] = rl_cost
         dlog['profit'] = profit
         ids = np.array([x for x in tour if x != 0])
