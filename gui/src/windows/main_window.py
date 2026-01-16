@@ -51,7 +51,7 @@ from ..tabs import (
     TestSimSettingsTab,
     TestSuiteTab,
 )
-from . import SimulationResultsWindow
+from .ts_results_window import SimulationResultsWindow
 
 
 class MainWindow(QWidget):

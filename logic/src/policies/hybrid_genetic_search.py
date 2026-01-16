@@ -1,36 +1,8 @@
 """
-Hybrid Genetic Search (HGS) algorithm for VRPP.
+Hybrid Genetic Search (HGS) policy module.
 
-This module implements a state-of-the-art metaheuristic for solving the
-Vehicle Routing Problem with Profits, combining genetic algorithm concepts
-with advanced local search and the Split algorithm.
-
-Algorithm Components:
----------------------
-1. **LinearSplit Algorithm** (Vidal 2016):
-   - Decodes giant tours into feasible multi-route solutions
-   - Dynamic programming with deque-based optimization
-   - Supports unlimited and limited fleet variants
-
-2. **Genetic Operators**:
-   - Ordered Crossover (OX) for tour combination
-   - Mutation through random shuffling
-   - Biased fitness using profit + diversity ranking
-
-3. **Local Search**:
-   - Relocate: Move single node to better position
-   - Swap: Exchange two nodes
-   - 2-opt*: Cross-exchange route tails (inter-route)
-   - 2-opt: Reverse segment (intra-route)
-
-4. **Population Management**:
-   - Elite preservation
-   - Diversity maintenance via distance-to-best metric
-   - Restart mechanism for stagnation
-
-5. **Solver Backends**:
-   - Custom pure-Python HGS
-   - PyVRP library integration (optional)
+Combines genetic algorithms with local search and the Split algorithm
+for solving the Capacitated Vehicle Routing Problem with Profits.
 
 Reference:
     Vidal, T., Crainic, T. G., Gendreau, M., & Prins, C. (2016). A unified
@@ -40,543 +12,20 @@ Reference:
 
 import random
 import time
-from collections import deque
-from typing import Any, Deque, Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 
-# --- 1. Data Structures & Params ---
+from .hgs_aux.evolution import evaluate, ordered_crossover, update_biased_fitness
+from .hgs_aux.local_search import LocalSearch
+from .hgs_aux.pyvrp_wrapper import solve_pyvrp
+from .hgs_aux.split import LinearSplit
+from .hgs_aux.types import HGSParams, Individual
 
 
-class Individual:
+class HGSSolver:
     """
-    Individual solution representation for genetic algorithm.
-
-    Attributes:
-        giant_tour (List[int]): Permutation of customers (no depot, no route structure)
-        routes (List[List[int]]): Decoded routes (from Split algorithm)
-        fitness (float): Biased fitness combining profit and diversity
-        profit_score (float): Objective value (profit)
-        cost (float): Total travel cost
-        revenue (float): Total revenue collected
-        dist_to_parents (float): Diversity metric (edit distance to best solution)
-        rank_profit (int): Rank based on profit
-        rank_diversity (int): Rank based on diversity
-    """
-
-    def __init__(self, giant_tour: List[int]):
-        """
-        Initialize an Individual.
-
-        Args:
-            giant_tour (List[int]): The giant tour representation.
-        """
-        self.giant_tour = giant_tour
-        self.routes: List[List[int]] = []
-        self.fitness = -float("inf")
-        self.profit_score = -float("inf")
-        self.cost = 0.0
-        self.revenue = 0.0
-
-        self.dist_to_parents = 0.0
-        self.rank_profit = 0
-        self.rank_diversity = 0
-
-    def __lt__(self, other: "Individual") -> bool:
-        """
-        Compare individuals based on their biased fitness (lower is better).
-        """
-        return self.fitness < other.fitness
-
-
-class HGSParams:
-    """
-    Configuration parameters for Hybrid Genetic Search.
-
-    Attributes:
-        time_limit (int): Maximum runtime in seconds. Default: 10
-        population_size (int): Number of individuals in population. Default: 50
-        elite_size (int): Number of elite solutions preserved. Default: 10
-        mutation_rate (float): Probability of mutation (unused in current impl). Default: 0.2
-        max_vehicles (int): Vehicle fleet limit. 0 = unlimited. Default: 0
-    """
-
-    def __init__(
-        self,
-        time_limit: int = 10,
-        population_size: int = 50,
-        elite_size: int = 10,
-        mutation_rate: float = 0.2,
-        max_vehicles: int = 0,
-    ):
-        """
-        Initialize HGS parameters.
-
-        Args:
-            time_limit (int): Max runtime in seconds.
-            population_size (int): Population size.
-            elite_size (int): Elite size.
-            mutation_rate (float): Mutation rate.
-            max_vehicles (int): Max vehicles (0 for unlimited).
-        """
-        self.time_limit = time_limit
-        self.population_size = population_size
-        self.elite_size = elite_size
-        self.mutation_rate = mutation_rate
-        self.max_vehicles = max_vehicles
-
-
-# --- 2. Linear Split (Vidal 2016) - Optimized Pure Python ---
-
-
-class LinearSplit:
-    """
-    Linear-time Split algorithm for decoding giant tours into routes.
-
-    Implements the dynamic programming Split procedure from Vidal et al. (2016)
-    with deque-based optimization for O(N) complexity per iteration.
-
-    The algorithm converts a TSP-like giant tour (permutation of customers) into
-    a set of feasible VRP routes respecting capacity constraints and optimizing
-    the VRPP objective (revenue - cost - vehicle penalty).
-
-    Attributes:
-        dist_matrix (np.ndarray): Distance matrix
-        demands (dict): Node demands
-        capacity (float): Vehicle capacity
-        R (float): Revenue coefficient
-        C (float): Cost coefficient
-        max_vehicles (int): Fleet size limit (0 = unlimited)
-    """
-
-    def __init__(
-        self,
-        dist_matrix: np.ndarray,
-        demands: Dict[int, float],
-        capacity: float,
-        R: float,
-        C: float,
-        max_vehicles: int = 0,
-    ):
-        """
-        Initialize the LinearSplit algorithm.
-
-        Args:
-            dist_matrix (np.ndarray): Distance matrix.
-            demands (dict): Node demands.
-            capacity (float): Vehicle capacity.
-            R (float): Revenue per unit.
-            C (float): Cost per unit distance.
-            max_vehicles (int): Maximum fleet size (0 for unlimited).
-        """
-        self.dist_matrix = dist_matrix
-        self.demands = demands
-        self.capacity = capacity
-        self.R = R
-        self.C = C
-        self.max_vehicles = max_vehicles
-
-    def split(self, giant_tour: List[int]) -> Tuple[List[List[int]], float]:
-        """
-        Split a giant tour into optimal routes.
-
-        Args:
-            giant_tour (List[int]): Permutation of node indices.
-
-        Returns:
-            Tuple[List[List[int]], float]: List of routes and total profit.
-        """
-        if not giant_tour:
-            return [], 0.0
-
-        n = len(giant_tour)
-
-        cum_load = [0.0] * (n + 1)
-        cum_rev = [0.0] * (n + 1)
-        cum_dist = [0.0] * (n + 1)
-
-        dmat = self.dist_matrix
-        demands = self.demands
-        R_val = self.R
-
-        load_curr = 0.0
-        rev_curr = 0.0
-        dist_curr = 0.0
-        prev_node = 0
-
-        d_0_x = [0.0] * (n + 1)
-        d_x_0 = [0.0] * (n + 1)
-
-        for i in range(1, n + 1):
-            node = giant_tour[i - 1]
-            dem = demands.get(node, 0)
-
-            load_curr += dem
-            rev_curr += dem * R_val
-
-            if i > 1:
-                dist_curr += dmat[prev_node, node]
-
-            cum_load[i] = load_curr
-            cum_rev[i] = rev_curr
-            cum_dist[i] = dist_curr
-
-            d_0_x[i] = dmat[0, node]
-            d_x_0[i] = dmat[node, 0]
-            prev_node = node
-
-        res = ([], -float("inf"))
-        if self.max_vehicles == 0:
-            res = self._split_unlimited(n, giant_tour, cum_load, cum_rev, cum_dist, d_0_x, d_x_0)
-        else:
-            res = self._split_limited(n, giant_tour, cum_load, cum_rev, cum_dist, d_0_x, d_x_0)
-
-        if res[1] == -float("inf"):
-            return self._fallback_split(giant_tour)
-
-        return res
-
-    def _fallback_split(self, giant_tour: List[int]) -> Tuple[List[List[int]], float]:
-        """
-        Fallback simple greedy split logic when DP split fails.
-        """
-        routes = []
-        current_route = []
-        current_load = 0
-
-        for node in giant_tour:
-            dem = self.demands.get(node, 0)
-            if current_load + dem <= self.capacity:
-                current_route.append(node)
-                current_load += dem
-            else:
-                if current_route:
-                    routes.append(current_route)
-                current_route = [node]
-                current_load = dem
-
-        if current_route:
-            routes.append(current_route)
-
-        rev = sum(self.demands.get(n, 0) for r in routes for n in r) * self.R
-        cost = 0
-        for r in routes:
-            d = self.dist_matrix[0, r[0]]
-            for k in range(len(r) - 1):
-                d += self.dist_matrix[r[k], r[k + 1]]
-            d += self.dist_matrix[r[-1], 0]
-            cost += d * self.C
-
-        profit = rev - cost
-        return routes, profit
-
-    def _split_unlimited(
-        self,
-        n: int,
-        nodes: List[int],
-        cum_load: List[float],
-        cum_rev: List[float],
-        cum_dist: List[float],
-        d_0_x: List[float],
-        d_x_0: List[float],
-    ) -> Tuple[List[List[int]], float]:
-        """
-        Unified DP Split for unlimited fleet size.
-
-        Args:
-            n (int): Number of nodes.
-            nodes (List[int]): List of node IDs.
-            cum_load (List[float]): Cumulative load.
-            cum_rev (List[float]): Cumulative revenue.
-            cum_dist (List[float]): Cumulative distance.
-            d_0_x (List[float]): Distance from depot to node i.
-            d_x_0 (List[float]): Distance from node i to depot.
-
-        Returns:
-            Tuple[List[List[int]], float]: Routes and profit.
-        """
-        V = [-float("inf")] * (n + 1)
-        P = [-1] * (n + 1)
-        V[0] = 0.0
-
-        C_cost = self.C
-        cap = self.capacity
-
-        term_0 = V[0] - cum_rev[0] + C_cost * (cum_dist[1] - d_0_x[1])
-        dq = deque([(0, term_0)])
-
-        for i in range(1, n + 1):
-            min_load = cum_load[i] - cap
-            while dq:
-                idx = dq[0][0]
-                if cum_load[idx] < min_load - 1e-5:
-                    dq.popleft()
-                else:
-                    break
-
-            if dq:
-                best_j, best_A = dq[0]
-                B_i = cum_rev[i] - C_cost * (cum_dist[i] + d_x_0[i])
-                V[i] = best_A + B_i
-                P[i] = best_j
-
-            if i < n:
-                j_new = i
-                if V[j_new] > -float("inf"):
-                    idx_next = i + 1
-                    term = V[j_new] - cum_rev[j_new] + C_cost * (cum_dist[idx_next] - d_0_x[idx_next])
-                    while dq:
-                        if dq[-1][1] <= term:
-                            dq.pop()
-                        else:
-                            break
-                    dq.append((j_new, term))
-
-        return self._reconstruct(n, nodes, P, V[n])
-
-    def _split_limited(
-        self,
-        n: int,
-        nodes: List[int],
-        cum_load: List[float],
-        cum_rev: List[float],
-        cum_dist: List[float],
-        d_0_x: List[float],
-        d_x_0: List[float],
-    ) -> Tuple[List[List[int]], float]:
-        """
-        Unified DP Split for limited fleet size (K vehicles).
-
-        Args:
-            n (int): Number of nodes.
-            nodes (List[int]): List of node IDs.
-            cum_load (List[float]): Cumulative load.
-            cum_rev (List[float]): Cumulative revenue.
-            cum_dist (List[float]): Cumulative distance.
-            d_0_x (List[float]): Distance from depot to node i.
-            d_x_0 (List[float]): Distance from node i to depot.
-
-        Returns:
-            Tuple[List[List[int]], float]: Routes and profit.
-        """
-        K = self.max_vehicles
-        V_prev = [-float("inf")] * (n + 1)
-        V_prev[0] = 0.0
-
-        P = [[-1] * (n + 1) for _ in range(K + 1)]
-        best_profit = -float("inf")
-
-        C_cost = self.C
-        cap = self.capacity
-
-        for k in range(1, K + 1):
-            V_curr = [-float("inf")] * (n + 1)
-            dq: Deque[Tuple[int, float]] = deque()
-
-            if V_prev[0] > -float("inf"):
-                term_0 = V_prev[0] - cum_rev[0] + C_cost * (cum_dist[1] - d_0_x[1])
-                dq.append((0, term_0))
-
-            for i in range(1, n + 1):
-                min_load = cum_load[i] - cap
-                while dq:
-                    idx = dq[0][0]
-                    if cum_load[idx] < min_load - 1e-5:
-                        dq.popleft()
-                    else:
-                        break
-
-                if dq:
-                    best_j, best_A = dq[0]
-                    B_i = cum_rev[i] - C_cost * (cum_dist[i] + d_x_0[i])
-                    V_curr[i] = best_A + B_i
-                    P[k][i] = best_j
-
-                if i < n:
-                    j_new = i
-                    if V_prev[j_new] > -float("inf"):
-                        idx_next = i + 1
-                        term = V_prev[j_new] - cum_rev[j_new] + C_cost * (cum_dist[idx_next] - d_0_x[idx_next])
-                        while dq:
-                            if dq[-1][1] <= term:
-                                dq.pop()
-                            else:
-                                break
-                        dq.append((j_new, term))
-
-            if V_curr[n] > best_profit:
-                best_profit = V_curr[n]
-                best_k = k
-
-            V_prev = V_curr
-
-        if best_profit == -float("inf"):
-            return [], -float("inf")
-
-        return self._reconstruct_limited(n, nodes, P, best_k, best_profit)
-
-    def _reconstruct_limited(
-        self,
-        n: int,
-        nodes: List[int],
-        P: List[List[int]],
-        k_opt: int,
-        total_profit: float,
-    ) -> Tuple[List[List[int]], float]:
-        """
-        Reconstruct routing solution for limited fleet Split.
-        """
-        routes = []
-        curr = n
-        k = k_opt
-
-        while curr > 0 and k > 0:
-            prev = P[k][curr]
-            if prev == -1:
-                return [], -float("inf")
-
-            # Extract route segment
-            # giant_tour is 0-indexed, so nodes[prev : curr] corresponds to
-            # giant_tour[prev : curr] (indices match because nodes=giant_tour)
-            # nodes[i] is the node at position i in the tour
-            segment = nodes[prev:curr]
-            routes.append(segment)
-
-            curr = prev
-            k -= 1
-
-        if curr != 0:
-            # Should reach 0 if feasible
-            return [], -float("inf")
-
-        return routes[::-1], total_profit
-
-    def _reconstruct(
-        self, n: int, nodes: List[int], P: List[int], total_profit: float
-    ) -> Tuple[List[List[int]], float]:
-        """
-        Reconstruct routing solution from DP predecessor array P.
-
-        Args:
-            n (int): Number of nodes.
-            nodes (List[int]): List of node IDs.
-            P (List[int]): Predecessor array.
-            total_profit (float): Total profit calculated.
-
-        Returns:
-            Tuple[List[List[int]], float]: Reconstructed routes and profit.
-        """
-        if total_profit == -float("inf"):
-            return [], -float("inf")
-        routes = []
-        curr = n
-        while curr > 0:
-            prev = P[curr]
-            if prev == -1:
-                return [], -float("inf")
-            routes.append(nodes[prev:curr])
-            curr = prev
-        routes.reverse()
-        return routes, total_profit
-
-
-def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C, values):
-    """
-    Wrapper function to run the LinearSplit algorithm.
-
-    Args:
-        giant_tour (List[int]): Permutation of nodes.
-        dist_matrix: Distance matrix.
-        demands: Node demands.
-        capacity: Vehicle capacity.
-        R: Revenue per unit.
-        C: Cost per unit distance.
-        values: Configuration dictionary.
-
-    Returns:
-        Tuple[List[List[int]], float]: Routes and total profit.
-    """
-    s = LinearSplit(dist_matrix, demands, capacity, R, C, values.get("max_vehicles", 0))
-    return s.split(giant_tour)
-
-
-# --- 3. Biased Fitness ---
-
-
-def update_biased_fitness(population: List[Individual], params: HGSParams):
-    """
-    Update biased fitness of individuals based on profit and diversity ranking.
-
-    Args:
-        population (List[Individual]): Population of solutions.
-        params (HGSParams): Algorithm parameters.
-    """
-    population.sort(key=lambda x: x.profit_score, reverse=True)
-    for i, ind in enumerate(population):
-        ind.rank_profit = i
-
-    if not population:
-        return
-
-    best_ind = population[0]
-    best_succ = {}
-    for r in best_ind.routes:
-        if not r:
-            continue
-        prev = 0
-        for n in r:
-            best_succ[prev] = n
-            prev = n
-        best_succ[prev] = 0
-
-    for ind in population:
-        dist = 0
-        for r in ind.routes:
-            if not r:
-                continue
-            prev = 0
-            for n in r:
-                if best_succ.get(prev) != n:
-                    dist += 1
-                prev = n
-            if best_succ.get(prev) != 0:
-                dist += 1
-        ind.dist_to_parents = dist
-
-    population.sort(key=lambda x: x.dist_to_parents, reverse=True)
-    for i, ind in enumerate(population):
-        ind.rank_diversity = i
-
-    w = 1.0 - (params.elite_size / params.population_size)
-    for ind in population:
-        ind.fitness = ind.rank_profit + w * ind.rank_diversity
-
-
-def evaluate(individual: Individual, split_algo: LinearSplit, must_go_bins, R, C):
-    """
-    Evaluate an individual by splitting its giant tour into routes.
-
-    Args:
-        individual (Individual): The individual to evaluate.
-        split_algo (LinearSplit): The split algorithm instance.
-        must_go_bins: (Unused in current impl but kept for interface).
-        R: Revenue coef.
-        C: Cost coef.
-
-    Returns:
-        Individual: The evaluated individual with updated routes and profit.
-    """
-    routes, profit = split_algo.split(individual.giant_tour)
-    individual.routes = routes
-    individual.profit_score = profit
-    return individual
-
-
-class LocalSearch:
-    """
-    Local Search module for HGS.
-
-    Implements Relocate, Swap, 2-opt, and 2-opt* moves.
+    Implements Hybrid Genetic Search for VRPP.
     """
 
     def __init__(
@@ -588,17 +37,6 @@ class LocalSearch:
         C: float,
         params: HGSParams,
     ):
-        """
-        Initialize the LocalSearch module.
-
-        Args:
-            dist_matrix: Distance matrix.
-            demands: Node demands.
-            capacity: Vehicle capacity.
-            R: Revenue per unit.
-            C: Cost per unit distance.
-            params: HGS parameters.
-        """
         self.d = dist_matrix
         self.demands = demands
         self.Q = capacity
@@ -606,538 +44,85 @@ class LocalSearch:
         self.C = C
         self.params = params
 
-        n_nodes = len(dist_matrix)
-        self.neighbors = {}
-        for i in range(1, n_nodes):
-            row = self.d[i]
-            order = np.argsort(row)
-            cands = []
-            for c in order:
-                if c != i and c != 0:
-                    cands.append(c)
-                    if len(cands) >= 10:
-                        break
-            self.neighbors[i] = cands
+        self.n_nodes = len(dist_matrix) - 1
+        self.nodes = list(range(1, self.n_nodes + 1))
 
-        self.node_map = {}
-        self.route_loads = []
+        self.split_manager = LinearSplit(dist_matrix, demands, capacity, R, C, params.max_vehicles)
+        self.ls = LocalSearch(dist_matrix, demands, capacity, R, C, params)
 
-    def optimize(self, individual: Individual) -> Individual:
-        """
-        Apply local search to improve the individual's routes.
+    def solve(self) -> Tuple[List[List[int]], float, float]:
+        population: List[Individual] = []
 
-        Args:
-            individual (Individual): The individual to optimize.
-
-        Returns:
-            Individual: The optimized individual.
-        """
-        if not individual.routes:
-            return individual
-
-        self.routes = [r[:] for r in individual.routes]
-        self.route_loads = [self._calc_load_fresh(r) for r in self.routes]
-
-        improved = True
-        limit = 500  # Safety cap
-        it = 0
-        t_start = time.time()
-
-        self.node_map.clear()
-        for ri, r in enumerate(self.routes):
-            for pi, node in enumerate(r):
-                self.node_map[node] = (ri, pi)
-
-        while improved and it < limit:
-            improved = False
-            it += 1
-            if it % 50 == 0 and (time.time() - t_start > self.params.time_limit):
-                break
-
-            nodes = list(self.neighbors.keys())
-            # Filter valid nodes only
-            nodes = [n for n in nodes if n in self.node_map]
-            random.shuffle(nodes)
-
-            for u in nodes:
-                if self._process_node(u):
-                    improved = True
-                    break
-
-        individual.routes = self.routes
-        gt = []
-        for r in self.routes:
-            gt.extend(r)
-        individual.giant_tour = gt
-        return individual
-
-    def _calc_load_fresh(self, r: List[int]) -> float:
-        """
-        Calculate total demand of a route.
-        """
-        return sum(self.demands.get(x, 0) for x in r)
-
-    def _process_node(self, u: int) -> bool:
-        """
-        Try all local search moves for a specific node u and its neighbors.
-        """
-        u_loc = self.node_map.get(u)
-        if not u_loc:
-            return False
-        r_u, p_u = u_loc
-
-        for v in self.neighbors[u]:
-            v_loc = self.node_map.get(v)
-            if not v_loc:
-                continue
-            r_v, p_v = v_loc
-
-            if self._move_relocate(u, v, r_u, p_u, r_v, p_v):
-                return True
-            if self._move_swap(u, v, r_u, p_u, r_v, p_v):
-                return True
-            if r_u != r_v:
-                if self._move_2opt_star(u, v, r_u, p_u, r_v, p_v):
-                    return True
-            else:
-                if self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
-                    return True
-
-        return False
-
-    def _update_map(self, affected_indices: Set[int]):
-        """
-        Update the node-to-route position map and route loads for given indices.
-        """
-        for ri in affected_indices:
-            for pi, node in enumerate(self.routes[ri]):
-                self.node_map[node] = (ri, pi)
-            self.route_loads[ri] = self._calc_load_fresh(self.routes[ri])
-
-    def _get_load_cached(self, ri: int) -> float:
-        """
-        Get cached route load for route index ri.
-        """
-        return self.route_loads[ri]
-
-    def _move_relocate(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-        """
-        Try relocating node u to after node v.
-        """
-        if r_u == r_v and (p_u == p_v + 1):
-            return False
-        dem_u = self.demands.get(u, 0)
-
-        if r_u != r_v:
-            if self._get_load_cached(r_v) + dem_u > self.Q:
-                return False
-
-        route_u = self.routes[r_u]
-        route_v = self.routes[r_v]
-        prev_u = route_u[p_u - 1] if p_u > 0 else 0
-        next_u = route_u[p_u + 1] if p_u < len(route_u) - 1 else 0
-        v_next = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
-
-        delta = -self.d[prev_u, u] - self.d[u, next_u] + self.d[prev_u, next_u]
-        delta -= self.d[v, v_next]
-        delta += self.d[v, u] + self.d[u, v_next]
-
-        if delta * self.C < -1e-4:
-            self.routes[r_u].pop(p_u)
-            if r_u == r_v and p_u < p_v:
-                p_v -= 1
-            self.routes[r_v].insert(p_v + 1, u)
-            self._update_map({r_u, r_v})
-            return True
-        return False
-
-    def _move_swap(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-        """
-        Try swapping nodes u and v.
-        """
-        if r_u == r_v and abs(p_u - p_v) <= 1:
-            return False
-
-        dem_u = self.demands.get(u, 0)
-        dem_v = self.demands.get(v, 0)
-
-        if r_u != r_v:
-            if self._get_load_cached(r_u) - dem_u + dem_v > self.Q:
-                return False
-            if self._get_load_cached(r_v) - dem_v + dem_u > self.Q:
-                return False
-
-        route_u = self.routes[r_u]
-        route_v = self.routes[r_v]
-
-        prev_u = route_u[p_u - 1] if p_u > 0 else 0
-        next_u = route_u[p_u + 1] if p_u < len(route_u) - 1 else 0
-        prev_v = route_v[p_v - 1] if p_v > 0 else 0
-        next_v = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
-
-        delta = -self.d[prev_u, u] - self.d[u, next_u] - self.d[prev_v, v] - self.d[v, next_v]
-        delta += self.d[prev_u, v] + self.d[v, next_u] + self.d[prev_v, u] + self.d[u, next_v]
-
-        if delta * self.C < -1e-4:
-            self.routes[r_u][p_u] = v
-            self.routes[r_v][p_v] = u
-            self._update_map({r_u, r_v})
-            return True
-        return False
-
-    def _move_2opt_star(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-        """
-        Try 2-opt* inter-route exchange (swap tails of two routes).
-        """
-        route_u = self.routes[r_u]
-        route_v = self.routes[r_v]
-
-        tail_u = route_u[p_u + 1 :]
-        tail_v = route_v[p_v + 1 :]
-
-        l_head_u = self._calc_load_fresh(route_u[: p_u + 1])
-        l_head_v = self._calc_load_fresh(route_v[: p_v + 1])
-        l_tail_u = self._get_load_cached(r_u) - l_head_u
-        l_tail_v = self._get_load_cached(r_v) - l_head_v
-
-        if l_head_u + l_tail_v > self.Q or l_head_v + l_tail_u > self.Q:
-            return False
-
-        u_next = route_u[p_u + 1] if p_u < len(route_u) - 1 else 0
-        v_next = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
-
-        delta = -self.d[u, u_next] - self.d[v, v_next] + self.d[u, v_next] + self.d[v, u_next]
-
-        if delta * self.C < -1e-4:
-            new_ru = route_u[: p_u + 1] + tail_v
-            new_rv = route_v[: p_v + 1] + tail_u
-            self.routes[r_u] = new_ru
-            self.routes[r_v] = new_rv
-            self._update_map({r_u, r_v})
-            return True
-        return False
-
-    def _move_2opt_intra(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-        """
-        Try 2-opt intra-route reverse segment move.
-        """
-        if p_u >= p_v:
-            return False
-        if p_u + 1 == p_v:
-            return False
-
-        route = self.routes[r_u]
-        u_next = route[p_u + 1]
-        v_next = route[p_v + 1] if p_v < len(route) - 1 else 0
-
-        delta = -self.d[u, u_next] - self.d[v, v_next] + self.d[u, v] + self.d[u_next, v_next]
-
-        if delta * self.C < -1e-4:
-            segment = route[p_u + 1 : p_v + 1]
-            route[p_u + 1 : p_v + 1] = segment[::-1]
-            self._update_map({r_u})
-            return True
-        return False
-
-
-def ordered_crossover(p1: List[int], p2: List[int]) -> List[int]:
-    """
-    Perform Ordered Crossover (OX) between two parent permutations.
-
-    Args:
-        p1 (List[int]): First parent giant tour.
-        p2 (List[int]): Second parent giant tour.
-
-    Returns:
-        List[int]: Child giant tour.
-    """
-    size = len(p1)
-    if size < 2:
-        return p1[:]
-
-    a, b = sorted(random.sample(range(size), 2))
-    child = [-1] * size
-    child[a:b] = p1[a:b]
-
-    p1_set = set(p1[a:b])
-    genes_from_p2 = [x for x in p2 if x not in p1_set]
-
-    curr = b
-    for gene in genes_from_p2:
-        if -1 not in child:
-            break
-        while True:
-            if curr >= size:
-                curr = 0
-            if child[curr] == -1:
-                break
-            curr += 1
-
-        child[curr] = gene
-        curr += 1
-
-    child = [x for x in child if x != -1]
-    return child
-
-
-class HGSSolver:
-    """
-    Solver class for Hybrid Genetic Search (HGS).
-    """
-
-    def __init__(
-        self,
-        dist_matrix: np.ndarray,
-        demands: Dict[int, float],
-        capacity: float,
-        R: float,
-        C: float,
-        values: Dict[str, Any],
-    ):
-        """
-        Initialize the HGS Solver.
-
-        Args:
-            dist_matrix (np.ndarray): Distance matrix.
-            demands (dict): Node demands.
-            capacity (float): Vehicle capacity.
-            R (float): Revenue per unit.
-            C (float): Cost per unit distance.
-            values (dict): Configuration options.
-        """
-        self.dist_matrix = np.array(dist_matrix)
-        self.demands = demands
-        self.capacity = capacity
-        self.R = R
-        self.C = C
-        self.values = values
-
-        self.params = HGSParams(
-            time_limit=values.get("time_limit", 10),
-            population_size=values.get("population_size", 30),
-            elite_size=values.get("elite_size", 10),
-            max_vehicles=values.get("max_vehicles", 0),
-        )
-
-    def solve(
-        self,
-        global_must_go: List[int],
-        local_to_global: Dict[int, int],
-        vrpp_tour_global: Optional[List[int]] = None,
-    ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the solver strategy.
-        """
-        engine = self.values.get("hgs_engine", "custom")
-        if engine == "pyvrp":
-            return self._solve_pyvrp(global_must_go)
-        else:
-            return self._solve_custom(global_must_go, local_to_global, vrpp_tour_global)
-
-    def _solve_custom(
-        self,
-        global_must_go: List[int],
-        local_to_global: Dict[int, int],
-        vrpp_tour_global: Optional[List[int]],
-    ) -> Tuple[List[List[int]], float, float]:
-        """
-        Custom Pure-Python HGS Implementation.
-        """
-        # Ensure matrix is array
-        dmat = np.array(self.dist_matrix)
-
-        split_algo = LinearSplit(dmat, self.demands, self.capacity, self.R, self.C, self.params.max_vehicles)
-        ls = LocalSearch(dmat, self.demands, self.capacity, self.R, self.C, self.params)
-
-        base_tour = list(local_to_global.values())
-        population = []
-
-        start_time = time.time()
-        for i in range(self.params.population_size):
-            if i == 0 and vrpp_tour_global:
-                t = vrpp_tour_global[:]
-            elif i == 1:
-                t = base_tour[:]
-            else:
-                t = base_tour[:]
-                random.shuffle(t)
-
-            ind = Individual(t)
-            evaluate(ind, split_algo, global_must_go, self.R, self.C)
+        # 1. Initial Population
+        for _ in range(self.params.population_size):
+            gt = self.nodes[:]
+            random.shuffle(gt)
+            ind = Individual(gt)
+            evaluate(ind, self.split_manager)
             population.append(ind)
 
-        update_biased_fitness(population, self.params)
-        population.sort()
+        update_biased_fitness(population, self.params.elite_size)
 
-        if not population:
-            return [], 0.0, 0.0
-
-        best_sol = max(population, key=lambda x: x.profit_score)
-
-        # print(
-        #    f"[HGS] Init Best: {best_sol.profit_score:.2f} (Routes: {len(best_sol.routes)})"
-        # )
-
-        no_improv = 0
-        max_stag = 50
-        n_gens = 0
-
+        start_time = time.time()
+        it = 0
         while time.time() - start_time < self.params.time_limit:
-            n_gens += 1
+            it += 1
+            # 2. Selection & Crossover
+            p1, p2 = self._select_parents(population)
+            child = ordered_crossover(p1, p2)
 
-            parents = []
-            for _ in range(2):
-                c1, c2 = random.sample(population, 2)
-                parents.append(c1 if c1.fitness < c2.fitness else c2)
+            # 3. Local Search (Mutation)
+            if random.random() < self.params.mutation_rate:
+                evaluate(child, self.split_manager)
+                child = self.ls.optimize(child)
 
-            child_tour = ordered_crossover(parents[0].giant_tour, parents[1].giant_tour)
-            child = Individual(child_tour)
-            evaluate(child, split_algo, global_must_go, self.R, self.C)
+            evaluate(child, self.split_manager)
+            population.append(child)
 
-            ls.optimize(child)
-            evaluate(child, split_algo, global_must_go, self.R, self.C)
+            # 4. Survivor Selection
+            if len(population) > self.params.population_size * 2:
+                update_biased_fitness(population, self.params.elite_size)
+                population.sort(key=lambda x: x.fitness)
+                population = population[: self.params.population_size]
 
-            is_dup = any(abs(p.profit_score - child.profit_score) < 1e-4 for p in population)
-            if not is_dup:
-                population.append(child)
-                update_biased_fitness(population, self.params)
-                population.sort()
-                population.pop()
+        update_biased_fitness(population, self.params.elite_size)
+        best_ind = min(population, key=lambda x: -x.profit_score)
 
-                if child.profit_score > best_sol.profit_score:
-                    best_sol = child
-                    no_improv = 0
-                else:
-                    no_improv += 1
-            else:
-                no_improv += 1
+        return best_ind.routes, best_ind.profit_score, best_ind.cost
 
-            if no_improv > max_stag:
-                n_elite = self.params.elite_size
-                for k in range(n_elite, self.params.population_size):
-                    p = population[k % n_elite]
-                    nt = p.giant_tour[:]
-                    random.shuffle(nt)
-                    ind = Individual(nt)
-                    evaluate(ind, split_algo, global_must_go, self.R, self.C)
-                    population[k] = ind
-                update_biased_fitness(population, self.params)
-                population.sort()
-                no_improv = 0
+    def _select_parents(self, population: List[Individual]) -> Tuple[Individual, Individual]:
+        # Binary Tournament
+        def tournament():
+            i1, i2 = random.sample(population, 2)
+            return i1 if i1.fitness < i2.fitness else i2
 
-        return best_sol.routes, best_sol.profit_score, best_sol.cost
-
-    def _solve_pyvrp(self, global_must_go: List[int]) -> Tuple[List[List[int]], float, float]:
-        """
-        HGS Implementation using PyVRP library.
-        """
-        try:
-            from pyvrp import Client, Depot, Model, ProblemData, VehicleType
-            from pyvrp.stop import MaxRuntime
-        except ImportError:
-            print("Error: PyVRP not installed. Falling back to custom engine.")
-            return [], 0, 0
-
-        clients = []
-        n_nodes = len(self.dist_matrix)
-        depot = Depot(0, 0)
-
-        # We iterate 1..N-1
-        for i in range(1, n_nodes):
-            weight = self.demands.get(i, 0)
-            prize = weight * self.R
-
-            if i in global_must_go:
-                prize += 100000.0
-
-            # Using PyVRP Client
-            # Note: PyVRP validation might require ints
-            client = Client(
-                x=0,
-                y=0,
-                delivery=int(weight),
-                prize=int(prize * 100),  # Scale prize
-            )
-            clients.append(client)
-
-        vehicle_type = VehicleType(capacity=int(self.capacity), num_available=100)
-
-        # Convert matrix to int scaled
-        m_dist = [[int(d * self.C * 100) for d in row] for row in self.dist_matrix]
-        m_dur = [[0] * n_nodes for _ in self.dist_matrix]
-
-        data = ProblemData(
-            clients=clients,
-            depots=[depot],
-            vehicle_types=[vehicle_type],
-            distance_matrices=[np.array(m_dist)],
-            duration_matrices=[m_dur],
-        )
-
-        model = Model.from_data(data)
-        time_limit_sec = self.values.get("time_limit", 10)
-        result = model.solve(stop=MaxRuntime(time_limit_sec), display=False)
-
-        routes = []
-        for r in result.best.routes():
-            # PyVRP 0.6+ loop over visits
-            r_indices = []
-            for v in r.visits():
-                r_indices.append(v)
-            routes.append(r_indices)
-
-        calc_profit = 0
-        calc_cost = 0
-
-        for r in routes:
-            if not r:
-                continue
-            r_cost = 0.0
-            # Dep->First
-            r_cost += self.dist_matrix[0][r[0]] * self.C
-            for k in range(len(r) - 1):
-                r_cost += self.dist_matrix[r[k]][r[k + 1]] * self.C
-            # Last->Dep
-            r_cost += self.dist_matrix[r[-1]][0] * self.C
-            calc_cost += r_cost
-
-            for node in r:
-                w = self.demands.get(node, 0)
-                calc_profit += w * self.R
-
-        calc_profit -= calc_cost
-        return routes, calc_profit, calc_cost
+        return tournament(), tournament()
 
 
-def run_hgs(
-    dist_matrix: np.ndarray,
-    demands: Dict[int, float],
-    capacity: float,
-    R: float,
-    C: float,
-    values: Dict[str, Any],
-    global_must_go: List[int],
-    local_to_global: Dict[int, int],
-    vrpp_tour_global: Optional[List[int]] = None,
-) -> Tuple[List[List[int]], float, float]:
+def run_hgs(dist_matrix, demands, capacity, R, C, values, *args):
     """
-    Run Hybrid Genetic Search for VRPP.
-
-    Dispatcher wrapper using HGSSolver.
+    Main HGS entry point with dispatching logic.
 
     Args:
-        dist_matrix (np.ndarray): Distance matrix (local indexing)
-        demands (dict): Node demands {local_index: demand_value}
-        capacity (float): Vehicle capacity
-        R (float): Revenue per unit demand
-        C (float): Cost per unit distance
-        values (dict): Configuration
-        global_must_go (set): Must-visit node IDs (global indexing)
-        local_to_global (dict): Mapping from local to global indices
-        vrpp_tour_global (List[int], optional): Initial tour seed (global indices)
+        dist_matrix: Distance matrix.
+        demands: Bin demands.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        values: Dictionary of parameters and config.
+        *args: Additional arguments (ignored or passed through).
 
     Returns:
-        Tuple[List[List[int]], float, float]: Routes, profit, and cost
+        Tuple[List[List[int]], float, float]: Best routes, profit, and cost.
     """
-    solver = HGSSolver(dist_matrix, demands, capacity, R, C, values)
-    return solver.solve(global_must_go, local_to_global, vrpp_tour_global)
+    engine = values.get("engine") or values.get("variant")
+    if engine == "pyvrp":
+        return solve_pyvrp(dist_matrix, demands, capacity, R, C, values)
+
+    params = HGSParams(
+        time_limit=values.get("time_limit", 10),
+        population_size=values.get("population_size", 50),
+        max_vehicles=values.get("max_vehicles", 0),
+    )
+    solver = HGSSolver(dist_matrix, demands, capacity, R, C, params)
+    return solver.solve()
