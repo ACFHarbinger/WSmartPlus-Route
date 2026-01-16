@@ -4,6 +4,7 @@ Test suite related argument parsers.
 
 from logic.src.utils.definitions import TEST_MODULES
 
+
 def add_test_suite_args(parser):
     """
     Adds all arguments related to the test suite to the given parser.
@@ -34,18 +35,12 @@ def add_test_suite_args(parser):
         dest="test_method",
         help="Specific test method to run (e.g., test_train_default_parameters)",
     )
-    parser.add_argument(
-        "-k", "--keyword", help="Run tests matching the given keyword expression"
-    )
-    parser.add_argument(
-        "--markers", help="Run tests matching the given marker expression"
-    )
+    parser.add_argument("-k", "--keyword", help="Run tests matching the given keyword expression")
+    parser.add_argument("--markers", help="Run tests matching the given marker expression")
 
     # Test execution options
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
-    parser.add_argument(
-        "--coverage", action="store_true", help="Run with coverage report"
-    )
+    parser.add_argument("--coverage", action="store_true", help="Run with coverage report")
     parser.add_argument(
         "--ff",
         "--failed-first",
@@ -82,9 +77,7 @@ def add_test_suite_args(parser):
     )
 
     # Information commands
-    parser.add_argument(
-        "-l", "--list", action="store_true", help="List all available test modules"
-    )
+    parser.add_argument("-l", "--list", action="store_true", help="List all available test modules")
     parser.add_argument(
         "--list-tests",
         action="store_true",

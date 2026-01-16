@@ -32,4 +32,3 @@ Usage:
     The module is typically accessed via the `hpo.py` script or by instantiating `DifferentialEvolutionHyperband`
     directly for custom optimization loops.
 """
-from .dehb import DifferentialEvolutionHyperband, get_config_space

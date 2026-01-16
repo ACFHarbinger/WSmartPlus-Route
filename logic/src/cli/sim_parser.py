@@ -1,17 +1,14 @@
 """
 Simulation and evaluation related argument parsers.
 """
-import os
-import argparse
-import re
 
 import re
 from multiprocessing import cpu_count
-from logic.src.cli.base_parser import LowercaseAction, StoreDictKeyPair
+
+from logic.src.cli.base_parser import StoreDictKeyPair
+from logic.src.utils.definitions import MAP_DEPOTS, WASTE_TYPES
 from logic.src.utils.functions import parse_softmax_temperature
-from logic.src.utils.definitions import (
-    MAP_DEPOTS, WASTE_TYPES
-)
+
 
 def add_eval_args(parser):
     """
@@ -23,12 +20,8 @@ def add_eval_args(parser):
     Returns:
         The parser with added evaluation arguments.
     """
-    parser.add_argument(
-        "--datasets", type=str, nargs="+", help="Filename of the dataset(s) to evaluate"
-    )
-    parser.add_argument(
-        "-f", action="store_true", dest="overwrite", help="Set true to overwrite"
-    )
+    parser.add_argument("--datasets", type=str, nargs="+", help="Filename of the dataset(s) to evaluate")
+    parser.add_argument("-f", action="store_true", dest="overwrite", help="Set true to overwrite")
     parser.add_argument(
         "-o",
         "--output_filename",
@@ -41,9 +34,7 @@ def add_eval_args(parser):
         default=12_800,
         help="Number of instances used for reporting validation performance",
     )
-    parser.add_argument(
-        "--offset", type=int, default=0, help="Offset where to start in dataset"
-    )
+    parser.add_argument("--offset", type=int, default=0, help="Offset where to start in dataset")
     parser.add_argument(
         "--eval_batch_size",
         type=int,
@@ -83,29 +74,17 @@ def add_eval_args(parser):
         help="Data distribution of the dataset",
     )
     parser.add_argument("--no_cuda", action="store_true", help="Disable CUDA")
-    parser.add_argument(
-        "--no_progress_bar", action="store_true", help="Disable progress bar"
-    )
-    parser.add_argument(
-        "--compress_mask", action="store_true", help="Compress mask into long"
-    )
-    parser.add_argument(
-        "--max_calc_batch_size", type=int, default=12_800, help="Size for subbatches"
-    )
-    parser.add_argument(
-        "--results_dir", default="results", help="Name of evaluation results directory"
-    )
+    parser.add_argument("--no_progress_bar", action="store_true", help="Disable progress bar")
+    parser.add_argument("--compress_mask", action="store_true", help="Compress mask into long")
+    parser.add_argument("--max_calc_batch_size", type=int, default=12_800, help="Size for subbatches")
+    parser.add_argument("--results_dir", default="results", help="Name of evaluation results directory")
     parser.add_argument(
         "--multiprocessing",
         action="store_true",
         help="Use multiprocessing to parallelize over multiple GPUs",
     )
-    parser.add_argument(
-        "--graph_size", type=int, default=50, help="The size of the problem graph"
-    )
-    parser.add_argument(
-        "--area", type=str, default="riomaior", help="County area of the bins locations"
-    )
+    parser.add_argument("--graph_size", type=int, default=50, help="The size of the problem graph")
+    parser.add_argument("--area", type=str, default="riomaior", help="County area of the bins locations")
     parser.add_argument(
         "--waste_type",
         type=str,
@@ -141,22 +120,15 @@ def add_eval_args(parser):
         default="ogd",
         help="Method to compute distance matrix",
     )
-    parser.add_argument(
-        "--dm_filepath", type=str, default=None, help="Path to the distance matrix file"
-    )
+    parser.add_argument("--dm_filepath", type=str, default=None, help="Path to the distance matrix file")
     parser.add_argument(
         "--vertex_method",
         type=str,
         default="mmn",
-        help="Method to transform vertex coordinates "
-        "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
+        help="Method to transform vertex coordinates " "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
     )
-    parser.add_argument(
-        "--w_length", type=float, default=1.0, help="Weight for length in cost function"
-    )
-    parser.add_argument(
-        "--w_waste", type=float, default=1.0, help="Weight for waste in cost function"
-    )
+    parser.add_argument("--w_length", type=float, default=1.0, help="Weight for length in cost function")
+    parser.add_argument("--w_waste", type=float, default=1.0, help="Weight for waste in cost function")
     parser.add_argument(
         "--w_overflows",
         type=float,
@@ -175,10 +147,9 @@ def add_eval_args(parser):
         default="gat",
         help="Encoder to use ('gat'|'gac'|'tgc'|'ggac')",
     )
-    parser.add_argument(
-        "--load_path", help="Path to load model parameters and optimizer state from"
-    )
+    parser.add_argument("--load_path", help="Path to load model parameters and optimizer state from")
     return parser
+
 
 def add_test_sim_args(parser):
     """
@@ -216,15 +187,9 @@ def add_test_sim_args(parser):
         default="gamma1",
         help="Distribution to generate the bins daily waste fill",
     )
-    parser.add_argument(
-        "--problem", default="vrpp", help="The problem the model was trained to solve"
-    )
-    parser.add_argument(
-        "--size", type=int, default=50, help="The size of the problem graph"
-    )
-    parser.add_argument(
-        "--days", type=int, default=31, help="Number of days to run the simulation for"
-    )
+    parser.add_argument("--problem", default="vrpp", help="The problem the model was trained to solve")
+    parser.add_argument("--size", type=int, default=50, help="The size of the problem graph")
+    parser.add_argument("--days", type=int, default=31, help="Number of days to run the simulation for")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument(
         "--output_dir",
@@ -272,9 +237,7 @@ def add_test_sim_args(parser):
         action="store_true",
         help="Resume testing (relevant for saving results)",
     )
-    parser.add_argument(
-        "--pregular_level", "--lvl", type=int, nargs="+", help="Regular policy level"
-    )
+    parser.add_argument("--pregular_level", "--lvl", type=int, nargs="+", help="Regular policy level")
     parser.add_argument(
         "--plastminute_cf",
         "--cf",
@@ -295,8 +258,7 @@ def add_test_sim_args(parser):
         type=float,
         default=0.84,
         nargs="+",
-        help="Param value for Gurobi VRPP policy "
-        "(higher = more conservative with regards to amount of overflows)",
+        help="Param value for Gurobi VRPP policy " "(higher = more conservative with regards to amount of overflows)",
     )
     parser.add_argument(
         "--hexaly_param",
@@ -315,9 +277,7 @@ def add_test_sim_args(parser):
         help="Number of max CPU cores to use (0 uses all available cores)",
     )
     parser.add_argument("--n_vehicles", type=int, default=1, help="Number of vehicles")
-    parser.add_argument(
-        "--area", type=str, default="riomaior", help="County area of the bins locations"
-    )
+    parser.add_argument("--area", type=str, default="riomaior", help="County area of the bins locations")
     parser.add_argument(
         "--waste_type",
         type=str,
@@ -362,8 +322,7 @@ def add_test_sim_args(parser):
         "--vm",
         type=str,
         default="mmn",
-        help="Method to transform vertex coordinates "
-        "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
+        help="Method to transform vertex coordinates " "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
     )
     parser.add_argument(
         "--distance_method",
@@ -397,9 +356,7 @@ def add_test_sim_args(parser):
         default=0.0,
         help="Variance of Gaussian noise to inject into observed bin levels",
     )
-    parser.add_argument(
-        "--run_tsp", action="store_true", help="Activate fast_tsp for all policies."
-    )
+    parser.add_argument("--run_tsp", action="store_true", help="Activate fast_tsp for all policies.")
     parser.add_argument(
         "--two_opt_max_iter",
         type=int,
@@ -412,9 +369,7 @@ def add_test_sim_args(parser):
         help="Deactivate caching for policy regular.",
     )
     parser.add_argument("--no_cuda", action="store_true", help="Disable CUDA")
-    parser.add_argument(
-        "--no_progress_bar", action="store_true", help="Disable progress bar"
-    )
+    parser.add_argument("--no_progress_bar", action="store_true", help="Disable progress bar")
     parser.add_argument(
         "--server_run",
         action="store_true",
@@ -450,9 +405,7 @@ def add_test_sim_args(parser):
         default=None,
         help="Name of the file that contains the key to use for the Google API",
     )
-    parser.add_argument(
-        "--real_time_log", action="store_true", help="Activate real time results window"
-    )
+    parser.add_argument("--real_time_log", action="store_true", help="Activate real time results window")
     parser.add_argument(
         "--stats_filepath",
         type=str,
@@ -475,27 +428,24 @@ def add_test_sim_args(parser):
     )
     return parser
 
+
 def validate_test_sim_args(args):
     """
     Validates and post-processes arguments for test_sim.
     """
     args = args.copy()
     assert args.get("days", 0) >= 1, "Must run the simulation for 1 or more days"
-    assert (
-        args.get("n_samples", 0) > 0
-    ), "Number of samples must be non-negative integer"
+    assert args.get("n_samples", 0) > 0, "Number of samples must be non-negative integer"
 
     args["area"] = re.sub(r"[^a-zA-Z]", "", args.get("area", "").lower())
-    assert (
-        args["area"] in MAP_DEPOTS.keys()
-    ), "Unknown area {}, available areas: {}".format(args["area"], MAP_DEPOTS.keys())
+    assert args["area"] in MAP_DEPOTS.keys(), "Unknown area {}, available areas: {}".format(
+        args["area"], MAP_DEPOTS.keys()
+    )
 
     args["waste_type"] = re.sub(r"[^a-zA-Z]", "", args.get("waste_type", "").lower())
     assert (
         args["waste_type"] in WASTE_TYPES.keys() or args["waste_type"] is None
-    ), "Unknown waste type {}, available waste types: {}".format(
-        args["waste_type"], WASTE_TYPES.keys()
-    )
+    ), "Unknown waste type {}, available waste types: {}".format(args["waste_type"], WASTE_TYPES.keys())
 
     args["edge_threshold"] = (
         float(args["edge_threshold"])
@@ -503,57 +453,31 @@ def validate_test_sim_args(args):
         else int(args.get("edge_threshold", "0"))
     )
 
-    assert (
-        args.get("cpu_cores", 0) >= 0
-    ), "Number of CPU cores must be non-negative integer"
-    assert (
-        args.get("cpu_cores", 0) <= cpu_count()
-    ), "Number of CPU cores to use cannot exceed system specifications"
+    assert args.get("cpu_cores", 0) >= 0, "Number of CPU cores must be non-negative integer"
+    assert args.get("cpu_cores", 0) <= cpu_count(), "Number of CPU cores to use cannot exceed system specifications"
     if args.get("cpu_cores") == 0:
         args["cpu_cores"] = cpu_count()
 
     if args.get("plastminute_cf"):
-        vals = (
-            args["plastminute_cf"]
-            if isinstance(args["plastminute_cf"], list)
-            else [args["plastminute_cf"]]
-        )
+        vals = args["plastminute_cf"] if isinstance(args["plastminute_cf"], list) else [args["plastminute_cf"]]
         for cf in vals:
-            assert (
-                cf > 0 and cf < 100
-            ), "Policy last minute CF must be between 0 and 100"
+            assert cf > 0 and cf < 100, "Policy last minute CF must be between 0 and 100"
     if args.get("pregular_level"):
-        vals = (
-            args["pregular_level"]
-            if isinstance(args["pregular_level"], list)
-            else [args["pregular_level"]]
-        )
+        vals = args["pregular_level"] if isinstance(args["pregular_level"], list) else [args["pregular_level"]]
         for lvl in vals:
             assert (
                 lvl >= 1 and lvl <= args["days"]
             ), "Policy regular level must be between 1 and number of days, inclusive"
     if args.get("gurobi_param"):
-        vals = (
-            args["gurobi_param"]
-            if isinstance(args["gurobi_param"], list)
-            else [args["gurobi_param"]]
-        )
+        vals = args["gurobi_param"] if isinstance(args["gurobi_param"], list) else [args["gurobi_param"]]
         for gp in vals:
             assert gp > 0, "Policy gurobi parameter must be greater than 0"
     if args.get("hexaly_param"):
-        vals = (
-            args["hexaly_param"]
-            if isinstance(args["hexaly_param"], list)
-            else [args["hexaly_param"]]
-        )
+        vals = args["hexaly_param"] if isinstance(args["hexaly_param"], list) else [args["hexaly_param"]]
         for hp in vals:
             assert hp > 0, "Policy hexaly parameter must be greater than 0"
     if args.get("lookahead_configs"):
-        vals = (
-            args["lookahead_configs"]
-            if isinstance(args["lookahead_configs"], list)
-            else [args["lookahead_configs"]]
-        )
+        vals = args["lookahead_configs"] if isinstance(args["lookahead_configs"], list) else [args["lookahead_configs"]]
         for lac in vals:
             assert lac in [
                 "a",
@@ -578,14 +502,12 @@ def validate_eval_args(args):
     ), "Cannot specify result filename with more than one dataset or more than one width"
 
     args["area"] = re.sub(r"[^a-zA-Z]", "", args.get("area", "").lower())
-    assert (
-        args["area"] in MAP_DEPOTS.keys()
-    ), "Unknown area {}, available areas: {}".format(args["area"], MAP_DEPOTS.keys())
+    assert args["area"] in MAP_DEPOTS.keys(), "Unknown area {}, available areas: {}".format(
+        args["area"], MAP_DEPOTS.keys()
+    )
 
     args["waste_type"] = re.sub(r"[^a-zA-Z]", "", args.get("waste_type", "").lower())
     assert (
         args["waste_type"] in WASTE_TYPES.keys() or args["waste_type"] is None
-    ), "Unknown waste type {}, available waste types: {}".format(
-        args["waste_type"], WASTE_TYPES.keys()
-    )
+    ), "Unknown waste type {}, available waste types: {}".format(args["waste_type"], WASTE_TYPES.keys())
     return args

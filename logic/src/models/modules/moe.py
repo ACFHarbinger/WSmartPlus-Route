@@ -3,9 +3,11 @@ Mixture of Experts (MoE) implementation.
 Based on Pytorch Implementation by David Rau: https://github.com/davidmrau/mixture-of-experts/blob/master/moe.py
 And rl4co implementation.
 """
+
 import torch
 import torch.nn as nn
 from torch.distributions.normal import Normal
+
 
 class SparseDispatcher(object):
     """
@@ -92,7 +94,12 @@ class SparseDispatcher(object):
 
         if multiply_by_gates:
             stitched = stitched.mul(self._nonzero_gates)
-        zeros = torch.zeros(self._gates.size(0), expert_out[-1].size(-1), requires_grad=True, device=stitched.device)
+        zeros = torch.zeros(
+            self._gates.size(0),
+            expert_out[-1].size(-1),
+            requires_grad=True,
+            device=stitched.device,
+        )
         # combine samples that have been processed by the same k experts
         combined = zeros.index_add(0, self._batch_index, stitched.float())
         return combined
@@ -118,7 +125,19 @@ class MoE(nn.Module):
         k: an integer - how many experts to use for each batch element
     """
 
-    def __init__(self, input_size, output_size, num_neurons=None, experts=None, hidden_act="ReLU", out_bias=True, num_experts=4, k=2, noisy_gating=True, **kwargs):
+    def __init__(
+        self,
+        input_size,
+        output_size,
+        num_neurons=None,
+        experts=None,
+        hidden_act="ReLU",
+        out_bias=True,
+        num_experts=4,
+        k=2,
+        noisy_gating=True,
+        **kwargs,
+    ):
         """
         Initialize the MoE layer.
 
@@ -143,10 +162,10 @@ class MoE(nn.Module):
 
         # instantiate experts
         if experts is not None:
-             self.experts = experts
+            self.experts = experts
         elif num_neurons is not None and len(num_neurons) > 0:
-             # Basic MLP implementation if not provided
-             def build_mlp(dims):
+            # Basic MLP implementation if not provided
+            def build_mlp(dims):
                 """Builds a Multi-Layer Perceptron expert."""
                 layers = []
                 in_dim = input_size
@@ -156,11 +175,13 @@ class MoE(nn.Module):
                     in_dim = hidden
                 layers.append(nn.Linear(in_dim, output_size, bias=out_bias))
                 return nn.Sequential(*layers)
-             
-             self.experts = nn.ModuleList([build_mlp(num_neurons) for _ in range(self.num_experts)])
+
+            self.experts = nn.ModuleList([build_mlp(num_neurons) for _ in range(self.num_experts)])
         else:
-            self.experts = nn.ModuleList([nn.Linear(self.input_size, self.output_size, bias=out_bias) for _ in range(self.num_experts)])
-            
+            self.experts = nn.ModuleList(
+                [nn.Linear(self.input_size, self.output_size, bias=out_bias) for _ in range(self.num_experts)]
+            )
+
         self.w_gate = nn.Parameter(torch.zeros(input_size, num_experts), requires_grad=True)
         self.w_noise = nn.Parameter(torch.zeros(input_size, num_experts), requires_grad=True)
 
@@ -168,7 +189,7 @@ class MoE(nn.Module):
         self.softmax = nn.Softmax(-1)
         self.register_buffer("mean", torch.tensor([0.0]))
         self.register_buffer("std", torch.tensor([1.0]))
-        assert(self.k <= self.num_experts)
+        assert self.k <= self.num_experts
 
     def cv_squared(self, x):
         """The squared coefficient of variation of a sample.
@@ -185,7 +206,7 @@ class MoE(nn.Module):
 
         if x.shape[0] == 1:
             return torch.tensor([0], device=x.device, dtype=x.dtype)
-        return x.float().var() / (x.float().mean()**2 + eps)
+        return x.float().var() / (x.float().mean() ** 2 + eps)
 
     def _gates_to_load(self, gates):
         """Compute the true load per expert, given the gates.
@@ -225,8 +246,8 @@ class MoE(nn.Module):
         threshold_if_out = torch.unsqueeze(torch.gather(top_values_flat, 0, threshold_positions_if_out), 1)
         # is each value currently in the top k.
         normal = Normal(self.mean, self.std)
-        prob_if_in = normal.cdf((clean_values - threshold_if_in)/noise_stddev)
-        prob_if_out = normal.cdf((clean_values - threshold_if_out)/noise_stddev)
+        prob_if_in = normal.cdf((clean_values - threshold_if_in) / noise_stddev)
+        prob_if_out = normal.cdf((clean_values - threshold_if_out) / noise_stddev)
         prob = torch.where(is_in, prob_if_in, prob_if_out)
         return prob
 
@@ -253,8 +274,8 @@ class MoE(nn.Module):
         # calculate topk + 1 that will be needed for the noisy gates
         logits = self.softmax(logits)
         top_logits, top_indices = logits.topk(min(self.k + 1, self.num_experts), dim=-1)
-        top_k_logits = top_logits[:, :self.k]
-        top_k_indices = top_indices[:, :self.k]
+        top_k_logits = top_logits[:, : self.k]
+        top_k_indices = top_indices[:, : self.k]
         top_k_gates = top_k_logits / (top_k_logits.sum(1, keepdim=True) + 1e-6)  # normalization
 
         zeros = torch.zeros_like(logits, requires_grad=True)
@@ -266,7 +287,7 @@ class MoE(nn.Module):
             load = self._gates_to_load(gates)
         return gates, load
 
-    def forward(self, x, loss_coef=0.):
+    def forward(self, x, loss_coef=0.0):
         """
         Token/Node-level Gating with the default gating algorithm in <https://arxiv.org/abs/1701.06538>.
         In specific, each token/node chooses TopK experts, auxiliary losses required for load balancing.

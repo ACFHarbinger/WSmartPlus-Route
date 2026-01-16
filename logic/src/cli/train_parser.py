@@ -1,17 +1,20 @@
 """
 Training-related argument parsers.
 """
+
 import os
 import re
 import time
-import argparse
 from multiprocessing import cpu_count
 
-from logic.src.cli.base_parser import LowercaseAction, StoreDictKeyPair
-from logic.src.utils.functions import parse_softmax_temperature
 from logic.src.utils.definitions import (
-    MAP_DEPOTS, WASTE_TYPES, SUB_NET_ENCS, PRED_ENC_MODELS, ENC_DEC_MODELS
+    ENC_DEC_MODELS,
+    MAP_DEPOTS,
+    PRED_ENC_MODELS,
+    SUB_NET_ENCS,
+    WASTE_TYPES,
 )
+
 
 def add_train_args(parser):
     """
@@ -25,9 +28,7 @@ def add_train_args(parser):
     """
     # Data
     parser.add_argument("--problem", default="wcvrp", help="The problem to solve")
-    parser.add_argument(
-        "--graph_size", type=int, default=20, help="The size of the problem graph"
-    )
+    parser.add_argument("--graph_size", type=int, default=20, help="The size of the problem graph")
     parser.add_argument(
         "--edge_threshold",
         default="0",
@@ -89,9 +90,7 @@ def add_train_args(parser):
         action="store_true",
         help="Set to train the model over multiple days on the same graphs (n_days=n_epochs)",
     )
-    parser.add_argument(
-        "--area", type=str, default="riomaior", help="County area of the bins locations"
-    )
+    parser.add_argument("--area", type=str, default="riomaior", help="County area of the bins locations")
     parser.add_argument(
         "--waste_type",
         type=str,
@@ -137,18 +136,13 @@ def add_train_args(parser):
         "--vertex_method",
         type=str,
         default="mmn",
-        help="Method to transform vertex coordinates "
-        "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
+        help="Method to transform vertex coordinates " "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
     )
 
     # Model
     parser.add_argument("--model", default="am", help="Model: 'am'|'tam'|'ddam'")
-    parser.add_argument(
-        "--encoder", default="gat", help="Encoder: 'gat'|gac'|'tgc'|'ggac'|'gcn'|'mlp'"
-    )
-    parser.add_argument(
-        "--embedding_dim", type=int, default=128, help="Dimension of input embedding"
-    )
+    parser.add_argument("--encoder", default="gat", help="Encoder: 'gat'|gac'|'tgc'|'ggac'|'gcn'|'mlp'")
+    parser.add_argument("--embedding_dim", type=int, default=128, help="Dimension of input embedding")
     parser.add_argument(
         "--hidden_dim",
         type=int,
@@ -189,8 +183,7 @@ def add_train_args(parser):
         "--tanh_clipping",
         type=float,
         default=10.0,
-        help="Clip the parameters to within +- this value using tanh. "
-        "Set to 0 to not perform any clipping.",
+        help="Clip the parameters to within +- this value using tanh. " "Set to 0 to not perform any clipping.",
     )
     parser.add_argument(
         "--normalization",
@@ -295,9 +288,7 @@ def add_train_args(parser):
         default=[0.125, 1 / 3],
         help="Range for the uniform distribution of the Randomized Leaky ReLU (RReLU) activation",
     )
-    parser.add_argument(
-        "--dropout", type=float, default=0.1, help="Dropout rate for the model"
-    )
+    parser.add_argument("--dropout", type=float, default=0.1, help="Dropout rate for the model")
     parser.add_argument(
         "--aggregation_graph",
         default="avg",
@@ -308,15 +299,9 @@ def add_train_args(parser):
         default="sum",
         help="Node embedding aggregation function: 'sum'|'avg'|'max'",
     )
-    parser.add_argument(
-        "--n_heads", type=int, default=8, help="Number of attention heads"
-    )
-    parser.add_argument(
-        "--mask_inner", action="store_false", help="Mask inner values during decoding"
-    )
-    parser.add_argument(
-        "--mask_logits", action="store_false", help="Mask logits during decoding"
-    )
+    parser.add_argument("--n_heads", type=int, default=8, help="Number of attention heads")
+    parser.add_argument("--mask_inner", action="store_false", help="Mask inner values during decoding")
+    parser.add_argument("--mask_logits", action="store_false", help="Mask logits during decoding")
     parser.add_argument(
         "--mask_graph",
         action="store_true",
@@ -394,9 +379,7 @@ def add_train_args(parser):
         default=0,
         help="Maximum number of iterations for 2-opt refinement in Look-Ahead update",
     )
-    parser.add_argument(
-        "--gamma", type=float, default=0.99, help="Discount factor for future rewards"
-    )
+    parser.add_argument("--gamma", type=float, default=0.99, help="Discount factor for future rewards")
     parser.add_argument(
         "--rl_algorithm",
         type=str,
@@ -404,12 +387,8 @@ def add_train_args(parser):
         choices=["reinforce", "ppo", "sapo", "gspo", "dr_grpo"],
         help="RL algorithm to use",
     )
-    parser.add_argument(
-        "--ppo_epochs", type=int, default=3, help="Number of epochs for PPO update"
-    )
-    parser.add_argument(
-        "--ppo_eps_clip", type=float, default=0.2, help="PPO clip parameter"
-    )
+    parser.add_argument("--ppo_epochs", type=int, default=3, help="Number of epochs for PPO update")
+    parser.add_argument("--ppo_eps_clip", type=float, default=0.2, help="PPO clip parameter")
     parser.add_argument(
         "--ppo_mini_batch_size",
         type=int,
@@ -428,28 +407,16 @@ def add_train_args(parser):
         default=1.0,
         help="Temperature for negative advantages in SAPO",
     )
-    parser.add_argument(
-        "--gspo_epsilon", type=float, default=0.2, help="GSPO epsilon clip"
-    )
-    parser.add_argument(
-        "--gspo_epochs", type=int, default=3, help="Number of GSPO epochs"
-    )
+    parser.add_argument("--gspo_epsilon", type=float, default=0.2, help="GSPO epsilon clip")
+    parser.add_argument("--gspo_epochs", type=int, default=3, help="Number of GSPO epochs")
 
     # DR-GRPO Args
-    parser.add_argument(
-        "--dr_grpo_group_size", type=int, default=8, help="Group size (G) for DR-GRPO"
-    )
-    parser.add_argument(
-        "--dr_grpo_epsilon", type=float, default=0.2, help="DR-GRPO epsilon clip"
-    )
-    parser.add_argument(
-        "--dr_grpo_epochs", type=int, default=3, help="Number of DR-GRPO epochs"
-    )
+    parser.add_argument("--dr_grpo_group_size", type=int, default=8, help="Group size (G) for DR-GRPO")
+    parser.add_argument("--dr_grpo_epsilon", type=float, default=0.2, help="DR-GRPO epsilon clip")
+    parser.add_argument("--dr_grpo_epochs", type=int, default=3, help="Number of DR-GRPO epochs")
 
     # Training
-    parser.add_argument(
-        "--n_epochs", type=int, default=25, help="The number of epochs to train"
-    )
+    parser.add_argument("--n_epochs", type=int, default=25, help="The number of epochs to train")
     parser.add_argument(
         "--epoch_start",
         type=int,
@@ -468,9 +435,7 @@ def add_train_args(parser):
         default=1e-4,
         help="Set the learning rate for the critic/value network",
     )
-    parser.add_argument(
-        "--eval_only", action="store_true", help="Set this value to only evaluate model"
-    )
+    parser.add_argument("--eval_only", action="store_true", help="Set this value to only evaluate model")
     parser.add_argument("--seed", type=int, default=42, help="Random seed to use")
     parser.add_argument(
         "--max_grad_norm",
@@ -512,7 +477,8 @@ def add_train_args(parser):
         type=int,
         default=-1,
         help="Number of epochs to warmup the baseline, "
-        "None means 1 for rollout (exponential used for warmup phase), 0 otherwise. Can only be used with rollout baseline.",
+        "None means 1 for rollout (exponential used for warmup phase), 0 otherwise. "
+        "Can only be used with rollout baseline.",
     )
     parser.add_argument(
         "--checkpoint_encoder",
@@ -545,9 +511,7 @@ def add_train_args(parser):
         default=1,
         help="Gradient accumulation steps during training (effective batch_size = batch_size * accumulation_steps)",
     )
-    parser.add_argument(
-        "--load_path", help="Path to load model parameters and optimizer state from"
-    )
+    parser.add_argument("--load_path", help="Path to load model parameters and optimizer state from")
     parser.add_argument("--resume", help="Resume from previous checkpoint file")
     parser.add_argument(
         "--post_processing_epochs",
@@ -579,17 +543,17 @@ def add_train_args(parser):
         "--optimizer",
         type=str,
         default="rmsprop",
-        help="Optimizer: 'adam'|'adamax'|'adamw'|'radam'|'nadam'|'sadam'|'adadelta'|'adagrad'|'rmsprop'|'rprop'|'lbfgs'|'asgd'|'sgd'",
+        help="Optimizer: 'adam'|'adamax'|'adamw'|'radam'|'nadam'|'sadam'|'adadelta'|"
+        "'adagrad'|'rmsprop'|'rprop'|'lbfgs'|'asgd'|'sgd'",
     )
     parser.add_argument(
         "--lr_scheduler",
         type=str,
         default="lambda",
-        help="Learning rate scheduler: 'exp'|'step'|'mult'|'lambda'|'const'|'poly'|'multistep'|'cosan'|'linear'|'cosanwr'|'plateau'",
+        help="Learning rate scheduler: 'exp'|'step'|'mult'|'lambda'|'const'|'poly'|"
+        "'multistep'|'cosan'|'linear'|'cosanwr'|'plateau'",
     )
-    parser.add_argument(
-        "--lr_decay", type=float, default=1.0, help="Learning rate decay per epoch"
-    )
+    parser.add_argument("--lr_decay", type=float, default=1.0, help="Learning rate decay per epoch")
     parser.add_argument(
         "--lr_min_value",
         type=float,
@@ -624,7 +588,8 @@ def add_train_args(parser):
         "--lrs_rfactor",
         type=int,
         default=2,
-        help="A factor that, after a restart, increases the steps for the next restart for CosineAnnealingWarmRestarts.",
+        help="A factor that, after a restart, increases the steps for the next restart "
+        "for CosineAnnealingWarmRestarts.",
     )
     parser.add_argument(
         "--lrs_milestones",
@@ -668,13 +633,12 @@ def add_train_args(parser):
         "--lrs_cooldown",
         type=int,
         default=0,
-        help="Number of epochs to wait before resuming normal operation after lr has been reduced for ReduceLROnPlateau",
+        help="Number of epochs to wait before resuming normal operation after lr has been reduced "
+        "for ReduceLROnPlateau",
     )
 
     # Cost function weights
-    parser.add_argument(
-        "--w_waste", type=float, default=None, help="Weight for the waste collected"
-    )
+    parser.add_argument("--w_waste", type=float, default=None, help="Weight for the waste collected")
     parser.add_argument(
         "--w_length",
         "--w_len",
@@ -702,14 +666,10 @@ def add_train_args(parser):
         default=None,
         help="Weight for the penalty",
     )
-    parser.add_argument(
-        "--w_prize", type=float, default=None, help="Weight for the prize"
-    )
+    parser.add_argument("--w_prize", type=float, default=None, help="Weight for the prize")
 
     # Output
-    parser.add_argument(
-        "--log_step", type=int, default=50, help="Log info every log_step steps"
-    )
+    parser.add_argument("--log_step", type=int, default=50, help="Log info every log_step steps")
     parser.add_argument(
         "--log_dir",
         default="logs",
@@ -742,9 +702,7 @@ def add_train_args(parser):
         action="store_true",
         help="Disable logging TensorBoard files",
     )
-    parser.add_argument(
-        "--no_progress_bar", action="store_true", help="Disable progress bar"
-    )
+    parser.add_argument("--no_progress_bar", action="store_true", help="Disable progress bar")
 
     # Visualization
     parser.add_argument(
@@ -757,7 +715,14 @@ def add_train_args(parser):
         "--viz_modes",
         type=str,
         nargs="+",
-        default=["trajectory", "distributions", "embeddings", "heatmaps", "loss", "logit_lens"],
+        default=[
+            "trajectory",
+            "distributions",
+            "embeddings",
+            "heatmaps",
+            "loss",
+            "logit_lens",
+        ],
         choices=[
             "trajectory",
             "distributions",
@@ -787,6 +752,7 @@ def add_train_args(parser):
     )
 
     return parser
+
 
 def add_mrl_train_args(parser):
     """
@@ -839,9 +805,7 @@ def add_mrl_train_args(parser):
         default=128,
         help="Dimension of input embedding for Reward Weight Adjustment model",
     )
-    parser.add_argument(
-        "--mrl_step", type=int, default=100, help="Update every mrl_step steps"
-    )
+    parser.add_argument("--mrl_step", type=int, default=100, help="Update every mrl_step steps")
     parser.add_argument(
         "--mrl_batch_size",
         type=int,
@@ -878,9 +842,7 @@ def add_mrl_train_args(parser):
         default=2,
         help="Dimension of global input for HRL Manager",
     )
-    parser.add_argument(
-        "--gat_hidden", type=int, default=128, help="Hidden dimension for GAT Manager"
-    )
+    parser.add_argument("--gat_hidden", type=int, default=128, help="Hidden dimension for GAT Manager")
     parser.add_argument(
         "--lstm_hidden",
         type=int,
@@ -1058,6 +1020,7 @@ def add_mrl_train_args(parser):
 
     return parser
 
+
 def add_hp_optim_args(parser):
     """
     Adds arguments for Hyper-Parameter Optimization (inherits from train_args).
@@ -1179,14 +1142,10 @@ def add_hp_optim_args(parser):
         default=20,
         help="Starting population for evolutionary algorithms",
     )
-    parser.add_argument(
-        "--n_gen", type=int, default=10, help="Number of generations to evolve"
-    )
+    parser.add_argument("--n_gen", type=int, default=10, help="Number of generations to evolve")
 
     # ===== Differential Evolutionary Hyperband Optimization (DEHBO) =====
-    parser.add_argument(
-        "--fevals", type=int, default=100, help="Number of function evaluations"
-    )
+    parser.add_argument("--fevals", type=int, default=100, help="Number of function evaluations")
 
     # Ray Tune framework hyperparameters
     parser.add_argument(
@@ -1226,9 +1185,7 @@ def add_hp_optim_args(parser):
         default=14,
         help="Maximum resources (timesteps) per trial",
     )
-    parser.add_argument(
-        "--reduction_factor", type=int, default=3, help="Reduction factor for Hyperband"
-    )
+    parser.add_argument("--reduction_factor", type=int, default=3, help="Reduction factor for Hyperband")
 
     # ===== Random Search (RS) - Ray Tune =====
     parser.add_argument(
@@ -1269,9 +1226,7 @@ def validate_train_args(args):
         AssertionError: If any validation checks fail.
     """
     args = args.copy()
-    assert (
-        args["epoch_size"] % args["batch_size"] == 0
-    ), "Epoch size must be integer multiple of batch size!"
+    assert args["epoch_size"] % args["batch_size"] == 0, "Epoch size must be integer multiple of batch size!"
 
     if args.get("bl_warmup_epochs", -1) < 0:
         args["bl_warmup_epochs"] = 1 if args.get("baseline") == "rollout" else 0
@@ -1279,9 +1234,7 @@ def validate_train_args(args):
     assert (args["bl_warmup_epochs"] == 0) or (args.get("baseline") == "rollout")
 
     if args.get("baseline") == "pomo":
-        assert (
-            args.get("pomo_size", 0) > 0
-        ), "pomo_size must be > 0 when using pomo baseline"
+        assert args.get("pomo_size", 0) > 0, "pomo_size must be > 0 when using pomo baseline"
 
     if args.get("encoder") in SUB_NET_ENCS and args.get("n_encode_sublayers") is None:
         args["n_encode_sublayers"] = args["n_encode_layers"]
@@ -1305,23 +1258,13 @@ def validate_train_args(args):
     ), f"Must select a positive integer for 'n_decode_layers' arg for {args.get('model')} model"
 
     if args.get("run_name") is not None:
-        args["run_name"] = "{}_{}".format(
-            args["run_name"], time.strftime("%Y%m%dT%H%M%S")
-        )
+        args["run_name"] = "{}_{}".format(args["run_name"], time.strftime("%Y%m%dT%H%M%S"))
     else:
         args["run_name"] = "{}{}{}{}_{}".format(
             args.get("model", "model"),
             args.get("encoder", "enc"),
-            (
-                args.get("temporal_horizon", 0)
-                if args.get("temporal_horizon", 0) > 0
-                else ""
-            ),
-            (
-                "_{}".format(args.get("data_distribution"))
-                if args.get("data_distribution") is not None
-                else ""
-            ),
+            (args.get("temporal_horizon", 0) if args.get("temporal_horizon", 0) > 0 else ""),
+            ("_{}".format(args.get("data_distribution")) if args.get("data_distribution") is not None else ""),
             time.strftime("%Y%m%dT%H%M%S"),
         )
 
@@ -1336,16 +1279,8 @@ def validate_train_args(args):
         "{}{}{}{}".format(
             args.get("problem", "problem"),
             args.get("graph_size", "size"),
-            (
-                "_{}".format(args.get("area"))
-                if "area" in args and args["area"] is not None
-                else ""
-            ),
-            (
-                "_{}".format(args.get("waste_type"))
-                if "waste_type" in args and args["waste_type"] is not None
-                else ""
-            ),
+            ("_{}".format(args.get("area")) if "area" in args and args["area"] is not None else ""),
+            ("_{}".format(args.get("waste_type")) if "waste_type" in args and args["waste_type"] is not None else ""),
         ),
         args.get("data_distribution") or "",
         "{}{}{}".format(
@@ -1361,9 +1296,7 @@ def validate_train_args(args):
 
     if "area" in args and args["area"] is not None:
         args["area"] = re.sub(r"[^a-zA-Z]", "", args["area"].lower())
-        assert (
-            args["area"] in MAP_DEPOTS.keys()
-        ), "Unknown area {}, available areas: {}".format(
+        assert args["area"] in MAP_DEPOTS.keys(), "Unknown area {}, available areas: {}".format(
             args["area"], MAP_DEPOTS.keys()
         )
 
@@ -1372,23 +1305,15 @@ def validate_train_args(args):
         args["waste_type"] = re.sub(r"[^a-zA-Z]", "", args["waste_type"].lower())
         assert (
             args["waste_type"] in WASTE_TYPES.keys() or args["waste_type"] is None
-        ), "Unknown waste type {}, available waste types: {}".format(
-            args["waste_type"], WASTE_TYPES.keys()
-        )
+        ), "Unknown waste type {}, available waste types: {}".format(args["waste_type"], WASTE_TYPES.keys())
 
     args["edge_threshold"] = (
-        float(args["edge_threshold"])
-        if "." in args["edge_threshold"]
-        else int(args["edge_threshold"])
+        float(args["edge_threshold"]) if "." in args["edge_threshold"] else int(args["edge_threshold"])
     )
 
     if "hop_method" in args:  # hp_optim specific
-        assert (
-            args.get("cpu_cores", 1) >= 0
-        ), "Number of CPU cores must be non-negative integer"
-        assert (
-            args.get("cpu_cores", 1) <= cpu_count()
-        ), "Number of CPU cores to use cannot exceed system specifications"
+        assert args.get("cpu_cores", 1) >= 0, "Number of CPU cores must be non-negative integer"
+        assert args.get("cpu_cores", 1) <= cpu_count(), "Number of CPU cores to use cannot exceed system specifications"
         if args.get("cpu_cores") == 0:
             args["cpu_cores"] = cpu_count()
 

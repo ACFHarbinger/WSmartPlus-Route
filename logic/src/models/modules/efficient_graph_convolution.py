@@ -1,28 +1,30 @@
 """Optimized Graph Convolution implementation with multiple aggregators."""
-import torch
 
-from torch import Tensor
-from torch.nn import Parameter, Linear
 from typing import Iterable, Optional, Tuple
+
+import torch
+from torch import Tensor
+from torch.nn import Linear, Parameter
 from torch_geometric.nn import MessagePassing
-from torch_geometric.utils import scatter
-from torch_geometric.nn.inits import glorot, zeros
 from torch_geometric.nn.conv.gcn_conv import gcn_norm
-from torch_geometric.utils import add_remaining_self_loops
-from torch_geometric.typing import SparseTensor, OptTensor, Adj, torch_sparse
+from torch_geometric.nn.inits import glorot, zeros
+from torch_geometric.typing import Adj, OptTensor, SparseTensor, torch_sparse
+from torch_geometric.utils import add_remaining_self_loops, scatter
 
 
 # Adapted from https://github.com/shyam196/egc
 class EfficientGraphConvolution(MessagePassing):
     """
     Efficient Graph Convolution (EGC) with multiple aggregators.
-    
-    This layer computes node updates using a linear combination of different 
+
+    This layer computes node updates using a linear combination of different
     neighborhood aggregations (mean, max, sum, var, std, symnorm) and self-features.
     Supports multi-head weights and basis functions for efficiency.
     """
+
     _cached_edge_index: Optional[Tuple[Tensor, OptTensor]]
     _cached_adj_t: Optional[SparseTensor]
+
     def __init__(
         self,
         in_channels: int,
@@ -34,7 +36,8 @@ class EfficientGraphConvolution(MessagePassing):
         add_self_loops: bool = True,
         bias: bool = True,
         sigmoid: bool = False,
-        **kwargs):
+        **kwargs,
+    ):
         """
         Args:
             in_channels: Dimension of input features.
@@ -65,11 +68,9 @@ class EfficientGraphConvolution(MessagePassing):
         self.cached = cached
         self.add_self_loops = add_self_loops
         self.aggregators = list(aggrs)
-        self.sigmoid = sigmoid 
+        self.sigmoid = sigmoid
 
-        self.bases_weight = Parameter(
-            torch.Tensor(in_channels, (out_channels // num_heads) * num_bases)
-        )
+        self.bases_weight = Parameter(torch.Tensor(in_channels, (out_channels // num_heads) * num_bases))
         self.comb_weight = Linear(in_channels, num_heads * num_bases * len(aggrs))
 
         if bias:
@@ -164,12 +165,13 @@ class EfficientGraphConvolution(MessagePassing):
 
         # [num_nodes, num_aggregators, (out_channels // num_heads) * num_bases]
         # propagate_type: (x: Tensor, symnorm_weight: OptTensor)
-        aggregated = self.propagate(
-            edge_index, x=bases, symnorm_weight=symnorm_weight, size=None
-        )
+        aggregated = self.propagate(edge_index, x=bases, symnorm_weight=symnorm_weight, size=None)
 
         weightings = weightings.view(
-            batch_size, num_nodes, self.num_heads, self.num_bases * len(self.aggregators)
+            batch_size,
+            num_nodes,
+            self.num_heads,
+            self.num_bases * len(self.aggregators),
         )
         aggregated = aggregated.view(
             batch_size,
@@ -210,7 +212,11 @@ class EfficientGraphConvolution(MessagePassing):
             elif aggregator == "symnorm":
                 assert symnorm_weight is not None
                 out = scatter(
-                    inputs * symnorm_weight.unsqueeze(-1), index, 0, dim_size, reduce="sum"
+                    inputs * symnorm_weight.unsqueeze(-1),
+                    index,
+                    0,
+                    dim_size,
+                    reduce="sum",
                 )
             elif aggregator == "mean":
                 out = scatter(inputs, index, 0, dim_size, reduce="mean")
@@ -220,9 +226,7 @@ class EfficientGraphConvolution(MessagePassing):
                 out = scatter(inputs, index, 0, dim_size, reduce="max")
             elif aggregator == "var" or aggregator == "std":
                 mean = scatter(inputs, index, 0, dim_size, reduce="mean")
-                mean_squares = scatter(
-                    inputs * inputs, index, 0, dim_size, reduce="mean"
-                )
+                mean_squares = scatter(inputs * inputs, index, 0, dim_size, reduce="mean")
                 out = mean_squares - mean * mean
                 if aggregator == "std":
                     out = torch.sqrt(torch.relu(out) + 1e-5)

@@ -66,22 +66,22 @@ elif [ "$MANAGER" = "conda" ]; then
     if ! command -v conda &> /dev/null; then
         echo -e "${YELLOW}Warning: conda is not installed or not in PATH${NC}"
         echo -e "${BLUE}Installing conda...${NC}"
-        
+
         # Download conda installer
         echo "Downloading Anaconda installer..."
         curl -O https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
-        
+
         # Make installer executable
         chmod +x Anaconda3-2024.10-1-Linux-x86_64.sh
-        
+
         # Install conda silently
         echo "Installing Anaconda (this may take a few minutes)..."
         bash Anaconda3-2024.10-1-Linux-x86_64.sh -b -p "$HOME/anaconda3"
-        
+
         # Initialize conda for shell
         echo "Initializing conda..."
         "$HOME/anaconda3/bin/conda" init bash
-        
+
         # Source conda to make it available in current session
         source "$HOME/anaconda3/etc/profile.d/conda.sh"
 

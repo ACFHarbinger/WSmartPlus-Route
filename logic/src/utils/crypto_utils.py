@@ -4,20 +4,21 @@ Utilities for data encryption and decryption using Fernet (symmetric key).
 Handles key generation, loading, and file encryption/decryption.
 """
 
-import os
-import struct
 import base64
+import os
 import pickle
+import struct
+from pathlib import Path
+from typing import Any, List, Tuple, Union
+
+from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from dotenv import dotenv_values, load_dotenv, set_key
 
 from .definitions import ROOT_DIR
-from .io_utils import zip_directory, extract_zip
-from pathlib import Path
-from typing import Tuple, Any, Union, List
-from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from dotenv import load_dotenv, dotenv_values, set_key
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from .io_utils import extract_zip, zip_directory
 
 
 def _set_param(config, param_name, param_value=None):
@@ -77,9 +78,7 @@ def generate_key(
         try:
             os.makedirs(dir_path, exist_ok=True)
         except Exception:
-            raise Exception(
-                "directories to save output files do not exist and could not be created"
-            )
+            raise Exception("directories to save output files do not exist and could not be created")
 
         with open(os.path.join(dir_path, f"{symkey_name}.salt"), "wb") as salt_file:
             salt_file.write(salt)
@@ -111,9 +110,7 @@ def load_key(symkey_name: str = None, env_filename: str = ".env") -> bytes:
         raise ValueError("Password not found in .env file.")
 
     if symkey_name:
-        print(
-            f"Loading salt from {symkey_name}.salt and key params from {symkey_name}.pkl"
-        )
+        print(f"Loading salt from {symkey_name}.salt and key params from {symkey_name}.pkl")
         input_path = os.path.join(ROOT_DIR, "assets", "keys", symkey_name)
         with open(f"{input_path}.salt", "rb") as salt_file:
             salt = salt_file.read()
@@ -121,9 +118,7 @@ def load_key(symkey_name: str = None, env_filename: str = ".env") -> bytes:
         with open(f"{input_path}.pkl", "rb") as khp_file:
             key_length, hash_iterations = pickle.load(khp_file)
     else:
-        print(
-            f"Loading salt and key params from environment variables in {env_filename}"
-        )
+        print(f"Loading salt and key params from environment variables in {env_filename}")
         salt = base64.urlsafe_b64decode(os.getenv("SALT_STRING").encode("utf-8"))
         key_length = int(os.getenv("KEY_LENGTH"))
         hash_iterations = int(os.getenv("HASH_ITERATIONS"))
@@ -160,9 +155,7 @@ def encode_data(data: Any) -> bytes:
         return pickle.dumps(data)
 
 
-def encrypt_file_data(
-    key: bytes, input: Union[os.PathLike, Any], output_file: os.PathLike = None
-) -> bytes:
+def encrypt_file_data(key: bytes, input: Union[os.PathLike, Any], output_file: os.PathLike = None) -> bytes:
     """
     Encrypt a file or data object using Fernet symmetric encryption.
 
@@ -188,9 +181,7 @@ def encrypt_file_data(
     return encrypted_data
 
 
-def decrypt_file_data(
-    key: bytes, input: Union[os.PathLike, Any], output_file: os.PathLike = None
-) -> str:
+def decrypt_file_data(key: bytes, input: Union[os.PathLike, Any], output_file: os.PathLike = None) -> str:
     """
     Decrypt a file or data bytes using Fernet symmetric encryption.
 
@@ -216,9 +207,7 @@ def decrypt_file_data(
     return decrypted_data
 
 
-def encrypt_directory(
-    key: bytes, input_dir: os.PathLike, output_dir: os.PathLike = None
-) -> List[bytes]:
+def encrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLike = None) -> List[bytes]:
     """
     Encrypt all files in a directory recursively.
 
@@ -238,9 +227,7 @@ def encrypt_directory(
     try:
         os.makedirs(output_dir, exist_ok=True)
     except Exception:
-        raise Exception(
-            "directories to save output files do not exist and could not be created"
-        )
+        raise Exception("directories to save output files do not exist and could not be created")
 
     # Recursively process all files in the input directory
     encdata_ls = []
@@ -254,16 +241,12 @@ def encrypt_directory(
             try:
                 os.makedirs(os.path.dirname(output_file), exist_ok=True)
             except Exception:
-                raise Exception(
-                    "subdirectories to save output files do not exist and could not be created"
-                )
+                raise Exception("subdirectories to save output files do not exist and could not be created")
             encdata_ls.append(encrypt_file_data(input_file, output_file, key))
     return encdata_ls
 
 
-def decrypt_directory(
-    key: bytes, input_dir: os.PathLike, output_dir: os.PathLike = None
-) -> List[str]:
+def decrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLike = None) -> List[str]:
     """
     Decrypt all .enc files in a directory recursively.
 
@@ -283,9 +266,7 @@ def decrypt_directory(
     try:
         os.makedirs(output_dir, exist_ok=True)
     except Exception:
-        raise Exception(
-            "directories to save output files do not exist and could not be created"
-        )
+        raise Exception("directories to save output files do not exist and could not be created")
 
     # Recursively process all files in the input directory
     decdata_ls = []
@@ -301,16 +282,12 @@ def decrypt_directory(
                 try:
                     os.makedirs(os.path.dirname(output_file), exist_ok=True)
                 except Exception:
-                    raise Exception(
-                        "subdirectories to save output files do not exist and could not be created"
-                    )
+                    raise Exception("subdirectories to save output files do not exist and could not be created")
                 decdata_ls.append(decrypt_file_data(input_file, output_file, key))
     return decdata_ls
 
 
-def encrypt_zip_directory(
-    key: bytes, input_dir: os.PathLike, output_enczip: os.PathLike = None
-) -> bytes:
+def encrypt_zip_directory(key: bytes, input_dir: os.PathLike, output_enczip: os.PathLike = None) -> bytes:
     """
     Zip a directory and then encrypt the resulting zip file.
 
@@ -324,9 +301,7 @@ def encrypt_zip_directory(
     """
     if output_enczip is None:
         norm_path = os.path.normpath(input_dir)
-        output_enczip = os.path.join(
-            os.path.dirname(norm_path), f"{os.path.basename(input_dir)}.zip"
-        )
+        output_enczip = os.path.join(os.path.dirname(norm_path), f"{os.path.basename(input_dir)}.zip")
     tmp_zip = "{}.tmp.zip".format(output_enczip)
     zip_directory(input_dir, tmp_zip)
     encrypted_data = encrypt_file_data(tmp_zip, output_enczip, key)
@@ -334,9 +309,7 @@ def encrypt_zip_directory(
     return encrypted_data
 
 
-def decrypt_zip(
-    key: bytes, input_enczip: os.PathLike, output_dir: os.PathLike = None
-) -> str:
+def decrypt_zip(key: bytes, input_enczip: os.PathLike, output_dir: os.PathLike = None) -> str:
     """
     Decrypt a zip file and extract its contents.
 

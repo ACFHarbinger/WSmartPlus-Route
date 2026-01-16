@@ -1,4 +1,5 @@
 """Tests for neural sub-networks (encoders/decoders)."""
+
 import torch
 import torch.nn as nn
 
@@ -28,10 +29,11 @@ class TestGACEncoder:
         batch = 2
         graph_size = 5
         x = torch.randn(batch, graph_size, embed_dim)
-        edges = torch.randn(batch, graph_size, graph_size) 
-        
+        edges = torch.randn(batch, graph_size, graph_size)
+
         output = model(x, edges)
         assert output.shape == (batch, graph_size, embed_dim)
+
 
 class TestGATDecoder:
     """Tests for GraphAttentionDecoder."""
@@ -42,18 +44,19 @@ class TestGATDecoder:
         model = GraphAttentionDecoder(n_heads=2, embed_dim=embed_dim, n_layers=1, n_groups=4)
         batch = 2
         graph_size = 5
-        
+
         # MHA expects q to have sequence dimension if it asserts dim(2)
-        q = torch.randn(batch, embed_dim).unsqueeze(1) # (batch, 1, embed_dim)
-        h = torch.randn(batch, graph_size, embed_dim) 
+        q = torch.randn(batch, embed_dim).unsqueeze(1)  # (batch, 1, embed_dim)
+        h = torch.randn(batch, graph_size, embed_dim)
         mask = torch.zeros(batch, graph_size, dtype=torch.bool)
-        
+
         output = model(q, h, mask)
         # Returns (batch, 1, 2) since q seq_len is 1
         # Wait, gat_decoder returns softmax(out).
-        # out = self.projection(self.dropout(h)). 
+        # out = self.projection(self.dropout(h)).
         # h follows q shape.
         assert output.shape == (batch, 1, 2)
+
 
 class TestGATEncoder:
     """Tests for GraphAttentionEncoder."""
@@ -65,9 +68,10 @@ class TestGATEncoder:
         batch = 2
         graph_size = 5
         x = torch.randn(batch, graph_size, embed_dim)
-        
+
         output = model(x)
         assert output.shape == (batch, graph_size, embed_dim)
+
 
 class TestGCNEncoder:
     """Tests for GraphConvolutionEncoder."""
@@ -82,13 +86,14 @@ class TestGCNEncoder:
         batch = 2
         graph_size = 5
         x = torch.randn(batch, graph_size, hidden)
-        
+
         # GCN expects edges to be Long (indices) for Embedding?
         # Source: self.init_embed_edges(edges.type(torch.long))
-        edges = torch.randint(0, 2, (batch, graph_size, graph_size)) 
-        
+        edges = torch.randint(0, 2, (batch, graph_size, graph_size))
+
         output = model(x, edges)
         assert output.shape == (batch, graph_size, hidden)
+
 
 class TestGatedRecurrentFillPredictor:
     """Tests for GatedRecurrentFillPredictor."""
@@ -96,13 +101,14 @@ class TestGatedRecurrentFillPredictor:
     def test_forward(self):
         """Verifies fill prediction."""
         hidden = 16
-        model = GatedRecurrentFillPredictor(input_dim=1, hidden_dim=hidden, num_layers=1, activation='relu')
+        model = GatedRecurrentFillPredictor(input_dim=1, hidden_dim=hidden, num_layers=1, activation="relu")
         batch = 2
         seq = 5
         x = torch.randn(batch, seq, 1)
-        
+
         output = model(x)
         assert output.shape == (batch, 1)
+
 
 class TestMLPEncoder:
     """Tests for MLPEncoder."""
@@ -114,9 +120,10 @@ class TestMLPEncoder:
         batch = 2
         nodes = 5
         x = torch.randn(batch, nodes, dim)
-        
+
         output = model(x)
         assert output.shape == (batch, nodes, dim)
+
 
 class TestPointerDecoder:
     """Tests for PointerDecoder."""
@@ -126,25 +133,26 @@ class TestPointerDecoder:
         embed_dim = 16
         hidden_dim = 16
         model = PointerDecoder(
-            embedding_dim=embed_dim, 
-            hidden_dim=hidden_dim, 
-            tanh_exploration=10, 
-            use_tanh=True
+            embedding_dim=embed_dim,
+            hidden_dim=hidden_dim,
+            tanh_exploration=10,
+            use_tanh=True,
         )
-        
+
         batch = 2
         seq = 5
         decoder_input = torch.randn(batch, embed_dim)
         embedded_inputs = torch.randn(seq, batch, embed_dim)
         hidden = (torch.randn(batch, hidden_dim), torch.randn(batch, hidden_dim))
         context = torch.randn(seq, batch, hidden_dim)
-        
+
         model.decode_type = "greedy"
-        
+
         (log_p, selections), hidden_out = model(decoder_input, embedded_inputs, hidden, context)
-        
+
         assert log_p.shape == (batch, seq, seq)
         assert selections.shape == (batch, seq)
+
 
 class TestPointerEncoder:
     """Tests for PointerEncoder."""
@@ -154,18 +162,19 @@ class TestPointerEncoder:
         input_dim = 10
         hidden_dim = 16
         model = PointerEncoder(input_dim, hidden_dim)
-        
+
         seq = 5
         batch = 2
-        x = torch.randn(seq, batch, input_dim) 
+        x = torch.randn(seq, batch, input_dim)
         hidden = model.init_hidden(hidden_dim)
-        
+
         # Expand hidden
         h0 = hidden[0].unsqueeze(0).unsqueeze(1).expand(1, batch, hidden_dim).contiguous()
         c0 = hidden[1].unsqueeze(0).unsqueeze(1).expand(1, batch, hidden_dim).contiguous()
-        
+
         out, _ = model(x, (h0, c0))
         assert out.shape == (seq, batch, hidden_dim)
+
 
 class TestTGCEncoder:
     """Tests for TransGraphConvEncoder."""
@@ -182,6 +191,6 @@ class TestTGCEncoder:
         # Yes, line 100 agg='mean'.
         # I fixed GraphConvolution to support batched masks.
         edges = torch.randn(batch, graph_size, graph_size)
-        
+
         output = model(x, edges)
         assert output.shape == (batch, graph_size, embed_dim)

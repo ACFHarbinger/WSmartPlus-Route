@@ -103,7 +103,7 @@ echo.
 for /L %%i in (0,1,%DIST_COUNT%) do (
     set dist=!DATA_DISTS_%%i!
     set current_dataset=data/datasets/%DATA_PROBLEM%/%DATA_PROBLEM%%SIZE%_!dist!_%DATASET_NAME%_seed%SEED%.pkl
-    
+
     echo Processing data distribution: !dist!
 
     if "%TRAIN_AM%"=="0" (
@@ -128,7 +128,7 @@ for /L %%i in (0,1,%DIST_COUNT%) do (
         if "%VERBOSE%"=="true" ( !CMD! ) else ( !CMD! >nul 2>&1 )
     )
 
-    :: Note: You can replicate the pattern above for AMGC, TRANSGCN, DDAM, and TAM 
+    :: Note: You can replicate the pattern above for AMGC, TRANSGCN, DDAM, and TAM
     :: by changing the --model, --encoder, and the Horizon index (%H_1%, %H_2%, etc.)
 )
 

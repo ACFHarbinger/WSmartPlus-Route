@@ -1,7 +1,6 @@
 import os
 import sys
 
-
 IN_COLAB = {}
 HOME_DIRECTORY = {}
 SETUP_EXECUTED = {}
@@ -14,14 +13,14 @@ def setup_home_directory(notebook_name):
             home_dir = os.path.dirname(os.getcwd())
             sys.path.insert(0, home_dir)
             print(f"Setup completed - added home_dir to system path: {home_dir}")
-            
+
             # Update the global variables
-            globals()['SETUP_EXECUTED'][notebook_name] = True
-            globals()['HOME_DIRECTORY'][notebook_name] = home_dir
+            globals()["SETUP_EXECUTED"][notebook_name] = True
+            globals()["HOME_DIRECTORY"][notebook_name] = home_dir
             return home_dir
         except Exception as e:
-            globals()['SETUP_EXECUTED'][notebook_name] = False
-            globals()['HOME_DIRECTORY'][notebook_name] = None
+            globals()["SETUP_EXECUTED"][notebook_name] = False
+            globals()["HOME_DIRECTORY"][notebook_name] = None
             print("Failed to setup home directory:", e.__traceback__)
             return None
     else:
@@ -31,8 +30,7 @@ def setup_home_directory(notebook_name):
 
 
 def import_google_colab_libs():
-    from google.colab import drive
-    from google.colab import files
+    from google.colab import drive, files
 
     return drive, files
 
@@ -44,11 +42,11 @@ def setup_google_colab(notebook_name):
             drive, files = import_google_colab_libs()
 
             # Update the global variable
-            globals()['IN_COLAB'][notebook_name] = True
+            globals()["IN_COLAB"][notebook_name] = True
             print("Completed setup of Google Colab libraries!")
             return True, drive, files
-        except:
-            globals()['IN_COLAB'][notebook_name] = False
+        except Exception:
+            globals()["IN_COLAB"][notebook_name] = False
             return False, None, None
     else:
         return True, *import_google_colab_libs()

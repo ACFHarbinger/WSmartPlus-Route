@@ -2,10 +2,13 @@
 State representation for the Vehicle Routing Problem with Profits (VRPP).
 """
 
+from typing import NamedTuple
+
 import torch
 import torch.nn.functional as F
-from typing import NamedTuple
+
 from logic.src.utils.boolmask import mask_long_scatter
+
 from ..base import BaseState, refactor_state
 
 
@@ -50,10 +53,18 @@ class StateVRPP(NamedTuple):
         return self[key]
 
     @staticmethod
-    def initialize(input, edges, profit_vars=None, cost_weights=None, dist_matrix=None, visited_dtype=torch.uint8, **kwargs):
+    def initialize(
+        input,
+        edges,
+        profit_vars=None,
+        cost_weights=None,
+        dist_matrix=None,
+        visited_dtype=torch.uint8,
+        **kwargs,
+    ):
         """Initializes the state for a batch of instances."""
         common = BaseState.initialize_common(input, visited_dtype)
-        
+
         if profit_vars is None:
             profit_vars = {"cost_km": 1.0, "revenue_kg": 1.0}
 

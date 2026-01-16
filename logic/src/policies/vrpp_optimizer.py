@@ -27,32 +27,33 @@ Key Features:
 - Multi-vehicle support with automatic fleet sizing
 - Time limits and solution quality controls
 """
+
 import io
 import sys
-import numpy as np
+from typing import Dict, List, Optional
+
 import gurobipy as gp
 import hexaly.optimizer as hx
-
+import numpy as np
 from gurobipy import GRB, quicksum
 from numpy.typing import NDArray
-from typing import List, Dict, Optional
 
 
 def run_vrpp_optimizer(
-        bins: NDArray[np.float64],
-        distance_matrix: List[List[float]],
-        param: float,
-        media: NDArray[np.float64],
-        desviopadrao: NDArray[np.float64],
-        values: Dict[str, float],
-        binsids: List[int],
-        must_go: List[int],
-        env: Optional[gp.Env] = None,
-        number_vehicles: int = 1,
-        time_limit: int = 60,
-        optimizer: str = "gurobi",
-        max_iter_no_improv: int = 10
-    ):
+    bins: NDArray[np.float64],
+    distance_matrix: List[List[float]],
+    param: float,
+    media: NDArray[np.float64],
+    desviopadrao: NDArray[np.float64],
+    values: Dict[str, float],
+    binsids: List[int],
+    must_go: List[int],
+    env: Optional[gp.Env] = None,
+    number_vehicles: int = 1,
+    time_limit: int = 60,
+    optimizer: str = "gurobi",
+    max_iter_no_improv: int = 10,
+):
     """
     Solve VRPP using either Gurobi or Hexaly optimizer.
 
@@ -105,7 +106,7 @@ def run_vrpp_optimizer(
             binsids=binsids,
             must_go=must_go,
             number_vehicles=number_vehicles,
-            time_limit=time_limit
+            time_limit=time_limit,
         )
     elif optimizer == "hexaly":
         return _run_hexaly_optimizer(
@@ -118,25 +119,25 @@ def run_vrpp_optimizer(
             must_go=must_go,
             number_vehicles=number_vehicles,
             time_limit=time_limit,
-            max_iter_no_improv=max_iter_no_improv
+            max_iter_no_improv=max_iter_no_improv,
         )
     else:
         raise ValueError(f"Unknown optimizer: {optimizer}")
 
 
 def _run_gurobi_optimizer(
-        bins: NDArray[np.float64],
-        distance_matrix: List[List[float]],
-        env: Optional[gp.Env],
-        param: float,
-        media: NDArray[np.float64],
-        desviopadrao: NDArray[np.float64],
-        values: Dict[str, float],
-        binsids: List[int],
-        must_go: List[int],
-        number_vehicles: int=1,
-        time_limit: int=60
-    ):
+    bins: NDArray[np.float64],
+    distance_matrix: List[List[float]],
+    env: Optional[gp.Env],
+    param: float,
+    media: NDArray[np.float64],
+    desviopadrao: NDArray[np.float64],
+    values: Dict[str, float],
+    binsids: List[int],
+    must_go: List[int],
+    number_vehicles: int = 1,
+    time_limit: int = 60,
+):
     """
     Solve the Vehicle Routing Problem with Profits using Gurobi Optimizer.
 
@@ -159,12 +160,12 @@ def _run_gurobi_optimizer(
     Returns:
         Tuple[List[int], float, float]: (Route, profit, cost).
     """
-    Omega, delta, psi = values['Omega'], values['delta'], values['psi']
-    Q, R, B, C, V = values['Q'], values['R'], values['B'], values['C'], values['V']
+    Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
+    Q, R, B, C, V = values["Q"], values["R"], values["B"], values["C"], values["V"]
 
     n_bins = len(bins)
     enchimentos = np.insert(bins, 0, 0.0)
-    pesos_reais = [(e / 100) * B * V for e in enchimentos] # Altera os enchimentos de % pra valor real em KG
+    pesos_reais = [(e / 100) * B * V for e in enchimentos]  # Altera os enchimentos de % pra valor real em KG
     nodes = list(range(n_bins + 1))
     idx_deposito = 0
     nodes_real = [i for i in nodes if i != idx_deposito]
@@ -180,14 +181,20 @@ def _run_gurobi_optimizer(
     pares_viaveis = [(i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= max_dist]
     mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
 
-    x = mdl.addVars(pares_viaveis, vtype=GRB.BINARY, name="x") #diz se a gente usa ou não a estrada que vai do ponto i até o ponto j
-    y = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="y") # quanto de resíduo (kg) a gente está carregando nesse trecho entre i e j
-    f = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="f") # pra evitar que o modelo crie "ciclos pequenos" fora do caminho principal (subtours).
+    x = mdl.addVars(
+        pares_viaveis, vtype=GRB.BINARY, name="x"
+    )  # diz se a gente usa ou não a estrada que vai do ponto i até o ponto j
+    y = mdl.addVars(
+        pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="y"
+    )  # quanto de resíduo (kg) a gente está carregando nesse trecho entre i e j
+    f = mdl.addVars(
+        pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="f"
+    )  # pra evitar que o modelo crie "ciclos pequenos" fora do caminho principal (subtours).
     g = mdl.addVars(nodes, vtype=GRB.BINARY, name="g")
     k_var = mdl.addVar(lb=0, vtype=GRB.INTEGER, name="k_var")
     for i, j in pares_viaveis:
-        mdl.addConstr(y[i, j] <= Q * x[i, j]) # limita que o trecho não tenha a capaciade maxima do caminhão
-        mdl.addConstr(f[i, j] <= len(nodes) * x[i, j]) #evita subtours
+        mdl.addConstr(y[i, j] <= Q * x[i, j])  # limita que o trecho não tenha a capaciade maxima do caminhão
+        mdl.addConstr(f[i, j] <= len(nodes) * x[i, j])  # evita subtours
 
     # Garante que o fluxo líquido em cada nó é igual ao resíduo gerado somente se o contentor for coletado
     for i in nodes_real:
@@ -207,11 +214,16 @@ def _run_gurobi_optimizer(
 
     # Se um contentor não for coletado (g[j]==0), não pode haver rota conectando-o ao depósito.
     for j in nodes_real:
-        if (idx_deposito, j) in x: mdl.addConstr(x[idx_deposito, j] <= g[j])
-        if (j, idx_deposito) in x: mdl.addConstr(x[j, idx_deposito] <= g[j])
+        if (idx_deposito, j) in x:
+            mdl.addConstr(x[idx_deposito, j] <= g[j])
+        if (j, idx_deposito) in x:
+            mdl.addConstr(x[j, idx_deposito] <= g[j])
 
-    #Garante que pelo menos um número mínimo de contentores críticos seja visitado (ajustável por delta)
-    mdl.addConstr(quicksum(g[i] for i in nodes_real if criticos_dict[i]) >= len([i for i in nodes_real if criticos_dict[i]]) - len(nodes_real) * delta)
+    # Garante que pelo menos um número mínimo de contentores críticos seja visitado (ajustável por delta)
+    mdl.addConstr(
+        quicksum(g[i] for i in nodes_real if criticos_dict[i])
+        >= len([i for i in nodes_real if criticos_dict[i]]) - len(nodes_real) * delta
+    )
 
     for i in nodes_real:
         # Esses contentores devem ser coletados.
@@ -229,22 +241,24 @@ def _run_gurobi_optimizer(
     # Assegura conectividade entre os pontos e impede a criação de ciclos menores isolados (subtours).
     mdl.addConstr(quicksum(f[0, j] for j in nodes_real if (0, j) in f) == quicksum(g[j] for j in nodes_real))
     for j in nodes_real:
-        mdl.addConstr(quicksum(f[i, j] for i in nodes if (i, j) in f) - quicksum(f[j, k] for k in nodes if (j, k) in f) == g[j])
+        mdl.addConstr(
+            quicksum(f[i, j] for i in nodes if (i, j) in f) - quicksum(f[j, k] for k in nodes if (j, k) in f) == g[j]
+        )
 
     mdl.setObjective(
         R * quicksum(S_dict[i] * g[i] for i in nodes_real)
         - 0.5 * C * quicksum(x[i, j] * distance_matrix[i][j] for i, j in pares_viaveis)
         - Omega * k_var,
-        GRB.MAXIMIZE
+        GRB.MAXIMIZE,
     )
 
     mdl.Params.MIPFocus = 1
     mdl.Params.Heuristics = 0.5
     mdl.Params.Threads = 0
     mdl.Params.Cuts = 3
-    mdl.Params.CliqueCuts = 2    # força clique cuts
-    mdl.Params.CoverCuts = 2     # força cuts de conjuntos
-    mdl.Params.FlowCoverCuts = 2 # força cortes para fluxos
+    mdl.Params.CliqueCuts = 2  # força clique cuts
+    mdl.Params.CoverCuts = 2  # força cuts de conjuntos
+    mdl.Params.FlowCoverCuts = 2  # força cortes para fluxos
     mdl.Params.GUBCoverCuts = 2
     mdl.Params.Presolve = 1
     mdl.Params.NodefileStart = 0.5
@@ -300,9 +314,8 @@ def _run_gurobi_optimizer(
 
             contentores_coletados.extend([id_map[j] for (i, j) in rota])
 
-        profit = (
-            R * sum(S_dict[i] * g[i].X for i in nodes_real)
-            - sum(x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis)
+        profit = R * sum(S_dict[i] * g[i].X for i in nodes_real) - sum(
+            x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis
         )
 
         cost = sum(x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis)
@@ -311,17 +324,17 @@ def _run_gurobi_optimizer(
 
 
 def _run_hexaly_optimizer(
-        bins: NDArray[np.float64],
-        distancematrix: List[List[float]],
-        param: float,
-        media: NDArray[np.float64],
-        desviopadrao: NDArray[np.float64],
-        values: Dict[str, float],
-        must_go: List[int],
-        number_vehicles: int=1,
-        time_limit: int=60,
-        max_iter_no_improv: int=10
-    ):
+    bins: NDArray[np.float64],
+    distancematrix: List[List[float]],
+    param: float,
+    media: NDArray[np.float64],
+    desviopadrao: NDArray[np.float64],
+    values: Dict[str, float],
+    must_go: List[int],
+    number_vehicles: int = 1,
+    time_limit: int = 60,
+    max_iter_no_improv: int = 10,
+):
     """
     Solve the Vehicle Routing Problem with Profits using Hexaly Optimizer (Local Search).
 
@@ -344,8 +357,8 @@ def _run_hexaly_optimizer(
     # 0. PARAMETERS & SCALING
     # ---------------------------------------------------------
     SCALE = 1000
-    Omega, delta, psi = values['Omega'], values['delta'], values['psi']
-    Q, R, B, C, V = values['Q'], values['R'], values['B'], values['C'], values['V']
+    Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
+    Q, R, B, C, V = values["Q"], values["R"], values["B"], values["C"], values["V"]
 
     Q_int = int(Q * SCALE)
     n_bins = len(bins)
@@ -364,10 +377,7 @@ def _run_hexaly_optimizer(
     pesos_reais_float = [(e / 100) * B * V for e in enchimentos]
     pesos_reais_int = [int(w * SCALE) for w in pesos_reais_float]
 
-    dist_matrix_int = [
-        [int(dist * SCALE) for dist in row]
-        for row in distancematrix
-    ]
+    dist_matrix_int = [[int(dist * SCALE) for dist in row] for row in distancematrix]
 
     nodes = list(range(n_bins + 1))
     idx_deposito = 0
@@ -377,7 +387,6 @@ def _run_hexaly_optimizer(
     # must_go passed as argument
     # (previously calculated based on pred_value)
     must_go_set = set(must_go)
-
 
     mandatory = set()
     for i in nodes_real:
@@ -409,7 +418,7 @@ def _run_hexaly_optimizer(
         # This is crucial when number_vehicles is large (e.g. == n_bins)
         if number_vehicles > 1:
             for k in range(number_vehicles - 1):
-                model.constraint(model.count(routes[k]) >= model.count(routes[k+1]))
+                model.constraint(model.count(routes[k]) >= model.count(routes[k + 1]))
 
         model.constraint(model.disjoint(routes))
         all_visited = model.union(routes)
@@ -433,27 +442,21 @@ def _run_hexaly_optimizer(
             # 2. Load Calculation
             route_load = model.sum(
                 model.range(0, count),
-                model.lambda_function(lambda i: model.at(weights_array, model.at(route, i)))
+                model.lambda_function(lambda i: model.at(weights_array, model.at(route, i))),
             )
             model.constraint(route_load <= Q_int)
             total_profit_int += route_load
 
             # 3. Distance Calculation
-            d_start = model.iif(
-                count > 0,
-                model.at(dist_array, idx_deposito, model.at(route, 0)),
-                0
-            )
+            d_start = model.iif(count > 0, model.at(dist_array, idx_deposito, model.at(route, 0)), 0)
             d_path = model.sum(
                 model.range(0, count - 1),
-                model.lambda_function(
-                    lambda i: model.at(dist_array, model.at(route, i), model.at(route, i + 1))
-                )
+                model.lambda_function(lambda i: model.at(dist_array, model.at(route, i), model.at(route, i + 1))),
             )
             d_end = model.iif(
                 count > 0,
                 model.at(dist_array, model.at(route, count - 1), idx_deposito),
-                0
+                0,
             )
 
             route_dist = d_start + d_path + d_end
@@ -468,9 +471,7 @@ def _run_hexaly_optimizer(
         must_go_list = list(must_go)
         if must_go_list:
             nb_must_go = len(must_go_list)
-            visited_critical = model.sum(
-                [model.contains(all_visited, node) for node in must_go_list]
-            )
+            visited_critical = model.sum([model.contains(all_visited, node) for node in must_go_list])
             limit = max(0, nb_must_go - int(len(nodes_real) * delta))
             model.constraint(visited_critical >= limit)
 
@@ -556,7 +557,7 @@ def _run_hexaly_optimizer(
                 if len(r_vals) > 0:
                     calc_dist += distancematrix[idx_deposito][r_vals[0]]
                     for i in range(len(r_vals) - 1):
-                        calc_dist += distancematrix[r_vals[i]][r_vals[i+1]]
+                        calc_dist += distancematrix[r_vals[i]][r_vals[i + 1]]
                     calc_dist += distancematrix[r_vals[-1]][idx_deposito]
 
             profit = calc_revenue - calc_dist

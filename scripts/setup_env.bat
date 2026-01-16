@@ -28,7 +28,7 @@ echo Using manager: %MANAGER%
 
 :: UV manager section
 if "%MANAGER%"=="uv" goto uv_section
-if "%MANAGER%"=="conda" goto conda_section  
+if "%MANAGER%"=="conda" goto conda_section
 if "%MANAGER%"=="venv" goto venv_section
 
 echo Error: unknown manager selected: %MANAGER%
@@ -55,10 +55,10 @@ conda --version >nul 2>&1
 if !errorlevel! == 1 (
     echo Warning: conda is not installed or not in PATH
     echo Installing conda...
-    
+
     echo Downloading Anaconda installer...
     powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Windows-x86_64.exe' -OutFile 'Anaconda3-installer.exe'"
-    
+
     if exist Anaconda3-installer.exe (
         echo Installing Anaconda (this may take a few minutes)...
         Anaconda3-installer.exe /S /D=%USERPROFILE%\Anaconda3
@@ -66,7 +66,7 @@ if !errorlevel! == 1 (
         echo Error: Failed to download Anaconda installer
         exit /b 1
     )
-    
+
     if exist "%USERPROFILE%\Anaconda3" (
         set "PATH=%USERPROFILE%\Anaconda3;%USERPROFILE%\Anaconda3\Scripts;%USERPROFILE%\Anaconda3\Library\bin;%PATH%"
         echo Initializing conda...
@@ -75,7 +75,7 @@ if !errorlevel! == 1 (
         echo Error: Anaconda installation failed
         exit /b 1
     )
-    
+
     if exist Anaconda3-installer.exe del Anaconda3-installer.exe
 )
 

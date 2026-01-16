@@ -1,9 +1,11 @@
 """
 This module contains the Deep Decoder Attention Model architecture.
 """
+
 import math
-import torch
 import typing
+
+import torch
 import torch.nn as nn
 
 from . import AttentionModel
@@ -15,9 +17,11 @@ class DeepAttentionModelFixed(typing.NamedTuple):
     Context for AttentionModel decoder that is fixed during decoding so can be precomputed/cached
     This class allows for efficient indexing of multiple Tensors at once
     """
+
     node_embeddings: torch.Tensor
     context_node_projected: torch.Tensor
     mha_key: torch.Tensor
+
     def __getitem__(self, key):
         """
         Slice the fixed data.
@@ -32,7 +36,7 @@ class DeepAttentionModelFixed(typing.NamedTuple):
             return DeepAttentionModelFixed(
                 node_embeddings=self.node_embeddings[key],
                 context_node_projected=self.context_node_projected[key],
-                mha_key=self.mha_key[key]
+                mha_key=self.mha_key[key],
             )
         return self[key]
 
@@ -40,43 +44,46 @@ class DeepAttentionModelFixed(typing.NamedTuple):
 class DeepDecoderAttentionModel(AttentionModel):
     """
     Attention Model with a Deep Decoder architecture.
-    
+
     Extends the standard AttentionModel to support a deeper decoder structure with
     more advanced configuration options (Graph Attention Decoder).
     """
-    def __init__(self,
-                 embedding_dim,
-                 hidden_dim,
-                 problem,
-                 encoder_class,
-                 n_encode_layers=2,
-                 n_encode_sublayers=None,
-                 n_decode_layers=2,
-                 dropout_rate=0.1,
-                 aggregation="sum",
-                 aggregation_graph="avg",
-                 tanh_clipping=10.,
-                 mask_inner=True,
-                 mask_logits=True,
-                 mask_graph=False,
-                 normalization='batch',
-                 norm_learn_affine=True,
-                 norm_track_stats=False,
-                 norm_eps_alpha=1e-05,
-                 norm_momentum_beta=0.1,
-                 lrnorm_k=1.0,
-                 gnorm_groups=3,
-                 activation_function='gelu',
-                 af_param=1.0,
-                 af_threshold=6.0,
-                 af_replacement_value=6.0,
-                 af_num_params=3,
-                 af_uniform_range=[0.125, 1/3],
-                 n_heads=8,
-                 checkpoint_encoder=False,
-                 shrink_size=None,
-                 temporal_horizon=0,
-                 predictor_layers=None):
+
+    def __init__(
+        self,
+        embedding_dim,
+        hidden_dim,
+        problem,
+        encoder_class,
+        n_encode_layers=2,
+        n_encode_sublayers=None,
+        n_decode_layers=2,
+        dropout_rate=0.1,
+        aggregation="sum",
+        aggregation_graph="avg",
+        tanh_clipping=10.0,
+        mask_inner=True,
+        mask_logits=True,
+        mask_graph=False,
+        normalization="batch",
+        norm_learn_affine=True,
+        norm_track_stats=False,
+        norm_eps_alpha=1e-05,
+        norm_momentum_beta=0.1,
+        lrnorm_k=1.0,
+        gnorm_groups=3,
+        activation_function="gelu",
+        af_param=1.0,
+        af_threshold=6.0,
+        af_replacement_value=6.0,
+        af_num_params=3,
+        af_uniform_range=[0.125, 1 / 3],
+        n_heads=8,
+        checkpoint_encoder=False,
+        shrink_size=None,
+        temporal_horizon=0,
+        predictor_layers=None,
+    ):
         """
         Initialize the Deep Decoder Attention Model.
 
@@ -144,7 +151,7 @@ class DeepDecoderAttentionModel(AttentionModel):
             n_heads,
             checkpoint_encoder,
             shrink_size,
-            temporal_horizon
+            temporal_horizon,
         )
         self.n_decode_layers = n_decode_layers
         self.decoder = GraphAttentionDecoder(
@@ -165,7 +172,7 @@ class DeepDecoderAttentionModel(AttentionModel):
             replacement_value=self.replacement_value,
             n_params=self.n_params,
             uniform_range=self.uniform_range,
-            dropout_rate=self.dropout_rate
+            dropout_rate=self.dropout_rate,
         )
         self.project_node_embeddings = nn.Linear(embedding_dim, embedding_dim, bias=False)
 
@@ -182,20 +189,19 @@ class DeepDecoderAttentionModel(AttentionModel):
 
         # fixed context = (batch_size, 1, embed_dim) to make broadcastable with parallel timesteps
         fixed_context = self.project_fixed_context(graph_embed)[:, None, :]
-        
+
         # The projection of the node embeddings for the attention is calculated once up front
         mha_key = self.project_node_embeddings(embeddings[:, None, :, :])
-        
+
         # No need to rearrange key for logit as there is a single head
-        fixed_attention_node_data = (
-            self._make_heads(mha_key, num_steps)
-        )
+        fixed_attention_node_data = self._make_heads(mha_key, num_steps)
         return DeepAttentionModelFixed(embeddings, fixed_context, *fixed_attention_node_data)
 
     def _get_log_p(self, fixed, state, normalize=True):
         # Compute query = context node embedding
-        query = fixed.context_node_projected + \
-                self.project_step_context(self._get_parallel_step_context(fixed.node_embeddings, state))
+        query = fixed.context_node_projected + self.project_step_context(
+            self._get_parallel_step_context(fixed.node_embeddings, state)
+        )
 
         # Compute keys for the nodes
         mha_K = self._get_attention_node_data(fixed, state)
@@ -205,7 +211,7 @@ class DeepDecoderAttentionModel(AttentionModel):
 
         graph_mask = None
         if self.mask_graph:
-            # Compute the graph mask, for masking next action based on graph structure 
+            # Compute the graph mask, for masking next action based on graph structure
             graph_mask = state.get_edges_mask()
 
         # Compute logits (unnormalized log_p)
@@ -227,7 +233,7 @@ class DeepDecoderAttentionModel(AttentionModel):
         if self.mask_logits:
             logits[mask] = -math.inf
         return logits
-    
+
     def _get_attention_node_data(self, fixed, state):
         if self.is_wc and self.allow_partial:
             # Need to provide information of how much each node has already been served
@@ -235,8 +241,6 @@ class DeepDecoderAttentionModel(AttentionModel):
             mha_key_step = self.project_node_step(state.demands_with_depot[:, :, :, None].clone())
 
             # Projection of concatenation is equivalent to addition of projections but this is more efficient
-            return (
-                fixed.mha_key + self._make_heads(mha_key_step)
-            )
+            return fixed.mha_key + self._make_heads(mha_key_step)
 
         return fixed.mha_key

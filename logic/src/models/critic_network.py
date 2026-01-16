@@ -1,19 +1,21 @@
 """
 This module contains the Critic Network implementation for RL baselines.
 """
+
 import torch.nn as nn
 
+from .context_embedder import VRPPContextEmbedder, WCContextEmbedder
 from .modules import ActivationFunction
-from .context_embedder import WCContextEmbedder, VRPPContextEmbedder
 
 
 # Attention, Learn to Solve Routing Problems
 class CriticNetwork(nn.Module):
     """
     Critic Network for estimating the value of a problem state in Reinforcement Learning.
-    
+
     Used as a baseline to reduce variance in gradient estimation (e.g., in PPO/REINFORCE).
     """
+
     def __init__(
         self,
         problem,
@@ -22,12 +24,12 @@ class CriticNetwork(nn.Module):
         hidden_dim,
         n_layers,
         n_sublayers,
-        encoder_normalization='batch',
-        activation='gelu',
+        encoder_normalization="batch",
+        activation="gelu",
         n_heads=8,
         aggregation_graph="avg",
-        dropout_rate=0.,
-        temporal_horizon=0
+        dropout_rate=0.0,
+        temporal_horizon=0,
     ):
         """
         Initialize the Critic Network.
@@ -51,18 +53,22 @@ class CriticNetwork(nn.Module):
         self.embedding_dim = embedding_dim
         self.aggregation_graph = aggregation_graph
 
-        self.is_wc = problem.NAME == 'wcvrp' or problem.NAME == 'cwcvrp' or problem.NAME == 'sdwcvrp'
-        self.is_vrpp = problem.NAME == 'vrpp' or problem.NAME == 'cvrpp'
+        self.is_wc = problem.NAME == "wcvrp" or problem.NAME == "cwcvrp" or problem.NAME == "sdwcvrp"
+        self.is_vrpp = problem.NAME == "vrpp" or problem.NAME == "cvrpp"
 
         assert self.is_wc or self.is_vrpp, "Unsupported problem: {}".format(problem.NAME)
 
         # Problem specific context parameters
         node_dim = 3  # x, y, demand / prize / waste -- vrpp has waste, wc has waste.
-        
+
         if self.is_wc:
-            self.context_embedder = WCContextEmbedder(embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)
+            self.context_embedder = WCContextEmbedder(
+                embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
+            )
         else:
-            self.context_embedder = VRPPContextEmbedder(embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)
+            self.context_embedder = VRPPContextEmbedder(
+                embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
+            )
 
         self.encoder = component_factory.create_encoder(
             n_heads=n_heads,
@@ -72,15 +78,15 @@ class CriticNetwork(nn.Module):
             normalization=encoder_normalization,
             activation=activation,
             dropout_rate=dropout_rate,
-            feed_forward_hidden=self.hidden_dim
+            feed_forward_hidden=self.hidden_dim,
         )
 
         self.value_head = nn.Sequential(
             nn.Linear(embedding_dim, hidden_dim),
             ActivationFunction(activation),
-            nn.Linear(hidden_dim, 1)
+            nn.Linear(hidden_dim, 1),
         )
-    
+
     def _init_embed(self, nodes):
         return self.context_embedder.init_node_embeddings(nodes)
 
@@ -94,13 +100,15 @@ class CriticNetwork(nn.Module):
         Returns:
             torch.Tensor: The estimated value of the current state.
         """
-        edges = inputs.pop('edges')
+        edges = inputs.pop("edges")
         embeddings = self.encoder(self._init_embed(inputs), edges)
         if self.aggregation_graph == "avg":
             graph_embeddings = embeddings.mean(1)
         elif self.aggregation_graph == "sum":
             graph_embeddings = embeddings.sum(1)
         else:
-            assert self.aggregation_graph == "max", "Unsupported graph aggregation method: {}".format(self.aggregation_graph)
+            assert self.aggregation_graph == "max", "Unsupported graph aggregation method: {}".format(
+                self.aggregation_graph
+            )
             graph_embeddings = embeddings.max(1)[0]
         return self.value_head(graph_embeddings)

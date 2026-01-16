@@ -18,16 +18,23 @@ Functions:
     run_day: Main orchestrator for single-day simulation
 """
 
-import torch
-from typing import Dict, List, Union, Optional, Any, Tuple
+from typing import Any, Dict, List, Optional, Union
+
 import numpy as np
 import pandas as pd
+import torch
+
+from logic.src.pipeline.simulator.context import SimulationDayContext
 from logic.src.utils.definitions import DAY_METRICS
 from logic.src.utils.functions import move_to
-from logic.src.pipeline.simulator.context import SimulationDayContext
 
 
-def set_daily_waste(model_data: Dict[str, Any], waste: np.ndarray, device: torch.device, fill: Optional[np.ndarray] = None) -> Dict[str, Any]:
+def set_daily_waste(
+    model_data: Dict[str, Any],
+    waste: np.ndarray,
+    device: torch.device,
+    fill: Optional[np.ndarray] = None,
+) -> Dict[str, Any]:
     """
     Updates neural model input with current bin waste levels.
 
@@ -43,14 +50,32 @@ def set_daily_waste(model_data: Dict[str, Any], waste: np.ndarray, device: torch
     Returns:
         Updated model_data dict with tensors on specified device
     """
-    model_data['waste'] = torch.as_tensor(waste, dtype=torch.float32).unsqueeze(0)/100.
-    if 'fill_history' in model_data:
-        model_data['current_fill'] = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0)/100.
-    return move_to(model_data, device)
+    # Create tensors on CPU and pin memory for faster host-to-device transfer
+    waste_tensor = torch.as_tensor(waste, dtype=torch.float32).unsqueeze(0).div(100.0)
+    if device.type == "cuda":
+        waste_tensor = waste_tensor.pin_memory()
+    model_data["waste"] = waste_tensor
+
+    if "fill_history" in model_data:
+        fill_tensor = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0).div(100.0)
+        if device.type == "cuda":
+            fill_tensor = fill_tensor.pin_memory()
+        model_data["current_fill"] = fill_tensor
+
+    return move_to(model_data, device, non_blocking=True)
 
 
-def get_daily_results(total_collected: float, ncol: int, cost: float, tour: List[int], day: int, 
-                      new_overflows: int, sum_lost: float, coordinates: pd.DataFrame, profit: float) -> Dict[str, Union[int, float, List[int]]]:
+def get_daily_results(
+    total_collected: float,
+    ncol: int,
+    cost: float,
+    tour: List[int],
+    day: int,
+    new_overflows: int,
+    sum_lost: float,
+    coordinates: pd.DataFrame,
+    profit: float,
+) -> Dict[str, Union[int, float, List[int]]]:
     """
     Formats raw simulation outputs into structured daily log dictionary.
 
@@ -73,38 +98,41 @@ def get_daily_results(total_collected: float, ncol: int, cost: float, tour: List
             - day, overflows, kg_lost, kg, ncol, km, kg/km, cost, profit, tour
     """
     dlog: Dict[str, Union[int, float, List[int]]] = {key: 0 for key in DAY_METRICS}
-    dlog['day'] = day
-    dlog['overflows'] = new_overflows
-    dlog['kg_lost'] = sum_lost
+    dlog["day"] = day
+    dlog["overflows"] = new_overflows
+    dlog["kg_lost"] = sum_lost
     if len(tour) > 2:
         rl_cost = new_overflows - total_collected + cost
-        dlog['kg'] = total_collected
-        dlog['ncol'] = ncol
-        dlog['km'] = cost
-        dlog['kg/km'] = total_collected / cost if cost > 0 else 0
-        dlog['cost'] = rl_cost
-        dlog['profit'] = profit
+        dlog["kg"] = total_collected
+        dlog["ncol"] = ncol
+        dlog["km"] = cost
+        dlog["kg/km"] = total_collected / cost if cost > 0 else 0
+        dlog["cost"] = rl_cost
+        dlog["profit"] = profit
         ids = np.array([x for x in tour if x != 0])
-        dlog['tour'] = [0] + coordinates.loc[ids, 'ID'].tolist() + [0]
+        dlog["tour"] = [0] + coordinates.loc[ids, "ID"].tolist() + [0]
     else:
-        dlog['kg'] = 0
-        dlog['ncol'] = 0
-        dlog['km'] = 0
-        dlog['kg/km'] = 0
-        dlog['cost'] = new_overflows
-        dlog['profit'] = 0
-        dlog['tour'] = [0]
+        dlog["kg"] = 0
+        dlog["ncol"] = 0
+        dlog["km"] = 0
+        dlog["kg/km"] = 0
+        dlog["cost"] = new_overflows
+        dlog["profit"] = 0
+        dlog["tour"] = [0]
     return dlog
+
 
 def send_daily_output_to_gui(*args, **kwargs):
     """
     Proxy function to send daily simulation updates to the GUI.
-    
+
     This function lazily imports the utility from log_utils to avoid
     circular dependencies and forwards all arguments.
     """
     from logic.src.utils.log_utils import send_daily_output_to_gui
+
     return send_daily_output_to_gui(*args, **kwargs)
+
 
 def run_day(context: SimulationDayContext) -> SimulationDayContext:
     """
@@ -120,17 +148,15 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
         Updated SimulationDayContext.
     """
     from logic.src.pipeline.simulator.actions import (
-        FillAction, PolicyExecutionAction, CollectAction, LogAction
+        CollectAction,
+        FillAction,
+        LogAction,
+        PolicyExecutionAction,
     )
-    
-    commands = [
-        FillAction(),
-        PolicyExecutionAction(),
-        CollectAction(),
-        LogAction()
-    ]
-    
+
+    commands = [FillAction(), PolicyExecutionAction(), CollectAction(), LogAction()]
+
     for command in commands:
         command.execute(context)
-        
+
     return context

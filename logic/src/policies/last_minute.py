@@ -21,25 +21,28 @@ This policy is useful for:
 - Reducing unnecessary trips to nearly-empty bins
 - Benchmarking against fixed-schedule policies
 """
-import numpy as np
 
 from typing import List
-from pandas import DataFrame
+
+import numpy as np
 from numpy.typing import NDArray
+from pandas import DataFrame
+
+from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
+
 from .multi_vehicle import find_routes
 from .single_vehicle import find_route, get_multi_tour
-from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
 
 
 def policy_last_minute(
-        bins: NDArray[np.float64],
-        distancesC: NDArray[np.int32],
-        lvl: NDArray[np.float64],
-        waste_type: str='plastic',
-        area: str='riomaior',
-        n_vehicles: int=1,
-        coords: DataFrame=None
-    ):
+    bins: NDArray[np.float64],
+    distancesC: NDArray[np.int32],
+    lvl: NDArray[np.float64],
+    waste_type: str = "plastic",
+    area: str = "riomaior",
+    n_vehicles: int = 1,
+    coords: DataFrame = None,
+):
     """
     Execute a last-minute (reactive) collection policy.
 
@@ -66,22 +69,22 @@ def policy_last_minute(
             tour = find_route(distancesC, to_collect)
             tour = get_multi_tour(tour, bins, max_capacity, distancesC)
         else:
-           tour = find_routes(distancesC, bins, max_capacity, to_collect, n_vehicles, coords)
+            tour = find_routes(distancesC, bins, max_capacity, to_collect, n_vehicles, coords)
     else:
         tour = [0]
     return tour
 
 
 def policy_last_minute_and_path(
-        bins: NDArray[np.float64],
-        distancesC: NDArray[np.int32],
-        paths_between_states: List[List[int]],
-        lvl: NDArray[np.float64],
-        waste_type: str='plastic',
-        area: str='riomaior',
-        n_vehicles: int=1,
-        coords: DataFrame=None
-    ):
+    bins: NDArray[np.float64],
+    distancesC: NDArray[np.int32],
+    paths_between_states: List[List[int]],
+    lvl: NDArray[np.float64],
+    waste_type: str = "plastic",
+    area: str = "riomaior",
+    n_vehicles: int = 1,
+    coords: DataFrame = None,
+):
     """
     Execute last-minute policy with opportunistic path-based collection.
 
@@ -117,13 +120,13 @@ def policy_last_minute_and_path(
         if n_vehicles == 1:
             tour = find_route(distancesC, to_collect)
         else:
-           tour = find_routes(distancesC, bins, max_capacity, to_collect, n_vehicles, coords)
+            tour = find_routes(distancesC, bins, max_capacity, to_collect, n_vehicles, coords)
         visited_states = [0]
         len_tour = len(tour)
         np_tour = np.array(tour)
         total_waste = np.sum(bins[np_tour[np_tour != 0] - 1])
         for ii in range(0, len_tour - 1):
-            path_to_collect = paths_between_states[tour[ii]][tour[ii+1]]
+            path_to_collect = paths_between_states[tour[ii]][tour[ii + 1]]
             for tocol in path_to_collect:
                 if tocol not in tour and tocol != 0 and tocol not in visited_states:
                     waste = bins[tocol - 1]
@@ -132,9 +135,10 @@ def policy_last_minute_and_path(
                         visited_states.append(tocol)
                 elif tocol not in visited_states:
                     visited_states.append(tocol)
-        
-        #del visited_states[0]
-        if len(visited_states) > 1: visited_states.append(0)
+
+        # del visited_states[0]
+        if len(visited_states) > 1:
+            visited_states.append(0)
         tour = get_multi_tour(visited_states, bins, max_capacity, distancesC)
     else:
         tour = [0]
@@ -142,36 +146,42 @@ def policy_last_minute_and_path(
 
 
 def policy_profit_reactive(
-        bins: NDArray[np.float64],
-        distancesC: NDArray[np.int32],
-        waste_type: str = 'plastic',
-        area: str = 'riomaior',
-        n_vehicles: int = 1,
-        coords: DataFrame = None,
-        profit_threshold: float = 0.0
-    ):
+    bins: NDArray[np.float64],
+    distancesC: NDArray[np.int32],
+    waste_type: str = "plastic",
+    area: str = "riomaior",
+    n_vehicles: int = 1,
+    coords: DataFrame = None,
+    profit_threshold: float = 0.0,
+):
     """
     Execute a profit-based reactive collection policy.
 
-    Collects bins only if their individual expected reward (waste * revenue_kg) 
+    Collects bins only if their individual expected reward (waste * revenue_kg)
     exceeds a certain profit threshold.
     """
-    (vehicle_capacity, revenue_kg, density, cost_km, volume) = load_area_and_waste_type_params(area, waste_type)
+    (
+        vehicle_capacity,
+        revenue_kg,
+        density,
+        cost_km,
+        volume,
+    ) = load_area_and_waste_type_params(area, waste_type)
     bin_capacity = volume * density
-    
+
     # Calculate expected revenue per bin (in currency units)
     # bins is 0-100%, so we multiply by bin_capacity / 100
     expected_revenue = (bins / 100.0) * bin_capacity * revenue_kg
-    
+
     to_collect = np.nonzero(expected_revenue > profit_threshold)[0] + 1
-    
+
     tour = []
     if len(to_collect) > 0:
         if n_vehicles == 1:
             tour = find_route(distancesC, to_collect)
             tour = get_multi_tour(tour, bins, vehicle_capacity, distancesC)
         else:
-           tour = find_routes(distancesC, bins, vehicle_capacity, to_collect, n_vehicles, coords)
+            tour = find_routes(distancesC, bins, vehicle_capacity, to_collect, n_vehicles, coords)
     else:
         tour = [0]
     return tour

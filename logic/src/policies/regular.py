@@ -14,28 +14,31 @@ The policy:
 This is often used as a baseline policy for comparison against more
 sophisticated approaches like neural models or optimization-based policies.
 """
-import numpy as np
 
-from pandas import DataFrame
+from typing import List, Optional
+
+import numpy as np
 from numpy.typing import NDArray
-from typing import Optional, List
+from pandas import DataFrame
+
+from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
+
 from .multi_vehicle import find_routes
 from .single_vehicle import find_route, get_multi_tour
-from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
 
 
 def policy_regular(
-        n_bins: int,
-        bins_waste: NDArray[np.float64],
-        distancesC: NDArray[np.int32],
-        lvl: int,
-        day: int,
-        cached: Optional[List[int]]=[],
-        waste_type: str='plastic',
-        area: str='riomaior',
-        n_vehicles: int=1,
-        coords: DataFrame=None
-    ):
+    n_bins: int,
+    bins_waste: NDArray[np.float64],
+    distancesC: NDArray[np.int32],
+    lvl: int,
+    day: int,
+    cached: Optional[List[int]] = [],
+    waste_type: str = "plastic",
+    area: str = "riomaior",
+    n_vehicles: int = 1,
+    coords: DataFrame = None,
+):
     """
     Execute a regular periodic collection policy.
 
@@ -69,7 +72,11 @@ def policy_regular(
             tour = cached if cached is not None and len(cached) > 1 else find_route(distancesC, to_collect)
             tour = get_multi_tour(tour, bins_waste, max_capacity, distancesC)
         else:
-            tour = cached if cached is not None and len(cached) > 1 else find_routes(distancesC, bins_waste, max_capacity, to_collect, n_vehicles, coords)
+            tour = (
+                cached
+                if cached is not None and len(cached) > 1
+                else find_routes(distancesC, bins_waste, max_capacity, to_collect, n_vehicles, coords)
+            )
     else:
         tour = [0]
     return tour
