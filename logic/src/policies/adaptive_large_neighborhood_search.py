@@ -38,6 +38,17 @@ class ALNSSolver:
         C: float,
         params: ALNSParams,
     ):
+        """
+        Initialize the ALNS solver.
+
+        Args:
+            dist_matrix: NxN distance matrix.
+            demands: Dictionary of node demands.
+            capacity: Maximum vehicle capacity.
+            R: Revenue multiplier.
+            C: Cost multiplier.
+            params: Detailed ALNS parameters.
+        """
         self.dist_matrix = dist_matrix
         self.demands = demands
         self.capacity = capacity
@@ -63,6 +74,15 @@ class ALNSSolver:
         self.repair_weights = [1.0] * len(self.repair_ops)
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
+        """
+        Run the ALNS algorithm.
+
+        Args:
+            initial_solution: Optional starting solution. If None, a constructive heuristic is used.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
+        """
         if initial_solution:
             current_routes = initial_solution
         else:
@@ -132,6 +152,15 @@ class ALNSSolver:
         return best_routes, profit, best_cost
 
     def select_operator(self, weights: List[float]) -> int:
+        """
+        Select an operator index based on their weights using roulette wheel selection.
+
+        Args:
+            weights: List of operator weights.
+
+        Returns:
+            int: Index of the selected operator.
+        """
         total = sum(weights)
         r = random.uniform(0, total)
         curr = 0.0
@@ -142,6 +171,15 @@ class ALNSSolver:
         return len(weights) - 1
 
     def calculate_cost(self, routes: List[List[int]]) -> float:
+        """
+        Calculate the total routing cost for a set of routes.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            float: Total distance * cost multiplier.
+        """
         total_dist = 0
         for route in routes:
             if not route:
@@ -154,6 +192,12 @@ class ALNSSolver:
         return total_dist * self.C
 
     def build_initial_solution(self) -> List[List[int]]:
+        """
+        Build a basic feasible solution using a greedy constructive heuristic.
+
+        Returns:
+            List[List[int]]: Initial routes.
+        """
         nodes = self.nodes[:]
         random.shuffle(nodes)
         routes = []

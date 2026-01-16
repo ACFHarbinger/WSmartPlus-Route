@@ -1,3 +1,10 @@
+"""
+Split algorithm for Hybrid Genetic Search (HGS).
+
+This module implements the linear-time Split algorithm used to partition
+a giant tour into optimal routes based on vehicle capacity.
+"""
+
 from collections import deque
 from typing import Deque, Dict, List, Tuple
 
@@ -18,6 +25,17 @@ class LinearSplit:
         C: float,
         max_vehicles: int = 0,
     ):
+        """
+        Initialize the LinearSplit solver.
+
+        Args:
+            dist_matrix: NxN distance matrix.
+            demands: Dictionary of node demands.
+            capacity: Maximum vehicle capacity.
+            R: Revenue multiplier.
+            C: Cost multiplier.
+            max_vehicles: Maximum number of vehicles allowed (0 for unlimited).
+        """
         self.dist_matrix = np.array(dist_matrix)
         self.demands = demands
         self.capacity = capacity
@@ -26,6 +44,15 @@ class LinearSplit:
         self.max_vehicles = max_vehicles
 
     def split(self, giant_tour: List[int]) -> Tuple[List[List[int]], float]:
+        """
+        Partition a giant tour into feasible routes.
+
+        Args:
+            giant_tour: Ordered list of all client nodes to be visited.
+
+        Returns:
+            Tuple[List[List[int]], float]: List of routes and total profit.
+        """
         if not giant_tour:
             return [], 0.0
 
@@ -266,5 +293,20 @@ class LinearSplit:
 
 
 def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C, values):
+    """
+    Convenience wrapper for the LinearSplit algorithm.
+
+    Args:
+        giant_tour: Giant tour to be split.
+        dist_matrix: Distance matrix.
+        demands: Dictionary of node demands.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        values: Configuration parameters including `max_vehicles`.
+
+    Returns:
+        Tuple[List[List[int]], float]: Decoded routes and total profit.
+    """
     s = LinearSplit(dist_matrix, demands, capacity, R, C, values.get("max_vehicles", 0))
     return s.split(giant_tour)

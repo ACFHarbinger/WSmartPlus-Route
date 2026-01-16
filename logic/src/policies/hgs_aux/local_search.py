@@ -1,3 +1,10 @@
+"""
+Local Search heuristics for Hybrid Genetic Search (HGS).
+
+This module provides various local search operators (Relocate, Swap, 2-opt)
+to improve individual solutions within the HGS population.
+"""
+
 import random
 import time
 from typing import Dict, List, Set
@@ -21,6 +28,17 @@ class LocalSearch:
         C: float,
         params: HGSParams,
     ):
+        """
+        Initialize the Local Search optimizer.
+
+        Args:
+            dist_matrix: NxN distance matrix.
+            demands: Dictionary of node demands.
+            capacity: Vehicle capacity.
+            R: Revenue multiplier.
+            C: Cost multiplier.
+            params: HGS configuration parameters.
+        """
         self.d = np.array(dist_matrix)
         self.demands = demands
         self.Q = capacity
@@ -45,6 +63,15 @@ class LocalSearch:
         self.route_loads = []
 
     def optimize(self, individual: Individual) -> Individual:
+        """
+        Iteratively improve an individual using local search operators.
+
+        Args:
+            individual: The HGS individual to be optimized.
+
+        Returns:
+            Individual: The improved individual.
+        """
         if not individual.routes:
             return individual
 
