@@ -30,6 +30,7 @@ from logic.src.models import GATLSTManager, HypernetworkOptimizer, WeightAdjustm
 from logic.src.pipeline.reinforcement_learning.core.base import BaseReinforceTrainer
 from logic.src.pipeline.reinforcement_learning.core.epoch import (
     prepare_batch,
+    prepare_epoch,
     prepare_time_dataset,
     set_decode_type,
     update_time_dataset,
@@ -74,9 +75,18 @@ class StandardTrainer(BaseReinforceTrainer):
 
     def initialize_training_dataset(self):
         """
-        Initialize the training dataset (no-op for standard trainer).
+        Initialize the training dataset using prepare_epoch.
         """
-        pass
+        step, training_dataset, _ = prepare_epoch(
+            self.optimizer,
+            self.day,
+            self.problem,
+            self.tb_logger,
+            self.cost_weights,
+            self.opts,
+        )
+        self.training_dataset = training_dataset
+        self.step = step
 
     def train_day(self):
         """
@@ -197,7 +207,11 @@ class StandardTrainer(BaseReinforceTrainer):
                     bl_loss = bl_loss.unsqueeze(0)
 
             reinforce_loss = (cost - bl_val) * log_likelihood
-            entropy_loss = -self.opts.get("entropy_weight", 0.0) * entropy if entropy is not None else 0.0
+            entropy_loss = (
+                -self.opts.get("entropy_weight", 0.0) * entropy.mean()
+                if entropy is not None
+                else torch.tensor(0.0).to(reinforce_loss.device)
+            )
 
             imitation_loss = torch.tensor(0.0, device=self.opts["device"])
             curr_imitation_weight = self.opts.get("imitation_weight", 0.0)  # Decay handled externally
@@ -357,12 +371,11 @@ class StandardTrainer(BaseReinforceTrainer):
                         expert_cost, _, _ = self.problem.get_costs(x, expert_pi, self.cost_weights, dist_matrix)
                         expert_cost_tensor = expert_cost.mean()
 
-            loss = reinforce_loss.mean() + bl_loss.mean() + entropy_loss.mean() + curr_imitation_weight * imitation_loss
+            loss = reinforce_loss.mean() + bl_loss.mean() + entropy_loss + curr_imitation_weight * imitation_loss
             loss = loss / self.opts.get("accumulation_steps", 1)
 
             if opt_step:
                 if self.scaler is not None:
-                    self.scaler.scale(loss).backward()
                     if (batch_id + 1) % self.opts.get("accumulation_steps", 1) == 0:
                         self.scaler.unscale_(self.optimizer)
                         torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.opts["max_grad_norm"])
@@ -629,7 +642,11 @@ class TimeTrainer(StandardTrainer):
                     adv = G_t
 
                 reinforce_loss = (adv * log_prob).mean()
-                entropy_loss = -self.opts.get("entropy_weight", 0) * entropy.mean() if entropy is not None else 0.0
+                entropy_loss = (
+                    -self.opts.get("entropy_weight", 0) * entropy.mean()
+                    if entropy is not None
+                    else torch.tensor(0.0).to(reinforce_loss.device)
+                )
 
                 bl_loss = 0.0
                 if self.opts["baseline"] is not None and isinstance(bl_val, torch.Tensor) and bl_val.requires_grad:

@@ -120,6 +120,7 @@ class SimulationCheckpoint:
         }
 
         checkpoint_file = self.get_checkpoint_file(day, end_simulation)
+        os.makedirs(os.path.dirname(checkpoint_file), exist_ok=True)
         with open(checkpoint_file, "wb") as f:
             pickle.dump(checkpoint_data, f)
 
