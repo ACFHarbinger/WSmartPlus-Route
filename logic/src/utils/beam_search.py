@@ -5,8 +5,9 @@ This module provides a generic beam search decoder that can be used with
 autoregressive neural implementations (like Attention Model).
 """
 
-import torch
 import typing
+
+import torch
 
 from logic.src.utils.lexsort import torch_lexsort
 
@@ -75,13 +76,8 @@ def _beam_search(state, beam_size, propose_expansions=None, keep_states=False):
 
     # Perform decoding steps
     while not beam.all_finished():
-
         # Use the model to propose and score expansions
-        parent, action, score = (
-            beam.propose_expansions()
-            if propose_expansions is None
-            else propose_expansions(beam)
-        )
+        parent, action, score = beam.propose_expansions() if propose_expansions is None else propose_expansions(beam)
         if parent is None:
             return beams, None
 
@@ -105,9 +101,7 @@ class BatchBeam(typing.NamedTuple):
     but rather (sum_i beam_size_i, ...), i.e. flattened. This makes some operations a bit cumbersome.
     """
 
-    score: (
-        torch.Tensor
-    )  # Current heuristic score of each entry in beam (used to select most promising)
+    score: (torch.Tensor)  # Current heuristic score of each entry in beam (used to select most promising)
     state: None  # To track the state
     parent: torch.Tensor
     action: torch.Tensor
@@ -122,9 +116,7 @@ class BatchBeam(typing.NamedTuple):
 
     def __getitem__(self, key):
         """Allows indexing/slicing of the beam state."""
-        if torch.is_tensor(key) or isinstance(
-            key, slice
-        ):  # If tensor, idx all tensors by this tensor:
+        if torch.is_tensor(key) or isinstance(key, slice):  # If tensor, idx all tensors by this tensor:
             return self._replace(
                 # ids=self.ids[key],
                 score=self.score[key] if self.score is not None else None,
@@ -164,9 +156,7 @@ class BatchBeam(typing.NamedTuple):
         """Expands the beam with chosen actions."""
         return self._replace(
             score=score,  # The score is cleared upon expanding as it is no longer valid, or it must be provided
-            state=self.state[parent].update(
-                action
-            ),  # Pass ids since we replicated state
+            state=self.state[parent].update(action),  # Pass ids since we replicated state
             parent=parent,
             action=action,
         )
@@ -235,14 +225,10 @@ def segment_topk_idx(x, k, ids):
     # This way ids does not need to be increasing or adjacent, as long as each group is a single range
     group_offsets = splits.new_zeros((splits.max() + 1,))
     group_offsets[ids[splits]] = splits
-    offsets = group_offsets[
-        ids
-    ]  # Look up offsets based on ids, effectively repeating for the repetitions per id
+    offsets = group_offsets[ids]  # Look up offsets based on ids, effectively repeating for the repetitions per id
 
     # We want topk so need to sort x descending so sort -x (be careful with unsigned data type!)
-    idx_sorted = torch_lexsort(
-        (-(x if x.dtype != torch.uint8 else x.int()).detach(), ids)
-    )
+    idx_sorted = torch_lexsort((-(x if x.dtype != torch.uint8 else x.int()).detach(), ids))
 
     # This will filter first k per group (example k = 2)
     # ids     = [0, 0, 0, 1, 1, 1, 1, 2]
@@ -290,8 +276,7 @@ class CachedLookup(object):
     def __getitem__(self, key):
         """Retrieves data with caching."""
         assert not isinstance(key, slice), (
-            "CachedLookup does not support slicing, "
-            "you can slice the result of an index operation instead"
+            "CachedLookup does not support slicing, " "you can slice the result of an index operation instead"
         )
 
         if torch.is_tensor(key):  # If tensor, idx all tensors by this tensor:

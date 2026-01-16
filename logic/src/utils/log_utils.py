@@ -8,23 +8,24 @@ This module provides tools for:
 - Aggregating and visualizing log data.
 """
 
-import os
-from typing import Dict
-import json
-import wandb
-import torch
-import pickle
-from loguru import logger
 import datetime
+import json
+import os
+import pickle
 import statistics
+from collections import Counter
+from typing import Dict
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import logic.src.utils.definitions as udef
+import torch
+from loguru import logger
 
-from collections import Counter
+import logic.src.utils.definitions as udef
+import wandb
 from logic.src.utils.definitions import DAY_METRICS
-from logic.src.utils.io_utils import read_json, compose_dirpath
+from logic.src.utils.io_utils import compose_dirpath, read_json
 
 
 def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO"):
@@ -35,7 +36,6 @@ def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO"):
     logger.add(os.sys.stderr, level=level)
     logger.add(log_path, rotation="10 MB", level=level)
     return logger
-
 
 
 def log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts):
@@ -75,9 +75,7 @@ def log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
         if opts["baseline"] == "critic":
             tb_logger.log_value("critic_loss", l_dict["baseline_loss"].item(), step)
             tb_logger.log_value("critic_grad_norm", grad_norms[1].item(), step)
-            tb_logger.log_value(
-                "critic_grad_norm_clipped", grad_norms_clipped[1].item(), step
-            )
+            tb_logger.log_value("critic_grad_norm_clipped", grad_norms_clipped[1].item(), step)
 
     if opts["wandb_mode"] != "disabled":
         wandb_data = {
@@ -203,9 +201,7 @@ def log_training(loss_keys, table_df, opts):
         label = l_key if l_key in udef.LOSS_KEYS else f"{l_key}_cost"
         ax = fig.add_subplot(1, 1, 1)
         ax.plot(x_values, mean_loss, label=f"{label} μ", linewidth=2)
-        ax.fill_between(
-            x_values, lower_bound, upper_bound, alpha=0.3, label=f"{label} clip(μ ± σ)"
-        )
+        ax.fill_between(x_values, lower_bound, upper_bound, alpha=0.3, label=f"{label} clip(μ ± σ)")
         ax.scatter(x_values, mean_loss, color="red", s=50, zorder=5)
         ax.set_xlabel(xname)
         ax.set_ylabel(label)
@@ -353,16 +349,12 @@ def log_to_json(json_path, keys, dit, sort_log=True, sample_id=None, lock=None):
                 json.dump(_convert_numpy(old), fp_temp, indent=True)
 
             if read_failed and write_error is not None:
-                print(
-                    f"\n[WARNING] Failed to read from and write to {json_path}.\n- Write Error: {e}"
-                )
+                print(f"\n[WARNING] Failed to read from and write to {json_path}.\n- Write Error: {e}")
             elif read_failed:
                 print(f"\n[WARNING] Failed to read from {json_path}.")
             else:
                 assert write_error is not None
-                print(
-                    f"\n[WARNING] Failed to write to {json_path}.\n- Write Error: {e}"
-                )
+                print(f"\n[WARNING] Failed to write to {json_path}.\n- Write Error: {e}")
 
             print(f"Data saved to temporary file: {tmp_path}")
     finally:
@@ -401,9 +393,7 @@ def log_to_json2(json_path, keys, dit, sort_log=True, sample_id=None, lock=None)
             except json.JSONDecodeError:
                 # ⚠️ 1. Handle JSONDecodeError on read: Log the ERROR, but ASSUME empty data
                 # to continue processing the current thread's results.
-                print(
-                    f"\n[WARNING] JSONDecodeError reading: {json_path}. Assuming empty data for merge."
-                )
+                print(f"\n[WARNING] JSONDecodeError reading: {json_path}. Assuming empty data for merge.")
                 old = [] if "full" in json_path else {}
 
             if sample_id is not None and isinstance(old, list) and len(old) > sample_id:
@@ -453,9 +443,7 @@ def log_to_json2(json_path, keys, dit, sort_log=True, sample_id=None, lock=None)
             with open(temp_json_path, "w") as fp_temp:
                 json.dump(_convert_numpy(data_to_write), fp_temp, indent=True)
 
-            print(
-                f"\n[ERROR] Failed to write to {json_path}. Data saved to temporary file: {temp_json_path}"
-            )
+            print(f"\n[ERROR] Failed to write to {json_path}. Data saved to temporary file: {temp_json_path}")
             print(f"Original Write Error: {e}")
 
     finally:
@@ -580,9 +568,7 @@ def log_plot(visualize=False, **kwargs):
 
 
 @compose_dirpath
-def output_stats(
-    dir_path, nsamples, policies, keys, sort_log=True, print_output=False, lock=None
-):
+def output_stats(dir_path, nsamples, policies, keys, sort_log=True, print_output=False, lock=None):
     """
     Calculates and saves mean and standard deviation of log data.
 
@@ -616,29 +602,21 @@ def output_stats(
             tmp = []
             for n_id in range(nsamples):
                 tmp.append(data[n_id][pol].values())
-            mean_dit[pol] = {
-                key: log for key, log in zip(keys, [*map(statistics.mean, zip(*tmp))])
-            }
-            std_dit[pol] = {
-                key: log for key, log in zip(keys, [*map(statistics.stdev, zip(*tmp))])
-            }
+            mean_dit[pol] = {key: log for key, log in zip(keys, [*map(statistics.mean, zip(*tmp))])}
+            std_dit[pol] = {key: log for key, log in zip(keys, [*map(statistics.stdev, zip(*tmp))])}
 
         if sort_log:
             mean_dit = _sort_log(mean_dit)
             std_dit = _sort_log(std_dit)
         if print_output:
-            for lg, lg_std, pol in zip(
-                mean_dit.values(), std_dit.values(), mean_dit.keys()
-            ):
+            for lg, lg_std, pol in zip(mean_dit.values(), std_dit.values(), mean_dit.keys()):
                 logm = lg.values() if isinstance(lg, dict) else lg
                 logs = lg_std.values() if isinstance(lg_std, dict) else lg_std
                 tmp_lg = [(str(x), str(y)) for x, y in zip(logm, logs)]
                 if pol in policies:
                     print(f"{pol}:")
                     for (x, y), key in zip(tmp_lg, keys):
-                        print(
-                            f"- {key} value: {x[:x.find('.')+3]} +- {y[:y.find('.')+5]}"
-                        )
+                        print(f"- {key} value: {x[: x.find('.') + 3]} +- {y[: y.find('.') + 5]}")
 
         with open(mean_filename, "w") as fp:
             json.dump(mean_dit, fp, indent=True)
@@ -744,10 +722,7 @@ def send_daily_output_to_gui(
             if lookup_idx not in coords_lookup.index:
                 if str(idx) in coords_lookup.index:
                     lookup_idx = str(idx)
-                elif (
-                    isinstance(idx, (int, np.integer))
-                    and int(idx) in coords_lookup.index
-                ):
+                elif isinstance(idx, (int, np.integer)) and int(idx) in coords_lookup.index:
                     lookup_idx = int(idx)
 
             if lookup_idx in coords_lookup.index:
@@ -787,9 +762,7 @@ def send_daily_output_to_gui(
             "bins_state_c_after": np.array(bins_c_after).tolist(),
         }
     )
-    log_msg = (
-        f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}"
-    )
+    log_msg = f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}"
 
     # Append the raw log message to a local file, immediately flushing the disk buffer.
     if lock is not None:
@@ -818,21 +791,12 @@ def send_final_output_to_gui(log, log_std, n_samples, policies, log_path, lock=N
         lock (threading.Lock, optional): Thread lock.
     """
     lgsd = (
-        {
-            k: [[0] * len(v) if isinstance(v, tuple) else 0 for v in pol_data]
-            for k, pol_data in log.items()
-        }
+        {k: [[0] * len(v) if isinstance(v, tuple) else 0 for v in pol_data] for k, pol_data in log.items()}
         if log_std is None
-        else {
-            k: [list(v) if isinstance(v, tuple) else v for v in pol_data]
-            for k, pol_data in log_std.items()
-        }
+        else {k: [list(v) if isinstance(v, tuple) else v for v in pol_data] for k, pol_data in log_std.items()}
     )
     summary_data = {
-        "log": {
-            k: [list(v) if isinstance(v, tuple) else v for v in pol_data]
-            for k, pol_data in log.items()
-        },
+        "log": {k: [list(v) if isinstance(v, tuple) else v for v in pol_data] for k, pol_data in log.items()},
         "log_std": lgsd,
         "n_samples": n_samples,
         "policies": policies,
@@ -856,6 +820,7 @@ def send_final_output_to_gui(log, log_std, n_samples, policies, log_path, lock=N
         if lock is not None:
             lock.release()
 
+
 def final_simulation_summary(log: Dict, policy: str, n_samples: int):
     """
     Logs a high-level summary of the simulation results.
@@ -863,7 +828,7 @@ def final_simulation_summary(log: Dict, policy: str, n_samples: int):
     if policy not in log:
         logger.warning(f"Policy {policy} not found in log for summary.")
         return
-        
+
     stats = log[policy]
     logger.info(f"=== Simulation Summary: {policy} ({n_samples} samples) ===")
     for metric in ["overflows", "kg", "km", "kg/km", "profit"]:

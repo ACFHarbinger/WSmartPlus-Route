@@ -40,7 +40,7 @@ eval "$(conda shell.bash hook)"
 conda activate /users5/vlabist/afonsofernandes/anaconda3/envs/wsr
 #conda activate /home/u024151/anaconda3/envs/wsr
 
-# To execute this slurm script: sbatch slurm.sh 
+# To execute this slurm script: sbatch slurm.sh
 NUMBER_OF_CORES=32
 
 # Read arguments and execute program
@@ -107,7 +107,7 @@ if [[ "$command" == "train" ]]; then
     if [[ -z $ebs ]]; then
         ebs=256
     fi
-    
+
     if [[ -z $et ]]; then
         et=0.3
     fi
@@ -163,7 +163,7 @@ elif [[ "$command" == "test" ]]; then
     fi
 
     python main.py "$command" --policies "${model[@]}" --dd "$dd" --problem "$problem" --size "$gs" \
-    --days "$days" --output_dir "$od" --n_samples "$ns" --cpu_cores "$NUMBER_OF_CORES" --server_run --resume; 
+    --days "$days" --output_dir "$od" --n_samples "$ns" --cpu_cores "$NUMBER_OF_CORES" --server_run --resume;
     #--lvl "${lvl[@]}" --cf "${cf[@]}" --n_vehicles "$nv"
 else
     echo -e "${RED}Unknown command: $command${NC}"

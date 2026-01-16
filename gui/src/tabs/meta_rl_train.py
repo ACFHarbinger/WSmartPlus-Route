@@ -1,12 +1,21 @@
 from PySide6.QtWidgets import (
-    QComboBox, QLabel, QWidget,
-    QSpinBox, QScrollArea, QVBoxLayout,
-    QLineEdit, QFormLayout, QDoubleSpinBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QFormLayout,
+    QLabel,
+    QLineEdit,
+    QScrollArea,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
 )
+
 from gui.src.utils.app_definitions import (
+    AGGREGATION_FUNCTIONS,
     CB_EXPLORATION_METHODS,
-    RWA_MODELS, RWA_OPTIMIZERS,
-    MRL_METHODS, AGGREGATION_FUNCTIONS,
+    MRL_METHODS,
+    RWA_MODELS,
+    RWA_OPTIMIZERS,
 )
 
 
@@ -14,6 +23,7 @@ class MetaRLTrainParserTab(QWidget):
     """
     Tab for configuring Meta-Reinforcement Learning (MRL) arguments.
     """
+
     def __init__(self):
         super().__init__()
         scroll_area = QScrollArea()
@@ -25,18 +35,18 @@ class MetaRLTrainParserTab(QWidget):
         # --mrl_method
         self.mrl_method_combo = QComboBox()
         self.mrl_method_combo.addItems(MRL_METHODS.keys())
-        self.mrl_method_combo.setCurrentText('')
+        self.mrl_method_combo.setCurrentText("")
         form_layout.addRow(QLabel("Meta-Learning Method:"), self.mrl_method_combo)
-        
+
         # --mrl_history
         self.mrl_history_input = QSpinBox(minimum=1, maximum=100, value=10)
         form_layout.addRow(QLabel("History Length (Days/Epochs):"), self.mrl_history_input)
-        
+
         # --mrl_range (nargs='+')
         self.mrl_range_input = QLineEdit("0.01 5.0")
         self.mrl_range_input.setPlaceholderText("Min-Max values (space separated)")
         form_layout.addRow(QLabel("Dynamic Hyper-Parameter Range:"), self.mrl_range_input)
-        
+
         # --mrl_exploration_factor
         self.mrl_exploration_factor_input = QDoubleSpinBox(minimum=0.01, maximum=10.0, value=2.0)
         self.mrl_exploration_factor_input.setDecimals(3)
@@ -51,7 +61,7 @@ class MetaRLTrainParserTab(QWidget):
 
         # --- Temporal Difference Learning (TDL) ---
         form_layout.addRow(QLabel("<b>Temporal Difference Learning (TDL)</b>"))
-        
+
         # --tdl_lr_decay
         self.tdl_lr_decay_input = QDoubleSpinBox(minimum=0.0, maximum=1.0, value=1.0)
         self.tdl_lr_decay_input.setDecimals(5)
@@ -64,9 +74,9 @@ class MetaRLTrainParserTab(QWidget):
         # --cb_exploration_method
         self.cb_exploration_method_combo = QComboBox()
         self.cb_exploration_method_combo.addItems(CB_EXPLORATION_METHODS.keys())
-        self.cb_exploration_method_combo.setCurrentText('Upper Confidence Bound (UCB)')
+        self.cb_exploration_method_combo.setCurrentText("Upper Confidence Bound (UCB)")
         form_layout.addRow(QLabel("Exploration Method:"), self.cb_exploration_method_combo)
-        
+
         # --cb_num_configs
         self.cb_num_configs_input = QSpinBox(minimum=1, maximum=100, value=10)
         form_layout.addRow(QLabel("Weight Configs:"), self.cb_num_configs_input)
@@ -79,7 +89,7 @@ class MetaRLTrainParserTab(QWidget):
         # --cb_features_aggregation
         self.cb_features_aggregation_combo = QComboBox()
         self.cb_features_aggregation_combo.addItems(AGGREGATION_FUNCTIONS.keys())
-        self.cb_features_aggregation_combo.setCurrentText('Average')
+        self.cb_features_aggregation_combo.setCurrentText("Average")
         form_layout.addRow(QLabel("Feature Aggregation:"), self.cb_features_aggregation_combo)
 
         # --cb_epsilon_decay
@@ -87,7 +97,7 @@ class MetaRLTrainParserTab(QWidget):
         self.cb_epsilon_decay_input.setDecimals(5)
         self.cb_epsilon_decay_input.setSingleStep(0.001)
         form_layout.addRow(QLabel("Epsilon Decay:"), self.cb_epsilon_decay_input)
-        
+
         # --cb_min_epsilon
         self.cb_min_epsilon_input = QDoubleSpinBox(minimum=0.0, maximum=0.5, value=0.01)
         self.cb_min_epsilon_input.setDecimals(5)
@@ -114,13 +124,13 @@ class MetaRLTrainParserTab(QWidget):
         # --rwa_model
         self.rwa_model_combo = QComboBox()
         self.rwa_model_combo.addItems(RWA_MODELS.keys())
-        self.rwa_model_combo.setCurrentText('Recurrent Neural Network (RNN)')
+        self.rwa_model_combo.setCurrentText("Recurrent Neural Network (RNN)")
         form_layout.addRow(QLabel("Model:"), self.rwa_model_combo)
 
         # --rwa_optimizer
         self.rwa_optimizer_combo = QComboBox()
         self.rwa_optimizer_combo.addItems(RWA_OPTIMIZERS.keys())
-        self.rwa_optimizer_combo.setCurrentText('Root Mean Square Propagation (RMSProp)')
+        self.rwa_optimizer_combo.setCurrentText("Root Mean Square Propagation (RMSProp)")
         form_layout.addRow(QLabel("Optimizer:"), self.rwa_optimizer_combo)
 
         # --mrl_embedding_dim
@@ -136,7 +146,7 @@ class MetaRLTrainParserTab(QWidget):
         # --mrl_step
         self.mrl_step_input = QSpinBox(minimum=1, maximum=1000, value=100)
         form_layout.addRow(QLabel("Model Update Step:"), self.mrl_step_input)
-        
+
         # --rwa_update_step
         self.rwa_update_step_input = QSpinBox(minimum=1, maximum=1000, value=100)
         form_layout.addRow(QLabel("Weight Update Step:"), self.rwa_update_step_input)
@@ -161,13 +171,13 @@ class MetaRLTrainParserTab(QWidget):
             "rwa_update_step": self.rwa_update_step_input.value(),
         }
 
-        # 2. Handle QComboBox Lookups 
+        # 2. Handle QComboBox Lookups
         # Helper function for safe lookup
         def get_cli_value(combo_box, lookup_dict):
             text = combo_box.currentText()
             # Look up the short CLI value (e.g., 'ucb') using the full UI text
             cli_arg = lookup_dict.get(text, None)
-            
+
             # If a match is found, return it. Otherwise, return the raw text if it exists.
             return cli_arg if cli_arg else text if text else None
 
@@ -195,7 +205,7 @@ class MetaRLTrainParserTab(QWidget):
         rwa_optim_arg = get_cli_value(self.rwa_optimizer_combo, RWA_OPTIMIZERS)
         if rwa_optim_arg:
             params["rwa_optimizer"] = rwa_optim_arg
-            
+
         # 3. Handle nargs='+' arguments (your existing logic, moved for clarity)
         # --mrl_range (List of Floats)
         mrl_range_text = self.mrl_range_input.text().strip()
@@ -206,7 +216,7 @@ class MetaRLTrainParserTab(QWidget):
                 params["mrl_range"] = [float(x) for x in mrl_range_text.split()]
             except ValueError:
                 print("Warning: mrl_range must contain space-separated floats. Skipping.")
-        
+
         # --cb_context_features (List of Strings)
         cb_context_features_text = self.cb_context_features_input.text().strip()
         if cb_context_features_text:

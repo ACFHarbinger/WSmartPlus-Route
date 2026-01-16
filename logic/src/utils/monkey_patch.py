@@ -6,11 +6,11 @@ of device mapping when loading optimizer states, specifically casting tensors to
 correct device matching the model parameters.
 """
 
-import torch
-
+from collections import Iterable, defaultdict
 from copy import deepcopy
 from itertools import chain
-from collections import defaultdict, Iterable
+
+import torch
 
 
 # Attention, Learn to Solve Routing Problems
@@ -59,9 +59,7 @@ def load_state_dict(self, state_dict):
         if torch.is_tensor(value):
             # Floating-point types are a bit special here. They are the only ones
             # that are assumed to always match the type of params.
-            if any(
-                tp in type(param.data).__name__ for tp in {"Half", "Float", "Double"}
-            ):
+            if any(tp in type(param.data).__name__ for tp in {"Half", "Float", "Double"}):
                 value = value.type_as(param.data)
             value = value.to(param.device)
             return value

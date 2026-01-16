@@ -1,10 +1,12 @@
 """
 File system related argument parsers.
 """
+
 import argparse
 
 from logic.src.cli.base_parser import UpdateFunctionMapActionFactory
 from logic.src.utils.definitions import FS_COMMANDS
+
 
 def add_files_args(parser):
     """
@@ -16,20 +18,14 @@ def add_files_args(parser):
     Returns:
         The parser with added file system arguments.
     """
-    files_subparsers = parser.add_subparsers(
-        help="file system command", dest="fs_command", required=True
-    )
+    files_subparsers = parser.add_subparsers(help="file system command", dest="fs_command", required=True)
 
     # Update file system entries
-    update_parser = files_subparsers.add_parser(
-        "update", help="Update file system entries"
-    )
+    update_parser = files_subparsers.add_parser("update", help="Update file system entries")
     add_files_update_args(update_parser)
 
     # Delete file system entries
-    delete_parser = files_subparsers.add_parser(
-        "delete", help="Delete file system entries"
-    )
+    delete_parser = files_subparsers.add_parser("delete", help="Delete file system entries")
     add_files_delete_args(delete_parser)
 
     # Cryptography
@@ -38,6 +34,7 @@ def add_files_args(parser):
     )
     add_files_crypto_args(crypto_parser)
     return parser
+
 
 def add_files_update_args(parser):
     """
@@ -73,9 +70,7 @@ def add_files_update_args(parser):
         action=UpdateFunctionMapActionFactory(inplace=True),
         help="Operation to update the file values",
     )
-    parser.add_argument(
-        "--update_value", type=float, default=0.0, help="Value for the update operation"
-    )
+    parser.add_argument("--update_value", type=float, default=0.0, help="Value for the update operation")
     parser.add_argument(
         "--update_preview",
         action="store_true",
@@ -103,6 +98,7 @@ def add_files_update_args(parser):
     )
     return parser
 
+
 def add_files_delete_args(parser):
     """
     Adds file system 'delete' sub-command arguments.
@@ -119,9 +115,7 @@ def add_files_delete_args(parser):
         help="Flag to delete the train wandb log directory",
     )
     parser.add_argument("--log_dir", default="logs", help="Directory of train logs")
-    parser.add_argument(
-        "--log", action="store_false", help="Flag to delete the train log directory"
-    )
+    parser.add_argument("--log", action="store_false", help="Flag to delete the train log directory")
     parser.add_argument(
         "--output_dir",
         default="model_weights",
@@ -132,15 +126,9 @@ def add_files_delete_args(parser):
         action="store_false",
         help="Flag to delete the train output models directory",
     )
-    parser.add_argument(
-        "--data_dir", default="datasets", help="Directory of generated datasets"
-    )
-    parser.add_argument(
-        "--data", action="store_true", help="Flag to delete the datasets directory"
-    )
-    parser.add_argument(
-        "--eval_dir", default="results", help="Name of the evaluation results directory"
-    )
+    parser.add_argument("--data_dir", default="datasets", help="Directory of generated datasets")
+    parser.add_argument("--data", action="store_true", help="Flag to delete the datasets directory")
+    parser.add_argument("--eval_dir", default="results", help="Name of the evaluation results directory")
     parser.add_argument(
         "--eval",
         action="store_true",
@@ -166,15 +154,14 @@ def add_files_delete_args(parser):
         action="store_true",
         help="Flag to delete the WSR simulator test runs checkpoint directory",
     )
-    parser.add_argument(
-        "--cache", action="store_true", help="Flag to delete the cache directories"
-    )
+    parser.add_argument("--cache", action="store_true", help="Flag to delete the cache directories")
     parser.add_argument(
         "--delete_preview",
         action="store_true",
         help="Preview which files/directories will be removed",
     )
     return parser
+
 
 def add_files_crypto_args(parser):
     """
@@ -214,13 +201,9 @@ def validate_file_system_args(args):
     args = args.copy()
     fs_comm = args.pop("fs_command", None)
     if fs_comm not in FS_COMMANDS:
-        raise argparse.ArgumentError(
-            None, "ERROR: unknown File System (inner) command " + str(fs_comm)
-        )
+        raise argparse.ArgumentError(None, "ERROR: unknown File System (inner) command " + str(fs_comm))
 
-    assert not (
-        "stats_function" in args and args["stats_function"] is not None
-    ) or not (
+    assert not ("stats_function" in args and args["stats_function"] is not None) or not (
         "update_operation" in args and args["update_operation"] is not None
     ), "'update_operation' and 'stats_function' arguments are mutually exclusive"
 

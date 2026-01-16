@@ -1,13 +1,19 @@
 """
 Centralized registry for the WSmart+ Route CLI parser.
 """
+
 from logic.src.cli.base_parser import ConfigsParser
-from logic.src.cli.train_parser import add_train_args, add_mrl_train_args, add_hp_optim_args
-from logic.src.cli.sim_parser import add_test_sim_args, add_eval_args
 from logic.src.cli.data_parser import add_gen_data_args
 from logic.src.cli.fs_parser import add_files_args
 from logic.src.cli.gui_parser import add_gui_args
+from logic.src.cli.sim_parser import add_eval_args, add_test_sim_args
 from logic.src.cli.test_suite_parser import add_test_suite_args
+from logic.src.cli.train_parser import (
+    add_hp_optim_args,
+    add_mrl_train_args,
+    add_train_args,
+)
+
 
 def get_parser() -> ConfigsParser:
     """

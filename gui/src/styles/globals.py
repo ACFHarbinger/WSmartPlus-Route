@@ -1,35 +1,35 @@
-from PySide6.QtGui import QColor # Required for shadow color
-from PySide6.QtWidgets import QGraphicsDropShadowEffect 
+from PySide6.QtGui import QColor  # Required for shadow color
+from PySide6.QtWidgets import QGraphicsDropShadowEffect
 
 
 def apply_shadow_effect(widget, color_hex="#000000", radius=10, x_offset=0, y_offset=4):
     """Creates and applies a QGraphicsDropShadowEffect to a given widget."""
     shadow = QGraphicsDropShadowEffect(widget)
-    
+
     # 1. Set the color (black with transparency)
     shadow.setColor(QColor(color_hex))
-    
+
     # 2. Set the blur radius (controls the softness/spread)
     shadow.setBlurRadius(radius)
-    
+
     # 3. Set the offset (controls the shadow position, similar to CSS x/y)
     shadow.setOffset(x_offset, y_offset)
-    
+
     # 4. Apply the effect to the widget
     widget.setGraphicsEffect(shadow)
     return shadow
 
 
 # --- MODERN LIGHT STYLING CONSTANTS ---
-PRIMARY_ACCENT_COLOR = "#007AFF"    # Professional Blue (e.g., Run)
+PRIMARY_ACCENT_COLOR = "#007AFF"  # Professional Blue (e.g., Run)
 PRIMARY_HOVER_COLOR = "#0056b3"
 SECONDARY_ACCENT_COLOR = "#E74C3C"  # Red for critical (e.g., Reopen)
 SECONDARY_HOVER_COLOR = "#C0392B"
-BACKGROUND_COLOR = "#F4F6F8"      # Light Gray (almost white)
-CONTAINER_BG_COLOR = "#FFFFFF"    # Pure White
-TEXT_COLOR = "#000000"            # Pure Black (for text)
-MUTED_TEXT_COLOR = "#7F8C8D"      # Gray for notes
-BORDER_COLOR = "#DDE3E8"          # Light Gray border
+BACKGROUND_COLOR = "#F4F6F8"  # Light Gray (almost white)
+CONTAINER_BG_COLOR = "#FFFFFF"  # Pure White
+TEXT_COLOR = "#000000"  # Pure Black (for text)
+MUTED_TEXT_COLOR = "#7F8C8D"  # Gray for notes
+BORDER_COLOR = "#DDE3E8"  # Light Gray border
 
 # --- STYLING CONSTANTS ---
 # (Derived from main_window.py)
@@ -114,23 +114,23 @@ SECONDARY_BUTTON_STYLE = """
 """
 
 SECTION_HEADER_STYLE = """
-    font-weight: 600; 
-    font-size: 15px; 
-    margin-top: 8px; 
+    font-weight: 600;
+    font-size: 15px;
+    margin-top: 8px;
     margin-bottom: 2px;
     color: #9370DB; /* Purple */
 """
 
 SUB_HEADER_STYLE = """
-    font-weight: 600; 
-    font-size: 13px; 
+    font-weight: 600;
+    font-size: 13px;
     color: #9370DB; /* Purple */
     margin-top: 5px;
 """
 
 SCRIPT_HEADER_STYLE = """
-    font-weight: 600; 
-    font-size: 13px; 
+    font-weight: 600;
+    font-size: 13px;
     color: #9370DB; /* Purple */
 """
 
@@ -241,7 +241,7 @@ QComboBox::drop-down {
     width: 20px;
     border-left-width: 1px;
     border-left-color: #3e3e3e;
-    border-left-style: solid; 
+    border-left-style: solid;
 }
 
 /* --- Group Boxes (Cleaner Accent) --- */
@@ -309,8 +309,8 @@ QWidget#header_widget {
 
 /* --- Custom Overrides --- */
 #mainTitleLabel {
-    font-size: 26px; 
-    font-weight: 700; 
+    font-size: 26px;
+    font-weight: 700;
     padding-bottom: 5px;
     color: #9370DB; /* Purple */
 }
@@ -399,7 +399,7 @@ QComboBox::drop-down {{
     width: 20px;
     border-left-width: 1px;
     border-left-color: {BORDER_COLOR};
-    border-left-style: solid; 
+    border-left-style: solid;
 }}
 QTabWidget::pane {{ /* The tab content area */
     border: 1px solid {BORDER_COLOR};
@@ -422,7 +422,7 @@ QTabBar::tab:selected {{
     color: {PRIMARY_ACCENT_COLOR};
     font-weight: 600;
     /* Trick to make tab connect to pane */
-    border-bottom: 2px solid {CONTAINER_BG_COLOR}; 
+    border-bottom: 2px solid {CONTAINER_BG_COLOR};
     margin-bottom: -2px;
 }}
 QTabBar::tab:hover {{
@@ -431,15 +431,15 @@ QTabBar::tab:hover {{
 QScrollBar:vertical {{
     border: 1px solid {BORDER_COLOR};
     background: {CONTAINER_BG_COLOR}; /* White track background */
-    width: 12px; 
+    width: 12px;
     /* Margin reserves space for the arrow buttons */
-    margin: 12px 0 12px 0; 
+    margin: 12px 0 12px 0;
 }}
 
 QScrollBar::handle:vertical {{
     background: {TEXT_COLOR}; /* Dark Slate/Black for the handle */
     min-height: 20px;
-    border-radius: 6px; 
+    border-radius: 6px;
 }}
 
 /* Style for the buttons holding the arrows (top and bottom) */
@@ -451,30 +451,34 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
 }}
 
 /* Position and shape the top button */
-QScrollBar::sub-line:vertical {{ 
+QScrollBar::sub-line:vertical {{
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
-    subcontrol-position: top; 
+    subcontrol-position: top;
 }}
 
 /* Position and shape the bottom button */
 QScrollBar::add-line:vertical {{
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    subcontrol-position: bottom; 
+    subcontrol-position: bottom;
 }}
 
 /* Explicitly define the Up Arrow (White arrow on Black button) */
 QScrollBar::up-arrow:vertical {{
-    image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDhMOCAxMkgxNkwxMiA4WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+);
-    width: 8px; 
+    image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIg\
+ZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDhMOCAxMkgxNkwxMiA4WiIgZmlsbD0id2hpdGUiLz\
+4KPC9zdmc+);
+    width: 8px;
     height: 8px;
 }}
 
 /* Explicitly define the Down Arrow (White arrow on Black button) */
 QScrollBar::down-arrow:vertical {{
-    image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDE2TDE2IDEySDhMMTIgMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2ZyA+);
-    width: 8px; 
+    image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIg\
+ZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDE2TDE2IDEySDhMMTIgMTZaIiBmaWxsPSJ3aGl0ZS\
+IvPgo8L3N2ZyA+);
+    width: 8px;
     height: 8px;
 }}
 
@@ -493,8 +497,8 @@ QPushButton {{
     padding: 10px 12px; /* Standard Padding */
     border-radius: 5px;
 }}
-QPushButton:hover {{ 
-    background-color: {PRIMARY_HOVER_COLOR}; 
+QPushButton:hover {{
+    background-color: {PRIMARY_HOVER_COLOR};
 }}
 QPushButton:pressed {{
     /* Add a subtle press effect */
@@ -520,10 +524,10 @@ QPushButton#themeToggleButton:hover {{
 
 /* --- Custom Overrides --- */
 #mainTitleLabel {{
-    font-size: 26px; 
-    font-weight: 700; 
+    font-size: 26px;
+    font-weight: 700;
     padding-bottom: 5px;
-    color: {TEXT_COLOR}; 
+    color: {TEXT_COLOR};
 }}
 #commandSelectLabel {{
     font-weight: 600;
@@ -531,18 +535,18 @@ QPushButton#themeToggleButton:hover {{
 }}
 
 #runButton {{
-    background-color: {PRIMARY_ACCENT_COLOR}; 
+    background-color: {PRIMARY_ACCENT_COLOR};
     padding: 12px;
 }}
-#runButton:hover {{ 
-    background-color: {PRIMARY_HOVER_COLOR}; 
+#runButton:hover {{
+    background-color: {PRIMARY_HOVER_COLOR};
 }}
 
-#reopenButton {{ 
-    background-color: {SECONDARY_ACCENT_COLOR}; 
+#reopenButton {{
+    background-color: {SECONDARY_ACCENT_COLOR};
 }}
-#reopenButton:hover {{ 
-    background-color: {SECONDARY_HOVER_COLOR}; 
+#reopenButton:hover {{
+    background-color: {SECONDARY_HOVER_COLOR};
 }}
 
 /* --- Preview Text Box --- */

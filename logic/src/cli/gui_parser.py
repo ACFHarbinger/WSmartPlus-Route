@@ -5,6 +5,7 @@ GUI related argument parsers.
 from logic.src.cli.base_parser import LowercaseAction
 from logic.src.utils.definitions import APP_STYLES
 
+
 def add_gui_args(parser):
     """
     Adds all arguments related to the GUI to the given parser.

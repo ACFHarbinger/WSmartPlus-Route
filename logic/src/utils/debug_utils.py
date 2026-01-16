@@ -7,7 +7,6 @@ This module provides tools for monitoring runtime state, including:
 
 import sys
 import traceback
-
 from types import FrameType
 from typing import Any, Callable, Optional
 

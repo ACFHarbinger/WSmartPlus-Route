@@ -1,31 +1,36 @@
 """
 This module contains the Pointer Network model implementation.
 """
+
 import math
+
 import torch
 import torch.nn as nn
 
-from .subnets import PointerEncoder, PointerDecoder
+from .subnets import PointerDecoder, PointerEncoder
 
 
 # Attention, Learn to Solve Routing Problems
 class PointerNetwork(nn.Module):
     """
     Pointer Network implementing the Attention Model logic for VRP.
-    
+
     References:
         Vinyals et al. (2015) - Pointer Networks.
     """
-    def __init__(self,
-                 embedding_dim,
-                 hidden_dim,
-                 problem,
-                 n_encode_layers=None,
-                 tanh_clipping=10.,
-                 mask_inner=True,
-                 mask_logits=True,
-                 normalization=None,
-                 **kwargs):
+
+    def __init__(
+        self,
+        embedding_dim,
+        hidden_dim,
+        problem,
+        n_encode_layers=None,
+        tanh_clipping=10.0,
+        mask_inner=True,
+        mask_logits=True,
+        normalization=None,
+        **kwargs,
+    ):
         """
         Initialize the Pointer Network.
 
@@ -51,11 +56,11 @@ class PointerNetwork(nn.Module):
             use_tanh=tanh_clipping > 0,
             n_glimpses=1,
             mask_glimpses=mask_inner,
-            mask_logits=mask_logits
+            mask_logits=mask_logits,
         )
 
         # Trainable initial hidden states
-        std = 1. / math.sqrt(embedding_dim)
+        std = 1.0 / math.sqrt(embedding_dim)
         self.decoder_in_0 = nn.Parameter(torch.FloatTensor(embedding_dim))
         self.decoder_in_0.data.uniform_(-std, std)
 
@@ -84,13 +89,12 @@ class PointerNetwork(nn.Module):
             tuple: (cost, log_likelihood, [pi])
         """
         batch_size, graph_size, input_dim = inputs.size()
-        embedded_inputs = torch.mm(
-            inputs.transpose(0, 1).contiguous().view(-1, input_dim),
-            self.embedding
-        ).view(graph_size, batch_size, -1)
+        embedded_inputs = torch.mm(inputs.transpose(0, 1).contiguous().view(-1, input_dim), self.embedding).view(
+            graph_size, batch_size, -1
+        )
 
-        # query the actor net for the input indices 
-        # making up the output, and the pointer attn 
+        # query the actor net for the input indices
+        # making up the output, and the pointer attn
         _log_p, pi = self._inner(embedded_inputs, eval_tours)
 
         cost, mask = self.problem.get_costs(inputs, pi)
@@ -118,7 +122,7 @@ class PointerNetwork(nn.Module):
     def _inner(self, inputs, eval_tours=None):
         encoder_hx = encoder_cx = torch.autograd.Variable(
             torch.zeros(1, inputs.size(1), self.encoder.hidden_dim, out=inputs.data.new()),
-            requires_grad=False
+            requires_grad=False,
         )
 
         # Encoder forward pass
@@ -127,5 +131,7 @@ class PointerNetwork(nn.Module):
 
         # Repeat decoder_in_0 across batch
         decoder_input = self.decoder_in_0.unsqueeze(0).repeat(inputs.size(1), 1)
-        (pointer_probs, input_idxs), dec_hidden_t = self.decoder(decoder_input, inputs, dec_init_state, enc_h, eval_tours)
+        (pointer_probs, input_idxs), dec_hidden_t = self.decoder(
+            decoder_input, inputs, dec_init_state, enc_h, eval_tours
+        )
         return pointer_probs, input_idxs
