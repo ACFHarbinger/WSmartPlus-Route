@@ -24,8 +24,8 @@ from torch.utils.tensorboard.writer import SummaryWriter
 
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
-from logic.src.pipeline.reinforcement_learning.core.post_processing import (
-    local_search_2opt_vectorized,
+from logic.src.pipeline.reinforcement_learning.policies.local_search import (
+    vectorized_two_opt,
 )
 from logic.src.utils.functions import load_problem
 
@@ -510,7 +510,7 @@ def plot_loss_landscape(model, opts, output_dir, epoch=0, size=50, batch_size=16
         if x_dist.size(0) == 1:
             x_dist = x_dist.expand(pi.size(0), -1, -1)
         pi_with_depot = torch.cat([torch.zeros((pi.size(0), 1), dtype=torch.long, device=device), pi], dim=1)
-        pi_opt = local_search_2opt_vectorized(pi_with_depot, x_dist, max_iterations=100)
+        pi_opt = vectorized_two_opt(pi_with_depot, x_dist, max_iterations=100)
         pi_target = pi_opt[:, 1:]
 
     wrapped_model = MyModelWrapper(model)

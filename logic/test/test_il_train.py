@@ -5,18 +5,18 @@ import time
 import pytest
 import torch
 
-from logic.src.pipeline.reinforcement_learning.core.post_processing import (
-    local_search_2opt_vectorized,
-)
 from logic.src.pipeline.reinforcement_learning.policies.hgs_vectorized import (
     VectorizedHGS,
     VectorizedPopulation,
     calc_broken_pairs_distance,
     vectorized_linear_split,
     vectorized_ordered_crossover,
+)
+from logic.src.pipeline.reinforcement_learning.policies.local_search import (
     vectorized_relocate,
     vectorized_swap,
     vectorized_swap_star,
+    vectorized_two_opt,
     vectorized_two_opt_star,
 )
 
@@ -309,7 +309,7 @@ class TestVectorized2OptIL:
 
         # Initial tour: 0-1-2-3-0. But operator expects indices?
         # If input is (B, N) or (B, N+2) depending on if depot included.
-        # local_search_2opt_vectorized expects batch of tours.
+        # vectorized_two_opt expects batch of tours.
         # It typically works on indices.
 
         # tour: [0, 1, 2, 3] (if depot implied?) or [0, 1, 2, 3, 0]?
@@ -320,7 +320,7 @@ class TestVectorized2OptIL:
 
         tours = torch.tensor([[0, 1, 2, 3, 0]], device=device)
 
-        optimized_tours = local_search_2opt_vectorized(tours.clone(), dist_matrix, max_iterations=50)
+        optimized_tours = vectorized_two_opt(tours.clone(), dist_matrix, max_iterations=50)
 
         def calc_cost(t, d):
             """Calculate route cost."""
@@ -346,7 +346,7 @@ class TestVectorized2OptIL:
 
         tours = torch.tensor([[0, 1, 2, 3, 0], [0, 1, 2, 3, 0]], device=device)
 
-        optimized = local_search_2opt_vectorized(tours.clone(), dist_batch, max_iterations=50)
+        optimized = vectorized_two_opt(tours.clone(), dist_batch, max_iterations=50)
 
         assert torch.all(optimized[0] == optimized[1])
         # Both should be improved
@@ -364,6 +364,6 @@ class TestVectorized2OptIL:
 
         optimal_tour = torch.tensor([[0, 1, 3, 2, 0]], device=device)
 
-        result = local_search_2opt_vectorized(optimal_tour.clone(), dist_matrix, max_iterations=10)
+        result = vectorized_two_opt(optimal_tour.clone(), dist_matrix, max_iterations=10)
 
         assert torch.all(result == optimal_tour)

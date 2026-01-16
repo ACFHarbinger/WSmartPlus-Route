@@ -23,8 +23,8 @@ and the domain-specific waste collection simulator.
 import numpy as np
 import torch
 
-from logic.src.pipeline.reinforcement_learning.core.post_processing import (
-    local_search_2opt_vectorized,
+from logic.src.pipeline.reinforcement_learning.policies.local_search import (
+    vectorized_two_opt,
 )
 from logic.src.policies.single_vehicle import (
     find_route,
@@ -465,7 +465,7 @@ class NeuralAgent:
 
             # Apply 2-opt refinement (GPU accelerated)
             if two_opt_max_iter > 0:
-                route = local_search_2opt_vectorized(route, distC, two_opt_max_iter)
+                route = vectorized_two_opt(route, distC, two_opt_max_iter)
 
             cost = get_route_cost(distC * 100, route)
 

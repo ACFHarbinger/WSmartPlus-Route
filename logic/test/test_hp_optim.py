@@ -20,7 +20,7 @@ from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo i
     hyperband_optimization,
     optimize_model,
     random_search,
-    validate,
+    validate_update,
 )
 
 
@@ -46,7 +46,7 @@ class TestHPOFunctions:
     @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.setup_model_and_baseline")
     @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.setup_optimizer_and_lr_scheduler")
     @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.train_reinforce_epoch")
-    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.validate")
+    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.validate_update")
     @patch("os.makedirs")
     @patch("builtins.open", new_callable=MagicMock)
     @patch("json.dump")
@@ -83,12 +83,12 @@ class TestHPOFunctions:
         mock_train.assert_called()
         mock_validate.assert_called()
 
-    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.get_inner_model")
-    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.set_decode_type")
-    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.move_to")
+    @patch("logic.src.pipeline.reinforcement_learning.core.epoch.get_inner_model")
+    @patch("logic.src.pipeline.reinforcement_learning.core.epoch.set_decode_type")
+    @patch("logic.src.pipeline.reinforcement_learning.core.epoch.move_to")
     @patch("torch.utils.data.DataLoader")
     @pytest.mark.unit
-    def test_validate(
+    def test_validate_update(
         self,
         mock_dataloader,
         mock_move_to,
@@ -166,7 +166,9 @@ class TestHPOFunctions:
         mock_move_to.side_effect = side_effect
 
         dist_matrix = torch.zeros(5, 5)
-        avg_cost, avg_ucost, all_costs = validate(mock_model, mock_dataset, "overflows", dist_matrix, hpo_opts)
+        avg_cost, avg_ucost, all_costs = validate_update(
+            mock_model, mock_dataset, hpo_opts, metric="overflows", dist_matrix=dist_matrix
+        )
 
         assert isinstance(avg_cost, torch.Tensor)
         mock_set_decode.assert_called_with(mock_model, "greedy")
