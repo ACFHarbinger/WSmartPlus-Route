@@ -94,10 +94,11 @@ class WCContextEmbedder(ContextEmbedder):
         Returns:
             torch.Tensor: Combined embeddings for depot and nodes.
         """
+        waste_key = "waste" if "waste" in nodes else ("noisy_waste" if "noisy_waste" in nodes else "real_waste")
         if temporal_features:
-            features = tuple(["waste"] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
+            features = tuple([waste_key] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
         else:
-            features = ("waste",)
+            features = (waste_key,)
 
         # Concatenate features
         # nodes['loc']: [batch, graph_size, 2]
@@ -165,11 +166,12 @@ class VRPPContextEmbedder(ContextEmbedder):
         Returns:
             torch.Tensor: Combined embeddings for depot and nodes.
         """
+        waste_key = "waste" if "waste" in nodes else ("noisy_waste" if "noisy_waste" in nodes else "real_waste")
         # Logic identical to WC in original code, reused here
         if temporal_features:
-            features = tuple(["waste"] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
+            features = tuple([waste_key] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
         else:
-            features = ("waste",)
+            features = (waste_key,)
 
         node_features = torch.cat((nodes["loc"], *(nodes[feat][:, :, None] for feat in features)), -1)
 

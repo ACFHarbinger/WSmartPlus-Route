@@ -326,13 +326,15 @@ def bayesian_optimization(opts):
         def _objective(trial):
             """Optuna objective that trains and returns the validation metric."""
             # Define the hyperparameters for Optuna to optimize
-            if opts["problem"] == "wcvrp":
+            if opts["problem"] in ["wcvrp", "vrpp"]:
                 cost_weights = {
                     "w_lost": trial.suggest_float("w_lost", opts["hop_range"][0], opts["hop_range"][1]),
                     "w_waste": trial.suggest_float("w_waste", opts["hop_range"][0], opts["hop_range"][1]),
                     "w_length": trial.suggest_float("w_length", opts["hop_range"][0], opts["hop_range"][1]),
                     "w_overflows": trial.suggest_float("w_overflows", opts["hop_range"][0], opts["hop_range"][1]),
                 }
+            else:
+                cost_weights = setup_cost_weights(opts)
 
             print(f"Trial {trial.number}: Evaluating with cost weights: {cost_weights}")
 
@@ -482,6 +484,7 @@ def hyperband_optimization(opts):
         num_cpus=opts.get("cpu_cores", None),
         num_gpus=gpu_num,
         local_mode=opts.get("local_mode", False),
+        ignore_reinit_error=True,
     )
 
     # Define the hyperparameter search space
@@ -555,16 +558,19 @@ def random_search(opts):
         num_cpus=opts.get("cpu_cores", None),
         num_gpus=gpu_num,
         local_mode=opts.get("local_mode", False),
+        ignore_reinit_error=True,
     )
 
     # Define the hyperparameter search space
-    if opts["problem"] == "wcvrp":
+    if opts["problem"] in ["wcvrp", "vrpp"]:
         config = {
             "w_lost": tune.uniform(opts["hop_range"][0], opts["hop_range"][1]),
             "w_waste": tune.uniform(opts["hop_range"][0], opts["hop_range"][1]),
             "w_length": tune.uniform(opts["hop_range"][0], opts["hop_range"][1]),
             "w_overflows": tune.uniform(opts["hop_range"][0], opts["hop_range"][1]),
         }
+    else:
+        config = {}
 
     gpu_num = 0 if not torch.cuda.is_available() or opts["no_cuda"] else torch.cuda.device_count()
 
@@ -640,13 +646,15 @@ def grid_search(opts):
 
     # Setup parameter grid
     default_wcost_grid = [0.0, 0.5, 1]
-    if opts["problem"] == "wcvrp":
+    if opts["problem"] in ["wcvrp", "vrpp"]:
         param_grid = {
             "w_lost": opts.get("grid", default_wcost_grid),
             "w_waste": opts.get("grid", default_wcost_grid),
             "w_length": opts.get("grid", default_wcost_grid),
             "w_overflows": opts.get("grid", default_wcost_grid),
         }
+    else:
+        param_grid = {}
 
     # Initialize Ray (with object store memory limit if needed)
     ray.init(ignore_reinit_error=True)

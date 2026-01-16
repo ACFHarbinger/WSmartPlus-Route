@@ -30,7 +30,7 @@ class StateSDWCVRP(NamedTuple):
     # State
     prev_a: torch.Tensor
     used_capacity: torch.Tensor
-    wastes_with_depot: torch.Tensor
+    demands_with_depot: torch.Tensor
     lengths: torch.Tensor
     cur_coord: torch.Tensor
     cur_overflows: torch.Tensor
@@ -47,7 +47,7 @@ class StateSDWCVRP(NamedTuple):
                 ids=self.ids[key],
                 prev_a=self.prev_a[key],
                 used_capacity=self.used_capacity[key],
-                wastes_with_depot=self.wastes_with_depot[key],
+                demands_with_depot=self.demands_with_depot[key],
                 lengths=self.lengths[key],
                 cur_coord=self.cur_coord[key],
                 cur_overflows=self.cur_overflows[key],
@@ -58,7 +58,7 @@ class StateSDWCVRP(NamedTuple):
     @property
     def visited(self):
         """In SDWCVRP, visited is defined as nodes with no waste left."""
-        return (self.wastes_with_depot <= 1e-5).to(torch.uint8)
+        return (self.demands_with_depot <= 1e-5).to(torch.uint8)
 
     @staticmethod
     def initialize(input, edges, cost_weights=None, dist_matrix=None, **kwargs):
@@ -72,7 +72,7 @@ class StateSDWCVRP(NamedTuple):
             ids=common["ids"],
             prev_a=common["prev_a"],
             used_capacity=input["waste"].new_zeros(common["batch_size"], 1),
-            wastes_with_depot=F.pad(input["waste"], (1, 0), mode="constant", value=0),
+            demands_with_depot=F.pad(input["waste"], (1, 0), mode="constant", value=0),
             lengths=common["lengths"],
             cur_coord=common["cur_coord"],
             cur_overflows=torch.sum((input["waste"] >= input["max_waste"][:, None]), dim=-1),
@@ -108,21 +108,20 @@ class StateSDWCVRP(NamedTuple):
         rng = torch.arange(batch_size, device=device)[:, None]
 
         remaining_cap = self.vehicle_capacity - self.used_capacity
-        d = torch.min(self.wastes_with_depot[rng, selected], remaining_cap)
+        d = torch.min(self.demands_with_depot[rng, selected], remaining_cap)
 
         actual_collected = d.clone()
         used_capacity = (self.used_capacity + actual_collected) * (prev_a != 0).float()
 
-        wastes_with_depot = self.wastes_with_depot.clone()
-        wastes_with_depot[rng, selected] -= actual_collected
-
+        demands_with_depot = self.demands_with_depot.clone()
+        demands_with_depot[rng, selected] -= actual_collected
         cur_total_waste = self.cur_total_waste + actual_collected
-        cur_overflows = torch.sum(wastes_with_depot[:, 1:] >= self.max_waste, dim=-1)
+        cur_overflows = torch.sum(demands_with_depot[:, 1:] >= self.max_waste, dim=-1)
 
         return self._replace(
             prev_a=prev_a,
             used_capacity=used_capacity,
-            wastes_with_depot=wastes_with_depot,
+            demands_with_depot=demands_with_depot,
             lengths=lengths,
             cur_coord=cur_coord,
             cur_overflows=cur_overflows,
@@ -142,8 +141,8 @@ class StateSDWCVRP(NamedTuple):
     def get_mask(self):
         """Returns a mask indicating which nodes are invalid to visit next, accounting for partial deliveries."""
         at_capacity = self.used_capacity >= self.vehicle_capacity - 1e-5
-        mask_loc = (self.wastes_with_depot[:, 0, 1:] <= 1e-5) | at_capacity[:, 0, None]
+        mask_loc = (self.demands_with_depot[:, None, 1:] <= 1e-5) | at_capacity[:, :, None]
         mask_depot = torch.zeros_like(self.prev_a, dtype=torch.bool)
         has_valid_customer = ~mask_loc.all(dim=-1)
         mask_depot = mask_depot | ((self.prev_a == 0) & has_valid_customer)
-        return torch.cat((mask_depot[:, :, None], mask_loc[:, None, :]), -1).bool()
+        return torch.cat((mask_depot[:, :, None], mask_loc), -1).bool()
