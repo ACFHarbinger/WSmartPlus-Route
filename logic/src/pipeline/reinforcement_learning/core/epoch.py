@@ -70,7 +70,12 @@ def rollout(model, dataset, opts):
     model.eval()
     if opts.get("temporal_horizon", 0) > 0 and opts.get("model") in ["tam"]:
         dataset.fill_history = torch.zeros((opts["val_size"], opts["graph_size"], opts["temporal_horizon"]))
-        dataset.fill_history[:, :, -1] = torch.stack([instance["waste"] for instance in dataset.data])
+        dataset.fill_history[:, :, -1] = torch.stack(
+            [
+                instance.get("waste", instance.get("noisy_waste", instance.get("real_waste")))
+                for instance in dataset.data
+            ]
+        )
 
     dataloader = torch.utils.data.DataLoader(
         dataset,
@@ -147,7 +152,12 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
     model.eval()
     if opts.get("temporal_horizon", 0) > 0 and opts.get("model") in ["tam"]:
         dataset.fill_history = torch.zeros((opts["val_size"], opts["graph_size"], opts["temporal_horizon"]))
-        dataset.fill_history[:, :, -1] = torch.stack([instance["waste"] for instance in dataset.data])
+        dataset.fill_history[:, :, -1] = torch.stack(
+            [
+                instance.get("waste", instance.get("noisy_waste", instance.get("real_waste")))
+                for instance in dataset.data
+            ]
+        )
 
     all_costs = {"overflows": [], "kg": [], "km": []}
     all_ucosts = move_to(torch.tensor([]), opts["device"], non_blocking=True)
@@ -455,7 +465,7 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
     if opts["temporal_horizon"] > 0:
         data_size = training_dataset.size
         graphs = torch.stack([torch.cat((x["depot"].unsqueeze(0), x["loc"])) for x in training_dataset])
-        if opts["problem"] in ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp"]:
+        if opts["problem"] in ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
             for day_id in range(1, opts["temporal_horizon"] + 1):
                 training_dataset["fill{}".format(day_id)] = torch.from_numpy(
                     generate_waste_prize(
@@ -472,7 +482,10 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
                     (opts["epoch_size"], opts["graph_size"], opts["temporal_horizon"])
                 ).float()
                 training_dataset.fill_history[:, :, -1] = torch.stack(
-                    [instance["waste"] for instance in training_dataset.data]
+                    [
+                        instance.get("waste", instance.get("noisy_waste", instance.get("real_waste")))
+                        for instance in training_dataset.data
+                    ]
                 )
 
     # Setup for logging
@@ -662,10 +675,12 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args, cost
     # Put model in train mode!
     model.train()
     set_decode_type(model, "sampling")
-    if opts["problem"] in ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp"]:
+    if opts["problem"] in ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
         # Get masks for bins present in routes
         dataset_dim = routes.size(0)
-        waste = torch.stack([torch.cat((torch.tensor([0]), x["waste"])) for x in dataset])
+        waste = torch.stack(
+            [torch.cat((torch.tensor([0]), x.get("waste", x.get("noisy_waste", x.get("real_waste"))))) for x in dataset]
+        )
         num_nodes = waste.size(1)
 
         sorted_routes = routes.sort(1)[0]

@@ -91,7 +91,6 @@ class CWCVRP(BaseProblem):
     """
 
     NAME = "cwcvrp"
-    VEHICLE_CAPACITY = 1.0
 
     @staticmethod
     def get_costs(dataset, pi, cw_dict, dist_matrix=None):

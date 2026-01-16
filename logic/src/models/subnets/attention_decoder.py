@@ -81,7 +81,7 @@ class AttentionDecoder(nn.Module):
         self.n_heads = n_heads
 
         self.problem = problem
-        self.is_wc = problem.NAME == "wcvrp" or problem.NAME == "cwcvrp" or problem.NAME == "sdwcvrp"
+        self.is_wc = problem.NAME in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]
         self.is_vrpp = problem.NAME == "vrpp" or problem.NAME == "cvrpp"
         self.allow_partial = problem.NAME == "sdwcvrp"
 
@@ -99,7 +99,10 @@ class AttentionDecoder(nn.Module):
         # These layers were in AttentionModel
         self.project_node_embeddings = nn.Linear(embedding_dim, 3 * embedding_dim, bias=False)
         self.project_fixed_context = nn.Linear(embedding_dim, embedding_dim, bias=False)
-        self.project_step_context = None  # Initialized later or passed in init
+        self.project_step_context = nn.Linear(embedding_dim + (2 if self.is_wc else 1), embedding_dim, bias=False)
+
+        if self.allow_partial:
+            self.project_node_step = nn.Linear(1, 3 * embedding_dim, bias=False)
 
         self.project_out = nn.Linear(embedding_dim, embedding_dim, bias=False)
         self.temp = 1.0
@@ -350,9 +353,8 @@ class AttentionDecoder(nn.Module):
             # Need to provide information of how much each node has already been served
             # Clone demands as they are needed by the backprop whereas they are updated later
             glimpse_key_step, glimpse_val_step, logit_key_step = self.project_node_step(
-                state.demands_with_depot[:, :, :, None].clone()
+                state.demands_with_depot[:, None, :, None].clone()
             ).chunk(3, dim=-1)
-
             # Projection of concatenation is equivalent to addition of projections but this is more efficient
             return (
                 fixed.glimpse_key + self._make_heads(glimpse_key_step),

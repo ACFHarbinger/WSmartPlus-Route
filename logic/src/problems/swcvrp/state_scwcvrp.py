@@ -141,6 +141,11 @@ class StateSCWCVRP(NamedTuple):
         """Returns the count of bins currently overflowing based on real waste."""
         return self.cur_overflows.unsqueeze(-1)
 
+    @property
+    def waste(self):
+        """Standard key for observable waste level."""
+        return self.noisy_waste
+
     def get_current_efficiency(self):
         """Calculates collected waste (real) per unit distance."""
         efficiency = self.cur_total_waste / self.lengths

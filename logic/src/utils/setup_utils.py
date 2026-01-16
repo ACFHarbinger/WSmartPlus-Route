@@ -43,7 +43,7 @@ def setup_cost_weights(opts, def_val=1.0):
     # return opts.get(cost_weight, default_value)
 
     cw_dict = {}
-    if opts["problem"] in ["wcvrp", "cwcvrp", "sdwcvrp"]:
+    if opts["problem"] in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp", "swcvrp"]:
         cw_dict["waste"] = opts["w_waste"] = _set_val(opts["w_waste"], def_val)
         cw_dict["length"] = opts["w_length"] = _set_val(opts["w_length"], def_val)
         cw_dict["overflows"] = opts["w_overflows"] = _set_val(opts["w_overflows"], def_val)

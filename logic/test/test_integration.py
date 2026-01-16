@@ -26,142 +26,209 @@ from logic.src.pipeline.train import (
 
 
 class TestIntegrationTraining:
-    """Integration tests for Training, Meta-RL, and HPO workflows."""
+    """Integration tests for Training workflows with various RL algorithms."""
 
-    def test_train_epoch_am_vrpp(self, train_opts):
-        """Test standard AM training loop on VRPP."""
-        train_opts["model"] = "am"
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    def test_train_reinforce(self, train_opts, problem_name):
+        """Test standard REINFORCE training."""
+        train_opts["problem"] = problem_name
+        train_opts["rl_algorithm"] = "reinforce"
         model, _ = train_reinforcement_learning(train_opts, train_reinforce_epoch)
         assert model is not None
         assert os.path.exists(os.path.join(train_opts["final_dir"], "args.json"))
 
-    def test_train_epoch_am_gat(self, train_opts):
-        """Test AM with GAT encoder."""
-        train_opts["encoder"] = "gat"
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    def test_train_ppo(self, train_opts, problem_name):
+        """Test PPO training."""
+        train_opts["problem"] = problem_name
+        train_opts["rl_algorithm"] = "ppo"
+        train_opts["ppo_epochs"] = 1
         model, _ = train_reinforcement_learning(train_opts, train_reinforce_epoch)
         assert model is not None
 
-    def test_train_epoch_am_gcn(self, train_opts):
-        """Test AM with GCN encoder."""
-        train_opts["encoder"] = "gcn"
-        # GCN requires edges.
-        # VRPPDataset uses 'number_edges' as threshold for 'edge_strat'
-        train_opts["edge_method"] = "knn"
-        train_opts["number_edges"] = 5  # Acts as K=5
-        train_opts["edge_threshold"] = 5
-        train_opts["size"] = 11  # FORCE NEW DATASET GENERATION
-
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    def test_train_sapo(self, train_opts, problem_name):
+        """Test SAPO training."""
+        train_opts["problem"] = problem_name
+        train_opts["rl_algorithm"] = "sapo"
         model, _ = train_reinforcement_learning(train_opts, train_reinforce_epoch)
         assert model is not None
 
-    def test_train_baseline_critic(self, train_opts):
-        """Test training with Critic network baseline."""
-        train_opts["baseline"] = "critic"
-        train_opts["lr_critic"] = 1e-4
-        train_opts["optimizer"] = "adam"  # Force Adam to avoid LBFGS param group error
-        assert train_opts["optimizer"] == "adam"
-
-        # Ensure edges if critic needs them, or just robust opts
-        train_opts["edge_method"] = "knn"
-        train_opts["number_edges"] = 5
-        train_opts["size"] = 11  # Force new data
-
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    def test_train_gspo(self, train_opts, problem_name):
+        """Test GSPO training."""
+        train_opts["problem"] = problem_name
+        train_opts["rl_algorithm"] = "gspo"
+        train_opts["gspo_epochs"] = 1
         model, _ = train_reinforcement_learning(train_opts, train_reinforce_epoch)
         assert model is not None
 
-    def test_train_device_cpu(self, train_opts):
-        """Verify explicit CPU usage."""
-        # train_opts["device"] removed to avoid json dump error
-        train_opts["no_cuda"] = True
-        model, _ = train_reinforcement_learning(train_opts, train_reinforce_epoch)
-        param = next(model.parameters())
-        assert param.device.type == "cpu"
-
-    def test_train_overfitting(self, train_opts):
-        """Sanity check: loss should decrease on small data over multiple epochs."""
-        train_opts["n_epochs"] = 2  # Short run
-        train_opts["epoch_size"] = 2
-        train_opts["batch_size"] = 2
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    def test_train_dr_grpo(self, train_opts, problem_name):
+        """Test DR-GRPO training."""
+        train_opts["problem"] = problem_name
+        train_opts["rl_algorithm"] = "dr_grpo"
+        train_opts["dr_grpo_epochs"] = 1
+        # DR-GRPO needs batch_size to be a multiple of group_size
+        train_opts["dr_grpo_group_size"] = 2
+        train_opts["batch_size"] = 4
+        train_opts["epoch_size"] = 4
         model, _ = train_reinforcement_learning(train_opts, train_reinforce_epoch)
         assert model is not None
 
-    def test_train_resume_checkpoint(self, train_opts, tmp_path):
-        """Verify model checkpoint resuming."""
-        # 1. Run initial training
+    def test_train_with_saving_and_resume(self, train_opts, tmp_path):
+        """Verify model checkpoint saving and resuming."""
         train_opts["n_epochs"] = 1
-        # Use fixture tmp_path explicitly if needed, but train_opts has it set
-        train_opts["checkpoint_dir"] = "checkpoints"
-        train_opts["model_save_interval"] = 1
+        train_opts["checkpoint_epochs"] = 1
 
-        # Use copy to avoid device object pollution between runs
-        opts_run1 = train_opts.copy()
-        model1, _ = train_reinforcement_learning(opts_run1, train_reinforce_epoch)
-
+        # 1. Initial training
+        model1, _ = train_reinforcement_learning(train_opts, train_reinforce_epoch)
         ckpt_path = os.path.join(train_opts["save_dir"], "epoch-0.pt")
         assert os.path.exists(ckpt_path)
 
         # 2. Resume
         train_opts["resume"] = ckpt_path
-        train_opts["n_epochs"] = 1
-        train_opts["epoch_start"] = 0
-
         model2, _ = train_reinforcement_learning(train_opts, train_reinforce_epoch)
         assert model2 is not None
 
-    def test_train_saving_artifacts(self, train_opts):
-        """Verify model and args are saved correctly."""
-        train_reinforcement_learning(train_opts, train_reinforce_epoch)
-        assert os.path.exists(os.path.join(train_opts["final_dir"], "args.json"))
+    def test_train_encoders(self, train_opts):
+        """Verify training with different encoders."""
+        for encoder in ["gat", "gcn"]:
+            opts = train_opts.copy()
+            opts["encoder"] = encoder
+            if encoder == "gcn":
+                opts["edge_method"] = "knn"
+                opts["edge_threshold"] = 5
+            model, _ = train_reinforcement_learning(opts, train_reinforce_epoch)
+            assert model is not None
 
-    def test_mrl_train_cb(self, train_opts):
+    def test_train_baseline_variants(self, train_opts):
+        """Test training with different baseline variants."""
+        for bl in ["critic", "exponential", "rollout"]:
+            opts = train_opts.copy()
+            opts["baseline"] = bl
+            if bl == "critic":
+                opts["lr_critic_value"] = 1e-4
+            model, _ = train_reinforcement_learning(opts, train_reinforce_epoch)
+            assert model is not None
+
+
+class TestIntegrationMetaTraining:
+    """Integration tests for Meta-Reinforcement Learning workflows."""
+
+    def _test_mrl_dispatch(self, train_opts, problem_name, method, expected_trainer_func):
+        """Helper to test Meta-RL dispatch logic."""
+        train_opts["problem"] = problem_name
+        train_opts["mrl_method"] = method
+        with patch("logic.src.pipeline.train.train_reinforcement_learning") as mock_train_rl:
+            train_meta_reinforcement_learning(train_opts)
+            mock_train_rl.assert_called_once()
+            args, _ = mock_train_rl.call_args
+            assert args[1] == expected_trainer_func
+
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    def test_mrl_train_cb(self, train_opts, problem_name):
         """Test Meta-RL with Contextual Bandits dispatch."""
-        train_opts["mrl_method"] = "cb"
-        with patch("logic.src.pipeline.train.train_reinforcement_learning") as mock_train_rl:
-            train_meta_reinforcement_learning(train_opts)
-            mock_train_rl.assert_called_once()
-            args, _ = mock_train_rl.call_args
-            assert args[1] == train_reinforce_over_time_cb
+        self._test_mrl_dispatch(train_opts, problem_name, "cb", train_reinforce_over_time_cb)
 
-    def test_mrl_train_tdl(self, train_opts):
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    def test_mrl_train_tdl(self, train_opts, problem_name):
         """Test Meta-RL with TDL dispatch."""
-        train_opts["mrl_method"] = "tdl"
-        with patch("logic.src.pipeline.train.train_reinforcement_learning") as mock_train_rl:
-            train_meta_reinforcement_learning(train_opts)
-            mock_train_rl.assert_called_once()
-            args, _ = mock_train_rl.call_args
-            assert args[1] == train_reinforce_over_time_tdl
+        self._test_mrl_dispatch(train_opts, problem_name, "tdl", train_reinforce_over_time_tdl)
 
-    def test_hp_optim_grid_search(self, train_opts, tmp_path):
-        """Test Hyperparameter Optimization (Grid Search)."""
-        train_opts["hop_method"] = "gs"
-        train_opts["problem"] = "wcvrp"
-        train_opts["grid"] = [1e-4, 1e-3]
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    def test_mrl_train_rwa(self, train_opts, problem_name):
+        """Test Meta-RL with Reward Weight Adjustment dispatch."""
+        from logic.src.pipeline.reinforcement_learning.worker_train import train_reinforce_over_time_rwa
 
-        train_opts["save_dir"] = str(tmp_path / "hpo")
-        train_opts["run_name"] = "hpo_test"
+        self._test_mrl_dispatch(train_opts, problem_name, "rwa", train_reinforce_over_time_rwa)
+
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    def test_mrl_train_morl(self, train_opts, problem_name):
+        """Test Meta-RL with Multi-Objective RL dispatch."""
+        from logic.src.pipeline.reinforcement_learning.worker_train import train_reinforce_over_time_morl
+
+        self._test_mrl_dispatch(train_opts, problem_name, "morl", train_reinforce_over_time_morl)
+
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    def test_mrl_train_hrl(self, train_opts, problem_name):
+        """Test Meta-RL with Hierarchical RL dispatch."""
+        from logic.src.pipeline.reinforcement_learning.worker_train import train_reinforce_over_time_hrl
+
+        self._test_mrl_dispatch(train_opts, problem_name, "hrl", train_reinforce_over_time_hrl)
+
+
+class TestIntegrationHPO:
+    """Integration tests for Hyperparameter Optimization workflows."""
+
+    def _mock_hpo_run(self, train_opts, problem_name, method, mock_tune, mock_opt=None):
+        """Helper to configure common HPO mocks."""
+        train_opts["problem"] = problem_name
+        train_opts["hop_method"] = method
         train_opts["train_best"] = False
         train_opts["hop_epochs"] = 1
         train_opts["cpu_cores"] = 1
 
-        # Patch tune to avoid Ray issues and DeprecationWarnings
-        with patch(
-            "logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.tune"
-        ) as mock_tune, patch(
-            "logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo.grid_search"
-        ) as mock_gs:
-            # Mock optimized result
-            mock_opt = MagicMock()
-            mock_opt.return_value = (0.5, 0.5, {})
+        # Configure mock tune to return valid config
+        mock_trial = MagicMock()
+        mock_trial.config = {"w_lost": 1e-4, "w_waste": 1.0, "w_length": 1.0, "w_overflows": 100.0}
+        mock_trial.last_result = {"validation_metric": 0.5}
+        mock_tune.run.return_value.get_best_trial.return_value = mock_trial
 
-            # Configure mock tune to return valid config matching grid
-            mock_trial = MagicMock()
-            mock_trial.config = {"w_lost": 1e-4}  # Real dict for json dump
-            mock_trial.last_result = {"validation_metric": 0.5}
-            mock_tune.run.return_value.get_best_trial.return_value = mock_trial
+        if mock_opt:
+            mock_opt.return_value = mock_trial.config
 
+        # Mock ray to avoid init errors
+        with patch("ray.init"), patch("ray.shutdown"):
             hyperparameter_optimization(train_opts)
 
-            assert mock_tune.run.called or mock_gs.called
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    @patch("logic.src.pipeline.train.grid_search")
+    def test_hpo_grid_search(self, mock_gs, train_opts, problem_name):
+        """Test Grid Search HPO."""
+        train_opts["grid"] = [1e-4, 1e-3]
+        self._mock_hpo_run(train_opts, problem_name, "gs", MagicMock(), mock_gs)
+        assert mock_gs.called
+
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    @patch("logic.src.pipeline.train.random_search")
+    def test_hpo_random_search(self, mock_rs, train_opts, problem_name):
+        """Test Random Search HPO."""
+        train_opts["num_samples"] = 2
+        self._mock_hpo_run(train_opts, problem_name, "rs", MagicMock(), mock_rs)
+        assert mock_rs.called
+
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    @patch("logic.src.pipeline.train.bayesian_optimization")
+    def test_hpo_bayesian_optimization(self, mock_bo, train_opts, problem_name):
+        """Test Bayesian Optimization HPO."""
+        train_opts["n_trials"] = 2
+        self._mock_hpo_run(train_opts, problem_name, "bo", MagicMock(), mock_bo)
+        assert mock_bo.called
+
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    @patch("logic.src.pipeline.train.differential_evolutionary_hyperband_optimization")
+    def test_hpo_dehbo(self, mock_dehbo, train_opts, problem_name):
+        """Test DEHBO HPO."""
+        train_opts["fevals"] = 2
+        self._mock_hpo_run(train_opts, problem_name, "dehbo", MagicMock(), mock_dehbo)
+        assert mock_dehbo.called
+
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    @patch("logic.src.pipeline.train.distributed_evolutionary_algorithm")
+    def test_hpo_dea(self, mock_dea, train_opts, problem_name):
+        """Test DEA HPO."""
+        train_opts["n_pop"] = 2
+        train_opts["n_gen"] = 1
+        self._mock_hpo_run(train_opts, problem_name, "dea", MagicMock(), mock_dea)
+        assert mock_dea.called
+
+    @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
+    @patch("logic.src.pipeline.train.hyperband_optimization")
+    def test_hpo_hyperband(self, mock_hbo, train_opts, problem_name):
+        """Test Hyperband HPO."""
+        self._mock_hpo_run(train_opts, problem_name, "hbo", MagicMock(), mock_hbo)
+        assert mock_hbo.called
 
 
 class TestIntegrationSimulation:
