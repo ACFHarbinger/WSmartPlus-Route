@@ -96,6 +96,16 @@ class SimulationRepository(ABC):
 
     @abstractmethod
     def get_area_params(self, area, waste_type):
+        """
+        Retrieves area and waste-type specific simulation parameters.
+
+        Args:
+            area: Geographic area name.
+            waste_type: Waste stream type.
+
+        Returns:
+            Tuple with capacity, revenue, density, expenses, volume.
+        """
         pass
 
 
@@ -111,6 +121,12 @@ class FileSystemRepository(SimulationRepository):
         default_data_dir: Root directory for simulation data files
     """
     def __init__(self, data_root_dir):
+        """
+        Initialize the repository.
+
+        Args:
+            data_root_dir: Root directory path for data resolution.
+        """
         self.default_data_dir = os.path.join(data_root_dir, "data", "wsr_simulator")
     
     def _get_data_dir(self, override_dir=None):
@@ -178,6 +194,7 @@ class FileSystemRepository(SimulationRepository):
         
         def _preprocess_county_data(data):
             def __get_stock(col):
+                """Helper to extract initial stock from time series column."""
                 positive_values = col[col >= 1e-32].dropna() 
                 if not positive_values.empty:
                     return positive_values.iloc[0] 

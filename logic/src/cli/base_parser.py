@@ -114,6 +114,7 @@ class ConfigsParser(argparse.ArgumentParser):
 class LowercaseAction(argparse.Action):
     """Action to convert argument value to lowercase."""
     def __call__(self, parser, namespace, values, option_string=None):
+        """Invoke action: lowercase input string."""
         if values is not None:
             values = str(values).lower()
         setattr(namespace, self.dest, values)
@@ -121,6 +122,7 @@ class LowercaseAction(argparse.Action):
 class StoreDictKeyPair(argparse.Action):
     """Custom action to parse key=value into a dictionary."""
     def __call__(self, parser, namespace, values, option_string=None):
+        """Invoke action: parse key=value strings into dictionary."""
         my_dict = {}
         for kv in values:
             if "=" in kv:
@@ -135,10 +137,13 @@ class StoreDictKeyPair(argparse.Action):
 def UpdateFunctionMapActionFactory(inplace=False):
     """Factory for mapping string update functions."""
     class UpdateFunctionMapAction(argparse.Action):
+        """Action that maps input strings to update functions."""
         def __init__(self, option_strings, dest, nargs=None, **kwargs):
+            """Initialize the update function map action."""
             super().__init__(option_strings, dest, nargs=nargs, **kwargs)
             self.inplace = inplace
         def __call__(self, parser, namespace, values, option_string=None):
+            """Invoke action: map string to update function."""
             if values is not None:
                 if self.inplace:
                     values = OPERATION_MAP.get(str(values).replace(" ", ""), None)

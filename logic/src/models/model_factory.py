@@ -89,6 +89,14 @@ class MLPComponentFactory(NeuralComponentFactory):
 class MoEComponentFactory(NeuralComponentFactory):
     """Factory for Mixture of Experts Models."""
     def __init__(self, num_experts=4, k=2, noisy_gating=True):
+        """
+        Initialize the MoE Component Factory.
+
+        Args:
+            num_experts: Number of experts in the mixture.
+            k: Number of experts to select per token.
+            noisy_gating: Whether to add noise to the gating mechanism.
+        """
         self.num_experts = num_experts
         self.k = k
         self.noisy_gating = noisy_gating

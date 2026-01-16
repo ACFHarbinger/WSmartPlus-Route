@@ -68,6 +68,22 @@ src.models.modules.hyper\_connection module
    :undoc-members:
    :show-inheritance:
 
+src.models.modules.moe module
+-----------------------------
+
+.. automodule:: src.models.modules.moe
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.models.modules.moe\_feed\_forward module
+--------------------------------------------
+
+.. automodule:: src.models.modules.moe_feed_forward
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.models.modules.multi\_head\_attention module
 ------------------------------------------------
 

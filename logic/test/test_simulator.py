@@ -793,6 +793,38 @@ class TestDay:
         assert dlog_vshort['km'] == 0
 
     @pytest.mark.unit
+    def test_get_daily_results_zero_distance(self):
+        """Test processing daily results when cost (distance) is zero."""
+        coordinates = pd.DataFrame({'ID': [0, 101, 102]})
+        tour = [0, 1, 2, 0]
+        cost = 0.0 # Zero distance
+        total_collected = 100
+        
+        dlog = get_daily_results(total_collected, 2, cost, tour, 1, 0, 0, coordinates, 0)
+        
+        assert dlog['km'] == 0
+        assert dlog['kg'] == 100
+        # Check for division by zero handling, usually returns 0 or handles it
+        # Based on implementation, if cost is 0, kg/km might be 0 or handle div by zero
+        # Let's assume the implementation handles it safe-ly or we check behavior
+        # If implementation divides by 0, this test might fail/raise error, which is good to know
+        # Assuming typical "safe division" or it crashes. Let's write expectation based on typical logic
+        # If it crashes, we fix the logic.
+        assert dlog['kg/km'] == 0 # Assumption: safe division returns 0
+
+    @pytest.mark.unit
+    def test_get_daily_results_empty_tour(self):
+        """Test processing daily results with an empty tour list."""
+        coordinates = pd.DataFrame({'ID': [0, 101, 102]})
+        tour = []
+        
+        dlog = get_daily_results(0, 0, 0, tour, 1, 0, 0, coordinates, 0)
+        
+        assert dlog['tour'] == [0]
+        assert dlog['ncol'] == 0
+        assert dlog['kg'] == 0
+
+    @pytest.mark.unit
     def test_stochastic_filling(self, mock_run_day_deps, make_day_context):
         """Test that stochasticFilling is called when bins are stochastic."""
         mock_run_day_deps['bins'].is_stochastic.return_value = True

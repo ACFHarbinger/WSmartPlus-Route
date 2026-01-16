@@ -181,6 +181,12 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         self.update(reward, cost_components, context=None) # Context is handled internally via self.contexts[-1]
 
     def get_current_weights_dict(self):
+        """
+        Return the current weight configuration as a dictionary.
+
+        Returns:
+            dict: Current weights.
+        """
         # Renamed from get_current_weights to avoid conflict with logic taking dataset
         return self.current_config
 
@@ -234,6 +240,12 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         return configs[:num_configs] if configs else [initial_weights] if initial_weights else []
     
     def set_max_feature_values(self, mf_dict={}):
+        """
+        Set maximum values for normalization of context features.
+
+        Args:
+            mf_dict (dict): Dictionary of maximum values per feature.
+        """
         tmp_mf_dict =  {}
         mf_keys = mf_dict.keys()
         for feature in self.context_features:

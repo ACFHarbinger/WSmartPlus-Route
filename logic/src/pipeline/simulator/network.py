@@ -85,6 +85,7 @@ class DistanceStrategy(ABC):
         return True if kwarg in kwargs and kwargs[kwarg] is not None else False
 
 class GoogleMapsStrategy(DistanceStrategy):
+    """Strategy for computing distances using Google Maps API."""
     def calculate(self, coords, **kwargs) -> np.ndarray:
         """
         Computes distances using the Google Maps Distance Matrix API.
@@ -135,6 +136,7 @@ class GoogleMapsStrategy(DistanceStrategy):
         return distance_matrix
 
 class GeoPandasStrategy(DistanceStrategy):
+    """Strategy for computing distances using GeoPandas (Projected)."""
     def calculate(self, coords, **kwargs) -> np.ndarray:
         """
         Computes distances using GeoPandas built-in distance functions.
@@ -162,6 +164,7 @@ class GeoPandasStrategy(DistanceStrategy):
         return distance_matrix
 
 class OSMStrategy(DistanceStrategy):
+    """Strategy for computing distances using OpenStreetMap road network."""
     def calculate(self, coords, **kwargs) -> np.ndarray:
         """
         Computes road network distances using OpenStreetMap (OSMnx).
@@ -209,6 +212,7 @@ class OSMStrategy(DistanceStrategy):
         return distance_matrix
 
 class IterativeDistanceStrategy(DistanceStrategy):
+    """Base class for strategies that compute distances pairwise iteratively."""
     @abstractmethod
     def calculate_pair(self, coords_i, coords_j) -> float:
         """
@@ -244,11 +248,13 @@ class IterativeDistanceStrategy(DistanceStrategy):
         return distance_matrix
 
 class GeodesicStrategy(IterativeDistanceStrategy):
+    """Strategy for computing geodesic distances (WGS84)."""
     def calculate_pair(self, coords_i, coords_j) -> float:
         """Computes geodesic distance using the WGS84 ellipsoid."""
         return geodesic(coords_i, coords_j).km
 
 class HaversineStrategy(IterativeDistanceStrategy):
+    """Strategy for computing Haversine distances (Spherical)."""
     def calculate_pair(self, coords_i, coords_j) -> float:
         """Computes distance using the Haversine formula (spherical Earth)."""
         coords_i_rad = (math.radians(coords_i[0]), math.radians(coords_i[1]))
@@ -260,6 +266,7 @@ class HaversineStrategy(IterativeDistanceStrategy):
         return c * EARTH_RADIUS
 
 class EuclideanStrategy(IterativeDistanceStrategy):
+    """Strategy for computing Euclidean distances (Planar approximation)."""
     def calculate_pair(self, coords_i, coords_j) -> float:
         """Computes Euclidean distance with scaling for regional accuracy."""
         dist = 86.51 * 1.58 * math.sqrt((coords_i[0]-coords_j[0])**2+(coords_i[1]-coords_j[1])**2)
@@ -326,7 +333,9 @@ def compute_distance_matrix(coords, method, **kwargs):
     assert method in STRATEGIES.keys(), f"Method {method} not supported. usage: {list(STRATEGIES.keys())}"
     
     # Evaluate keyword arguments helper
+    # Evaluate keyword arguments helper
     def eval_kwarg(kwarg, kwargs): 
+        """Check if keyword argument exists and is not None."""
         return True if kwarg in kwargs and kwargs[kwarg] is not None else False
 
     # Caching Logic

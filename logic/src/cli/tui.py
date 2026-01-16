@@ -1,3 +1,10 @@
+"""
+Terminal User Interface (TUI) Module.
+
+This module implements a rich, interactive command-line interface for the WSmart-Route
+system using `rich` and `prompt_toolkit`. It provides a menu-driven experience for
+configuring simulations, training models, and managing data.
+"""
 import os
 import sys
 import argparse
@@ -46,6 +53,7 @@ class TerminalUI:
     Terminal User Interface for WSmart+ Route CLI.
     """
     def __init__(self):
+        """Initialize the TUI with console, parser, and command definitions."""
         self.console = Console()
         self.parser = get_parser()
         self.command_map = {

@@ -1,3 +1,10 @@
+"""
+Utilities for problem instance creation and graph edge calculation.
+
+This module provides functions to processing spatial coordinates,
+generating edges based on distance or KNN strategies, and formatting
+problem instances for the model.
+"""
 import torch
 from scipy.spatial.distance import pdist, squareform
 from logic.src.utils.graph_utils import get_edge_idx_dist, get_adj_knn, adj_to_idx
