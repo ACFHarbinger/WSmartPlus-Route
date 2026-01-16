@@ -106,6 +106,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
 
         # While there is space in the vehicle and there are bins to collect:
         while space_occupied < vehicle_capacity and len(bins) != 0:
+            old_space_occupied = space_occupied
             while space_occupied < vehicle_capacity and len(bins_zone_1) != 0:
                 # Get the distance between the previous bin and all the other bins
                 row = distance_matrix[previous_bin][:]
@@ -124,6 +125,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
                     next_bin_idx = min_idx
 
                 # Check if the closest bin is already in any of the routes created
+                stop = None
                 if (
                     next_bin_idx in globals()["route_{0}".format(i)]
                     or next_bin_idx not in bins
@@ -156,8 +158,16 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
 
                         j += 1
 
+                if stop == "A" and (
+                    next_bin_idx in globals()["route_{0}".format(i)] or next_bin_idx not in bins_zone_1
+                ):
+                    break
+
                 # Get current bin index from the bins list
-                bin_index_in_bins = bins.index(next_bin_idx)
+                try:
+                    bin_index_in_bins = bins.index(next_bin_idx)
+                except ValueError:
+                    break
 
                 # Update space occupied in the vehicle
                 corresponding_row = data[data["#bin"] == next_bin_idx]
@@ -192,6 +202,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
                     next_bin_idx = min_idx
 
                 # Check if the closest bin is already in any of the routes created
+                stop = None
                 if (
                     next_bin_idx in globals()["route_{0}".format(i)]
                     or next_bin_idx not in bins
@@ -224,8 +235,16 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
 
                         j += 1
 
+                if stop == "A" and (
+                    next_bin_idx in globals()["route_{0}".format(i)] or next_bin_idx not in bins_zone_2
+                ):
+                    break
+
                 # Get current bin index from the bins list
-                bin_index_in_bins = bins.index(next_bin_idx)
+                try:
+                    bin_index_in_bins = bins.index(next_bin_idx)
+                except ValueError:
+                    break
 
                 # Update space occupied in the vehicle
                 corresponding_row = data[data["#bin"] == next_bin_idx]
@@ -272,8 +291,16 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
 
                     j += 1
 
+                if stop == "A" and (
+                    next_bin_idx in globals()["route_{0}".format(i)] or next_bin_idx not in bins_zone_3
+                ):
+                    break
+
                 # Get current bin index from the bins list
-                bin_index_in_bins = bins.index(next_bin_idx)
+                try:
+                    bin_index_in_bins = bins.index(next_bin_idx)
+                except ValueError:
+                    break
 
                 # Update space occupied in the vehicle
                 corresponding_row = data[data["#bin"] == next_bin_idx]
@@ -294,6 +321,9 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
                     previous_bin = next_bin_idx
                 # else:
                 # travel_time = travel_time - (distance/37.5) * 60 + 5
+
+            if space_occupied == old_space_occupied:
+                break
 
         globals()["route_{0}".format(i)] = globals()["route_{0}".format(i)] + depot
         routes_list.append(globals()["route_{0}".format(i)])

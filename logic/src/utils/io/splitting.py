@@ -53,9 +53,13 @@ def split_file(file_path, max_part_size, output_dir):
     if rows_per_chunk < 1:
         rows_per_chunk = 1
 
+    # Calculate number of digits needed for zero padding
+    num_chunks = (num_rows + rows_per_chunk - 1) // rows_per_chunk
+    pad_len = len(str(num_chunks))
+
     for i in range(0, num_rows, rows_per_chunk):
         chunk = df.iloc[i : i + rows_per_chunk]
-        chunk_file = os.path.join(output_dir, f"{file_name}_part{chunk_number}{file_ext}")
+        chunk_file = os.path.join(output_dir, f"{file_name}_part{str(chunk_number).zfill(pad_len)}{file_ext}")
         write_chunk(chunk, chunk_file)
         chunk_files.append(chunk_file)
         chunk_number += 1
@@ -126,10 +130,10 @@ def reassemble_files(data_dir):
         return []
 
     dir_files = sorted(os.listdir(data_dir))
-    num_files = len(dir_files)
     dfs = []
     for file_id, file in enumerate(dir_files):
-        if filename is not None and (filename not in file or file_id == num_files - 1):
+        # Check if we moved to a new file group
+        if filename is not None and filename not in file:
             if dfs:
                 comb_df = pd.concat(dfs, ignore_index=True)
                 out_path = os.path.join(data_dir, "{}{}".format(filename, file_ext))
@@ -172,4 +176,13 @@ def reassemble_files(data_dir):
                         except ImportError:
                             df = pd.read_excel(chunk_path)
                 dfs.append(df)
+
+    # Flush the last group
+    if dfs and filename:
+        comb_df = pd.concat(dfs, ignore_index=True)
+        out_path = os.path.join(data_dir, "{}{}".format(filename, file_ext))
+        (comb_df.to_csv(out_path, index=False) if file_ext == ".csv" else comb_df.to_excel(out_path, index=False))
+        data_files.append(os.path.basename(out_path))
+        print(f"File reassembled and saved to: {out_path}")
+
     return data_files
