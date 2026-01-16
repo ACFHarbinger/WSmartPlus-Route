@@ -28,7 +28,9 @@ from logic.src.cli import (
     add_train_args,
     validate_train_args,
 )
-from logic.src.pipeline.reinforcement_learning.core.epoch import validate
+from logic.src.pipeline.reinforcement_learning.core.epoch import (
+    validate_update,
+)
 from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.hpo import (
     bayesian_optimization,
     differential_evolutionary_hyperband_optimization,
@@ -255,7 +257,7 @@ def train_reinforcement_learning(opts, train_function, cost_weights=None):
 
     try:
         if opts["eval_only"]:
-            validate(model, val_dataset, cost_weights, opts)
+            validate_update(model, val_dataset, opts, cw_dict=cost_weights)
         else:
             # Set the scaler and train model
             assert (

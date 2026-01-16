@@ -25,7 +25,7 @@ import torch
 from tqdm import tqdm
 
 from logic.src.utils.data_utils import generate_waste_prize
-from logic.src.utils.functions import move_to
+from logic.src.utils.functions import get_inner_model, move_to
 
 from ...simulator.bins import Bins
 
@@ -43,43 +43,6 @@ def set_decode_type(model, decode_type):
     if isinstance(model, torch.nn.DataParallel):
         model = model.module
     model.set_decode_type(decode_type)
-
-
-def get_inner_model(model):
-    """
-    Extract the inner model from a DataParallel wrapper.
-
-    Args:
-        model: PyTorch model (potentially wrapped in DataParallel)
-
-    Returns:
-        The unwrapped model instance
-    """
-    return model.module if isinstance(model, torch.nn.DataParallel) else model
-
-
-def validate(model, dataset, opts):
-    """
-    Validate the model on a dataset using greedy decoding.
-
-    Performs a rollout on the validation dataset with greedy decoding to assess
-    model performance. Prints validation statistics and returns the average cost.
-
-    Args:
-        model: Neural model to validate
-        dataset: Validation dataset
-        opts: Options dictionary containing device, batch size, etc.
-
-    Returns:
-        torch.Tensor: Average cost across all validation instances
-    """
-    # Validate
-    print("Validating...")
-    cost = rollout(model, dataset, opts)
-    avg_cost = cost.mean()
-    print("Validation overall avg_cost: {} +- {}".format(avg_cost, torch.std(cost) / math.sqrt(len(cost))))
-
-    return avg_cost
 
 
 def rollout(model, dataset, opts):
@@ -105,7 +68,7 @@ def rollout(model, dataset, opts):
 
     set_decode_type(model, "greedy")
     model.eval()
-    if opts["temporal_horizon"] > 0 and opts["model"] in ["tam"]:
+    if opts.get("temporal_horizon", 0) > 0 and opts.get("model") in ["tam"]:
         dataset.fill_history = torch.zeros((opts["val_size"], opts["graph_size"], opts["temporal_horizon"]))
         dataset.fill_history[:, :, -1] = torch.stack([instance["waste"] for instance in dataset.data])
 
@@ -116,62 +79,98 @@ def rollout(model, dataset, opts):
         num_workers=opts.get("num_workers", 0),
     )
     costs = []
-    for bat_id, bat in enumerate(tqdm(dataloader, disable=opts["no_progress_bar"])):
+    for bat_id, bat in enumerate(tqdm(dataloader, disable=opts.get("no_progress_bar", True))):
         bat = prepare_batch(bat, bat_id, dataset, dataloader, opts)
         cost = _eval_model_bat(bat)
         costs.append(cost)
     return torch.cat(costs, 0)
 
 
-def validate_update(model, dataset, cw_dict, opts):
+def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix=None):
     """
-    Validate model and update cost weights (for Meta-Learning).
+    Validate the model, compute rich metrics, and optionally update cost weights or return HPO scores.
 
-    Performs a validation run, calculates performance metrics (efficiency, overflows),
-    and proposes new cost function weights to guide the model towards constraints.
+    This unified function handles:
+    1. Simple validation (returns avg_cost)
+    2. Adaptive weight updates for Meta-Learning (returns new_cw, avg_cost, all_costs)
+    3. HPO metric calculation (returns metric_score, mean_ucost, all_costs)
 
     Args:
         model: Neural model.
         dataset: Validation dataset.
-        cw_dict (dict): Current cost function weights.
         opts (dict): Options dictionary.
+        cw_dict (dict, optional): Current cost function weights for adaptive update.
+        metric (str, optional): Metric name for HPO scoring ('overflows', 'kg/km', 'both').
+        dist_matrix (torch.Tensor, optional): Distance matrix for HPO validation.
 
     Returns:
-        tuple: (new_cw, avg_cost, all_costs)
+        Varies based on arguments:
+        - if cw_dict: (new_cw, avg_cost, all_costs)
+        - elif metric: (metric_score, avg_cost, all_costs)
+        - else: avg_cost
     """
     from logic.src.policies.neural_agent import NeuralAgent
 
     agent = NeuralAgent(get_inner_model(model))
 
-    def _eval_model_bat(bat, dist_matrix):
+    def _eval_model_bat(bat, d_matrix):
+        if d_matrix is None:
+            # Fallback for simple validation without distance matrix
+            with torch.no_grad():
+                ucost, _, c_dict, _, _ = model(move_to(bat, opts["device"], non_blocking=True), cost_weights=None)
+
+            # Map cost dictionary keys to NeuralAgent output format
+            ret_dict = {}
+            if c_dict is not None:
+                ret_dict["waste"] = c_dict.get("waste")
+                # Approximate 'km' from 'length' if available
+                if "length" in c_dict:
+                    ret_dict["km"] = c_dict["length"]
+                if "waste" in c_dict:
+                    ret_dict["kg"] = c_dict["waste"]
+                # Initialize fields that can't be computed without simulation
+                if "overflows" in c_dict:
+                    ret_dict["overflows"] = c_dict["overflows"]
+                if "total" in c_dict:
+                    ret_dict["total"] = c_dict["total"]
+
+            return ucost.data.cpu(), ret_dict, {}
+
         with torch.no_grad():
             ucost, c_dict, attn_dict = agent.compute_batch_sim(
                 move_to(bat, opts["device"], non_blocking=True),
-                move_to(dist_matrix, opts["device"], non_blocking=True),
+                move_to(d_matrix, opts["device"], non_blocking=True) if d_matrix is not None else None,
             )
         return ucost, c_dict, attn_dict
 
     set_decode_type(model, "greedy")
     model.eval()
-    if opts["temporal_horizon"] > 0 and opts["model"] in ["tam"]:
+    if opts.get("temporal_horizon", 0) > 0 and opts.get("model") in ["tam"]:
         dataset.fill_history = torch.zeros((opts["val_size"], opts["graph_size"], opts["temporal_horizon"]))
         dataset.fill_history[:, :, -1] = torch.stack([instance["waste"] for instance in dataset.data])
 
     all_costs = {"overflows": [], "kg": [], "km": []}
     all_ucosts = move_to(torch.tensor([]), opts["device"], non_blocking=True)
     attention_dict = {"attention_weights": [], "graph_masks": []}
+
     dataloader = torch.utils.data.DataLoader(
         dataset,
         batch_size=opts["eval_batch_size"],
         pin_memory=True,
         num_workers=opts.get("num_workers", 0),
     )
+
+    # Use dist_matrix if provided, else attempt to use dataset.dist_matrix
+    d_mat = dist_matrix if dist_matrix is not None else getattr(dataset, "dist_matrix", None)
+
     print("Validating...")
-    for bat_id, bat in enumerate(tqdm(dataloader, disable=opts["no_progress_bar"])):
+    for bat_id, bat in enumerate(tqdm(dataloader, disable=opts.get("no_progress_bar", True))):
         bat = prepare_batch(bat, bat_id, dataset, dataloader, opts)
-        ucost, cost_dict, attn_dict = _eval_model_bat(bat, dataset.dist_matrix)
+        ucost, cost_dict, attn_dict = _eval_model_bat(bat, d_mat)
+
         for key in attention_dict.keys():
-            attention_dict[key].append(attn_dict[key])
+            if key in attn_dict:
+                attention_dict[key].append(attn_dict[key])
 
         all_ucosts = torch.cat((all_ucosts, ucost), 0)
         for key, val in cost_dict.items():
@@ -179,99 +178,111 @@ def validate_update(model, dataset, cw_dict, opts):
                 all_costs[key] = []
             all_costs[key].append(val)
 
+    # Concatenate results
     for key, val in attention_dict.items():
-        attention_dict[key] = torch.cat(val)
+        if val:
+            attention_dict[key] = torch.cat(val)
 
     for key, val in all_costs.items():
-        all_costs[key] = torch.cat(val)
+        if val:
+            all_costs[key] = torch.cat(val)
 
-    eps = 1e-8
-    overflows_mean = torch.mean(all_costs["overflows"].float())
-    kg_mean = torch.mean(all_costs["kg"].float())
-    km_mean = torch.mean(all_costs["km"].float())
-    efficiency = kg_mean / km_mean.clamp(min=eps)
+    avg_ucost = all_ucosts.mean()
 
-    # Calculate waste (kg_lost) if available, otherwise estimate
-    kg_lost = torch.tensor(0.0)
-    if "kg_lost" in all_costs:
-        kg_lost = torch.mean(all_costs["kg_lost"])
-    else:
-        kg_lost = overflows_mean * 100 - kg_mean
+    # 1. HPO Scoring Case
+    if metric is not None:
+        if metric == "overflows":
+            cost = all_costs[metric]
+        elif metric == "kg/km":
+            eps = 1e-8
+            cost = all_costs["kg"] / all_costs["km"].clamp(min=eps)
+        elif metric == "both":
+            eps = 1e-8
+            cost = all_costs["kg"] / all_costs["km"].clamp(min=eps) - all_costs["overflows"]
+        else:
+            cost = all_ucosts  # Default to raw cost if metric unrecognized but provided
 
-    # Calculate target ratios based on the better performing model
-    target_efficiency = 12.5  # Target kg/km based on the better model
-    # target_overflow_ratio = 1.5  # Target overflow level compared to the better model
+        metric_score = cost.mean()
+        print(
+            "Validation overall {} score: {} +- {}".format(metric, metric_score, torch.std(cost) / math.sqrt(len(cost)))
+        )
+        return metric_score, avg_ucost, all_costs
 
-    # Calculate how far current metrics are from targets
-    efficiency_gap = (target_efficiency - efficiency) / target_efficiency
-    overflow_gap = (overflows_mean - 372.5) / 372.5
-    waste_ratio = kg_lost / kg_mean
+    # 2. Adaptive Weight Update Case
+    if cw_dict is not None:
+        eps = 1e-8
+        overflows_mean = torch.mean(all_costs["overflows"].float())
+        kg_mean = torch.mean(all_costs["kg"].float())
+        km_mean = torch.mean(all_costs["km"].float())
+        efficiency = kg_mean / km_mean.clamp(min=eps)
 
-    # Set max adaptation rate to prevent extreme weight changes
-    max_adaptation = min(opts["adaptation_rate"], 0.2)
+        kg_lost = torch.tensor(0.0)
+        if "kg_lost" in all_costs:
+            kg_lost = torch.mean(all_costs["kg_lost"])
+        else:
+            kg_lost = overflows_mean * 100 - kg_mean
 
-    # Calculate adjustment factors with bounded sigmoid to prevent runaway updates
-    def bounded_sigmoid(x):
-        """
-        Compute bounded sigmoid function: 2 / (1 + exp(-2x)) - 1.
-        Maps input to range (-1, 1).
-        """
-        return 2.0 / (1.0 + torch.exp(-2.0 * x)) - 1.0
+        target_efficiency = 12.5
+        efficiency_gap = (target_efficiency - efficiency) / target_efficiency
+        overflow_gap = (overflows_mean - 372.5) / 372.5
+        waste_ratio = kg_lost / kg_mean
 
-    # Proportional adjustments capped by max_adaptation
-    overflow_adjust = max_adaptation * bounded_sigmoid(overflow_gap)
-    efficiency_adjust = max_adaptation * bounded_sigmoid(efficiency_gap)
-    waste_adjust = -max_adaptation * bounded_sigmoid(waste_ratio * 5.0)  # Penalize waste more aggressively
+        max_adaptation = min(opts.get("adaptation_rate", 0.1), 0.2)
 
-    # Baseline weight distribution (thirds if no previous history)
-    # constraint_third = opts['constraint'] / 3
+        def bounded_sigmoid(x):
+            return 2.0 / (1.0 + torch.exp(-2.0 * x)) - 1.0
 
-    # Update weights with damping to prevent oscillation
-    damping = 0.7  # Damping factor to prevent oscillation (0.7 means 70% new, 30% old)
+        overflow_adjust = max_adaptation * bounded_sigmoid(overflow_gap)
+        efficiency_adjust = max_adaptation * bounded_sigmoid(efficiency_gap)
+        waste_adjust = -max_adaptation * bounded_sigmoid(waste_ratio * 5.0)
 
-    overflow_w = cw_dict["overflows"] * (1 - damping) + (cw_dict["overflows"] * (1 + overflow_adjust)) * damping
-    waste_w = cw_dict["waste"] * (1 - damping) + (cw_dict["waste"] * (1 + waste_adjust)) * damping
-    length_w = cw_dict["length"] * (1 - damping) + (cw_dict["length"] * (1 + efficiency_adjust)) * damping
+        damping = 0.7
+        overflow_w = cw_dict["overflows"] * (1 - damping) + (cw_dict["overflows"] * (1 + overflow_adjust)) * damping
+        waste_w = cw_dict["waste"] * (1 - damping) + (cw_dict["waste"] * (1 + waste_adjust)) * damping
+        length_w = cw_dict["length"] * (1 - damping) + (cw_dict["length"] * (1 + efficiency_adjust)) * damping
 
-    # Enforce minimum and maximum bounds on weights
-    min_weight = 0.05 * opts["constraint"]
-    max_weight = 0.6 * opts["constraint"]  # Prevent any single weight from dominating
+        constraint = opts.get("constraint", 3.0)
+        min_weight = 0.05 * constraint
+        max_weight = 0.6 * constraint
 
-    overflow_w = overflow_w.clamp(min_weight, max_weight).item()
-    waste_w = waste_w.clamp(min_weight, max_weight).item()
-    length_w = length_w.clamp(min_weight, max_weight).item()
+        overflow_w = overflow_w.clamp(min_weight, max_weight).item()
+        waste_w = waste_w.clamp(min_weight, max_weight).item()
+        length_w = length_w.clamp(min_weight, max_weight).item()
 
-    # Normalize weights to sum to constraint
-    sum_w = overflow_w + waste_w + length_w
-    constraint_factor = opts["constraint"] / sum_w
+        sum_w = overflow_w + waste_w + length_w
+        constraint_factor = constraint / sum_w
 
-    new_cw = {
-        "overflows": overflow_w * constraint_factor,
-        "waste": waste_w * constraint_factor,
-        "length": length_w * constraint_factor,
-    }
+        new_cw = {
+            "overflows": overflow_w * constraint_factor,
+            "waste": waste_w * constraint_factor,
+            "length": length_w * constraint_factor,
+        }
 
-    # Safety check: ensure waste weight doesn't grow too much
-    if new_cw["waste"] > 1.5 * cw_dict["waste"]:
-        # Cap waste weight growth
-        new_cw["waste"] = 1.5 * cw_dict["waste"]
-        # Redistribute remaining weight
-        remaining = opts["constraint"] - new_cw["waste"]
-        overflow_length_ratio = overflow_w / (overflow_w + length_w)
-        new_cw["overflows"] = remaining * overflow_length_ratio
-        new_cw["length"] = remaining * (1 - overflow_length_ratio)
+        if new_cw["waste"] > 1.5 * cw_dict["waste"]:
+            new_cw["waste"] = 1.5 * cw_dict["waste"]
+            remaining = constraint - new_cw["waste"]
+            overflow_length_ratio = overflow_w / (overflow_w + length_w)
+            new_cw["overflows"] = remaining * overflow_length_ratio
+            new_cw["length"] = remaining * (1 - overflow_length_ratio)
 
-    print("New cost function weights: ")
-    for key, val in new_cw.items():
-        print(f"- {key}: {val}")
+        print("New cost function weights: ")
+        for key, val in new_cw.items():
+            print(f"- {key}: {val}")
 
-    avg_cost = all_ucosts.mean()
-    print("Validation overall avg_cost: {} +- {}".format(avg_cost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts))))
+        print(
+            "Validation overall avg_cost: {} +- {}".format(
+                avg_ucost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts))
+            )
+        )
+        for key, val in all_costs.items():
+            val = val.float()
+            print("- {}: {} +- {}".format(key, val.mean(), torch.std(val) / math.sqrt(len(val))))
 
-    for key, val in all_costs.items():
-        val = val.float()
-        print("- {}: {} +- {}".format(key, val.mean(), torch.std(val) / math.sqrt(len(val))))
-    return new_cw, avg_cost, all_costs
+        return new_cw, avg_ucost, all_costs
+
+    # 3. Simple Case
+    print("Validation overall avg_cost: {} +- {}".format(avg_ucost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts))))
+    return avg_ucost
 
 
 def clip_grad_norms(param_groups, max_norm=math.inf):
@@ -537,7 +548,7 @@ def complete_train_pass(
         )
 
     if opts["val_size"] > 0:
-        avg_reward = validate(model, val_dataset, opts)
+        avg_reward = validate_update(model, val_dataset, opts)
         # new_cw, avg_cost, _ = validate_update(model, val_dataset, cost_weights, opts)
         if not opts["no_tensorboard"]:
             tb_logger.log_value("val_avg_cost", avg_reward, step)
@@ -571,7 +582,7 @@ def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
     Returns:
         dict: Augmented batch dictionary ready for model input
     """
-    if opts["model"] in ["tam"] and opts["temporal_horizon"] > 0:
+    if opts.get("model") in ["tam"] and opts.get("temporal_horizon", 0) > 0:
         batch_size = dataloader.batch_size
         start_idx = batch_id * batch_size
         end_idx = min((batch_id + 1) * batch_size, len(dataset))
@@ -579,7 +590,7 @@ def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
         batch["fill_history"] = dataset.fill_history[batch_idx]
 
     counter = 0
-    filldays = ["fill{}".format(day_id) for day_id in range(day, day + opts["temporal_horizon"])]
+    filldays = ["fill{}".format(day_id) for day_id in range(day, day + opts.get("temporal_horizon", 0))]
     for k, v in batch.items():
         if "fill" in k:
             if k in filldays:
@@ -587,8 +598,8 @@ def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
                 batch["fill{}".format(counter)] = v
         else:
             batch[k] = v
-    if opts["focus_graph"] is not None:
-        if opts["encoder"] in ["gac", "tgc"]:
+    if opts.get("focus_graph") is not None:
+        if opts.get("encoder") in ["gac", "tgc"]:
             batch["edges"] = dataset.edges.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1).float()
         else:
             batch["edges"] = dataset.edges.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1).bool()

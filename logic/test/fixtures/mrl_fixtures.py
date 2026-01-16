@@ -72,6 +72,9 @@ def hpo_opts():
         "max_conc": 1,
         "no_tensorboard": True,
         "device": "cpu",
+        "model": "am",
+        "temporal_horizon": 0,
+        "encoder": "gat",
     }
 
 
