@@ -13,7 +13,7 @@ from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
 from logic.src.pipeline.simulator.network import apply_edges, compute_distance_matrix
 from logic.src.utils.data_utils import generate_waste_prize, load_focus_coords
 from logic.src.utils.definitions import MAX_WASTE
-from logic.src.utils.problem_utils import make_instance_generic
+from logic.src.utils.problem_utils import calculate_edges, make_instance_generic
 
 from ..base import BaseDataset, BaseProblem
 from .state_cvrpp import StateCVRPP
@@ -168,8 +168,6 @@ def generate_instance(size, edge_threshold, edge_strategy, distribution, bins, g
         "waste": waste,
         "max_waste": torch.tensor(MAX_WASTE),
     }
-    from logic.src.utils.problem_utils import calculate_edges
-
     edges = calculate_edges(loc, edge_threshold, edge_strategy)
     if edges is not None:
         ret_dict["edges"] = edges

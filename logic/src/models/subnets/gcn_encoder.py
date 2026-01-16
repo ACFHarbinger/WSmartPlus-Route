@@ -14,7 +14,7 @@ class GraphConvolutionEncoder(nn.Module):
     def __init__(
         self,
         n_layers,
-        hidden_dim,
+        feed_forward_hidden,
         agg="sum",
         norm="layer",
         learn_affine=True,
@@ -28,7 +28,7 @@ class GraphConvolutionEncoder(nn.Module):
 
         Args:
             n_layers: Number of layers.
-            hidden_dim: Hidden dimension.
+            feed_forward_hidden: Hidden dimension.
             agg: Aggregation method.
             norm: Normalization type.
             learn_affine: Whether to learn affine parameters.
@@ -37,12 +37,12 @@ class GraphConvolutionEncoder(nn.Module):
         """
         super(GraphConvolutionEncoder, self).__init__()
 
-        self.init_embed_edges = nn.Embedding(2, hidden_dim)
+        self.init_embed_edges = nn.Embedding(2, feed_forward_hidden)
 
         self.layers = nn.ModuleList(
             [
                 GatedGraphConvolution(
-                    hidden_dim=hidden_dim,
+                    hidden_dim=feed_forward_hidden,
                     aggregation=agg,
                     norm=norm,
                     learn_affine=learn_affine,
@@ -60,6 +60,23 @@ class GraphConvolutionEncoder(nn.Module):
         Returns:
             Updated node features (B x V x H)
         """
+        batch_size, num_nodes, _ = x.size()
+
+        # Convert sparse [B, 2, E] to dense [B, V, V] if needed
+        if edges.dim() == 3 and edges.size(1) == 2:
+            adj = torch.zeros(batch_size, num_nodes, num_nodes, device=x.device, dtype=torch.long)
+            # Assuming edges[b] are indices.
+            # We can scatter.
+            for b in range(batch_size):
+                # Ensure indices are long
+                idx = edges[b].long()
+                # Check for out of bounds just in case
+                valid_mask = (idx[0] < num_nodes) & (idx[1] < num_nodes)
+                src = idx[0][valid_mask]
+                dst = idx[1][valid_mask]
+                adj[b, src, dst] = 1
+            edges = adj
+
         # Embed edge features
         edge_embed = self.init_embed_edges(edges.type(torch.long))
 

@@ -100,7 +100,7 @@ class CriticNetwork(nn.Module):
         Returns:
             torch.Tensor: The estimated value of the current state.
         """
-        edges = inputs.pop("edges")
+        edges = inputs.get("edges", None)
         embeddings = self.encoder(self._init_embed(inputs), edges)
         if self.aggregation_graph == "avg":
             graph_embeddings = embeddings.mean(1)
