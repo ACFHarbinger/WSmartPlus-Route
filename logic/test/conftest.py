@@ -31,7 +31,12 @@ pytest_plugins = [
     "logic.test.fixtures.mrl_fixtures",
     "logic.test.fixtures.model_fixtures",
     "logic.test.fixtures.integration_fixtures",
+    "logic.test.fixtures.eval_fixtures",
+    "logic.test.fixtures.file_system_fixtures",
+    "logic.test.fixtures.io_fixtures",
+    "logic.test.fixtures.policy_aux_fixtures",
 ]
+
 
 # ============================================================================
 # Global / Shared Fixtures
@@ -137,7 +142,7 @@ def cleanup_test_root(request):
 
     def finalizer():
         """Finalizer to clean up test output."""
-        path_to_clean = Path("assets/test_output")
+        path_to_clean = project_root / "assets" / "test_output"
         if path_to_clean.exists():
             shutil.rmtree(path_to_clean)
 
