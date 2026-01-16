@@ -35,4 +35,10 @@ Infrastructure:
 
 Usage:
     These classes are typically instantiated and driven by the `Trainer` in `logic/src/pipeline/train.py`.
+
 """
+
+from logic.src.pipeline.reinforcement_learning.core.reinforce import (
+    StandardTrainer,
+    TimeTrainer,
+)
