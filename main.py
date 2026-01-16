@@ -39,7 +39,7 @@ from logic.src.pipeline.train import (
     train_meta_reinforcement_learning, hyperparameter_optimization
 )
 from logic.src.data.generate_data import generate_datasets
-from logic.src.cli import parse_params 
+from logic.src.cli import parse_params, launch_tui
 from gui.src.app import run_app_gui, launch_results_window
 
 import warnings
@@ -158,6 +158,16 @@ def main(args):
         Exits with code 0 on success, 1 on error.
     """
     comm, opts = args
+    
+    # Handle TUI redirection
+    if comm == 'tui':
+        res = launch_tui()
+        if res:
+            comm, opts = res
+        else:
+            print("TUI session cancelled.")
+            return 0
+
     exit_code = 0
     try:
         if isinstance(comm, tuple) and len(comm) > 1:
