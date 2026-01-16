@@ -4,13 +4,22 @@ Unified entry point for the WSmart+ Route modular CLI.
 
 import argparse
 
+from logic.src.cli.base_parser import (
+    ConfigsParser,
+    LowercaseAction,
+    StoreDictKeyPair,
+    UpdateFunctionMapActionFactory,
+)
 from logic.src.cli.data_parser import validate_gen_data_args
 from logic.src.cli.fs_parser import validate_file_system_args
 from logic.src.cli.gui_parser import validate_gui_args
+from logic.src.cli.hpo_parser import add_hp_optim_args
+from logic.src.cli.meta_train_parser import add_mrl_train_args
 from logic.src.cli.registry import get_parser
 from logic.src.cli.sim_parser import validate_eval_args, validate_test_sim_args
 from logic.src.cli.test_suite_parser import validate_test_suite_args
 from logic.src.cli.train_parser import (
+    add_train_args,
     validate_train_args,
 )
 
