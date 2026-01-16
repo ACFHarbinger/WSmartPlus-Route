@@ -42,7 +42,7 @@ import random
 import numpy as np
 
 from collections import deque
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any, Optional, Deque, Set
 
 # --- 1. Data Structures & Params ---
 
@@ -97,8 +97,8 @@ class HGSParams:
         mutation_rate (float): Probability of mutation (unused in current impl). Default: 0.2
         max_vehicles (int): Vehicle fleet limit. 0 = unlimited. Default: 0
     """
-    def __init__(self, time_limit=10, population_size=50, elite_size=10,
-                 mutation_rate=0.2, max_vehicles=0):
+    def __init__(self, time_limit: int = 10, population_size: int = 50, elite_size: int = 10,
+                 mutation_rate: float = 0.2, max_vehicles: int = 0):
         """
         Initialize HGS parameters.
 
@@ -137,7 +137,7 @@ class LinearSplit:
         C (float): Cost coefficient
         max_vehicles (int): Fleet size limit (0 = unlimited)
     """
-    def __init__(self, dist_matrix, demands, capacity, R, C, max_vehicles=0):
+    def __init__(self, dist_matrix: np.ndarray, demands: Dict[int, float], capacity: float, R: float, C: float, max_vehicles: int = 0):
         """
         Initialize the LinearSplit algorithm.
 
@@ -500,7 +500,7 @@ class LocalSearch:
 
     Implements Relocate, Swap, 2-opt, and 2-opt* moves.
     """
-    def __init__(self, dist_matrix, demands, capacity, R, C, params: HGSParams):
+    def __init__(self, dist_matrix: np.ndarray, demands: Dict[int, float], capacity: float, R: float, C: float, params: HGSParams):
         """
         Initialize the LocalSearch module.
 
@@ -534,7 +534,7 @@ class LocalSearch:
         self.node_map = {} 
         self.route_loads = [] 
 
-    def optimize(self, individual: Individual):
+    def optimize(self, individual: Individual) -> Individual:
         """
         Apply local search to improve the individual's routes.
 
@@ -616,7 +616,7 @@ class LocalSearch:
             
         return False
         
-    def _update_map(self, affected_indices: set):
+    def _update_map(self, affected_indices: Set[int]):
         """
         Update the node-to-route position map and route loads for given indices.
         """
@@ -791,7 +791,7 @@ def ordered_crossover(p1: List[int], p2: List[int]) -> List[int]:
     return child
 
 
-def run_hgs(dist_matrix, demands, capacity, R, C, values, global_must_go, local_to_global, vrpp_tour_global=None):
+def run_hgs(dist_matrix: np.ndarray, demands: Dict[int, float], capacity: float, R: float, C: float, values: Dict[str, Any], global_must_go: List[int], local_to_global: Dict[int, int], vrpp_tour_global: Optional[List[int]] = None) -> Tuple[List[List[int]], float]:
     """
     Run Hybrid Genetic Search for VRPP.
 

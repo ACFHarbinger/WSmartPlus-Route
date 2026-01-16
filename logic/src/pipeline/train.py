@@ -24,7 +24,7 @@ from logic.src.utils.definitions import (
     ROOT_DIR, HOP_KEYS,
     update_lock_wait_time,
 )
-from logic.src.utils.arg_parser import (
+from logic.src.cli import (
     ConfigsParser, 
     add_train_args, validate_train_args,
     add_mrl_train_args, add_hp_optim_args

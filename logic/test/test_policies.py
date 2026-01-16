@@ -33,25 +33,23 @@ class TestRunDayPolicyRouting:
     }
 
     @pytest.mark.unit
-    def test_run_day_calls_regular(self, mocker, mock_run_day_deps): # Add 'mocker' argument
+    def test_run_day_calls_regular(self, mocker, mock_run_day_deps, make_day_context): # Add 'make_day_context'
         """Test if 'policy_regular3_gamma1' calls policy_regular with lvl=2."""
         
-        # Patch the specific policy function used inside day.py
-        # We need to capture the mock to ensure it's called, even if the one in conftest.py
-        # for assertions might fail due to shadowing.
         mock_pol_regular_local = mocker.patch(
             'logic.src.policies.adapters.policy_regular', 
-            return_value=[0, 1, 0] # Return a valid tour to avoid further errors
+            return_value=[0, 1, 0]
         )
 
-        run_day(
+        ctx = make_day_context(
             graph_size=5,
-            pol='policy_regular3_gamma1',
+            full_policy='policy_regular3_gamma1',
             day=3,
             realtime_log_path=None,
             **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
+        run_day(ctx)
         
         # Assert against the local mock
         mock_pol_regular_local.assert_called_once_with(
@@ -68,21 +66,22 @@ class TestRunDayPolicyRouting:
         )
 
     @pytest.mark.unit
-    def test_run_day_calls_last_minute(self, mocker, mock_run_day_deps):
+    def test_run_day_calls_last_minute(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'policy_last_minute90_gamma1' calls policy_last_minute.""" 
         mock_pol_last_minute = mocker.patch(
             'logic.src.policies.adapters.policy_last_minute',
             return_value=[0, 1, 0]
         )
         
-        run_day(
+        ctx = make_day_context(
             graph_size=5,
-            pol='policy_last_minute90_gamma1',
+            full_policy='policy_last_minute90_gamma1',
             day=3,
             realtime_log_path=None,
             **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
+        run_day(ctx)
         
         mock_pol_last_minute.assert_called_once_with(
             mock_run_day_deps['bins'].c,
@@ -95,7 +94,7 @@ class TestRunDayPolicyRouting:
         )
 
     @pytest.mark.unit
-    def test_run_day_calls_am(self, mocker, mock_run_day_deps):
+    def test_run_day_calls_am(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'am_policy_gamma1' calls NeuralAgent.compute_simulator_day."""
         # Patch NeuralAgent in the adapters module where it is imported
         mock_neural_agent_cls = mocker.patch('logic.src.policies.adapters.NeuralAgent')
@@ -104,59 +103,62 @@ class TestRunDayPolicyRouting:
         # Configure the mock agent to return expected tuple
         mock_agent_instance.compute_simulator_day.return_value = ([0, 1, 0], 10.0, {})
         
-        run_day(
+        ctx = make_day_context(
             graph_size=5,
-            pol='am_policy_gamma1',
+            full_policy='am_policy_gamma1',
             day=3,
             realtime_log_path=None,
             **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
+        run_day(ctx)
         
         mock_agent_instance.compute_simulator_day.assert_called_once()
 
 
     @pytest.mark.unit
-    def test_run_day_calls_gurobi(self, mocker, mock_run_day_deps):
+    def test_run_day_calls_gurobi(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'gurobi_vrpp0.5_gamma1' calls policy_vrpp."""
         mock_pol_vrpp = mocker.patch(
             'logic.src.policies.adapters.policy_vrpp',
             return_value=([0, 1, 0], 10.0, {})
         )
         
-        run_day(
+        ctx = make_day_context(
             graph_size=5,
-            pol='gurobi_vrpp0.5_gamma1',
+            full_policy='gurobi_vrpp0.5_gamma1',
             day=3,
             realtime_log_path=None,
             **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
+        run_day(ctx)
         
         mock_pol_vrpp.assert_called_once()
 
 
     @pytest.mark.unit
-    def test_run_day_calls_hexaly(self, mocker, mock_run_day_deps):
+    def test_run_day_calls_hexaly(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'hexaly_vrpp0.8_gamma1' calls policy_vrpp."""
         mock_pol_vrpp = mocker.patch(
             'logic.src.policies.adapters.policy_vrpp',
             return_value=([0, 1, 0], 10.0, {})
         )
         
-        run_day(
+        ctx = make_day_context(
             graph_size=5,
-            pol='hexaly_vrpp0.8_gamma1',
+            full_policy='hexaly_vrpp0.8_gamma1',
             day=3,
             realtime_log_path=None,
             **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
+        run_day(ctx)
         
         mock_pol_vrpp.assert_called_once()
         
     @pytest.mark.unit
-    def test_run_day_calls_alns_package(self, mocker, mock_run_day_deps):
+    def test_run_day_calls_alns_package(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'policy_look_ahead_alns_package_gamma1' calls policy_lookahead_alns with variant='package'."""
         mock_pol = mocker.patch(
             'logic.src.policies.adapters.policy_lookahead_alns',
@@ -166,21 +168,22 @@ class TestRunDayPolicyRouting:
         mocker.patch('logic.src.policies.adapters.policy_lookahead', return_value=[0, 1])
         mocker.patch('logic.src.policies.adapters.load_area_and_waste_type_params', return_value=(100, 1, 1, 1, 1))
         
-        run_day(
+        ctx = make_day_context(
             graph_size=5,
-            pol='policy_look_ahead_alns_package_gamma1',
+            full_policy='policy_look_ahead_alns_package_gamma1',
             day=3,
             realtime_log_path=None,
             **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
+        run_day(ctx)
         
         # Verify call args
         args, kwargs = mock_pol.call_args
         assert kwargs.get('variant') == 'package'
 
     @pytest.mark.unit
-    def test_run_day_calls_alns_ortools(self, mocker, mock_run_day_deps):
+    def test_run_day_calls_alns_ortools(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'policy_look_ahead_alns_ortools_gamma1' calls policy_lookahead_alns with variant='ortools'."""
         mock_pol = mocker.patch(
             'logic.src.policies.adapters.policy_lookahead_alns',
@@ -189,14 +192,15 @@ class TestRunDayPolicyRouting:
         mocker.patch('logic.src.policies.adapters.policy_lookahead', return_value=[0, 1])
         mocker.patch('logic.src.policies.adapters.load_area_and_waste_type_params', return_value=(100, 1, 1, 1, 1))
 
-        run_day(
+        ctx = make_day_context(
             graph_size=5,
-            pol='policy_look_ahead_alns_ortools_gamma1',
+            full_policy='policy_look_ahead_alns_ortools_gamma1',
             day=3,
             realtime_log_path=None,
             **self._RUN_DAY_CONST_ARGS,
             **{k: v for k, v in mock_run_day_deps.items() if 'mock_' not in k}
         )
+        run_day(ctx)
         
         args, kwargs = mock_pol.call_args
         assert kwargs.get('variant') == 'ortools'

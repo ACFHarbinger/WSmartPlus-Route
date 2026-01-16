@@ -31,43 +31,7 @@ from logic.src.pipeline.simulator.processor import (
 )
 from logic.src.pipeline.simulator.context import SimulationDayContext
 
-def make_day_context(**kwargs):
-    """Helper to create a default SimulationDayContext with overrides."""
-    defaults = {
-        'graph_size': 3,
-        'full_policy': 'policy_regular3_gamma1',
-        'policy': 'policy_regular3',
-        'policy_name': 'policy_regular3',
-        'bins': MagicMock(),
-        'new_data': MagicMock(),
-        'coords': MagicMock(),
-        'distance_matrix': MagicMock(),
-        'distpath_tup': (None, None, None, None), 
-        'distancesC': MagicMock(),
-        'paths_between_states': MagicMock(),
-        'dm_tensor': MagicMock(),
-        'run_tsp': True,
-        'sample_id': 0,
-        'overflows': 0,
-        'day': 1,
-        'model_env': MagicMock(),
-        'model_ls': MagicMock(),
-        'n_vehicles': 1,
-        'area': 'riomaior',
-        'realtime_log_path': 'mock_log.json',
-        'waste_type': 'paper',
-        'current_collection_day': 1,
-        'cached': None,
-        'device': torch.device('cpu'),
-        'lock': None,
-        'hrl_manager': None,
-        'gate_prob_threshold': 0.5,
-        'mask_prob_threshold': 0.5,
-        'two_opt_max_iter': 0,
-        'config': {}
-    }
-    defaults.update(kwargs)
-    return SimulationDayContext(**defaults)
+
 
 
 
@@ -829,7 +793,7 @@ class TestDay:
         assert dlog_vshort['km'] == 0
 
     @pytest.mark.unit
-    def test_stochastic_filling(self, mock_run_day_deps):
+    def test_stochastic_filling(self, mock_run_day_deps, make_day_context):
         """Test that stochasticFilling is called when bins are stochastic."""
         mock_run_day_deps['bins'].is_stochastic.return_value = True
         
@@ -857,7 +821,7 @@ class TestDay:
         mock_send_output.assert_called_once() # Ensure final call happened without crash
 
     @pytest.mark.unit
-    def test_load_filling(self, mock_run_day_deps):
+    def test_load_filling(self, mock_run_day_deps, make_day_context):
         """Test that loadFilling is called when bins are not stochastic."""
         mock_run_day_deps['bins'].is_stochastic.return_value = False
         
@@ -885,7 +849,7 @@ class TestDay:
         mock_send_output.assert_called_once() # Ensure final call happened without crash
 
     @pytest.mark.unit
-    def test_policy_last_minute_and_path_invalid_cf(self, mock_run_day_deps):
+    def test_policy_last_minute_and_path_invalid_cf(self, mock_run_day_deps, make_day_context):
         """Test 'policy_last_minute_and_path' with an invalid cf value."""
         with pytest.raises(ValueError, match='Invalid cf value for policy_last_minute_and_path: -100'):
             run_day(make_day_context(
@@ -905,7 +869,7 @@ class TestDay:
 
 
     @pytest.mark.unit
-    def test_policy_regular_invalid_lvl(self, mock_run_day_deps):
+    def test_policy_regular_invalid_lvl(self, mock_run_day_deps, make_day_context):
         """Test 'policy_regular' with an invalid lvl value."""
         with pytest.raises(ValueError, match='Invalid lvl value for policy_regular: 0'):
             run_day(make_day_context(
@@ -924,7 +888,7 @@ class TestDay:
             ))
 
     @pytest.mark.unit
-    def test_policy_look_ahead_invalid_config(self, mock_run_day_deps):
+    def test_policy_look_ahead_invalid_config(self, mock_run_day_deps, make_day_context):
         """Test 'policy_look_ahead' with an invalid configuration."""
         with pytest.raises(ValueError, match='Invalid policy_look_ahead configuration'):
             run_day(make_day_context(
@@ -943,7 +907,7 @@ class TestDay:
             ))
 
     @pytest.mark.unit
-    def test_unknown_policy(self, mock_run_day_deps):
+    def test_unknown_policy(self, mock_run_day_deps, make_day_context):
         """Test that an unknown policy raises a ValueError."""
         with pytest.raises(ValueError, match='Unknown policy:'):
             run_day(make_day_context(

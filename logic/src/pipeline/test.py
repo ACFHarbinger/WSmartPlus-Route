@@ -21,7 +21,7 @@ import logic.src.utils.definitions as udef
 from tqdm import tqdm
 from collections import defaultdict
 from multiprocessing.pool import ThreadPool
-from logic.src.utils.arg_parser import (
+from logic.src.cli import (
     ConfigsParser, 
     add_test_sim_args, 
     validate_test_sim_args

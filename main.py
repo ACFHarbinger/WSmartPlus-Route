@@ -6,7 +6,7 @@ This module serves as the primary gateway for executing various components of th
 project, including the WSmart-Route simulator, reinforcement learning training 
 pipelines, test suite execution, and the Graphical User Interface (GUI).
 
-It dispatches commands based on arguments parsed by `logic.src.utils.arg_parser`
+It dispatches commands based on arguments parsed by `logic.src.cli`
 to the appropriate subsystems (Logic, GUI, Test).
 
 Key Functions:
@@ -39,7 +39,7 @@ from logic.src.pipeline.train import (
     train_meta_reinforcement_learning, hyperparameter_optimization
 )
 from logic.src.data.generate_data import generate_datasets
-from logic.src.utils.arg_parser import parse_params 
+from logic.src.cli import parse_params 
 from gui.src.app import run_app_gui, launch_results_window
 
 import warnings

@@ -19,7 +19,7 @@ import numpy as np
 
 from tqdm import tqdm
 from typing import Optional
-from logic.src.utils.arg_parser import (
+from logic.src.cli import (
     ConfigsParser, 
     add_eval_args, 
     validate_eval_args
