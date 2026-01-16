@@ -368,13 +368,28 @@ class RunningState(SimState):
                     
                     policy_stripped = ctx.policy.rsplit('_', 1)[0]
                     
+                    # Robust mapping of stripped policy to canonical PolicyFactory names
+                    p_name = policy_stripped
+                    if 'lookahead' in policy_stripped or 'look_ahead' in policy_stripped:
+                        p_name = 'policy_look_ahead'
+                    elif policy_stripped.startswith('am') or '_am' in policy_stripped:
+                        p_name = 'am_policy'
+                    elif 'gurobi' in policy_stripped:
+                        p_name = 'gurobi_vrpp'
+                    elif 'hexaly' in policy_stripped:
+                        p_name = 'hexaly_vrpp'
+                    elif 'last_minute' in policy_stripped:
+                        p_name = 'policy_last_minute'
+                    elif policy_stripped == 'regular':
+                        p_name = 'policy_regular'
+                    
                     from logic.src.pipeline.simulator.context import SimulationDayContext
                     
                     day_context = SimulationDayContext(
                         graph_size=opts['size'],
                         full_policy=ctx.policy,
                         policy=policy_stripped,
-                        policy_name=policy_stripped,
+                        policy_name=p_name,
                         bins=ctx.bins,
                         new_data=ctx.new_data,
                         coords=ctx.coords,

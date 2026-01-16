@@ -35,6 +35,7 @@ from logic.src.models.gat_lstm_manager import GATLSTManager
 from logic.src.models.temporal_am import TemporalAttentionModel
 from logic.src.models.model_factory import NeuralComponentFactory
 from logic.src.models.subnets.attention_decoder import AttentionDecoder
+from logic.src.pipeline.simulator.context import SimulationDayContext
 
 
 # ============================================================================
@@ -800,6 +801,8 @@ def mock_run_day_deps(mocker):
         'distpath_tup': mock_dist_tup,
         'new_data': mock_new_data,
         'coords': mock_coords,
+        'distance_matrix': real_dist_matrix,
+        'distancesC': real_distancesC,
         'mock_policy_regular': mock_policy_regular,
         'mock_send_output': mock_send_output,
     }
@@ -1616,3 +1619,68 @@ def mock_sapo_deps():
         'val_dataset': dataset,
         'problem': problem
     }
+
+@pytest.fixture
+def make_day_context():
+    """Fixture providing a factory to create a default SimulationDayContext with overrides."""
+    def _make(**kwargs):
+        full_policy = kwargs.get('full_policy', 'policy_regular3_gamma1')
+        
+        # Determine policy_name and policy if not provided
+        if 'policy_name' not in kwargs or 'policy' not in kwargs:
+            # Basic parsing logic (matching day.py/states.py)
+            if 'lookahead' in full_policy or 'look_ahead' in full_policy:
+                p_name = 'policy_look_ahead'
+            elif full_policy.startswith('am') or '_am' in full_policy:
+                p_name = 'am_policy'
+            elif 'gurobi' in full_policy:
+                p_name = 'gurobi_vrpp'
+            elif 'hexaly' in full_policy:
+                p_name = 'hexaly_vrpp'
+            elif 'last_minute' in full_policy:
+                p_name = 'policy_last_minute'
+            else:
+                p_name = 'policy_regular'
+            
+            # Simple policy (without gamma/threshold)
+            p_simple = full_policy.split('_gamma')[0] if '_gamma' in full_policy else full_policy
+            
+            kwargs.setdefault('policy_name', p_name)
+            kwargs.setdefault('policy', p_simple)
+
+        defaults = {
+            'graph_size': 3,
+            'full_policy': 'policy_regular3_gamma1',
+            'policy': 'policy_regular3',
+            'policy_name': 'policy_regular3',
+            'bins': MagicMock(),
+            'new_data': MagicMock(),
+            'coords': MagicMock(),
+            'distance_matrix': MagicMock(),
+            'distpath_tup': (None, None, None, None), 
+            'distancesC': MagicMock(),
+            'paths_between_states': MagicMock(),
+            'dm_tensor': MagicMock(),
+            'run_tsp': True,
+            'sample_id': 0,
+            'overflows': 0,
+            'day': 1,
+            'model_env': MagicMock(),
+            'model_ls': MagicMock(),
+            'n_vehicles': 1,
+            'area': 'riomaior',
+            'realtime_log_path': 'mock_log.json',
+            'waste_type': 'paper',
+            'current_collection_day': 1,
+            'cached': None,
+            'device': torch.device('cpu'),
+            'lock': None,
+            'hrl_manager': None,
+            'gate_prob_threshold': 0.5,
+            'mask_prob_threshold': 0.5,
+            'two_opt_max_iter': 0,
+            'config': {}
+        }
+        defaults.update(kwargs)
+        return SimulationDayContext(**defaults)
+    return _make

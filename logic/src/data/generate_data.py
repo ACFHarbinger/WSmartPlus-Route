@@ -13,7 +13,7 @@ import traceback
 import numpy as np
 
 from logic.src.utils.definitions import ROOT_DIR
-from logic.src.utils.arg_parser import (
+from logic.src.cli import (
     ConfigsParser, 
     add_gen_data_args, 
     validate_gen_data_args

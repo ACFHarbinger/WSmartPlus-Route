@@ -4,7 +4,7 @@ import copy
 import pytest
 
 from unittest.mock import patch
-from logic.src.utils.arg_parser import (
+from logic.src.cli import (
     parse_params,
     ConfigsParser, LowercaseAction
 )
@@ -277,8 +277,8 @@ class TestFileSystemCommand:
         
         # Mock the maps used by UpdateFunctionMapActionFactory so our test inputs are considered valid
         # This allows us to bypass the ValueError in the Action and hit the AssertionError in validation
-        with patch('logic.src.utils.arg_parser.OPERATION_MAP', {'op_test': 1}), \
-            patch('logic.src.utils.arg_parser.STATS_FUNCTION_MAP', {'stat_test': 1}), \
+        with patch('logic.src.cli.base_parser.OPERATION_MAP', {'op_test': 1}), \
+            patch('logic.src.cli.base_parser.STATS_FUNCTION_MAP', {'stat_test': 1}), \
             patch.object(sys, 'argv', args):
             
             # Expect AssertionError: "'update_operation' and 'stats_function' arguments are mutually exclusive"

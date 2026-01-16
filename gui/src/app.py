@@ -8,7 +8,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 from gui.src.windows import MainWindow, SimulationResultsWindow
 from logic.src.utils.definitions import CTRL_C_TIMEOUT, ICON_FILE
-from logic.src.utils.arg_parser import (
+from logic.src.cli import (
     ConfigsParser, 
     add_gui_args, 
     validate_gui_args

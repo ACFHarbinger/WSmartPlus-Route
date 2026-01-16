@@ -29,6 +29,7 @@ Usage:
     tour, cost, output = adapter.execute(**context)
 """
 import torch
+import re
 import numpy as np
 
 from abc import ABC, abstractmethod
@@ -109,7 +110,14 @@ class RegularPolicyAdapter(PolicyAdapter):
         config = kwargs.get('config', {})
         regular_config = config.get('regular', {})
 
-        lvl = int(policy.rsplit("_regular", 1)[1]) - 1
+        # Try to extract level from policy name (e.g., 'regular3' -> lvl=2)
+        # Using regex to find any trailing digits after 'regular'
+        lvl_match = re.search(r'regular(\d+)', policy)
+        if lvl_match:
+            lvl = int(lvl_match.group(1)) - 1
+        else:
+            # Default to level 1 if no number is found
+            lvl = 0
         
         # Override from config if present
         if 'level' in regular_config:
