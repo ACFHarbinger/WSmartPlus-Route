@@ -128,7 +128,7 @@ def sim_opts(tmp_path, setup_sim_data):
         "two_opt_max_iter": 0,
         "temperature": 1.0,
         "decode_type": "greedy",
-        "vertex_method": "center",
+        "vertex_method": "mmn",
         # Explicit data_dir provided to override default hardcoded lookup if logic allows,
         # but logic often uses ROOT_DIR. setup_sim_data mocks ROOT_DIR.
         "data_dir": str(setup_sim_data / "data" / "wsr_simulator"),
@@ -166,7 +166,7 @@ def setup_sim_data(tmp_path, mocker):
     waste_dir.mkdir(parents=True, exist_ok=True)
 
     # Create dummy Facilities.csv
-    pd.DataFrame({"Sigla": ["RM"], "Lat": [40.0], "Lng": [-8.0], "ID": [1000]}).to_csv(
+    pd.DataFrame({"Sigla": ["CTEASO"], "Lat": [40.0], "Lng": [-8.0], "ID": [1000]}).to_csv(
         coord_dir / "Facilities.csv", index=False
     )
 

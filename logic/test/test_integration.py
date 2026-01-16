@@ -292,3 +292,79 @@ class TestIntegrationSimulation:
     def test_sim_horizon_short(self, sim_opts):
         sim_opts["days"] = 1
         self._run_sim(sim_opts)
+
+    def test_sim_policy_vrpp_gurobi(self, sim_opts):
+        """Test VRPP policy with Gurobi optimizer."""
+        sim_opts["policies"] = ["gurobi_vrpp_0.5_emp"]
+        log, _, failed = self._run_sim(sim_opts)
+        assert not failed
+        assert any("gurobi_vrpp_0.5_emp" in k for k in log.keys())
+
+    def test_sim_policy_vrpp_hexaly(self, sim_opts):
+        """Test VRPP policy with Hexaly optimizer."""
+        sim_opts["policies"] = ["hexaly_vrpp_0.5_emp"]
+        log, _, failed = self._run_sim(sim_opts)
+        assert not failed
+        assert any("hexaly_vrpp_0.5_emp" in k for k in log.keys())
+
+    def test_sim_policy_look_ahead_vrpp(self, sim_opts):
+        """Test Look-Ahead policy with VRPP (Gurobi)."""
+        sim_opts["policies"] = ["policy_look_ahead_avrpp_emp"]
+        log, _, failed = self._run_sim(sim_opts)
+        assert not failed
+        assert any("policy_look_ahead_avrpp_emp" in k for k in log.keys())
+
+    def test_sim_policy_look_ahead_sans(self, sim_opts):
+        """Test Look-Ahead policy with Simulated Annealing."""
+        sim_opts["policies"] = ["policy_look_ahead_asans_emp"]
+        log, _, failed = self._run_sim(sim_opts)
+        assert not failed
+        assert any("policy_look_ahead_asans_emp" in k for k in log.keys())
+
+    def test_sim_policy_look_ahead_alns(self, sim_opts):
+        """Test Look-Ahead policy with ALNS."""
+        sim_opts["policies"] = ["policy_look_ahead_alns_emp"]
+        log, _, failed = self._run_sim(sim_opts)
+        assert not failed
+        assert any("policy_look_ahead_alns_emp" in k for k in log.keys())
+
+    def test_sim_policy_look_ahead_hgs(self, sim_opts):
+        """Test Look-Ahead policy with HGS."""
+        sim_opts["policies"] = ["policy_look_ahead_ahgs_emp"]
+        log, _, failed = self._run_sim(sim_opts)
+        assert not failed
+        assert any("policy_look_ahead_ahgs_emp" in k for k in log.keys())
+
+    def test_sim_policy_look_ahead_bcp(self, sim_opts):
+        """Test Look-Ahead policy with BCP (OR-Tools)."""
+        sim_opts["policies"] = ["policy_look_ahead_bcp_emp"]
+        log, _, failed = self._run_sim(sim_opts)
+        assert not failed
+        assert any("policy_look_ahead_bcp_emp" in k for k in log.keys())
+
+    def test_sim_policy_profit_reactive(self, sim_opts):
+        """Test Profit-based reactive policy."""
+        sim_opts["policies"] = ["policy_profit_reactive_emp"]
+        log, _, failed = self._run_sim(sim_opts)
+        assert not failed
+        assert any("policy_profit_reactive_emp" in k for k in log.keys())
+
+    def test_sim_multi_vehicle_regular(self, sim_opts):
+        """Test Regular policy with multiple vehicles."""
+        sim_opts["policies"] = ["policy_regular_emp"]
+        sim_opts["n_vehicles"] = 8
+        log, _, failed = self._run_sim(sim_opts)
+        assert not failed
+        assert "policy_regular_emp" in log
+
+    @patch("logic.src.pipeline.simulator.states.setup_model")
+    @patch("logic.src.policies.neural_agent.NeuralPolicy.execute")
+    def test_sim_policy_neural_mock(self, mock_exec, mock_setup, sim_opts):
+        """Test Neural policy integration with mocked execution to avoid actual model loading."""
+        mock_setup.return_value = (MagicMock(), {})
+        mock_exec.return_value = ([0, 1, 2, 0], 10.0, None)
+        sim_opts["policies"] = ["am_emp"]
+        log, _, failed = self._run_sim(sim_opts)
+        assert not failed
+        assert "am_emp" in log
+        assert mock_exec.called
