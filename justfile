@@ -94,6 +94,10 @@ test-marker marker=marker:
 lint:
     uv run ruff check .
 
+# Check docstring coverage
+check-docs:
+    uv run python logic/src/utils/check_docstrings.py
+
 # Format code with black and ruff
 format:
     uv run ruff format .

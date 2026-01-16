@@ -810,6 +810,25 @@ class TestDay:
         assert dlog['tour'] == [0]
 
     @pytest.mark.unit
+    def test_get_daily_results_short_tour(self):
+        """Test processing daily results when tour is too short (only depot and one bin)."""
+        coordinates = pd.DataFrame({'ID': [0, 101, 102]})
+        tour = [0, 1, 0] # Depot -> Bin 1 -> Depot
+        cost = 10.0
+        dlog = get_daily_results(50, 1, cost, tour, 1, 0, 0, coordinates, 0)
+        # Should be treated as no tour because it only has one bin (effectively covered by if len(tour) > 2)
+        # Note: actually len([0, 1, 0]) is 3, so len > 2 is True.
+        # However, if cost > 0 it proceed.
+        # But if tour = [0, 0], len is 2.
+        assert dlog['kg'] == 50
+        assert dlog['km'] == 10
+        
+        tour_vshort = [0, 0]
+        dlog_vshort = get_daily_results(50, 1, cost, tour_vshort, 1, 0, 0, coordinates, 0)
+        assert dlog_vshort['kg'] == 0
+        assert dlog_vshort['km'] == 0
+
+    @pytest.mark.unit
     def test_stochastic_filling(self, mock_run_day_deps):
         """Test that stochasticFilling is called when bins are stochastic."""
         mock_run_day_deps['bins'].is_stochastic.return_value = True

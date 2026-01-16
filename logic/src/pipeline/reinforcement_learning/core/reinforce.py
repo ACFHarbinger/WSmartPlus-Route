@@ -151,8 +151,8 @@ class StandardTrainer(BaseReinforceTrainer):
         """
         # Logic extracted from train_batch_reinforce
         x, bl_val = self.baseline.unwrap_batch(batch)
-        x = move_to(x, self.opts['device'])
-        bl_val = move_to(bl_val, self.opts['device']) if bl_val is not None else None
+        x = move_to(x, self.opts['device'], non_blocking=True)
+        bl_val = move_to(bl_val, self.opts['device'], non_blocking=True) if bl_val is not None else None
         
         if self.scaler is not None:
             autocast_context = torch.cuda.amp.autocast(dtype=torch.float16) 
@@ -161,7 +161,7 @@ class StandardTrainer(BaseReinforceTrainer):
         try:
             mask = batch.get('hrl_mask', None)
             if mask is not None:
-                mask = move_to(mask, self.opts['device'])
+                mask = move_to(mask, self.opts['device'], non_blocking=True)
             
             cost, log_likelihood, c_dict, pi, entropy = self.model(
                 x, cost_weights=self.cost_weights, 

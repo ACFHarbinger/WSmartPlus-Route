@@ -31,12 +31,16 @@ Classes:
 
 import os
 import time
+import logging
+import torch
 import numpy as np
+import pandas as pd
+from loguru import logger
 from abc import ABC, abstractmethod
 from tqdm import tqdm
 
 from logic.src.utils.definitions import ROOT_DIR, TQDM_COLOURS, SIM_METRICS, DAY_METRICS
-from logic.src.utils.log_utils import log_to_json
+from logic.src.utils.log_utils import log_to_json, setup_system_logger, final_simulation_summary
 from logic.src.utils.setup_utils import setup_model, setup_env, setup_hrl_manager
 from logic.src.utils.config_loader import load_config
 
@@ -155,7 +159,7 @@ class SimulationContext:
             The simulation result dictionary.
         """
         while self.current_state is not None:
-            self.current_state.handle()
+            self.current_state.handle(self)
         return self.result
 
     def get_current_state_tuple(self):
@@ -174,31 +178,39 @@ class SimulationContext:
 
 
 class SimState(ABC):
+    """Abstract base class for simulation states."""
     context: SimulationContext
 
     @abstractmethod
-    def handle(self):
-        """
-        Executes the logic associated with the current simulation state.
-        This method is responsible for moving the context to the next state.
-        """
+    def handle(self, ctx) -> 'SimState':
+        """Handles the current state and returns the next state."""
         pass
 
 
 class InitializingState(SimState):
-    def handle(self):
+    """State handles the initialization of simulation data (graph, models, etc.)."""
+    
+    def handle(self, ctx) -> SimState:
         """
         Handles the initialization phase of the simulation.
         
         Loads data, setups models, and initializes indices and distributions.
         Transitions to RunningState upon completion.
         """
-        opts = self.context.opts
-        ctx = self.context
+        opts = ctx.opts
         
+        # Setup system logger
+        setup_system_logger(
+            opts.get('log_file', 'logs/simulation.log'),
+            opts.get('log_level', 'INFO')
+        )
+
         # Ensure results directory exists
         if not os.path.exists(ctx.results_dir):
-            os.makedirs(ctx.results_dir, exist_ok=True)
+            os.makedirs(ctx.results_dir)
+            logger.info(f"Created results directory: {ctx.results_dir}")
+        else:
+            logger.info(f"Results directory already exists: {ctx.results_dir}")
 
         # Load Configuration
         # config_path is now expected to be a dict {key: path} or None
@@ -220,9 +232,7 @@ class InitializingState(SimState):
                         
                         # Let's merge everything into ctx.config so lookup is easy (e.g. ctx.config['lookahead']['hgs'])
                         # But wait, if we load two lookahead files, they might clash.
-                        # If key is unique (e.g. 'hgs', 'sans'), we can store them as ctx.config[key] = loaded
-                        
-                        # If loaded has a root key (e.g. 'lookahead'), we might want to merge deep.
+                        # If I have keys 'lookahead' and 'hgs' and policy is 'policy_look_ahead_hgs', merge both.
                         # For now, let's just store the full loaded dict under the cli key if the cli key is explicit.
                         # User said "similar to model_path" where keys are policies.
                         # So ctx.config[key] = load_config(path) is reasonable.
@@ -304,18 +314,20 @@ class InitializingState(SimState):
             ctx.bins.set_indices(ctx.indices)
             ctx.daily_log = {key: [] for key in DAY_METRICS}
 
-        self.context.transition_to(RunningState())
+        logger.info(f"Initialization complete. Transitioning to RunningState for {ctx.policy} policy.")
+        ctx.transition_to(RunningState())
 
 
 class RunningState(SimState):
-    def handle(self):
+    """State handles the day-by-day simulation loop."""
+    
+    def handle(self, ctx) -> SimState:
         """
         Handles the day-by-day simulation execution.
         
         Runs the daily simulation loop, manages checkpoints, and updates progress.
         Transitions to FinishingState after all days are processed.
         """
-        ctx = self.context
         opts = ctx.opts
         
         desc = f"{ctx.policy} #{ctx.sample_id}"
@@ -421,16 +433,21 @@ class RunningState(SimState):
                     if ctx.overall_progress:
                         ctx.overall_progress.update(1)
 
-            self.context.transition_to(FinishingState())
+            logger.info(f"Simulation loop complete. Processed {opts['days']} days.")
+            ctx.transition_to(FinishingState())
             
         except CheckpointError as e:
             ctx.result = e.error_result
-            self.context.transition_to(None) # End
+            if opts.get('print_output'):
+                final_simulation_summary(ctx.result, ctx.policy, opts['n_samples'])
+            ctx.transition_to(None) # End
         except Exception as e:
             raise e
 
 class FinishingState(SimState):
-    def handle(self):
+    """State handles final result aggregation and persistence."""
+    
+    def handle(self, ctx) -> SimState:
         """
         Handles the finalization phase of the simulation.
         
@@ -467,4 +484,9 @@ class FinishingState(SimState):
              ctx.checkpoint.clear()
         
         ctx.result = {ctx.policy: lg, 'success': True}
+        
+        if opts.get('print_output'):
+            from logic.src.utils.log_utils import final_simulation_summary
+            final_simulation_summary({ctx.policy: lg}, ctx.policy, opts['n_samples'])
+
         self.context.transition_to(None) # End

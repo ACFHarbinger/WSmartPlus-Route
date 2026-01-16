@@ -1,3 +1,9 @@
+"""
+Simulation state encapsulation and context management.
+
+This module provides the SimulationDayContext dataclass which groups
+all state variables for a single simulation day.
+"""
 from dataclasses import dataclass, fields
 from typing import Any, Dict, Optional, Union, List, Tuple
 from collections.abc import Mapping
@@ -111,24 +117,38 @@ class SimulationDayContext(Mapping):
     total_fill: Any = None
     extra_output: Any = None
 
+    @property
+    def field_names(self):
+        """Returns the names of all fields in the dataclass."""
+        return [f.name for f in fields(self)]
+
     def __post_init__(self):
+        """Initialize any derived or default state if needed."""
         if self.config is None:
             self.config = {}
 
     def __getitem__(self, key: str) -> Any:
+        """Dictionary-like access to context fields."""
         return getattr(self, key)
 
     def __setitem__(self, key: str, value: Any) -> None:
+        """Allow setting context fields via dictionary syntax."""
         setattr(self, key, value)
         
     def get(self, key: str, default: Any = None) -> Any:
+        """Safely get a value from the context with an optional default."""
         return getattr(self, key, default)
 
     def __iter__(self):
+        """Return an iterator over field names to support Mapping interface."""
         return iter((f.name for f in fields(self)))
 
     def __len__(self):
+        """Return the number of fields to support Mapping interface."""
         return len(fields(self))
 
-    def __contains__(self, key: str) -> bool:
+    def __contains__(self, key: object) -> bool:
+        """Check if a field exists in the context."""
+        if not isinstance(key, str):
+            return False
         return hasattr(self, key)

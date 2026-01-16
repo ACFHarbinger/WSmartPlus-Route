@@ -34,7 +34,7 @@ pattern for unified execution interface across simulators.
 """
 from .regular import policy_regular
 from .policy_vrpp import policy_vrpp
-from .last_minute import policy_last_minute, policy_last_minute_and_path
+from .last_minute import policy_last_minute, policy_last_minute_and_path, policy_profit_reactive
 from .look_ahead import (
     policy_lookahead, policy_lookahead_vrpp, policy_lookahead_sans,
     policy_lookahead_hgs, policy_lookahead_alns, policy_lookahead_bcp
