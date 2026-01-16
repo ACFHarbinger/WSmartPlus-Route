@@ -1,3 +1,10 @@
+"""
+Destroy operators for the Adaptive Large Neighborhood Search (ALNS).
+
+This module contains various removal heuristics used to discard nodes
+from the current routing solution to explore the search space.
+"""
+
 import random
 from typing import List, Tuple
 

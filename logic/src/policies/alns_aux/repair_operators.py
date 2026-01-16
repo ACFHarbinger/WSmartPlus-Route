@@ -1,3 +1,10 @@
+"""
+Repair operators for the Adaptive Large Neighborhood Search (ALNS).
+
+This module contains various insertion heuristics used to re-integrate
+removed nodes back into the routing solution.
+"""
+
 import random
 from typing import Dict, List
 

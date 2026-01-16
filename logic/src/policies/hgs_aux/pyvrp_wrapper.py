@@ -1,3 +1,10 @@
+"""
+Wrapper for the external `PyVRP` library.
+
+This module provides an interface to solve the routing problem using
+the high-performance PyVRP solver.
+"""
+
 import numpy as np
 import pyvrp
 from pyvrp.stop import MaxRuntime

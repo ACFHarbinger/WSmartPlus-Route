@@ -1,3 +1,10 @@
+"""
+Evolutionary operators for Hybrid Genetic Search (HGS).
+
+This module contains the crossover, evaluation, and fitness calculation
+logic for maintaining and improving the HGS population.
+"""
+
 import random
 from typing import List
 

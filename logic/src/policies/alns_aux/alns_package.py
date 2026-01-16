@@ -1,3 +1,10 @@
+"""
+Integration with the external `alns` Python package.
+
+This module provides the necessary state representation and operator wrappers
+to use the `alns` package as a solver backend for the routing problem.
+"""
+
 import copy
 from typing import Any, Dict, List
 
@@ -11,6 +18,9 @@ from alns.stop import MaxRuntime
 class ALNSState:
     """
     State representation for the `alns` Python package.
+
+    Encapsulates the current solution (routes and unassigned nodes) and
+    provides methods for copying and objective evaluation.
     """
 
     def __init__(
@@ -24,6 +34,19 @@ class ALNSState:
         C: float,
         values: Dict[str, Any],
     ):
+        """
+        Initialize the ALNS state.
+
+        Args:
+            routes: List of routes, where each route is a list of node indices.
+            unassigned: List of node indices not yet assigned to any route.
+            dist_matrix: NxN distance matrix.
+            demands: Dictionary mapping node indices to their demand/weight.
+            capacity: Maximum vehicle capacity.
+            R: Revenue multiplier.
+            C: Cost multiplier.
+            values: Additional configuration parameters.
+        """
         self.routes = routes
         self.unassigned = unassigned
         self.dist_matrix = dist_matrix
@@ -35,6 +58,12 @@ class ALNSState:
         self._score: float = self.calculate_profit()
 
     def copy(self) -> "ALNSState":
+        """
+        Create a deep copy of the current state.
+
+        Returns:
+            ALNSState: A new state object with copied routes and unassigned nodes.
+        """
         return ALNSState(
             copy.deepcopy(self.routes),
             copy.deepcopy(self.unassigned),
@@ -47,9 +76,21 @@ class ALNSState:
         )
 
     def objective(self) -> float:
+        """
+        Calculate the objective value for the `alns` package (minimization).
+
+        Returns:
+            float: The negative profit (since ALNS minimizes the objective).
+        """
         return -self._score
 
     def calculate_profit(self) -> float:
+        """
+        Calculate the total profit of the current solution.
+
+        Returns:
+            float: Revenue minus routing costs.
+        """
         total_profit = 0.0
         for route in self.routes:
             if not route:
@@ -72,10 +113,26 @@ class ALNSState:
 
     @property
     def cost(self) -> float:
+        """
+        Alias for objective() to satisfy external package expectations.
+
+        Returns:
+            float: The objective value.
+        """
         return self.objective()
 
 
 def alns_pkg_random_removal(state: ALNSState, random_state: np.random.RandomState) -> ALNSState:
+    """
+    Randomly remove nodes from the current solution for the `alns` package.
+
+    Args:
+        state: The current ALNSState.
+        random_state: NumPy RandomState for reproducibility.
+
+    Returns:
+        ALNSState: A new state with nodes removed.
+    """
     new_state = state.copy()
     all_nodes = [n for r in new_state.routes for n in r]
     if not all_nodes:
@@ -96,6 +153,16 @@ def alns_pkg_random_removal(state: ALNSState, random_state: np.random.RandomStat
 
 
 def alns_pkg_worst_removal(state: ALNSState, random_state: np.random.RandomState) -> ALNSState:
+    """
+    Remove nodes with the highest cost contribution for the `alns` package.
+
+    Args:
+        state: The current ALNSState.
+        random_state: NumPy RandomState for reproducibility.
+
+    Returns:
+        ALNSState: A new state with nodes removed.
+    """
     new_state = state.copy()
     all_nodes = [n for r in new_state.routes for n in r]
     if not all_nodes:
@@ -130,6 +197,16 @@ def alns_pkg_worst_removal(state: ALNSState, random_state: np.random.RandomState
 
 
 def alns_pkg_greedy_insertion(state: ALNSState, random_state: np.random.RandomState) -> ALNSState:
+    """
+    Greedily insert unassigned nodes into the best positions for the `alns` package.
+
+    Args:
+        state: The current ALNSState.
+        random_state: NumPy RandomState for reproducibility.
+
+    Returns:
+        ALNSState: A new state with nodes re-inserted.
+    """
     new_state = state.copy()
     random_state.shuffle(new_state.unassigned)
     while new_state.unassigned:
@@ -164,6 +241,20 @@ def alns_pkg_greedy_insertion(state: ALNSState, random_state: np.random.RandomSt
 
 
 def run_alns_package(dist_matrix, demands, capacity, R, C, values):
+    """
+    Execute the ALNS algorithm using the external `alns` package.
+
+    Args:
+        dist_matrix: NxN distance matrix.
+        demands: Dictionary of node demands.
+        capacity: Maximum vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        values: Configuration parameters including `time_limit`.
+
+    Returns:
+        Tuple[List[List[int]], float, float]: Best routes, total profit, and total distance cost.
+    """
     n_nodes = len(dist_matrix) - 1
     nodes = list(range(1, n_nodes + 1))
 
