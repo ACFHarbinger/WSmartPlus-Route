@@ -18,9 +18,11 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Refactored `run_day` in `logic/src/pipeline/simulator/day.py` to use `SimulationDayContext`.
 - Updated `RunningState.handle` in `logic/src/pipeline/simulator/states.py` to support `SimulationDayContext`.
-- Added comprehensive type hints and docstrings to `day.py`, `states.py`, and `context.py`.
-- Strengthened `test_simulator.py` with `get_daily_results` edge cases.
+- Added comprehensive type hints and docstrings to `day.py`, `states.py`, `context.py`, `adaptive_large_neighborhood_search.py`, and `hybrid_genetic_search.py`.
+- Strengthened `test_simulator.py` with `get_daily_results` edge cases and updated `test_policies.py` for new simulation signatures.
 
 ### Fixed
 - Resolved `ImportError` for `GridBase` by repairing the `wsmart_bin_analysis` git submodule.
 - Fixed `TestDay` and `TestSimulation` mocks in `test_simulator.py`.
+- Resolved policy name parsing collisions in `SimulationDayContext` test helper.
+- Fixed `IndexError` in policy tests by ensuring full spatial data in mock fixtures.

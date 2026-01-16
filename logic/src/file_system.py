@@ -17,7 +17,7 @@ import traceback
 from typing import Dict, Any
 
 from .utils.definitions import ROOT_DIR
-from .utils.arg_parser import (
+from logic.src.cli import (
     ConfigsParser,
     add_files_args,
     validate_file_system_args

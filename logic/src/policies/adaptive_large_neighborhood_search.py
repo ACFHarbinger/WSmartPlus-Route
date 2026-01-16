@@ -25,7 +25,7 @@ import copy
 import random
 import numpy as np
 
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any, Optional, Callable
 from alns import ALNS
 from alns.stop import MaxRuntime
 from alns.select import RouletteWheel
@@ -47,10 +47,10 @@ class ALNSParams:
         min_removal (int): Minimum number of nodes to remove. Default: 1
         max_removal_pct (float): Maximum percentage of nodes to remove. Default: 0.3
     """
-    def __init__(self, time_limit=10, max_iterations=1000, 
-                 start_temp=100, cooling_rate=0.995, 
-                 reaction_factor=0.1, 
-                 min_removal=1, max_removal_pct=0.3):
+    def __init__(self, time_limit: int = 10, max_iterations: int = 1000, 
+                 start_temp: float = 100, cooling_rate: float = 0.995, 
+                 reaction_factor: float = 0.1, 
+                 min_removal: int = 1, max_removal_pct: float = 0.3):
         """
         Initialize ALNS parameters.
 
@@ -88,7 +88,7 @@ class ALNSSolver:
         destroy_ops (List): List of destroy operator functions
         repair_ops (List): List of repair operator functions
     """
-    def __init__(self, dist_matrix, demands, capacity, R, C, params: ALNSParams):
+    def __init__(self, dist_matrix: np.ndarray, demands: Dict[int, float], capacity: float, R: float, C: float, params: ALNSParams):
         """
         Initialize the ALNS solver.
 
@@ -122,7 +122,7 @@ class ALNSSolver:
         self.destroy_counts = [0] * len(self.destroy_ops)
         self.repair_counts = [0] * len(self.repair_ops)
 
-    def solve(self, initial_solution=None):
+    def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float]:
         """
         Execute the ALNS algorithm to find high-quality routing solutions.
 
@@ -574,7 +574,7 @@ class ALNSSolver:
                 
         return routes
 
-def run_alns(dist_matrix, demands, capacity, R, C, values):
+def run_alns(dist_matrix: np.ndarray, demands: Dict[int, float], capacity: float, R: float, C: float, values: Dict[str, Any]) -> Tuple[List[List[int]], float]:
     """
     Run custom ALNS solver for CVRP.
 
@@ -641,9 +641,9 @@ class ALNSState:
         self.R = R
         self.C = C
         self.values = values
-        self._score = self.calculate_profit()
+        self._score: float = self.calculate_profit()
 
-    def copy(self):
+    def copy(self) -> 'ALNSState':
         """Returns a deep copy of the state."""
         return ALNSState(
             copy.deepcopy(self.routes), 
@@ -656,7 +656,7 @@ class ALNSState:
             self.values
         )
 
-    def objective(self):
+    def objective(self) -> float:
         """
         Calculates the objective value for ALNS (minimization).
 
@@ -667,7 +667,7 @@ class ALNSState:
         # We want to maximize profit. So minimize negative profit.
         return -self._score
 
-    def calculate_profit(self):
+    def calculate_profit(self) -> float:
         """
         Calculates the total profit of the current solution.
 
