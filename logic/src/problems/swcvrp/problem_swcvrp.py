@@ -23,8 +23,7 @@ class SCWCVRP(BaseProblem):
     The Stochastic Capacitated Waste Collection Vehicle Routing Problem.
     """
 
-    NAME = "scwvrp"
-    VEHICLE_CAPACITY = 1.0
+    NAME = "scwcvrp"
 
     @staticmethod
     def get_costs(dataset, pi, cw_dict, dist_matrix=None):
@@ -129,6 +128,7 @@ def generate_instance(
         "real_waste": real_waste,
         "noisy_waste": noisy_waste,
         "max_waste": torch.tensor(MAX_WASTE),
+        "waste": noisy_waste,
     }
     edges = calculate_edges(loc, edge_threshold, edge_strategy)
     if edges is not None:
@@ -223,6 +223,7 @@ class SWCVRPDataset(BaseDataset):
                         "real_waste": real_waste_t,
                         "noisy_waste": noisy_waste_t,
                         "max_waste": torch.FloatTensor(max_waste),
+                        "waste": noisy_waste_t,
                     }
                     edges = calculate_edges(instance["loc"], num_edges, edge_strat)
                     if edges is not None:
