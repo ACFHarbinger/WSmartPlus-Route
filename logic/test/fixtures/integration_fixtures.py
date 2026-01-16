@@ -6,7 +6,9 @@ import pandas as pd
 import pytest
 
 from logic.src.cli.base_parser import ConfigsParser
-from logic.src.cli.train_parser import add_hp_optim_args, add_mrl_train_args, add_train_args
+from logic.src.cli.hpo_parser import add_hp_optim_args
+from logic.src.cli.meta_train_parser import add_mrl_train_args
+from logic.src.cli.train_parser import add_train_args
 
 
 @pytest.fixture

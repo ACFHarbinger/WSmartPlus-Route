@@ -15,7 +15,6 @@ Available Algorithms:
 """
 
 import json
-import math
 import os
 import random
 import time
@@ -35,11 +34,9 @@ from optuna.visualization import (
 from ray import tune
 from ray.tune.schedulers import ASHAScheduler, HyperBandScheduler
 from ray.tune.search import BasicVariantGenerator
-from tqdm import tqdm
 
 from logic.src.pipeline.reinforcement_learning.core.epoch import (
-    get_inner_model,
-    set_decode_type,
+    validate_update,
 )
 from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb import (
     DifferentialEvolutionHyperband,
@@ -52,7 +49,7 @@ from logic.src.pipeline.reinforcement_learning.worker_train import (
 from logic.src.pipeline.simulator.network import compute_distance_matrix
 from logic.src.utils.data_utils import load_focus_coords
 from logic.src.utils.definitions import ROOT_DIR
-from logic.src.utils.functions import load_data, load_problem, move_to
+from logic.src.utils.functions import load_data, load_problem
 from logic.src.utils.setup_utils import (
     setup_cost_weights,
     setup_model_and_baseline,
@@ -186,73 +183,7 @@ def optimize_model(opts, cost_weights, metric="loss", dist_matrix=None):
                 cost_weights,
                 opts,
             )
-    return validate(model, val_dataset, metric, dist_matrix, opts)
-
-
-def validate(model, dataset, metric, dist_matrix, opts):
-    """
-    Evaluates a trained model on a validation dataset.
-
-    Args:
-        model (nn.Module): The trained neural network model.
-        dataset (Dataset): Validation dataset.
-        metric (str): Metric to evaluate ("overflows", "kg/km", "both", or other for raw cost).
-        dist_matrix (torch.Tensor): Distance matrix for cost calculation.
-        opts (dict): Configuration options.
-
-    Returns:
-        tuple: (avg_cost, mean_ucost, all_costs)
-    """
-    from logic.src.policies.neural_agent import NeuralAgent
-
-    agent = NeuralAgent(get_inner_model(model))
-
-    def eval_model_bat(bat, dist_matrix):
-        """Evaluate a batch in greedy mode and return cost/attention outputs."""
-        with torch.no_grad():
-            ucost, c_dict, attn_dict = agent.compute_batch_sim(
-                move_to(bat, opts["device"]), move_to(dist_matrix, opts["device"])
-            )
-        return ucost, c_dict, attn_dict
-
-    # Put in greedy evaluation mode!
-    print("Validating...")
-    set_decode_type(model, "greedy")
-    all_costs = {"overflows": [], "kg": [], "km": []}
-    all_ucosts = move_to(torch.tensor([]), opts["device"])
-    attention_dict = {"attention_weights": [], "graph_masks": []}
-    model.eval()
-    for bat in tqdm(
-        torch.utils.data.DataLoader(dataset, batch_size=opts["eval_batch_size"], pin_memory=True),
-        disable=opts["no_progress_bar"],
-    ):
-        ucost, cost_dict, attn_dict = eval_model_bat(bat, dist_matrix)
-        for key in attention_dict.keys():
-            attention_dict[key].append(attn_dict[key])
-
-        all_ucosts = torch.cat((all_ucosts, ucost), 0)
-        for key, val in cost_dict.items():
-            if key not in all_costs:
-                all_costs[key] = []
-            all_costs[key].append(val)
-
-    for key, val in attention_dict.items():
-        attention_dict[key] = torch.cat(val)
-
-    for key, val in all_costs.items():
-        all_costs[key] = torch.cat(val)
-
-    if metric == "overflows":
-        cost = all_costs[metric]
-    elif metric == "kg/km":
-        cost = all_costs["kg"] / all_costs["km"]
-    else:
-        assert metric == "both"
-        cost = all_costs["kg"] / all_costs["km"] - all_costs["overflows"]
-
-    avg_cost = cost.mean()
-    print("Validation overall avg_cost: {} +- {}".format(avg_cost, torch.std(cost) / math.sqrt(len(cost))))
-    return avg_cost, all_ucosts.mean(), all_costs
+    return validate_update(model, val_dataset, opts, metric=metric, dist_matrix=dist_matrix)
 
 
 def distributed_evolutionary_algorithm(opts):
@@ -847,22 +778,3 @@ def differential_evolutionary_hyperband_optimization(opts):
     print("Best Configuration:", best_config)
     print("Best Fitness:", best_fitness)
     return best_config
-
-
-def merge_with_training_args(training_args, hop_args):
-    """
-    Merges HPO arguments with training arguments, prioritizing HPO args.
-
-    Args:
-        training_args (dict): Base training arguments.
-        hop_args (dict): Hyperparameter optimization arguments.
-
-    Returns:
-        dict: Merged dictionary.
-    """
-    # Only add HOP args that don't already exist or that are explicitly specified
-    merged = training_args.copy()
-    for key, value in hop_args.items():
-        if key not in merged or value is not None:
-            merged[key] = value
-    return merged

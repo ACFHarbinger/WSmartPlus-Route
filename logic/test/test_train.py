@@ -580,7 +580,7 @@ class TestEpoch:
             "constraint": 3.0,
         }
 
-        new_cw, avg_cost, all_costs = epoch.validate_update(mock_train_model, dataset, cw_dict, opts)
+        new_cw, avg_cost, all_costs = epoch.validate_update(mock_train_model, dataset, opts, cw_dict=cw_dict)
 
         assert isinstance(new_cw, dict)
         assert "overflows" in new_cw
