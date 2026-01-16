@@ -206,6 +206,7 @@ class Bins:
             n = np.minimum(n, aux)
             if (p > cl).all():
                 return n
+        return n
 
     def set_statistics(self, stats_file: str) -> None:
         """
@@ -363,7 +364,7 @@ class Bins:
         self.travel += cost
         profit = np.sum(total_collected) * self.revenue - cost * self.expenses
         self.profit += profit
-        return total_collected, np.sum(collected), bin_ids.size, profit
+        return total_collected, float(np.sum(collected)), bin_ids.size, float(profit)
 
     def _process_filling(
         self, todaysfilling: np.ndarray, noisyfilling: Optional[np.ndarray] = None
@@ -419,7 +420,7 @@ class Bins:
             int(np.sum(inoverflow)),
             np.array(todaysfilling),
             np.array(self.c),
-            np.sum(todays_lost),
+            float(np.sum(todays_lost)),
         )
 
     def stochasticFilling(

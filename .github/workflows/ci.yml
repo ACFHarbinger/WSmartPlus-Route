@@ -32,5 +32,15 @@ jobs:
     - name: Lint
       run: uv run ruff check .
 
-    - name: Test
-      run: uv run pytest
+    - name: Security Scan
+      # Continue on error since vulnerabilities might be present; goal is visibility first
+      continue-on-error: true
+      run: uv run pip-audit
+
+    - name: Type Check
+      # Continue on error to allow gradual adoption
+      continue-on-error: true
+      run: uv run mypy .
+
+    - name: Test with Coverage
+      run: uv run pytest --cov --cov-report=xml --cov-report=term-missing

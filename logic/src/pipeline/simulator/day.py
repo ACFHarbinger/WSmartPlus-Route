@@ -18,7 +18,7 @@ Functions:
     run_day: Main orchestrator for single-day simulation
 """
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -61,8 +61,7 @@ def set_daily_waste(
         if device.type == "cuda":
             fill_tensor = fill_tensor.pin_memory()
         model_data["current_fill"] = fill_tensor
-
-    return move_to(model_data, device, non_blocking=True)
+    return cast(Dict[str, Any], move_to(model_data, device, non_blocking=True))
 
 
 def get_daily_results(

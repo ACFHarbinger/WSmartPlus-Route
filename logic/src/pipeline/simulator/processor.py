@@ -258,20 +258,20 @@ class SimulationDataMapper:
                     std_arr = np.std(coords, axis=1, keepdims=True)
                     coords = (coords - mean_arr) / std_arr
             elif method == "ecp":  # Equidistant cylindrical
+
+                def per_func(arr, percent):
+                    """Calculate the percentile for a given array (pandas or numpy)."""
+                    if IS_PANDAS:
+                        return np.percentile(arr, percent)
+                    return np.percentile(arr, percent, axis=1, keepdims=True)
+
                 if IS_PANDAS:
                     center_meridian = (lng.max() + lng.min()) / 2
-
-                    def per_func(lat, percent):
-                        return np.percentile(lat, percent)
-
                 else:
                     coords = coords[:, :, [1, 0]]
                     min_arr = np.min(coords, axis=1, keepdims=True)
                     max_arr = np.max(coords, axis=1, keepdims=True)
                     center_meridian = (max_arr + min_arr) / 2
-
-                    def per_func(lat, percent):
-                        return np.percentile(lat, percent, axis=1, keepdims=True)
 
                 lat_lower, lat_upper = per_func(lat, 10), per_func(lat, 90)
                 center_parallel = (lat_upper + lat_lower) / 2
@@ -289,22 +289,22 @@ class SimulationDataMapper:
                 if not IS_PANDAS:
                     coords = np.stack((lat, lng), axis=-1)
             elif method == "hdp":  # Haversine distance projection
+
+                def max_func(h1, h2):
+                    """Return the maximum of two values or element-wise maximum."""
+                    if IS_PANDAS:
+                        return max(h1, h2)
+                    return np.max(np.concatenate((h1, h2)), axis=0, keepdims=True)
+
                 if IS_PANDAS:
                     lat_max, lat_min = lat.max(), lat.min()
                     lng_max, lng_min = lng.max(), lng.min()
-
-                    def max_func(h1, h2):
-                        return max(h1, h2)
-
                 else:
                     coords = coords[:, :, [1, 0]]
                     min_arr = np.min(coords, axis=1, keepdims=True)
                     max_arr = np.max(coords, axis=1, keepdims=True)
                     lng_min, lat_min = np.split(min_arr, 2, axis=-1)
                     lng_max, lat_max = np.split(max_arr, 2, axis=-1)
-
-                    def max_func(h1, h2):
-                        return np.max(np.concatenate((h1, h2)), axis=0, keepdims=True)
 
                 mid_lat = (lat_max + lat_min) / 2
                 mid_lng = (lng_max + lng_min) / 2

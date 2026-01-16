@@ -12,11 +12,14 @@ import json
 import multiprocessing as mp
 import os
 from multiprocessing.dummy import Pool as ThreadPool
+from typing import TypeVar
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
+
+T = TypeVar("T")
 
 
 # Attention, Learn to Solve Routing Problems
@@ -94,7 +97,7 @@ def load_data(load_path, resume):
     return load_data
 
 
-def move_to(var, device, non_blocking=False):
+def move_to(var: T, device: torch.device, non_blocking: bool = False) -> T:
     """
     Recursively moves variables to the specified device.
     Supports dicts and Tensors.
@@ -109,10 +112,12 @@ def move_to(var, device, non_blocking=False):
         Any: The variable on the new device.
     """
     if var is None:
-        return None
+        return var  # type: ignore
     if isinstance(var, dict):
-        return {k: move_to(v, device, non_blocking=non_blocking) for k, v in var.items()}
-    return var.to(device, non_blocking=non_blocking)
+        return {k: move_to(v, device, non_blocking=non_blocking) for k, v in var.items()}  # type: ignore
+    if isinstance(var, torch.Tensor):
+        return var.to(device, non_blocking=non_blocking)  # type: ignore
+    return var
 
 
 def _load_model_file(load_path, model):
