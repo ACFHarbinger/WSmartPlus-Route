@@ -68,6 +68,14 @@ src.models.subnets.mlp\_encoder module
    :undoc-members:
    :show-inheritance:
 
+src.models.subnets.moe\_encoder module
+--------------------------------------
+
+.. automodule:: src.models.subnets.moe_encoder
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.models.subnets.ptr\_decoder module
 --------------------------------------
 

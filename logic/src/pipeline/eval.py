@@ -55,6 +55,13 @@ def get_best(sequences, cost, ids: Optional[np.ndarray] = None, batch_size=None)
 
 
 def eval_dataset_mp(args):
+    """
+    Worker function for multiprocessing evaluation.
+
+    Args:
+        args (tuple): Argument tuple containing:
+            (dataset_path, width, softmax_temp, opts, device_id, num_processes)
+    """
     (dataset_path, width, softmax_temp, opts, i, num_processes) = args
     model, _ = load_model(opts.get('load_path', opts['model']))
     val_size = opts['val_size'] // num_processes

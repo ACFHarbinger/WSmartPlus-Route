@@ -381,6 +381,12 @@ class CheckpointHook:
 class CheckpointError(Exception):
     """Special exception to carry error results through the context manager"""
     def __init__(self, error_result):
+        """
+        Initialize exception with error result dictionary.
+
+        Args:
+            error_result: Dictionary containing error details.
+        """
         self.error_result = error_result
         super().__init__(error_result['error'])
 

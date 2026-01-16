@@ -74,6 +74,7 @@ class FillAction(SimulationAction):
     """
 
     def execute(self, context: Dict[str, Any]) -> None:
+        """Execute daily bin filling."""
         bins = context['bins']
         day = context['day']
         
@@ -124,6 +125,7 @@ class PolicyExecutionAction(SimulationAction):
     """
 
     def execute(self, context: Dict[str, Any]) -> None:
+        """Execute the selected routing policy."""
         policy_name = context['policy_name']
         adapter = PolicyFactory.get_adapter(policy_name)
         
@@ -171,6 +173,7 @@ class CollectAction(SimulationAction):
     """
 
     def execute(self, context: Dict[str, Any]) -> None:
+        """Execute waste collection based on the generated tour."""
         bins = context['bins']
         tour = context['tour']
         cost = context['cost']
@@ -212,6 +215,7 @@ class LogAction(SimulationAction):
     """
 
     def execute(self, context: Dict[str, Any]) -> None:              
+        """Log daily results and update GUI."""
         tour = context['tour']
         cost = context['cost']
         total_collected = context['total_collected']
