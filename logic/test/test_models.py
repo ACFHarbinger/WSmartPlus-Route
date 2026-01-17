@@ -306,15 +306,6 @@ class TestTemporalAttentionModel:
     def test_init_embed_uses_fill_predictor(self, tam_setup):
         """Verifies fill history embedding."""
         model = tam_setup
-        batch_size = 2
-        graph_size = 4  # Excl depot
-
-        # Prepare inputs including fill_history
-        {
-            "depot": torch.rand(batch_size, 2),
-            "loc": torch.rand(batch_size, graph_size, 2),
-            "fill_history": torch.rand(batch_size, graph_size, 5),  # horizon 5
-        }
 
         # We need to mock _init_embed_depot/etc calls or rely on base class mocks if complex
         # But here we mocked encoder so it won't be called for real.

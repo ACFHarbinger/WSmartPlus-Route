@@ -17,6 +17,7 @@ from logic.src.policies.last_minute import (
     policy_last_minute,
     policy_last_minute_and_path,
 )
+from logic.src.policies.lin_kernighan import solve_lk
 from logic.src.policies.look_ahead import (
     policy_lookahead,
     policy_lookahead_hgs,
@@ -1561,3 +1562,104 @@ class TestSingleVehiclePolicies:
         # Check tensor support
         improved_t = single_vehicle.local_search_2opt(torch.tensor(bad_tour), torch.tensor(C))
         assert len(improved_t) == 5
+
+
+# --- Test Class for Lin-Kernighan Logic ---
+
+
+class TestLinKernighan:
+    """Tests for the Lin-Kernighan heuristic implementation."""
+
+    @pytest.mark.unit
+    def test_small_instance(self):
+        """Test LK on a small 4-node square graph where optimal is obvious."""
+        # 0--(1)--1
+        # |       |
+        # (1)    (1)
+        # |       |
+        # 3--(1)--2
+
+        # Distance matrix
+        # 0: (0,0), 1: (0,1), 2: (1,1), 3: (1,0)
+        # 0-1: 1, 1-2: 1, 2-3: 1, 3-0: 1
+        # Diagonals: sqrt(2) ~ 1.414
+
+        dist = np.array([[0, 1, 1.414, 1], [1, 0, 1, 1.414], [1.414, 1, 0, 1], [1, 1.414, 1, 0]])
+
+        # Optimal tour cost is 4 (perimeter)
+        tour, cost = solve_lk(dist, max_iterations=10)
+
+        assert len(tour) == 5
+        assert tour[0] == 0
+        assert tour[-1] == 0
+        assert len(set(tour)) == 4
+        assert abs(cost - 4.0) < 1e-4
+        assert isinstance(cost, float)
+
+    @pytest.mark.unit
+    def test_random_instance_validity(self):
+        """Test that LK returns a valid tour on a larger random graph."""
+        np.random.seed(42)
+        n = 20
+        coords = np.random.rand(n, 2)
+        dist_matrix = np.zeros((n, n))
+        for i in range(n):
+            for j in range(n):
+                dist_matrix[i, j] = np.linalg.norm(coords[i] - coords[j])
+
+        tour, cost = solve_lk(dist_matrix, max_iterations=50)
+
+        assert len(tour) == n + 1
+        assert tour[0] == 0
+        assert tour[-1] == 0
+        assert len(set(tour)) == n
+
+        # Check cost calculation matches tour
+        calculated_cost = sum(dist_matrix[tour[i], tour[i + 1]] for i in range(n))
+        assert abs(cost - calculated_cost) < 1e-5
+
+    @pytest.mark.unit
+    def test_degenerate_case(self):
+        """Test LK on 2 nodes."""
+        dist = np.array([[0, 5], [5, 0]])
+        tour, cost = solve_lk(dist)
+        assert tour == [0, 1, 0]
+        assert cost == 10.0
+
+    @pytest.mark.unit
+    def test_cvrp_penalty_improvement(self):
+        """Test that LKH-3 prioritizes penalty reduction over distance."""
+        # 3 nodes: 0 (depot), 1, 2
+        # Distances: 0-1=1, 0-2=10, 1-2=1
+        # Waste: B1=60, B2=60. Capacity=100.
+        # TSP Optimal distance: 0-1-2-0 = 1 + 1 + 10 = 12 (Penalty: 120 > 100 -> 20)
+        # VRP Optimal (min penalty): 0-1-0-2-0 = 1+1 + 10+10 = 22 (Penalty: 0)
+
+        # However, our solver returns a single tour.
+        # The penalty logic should push it to visit 0 in between if it can?
+        # In current LKH-3 inspired implementation, it only optimizes the given nodes.
+        # But wait, solve_lk doesn't "invent" 0-visits in the middle.
+        # It optimizes the order of a single tour.
+        # A better test: Two tours [0, 1, 2, 0] vs [0, 2, 1, 0]
+        # If one has less penalty, it should be chosen even if longer.
+
+        dist = np.array([[0, 1, 10], [1, 0, 1], [10, 1, 0]])
+        # If capacity is 50, B1=60, B2=40.
+        # Tour [0, 1, 2, 0]: Load after 1 is 60 (viol!). Load after 2 is 100.
+        # Tour [0, 2, 1, 0]: Load after 2 is 40 (ok). Load after 1 is 100.
+        # Both have same cost (12). 0-2-1-0 has lower penalty at middle node.
+
+        waste = np.array([0, 60, 40])
+        capacity = 50.0  # B1 exceeds capacity immediately
+
+        # We expect LKH-3 to find a tour that minimizes penalty first
+        tour, cost = solve_lk(dist, waste=waste, capacity=capacity, max_iterations=20)
+
+        # Both tours have same cost, but [0, 2, 1, 0] has lower structural penalty
+        # (violation is only 10 at node 1, vs 10 at node 1 + extra at node 2)
+        # Actually our penalty calculates cumulative violation.
+        # [0, 1, 2, 0]: Penalty = (60-50) + (100-50) = 10 + 50 = 60
+        # [0, 2, 1, 0]: Penalty = (0) + (100-50) = 50
+        # So [0, 2, 1, 0] is lexicographically better.
+
+        assert tour == [0, 2, 1, 0]
