@@ -17,29 +17,33 @@ import numpy as np
 
 from .check import check_bins_overflowing_feasibility, check_solution_admissibility
 from .computations import compute_profit, compute_real_profit, compute_total_cost
-from .move import move_n_route_consecutive, move_n_route_random
 from .routes import uncross_arcs_in_routes, uncross_arcs_in_sans_routes
 from .sans_opt import (
-    cross_exchange,
-    get_2opt_neighbors,
-    insert_bin_in_route,
-    move_between_routes,
-    mutate_route_by_swapping_bins,
-    or_opt_move,
-    relocate_within_route,
-)
-from .search import local_search, local_search_2, local_search_reversed
-from .select import (
     add_n_bins_consecutive,
     add_n_bins_random,
     add_route_with_removed_bins_consecutive,
     add_route_with_removed_bins_random,
-    insert_bins,
-    remove_bins_end,
+    cross_exchange,
+    get_2opt_neighbors,
+    insert_bin_in_route,
+    move_between_routes,
+    move_n_route_consecutive,
+    move_n_route_random,
+    mutate_route_by_swapping_bins,
+    or_opt_move,
+    relocate_within_route,
     remove_n_bins_consecutive,
     remove_n_bins_random,
+    swap_n_route_consecutive,
+    swap_n_route_random,
 )
-from .swap import swap_n_route_consecutive, swap_n_route_random
+from .search import local_search, local_search_2, local_search_reversed
+from .select import (
+    insert_bins,
+    remove_bins_end,
+)
+
+# swap operators removed from here as they are now in sans_opt
 
 
 # Lookahead base policy

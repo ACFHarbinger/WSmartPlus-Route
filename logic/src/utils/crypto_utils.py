@@ -242,7 +242,7 @@ def encrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLik
                 os.makedirs(os.path.dirname(output_file), exist_ok=True)
             except Exception:
                 raise Exception("subdirectories to save output files do not exist and could not be created")
-            encdata_ls.append(encrypt_file_data(input_file, output_file, key))
+            encdata_ls.append(encrypt_file_data(key, input_file, output_file))
     return encdata_ls
 
 
@@ -283,7 +283,7 @@ def decrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLik
                     os.makedirs(os.path.dirname(output_file), exist_ok=True)
                 except Exception:
                     raise Exception("subdirectories to save output files do not exist and could not be created")
-                decdata_ls.append(decrypt_file_data(input_file, output_file, key))
+                decdata_ls.append(decrypt_file_data(key, input_file, output_file))
     return decdata_ls
 
 
@@ -304,7 +304,7 @@ def encrypt_zip_directory(key: bytes, input_dir: os.PathLike, output_enczip: os.
         output_enczip = os.path.join(os.path.dirname(norm_path), f"{os.path.basename(input_dir)}.zip")
     tmp_zip = "{}.tmp.zip".format(output_enczip)
     zip_directory(input_dir, tmp_zip)
-    encrypted_data = encrypt_file_data(tmp_zip, output_enczip, key)
+    encrypted_data = encrypt_file_data(key, tmp_zip, output_enczip)
     os.remove(tmp_zip)
     return encrypted_data
 
@@ -325,7 +325,7 @@ def decrypt_zip(key: bytes, input_enczip: os.PathLike, output_dir: os.PathLike =
         norm_path = os.path.normpath(input_enczip)
         output_dir, _ = os.path.splitext(norm_path)
     tmp_zip = input_enczip + ".tmp.zip"
-    decrypted_data = decrypt_file_data(input_enczip, tmp_zip, key)
+    decrypted_data = decrypt_file_data(key, input_enczip, tmp_zip)
     extract_zip(tmp_zip, output_dir)
     os.remove(tmp_zip)
     return decrypted_data
