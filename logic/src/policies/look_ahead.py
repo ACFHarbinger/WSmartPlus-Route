@@ -26,6 +26,7 @@ from .adaptive_large_neighborhood_search import (
 )
 from .branch_cut_and_price import run_bcp
 from .hybrid_genetic_search import run_hgs
+from .lin_kernighan import solve_lk
 from .look_ahead_aux import (
     add_bins_to_collect,
     compute_initial_solution,
@@ -585,6 +586,104 @@ def policy_lookahead_bcp(
     return final_sequence, 0, cost
 
 
+def policy_lookahead_lk(
+    current_fill_levels,
+    binsids,
+    must_go_bins,
+    distance_matrix,
+    values,
+    coords,
+):
+    """
+    Look-ahead policy using Lin-Kernighan heuristic.
+
+    Args:
+      current_fill_levels: Current fill levels.
+      binsids: List of bin IDs.
+      must_go_bins: Bins that must be collected.
+      distance_matrix: NxN distance matrix.
+      values: Problem parameters.
+      coords: Bin coordinates DataFrame.
+
+    Returns:
+      Tuple[List[int], float, float]: Tour, dummy fitness (0), and cost.
+    """
+    B, E, Q = values["B"], values["E"], values["vehicle_capacity"]
+
+    # Identify bins to collect: must_go + any positive fill (greedy candidates)
+    # Similar to other policies, we collect must_go and potentially others.
+    # For simplicity in this variant, we route the 'must_go_bins' and any non-empty bins.
+
+    candidate_indices = [i for i, b_id in enumerate(binsids) if current_fill_levels[i] > 0 or b_id in must_go_bins]
+
+    if not candidate_indices:
+        return [0, 0], 0, 0
+
+    # Build local distance matrix for candidates + depot (0)
+    # Map local indices (0..k) to global bin IDs
+    # Depot is always global 0.
+
+    nodes_to_visit = [0] + [
+        binsids[i] + 1 for i in candidate_indices
+    ]  # binsids are 0-based, global IDs are 1-based (usually)
+    # Actually, let's verify bin ID mapping.
+    # consistently used: binsids[i] is the ID. Global usually is ID+1.
+    # Let's map purely based on distance matrix indices.
+
+    # Extract sub-matrix
+    # distance_matrix is N+1 x N+1? (Depot + N bins)
+    # binsids are 0..N-1.
+    # Matrix indices: 0 is depot. i+1 is bin i.
+
+    map_local_to_global = {0: 0}
+    for idx, i in enumerate(candidate_indices):
+        map_local_to_global[idx + 1] = i + 1
+
+    n_nodes = len(nodes_to_visit)
+    sub_matrix = np.zeros((n_nodes, n_nodes))
+
+    for r in range(n_nodes):
+        for c in range(n_nodes):
+            global_r = map_local_to_global[r]
+            global_c = map_local_to_global[c]
+            sub_matrix[r, c] = distance_matrix[global_r][global_c]
+
+    # Map global waste to local indices for solve_lk penalty calculation
+    local_waste = np.zeros(n_nodes)
+    for i, idx in enumerate(candidate_indices):
+        fill = current_fill_levels[idx]
+        local_waste[i + 1] = (fill / 100.0) * B * E
+
+    # Solve TSP/VRP with LK (LKH-3 version)
+    lk_tour_local, cost = solve_lk(sub_matrix, waste=local_waste, capacity=Q)
+
+    # Map back to global IDs
+    lk_tour_global = [map_local_to_global[i] for i in lk_tour_local]
+
+    # If using LK for VRP, we must handle capacity.
+    from .single_vehicle import get_multi_tour
+
+    # Prepare global waste array for get_multi_tour
+    max_id = max(max(map_local_to_global.values()), len(distance_matrix) - 1)
+    waste_array = np.zeros(max_id + 1)
+    for i in candidate_indices:
+        fill = current_fill_levels[i]
+        global_id = i + 1
+        waste_array[global_id] = (fill / 100.0) * B * E
+
+    # Check if capacity enforced
+    if values.get("check_capacity", True):
+        final_tour = get_multi_tour(lk_tour_global, waste_array, Q, distance_matrix)
+
+    # Recalculate cost of final tour with splits
+    final_cost = 0
+    from .single_vehicle import get_route_cost
+
+    final_cost = get_route_cost(distance_matrix, final_tour)
+
+    return final_tour, 0, final_cost
+
+
 @PolicyRegistry.register("policy_look_ahead")
 class LookAheadPolicy(IPolicy):
     """
@@ -709,6 +808,8 @@ class LookAheadPolicy(IPolicy):
                 values["time_limit"] = bcp_config.get("time_limit", 60)
                 values["Iterations"] = bcp_config.get("Iterations", 50)
                 routes, _, _ = policy_lookahead_bcp(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
+            elif "lkh" in policy:
+                routes, _, _ = policy_lookahead_lk(bins.c, binsids, must_go_bins, distance_matrix, values, coords)
             else:
                 values["shift_duration"] = 390
                 values["perc_bins_can_overflow"] = 0
