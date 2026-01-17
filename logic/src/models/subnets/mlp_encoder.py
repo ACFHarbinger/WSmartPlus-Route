@@ -64,7 +64,7 @@ class MLPEncoder(nn.Module):
     def __init__(
         self,
         n_layers,
-        hidden_dim,
+        feed_forward_hidden,
         norm="layer",
         learn_affine=True,
         track_norm=False,
@@ -76,13 +76,15 @@ class MLPEncoder(nn.Module):
 
         Args:
             n_layers: Number of MLP layers.
-            hidden_dim: Hidden dimension size.
+            feed_forward_hidden: Hidden dimension size.
             norm: Normalization type.
             learn_affine: Whether to learn affine parameters.
             track_norm: Whether to track normalization stats.
         """
         super(MLPEncoder, self).__init__()
-        self.layers = nn.ModuleList(MLPLayer(hidden_dim, norm, learn_affine, track_norm) for _ in range(n_layers))
+        self.layers = nn.ModuleList(
+            MLPLayer(feed_forward_hidden, norm, learn_affine, track_norm) for _ in range(n_layers)
+        )
 
     def forward(self, x, graph=None):
         """

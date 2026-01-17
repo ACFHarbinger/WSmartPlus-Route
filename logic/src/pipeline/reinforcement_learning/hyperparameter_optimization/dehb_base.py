@@ -93,7 +93,7 @@ class DifferentialEvolutionHyperbandBase:
         self.use_configspace = True if isinstance(self.cs, CS.ConfigurationSpace) else False
         if self.use_configspace:
             self.cs.seed(self._original_seed)
-            self.dimensions = len(self.cs.get_hyperparameters())
+            self.dimensions = len(list(self.cs.values()))
         elif dimensions is None or not isinstance(dimensions, (int, np.integer)):
             assert "Need to specify `dimensions` as an int when `cs` is not available/specified!"
         else:

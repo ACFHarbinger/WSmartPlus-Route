@@ -19,6 +19,12 @@ from ..base import BaseDataset, BaseProblem
 from .state_cvrpp import StateCVRPP
 from .state_vrpp import StateVRPP
 
+# Default values for profit/cost parameters (can be overridden by VRPPDataset.__init__)
+COST_KM = 1.0  # Cost per km traveled
+REVENUE_KG = 0.1625  # Revenue per kg collected
+BIN_CAPACITY = 100.0  # Bin capacity in kg
+VEHICLE_CAPACITY = 100.0  # Vehicle capacity (normalized)
+
 
 class VRPP(BaseProblem):
     """
