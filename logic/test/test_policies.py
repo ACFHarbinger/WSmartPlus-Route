@@ -3,12 +3,15 @@
 import sys
 from unittest.mock import MagicMock, PropertyMock, patch
 
+import networkx as nx
 import numpy as np
 import pandas as pd
 import pytest
+import torch
 
 import logic.src.policies.vrpp_optimizer as vrpp_opt_mod
 from logic.src.pipeline.simulator.day import run_day
+from logic.src.policies import single_vehicle
 from logic.src.policies.hybrid_genetic_search import run_hgs
 from logic.src.policies.last_minute import (
     policy_last_minute,
@@ -646,7 +649,7 @@ class TestLookaheadPolicyLogic:
             mock_next_day.assert_not_called()
 
     @pytest.mark.unit
-    def test_lookahead_full_logic_flow(self, mock_policy_common_data):
+    def test_lookahead_full_logic_flow(self, mock_policy_common_data, mock_lookahead_aux):
         """
         Tests a scenario where the policy triggers all internal auxiliary steps
         and returns the result of the final step (add_bins_to_collect).
@@ -1496,3 +1499,65 @@ class TestHexalyOptimizer:
         # Since we mocked list() to return a variable with .value=[1], etc.
         # It's safer to just asserts it runs.
         pass
+
+
+class TestSingleVehiclePolicies:
+    def test_find_route(self):
+        test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
+        test_to_collect = [1, 2]
+        with patch("logic.src.policies.single_vehicle.fast_tsp.find_tour", return_value=[0, 1, 2]):
+            res_route = single_vehicle.find_route(test_C, test_to_collect)
+            assert res_route == [0, 1, 2, 0]
+
+    def test_get_route_cost(self):
+        test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
+        test_tour = [0, 1, 2, 0]
+        res_cost = single_vehicle.get_route_cost(test_C, test_tour)
+        assert abs(float(res_cost) - 35.0) < 1e-6
+
+    def test_get_multi_tour(self):
+        test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
+        test_tour = [0, 1, 2, 0]  # ID 1, node 0; ID 2, node 1
+        test_bins_waste = np.array([60, 60])
+        test_max_cap = 100
+        # Need to pass a COPY because get_multi_tour modifies in-place!
+        res_multi = single_vehicle.get_multi_tour(list(test_tour), test_bins_waste, test_max_cap, test_C)
+        assert 0 in res_multi[1:-1]
+
+    def test_get_partial_tour(self):
+        C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
+        tour = [0, 1, 2, 0]
+        bins_waste = np.array([60, 60])
+        max_capacity = 100
+        reduced_tour, cost = single_vehicle.get_partial_tour(tour, bins_waste, max_capacity, C, 35.0)
+        # Should have removed one bin
+        assert len(reduced_tour) < 4
+
+    def test_dist_matrix_from_graph(self):
+        G = nx.Graph()
+        G.add_edge(0, 1, weight=5)
+        G.add_edge(1, 2, weight=5)
+        dist, paths = single_vehicle.dist_matrix_from_graph(G)
+        assert dist[0, 2] == 10
+        assert paths[0][2] == [0, 1, 2]
+
+    def test_get_path_cost(self):
+        G = nx.Graph()
+        G.add_edge(0, 1, weight=10)
+        G.add_edge(1, 2, weight=5)
+        path = [0, 1, 2]
+        assert single_vehicle.get_path_cost(G, path) == 15
+
+    def test_local_search_2opt(self):
+        # 4 nodes: 0, 1, 2, 3
+        # Inefficient tour: 0 -> 2 -> 1 -> 3 -> 0
+        # Optimal (linear): 0 -> 1 -> 2 -> 3 -> 0
+        C = np.array([[0, 10, 20, 30], [10, 0, 10, 20], [20, 10, 0, 10], [30, 20, 10, 0]])
+        bad_tour = [0, 2, 1, 3, 0]
+        # 0-2 (20) + 2-1 (10) + 1-3 (20) + 3-0 (30) = 80
+        # Optimal: 0-1(10) + 1-2(10) + 2-3(10) + 3-0(30) = 60
+        improved = single_vehicle.local_search_2opt(bad_tour, C)
+        assert single_vehicle.get_route_cost(C, improved) <= 80
+        # Check tensor support
+        improved_t = single_vehicle.local_search_2opt(torch.tensor(bad_tour), torch.tensor(C))
+        assert len(improved_t) == 5

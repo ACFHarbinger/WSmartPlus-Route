@@ -322,7 +322,7 @@ def parse_softmax_temperature(raw_temp):
         float: The parsed temperature.
     """
     # Load from file
-    if os.path.isfile(raw_temp):
+    if isinstance(raw_temp, str) and os.path.isfile(raw_temp):
         return np.loadtxt(raw_temp)[-1, 0]
     return float(raw_temp)
 
