@@ -86,7 +86,7 @@ IMITATION_MODE="2opt"
 TWO_OPT_MAX_ITER=100
 HGS_CONFIG_PATH="assets/configs/lookahead_hgs.yaml"
 
-SIZE=150
+SIZE=100
 AREA="riomaior"
 WTYPE="plastic"
 F_SIZE=128
@@ -98,7 +98,7 @@ WASTE_PATH="daily_waste/${AREA}${N_BINS}_${DATA_DIST}_wsr${N_DAYS}_N${N_SAMPLES}
 
 SEED=42
 START=0
-EPOCHS=150
+EPOCHS=100
 TOTAL_EPOCHS=$(($START + $EPOCHS))
 PROBLEM="cwcvrp"
 DATA_PROBLEM="wcvrp"
