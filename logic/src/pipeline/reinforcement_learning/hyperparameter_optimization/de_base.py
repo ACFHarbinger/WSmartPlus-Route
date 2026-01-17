@@ -69,7 +69,7 @@ class DifferentialEvolutionBase:
         self.cs = cs
         self.f = f
         if dimensions is None and self.cs is not None:
-            self.dimensions = len(self.cs.get_hyperparameters())
+            self.dimensions = len(list(self.cs.values()))
         else:
             self.dimensions = dimensions
 
@@ -86,7 +86,7 @@ class DifferentialEvolutionBase:
         self.hps = dict()
         if self.configspace:
             self.cs.seed(self._original_seed)
-            for i, hp in enumerate(cs.get_hyperparameters()):
+            for i, hp in enumerate(list(cs.values())):
                 # maps hyperparameter name to positional index in vector form
                 self.hps[hp.name] = i
         self.output_path = Path(kwargs["output_path"]) if "output_path" in kwargs else Path("./")
@@ -226,7 +226,7 @@ class DifferentialEvolutionBase:
         # creates a CS object dict with all hyperparameters present, the inactive too
         new_config = CSU.impute_inactive_values(self.cs.get_default_configuration()).get_dictionary()
         # iterates over all hyperparameters and normalizes each based on its type
-        for i, hyper in enumerate(self.cs.get_hyperparameters()):
+        for i, hyper in enumerate(list(self.cs.values())):
             if isinstance(hyper, CS.OrdinalHyperparameter):
                 ranges = np.arange(start=0, stop=1, step=1 / len(hyper.sequence))
                 param_value = hyper.sequence[np.where(not (vector[i] < ranges))[0][-1]]
@@ -261,11 +261,11 @@ class DifferentialEvolutionBase:
         """
         # the imputation replaces illegal parameter values with their default
         config = CSU.impute_inactive_values(config)
-        dimensions = len(self.cs.get_hyperparameters())
+        dimensions = len(list(self.cs.values()))
         vector = [np.nan for i in range(dimensions)]
         for name in config:
             i = self.hps[name]
-            hyper = self.cs.get_hyperparameter(name)
+            hyper = self.cs[name]
             if isinstance(hyper, CS.OrdinalHyperparameter):
                 nlevels = len(hyper.sequence)
                 vector[i] = hyper.sequence.index(config[name]) / nlevels

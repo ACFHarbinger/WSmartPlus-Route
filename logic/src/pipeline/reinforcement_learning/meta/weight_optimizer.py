@@ -268,7 +268,7 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         # Use MSE loss between predicted weights and ideal weights
         # Here we're assuming that weights leading to higher rewards are better
         # So we scale the loss by the negative reward
-        weights_variance = torch.var(pred_weights, dim=0).sum()
+        weights_variance = torch.var(pred_weights, dim=0, unbiased=False).sum()
         reward_pred = -targets  # Negative because we want to maximize reward
 
         # Weighted loss: optimize for reward while encouraging exploration

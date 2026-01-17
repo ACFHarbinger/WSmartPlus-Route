@@ -181,7 +181,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
 
     def __del__(self):
         """Ensures a clean kill of the Dask client and frees up a port."""
-        if hasattr(self, "client") and isinstance(self, Client):
+        if hasattr(self, "client") and isinstance(self.client, Client):
             self.client.close()
 
     def _f_objective(self, job_info):
