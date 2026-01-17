@@ -426,6 +426,14 @@ def add_test_sim_args(parser):
         nargs="+",
         help="Path to the YAML/XML configuration file(s) (format: name=path)",
     )
+    parser.add_argument("--w_length", type=float, default=1.0, help="Weight for length in cost function")
+    parser.add_argument("--w_waste", type=float, default=1.0, help="Weight for waste in cost function")
+    parser.add_argument(
+        "--w_overflows",
+        type=float,
+        default=1.0,
+        help="Weight for overflows in cost function",
+    )
     return parser
 
 

@@ -8,6 +8,7 @@ import torch
 import torch.nn.functional as F
 
 from logic.src.utils.boolmask import mask_long_scatter
+from logic.src.utils.definitions import VEHICLE_CAPACITY
 
 from ..base import BaseState, refactor_state
 
@@ -60,6 +61,7 @@ class StateWCVRP(NamedTuple):
         dist_matrix=None,
         visited_dtype=torch.uint8,
         hrl_mask=None,
+        vehicle_capacity=VEHICLE_CAPACITY,
     ):
         """Initializes the state for a batch of instances."""
         common = BaseState.initialize_common(input, visited_dtype)

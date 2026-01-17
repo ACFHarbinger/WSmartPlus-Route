@@ -226,6 +226,7 @@ class NeuralAgent:
         threshold=0.5,
         mask_threshold=0.5,
         two_opt_max_iter=0,
+        cost_weights=None,
     ):
         """
         Execute neural routing policy for a single simulation day.
@@ -435,7 +436,9 @@ class NeuralAgent:
             # We don't have embeddings size yet to expand against batch.
             # But model forward will handle batching.
 
-        _, _, _, pi, _ = self.model(input_for_model, return_pi=True, mask=mask)
+        _, _, _, pi, _ = self.model(
+            input_for_model, return_pi=True, mask=mask, profit_vars=profit_vars, cost_weights=cost_weights
+        )
 
         if run_tsp:
             try:
@@ -510,10 +513,17 @@ class NeuralPolicy(IPolicy):
         agent = NeuralAgent(model_env)
         model_data, graph, profit_vars = model_ls
 
+        # Construct cost weights
+        cost_weights = {
+            "waste": kwargs.get("w_waste", 1.0),
+            "length": kwargs.get("w_length", 1.0),
+            "overflows": kwargs.get("w_overflows", 1.0),
+        }
+
         # Data preparation
-        model_data["waste"] = torch.as_tensor(bins.c, dtype=torch.float32).unsqueeze(0) / 100.0
+        model_data["waste"] = torch.as_tensor(bins.c, dtype=torch.float32).unsqueeze(0)
         if "fill_history" in model_data:
-            model_data["current_fill"] = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0) / 100.0
+            model_data["current_fill"] = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0)
         daily_data = move_to(model_data, device)
 
         tour, cost, output_dict = agent.compute_simulator_day(
@@ -527,5 +537,6 @@ class NeuralPolicy(IPolicy):
             threshold=gate_prob_threshold,
             mask_threshold=mask_prob_threshold,
             two_opt_max_iter=two_opt_max_iter,
+            cost_weights=cost_weights,
         )
         return tour, cost, output_dict
