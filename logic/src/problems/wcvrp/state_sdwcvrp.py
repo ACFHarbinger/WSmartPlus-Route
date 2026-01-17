@@ -61,7 +61,14 @@ class StateSDWCVRP(NamedTuple):
         return (self.demands_with_depot <= 1e-5).to(torch.uint8)
 
     @staticmethod
-    def initialize(input, edges, cost_weights=None, dist_matrix=None, **kwargs):
+    def initialize(
+        input,
+        edges,
+        cost_weights=None,
+        dist_matrix=None,
+        vehicle_capacity=VEHICLE_CAPACITY,
+        **kwargs,
+    ):
         """Initializes the state for a batch of instances."""
         common = BaseState.initialize_common(input)
 
@@ -83,7 +90,7 @@ class StateSDWCVRP(NamedTuple):
             w_length=1 if cost_weights is None else cost_weights["length"],
             edges=edges,
             dist_matrix=dist_matrix,
-            vehicle_capacity=VEHICLE_CAPACITY,
+            vehicle_capacity=vehicle_capacity,
         )
 
     def get_final_cost(self):
@@ -92,7 +99,7 @@ class StateSDWCVRP(NamedTuple):
         length_cost = self.w_length * self.lengths + self.w_length * (
             self.coords[self.ids, 0, :] - self.cur_coord
         ).norm(p=2, dim=-1)
-        return self.w_overflows * self.cur_overflows + length_cost + self.w_waste * self.cur_total_waste
+        return self.w_overflows * self.cur_overflows + length_cost - self.w_waste * self.cur_total_waste
 
     def update(self, selected):
         """Updates the state after moving to a new node, supporting partial collection."""
