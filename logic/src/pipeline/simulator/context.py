@@ -101,6 +101,9 @@ class SimulationDayContext(Mapping):
     mask_prob_threshold: float = 0.5
     two_opt_max_iter: int = 0
     config: Dict[str, Any] = None
+    w_length: float = 1.0
+    w_waste: float = 1.0
+    w_overflows: float = 1.0
 
     # Optional/Mutable Fields (defaults to None or reasonable zero)
     daily_log: Optional[Dict] = None

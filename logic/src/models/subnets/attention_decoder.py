@@ -125,6 +125,7 @@ class AttentionDecoder(nn.Module):
         dist_matrix=None,
         mask=None,
         expert_pi=None,
+        **kwargs,
     ):
         """
         Wrapper around _inner to match standard Module behavior.
@@ -136,7 +137,7 @@ class AttentionDecoder(nn.Module):
             embeddings,
             cost_weights,
             dist_matrix,
-            profit_vars=None,
+            profit_vars=kwargs.get("profit_vars"),
             mask=mask,
             expert_pi=expert_pi,
         )

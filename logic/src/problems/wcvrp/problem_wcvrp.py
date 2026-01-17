@@ -81,8 +81,11 @@ class WCVRP(BaseProblem):
     @staticmethod
     def make_state(*args, **kwargs):
         """Initializes the WCVRP state."""
-        kwargs.pop("profit_vars", None)
-        return StateWCVRP.initialize(*args, **kwargs)
+        profit_vars = kwargs.pop("profit_vars", None)
+        vehicle_capacity = (
+            profit_vars.get("vehicle_capacity", VEHICLE_CAPACITY) if profit_vars is not None else VEHICLE_CAPACITY
+        )
+        return StateWCVRP.initialize(*args, vehicle_capacity=vehicle_capacity, **kwargs)
 
 
 class CWCVRP(BaseProblem):
@@ -101,6 +104,7 @@ class CWCVRP(BaseProblem):
 
         if pi.size(-1) == 1:
             overflows = torch.sum(dataset["waste"] >= dataset["max_waste"][:, None], dim=-1)
+            # print(f"DEBUG: CWCVRP.get_costs cw_dict={cw_dict}")
             cost = overflows if cw_dict is None else cw_dict["overflows"] * overflows
             c_dict = {
                 "overflows": overflows,
@@ -153,8 +157,11 @@ class CWCVRP(BaseProblem):
     @staticmethod
     def make_state(*args, **kwargs):
         """Initializes the CWCVRP state."""
-        kwargs.pop("profit_vars", None)
-        return StateCWCVRP.initialize(*args, **kwargs)
+        profit_vars = kwargs.pop("profit_vars", None)
+        vehicle_capacity = (
+            profit_vars.get("vehicle_capacity", VEHICLE_CAPACITY) if profit_vars is not None else VEHICLE_CAPACITY
+        )
+        return StateCWCVRP.initialize(*args, vehicle_capacity=vehicle_capacity, **kwargs)
 
 
 class SDWCVRP(BaseProblem):
@@ -224,8 +231,11 @@ class SDWCVRP(BaseProblem):
     @staticmethod
     def make_state(*args, **kwargs):
         """Initializes the SDWCVRP state."""
-        kwargs.pop("profit_vars", None)
-        return StateSDWCVRP.initialize(*args, **kwargs)
+        profit_vars = kwargs.pop("profit_vars", None)
+        vehicle_capacity = (
+            profit_vars.get("vehicle_capacity", VEHICLE_CAPACITY) if profit_vars is not None else VEHICLE_CAPACITY
+        )
+        return StateSDWCVRP.initialize(*args, vehicle_capacity=vehicle_capacity, **kwargs)
 
     @classmethod
     def beam_search(cls, *args, **kwargs):
