@@ -22,7 +22,15 @@ class VRPInstanceBuilder:
     with various parameters such as problem size, distribution, area, and waste type.
     """
 
-    def __init__(self, data, depot_idx, vehicle_cap, customers, dimension, coords):
+    def __init__(
+        self,
+        data=None,
+        depot_idx=0,
+        vehicle_cap=100.0,
+        customers=None,
+        dimension=0,
+        coords=None,
+    ):
         """
         Initialize the VRPInstanceBuilder.
 
@@ -37,7 +45,7 @@ class VRPInstanceBuilder:
         self.data_dict = data
         self.depot_idx = depot_idx
         self.vehicle_cap = vehicle_cap
-        self.customers = customers
+        self.customers = customers if customers is not None else []
         self.dimension = dimension
         self.coords = coords
 

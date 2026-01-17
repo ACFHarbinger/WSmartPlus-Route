@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- Implemented LKH-3 inspired heuristic in `lin_kernighan.py` with alpha-measure candidate sets and penalty-aware (Lexicographical) optimization for CVRP.
+- Implemented `vectorized_three_opt` in `local_search.py` using PyTorch for high-performance batch processing on GPU.
+- Created `logic/test/test_vectorized_policies.py` providing comprehensive coverage for vectorized local search, HGS components, and the Split algorithm.
+- Added `logic/test/fixtures/vectorized_policy_fixtures.py` for shared vectorized test data and registered it in `conftest.py`.
+
+### Changed
+- Integrated LKH-3 into `look_ahead.py` and updated policy dispatch to support the `lkh` policy identifier.
+- Integrated `vectorized_three_opt` into the education phase of the `VectorizedHGS` solver in `hgs_vectorized.py`.
+- Refactored `TestVectorizedPolicies` into modular classes (`TestVectorizedLocalSearch`, `TestVectorizedPolicies`, `TestVectorizedPopulation`) for better organization.
+- Refactored `lin_kernighan.py` for improved readability, efficiency, and adherence to Python best practices.
+
+### Fixed
+- Fixed `NameError` in `look_ahead.py` by adding missing `get_multi_tour` import for VRP capacity handling.
+- Fixed policy dispatch logic in `look_ahead.py` to correctly identify the `lkh` policy.
+- Fixed `ImportError` in `hgs_vectorized.py` caused by a missing import for `vectorized_relocate`.
+
+### Added
 - Created `logic/src/utils/io/preview.py` by splitting `processing.py` to separate preview logic.
 - Added lazy loading to `logic/src/policies/adapters.py` to prevent circular dependencies.
 - Added missing docstrings to `adapters.py`, `processing.py`, `epoch.py`, and `dehb_base.py`.
