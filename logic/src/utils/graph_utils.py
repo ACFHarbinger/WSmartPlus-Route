@@ -54,8 +54,7 @@ def generate_adj_matrix(size, num_edges, undirected=False, add_depot=True, negat
 
         # Add edges to and from the depot (without self-connection)
         if add_depot:
-            adj_matrix = np.vstack((np.ones(size, dtype=int), selected))
-            adj_matrix = np.hstack((np.ones(size + 1, dtype=int), selected))
+            adj_matrix = np.pad(adj_matrix, ((1, 0), (1, 0)), mode="constant", constant_values=1)
             adj_matrix[0, 0] = 0
     else:
         adj_matrix = np.ones((size + 1, size + 1), dtype=int) if add_depot else np.ones((size, size), dtype=int)
@@ -155,13 +154,13 @@ def sort_by_pairs(graph_size, edge_idx):
     # Transpose the tensor if it has size (2, num_edges)
     is_transpose = edge_idx.size(dim=-1) != 2
     if is_transpose:
-        edge_idx = torch.transpose(edge_idx)
+        edge_idx = torch.transpose(edge_idx, 0, 1)
 
     tmp = edge_idx.select(1, 0) * graph_size + edge_idx.select(1, 1)
     ind = tmp.sort().indices
     sorted_idx = edge_idx.index_select(0, ind)
     if is_transpose:
-        sorted_idx = torch.transpose(sorted_idx)
+        sorted_idx = torch.transpose(sorted_idx, 0, 1)
     return sorted_idx
 
 
@@ -331,6 +330,11 @@ def find_longest_path(dist_matrix, start_vertex=0):
                 if total_length > longest_length:
                     longest_length = total_length
                     longest_path = path[:] + [start_vertex]
+
+            # Record the path even if we cannot return to start, if it is the longest so far
+            if current_length > longest_length:
+                longest_length = current_length
+                longest_path = path[:]
             return
 
         # Update longest path if current path is longer

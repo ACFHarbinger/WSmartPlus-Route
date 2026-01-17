@@ -354,6 +354,10 @@ def add_n_bins_random(
         List[List[int]]: New routes.
     """
     new_routes = copy.deepcopy(routes_list)
+    if not new_routes:
+        # If no routes exist, we can't easily add bins without creating a route
+        # For now, just return as is (sa might handle this)
+        return new_routes
     bins_to_add = random.sample(list(removed_bins), min(n, len(removed_bins)))
     for b in bins_to_add:
         route = random.choice(new_routes)
@@ -499,7 +503,7 @@ def add_n_bins_consecutive(
         List[List[int]]: New routes.
     """
     new_routes = copy.deepcopy(routes_list)
-    if len(removed_bins) < n:
+    if not new_routes or len(removed_bins) < n:
         return new_routes
     bins_to_add = random.sample(list(removed_bins), n)
     for route in new_routes:

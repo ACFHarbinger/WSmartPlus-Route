@@ -84,12 +84,13 @@ def move_2_routes(routes_list):
 
 
 # Function to move n random bins inside a route
-def move_n_route_random(routes_list):
+def move_n_route_random(routes_list, n=None):
     """
     Intra-route perturbation: Move n random bins to new positions within their routes.
 
     Args:
         routes_list (List[List[int]]): Current routing solution.
+        n (int, optional): Number of nodes to move.
 
     Returns:
         List[List[int]]: Mutated routing solution.
@@ -97,8 +98,11 @@ def move_n_route_random(routes_list):
     chosen_n = None
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list, 1)[0]
-        possible_n = [2, 3, 4, 5]
-        chosen_n = rsample(possible_n, 1)[0]
+        if n is None:
+            possible_n = [2, 3, 4, 5]
+            chosen_n = rsample(possible_n, 1)[0]
+        else:
+            chosen_n = n
         if len(chosen_route) > chosen_n + 2:
             if chosen_n == 2:
                 bin_to_move_1 = rsample(chosen_route[1 : len(chosen_route) - 1], 1)[0]
@@ -220,13 +224,14 @@ def move_n_route_random(routes_list):
 
 
 # Function to move n consecutive bins inside a route
-def move_n_route_consecutive(routes_list):
+def move_n_route_consecutive(routes_list, n=None):
     """
     Intra-route perturbation: Move a sequence of consecutive bins to a new position
     in the same route.
 
     Args:
         routes_list (List[List[int]]): Current routing solution.
+        n (int, optional): Number of consecutive nodes to move.
 
     Returns:
         List[List[int]]: Mutated routing solution.
@@ -234,8 +239,11 @@ def move_n_route_consecutive(routes_list):
     chosen_n = None
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list, 1)[0]
-        possible_n = [2, 3, 4, 5]
-        chosen_n = rsample(possible_n, 1)[0]
+        if n is None:
+            possible_n = [2, 3, 4, 5]
+            chosen_n = rsample(possible_n, 1)[0]
+        else:
+            chosen_n = n
         if len(chosen_route) > chosen_n + 2:
             if chosen_n == 2:
                 bin_to_move_1 = rsample(chosen_route[1 : len(chosen_route) - 2], 1)[0]

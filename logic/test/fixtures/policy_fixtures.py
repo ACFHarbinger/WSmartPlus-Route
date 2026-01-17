@@ -120,7 +120,7 @@ def mock_policy_common_data():
     }
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_policy_dependencies(mocker):
     """Mocks common policy dependencies (loader, solver) for unit tests."""
     # Mock TSP solver (used by last_minute)
@@ -137,7 +137,7 @@ def mock_policy_dependencies(mocker):
     mocker.patch("logic.src.policies.single_vehicle.get_route_cost", return_value=50.0)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_lookahead_aux(mocker):
     """Mocks the internal look_ahead_aux dependencies."""
 
