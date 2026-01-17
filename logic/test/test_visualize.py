@@ -1,3 +1,11 @@
+"""
+Tests for visualization utilities and plotting functions.
+Merges functionality from:
+- test_visualize.py
+- test_visualize_coverage.py
+- test_visualize_epoch_coverage.py
+"""
+
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -11,11 +19,19 @@ from logic.src.utils.plot_utils import (
 )
 from logic.src.utils.visualize_utils import (
     get_batch,
+    imitation_loss_fn,
     log_weight_distributions,
+    main,
     plot_attention_heatmaps,
     plot_weight_trajectories,
     project_node_embeddings,
+    rl_loss_fn,
+    visualize_epoch,
 )
+
+# ============================================================================
+# Core Visualization Utils Tests
+# ============================================================================
 
 
 class TestVisualizeUtils(unittest.TestCase):
@@ -31,7 +47,10 @@ class TestVisualizeUtils(unittest.TestCase):
     def test_plot_weight_trajectories(self, mock_load, mock_listdir, mock_plt):
         mock_listdir.return_value = ["epoch-1.pt", "epoch-2.pt"]
         # Mock checkpoint
-        mock_load.return_value = {"model": {"l1.weight": torch.randn(10, 10)}}
+        mock_load.side_effect = [
+            {"model": {"l1.weight": torch.randn(10, 10)}},
+            {"model": {"l1.weight": torch.randn(10, 10) + 1.0}},
+        ]
 
         plot_weight_trajectories("dummy_dir", "dummy_dir/out.png")
         mock_plt.savefig.assert_called()
@@ -86,17 +105,14 @@ class TestVisualizeUtils(unittest.TestCase):
         mock_plt.savefig.assert_called()
 
 
+# ============================================================================
+# Plot Utilities Tests
+# ============================================================================
+
+
 @patch("logic.src.utils.plot_utils.plt")
 class TestPlotUtils(unittest.TestCase):
     def test_plot_linechart(self, mock_plt):
-        # plot_linechart expects strange shape, look at code
-        # if len=2, iterates
-        # Let's try simple usage
-        # Actually plot_linechart is complex.
-        # graph_log shape (N, 6) usually? "list(zip(*lg))[5]"
-        # Let's mock small 2D array
-        # It slices extensively.
-        # graph_log is typically list of logs?
         msg = np.zeros((1, 2, 6))  # 1 policy, 2 points, 6 metrics
         plot_linechart("out.png", msg, mock_plt.plot, ["pol1"])
         mock_plt.savefig.assert_called()
@@ -117,8 +133,123 @@ class TestPlotUtils(unittest.TestCase):
         }
         route = torch.tensor([0, 1, 2, 0, 3, 4, 5, 0])
         ax = MagicMock()
-        # Default capacity is 1, total demand of route 1 is 0.2 <= 1.
         plot_vehicle_routes(data, route, ax)
         ax.plot.assert_called()
-        # It creates PatchCollection
-        ax.add_collection.assert_not_called()  # visualize_demands=False default
+        ax.add_collection.assert_not_called()
+
+
+# ============================================================================
+# Loss Function Tests (from coverage)
+# ============================================================================
+
+
+class TestVisualizeLossFunctions:
+    """Class for visualization auxiliary functions (loss)."""
+
+    def test_imitation_loss_fn(self):
+        """Test imitation loss function for landscape plotting."""
+        model = MagicMock()
+        del model.modules
+        del model.model
+
+        # model returns (cost, log_likelihood, ...)
+        # we need log_likelihood to have mean -1.5 -> loss = 1.5
+        ll = torch.tensor([-1.5, -1.5])
+        model.return_value = (None, ll)
+
+        x_batch = {"coords": torch.rand(2, 5, 2)}
+        pi_target = torch.randint(0, 5, (2, 5))
+
+        # Ensure parameter device logic works
+        p = MagicMock()
+        p.device = torch.device("cpu")
+        model.parameters.return_value = iter([p])
+
+        loss = imitation_loss_fn(model, x_batch, pi_target)
+        assert loss == 1.5
+
+    def test_rl_loss_fn(self):
+        """Test RL loss function for landscape plotting."""
+        model = MagicMock()
+        # Prevent auto-creation of attributes causing unwrapping logic to dive in
+        del model.modules
+        del model.model
+
+        # Mock parameter to have device
+        param = MagicMock()
+        param.device = torch.device("cpu")
+        model.parameters.return_value = iter([param])
+
+        # Returns cost, _, _, _, _ (5 values)
+        cost = torch.tensor([10.0, 20.0])
+        model.return_value = (cost, None, None, None, None)
+
+        x_batch = {"coords": torch.rand(2, 5, 2)}
+
+        loss = rl_loss_fn(model, x_batch)
+        assert loss == 15.0  # Mean of 10 and 20
+
+
+# ============================================================================
+# Visualize Epoch Tests (from coverage)
+# ============================================================================
+
+
+class TestVisualizeEpochCoverage:
+    """Class for visualize_epoch tests."""
+
+    @patch("logic.src.utils.visualize_utils.plot_weight_trajectories")
+    @patch("logic.src.utils.visualize_utils.log_weight_distributions")
+    @patch("logic.src.utils.visualize_utils.plot_attention_heatmaps")
+    @patch("logic.src.utils.visualize_utils.plot_loss_landscape")
+    @patch("logic.src.utils.visualize_utils.project_node_embeddings")
+    @patch("logic.src.utils.visualize_utils.get_batch")
+    def test_visualize_epoch_all_modes(self, mock_batch, mock_embed, mock_loss, mock_att, mock_dist, mock_traj):
+        """Test visualize_epoch with all modes enabled."""
+        model = MagicMock()
+        # Ensure parameters() returns a fresh iterator each time
+        p_mock = MagicMock()
+        p_mock.device = torch.device("cpu")
+        model.parameters.side_effect = lambda: iter([p_mock])
+
+        problem = MagicMock()
+        opts = {
+            "viz_modes": ["trajectory", "distributions", "embeddings", "heatmaps", "logit_lens", "loss"],
+            "log_dir": "logs",
+            "run_name": "test_run",
+            "graph_size": 20,
+            "save_dir": "checkpoints",
+        }
+
+        # mock plot_logit_lens as it is also called
+        with patch("logic.src.utils.visualize_utils.plot_logit_lens") as mock_lens:
+            visualize_epoch(model, problem, opts, epoch=1, tb_logger=MagicMock())
+
+            assert mock_dist.called
+            assert mock_embed.called
+            assert mock_att.called
+            assert mock_lens.called
+            assert mock_loss.called
+            assert mock_traj.called
+
+    def test_visualize_epoch_no_modes(self):
+        """Test visualize_epoch with no modes."""
+        model = MagicMock()
+        opts = {"viz_modes": []}
+        visualize_epoch(model, None, opts, 1)  # Should return immediately
+
+    @patch("sys.argv", ["prog", "--mode", "distributions", "--model_path", "model.pt", "--log_dir", "logs"])
+    @patch("logic.src.utils.visualize_utils.load_model_instance")
+    @patch("logic.src.utils.visualize_utils.log_weight_distributions")
+    def test_main_distributions(self, mock_log, mock_load):
+        """Test main function with distributions mode."""
+        mock_load.return_value = MagicMock()
+        main()
+        assert mock_log.called
+
+    @patch("sys.argv", ["prog", "--mode", "trajectory", "--checkpoint_dir", "ckpt_dir"])
+    @patch("logic.src.utils.visualize_utils.plot_weight_trajectories")
+    def test_main_trajectory(self, mock_plot):
+        """Test main function with trajectory mode."""
+        main()
+        assert mock_plot.called

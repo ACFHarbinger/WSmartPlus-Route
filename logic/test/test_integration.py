@@ -368,3 +368,431 @@ class TestIntegrationSimulation:
         assert not failed
         assert "am_emp" in log
         assert mock_exec.called
+
+
+# ============================================================================
+# Training Pipeline Integration Tests (IMPROVEMENT_PLAN.md recommendations)
+# ============================================================================
+
+
+class TestIntegrationTrainingPipeline:
+    """Integration tests for training pipeline components (VRPP state, encoders, components)."""
+
+    @pytest.fixture
+    def vrpp_batch(self):
+        """Create a VRPP problem batch for testing."""
+        import torch
+
+        batch_size = 4
+        graph_size = 20
+        return {
+            "loc": torch.rand(batch_size, graph_size, 2),
+            "depot": torch.rand(batch_size, 2),
+            "waste": torch.rand(batch_size, graph_size),
+            "max_waste": torch.ones(batch_size, graph_size),
+        }
+
+    @pytest.fixture
+    def encoder_kwargs(self):
+        """Create encoder parameters."""
+        return {
+            "embed_dim": 64,
+            "n_layers": 2,
+            "n_heads": 4,
+            "normalization": "batch",
+            "feed_forward_hidden": 256,
+        }
+
+    def test_vrpp_make_state(self, vrpp_batch):
+        """Test VRPP state creation from batch."""
+        from logic.src.problems.vrpp.problem_vrpp import VRPP
+
+        state = VRPP.make_state(vrpp_batch)
+        assert state is not None
+        assert hasattr(state, "coords")
+        assert hasattr(state, "visited_")
+
+    def test_vrpp_state_transition(self, vrpp_batch):
+        """Test VRPP state updates correctly on action."""
+        import torch
+
+        from logic.src.problems.vrpp.problem_vrpp import VRPP
+
+        state = VRPP.make_state(vrpp_batch)
+        # Select depot (index 0) as action - always valid
+        actions = torch.zeros(4, dtype=torch.long)
+
+        next_state = state.update(actions)
+        assert next_state is not None
+        # i should have incremented
+        assert next_state.i > state.i
+
+    def test_batch_collation(self):
+        """Test batch collation for dataloader."""
+        import torch
+
+        from logic.src.utils.data_utils import collate_fn
+
+        samples = [
+            {"loc": torch.rand(10, 2), "waste": torch.rand(10)},
+            {"loc": torch.rand(10, 2), "waste": torch.rand(10)},
+        ]
+        batch = collate_fn(samples)
+        assert batch["loc"].shape == (2, 10, 2)
+        assert batch["waste"].shape == (2, 10)
+
+    def test_attention_factory_creates_encoder(self, encoder_kwargs):
+        """Test AttentionComponentFactory creates encoder."""
+        from logic.src.models.model_factory import AttentionComponentFactory
+
+        factory = AttentionComponentFactory()
+        encoder = factory.create_encoder(**encoder_kwargs)
+        assert encoder is not None
+        assert hasattr(encoder, "forward")
+
+    def test_mlp_factory_creates_encoder(self, encoder_kwargs):
+        """Test MLPComponentFactory creates encoder."""
+        from logic.src.models.model_factory import MLPComponentFactory
+
+        factory = MLPComponentFactory()
+        kwargs = encoder_kwargs.copy()
+        encoder = factory.create_encoder(**kwargs)
+        assert encoder is not None
+
+    def test_encoder_forward_pass(self, encoder_kwargs):
+        """Test encoder produces valid embeddings."""
+        import torch
+
+        from logic.src.models.model_factory import AttentionComponentFactory
+
+        factory = AttentionComponentFactory()
+        encoder = factory.create_encoder(**encoder_kwargs)
+        h = torch.rand(4, 20, 64)
+        output = encoder(h)
+        assert output.shape == (4, 20, 64)
+
+
+class TestIntegrationStateTransitions:
+    """Tests for problem state transitions and constraints."""
+
+    def test_vrpp_mask_prevents_revisit(self):
+        """Test that visited nodes are masked for future selection."""
+        import torch
+
+        from logic.src.problems.vrpp.problem_vrpp import VRPP
+
+        batch = {
+            "loc": torch.rand(2, 5, 2),
+            "depot": torch.rand(2, 2),
+            "waste": torch.rand(2, 5),
+            "max_waste": torch.ones(2, 5),
+        }
+        state = VRPP.make_state(batch)
+        state = state.update(torch.tensor([1, 1]))
+        mask = state.get_mask()
+        assert mask[:, 0, 1].all()
+
+    def test_vrpp_capacity_constraint(self):
+        """Test capacity constraints in VRPP state."""
+        import torch
+
+        from logic.src.problems.vrpp.problem_vrpp import VRPP
+
+        batch = {
+            "loc": torch.rand(2, 5, 2),
+            "depot": torch.rand(2, 2),
+            "waste": torch.full((2, 5), 0.5),
+            "max_waste": torch.ones(2, 5),
+        }
+        state = VRPP.make_state(batch)
+        # Initially, total waste collected should be 0
+        assert state.cur_total_waste.sum() == 0
+
+    def test_vrpp_all_finished_detection(self):
+        """Test that state correctly detects completion."""
+        import torch
+
+        from logic.src.problems.vrpp.problem_vrpp import VRPP
+
+        batch = {
+            "loc": torch.rand(1, 3, 2),
+            "depot": torch.rand(1, 2),
+            "waste": torch.rand(1, 3),
+            "max_waste": torch.ones(1, 3),
+        }
+        state = VRPP.make_state(batch)
+        assert not state.all_finished()
+
+
+class TestIntegrationModelComponents:
+    """Tests for individual model components."""
+
+    def test_normalization_layer_batch(self):
+        """Test batch normalization layer."""
+        import torch
+
+        from logic.src.models.modules.normalization import Normalization
+
+        norm = Normalization(64, "batch")
+        x = torch.rand(4, 10, 64)
+        out = norm(x)
+        assert out.shape == x.shape
+
+    def test_normalization_layer_layer(self):
+        """Test layer normalization."""
+        import torch
+
+        from logic.src.models.modules.normalization import Normalization
+
+        norm = Normalization(64, "layer")
+        x = torch.rand(4, 10, 64)
+        out = norm(x)
+        assert out.shape == x.shape
+
+    def test_feed_forward_module(self):
+        """Test feed forward module."""
+        import torch
+
+        from logic.src.models.modules.feed_forward import FeedForward
+
+        ff = FeedForward(input_dim=64, output_dim=64)
+        x = torch.rand(4, 10, 64)
+        out = ff(x)
+        assert out.shape == (4, 10, 64)
+
+    def test_skip_connection_residual(self):
+        """Test residual skip connection."""
+        import torch
+        import torch.nn as nn
+
+        from logic.src.models.modules.skip_connection import SkipConnection
+
+        sublayer = nn.Linear(64, 64)
+        skip = SkipConnection(module=sublayer)
+        x = torch.rand(4, 10, 64)
+        out = skip(x)
+        assert out.shape == x.shape
+
+    def test_multi_head_attention_basic(self):
+        """Test multi-head attention module."""
+        import torch
+
+        from logic.src.models.modules.multi_head_attention import MultiHeadAttention
+
+        mha = MultiHeadAttention(n_heads=4, input_dim=64, embed_dim=64)
+        q = torch.rand(4, 1, 64)
+        h = torch.rand(4, 10, 64)
+        out = mha(q, h)
+        assert out.shape[0] == 4
+
+    def test_activation_function_relu(self):
+        """Test ReLU activation function wrapper."""
+        import torch
+
+        from logic.src.models.modules.activation_function import ActivationFunction
+
+        act = ActivationFunction("relu")
+        x = torch.randn(4, 10, 64)
+        out = act(x)
+        assert (out >= 0).all()
+
+    def test_activation_function_gelu(self):
+        """Test GELU activation function wrapper."""
+        import torch
+
+        from logic.src.models.modules.activation_function import ActivationFunction
+
+        act = ActivationFunction("gelu")
+        x = torch.randn(4, 10, 64)
+        out = act(x)
+        assert out.shape == x.shape
+
+
+# ============================================================================
+# Additional Problem Module Tests
+# ============================================================================
+
+
+class TestIntegrationProblems:
+    """Tests for problem modules (VRPP, WCVRP, etc.)."""
+
+    def test_vrpp_validate_tours(self):
+        """Test VRPP tour validation."""
+        import torch
+
+        from logic.src.problems.vrpp.problem_vrpp import VRPP
+
+        # Valid tour starting and ending at depot (0)
+        tour = torch.tensor([[0, 1, 2, 0]])
+        VRPP.validate_tours(tour)  # Should not raise
+
+    def test_vrpp_get_tour_length(self):
+        """Test VRPP tour length calculation."""
+        import torch
+
+        from logic.src.problems.vrpp.problem_vrpp import VRPP
+
+        dataset = {
+            "loc": torch.tensor([[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]]),
+            "depot": torch.tensor([[0.5, 0.5]]),
+        }
+        tour = torch.tensor([[0, 1, 2, 0]])
+        length = VRPP.get_tour_length(dataset, tour)
+        assert length.item() > 0
+
+    def test_cvrpp_make_state(self):
+        """Test CVRPP state creation."""
+        import torch
+
+        from logic.src.problems.vrpp.problem_vrpp import CVRPP
+
+        batch = {
+            "loc": torch.rand(2, 5, 2),
+            "depot": torch.rand(2, 2),
+            "waste": torch.rand(2, 5),
+            "max_waste": torch.ones(2, 5),
+        }
+        state = CVRPP.make_state(batch)
+        assert state is not None
+        assert hasattr(state, "coords")
+
+    def test_wcvrp_make_state(self):
+        """Test WCVRP state creation."""
+        import torch
+
+        from logic.src.problems.wcvrp.problem_wcvrp import WCVRP
+
+        batch = {
+            "loc": torch.rand(2, 5, 2),
+            "depot": torch.rand(2, 2),
+            "waste": torch.rand(2, 5),
+            "max_waste": torch.ones(2, 5),
+        }
+        # WCVRP.make_state needs edges
+        edges = torch.zeros(2, 5, 5)
+        state = WCVRP.make_state(batch, edges=edges)
+        assert state is not None
+
+
+# ============================================================================
+# Neural Model Subnet Tests
+# ============================================================================
+
+
+class TestIntegrationSubnets:
+    """Tests for neural model subnets."""
+
+    def test_gat_encoder_multiple_layers(self):
+        """Test GAT encoder with multiple layers."""
+        import torch
+
+        from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
+
+        encoder = GraphAttentionEncoder(
+            n_heads=4,
+            embed_dim=64,
+            n_layers=3,
+            n_groups=4,
+        )
+        x = torch.rand(4, 20, 64)
+        out = encoder(x)
+        assert out.shape == (4, 20, 64)
+
+    def test_gcn_encoder_basic(self):
+        """Test GCN encoder basic operation."""
+        import torch
+
+        from logic.src.models.subnets.gcn_encoder import GraphConvolutionEncoder
+
+        encoder = GraphConvolutionEncoder(
+            n_layers=2,
+            feed_forward_hidden=64,
+            n_groups=4,
+        )
+        x = torch.rand(2, 10, 64)
+        edges = torch.randint(0, 2, (2, 10, 10))
+        out = encoder(x, edges)
+        assert out.shape == (2, 10, 64)
+
+    def test_attention_decoder(self):
+        """Test attention decoder forward pass."""
+        import torch
+
+        from logic.src.models.subnets.gat_decoder import GraphAttentionDecoder
+
+        decoder = GraphAttentionDecoder(
+            n_heads=4,
+            embed_dim=64,
+            n_layers=1,
+            n_groups=4,
+        )
+        q = torch.rand(4, 1, 64)
+        h = torch.rand(4, 20, 64)
+        mask = torch.zeros(4, 20, dtype=torch.bool)
+        out = decoder(q, h, mask)
+        assert out.shape[0] == 4
+
+
+# ============================================================================
+# Additional Module Tests for Coverage
+# ============================================================================
+
+
+class TestIntegrationModules:
+    """Tests for neural modules."""
+
+    def test_normalization_instance(self):
+        """Test instance normalization."""
+        import torch
+
+        from logic.src.models.modules.normalization import Normalization
+
+        norm = Normalization(64, "instance")
+        x = torch.rand(4, 10, 64)
+        out = norm(x)
+        assert out.shape == x.shape
+
+    def test_normalization_group(self):
+        """Test group normalization."""
+        import torch
+
+        from logic.src.models.modules.normalization import Normalization
+
+        norm = Normalization(64, "group", n_groups=4)
+        x = torch.rand(4, 10, 64)
+        out = norm(x)
+        assert out.shape == x.shape
+
+    def test_graph_convolution_basic(self):
+        """Test basic graph convolution layer."""
+        import torch
+
+        from logic.src.models.modules.graph_convolution import GraphConvolution
+
+        gc = GraphConvolution(in_channels=64, out_channels=64, aggregation="mean")
+        x = torch.rand(2, 10, 64)
+        edges = torch.rand(2, 10, 10)
+        out = gc(x, edges)
+        assert out.shape == (2, 10, 64)
+
+    def test_activation_tanh(self):
+        """Test tanh activation."""
+        import torch
+
+        from logic.src.models.modules.activation_function import ActivationFunction
+
+        act = ActivationFunction("tanh")
+        x = torch.randn(4, 10, 64)
+        out = act(x)
+        assert (out >= -1).all() and (out <= 1).all()
+
+    def test_activation_leaky_relu(self):
+        """Test leaky ReLU activation."""
+        import torch
+
+        from logic.src.models.modules.activation_function import ActivationFunction
+
+        act = ActivationFunction("leakyrelu", fparam=0.01)
+        x = torch.randn(4, 10, 64)
+        out = act(x)
+        assert out.shape == x.shape

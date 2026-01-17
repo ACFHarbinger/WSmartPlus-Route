@@ -491,9 +491,9 @@ def process_pattern_files_statistics(
 
             # Track if any modifications were made and process based on the structure type
             key_values_found = find_single_input_values(data, output_key=output_key)
+            grouped_values = {}
             if key_values_found:
                 # Group values by field name (the part after the last dot)
-                grouped_values = {}
                 for location, value in key_values_found:
                     # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
                     field_name = location.split(".", 1)[-1] if "." in location else location
@@ -509,11 +509,16 @@ def process_pattern_files_statistics(
                 output_path = os.path.join(file_dir, output_filename)
 
                 # Write processed data to output file
-                with open(output_path, "r", encoding="utf-8") as file:
-                    processed_data = json.load(file)
+                if os.path.exists(output_path):
+                    with open(output_path, "r", encoding="utf-8") as file:
+                        processed_data = json.load(file)
+                else:
+                    processed_data = {}
 
                 for field_name, values in grouped_values.items():
                     if values:
+                        if field_name not in processed_data:
+                            processed_data[field_name] = {}
                         processed_data[field_name][output_key] = process_func(values)
 
                 with open(output_path, "w", encoding="utf-8") as output_file:
@@ -526,7 +531,6 @@ def process_pattern_files_statistics(
         except json.JSONDecodeError as e:
             print(f"- ERROR {e}: could not read contents from '{file_path}'")
         except Exception as e:
-            print("Last field:", field_name)
             print(f"- ERROR {e}: could not process '{file_path}'")
 
     print(f"\nProcessing completed: {processed_count}/{len(files)} files processed successfully")
@@ -585,11 +589,16 @@ def process_file_statistics(file_path, output_filename="output.json", output_key
             output_path = os.path.join(file_dir, output_filename)
 
             # Write processed data to output file
-            with open(output_path, "r", encoding="utf-8") as file:
-                processed_data = json.load(file)
+            if os.path.exists(output_path):
+                with open(output_path, "r", encoding="utf-8") as file:
+                    processed_data = json.load(file)
+            else:
+                processed_data = {}
 
             for field_name, values in grouped_values.items():
                 if values:
+                    if field_name not in processed_data:
+                        processed_data[field_name] = {}
                     processed_data[field_name][output_key] = process_func(values)
 
             with open(output_path, "w", encoding="utf-8") as output_file:

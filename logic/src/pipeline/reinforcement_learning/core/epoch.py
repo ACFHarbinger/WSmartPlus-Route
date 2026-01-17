@@ -214,7 +214,9 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
 
         metric_score = cost.mean()
         print(
-            "Validation overall {} score: {} +- {}".format(metric, metric_score, torch.std(cost) / math.sqrt(len(cost)))
+            "Validation overall {} score: {} +- {}".format(
+                metric, metric_score, torch.std(cost) / math.sqrt(len(cost)) if len(cost) > 1 else 0.0
+            )
         )
         return metric_score, avg_ucost, all_costs
 
@@ -284,17 +286,22 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
 
         print(
             "Validation overall avg_cost: {} +- {}".format(
-                avg_ucost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts))
+                avg_ucost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts)) if len(all_ucosts) > 1 else 0.0
             )
         )
         for key, val in all_costs.items():
             val = val.float()
-            print("- {}: {} +- {}".format(key, val.mean(), torch.std(val) / math.sqrt(len(val))))
+            std_val = torch.std(val) / math.sqrt(len(val)) if len(val) > 1 else 0.0
+            print("- {}: {} +- {}".format(key, val.mean(), std_val))
 
         return new_cw, avg_ucost, all_costs
 
     # 3. Simple Case
-    print("Validation overall avg_cost: {} +- {}".format(avg_ucost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts))))
+    print(
+        "Validation overall avg_cost: {} +- {}".format(
+            avg_ucost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts)) if len(all_ucosts) > 1 else 0.0
+        )
+    )
     return avg_ucost
 
 
@@ -571,7 +578,10 @@ def complete_train_pass(
 
     baseline.epoch_callback(model, epoch)
     if lr_scheduler is not None:
-        lr_scheduler.step()  # lr_scheduler should be called at end of epoch
+        # Only step scheduler if optimizer step has occurred (avoid 1.1.0+ warning)
+        # Check standard PyTorch internal flag or assumption
+        if not hasattr(optimizer, "_step_count") or optimizer._step_count > 0:
+            lr_scheduler.step()
     if opts["device"] == "cuda":
         torch.cuda.empty_cache()
     return None
