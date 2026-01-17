@@ -57,7 +57,7 @@ help:
 	@echo -e "$(YELLOW)Script Wrappers (scripts/*.sh):$(NC)"
 	@echo -e "  $(GREEN)run-train$(NC)     - Execute scripts/train.sh"
 	@echo -e "  $(GREEN)run-eval$(NC)      - Execute scripts/evaluation.sh"
-	@echo -e "  $(GREEN)run-gen$(NC)       - Execute scripts/gen_data.sh"
+	@echo -e "  $(GREEN)run-gen$(NC)       - Execute scripts/gen_data.sh (Alias: gen_data)"
 	@echo -e "  $(GREEN)run-meta$(NC)      - Execute scripts/meta_train.sh"
 	@echo -e "  $(GREEN)run-hpo$(NC)       - Execute scripts/hyperparam_optim.sh"
 	@echo -e ""
@@ -137,6 +137,8 @@ run-gen:
 	$(call print_header)
 	@echo -e "$(BLUE)📜 Running data generation script...$(NC)"
 	bash scripts/gen_data.sh
+
+gen_data: run-gen
 
 run-meta:
 	$(call print_header)
