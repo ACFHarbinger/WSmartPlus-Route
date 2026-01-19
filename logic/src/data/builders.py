@@ -7,11 +7,11 @@ handling coordinate normalization, demand scaling, and feature extraction.
 
 import numpy as np
 
-from logic.src.pipeline.simulator.bins import Bins
-from logic.src.pipeline.simulator.processor import process_coordinates
+from logic.src.pipeline.simulations.bins import Bins
+from logic.src.pipeline.simulations.processor import process_coordinates
 from logic.src.utils.data_utils import generate_waste_prize, load_focus_coords
 from logic.src.utils.definitions import MAX_WASTE
-from logic.src.utils.functions import get_path_until_string
+from logic.src.utils.functions.function import get_path_until_string
 
 
 class VRPInstanceBuilder:

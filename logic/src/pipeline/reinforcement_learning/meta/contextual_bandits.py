@@ -62,7 +62,7 @@ import torch
 from logic.src.pipeline.reinforcement_learning.meta.weight_strategy import (
     WeightAdjustmentStrategy,
 )
-from logic.src.utils.graph_utils import find_longest_path
+from logic.src.utils.functions.graph_utils import find_longest_path
 
 
 class WeightContextualBandit(WeightAdjustmentStrategy):

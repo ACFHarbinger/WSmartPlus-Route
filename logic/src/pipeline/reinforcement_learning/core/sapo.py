@@ -15,7 +15,7 @@ from logic.src.pipeline.reinforcement_learning.core.epoch import (
     set_decode_type,
 )
 from logic.src.pipeline.reinforcement_learning.core.reinforce import TimeTrainer
-from logic.src.utils.functions import move_to
+from logic.src.utils.functions.function import move_to
 
 
 class SAPOTrainer(TimeTrainer):

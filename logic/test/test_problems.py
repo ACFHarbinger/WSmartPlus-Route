@@ -6,13 +6,13 @@ import numpy as np
 import pytest
 import torch
 
-from logic.src.problems.vrpp import problem_vrpp
-from logic.src.problems.vrpp.problem_vrpp import CVRPP, VRPP, VRPPDataset
-from logic.src.problems.vrpp.state_cvrpp import StateCVRPP
-from logic.src.problems.vrpp.state_vrpp import StateVRPP
-from logic.src.problems.wcvrp import problem_wcvrp
-from logic.src.problems.wcvrp.problem_wcvrp import WCVRP, WCVRPDataset
-from logic.src.problems.wcvrp.state_wcvrp import StateWCVRP
+from logic.src.tasks.vrpp import problem_vrpp
+from logic.src.tasks.vrpp.problem_vrpp import CVRPP, VRPP, VRPPDataset
+from logic.src.tasks.vrpp.state_cvrpp import StateCVRPP
+from logic.src.tasks.vrpp.state_vrpp import StateVRPP
+from logic.src.tasks.wcvrp import problem_wcvrp
+from logic.src.tasks.wcvrp.problem_wcvrp import WCVRP, WCVRPDataset
+from logic.src.tasks.wcvrp.state_wcvrp import StateWCVRP
 
 
 class TestVRPP:
@@ -57,7 +57,7 @@ class TestVRPP:
         problem_vrpp.REVENUE_KG = 0.1
         problem_vrpp.BIN_CAPACITY = 100.0
 
-        with patch("logic.src.problems.vrpp.problem_vrpp.StateVRPP.initialize") as mock_init:
+        with patch("logic.src.tasks.vrpp.problem_vrpp.StateVRPP.initialize") as mock_init:
             VRPP.make_state(input="mock_input")
 
             args, kwargs = mock_init.call_args
@@ -68,11 +68,11 @@ class TestVRPP:
     def test_dataset_generation(self, mocker):
         """Test dataset generation calls."""
         mocker.patch(
-            "logic.src.problems.vrpp.problem_vrpp.load_area_and_waste_type_params",
+            "logic.src.tasks.vrpp.problem_vrpp.load_area_and_waste_type_params",
             return_value=(100, 0.1, 10, 1.0, 1.0),
         )
         mocker.patch(
-            "logic.src.problems.vrpp.problem_vrpp.generate_waste_prize",
+            "logic.src.tasks.vrpp.problem_vrpp.generate_waste_prize",
             return_value=np.zeros((1, 10)),
         )
 
@@ -189,7 +189,7 @@ class TestWCVRP:
     @pytest.mark.unit
     def test_make_state_removes_profit_vars(self):
         """Test that profit_vars is removed from kwargs for WCVRP."""
-        with patch("logic.src.problems.wcvrp.problem_wcvrp.StateWCVRP.initialize") as mock_init:
+        with patch("logic.src.tasks.wcvrp.problem_wcvrp.StateWCVRP.initialize") as mock_init:
             kwargs = {"profit_vars": {"a": 1}, "other": 2}
             WCVRP.make_state(input="mock", **kwargs)
 
@@ -202,7 +202,7 @@ class TestWCVRP:
         """Test dataset generation calls for WCVRP."""
         # Mock dependencies
         mocker.patch(
-            "logic.src.problems.wcvrp.problem_wcvrp.generate_waste_prize",
+            "logic.src.tasks.wcvrp.problem_wcvrp.generate_waste_prize",
             return_value=np.zeros((1, 10)),
         )
 
@@ -342,7 +342,7 @@ class TestCVRPP:
         problem_vrpp.REVENUE_KG = 0.1
         problem_vrpp.BIN_CAPACITY = 100.0
 
-        with patch("logic.src.problems.vrpp.state_cvrpp.StateCVRPP.initialize") as mock_init:
+        with patch("logic.src.tasks.vrpp.state_cvrpp.StateCVRPP.initialize") as mock_init:
             CVRPP.make_state(input="mock")
             mock_init.assert_called_once()
 

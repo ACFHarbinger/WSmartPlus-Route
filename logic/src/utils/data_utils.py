@@ -16,9 +16,9 @@ import pickle
 import numpy as np
 import torch
 
-from logic.src.pipeline.simulator.loader import load_depot, load_simulator_data
-from logic.src.pipeline.simulator.processor import process_coordinates, process_data
-from logic.src.utils.functions import get_path_until_string
+from logic.src.pipeline.simulations.loader import load_depot, load_simulator_data
+from logic.src.pipeline.simulations.processor import process_coordinates, process_data
+from logic.src.utils.functions.function import get_path_until_string
 
 
 def check_extension(filename):

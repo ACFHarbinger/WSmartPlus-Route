@@ -34,7 +34,7 @@ from logic.src.policies.single_vehicle import (
     get_multi_tour,
     get_route_cost,
 )
-from logic.src.utils.functions import add_attention_hooks, move_to
+from logic.src.utils.functions.function import add_attention_hooks, move_to
 
 
 class NeuralAgent:

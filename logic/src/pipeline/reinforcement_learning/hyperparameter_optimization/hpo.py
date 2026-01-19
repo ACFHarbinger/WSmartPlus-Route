@@ -46,10 +46,10 @@ from logic.src.pipeline.reinforcement_learning.worker_train import (
     train_reinforce_epoch,
     train_reinforce_over_time,
 )
-from logic.src.pipeline.simulator.network import compute_distance_matrix
+from logic.src.pipeline.simulations.network import compute_distance_matrix
 from logic.src.utils.data_utils import load_focus_coords
 from logic.src.utils.definitions import ROOT_DIR
-from logic.src.utils.functions import load_data, load_problem
+from logic.src.utils.functions.function import load_data, load_problem
 from logic.src.utils.setup_utils import (
     setup_cost_weights,
     setup_model_and_baseline,

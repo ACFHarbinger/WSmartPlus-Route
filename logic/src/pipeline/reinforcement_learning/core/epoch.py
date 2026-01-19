@@ -25,9 +25,9 @@ import torch
 from tqdm import tqdm
 
 from logic.src.utils.data_utils import generate_waste_prize
-from logic.src.utils.functions import get_inner_model, move_to
+from logic.src.utils.functions.function import get_inner_model, move_to
 
-from ...simulator.bins import Bins
+from ...simulations.bins import Bins
 
 
 def set_decode_type(model, decode_type):

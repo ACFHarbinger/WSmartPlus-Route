@@ -7,8 +7,8 @@ from typing import NamedTuple
 import torch
 import torch.nn.functional as F
 
-from logic.src.utils.boolmask import mask_long2bool, mask_long_scatter
 from logic.src.utils.definitions import VEHICLE_CAPACITY
+from logic.src.utils.functions.boolmask import mask_long2bool, mask_long_scatter
 
 from ..base import BaseState, refactor_state
 

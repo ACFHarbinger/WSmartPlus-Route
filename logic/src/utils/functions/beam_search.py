@@ -9,7 +9,7 @@ import typing
 
 import torch
 
-from logic.src.utils.lexsort import torch_lexsort
+from logic.src.utils.functions.lexsort import torch_lexsort
 
 
 def beam_search(*args, **kwargs):

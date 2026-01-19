@@ -12,8 +12,8 @@ import numpy as np
 import pandas as pd
 from gurobipy import GRB, quicksum
 
-from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
-from logic.src.pipeline.simulator.processor import (
+from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
+from logic.src.pipeline.simulations.processor import (
     convert_to_dict,
     create_dataframe_from_matrix,
 )

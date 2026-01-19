@@ -8,11 +8,11 @@ import pickle
 import torch
 from tqdm import tqdm
 
-from logic.src.pipeline.simulator.bins import Bins
-from logic.src.pipeline.simulator.network import apply_edges, compute_distance_matrix
+from logic.src.pipeline.simulations.bins import Bins
+from logic.src.pipeline.simulations.network import apply_edges, compute_distance_matrix
 from logic.src.utils.data_utils import generate_waste_prize, load_focus_coords
 from logic.src.utils.definitions import MAX_WASTE, VEHICLE_CAPACITY
-from logic.src.utils.problem_utils import calculate_edges, make_instance_generic
+from logic.src.utils.task_utils import calculate_edges, make_instance_generic
 
 from ..base import BaseDataset, BaseProblem
 from .state_cwcvrp import StateCWCVRP

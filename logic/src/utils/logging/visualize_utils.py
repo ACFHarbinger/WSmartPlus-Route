@@ -27,7 +27,7 @@ from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
 from logic.src.pipeline.reinforcement_learning.policies.local_search import (
     vectorized_two_opt,
 )
-from logic.src.utils.functions import load_problem
+from logic.src.utils.functions.function import load_problem
 
 """
 Visualization utilities for model analysis.
