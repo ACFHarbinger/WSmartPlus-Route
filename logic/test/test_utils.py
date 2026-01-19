@@ -19,7 +19,7 @@ import torch.nn as nn
 
 # Imports from project
 from logic.src.utils.debug_utils import watch
-from logic.src.utils.functions import (
+from logic.src.utils.functions.function import (
     add_attention_hooks,
     compute_in_batches,
     do_batch_rep,
@@ -32,9 +32,9 @@ from logic.src.utils.functions import (
     sample_many,
     torch_load_cpu,
 )
+from logic.src.utils.functions.lexsort import _torch_lexsort_cuda, torch_lexsort
 from logic.src.utils.io.processing import find_single_input_values, process_dict_of_dicts, process_list_of_dicts
-from logic.src.utils.lexsort import _torch_lexsort_cuda, torch_lexsort
-from logic.src.utils.log_utils import (
+from logic.src.utils.logging.log_utils import (
     log_epoch,
     log_to_json,
     log_to_json2,
@@ -152,7 +152,7 @@ class TestLexSort:
         k1 = MagicMock()
         k1.is_cuda = True
         keys = (k1,)
-        with patch("logic.src.utils.lexsort._torch_lexsort_cuda") as mock_cuda:
+        with patch("logic.src.utils.functions.lexsort._torch_lexsort_cuda") as mock_cuda:
             torch_lexsort(keys)
             mock_cuda.assert_called_once()
 
@@ -165,9 +165,9 @@ class TestLexSort:
 class TestLoadModel:
     """Class for load_model tests."""
 
-    @patch("logic.src.utils.functions.load_problem")
-    @patch("logic.src.utils.functions.load_args")
-    @patch("logic.src.utils.functions.torch.load")
+    @patch("logic.src.utils.functions.function.load_problem")
+    @patch("logic.src.utils.functions.function.load_args")
+    @patch("logic.src.utils.functions.function.torch.load")
     def test_load_model_basic(self, mock_torch_load, mock_load_args, mock_load_problem, tmp_path):
         """Test load_model by mocking internal dependencies and file structure."""
         model_dir = tmp_path / "model_dir"
@@ -225,7 +225,7 @@ class TestLoadModel:
 class TestLogUtils:
     """Class for log_utils tests."""
 
-    @patch("logic.src.utils.log_utils.wandb")
+    @patch("logic.src.utils.logging.log_utils.wandb")
     def test_log_epoch(self, mock_wandb):
         """Test log_epoch with mocked wandb."""
         opts = {"train_time": False, "wandb_mode": "online"}
@@ -235,8 +235,8 @@ class TestLogUtils:
         log_epoch(x_tup, loss_keys, epoch_loss, opts)
         assert mock_wandb.log.called
 
-    @patch("logic.src.utils.log_utils.wandb")
-    @patch("logic.src.utils.log_utils.plt")
+    @patch("logic.src.utils.logging.log_utils.wandb")
+    @patch("logic.src.utils.logging.log_utils.plt")
     def test_log_training(self, mock_plt, mock_wandb):
         """Test log_training with mocked components."""
         opts = {
@@ -254,20 +254,20 @@ class TestLogUtils:
             log_training(loss_keys, table_df, opts)
         assert mock_wandb.log.called
 
-    @patch("logic.src.utils.log_utils.os.path.exists")
-    @patch("logic.src.utils.log_utils.read_json")
+    @patch("logic.src.utils.logging.log_utils.os.path.exists")
+    @patch("logic.src.utils.logging.log_utils.read_json")
     @patch("builtins.open", new_callable=MagicMock)
     def test_log_to_json(self, mock_open, mock_read, mock_exists):
         """Test log_to_json with mock file."""
         mock_exists.return_value = True
         mock_read.return_value = {"runs": []}
         mock_open.return_value.__enter__.return_value = MagicMock()
-        with patch("json.dump") as mock_dump, patch("logic.src.utils.log_utils._sort_log"):
+        with patch("json.dump") as mock_dump, patch("logic.src.utils.logging.log_utils._sort_log"):
             res = log_to_json("path.json", ["val"], {"key": [1]}, sort_log=True)
             assert res is not None
             assert mock_dump.called
 
-    @patch("logic.src.utils.log_utils.os.path.exists")
+    @patch("logic.src.utils.logging.log_utils.os.path.exists")
     @patch("builtins.open", new_callable=MagicMock)
     def test_log_to_json2(self, mock_open, mock_exists):
         """Test log_to_json2 (thread-safe version) with mock file."""
@@ -278,7 +278,7 @@ class TestLogUtils:
             assert res is not None
             assert mock_dump.called
 
-    @patch("logic.src.utils.log_utils.wandb")
+    @patch("logic.src.utils.logging.log_utils.wandb")
     def test_log_values(self, mock_wandb):
         """Test log_values function."""
         cost = torch.tensor([10.0])
@@ -299,7 +299,7 @@ class TestLogUtils:
         assert tb_logger.log_value.called
 
     @patch("glob.glob")
-    @patch("logic.src.utils.log_utils.read_json")
+    @patch("logic.src.utils.logging.log_utils.read_json")
     @patch("builtins.open", new_callable=MagicMock)
     @patch("json.dump")
     def test_output_stats(self, mock_dump, mock_open_file, mock_read, mock_glob):
@@ -312,7 +312,7 @@ class TestLogUtils:
         assert isinstance(std, dict)
         assert mock_dump.called
 
-    @patch("logic.src.utils.log_utils.read_json")
+    @patch("logic.src.utils.logging.log_utils.read_json")
     def test_aggregate_stats(self, mock_read):
         """Test runs_per_policy function."""
         mock_read.return_value = [{"policy1": "res"}, {}]

@@ -142,15 +142,15 @@ def setup_sim_data(tmp_path, mocker):
     Creates necessary dummy CSV/Excel files for loader.
     """
     # Patch ROOT_DIR in key places
-    mocker.patch("logic.src.pipeline.simulator.states.ROOT_DIR", str(tmp_path))
-    mocker.patch("logic.src.pipeline.simulator.simulation.ROOT_DIR", str(tmp_path))
-    mocker.patch("logic.src.pipeline.simulator.checkpoints.ROOT_DIR", str(tmp_path))
+    mocker.patch("logic.src.pipeline.simulations.states.ROOT_DIR", str(tmp_path))
+    mocker.patch("logic.src.pipeline.simulations.simulator.ROOT_DIR", str(tmp_path))
+    mocker.patch("logic.src.pipeline.simulations.checkpoints.ROOT_DIR", str(tmp_path))
     mocker.patch("logic.src.utils.definitions.ROOT_DIR", str(tmp_path))
     # Mock fast_tsp to avoid solver crashes with dummy data
     mocker.patch("logic.src.policies.single_vehicle.fast_tsp.find_tour", return_value=[0, 1, 0])
     # Patch the singleton repository instance directly since it's already initialized
     mocker.patch(
-        "logic.src.pipeline.simulator.loader._repository.default_data_dir", str(tmp_path / "data" / "wsr_simulator")
+        "logic.src.pipeline.simulations.loader._repository.default_data_dir", str(tmp_path / "data" / "wsr_simulator")
     )
 
     data_dir = tmp_path / "data" / "wsr_simulator"

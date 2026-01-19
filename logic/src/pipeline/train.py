@@ -52,7 +52,7 @@ from logic.src.utils.definitions import (
     ROOT_DIR,
     update_lock_wait_time,
 )
-from logic.src.utils.functions import get_inner_model, load_data, load_problem
+from logic.src.utils.functions.function import get_inner_model, load_data, load_problem
 from logic.src.utils.setup_utils import (
     setup_cost_weights,
     setup_model_and_baseline,

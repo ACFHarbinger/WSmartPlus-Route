@@ -10,7 +10,7 @@ import pytest
 import torch
 
 import logic.src.policies.vrpp_optimizer as vrpp_opt_mod
-from logic.src.pipeline.simulator.day import run_day
+from logic.src.pipeline.simulations.day import run_day
 from logic.src.policies import single_vehicle
 from logic.src.policies.hybrid_genetic_search import run_hgs
 from logic.src.policies.last_minute import (
@@ -176,7 +176,7 @@ class TestRunDayPolicyRouting:
         # Mock policy_lookahead to return must_go_bins so logic enters the if block
         mocker.patch("logic.src.policies.look_ahead.policy_lookahead", return_value=[0, 1])
         mocker.patch(
-            "logic.src.pipeline.simulator.loader.load_area_and_waste_type_params",
+            "logic.src.pipeline.simulations.loader.load_area_and_waste_type_params",
             return_value=(100, 1, 1, 1, 1),
         )
 
@@ -203,7 +203,7 @@ class TestRunDayPolicyRouting:
         )
         mocker.patch("logic.src.policies.look_ahead.policy_lookahead", return_value=[0, 1])
         mocker.patch(
-            "logic.src.pipeline.simulator.loader.load_area_and_waste_type_params",
+            "logic.src.pipeline.simulations.loader.load_area_and_waste_type_params",
             return_value=(100, 1, 1, 1, 1),
         )
 
@@ -1059,7 +1059,7 @@ class TestAdvancedLookaheadPolicies:
 
         # Mock the external loader (as in the policy itself)
         mocker.patch(
-            "logic.src.pipeline.simulator.loader.load_area_and_waste_type_params",
+            "logic.src.pipeline.simulations.loader.load_area_and_waste_type_params",
             return_value=(4000, 0.16, 21.0, 1.0, 2.5),
         )
 

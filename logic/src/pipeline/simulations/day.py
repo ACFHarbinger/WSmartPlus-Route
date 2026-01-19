@@ -24,9 +24,9 @@ import numpy as np
 import pandas as pd
 import torch
 
-from logic.src.pipeline.simulator.context import SimulationDayContext
+from logic.src.pipeline.simulations.context import SimulationDayContext
 from logic.src.utils.definitions import DAY_METRICS
-from logic.src.utils.functions import move_to
+from logic.src.utils.functions.function import move_to
 
 
 def set_daily_waste(
@@ -128,7 +128,7 @@ def send_daily_output_to_gui(*args, **kwargs):
     This function lazily imports the utility from log_utils to avoid
     circular dependencies and forwards all arguments.
     """
-    from logic.src.utils.log_utils import send_daily_output_to_gui
+    from logic.src.utils.logging.log_utils import send_daily_output_to_gui
 
     return send_daily_output_to_gui(*args, **kwargs)
 
@@ -146,7 +146,7 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
     Returns:
         Updated SimulationDayContext.
     """
-    from logic.src.pipeline.simulator.actions import (
+    from logic.src.pipeline.simulations.actions import (
         CollectAction,
         FillAction,
         LogAction,

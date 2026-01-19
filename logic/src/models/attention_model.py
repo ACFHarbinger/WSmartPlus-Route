@@ -8,8 +8,8 @@ import torch.nn.functional as F
 
 from logic.src.models.context_embedder import VRPPContextEmbedder, WCContextEmbedder
 from logic.src.models.model_factory import NeuralComponentFactory
-from logic.src.utils.beam_search import CachedLookup
-from logic.src.utils.functions import sample_many
+from logic.src.utils.functions.beam_search import CachedLookup
+from logic.src.utils.functions.function import sample_many
 
 
 class AttentionModel(nn.Module):

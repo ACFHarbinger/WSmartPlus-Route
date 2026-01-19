@@ -38,7 +38,7 @@ import pandas as pd
 import torch
 
 from logic.src.utils.definitions import EARTH_RADIUS, EARTH_WMP_RADIUS, MAX_WASTE
-from logic.src.utils.graph_utils import adj_to_idx, get_adj_knn, get_edge_idx_dist
+from logic.src.utils.functions.graph_utils import adj_to_idx, get_adj_knn, get_edge_idx_dist
 
 from .loader import load_area_and_waste_type_params, load_depot, load_simulator_data
 from .network import (

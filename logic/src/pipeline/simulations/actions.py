@@ -21,9 +21,9 @@ Classes:
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
-from logic.src.pipeline.simulator.day import get_daily_results
+from logic.src.pipeline.simulations.day import get_daily_results
 from logic.src.policies.adapters import PolicyFactory
-from logic.src.utils.log_utils import send_daily_output_to_gui
+from logic.src.utils.logging.log_utils import send_daily_output_to_gui
 
 
 class SimulationAction(ABC):

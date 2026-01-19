@@ -42,7 +42,7 @@ from tqdm import tqdm
 
 from logic.src.utils.config_loader import load_config
 from logic.src.utils.definitions import DAY_METRICS, ROOT_DIR, SIM_METRICS, TQDM_COLOURS
-from logic.src.utils.log_utils import (
+from logic.src.utils.logging.log_utils import (
     final_simulation_summary,
     log_to_json,
     setup_system_logger,
@@ -495,7 +495,7 @@ class RunningState(SimState):
                     elif policy_stripped == "regular":
                         p_name = "policy_regular"
 
-                    from logic.src.pipeline.simulator.context import (
+                    from logic.src.pipeline.simulations.context import (
                         SimulationDayContext,
                     )
 
@@ -656,7 +656,7 @@ class FinishingState(SimState):
         ctx.result = {ctx.policy: lg, "success": True}
 
         if opts.get("print_output"):
-            from logic.src.utils.log_utils import final_simulation_summary
+            from logic.src.utils.logging.log_utils import final_simulation_summary
 
             final_simulation_summary({ctx.policy: lg}, ctx.policy, opts["n_samples"])
 

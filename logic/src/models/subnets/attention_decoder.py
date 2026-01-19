@@ -6,7 +6,7 @@ import typing
 import torch
 import torch.nn as nn
 
-from logic.src.utils.functions import compute_in_batches
+from logic.src.utils.functions.function import compute_in_batches
 
 
 class AttentionModelFixed(typing.NamedTuple):

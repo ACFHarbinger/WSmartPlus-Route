@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 import torch
 import torch.nn as nn
 
-import logic.src.problems.vrpp.problem_vrpp as problem_module
+import logic.src.tasks.vrpp.problem_vrpp as problem_module
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.modules.moe import MoE
 from logic.src.models.modules.moe_feed_forward import MoEFeedForward
@@ -20,7 +20,7 @@ from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
     WarmupBaseline,
 )
 from logic.src.policies.neural_agent import NeuralAgent
-from logic.src.problems.vrpp.problem_vrpp import CVRPP
+from logic.src.tasks.vrpp.problem_vrpp import CVRPP
 
 # Patch globals that are expected to be initialized by Dataset
 problem_module.COST_KM = 1.0

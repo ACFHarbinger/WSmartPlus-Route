@@ -24,14 +24,14 @@ from tqdm import tqdm
 
 import logic.src.utils.definitions as udef
 from logic.src.cli import ConfigsParser, add_test_sim_args, validate_test_sim_args
-from logic.src.pipeline.simulator.loader import load_indices
-from logic.src.pipeline.simulator.simulation import (
+from logic.src.pipeline.simulations.loader import load_indices
+from logic.src.pipeline.simulations.simulator import (
     display_log_metrics,
     init_single_sim_worker,
     sequential_simulations,
     single_simulation,
 )
-from logic.src.utils.log_utils import (
+from logic.src.utils.logging.log_utils import (
     output_stats,
     runs_per_policy,
     send_final_output_to_gui,

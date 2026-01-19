@@ -127,7 +127,7 @@ src.utils.plot\_utils module
 src.utils.problem\_utils module
 -------------------------------
 
-.. automodule:: src.utils.problem_utils
+.. automodule:: src.utils.task_utils
    :members:
    :undoc-members:
    :show-inheritance:
