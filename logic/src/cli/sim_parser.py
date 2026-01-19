@@ -7,7 +7,7 @@ from multiprocessing import cpu_count
 
 from logic.src.cli.base_parser import StoreDictKeyPair
 from logic.src.utils.definitions import MAP_DEPOTS, WASTE_TYPES
-from logic.src.utils.functions import parse_softmax_temperature
+from logic.src.utils.functions.function import parse_softmax_temperature
 
 
 def add_eval_args(parser):

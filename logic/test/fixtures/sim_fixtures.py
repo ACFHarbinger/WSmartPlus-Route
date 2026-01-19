@@ -11,8 +11,8 @@ import pandas as pd
 import pytest
 import torch
 
-from logic.src.pipeline.simulator.bins import Bins
-from logic.src.pipeline.simulator.context import SimulationDayContext
+from logic.src.pipeline.simulations.bins import Bins
+from logic.src.pipeline.simulations.context import SimulationDayContext
 
 
 @pytest.fixture
@@ -84,7 +84,7 @@ def basic_checkpoint(mocker, tmp_path):
 
     # 1. Mock ROOT_DIR to point to a temporary path
     mock_root = tmp_path / "mock_root"
-    mocker.patch("logic.src.pipeline.simulator.checkpoints.ROOT_DIR", new=str(mock_root))
+    mocker.patch("logic.src.pipeline.simulations.checkpoints.ROOT_DIR", new=str(mock_root))
 
     # 2. Define the path structure passed to the constructor
     # The test implies the output_dir input ends with "results"
@@ -94,7 +94,7 @@ def basic_checkpoint(mocker, tmp_path):
     mocker.patch("os.listdir", return_value=[])
 
     # 4. Initialize SimulationCheckpoint
-    from logic.src.pipeline.simulator.checkpoints import SimulationCheckpoint
+    from logic.src.pipeline.simulations.checkpoints import SimulationCheckpoint
 
     cp = SimulationCheckpoint(
         # Pass the path that ends in 'results'
@@ -161,22 +161,22 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     and sequential_simulations.
     """
     # 1. Patch ROOT_DIR in both modules to ensure consistency
-    mocker.patch("logic.src.pipeline.simulator.states.ROOT_DIR", str(tmp_path))
-    mocker.patch("logic.src.pipeline.simulator.simulation.ROOT_DIR", str(tmp_path))
+    mocker.patch("logic.src.pipeline.simulations.states.ROOT_DIR", str(tmp_path))
+    mocker.patch("logic.src.pipeline.simulations.simulator.ROOT_DIR", str(tmp_path))
 
     # 2. Mock loader functions
     mock_depot = pd.DataFrame({"ID": [0], "Lat": [40], "Lng": [-8], "Stock": [0], "Accum_Rate": [0]})
     mock_data = pd.DataFrame({"ID": [1, 2], "Stock": [10, 20], "Accum_Rate": [0.1, 0.2]})
     mock_coords = pd.DataFrame({"ID": [1, 2], "Lat": [40.1, 40.2], "Lng": [-8.1, -8.2]})
-    mocker.patch("logic.src.pipeline.simulator.processor.load_depot", return_value=mock_depot)
+    mocker.patch("logic.src.pipeline.simulations.processor.load_depot", return_value=mock_depot)
     mocker.patch(
-        "logic.src.pipeline.simulator.processor.load_simulator_data",
+        "logic.src.pipeline.simulations.processor.load_simulator_data",
         return_value=(mock_data.copy(), mock_coords.copy()),
     )
 
     # Mock setup_basedata in states to return the tuple directly
     mock_setup_basedata = mocker.patch(
-        "logic.src.pipeline.simulator.states.setup_basedata",
+        "logic.src.pipeline.simulations.states.setup_basedata",
         return_value=(mock_data.copy(), mock_coords.copy(), mock_depot.copy()),
     )
 
@@ -184,11 +184,11 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     mock_proc_data = pd.DataFrame({"ID": [0, 1, 2], "Stock": [0, 10, 20]})
     mock_proc_coords = pd.DataFrame({"ID": [0, 1, 2], "Lat": [40, 40.1, 40.2], "Lng": [-8, -8.1, -8.2]})
     mock_process_data = mocker.patch(
-        "logic.src.pipeline.simulator.states.process_data",
+        "logic.src.pipeline.simulations.states.process_data",
         return_value=(mock_proc_data.copy(), mock_proc_coords.copy()),
     )
     mocker.patch(
-        "logic.src.pipeline.simulator.states.process_model_data",
+        "logic.src.pipeline.simulations.states.process_model_data",
         return_value=("mock_model_tup_0", "mock_model_tup_1"),
     )
 
@@ -201,28 +201,28 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     )
     mock_adj_matrix = np.array([[1, 1], [1, 1]])
     mock_setup_dist = mocker.patch(
-        "logic.src.pipeline.simulator.states.setup_dist_path_tup",
+        "logic.src.pipeline.simulations.states.setup_dist_path_tup",
         return_value=(mock_dist_tup, mock_adj_matrix),
     )
     mocker.patch(
-        "logic.src.pipeline.simulator.processor.compute_distance_matrix",
+        "logic.src.pipeline.simulations.processor.compute_distance_matrix",
         return_value=np.array([[0, 1], [1, 0]]),
     )
     mocker.patch(
-        "logic.src.pipeline.simulator.processor.apply_edges",
+        "logic.src.pipeline.simulations.processor.apply_edges",
         return_value=("mock_dist_edges", "mock_paths", "mock_adj"),
     )
     mocker.patch(
-        "logic.src.pipeline.simulator.processor.get_paths_between_states",
+        "logic.src.pipeline.simulations.processor.get_paths_between_states",
         return_value="mock_all_paths",
     )
 
     # 5. Mock Bins class
-    mocker.patch("logic.src.pipeline.simulator.states.Bins", return_value=mock_bins_instance)
+    mocker.patch("logic.src.pipeline.simulations.states.Bins", return_value=mock_bins_instance)
 
     # 6. Mock setup functions
     mock_setup_model = mocker.patch(
-        "logic.src.pipeline.simulator.states.setup_model",
+        "logic.src.pipeline.simulations.states.setup_model",
         return_value=(MagicMock(), MagicMock()),
     )
     mock_setup_env = mocker.patch("logic.src.utils.setup_utils.setup_env", return_value="mock_or_env")
@@ -249,14 +249,14 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     mock_return_ctx.cached = None
 
     mock_run_day = mocker.patch(  # CAPTURE the mock object here
-        "logic.src.pipeline.simulator.states.run_day", return_value=mock_return_ctx
+        "logic.src.pipeline.simulations.states.run_day", return_value=mock_return_ctx
     )
 
     # 8. Mock checkpointing
     mock_cp_instance = mocker.MagicMock()
     mock_cp_instance.load_state.return_value = (None, 0)  # Default: no resume
     mocker.patch(
-        "logic.src.pipeline.simulator.states.SimulationCheckpoint",
+        "logic.src.pipeline.simulations.states.SimulationCheckpoint",
         return_value=mock_cp_instance,
     )
 
@@ -264,13 +264,13 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     mock_hook = mocker.MagicMock()
     mock_cm = mocker.MagicMock()
     mock_cm.__enter__.return_value = mock_hook  # Yield the hook
-    mocker.patch("logic.src.pipeline.simulator.states.checkpoint_manager", return_value=mock_cm)
+    mocker.patch("logic.src.pipeline.simulations.states.checkpoint_manager", return_value=mock_cm)
 
     # 9. Mock utilities
     mock_log_to_json = mocker.MagicMock()
-    mocker.patch("logic.src.pipeline.simulator.states.log_to_json", mock_log_to_json)
-    mocker.patch("logic.src.pipeline.simulator.simulation.log_to_json", mock_log_to_json)
-    mock_save_excel = mocker.patch("logic.src.pipeline.simulator.states.save_matrix_to_excel")
+    mocker.patch("logic.src.pipeline.simulations.states.log_to_json", mock_log_to_json)
+    mocker.patch("logic.src.pipeline.simulations.simulator.log_to_json", mock_log_to_json)
+    mock_save_excel = mocker.patch("logic.src.pipeline.simulations.states.save_matrix_to_excel")
     mocker.patch("time.process_time", return_value=1.0)
     mocker.patch("pandas.DataFrame.to_excel")
     mocker.patch("statistics.mean", return_value=1.0)
@@ -301,7 +301,7 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
         return mock_instance
 
     mocker.patch(
-        "logic.src.pipeline.simulator.states.tqdm",
+        "logic.src.pipeline.simulations.states.tqdm",
         side_effect=mock_tqdm_factory,
         autospec=True,
     )
@@ -419,7 +419,7 @@ def mock_run_day_deps(mocker):
 
     # 5. Patch external calls
     mock_policy_regular = mocker.patch("logic.src.policies.regular.policy_regular", return_value=[0, 1, 2, 0])
-    mock_send_output = mocker.patch("logic.src.pipeline.simulator.actions.send_daily_output_to_gui", autospec=True)
+    mock_send_output = mocker.patch("logic.src.pipeline.simulations.actions.send_daily_output_to_gui", autospec=True)
     mocker.patch("logic.src.policies.single_vehicle.get_route_cost", return_value=50.0)
     mocker.patch("logic.src.policies.single_vehicle.find_route", return_value=[0, 1, 0])
 

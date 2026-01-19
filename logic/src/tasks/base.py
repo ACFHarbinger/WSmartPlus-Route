@@ -4,8 +4,8 @@ Base classes and utilities for routing problems, datasets, and states.
 
 import torch
 
-from logic.src.utils.beam_search import beam_search as beam_search_func
-from logic.src.utils.boolmask import mask_long2bool
+from logic.src.utils.functions.beam_search import beam_search as beam_search_func
+from logic.src.utils.functions.boolmask import mask_long2bool
 
 
 class BaseProblem(object):

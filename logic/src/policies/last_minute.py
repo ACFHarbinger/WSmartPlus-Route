@@ -29,7 +29,7 @@ import numpy as np
 from numpy.typing import NDArray
 from pandas import DataFrame
 
-from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
+from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
 
 from .adapters import IPolicy, PolicyRegistry
 from .multi_vehicle import find_routes

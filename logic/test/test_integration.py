@@ -15,7 +15,7 @@ from logic.src.pipeline.reinforcement_learning.worker_train import (
 )
 
 # Simulation imports
-from logic.src.pipeline.simulator.simulation import sequential_simulations
+from logic.src.pipeline.simulations.simulator import sequential_simulations
 
 # Training imports
 from logic.src.pipeline.train import (
@@ -357,7 +357,7 @@ class TestIntegrationSimulation:
         assert not failed
         assert "policy_regular_emp" in log
 
-    @patch("logic.src.pipeline.simulator.states.setup_model")
+    @patch("logic.src.pipeline.simulations.states.setup_model")
     @patch("logic.src.policies.neural_agent.NeuralPolicy.execute")
     def test_sim_policy_neural_mock(self, mock_exec, mock_setup, sim_opts):
         """Test Neural policy integration with mocked execution to avoid actual model loading."""
@@ -405,7 +405,7 @@ class TestIntegrationTrainingPipeline:
 
     def test_vrpp_make_state(self, vrpp_batch):
         """Test VRPP state creation from batch."""
-        from logic.src.problems.vrpp.problem_vrpp import VRPP
+        from logic.src.tasks.vrpp.problem_vrpp import VRPP
 
         state = VRPP.make_state(vrpp_batch)
         assert state is not None
@@ -416,7 +416,7 @@ class TestIntegrationTrainingPipeline:
         """Test VRPP state updates correctly on action."""
         import torch
 
-        from logic.src.problems.vrpp.problem_vrpp import VRPP
+        from logic.src.tasks.vrpp.problem_vrpp import VRPP
 
         state = VRPP.make_state(vrpp_batch)
         # Select depot (index 0) as action - always valid
@@ -479,7 +479,7 @@ class TestIntegrationStateTransitions:
         """Test that visited nodes are masked for future selection."""
         import torch
 
-        from logic.src.problems.vrpp.problem_vrpp import VRPP
+        from logic.src.tasks.vrpp.problem_vrpp import VRPP
 
         batch = {
             "loc": torch.rand(2, 5, 2),
@@ -496,7 +496,7 @@ class TestIntegrationStateTransitions:
         """Test capacity constraints in VRPP state."""
         import torch
 
-        from logic.src.problems.vrpp.problem_vrpp import VRPP
+        from logic.src.tasks.vrpp.problem_vrpp import VRPP
 
         batch = {
             "loc": torch.rand(2, 5, 2),
@@ -512,7 +512,7 @@ class TestIntegrationStateTransitions:
         """Test that state correctly detects completion."""
         import torch
 
-        from logic.src.problems.vrpp.problem_vrpp import VRPP
+        from logic.src.tasks.vrpp.problem_vrpp import VRPP
 
         batch = {
             "loc": torch.rand(1, 3, 2),
@@ -620,7 +620,7 @@ class TestIntegrationProblems:
         """Test VRPP tour validation."""
         import torch
 
-        from logic.src.problems.vrpp.problem_vrpp import VRPP
+        from logic.src.tasks.vrpp.problem_vrpp import VRPP
 
         # Valid tour starting and ending at depot (0)
         tour = torch.tensor([[0, 1, 2, 0]])
@@ -630,7 +630,7 @@ class TestIntegrationProblems:
         """Test VRPP tour length calculation."""
         import torch
 
-        from logic.src.problems.vrpp.problem_vrpp import VRPP
+        from logic.src.tasks.vrpp.problem_vrpp import VRPP
 
         dataset = {
             "loc": torch.tensor([[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]]),
@@ -644,7 +644,7 @@ class TestIntegrationProblems:
         """Test CVRPP state creation."""
         import torch
 
-        from logic.src.problems.vrpp.problem_vrpp import CVRPP
+        from logic.src.tasks.vrpp.problem_vrpp import CVRPP
 
         batch = {
             "loc": torch.rand(2, 5, 2),
@@ -660,7 +660,7 @@ class TestIntegrationProblems:
         """Test WCVRP state creation."""
         import torch
 
-        from logic.src.problems.wcvrp.problem_wcvrp import WCVRP
+        from logic.src.tasks.wcvrp.problem_wcvrp import WCVRP
 
         batch = {
             "loc": torch.rand(2, 5, 2),

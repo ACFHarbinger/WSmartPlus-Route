@@ -24,9 +24,7 @@ from loguru import logger
 
 import logic.src.utils.definitions as udef
 import wandb
-from logic.src.utils.definitions import DAY_METRICS
-
-from .io.files import compose_dirpath, read_json
+from logic.src.utils.io.files import compose_dirpath, read_json
 
 
 def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO"):
@@ -696,7 +694,7 @@ def send_daily_output_to_gui(
         coordinates (pd.DataFrame or list): Node coordinates.
         lock (threading.Lock, optional): Thread lock.
     """
-    full_payload = {k: v for k, v in daily_log.items() if k in DAY_METRICS[:-1]}
+    full_payload = {k: v for k, v in daily_log.items() if k in udef.DAY_METRICS[:-1]}
     route_coords = []
 
     # Prepare coordinates lookup: normalize headers and handle potential duplicates
@@ -755,7 +753,7 @@ def send_daily_output_to_gui(
 
         route_coords.append(point_data)
 
-    full_payload.update({DAY_METRICS[-1]: route_coords})
+    full_payload.update({udef.DAY_METRICS[-1]: route_coords})
     full_payload.update(
         {
             "bin_state_c": np.array(bins_c).tolist(),

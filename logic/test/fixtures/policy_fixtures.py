@@ -44,7 +44,7 @@ def policy_deps(mocker):
 
     # 2. Mock dependent functions
     mock_load_params = mocker.patch(
-        "logic.src.pipeline.simulator.loader.load_area_and_waste_type_params",
+        "logic.src.pipeline.simulations.loader.load_area_and_waste_type_params",
         return_value=(4000, 0.16, 21.0, 1.0, 2.5),  # Q, R, B, C, V
     )
     mocker.patch("logic.src.policies.regular.load_area_and_waste_type_params", mock_load_params)

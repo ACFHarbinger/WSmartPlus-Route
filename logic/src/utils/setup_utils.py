@@ -19,9 +19,8 @@ from dotenv import dotenv_values
 
 from logic.src.models import GATLSTManager
 from logic.src.utils.crypto_utils import decrypt_file_data
-from logic.src.utils.functions import get_inner_model, load_model, torch_load_cpu
-
-from .definitions import ROOT_DIR
+from logic.src.utils.definitions import ROOT_DIR
+from logic.src.utils.functions.function import get_inner_model, load_model, torch_load_cpu
 
 
 def setup_cost_weights(opts, def_val=1.0):

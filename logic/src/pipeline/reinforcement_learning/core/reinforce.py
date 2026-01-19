@@ -28,7 +28,7 @@ from logic.src.pipeline.reinforcement_learning.policies.hgs_vectorized import (
 from logic.src.pipeline.reinforcement_learning.policies.local_search import (
     vectorized_two_opt,
 )
-from logic.src.utils.functions import move_to
+from logic.src.utils.functions.function import move_to
 
 
 class StandardTrainer(BaseReinforceTrainer):
