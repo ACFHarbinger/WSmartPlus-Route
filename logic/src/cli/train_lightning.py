@@ -24,6 +24,7 @@ from logic.src.models.policies import (
 from logic.src.models.policies.classical.alns import ALNSPolicy
 from logic.src.models.policies.classical.hgs import HGSPolicy
 from logic.src.models.policies.classical.hybrid import NeuralHeuristicHybrid
+from logic.src.models.policies.classical.random_local_search import RandomLocalSearchPolicy
 from logic.src.pipeline.rl import (
     DRGRPO,
     GSPO,
@@ -209,6 +210,10 @@ def create_model(cfg: Config) -> pl.LightningModule:
             expert_policy = HGSPolicy(env_name=cfg.env.name)
         elif expert_name == "alns":
             expert_policy = ALNSPolicy(env_name=cfg.env.name)
+        elif expert_name == "random_ls":
+            expert_policy = RandomLocalSearchPolicy(
+                env_name=cfg.env.name, n_iterations=cfg.rl.random_ls_iterations, op_probs=cfg.rl.random_ls_op_probs
+            )
 
         model = ImitationLearning(expert_policy=expert_policy, expert_name=expert_name, **common_kwargs)
     elif cfg.rl.algorithm == "adaptive_imitation":
@@ -220,6 +225,10 @@ def create_model(cfg: Config) -> pl.LightningModule:
             expert_policy = HGSPolicy(env_name=cfg.env.name)
         elif expert_name == "alns":
             expert_policy = ALNSPolicy(env_name=cfg.env.name)
+        elif expert_name == "random_ls":
+            expert_policy = RandomLocalSearchPolicy(
+                env_name=cfg.env.name, n_iterations=cfg.rl.random_ls_iterations, op_probs=cfg.rl.random_ls_op_probs
+            )
 
         model = AdaptiveImitation(
             expert_policy=expert_policy,
