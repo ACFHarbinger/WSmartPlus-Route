@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-01-21
+
+### Vectorization & Expert Policy Suite
+A major performance upgrade and the introduction of a new stochastic expert for imitation learning.
+
+### Added
+- **Vectorized ALNS Policy**: Modular `VectorizedALNS` implementation for GPU-accelerated batch optimization, replacing instance-by-instance loops.
+- **Random Local Search Policy**: New `RandomLocalSearchPolicy` expert for imitation learning, featuring pre-sampled operator sequences for maximum efficiency.
+- **Full LS Vectorization**: Complete migration of local search operators (`relocate`, `two_opt_star`, `swap_star`, `three_opt`) in `local_search.py` to native PyTorch vectorized operations.
+- **Imitation Learning Integration**: Added `random_ls` expert support in `ImitationLearning` and `AdaptiveImitation` RL modules.
+- **Benchmarking & Validation**:
+  - `benchmark_ls.py`: Performance auditing tool (achieving ~1,700 instances/sec on RTX 3090 Ti).
+  - `test_random_local_search.py`: Comprehensive correctness suite for stochastic operators.
+
+### Changed
+- **`local_search.py`**: Architecture refactored to use advanced vectorized techniques (v-map equivalent) like priority-based `argsort` for double-relocations and case-masking for 3-opt.
+- **`RLConfig`**: Expanded to support configurable iterations (`random_ls_iterations`) and probabilities (`random_ls_op_probs`) for expertos.
+- **`ALNSPolicy` & `HGSPolicy`**: Now fully utilize low-level vectorized solvers for GPU throughput.
+
+### Fixed
+- Resolved CUDA `RuntimeError` and `IndexError` in vectorized operators by implementing strict tensor expansion and explicit device placement.
+- Cleaned up redundant expressions and variables in the local search implementation.
+
 ## [3.0.0] - 2026-01-21
 
 ### Major Refactoring Completion (Phases 1-5)

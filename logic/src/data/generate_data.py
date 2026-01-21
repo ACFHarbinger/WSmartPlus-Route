@@ -73,7 +73,7 @@ def generate_datasets(opts):
         try:
             for dist in distributions or [None]:
                 for size, graph in zip(opts["graph_sizes"], opts["focus_graphs"]):
-                    if not os.path.isfile(graph):
+                    if graph is not None and not os.path.isfile(graph):
                         sim_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator")
                         if os.path.isfile(os.path.join(sim_dir, graph)):
                             graph = os.path.join(sim_dir, graph)
@@ -225,7 +225,7 @@ def generate_datasets(opts):
                             else:
                                 filename = check_extension(opts["filename"])
 
-                            assert opts["f"] or not os.path.isfile(
+                            assert opts.get("f", opts.get("overwrite", False)) or not os.path.isfile(
                                 check_extension(filename)
                             ), "File already exists! Try running with -f option to overwrite."
 

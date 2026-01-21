@@ -1,10 +1,13 @@
 """
 REINFORCE algorithm implementation.
 """
-from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
 
 import torch
 from tensordict import TensorDict
+
+if TYPE_CHECKING:
+    from logic.src.envs.base import RL4COEnvBase
 
 from logic.src.pipeline.rl.core.base import RL4COLitModule
 
@@ -39,6 +42,7 @@ class REINFORCE(RL4COLitModule):
         td: TensorDict,
         out: dict,
         batch_idx: int,
+        env: Optional["RL4COEnvBase"] = None,
     ) -> torch.Tensor:
         """
         Compute REINFORCE loss.
@@ -52,7 +56,7 @@ class REINFORCE(RL4COLitModule):
         if hasattr(self, "_current_baseline_val") and self._current_baseline_val is not None:
             baseline_val = self._current_baseline_val
         else:
-            baseline_val = self.baseline.eval(td, reward)
+            baseline_val = self.baseline.eval(td, reward, env=env)
 
         # Advantage
         advantage = reward - baseline_val

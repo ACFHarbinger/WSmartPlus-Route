@@ -4,7 +4,7 @@ Baseline implementations for policy gradient methods.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional, Tuple
 
 if TYPE_CHECKING:
     from torch.utils.data import Dataset
@@ -18,9 +18,25 @@ class Baseline(ABC):
     """Base class for baselines."""
 
     @abstractmethod
-    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """Compute baseline value."""
         raise NotImplementedError
+
+    def unwrap_batch(self, batch: Any) -> Tuple[Any, Optional[torch.Tensor]]:
+        """Unwrap the batch if it's wrapped with baseline values."""
+        if isinstance(batch, (dict, TensorDict)):
+            keys = batch.keys()
+            if "data" in keys and "baseline" in keys:
+                return batch["data"], batch["baseline"]
+        return batch, None
+
+    def unwrap_dataset(self, dataset: Any) -> Any:
+        """Unwrap the dataset if it's wrapped."""
+        from logic.src.data.datasets import BaselineDataset
+
+        if isinstance(dataset, BaselineDataset):
+            return dataset.dataset
+        return dataset
 
     def epoch_callback(self, policy: nn.Module, epoch: int):
         """Optional callback at epoch end."""
@@ -34,13 +50,14 @@ class Baseline(ABC):
 class NoBaseline(Baseline):
     """No baseline (vanilla REINFORCE)."""
 
-    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """
         Return zero baseline (no variance reduction).
 
         Args:
             td: TensorDict with environment state (unused).
             reward: Current batch rewards.
+            env: Environment (unused).
 
         Returns:
             torch.Tensor: Zeros matching the reward shape.
@@ -61,13 +78,14 @@ class ExponentialBaseline(Baseline):
         self.beta = beta
         self.running_mean: Optional[torch.Tensor] = None
 
-    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """
         Compute baseline value using exponential moving average.
 
         Args:
             td: TensorDict with environment state.
             reward: Current batch rewards.
+            env: Environment (unused).
 
         Returns:
             torch.Tensor: Baseline value expanded to match reward shape.
@@ -120,7 +138,7 @@ class RolloutBaseline(Baseline):
             for param in self.baseline_policy.parameters():
                 param.requires_grad = False
 
-    def _rollout(self, policy: nn.Module, td_or_dataset: any, env: Optional[any] = None) -> torch.Tensor:
+    def _rollout(self, policy: nn.Module, td_or_dataset: Any, env: Optional[Any] = None) -> torch.Tensor:
         """Run greedy rollout on a batch or dataset."""
         if env is None:
             raise ValueError("Environment (env) is required for RolloutBaseline evaluation")
@@ -143,21 +161,50 @@ class RolloutBaseline(Baseline):
                 for batch in loader:
                     # Move batch to device
                     device = next(policy.parameters()).device
-                    batch = batch.to(device)
+                    if isinstance(batch, (dict, TensorDict)):
+                        batch = {k: v.to(device) if hasattr(v, "to") else v for k, v in batch.items()}
+                    else:
+                        batch = batch.to(device)
+
                     # Reset environment for the batch
-                    batch = env.reset(batch)
-                    out = policy(batch, env, decode_type="greedy")
+                    # if it's a dict-like, we only want the data part for reset
+                    if isinstance(batch, (dict, TensorDict)) and "data" in batch.keys():
+                        td_data = batch["data"]
+                    else:
+                        td_data = batch
+
+                    if isinstance(td_data, dict):
+                        td_data = TensorDict(td_data, batch_size=[len(next(iter(td_data.values())))])
+
+                    try:
+                        td_data = env.reset(td_data)
+                    except Exception as e:
+                        print(
+                            f"DEBUG: batch type: {type(batch)}, keys: {batch.keys() if hasattr(batch, 'keys') else 'N/A'}"
+                        )
+                        print(
+                            f"DEBUG: td_data type: {type(td_data)}, keys: {td_data.keys() if hasattr(td_data, 'keys') else 'N/A'}"
+                        )
+                        raise e
+                    out = policy(td_data, env, decode_type="greedy")
                     rewards.append(out["reward"].cpu())
             return torch.cat(rewards)
 
         # If it's a TensorDict (single batch)
-        td_copy = env.reset(td_or_dataset.clone())
+        td_copy = td_or_dataset.clone()
+        if isinstance(td_copy, (dict, TensorDict)) and "data" in td_copy.keys():
+            td_copy = td_copy["data"]
+
+        if isinstance(td_copy, dict):
+            td_copy = TensorDict(td_copy, batch_size=[len(next(iter(td_copy.values())))])
+
+        td_copy = env.reset(td_copy)
         policy.eval()
         with torch.no_grad():
             out = policy(td_copy, env, decode_type="greedy")
         return out["reward"]
 
-    def wrap_dataset(self, policy: nn.Module, dataset: Dataset, env: any) -> Dataset:
+    def wrap_dataset(self, policy: nn.Module, dataset: Dataset, env: Any) -> Dataset:
         """Wrap the dataset with rollout baseline values."""
         from logic.src.data.datasets import BaselineDataset
 
@@ -165,13 +212,7 @@ class RolloutBaseline(Baseline):
         bl_vals = self._rollout(self.baseline_policy, dataset.data if hasattr(dataset, "data") else dataset, env)
         return BaselineDataset(dataset, bl_vals.view(-1, 1))
 
-    def unwrap_batch(self, batch: any) -> tuple[any, any]:
-        """Unwrap the batch."""
-        if isinstance(batch, dict) and "data" in batch and "baseline" in batch:
-            return batch["data"], batch["baseline"].view(-1)
-        return batch, None
-
-    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """
         Compute baseline value.
         """
@@ -180,12 +221,22 @@ class RolloutBaseline(Baseline):
             # Note: This is computationally expensive if done every step
             # Ideally use wrap_dataset/unwrap_batch flow
             with torch.no_grad():
-                out = self.baseline_policy(td, None, decode_type="greedy")
-            return out["reward"]
+                # We expect td to be already unwrapped or we unwrap it here
+                if isinstance(td, (dict, TensorDict)) and "data" in td.keys():
+                    td = td["data"]
+
+                if isinstance(td, dict):
+                    td = TensorDict(td, batch_size=[len(next(iter(td.values())))])
+
+                # Check for "done" key to avoid re-resetting if already in loop
+                # but _rollout calls env.reset so we are safe.
+                # Actually, let's just call _rollout
+                return self._rollout(self.baseline_policy, td, env)
+
         return torch.zeros_like(reward)
 
     def epoch_callback(
-        self, policy: nn.Module, epoch: int, val_dataset: Optional[any] = None, env: Optional[any] = None
+        self, policy: nn.Module, epoch: int, val_dataset: Optional[Any] = None, env: Optional[Any] = None
     ):
         """Update baseline policy if current policy improves significantly."""
         if (epoch + 1) % self.update_every == 0:
@@ -227,25 +278,29 @@ class WarmupBaseline(Baseline):
         self.alpha = 0.0
         self.warmup_epochs = warmup_epochs
 
-    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """
         Compute blended baseline value based on warmup progress.
 
         Args:
             td: TensorDict with environment state.
             reward: Current batch rewards.
+            env: Environment.
 
         Returns:
             torch.Tensor: Blended baseline value.
         """
         if self.alpha >= 1.0:
-            return self.baseline.eval(td, reward)
+            return self.baseline.eval(td, reward, env)
         if self.alpha <= 0.0:
-            return self.warmup_baseline.eval(td, reward)
+            return self.warmup_baseline.eval(td, reward, env)
 
-        v_target = self.baseline.eval(td, reward)
-        v_warmup = self.warmup_baseline.eval(td, reward)
+        v_target = self.baseline.eval(td, reward, env)
+        v_warmup = self.warmup_baseline.eval(td, reward, env)
         return self.alpha * v_target + (1 - self.alpha) * v_warmup
+
+    def unwrap_batch(self, batch: Any) -> Tuple[Any, Optional[torch.Tensor]]:
+        return self.baseline.unwrap_batch(batch)
 
     def epoch_callback(self, policy: nn.Module, epoch: int):
         """
@@ -274,19 +329,28 @@ class CriticBaseline(Baseline):
         """
         self.critic = critic
 
-    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """
         Compute baseline value using learned critic.
 
         Args:
             td: TensorDict with environment state.
             reward: Current batch rewards (used for shape if critic is None).
+            env: Environment (unused).
 
         Returns:
             torch.Tensor: Critic value predictions.
         """
         if self.critic is None:
             return torch.zeros_like(reward)
+
+        # Unwrap td if needed
+        if isinstance(td, (dict, TensorDict)) and "data" in td.keys():
+            td = td["data"]
+
+        if isinstance(td, dict):
+            td = TensorDict(td, batch_size=[len(next(iter(td.values())))])
+
         return self.critic(td).squeeze(-1)
 
 
@@ -295,13 +359,14 @@ class POMOBaseline(Baseline):
     POMO baseline: mean reward across starts of the SAME instance.
     """
 
-    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """
         Compute POMO baseline as mean reward across starting points.
 
         Args:
             td: TensorDict with environment state.
             reward: Reward tensor with shape [batch, num_starts].
+            env: Environment (unused).
 
         Returns:
             torch.Tensor: Mean reward expanded to match input shape.
