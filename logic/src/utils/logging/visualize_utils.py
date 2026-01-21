@@ -636,7 +636,7 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
 
     try:
         if "distributions" in viz_modes or "both" in viz_modes:
-            writer = tb_logger.writer if tb_logger is not None and hasattr(tb_logger, "writer") else None
+            writer = tb_logger
             log_weight_distributions(
                 model,
                 epoch,
@@ -651,7 +651,7 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
                 batch_size=1,
                 temporal_horizon=opts.get("temporal_horizon", 0),
             )
-            writer = tb_logger.writer if tb_logger is not None and hasattr(tb_logger, "writer") else None
+            writer = tb_logger
             project_node_embeddings(
                 model,
                 x_batch,

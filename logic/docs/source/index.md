@@ -5,29 +5,26 @@ Welcome to the documentation for **WSmart-Route**. This project implements advan
 ```{toctree}
 :maxdepth: 2
 :caption: Getting Started
-
-introduction
-installation
-usage
-
 :maxdepth: 3
 :caption: API Reference
 
-reference/index
+references/index
 ```
 
-#### Project Overview
+## 1. Introduction
+
+### Project Overview
 - **Source Code**: [logic/src](https://github.com/ACFHarbinger/WSmartPlus-Route/tree/main/logic/src)
 - **Status**: Development (PhD Research)
 
-#### Indices and tables
+### Indices and tables
 - {ref}`genindex`
 - {ref}`modindex`
 - {ref}`search`
 
 ---
 
-### 2. Configure `conf.py` for `autodoc2`
+## 2. Configure `conf.py` for `autodoc2`
 
 Update your `logic/docs/source/conf.py` with the following settings. This configuration tells Sphinx to scan your source code and render the docstrings as Markdown files inside a virtual `reference/` directory.
 

@@ -79,17 +79,17 @@ def log_values(
 
     # Log values to tensorboard
     if not opts["no_tensorboard"]:
-        tb_logger.log_value("avg_cost", avg_cost, step)
-        tb_logger.log_value("actor_loss", l_dict["reinforce_loss"].mean().item(), step)
-        tb_logger.log_value("nll", l_dict["nll"].mean().item(), step)
-        tb_logger.log_value("grad_norm", norms[0].item(), step)
-        tb_logger.log_value("grad_norm_clipped", norms_clipped[0], step)
+        tb_logger.add_scalar("avg_cost", avg_cost, step)
+        tb_logger.add_scalar("actor_loss", l_dict["reinforce_loss"].mean().item(), step)
+        tb_logger.add_scalar("nll", l_dict["nll"].mean().item(), step)
+        tb_logger.add_scalar("grad_norm", norms[0].item(), step)
+        tb_logger.add_scalar("grad_norm_clipped", norms_clipped[0], step)
         if "imitation_loss" in l_dict:
-            tb_logger.log_value("imitation_loss", l_dict["imitation_loss"].item(), step)
+            tb_logger.add_scalar("imitation_loss", l_dict["imitation_loss"].item(), step)
         if opts["baseline"] == "critic":
-            tb_logger.log_value("critic_loss", l_dict["baseline_loss"].item(), step)
-            tb_logger.log_value("critic_grad_norm", norms[1].item(), step)
-            tb_logger.log_value("critic_grad_norm_clipped", norms_clipped[1].item(), step)
+            tb_logger.add_scalar("critic_loss", l_dict["baseline_loss"].item(), step)
+            tb_logger.add_scalar("critic_grad_norm", norms[1].item(), step)
+            tb_logger.add_scalar("critic_grad_norm_clipped", norms_clipped[1].item(), step)
 
     if opts["wandb_mode"] != "disabled":
         wandb_data = {

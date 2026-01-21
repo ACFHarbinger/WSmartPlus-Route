@@ -21,7 +21,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import wandb
-from tensorboard_logger import Logger as TbLogger  # type: ignore
+from torch.utils.tensorboard import SummaryWriter  # type: ignore
 
 from logic.src.cli import (
     ConfigsParser,
@@ -185,7 +185,7 @@ def train_reinforcement_learning(
     # Optionally configure tensorboard
     tb_logger = None
     if not opts["no_tensorboard"]:
-        tb_logger = TbLogger(
+        tb_logger = SummaryWriter(
             os.path.join(
                 ROOT_DIR,
                 opts["log_dir"],

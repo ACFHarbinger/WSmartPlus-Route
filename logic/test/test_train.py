@@ -105,7 +105,7 @@ class TestTrainFunctions:
         """Verify full training setup orchestration."""
         # Mock ALL setup functions and dependencies
         mocker.patch("logic.src.pipeline.train.setup_cost_weights", return_value={})
-        mocker.patch("logic.src.pipeline.train.TbLogger")
+        mocker.patch("logic.src.pipeline.train.SummaryWriter")
         mocker.patch("os.makedirs")
         mocker.patch("builtins.open")
         mocker.patch("json.dump")

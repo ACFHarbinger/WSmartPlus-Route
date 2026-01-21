@@ -371,7 +371,7 @@ def prepare_epoch(optimizer, epoch, problem, tb_logger, cost_weights, opts):
     )
     step = epoch * (opts["epoch_size"] // opts["batch_size"])
     if not opts["no_tensorboard"]:
-        tb_logger.log_value("learnrate_pg0", optimizer.param_groups[0]["lr"], step)
+        tb_logger.add_scalar("learnrate_pg0", optimizer.param_groups[0]["lr"], step)
 
     loss_keys = list(cost_weights.keys()) + ["total", "nll", "reinforce_loss"]
     if opts["baseline"] is not None:
@@ -588,7 +588,7 @@ def complete_train_pass(
         avg_reward = validate_update(model, val_dataset, opts)
         # new_cw, avg_cost, _ = validate_update(model, val_dataset, cost_weights, opts)
         if not opts["no_tensorboard"]:
-            tb_logger.log_value("val_avg_cost", avg_reward, step)
+            tb_logger.add_scalar("val_avg_cost", avg_reward, step)
 
     baseline.epoch_callback(model, epoch)
     if lr_scheduler is not None:
