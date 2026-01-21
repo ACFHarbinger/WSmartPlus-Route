@@ -169,6 +169,11 @@ class WCVRPEnv(RL4COEnvBase):
         td["cost"] = total_cost
         td["overflows"] = overflows
 
+        # Store decomposed rewards for GDPO (signed for maximization)
+        td["reward_collection"] = collection
+        td["reward_cost"] = -total_cost
+        td["reward_overflow"] = -overflows
+
         reward = self.collection_reward * collection - self.cost_weight * total_cost - self.overflow_penalty * overflows
         return reward
 

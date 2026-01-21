@@ -120,6 +120,10 @@ class RLConfig:
         expert: Expert name for imitation learning ('hgs', 'alns', 'random_ls').
         random_ls_iterations: Iterations for random local search expert.
         random_ls_op_probs: Probabilities for local search operators.
+        gdpo_objective_keys: List of reward keys for GDPO.
+        gdpo_objective_weights: Weights for GDPO objectives.
+        gdpo_conditional_key: Conditional gating key for GDPO.
+        gdpo_renormalize: Whether to re-normalize aggregated advantage in GDPO.
     """
 
     algorithm: str = "reinforce"
@@ -160,6 +164,12 @@ class RLConfig:
     expert: str = "hgs"  # hgs, alns, random_ls
     random_ls_iterations: int = 100
     random_ls_op_probs: Optional[Dict[str, float]] = None
+
+    # GDPO specific
+    gdpo_objective_keys: List[str] = field(default_factory=lambda: ["reward_prize", "reward_cost"])
+    gdpo_objective_weights: Optional[List[float]] = None
+    gdpo_conditional_key: Optional[str] = None
+    gdpo_renormalize: bool = True
 
 
 @dataclass
