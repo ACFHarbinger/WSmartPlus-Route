@@ -149,10 +149,35 @@ def main(cfg: Config) -> None:
             ppo_epochs=cfg.rl.ppo_epochs,
             **common_kwargs,
         )
+    elif cfg.rl.algorithm == "hrl":
+        from logic.src.models.gat_lstm_manager import GATLSTManager
+        from logic.src.pipeline.rl import HRLModule
+
+        manager = GATLSTManager(
+            device=cfg.device,
+            hidden_dim=cfg.rl.meta_hidden_dim,
+        )
+        model = HRLModule(
+            manager=manager,
+            worker=policy,
+            env=env,
+            lr=cfg.rl.meta_lr,
+        )
     else:
         model = REINFORCE(
             baseline=cfg.rl.baseline,
             **common_kwargs,
+        )
+
+    # Wrap with Meta-RL if enabled
+    if cfg.rl.get("use_meta", False):
+        from logic.src.pipeline.rl import MetaRLModule
+
+        model = MetaRLModule(
+            agent=model,
+            meta_lr=cfg.rl.meta_lr,
+            history_length=cfg.rl.meta_history_length,
+            hidden_size=cfg.rl.meta_hidden_dim,
         )
 
     # 5. Initialize Trainer

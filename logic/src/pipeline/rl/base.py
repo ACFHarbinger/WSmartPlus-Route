@@ -120,13 +120,24 @@ class RL4COLitModule(pl.LightningModule, ABC):
         if phase == "train":
             out["loss"] = self.calculate_loss(td, out, batch_idx)
 
+        # Merge granular metrics from td if available
+        for key in ["collection", "cost"]:
+            if key in td.keys():
+                out[key] = td[key]
+
         # Log metrics
         reward_mean = out["reward"].mean()
         self.log(f"{phase}/reward", reward_mean, prog_bar=True, sync_dist=True)
-        self.log(f"{phase}/cost", -reward_mean, sync_dist=True)
 
-        if "log_likelihood" in out:
-            self.log(f"{phase}/log_likelihood", out["log_likelihood"].mean(), sync_dist=True)
+        if "collection" in out:
+            self.log(f"{phase}/collection", out["collection"].mean(), sync_dist=True)
+        if "cost" in out:
+            self.log(f"{phase}/cost", out["cost"].mean(), sync_dist=True)
+        else:
+            self.log(f"{phase}/cost_total", -reward_mean, sync_dist=True)
+
+        # Store for meta-learning or logging access
+        self.last_out = out
 
         return out
 

@@ -73,6 +73,12 @@ class RLConfig:
     dr_grpo_group_size: int = 8
     dr_grpo_epsilon: float = 0.2
 
+    # Meta-RL specific
+    use_meta: bool = False
+    meta_lr: float = 1e-3
+    meta_hidden_dim: int = 64
+    meta_history_length: int = 10
+
 
 @dataclass
 class Config:

@@ -31,6 +31,7 @@ class WCVRPEnv(RL4COEnvBase):
         generator_params: Optional[dict] = None,
         overflow_penalty: float = 10.0,
         collection_reward: float = 1.0,
+        cost_weight: float = 1.0,
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ):
@@ -41,6 +42,7 @@ class WCVRPEnv(RL4COEnvBase):
         super().__init__(generator, generator_params, device, **kwargs)
         self.overflow_penalty = overflow_penalty
         self.collection_reward = collection_reward
+        self.cost_weight = cost_weight
 
     def _reset(self, td: TensorDict, batch_size: Optional[int] = None) -> TensorDict:
         """Initialize WCVRP episode state."""
@@ -135,7 +137,11 @@ class WCVRPEnv(RL4COEnvBase):
         not_at_depot = current != 0
         total_cost = cost + return_distance * not_at_depot.float()
 
-        reward = self.collection_reward * collection - total_cost
+        # Store individual components in TensorDict for logging/meta access
+        td["collection"] = collection
+        td["cost"] = total_cost
+
+        reward = self.collection_reward * collection - self.cost_weight * total_cost
         return reward
 
 
