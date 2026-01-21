@@ -1506,7 +1506,10 @@ class TestSingleVehiclePolicies:
     def test_find_route(self):
         test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         test_to_collect = [1, 2]
-        with patch("logic.src.policies.single_vehicle.fast_tsp.find_tour", return_value=[0, 1, 2]):
+        with patch(
+            "logic.src.policies.single_vehicle.fast_tsp.find_tour",
+            return_value=[0, 1, 2],
+        ):
             res_route = single_vehicle.find_route(test_C, test_to_collect)
             assert res_route == [0, 1, 2, 0]
 

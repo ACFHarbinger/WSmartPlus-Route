@@ -237,7 +237,7 @@ class SWCVRPDataset(BaseDataset):
                     edge_strat,
                     distribution,
                     bins,
-                    graph=(graph[0][i, :], graph[1][i, :, :]) if graph and i < focus_size else None,
+                    graph=((graph[0][i, :], graph[1][i, :, :]) if graph and i < focus_size else None),
                     noise_mean=self.noise_mean,
                     noise_variance=self.noise_variance,
                 )

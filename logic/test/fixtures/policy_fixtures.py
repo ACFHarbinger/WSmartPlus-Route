@@ -2,7 +2,6 @@
 Fixtures for Policy Unit Tests.
 """
 
-
 import numpy as np
 import pytest
 

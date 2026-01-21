@@ -24,7 +24,11 @@ from numpy.typing import NDArray
 
 from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
 from logic.src.policies.adapters import IPolicy, PolicyRegistry
-from logic.src.policies.single_vehicle import find_route, get_route_cost, local_search_2opt
+from logic.src.policies.single_vehicle import (
+    find_route,
+    get_route_cost,
+    local_search_2opt,
+)
 from logic.src.policies.vrpp_optimizer import run_vrpp_optimizer
 
 

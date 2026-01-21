@@ -139,21 +139,27 @@ class TestIntegrationMetaTraining:
     @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
     def test_mrl_train_rwa(self, train_opts, problem_name):
         """Test Meta-RL with Reward Weight Adjustment dispatch."""
-        from logic.src.pipeline.reinforcement_learning.worker_train import train_reinforce_over_time_rwa
+        from logic.src.pipeline.reinforcement_learning.worker_train import (
+            train_reinforce_over_time_rwa,
+        )
 
         self._test_mrl_dispatch(train_opts, problem_name, "rwa", train_reinforce_over_time_rwa)
 
     @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
     def test_mrl_train_morl(self, train_opts, problem_name):
         """Test Meta-RL with Multi-Objective RL dispatch."""
-        from logic.src.pipeline.reinforcement_learning.worker_train import train_reinforce_over_time_morl
+        from logic.src.pipeline.reinforcement_learning.worker_train import (
+            train_reinforce_over_time_morl,
+        )
 
         self._test_mrl_dispatch(train_opts, problem_name, "morl", train_reinforce_over_time_morl)
 
     @pytest.mark.parametrize("problem_name", ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"])
     def test_mrl_train_hrl(self, train_opts, problem_name):
         """Test Meta-RL with Hierarchical RL dispatch."""
-        from logic.src.pipeline.reinforcement_learning.worker_train import train_reinforce_over_time_hrl
+        from logic.src.pipeline.reinforcement_learning.worker_train import (
+            train_reinforce_over_time_hrl,
+        )
 
         self._test_mrl_dispatch(train_opts, problem_name, "hrl", train_reinforce_over_time_hrl)
 
@@ -171,7 +177,12 @@ class TestIntegrationHPO:
 
         # Configure mock tune to return valid config
         mock_trial = MagicMock()
-        mock_trial.config = {"w_lost": 1e-4, "w_waste": 1.0, "w_length": 1.0, "w_overflows": 100.0}
+        mock_trial.config = {
+            "w_lost": 1e-4,
+            "w_waste": 1.0,
+            "w_length": 1.0,
+            "w_overflows": 100.0,
+        }
         mock_trial.last_result = {"validation_metric": 0.5}
         mock_tune.run.return_value.get_best_trial.return_value = mock_trial
 

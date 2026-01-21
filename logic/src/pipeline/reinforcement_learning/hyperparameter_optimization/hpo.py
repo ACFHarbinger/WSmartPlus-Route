@@ -415,7 +415,7 @@ def bayesian_optimization(opts):
                 "n_pruned_trials": len([t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]),
                 "trial_values": [t.value for t in study.trials if t.value is not None],
                 "datetime_start": study.datetime_start.isoformat(),
-                "datetime_complete": study.datetime_complete.isoformat() if study.datetime_complete else None,
+                "datetime_complete": (study.datetime_complete.isoformat() if study.datetime_complete else None),
             }
             json.dump(opt_result, f, indent=2)
 

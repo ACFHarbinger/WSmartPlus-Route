@@ -50,9 +50,11 @@ def generate_datasets(opts):
         problems = distributions_per_problem
     else:
         problems = {
-            opts["problem"]: distributions_per_problem[opts["problem"]]
-            if len(opts["data_distributions"]) == 1 and opts["data_distributions"][0] == "all"
-            else [data_dist for data_dist in opts["data_distributions"]]
+            opts["problem"]: (
+                distributions_per_problem[opts["problem"]]
+                if len(opts["data_distributions"]) == 1 and opts["data_distributions"][0] == "all"
+                else [data_dist for data_dist in opts["data_distributions"]]
+            )
         }
 
     # Generate the dataset(s)
@@ -200,7 +202,7 @@ def generate_datasets(opts):
                                         "{}{}{}_{}{}_seed{}_{}_{}.pkl".format(
                                             problem,
                                             size,
-                                            "_{}".format(dist) if dist is not None else "",
+                                            ("_{}".format(dist) if dist is not None else ""),
                                             opts["name"],
                                             epoch if opts["n_epochs"] > 1 else "",
                                             opts["seed"],
@@ -214,7 +216,7 @@ def generate_datasets(opts):
                                         "{}{}{}_{}{}_seed{}.pkl".format(
                                             problem,
                                             size,
-                                            "_{}".format(dist) if dist is not None else "",
+                                            ("_{}".format(dist) if dist is not None else ""),
                                             opts["name"],
                                             epoch if opts["n_epochs"] > 1 else "",
                                             opts["seed"],

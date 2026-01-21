@@ -336,7 +336,11 @@ class TestALNSAux:
         solution = [[1]]
         removed = [2, 3]
         res = repair_operators.greedy_insertion(
-            solution, removed, sample_data["dist_matrix"], sample_data["demands"], sample_data["capacity"]
+            solution,
+            removed,
+            sample_data["dist_matrix"],
+            sample_data["demands"],
+            sample_data["capacity"],
         )
         assert isinstance(res, list)
 
@@ -345,7 +349,11 @@ class TestALNSAux:
         solution = [[1]]
         removed = [2, 3]
         res = repair_operators.regret_2_insertion(
-            solution, removed, sample_data["dist_matrix"], sample_data["demands"], sample_data["capacity"]
+            solution,
+            removed,
+            sample_data["dist_matrix"],
+            sample_data["demands"],
+            sample_data["capacity"],
         )
         assert isinstance(res, list)
 

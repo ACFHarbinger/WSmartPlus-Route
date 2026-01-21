@@ -10,6 +10,7 @@ Merges functionality from:
 - test_setup_utils_coverage.py
 - test_utils.py
 """
+
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
@@ -33,7 +34,11 @@ from logic.src.utils.functions.function import (
     torch_load_cpu,
 )
 from logic.src.utils.functions.lexsort import _torch_lexsort_cuda, torch_lexsort
-from logic.src.utils.io.processing import find_single_input_values, process_dict_of_dicts, process_list_of_dicts
+from logic.src.utils.io.processing import (
+    find_single_input_values,
+    process_dict_of_dicts,
+    process_list_of_dicts,
+)
 from logic.src.utils.logging.log_utils import (
     log_epoch,
     log_to_json,
@@ -262,7 +267,10 @@ class TestLogUtils:
         mock_exists.return_value = True
         mock_read.return_value = {"runs": []}
         mock_open.return_value.__enter__.return_value = MagicMock()
-        with patch("json.dump") as mock_dump, patch("logic.src.utils.logging.log_utils._sort_log"):
+        with (
+            patch("json.dump") as mock_dump,
+            patch("logic.src.utils.logging.log_utils._sort_log"),
+        ):
             res = log_to_json("path.json", ["val"], {"key": [1]}, sort_log=True)
             assert res is not None
             assert mock_dump.called
@@ -282,7 +290,10 @@ class TestLogUtils:
     def test_log_values(self, mock_wandb):
         """Test log_values function."""
         cost = torch.tensor([10.0])
-        grad_norms = ([torch.tensor([1.0]), torch.tensor([1.5])], [torch.tensor([0.5]), torch.tensor([0.6])])
+        grad_norms = (
+            [torch.tensor([1.0]), torch.tensor([1.5])],
+            [torch.tensor([0.5]), torch.tensor([0.6])],
+        )
         epoch = 1
         batch_id = 5
         step = 100
@@ -293,7 +304,12 @@ class TestLogUtils:
             "baseline_loss": torch.tensor([0.2]),
         }
         tb_logger = MagicMock()
-        opts = {"train_time": False, "no_tensorboard": False, "baseline": "critic", "wandb_mode": "online"}
+        opts = {
+            "train_time": False,
+            "no_tensorboard": False,
+            "baseline": "critic",
+            "wandb_mode": "online",
+        }
         log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
         assert mock_wandb.log.called
         assert tb_logger.log_value.called
@@ -305,7 +321,10 @@ class TestLogUtils:
     def test_output_stats(self, mock_dump, mock_open_file, mock_read, mock_glob):
         """Test output_stats function."""
         mock_glob.return_value = ["dir/log.json"]
-        mock_read.return_value = [{"policy1": {"cost": 10.0}}, {"policy1": {"cost": 20.0}}]
+        mock_read.return_value = [
+            {"policy1": {"cost": 10.0}},
+            {"policy1": {"cost": 20.0}},
+        ]
         mock_open_file.return_value.__enter__.return_value = MagicMock()
         mean, std = output_stats("home", 1, 50, "out", "area", 2, ["policy1"], ["cost"], print_output=False)
         assert isinstance(mean, dict)
@@ -476,7 +495,12 @@ class TestSetupUtils:
 
     def test_setup_cost_weights_wcvrp(self):
         """Test cost weights setup for WCVRP."""
-        opts = {"problem": "wcvrp", "w_waste": 0.5, "w_length": 0.8, "w_overflows": None}
+        opts = {
+            "problem": "wcvrp",
+            "w_waste": 0.5,
+            "w_length": 0.8,
+            "w_overflows": None,
+        }
         weights = setup_cost_weights(opts, def_val=1.0)
         assert weights["waste"] == 0.5
         assert weights["length"] == 0.8

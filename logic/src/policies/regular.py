@@ -26,7 +26,12 @@ from logic.src.pipeline.simulations.loader import load_area_and_waste_type_param
 
 from .adapters import IPolicy, PolicyRegistry
 from .multi_vehicle import find_routes
-from .single_vehicle import find_route, get_multi_tour, get_route_cost, local_search_2opt
+from .single_vehicle import (
+    find_route,
+    get_multi_tour,
+    get_route_cost,
+    local_search_2opt,
+)
 
 
 def policy_regular(
