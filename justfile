@@ -22,9 +22,9 @@ install:
 
 # --- Primary Execution ---
 
-# Run model training
+# Run model training (using new Lightning pipeline)
 train problem=problem model=model size=size epochs=epochs:
-    uv run python main.py train --model {{model}} --problem {{problem}} --graph_size {{size}} --n_epochs {{epochs}}
+    uv run python main.py train_lightning model.name={{model}} env.name={{problem}} env.num_loc={{size}} train.n_epochs={{epochs}}
 
 # Run model evaluation
 eval:

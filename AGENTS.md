@@ -177,9 +177,9 @@ Always reference these commands when proposing code changes or workflows:
 
 | Action | Command |
 |--------|---------|
-| Train Model | `python main.py train --model am --problem vrpp --graph_size 50` |
-| Meta-RL Training | `python main.py mrl_train --model am --problem vrpp --n_epochs 50` |
-| Hyperparameter Optimization | `python main.py hp_optim --problem wcvrp --hop_method grid` |
+| Train Model | `python main.py train_lightning model=am env.name=vrpp env.num_loc=50` |
+| Meta-RL Training | `python main.py train_lightning experiment=meta_rl model=am env.name=vrpp train.n_epochs=50` |
+| Hyperparameter Optimization | `python main.py train_lightning experiment=hpo env.name=wcvrp` |
 | Evaluate Model | `python main.py eval data/vrpp/test.pkl --model ./weights/best.pt` |
 
 ### 4.4 Simulation & Testing

@@ -12,6 +12,7 @@ We use `pip-audit` for daily vulnerability scanning in our CI pipeline.
 - **Major Updates**: Reviewed quarterly.
 
 ## Standard Dependencies
-- **DRL**: PyTorch 2.2.2
+- **DRL**: PyTorch 2.2.2, PyTorch Lightning
+- **Config**: Hydra Core
 - **OR Solvers**: Gurobi 11.0.3, Hexaly
 - **GUI**: PySide6

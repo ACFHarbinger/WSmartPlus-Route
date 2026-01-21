@@ -232,7 +232,7 @@ git push -u origin feature/my-feature
 
 ```bash
 # Train a model
-python main.py train --model am --problem vrpp --graph_size 50
+python main.py train_lightning model=am env.name=vrpp env.num_loc=50
 
 # Evaluate a model
 python main.py eval data/vrpp/test.pkl --model ./weights/best.pt
@@ -331,30 +331,27 @@ If you have `just` installed, use these commands:
 ### 5.2 Training Command
 
 ```bash
-python main.py train [OPTIONS]
+python main.py train_lightning [OVERRIDES]
 
 # Model options
---model {am,tam,ddam}        # Model type (default: am)
---encoder {gat,gcn,tgc,ggac,mlp}  # Encoder type (default: gat)
---embedding_dim INT          # Embedding dimension (default: 128)
---hidden_dim INT             # Hidden dimension (default: 512)
---n_encode_layers INT        # Encoder layers (default: 3)
---n_heads INT                # Attention heads (default: 8)
+model=am                     # Model type (default: am)
+model.embedding_dim=128      # Embedding dimension
+model.hidden_dim=512         # Hidden dimension
+model.n_encode_layers=3      # Encoder layers
 
 # Training options
---problem {vrpp,wcvrp,cwcvrp}  # Problem type
---graph_size INT             # Graph size (default: 20)
---batch_size INT             # Batch size (default: 256)
---n_epochs INT               # Training epochs (default: 100)
---learning_rate FLOAT        # Learning rate (default: 1e-4)
+env.name=vrpp                # Problem type
+env.num_loc=20               # Graph size
+train.batch_size=256         # Batch size
+train.n_epochs=100           # Training epochs
+optim.lr=1e-4                # Learning rate
 
 # RL options
---rl_algorithm {reinforce,ppo}  # RL algorithm
---baseline {rollout,critic,exponential,pomo}  # Baseline strategy
+rl.baseline=rollout          # Baseline strategy (rollout, exponential, etc.)
 
 # Hardware
---cuda_enabled               # Enable GPU (default: True)
---seed INT                   # Random seed (default: 42)
+train.accelerator=gpu        # Enable GPU (default: gpu)
+seed=42                      # Random seed
 ```
 
 ### 5.3 Simulation Command
@@ -449,11 +446,11 @@ export QT_LOGGING_RULES="*.debug=false"
 ### 6.4 Using Configs
 
 ```bash
-# Load from config file
-python main.py train --config assets/configs/train.yaml
+# Start with default experiment config
+python main.py train_lightning experiment=base
 
 # Override specific options
-python main.py train --config assets/configs/train.yaml --batch_size 128
+python main.py train_lightning experiment=base train.batch_size=128 model.hidden_dim=256
 ```
 
 ---
@@ -575,14 +572,14 @@ print(prof.key_averages().table(sort_by="cuda_time_total"))
 uv pip install memory_profiler
 
 # Profile memory usage
-python -m memory_profiler main.py train --batch_size 64
+python -m memory_profiler main.py train_lightning train.batch_size=64
 ```
 
 ### 8.4 NVIDIA Tools
 
 ```bash
 # nsight-systems profiling
-nsys profile python main.py train
+nsys profile python main.py train_lightning
 
 # nvidia-smi monitoring
 watch -n 1 nvidia-smi
@@ -640,7 +637,7 @@ watch -n 1 nvidia-smi
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
-            "args": ["train", "--model", "am", "--graph_size", "20", "--n_epochs", "2"],
+            "args": ["train_lightning", "model=am", "env.num_loc=20", "train.n_epochs=2"],
             "console": "integratedTerminal",
             "justMyCode": false
         },
@@ -712,8 +709,8 @@ python -m ipykernel install --user --name=wsmart-route
 
 3. Add CLI argument:
    ```python
-   # logic/src/cli/train_parser.py
-   parser.add_argument('--model', choices=[..., 'my_model'])
+   # logic/src/configs/model/my_model.yaml
+   # Define default parameters for Hydra
    ```
 
 4. Write tests:

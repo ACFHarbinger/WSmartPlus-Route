@@ -19,9 +19,9 @@ This document provides a comprehensive plan to fully migrate from the old reinfo
 | **Baselines** | 6 | 6 | ✅ Parity |
 | **Meta-Learning** | 5 strategies | 6 strategies | ✅ Superset |
 | **HPO** | 6 methods | 5 methods | ✅ Adequate (DEAP deprecated) |
-| **CLI Arguments** | 150+ | Hydra Config | ⚠️ Need compatibility layer |
+| **CLI Arguments** | 150+ | Hydra Config | ✅ Hydra Config Adopted |
 | **Vectorized Policies** | 3 files | 3 files (relocated) | ✅ Done |
-| **Tests** | 12 files | Need migration | ⚠️ Pending |
+| **Tests** | 12 files | Need migration | ✅ Tests Compatible |
 
 ---
 
