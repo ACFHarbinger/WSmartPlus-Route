@@ -255,6 +255,11 @@ class BaselineDataset(Dataset):
         return len(self.dataset)
 
 
-def tensordict_collate_fn(batch: list[TensorDict]) -> TensorDict:
-    """Collate list of TensorDicts into batched TensorDict."""
+def tensordict_collate_fn(batch: list[Union[dict, TensorDict]]) -> Union[dict, TensorDict]:
+    """Collate list of TensorDicts or dicts into batched TensorDict or dict."""
+    if isinstance(batch[0], dict):
+        collated = {key: tensordict_collate_fn([d[key] for d in batch]) for key in batch[0].keys()}
+        # If all values are TensorDicts or tensors, we could try making it a TensorDict,
+        # but BaselineDataset Specifically needs a dict for RL4COLitModule.unwrap_batch
+        return collated
     return torch.stack(batch)  # type: ignore

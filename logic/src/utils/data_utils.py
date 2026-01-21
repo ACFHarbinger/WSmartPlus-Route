@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
+from tensordict import TensorDict
 
 from logic.src.pipeline.simulations.loader import load_depot, load_simulator_data
 from logic.src.pipeline.simulations.processor import process_coordinates, process_data
@@ -236,3 +237,38 @@ def generate_waste_prize(
     if dataset_size == 1:
         return wp[0]
     return wp
+
+
+def convert_pkl_to_td(pkl_path, td_path):
+    print(f"Loading {pkl_path}...")
+    with open(pkl_path, "rb") as f:
+        data = pickle.load(f)
+
+    # data is a list of tuples: (depot, loc, waste, max_waste)
+    # depot: list [2]
+    # loc: list [num_loc, 2]
+    # waste: list [num_days, num_loc]
+    # max_waste: float
+
+    depots = torch.tensor([d[0] for d in data])
+    locs = torch.tensor([d[1] for d in data])
+    # For waste, for now we take the first day
+    waste = torch.tensor([d[2][0] for d in data])
+    max_waste = torch.tensor([d[3] for d in data])
+
+    td = TensorDict(
+        {
+            "locs": locs,
+            "depot": depots,
+            "waste": waste,
+            "prize": waste.clone(),
+            "capacity": torch.ones(len(data)),
+            "max_waste": max_waste,
+            "max_length": torch.full((len(data),), 2.4),
+        },
+        batch_size=[len(data)],
+    )
+
+    print(f"Saving to {td_path}...")
+    torch.save(td, td_path)
+    print("Done.")

@@ -2,20 +2,21 @@
 Data generation related argument parsers.
 """
 
+import argparse
 import re
+from typing import Any, Dict
 
 from logic.src.utils.definitions import MAP_DEPOTS, WASTE_TYPES
 
 
-def add_gen_data_args(parser):
-    """
-    Adds all arguments related to data generation to the given parser.
+def add_gen_data_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add all arguments related to data generation to the given parser.
 
     Args:
         parser: The argparse parser or subparser.
 
     Returns:
-        The parser with added data generation arguments.
+        The parser instance with data generation arguments attached.
     """
     parser.add_argument("--name", type=str, help="Name to identify dataset")
     parser.add_argument(
@@ -28,7 +29,7 @@ def add_gen_data_args(parser):
         "--problem",
         type=str,
         default="all",
-        help="Problem: 'vrpp'|'wcvrp'|'swcvrp'|'all'",
+        help="Problem type selection. Should be 'vrpp', 'wcvrp', 'swcvrp', or 'all'.",
     )
     parser.add_argument(
         "--mu",
@@ -96,15 +97,30 @@ def add_gen_data_args(parser):
     return parser
 
 
-def validate_gen_data_args(args):
-    """
-    Validates and post-processes arguments for gen_data.
+def validate_gen_data_args(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Validate and post-process arguments for data generation.
+
+    This function checks consistency between arguments, such as ensuring a
+    filename is only provided when a single dataset is being generated.
+
+    Args:
+        args: Dictionary of parsed arguments.
+
+    Returns:
+        The validated and potentially modified dictionary of arguments.
+
+    Raises:
+        AssertionError: If incompatible arguments are provided (e.g., mu/sigma length mismatch).
     """
     args = args.copy()
     assert (
         "filename" not in args
         or args["filename"] is None
-        or (len(args.get("problem", [])) == 1 and len(args.get("graph_sizes", [])) == 1)
+        or (
+            (isinstance(args.get("problem"), str) and args.get("problem") != "all")
+            or (isinstance(args.get("problem"), list) and len(args["problem"]) == 1)
+        )
+        and len(args.get("graph_sizes", [])) == 1
     ), "Can only specify filename when generating a single dataset"
 
     if args["problem"] in ["all", "swcvrp"]:

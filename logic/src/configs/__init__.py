@@ -7,7 +7,15 @@ from typing import Any, Dict, List, Optional
 
 @dataclass
 class EnvConfig:
-    """Environment configuration."""
+    """Environment configuration.
+
+    Attributes:
+        name: Name of the environment (e.g., 'vrpp', 'wcvrp').
+        num_loc: Number of locations (including depot).
+        min_loc: Minimum coordinate value.
+        max_loc: Maximum coordinate value.
+        capacity: Vehicle capacity (optional).
+    """
 
     name: str = "vrpp"
     num_loc: int = 50
@@ -18,7 +26,17 @@ class EnvConfig:
 
 @dataclass
 class ModelConfig:
-    """Model architecture configuration."""
+    """Model architecture configuration.
+
+    Attributes:
+        name: Name of the model architecture (e.g., 'am', 'deep_decoder').
+        embed_dim: Embedding dimension.
+        hidden_dim: Hidden dimension.
+        num_encoder_layers: Number of encoder layers.
+        num_decoder_layers: Number of decoder layers.
+        num_heads: Number of attention heads.
+        encoder_type: Type of encoder ('gat', 'gcn', etc.).
+    """
 
     name: str = "am"
     embed_dim: int = 128
@@ -31,7 +49,16 @@ class ModelConfig:
 
 @dataclass
 class TrainConfig:
-    """Training configuration."""
+    """Training configuration.
+
+    Attributes:
+        n_epochs: Number of training epochs.
+        batch_size: Training batch size.
+        train_data_size: Number of training samples per epoch.
+        val_data_size: Number of validation samples.
+        val_dataset: Path to pre-generated validation dataset.
+        num_workers: Number of data loading workers.
+    """
 
     n_epochs: int = 100
     batch_size: int = 256
@@ -43,7 +70,15 @@ class TrainConfig:
 
 @dataclass
 class OptimConfig:
-    """Optimizer configuration."""
+    """Optimizer configuration.
+
+    Attributes:
+        optimizer: Name of the optimizer ('adam', 'sgd', etc.).
+        lr: Learning rate.
+        weight_decay: Weight decay factor.
+        lr_scheduler: Name of the learning rate scheduler.
+        lr_scheduler_kwargs: Keyword arguments for the LR scheduler.
+    """
 
     optimizer: str = "adam"
     lr: float = 1e-4
@@ -54,7 +89,33 @@ class OptimConfig:
 
 @dataclass
 class RLConfig:
-    """RL algorithm configuration."""
+    """RL algorithm configuration.
+
+    Attributes:
+        algorithm: RL algorithm name ('reinforce', 'ppo', 'sapo', etc.).
+        baseline: Baseline type ('rollout', 'critic', 'pomo', 'warmup').
+        entropy_weight: Weight for entropy regularization.
+        max_grad_norm: Maximum gradient norm for clipping.
+        ppo_epochs: Number of PPO inner epochs.
+        eps_clip: PPO clipping epsilon.
+        value_loss_weight: Weight for value loss in PPO/Actor-Critic.
+        sapo_tau_pos: SAPO positive threshold.
+        sapo_tau_neg: SAPO negative threshold.
+        dr_grpo_group_size: DR-GRPO group size.
+        dr_grpo_epsilon: DR-GRPO divergence epsilon.
+        use_meta: Whether to use meta-learning wrapper.
+        meta_lr: Learning rate for meta-optimizer.
+        meta_hidden_dim: Hidden dimension for meta-network.
+        meta_history_length: History length for meta-learning.
+        num_augment: Number of augmentations for POMO/SymNCO.
+        num_starts: Number of start nodes for POMO/SymNCO.
+        augment_fn: Augmentation function name.
+        symnco_alpha: SymNCO alpha parameter.
+        symnco_beta: SymNCO beta parameter.
+        expert: Expert name for imitation learning ('hgs', 'alns', 'random_ls').
+        random_ls_iterations: Iterations for random local search expert.
+        random_ls_op_probs: Probabilities for local search operators.
+    """
 
     algorithm: str = "reinforce"
     baseline: str = "rollout"
@@ -97,7 +158,16 @@ class RLConfig:
 
 @dataclass
 class HPOConfig:
-    """Hyperparameter optimization configuration."""
+    """Hyperparameter optimization configuration.
+
+    Attributes:
+        method: HPO method ('dehbo', 'rs', 'gs', 'bo').
+        metric: Optimization metric ('reward', 'cost').
+        n_trials: Number of HPO trials.
+        n_epochs_per_trial: Training epochs per trial.
+        num_workers: Number of parallel workers for HPO.
+        search_space: Dictionary defining the search space.
+    """
 
     method: str = "dehbo"  # dehbo, rs, gs, bo
     metric: str = "reward"
@@ -114,7 +184,19 @@ class HPOConfig:
 
 @dataclass
 class Config:
-    """Root configuration."""
+    """Root configuration.
+
+    Attributes:
+        env: Environment configuration.
+        model: Model configuration.
+        train: Training configuration.
+        optim: Optimizer configuration.
+        rl: RL algorithm configuration.
+        hpo: HPO configuration.
+        seed: Random seed.
+        device: Device to use ('cpu', 'cuda').
+        experiment_name: Optional name for the experiment.
+    """
 
     env: EnvConfig = field(default_factory=EnvConfig)
     model: ModelConfig = field(default_factory=ModelConfig)
