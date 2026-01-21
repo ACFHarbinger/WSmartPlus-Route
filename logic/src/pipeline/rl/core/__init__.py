@@ -1,6 +1,7 @@
 """
 RL Pipeline module for WSmart-Route.
 """
+from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
 from logic.src.pipeline.rl.core.base import RL4COLitModule
 from logic.src.pipeline.rl.core.baselines import (
     BASELINE_REGISTRY,
@@ -14,6 +15,7 @@ from logic.src.pipeline.rl.core.baselines import (
 from logic.src.pipeline.rl.core.dr_grpo import DRGRPO
 from logic.src.pipeline.rl.core.gspo import GSPO
 from logic.src.pipeline.rl.core.hrl import HRLModule
+from logic.src.pipeline.rl.core.imitation import ImitationLearning
 from logic.src.pipeline.rl.core.meta import MetaRLModule
 from logic.src.pipeline.rl.core.pomo import POMO
 from logic.src.pipeline.rl.core.ppo import PPO
@@ -34,7 +36,9 @@ __all__ = [
     "PPO",
     "SAPO",
     "GSPO",
+    "AdaptiveImitation",
     "DRGRPO",
+    "ImitationLearning",
     "MetaRLModule",
     "HRLModule",
     "POMO",

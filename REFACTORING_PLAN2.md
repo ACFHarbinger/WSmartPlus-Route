@@ -1,25 +1,28 @@
 # Refactoring Plan: Old RL Pipeline → New Lightning Pipeline
 
-> **Version**: 2.0
+> **Version**: 2.1
 > **Created**: January 2026
-> **Status**: Completed (January 2026)
+> **Last Updated**: January 21, 2026
+> **Status**: ⚠️ In Progress (85% Complete)
 > **Scope**: Integration of `logic/src/pipeline/reinforcement_learning/` features into `logic/src/pipeline/rl/`
 
 ---
 
 ## Executive Summary
 
-This document details the migration plan for bringing features from the old reinforcement learning pipeline (`logic/src/pipeline/reinforcement_learning/`) into the new PyTorch Lightning-based pipeline (`logic/src/pipeline/rl/`). The new pipeline provides a cleaner, more maintainable architecture but lacks several advanced features from the original implementation.
+This document details the migration plan for bringing features from the old reinforcement learning pipeline (`logic/src/pipeline/reinforcement_learning/`) into the new PyTorch Lightning-based pipeline (`logic/src/pipeline/rl/`). The new pipeline provides a cleaner, more maintainable architecture but still has several gaps requiring attention.
 
 ### Key Statistics
 
 | Aspect | Old Pipeline | New Pipeline | Gap |
-| **Core Files** | 34 files | 45+ files | ✅ Expanded |
-| **RL Algorithms** | 5 (REINFORCE, PPO, SAPO, GSPO, DR-GRPO) | 7 (+ POMO, SymNCO) | ✅ Superior |
-| **Baselines** | 6 (No, Exp, POMO, Critic, Rollout, Warmup) | 6 (All ported) | ✅ Parity |
-| **Meta-Learning** | 5 strategies + 6 trainers | 4 strategies + Adaptive Module | ✅ Parity |
-| **HPO** | 6 algorithms | Optuna (TPE, Grid, Random, HB) & DEHB | ✅ Parity (DEAP deprecated) |
-| **Utilities** | Epoch management, time-based training, post-processing | Unified WSTrainer & Epoch Logic | ✅ Parity |
+|--------|--------------|--------------|-----|
+| **Core Files** | 34 files | 27 files | ✅ Consolidated |
+| **RL Algorithms** | 5 (REINFORCE, PPO, SAPO, GSPO, DR-GRPO) | 10 (+ POMO, SymNCO, IL, Adaptive IL, HRL) | ✅ Superior |
+| **Baselines** | 6 (No, Exp, POMO, Critic, Rollout, Warmup) | 6 (Ported but some incomplete) | ⚠️ Partial |
+| **Meta-Learning** | 5 strategies + 6 trainers | 3 strategies (Missing TD Learning) | ⚠️ 80% |
+| **HPO** | 6 algorithms | DEHB only (simplified) | ⚠️ Partial |
+| **Utilities** | Epoch management, time-based training, post-processing | Placeholders exist | ⚠️ 50% |
+| **Vectorized Policies** | HGS, Local Search, Split | All ported to `models/policies/vectorized/` | ✅ Complete |
 
 ---
 
@@ -198,9 +201,12 @@ reinforcement_learning/
 | Post-processing | ✅ EfficiencyOptimizer | ✅ `EfficiencyOptimizer` | ✅ Parity |
 | decode_routes() | ✅ Full | ✅ `post_processing.py` | ✅ Parity |
 | calculate_efficiency() | ✅ Full | ✅ `post_processing.py` | ✅ Parity |
-| Vectorized HGS | ✅ Full | ❌ Missing | Optional |
-| Local Search ops | ✅ Full | ❌ Missing | Optional |
-| Split algorithm | ✅ Full | ❌ Missing | Optional |
+| Vectorized HGS | ✅ Full | ✅ `policies/vectorized/hgs.py` | ✅ Parity |
+| Local Search ops | ✅ Full | ✅ `policies/vectorized/local_search.py` | ✅ Parity |
+| Split algorithm | ✅ Full | ✅ `policies/vectorized/split.py` | ✅ Parity |
+| Imitation Learning | ❌ Missing | ✅ `ImitationLearning` Module | ✅ New Feature |
+
+---
 
 ---
 
