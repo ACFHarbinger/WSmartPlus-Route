@@ -129,12 +129,18 @@ class AttentionModelPolicy(ConstructivePolicy):
             step_idx += 1
 
         # Collect reward
-        reward = env.get_reward(td, torch.stack(output_actions, dim=1))
+        if len(output_actions) > 0:
+            actions_tensor = torch.stack(output_actions, dim=1)
+        else:
+            # Handle empty actions (should not happen in normal VRP but maybe in some edge cases)
+            actions_tensor = torch.zeros((td.batch_size[0], 0), device=td.device, dtype=torch.long)
+
+        reward = env.get_reward(td, actions_tensor)
 
         out = {
             "reward": reward,
             "log_likelihood": log_likelihood,
-            "actions": torch.stack(output_actions, dim=1),
+            "actions": actions_tensor,
         }
 
         if kwargs.get("return_init_embeds", False):

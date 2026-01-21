@@ -96,6 +96,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         td: TensorDict,
         out: dict,
         batch_idx: int,
+        env: Optional[RL4COEnvBase] = None,
     ) -> torch.Tensor:
         """
         Compute RL loss.
@@ -127,6 +128,10 @@ class RL4COLitModule(pl.LightningModule, ABC):
         Returns:
             Output dictionary with loss, reward, etc.
         """
+        # Unwrap batch if it's from a baseline dataset
+        batch, baseline_val = self.baseline.unwrap_batch(batch)
+        self._current_baseline_val = baseline_val
+
         td = self.env.reset(batch)
 
         # Run policy
@@ -138,7 +143,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         # Compute loss for training
         if phase == "train":
-            out["loss"] = self.calculate_loss(td, out, batch_idx)
+            out["loss"] = self.calculate_loss(td, out, batch_idx, env=self.env)
 
         # Merge granular metrics from td if available
         for key in ["collection", "cost"]:
@@ -301,7 +306,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
-            collate_fn=lambda x: x if isinstance(x, dict) else tensordict_collate_fn(x),
+            collate_fn=tensordict_collate_fn,
             num_workers=self.num_workers,
             shuffle=True,
         )

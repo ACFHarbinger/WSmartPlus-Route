@@ -20,6 +20,9 @@ def prepare_epoch(
     Handles baseline wrapping for RolloutBaseline.
     """
     if phase == "train" and hasattr(baseline, "wrap_dataset"):
+        # Unwrap dataset first to avoid nested BaselineDataset
+        if hasattr(baseline, "unwrap_dataset"):
+            dataset = baseline.unwrap_dataset(dataset)
         # Wrap dataset with baseline values (e.g. RolloutBaseline)
         return baseline.wrap_dataset(model, dataset, env)
     return dataset
