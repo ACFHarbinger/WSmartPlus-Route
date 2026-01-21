@@ -3,14 +3,16 @@ Unit tests for vectorized policy implementations (Local Search, HGS, Split).
 """
 import pytest
 import torch
+from tensordict.tensordict import TensorDict
 
-from logic.src.pipeline.reinforcement_learning.policies.hgs_vectorized import (
+from logic.src.models.policies.classical.alns import VectorizedALNS
+from logic.src.models.policies.classical.hybrid_genetic_search import (
     VectorizedHGS,
     VectorizedPopulation,
     calc_broken_pairs_distance,
     vectorized_ordered_crossover,
 )
-from logic.src.pipeline.reinforcement_learning.policies.local_search import (
+from logic.src.models.policies.classical.local_search import (
     vectorized_relocate,
     vectorized_swap,
     vectorized_swap_star,
@@ -18,7 +20,7 @@ from logic.src.pipeline.reinforcement_learning.policies.local_search import (
     vectorized_two_opt,
     vectorized_two_opt_star,
 )
-from logic.src.pipeline.reinforcement_learning.policies.split_algorithm import (
+from logic.src.models.policies.classical.split import (
     vectorized_linear_split,
 )
 
@@ -165,6 +167,92 @@ class TestVectorizedPolicies:
         assert len(routes) == B
         assert costs.shape == (B,)
         assert costs[0] < 1e9
+
+    @pytest.mark.unit
+    def test_vectorized_alns_basic(self):
+        """Test VectorizedALNS on a small synthetic batch."""
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        batch_size = 4
+        num_nodes = 11  # 1 depot + 10 nodes
+
+        # 1. Create synthetic data
+        # Locations (B, N, 2)
+        locs = torch.rand(batch_size, num_nodes, 2, device=device)
+        # Compute Euclidean distance matrix
+        diff = locs.unsqueeze(2) - locs.unsqueeze(1)
+        dist_matrix = torch.sqrt((diff**2).sum(dim=-1))
+
+        # Demands (B, N)
+        demands = torch.rand(batch_size, num_nodes, device=device) * 0.5
+        demands[:, 0] = 0.0  # Depot has 0 demand
+
+        # Capacity (B,)
+        capacity = torch.ones(batch_size, device=device) * 1.5
+
+        # Initial solutions (giant tours)
+        initial_solutions = torch.stack([torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)])
+
+        # 2. Initialize Solver
+        solver = VectorizedALNS(
+            dist_matrix=dist_matrix, demands=demands, vehicle_capacity=capacity, time_limit=1.0, device=device
+        )
+
+        # 3. Solve
+        n_iterations = 10
+        routes_list, costs = solver.solve(initial_solutions=initial_solutions, n_iterations=n_iterations)
+
+        # 4. Verify output
+        assert len(routes_list) == batch_size
+        assert costs.shape == (batch_size,)
+
+        for b in range(batch_size):
+            route = routes_list[b]
+            # Routes from split usually start and end with 0 and contain all nodes
+            nodes_visited = set(node for node in route if node != 0)
+            assert len(nodes_visited) == num_nodes - 1, f"Batch {b} missing nodes"
+
+            # Check capacity constraints (optional but good)
+            curr_load = 0
+            for node in route:
+                if node == 0:
+                    assert curr_load <= capacity[b].item() + 1e-5
+                    curr_load = 0
+                else:
+                    curr_load += demands[b, node].item()
+
+    @pytest.mark.unit
+    def test_alns_policy_forward(self):
+        """Test the ALNSPolicy wrapper forward pass."""
+        from logic.src.models.policies.classical.alns import ALNSPolicy
+
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        batch_size = 2
+        num_nodes = 6
+
+        td = TensorDict(
+            {
+                "locs": torch.rand(batch_size, num_nodes, 2, device=device),
+                "demand": torch.rand(batch_size, num_nodes, device=device) * 0.2,
+                "capacity": torch.ones(batch_size, device=device),
+            },
+            batch_size=[batch_size],
+        )
+        td["demand"][:, 0] = 0.0
+
+        policy = ALNSPolicy(env_name="cvrpp", time_limit=1.0, max_iterations=5).to(device)
+
+        # Mock environment
+        class MockEnv:
+            prize_weight = 1.0
+            cost_weight = 1.0
+
+        out = policy(td, env=MockEnv())
+
+        assert "reward" in out
+        assert "actions" in out
+        assert out["reward"].shape == (batch_size,)
+        assert out["actions"].dim() == 2
+        assert out["actions"].shape[0] == batch_size
 
 
 class TestVectorizedPopulation:
