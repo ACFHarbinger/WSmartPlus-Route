@@ -13,6 +13,8 @@ from logic.src.pipeline.rl.baselines import (
 )
 from logic.src.pipeline.rl.dr_grpo import DRGRPO
 from logic.src.pipeline.rl.gspo import GSPO
+from logic.src.pipeline.rl.hrl import HRLModule
+from logic.src.pipeline.rl.meta import MetaRLModule
 from logic.src.pipeline.rl.ppo import PPO
 from logic.src.pipeline.rl.reinforce import REINFORCE
 from logic.src.pipeline.rl.sapo import SAPO
@@ -31,4 +33,6 @@ __all__ = [
     "SAPO",
     "GSPO",
     "DRGRPO",
+    "MetaRLModule",
+    "HRLModule",
 ]
