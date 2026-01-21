@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 import pytest
 import torch
-
 from logic.src.pipeline.simulations.bins import Bins
 from logic.src.pipeline.simulations.context import SimulationDayContext
 

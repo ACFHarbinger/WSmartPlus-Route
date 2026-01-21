@@ -4,12 +4,12 @@ import sys
 import threading
 import traceback
 
+from logic.src.cli import ConfigsParser, add_gui_args, validate_gui_args
+from logic.src.utils.definitions import CTRL_C_TIMEOUT, ICON_FILE
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 from gui.src.windows import MainWindow, SimulationResultsWindow
-from logic.src.cli import ConfigsParser, add_gui_args, validate_gui_args
-from logic.src.utils.definitions import CTRL_C_TIMEOUT, ICON_FILE
 
 
 def launch_results_window(policy_names, log_path):
