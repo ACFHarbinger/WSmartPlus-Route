@@ -1,7 +1,12 @@
-"""Standard Feed-Forward Network (FFN) implementation."""
+"""
+Feed-Forward network module.
+"""
+from __future__ import annotations
 
 import math
+from typing import Optional
 
+import torch
 import torch.nn as nn
 
 
@@ -13,7 +18,7 @@ class FeedForward(nn.Module):
     Often used in Transformer architectures.
     """
 
-    def __init__(self, input_dim: int, output_dim: int, bias: bool = True):
+    def __init__(self, input_dim: int, output_dim: int, bias: bool = True) -> None:
         """
         Initializes the feed-forward layer.
 
@@ -28,13 +33,14 @@ class FeedForward(nn.Module):
         self.linear = nn.Linear(input_dim, output_dim, bias=bias)
         self.init_parameters()
 
-    def init_parameters(self):
+    def init_parameters(self) -> None:
         """Initializes the parameters using uniform distribution."""
         for param in self.parameters():
-            stdv = 1.0 / math.sqrt(param.size(-1))
-            param.data.uniform_(-stdv, stdv)
+            if param.dim() > 0:
+                stdv: float = 1.0 / math.sqrt(param.size(-1))
+                param.data.uniform_(-stdv, stdv)
 
-    def forward(self, input, mask=None):
+    def forward(self, input: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Applies the feed-forward network to the input.
 

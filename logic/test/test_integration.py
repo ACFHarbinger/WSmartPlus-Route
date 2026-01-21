@@ -276,12 +276,14 @@ class TestIntegrationSimulation:
             self._run_sim(sim_opts)
 
     def test_sim_policy_regular(self, sim_opts):
+        """Test regular policy in simulation."""
         sim_opts["policies"] = ["policy_regular_emp"]
         log, _, failed = self._run_sim(sim_opts)
         assert not failed
         assert "policy_regular_emp" in log
 
     def test_sim_policy_last_minute(self, sim_opts):
+        """Test last-minute policy in simulation."""
         # Format: policy_last_minute<threshold>_distribution
         sim_opts["policies"] = ["policy_last_minute50_emp"]
         log, _, failed = self._run_sim(sim_opts)
@@ -289,6 +291,7 @@ class TestIntegrationSimulation:
         assert "policy_last_minute50_emp" in log
 
     def test_sim_policy_look_ahead(self, sim_opts):
+        """Test look-ahead policy in simulation."""
         # Format: policy_look_ahead_<config>_distribution
         sim_opts["policies"] = ["policy_look_ahead_a_emp"]
         log, _, failed = self._run_sim(sim_opts)
@@ -301,6 +304,7 @@ class TestIntegrationSimulation:
         self._run_sim(sim_opts)
 
     def test_sim_horizon_short(self, sim_opts):
+        """Test simulation with a single-day horizon."""
         sim_opts["days"] = 1
         self._run_sim(sim_opts)
 

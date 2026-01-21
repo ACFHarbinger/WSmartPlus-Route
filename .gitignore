@@ -453,6 +453,8 @@ assets/keys/
 **/results/
 **/daily_*/
 **/fill_history/
+outputs/
+checkpoints/
 
 # To include
 !assets/logs

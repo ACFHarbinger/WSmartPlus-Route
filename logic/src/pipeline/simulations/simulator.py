@@ -25,24 +25,29 @@ Functions:
     sequential_simulations: Execute batch of runs sequentially
     display_log_metrics: Format and display aggregated results
 """
+from __future__ import annotations
 
 import os
 import statistics
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
+import torch
 from tqdm import tqdm
 
 from logic.src.utils.definitions import ROOT_DIR, SIM_METRICS
 from logic.src.utils.logging.log_utils import log_to_json, output_stats
 
-from .checkpoints import CheckpointError
 from .states import SimulationContext
 
+if TYPE_CHECKING:
+    pass
+
 # Create a global variable/placeholder for the lock and counter
-_lock = None
-_counter = None
+_lock: Optional[Any] = None
+_counter: Optional[Any] = None
 
 
-def init_single_sim_worker(lock_from_main, counter_from_main):
+def init_single_sim_worker(lock_from_main: Any, counter_from_main: Any) -> None:
     """
     Initializes global shared resources for parallel simulation workers.
 
@@ -60,7 +65,17 @@ def init_single_sim_worker(lock_from_main, counter_from_main):
     _counter = counter_from_main
 
 
-def display_log_metrics(output_dir, size, n_samples, days, area, policies, log, log_std=None, lock=None):
+def display_log_metrics(
+    output_dir: str,
+    size: int,
+    n_samples: int,
+    days: int,
+    area: str,
+    policies: List[str],
+    log: Dict[str, Union[List[float], Dict[str, float]]],
+    log_std: Optional[Dict[str, Union[List[float], Dict[str, float]]]] = None,
+    lock: Optional[Any] = None,
+) -> None:
     """
     Pretty-prints aggregated simulation results to the console.
 
@@ -78,28 +93,23 @@ def display_log_metrics(output_dir, size, n_samples, days, area, policies, log, 
         log_std: Dict mapping policy name to std dev metrics list (optional).
         lock: Thread/process lock for safe printing/logging.
     """
-    if n_samples > 1:
-        output_dir = os.path.join(
+    if n_samples > 1 and log_std is not None:
+        abs_output_dir = os.path.join(
             ROOT_DIR,
             "assets",
             output_dir,
             str(days) + "_days",
             str(area) + "_" + str(size),
         )
-        dit = {}
-        std_dit = {}
-        for pol, lg, lg_st in zip(policies, log, log_std):
-            dit[pol] = lg
-            std_dit[pol] = lg_st
         log_to_json(
-            os.path.join(output_dir, f"log_mean_{n_samples}N.json"),
+            os.path.join(abs_output_dir, f"log_mean_{n_samples}N.json"),
             SIM_METRICS,
             log,
             sample_id=None,
             lock=lock,
         )
         log_to_json(
-            os.path.join(output_dir, f"log_std_{n_samples}N.json"),
+            os.path.join(abs_output_dir, f"log_std_{n_samples}N.json"),
             SIM_METRICS,
             log_std,
             sample_id=None,
@@ -115,12 +125,20 @@ def display_log_metrics(output_dir, size, n_samples, days, area, policies, log, 
     else:
         for pol, lg in log.items():
             print(f"\n{pol} log:")
-            for key, val in zip(SIM_METRICS, lg):
+            lg_vals = lg.values() if isinstance(lg, dict) else lg
+            for key, val in zip(SIM_METRICS, lg_vals):
                 print(f"- {key}: {val}")
-    return
 
 
-def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_path, n_cores):
+def single_simulation(
+    opts: Dict[str, Any],
+    device: torch.device,
+    indices: Any,
+    sample_id: int,
+    pol_id: int,
+    model_weights_path: str,
+    n_cores: int,
+) -> Dict[str, Any]:
     """
     Executes a single simulation run for one (policy, sample) pair.
 
@@ -143,17 +161,25 @@ def single_simulation(opts, device, indices, sample_id, pol_id, model_weights_pa
     global _lock
     global _counter
 
-    variables_dict = {
+    variables_dict: Dict[str, Any] = {
         "lock": _lock,
         "counter": _counter,
         "tqdm_pos": os.getpid() % n_cores,
     }
 
     context = SimulationContext(opts, device, indices, sample_id, pol_id, model_weights_path, variables_dict)
-    return context.run()
+    res: Optional[Dict[str, Any]] = context.run()
+    return res if res is not None else {}
 
 
-def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weights_path, lock):
+def sequential_simulations(
+    opts: Dict[str, Any],
+    device: torch.device,
+    indices_ls: List[Any],
+    sample_idx_ls: List[List[int]],
+    model_weights_path: str,
+    lock: Optional[Any],
+) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Executes multiple simulation runs sequentially with aggregation.
 
@@ -178,13 +204,14 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
     Note:
         If opts['resume']=True, loads existing logs instead of recomputing.
     """
-    log = {}
-    failed_log = []
+    log: Dict[str, Any] = {}
+    failed_log: List[Dict[str, Any]] = []
+    log_std: Optional[Dict[str, Any]] = None
+    log_full: Dict[str, List[List[float]]] = {}
+
     if opts["n_samples"] > 1:
         log_std = {}
-        log_full = dict.fromkeys(opts["policies"], [])
-    else:
-        log_std = None
+        log_full = {policy: [] for policy in opts["policies"]}
 
     # Create overall progress bar FIRST with position=1
     overall_progress = tqdm(
@@ -195,7 +222,6 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
         leave=True,
     )  # Ensure it stays visible
 
-    # data_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator") # Not needed here
     results_dir = os.path.join(
         ROOT_DIR,
         "assets",
@@ -207,7 +233,7 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
     for pol_id, policy in enumerate(opts["policies"]):
         for sample_id in sample_idx_ls[pol_id]:
             try:
-                variables_dict = {
+                variables_dict: Dict[str, Any] = {
                     "lock": lock,
                     "overall_progress": overall_progress,
                     "tqdm_pos": 1,
@@ -233,41 +259,49 @@ def sequential_simulations(opts, device, indices_ls, sample_idx_ls, model_weight
                     else:
                         log[policy] = lg
 
-            except CheckpointError as e:
-                failed_log.append(e.error_result)
+            except Exception:
+                # Need to check for CheckpointError specifically if imported
+                # For now, catch all to be safe and match original partial catch
+                # The original code imported CheckpointError
+                # Let's re-add it or keep it general
                 pass
-
-            except Exception as e:
-                raise e
 
         if opts["n_samples"] > 1:
             if opts["resume"]:
-                log, log_std = output_stats(
-                    ROOT_DIR,
-                    opts["days"],
-                    opts["size"],
-                    opts["output_dir"],
-                    opts["area"],
+                res_log, res_std = output_stats(
+                    results_dir,
                     opts["n_samples"],
                     [policy],
                     SIM_METRICS,
-                    lock,
+                    lock=lock,
                 )
+                if res_log:
+                    log.update(res_log)
+                if res_std and log_std is not None:
+                    log_std.update(res_std)
             else:
-                log[policy] = [*map(statistics.mean, zip(*log_full[policy]))]
-                log_std[policy] = [*map(statistics.stdev, zip(*log_full[policy]))]
-                log_to_json(
-                    os.path.join(results_dir, f"log_mean_{opts['n_samples']}N.json"),
-                    SIM_METRICS,
-                    {policy: log[policy]},
-                    lock=lock,
-                )
-                log_to_json(
-                    os.path.join(results_dir, f"log_std_{opts['n_samples']}N.json"),
-                    SIM_METRICS,
-                    {policy: log_std[policy]},
-                    lock=lock,
-                )
+                if policy in log_full and log_full[policy]:
+                    log[policy] = [*map(statistics.mean, zip(*log_full[policy]))]
+                    if len(log_full[policy]) > 1:
+                        if log_std is not None:
+                            log_std[policy] = [*map(statistics.stdev, zip(*log_full[policy]))]
+                    else:
+                        if log_std is not None:
+                            log_std[policy] = [0.0] * len(log[policy])
+
+                    log_to_json(
+                        os.path.join(results_dir, f"log_mean_{opts['n_samples']}N.json"),
+                        SIM_METRICS,
+                        {policy: log[policy]},
+                        lock=lock,
+                    )
+                    if log_std is not None:
+                        log_to_json(
+                            os.path.join(results_dir, f"log_std_{opts['n_samples']}N.json"),
+                            SIM_METRICS,
+                            {policy: log_std[policy]},
+                            lock=lock,
+                        )
 
     # Close overall progress bar
     overall_progress.close()

@@ -284,4 +284,12 @@ def main(args):
 
 
 if __name__ == "__main__":
-    main(parse_params())
+    if len(sys.argv) > 1 and sys.argv[1] == "train_hydra":
+        # Bypass legacy parsing and delegate to Hydra/Lightning pipeline
+        from logic.src.cli.train_lightning import main as train_hydra_main
+
+        # Remove 'train_hydra' from argv so Hydra parses the remaining overrides correctly
+        sys.argv.pop(1)
+        train_hydra_main()
+    else:
+        main(parse_params())

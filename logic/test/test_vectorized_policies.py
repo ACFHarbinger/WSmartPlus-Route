@@ -1,3 +1,6 @@
+"""
+Unit tests for vectorized policy implementations (Local Search, HGS, Split).
+"""
 import pytest
 import torch
 
@@ -33,6 +36,7 @@ class TestVectorizedLocalSearch:
         optimized_tours = vectorized_two_opt(tours.clone(), dist_matrix, max_iterations=50)
 
         def calc_cost(t, d):
+            """Manual cost calculation for verification."""
             c = 0
             for k in range(len(t) - 1):
                 c += d[0, t[k], t[k + 1]]
@@ -56,6 +60,7 @@ class TestVectorizedLocalSearch:
         tours = torch.tensor([[0, 1, 3, 5, 2, 4, 0]], device=v_device)
 
         def calc_cost(t, d):
+            """Manual cost calculation for verification."""
             c = 0
             for k in range(len(t) - 1):
                 c += d[0, t[k], t[k + 1]]

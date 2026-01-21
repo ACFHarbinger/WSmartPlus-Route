@@ -1,3 +1,7 @@
+"""
+Differential Evolution Hyperband (DEHB) optimization algorithm.
+"""
+
 from .de_async import AsyncDifferentialEvolution
 from .de_base import DifferentialEvolutionBase
 from .dehb import (
