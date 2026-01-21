@@ -1,3 +1,6 @@
+"""
+Logging systems for terminal, file, and GUI communication.
+"""
 from __future__ import annotations
 
 import datetime

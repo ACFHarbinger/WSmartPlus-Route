@@ -78,6 +78,19 @@ def solve_lk(
     waste: Optional[np.ndarray] = None,
     capacity: Optional[float] = None,
 ) -> Tuple[List[int], float]:
+    """
+    Solve the Traveling Salesman Problem (or VRP variant) using Lin-Kernighan.
+
+    Args:
+        distance_matrix: Matrix of pairwise distances.
+        initial_tour: Optional starting tour. Defaults to None (uses Nearest Neighbor).
+        max_iterations: Maximum number of search iterations. Defaults to 100.
+        waste: Optional array of waste levels for VRP penalty calculation.
+        capacity: Optional vehicle capacity for VRP penalty calculation.
+
+    Returns:
+        tuple: (final_tour, final_cost)
+    """
     n = len(distance_matrix)
     if n < 3:
         tour = list(range(n)) + [0]
@@ -101,7 +114,16 @@ def solve_lk(
     alpha = compute_alpha_measures(distance_matrix)
     candidates = get_candidate_set(distance_matrix, alpha, max_candidates=10)
 
-    def get_score(path):
+    def get_score(path: List[int]) -> Tuple[float, float]:
+        """
+        Calculate total penalty and cost for a given path.
+
+        Args:
+            path: List of node indices.
+
+        Returns:
+            tuple: (penalty, cost)
+        """
         c = sum(distance_matrix[path[i], path[(i + 1) % n]] for i in range(n))
         pen = 0.0
         if waste is not None and capacity is not None:
@@ -119,7 +141,19 @@ def solve_lk(
     best_pen, best_cost = get_score(best_p)
     global_p, global_pen, global_cost = best_p[:], best_pen, best_cost
 
-    def is_better(p1, c1, p2, c2):
+    def is_better(p1: float, c1: float, p2: float, c2: float) -> bool:
+        """
+        Lexicographical comparison: Penalty first, then Cost.
+
+        Args:
+            p1: Penalty of first solution.
+            c1: Cost of first solution.
+            p2: Penalty of second solution.
+            c2: Cost of second solution.
+
+        Returns:
+            True if (p1, c1) is better than (p2, c2).
+        """
         if abs(p1 - p2) > 1e-6:
             return p1 < p2
         return c1 < c2 - 1e-6

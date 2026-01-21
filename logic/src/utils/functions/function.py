@@ -1,3 +1,6 @@
+"""
+Mathematical and environment-related helper functions.
+"""
 from __future__ import annotations
 
 import json

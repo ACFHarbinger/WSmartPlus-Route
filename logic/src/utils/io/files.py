@@ -1,3 +1,6 @@
+"""
+Safe file operation utilities (read, write, zip).
+"""
 from __future__ import annotations
 
 import json
