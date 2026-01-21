@@ -182,10 +182,18 @@ class RL4COLitModule(pl.LightningModule, ABC):
             # For RolloutBaseline, we pass val_dataset for the T-test
             self.baseline.epoch_callback(self.policy, self.current_epoch, val_dataset=self.val_dataset, env=self.env)
 
-        # Regenerate training dataset for next epoch
-        new_dataset = regenerate_dataset(self.env, self.train_data_size)
-        if new_dataset is not None:
-            self.train_dataset = new_dataset
+        # Regenerate training dataset for next epoch if configured
+        if self.hparams.get("regenerate_per_epoch", False):
+            if self.trainer.max_epochs is not None and self.current_epoch < self.trainer.max_epochs - 1:
+                # Check if environment supports generation
+                if hasattr(self.env, "generator"):
+                    new_dataset = regenerate_dataset(self.env, self.train_data_size)
+                    if new_dataset is not None:
+                        self.train_dataset = new_dataset
+
+                    # Log generation
+                    if self.local_rank == 0:
+                        print(f"Regenerated training dataset for epoch {self.current_epoch + 1}")
 
     def configure_optimizers(self):
         """Configure optimizer and optional scheduler."""

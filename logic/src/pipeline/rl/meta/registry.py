@@ -12,6 +12,7 @@ from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 
 META_STRATEGY_REGISTRY: Dict[str, Type[WeightAdjustmentStrategy]] = {
     "rnn": RewardWeightOptimizer,
+    "rwa": RewardWeightOptimizer,
     "bandit": WeightContextualBandit,
     "morl": MORLWeightOptimizer,
     "tdl": CostWeightManager,

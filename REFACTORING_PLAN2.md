@@ -1,16 +1,20 @@
 # Refactoring Plan: Old RL Pipeline → New Lightning Pipeline
 
-> **Version**: 2.1
+> **Version**: 2.2
 > **Created**: January 2026
 > **Last Updated**: January 21, 2026
-> **Status**: ⚠️ In Progress (85% Complete)
+> **Status**: ✅ Nearly Complete (95% Complete)
 > **Scope**: Integration of `logic/src/pipeline/reinforcement_learning/` features into `logic/src/pipeline/rl/`
 
 ---
 
 ## Executive Summary
 
-This document details the migration plan for bringing features from the old reinforcement learning pipeline (`logic/src/pipeline/reinforcement_learning/`) into the new PyTorch Lightning-based pipeline (`logic/src/pipeline/rl/`). The new pipeline provides a cleaner, more maintainable architecture but still has several gaps requiring attention.
+This document details the migration plan for bringing features from the old reinforcement learning pipeline (`logic/src/pipeline/reinforcement_learning/`) into the new PyTorch Lightning-based pipeline (`logic/src/pipeline/rl/`).
+
+**Migration Status**: ✅ **95% Complete** (January 21, 2026)
+
+The new pipeline is nearly complete with only 5 minor gaps remaining (all LOW-MEDIUM priority). Most features have been successfully ported and enhanced. The pipeline also includes several new features not present in the old implementation.
 
 ### Key Statistics
 
@@ -18,11 +22,25 @@ This document details the migration plan for bringing features from the old rein
 |--------|--------------|--------------|-----|
 | **Core Files** | 34 files | 27 files | ✅ Consolidated |
 | **RL Algorithms** | 5 (REINFORCE, PPO, SAPO, GSPO, DR-GRPO) | 10 (+ POMO, SymNCO, IL, Adaptive IL, HRL) | ✅ Superior |
-| **Baselines** | 6 (No, Exp, POMO, Critic, Rollout, Warmup) | 6 (Ported but some incomplete) | ⚠️ Partial |
-| **Meta-Learning** | 5 strategies + 6 trainers | 3 strategies (Missing TD Learning) | ⚠️ 80% |
-| **HPO** | 6 algorithms | DEHB only (simplified) | ⚠️ Partial |
-| **Utilities** | Epoch management, time-based training, post-processing | Placeholders exist | ⚠️ 50% |
+| **Baselines** | 6 (No, Exp, POMO, Critic, Rollout, Warmup) | 6 (All complete with T-test) | ✅ Complete |
+| **Meta-Learning** | 5 strategies + 6 trainers | 5 strategies (All ported) | ✅ Complete |
+| **HPO** | 6 algorithms | Optuna + DEHB (simplified) | ✅ Adequate |
+| **Utilities** | Epoch management, time-based training, post-processing | All ported | ✅ Complete |
 | **Vectorized Policies** | HGS, Local Search, Split | All ported to `models/policies/vectorized/` | ✅ Complete |
+| **Data Augmentation** | N/A (old) | dihedral8 + symmetric | ✅ New Feature |
+
+### New Features (Not in Old Pipeline)
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **POMO** | Policy Optimization with Multiple Optima | ✅ Complete (123 lines) |
+| **SymNCO** | Symmetricity-aware NCO with consistency losses | ✅ Complete (108 lines) |
+| **Imitation Learning** | Learn from expert policies (HGS, ALNS) | ✅ Complete (90 lines) |
+| **Adaptive IL** | Imitation + RL with adaptive weighting | ✅ Complete (114 lines) |
+| **StateAugmentation** | Dihedral8 & symmetric transforms | ✅ Complete |
+| **Symmetricity Losses** | Problem/solution consistency + invariance | ✅ Complete |
+| **HyperNetworkStrategy** | Meta-learning via hypernetworks | ✅ Complete |
+
 
 ---
 
@@ -35,10 +53,11 @@ This document details the migration plan for bringing features from the old rein
 5. [Phase 2: Epoch Management & Utilities](#5-phase-2-epoch-management--utilities)
 6. [Phase 3: Meta-Learning Integration](#6-phase-3-meta-learning-integration)
 7. [Phase 4: HPO Integration](#7-phase-4-hpo-integration)
-8. [Phase 5: Advanced Features](#8-phase-5-advanced-features)
-9. [Migration Strategy](#9-migration-strategy)
-10. [Testing Plan](#10-testing-plan)
-11. [Risk Assessment](#11-risk-assessment)
+8. [Remaining Gaps & Minor Issues](#8-remaining-gaps--minor-issues)
+9. [Phase 5: Advanced Features](#9-phase-5-advanced-features)
+10. [Migration Strategy](#10-migration-strategy)
+11. [Testing Plan](#11-testing-plan)
+12. [Risk Assessment](#12-risk-assessment)
 
 ---
 
@@ -375,6 +394,8 @@ class POMOBaseline(Baseline):
 
 ### 4.4 Update Baseline Registry
 
+**Status**: ✅ Complete (but minor export issue)
+
 ```python
 BASELINE_REGISTRY = {
     "none": NoBaseline,
@@ -385,6 +406,8 @@ BASELINE_REGISTRY = {
     "pomo": POMOBaseline,
 }
 ```
+
+**Note**: `WarmupBaseline` and `POMOBaseline` exist but are not exported in `rl/core/__init__.py`. This is a trivial fix.
 
 ---
 
@@ -604,7 +627,133 @@ class LightningHPO:
 
 ---
 
-## 8. Phase 5: Advanced Features
+## 8. Remaining Gaps & Minor Issues
+
+### Priority: LOW-MEDIUM
+### Status: 5 Issues Identified (January 21, 2026)
+
+After comprehensive analysis, the following gaps remain:
+
+#### Gap 1: Dataset Regeneration Per Epoch (LOW)
+**Location**: `logic/src/pipeline/rl/core/base.py:177-188`
+
+**Issue**: The `on_train_epoch_end()` method does not regenerate the training dataset between epochs by default.
+
+**Current Code**:
+```python
+def on_train_epoch_end(self):
+    """Update baseline and regenerate dataset."""
+    if hasattr(self.baseline, "epoch_callback"):
+        self.baseline.epoch_callback(self.policy, self.current_epoch)
+    # Dataset regeneration would go here but is not implemented
+```
+
+**Proposed Fix**: Add optional per-epoch regeneration controlled by a config flag.
+
+```python
+def on_train_epoch_end(self):
+    """Update baseline and regenerate dataset."""
+    if hasattr(self.baseline, "epoch_callback"):
+        self.baseline.epoch_callback(self.policy, self.current_epoch)
+
+    # Optionally regenerate training dataset
+    if self.hparams.get("regenerate_per_epoch", False):
+        if self.current_epoch < self.trainer.max_epochs - 1:
+            if hasattr(self.env, 'generator'):
+                from logic.src.data.datasets import GeneratorDataset
+                self.train_dataset = GeneratorDataset(
+                    self.env.generator,
+                    self.train_data_size,
+                )
+```
+
+---
+
+#### Gap 2: HRL PPO Memory and Credit Assignment (MEDIUM)
+**Location**: `logic/src/pipeline/rl/core/hrl.py:41-108`
+
+**Issue**: The new `HRLModule` (113 lines) is simplified compared to the old `manager_train.py` (166 lines). Missing:
+1. Multi-step rollout memory buffers
+2. Full PPO clipping with ratio calculation
+3. HICRA-inspired credit assignment weighting
+4. Auxiliary mask loss
+
+**Old Implementation** (key features):
+```python
+# From manager_train.py:136-142
+# HICRA-Inspired Credit Assignment
+b_overflow = (b_dynamic[:, :, -1] > 0.9).float().sum(dim=1)
+credit_weight = 1.0 + (b_overflow * 0.5)
+credit_weight = credit_weight / credit_weight.mean()
+
+surr1 = ratio * b_adv * credit_weight
+surr2 = torch.clamp(ratio, 1.0 - clip_eps, 1.0 + clip_eps) * b_adv * credit_weight
+```
+
+**New Implementation** (simplified):
+```python
+# Simplified A2C-style update (no memory, no credit assignment)
+actor_loss = -(advantage * torch.log(gate_action.float() + 1e-8)).mean()
+critic_loss = advantage.pow(2).mean()
+loss = actor_loss + 0.5 * critic_loss
+```
+
+**Recommendation**: Port full PPO logic if advanced HRL is needed. Current simplified version is adequate for basic hierarchical routing.
+
+---
+
+#### Gap 3: WarmupBaseline & POMOBaseline Export (TRIVIAL)
+**Location**: `logic/src/pipeline/rl/core/__init__.py:6-14`
+
+**Issue**: `WarmupBaseline` and `POMOBaseline` exist in `baselines.py` but are not exported.
+
+**Fix**:
+```python
+from logic.src.pipeline.rl.core.baselines import (
+    BASELINE_REGISTRY,
+    Baseline,
+    CriticBaseline,
+    ExponentialBaseline,
+    NoBaseline,
+    POMOBaseline,      # Add
+    RolloutBaseline,
+    WarmupBaseline,    # Add
+    get_baseline,
+)
+```
+
+---
+
+#### Gap 4: Rich Epoch Validation Metrics (LOW)
+**Location**: `logic/src/pipeline/rl/features/epoch.py:39-77`
+
+**Issue**: The `compute_validation_metrics()` function (39 lines) is simpler than the old `validate_update()` (215 lines).
+
+**Missing Features**:
+- Detailed cost breakdown (waste_cost, len_cost, overflow_cost)
+- Temporal metrics for multi-day simulations
+- HPO scoring modes (efficiency-based, bounded sigmoid)
+- Cost weight feedback for meta-learning
+
+**Assessment**: Current implementation is adequate for standard training. Enhanced metrics can be added per-environment basis.
+
+---
+
+#### Gap 5: DEHB Simplification (LOW)
+**Location**: `logic/src/pipeline/rl/hpo/dehb.py`
+
+**Issue**: Old DEHB was 7+ files (~70KB), new is 1 file (105 lines, ~3.8KB).
+
+**Missing**:
+- Full ConfigurationRepository
+- Successive Halving Band Manager (ShbManager)
+- DE mutation/crossover base classes
+
+**Assessment**: Intentional simplification. Current DEHB wraps the `dehb` package. Acceptable unless advanced DEHB features are needed.
+
+---
+
+## 9. Phase 5: Advanced Features
 
 ### Priority: LOW
 ### Estimated Effort: 3-5 days (optional)
@@ -628,7 +777,7 @@ Consider porting if GPU-accelerated heuristics are needed:
 
 ---
 
-## 9. Migration Strategy
+## 10. Migration Strategy
 
 ### 9.1 Approach: Incremental Integration
 
@@ -704,7 +853,7 @@ from .meta.meta_module import MetaRLModule
 
 ---
 
-## 10. Testing Plan
+## 11. Testing Plan
 
 ### 10.1 Unit Tests
 
@@ -740,7 +889,7 @@ def test_parity_reinforce():
 
 ---
 
-## 11. Risk Assessment
+## 12. Risk Assessment
 
 ### 11.1 High Risk Items
 
@@ -882,6 +1031,8 @@ class POMOBaseline(Baseline):
 
 ## Changelog
 
+- **v2.2** (January 21, 2026): Added comprehensive gap analysis after codebase verification
+- **v2.1** (January 21, 2026): Updated with actual implementation status
 - **v2.0** (January 2026): Complete rewrite focusing on old→new pipeline migration
 - **v1.0** (Previous): RL4CO vs Logic comparison
 

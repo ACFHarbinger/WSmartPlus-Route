@@ -4,6 +4,11 @@ Sphinx documentation configuration file.
 import os
 import sys
 
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
+
+# Ensure the project root is in the path
+sys.path.insert(0, os.path.abspath("../../"))
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -24,11 +29,25 @@ sys.path.insert(0, os.path.abspath("../.."))  # logic directory
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinx.ext.autodoc",
+    "autodoc2",  # Enhanced autodoc
+    "myst_nb",  # Replaces myst_parser
+    "sphinx_design",  # Cards, grids, and tabs
+    "sphinx_copybutton",  # Copy buttons for code fences
+    "sphinxcontrib.mermaid",
+    "hoverxref.extension",
+    "sphinx.ext.autodoc",  # Keep your existing API tools
     "sphinx.ext.napoleon",
-    "sphinx.ext.viewcode",
-    "sphinx_autodoc_typehints",
 ]
+
+# The directory containing your python packages
+autodoc2_packages = [
+    "../../src",
+]
+
+# Optional: Where the generated files should go (defaults to 'autodoc2')
+autodoc2_output_dir = "references"
+
+autodoc2_render_plugin = "myst"
 
 templates_path = ["_templates"]
 exclude_patterns = []
@@ -37,5 +56,12 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_book_theme"
 html_static_path = ["_static"]
+
+# Enable specific MyST features
+myst_enable_extensions = [
+    "colon_fence",  # Use ::: for directives
+    "dollarmath",  # LaTeX math
+    "tasklist",  # - [ ] checkboxes
+]
