@@ -233,6 +233,12 @@ dependencies = [
     "zict==3.0.0",
     "zipp==3.23.0 ; python_full_version < '3.10'",
     "zstandard==0.23.0",
+    # RL4CO-style modular architecture dependencies
+    "tensordict>=0.3.0,<0.4.0",
+    "pytorch-lightning>=2.0.0",
+    "hydra-core>=1.3.0",
+    "hydra-colorlog>=1.2.0",
+    "omegaconf>=2.3.0",
 ]
 
 # Corrected 'dev' dependencies
