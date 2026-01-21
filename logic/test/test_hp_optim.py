@@ -353,8 +353,8 @@ class TestDEHB:
         assert "w_length" in names
         assert "w_overflows" in names
 
-    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.logger")
-    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.Client")
+    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.dehb.logger")
+    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.dehb.Client")
     @pytest.mark.unit
     def test_dehb_init(self, mock_client, mock_logger, hpo_opts, tmp_path, mocker):
         """Test DEHB initialization."""

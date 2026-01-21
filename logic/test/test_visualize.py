@@ -6,6 +6,8 @@ Merges functionality from:
 - test_visualize_epoch_coverage.py
 """
 
+import os
+import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -52,7 +54,10 @@ class TestVisualizeUtils(unittest.TestCase):
             {"model": {"l1.weight": torch.randn(10, 10) + 1.0}},
         ]
 
-        plot_weight_trajectories("dummy_dir", "dummy_dir/out.png")
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dummy_out = os.path.join(tmp_dir, "out.png")
+            plot_weight_trajectories(tmp_dir, dummy_out)
+
         mock_plt.savefig.assert_called()
 
     @patch("logic.src.utils.logging.visualize_utils.SummaryWriter")
@@ -100,7 +105,9 @@ class TestVisualizeUtils(unittest.TestCase):
 
         model.embedder.layers = [layer]
 
-        plot_attention_heatmaps(model, "out_dir")
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            plot_attention_heatmaps(model, tmp_dir)
+
         mock_sns.heatmap.assert_called()
         mock_plt.savefig.assert_called()
 
