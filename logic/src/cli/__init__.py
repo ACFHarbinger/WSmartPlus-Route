@@ -22,11 +22,11 @@ from logic.src.cli.sim_parser import (
     validate_eval_args,
     validate_test_sim_args,
 )
-from logic.src.cli.test_suite_parser import add_test_suite_args, validate_test_suite_args
 from logic.src.cli.train_parser import (
     add_train_args,
     validate_train_args,
 )
+from logic.src.cli.ts_parser import add_test_suite_args, validate_test_suite_args
 from logic.src.cli.tui import launch_tui
 
 
