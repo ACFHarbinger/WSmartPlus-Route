@@ -77,7 +77,11 @@ class TestLocking:
         """Test reading and transposing policy output."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             json_path = os.path.join(tmp_dir, "test.json")
-            data = {"policy1": [10, 20, 30], "policy2": [5, 15, 25], "ignored": [0, 0, 0]}
+            data = {
+                "policy1": [10, 20, 30],
+                "policy2": [5, 15, 25],
+                "ignored": [0, 0, 0],
+            }
             with open(json_path, "w") as f:
                 json.dump(data, f)
 
@@ -160,7 +164,10 @@ class TestProcessing:
         """Test recursively finding pairs of values (extracted from coverage tests)."""
         from logic.src.utils.io.processing import find_two_input_values
 
-        data = {"day1": {"policy1": {"km": 10.0, "waste": 2.0}}, "day2": [{"policy2": {"km": 20.0, "waste": 4.0}}]}
+        data = {
+            "day1": {"policy1": {"km": 10.0, "waste": 2.0}},
+            "day2": [{"policy2": {"km": 20.0, "waste": 4.0}}],
+        }
         results = find_two_input_values(data, input_key1="km", input_key2="waste")
         # Should find 2 pairs
         assert len(results) == 2
@@ -249,7 +256,10 @@ class TestProcessing:
 
         # We need to mock json.load twice: once for input file, once for output file
         # And patch os.path.exists inside the function to return True for output_path
-        with patch("json.load", side_effect=[data, data]), patch("json.dump") as mock_dump:
+        with (
+            patch("json.load", side_effect=[data, data]),
+            patch("json.dump") as mock_dump,
+        ):
             success = process_file_statistics("dir/input.json", "output.json", process_func=lambda x: sum(x))
             assert success
             assert mock_dump.called
@@ -375,7 +385,12 @@ class TestPreview:
             with patch("builtins.print"):
                 # We need to mock open/json load too
                 with patch("builtins.open", new_callable=mock_open, read_data='{"a": 1}'):
-                    preview_changes("root", output_key="km", update_val=0, process_func=lambda x, u: x)
+                    preview_changes(
+                        "root",
+                        output_key="km",
+                        update_val=0,
+                        process_func=lambda x, u: x,
+                    )
 
                 assert mock_glob.called
                 assert mock_find.called

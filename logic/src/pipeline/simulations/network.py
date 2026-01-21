@@ -51,7 +51,11 @@ from tqdm import tqdm
 
 from logic.src.utils.crypto_utils import decrypt_file_data, load_key
 from logic.src.utils.definitions import EARTH_RADIUS, ROOT_DIR
-from logic.src.utils.functions.graph_utils import get_adj_knn, get_edge_idx_dist, idx_to_adj
+from logic.src.utils.functions.graph_utils import (
+    get_adj_knn,
+    get_edge_idx_dist,
+    idx_to_adj,
+)
 
 
 class DistanceStrategy(ABC):

@@ -16,8 +16,15 @@ from pandas.testing import assert_frame_equal
 from logic.src.pipeline.simulations import processor as processor_module
 from logic.src.pipeline.simulations import simulator
 from logic.src.pipeline.simulations.bins import Bins
-from logic.src.pipeline.simulations.checkpoints import CheckpointError, checkpoint_manager
-from logic.src.pipeline.simulations.day import get_daily_results, run_day, set_daily_waste
+from logic.src.pipeline.simulations.checkpoints import (
+    CheckpointError,
+    checkpoint_manager,
+)
+from logic.src.pipeline.simulations.day import (
+    get_daily_results,
+    run_day,
+    set_daily_waste,
+)
 from logic.src.pipeline.simulations.loader import (
     FileSystemRepository,
     load_area_and_waste_type_params,
@@ -1487,7 +1494,7 @@ class TestDayResults:
         # mock_model_env.compute_simulator_day was NOT calling this. NeuralAgent calls model().
 
         mock_configs = MagicMock()
-        mock_configs.__getitem__.side_effect = lambda key: opts["problem"] if key == "problem" else MagicMock()
+        mock_configs.__getitem__.side_effect = lambda key: (opts["problem"] if key == "problem" else MagicMock())
         mocker.patch(
             "logic.src.pipeline.simulations.states.setup_model",
             return_value=(mock_model_env, mock_configs),

@@ -5,6 +5,7 @@ This module provides the core logic and abstract base class for implementing
 DEHB optimization, which combines Differential Evolution with the Hyperband
 algorithm for efficient hyperparameter tuning with multi-fidelity support.
 """
+
 import sys
 import time
 from pathlib import Path

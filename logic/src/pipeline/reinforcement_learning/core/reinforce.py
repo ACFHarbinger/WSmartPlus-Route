@@ -373,7 +373,7 @@ class StandardTrainer(BaseReinforceTrainer):
             l_dict = {
                 "total": loss.item() * self.opts.get("accumulation_steps", 1),
                 "reinforce_loss": reinforce_loss.mean().item(),
-                "baseline_loss": bl_loss.mean().item() if isinstance(bl_loss, torch.Tensor) else bl_loss,
+                "baseline_loss": (bl_loss.mean().item() if isinstance(bl_loss, torch.Tensor) else bl_loss),
                 "nll": -log_likelihood.mean().item(),
             }
             if curr_imitation_weight > 0:

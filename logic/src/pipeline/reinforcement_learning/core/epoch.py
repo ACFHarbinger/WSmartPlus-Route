@@ -144,7 +144,7 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
         with torch.no_grad():
             ucost, c_dict, attn_dict = agent.compute_batch_sim(
                 move_to(bat, opts["device"], non_blocking=True),
-                move_to(d_matrix, opts["device"], non_blocking=True) if d_matrix is not None else None,
+                (move_to(d_matrix, opts["device"], non_blocking=True) if d_matrix is not None else None),
             )
         return ucost, c_dict, attn_dict
 
@@ -215,7 +215,9 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
         metric_score = cost.mean()
         print(
             "Validation overall {} score: {} +- {}".format(
-                metric, metric_score, torch.std(cost) / math.sqrt(len(cost)) if len(cost) > 1 else 0.0
+                metric,
+                metric_score,
+                torch.std(cost) / math.sqrt(len(cost)) if len(cost) > 1 else 0.0,
             )
         )
         return metric_score, avg_ucost, all_costs
@@ -286,7 +288,8 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
 
         print(
             "Validation overall avg_cost: {} +- {}".format(
-                avg_ucost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts)) if len(all_ucosts) > 1 else 0.0
+                avg_ucost,
+                (torch.std(all_ucosts) / math.sqrt(len(all_ucosts)) if len(all_ucosts) > 1 else 0.0),
             )
         )
         for key, val in all_costs.items():
@@ -299,7 +302,8 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
     # 3. Simple Case
     print(
         "Validation overall avg_cost: {} +- {}".format(
-            avg_ucost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts)) if len(all_ucosts) > 1 else 0.0
+            avg_ucost,
+            (torch.std(all_ucosts) / math.sqrt(len(all_ucosts)) if len(all_ucosts) > 1 else 0.0),
         )
     )
     return avg_ucost
@@ -324,7 +328,7 @@ def clip_grad_norms(param_groups, max_norm=math.inf):
     grad_norms = [
         torch.nn.utils.clip_grad_norm_(
             group["params"],
-            max_norm if max_norm > 0 else math.inf,  # Inf so no clipping but still call to calc
+            (max_norm if max_norm > 0 else math.inf),  # Inf so no clipping but still call to calc
             norm_type=2,
         )
         for group in param_groups
@@ -398,7 +402,7 @@ def prepare_epoch(optimizer, epoch, problem, tb_logger, cost_weights, opts):
             "{}{}{}_{}{}_seed{}.pkl".format(
                 problem.NAME,
                 opts["graph_size"],
-                "_{}".format(opts["data_distribution"]) if opts["data_distribution"] is not None else "",
+                ("_{}".format(opts["data_distribution"]) if opts["data_distribution"] is not None else ""),
                 opts["train_dataset"],
                 epoch,
                 opts["seed"],
@@ -475,7 +479,14 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
     if opts["temporal_horizon"] > 0:
         data_size = training_dataset.size
         graphs = torch.stack([torch.cat((x["depot"].unsqueeze(0), x["loc"])) for x in training_dataset])
-        if opts["problem"] in ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
+        if opts["problem"] in [
+            "vrpp",
+            "cvrpp",
+            "wcvrp",
+            "cwcvrp",
+            "sdwcvrp",
+            "scwcvrp",
+        ]:
             for day_id in range(1, opts["temporal_horizon"] + 1):
                 training_dataset["fill{}".format(day_id)] = torch.from_numpy(
                     generate_waste_prize(
@@ -493,7 +504,10 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
                 ).float()
                 training_dataset.fill_history[:, :, -1] = torch.stack(
                     [
-                        instance.get("waste", instance.get("noisy_waste", instance.get("real_waste")))
+                        instance.get(
+                            "waste",
+                            instance.get("noisy_waste", instance.get("real_waste")),
+                        )
                         for instance in training_dataset.data
                     ]
                 )
@@ -692,7 +706,15 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args, cost
         # Get masks for bins present in routes
         dataset_dim = routes.size(0)
         waste = torch.stack(
-            [torch.cat((torch.tensor([0]), x.get("waste", x.get("noisy_waste", x.get("real_waste"))))) for x in dataset]
+            [
+                torch.cat(
+                    (
+                        torch.tensor([0]),
+                        x.get("waste", x.get("noisy_waste", x.get("real_waste"))),
+                    )
+                )
+                for x in dataset
+            ]
         )
         num_nodes = waste.size(1)
 

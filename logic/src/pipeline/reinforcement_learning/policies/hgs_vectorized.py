@@ -8,6 +8,7 @@ It includes:
 - `VectorizedPopulation`: Management of the genetic population.
 - `VectorizedHGS`: The main solver class.
 """
+
 import time
 
 import torch
@@ -20,7 +21,9 @@ from logic.src.pipeline.reinforcement_learning.policies.local_search import (
     vectorized_two_opt,
     vectorized_two_opt_star,
 )
-from logic.src.pipeline.reinforcement_learning.policies.split_algorithm import vectorized_linear_split
+from logic.src.pipeline.reinforcement_learning.policies.split_algorithm import (
+    vectorized_linear_split,
+)
 
 
 # -----------------------------

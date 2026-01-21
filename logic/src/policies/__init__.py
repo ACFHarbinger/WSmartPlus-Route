@@ -13,7 +13,12 @@ from .adaptive_large_neighborhood_search import (
 )
 from .branch_cut_and_price import run_bcp
 from .hybrid_genetic_search import run_hgs
-from .last_minute import LastMinutePolicy, ProfitPolicy, policy_last_minute, policy_last_minute_and_path
+from .last_minute import (
+    LastMinutePolicy,
+    ProfitPolicy,
+    policy_last_minute,
+    policy_last_minute_and_path,
+)
 from .look_ahead import (
     LookAheadPolicy,
     policy_lookahead,

@@ -50,7 +50,11 @@ class TestEval:
         # Mock problem.get_costs
         mock_model.problem.get_costs.return_value = (
             None,
-            {"length": torch.tensor([1.0]), "waste": torch.tensor([0.5]), "overflows": torch.tensor([0])},
+            {
+                "length": torch.tensor([1.0]),
+                "waste": torch.tensor([0.5]),
+                "overflows": torch.tensor([0]),
+            },
             None,
         )
 
@@ -89,7 +93,11 @@ class TestEval:
 
         mock_model.problem.get_costs.return_value = (
             None,
-            {"length": torch.tensor([1.0]), "waste": torch.tensor([0.5]), "overflows": torch.tensor([0])},
+            {
+                "length": torch.tensor([1.0]),
+                "waste": torch.tensor([0.5]),
+                "overflows": torch.tensor([0]),
+            },
             None,
         )
 
@@ -100,6 +108,11 @@ class TestEval:
     @patch("logic.src.pipeline.eval.eval_dataset")
     def test_run_evaluate_model(self, mock_eval):
         # Just calls eval_dataset in loop
-        opts = {"seed": 1234, "width": [1], "datasets": ["d1"], "softmax_temperature": 1.0}
+        opts = {
+            "seed": 1234,
+            "width": [1],
+            "datasets": ["d1"],
+            "softmax_temperature": 1.0,
+        }
         run_evaluate_model(opts)
         mock_eval.assert_called()

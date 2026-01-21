@@ -437,7 +437,11 @@ class NeuralAgent:
             # But model forward will handle batching.
 
         _, _, _, pi, _ = self.model(
-            input_for_model, return_pi=True, mask=mask, profit_vars=profit_vars, cost_weights=cost_weights
+            input_for_model,
+            return_pi=True,
+            mask=mask,
+            profit_vars=profit_vars,
+            cost_weights=cost_weights,
         )
 
         if run_tsp:
