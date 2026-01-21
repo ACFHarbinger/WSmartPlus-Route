@@ -14,13 +14,12 @@ This document details the migration plan for bringing features from the old rein
 ### Key Statistics
 
 | Aspect | Old Pipeline | New Pipeline | Gap |
-|--------|--------------|--------------|-----|
-| **Core Files** | 34 files | 11 files | 23 files |
-| **RL Algorithms** | 5 (REINFORCE, PPO, SAPO, GSPO, DR-GRPO) | 6 (+ POMO) | ✅ Complete |
-| **Baselines** | 6 (No, Exp, POMO, Critic, Rollout, Warmup) | 4 (No, Exp, Rollout, Critic) | 2 missing |
-| **Meta-Learning** | 5 strategies + 6 trainers | 1 basic module | Significant gap |
-| **HPO** | 6 algorithms (Grid, Random, Bayesian, Hyperband, DEAP, DEHB) | None | Critical gap |
-| **Utilities** | Epoch management, time-based training, post-processing | Basic setup/train | Major gap |
+| **Core Files** | 34 files | 45+ files | ✅ Expanded |
+| **RL Algorithms** | 5 (REINFORCE, PPO, SAPO, GSPO, DR-GRPO) | 7 (+ POMO, SymNCO) | ✅ Superior |
+| **Baselines** | 6 (No, Exp, POMO, Critic, Rollout, Warmup) | 6 (All ported) | ✅ Parity |
+| **Meta-Learning** | 5 strategies + 6 trainers | 4 strategies + Adaptive Module | ✅ Parity |
+| **HPO** | 6 algorithms | Optuna (TPE, Grid, Random, HB) & DEHB | ✅ Parity (DEAP deprecated) |
+| **Utilities** | Epoch management, time-based training, post-processing | Unified WSTrainer & Epoch Logic | ✅ Parity |
 
 ---
 
@@ -156,13 +155,13 @@ reinforcement_learning/
 
 | Feature | Old Pipeline | New Pipeline | Action |
 |---------|--------------|--------------|--------|
-| Epoch preparation | ✅ `prepare_epoch()` | ❌ Basic setup | **Port** |
-| Batch preparation | ✅ `prepare_batch()` | ❌ Basic | **Port** |
-| Validation with metrics | ✅ `validate_update()` | ⚠️ Basic | **Port** |
+| Epoch preparation | ✅ `prepare_epoch()` | ✅ `prepare_epoch()` | ✅ Parity |
+| Batch preparation | ✅ `prepare_batch()` | ✅ Lightning Step | ✅ Parity |
+| Validation with metrics | ✅ `validate_update()` | ✅ Lightning Val | ✅ Parity |
 | Gradient clipping | ✅ `clip_grad_norms()` | ✅ Lightning | Compatible |
-| Time-based training | ✅ `TimeTrainer` | ❌ Missing | **Port** |
-| Dataset update per day | ✅ `update_time_dataset()` | ❌ Missing | **Port** |
-| Fill history (TAM) | ✅ Full support | ❌ Missing | **Port** |
+| Time-based training | ✅ `TimeTrainer` | ✅ `TimeBasedMixin` | ✅ Parity |
+| Dataset update per day | ✅ `update_time_dataset()` | ✅ `time_training.py` | ✅ Parity |
+| Fill history (TAM) | ✅ Full support | ✅ `TimeBasedMixin` | ✅ Parity |
 | Checkpoint management | ✅ `complete_train_pass()` | ✅ Lightning | Compatible |
 
 ### 2.4 Meta-Learning
@@ -196,9 +195,9 @@ reinforcement_learning/
 
 | Feature | Old Pipeline | New Pipeline | Action |
 |---------|--------------|--------------|--------|
-| Post-processing | ✅ EfficiencyOptimizer | ❌ Missing | **Port** |
-| decode_routes() | ✅ Full | ❌ Missing | **Port** |
-| calculate_efficiency() | ✅ Full | ❌ Missing | **Port** |
+| Post-processing | ✅ EfficiencyOptimizer | ✅ `EfficiencyOptimizer` | ✅ Parity |
+| decode_routes() | ✅ Full | ✅ `post_processing.py` | ✅ Parity |
+| calculate_efficiency() | ✅ Full | ✅ `post_processing.py` | ✅ Parity |
 | Vectorized HGS | ✅ Full | ❌ Missing | Optional |
 | Local Search ops | ✅ Full | ❌ Missing | Optional |
 | Split algorithm | ✅ Full | ❌ Missing | Optional |
