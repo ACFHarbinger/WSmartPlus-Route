@@ -1,23 +1,11 @@
 """
-Meta-Learning Strategy Registry.
+Meta-Learning Package.
 """
-from typing import Dict, Type
+from logic.src.pipeline.rl.meta.module import MetaRLModule
+from logic.src.pipeline.rl.meta.registry import META_STRATEGY_REGISTRY, get_meta_strategy
 
-from logic.src.pipeline.rl.meta.contextual_bandits import WeightContextualBandit
-from logic.src.pipeline.rl.meta.multi_objective import MORLWeightOptimizer
-from logic.src.pipeline.rl.meta.weight_optimizer import RewardWeightOptimizer
-from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
-
-META_STRATEGY_REGISTRY: Dict[str, Type[WeightAdjustmentStrategy]] = {
-    "rnn": RewardWeightOptimizer,
-    "bandit": WeightContextualBandit,
-    "morl": MORLWeightOptimizer,
-}
-
-
-def get_meta_strategy(name: str, **kwargs) -> WeightAdjustmentStrategy:
-    """Get meta-learning strategy by name."""
-    strategy_cls = META_STRATEGY_REGISTRY.get(name.lower())
-    if strategy_cls is None:
-        raise ValueError(f"Unknown meta strategy: {name}")
-    return strategy_cls(**kwargs)
+__all__ = [
+    "META_STRATEGY_REGISTRY",
+    "get_meta_strategy",
+    "MetaRLModule",
+]

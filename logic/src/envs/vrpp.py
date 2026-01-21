@@ -42,24 +42,30 @@ class VRPPEnv(RL4COEnvBase):
         self.prize_weight = prize_weight
         self.cost_weight = cost_weight
 
-    def _reset(self, td: TensorDict, batch_size: Optional[int] = None) -> TensorDict:
+    def _reset(self, td: TensorDict, batch_size: Optional[Union[int, list[int], tuple[int, ...]]] = None) -> TensorDict:
         """Initialize VRPP episode state."""
         device = td.device
-        bs = td.batch_size[0] if batch_size is None else batch_size
-        num_nodes = td["locs"].shape[1]
+        if batch_size is None:
+            bs = td.batch_size
+        elif isinstance(batch_size, int):
+            bs = (batch_size,)
+        else:
+            bs = tuple(batch_size)
+
+        num_nodes = td["locs"].shape[-2]
 
         # Initialize state fields
-        td["current_node"] = torch.zeros(bs, 1, dtype=torch.long, device=device)
-        td["visited"] = torch.zeros(bs, num_nodes, dtype=torch.bool, device=device)
-        td["visited"][:, 0] = True  # Depot is "visited" initially
+        td["current_node"] = torch.zeros(*bs, 1, dtype=torch.long, device=device)
+        td["visited"] = torch.zeros(*bs, num_nodes, dtype=torch.bool, device=device)
+        td["visited"][..., 0] = True  # Depot is "visited" initially
 
         # Tour tracking
-        td["tour"] = torch.zeros(bs, 0, dtype=torch.long, device=device)
-        td["tour_length"] = torch.zeros(bs, device=device)
-        td["collected_prize"] = torch.zeros(bs, device=device)
+        td["tour"] = torch.zeros(*bs, 0, dtype=torch.long, device=device)
+        td["tour_length"] = torch.zeros(*bs, device=device)
+        td["collected_prize"] = torch.zeros(*bs, device=device)
 
         # Step counter
-        td["i"] = torch.zeros(bs, 1, dtype=torch.long, device=device)
+        td["i"] = torch.zeros(*bs, 1, dtype=torch.long, device=device)
 
         return td
 
