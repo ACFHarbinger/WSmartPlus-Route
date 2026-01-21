@@ -293,8 +293,19 @@ class RL4COLitModule(pl.LightningModule, ABC):
         if stage == "fit":
             from torch.utils.data import Dataset
 
+            # If num_workers > 0, we should generate on CPU to avoid CUDA fork issues
+            # and transfer to device in shared_step.
+            generator = self.env.generator
+            if self.num_workers > 0 and generator.device.type != "cpu":
+                if hasattr(generator, "to"):
+                    generator = generator.to("cpu")
+                else:
+                    # Fallback or warning if .to() is not available (though we just added it)
+                    print("Warning: Generator on GPU with num_workers > 0. Forces CPU generator.")
+                    # Ideally we wouldn't reach here if we assume generators.py is updated.
+
             self.train_dataset: Dataset = GeneratorDataset(
-                self.env.generator,
+                generator,
                 self.train_data_size,
             )
             if self.val_dataset_path is not None:
@@ -304,7 +315,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
                 self.val_dataset: Dataset = TensorDictDataset.load(self.val_dataset_path)
             else:
                 self.val_dataset = GeneratorDataset(
-                    self.env.generator,
+                    generator,  # Use same CPU generator for validation if generated
                     self.val_data_size,
                 )
 

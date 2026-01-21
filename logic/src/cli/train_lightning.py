@@ -384,6 +384,7 @@ def run_training(cfg: Config) -> float:
         gradient_clip_val=float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0,
         logger=CSVLogger("logs", name="lightning_logs"),
         callbacks=[SpeedMonitor(epoch_time=True)],
+        precision=cfg.train.precision,
     )
 
     trainer.fit(model)

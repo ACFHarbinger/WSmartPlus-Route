@@ -134,7 +134,9 @@ WSmart-Route/
 ### 2.3 Data Flow
 
 ```
-[User Input] → [CLI Parser] → [Pipeline Orchestrator]
+                              [Run Hydra Config]
+                                      ↓
+                              [Pipeline Orchestrator]
                                       ↓
                               [Data Generator/Loader]
                                       ↓
@@ -1011,10 +1013,7 @@ python main.py generate_data test --problem vrpp --graph_sizes 20 --seed 1234 --
 
 **Step 2: Train Model**
 ```bash
-python main.py train \
-  --model am \
-  --problem vrpp \
-  --graph_size 20 \
+python main.py train_lightning model=am env.name=vrpp env.num_loc=50 \
   --n_epochs 100 \
   --batch_size 512 \
   --lr_model 1e-4 \
@@ -1567,7 +1566,7 @@ writer.add_scalar('Cost/validation', val_cost, epoch)
 |----------|-----------|-------------|
 | **Neural Models** | `attention_model.py`, `gat_lstm_manager.py`, `meta_rnn.py` | Core neural architectures |
 | **Encoders** | `gat_encoder.py`, `gcn_encoder.py`, `tgc_encoder.py` | Graph encoding layers |
-| **Decoders** | `attention_decoder.py`, `ptr_decoder.py` | Action selection components |
+| **Trainer** | `pipeline/train_lightning.py` | Central entry for `train`, `meta_train`, `hpo`. Manages device selection, data loading, epoch loops via Lightning. |
 | **Policies** | `alns.py`, `bcp.py`, `hgs.py`, `look_ahead.py` | Classical solvers |
 | **Problems** | `vrpp/`, `wcvrp/` | Environment definitions |
 | **Simulator** | `simulation.py`, `bins.py`, `network.py` | Physics engine |

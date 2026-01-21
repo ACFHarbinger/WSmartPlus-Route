@@ -323,11 +323,11 @@ python main.py generate_data test --problem all --graph_sizes 20 50 --seed 42 --
 ### Training
 
 ```bash
-# Train Attention Model on VRPP with 50 vertices
-python main.py train --model am --problem vrpp --graph_size 50 --baseline rollout --n_epochs 100 --batch_size 512 --lr_model 1e-4
+# Train Attention Model on VRPP with 50 vertices (Hydra + Lightning)
+python main.py train_lightning model.name=am env.name=vrpp env.num_loc=50 train.n_epochs=100 train.batch_size=512
 
-# Train TransGCN with graph edges
-python main.py train --model transgcn --graph_size 20 --edge_threshold 0.2 --edge_method "knn" --n_epochs 20
+# Legacy Training (Old Pipeline)
+python main.py train --model am --problem vrpp --graph_size 50 --baseline rollout
 ```
 
 #### Resume Training

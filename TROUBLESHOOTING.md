@@ -136,7 +136,7 @@ uv run ruff check .
 *   **Fix**:
     ```bash
     # Reduce batch size in training
-    python main.py train --batch_size 128  # Try smaller values like 64, 32
+    python main.py train_lightning train.batch_size=64
 
     # Or clear CUDA cache
     python -c "import torch; torch.cuda.empty_cache()"
@@ -147,7 +147,7 @@ uv run ruff check .
 *   **Fix**:
     ```bash
     # Enable anomaly detection
-    CUDA_LAUNCH_BLOCKING=1 python main.py train --debug
+    CUDA_LAUNCH_BLOCKING=1 python main.py train_lightning +debug=true
     ```
 
 #### Symptom: `CUDA driver version is insufficient for CUDA runtime version`
@@ -243,7 +243,7 @@ uv run ruff check .
 *   **Diagnosis**: Missing key in configuration or opts dictionary.
 *   **Fix**: Check that all required arguments are provided:
     ```bash
-    python main.py train --graph_size 50 --model am --problem vrpp
+    python main.py train_lightning env.num_loc=50 model=am env.name=vrpp
     ```
 
 #### Symptom: `RuntimeError: mat1 and mat2 shapes cannot be multiplied`
@@ -251,7 +251,7 @@ uv run ruff check .
 *   **Fix**:
     *   Check model architecture configuration.
     *   Verify input dimensions match expected values.
-    *   Enable debug mode: `python main.py train --debug`
+    *   Enable debug mode: `python main.py train_lightning +debug=true`
 
 #### Symptom: `IndexError: index out of range in self`
 *   **Cause**: Accessing tensor element beyond its size.
@@ -306,13 +306,13 @@ kill -9 <PID>
 **Diagnosis Checklist**:
 
 1.  **Check Learning Rate**: Too high or too low?
-    *   *Fix*: Try adjusting: `--lr_model 1e-4`
+    *   *Fix*: Try adjusting: `optim.lr=1e-4`
 2.  **Check Normalization**: Are inputs normalized?
     *   *Fix*: Ensure batch normalization is enabled in model config.
 3.  **Check Rewards**: Is the reward signal meaningful?
     *   *Fix*: Print rewards during training to verify non-zero values.
 4.  **Check Gradient Flow**: Are gradients vanishing?
-    *   *Fix*: Enable gradient logging: `--log_step 10`
+    *   *Fix*: Enable gradient logging: `train.log_step=10`
 
 ### 5.2 Training Diverges (NaN Loss)
 
@@ -326,7 +326,7 @@ kill -9 <PID>
 **Fixes**:
 1.  Reduce learning rate by 10x.
 2.  Add epsilon to denominators: `x / (y + 1e-8)`.
-3.  Use gradient clipping: `--max_grad_norm 1.0`
+3.  Use gradient clipping: `rl.max_grad_norm=1.0`
 4.  Check for NaN in inputs:
     ```python
     if torch.isnan(input).any():
@@ -345,13 +345,13 @@ kill -9 <PID>
 **Fixes**:
 ```bash
 # Increase batch size
-python main.py train --batch_size 512
+python main.py train_lightning train.batch_size=512
 
 # Use multiple dataloader workers
-python main.py train --num_workers 4
+python main.py train_lightning train.num_workers=4
 
 # Increase model size
-python main.py train --hidden_dim 256
+python main.py train_lightning model.hidden_dim=256
 ```
 
 ### 5.4 Overfitting
@@ -359,9 +359,9 @@ python main.py train --hidden_dim 256
 **Symptom**: Training cost decreases but validation cost increases.
 
 **Fixes**:
-1.  Add dropout: `--dropout 0.1`
+1.  Add dropout: `model.dropout=0.1`
 2.  Use data augmentation.
-3.  Reduce model capacity: `--n_encode_layers 2`
+3.  Reduce model capacity: `model.num_encoder_layers=2`
 4.  Increase dataset size: `--n_epochs 20` for data generation
 
 ### 5.5 Training Too Slow
@@ -371,12 +371,12 @@ python main.py train --hidden_dim 256
 **Diagnostic**:
 ```bash
 # Profile training
-python -m cProfile -o profile.stats main.py train --n_epochs 1
+python -m cProfile -o profile.stats main.py train_lightning train.n_epochs=1
 python -c "import pstats; p = pstats.Stats('profile.stats'); p.sort_stats('cumtime').print_stats(20)"
 ```
 
 **Fixes**:
-1. Enable mixed precision: `--fp16`
+1. Enable mixed precision: `train.enable_scaler=true`
 2. Reduce graph size for debugging
 3. Use smaller validation set
 4. Disable WandB logging for local runs
@@ -393,7 +393,7 @@ python -c "import pstats; p = pstats.Stats('profile.stats'); p.sort_stats('cumti
 **Fixes**:
 ```bash
 # Increase baseline update frequency
-python main.py train --baseline rollout --bl_warmup_epochs 1
+python main.py train_lightning rl.baseline=rollout
 
 # Try exponential baseline instead
 python main.py train --baseline exponential
@@ -516,7 +516,7 @@ print(prof.key_averages().table(sort_by="cuda_time_total"))
 ```bash
 # Python memory profiling
 pip install memory-profiler
-python -m memory_profiler main.py train
+python -m memory_profiler main.py train_lightning
 ```
 
 **Common Causes**:
@@ -758,7 +758,7 @@ scores = scores / temperature
 2. Over-smoothing in deep GNN
 
 **Fixes**:
-1. Reduce encoder layers: `--n_encode_layers 2`
+1. Reduce encoder layers: `model.num_encoder_layers=2`
 2. Add skip connections
 3. Use different aggregation
 
@@ -784,10 +784,10 @@ assert state.visited[selected_node] == True
 **Fixes**:
 ```bash
 # Enable gradient clipping
-python main.py train --max_grad_norm 1.0
+python main.py train_lightning rl.max_grad_norm=1.0
 
 # Use gradient scaling for mixed precision
-python main.py train --fp16
+python main.py train_lightning train.enable_scaler=true
 ```
 
 ---

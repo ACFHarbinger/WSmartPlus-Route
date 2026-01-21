@@ -148,7 +148,7 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 
 | Library | Version | Purpose |
 |---------|---------|---------|
-| **argparse** | stdlib | CLI argument parsing |
+| **hydra-core** | 1.3.2 | Configuration management |
 | **rich** | 14.1.0 | Rich terminal output |
 | **prompt-toolkit** | - | Interactive TUI |
 | **loguru** | 0.7.3 | Logging framework |
@@ -247,7 +247,8 @@ logic/src/
 │       └── problem_swcvrp.py     # SCWCVRP
 │
 ├── pipeline/                     # Orchestration
-│   ├── train.py                  # Training entry point
+│   ├── train_lightning.py        # Main training entry point (Hydra)
+│   ├── train.py                  # Legacy training entry point
 │   ├── eval.py                   # Evaluation pipeline
 │   ├── test.py                   # Simulation testing
 │   ├── simulations/              # Simulator engine
@@ -509,8 +510,8 @@ class UIMediator:
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────────┐
-│ User Input  │───▶│ CLI Parser   │───▶│ Configs Object  │
-│ (CLI/GUI)   │     │ (argparse)   │     │ (dataclass)     │
+│ User Input  │───▶│ Hydra Config │───▶│ Config Object   │
+│ (CLI/GUI)   │     │ (yaml/overrides)│   │ (dataclass)     │
 └─────────────┘     └──────────────┘     └────────┬────────┘
                                                   │
                                                   ▼
@@ -745,11 +746,12 @@ WSmart-Route/
 │   │   │   └── swcvrp/           # SWCVRP problems
 │   │   ├── pipeline/             # Orchestration
 │   │   │   ├── simulations/      # Simulator engine
-│   │   │   └── reinforcement_learning/  # RL algorithms
-│   │   │       ├── core/         # Core RL
-│   │   │       ├── meta/         # Meta-learning
-│   │   │       ├── hyperparameter_optimization/
-│   │   │       └── policies/     # RL policies
+│   │   │   ├── reinforcement_learning/  # RL algorithms (Legacy)
+│   │   │   ├── rl/                       # RL algorithms (Lightning)
+│   │   │   │   ├── core/         # Core RL
+│   │   │   │   ├── meta/         # Meta-learning
+│   │   │   │   ├── hpo/          # Hyperparameter optimization
+│   │   │   │   └── policies/     # RL policies
 │   │   ├── data/                 # Data generation
 │   │   └── utils/                # Utilities
 │   │       ├── functions/        # Algorithm helpers
@@ -1050,39 +1052,27 @@ def train_batch(self, batch):
 ### 10.3 Training Loop
 
 ```python
-# train.py
-def train_reinforcement_learning(opts):
+# train_lightning.py
+def train(cfg: DictConfig):
     # Setup
-    model = ModelFactory.create_model(opts.model, opts.problem, opts)
-    optimizer = get_optimizer(opts, model.parameters())
-    baseline = get_baseline(opts, model)
-    rl_algorithm = get_rl_algorithm(opts, model, baseline)
+    model = ModelFactory.create_lit_model(cfg)
+    callbacks = [
+        ModelCheckpoint(...),
+        RichProgressBar(),
+        LearningRateMonitor()
+    ]
 
-    # Training loop
-    for epoch in range(opts.n_epochs):
-        model.train()
+    # Initialize Trainer
+    trainer = L.Trainer(
+        accelerator=cfg.train.accelerator,
+        devices=cfg.train.devices,
+        max_epochs=cfg.train.n_epochs,
+        callbacks=callbacks,
+        logger=WandbLogger(...)
+    )
 
-        for batch_idx, batch in enumerate(train_loader):
-            batch = batch.to(device)
-
-            # Training step
-            loss = rl_algorithm.train_batch(batch)
-
-            # Logging
-            if batch_idx % opts.log_step == 0:
-                logger.info(f"Epoch {epoch}, Batch {batch_idx}, Loss: {loss:.4f}")
-
-        # Validation
-        if epoch % opts.val_interval == 0:
-            val_cost = evaluate_model(model, val_loader, opts)
-            logger.info(f"Epoch {epoch}, Validation Cost: {val_cost:.4f}")
-
-        # Checkpoint
-        if epoch % opts.checkpoint_epochs == 0:
-            save_checkpoint(model, optimizer, epoch, opts)
-
-        # Update baseline
-        baseline.epoch_callback(model, epoch)
+    # Train
+    trainer.fit(model)
 ```
 
 ---
@@ -1378,12 +1368,12 @@ module load python/3.9
 
 source .venv/bin/activate
 
-python main.py train \
-    --model am \
-    --problem vrpp \
-    --graph_size 100 \
-    --n_epochs 100 \
-    --batch_size 256
+python main.py train_lightning \
+    model=am \
+    env.name=vrpp \
+    env.num_loc=100 \
+    train.n_epochs=100 \
+    train.batch_size=256
 ```
 
 ### 14.3 CI/CD Pipeline
@@ -1461,13 +1451,13 @@ def run_parallel_simulation(configs, n_workers=-1):
 
 ```bash
 # PyTorch Profiler
-python -m torch.profiler --profile-memory train.py
+python -m torch.profiler --profile-memory main.py train_lightning
 
 # NVIDIA Nsight
-nsys profile python main.py train
+nsys profile python main.py train_lightning
 
 # Memory Profiling
-python -m memory_profiler main.py train
+python -m memory_profiler main.py train_lightning
 ```
 
 ---

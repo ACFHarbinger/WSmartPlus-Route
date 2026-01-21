@@ -71,6 +71,7 @@ class TrainConfig:
     val_data_size: int = 10000
     val_dataset: Optional[str] = None
     num_workers: int = 4
+    precision: str = "16-mixed"  # "16-mixed", "bf16-mixed", "32-true"
 
 
 @dataclass

@@ -730,7 +730,7 @@ Include:
 
 ## Steps to Reproduce
 1. Run `uv sync`
-2. Run `python main.py train --model am --graph_size 50`
+2. Run `python main.py train_lightning model=am env.num_loc=50`
 3. Wait for epoch 5
 
 ## Expected Behavior
