@@ -11,7 +11,9 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.models.meta_rnn import WeightAdjustmentRNN
+from logic.src.pipeline.rl.meta.hypernet_strategy import HyperNetworkStrategy
 from logic.src.pipeline.rl.meta.registry import get_meta_strategy
+from logic.src.pipeline.rl.meta.td_learning import CostWeightManager
 
 
 class MetaRLModule(pl.LightningModule):
@@ -49,8 +51,15 @@ class MetaRLModule(pl.LightningModule):
             "lr": meta_lr,
             "device": str(self.device),
             "meta_optimizer": "adam",
+            "problem": self.agent.env,  # Pass env as problem proxy
             **kwargs,
         }
+
+        # Add strategy specific defaults
+        if strategy == "tdl":
+            strategy_kwargs["model_class"] = CostWeightManager
+        elif strategy == "hypernet":
+            strategy_kwargs["model_class"] = HyperNetworkStrategy
 
         self.meta_strategy = get_meta_strategy(strategy, **strategy_kwargs)
 
