@@ -12,6 +12,7 @@ Core Modules:
 """
 from logic.src.pipeline.rl.core import (
     DRGRPO,
+    GDPO,
     GSPO,
     POMO,
     PPO,
@@ -28,6 +29,7 @@ __all__ = [
     "SAPO",
     "GSPO",
     "DRGRPO",
+    "GDPO",
     "MetaRLModule",
     "HRLModule",
     "POMO",

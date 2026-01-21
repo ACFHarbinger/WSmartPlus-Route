@@ -49,6 +49,77 @@ class Generator(ABC):
         self.device = torch.device(device)
         self._kwargs = kwargs
 
+    @property
+    def kwargs(self) -> dict[str, Any]:
+        """Return all arguments used to initialize the generator."""
+        # This is a helper to allow cloning/moving the generator
+        # It should reconstruct the full kwargs including explicit args
+        # But for now, let's just rely on subclasses implementing `to` or capturing enough in _kwargs?
+        # Actually, subclasses assign args to self.
+        return self._kwargs
+
+    def to(self, device: Union[str, torch.device]) -> Generator:
+        """
+        Return a copy of the generator on the specified device.
+
+        Args:
+            device: Target device.
+
+        Returns:
+            New Generator instance on device.
+        """
+        # Get the class
+        cls = self.__class__
+        # Get all attributes that match __init__ signature?
+        # This is hard to do generically without introspection or explicit saving.
+        # Let's save `all_args` in `__init__` instead.
+
+        # We can use the variables stored in self.
+        # This requires knowing the mapping from init args to self attributes.
+        # For Generator base:
+        kwargs = self._kwargs.copy()
+        kwargs.update(
+            {
+                "num_loc": self.num_loc,
+                "min_loc": self.min_loc,
+                "max_loc": self.max_loc,
+                "loc_distribution": self.loc_distribution,
+                "device": device,
+            }
+        )
+
+        # For VRPP:
+        if hasattr(self, "min_waste"):
+            kwargs.update(
+                {
+                    "min_waste": self.min_waste,
+                    "max_waste": self.max_waste,
+                    "waste_distribution": self.waste_distribution,
+                    "min_prize": self.min_prize,
+                    "max_prize": self.max_prize,
+                    "prize_distribution": self.prize_distribution,
+                    "capacity": self.capacity,
+                    "max_length": self.max_length,
+                    "depot_type": self.depot_type,
+                }
+            )
+
+        # For WCVRP:
+        if hasattr(self, "min_fill"):
+            kwargs.update(
+                {
+                    "min_fill": self.min_fill,
+                    "max_fill": self.max_fill,
+                    "fill_distribution": self.fill_distribution,
+                    "capacity": self.capacity,
+                    "cost_km": self.cost_km,
+                    "revenue_kg": self.revenue_kg,
+                    "depot_type": self.depot_type,
+                }
+            )
+
+        return cls(**kwargs)
+
     @abstractmethod
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
         """
@@ -202,7 +273,7 @@ class VRPPGenerator(Generator):
         self.min_prize = min_prize
         self.max_prize = max_prize
         self.prize_distribution = prize_distribution
-        self.capacity = capacity
+        self.capacity = capacity if capacity is not None else 1.0
         self.max_length = max_length
         self.depot_type = depot_type
 
@@ -341,7 +412,7 @@ class WCVRPGenerator(Generator):
         self.min_fill = min_fill
         self.max_fill = max_fill
         self.fill_distribution = fill_distribution
-        self.capacity = capacity
+        self.capacity = capacity if capacity is not None else 100.0
         self.cost_km = cost_km
         self.revenue_kg = revenue_kg
         self.depot_type = depot_type

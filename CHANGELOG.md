@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.1] - 2026-01-21
+
+### Defaults Optimization & Stabilization
+Standardized the training pipeline on `train_lightning`, optimized default performance settings, and resolved critical data loading concurrency issues.
+
+### Changed
+- **Entry Point**: Standardized on `python main.py train_lightning` as the primary training command in all documentation.
+- **Performance Defaults**: Enabled **Automatic Mixed Precision (AMP)** (`precision="16-mixed"`) and set `num_workers=4` by default for faster training on modern GPUs.
+- **Generator Handling**: `VRPPGenerator` and `WCVRPGenerator` now correctly handle `capacity=None` defaults (1.0 and 100.0 respectively).
+
+### Fixed
+- **Data Loading Concurrency**: Resolved CUDA forking errors with `num_workers > 0` by ensuring `Generator` instances are moved to CPU before being passed to `DataLoader`, enabling efficient parallel data generation.
+- **Documentation**: Updated `CONTRIBUTING.md`, `TROUBLESHOOTING.md`, `MIGRATION_PLAN.md`, and `REFACTORING_PLAN2.md` to align with the new Lightning pipeline standards.
+
 ## [3.2.0] - 2026-01-21
 
 ### CWCVRP Lightning Migration & GDPO Support
