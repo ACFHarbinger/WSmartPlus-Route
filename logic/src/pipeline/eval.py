@@ -5,6 +5,7 @@ This script manages model evaluation and inference across one or multiple GPUs.
 It supports various decoding strategies (Greedy, Sampling, Beam Search) and
 calculates key performance metrics (Cost, Distance, Waste, Overflows).
 """
+from __future__ import annotations
 
 import argparse
 import datetime
@@ -15,10 +16,12 @@ import random
 import sys
 import time
 import traceback
-from typing import Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+from torch import nn
+from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
 from logic.src.cli import ConfigsParser, add_eval_args, validate_eval_args
@@ -26,10 +29,18 @@ from logic.src.utils.data_utils import save_dataset
 from logic.src.utils.functions.function import load_model, move_to
 from logic.src.utils.setup_utils import setup_cost_weights
 
+if TYPE_CHECKING:
+    pass
+
 mp = torch.multiprocessing.get_context("spawn")
 
 
-def get_best(sequences, cost, ids: Optional[np.ndarray] = None, batch_size=None):
+def get_best(
+    sequences: np.ndarray,
+    cost: np.ndarray,
+    ids: Optional[np.ndarray] = None,
+    batch_size: Optional[int] = None,
+) -> Tuple[List[Optional[np.ndarray]], List[float]]:
     """
     Ids contains [0, 0, 0, 1, 1, 2, ..., n, n, n] if 3 solutions found for 0th instance, 2 for 1st, etc
     :param sequences:
@@ -39,7 +50,7 @@ def get_best(sequences, cost, ids: Optional[np.ndarray] = None, batch_size=None)
     """
     if ids is None:
         idx = cost.argmin()
-        return sequences[idx : idx + 1, ...], cost[idx : idx + 1, ...]
+        return [sequences[idx]], [float(cost[idx])]
 
     splits = np.hstack([0, np.where(ids[:-1] != ids[1:])[0] + 1])
     mincosts = np.minimum.reduceat(cost, splits)
@@ -48,10 +59,10 @@ def get_best(sequences, cost, ids: Optional[np.ndarray] = None, batch_size=None)
     result = np.full(len(group_lengths) if batch_size is None else batch_size, -1, dtype=int)
 
     result[ids[all_argmin[::-1]]] = all_argmin[::-1]
-    return [sequences[i] if i >= 0 else None for i in result], [cost[i] if i >= 0 else math.inf for i in result]
+    return [sequences[i] if i >= 0 else None for i in result], [float(cost[i]) if i >= 0 else math.inf for i in result]
 
 
-def eval_dataset_mp(args):
+def eval_dataset_mp(args: Tuple[str, int, float, Dict[str, Any], int, int]) -> List[Dict[str, Any]]:
     """
     Worker function for multiprocessing evaluation.
 
@@ -82,7 +93,13 @@ def eval_dataset_mp(args):
     return _eval_dataset(model, dataset, width, softmax_temp, opts, device)
 
 
-def eval_dataset(dataset_path, width, softmax_temp, opts, method=None):
+def eval_dataset(
+    dataset_path: str,
+    width: int,
+    softmax_temp: float,
+    opts: Dict[str, Any],
+    method: Optional[str] = None,
+) -> Tuple[List[float], List[Optional[List[int]]], List[float]]:
     """
     Evaluates a model on a given dataset.
 
@@ -101,8 +118,10 @@ def eval_dataset(dataset_path, width, softmax_temp, opts, method=None):
         tuple: (costs, tours, durations) - Evaluation statistics and results.
     """
     # Even with multiprocessing, we load the model here since it contains the name where to write results
-    model, _ = load_model(opts.get("load_path", opts["model"]), method)
+    model, _ = load_model(opts.get("load_path", opts["model"]))
     use_cuda = torch.cuda.is_available()
+    results: List[Dict[str, Any]] = []
+
     if opts["multiprocessing"]:
         assert use_cuda, "Can only do multiprocessing with cuda"
         num_processes = torch.cuda.device_count()
@@ -138,7 +157,7 @@ def eval_dataset(dataset_path, width, softmax_temp, opts, method=None):
         results = _eval_dataset(model, dataset, width, softmax_temp, opts, device)
 
     # This is parallelism, even if we use multiprocessing (we report as if we did not use multiprocessing, e.g. 1 GPU)
-    parallelism = opts["eval_batch_size"]
+    parallelism: int = opts["eval_batch_size"]
     avg_cost = np.mean([r["cost"] for r in results])
     std_cost = np.std([r["cost"] for r in results])
     avg_km = np.mean([r["km"] for r in results])
@@ -148,9 +167,9 @@ def eval_dataset(dataset_path, width, softmax_temp, opts, method=None):
     print("Average cost: {} +- {}".format(avg_cost, std_cost))
     print("Average KM: {}, Average KG: {}, Average Overflows: {}".format(avg_km, avg_kg, avg_over))
 
-    costs = [r["cost"] for r in results]
-    tours = [r["seq"] for r in results]
-    durations = [r["duration"] for r in results]
+    costs: List[float] = [float(r["cost"]) for r in results]
+    tours: List[Optional[List[int]]] = [r["seq"] for r in results]
+    durations: List[float] = [float(r["duration"]) for r in results]
     print(
         "Average serial duration: {} +- {}".format(np.mean(durations), 2 * np.std(durations) / np.sqrt(len(durations)))
     )
@@ -190,7 +209,14 @@ def eval_dataset(dataset_path, width, softmax_temp, opts, method=None):
     return costs, tours, durations
 
 
-def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
+def _eval_dataset(
+    model: nn.Module,
+    dataset: Dataset,
+    width: int,
+    softmax_temp: float,
+    opts: Dict[str, Any],
+    device: torch.device,
+) -> List[Dict[str, Any]]:
     """
     Inner evaluation loop for a single batch/process.
 
@@ -210,13 +236,14 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
     """
     model.to(device)
     model.eval()
-    model.set_decode_type(
-        "greedy" if opts["decode_strategy"] in ("bs", "greedy") else "sampling",
-        temp=softmax_temp,
-    )
+    if hasattr(model, "set_decode_type"):
+        model.set_decode_type(
+            "greedy" if opts["decode_strategy"] in ("bs", "greedy") else "sampling",
+            temp=softmax_temp,
+        )
 
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=opts["eval_batch_size"], pin_memory=True)
-    results = []
+    dataloader = DataLoader(dataset, batch_size=opts["eval_batch_size"], pin_memory=True)
+    results: List[Dict[str, Any]] = []
     cost_weights = setup_cost_weights(opts)
     for batch in tqdm(dataloader, disable=opts["no_progress_bar"]):
         batch = move_to(batch, device)
@@ -241,7 +268,7 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
                 assert batch_rep > 0
 
                 # This returns (batch_size, iter_rep shape)
-                sequences, costs = model.sample_many(
+                sequences, costs = model.sample_many(  # type: ignore
                     batch,
                     cost_weights=cost_weights,
                     batch_rep=batch_rep,
@@ -252,7 +279,7 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
             else:
                 assert opts["decode_strategy"] == "bs"
 
-                cum_log_p, sequences, costs, ids, batch_size = model.beam_search(
+                _, sequences, costs, ids, batch_size = model.beam_search(  # type: ignore
                     batch,
                     beam_size=width,
                     cost_weights=cost_weights,
@@ -260,31 +287,35 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
                     max_calc_batch_size=opts["max_calc_batch_size"],
                 )
         if sequences is None:
-            sequences = [None] * batch_size
-            costs = [math.inf] * batch_size
+            sequences_best: List[Optional[np.ndarray]] = [None] * batch_size
+            costs_best: List[float] = [float(math.inf)] * batch_size
         else:
-            sequences, costs = get_best(
+            sequences_best, costs_best = get_best(
                 sequences.cpu().numpy(),
                 costs.cpu().numpy(),
                 ids.cpu().numpy() if ids is not None else None,
                 batch_size,
             )
         duration = time.time() - start
-        for i, (seq, cost) in enumerate(zip(sequences, costs)):
-            if model.problem.NAME in ("cvrpp", "cwcvrp", "sdwcvrp"):
-                seq = np.trim_zeros(seq).tolist() + [0]  # Add depot
-            elif model.problem.NAME in ("vrpp", "wcvrp"):
-                seq = np.trim_zeros(seq)  # We have the convention to exclude the depot
-            else:
-                seq = None
-                assert False, "Unknown problem: {}".format(model.problem.NAME)
+        for i, (seq, cost) in enumerate(zip(sequences_best, costs_best)):
+            if seq is not None:
+                if model.problem.NAME in ("cvrpp", "cwcvrp", "sdwcvrp"):  # type: ignore
+                    seq = np.trim_zeros(seq).tolist() + [0]  # Add depot
+                elif model.problem.NAME in ("vrpp", "wcvrp"):  # type: ignore
+                    seq = np.trim_zeros(seq).tolist()  # We have the convention to exclude the depot
+                else:
+                    seq = None
+                    assert False, "Unknown problem: {}".format(model.problem.NAME)  # type: ignore
 
-            # Recalculate components
-            seq_tensor = torch.tensor(seq, device=device).unsqueeze(0)
-            # Use a sub-batch of size 1 for get_costs
-            batch_i = {k: v[i : i + 1] for k, v in batch.items() if isinstance(v, torch.Tensor)}
-            # We don't need cost_weights here as we only want back the c_dict
-            _, c_dict, _ = model.problem.get_costs(batch_i, seq_tensor, None, batch_i.get("dist_matrix"))
+            if seq is not None:
+                # Recalculate components
+                seq_tensor = torch.tensor(seq, device=device).unsqueeze(0)
+                # Use a sub-batch of size 1 for get_costs
+                batch_i = {k: v[i : i + 1] for k, v in batch.items() if isinstance(v, torch.Tensor)}
+                # We don't need cost_weights here as we only want back the c_dict
+                _, c_dict, _ = model.problem.get_costs(batch_i, seq_tensor, None, batch_i.get("dist_matrix"))  # type: ignore
+            else:
+                c_dict = {"length": torch.tensor(0.0), "waste": torch.tensor(0.0), "overflows": torch.tensor(0.0)}
 
             # Note VRP only
             results.append(
@@ -300,7 +331,7 @@ def _eval_dataset(model, dataset, width, softmax_temp, opts, device):
     return results
 
 
-def run_evaluate_model(opts):
+def run_evaluate_model(opts: Dict[str, Any]) -> None:
     """
     Main entry point for the evaluation script.
 

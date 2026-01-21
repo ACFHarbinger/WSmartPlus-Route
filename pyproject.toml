@@ -263,6 +263,9 @@ check_untyped_defs = false
 disallow_untyped_defs = false
 explicit_package_bases = true
 
+files = ["logic/src/", "gui/src"]
+exclude = ["logic/test/", "gui/test/", "logic/docs/", "gui/docs/"]
+
 [tool.uv.sources]
 hexaly = { index = "hexaly_package" }
 torch_scatter = { index = "pyg" }
@@ -314,7 +317,18 @@ select = ["E", "F", "I", "W"]
 # Ignore F401 (unused import) for __init__.py files
 "__init__.py" = ["F401"]
 # Be strict with source code, but ignore common notebook issues
-"*.ipynb" = ["E402", "F821", "F404", "W291", "W293", "E741", "E722", "F811", "F401", "F841"]
+"*.ipynb" = [
+    "E402",
+    "F821",
+    "F404",
+    "W291",
+    "W293",
+    "E741",
+    "E722",
+    "F811",
+    "F401",
+    "F841",
+]
 
 # =================================================================
 # PYTEST CONFIGURATION (from pytest.ini)
@@ -329,14 +343,14 @@ testpaths = ["logic/test", "gui/test"]
 
 # Console output options (addopts converted to list format)
 addopts = [
-    "-v",               # Verbose output
-    "-ra",              # Show summary of all test outcomes
-    "--showlocals",     # Show local variables in tracebacks
-    "--strict-markers", # Fail on unknown markers
-    "--tb=short",       # Shorter traceback format
-    "--color=yes",      # Color output
-    "--show-capture=all", # Show captured output on failure
-    "--disable-warnings", # Disable warnings to reduce noise
+    "-v",                      # Verbose output
+    "-ra",                     # Show summary of all test outcomes
+    "--showlocals",            # Show local variables in tracebacks
+    "--strict-markers",        # Fail on unknown markers
+    "--tb=short",              # Shorter traceback format
+    "--color=yes",             # Color output
+    "--show-capture=all",      # Show captured output on failure
+    "--disable-warnings",      # Disable warnings to reduce noise
     "--import-mode=importlib", # Resolve conftest conflicts
 ]
 
@@ -400,9 +414,7 @@ wsr_temp_dir = "./temp_test"
 # COVERAGE CONFIGURATION (from [tool:coverage] and [coverage:*])
 # =================================================================
 [tool.coverage.run]
-source = [
-    "."
-]
+source = ["."]
 omit = [
     "*/test/*",
     "*/test_*",

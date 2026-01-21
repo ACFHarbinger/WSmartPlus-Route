@@ -5,13 +5,16 @@ This module provides the fundamental trainer classes for the WSmart+ Route pipel
 - StandardTrainer: Base implementation of REINFORCE/PPO training logic.
 - TimeTrainer: Extension for time-dependent/sequential decision processes.
 """
+from __future__ import annotations
 
 import os
 import time
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
-import yaml
+import yaml  # type: ignore
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from logic.src.pipeline.reinforcement_learning.core.base import BaseReinforceTrainer
@@ -54,7 +57,7 @@ class StandardTrainer(BaseReinforceTrainer):
     for more advanced training strategies.
     """
 
-    def initialize_training_dataset(self):
+    def initialize_training_dataset(self) -> None:
         """
         Initialize the training dataset using prepare_epoch.
         """
@@ -69,34 +72,34 @@ class StandardTrainer(BaseReinforceTrainer):
         self.training_dataset = training_dataset
         self.step = step
 
-    def train_day(self):
+    def train_day(self) -> None:
         """
         Execute training for a single day (iterate over dataloader).
         Equivalent to _train_single_day in reinforce.py.
         """
-        log_pi = []
-        log_costs = []
+        log_pi: List[torch.Tensor] = []
+        log_costs: List[torch.Tensor] = []
 
         # Set decode type to sampling for training
         set_decode_type(self.model, "sampling")
 
-        daily_total_samples = 0
-        loss_keys = list(self.cost_weights.keys()) + ["total", "nll", "reinforce_loss"]
+        daily_total_samples: int = 0
+        loss_keys: List[str] = list(self.cost_weights.keys()) + ["total", "nll", "reinforce_loss"]
         if self.opts["baseline"] is not None:
             loss_keys.append("baseline_loss")
         if self.opts.get("imitation_weight", 0) > 0:
             loss_keys.append("imitation_loss")
             loss_keys.append("expert_cost")
 
-        daily_loss = {key: [] for key in loss_keys}
+        daily_loss: Dict[str, List[torch.Tensor]] = {key: [] for key in loss_keys}
 
-        day_dataloader = torch.utils.data.DataLoader(
+        day_dataloader: DataLoader = DataLoader(
             self.baseline.wrap_dataset(self.training_dataset),
             batch_size=self.opts["batch_size"],
             pin_memory=True,
         )
 
-        start_time = time.time()
+        start_time: float = time.time()
         for batch_id, batch in enumerate(tqdm(day_dataloader, disable=self.opts["no_progress_bar"])):
             batch = prepare_batch(batch, batch_id, self.training_dataset, day_dataloader, self.opts)
 
@@ -112,7 +115,7 @@ class StandardTrainer(BaseReinforceTrainer):
             log_costs.append(batch_cost.detach().cpu())
             self.step += 1
             if pi is not None:
-                current_batch_size = pi.size(0)
+                current_batch_size: int = pi.size(0)
             else:
                 # Infer from batch dict
                 first_val = next(iter(batch.values()))
@@ -133,7 +136,7 @@ class StandardTrainer(BaseReinforceTrainer):
                     elif isinstance(val, (float, int)):
                         daily_loss[key].append(torch.tensor([val], dtype=torch.float))
 
-        day_duration = time.time() - start_time
+        day_duration: float = time.time() - start_time
 
         # Store for post-processing
         self.daily_loss = daily_loss
@@ -142,7 +145,12 @@ class StandardTrainer(BaseReinforceTrainer):
         self.day_duration = day_duration
         self.daily_total_samples = daily_total_samples
 
-    def train_batch(self, batch, batch_id, opt_step=True):
+    def train_batch(
+        self,
+        batch: Dict[str, Any],
+        batch_id: int,
+        opt_step: bool = True,
+    ) -> Tuple[Optional[torch.Tensor], Dict[str, Any], Dict[str, Any], torch.Tensor, Optional[Dict[str, Any]]]:
         """
         Train on a single batch of data.
 
@@ -159,6 +167,7 @@ class StandardTrainer(BaseReinforceTrainer):
         x = move_to(x, self.opts["device"], non_blocking=True)
         bl_val = move_to(bl_val, self.opts["device"], non_blocking=True) if bl_val is not None else None
 
+        autocast_context: Optional[torch.cuda.amp.autocast] = None
         if self.scaler is not None:
             autocast_context = torch.cuda.amp.autocast(dtype=torch.float16)
             autocast_context.__enter__()
@@ -181,7 +190,11 @@ class StandardTrainer(BaseReinforceTrainer):
                 bl_val = cost_pomo.mean(dim=1, keepdim=True).expand_as(cost_pomo).reshape(-1)
                 bl_loss = torch.tensor([0.0], device=self.opts["device"])
             else:
-                bl_val, bl_loss = self.baseline.eval(x, cost) if bl_val is None else (bl_val, 0)
+                bl_val, bl_loss = (
+                    self.baseline.eval(x, cost)
+                    if bl_val is None
+                    else (bl_val, torch.tensor(0.0, device=self.opts["device"]))
+                )
                 if not isinstance(bl_loss, torch.Tensor):
                     bl_loss = torch.tensor([bl_loss], device=self.opts["device"], dtype=torch.float)
                 elif bl_loss.dim() == 0:
@@ -195,27 +208,22 @@ class StandardTrainer(BaseReinforceTrainer):
             )
 
             imitation_loss = torch.tensor(0.0, device=self.opts["device"])
-            curr_imitation_weight = self.opts.get("imitation_weight", 0.0)  # Decay handled externally
+            curr_imitation_weight: float = self.opts.get("imitation_weight", 0.0)  # Decay handled externally
 
-            expert_cost_tensor = None
+            expert_cost_tensor: Optional[torch.Tensor] = None
             if curr_imitation_weight >= self.opts.get("imitation_threshold", 0.05) and pi is not None:
                 dist_matrix = x.get("dist", None)
-                expert_pi = None
+                expert_pi: Optional[torch.Tensor] = None
 
                 if self.opts.get("imitation_mode", "2opt") == "hgs":
                     # HGS requires demands and capacity
-                    # Assuming x['waste'] is normalized demand and capacity is 1.0 (typical for RL)
-                    # or recover from opts
                     demands = x.get("waste", None)
-                    # Flatten demands if needed? x['waste'] is usually (B, N) or (B, N, 1) or (B, 1, N)
                     if demands is not None:
                         if demands.dim() == 3:
                             demands = demands.squeeze(1).squeeze(1)
                         if demands.dim() == 2 and demands.size(1) == 1:
                             demands = demands.squeeze(1)
 
-                        # Pad with depot demand (0) if size matches graph_size (customers only)
-                        # Assuming dist_matrix is (B, N+1, N+1) and demands is (B, N)
                         if demands.size(1) == dist_matrix.size(1) - 1:
                             demands = torch.cat(
                                 [
@@ -225,28 +233,21 @@ class StandardTrainer(BaseReinforceTrainer):
                                 dim=1,
                             )
 
-                    vehicle_capacity = 1.0  # Default for normalized envs
+                    vehicle_capacity: float = 1.0  # Default for normalized envs
 
                     if demands is not None and dist_matrix is not None:
-                        # Expand dist_matrix if shared (B=1)
                         if dist_matrix.size(0) == 1 and pi.size(0) > 1:
                             dist_matrix = dist_matrix.expand(pi.size(0), -1, -1)
 
-                        # Prepare Giant Tours from pi (Constructive solution with 0s)
-                        # Remove 0s to get permutation
-                        pi_giant_list = []
-                        valid_hgs_indices = []
-                        expected_len = dist_matrix.size(1) - 1  # N nodes
+                        pi_giant_list: List[np.ndarray] = []
+                        valid_hgs_indices: List[int] = []
+                        expected_len: int = dist_matrix.size(1) - 1  # N nodes
 
                         pi_cpu = pi.detach().cpu().numpy()
                         for i in range(pi.size(0)):
-                            # Filter 0s
                             tour = pi_cpu[i]
                             giant = tour[tour != 0]
-                            # Check if valid permutation (length check is a good proxy for now)
-                            # If partial tour, complete with random unvisited nodes for HGS
                             if len(giant) < expected_len:
-                                # Find nodes in range [1, expected_len] not in giant
                                 all_nodes = np.arange(1, expected_len + 1)
                                 missing = np.setdiff1d(all_nodes, giant)
                                 if len(missing) > 0:
@@ -254,15 +255,10 @@ class StandardTrainer(BaseReinforceTrainer):
                                     giant = np.concatenate([giant, missing])
 
                             if len(giant) == expected_len:
-                                pi_giant_list.append(giant)
-                                # convert to numpy array of int
-                                pi_giant_list[-1] = pi_giant_list[-1].astype(int)
+                                pi_giant_list.append(giant.astype(int))
                                 valid_hgs_indices.append(i)
-                            else:
-                                pass  # Discard if still invalid somehow
 
                         if pi_giant_list:
-                            # Convert list of numpy arrays to a single numpy array first
                             giant_tours_np = torch.from_numpy(np.array(pi_giant_list)).to(self.opts["device"])
 
                             hgs_dist = dist_matrix
@@ -273,12 +269,9 @@ class StandardTrainer(BaseReinforceTrainer):
                             if demands.size(0) == pi.size(0):
                                 hgs_demands = demands[valid_hgs_indices]
 
-                            # Clamp demands to capacity to ensure feasibility for HGS
-                            # This handles overflows (demand > 1.0) by treating them as full loads.
                             hgs_demands = torch.clamp(hgs_demands, max=vehicle_capacity)
 
-                            # Load HGS Config Params
-                            hgs_params = {
+                            hgs_params: Dict[str, Any] = {
                                 "n_generations": 50,
                                 "population_size": 10,
                                 "elite_size": 5,
@@ -290,7 +283,6 @@ class StandardTrainer(BaseReinforceTrainer):
                                     try:
                                         with open(cfg_path, "r") as f:
                                             loaded_cfg = yaml.safe_load(f)
-                                            # Update matching keys
                                             for k in hgs_params:
                                                 if k in loaded_cfg:
                                                     hgs_params[k] = loaded_cfg[k]
@@ -311,7 +303,6 @@ class StandardTrainer(BaseReinforceTrainer):
                                     population_size=hgs_params["population_size"],
                                     elite_size=hgs_params["elite_size"],
                                 )
-                                # Dynamic padding for expert_pi based on HGS output length
                                 max_hgs_len = max(len(r) for r in expert_pi_valid) if expert_pi_valid else 0
                                 if max_hgs_len > 0:
                                     expert_pi = torch.zeros(
@@ -337,7 +328,6 @@ class StandardTrainer(BaseReinforceTrainer):
                             expert_pi = pi_opt_with_depot[:, 1:]
 
                 if expert_pi is not None:
-                    # Use robust MLE (kl_loss=False + clamping in decoder) for imitation
                     _, expert_log_likelihood, _, _, _ = self.model(
                         x,
                         cost_weights=self.cost_weights,
@@ -347,7 +337,6 @@ class StandardTrainer(BaseReinforceTrainer):
                     )
                     imitation_loss = -expert_log_likelihood.mean()
 
-                    # Compute Expert Cost for Reannealing
                     with torch.no_grad():
                         expert_cost, _, _ = self.problem.get_costs(x, expert_pi, self.cost_weights, dist_matrix)
                         expert_cost_tensor = expert_cost.mean()
@@ -386,7 +375,7 @@ class StandardTrainer(BaseReinforceTrainer):
                     expert_cost_tensor.item() if isinstance(expert_cost_tensor, torch.Tensor) else expert_cost_tensor
                 )
 
-            state_tensors = None
+            state_tensors: Optional[Dict[str, Any]] = None
             if not opt_step:
                 state_tensors = {
                     "log_likelihood": log_likelihood,
@@ -398,16 +387,13 @@ class StandardTrainer(BaseReinforceTrainer):
                     "pi": pi,  # Added pi for off-policy algorithms
                 }
 
-            if self.scaler is not None and opt_step:
-                autocast_context.__exit__(None, None, None)
-
-            if not opt_step and self.scaler is not None:
+            if self.scaler is not None and autocast_context is not None:
                 autocast_context.__exit__(None, None, None)
 
             return pi, c_dict, l_dict, cost.mean(), state_tensors
 
         except Exception:
-            if self.scaler is not None:
+            if self.scaler is not None and autocast_context is not None:
                 try:
                     autocast_context.__exit__(None, None, None)
                 except Exception:
@@ -448,17 +434,17 @@ class TimeTrainer(StandardTrainer):
 
     def __init__(
         self,
-        model,
-        optimizer,
-        baseline,
-        lr_scheduler,
-        scaler,
-        val_dataset,
-        problem,
-        tb_logger,
-        cost_weights,
-        opts,
-    ):
+        model: torch.nn.Module,
+        optimizer: torch.optim.Optimizer,
+        baseline: Any,
+        lr_scheduler: Any,
+        scaler: Optional[torch.cuda.amp.GradScaler],
+        val_dataset: Any,
+        problem: Any,
+        tb_logger: Any,
+        cost_weights: Dict[str, float],
+        opts: Dict[str, Any],
+    ) -> None:
         """
         Initialize the TimeTrainer.
         """
@@ -475,15 +461,16 @@ class TimeTrainer(StandardTrainer):
             opts,
         )
 
-        self.horizon_buffer = []
-        self.horizon = opts.get("temporal_horizon", 1)
-        self.gamma = opts.get("gamma", 0.99)
+        self.horizon_buffer: List[List[Dict[str, Any]]] = []
+        self.horizon: int = opts.get("temporal_horizon", 1)
+        self.gamma: float = opts.get("gamma", 0.99)
+        self.data_init_args: Optional[Dict[str, Any]] = None
 
-    def initialize_training_dataset(self):
+    def initialize_training_dataset(self) -> None:
         """
         Initialize the time-dependent training dataset.
         """
-        step, training_dataset, loss_keys, table_df, args = prepare_time_dataset(
+        step, training_dataset, _, _, args = prepare_time_dataset(
             self.optimizer,
             self.day,
             self.problem,
@@ -495,7 +482,7 @@ class TimeTrainer(StandardTrainer):
         self.step = step
         self.data_init_args = args
 
-    def train_day(self):
+    def train_day(self) -> None:
         """
         Execute training for a single day, handling horizon logic if configured.
         """
@@ -510,14 +497,14 @@ class TimeTrainer(StandardTrainer):
         # TimeTrainer overrides update_context to call 'update_time_dataset' logic.
         pass
 
-    def update_context(self):
+    def update_context(self) -> None:
         """
         Update the training context (dataset) for the next day.
         """
         if self.day > self.opts["epoch_start"]:
             prev_pi = getattr(self, "log_pi", None)
             prev_costs = getattr(self, "log_costs", None)
-            if prev_pi is not None:
+            if prev_pi is not None and self.data_init_args is not None:
                 self.training_dataset = update_time_dataset(
                     self.model,
                     self.optimizer,
@@ -529,38 +516,39 @@ class TimeTrainer(StandardTrainer):
                     costs=prev_costs,
                 )
 
-    def train_day_horizon(self):
+    def train_day_horizon(self) -> None:
         """
         Execute training day with temporal horizon logic (multi-step returns).
         """
-        log_pi = []
-        log_costs = []
+        log_pi: List[torch.Tensor] = []
+        log_costs: List[torch.Tensor] = []
         set_decode_type(self.model, "sampling")
 
-        daily_total_samples = 0
-        loss_keys = list(self.cost_weights.keys()) + [
+        daily_total_samples: int = 0
+        loss_keys: List[str] = list(self.cost_weights.keys()) + [
             "total",
             "nll",
             "reinforce_loss",
             "baseline_loss",
         ]
-        daily_loss = {key: [] for key in loss_keys}
+        daily_loss: Dict[str, List[torch.Tensor]] = {key: [] for key in loss_keys}
 
-        day_dataloader = torch.utils.data.DataLoader(
+        day_dataloader: DataLoader = DataLoader(
             self.baseline.wrap_dataset(self.training_dataset),
             batch_size=self.opts["batch_size"],
             pin_memory=True,
         )
 
-        start_time = time.time()
+        start_time: float = time.time()
 
-        batch_results_list = []
+        batch_results_list: List[Dict[str, Any]] = []
 
         for batch_id, batch in enumerate(tqdm(day_dataloader, disable=self.opts["no_progress_bar"])):
             batch = prepare_batch(batch, batch_id, self.training_dataset, day_dataloader, self.opts)
 
-            pi, c_dict, l_dict, batch_cost, state_tensors = self.train_batch(batch, batch_id, opt_step=False)
-            batch_results_list.append(state_tensors)
+            pi, _, _, batch_cost, state_tensors = self.train_batch(batch, batch_id, opt_step=False)
+            if state_tensors is not None:
+                batch_results_list.append(state_tensors)
 
             if pi is not None:
                 log_pi.append(pi.detach().cpu())
@@ -568,7 +556,7 @@ class TimeTrainer(StandardTrainer):
 
             self.step += 1
             if pi is not None:
-                current_batch_size = pi.size(0)
+                current_batch_size: int = pi.size(0)
             else:
                 current_batch_size = self.opts["batch_size"]
             daily_total_samples += current_batch_size
@@ -578,7 +566,7 @@ class TimeTrainer(StandardTrainer):
         if (self.day + 1) % self.horizon == 0:
             self.accumulate_and_update()
 
-        day_duration = time.time() - start_time
+        day_duration: float = time.time() - start_time
 
         self.daily_loss = daily_loss
         self.log_pi = log_pi
@@ -586,16 +574,16 @@ class TimeTrainer(StandardTrainer):
         self.day_duration = day_duration
         self.daily_total_samples = daily_total_samples
 
-    def accumulate_and_update(self):
+    def accumulate_and_update(self) -> None:
         """
         Compute discounted returns and perform update using accumulated horizon buffer.
         """
-        num_days = len(self.horizon_buffer)
+        num_days: int = len(self.horizon_buffer)
         if num_days == 0:
             return
-        num_batches = len(self.horizon_buffer[0])
+        num_batches: int = len(self.horizon_buffer[0])
 
-        total_loss = torch.tensor(0.0, device=self.opts["device"])
+        total_loss: torch.Tensor = torch.tensor(0.0, device=self.opts["device"])
 
         for b_id in range(num_batches):
             try:
@@ -603,8 +591,8 @@ class TimeTrainer(StandardTrainer):
             except IndexError:
                 continue
 
-            returns_per_day = []
-            R = torch.zeros_like(costs_per_day[-1])
+            returns_per_day: List[torch.Tensor] = []
+            R: torch.Tensor = torch.zeros_like(costs_per_day[-1])
 
             for t in range(num_days - 1, -1, -1):
                 R = costs_per_day[t] + self.gamma * R
@@ -632,14 +620,14 @@ class TimeTrainer(StandardTrainer):
                     else torch.tensor(0.0).to(reinforce_loss.device)
                 )
 
-                bl_loss = 0.0
+                bl_loss: Union[torch.Tensor, float] = 0.0
                 if self.opts["baseline"] is not None and isinstance(bl_val, torch.Tensor) and bl_val.requires_grad:
                     bl_loss = 0.5 * ((bl_val - G_t) ** 2).mean()
 
                 step_loss = reinforce_loss + entropy_loss + bl_loss + im_weight * im_loss
                 total_loss = total_loss + step_loss
 
-        loss_final = total_loss / (num_days * num_batches)
+        loss_final: torch.Tensor = total_loss / (num_days * num_batches)
 
         self.optimizer.zero_grad()
         loss_final.backward()

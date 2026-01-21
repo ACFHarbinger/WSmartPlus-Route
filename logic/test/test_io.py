@@ -111,7 +111,8 @@ class TestProcessing:
         data = {"a": {"km": 10}, "b": {"km": 20}, "c": {"other": 5}}
 
         # Process func takes (val, update_val)
-        def double(val, update=0):
+        def double(val: float, update: float = 0) -> float:
+            """Double the value + update."""
             return val * 2 + update
 
         res = processing.process_dict_of_dicts(data, output_key="km", process_func=double)
@@ -134,7 +135,8 @@ class TestProcessing:
         # Must be list of dicts of dicts
         data = [{"a": {"km": 10}}, {"b": {"km": 20}}]
 
-        def double(val, update=0):
+        def double(val: float, update: float = 0) -> float:
+            """Double the value."""
             return val * 2
 
         res = processing.process_list_of_dicts(data, output_key="km", process_func=double)
@@ -198,7 +200,8 @@ class TestProcessing:
         # Setup mock_os.path.isfile
         mock_os.path.isfile.return_value = True
 
-        def double(val, update=0):
+        def double(val: float, update: float = 0) -> float:
+            """Double the value (mocked version)."""
             return val * 2
 
         res = processing.process_file("dummy.json", output_key="km", process_func=double)
@@ -218,7 +221,8 @@ class TestProcessing:
         mock_glob.return_value = ["file1.json", "file2.json"]
         mock_os.path.isfile.return_value = True
 
-        def dummy_func(a, b):
+        def dummy_func(a: dict, b: float) -> dict:
+            """Identity function for testing."""
             return a
 
         processing.process_pattern_files("root", filename_pattern="*.json", process_func=dummy_func)
@@ -342,7 +346,8 @@ class TestPreview:
         with open(json_path, "w") as f:
             json.dump({"entry": {"km": 100}}, f)
 
-        def stats(x, keys):
+        def stats(x: float, keys: list) -> float:
+            """Identity stats function."""
             return x
 
         preview_changes(io_temp_dir, output_key="km", update_val=0.5, process_func=stats)
@@ -354,7 +359,8 @@ class TestPreview:
             with open(json_path, "w") as f:
                 json.dump({"entry": {"km": 100}}, f)
 
-        def stats(x, keys):
+        def stats(x: float, keys: list) -> float:
+            """Identity stats function for file preview."""
             return x
 
         preview_file_changes(json_path, output_key="km", update_val=0.5, process_func=stats)
@@ -366,7 +372,8 @@ class TestPreview:
             with open(json_path, "w") as f:
                 json.dump({"entry": {"km": 100}}, f)
 
-        def stats(x):
+        def stats(x: list) -> float:
+            """Sum the input list as stats."""
             return sum(x)
 
         preview_file_statistics(json_path, output_key="km", process_func=stats)
@@ -436,7 +443,8 @@ class TestIOIntegration:
         with open(json_path, "w") as f:
             json.dump({"entry": {"val": 10}}, f)
 
-        def func(old, val):
+        def func(old: float, val: float) -> float:
+            """Add the value to the old value."""
             return old + val
 
         processing.process_file(json_path, output_key="val", update_val=1.0, process_func=func)

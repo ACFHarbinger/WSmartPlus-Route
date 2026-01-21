@@ -1,3 +1,6 @@
+"""
+Sphinx documentation configuration file.
+"""
 import os
 import sys
 
