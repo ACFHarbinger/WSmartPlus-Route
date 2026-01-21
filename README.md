@@ -525,6 +525,7 @@ This project adapts code and ideas from:
 - [Do We Need Anisotropic Graph Neural Networks?](https://github.com/shyam196/egc)
 - [Learning TSP Requires Rethinking Generalization](https://github.com/chaitjo/learning-tsp)
 - [HGS-CVRP](https://github.com/vidalt/HGS-CVRP)
+- [RL4CO](https://github.com/ai4co/rl4co)
 
 ---
 

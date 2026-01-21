@@ -38,6 +38,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         lr_scheduler_kwargs: Optional[dict] = None,
         train_data_size: int = 100000,
         val_data_size: int = 10000,
+        val_dataset_path: Optional[str] = None,
         batch_size: int = 256,
         num_workers: int = 4,
         **kwargs,
@@ -52,6 +53,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         # Data params
         self.train_data_size = train_data_size
         self.val_data_size = val_data_size
+        self.val_dataset_path = val_dataset_path
         self.batch_size = batch_size
         self.num_workers = num_workers
 
@@ -179,16 +181,24 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 
-    def setup(self, stage: Optional[str] = None):
-        """Initialize datasets."""
-        self.train_dataset = GeneratorDataset(
-            self.env.generator,
-            self.train_data_size,
-        )
-        self.val_dataset = GeneratorDataset(
-            self.env.generator,
-            self.val_data_size,
-        )
+    def setup(self, stage: str) -> None:
+        if stage == "fit":
+            from torch.utils.data import Dataset
+
+            self.train_dataset: Dataset = GeneratorDataset(
+                self.env.generator,
+                self.train_data_size,
+            )
+            if self.val_dataset_path is not None:
+                # Load validation dataset from file (legacy parity)
+                from logic.src.data.datasets import TensorDictDataset
+
+                self.val_dataset: Dataset = TensorDictDataset.load(self.val_dataset_path)
+            else:
+                self.val_dataset = GeneratorDataset(
+                    self.env.generator,
+                    self.val_data_size,
+                )
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(

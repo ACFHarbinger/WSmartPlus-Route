@@ -73,9 +73,11 @@ class AttentionModelPolicy(ConstructivePolicy):
         # 2. Encoder
         # Pass graph structure if available (e.g., k-NN edges)
         edges = td.get("edges", None)
+        assert self.encoder is not None, "Encoder is not initialized"
         embeddings = self.encoder(init_embeds, edges)
 
         # 3. Decoder Precomputation
+        assert self.decoder is not None, "Decoder is not initialized"
         fixed = self.decoder._precompute(embeddings)
 
         # 4. Decoding Loop
@@ -86,6 +88,7 @@ class AttentionModelPolicy(ConstructivePolicy):
         # Assuming environment is already reset
         while not td["done"].all():
             # Wrap state for legacy compatibility
+            assert self.env_name is not None, "env_name must be set"
             state_wrapper = TensorDictStateWrapper(td, self.env_name)
 
             # Get logits from decoder

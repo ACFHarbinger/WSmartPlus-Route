@@ -1,7 +1,7 @@
 """
 Temporal Attention Model Policy.
 """
-from typing import Optional
+from typing import Optional, Union
 
 import torch
 import torch.nn as nn
@@ -95,19 +95,23 @@ class TemporalAMPolicy(AttentionModelPolicy):
         # 4. Combine
         combined_embeds = self.combine_embeddings(torch.cat([init_embeds, fill_embeds], dim=-1))
 
-        # 5. Encoder
+        # 2. Encoder
         edges = td.get("edges", None)
+        assert self.encoder is not None, "Encoder is not initialized"
         embeddings = self.encoder(combined_embeds, edges)
 
-        # 6. Decoder Precomputation
+        # 3. Decoder Precomputation
+        assert self.decoder is not None, "Decoder is not initialized"
         fixed = self.decoder._precompute(embeddings)
 
-        # 7. Decoding Loop
-        log_likelihood = 0
+        # Start the actual training loop
+        log_likelihood: Union[torch.Tensor, float] = 0.0
         output_actions = []
         step_idx = 0
 
         while not td["done"].all():
+            # Wrap state
+            assert self.env_name is not None, "env_name must be set"
             state_wrapper = TensorDictStateWrapper(td, self.env_name)
             logits, mask = self.decoder._get_log_p(fixed, state_wrapper)
             logits = logits[:, 0, :]

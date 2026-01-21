@@ -36,13 +36,7 @@ from logic.src.file_system import (
 )
 from logic.src.pipeline.eval import run_evaluate_model
 from logic.src.pipeline.test import run_wsr_simulator_test
-from logic.src.pipeline.train import (
-    hyperparameter_optimization,
-    train_meta_reinforcement_learning,
-    train_reinforce_epoch,
-    train_reinforce_over_time,
-    train_reinforcement_learning,
-)
+from logic.src.pipeline.train import hyperparameter_optimization
 from logic.test import PyTestRunner
 
 warnings.filterwarnings(
@@ -199,14 +193,9 @@ def main(args):
             elif comm == "test_suite":
                 run_test_suite(opts)
             else:
-                if comm == "train":
-                    # if opts['rl_algorithm'] == 'reinforce':
-                    train_func = train_reinforce_over_time if opts["train_time"] else train_reinforce_epoch
-                    # else:
-                    #    raise ValueError(f"Unknown reinforcement learning algorithm: {opts['rl_algorithm']}")
-                    train_reinforcement_learning(opts, train_func)
-                elif comm == "mrl_train":
-                    train_meta_reinforcement_learning(opts)
+                if comm in ["train", "mrl_train"]:
+                    print(f"Delegating '{comm}' to new Hydra/Lightning pipeline...")
+                    pass
                 elif comm == "hp_optim":
                     hyperparameter_optimization(opts)
                 elif comm == "gen_data":
@@ -284,12 +273,17 @@ def main(args):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "train_hydra":
-        # Bypass legacy parsing and delegate to Hydra/Lightning pipeline
-        from logic.src.cli.train_lightning import main as train_hydra_main
+    # Commands that use the new Hydra/Lightning parser
+    HYDRA_COMMANDS = ["train", "train_hydra", "mrl_train", "hp_optim", "hp_optim_hydra"]
 
-        # Remove 'train_hydra' from argv so Hydra parses the remaining overrides correctly
+    if len(sys.argv) > 1 and sys.argv[1] in HYDRA_COMMANDS:
+        # Bypass legacy parsing and delegate to Hydra/Lightning pipeline
+        from logic.src.cli.train_lightning import main as unified_main
+
+        if sys.argv[1] == "mrl_train":
+            sys.argv.append("rl.use_meta=True")
+
         sys.argv.pop(1)
-        train_hydra_main()
+        unified_main()
     else:
         main(parse_params())
