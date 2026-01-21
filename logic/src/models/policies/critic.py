@@ -31,6 +31,7 @@ class CriticNetwork(nn.Module):
         encoder: nn.Module = None,
         **kwargs,
     ):
+        """Initialize CriticNetwork."""
         super().__init__()
         self.aggregation = aggregation
 

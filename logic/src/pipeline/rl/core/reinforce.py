@@ -22,6 +22,14 @@ class REINFORCE(RL4COLitModule):
         max_grad_norm: float = 1.0,
         **kwargs,
     ):
+        """
+        Initialize REINFORCE module.
+
+        Args:
+            entropy_weight: Weight for entropy bonus in loss.
+            max_grad_norm: Maximum gradient norm for clipping.
+            **kwargs: Arguments passed to RL4COLitModule.
+        """
         super().__init__(**kwargs)
         self.entropy_weight = entropy_weight
         self.max_grad_norm = max_grad_norm

@@ -35,6 +35,7 @@ class CostWeightManager(WeightAdjustmentStrategy):
         weight_bounds: Optional[Dict[str, Tuple[float, float]]] = None,
         **kwargs,
     ):
+        """Initialize TDLearningWeightOptimizer."""
         super().__init__()
         self.lr = learning_rate
         self.gamma = gamma
@@ -182,9 +183,11 @@ class CostWeightManager(WeightAdjustmentStrategy):
         self.weights[key] = max(low, min(high, self.weights[key] + delta))
 
     def state_dict(self):
+        """Get state dictionary."""
         return {"values": self.values, "weights": self.weights, "epsilon": self.epsilon}
 
     def load_state_dict(self, state_dict):
+        """Load state dictionary."""
         self.values = state_dict["values"]
         self.weights = state_dict["weights"]
         self.epsilon = state_dict.get("epsilon", self.epsilon)

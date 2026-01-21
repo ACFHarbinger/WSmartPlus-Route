@@ -29,6 +29,21 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         window_size: int = 20,
         **kwargs,
     ):
+        """
+        Initialize WeightContextualBandit.
+
+        Args:
+            num_days: Number of simulation days.
+            initial_weights: Initial weight configuration.
+            context_features: List of context feature names.
+            features_aggregation: Aggregation method for features ('avg', 'sum').
+            exploration_strategy: Strategy ('ucb', 'thompson_sampling', 'epsilon_greedy').
+            exploration_factor: Exploration parameter (epsilon or UCB factor).
+            num_weight_configs: Number of weight configurations to generate.
+            weight_ranges: Dict mapping weight names to (min, max) ranges.
+            window_size: Sliding window size for reward tracking.
+            **kwargs: Additional keyword arguments.
+        """
         self.num_days = num_days
         self.weight_ranges = weight_ranges
         self.weight_configs = self._generate_weight_configs(initial_weights, num_weight_configs)
@@ -59,6 +74,15 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         self.history = []
 
     def propose_weights(self, context: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
+        """
+        Propose weight configuration based on context.
+
+        Args:
+            context: Dict of context features for bandit decision.
+
+        Returns:
+            Dict[str, float]: Selected weight configuration.
+        """
         if context is None:
             return self.current_config
 
@@ -79,6 +103,15 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         return self.current_config
 
     def feedback(self, reward: float, metrics: Any, day: Optional[int] = None, step: Optional[int] = None):
+        """
+        Update bandit state with feedback.
+
+        Args:
+            reward: Observed reward.
+            metrics: Additional metrics dict.
+            day: Current day (optional).
+            step: Current step (optional).
+        """
         context = self.contexts[-1] if self.contexts else None
         context_key = self._context_to_key(context) if context else None
 
@@ -96,6 +129,12 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         self.beta[self.current_config_idx] += 1 - norm_reward
 
     def get_current_weights(self) -> Dict[str, float]:
+        """
+        Get current weight configuration.
+
+        Returns:
+            Dict[str, float]: Current weights.
+        """
         return self.current_config
 
     def _generate_weight_configs(self, initial_weights, num_configs):

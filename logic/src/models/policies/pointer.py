@@ -25,6 +25,7 @@ class PointerNetworkPolicy(ConstructivePolicy):
         hidden_dim: int = 512,
         **kwargs,
     ):
+        """Initialize PointerNetworkPolicy."""
         super().__init__(env_name=env_name, embed_dim=embed_dim)
         from logic.src.models.policies.utils import DummyProblem
 

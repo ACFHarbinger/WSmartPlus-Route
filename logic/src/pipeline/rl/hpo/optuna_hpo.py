@@ -15,6 +15,7 @@ class OptunaHPO:
     """
 
     def __init__(self, cfg: Config, objective_fn: Callable):
+        """Initialize OptunaHPO."""
         self.cfg = cfg
         self.objective_fn = objective_fn
 

@@ -72,10 +72,31 @@ def symmetric_augmentation(xy: torch.Tensor, num_augment: int = 8, first_augment
 
 
 def min_max_normalize(x):
+    """
+    Normalize tensor to [0, 1] range using min-max scaling.
+
+    Args:
+        x: Input tensor.
+
+    Returns:
+        torch.Tensor: Normalized tensor.
+    """
     return (x - x.min()) / (x.max() - x.min())
 
 
 def get_augment_function(augment_fn: Union[str, Callable]):
+    """
+    Get augmentation function by name or return callable directly.
+
+    Args:
+        augment_fn: Either a string ('dihedral8', 'symmetric') or a callable.
+
+    Returns:
+        Callable: The augmentation function.
+
+    Raises:
+        ValueError: If augment_fn string is not recognized.
+    """
     if isinstance(augment_fn, Callable):
         return augment_fn
     if augment_fn == "dihedral8":
@@ -98,6 +119,16 @@ class StateAugmentation:
         normalize: bool = False,
         feats: List[str] = None,
     ):
+        """
+        Initialize StateAugmentation transform.
+
+        Args:
+            num_augment: Number of augmented copies to generate.
+            augment_fn: Augmentation function ('symmetric', 'dihedral8', or callable).
+            first_aug_identity: If True, first augmentation is the identity.
+            normalize: Whether to apply min-max normalization after augmentation.
+            feats: List of feature names to augment (default: ['locs']).
+        """
         self.augmentation = get_augment_function(augment_fn)
         if feats is None:
             self.feats = ["locs"]
@@ -108,6 +139,15 @@ class StateAugmentation:
         self.first_aug_identity = first_aug_identity
 
     def __call__(self, td: TensorDict) -> TensorDict:
+        """
+        Apply augmentation to a TensorDict.
+
+        Args:
+            td: Input TensorDict to augment.
+
+        Returns:
+            TensorDict: Augmented TensorDict with num_augment copies.
+        """
         td_aug = batchify(td, self.num_augment)
         for feat in self.feats:
             if not self.first_aug_identity:

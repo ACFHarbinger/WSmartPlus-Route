@@ -24,6 +24,14 @@ class SAPO(PPO):
         tau_neg: float = 1.0,
         **kwargs,
     ):
+        """
+        Initialize SAPO module.
+
+        Args:
+            tau_pos: Temperature for positive advantages (aggressive updates).
+            tau_neg: Temperature for negative advantages (conservative updates).
+            **kwargs: Arguments passed to PPO.
+        """
         super().__init__(**kwargs)
         self.save_hyperparameters(ignore=["critic"])
         self.tau_pos = tau_pos

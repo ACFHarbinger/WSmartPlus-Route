@@ -14,6 +14,7 @@ class SymNCOPolicy(AttentionModelPolicy):
     """
 
     def __init__(self, embed_dim: int = 128, use_projection_head: bool = True, **kwargs):
+        """Initialize SymNCOPolicy."""
         super().__init__(embed_dim=embed_dim, **kwargs)
         self.use_projection_head = use_projection_head
 

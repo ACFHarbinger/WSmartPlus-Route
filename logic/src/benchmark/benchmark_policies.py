@@ -1,3 +1,10 @@
+"""
+Policy benchmarking utilities.
+
+This module provides tools for comparing the performance of different
+routing policies across various problem sizes. It measures execution time
+and solution quality (reward) for neural and classical solvers.
+"""
 import time
 
 import pandas as pd
@@ -9,6 +16,17 @@ from logic.src.configs import Config, EnvConfig, ModelConfig, TrainConfig
 
 
 def benchmark(problem="vrpp", sizes=[20, 50], num_instances=16):
+    """
+    Benchmark routing policies on a given problem.
+
+    Args:
+        problem: Problem name ('vrpp', 'wcvrp', etc.).
+        sizes: List of graph sizes to test.
+        num_instances: Number of instances per size for averaging.
+
+    Returns:
+        None. Prints benchmark results to console.
+    """
     results = []
 
     print(f"\nBenchmarking on {num_instances} instances per problem size...")

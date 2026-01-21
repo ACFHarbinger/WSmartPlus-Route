@@ -25,6 +25,7 @@ class HGSPolicy(ConstructivePolicy):
         max_vehicles: int = 0,
         **kwargs,
     ):
+        """Initialize HGSPolicy."""
         super().__init__(env_name=env_name, **kwargs)
         self.params = HGSParams(
             time_limit=time_limit,

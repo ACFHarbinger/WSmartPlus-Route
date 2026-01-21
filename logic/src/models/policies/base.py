@@ -29,6 +29,7 @@ class ConstructivePolicy(nn.Module, ABC):
         embed_dim: int = 128,
         **kwargs,
     ):
+        """Initialize ConstructivePolicy."""
         super().__init__()
         self.encoder = encoder
         self.decoder = decoder
@@ -112,6 +113,7 @@ class ImprovementPolicy(nn.Module, ABC):
         env_name: Optional[str] = None,
         **kwargs,
     ):
+        """Initialize ImprovementPolicy."""
         super().__init__()
         self.encoder = encoder
         self.decoder = decoder

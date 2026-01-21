@@ -305,6 +305,16 @@ def run_hpo(cfg: Config) -> float:
     if cfg.hpo.method == "dehb":
 
         def dehb_obj(config, fidelity):
+            """
+            DEHB objective function.
+
+            Args:
+                config: Hyperparameter configuration dict.
+                fidelity: Training fidelity (epochs).
+
+            Returns:
+                dict: Fitness dictionary with negative reward.
+            """
             temp_cfg = OmegaConf.to_object(cfg)
             # Update config with suggested values
             for k, v in config.items():

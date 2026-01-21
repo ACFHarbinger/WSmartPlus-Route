@@ -24,6 +24,15 @@ class SpeedMonitor(Callback):
         epoch_time: bool = True,
         verbose: bool = False,
     ):
+        """
+        Initialize SpeedMonitor callback.
+
+        Args:
+            intra_step_time: Whether to log forward/backward time.
+            inter_step_time: Whether to log data loading time.
+            epoch_time: Whether to log epoch duration.
+            verbose: Whether to print timing info to console.
+        """
         super().__init__()
         self._log_stats = AttributeDict(
             {
@@ -38,17 +47,21 @@ class SpeedMonitor(Callback):
         self._snap_epoch_time: Optional[float] = None
 
     def on_train_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
+        """Reset epoch time snapshot at training start."""
         self._snap_epoch_time = None
 
     def on_train_epoch_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
+        """Reset timing snapshots and capture epoch start time."""
         self._snap_intra_step_time = None
         self._snap_inter_step_time = None
         self._snap_epoch_time = time.time()
 
     def on_validation_epoch_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
+        """Reset inter-step time snapshot for validation."""
         self._snap_inter_step_time = None
 
     def on_test_epoch_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
+        """Reset inter-step time snapshot for testing."""
         self._snap_inter_step_time = None
 
     @rank_zero_only
@@ -58,6 +71,7 @@ class SpeedMonitor(Callback):
         *unused_args,
         **unused_kwargs,
     ) -> None:
+        """Capture intra-step start time and log inter-step time."""
         if self._log_stats.intra_step_time:
             self._snap_intra_step_time = time.time()
 
@@ -80,6 +94,7 @@ class SpeedMonitor(Callback):
         *unused_args,
         **unused_kwargs,
     ) -> None:
+        """Capture inter-step start time and log intra-step time."""
         if self._log_stats.inter_step_time:
             self._snap_inter_step_time = time.time()
 
@@ -102,6 +117,7 @@ class SpeedMonitor(Callback):
         trainer: L.Trainer,
         pl_module: L.LightningModule,
     ) -> None:
+        """Log epoch duration at end of training epoch."""
         logs: dict[str, float] = {}
         if self._log_stats.epoch_time and self._snap_epoch_time:
             logs["time/epoch_s"] = time.time() - self._snap_epoch_time

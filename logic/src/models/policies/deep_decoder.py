@@ -35,6 +35,7 @@ class DeepDecoderPolicy(ConstructivePolicy):
         dropout_rate: float = 0.1,
         **kwargs,
     ):
+        """Initialize DeepDecoderPolicy."""
         super().__init__(env_name=env_name, embed_dim=embed_dim)
 
         self.init_embedding = get_init_embedding(env_name, embed_dim)

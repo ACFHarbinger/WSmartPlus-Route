@@ -24,6 +24,7 @@ class ALNSPolicy(ConstructivePolicy):
         max_iterations: int = 1000,
         **kwargs,
     ):
+        """Initialize ALNSPolicy."""
         super().__init__(env_name=env_name, **kwargs)
         self.params = ALNSParams(
             time_limit=time_limit,

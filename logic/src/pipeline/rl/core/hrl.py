@@ -37,6 +37,21 @@ class HRLModule(pl.LightningModule):
         entropy_coef: float = 0.1,
         **kwargs,
     ):
+        """
+        Initialize HRLModule.
+
+        Args:
+            manager: High-level GATLSTManager for dispatch decisions.
+            worker: Low-level ConstructivePolicy for routing.
+            env: RL environment.
+            lr: Learning rate for manager optimizer.
+            gamma: Discount factor for returns.
+            clip_eps: PPO clipping parameter.
+            ppo_epochs: Number of PPO optimization epochs.
+            lambda_mask_aux: Weight for auxiliary mask loss.
+            entropy_coef: Entropy regularization coefficient.
+            **kwargs: Additional keyword arguments.
+        """
         super().__init__()
         self.save_hyperparameters(ignore=["manager", "worker", "env"])
         self.manager = manager
@@ -199,6 +214,12 @@ class HRLModule(pl.LightningModule):
         self.log("train/manager_loss", mean_loss / self.ppo_epochs)
 
     def configure_optimizers(self):
+        """
+        Configure optimizer for manager parameters.
+
+        Returns:
+            Adam optimizer for manager network.
+        """
         # We only train Manager with this PPO logic usually?
         # worker is usually pre-trained or trained separately?
         # In manager_train.py, it updated MANAGER.

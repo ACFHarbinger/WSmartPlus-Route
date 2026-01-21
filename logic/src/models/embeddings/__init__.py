@@ -15,6 +15,12 @@ class VRPPInitEmbedding(nn.Module):
     """Initial embedding for VRPP problems."""
 
     def __init__(self, embed_dim: int = 128):
+        """
+        Initialize VRPPInitEmbedding.
+
+        Args:
+            embed_dim: Description for embed_dim.
+        """
         super().__init__()
         # Node features: x, y, prize
         self.node_embed = nn.Linear(3, embed_dim)
@@ -49,12 +55,31 @@ class CVRPPInitEmbedding(nn.Module):
     """Initial embedding for CVRPP (capacitated VRPP)."""
 
     def __init__(self, embed_dim: int = 128):
+        """
+        Initialize VRPPInitEmbedding.
+
+        Args:
+            embed_dim: Description for embed_dim.
+        """
         super().__init__()
         # Node features: x, y, prize, demand
         self.node_embed = nn.Linear(4, embed_dim)
         self.depot_embed = nn.Linear(2, embed_dim)
 
     def forward(self, td: TensorDict) -> torch.Tensor:
+        """
+        Forward.
+
+        Args:
+            td: Description for td.
+            prize.unsqueeze(-1): Description for prize.unsqueeze(-1).
+            demand.unsqueeze(-1)]: Description for demand.unsqueeze(-1)].
+            dim: Description for dim.
+            0]: Description for 0].
+
+        Returns:
+            Computation result.
+        """
         locs = td["locs"]
         prize = td["prize"]
         demand = td["demand"]
@@ -72,12 +97,27 @@ class WCVRPInitEmbedding(nn.Module):
     """Initial embedding for WCVRP problems."""
 
     def __init__(self, embed_dim: int = 128):
+        """
+        Initialize VRPPInitEmbedding.
+
+        Args:
+            embed_dim: Description for embed_dim.
+        """
         super().__init__()
         # Node features: x, y, fill_level
         self.node_embed = nn.Linear(3, embed_dim)
         self.depot_embed = nn.Linear(2, embed_dim)
 
     def forward(self, td: TensorDict) -> torch.Tensor:
+        """
+        Forward.
+
+        Args:
+            None.
+
+        Returns:
+            Computation result.
+        """
         locs = td["locs"]
         demand = td["demand"]  # Fill levels
 

@@ -30,6 +30,16 @@ class AdaptiveImitation(REINFORCE):
         patience: int = 5,
         **kwargs,
     ):
+        """
+        Initialize AdaptiveImitation module.
+
+        Args:
+            expert_policy: Expert policy to imitate.
+            il_weight: Initial weight for imitation loss.
+            il_decay: Decay factor for IL weight each epoch.
+            patience: Epochs without improvement before resetting IL weight.
+            **kwargs: Arguments passed to REINFORCE.
+        """
         super().__init__(**kwargs)
         self.expert_policy = expert_policy
         self.il_weight = il_weight
@@ -83,6 +93,11 @@ class AdaptiveImitation(REINFORCE):
         return total_loss
 
     def on_train_epoch_end(self):
+        """
+        Update IL weight based on validation performance.
+
+        Decays IL weight each epoch, or resets if patience is exceeded.
+        """
         super().on_train_epoch_end()
 
         # Get validation reward
