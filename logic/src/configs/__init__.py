@@ -85,6 +85,10 @@ class RLConfig:
     num_starts: Optional[int] = None
     augment_fn: str = "dihedral8"
 
+    # SymNCO specific
+    symnco_alpha: float = 0.2
+    symnco_beta: float = 1.0
+
 
 @dataclass
 class HPOConfig:

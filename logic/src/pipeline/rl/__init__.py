@@ -19,6 +19,7 @@ from logic.src.pipeline.rl.pomo import POMO
 from logic.src.pipeline.rl.ppo import PPO
 from logic.src.pipeline.rl.reinforce import REINFORCE
 from logic.src.pipeline.rl.sapo import SAPO
+from logic.src.pipeline.rl.symnco import SymNCO
 
 __all__ = [
     "RL4COLitModule",
@@ -37,4 +38,5 @@ __all__ = [
     "MetaRLModule",
     "HRLModule",
     "POMO",
+    "SymNCO",
 ]
