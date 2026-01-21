@@ -18,6 +18,7 @@ from logic.src.models.policies import (
     AttentionModelPolicy,
     DeepDecoderPolicy,
     PointerNetworkPolicy,
+    SymNCOPolicy,
     TemporalAMPolicy,
 )
 from logic.src.pipeline.rl import (
@@ -29,6 +30,7 @@ from logic.src.pipeline.rl import (
     SAPO,
     HRLModule,
     MetaRLModule,
+    SymNCO,
 )
 from logic.src.pipeline.trainer import WSTrainer
 from logic.src.utils.pylogger import get_pylogger
@@ -54,6 +56,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
         "deep_decoder": DeepDecoderPolicy,
         "temporal": TemporalAMPolicy,
         "pointer": PointerNetworkPolicy,
+        "symnco": SymNCOPolicy,
     }
 
     if cfg.model.name not in policy_map:
@@ -161,6 +164,15 @@ def create_model(cfg: Config) -> pl.LightningModule:
         )
     elif cfg.rl.algorithm == "pomo":
         model = POMO(
+            num_augment=cfg.rl.num_augment,
+            augment_fn=cfg.rl.augment_fn,
+            num_starts=cfg.rl.num_starts,
+            **common_kwargs,
+        )
+    elif cfg.rl.algorithm == "symnco":
+        model = SymNCO(
+            alpha=cfg.rl.symnco_alpha,
+            beta=cfg.rl.symnco_beta,
             num_augment=cfg.rl.num_augment,
             augment_fn=cfg.rl.augment_fn,
             num_starts=cfg.rl.num_starts,

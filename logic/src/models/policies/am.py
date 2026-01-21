@@ -130,8 +130,13 @@ class AttentionModelPolicy(ConstructivePolicy):
         # Collect reward
         reward = env.get_reward(td, torch.stack(output_actions, dim=1))
 
-        return {
+        out = {
             "reward": reward,
             "log_likelihood": log_likelihood,
             "actions": torch.stack(output_actions, dim=1),
         }
+
+        if kwargs.get("return_init_embeds", False):
+            out["init_embeds"] = init_embeds
+
+        return out
