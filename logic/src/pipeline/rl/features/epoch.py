@@ -4,6 +4,7 @@ Includes expanded dataset handling and validation metric computation.
 """
 from typing import Dict, Optional
 
+import torch
 import torch.nn as nn
 from tensordict import TensorDict
 from torch.utils.data import Dataset
@@ -55,22 +56,29 @@ def compute_validation_metrics(out: Dict, batch: TensorDict, env: any) -> Dict[s
         metrics["val/reward"] = out["reward"].mean().item()
 
     # 2. Costs Breakdown (if available)
-    # Constructive environments usually have 'cost', 'len_cost', 'waste_cost' in State/Env
-    # But usually we compute them post-hoc or via env.get_costs(batch, actions)
-
-    # Check if env has cost function we can use
-    if hasattr(env, "get_total_cost"):
-        # cost: [batch]
-        cost = env.get_total_cost(batch, out["actions"])
-        metrics["val/total_cost"] = cost.mean().item()
+    # Check if env has detailed cost function
+    if hasattr(env, "get_costs"):
+        # Expecting a dict of tensors: {'waste': ..., 'dist': ..., 'overflow': ...}
+        # We assume out["actions"] is present
+        if "actions" in out:
+            costs = env.get_costs(batch, out["actions"])
+            for key, val in costs.items():
+                if isinstance(val, torch.Tensor):
+                    metrics[f"val/{key}"] = val.float().mean().item()
 
     # 3. Efficiency (kg/km)
-    # Need waste collected and distance traveled
-    # Approximate if detailed breakdown not available
+    # If not already computed in get_costs
+    if "val/efficiency" not in metrics:
+        if "val/waste" in metrics and "val/dist" in metrics:
+            # Avoid division by zero
+            avg_waste = metrics["val/waste"]
+            avg_dist = metrics["val/dist"]
+            if avg_dist > 1e-6:
+                metrics["val/efficiency"] = avg_waste / avg_dist
 
     # 4. Constraints Violations (Overflows)
     # If environment provides info on violations
-    if hasattr(env, "get_num_overflows"):
+    if hasattr(env, "get_num_overflows") and "actions" in out:
         overflows = env.get_num_overflows(batch, out["actions"])
         metrics["val/overflows"] = overflows.float().mean().item()
 
