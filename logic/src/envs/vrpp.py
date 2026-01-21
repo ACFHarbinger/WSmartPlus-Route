@@ -70,8 +70,8 @@ class VRPPEnv(RL4COEnvBase):
         locs = td["locs"]
 
         # Compute distance traveled
-        current_loc = locs.gather(1, current.unsqueeze(-1).expand(-1, -1, 2)).squeeze(1)
-        next_loc = locs.gather(1, action.unsqueeze(-1).expand(-1, -1, 2)).squeeze(1)
+        current_loc = locs.gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
+        next_loc = locs.gather(1, action[:, None, None].expand(-1, -1, 2)).squeeze(1)
         distance = torch.norm(next_loc - current_loc, dim=-1)
 
         # Update tour length
@@ -121,7 +121,7 @@ class VRPPEnv(RL4COEnvBase):
         # Also add return to depot distance if not already there
         current = td["current_node"].squeeze(-1)
         locs = td["locs"]
-        current_loc = locs.gather(1, current.unsqueeze(-1).expand(-1, -1, 2)).squeeze(1)
+        current_loc = locs.gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
         depot_loc = td["depot"]
         return_distance = torch.norm(depot_loc - current_loc, dim=-1)
 
