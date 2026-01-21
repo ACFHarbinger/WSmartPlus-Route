@@ -177,6 +177,16 @@ class DeepDecoderAttentionModel(AttentionModel):
         self.project_node_embeddings = nn.Linear(embedding_dim, embedding_dim, bias=False)
 
     def _precompute(self, embeddings, num_steps=1):
+        """
+        Precompute fixed decoder context and keys.
+
+        Args:
+            embeddings (torch.Tensor): Node embeddings.
+            num_steps (int, optional): Number of parallel steps. Defaults to 1.
+
+        Returns:
+            DeepAttentionModelFixed: Cached fixed context object.
+        """
         # The fixed context projection of the graph embedding is calculated only once for efficiency
         if self.aggregation_graph == "avg":
             graph_embed = embeddings.mean(1)
@@ -198,6 +208,17 @@ class DeepDecoderAttentionModel(AttentionModel):
         return DeepAttentionModelFixed(embeddings, fixed_context, *fixed_attention_node_data)
 
     def _get_log_p(self, fixed, state, normalize=True):
+        """
+        Compute log probabilities for the next step.
+
+        Args:
+            fixed (DeepAttentionModelFixed): Precomputed fixed context.
+            state (object): Current decoder state.
+            normalize (bool, optional): Whether to normalize logits. Defaults to True.
+
+        Returns:
+            tuple: (log_p, mask)
+        """
         # Compute query = context node embedding
         query = fixed.context_node_projected + self.project_step_context(
             self._get_parallel_step_context(fixed.node_embeddings, state)
@@ -223,6 +244,18 @@ class DeepDecoderAttentionModel(AttentionModel):
         return log_p, mask
 
     def _one_to_many_logits(self, query, mha_K, mask, graph_mask):
+        """
+        Compute logits for the one-to-many attention mechanism.
+
+        Args:
+            query (torch.Tensor): Query tensor.
+            mha_K (torch.Tensor): Multi-head attention keys.
+            mask (torch.Tensor): Valid action mask.
+            graph_mask (torch.Tensor): Graph structure mask.
+
+        Returns:
+            torch.Tensor: Logits.
+        """
         logits = self.decoder(query, mha_K, graph_mask)
 
         # From the logits compute the probabilities by clipping, masking and softmax
@@ -235,6 +268,16 @@ class DeepDecoderAttentionModel(AttentionModel):
         return logits
 
     def _get_attention_node_data(self, fixed, state):
+        """
+        Get attention data for nodes, handling partial visits if needed.
+
+        Args:
+            fixed (DeepAttentionModelFixed): Fixed context.
+            state (object): Current state.
+
+        Returns:
+            torch.Tensor: Attention keys.
+        """
         if self.is_wc and self.allow_partial:
             # Need to provide information of how much each node has already been served
             # Clone demands as they are needed by the backprop whereas they are updated later

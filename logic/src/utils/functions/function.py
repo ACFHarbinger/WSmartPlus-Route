@@ -1,21 +1,24 @@
-"""
-General helper functions for neural models and training pipelines.
-
-This module provides utilities for:
-- Initializing and manipulating PyTorch models (inner model retrieval).
-- Loading problem instances.
-- Performing vectorized operations.
-- Managing multiprocessing and threading for data processing.
-"""
+from __future__ import annotations
 
 import json
 import multiprocessing as mp
 import os
 from multiprocessing.dummy import Pool as ThreadPool
-from typing import TypeVar
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 import numpy as np
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from tqdm import tqdm
 
@@ -23,28 +26,28 @@ T = TypeVar("T")
 
 
 # Attention, Learn to Solve Routing Problems
-def get_inner_model(model):
+def get_inner_model(model: nn.Module) -> nn.Module:
     """
     Returns the underlying model from a DataParallel wrapper if present.
 
     Args:
-        model (nn.Module): The model (potentially wrapped).
+        model: The model (potentially wrapped).
 
     Returns:
-        nn.Module: The inner model.
+        The inner model.
     """
     return model.module if isinstance(model, torch.nn.DataParallel) else model
 
 
-def load_problem(name):
+def load_problem(name: str) -> Type[Any]:
     """
     Factory function to load a problem class by name.
 
     Args:
-        name (str): The problem name (e.g., 'vrpp', 'wcvrp').
+        name: The problem name (e.g., 'vrpp', 'wcvrp').
 
     Returns:
-        class: The problem class.
+        The problem class.
 
     Raises:
         AssertionError: If problem name is unsupported.
@@ -63,38 +66,38 @@ def load_problem(name):
     return problem
 
 
-def torch_load_cpu(load_path):
+def torch_load_cpu(load_path: str) -> Any:
     """
     Loads a checkpoint file mapping all tensors to CPU.
 
     Args:
-        load_path (str): Path to the checkpoint file.
+        load_path: Path to the checkpoint file.
 
     Returns:
-        Any: The loaded data.
+        The loaded data.
     """
     return torch.load(load_path, map_location=lambda storage, loc: storage)  # Load on CPU
 
 
-def load_data(load_path, resume):
+def load_data(load_path: Optional[str], resume: Optional[str]) -> Any:
     """
     Loads data from a path or resume checkpoint.
 
     Args:
-        load_path (str, optional): Explicit path to data.
-        resume (str, optional): Path to resume checkpoint.
+        load_path: Explicit path to data.
+        resume: Path to resume checkpoint.
 
     Returns:
-        Any: Loaded data or empty dict if neither is provided (though assert prevents this).
+        Loaded data or empty dict if neither is provided.
     """
-    load_data = {}
+    data = {}
     assert load_path is None or resume is None, "Only one of load path and resume can be given"
 
     load_path = load_path if load_path is not None else resume
     if load_path is not None:
         print("  [*] Loading data from {}".format(load_path))
-        load_data = torch_load_cpu(load_path)
-    return load_data
+        data = torch_load_cpu(load_path)
+    return data
 
 
 def move_to(var: T, device: torch.device, non_blocking: bool = False) -> T:
@@ -103,13 +106,13 @@ def move_to(var: T, device: torch.device, non_blocking: bool = False) -> T:
     Supports dicts and Tensors.
 
     Args:
-        var (Any): The variable to move.
-        device (torch.device): The target device.
-        non_blocking (bool, optional): If True and if the variable is a Tensor on pinned memory,
+        var: The variable to move.
+        device: The target device.
+        non_blocking: If True and if the variable is a Tensor on pinned memory,
             the copy will be asynchronous with respect to the host. Defaults to False.
 
     Returns:
-        Any: The variable on the new device.
+        The variable on the new device.
     """
     if var is None:
         return var  # type: ignore
@@ -120,16 +123,16 @@ def move_to(var: T, device: torch.device, non_blocking: bool = False) -> T:
     return var
 
 
-def _load_model_file(load_path, model):
+def _load_model_file(load_path: str, model: nn.Module) -> Tuple[nn.Module, Optional[Dict[str, Any]]]:
     """
     Loads the model with parameters from the file and returns optimizer state dict if it is in the file.
 
     Args:
-        load_path (str): Path to the checkpoint.
-        model (nn.Module): Model to load parameters into.
+        load_path: Path to the checkpoint.
+        model: Model to load parameters into.
 
     Returns:
-        dict: Optimizer state dict if present, else None.
+        Tuple of (model, optimizer state dict).
     """
     # Load the model parameters from a saved state
     load_optimizer_state_dict = None
@@ -148,16 +151,16 @@ def _load_model_file(load_path, model):
     return model, load_optimizer_state_dict
 
 
-def load_args(filename):
+def load_args(filename: str) -> Dict[str, Any]:
     """
     Loads argument configuration from a JSON file.
     Handles deprecated keys for backward compatibility.
 
     Args:
-        filename (str): Path to args.json.
+        filename: Path to args.json.
 
     Returns:
-        dict: The loaded arguments.
+        The loaded arguments.
     """
     with open(filename, "r") as f:
         args = json.load(f)
@@ -175,13 +178,13 @@ def load_args(filename):
     return args
 
 
-def load_model(path, epoch=None):
+def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[str, Any]]:
     """
     Loads the entire model from a checkpoint or directory.
 
     Args:
-        path (str): Path to checkpoint file or directory containing checkpoints.
-        epoch (int, optional): Specific epoch to load if path is a directory. If None, loads latest.
+        path: Path to checkpoint file or directory containing checkpoints.
+        epoch: Specific epoch to load if path is a directory. If None, loads latest.
 
     Returns:
         tuple: (model, args)
@@ -287,8 +290,8 @@ def load_model(path, epoch=None):
     )
 
     # Overwrite model parameters by parameters to load
-    load_data = torch_load_cpu(model_filename)
-    loaded_state_dict = load_data.get("model", {})
+    data = torch_load_cpu(model_filename)
+    loaded_state_dict = data.get("model", {})
 
     # Migration for Abstract Factory Refactoring
     model_state_dict = model.state_dict()
@@ -305,21 +308,20 @@ def load_model(path, epoch=None):
             new_state_dict[key] = value
 
     model.load_state_dict({**model.state_dict(), **new_state_dict})
-    # model, *_ = _load_model_file(model_filename, model) # Removed as we manually loaded with migration above
     print("  [*] Loaded model from {}".format(model_filename))
     model.eval()  # Put in eval mode
     return model, args
 
 
-def parse_softmax_temperature(raw_temp):
+def parse_softmax_temperature(raw_temp: Union[str, float]) -> float:
     """
-    Parses softmax temperature, supporting loading from a file (schedule) or a fixed float.
+    Parses softmax temperature, supporting loading from a file (schedule) or a float.
 
     Args:
-        raw_temp (str or float): The raw temperature argument.
+        raw_temp: The raw temperature argument.
 
     Returns:
-        float: The parsed temperature.
+        The parsed temperature.
     """
     # Load from file
     if isinstance(raw_temp, str) and os.path.isfile(raw_temp):
@@ -327,16 +329,22 @@ def parse_softmax_temperature(raw_temp):
     return float(raw_temp)
 
 
-def run_all_in_pool(func, directory, dataset, opts, use_multiprocessing=True):
+def run_all_in_pool(
+    func: Callable[..., Any],
+    directory: str,
+    dataset: List[Any],
+    opts: Any,
+    use_multiprocessing: bool = True,
+) -> Tuple[List[Any], int]:
     """
     Runs a function over a dataset in parallel using multiprocessing or threading.
 
     Args:
-        func (callable): The function to execute.
-        directory (str): Directory context for the function.
-        dataset (list): List of problem instances.
-        opts (argparse.Namespace): Options including 'cpus', 'offset', 'n'.
-        use_multiprocessing (bool, optional): Whether to use process pool or thread pool. Defaults to True.
+        func: The function to execute.
+        directory: Directory context for the function.
+        dataset: List of problem instances.
+        opts: Options including 'cpus', 'offset', 'n'.
+        use_multiprocessing: Whether to use process pool or thread pool. Defaults to True.
 
     Returns:
         tuple: (results, num_cpus)
@@ -366,16 +374,16 @@ def run_all_in_pool(func, directory, dataset, opts, use_multiprocessing=True):
     return results, num_cpus
 
 
-def get_path_until_string(path, end_str):
+def get_path_until_string(path: str, end_str: str) -> Optional[str]:
     """
     Truncates a path up to the first occurrence of a specific directory component.
 
     Args:
-        path (str): The full path.
-        end_str (str): The directory name to truncate at.
+        path: The full path.
+        end_str: The directory name to truncate at.
 
     Returns:
-        str or None: The truncated path or None if end_str is not found.
+        The truncated path or None if end_str is not found.
     """
     path_ls = str.split(path, os.sep)
     try:
@@ -387,20 +395,21 @@ def get_path_until_string(path, end_str):
 
 
 # Tensor functions
-def compute_in_batches(f, calc_batch_size, *args, n=None):
+def compute_in_batches(
+    f: Callable[..., Any], calc_batch_size: int, *args: torch.Tensor, n: Optional[int] = None
+) -> Any:
     """
     Computes memory heavy function f(*args) in batches.
 
     Args:
-        f (callable): The function that is computed, should take only tensors as arguments and
-            return tensor or tuple of tensors
-        calc_batch_size (int): The batch size to use when computing this function
-        *args: Tensor arguments with equally sized first batch dimension
-        n (int, optional): the total number of elements, optional if it cannot be determined as
-            args[0].size(0)
+        f: The function that is computed, should take only tensors as arguments and
+            return tensor or tuple of tensors.
+        calc_batch_size: The batch size to use when computing this function.
+        *args: Tensor arguments with equally sized first batch dimension.
+        n: the total number of elements.
 
     Returns:
-        Tensor or tuple: f(*args), this should be one or multiple tensors with equally sized first batch dimension
+        f(*args), this should be one or multiple tensors.
     """
     if n is None:
         n = args[0].size(0)
@@ -409,17 +418,15 @@ def compute_in_batches(f, calc_batch_size, *args, n=None):
         return f(*args)
 
     # Run all batches
-    # all_res = [f(*batch_args) for batch_args in zip(*[torch.chunk(arg, n_batches) for arg in args])]
-    # We do not use torch.chunk such that it also works for other classes that support slicing
     all_res = [f(*(arg[i * calc_batch_size : (i + 1) * calc_batch_size] for arg in args)) for i in range(n_batches)]
 
     # Allow for functions that return None
-    def safe_cat(chunks, dim=0):
+    def safe_cat(chunks: List[Optional[torch.Tensor]], dim: int = 0) -> Optional[torch.Tensor]:
         """Concatenates tensors safely, handling empty chunks."""
         if chunks[0] is None:
             assert all(chunk is None for chunk in chunks)
             return None
-        return torch.cat(chunks, dim)
+        return torch.cat(chunks, dim)  # type: ignore
 
     # Depending on whether the function returned a tuple we need to concatenate each element or only the result
     if isinstance(all_res[0], tuple):
@@ -427,12 +434,12 @@ def compute_in_batches(f, calc_batch_size, *args, n=None):
     return safe_cat(all_res, 0)
 
 
-def add_attention_hooks(model_module):
+def add_attention_hooks(model_module: nn.Module) -> Dict[str, Any]:
     """
     Registers forward hooks on Multi-Head Attention layers to capture weights and masks.
 
     Args:
-        model_module (nn.Module): The model to hook.
+        model_module: The model to hook.
 
     Returns:
         dict: Dictionary containing lists of 'weights', 'masks', and 'handles'.
@@ -440,7 +447,7 @@ def add_attention_hooks(model_module):
     graph_masks = []
     attention_weights = []
 
-    def hook(module, input, output):
+    def hook(module: nn.Module, input: Any, output: Any) -> None:
         """Forward hook to capture attention weights."""
         if hasattr(module, "last_attn") and module.last_attn is not None:
             graph_masks.append(module.last_attn[-1])
@@ -448,7 +455,7 @@ def add_attention_hooks(model_module):
 
     # Register hooks on all MHA layers
     hook_data = {"weights": attention_weights, "masks": graph_masks, "handles": []}
-    for layer in model_module.layers:
+    for layer in model_module.layers:  # type: ignore
         # Get the actual attention module (skip the SkipConnection wrapper), if layer has attention
         if not hasattr(layer, "att"):
             continue
@@ -461,16 +468,16 @@ def add_attention_hooks(model_module):
 
 
 # Sampling functions
-def do_batch_rep(v, n):
+def do_batch_rep(v: Any, n: int) -> Any:
     """
     Replicates a variable n times along the batch dimension.
 
     Args:
-        v (Tensor, list, dict, or tuple): The variable (tensor, or structure containing tensors).
-        n (int): Number of repetitions.
+        v: The variable (tensor, or structure containing tensors).
+        n: Number of repetitions.
 
     Returns:
-        Any: Replicated variable.
+        Replicated variable.
     """
     if v is None:
         return None
@@ -483,16 +490,22 @@ def do_batch_rep(v, n):
     return v[None, ...].expand(n, *v.size()).contiguous().view(-1, *v.size()[1:])
 
 
-def sample_many(inner_func, get_cost_func, input, batch_rep=1, iter_rep=1):
+def sample_many(
+    inner_func: Callable[..., Any],
+    get_cost_func: Callable[..., Any],
+    input: Any,
+    batch_rep: int = 1,
+    iter_rep: int = 1,
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Samples many solutions by repeated execution.
 
     Args:
-        inner_func (callable): Function producing policy and log probabilities.
-        get_cost_func (callable): Function computing costs and mask.
-        input (Tensor): Input node features.
-        batch_rep (int, optional): Batch replication factor. Defaults to 1.
-        iter_rep (int, optional): Iteration replication. Defaults to 1.
+        inner_func: Function producing policy and log probabilities.
+        get_cost_func: Function computing costs and mask.
+        input: Input node features.
+        batch_rep: Batch replication factor. Defaults to 1.
+        iter_rep: Iteration replication. Defaults to 1.
 
     Returns:
         tuple: (min_policies, min_costs)
@@ -503,7 +516,6 @@ def sample_many(inner_func, get_cost_func, input, batch_rep=1, iter_rep=1):
     for i in range(iter_rep):
         _log_p, pi = inner_func(input)
 
-        # pi.view(-1, batch_rep, pi.size(-1))
         cost, mask = get_cost_func(input, pi)
 
         costs.append(cost.view(batch_rep, -1).t())
@@ -512,9 +524,7 @@ def sample_many(inner_func, get_cost_func, input, batch_rep=1, iter_rep=1):
     max_length = max(pi.size(-1) for pi in pis)
 
     # (batch_size * batch_rep, iter_rep, max_length) => (batch_size, batch_rep * iter_rep, max_length)
-    pis = torch.cat(
-        [F.pad(pi, (0, max_length - pi.size(-1))) for pi in pis], 1
-    )  # .view(embeddings.size(0), batch_rep * iter_rep, max_length)
+    pis = torch.cat([F.pad(pi, (0, max_length - pi.size(-1))) for pi in pis], 1)
     costs = torch.cat(costs, 1)
 
     # (batch_size)
