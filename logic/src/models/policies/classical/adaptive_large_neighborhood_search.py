@@ -1,253 +1,299 @@
 """
-Adaptive Large Neighborhood Search (ALNS) policy module.
+Vectorized Adaptive Large Neighborhood Search (ALNS) Policy.
 
-This module provides the main entry points for the ALNS metaheuristic,
-dispatching to specialized implementations based on configuration.
-
-Reference:
-    Pisinger, D., & Ropke, S. (2007). A general heuristic for vehicle routing problems.
-    Computers & Operations Research, 34(8), 2403-2435.
+This module implements a vectorized version of the ALNS algorithm for
+Vehicle Routing Problems (VRP), optimized for GPU execution using PyTorch.
 """
 
-import copy
-import math
-import random
 import time
-from typing import Dict, List, Optional, Tuple
 
-import numpy as np
+import torch
 
-from .alns_aux.alns_package import run_alns_package
-from .alns_aux.destroy_operators import cluster_removal, random_removal, worst_removal
-from .alns_aux.ortools_wrapper import run_alns_ortools
-from .alns_aux.params import ALNSParams
-from .alns_aux.repair_operators import greedy_insertion, regret_2_insertion
+from .split import vectorized_linear_split
+
+# -----------------------------
+# Vectorized Destroy Operators
+# -----------------------------
 
 
-class ALNSSolver:
+def vectorized_random_removal(tours, n_remove):
     """
-    Custom implementation of Adaptive Large Neighborhood Search for CVRP.
+    Randomly removes nodes from tours.
+    Args:
+        tours: (B, N) tensor of giant tours (1..N nodes)
+        n_remove: number of nodes to remove
+    Returns:
+        partial_tours: (B, N) with removed nodes set to -1
+        removed_nodes: (B, n_remove)
     """
+    B, N = tours.size()
+    device = tours.device
 
-    def __init__(
-        self,
-        dist_matrix: np.ndarray,
-        demands: Dict[int, float],
-        capacity: float,
-        R: float,
-        C: float,
-        params: ALNSParams,
-    ):
-        """
-        Initialize the ALNS solver.
+    # Generate random indices for each batch
+    # We want to remove nodes (not indices 0..N-1)
+    # But it's easier to remove indices in the giant tour
 
-        Args:
-            dist_matrix: NxN distance matrix.
-            demands: Dictionary of node demands.
-            capacity: Maximum vehicle capacity.
-            R: Revenue multiplier.
-            C: Cost multiplier.
-            params: Detailed ALNS parameters.
-        """
-        self.dist_matrix = dist_matrix
-        self.demands = demands
-        self.capacity = capacity
-        self.R = R
-        self.C = C
-        self.params = params
+    # (B, N) random values
+    rand = torch.rand(B, N, device=device)
+    # Sort and take top n_remove
+    _, remove_idx = torch.topk(rand, n_remove, dim=1)
 
-        self.n_nodes = len(dist_matrix) - 1
-        self.nodes = list(range(1, self.n_nodes + 1))
+    # Create mask
+    mask = torch.ones_like(tours, dtype=torch.bool)
+    batch_indices = torch.arange(B, device=device).unsqueeze(1).expand(-1, n_remove)
+    mask[batch_indices, remove_idx] = False
 
-        # Operator registry
-        self.destroy_ops = [
-            lambda r, n: random_removal(r, n),
-            lambda r, n: worst_removal(r, n, self.dist_matrix),
-            lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes),
-        ]
-        self.repair_ops = [
-            lambda r, n: greedy_insertion(r, n, self.dist_matrix, self.demands, self.capacity),
-            lambda r, n: regret_2_insertion(r, n, self.dist_matrix, self.demands, self.capacity),
-        ]
+    removed_nodes = torch.gather(tours, 1, remove_idx)
+    partial_tours = tours.clone()
+    partial_tours[~mask] = -1
 
-        self.destroy_weights = [1.0] * len(self.destroy_ops)
-        self.repair_weights = [1.0] * len(self.repair_ops)
+    return partial_tours, removed_nodes
 
-    def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
-        """
-        Run the ALNS algorithm.
 
-        Args:
-            initial_solution: Optional starting solution. If None, a constructive heuristic is used.
+def vectorized_worst_removal(tours, dist_matrix, n_remove, p=3):
+    """
+    Removes nodes that contribute most to the total distance.
+    Args:
+        tours: (B, N) tensor
+        dist_matrix: (B, N_all, N_all)
+        n_remove: int
+        p: determinism parameter
+    """
+    B, N = tours.size()
+    device = tours.device
 
-        Returns:
-            Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
-        """
-        if initial_solution:
-            current_routes = initial_solution
-        else:
-            current_routes = self.build_initial_solution()
+    # Compute removal cost for each node in current tour
+    # Node at pos i: cost = dist(pos-1, i) + dist(i, pos+1) - dist(pos-1, pos+1)
 
-        best_routes = copy.deepcopy(current_routes)
-        best_cost = self.calculate_cost(best_routes)
-        current_cost = best_cost
+    # Pad tours to handle boundaries (depot is 0)
+    padded = torch.zeros(B, N + 2, dtype=torch.long, device=device)
+    padded[:, 1:-1] = tours
 
-        T = self.params.start_temp
-        start_time = time.time()
+    prev_nodes = padded[:, :-2]
+    curr_nodes = padded[:, 1:-1]
+    next_nodes = padded[:, 2:]
 
-        for it in range(self.params.max_iterations):
-            if time.time() - start_time > self.params.time_limit:
+    batch_idx = torch.arange(B, device=device).unsqueeze(1).expand(-1, N)
+
+    costs = (
+        dist_matrix[batch_idx, prev_nodes, curr_nodes]
+        + dist_matrix[batch_idx, curr_nodes, next_nodes]
+        - dist_matrix[batch_idx, prev_nodes, next_nodes]
+    )
+
+    # Randomized worst selection
+    # We sample indices based on rank ^ p or similar
+    # For simplicity, we just take actual top costs with some noise or use p
+    sorted_costs, sorted_idx = torch.sort(costs, dim=1, descending=True)
+
+    # If p is large, we take the top ones.
+    # To simulate the "randomized" part, we can shuffle slightly or use topk on (costs * rand^1/p)
+    noise = torch.rand_like(costs)
+    noised_costs = costs * (noise ** (1 / p))
+    _, remove_idx = torch.topk(noised_costs, n_remove, dim=1)
+
+    mask = torch.ones_like(tours, dtype=torch.bool)
+    batch_indices = torch.arange(B, device=device).unsqueeze(1).expand(-1, n_remove)
+    mask[batch_indices, remove_idx] = False
+
+    removed_nodes = torch.gather(tours, 1, remove_idx)
+    partial_tours = tours.clone()
+    partial_tours[~mask] = -1
+
+    return partial_tours, removed_nodes
+
+
+# -----------------------------
+# Vectorized Repair Operators
+# -----------------------------
+
+
+def vectorized_greedy_insertion(partial_tours, removed_nodes, dist_matrix):
+    """
+    Inserts removed nodes into partial tours greedily based on permutation cost.
+    Args:
+        partial_tours: (B, N) with some -1s or shorter?
+        removed_nodes: (B, n_rem)
+        dist_matrix: (B, N_all, N_all)
+    """
+    B, N = partial_tours.size()
+    B_rem, n_rem = removed_nodes.size()
+    device = partial_tours.device
+
+    # current_tours will hold nodes and -1s
+    current_tours = partial_tours.clone()
+
+    for k in range(n_rem):
+        nodes_to_insert = removed_nodes[:, k]  # (B,)
+
+        # We need to find the best slot among remaining -1s.
+        # For simplicity in vectorization, we identify all current "available" slots.
+        # Available slots are positions currently holding -1.
+
+        # To make it truly greedy in the permutation sense:
+        # We look at all pairs of nodes (i, j) that are currently "neighbors"
+        # in the partial tour (skipping -1s).
+
+        # This is complex. Let's use a simpler heuristic:
+        # Fill the first -1 but skip if needed? No, let's just find the best slot.
+        # A slot is between two non -1 nodes.
+
+        # Simpler: Just fill -1s in order for now, but ALNS usually
+        # picks the node that has the best insertion cost.
+
+        # Re-implementing: Find first -1 and put it there.
+        # To be "Greedy", we should try all -1 positions for a node.
+
+        mask = current_tours == -1
+        batch_idx = torch.arange(B, device=device)
+
+        # Find all candidate positions (indices of -1)
+        # We'll just pick the one that minimizes dist(prev, u) + dist(u, next)
+
+        # For each batch, find indices of -1
+        # This is non-uniform across batch if we were clever, but here it's uniform n_rem - k
+        # We can use topk or similar to get all indices.
+        _, slots = torch.topk(mask.float(), n_rem - k, dim=1)  # (B, remaining_slots)
+
+        # Try all slots for the current node
+        best_slots = torch.zeros(B, dtype=torch.long, device=device)
+        min_costs = torch.full((B,), float("inf"), device=device)
+
+        for s_idx in range(slots.size(1)):
+            slot = slots[:, s_idx]  # (B,)
+
+            # Neighbors of this slot in current_tours
+            # Note: current_tours might have other -1s.
+            # We look for the nearest non-minus-one nodes.
+
+            # Pre-slot node
+            l_idx = slot - 1
+            while l_idx.min() >= 0:
+                # This loop is problematic for vectorization.
                 break
 
-            d_idx = self.select_operator(self.destroy_weights)
-            r_idx = self.select_operator(self.repair_weights)
+            # Let's simplify: Use the immediate neighbors in the fixed-size array.
+            # If neighbor is -1, treat as depot (0) or ignore.
+            prev_idx = torch.clamp(slot - 1, min=0)
+            next_idx = torch.clamp(slot + 1, max=N - 1)
 
-            destroy_op = self.destroy_ops[d_idx]
-            repair_op = self.repair_ops[r_idx]
+            prev_nodes = torch.gather(current_tours, 1, prev_idx.unsqueeze(1)).squeeze(1)
+            next_nodes = torch.gather(current_tours, 1, next_idx.unsqueeze(1)).squeeze(1)
 
-            n_remove = random.randint(
-                self.params.min_removal,
-                max(
-                    self.params.min_removal,
-                    int(self.n_nodes * self.params.max_removal_pct),
-                ),
+            # Replace -1 with 0 (depot)
+            prev_nodes[prev_nodes == -1] = 0
+            next_nodes[next_nodes == -1] = 0
+
+            cost = (
+                dist_matrix[batch_idx, prev_nodes, nodes_to_insert]
+                + dist_matrix[batch_idx, nodes_to_insert, next_nodes]
+                - dist_matrix[batch_idx, prev_nodes, next_nodes]
             )
 
-            partial_routes, removed = destroy_op(copy.deepcopy(current_routes), n_remove)
-            new_routes = repair_op(partial_routes, removed)
-            new_cost = self.calculate_cost(new_routes)
+            better = cost < min_costs
+            min_costs[better] = cost[better]
+            best_slots[better] = slot[better]
 
-            accept = False
-            score = 0
+        current_tours[batch_idx, best_slots] = nodes_to_insert
 
-            delta = new_cost - current_cost
-            if delta < -1e-6:
-                accept = True
-                if new_cost < best_cost - 1e-6:
-                    best_routes = copy.deepcopy(new_routes)
-                    best_cost = new_cost
-                    score = 3
-                else:
-                    score = 1
-            else:
-                prob = math.exp(-delta / T) if T > 0 else 0
-                if random.random() < prob:
-                    accept = True
-
-            if accept:
-                current_routes = new_routes
-                current_cost = new_cost
-
-            # Update weights
-            lambda_decay = 0.8
-            self.destroy_weights[d_idx] = lambda_decay * self.destroy_weights[d_idx] + (1 - lambda_decay) * max(
-                0.1, score
-            )
-            self.repair_weights[r_idx] = lambda_decay * self.repair_weights[r_idx] + (1 - lambda_decay) * max(
-                0.1, score
-            )
-
-            T *= self.params.cooling_rate
-
-        collected_revenue = sum(self.demands.get(node_idx, 0) * self.R for route in best_routes for node_idx in route)
-        profit = collected_revenue - best_cost
-
-        return best_routes, profit, best_cost
-
-    def select_operator(self, weights: List[float]) -> int:
-        """
-        Select an operator index based on their weights using roulette wheel selection.
-
-        Args:
-            weights: List of operator weights.
-
-        Returns:
-            int: Index of the selected operator.
-        """
-        total = sum(weights)
-        r = random.uniform(0, total)
-        curr = 0.0
-        for i, w in enumerate(weights):
-            curr += w
-            if curr >= r:
-                return i
-        return len(weights) - 1
-
-    def calculate_cost(self, routes: List[List[int]]) -> float:
-        """
-        Calculate the total routing cost for a set of routes.
-
-        Args:
-            routes: List of routes.
-
-        Returns:
-            float: Total distance * cost multiplier.
-        """
-        total_dist = 0
-        for route in routes:
-            if not route:
-                continue
-            d = self.dist_matrix[0][route[0]]
-            for i in range(len(route) - 1):
-                d += self.dist_matrix[route[i]][route[i + 1]]
-            d += self.dist_matrix[route[-1]][0]
-            total_dist += d
-        return total_dist * self.C
-
-    def build_initial_solution(self) -> List[List[int]]:
-        """
-        Build a basic feasible solution using a greedy constructive heuristic.
-
-        Returns:
-            List[List[int]]: Initial routes.
-        """
-        nodes = self.nodes[:]
-        random.shuffle(nodes)
-        routes = []
-        curr_route = []
-        load = 0.0
-        for node in nodes:
-            d = self.demands.get(node, 0)
-            if load + d <= self.capacity:
-                curr_route.append(node)
-                load += d
-            else:
-                if curr_route:
-                    routes.append(curr_route)
-                curr_route = [node]
-                load = d
-        if curr_route:
-            routes.append(curr_route)
-        return routes
+    return current_tours
 
 
-def run_alns(dist_matrix, demands, capacity, R, C, values, *args):
+class VectorizedALNS:
     """
-    Main ALNS entry point with dispatching to different algorithm variants.
-
-    Args:
-        dist_matrix: Distance matrix.
-        demands: Bin demands.
-        capacity: Vehicle capacity.
-        R: Revenue multiplier.
-        C: Cost multiplier.
-        values: Dictionary of parameters and config.
-        *args: Additional arguments (ignored or passed through).
-
-    Returns:
-        Tuple[List[List[int]], float, float]: Best routes, profit, and cost.
+    Vectorized Adaptive Large Neighborhood Search Solver.
     """
-    variant = values.get("variant") or values.get("engine") or "custom"
 
-    if variant == "package":
-        return run_alns_package(dist_matrix, demands, capacity, R, C, values)
-    elif variant == "ortools":
-        return run_alns_ortools(dist_matrix, demands, capacity, R, C, values)
+    def __init__(self, dist_matrix, demands, vehicle_capacity, time_limit=1.0, device="cuda"):
+        self.dist_matrix = dist_matrix
+        self.demands = demands
+        self.vehicle_capacity = vehicle_capacity
+        self.time_limit = time_limit
+        self.device = device
 
-    # Default: Custom internal ALNS solver
-    params = ALNSParams(
-        time_limit=values.get("time_limit", 10),
-        max_iterations=values.get("Iterations", 2000),
-    )
-    solver = ALNSSolver(dist_matrix, demands, capacity, R, C, params)
-    return solver.solve()
+        self.destroy_ops = [vectorized_random_removal, vectorized_worst_removal]
+        self.repair_ops = [vectorized_greedy_insertion]
+
+        self.d_weights = torch.ones(len(self.destroy_ops), device=device)
+        self.r_weights = torch.ones(len(self.repair_ops), device=device)
+
+    def solve(self, initial_solutions, n_iterations=100, time_limit=None):
+        B, N = initial_solutions.size()
+        start_time = time.time()
+
+        current_solutions = initial_solutions.clone()
+        _, current_costs = vectorized_linear_split(
+            current_solutions, self.dist_matrix, self.demands, self.vehicle_capacity
+        )
+        best_solutions = current_solutions.clone()
+        best_costs = current_costs.clone()
+
+        # Simulated annealing params
+        T = 1.0
+        cooling_rate = (0.01 / T) ** (1 / n_iterations) if n_iterations > 0 else 0.99
+
+        for i in range(n_iterations):
+            if time_limit and (time.time() - start_time > time_limit):
+                break
+
+            # 1. Select operators based on weights
+            d_idx = torch.multinomial(self.d_weights, 1).item()
+            r_idx = torch.multinomial(self.r_weights, 1).item()
+
+            d_op = self.destroy_ops[d_idx]
+            r_op = self.repair_ops[r_idx]
+
+            n_remove = max(1, int(N * 0.2))
+
+            # 2. Destroy
+            if d_op == vectorized_worst_removal:
+                partial, removed = d_op(current_solutions, self.dist_matrix, n_remove)
+            else:
+                partial, removed = d_op(current_solutions, n_remove)
+
+            # 3. Repair
+            candidate_solutions = r_op(partial, removed, self.dist_matrix)
+
+            # 4. Evaluate
+            _, candidate_costs = vectorized_linear_split(
+                candidate_solutions, self.dist_matrix, self.demands, self.vehicle_capacity
+            )
+
+            # 5. Accept/Reject
+            delta = candidate_costs - current_costs
+
+            # Accept if better or by SA probability
+            accept_prob = torch.exp(-delta / T).clamp(max=1.0)
+            rand_vals = torch.rand(B, device=self.device)
+            accept_mask = (delta < 0) | (rand_vals < accept_prob)
+
+            current_solutions[accept_mask] = candidate_solutions[accept_mask]
+            current_costs[accept_mask] = candidate_costs[accept_mask]
+
+            # Update best
+            improved_mask = candidate_costs < best_costs
+            best_solutions[improved_mask] = candidate_solutions[improved_mask]
+            best_costs[improved_mask] = candidate_costs[improved_mask]
+
+            # Update weights based on score
+            # score: 10 if new best, 5 if improved current, 2 if accepted
+            scores = torch.zeros(B, device=self.device)
+            scores[accept_mask] = 2.0
+            scores[delta < 0] = 5.0
+            scores[improved_mask] = 10.0
+
+            # Average score for this operator pair
+            avg_score = scores.mean()
+            # Adaptive update
+            decay = 0.9
+            self.d_weights[d_idx] = decay * self.d_weights[d_idx] + (1 - decay) * avg_score
+            self.r_weights[r_idx] = decay * self.r_weights[r_idx] + (1 - decay) * avg_score
+
+            T *= cooling_rate
+
+        # Final split to get routes
+        best_routes, best_costs = vectorized_linear_split(
+            best_solutions, self.dist_matrix, self.demands, self.vehicle_capacity
+        )
+
+        return best_routes, best_costs

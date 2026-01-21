@@ -5,15 +5,14 @@ This package contains all routing policies (classical, heuristic, and neural)
 used for solving the Waste Collection Vehicle Routing Problem.
 """
 
-from logic.src.models.policies.classical.adaptive_large_neighborhood_search import (
+from .adaptive_large_neighborhood_search import (
     ALNSParams,
     run_alns,
     run_alns_ortools,
     run_alns_package,
 )
-from logic.src.models.policies.classical.hybrid_genetic_search import run_hgs
-
 from .branch_cut_and_price import run_bcp
+from .hybrid_genetic_search import run_hgs
 from .last_minute import (
     LastMinutePolicy,
     ProfitPolicy,

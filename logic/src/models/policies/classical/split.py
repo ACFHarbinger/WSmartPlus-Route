@@ -45,6 +45,9 @@ def vectorized_linear_split(giant_tours, dist_matrix, demands, vehicle_capacity,
     if demands.dim() == 1:
         demands = demands.unsqueeze(0).expand(B, -1)
 
+    if isinstance(vehicle_capacity, torch.Tensor) and vehicle_capacity.dim() == 1:
+        vehicle_capacity = vehicle_capacity.unsqueeze(1)
+
     # Precompute accumulations
     tour_demands = torch.gather(demands, 1, giant_tours)
     cum_load = torch.cumsum(tour_demands, dim=1)
