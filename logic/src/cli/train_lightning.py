@@ -266,7 +266,7 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
 def run_hpo(cfg: Config) -> float:
     """Run Hyperparameter Optimization."""
     if cfg.hpo.method == "dehb":
-        from logic.src.pipeline.rl.hpo.dehb import DifferentialEvolutionHyperband
+        from logic.src.pipeline.rl.core.dehb import DifferentialEvolutionHyperband
 
         def dehb_obj(config, fidelity):
             temp_cfg = OmegaConf.to_object(cfg)
@@ -296,11 +296,23 @@ def run_hpo(cfg: Config) -> float:
         logger.info(f"DEHB complete in {runtime:.2f}s. Best config: {best_config}")
         return dehb.get_incumbents()[1]
 
-    # Default to Optuna
+    # Default to Optuna TPE
+    sampler = optuna.samplers.TPESampler(seed=cfg.seed)
+    pruner = optuna.pruners.MedianPruner()
+
+    if cfg.hpo.method == "random":
+        sampler = optuna.samplers.RandomSampler(seed=cfg.seed)
+    elif cfg.hpo.method == "grid":
+        # Convert search space to grid if possible, or assume user provided grid-compatible space
+        search_space = {k: v for k, v in cfg.hpo.search_space.items()}
+        sampler = optuna.samplers.GridSampler(search_space)
+    elif cfg.hpo.method == "hyperband":
+        pruner = optuna.pruners.HyperbandPruner()
+
     study = optuna.create_study(
         direction="maximize",
-        sampler=optuna.samplers.TPESampler(seed=cfg.seed),
-        pruner=optuna.pruners.MedianPruner(),
+        sampler=sampler,
+        pruner=pruner,
     )
 
     logger.info(f"Starting {cfg.hpo.method} optimization with {cfg.hpo.n_trials} trials...")

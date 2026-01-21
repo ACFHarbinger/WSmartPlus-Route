@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-01-21
+
+### Added
+- **New RL Pipeline (`logic/src/pipeline/rl/`)**: Modular, PyTorch Lightning-based architecture.
+  - **Algorithms**: REINFORCE, PPO, SAPO, GSPO, DR-GRPO, POMO, SymNCO.
+  - **Baselines**: Rollout (greedy), Warmup (exponential->greedy), POMO (mean-augmented), Critic (network).
+  - **Meta-Learning**: Unified `MetaRLModule` with RNN, Contextual Bandit, and Pareto (MORL) strategies.
+  - **Hierarchical RL**: `HRLModule` with Manager-Worker architecture.
+  - **HPO**: Lightning-integrated Hyperparameter Optimization using Optuna and DEHB.
+  - **Hybrid Policies**: `NeuralHeuristicHybrid` combining AM/TAM with ALNS/HGS.
+- **Environment Layer (`logic/src/envs/`)**: RL4CO-compatible `VRPPEnv` and `WCVRPEnv` with diverse generators.
+- **Data Layer**: Optimized `TensorDict`-based datasets and generators in `logic/src/data/`.
+
+### Changed
+- Refactored `logic/src/pipeline/reinforcement_learning/` into the new `logic/src/pipeline/rl/` package.
+- Standardized all policy inputs/outputs to `TensorDict`.
+- Unified training loop via `WSTrainer` (Lightning Wrapper).
+- Updated `alns.py` and `hgs.py` to support `pd.DataFrame` coordinate inputs for distance calculation.
+
+### Removed
+- Legacy training scripts (`manager_train.py`, `worker_train.py`) in favor of `main.py` entry points.
+
 ## [Unreleased]
 
 ### Added
