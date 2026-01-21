@@ -1,8 +1,14 @@
 """
-New PyTorch Lightning training entry point using Hydra.
+Unified Training and Hyperparameter Optimization entry point using PyTorch Lightning and Hydra.
 """
+import logging
+
 import hydra
+import optuna
+import pytorch_lightning as pl
+import torch
 from hydra.core.config_store import ConfigStore
+from omegaconf import OmegaConf
 from pytorch_lightning import seed_everything
 
 from logic.src.configs import Config
@@ -13,27 +19,24 @@ from logic.src.models.policies import (
     PointerNetworkPolicy,
     TemporalAMPolicy,
 )
-from logic.src.pipeline.rl import REINFORCE
+from logic.src.pipeline.rl import DRGRPO, GSPO, PPO, REINFORCE, SAPO, HRLModule, MetaRLModule
 from logic.src.pipeline.trainer import WSTrainer
+
+logger = logging.getLogger(__name__)
 
 # Register configuration
 cs = ConfigStore.instance()
 cs.store(name="config", node=Config)
 
 
-@hydra.main(version_base=None, config_name="config")
-def main(cfg: Config) -> None:
-    """
-    Main training function using Hydra and PyTorch Lightning.
-    """
-    # 1. Set seed
-    seed_everything(cfg.seed)
+def create_model(cfg: Config) -> pl.LightningModule:
+    """Helper to create the RL model based on config."""
+    # 1. Initialize Environment
+    env_kwargs = vars(cfg.env).copy()
+    env_name = env_kwargs.pop("name")
+    env = get_env(env_name, **env_kwargs)
 
-    # 2. Initialize Environment
-    # cfg.env is EnvConfig, passed as kwargs
-    env = get_env(cfg.env.name, **vars(cfg.env))
-
-    # 3. Initialize Policy
+    # 2. Initialize Policy
     policy_map = {
         "am": AttentionModelPolicy,
         "deep_decoder": DeepDecoderPolicy,
@@ -46,7 +49,6 @@ def main(cfg: Config) -> None:
 
     policy_cls = policy_map[cfg.model.name]
 
-    # Common policy kwargs
     policy_kwargs = {
         "env_name": cfg.env.name,
         "embed_dim": cfg.model.embed_dim,
@@ -55,14 +57,12 @@ def main(cfg: Config) -> None:
         "n_heads": cfg.model.num_heads,
         "normalization": "batch",
     }
-
-    # Model-specific kwargs
     if cfg.model.name == "deep_decoder":
         policy_kwargs["n_decode_layers"] = cfg.model.num_decoder_layers
 
     policy = policy_cls(**policy_kwargs)
 
-    # 4. Initialize RL Module
+    # 3. Initialize RL Module
     common_kwargs = {
         "env": env,
         "policy": policy,
@@ -72,6 +72,7 @@ def main(cfg: Config) -> None:
         "lr_scheduler_kwargs": cfg.optim.lr_scheduler_kwargs,
         "train_data_size": cfg.train.train_data_size,
         "val_data_size": cfg.train.val_data_size,
+        "val_dataset_path": cfg.train.val_dataset,
         "batch_size": cfg.train.batch_size,
         "num_workers": cfg.train.num_workers,
         "entropy_weight": cfg.rl.entropy_weight,
@@ -80,7 +81,6 @@ def main(cfg: Config) -> None:
 
     if cfg.rl.algorithm == "ppo":
         from logic.src.models.policies.critic import CriticNetwork
-        from logic.src.pipeline.rl import PPO
 
         critic = CriticNetwork(
             env_name=cfg.env.name,
@@ -89,7 +89,7 @@ def main(cfg: Config) -> None:
             n_layers=cfg.model.num_encoder_layers,
             n_heads=cfg.model.num_heads,
         )
-        model = PPO(
+        model: pl.LightningModule = PPO(
             critic=critic,
             ppo_epochs=cfg.rl.ppo_epochs,
             eps_clip=cfg.rl.eps_clip,
@@ -98,7 +98,6 @@ def main(cfg: Config) -> None:
         )
     elif cfg.rl.algorithm == "sapo":
         from logic.src.models.policies.critic import CriticNetwork
-        from logic.src.pipeline.rl import SAPO
 
         critic = CriticNetwork(
             env_name=cfg.env.name,
@@ -116,7 +115,6 @@ def main(cfg: Config) -> None:
         )
     elif cfg.rl.algorithm == "gspo":
         from logic.src.models.policies.critic import CriticNetwork
-        from logic.src.pipeline.rl import GSPO
 
         critic = CriticNetwork(
             env_name=cfg.env.name,
@@ -131,11 +129,7 @@ def main(cfg: Config) -> None:
             **common_kwargs,
         )
     elif cfg.rl.algorithm == "dr_grpo":
-        # DRGRPO often doesn't use a critic, but we'll allow it if needed
-        # For now, let's just pass dummy critic or None if the class can handle it
-        # PPO base requires a critic, so we'll provide one
         from logic.src.models.policies.critic import CriticNetwork
-        from logic.src.pipeline.rl import DRGRPO
 
         critic = CriticNetwork(
             env_name=cfg.env.name,
@@ -151,28 +145,13 @@ def main(cfg: Config) -> None:
         )
     elif cfg.rl.algorithm == "hrl":
         from logic.src.models.gat_lstm_manager import GATLSTManager
-        from logic.src.pipeline.rl import HRLModule
 
-        manager = GATLSTManager(
-            device=cfg.device,
-            hidden_dim=cfg.rl.meta_hidden_dim,
-        )
-        model = HRLModule(
-            manager=manager,
-            worker=policy,
-            env=env,
-            lr=cfg.rl.meta_lr,
-        )
+        manager = GATLSTManager(device=cfg.device, hidden_dim=cfg.rl.meta_hidden_dim)
+        model = HRLModule(manager=manager, worker=policy, env=env, lr=cfg.rl.meta_lr)
     else:
-        model = REINFORCE(
-            baseline=cfg.rl.baseline,
-            **common_kwargs,
-        )
+        model = REINFORCE(baseline=cfg.rl.baseline, **common_kwargs)
 
-    # Wrap with Meta-RL if enabled
-    if cfg.rl.get("use_meta", False):
-        from logic.src.pipeline.rl import MetaRLModule
-
+    if getattr(cfg.rl, "use_meta", False):
         model = MetaRLModule(
             agent=model,
             meta_lr=cfg.rl.meta_lr,
@@ -180,19 +159,112 @@ def main(cfg: Config) -> None:
             hidden_size=cfg.rl.meta_hidden_dim,
         )
 
-    # 5. Initialize Trainer
+    return model
+
+
+def objective(trial: optuna.Trial, base_cfg: Config) -> float:
+    """Optuna objective function for HPO."""
+    from optuna.integration import PyTorchLightningPruningCallback
+
+    # 1. Sample Hyperparameters
+    cfg = OmegaConf.to_object(base_cfg)
+    assert isinstance(cfg, Config)
+
+    # Map search space from config to trial suggestions
+    for key, range_val in base_cfg.hpo.search_space.items():
+        if isinstance(range_val[0], float):
+            val = trial.suggest_float(
+                key,
+                range_val[0],
+                range_val[1],
+                log=True if range_val[0] > 0 and range_val[1] / range_val[0] > 10 else False,
+            )
+        elif isinstance(range_val[0], int):
+            val = trial.suggest_int(key, range_val[0], range_val[1])
+        else:
+            val = trial.suggest_categorical(key, range_val)
+
+        # Recursive attribute setting (e.g., 'optim.lr')
+        parts = key.split(".")
+        obj = cfg
+        for part in parts[:-1]:
+            obj = getattr(obj, part)
+        setattr(obj, parts[-1], val)
+
+    # 2. Initialize Model and Trainer
+    model = create_model(cfg)
+
+    # Use pruning callback
+    pruning_callback = PyTorchLightningPruningCallback(trial, monitor="val/reward")
+
+    trainer = WSTrainer(
+        max_epochs=cfg.hpo.n_epochs_per_trial,
+        accelerator=cfg.device if cfg.device != "cuda" else "auto",
+        devices=1 if cfg.device == "cuda" else "auto",
+        enable_progress_bar=False,
+        logger=False,
+        callbacks=[pruning_callback],
+    )
+
+    # 3. Train
+    try:
+        trainer.fit(model)
+        return trainer.callback_metrics.get("val/reward", torch.tensor(float("-inf"))).item()
+    except optuna.exceptions.TrialPruned:
+        raise
+    except Exception as e:
+        logger.error(f"Trial failed: {e}")
+        return float("-inf")
+
+
+def run_hpo(cfg: Config) -> None:
+    """Run Hyperparameter Optimization."""
+    study = optuna.create_study(
+        direction="maximize",
+        sampler=optuna.samplers.TPESampler(seed=cfg.seed),
+        pruner=optuna.pruners.MedianPruner(),
+    )
+
+    logger.info(f"Starting {cfg.hpo.method} optimization with {cfg.hpo.n_trials} trials...")
+
+    study.optimize(
+        lambda trial: objective(trial, cfg),
+        n_trials=cfg.hpo.n_trials,
+        n_jobs=1,
+    )
+
+    logger.info("Optimization complete!")
+    logger.info(f"Best trial value: {study.best_value}")
+    logger.info(f"Best parameters: {study.best_params}")
+
+
+def run_training(cfg: Config) -> None:
+    """Run single model training."""
+    seed_everything(cfg.seed)
+    model = create_model(cfg)
+
     trainer = WSTrainer(
         max_epochs=cfg.train.n_epochs,
         project_name="wsmart-route",
         experiment_name=cfg.experiment_name,
         accelerator=cfg.device if cfg.device != "cuda" else "auto",
         devices=1 if cfg.device == "cuda" else "auto",
-        gradient_clip_val=None if cfg.rl.algorithm == "ppo" else cfg.rl.max_grad_norm,
+        gradient_clip_val=float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0,
         logger=False,
     )
 
-    # 6. Train
     trainer.fit(model)
+
+
+@hydra.main(version_base=None, config_name="config")
+def main(cfg: Config) -> None:
+    """Unified entry point."""
+    # Decide whether to run HPO or Training
+    # If hpo.n_trials > 0, we assume HPO mode
+    if cfg.hpo.n_trials > 0:
+        run_hpo(cfg)
+    else:
+        run_training(cfg)
 
 
 if __name__ == "__main__":

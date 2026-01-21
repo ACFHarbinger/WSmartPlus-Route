@@ -4,7 +4,7 @@ Meta-Reinforcement Learning (Meta-RL) module.
 This module implements bi-level optimization where a meta-learner (MetaRNN)
 adjusts environment reward weights to optimize the training progress of an inner RL agent.
 """
-from __future__ import annotations
+from typing import Any
 
 import pytorch_lightning as pl
 import torch
@@ -12,7 +12,6 @@ from tensordict import TensorDict
 
 from logic.src.models.meta_rnn import WeightAdjustmentRNN
 from logic.src.pipeline.reinforcement_learning.meta.weight_optimizer import RewardWeightOptimizer
-from logic.src.pipeline.rl.base import RL4COLitModule
 
 
 class MetaRLModule(pl.LightningModule):
@@ -25,7 +24,7 @@ class MetaRLModule(pl.LightningModule):
 
     def __init__(
         self,
-        agent: RL4COLitModule,
+        agent: Any,
         meta_lr: float = 1e-3,
         history_length: int = 10,
         hidden_size: int = 64,

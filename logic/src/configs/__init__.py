@@ -37,6 +37,7 @@ class TrainConfig:
     batch_size: int = 256
     train_data_size: int = 100000
     val_data_size: int = 10000
+    val_dataset: Optional[str] = None
     num_workers: int = 4
 
 
@@ -81,6 +82,23 @@ class RLConfig:
 
 
 @dataclass
+class HPOConfig:
+    """Hyperparameter optimization configuration."""
+
+    method: str = "dehbo"  # dehbo, rs, gs, bo
+    metric: str = "reward"
+    n_trials: int = 20
+    n_epochs_per_trial: int = 10
+    num_workers: int = 4
+    search_space: Dict[str, List[Any]] = field(
+        default_factory=lambda: {
+            "rl.entropy_weight": [0.0, 0.1],
+            "optim.lr": [1e-5, 1e-3],
+        }
+    )
+
+
+@dataclass
 class Config:
     """Root configuration."""
 
@@ -89,6 +107,7 @@ class Config:
     train: TrainConfig = field(default_factory=TrainConfig)
     optim: OptimConfig = field(default_factory=OptimConfig)
     rl: RLConfig = field(default_factory=RLConfig)
+    hpo: HPOConfig = field(default_factory=HPOConfig)
     seed: int = 42
     device: str = "cuda"
     experiment_name: Optional[str] = None
@@ -100,5 +119,6 @@ __all__ = [
     "TrainConfig",
     "OptimConfig",
     "RLConfig",
+    "HPOConfig",
     "Config",
 ]

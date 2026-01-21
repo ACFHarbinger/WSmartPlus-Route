@@ -22,6 +22,14 @@ class TensorDictDataset(Dataset):
     def __getitem__(self, idx: int) -> TensorDict:
         return self.data[idx]
 
+    @classmethod
+    def load(cls, path: str) -> TensorDictDataset:
+        """Load TensorDict from file."""
+        data = torch.load(path)
+        if not isinstance(data, TensorDict):
+            raise ValueError(f"Expected TensorDict in {path}, got {type(data)}")
+        return cls(data)
+
 
 class GeneratorDataset(Dataset):
     """

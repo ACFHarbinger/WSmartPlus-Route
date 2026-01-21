@@ -59,7 +59,7 @@ class RolloutBaseline(Baseline):
 
     def __init__(self, policy: Optional[nn.Module] = None, update_every: int = 1):
         self.update_every = update_every
-        self.baseline_policy = None
+        self.baseline_policy: Optional[nn.Module] = None
         if policy is not None:
             self.setup(policy)
 
@@ -68,8 +68,9 @@ class RolloutBaseline(Baseline):
         import copy
 
         self.baseline_policy = copy.deepcopy(policy)
-        for param in self.baseline_policy.parameters():
-            param.requires_grad = False
+        if self.baseline_policy is not None:
+            for param in self.baseline_policy.parameters():
+                param.requires_grad = False
 
     def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
         """Run greedy baseline rollout."""
