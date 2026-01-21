@@ -1,3 +1,10 @@
+"""
+General simulation settings tab.
+
+This module provides the interface for selecting policies to test and
+configuring basic environment parameters like graph size and seed.
+"""
+
 from PySide6.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -25,7 +32,12 @@ from ...styles.globals import (
 
 
 class TestSimSettingsTab(QWidget):
+    """
+    Main sub-tab for selecting policies and configuring the core simulation environment.
+    """
+
     def __init__(self):
+        """Initialize the core simulation settings tab."""
         super().__init__()
 
         # 1. Create the content widget to hold all elements
@@ -148,23 +160,27 @@ class TestSimSettingsTab(QWidget):
 
     # Policy Management Methods (Unchanged)
     def toggle_policy(self, policy_name, checked):
+        """Toggle the selection state of a specific policy."""
         if checked:
             self.selected_policies.add(policy_name)
         else:
             self.selected_policies.discard(policy_name)
 
     def select_all_policies(self):
+        """Select all available simulation policies."""
         for policy_name in SIMULATOR_TEST_POLICIES.keys():
             self.selected_policies.add(policy_name)
             self.policy_buttons[policy_name].setChecked(True)
 
     def deselect_all_policies(self):
+        """Deselect all simulation policies."""
         self.selected_policies.clear()
         for policy_name in SIMULATOR_TEST_POLICIES.keys():
             self.policy_buttons[policy_name].setChecked(False)
 
     # Parameter Retrieval Method (Unchanged)
     def get_params(self):
+        """Retrieve the core simulation environment parameters as a dictionary."""
         params = {
             "data_distribution": DATA_DISTRIBUTIONS[self.data_dist_input.currentText().strip()],
             "problem": self.problem_input.currentText().strip().lower(),

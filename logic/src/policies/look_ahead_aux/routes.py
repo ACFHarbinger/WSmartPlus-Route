@@ -311,7 +311,7 @@ def uncross_arcs_in_sans_routes(routes, id_to_index, distance_matrix):
     """
     cleaned_routes = [[int(x) for x in route] for route in routes]
     new_routes = [
-        two_opt_uncross_arc(route, distance_matrix, id_to_index) if len(route) > 3 else route
+        (two_opt_uncross_arc(route, distance_matrix, id_to_index) if len(route) > 3 else route)
         for route in cleaned_routes
     ]
     return new_routes

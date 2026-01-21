@@ -53,7 +53,7 @@ from logic.src.utils.definitions import (
     ROOT_DIR,
     update_lock_wait_time,
 )
-from logic.src.utils.functions import get_inner_model, load_data, load_problem
+from logic.src.utils.functions.function import get_inner_model, load_data, load_problem
 from logic.src.utils.setup_utils import (
     setup_cost_weights,
     setup_model_and_baseline,
@@ -197,8 +197,9 @@ def train_reinforcement_learning(opts, train_function, cost_weights=None):
         raise Exception("directories to save model checkpoints do not exist and could not be created")
 
     # Save arguments so exact configuration can always be found
+    save_opts = {k: str(v) if isinstance(v, torch.device) else v for k, v in opts.items()}
     with open(os.path.join(ROOT_DIR, opts["save_dir"], "args.json"), "w") as f:
-        json.dump(opts, f, indent=True)
+        json.dump(save_opts, f, indent=True)
 
     # Set the device
     use_cuda = torch.cuda.is_available() and not opts["no_cuda"]

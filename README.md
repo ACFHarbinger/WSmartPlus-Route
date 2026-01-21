@@ -1,81 +1,228 @@
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/acfharbinger/WSmartPlus-Route/main/assets/images/logo-wsmartroute-white.png" alt="WSMart+ Route Logo" style="width: 35%; height: auto;">
+
 # WSmart+ Route
-Machine Learning models and Operations Research solvers for Combinatorial Optimization problems, focusing on route planning for waste collection.
 
-## Tech Stack
-- [Python Programming Language](https://www.python.org/)
-- [PyTorch](https://pytorch.org/)
-- [Gurobi Optimizer](https://www.gurobi.com/)
-- [Hexaly Optimizer](https://www.hexaly.com/)
+**A High-Performance Framework for Combinatorial Optimization in Waste Collection Vehicle Routing.**
 
-### CUDA Drivers
-You need to have the CUDA drivers installed in order to be able to run the program on NVidia GPU. If you need to install the drivers, you can [download them here](https://developer.nvidia.com/cuda-downloads), and then follow (the instructions on this website)[https://docs.nvidia.com/cuda/index.html] to install them on your operating system.
+<a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-2.2.2-ee4c2c?logo=pytorch&logoColor=white"></a>
+<a href="https://www.gurobi.com/"><img alt="Gurobi" src="https://img.shields.io/badge/Gurobi-11.0-ED1C24?logo=gurobi&logoColor=white"></a>
+<a href="https://www.hexaly.com/"><img alt="Hexaly" src="https://img.shields.io/badge/Hexaly-Optimizer-0078D7"></a>
+<a href="https://github.com/astral-sh/ruff"><img alt="Code style: ruff" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json"></a>
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
-### Adapted Code
-This project contains code or ideas that were adapted from the following repositories:
-- [Attention, Learn to Solve Routing Problems](https://github.com/wouterkool/attention-learn-to-route)
-- [Heterogeneous Attentions for Solving PDP via DRL](https://github.com/jingwenli0312/Heterogeneous-Attentions-PDP-DRL)
-- [POMO: Policy Optimization with Multiple Optima for Reinforcement Learning](https://github.com/yd-kwon/POMO/tree/master)
-- [WSmart+ Bin Analysis](https://github.com/ACFPeacekeeper/wsmart_bin_analysis)
-- [Do We Need Anisotropic Graph Neural Networks?](https://github.com/shyam196/egc)
-- [Learning TSP Requires Rethinking Generalization](https://github.com/chaitjo/learning-tsp)
-- [HGS-CVRP: A modern implementation of the Hybrid Genetic Search for the CVRP](https://github.com/vidalt/HGS-CVRP)
+</br>
 
-## Setup Dependencies
-You can choose to install this repository's dependencies using any of the following methods below.
+<a href="https://www.python.org/"><img alt="Python" src="https://img.shields.io/badge/Python-3.9+-3776ab?logo=python&logoColor=white"></a>
+<a href="https://doc.qt.io/qtforpython-6/"><img alt="PySide6" src="https://img.shields.io/badge/PySide6-Qt-41CD52?logo=qt&logoColor=white"></a>
+<a href="https://github.com/astral-sh/uv"><img alt="uv" src="https://img.shields.io/badge/managed%20by-uv-261230.svg"></a>
+<a href="https://developer.nvidia.com/cuda-toolkit"><img alt="CUDA" src="https://img.shields.io/badge/CUDA-RTX_4080-76B900?logo=nvidia&logoColor=white"></a>
+<a href="https://mypy-lang.org/"><img alt="MyPy" src="https://img.shields.io/badge/MyPy-checked-2f4f4f.svg"></a>
+<a href="https://docs.pytest.org/"><img alt="pytest" src="https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white"></a>
 
-### UV
-To use the [UV Python package and project manager](https://github.com/astral-sh/uv) to setup the virtual environment, you just have to synchronize the project.
+<p>
+  <a href="#-documentation-hub"><strong>📚 Documentation</strong></a> |
+  <a href="#-overview"><strong>Overview</strong></a> |
+  <a href="#-key-features"><strong>Features</strong></a> |
+  <a href="#-quickstart"><strong>Quickstart</strong></a> |
+  <a href="#-model-ecosystem"><strong>Models</strong></a> |
+  <a href="#-setup-dependencies"><strong>Setup</strong></a> |
+  <a href="#-program-usage"><strong>Usage</strong></a>
+</p>
+
+</div>
+
+---
+
+## 📚 Documentation Hub
+
+Start here! Our documentation covers every aspect of the system.
+
+| Document | Description | Target Audience |
+| :--- | :--- | :--- |
+| **[AGENTS.md](AGENTS.md)** | **The AI Intelligence Guide.** Complete registry of neural models, classical policies, and environment physics. | Researchers, ML Engineers |
+| **[ARCHITECTURE.md](ARCHITECTURE.md)** | **The System Blueprint.** High-level design, data flow diagrams, and module boundaries. | Architects, Contributors |
+| **[CONTRIBUTING.md](CONTRIBUTING.md)** | **The Developer Handbook.** Code style, PR process, and development guidelines. | Contributors |
+| **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** | **The Field Repair Manual.** Common issues, diagnostic steps, and quick fixes. | Everyone |
+| **[TUTORIAL.md](TUTORIAL.md)** | **The Developer Encyclopedia.** Deep dives into modules, code snippets, and implementation details. | Developers |
+
+---
+
+## 🎯 Overview
+
+**WSmart+ Route** is a high-performance framework for solving complex Combinatorial Optimization (CO) problems, specifically the **Vehicle Routing Problem with Profits (VRPP)** and **Capacitated Waste Collection VRP (CWC VRP)**.
+
+The project bridges **Deep Reinforcement Learning (DRL)** with **Operations Research (OR)**, providing a benchmarking and deployment environment where neural models (PyTorch) interact with traditional solvers (Gurobi, Hexaly).
+
+### Mission
+
+- 🧠 **Research Platform**: Benchmark neural routing agents against classical OR solvers
+- 🚛 **Real-World Application**: Optimize waste collection routes for municipalities
+- 📊 **Simulation Environment**: Test policies on realistic multi-day scenarios
+- 🖥️ **User-Friendly Interface**: PySide6 GUI for training, evaluation, and visualization
+
+---
+
+## 🚀 Key Features
+
+### 🧠 Intelligence
+
+| Capability | Description |
+|------------|-------------|
+| **Attention-Based Models** | Transformer architectures (AM, TransGCN, DeepDecoder) for constructive routing |
+| **Graph Neural Networks** | GAT, GCN, GGAC encoders for spatial relationship modeling |
+| **Hierarchical RL** | Manager-Worker architecture with GAT-LSTM for temporal decision-making |
+| **Meta-Learning** | MetaRNN for generalization across different problem distributions |
+| **PPO & REINFORCE** | Policy gradient algorithms with multiple baseline strategies |
+
+### 🏛️ Optimization Solvers
+
+| Solver | Type | Description |
+|--------|------|-------------|
+| **Gurobi** | Exact | Branch-Cut-and-Price for optimal solutions |
+| **Hexaly** | Hybrid | High-performance local search optimization |
+| **ALNS** | Metaheuristic | Adaptive Large Neighborhood Search |
+| **HGS** | Genetic | Hybrid Genetic Search with local search |
+
+### 🎮 Simulation
+
+- **Multi-Day Scenarios**: Test policies over extended time horizons (31-365 days)
+- **Stochastic Fill Rates**: Gamma and empirical distributions for bin level modeling
+- **Real Road Networks**: OpenStreetMap integration for realistic distance matrices
+- **Parallel Execution**: Multi-core simulation with checkpointing support
+
+### 🖥️ User Interface
+
+- **PySide6 GUI**: Modern Qt-based desktop application
+- **Training Dashboard**: Real-time loss curves and validation metrics
+- **Simulation Viewer**: Interactive route visualization with Folium maps
+- **Analysis Tools**: Comparative policy evaluation and statistics
+
+---
+
+## ⚡ Quickstart
+
+Get up and running in 3 steps:
+
 ```bash
+# 1. Clone and sync dependencies
+git clone https://github.com/ACFHarbinger/WSmart-Route.git
+cd WSmart-Route
 uv sync
+
+# 2. Activate the environment
+source .venv/bin/activate
+
+# 3. Launch the GUI
+python main.py gui
 ```
 
-Afterwards, you can initialize the virtual environment by running one of the following commands:
-- On the Linux CLI: `source .venv/bin/activate`
-- On the Windows CMD: `.venv\Scripts\activate.bat`
-- On the Windows PS: `.venv\Scripts\Activate.ps1`
+### Verify Installation
 
-After activating the virtual environment, you can list the installed packages in a similar manner to Conda by using Pip through UV:
 ```bash
+# Run the test suite
+python main.py test_suite
+
+# Check code quality
+uv run ruff check .
+```
+
+---
+
+## 🧠 Model Ecosystem
+
+We provide a comprehensive library of neural architectures and classical policies:
+
+### Neural Models
+
+| Model | Architecture | Function |
+|-------|--------------|----------|
+| **AttentionModel** | Transformer (Encoder-Decoder) | Constructive routing with Multi-Head Attention |
+| **GATLSTManager** | GAT + LSTM | High-level temporal gating for HRL |
+| **TemporalAM** | Transformer | Time-dependent attention mechanism |
+| **MetaRNN** | RNN/LSTM | Meta-learning for distribution generalization |
+| **DeepDecoderAM** | Deep Transformer | Enhanced decoder depth |
+| **PointerNetwork** | RNN + Attention | Traditional pointer mechanism |
+
+### Graph Encoders
+
+| Encoder | Type | Description |
+|---------|------|-------------|
+| **GATEncoder** | Graph Attention | Multi-head attention for node embeddings |
+| **GCNEncoder** | Graph Convolution | Standard GCN with aggregation |
+| **GGACEncoder** | Gated Graph | Edge-node interaction with gating |
+| **TGCEncoder** | Transformer-GCN | Hybrid spatial encoding |
+
+### Classical Policies
+
+| Policy | Type | Description |
+|--------|------|-------------|
+| **LookAhead** | Rolling Horizon | N-day planning with sub-optimization |
+| **ALNS** | Metaheuristic | Destroy-repair operators with adaptive weights |
+| **BCP** | Exact | Branch-Cut-and-Price via Gurobi/OR-Tools |
+| **HGS** | Genetic | Evolutionary operators with local search |
+| **Regular** | Baseline | Fixed-schedule periodic collection |
+| **LastMinute** | Reactive | Threshold-triggered collection |
+
+---
+
+## 🔧 Setup Dependencies
+
+Choose your preferred installation method:
+
+### ⚡ UV (Recommended)
+
+Fastest setup using the [uv package manager](https://github.com/astral-sh/uv).
+
+```bash
+# Sync the project and create a virtual environment
+uv sync
+
+# Activate the environment
+source .venv/bin/activate  # Linux/macOS
+.venv\Scripts\activate.bat # Windows CMD
+.venv\Scripts\Activate.ps1 # Windows PowerShell
+
+# List installed packages
 uv pip list
 ```
 
-Also, if you want to deactivate and/or delete the created virtual environment you can execute the following command(s).
+To deactivate and/or delete the virtual environment:
 ```bash
 deactivate
 rm -rf .venv
 ```
 
 #### UV Installation
-To install UV, you simply need to execute the command `curl -LsSf https://astral.sh/uv/install.sh | sh` on the Linux CLI (or `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"` on the Windows CMD|PS).
 
-### Anaconda Environment
-To setup the environment for the project using the [Anaconda distribution](https://www.anaconda.com/), you just need to run the following commands in the main directory:
+```bash
+# Linux/macOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+### 🐍 Anaconda
+
 ```bash
 conda env create --file env/environment.yml -y --name wsr
 conda activate wsr
-```
-
-To list the installed packages (and their respective versions), just run the following command after activating the Conda environment:
-```bash
 conda list
 ```
 
-and if you want to deactivate and/or delete the previously created Conda environment:
+To remove the environment:
 ```bash
 conda deactivate
 conda remove -n wsr --all -y
 ```
 
-#### Conda Installation
-If you need to install conda beforehand, you just need to run the following commands (while replacing the variables for the values you want to use, which determine your Anaconda version):
-```bash
-curl -O https://repo.anaconda.com/archive/Anaconda3-<year>.<month>-<version_id>-Linux-x86_64.sh
-bash Anaconda3-<year>.<month>-<version_id>-Linux-x86_64.sh
-```
-For this project, we recommend you use Anaconda 3 with year=2024, month=10, version_id=1.
+### 📦 Virtual Environment (Standard)
 
-### Virtual Environment
-To setup the virtual environment for the project using the Pip package installer and Python's venv module:
+> [!NOTE]
+> This method requires Python 3.9+ pre-installed on your system.
+
 ```bash
 python3 -m venv env/.wsr
 source env/.wsr/bin/activate
@@ -83,148 +230,170 @@ pip install -r env/requirements.txt
 pip install -r env/pip_requirements.txt
 ```
 
-After activating the virtual environment, you can list the installed packages in a similar manner to Conda by using Pip:
+### 🛠️ Setup Scripts
+
+For automated environment setup:
+
 ```bash
-pip list
+# Linux
+bash scripts/setup_env.sh <uv|conda|venv>
+
+# Windows
+scripts\setup_env.bat <uv|conda|venv>
 ```
 
-and if you want to deactivate and/or delete the created virtual environment:
+---
+
+## 🔑 Setup Optimizers
+
+### Gurobi
+
+1. [Create an account](https://portal.gurobi.com/iam/login/) on the Gurobi website
+2. [Request a license](https://portal.gurobi.com/iam/licenses/list) (free academic licenses available)
+3. [Download the software](https://www.gurobi.com/downloads/) and install
+
+### Hexaly
+
+1. [Create an account](https://www.hexaly.com/login) on the Hexaly website
+2. [Request a license](https://www.hexaly.com/account/on-premise-licenses)
+
+### CUDA Drivers
+
+> [!IMPORTANT]
+> CUDA drivers are required for GPU acceleration with NVIDIA hardware.
+
+Download from the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) and follow the [installation guide](https://docs.nvidia.com/cuda/index.html).
+
+---
+
+## 📖 Program Usage
+
+### 🗂️ Generating Data
+
 ```bash
-deactivate
-rm -rf env/.wsr
-```
-
-Note: to use this method, you already need to have the correct version of Python 3 already installed in your system.
-
-### Setup Scripts
-You can also execute a script to completely setup your virtual environment using your preferred method. To do that, you simply need to execute the Linux command
-```bash
-bash scripts/setup_env.sh <selected_method>
-```
-
-or the following command on the Windows CMD:
-```cmd
-scripts\setup_env.bat <selected_method>
-```
-
-Note: the selected_method variable shoud be replaced with -> uv|conda|venv
-
-### Setup Optimizers
-#### Gurobi
-To use the Gurobi optimization software, you first need to [login or create an account](https://portal.gurobi.com/iam/login/) on their website. Then, you can [request a license](https://portal.gurobi.com/iam/licenses/list) and/or [download the software](https://www.gurobi.com/downloads/).
-
-#### Hexaly
-To use the Hexaly optimizer, you simply need to [login or create an account](https://www.hexaly.com/login), and then [request a license](https://www.hexaly.com/account/on-premise-licenses) on their website.
-
-## Program Usage
-### Generating Data
-Training data can be generated on the fly. To pre-generate training data for graphs with 50 vertices for 10 epoches (e.g., for the vehicle routing problems with profits - 'vrpp'):
-```bash
+# Pre-generate training data for 50-vertex graphs
 python main.py generate_data virtual --problem vrpp --graph_sizes 50 --n_epochs 10 --seed 42 --data_distribution gamma1
-```
 
-To generate validation and test data for graphs with 20 and 50 vertices (e.g., for all problems):
-```bash
+# Generate validation and test data
 python main.py generate_data val --problem all --graph_sizes 20 50 --seed 42 --data_distribution gamma1
 python main.py generate_data test --problem all --graph_sizes 20 50 --seed 42 --data_distribution gamma1
 ```
 
-### Training
-In order to train the Attention Model (AM) on vrpp instances with 50 vertices using rollout as the REINFORCE baseline and using the generated datasets:
-```bash
-python main.py train --graph_size 50 --baseline rollout --train_dataset virtual --val_dataset data/vrpp/vrpp20_val_seed1234 --data_distribution gamma1 --n_epochs 10
-```
+### 🎓 Training
 
-To train the Transformer-Graph Convolutional Network (TransGCN) model on vrpp instances with 20 vertices (with edges for the 4 nearest neighbors of each vertex) for 20 epochs using REINFORCE without a baseline and generating the training data on the fly:
 ```bash
-python main.py train --model transgcn --graph_size 20 --edge_threshold 0.3 --edge_threshold 0.2 --edge_method "knn" --n_epochs 20 --data_distribution gamma1
+# Train Attention Model on VRPP with 50 vertices
+python main.py train --graph_size 50 --baseline rollout --train_dataset virtual --val_dataset data/vrpp/vrpp20_val_seed1234 --data_distribution gamma1 --n_epochs 10
+
+# Train TransGCN with graph edges
+python main.py train --model transgcn --graph_size 20 --edge_threshold 0.2 --edge_method "knn" --n_epochs 20 --data_distribution gamma1
 ```
 
 #### Resume Training
-In order to load a pretrained model and the optimizer state, and to resume the previous training session for an additional 5 epochs:
+
 ```bash
 python main.py train --model transgcn --graph_size 20 --edge_threshold 0.2 --edge_method "knn" --n_epochs 5 --epoch_start 20 --load_path "results/vrpp_20/run_{datetime}/epoch-19.pt" --data_distribution gamma1
 ```
 
 #### Multiple GPUs
-By default, training will happen *on all available GPUs*. To disable CUDA at all, add the flag `--no_cuda`.
-Set the environment variable `CUDA_VISIBLE_DEVICES` to only use specific GPUs:
+
+By default, training uses all available GPUs. Control GPU usage with:
+
 ```bash
+# Use specific GPUs
 CUDA_VISIBLE_DEVICES=0,1 python main.py train
-```
-Note that using multiple GPUs has limited efficiency for small problem sizes (up to 50 vertices).
 
-### Evaluation
-To evaluate a model (e.g., the AM), you can add the `--eval-only` flag to `main.py train`, or use `main.py evaluate`, which will additionally measure timing and save the results:
+# Disable CUDA
+python main.py train --no_cuda
+```
+
+### 📊 Evaluation
+
 ```bash
+# Greedy evaluation
 python main.py eval data/vrpp/vrpp20_test_seed1234.pkl --model assets/model_weights/vrpp_20/am --decode_strategy greedy --data_distribution gamma1
-```
-Note: If the epoch is not specified, by default the last one in the folder will be used.
 
-#### Sampling
-To report the best of 1280 sampled solutions, use the following command:
-```bash
+# Sampling evaluation (best of 1280)
 python main.py eval data/vrpp/vrpp20_test_seed1234.pkl --model assets/model_weights/vrpp_20/am --decode_strategy sample --width 1280 --eval_batch_size 1 --data_distribution gamma1
-```
-The Beam Search algorithm can be used with the flags `--decode_strategy bs --width {beam_size}`.
 
-### Testing on Simulator
-To test all the available policies (excluding the models) on the Gamma distribution and a road network with 20 bins for 31 days, using all available CPU cores:
-```bash
-python main.py test_sim --policies policy_last_minute policy_last_minute_and_path policy_regular policy_look_ahead_a policy_look_ahead_b gurobi --problem vrpp --size 20 --days 31 --data_distribution gamma1 --cf 50 70 90 --lvl 2 3 6 --gp 0.84 --n_vehicles 1
+# Beam search
+python main.py eval data/vrpp/vrpp20_test_seed1234.pkl --model assets/model_weights/vrpp_20/am --decode_strategy bs --width 16 --data_distribution gamma1
 ```
 
-To test the TransGCN model on the Empirical distribution and a road network with 20 bins and on the 4 nearest neighbors for 365 days, using a single CPU core:
+### 🧪 Simulation Testing
+
 ```bash
+# Test classical policies on 20-bin network for 31 days
+python main.py test_sim --policies policy_last_minute policy_regular policy_look_ahead_a gurobi --problem vrpp --size 20 --days 31 --data_distribution gamma1 --cf 50 70 90 --lvl 2 3 6 --n_vehicles 1
+
+# Test neural model on 365-day scenario
 python main.py test_sim --policies transgcn --problem vrpp --size 20 --edge_threshold 0.2 --edge_method "knn" --days 365 --data_distribution emp --cpu_cores 1
+
+# Multi-sample testing with resume
+python main.py test_sim --policies gurobi alns --problem vrpp --size 100 --days 365 --data_distribution gamma2 --n_samples 10 --resume
 ```
 
-#### Multiple Samples
-To test all the available policies (excluding the models) for 10 samples on the Gamma distribution (option 2) and a road network with 100 bins for 365 days, using all available CPU cores:
-```bash
-python main.py test_sim --policies policy_last_minute policy_last_minute_and_path policy_regular policy_look_ahead_a policy_look_ahead_b gurobi --problem vrpp --size 100 --days 365 --data_distribution gamma2 --cf 50 70 90 --lvl 2 3 6 --gp 0.84 --n_vehicles 1 --n_samples 10
-```
+### 🖥️ Graphical User Interface
 
-You can also resume a previously unfinished test run by selecting the policies with missing results for some (or all) of the samples:
-```bash
-python main.py test_sim --policies policy_look_ahead_a policy_look_ahead_b gurobi --problem vrpp --size 100 --days 365 --data_distribution gamma2 --gp 0.84 --n_vehicles 1 --n_samples 10 --resume
-```
-
-### Graphical User Interface (GUI)
-You can execute the commands using a GUI. To activate the GUI, simply run the following command:
 ```bash
 python main.py gui [--test_only]
 ```
 
-### Scripts
-There are [several scripts](/scripts/) included in this repository that allow you to run the program with all the arguments you require by simply executing `bash scripts/<script_name>.sh`. Currently, the functionalities that are available using scripts (i.e., the possible values for <script_name>) are:
-- Generate datasets for training, validation, or testing: [gen_data](/scripts/gen_data.sh)
-- Training Deep Learning models to perform Combinatorial Optimization problems: [train](/scripts/train.sh)
-- Training Deep Learning models using hyper-parameter optimization: [hyperparam_optim](/scripts/hyperparam_optim.sh)
-- Test the policies and previously trained models on the WSmart+ Route simulator: [test_sim](/scripts/test_sim.sh)
-- Perform any of the previous functionalities on a Slurm server/cluster: [slurm](/scripts/slurm.sh) and [slim_slurm](/scripts/slim_slurm.sh)
+### ✅ Test Suite
 
-You can run the equivalent scripts in Windows (except the slurms scripts) by executing the following command on the CMD:
-```cmd
-scripts\<script_name>.bat
+```bash
+# Run all tests
+python main.py test_suite
+
+# Run specific module/class/test
+python main.py test_suite --module <module_name>
+python main.py test_suite --class <class_name>
+python main.py test_suite --test <test_name>
+python main.py test_suite --markers <marker_name>
 ```
 
-### Test Suite
-Additionally, you can run a test suite to verify if the program's various functionalities are being executed as intended:
-```bash
-python main.py test_suite [--module <module_name>|--class <class_name>|--test <test_name>|--markers <marker_name>..<marker_name>]
-```
+---
 
-Note: running the test suite without any of the previous arguments results in performing all available tests for the program.
+## 📜 Scripts
 
-## Build Distribution
-If you have UV, you can build the source and binary distribution for this project simply by running:
+| Script | Description |
+|--------|-------------|
+| [gen_data.sh](scripts/gen_data.sh) | Generate datasets for training, validation, or testing |
+| [train.sh](scripts/train.sh) | Train Deep Learning models |
+| [hyperparam_optim.sh](scripts/hyperparam_optim.sh) | Hyperparameter optimization |
+| [test_sim.sh](scripts/test_sim.sh) | Test policies on the simulator |
+| [slurm.sh](scripts/slurm.sh) | Run on Slurm cluster |
+
+Windows equivalents available as `.bat` files.
+
+---
+
+## 📦 Build Distribution
+
 ```bash
+# Build source and binary distribution
 uv build
-```
 
-### Create Executable
-Finally, you can also use the PyInstaller module to create an executable of the program by running the following command:
-```bash
+# Create executable with PyInstaller
 pyinstaller build.spec [--clean] [--noconsole]
 ```
+
+---
+
+## 🙏 Acknowledgments
+
+This project adapts code and ideas from:
+
+- [Attention, Learn to Solve Routing Problems](https://github.com/wouterkool/attention-learn-to-route)
+- [Heterogeneous Attentions for Solving PDP via DRL](https://github.com/jingwenli0312/Heterogeneous-Attentions-PDP-DRL)
+- [POMO: Policy Optimization with Multiple Optima](https://github.com/yd-kwon/POMO/tree/master)
+- [WSmart+ Bin Analysis](https://github.com/ACFPeacekeeper/wsmart_bin_analysis)
+- [Do We Need Anisotropic Graph Neural Networks?](https://github.com/shyam196/egc)
+- [Learning TSP Requires Rethinking Generalization](https://github.com/chaitjo/learning-tsp)
+- [HGS-CVRP](https://github.com/vidalt/HGS-CVRP)
+
+---
+
+<div align="center">
+<strong>WSmart+ Route</strong> - Bridging AI and Operations Research for Smarter Waste Collection
+</div>

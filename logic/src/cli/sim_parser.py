@@ -7,7 +7,7 @@ from multiprocessing import cpu_count
 
 from logic.src.cli.base_parser import StoreDictKeyPair
 from logic.src.utils.definitions import MAP_DEPOTS, WASTE_TYPES
-from logic.src.utils.functions import parse_softmax_temperature
+from logic.src.utils.functions.function import parse_softmax_temperature
 
 
 def add_eval_args(parser):
@@ -425,6 +425,14 @@ def add_test_sim_args(parser):
         default=None,
         nargs="+",
         help="Path to the YAML/XML configuration file(s) (format: name=path)",
+    )
+    parser.add_argument("--w_length", type=float, default=1.0, help="Weight for length in cost function")
+    parser.add_argument("--w_waste", type=float, default=1.0, help="Weight for waste in cost function")
+    parser.add_argument(
+        "--w_overflows",
+        type=float,
+        default=1.0,
+        help="Weight for overflows in cost function",
     )
     return parser
 

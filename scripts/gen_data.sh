@@ -28,7 +28,7 @@ fi
 
 SEED=42
 START=0
-N_EPOCHS=31
+N_EPOCHS=150
 PROBLEM="wcvrp"
 AREA="riomaior"
 VERTEX_METHOD="mmn"
@@ -48,16 +48,16 @@ for size in "${SIZES[@]}"; do
 done
 
 N_DATA=1280
-N_VAL_DATA=1280
+N_VAL_DATA=128
 N_TEST_DATA=1
 DATASET_NAME="time"
 VAL_DATASET_NAME="${DATASET_NAME}_val"
 TEST_DATASET_NAME="wsr"
 DATA_DISTS=("gamma1")
 
-GENERATE_DATASET=1
-GENERATE_VAL_DATASET=1
-GENERATE_TEST_DATASET=0
+GENERATE_DATASET=0
+GENERATE_VAL_DATASET=0
+GENERATE_TEST_DATASET=1
 
 echo -e "${BLUE}Starting data generation module...${NC}"
 echo -e "${CYAN}---------------------------------------${NC}"

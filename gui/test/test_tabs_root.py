@@ -1,7 +1,7 @@
 from gui.src.tabs.hyperparam_optim import HyperParamOptimParserTab
 from gui.src.tabs.meta_rl_train import MetaRLTrainParserTab
 from gui.src.tabs.scripts import RunScriptsTab
-from gui.src.tabs.test_suite import TestSuiteTab
+from gui.src.tabs.ts_tab import TestSuiteTab
 
 
 def test_hyperparam_optim_tab(qapp):

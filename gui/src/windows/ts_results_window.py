@@ -1,3 +1,11 @@
+"""
+Simulation results visualization window.
+
+This module provides a specialized window for displaying real-time and
+summary statistics from simulation experiments, including time-series
+plots, bar charts, and geographical route visualizations.
+"""
+
 import json
 import os
 import random
@@ -36,9 +44,24 @@ from ..utils.app_definitions import HEATMAP_METRICS, TARGET_METRICS
 
 
 class SimulationResultsWindow(QWidget):
+    """
+    A window for displaying and analyzing simulation output in real-time.
+
+    It manages background workers for log tailing and data processing,
+    and updates various plots (evolution, bin states, summary) as
+    new data arrives.
+    """
+
     start_chart_processing = Signal(str)
 
     def __init__(self, policy_names, log_path=None):
+        """
+        Initialize the simulation results window.
+
+        Args:
+            policy_names: List of policies being simulated.
+            log_path: Optional path to an existing log file to tail.
+        """
         super().__init__()
         self.setWindowTitle("Simulation Chart and Raw Output")
         self.setWindowFlags(self.windowFlags() | Qt.Window)
@@ -429,6 +452,15 @@ class SimulationResultsWindow(QWidget):
         self.parse_buffer(line)
 
     def parse_buffer(self, line: str) -> str:
+        """
+        Parse a single log line for GUI-specific structural markers.
+
+        Args:
+            line: The raw log line to parse.
+
+        Returns:
+            str: An empty string (buffer management).
+        """
         if "GUI_DAY_LOG_START:" in line or "GUI_SUMMARY_LOG_START:" in line:
             self._process_single_record(line.strip())
         return ""
@@ -636,6 +668,7 @@ class SimulationResultsWindow(QWidget):
         self.hm_summary_canvas.draw_idle()
 
     def redraw_summary_chart(self):
+        """Redraw the summary comparison chart based on accumulated simulation data."""
         # ... (Same logic as provided file) ...
         if not self.summary_data:
             return
@@ -692,6 +725,7 @@ class SimulationResultsWindow(QWidget):
         self.summary_canvas.draw_idle()
 
     def setup_summary_area(self):
+        """Initialize the summary statistics tab area."""
         # ... (Same logic as provided file) ...
         self.summary_tab = QWidget()
         self.summary_layout = QVBoxLayout(self.summary_tab)
@@ -737,6 +771,7 @@ class SimulationResultsWindow(QWidget):
         self.tabs.addTab(self.summary_tab, "Average and StdDev (Summary)")
 
     def setup_raw_log_area(self):
+        """Initialize the raw log viewer tab area."""
         self.raw_tab = QWidget()
         self.raw_layout = QVBoxLayout(self.raw_tab)
         self.tabs.addTab(self.raw_tab, "Raw Output (Log)")
@@ -748,6 +783,7 @@ class SimulationResultsWindow(QWidget):
         return [f"#{random.randint(0, 0xFFFFFF):06x}" for _ in range(num_colors)]
 
     def stop_thread(self):
+        """Gracefully shut down background workers and threads."""
         print("Stopping threads...")
         self.file_tailer.stop()
         self.file_thread.quit()
@@ -756,5 +792,6 @@ class SimulationResultsWindow(QWidget):
         self.chart_thread.wait()
 
     def closeEvent(self, event):
+        """Handle window close event to ensure clean thread termination."""
         self.stop_thread()
         event.accept()

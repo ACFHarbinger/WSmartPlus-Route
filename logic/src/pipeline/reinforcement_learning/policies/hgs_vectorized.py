@@ -8,6 +8,7 @@ It includes:
 - `VectorizedPopulation`: Management of the genetic population.
 - `VectorizedHGS`: The main solver class.
 """
+
 import time
 
 import torch
@@ -16,10 +17,13 @@ from logic.src.pipeline.reinforcement_learning.policies.local_search import (
     vectorized_relocate,
     vectorized_swap,
     vectorized_swap_star,
+    vectorized_three_opt,
     vectorized_two_opt,
     vectorized_two_opt_star,
 )
-from logic.src.pipeline.reinforcement_learning.policies.split_algorithm import vectorized_linear_split
+from logic.src.pipeline.reinforcement_learning.policies.split_algorithm import (
+    vectorized_linear_split,
+)
 
 
 # -----------------------------
@@ -406,6 +410,7 @@ class VectorizedHGS:
 
             if max_l > 2:
                 improved_routes = vectorized_two_opt(offspring_routes, self.dist_matrix, max_iterations=50)
+                improved_routes = vectorized_three_opt(improved_routes, self.dist_matrix, max_iterations=20)
                 improved_routes = vectorized_swap(improved_routes, self.dist_matrix, max_iterations=50)
                 improved_routes = vectorized_relocate(improved_routes, self.dist_matrix, max_iterations=50)
                 improved_routes = vectorized_two_opt_star(improved_routes, self.dist_matrix, max_iterations=50)

@@ -15,16 +15,23 @@ This is often used as a baseline policy for comparison against more
 sophisticated approaches like neural models or optimization-based policies.
 """
 
-from typing import List, Optional
+import re
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 from numpy.typing import NDArray
 from pandas import DataFrame
 
-from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
+from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
 
+from .adapters import IPolicy, PolicyRegistry
 from .multi_vehicle import find_routes
-from .single_vehicle import find_route, get_multi_tour
+from .single_vehicle import (
+    find_route,
+    get_multi_tour,
+    get_route_cost,
+    local_search_2opt,
+)
 
 
 def policy_regular(
@@ -80,3 +87,63 @@ def policy_regular(
     else:
         tour = [0]
     return tour
+
+
+@PolicyRegistry.register("policy_regular")
+class RegularPolicy(IPolicy):
+    """
+    Regular (periodic) collection policy class.
+    """
+
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+        """
+        Execute the regular policy.
+        """
+        policy = kwargs["policy"]
+        bins = kwargs["bins"]
+        distancesC = kwargs["distancesC"]
+        day = kwargs["day"]
+        cached = kwargs["cached"]
+        waste_type = kwargs["waste_type"]
+        area = kwargs["area"]
+        n_vehicles = kwargs["n_vehicles"]
+        coords = kwargs["coords"]
+        distance_matrix = kwargs["distance_matrix"]
+        two_opt_max_iter = kwargs.get("two_opt_max_iter", 0)
+        config = kwargs.get("config", {})
+        regular_config = config.get("regular", {})
+
+        # logic moved from Adapter
+        lvl_match = re.search(r"regular(\d+)", policy)
+        if lvl_match:
+            lvl = int(lvl_match.group(1)) - 1
+        else:
+            lvl = 0
+
+        if "level" in regular_config:
+            lvl = int(regular_config["level"]) - 1
+
+        if lvl < 0:
+            raise ValueError(f"Invalid lvl value for policy_regular: {lvl + 1}")
+
+        tour = policy_regular(
+            bins.n,
+            bins.c,
+            distancesC,
+            lvl,
+            day,
+            cached,
+            waste_type,
+            area,
+            n_vehicles,
+            coords,
+        )
+
+        if two_opt_max_iter > 0:
+            tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
+
+        cost = get_route_cost(distance_matrix, tour) if tour else 0
+        if cached is not None and not cached and tour:
+            cached = tour
+
+        return tour, cost, cached

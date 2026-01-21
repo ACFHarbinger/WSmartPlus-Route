@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 import torch
 import torch.nn as nn
 
-import logic.src.problems.vrpp.problem_vrpp as problem_module
+import logic.src.tasks.vrpp.problem_vrpp as problem_module
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.modules.moe import MoE
 from logic.src.models.modules.moe_feed_forward import MoEFeedForward
@@ -20,7 +20,7 @@ from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
     WarmupBaseline,
 )
 from logic.src.policies.neural_agent import NeuralAgent
-from logic.src.problems.vrpp.problem_vrpp import CVRPP
+from logic.src.tasks.vrpp.problem_vrpp import CVRPP
 
 # Patch globals that are expected to be initialized by Dataset
 problem_module.COST_KM = 1.0
@@ -306,15 +306,6 @@ class TestTemporalAttentionModel:
     def test_init_embed_uses_fill_predictor(self, tam_setup):
         """Verifies fill history embedding."""
         model = tam_setup
-        batch_size = 2
-        graph_size = 4  # Excl depot
-
-        # Prepare inputs including fill_history
-        {
-            "depot": torch.rand(batch_size, 2),
-            "loc": torch.rand(batch_size, graph_size, 2),
-            "fill_history": torch.rand(batch_size, graph_size, 5),  # horizon 5
-        }
 
         # We need to mock _init_embed_depot/etc calls or rely on base class mocks if complex
         # But here we mocked encoder so it won't be called for real.

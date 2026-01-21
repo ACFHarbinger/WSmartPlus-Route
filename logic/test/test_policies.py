@@ -3,17 +3,21 @@
 import sys
 from unittest.mock import MagicMock, PropertyMock, patch
 
+import networkx as nx
 import numpy as np
 import pandas as pd
 import pytest
+import torch
 
 import logic.src.policies.vrpp_optimizer as vrpp_opt_mod
-from logic.src.pipeline.simulator.day import run_day
+from logic.src.pipeline.simulations.day import run_day
+from logic.src.policies import single_vehicle
 from logic.src.policies.hybrid_genetic_search import run_hgs
 from logic.src.policies.last_minute import (
     policy_last_minute,
     policy_last_minute_and_path,
 )
+from logic.src.policies.lin_kernighan import solve_lk
 from logic.src.policies.look_ahead import (
     policy_lookahead,
     policy_lookahead_hgs,
@@ -45,7 +49,7 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_regular(self, mocker, mock_run_day_deps, make_day_context):  # Add 'make_day_context'
         """Test if 'policy_regular3_gamma1' calls policy_regular with lvl=2."""
 
-        mock_pol_regular_local = mocker.patch("logic.src.policies.adapters.policy_regular", return_value=[0, 1, 0])
+        mock_pol_regular_local = mocker.patch("logic.src.policies.regular.policy_regular", return_value=[0, 1, 0])
 
         ctx = make_day_context(
             graph_size=5,
@@ -74,7 +78,7 @@ class TestRunDayPolicyRouting:
     @pytest.mark.unit
     def test_run_day_calls_last_minute(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'policy_last_minute90_gamma1' calls policy_last_minute."""
-        mock_pol_last_minute = mocker.patch("logic.src.policies.adapters.policy_last_minute", return_value=[0, 1, 0])
+        mock_pol_last_minute = mocker.patch("logic.src.policies.last_minute.policy_last_minute", return_value=[0, 1, 0])
 
         ctx = make_day_context(
             graph_size=5,
@@ -99,8 +103,8 @@ class TestRunDayPolicyRouting:
     @pytest.mark.unit
     def test_run_day_calls_am(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'am_policy_gamma1' calls NeuralAgent.compute_simulator_day."""
-        # Patch NeuralAgent in the adapters module where it is imported
-        mock_neural_agent_cls = mocker.patch("logic.src.policies.adapters.NeuralAgent")
+        # Patch NeuralAgent in the neural_agent module where it is imported/defined
+        mock_neural_agent_cls = mocker.patch("logic.src.policies.neural_agent.NeuralAgent")
         mock_agent_instance = mock_neural_agent_cls.return_value
 
         # Configure the mock agent to return expected tuple
@@ -121,8 +125,10 @@ class TestRunDayPolicyRouting:
     @pytest.mark.unit
     def test_run_day_calls_gurobi(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'gurobi_vrpp0.5_gamma1' calls policy_vrpp."""
-        mock_pol_vrpp = mocker.patch(
-            "logic.src.policies.adapters.policy_vrpp",
+        vrpp_mod = sys.modules["logic.src.policies.policy_vrpp"]
+        mock_pol_vrpp = mocker.patch.object(
+            vrpp_mod,
+            "policy_vrpp",
             return_value=([0, 1, 0], 10.0, {}),
         )
 
@@ -141,8 +147,10 @@ class TestRunDayPolicyRouting:
     @pytest.mark.unit
     def test_run_day_calls_hexaly(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'hexaly_vrpp0.8_gamma1' calls policy_vrpp."""
-        mock_pol_vrpp = mocker.patch(
-            "logic.src.policies.adapters.policy_vrpp",
+        vrpp_mod = sys.modules["logic.src.policies.policy_vrpp"]
+        mock_pol_vrpp = mocker.patch.object(
+            vrpp_mod,
+            "policy_vrpp",
             return_value=([0, 1, 0], 10.0, {}),
         )
 
@@ -162,13 +170,13 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_alns_package(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'policy_look_ahead_alns_package_gamma1' calls policy_lookahead_alns with variant='package'."""
         mock_pol = mocker.patch(
-            "logic.src.policies.adapters.policy_lookahead_alns",
+            "logic.src.policies.look_ahead.policy_lookahead_alns",
             return_value=([0, 1, 0], 10.0, 0),
         )
         # Mock policy_lookahead to return must_go_bins so logic enters the if block
-        mocker.patch("logic.src.policies.adapters.policy_lookahead", return_value=[0, 1])
+        mocker.patch("logic.src.policies.look_ahead.policy_lookahead", return_value=[0, 1])
         mocker.patch(
-            "logic.src.policies.adapters.load_area_and_waste_type_params",
+            "logic.src.pipeline.simulations.loader.load_area_and_waste_type_params",
             return_value=(100, 1, 1, 1, 1),
         )
 
@@ -190,12 +198,12 @@ class TestRunDayPolicyRouting:
     def test_run_day_calls_alns_ortools(self, mocker, mock_run_day_deps, make_day_context):
         """Test if 'policy_look_ahead_alns_ortools_gamma1' calls policy_lookahead_alns with variant='ortools'."""
         mock_pol = mocker.patch(
-            "logic.src.policies.adapters.policy_lookahead_alns",
+            "logic.src.policies.look_ahead.policy_lookahead_alns",
             return_value=([0, 1, 0], 10.0, 0),
         )
-        mocker.patch("logic.src.policies.adapters.policy_lookahead", return_value=[0, 1])
+        mocker.patch("logic.src.policies.look_ahead.policy_lookahead", return_value=[0, 1])
         mocker.patch(
-            "logic.src.policies.adapters.load_area_and_waste_type_params",
+            "logic.src.pipeline.simulations.loader.load_area_and_waste_type_params",
             return_value=(100, 1, 1, 1, 1),
         )
 
@@ -642,7 +650,7 @@ class TestLookaheadPolicyLogic:
             mock_next_day.assert_not_called()
 
     @pytest.mark.unit
-    def test_lookahead_full_logic_flow(self, mock_policy_common_data):
+    def test_lookahead_full_logic_flow(self, mock_policy_common_data, mock_lookahead_aux):
         """
         Tests a scenario where the policy triggers all internal auxiliary steps
         and returns the result of the final step (add_bins_to_collect).
@@ -1051,7 +1059,7 @@ class TestAdvancedLookaheadPolicies:
 
         # Mock the external loader (as in the policy itself)
         mocker.patch(
-            "logic.src.pipeline.simulator.loader.load_area_and_waste_type_params",
+            "logic.src.pipeline.simulations.loader.load_area_and_waste_type_params",
             return_value=(4000, 0.16, 21.0, 1.0, 2.5),
         )
 
@@ -1492,3 +1500,169 @@ class TestHexalyOptimizer:
         # Since we mocked list() to return a variable with .value=[1], etc.
         # It's safer to just asserts it runs.
         pass
+
+
+class TestSingleVehiclePolicies:
+    def test_find_route(self):
+        test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
+        test_to_collect = [1, 2]
+        with patch(
+            "logic.src.policies.single_vehicle.fast_tsp.find_tour",
+            return_value=[0, 1, 2],
+        ):
+            res_route = single_vehicle.find_route(test_C, test_to_collect)
+            assert res_route == [0, 1, 2, 0]
+
+    def test_get_route_cost(self):
+        test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
+        test_tour = [0, 1, 2, 0]
+        res_cost = single_vehicle.get_route_cost(test_C, test_tour)
+        assert abs(float(res_cost) - 35.0) < 1e-6
+
+    def test_get_multi_tour(self):
+        test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
+        test_tour = [0, 1, 2, 0]  # ID 1, node 0; ID 2, node 1
+        test_bins_waste = np.array([60, 60])
+        test_max_cap = 100
+        # Need to pass a COPY because get_multi_tour modifies in-place!
+        res_multi = single_vehicle.get_multi_tour(list(test_tour), test_bins_waste, test_max_cap, test_C)
+        assert 0 in res_multi[1:-1]
+
+    def test_get_partial_tour(self):
+        C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
+        tour = [0, 1, 2, 0]
+        bins_waste = np.array([60, 60])
+        max_capacity = 100
+        reduced_tour, cost = single_vehicle.get_partial_tour(tour, bins_waste, max_capacity, C, 35.0)
+        # Should have removed one bin
+        assert len(reduced_tour) < 4
+
+    def test_dist_matrix_from_graph(self):
+        G = nx.Graph()
+        G.add_edge(0, 1, weight=5)
+        G.add_edge(1, 2, weight=5)
+        dist, paths = single_vehicle.dist_matrix_from_graph(G)
+        assert dist[0, 2] == 10
+        assert paths[0][2] == [0, 1, 2]
+
+    def test_get_path_cost(self):
+        G = nx.Graph()
+        G.add_edge(0, 1, weight=10)
+        G.add_edge(1, 2, weight=5)
+        path = [0, 1, 2]
+        assert single_vehicle.get_path_cost(G, path) == 15
+
+    def test_local_search_2opt(self):
+        # 4 nodes: 0, 1, 2, 3
+        # Inefficient tour: 0 -> 2 -> 1 -> 3 -> 0
+        # Optimal (linear): 0 -> 1 -> 2 -> 3 -> 0
+        C = np.array([[0, 10, 20, 30], [10, 0, 10, 20], [20, 10, 0, 10], [30, 20, 10, 0]])
+        bad_tour = [0, 2, 1, 3, 0]
+        # 0-2 (20) + 2-1 (10) + 1-3 (20) + 3-0 (30) = 80
+        # Optimal: 0-1(10) + 1-2(10) + 2-3(10) + 3-0(30) = 60
+        improved = single_vehicle.local_search_2opt(bad_tour, C)
+        assert single_vehicle.get_route_cost(C, improved) <= 80
+        # Check tensor support
+        improved_t = single_vehicle.local_search_2opt(torch.tensor(bad_tour), torch.tensor(C))
+        assert len(improved_t) == 5
+
+
+# --- Test Class for Lin-Kernighan Logic ---
+
+
+class TestLinKernighan:
+    """Tests for the Lin-Kernighan heuristic implementation."""
+
+    @pytest.mark.unit
+    def test_small_instance(self):
+        """Test LK on a small 4-node square graph where optimal is obvious."""
+        # 0--(1)--1
+        # |       |
+        # (1)    (1)
+        # |       |
+        # 3--(1)--2
+
+        # Distance matrix
+        # 0: (0,0), 1: (0,1), 2: (1,1), 3: (1,0)
+        # 0-1: 1, 1-2: 1, 2-3: 1, 3-0: 1
+        # Diagonals: sqrt(2) ~ 1.414
+
+        dist = np.array([[0, 1, 1.414, 1], [1, 0, 1, 1.414], [1.414, 1, 0, 1], [1, 1.414, 1, 0]])
+
+        # Optimal tour cost is 4 (perimeter)
+        tour, cost = solve_lk(dist, max_iterations=10)
+
+        assert len(tour) == 5
+        assert tour[0] == 0
+        assert tour[-1] == 0
+        assert len(set(tour)) == 4
+        assert abs(cost - 4.0) < 1e-4
+        assert isinstance(cost, float)
+
+    @pytest.mark.unit
+    def test_random_instance_validity(self):
+        """Test that LK returns a valid tour on a larger random graph."""
+        np.random.seed(42)
+        n = 20
+        coords = np.random.rand(n, 2)
+        dist_matrix = np.zeros((n, n))
+        for i in range(n):
+            for j in range(n):
+                dist_matrix[i, j] = np.linalg.norm(coords[i] - coords[j])
+
+        tour, cost = solve_lk(dist_matrix, max_iterations=50)
+
+        assert len(tour) == n + 1
+        assert tour[0] == 0
+        assert tour[-1] == 0
+        assert len(set(tour)) == n
+
+        # Check cost calculation matches tour
+        calculated_cost = sum(dist_matrix[tour[i], tour[i + 1]] for i in range(n))
+        assert abs(cost - calculated_cost) < 1e-5
+
+    @pytest.mark.unit
+    def test_degenerate_case(self):
+        """Test LK on 2 nodes."""
+        dist = np.array([[0, 5], [5, 0]])
+        tour, cost = solve_lk(dist)
+        assert tour == [0, 1, 0]
+        assert cost == 10.0
+
+    @pytest.mark.unit
+    def test_cvrp_penalty_improvement(self):
+        """Test that LKH-3 prioritizes penalty reduction over distance."""
+        # 3 nodes: 0 (depot), 1, 2
+        # Distances: 0-1=1, 0-2=10, 1-2=1
+        # Waste: B1=60, B2=60. Capacity=100.
+        # TSP Optimal distance: 0-1-2-0 = 1 + 1 + 10 = 12 (Penalty: 120 > 100 -> 20)
+        # VRP Optimal (min penalty): 0-1-0-2-0 = 1+1 + 10+10 = 22 (Penalty: 0)
+
+        # However, our solver returns a single tour.
+        # The penalty logic should push it to visit 0 in between if it can?
+        # In current LKH-3 inspired implementation, it only optimizes the given nodes.
+        # But wait, solve_lk doesn't "invent" 0-visits in the middle.
+        # It optimizes the order of a single tour.
+        # A better test: Two tours [0, 1, 2, 0] vs [0, 2, 1, 0]
+        # If one has less penalty, it should be chosen even if longer.
+
+        dist = np.array([[0, 1, 10], [1, 0, 1], [10, 1, 0]])
+        # If capacity is 50, B1=60, B2=40.
+        # Tour [0, 1, 2, 0]: Load after 1 is 60 (viol!). Load after 2 is 100.
+        # Tour [0, 2, 1, 0]: Load after 2 is 40 (ok). Load after 1 is 100.
+        # Both have same cost (12). 0-2-1-0 has lower penalty at middle node.
+
+        waste = np.array([0, 60, 40])
+        capacity = 50.0  # B1 exceeds capacity immediately
+
+        # We expect LKH-3 to find a tour that minimizes penalty first
+        tour, cost = solve_lk(dist, waste=waste, capacity=capacity, max_iterations=20)
+
+        # Both tours have same cost, but [0, 2, 1, 0] has lower structural penalty
+        # (violation is only 10 at node 1, vs 10 at node 1 + extra at node 2)
+        # Actually our penalty calculates cumulative violation.
+        # [0, 1, 2, 0]: Penalty = (60-50) + (100-50) = 10 + 50 = 60
+        # [0, 2, 1, 0]: Penalty = (0) + (100-50) = 50
+        # So [0, 2, 1, 0] is lexicographically better.
+
+        assert tour == [0, 2, 1, 0]

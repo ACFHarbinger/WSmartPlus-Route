@@ -116,7 +116,7 @@ class TestMLPEncoder:
     def test_forward(self):
         """Verifies MLP encoder forward pass."""
         dim = 16
-        model = MLPEncoder(n_layers=1, hidden_dim=dim)
+        model = MLPEncoder(n_layers=1, feed_forward_hidden=dim)
         batch = 2
         nodes = 5
         x = torch.randn(batch, nodes, dim)

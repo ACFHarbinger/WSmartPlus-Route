@@ -153,7 +153,6 @@ def _vectorized_split_limited(
     # We construct full matrix and mask.
 
     # i range: 1..N. j range: 0..N-1.
-    torch.arange(1, N + 1, device=device).view(1, 1, N).expand(B, N, N)  # (B, j, i)?? No.
     # Cost Matrix will be (B, N_start, N_end) where starts are 0..N-1, ends are 1..N?
     # Easier: (B, N+1, N+1).
 
@@ -166,7 +165,6 @@ def _vectorized_split_limited(
 
     # Load Constraint
     # Load(j, i) = cum_load[i] - cum_load[j]
-    cum_load.unsqueeze(1) - cum_load.unsqueeze(2)  # [B, N+1, 1] - [B, 1, N+1] -> [B, i, j] ?
     # We want Load[j, i] -> cum_load[i] - cum_load[j]
     # cum_load shape (B, N+1).
     # loads[b, j, i] = cum_load[b, i] - cum_load[b, j] ?
@@ -202,7 +200,6 @@ def _vectorized_split_limited(
     # d_Ti_1_0 (B, i).
 
     d0_pad = torch.cat([d_0_i, torch.zeros((B, 1), device=device)], dim=1)  # (B, N+1)
-    torch.cat([d_i_0, torch.zeros((B, 1), device=device)], dim=1)  # (B, N+1)
     # Careful with indices.
     # d(0, T[j]): indices 0..N-1.
     # d(T[i-1], 0): indices 0..N-1.

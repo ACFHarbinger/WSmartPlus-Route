@@ -2,7 +2,6 @@
 Fixtures for Policy Unit Tests.
 """
 
-
 import numpy as np
 import pytest
 
@@ -44,7 +43,7 @@ def policy_deps(mocker):
 
     # 2. Mock dependent functions
     mock_load_params = mocker.patch(
-        "logic.src.pipeline.simulator.loader.load_area_and_waste_type_params",
+        "logic.src.pipeline.simulations.loader.load_area_and_waste_type_params",
         return_value=(4000, 0.16, 21.0, 1.0, 2.5),  # Q, R, B, C, V
     )
     mocker.patch("logic.src.policies.regular.load_area_and_waste_type_params", mock_load_params)
@@ -120,7 +119,7 @@ def mock_policy_common_data():
     }
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_policy_dependencies(mocker):
     """Mocks common policy dependencies (loader, solver) for unit tests."""
     # Mock TSP solver (used by last_minute)
@@ -137,7 +136,7 @@ def mock_policy_dependencies(mocker):
     mocker.patch("logic.src.policies.single_vehicle.get_route_cost", return_value=50.0)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_lookahead_aux(mocker):
     """Mocks the internal look_ahead_aux dependencies."""
 
