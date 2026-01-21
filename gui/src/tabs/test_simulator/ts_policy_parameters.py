@@ -1,3 +1,10 @@
+"""
+Policy parameters configuration tab for the test simulator.
+
+This module provides a GUI interface for setting parameters for both
+neural models (Attention Model) and traditional routing policies.
+"""
+
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -13,7 +20,12 @@ from gui.src.utils.app_definitions import DECODE_TYPES
 
 
 class TestSimPolicyParamsTab(QWidget):
+    """
+    Sub-tab for configuring algorithm-specific parameters (AM, ALNS, Gurobi, etc.).
+    """
+
     def __init__(self):
+        """Initialize the policy parameters tab."""
         super().__init__()
         layout = QFormLayout(self)
         layout.addRow(QLabel("<b>Attention Model Parameters</b>"))
@@ -68,6 +80,7 @@ class TestSimPolicyParamsTab(QWidget):
         layout.addRow(boolean_flags_layout)
 
     def get_params(self):
+        """Retrieve the configured policy parameters as a dictionary."""
         look_ahead_configs = []
         if self.lookahead_config_a.isChecked():
             look_ahead_configs.append("a")

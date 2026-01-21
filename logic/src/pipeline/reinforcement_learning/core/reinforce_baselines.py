@@ -189,7 +189,10 @@ class WarmupBaseline(Baseline):
         v, loss = self.baseline.eval(x, c)
         vw, lw = self.warmup_baseline.eval(x, c)
         # Return convex combination of baseline and of loss
-        return self.alpha * v + (1 - self.alpha) * vw, self.alpha * loss + (1 - self.alpha) * lw
+        return (
+            self.alpha * v + (1 - self.alpha) * vw,
+            self.alpha * loss + (1 - self.alpha) * lw,
+        )
 
     def epoch_callback(self, model, epoch):
         """
@@ -400,7 +403,7 @@ class CriticBaseline(Baseline):
         """
         v = self.critic(x)
         # Detach v since actor should not backprop through baseline, only for loss
-        return v.detach(), F.mse_loss(v, c.detach())
+        return v.detach(), F.mse_loss(v.squeeze(-1), c.detach())
 
     def get_learnable_parameters(self):
         """

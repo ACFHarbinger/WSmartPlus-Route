@@ -25,9 +25,9 @@ import torch
 from tqdm import tqdm
 
 from logic.src.utils.data_utils import generate_waste_prize
-from logic.src.utils.functions import get_inner_model, move_to
+from logic.src.utils.functions.function import get_inner_model, move_to
 
-from ...simulator.bins import Bins
+from ...simulations.bins import Bins
 
 
 def set_decode_type(model, decode_type):
@@ -70,7 +70,12 @@ def rollout(model, dataset, opts):
     model.eval()
     if opts.get("temporal_horizon", 0) > 0 and opts.get("model") in ["tam"]:
         dataset.fill_history = torch.zeros((opts["val_size"], opts["graph_size"], opts["temporal_horizon"]))
-        dataset.fill_history[:, :, -1] = torch.stack([instance["waste"] for instance in dataset.data])
+        dataset.fill_history[:, :, -1] = torch.stack(
+            [
+                instance.get("waste", instance.get("noisy_waste", instance.get("real_waste")))
+                for instance in dataset.data
+            ]
+        )
 
     dataloader = torch.utils.data.DataLoader(
         dataset,
@@ -139,7 +144,7 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
         with torch.no_grad():
             ucost, c_dict, attn_dict = agent.compute_batch_sim(
                 move_to(bat, opts["device"], non_blocking=True),
-                move_to(d_matrix, opts["device"], non_blocking=True) if d_matrix is not None else None,
+                (move_to(d_matrix, opts["device"], non_blocking=True) if d_matrix is not None else None),
             )
         return ucost, c_dict, attn_dict
 
@@ -147,7 +152,12 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
     model.eval()
     if opts.get("temporal_horizon", 0) > 0 and opts.get("model") in ["tam"]:
         dataset.fill_history = torch.zeros((opts["val_size"], opts["graph_size"], opts["temporal_horizon"]))
-        dataset.fill_history[:, :, -1] = torch.stack([instance["waste"] for instance in dataset.data])
+        dataset.fill_history[:, :, -1] = torch.stack(
+            [
+                instance.get("waste", instance.get("noisy_waste", instance.get("real_waste")))
+                for instance in dataset.data
+            ]
+        )
 
     all_costs = {"overflows": [], "kg": [], "km": []}
     all_ucosts = move_to(torch.tensor([]), opts["device"], non_blocking=True)
@@ -204,7 +214,11 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
 
         metric_score = cost.mean()
         print(
-            "Validation overall {} score: {} +- {}".format(metric, metric_score, torch.std(cost) / math.sqrt(len(cost)))
+            "Validation overall {} score: {} +- {}".format(
+                metric,
+                metric_score,
+                torch.std(cost) / math.sqrt(len(cost)) if len(cost) > 1 else 0.0,
+            )
         )
         return metric_score, avg_ucost, all_costs
 
@@ -230,6 +244,9 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
         max_adaptation = min(opts.get("adaptation_rate", 0.1), 0.2)
 
         def bounded_sigmoid(x):
+            """
+            Map input to a stable [-1, 1] range using a shifted and scaled sigmoid.
+            """
             return 2.0 / (1.0 + torch.exp(-2.0 * x)) - 1.0
 
         overflow_adjust = max_adaptation * bounded_sigmoid(overflow_gap)
@@ -271,17 +288,24 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
 
         print(
             "Validation overall avg_cost: {} +- {}".format(
-                avg_ucost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts))
+                avg_ucost,
+                (torch.std(all_ucosts) / math.sqrt(len(all_ucosts)) if len(all_ucosts) > 1 else 0.0),
             )
         )
         for key, val in all_costs.items():
             val = val.float()
-            print("- {}: {} +- {}".format(key, val.mean(), torch.std(val) / math.sqrt(len(val))))
+            std_val = torch.std(val) / math.sqrt(len(val)) if len(val) > 1 else 0.0
+            print("- {}: {} +- {}".format(key, val.mean(), std_val))
 
         return new_cw, avg_ucost, all_costs
 
     # 3. Simple Case
-    print("Validation overall avg_cost: {} +- {}".format(avg_ucost, torch.std(all_ucosts) / math.sqrt(len(all_ucosts))))
+    print(
+        "Validation overall avg_cost: {} +- {}".format(
+            avg_ucost,
+            (torch.std(all_ucosts) / math.sqrt(len(all_ucosts)) if len(all_ucosts) > 1 else 0.0),
+        )
+    )
     return avg_ucost
 
 
@@ -304,7 +328,7 @@ def clip_grad_norms(param_groups, max_norm=math.inf):
     grad_norms = [
         torch.nn.utils.clip_grad_norm_(
             group["params"],
-            max_norm if max_norm > 0 else math.inf,  # Inf so no clipping but still call to calc
+            (max_norm if max_norm > 0 else math.inf),  # Inf so no clipping but still call to calc
             norm_type=2,
         )
         for group in param_groups
@@ -378,7 +402,7 @@ def prepare_epoch(optimizer, epoch, problem, tb_logger, cost_weights, opts):
             "{}{}{}_{}{}_seed{}.pkl".format(
                 problem.NAME,
                 opts["graph_size"],
-                "_{}".format(opts["data_distribution"]) if opts["data_distribution"] is not None else "",
+                ("_{}".format(opts["data_distribution"]) if opts["data_distribution"] is not None else ""),
                 opts["train_dataset"],
                 epoch,
                 opts["seed"],
@@ -455,7 +479,14 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
     if opts["temporal_horizon"] > 0:
         data_size = training_dataset.size
         graphs = torch.stack([torch.cat((x["depot"].unsqueeze(0), x["loc"])) for x in training_dataset])
-        if opts["problem"] in ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp"]:
+        if opts["problem"] in [
+            "vrpp",
+            "cvrpp",
+            "wcvrp",
+            "cwcvrp",
+            "sdwcvrp",
+            "scwcvrp",
+        ]:
             for day_id in range(1, opts["temporal_horizon"] + 1):
                 training_dataset["fill{}".format(day_id)] = torch.from_numpy(
                     generate_waste_prize(
@@ -472,7 +503,13 @@ def prepare_time_dataset(optimizer, day, problem, tb_logger, cost_weights, opts)
                     (opts["epoch_size"], opts["graph_size"], opts["temporal_horizon"])
                 ).float()
                 training_dataset.fill_history[:, :, -1] = torch.stack(
-                    [instance["waste"] for instance in training_dataset.data]
+                    [
+                        instance.get(
+                            "waste",
+                            instance.get("noisy_waste", instance.get("real_waste")),
+                        )
+                        for instance in training_dataset.data
+                    ]
                 )
 
     # Setup for logging
@@ -555,7 +592,10 @@ def complete_train_pass(
 
     baseline.epoch_callback(model, epoch)
     if lr_scheduler is not None:
-        lr_scheduler.step()  # lr_scheduler should be called at end of epoch
+        # Only step scheduler if optimizer step has occurred (avoid 1.1.0+ warning)
+        # Check standard PyTorch internal flag or assumption
+        if not hasattr(optimizer, "_step_count") or optimizer._step_count > 0:
+            lr_scheduler.step()
     if opts["device"] == "cuda":
         torch.cuda.empty_cache()
     return None
@@ -662,10 +702,20 @@ def update_time_dataset(model, optimizer, dataset, routes, day, opts, args, cost
     # Put model in train mode!
     model.train()
     set_decode_type(model, "sampling")
-    if opts["problem"] in ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp"]:
+    if opts["problem"] in ["vrpp", "cvrpp", "wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
         # Get masks for bins present in routes
         dataset_dim = routes.size(0)
-        waste = torch.stack([torch.cat((torch.tensor([0]), x["waste"])) for x in dataset])
+        waste = torch.stack(
+            [
+                torch.cat(
+                    (
+                        torch.tensor([0]),
+                        x.get("waste", x.get("noisy_waste", x.get("real_waste"))),
+                    )
+                )
+                for x in dataset
+            ]
+        )
         num_nodes = waste.size(1)
 
         sorted_routes = routes.sort(1)[0]

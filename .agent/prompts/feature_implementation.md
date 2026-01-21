@@ -14,7 +14,7 @@ Act as a Senior Operations Research Engineer. I need to implement a new heuristi
 **Output Format:** `logic/src/policies/greedy_service.py`
 
 ```python
-# Imports (Reference logic.src.problems and utils)
+# Imports (Reference logic.src.tasks and utils)
 
 def policy_greedy_service(state, ...):
     """

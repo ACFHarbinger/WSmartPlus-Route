@@ -1,3 +1,11 @@
+"""
+Main application window for the WSmart-Route GUI.
+
+This module defines the MainWindow class, which serves as the primary
+interface for configuring and launching machine learning models and
+operations research solvers.
+"""
+
 import sys
 
 from PySide6.QtCore import QProcess
@@ -51,10 +59,18 @@ from ..tabs import (
     TestSimSettingsTab,
     TestSuiteTab,
 )
-from . import SimulationResultsWindow
+from .ts_results_window import SimulationResultsWindow
 
 
 class MainWindow(QWidget):
+    """
+    The primary application window for the WSmart-Route framework.
+
+    Manages the overall layout, command selection, theme toggling,
+    and task-specific tabs. It also handles the execution of external
+    CLI commands using QProcess.
+    """
+
     def __init__(
         self,
         test_only=False,
@@ -62,6 +78,15 @@ class MainWindow(QWidget):
         restart_callback=None,
         initial_tab_index=0,
     ):
+        """
+        Initialize the main application window.
+
+        Args:
+            test_only: If True, command execution is simulated.
+            initial_window: Title of the window to display on startup.
+            restart_callback: Function to call when restarting the GUI.
+            initial_tab_index: Index of the tab to select on startup.
+        """
         super().__init__()
         self.process = None
         self.output_buffer = ""
@@ -445,10 +470,12 @@ class MainWindow(QWidget):
         self.run_button.setDisabled(False)
 
     def read_stdout(self):
+        """Reads standard output from the running process and prints it."""
         data = self.process.readAllStandardOutput().data().decode()
         print(data, end="")
 
     def read_stderr(self):
+        """Reads standard error from the running process and prints it."""
         data = self.process.readAllStandardError().data().decode()
         print(data, end="")
 

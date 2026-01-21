@@ -24,14 +24,14 @@ from tqdm import tqdm
 
 import logic.src.utils.definitions as udef
 from logic.src.cli import ConfigsParser, add_test_sim_args, validate_test_sim_args
-from logic.src.pipeline.simulator.loader import load_indices
-from logic.src.pipeline.simulator.simulation import (
+from logic.src.pipeline.simulations.loader import load_indices
+from logic.src.pipeline.simulations.simulator import (
     display_log_metrics,
     init_single_sim_worker,
     sequential_simulations,
     single_simulation,
 )
-from logic.src.utils.log_utils import (
+from logic.src.utils.logging.log_utils import (
     output_stats,
     runs_per_policy,
     send_final_output_to_gui,
@@ -233,10 +233,8 @@ def simulator_testing(opts, data_size, device):
                     log[pol] = [*map(statistics.mean, zip(*log_full[pol]))]
                     log_std[pol] = [*map(statistics.stdev, zip(*log_full[pol]))]
         else:
-            log = {}
+            log = {pol: res[0] for pol, res in log_tmp.items() if res}
             log_std = None
-            for run in log_tmp:
-                log.update(run)
     else:
         print(f"Launching {task_count} WSmart Route simulations on a single CPU core...")
         log, log_std, failed_log = sequential_simulations(opts, device, indices, sample_idx_ls, weights_path, lock)

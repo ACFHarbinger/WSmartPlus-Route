@@ -62,7 +62,7 @@ def run_app_gui(opts):
             test_only=test_only,
             restart_callback=launch_gui,
             initial_tab_index=tab_index,
-            initial_window=current_window.command_combo.currentText() if current_window else "Train Model",
+            initial_window=(current_window.command_combo.currentText() if current_window else "Train Model"),
         )
         current_window.show()
 

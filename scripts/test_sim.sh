@@ -66,7 +66,7 @@ GUROBI_PARAM=(0.84)
 HEXALY_PARAM=(0.84)
 DECODE_TYPE="greedy"
 LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("policy_last_minute")
+POLICIES=("amgat")
 #"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans"
 #"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
 #"policy_last_minute_and_path" "policy_last_minute" "policy_regular"
@@ -165,7 +165,7 @@ else
         exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
         exec 3>&- 4>&-  # Close the temporary file descriptors
     fi
-    ./.venv/bin/python3 main.py test_sim --policies "${POLICIES[@]}" --data_distribution "$DATA_DIST" --dt "$DECODE_TYPE" \
+    python main.py test_sim --policies "${POLICIES[@]}" --data_distribution "$DATA_DIST" --dt "$DECODE_TYPE" \
     --cc "$n_cores" --n_samples "$N_SAMPLES" --area "$AREA" --bin_idx_file "$IDX_PATH" --size "$N_BINS" --seed "$SEED" \
     --problem "$PROBLEM" --n_vehicles "$VEHICLES" --vm "$VERTEX_METHOD" --lac "${LOOKAHEAD_CONFIGS[@]}" --dm "$DIST_METHOD" \
     --lvl "${REGULAR_LEVEL[@]}" --cf "${LAST_MINUTE_CF[@]}" --gp "${GUROBI_PARAM[@]}" --hp "${HEXALY_PARAM[@]}" \

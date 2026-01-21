@@ -65,7 +65,7 @@ LR_DECAY=1.0
 LOG_STEP=10
 VIZ_STEP=100
 B_SIZE=128
-N_DATA=1280
+N_DATA=128
 N_VAL_DATA=0 #128
 VAL_B_SIZE=0
 
@@ -89,7 +89,7 @@ HGS_CONFIG_PATH="assets/configs/lookahead_hgs.yaml"
 SIZE=100
 AREA="riomaior"
 WTYPE="plastic"
-F_SIZE=1280
+F_SIZE=128
 VAL_F_SIZE=0
 DM_METHOD="gmaps"
 F_GRAPH="graphs_${SIZE}V_1N_${WTYPE}.json"

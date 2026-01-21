@@ -167,7 +167,11 @@ class TestHPOFunctions:
 
         dist_matrix = torch.zeros(5, 5)
         avg_cost, avg_ucost, all_costs = validate_update(
-            mock_model, mock_dataset, hpo_opts, metric="overflows", dist_matrix=dist_matrix
+            mock_model,
+            mock_dataset,
+            hpo_opts,
+            metric="overflows",
+            dist_matrix=dist_matrix,
         )
 
         assert isinstance(avg_cost, torch.Tensor)
@@ -353,8 +357,8 @@ class TestDEHB:
         assert "w_length" in names
         assert "w_overflows" in names
 
-    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.logger")
-    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.Client")
+    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.dehb.logger")
+    @patch("logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb.dehb.Client")
     @pytest.mark.unit
     def test_dehb_init(self, mock_client, mock_logger, hpo_opts, tmp_path, mocker):
         """Test DEHB initialization."""

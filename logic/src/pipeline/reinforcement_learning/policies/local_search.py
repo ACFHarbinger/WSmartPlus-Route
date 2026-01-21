@@ -11,6 +11,7 @@ Implemented Operators:
 - vectorized_relocate: Intra-route node relocation.
 - vectorized_two_opt_star: Inter-route tail swap.
 - vectorized_swap_star: Inter-route node exchange with re-insertion optimization.
+- vectorized_three_opt: Intra-route 3-opt moves.
 """
 
 import torch
@@ -668,5 +669,132 @@ def vectorized_swap_star(tours, dist_matrix, max_iterations=100):
                     new_t.insert(tgt_u, val_u)
 
                 tours[b_idx] = torch.tensor(new_t, device=device)
+
+    return tours
+
+
+def vectorized_three_opt(tours, dist_matrix, max_iterations=100):
+    """
+    Vectorized 3-opt local search using sampling for high efficiency.
+    Evaluates multiple reconnection ways for 3-edge removals in parallel.
+
+    Args:
+        tours (torch.Tensor): Current tours (B, max_len).
+        dist_matrix (torch.Tensor): Distance matrix (B, N, N) or compatible.
+        max_iterations (int): Number of sampling iterations.
+
+    Returns:
+        torch.Tensor: Updated tours.
+    """
+    device = tours.device
+    B, max_len = tours.shape
+
+    if max_len < 6:  # Need at least 6 nodes for a meaningful 3-opt
+        return tours
+
+    batch_indices = torch.arange(B, device=device).view(B, 1)
+
+    # Expand dist matrix if needed
+    if dist_matrix.dim() == 2:
+        dist_matrix = dist_matrix.unsqueeze(0).expand(B, -1, -1)
+    elif dist_matrix.dim() == 3 and dist_matrix.size(0) == 1 and B > 1:
+        dist_matrix = dist_matrix.expand(B, -1, -1)
+
+    for _ in range(max_iterations):
+        # 1. Sample 3 indices i < j < k
+        # To ensure i < j < k, we sample 3 and sort them.
+        # We skip indices 0 (depot start) and max_len-1 (depot end/padding)
+        idx = torch.sort(torch.randint(1, max_len - 1, (B, 3), device=device), dim=1).values
+        i = idx[:, 0:1]
+        j = idx[:, 1:2]
+        k = idx[:, 2:3]
+
+        # Valid triplet check: no adjacent indices (to ensure we remove 3 distinct edges)
+        # and not 0 (padding)
+        node_i = torch.gather(tours, 1, i)
+        node_j = torch.gather(tours, 1, j)
+        node_k = torch.gather(tours, 1, k)
+
+        mask = (node_i != 0) & (node_j != 0) & (node_k != 0)
+        mask = mask & (j > i + 1) & (k > j + 1)
+        if not mask.any():
+            continue
+
+        # Nodes involved in edge removals: (u, u_next), (v, v_next), (w, w_next)
+        u_idx, v_idx, w_idx = i, j, k
+        un_idx, vn_idx, wn_idx = i + 1, j + 1, k + 1
+
+        u = torch.gather(tours, 1, u_idx)
+        un = torch.gather(tours, 1, un_idx)
+        v = torch.gather(tours, 1, v_idx)
+        vn = torch.gather(tours, 1, vn_idx)
+        w = torch.gather(tours, 1, w_idx)
+        wn = torch.gather(tours, 1, wn_idx)
+
+        # Base cost of affected edges
+        d_base = (
+            dist_matrix[batch_indices, u, un] + dist_matrix[batch_indices, v, vn] + dist_matrix[batch_indices, w, wn]
+        )
+
+        # We evaluate the 4 non-2-opt cases (the others are covered by 2-opt)
+        # Case 4: (u, v), (un, w), (vn, wn)
+        gain4 = d_base - (
+            dist_matrix[batch_indices, u, v] + dist_matrix[batch_indices, un, w] + dist_matrix[batch_indices, vn, wn]
+        )
+
+        # Case 5: (u, vn), (w, un), (v, wn)
+        gain5 = d_base - (
+            dist_matrix[batch_indices, u, vn] + dist_matrix[batch_indices, w, un] + dist_matrix[batch_indices, v, wn]
+        )
+
+        # Case 6: (u, vn), (w, v), (un, wn)
+        gain6 = d_base - (
+            dist_matrix[batch_indices, u, vn] + dist_matrix[batch_indices, w, v] + dist_matrix[batch_indices, un, wn]
+        )
+
+        # Case 7: (u, w), (vn, un), (v, wn)
+        gain7 = d_base - (
+            dist_matrix[batch_indices, u, w] + dist_matrix[batch_indices, vn, un] + dist_matrix[batch_indices, v, wn]
+        )
+
+        # Concatenate and find best
+        all_gains = torch.cat([gain4, gain5, gain6, gain7], dim=1)  # (B, 4)
+        best_gain, best_case = torch.max(all_gains, dim=1)  # (B,), (B,)
+
+        improved = (best_gain > 0.001) & mask.squeeze(1)
+        if not improved.any():
+            continue
+
+        # 2. Apply Improvements
+        # This is the complex part: we need to reconstruct the tour for each improved case.
+        b_indices = torch.nonzero(improved).squeeze(1)
+
+        for b_idx in b_indices:
+            case = best_case[b_idx].item()
+            t = tours[b_idx]
+            idx_i, idx_j, idx_k = i[b_idx].item(), j[b_idx].item(), k[b_idx].item()
+
+            # Segments:
+            # S1: [0 ... idx_i]
+            # S2: [idx_i+1 ... idx_j]
+            # S3: [idx_j+1 ... idx_k]
+            # S4: [idx_k+1 ... max_len-1]
+            s1 = t[: idx_i + 1]
+            s2 = t[idx_i + 1 : idx_j + 1]
+            s3 = t[idx_j + 1 : idx_k + 1]
+            s4 = t[idx_k + 1 :]
+
+            if case == 0:  # Case 4: S1 + S2^R + S3^R + S4
+                new_t = torch.cat([s1, s2.flip(0), s3.flip(0), s4])
+            elif case == 1:  # Case 5: S1 + S3 + S2 + S4
+                new_t = torch.cat([s1, s3, s2, s4])
+            elif case == 2:  # Case 6: S1 + S3 + S2^R + S4
+                new_t = torch.cat([s1, s3, s2.flip(0), s4])
+            elif case == 3:  # Case 7: S1 + S3^R + S2 + S4
+                new_t = torch.cat([s1, s3.flip(0), s2, s4])
+            else:
+                continue
+
+            tours[b_idx] = new_t
 
     return tours

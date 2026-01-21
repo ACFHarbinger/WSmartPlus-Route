@@ -16,13 +16,19 @@ The policy uses statistical prediction (mean + σ * std) to identify
 critical bins that require collection.
 """
 
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import gurobipy as gp
 import numpy as np
 from numpy.typing import NDArray
 
-from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
+from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
+from logic.src.policies.adapters import IPolicy, PolicyRegistry
+from logic.src.policies.single_vehicle import (
+    find_route,
+    get_route_cost,
+    local_search_2opt,
+)
 from logic.src.policies.vrpp_optimizer import run_vrpp_optimizer
 
 
@@ -141,3 +147,50 @@ def policy_vrpp(
             continue
 
     return routes, profit, cost
+
+
+@PolicyRegistry.register("policy_vrpp")
+class VRPPPolicy(IPolicy):
+    """
+    VRPP (Vehicle Routing Problem with Profits) policy class.
+    Executes Prize-Collecting VRP using Gurobi or Hexaly solvers.
+    """
+
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+        """
+        Execute the VRPP policy.
+        """
+        policy = kwargs["policy"]
+        bins = kwargs["bins"]
+        distance_matrix = kwargs["distance_matrix"]
+        model_env = kwargs["model_env"]
+        waste_type = kwargs["waste_type"]
+        area = kwargs["area"]
+        n_vehicles = kwargs["n_vehicles"]
+        distancesC = kwargs["distancesC"]
+        run_tsp = kwargs["run_tsp"]
+        two_opt_max_iter = kwargs.get("two_opt_max_iter", 0)
+        config = kwargs.get("config", {})
+
+        vrpp_config = config.get("vrpp", {})
+
+        routes, _, _ = policy_vrpp(
+            policy,
+            bins.c,
+            bins.means,
+            bins.std,
+            distance_matrix.tolist(),
+            model_env,
+            waste_type,
+            area,
+            n_vehicles,
+            config=vrpp_config,
+        )
+        tour = []
+        cost = 0
+        if routes:
+            tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
+            if two_opt_max_iter > 0:
+                tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
+            cost = get_route_cost(distance_matrix, tour)
+        return tour, cost, None

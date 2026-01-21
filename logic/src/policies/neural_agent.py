@@ -20,18 +20,21 @@ The agent serves as an adapter between the problem-agnostic neural models
 and the domain-specific waste collection simulator.
 """
 
+from typing import Any, List, Tuple
+
 import numpy as np
 import torch
 
 from logic.src.pipeline.reinforcement_learning.policies.local_search import (
     vectorized_two_opt,
 )
+from logic.src.policies.adapters import IPolicy
 from logic.src.policies.single_vehicle import (
     find_route,
     get_multi_tour,
     get_route_cost,
 )
-from logic.src.utils.functions import add_attention_hooks
+from logic.src.utils.functions.function import add_attention_hooks, move_to
 
 
 class NeuralAgent:
@@ -223,6 +226,7 @@ class NeuralAgent:
         threshold=0.5,
         mask_threshold=0.5,
         two_opt_max_iter=0,
+        cost_weights=None,
     ):
         """
         Execute neural routing policy for a single simulation day.
@@ -420,7 +424,6 @@ class NeuralAgent:
                 else:
                     # Pad with zeros if history is too short (first few days of sim)
                     # or replicate last available? Zeros is safer.
-                    horizon + 1 - dynamic_feat.size(2)
                     # dynamic_feat: (1, N, Hist)
                     # If Hist=1 (only today), we need 'horizon' zeros.
                     # We can use current waste as a fallback or just zeros.
@@ -433,7 +436,13 @@ class NeuralAgent:
             # We don't have embeddings size yet to expand against batch.
             # But model forward will handle batching.
 
-        _, _, _, pi, _ = self.model(input_for_model, return_pi=True, mask=mask)
+        _, _, _, pi, _ = self.model(
+            input_for_model,
+            return_pi=True,
+            mask=mask,
+            profit_vars=profit_vars,
+            cost_weights=cost_weights,
+        )
 
         if run_tsp:
             try:
@@ -481,3 +490,57 @@ class NeuralAgent:
             cost,
             {"attention_weights": attention_weights, "graph_masks": hook_data["masks"]},
         )
+
+
+class NeuralPolicy(IPolicy):
+    """
+    Neural Policy wrapper.
+    Executes deep reinforcement learning models.
+    """
+
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+        """
+        Execute the neural policy.
+        """
+        model_env = kwargs["model_env"]
+        model_ls = kwargs["model_ls"]
+        bins = kwargs["bins"]
+        device = kwargs["device"]
+        fill = kwargs["fill"]
+        dm_tensor = kwargs["dm_tensor"]
+        run_tsp = kwargs["run_tsp"]
+        hrl_manager = kwargs.get("hrl_manager")
+        gate_prob_threshold = kwargs.get("gate_prob_threshold", 0.5)
+        mask_prob_threshold = kwargs.get("mask_prob_threshold", 0.5)
+        two_opt_max_iter = kwargs.get("two_opt_max_iter", 0)
+
+        agent = NeuralAgent(model_env)
+        model_data, graph, profit_vars = model_ls
+
+        # Construct cost weights
+        cost_weights = {
+            "waste": kwargs.get("w_waste", 1.0),
+            "length": kwargs.get("w_length", 1.0),
+            "overflows": kwargs.get("w_overflows", 1.0),
+        }
+
+        # Data preparation
+        model_data["waste"] = torch.as_tensor(bins.c, dtype=torch.float32).unsqueeze(0)
+        if "fill_history" in model_data:
+            model_data["current_fill"] = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0)
+        daily_data = move_to(model_data, device)
+
+        tour, cost, output_dict = agent.compute_simulator_day(
+            daily_data,
+            graph,
+            dm_tensor,
+            profit_vars,
+            run_tsp,
+            hrl_manager=hrl_manager,
+            waste_history=bins.get_level_history(device=device),
+            threshold=gate_prob_threshold,
+            mask_threshold=mask_prob_threshold,
+            two_opt_max_iter=two_opt_max_iter,
+            cost_weights=cost_weights,
+        )
+        return tour, cost, output_dict
