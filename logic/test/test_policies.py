@@ -10,9 +10,9 @@ import pytest
 import torch
 
 import logic.src.policies.vrpp_optimizer as vrpp_opt_mod
+from logic.src.models.policies.classical.hybrid_genetic_search import run_hgs
 from logic.src.pipeline.simulations.day import run_day
 from logic.src.policies import single_vehicle
-from logic.src.policies.hybrid_genetic_search import run_hgs
 from logic.src.policies.last_minute import (
     policy_last_minute,
     policy_last_minute_and_path,

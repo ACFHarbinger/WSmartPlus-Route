@@ -6,7 +6,7 @@ from __future__ import annotations
 import torch
 from tensordict import TensorDict
 
-from logic.src.pipeline.rl.base import RL4COLitModule
+from logic.src.pipeline.rl.core.base import RL4COLitModule
 
 
 class REINFORCE(RL4COLitModule):

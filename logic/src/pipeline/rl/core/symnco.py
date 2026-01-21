@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from tensordict import TensorDict
 
-from logic.src.pipeline.rl.pomo import POMO
+from logic.src.pipeline.rl.core.pomo import POMO
 from logic.src.utils.losses import invariance_loss, problem_symmetricity_loss, solution_symmetricity_loss
 
 
