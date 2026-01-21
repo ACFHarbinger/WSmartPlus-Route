@@ -20,9 +20,9 @@ from typing import Any, Callable, Dict, Optional, Tuple, Union
 import numpy as np
 import torch
 import torch.nn as nn
+import wandb
 from tensorboard_logger import Logger as TbLogger  # type: ignore
 
-import wandb
 from logic.src.cli import (
     ConfigsParser,
     add_hp_optim_args,

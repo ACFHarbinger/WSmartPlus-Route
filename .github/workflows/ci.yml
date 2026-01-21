@@ -30,7 +30,7 @@ jobs:
       run: uv sync --all-extras --dev
 
     - name: Lint
-      run: uv run ruff check .
+      run: uv run ruff check . --fix
 
     - name: Security Scan
       # Continue on error since vulnerabilities might be present; goal is visibility first

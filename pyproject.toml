@@ -313,6 +313,7 @@ reportCallIssue = "none"
 # RUFF CONFIGURATION (from ruff.toml)
 # =================================================================
 [tool.ruff]
+src = ["logic"]
 line-length = 120
 target-version = "py39"
 

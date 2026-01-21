@@ -26,10 +26,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
+import wandb
 from loguru import logger
 
 import logic.src.utils.definitions as udef
-import wandb
 from logic.src.utils.io.files import compose_dirpath, read_json
 
 

@@ -6,7 +6,6 @@ from unittest.mock import MagicMock
 
 import pytest
 import torch
-
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.gat_lstm_manager import GATLSTManager
 from logic.src.models.model_factory import NeuralComponentFactory
