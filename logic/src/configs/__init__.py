@@ -80,6 +80,11 @@ class RLConfig:
     meta_hidden_dim: int = 64
     meta_history_length: int = 10
 
+    # POMO / Augmentation specific
+    num_augment: int = 1
+    num_starts: Optional[int] = None
+    augment_fn: str = "dihedral8"
+
 
 @dataclass
 class HPOConfig:

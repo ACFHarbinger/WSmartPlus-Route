@@ -1,7 +1,7 @@
 """
 Unified Training and Hyperparameter Optimization entry point using PyTorch Lightning and Hydra.
 """
-import logging
+
 
 import hydra
 import optuna
@@ -11,6 +11,7 @@ from hydra.core.config_store import ConfigStore
 from omegaconf import OmegaConf
 from pytorch_lightning import seed_everything
 
+from logic.src.callbacks import SpeedMonitor
 from logic.src.configs import Config
 from logic.src.envs import get_env
 from logic.src.models.policies import (
@@ -19,10 +20,20 @@ from logic.src.models.policies import (
     PointerNetworkPolicy,
     TemporalAMPolicy,
 )
-from logic.src.pipeline.rl import DRGRPO, GSPO, PPO, REINFORCE, SAPO, HRLModule, MetaRLModule
+from logic.src.pipeline.rl import (
+    DRGRPO,
+    GSPO,
+    POMO,
+    PPO,
+    REINFORCE,
+    SAPO,
+    HRLModule,
+    MetaRLModule,
+)
 from logic.src.pipeline.trainer import WSTrainer
+from logic.src.utils.pylogger import get_pylogger
 
-logger = logging.getLogger(__name__)
+logger = get_pylogger(__name__)
 
 # Register configuration
 cs = ConfigStore.instance()
@@ -32,8 +43,9 @@ cs.store(name="config", node=Config)
 def create_model(cfg: Config) -> pl.LightningModule:
     """Helper to create the RL model based on config."""
     # 1. Initialize Environment
-    env_kwargs = vars(cfg.env).copy()
-    env_name = env_kwargs.pop("name")
+    # If cfg.env is a dataclass, we can access attributes directly
+    env_name = cfg.env.name
+    env_kwargs = {k: v for k, v in vars(cfg.env).items() if k != "name"}
     env = get_env(env_name, **env_kwargs)
 
     # 2. Initialize Policy
@@ -80,9 +92,10 @@ def create_model(cfg: Config) -> pl.LightningModule:
     }
 
     if cfg.rl.algorithm == "ppo":
-        from logic.src.models.policies.critic import CriticNetwork
+        from logic.src.models.policies.critic import create_critic_from_actor
 
-        critic = CriticNetwork(
+        critic = create_critic_from_actor(
+            policy,
             env_name=cfg.env.name,
             embed_dim=cfg.model.embed_dim,
             hidden_dim=cfg.model.hidden_dim,
@@ -97,9 +110,10 @@ def create_model(cfg: Config) -> pl.LightningModule:
             **common_kwargs,
         )
     elif cfg.rl.algorithm == "sapo":
-        from logic.src.models.policies.critic import CriticNetwork
+        from logic.src.models.policies.critic import create_critic_from_actor
 
-        critic = CriticNetwork(
+        critic = create_critic_from_actor(
+            policy,
             env_name=cfg.env.name,
             embed_dim=cfg.model.embed_dim,
             hidden_dim=cfg.model.hidden_dim,
@@ -114,9 +128,10 @@ def create_model(cfg: Config) -> pl.LightningModule:
             **common_kwargs,
         )
     elif cfg.rl.algorithm == "gspo":
-        from logic.src.models.policies.critic import CriticNetwork
+        from logic.src.models.policies.critic import create_critic_from_actor
 
-        critic = CriticNetwork(
+        critic = create_critic_from_actor(
+            policy,
             env_name=cfg.env.name,
             embed_dim=cfg.model.embed_dim,
             hidden_dim=cfg.model.hidden_dim,
@@ -129,9 +144,10 @@ def create_model(cfg: Config) -> pl.LightningModule:
             **common_kwargs,
         )
     elif cfg.rl.algorithm == "dr_grpo":
-        from logic.src.models.policies.critic import CriticNetwork
+        from logic.src.models.policies.critic import create_critic_from_actor
 
-        critic = CriticNetwork(
+        critic = create_critic_from_actor(
+            policy,
             env_name=cfg.env.name,
             embed_dim=cfg.model.embed_dim,
             hidden_dim=cfg.model.hidden_dim,
@@ -141,6 +157,13 @@ def create_model(cfg: Config) -> pl.LightningModule:
         model = DRGRPO(
             critic=critic,
             ppo_epochs=cfg.rl.ppo_epochs,
+            **common_kwargs,
+        )
+    elif cfg.rl.algorithm == "pomo":
+        model = POMO(
+            num_augment=cfg.rl.num_augment,
+            augment_fn=cfg.rl.augment_fn,
+            num_starts=cfg.rl.num_starts,
             **common_kwargs,
         )
     elif cfg.rl.algorithm == "hrl":
@@ -251,6 +274,7 @@ def run_training(cfg: Config) -> None:
         devices=1 if cfg.device == "cuda" else "auto",
         gradient_clip_val=float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0,
         logger=False,
+        callbacks=[SpeedMonitor(epoch_time=True)],
     )
 
     trainer.fit(model)
