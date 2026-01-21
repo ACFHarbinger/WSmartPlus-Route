@@ -197,7 +197,7 @@ dependencies = [
     "tblib>=3.1.0",
     "tensorboard>=2.20.0",
     "tensorboard-data-server>=0.7.2",
-    "tensorboard-logger>=0.1.0",
+
     "tensorboardx>=2.6.2.2",
     "threadpoolctl>=3.6.0",
     "tifffile>=2020.6.3",
