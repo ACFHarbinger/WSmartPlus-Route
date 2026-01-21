@@ -79,23 +79,17 @@ class PPO(RL4COLitModule):
             # Re-evaluate values
             new_values = self.critic(batch).squeeze(-1)
 
-            # Advantage estimation (R - V)
-            # In constructive routing, we usually use the outcome of the full tour
-            advantage = old_reward - new_values.detach()
-            # Normalize advantage for stability
-            advantage = (advantage - advantage.mean()) / (advantage.std() + 1e-8)
+            # Advantage estimation
+            advantage = self.calculate_advantages(old_reward, new_values)
 
             # Calculate Ratio
-            # ratio = exp(new_log_p - old_log_p)
-            ratio = torch.exp(new_log_p - old_log_p.detach())
+            ratio = self.calculate_ratio(new_log_p, old_log_p)
 
-            # Actor Loss (Clipped)
-            surr1 = ratio * advantage
-            surr2 = torch.clamp(ratio, 1.0 - self.eps_clip, 1.0 + self.eps_clip) * advantage
-            actor_loss = -torch.min(surr1, surr2).mean()
+            # Actor Loss
+            actor_loss = self.calculate_actor_loss(ratio, advantage)
 
-            # Critic Loss (MSE)
-            critic_loss = nn.MSELoss()(new_values, old_reward)
+            # Critic Loss
+            critic_loss = self.calculate_critic_loss(new_values, old_reward)
 
             # Total Loss
             loss = actor_loss + self.value_loss_weight * critic_loss
@@ -114,7 +108,7 @@ class PPO(RL4COLitModule):
 
             opt.step()
 
-        # Log metrics
+        # Log metrics (using values from last optimization step)
         self.log("train/reward", old_reward.mean(), prog_bar=True)
         self.log("train/loss", loss, prog_bar=True)
         self.log("train/actor_loss", actor_loss)
@@ -123,6 +117,27 @@ class PPO(RL4COLitModule):
         self.log("train/ratio", ratio.mean())
 
         return loss
+
+    def calculate_advantages(self, rewards, values):
+        """Estimate advantages (R - V)."""
+        advantage = rewards - values.detach()
+        if advantage.size(0) > 1:
+            advantage = (advantage - advantage.mean()) / (advantage.std() + 1e-8)
+        return advantage
+
+    def calculate_ratio(self, new_log_p, old_log_p):
+        """Calculate importance ratio."""
+        return torch.exp(new_log_p - old_log_p.detach())
+
+    def calculate_actor_loss(self, ratio, advantage):
+        """Clipped surrogate objective."""
+        surr1 = ratio * advantage
+        surr2 = torch.clamp(ratio, 1.0 - self.eps_clip, 1.0 + self.eps_clip) * advantage
+        return -torch.min(surr1, surr2).mean()
+
+    def calculate_critic_loss(self, values, rewards):
+        """MSE loss for value function."""
+        return nn.MSELoss()(values, rewards)
 
     def configure_optimizers(self):
         # Combined parameters from policy and critic

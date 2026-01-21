@@ -11,8 +11,11 @@ from logic.src.pipeline.rl.baselines import (
     RolloutBaseline,
     get_baseline,
 )
+from logic.src.pipeline.rl.dr_grpo import DRGRPO
+from logic.src.pipeline.rl.gspo import GSPO
 from logic.src.pipeline.rl.ppo import PPO
 from logic.src.pipeline.rl.reinforce import REINFORCE
+from logic.src.pipeline.rl.sapo import SAPO
 
 __all__ = [
     "RL4COLitModule",
@@ -25,4 +28,7 @@ __all__ = [
     "BASELINE_REGISTRY",
     "REINFORCE",
     "PPO",
+    "SAPO",
+    "GSPO",
+    "DRGRPO",
 ]

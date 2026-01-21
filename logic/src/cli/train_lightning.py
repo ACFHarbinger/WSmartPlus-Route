@@ -7,7 +7,12 @@ from pytorch_lightning import seed_everything
 
 from logic.src.configs import Config
 from logic.src.envs import get_env
-from logic.src.models.policies import AttentionModelPolicy, DeepDecoderPolicy
+from logic.src.models.policies import (
+    AttentionModelPolicy,
+    DeepDecoderPolicy,
+    PointerNetworkPolicy,
+    TemporalAMPolicy,
+)
 from logic.src.pipeline.rl import REINFORCE
 from logic.src.pipeline.trainer import WSTrainer
 
@@ -32,6 +37,8 @@ def main(cfg: Config) -> None:
     policy_map = {
         "am": AttentionModelPolicy,
         "deep_decoder": DeepDecoderPolicy,
+        "temporal": TemporalAMPolicy,
+        "pointer": PointerNetworkPolicy,
     }
 
     if cfg.model.name not in policy_map:
@@ -87,6 +94,59 @@ def main(cfg: Config) -> None:
             ppo_epochs=cfg.rl.ppo_epochs,
             eps_clip=cfg.rl.eps_clip,
             value_loss_weight=cfg.rl.value_loss_weight,
+            **common_kwargs,
+        )
+    elif cfg.rl.algorithm == "sapo":
+        from logic.src.models.policies.critic import CriticNetwork
+        from logic.src.pipeline.rl import SAPO
+
+        critic = CriticNetwork(
+            env_name=cfg.env.name,
+            embed_dim=cfg.model.embed_dim,
+            hidden_dim=cfg.model.hidden_dim,
+            n_layers=cfg.model.num_encoder_layers,
+            n_heads=cfg.model.num_heads,
+        )
+        model = SAPO(
+            critic=critic,
+            tau_pos=cfg.rl.sapo_tau_pos,
+            tau_neg=cfg.rl.sapo_tau_neg,
+            ppo_epochs=cfg.rl.ppo_epochs,
+            **common_kwargs,
+        )
+    elif cfg.rl.algorithm == "gspo":
+        from logic.src.models.policies.critic import CriticNetwork
+        from logic.src.pipeline.rl import GSPO
+
+        critic = CriticNetwork(
+            env_name=cfg.env.name,
+            embed_dim=cfg.model.embed_dim,
+            hidden_dim=cfg.model.hidden_dim,
+            n_layers=cfg.model.num_encoder_layers,
+            n_heads=cfg.model.num_heads,
+        )
+        model = GSPO(
+            critic=critic,
+            ppo_epochs=cfg.rl.ppo_epochs,
+            **common_kwargs,
+        )
+    elif cfg.rl.algorithm == "dr_grpo":
+        # DRGRPO often doesn't use a critic, but we'll allow it if needed
+        # For now, let's just pass dummy critic or None if the class can handle it
+        # PPO base requires a critic, so we'll provide one
+        from logic.src.models.policies.critic import CriticNetwork
+        from logic.src.pipeline.rl import DRGRPO
+
+        critic = CriticNetwork(
+            env_name=cfg.env.name,
+            embed_dim=cfg.model.embed_dim,
+            hidden_dim=cfg.model.hidden_dim,
+            n_layers=cfg.model.num_encoder_layers,
+            n_heads=cfg.model.num_heads,
+        )
+        model = DRGRPO(
+            critic=critic,
+            ppo_epochs=cfg.rl.ppo_epochs,
             **common_kwargs,
         )
     else:
