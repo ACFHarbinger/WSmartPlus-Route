@@ -194,6 +194,40 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
         manager = GATLSTManager(device=cfg.device, hidden_dim=cfg.rl.meta_hidden_dim)
         model = HRLModule(manager=manager, worker=policy, env=env, lr=cfg.rl.meta_lr)
+    elif cfg.rl.algorithm == "imitation":
+        from logic.src.pipeline.rl.core.imitation import ImitationLearning
+
+        # Determine expert
+        # We need a constructive policy wrapper for the expert
+        # Does the user want HGS as expert?
+        # HGS is a ConstructiveSolver but not a policy with 'forward' in the same way?
+        # Actually in recent edits I added HGSPolicy!
+
+        expert_name = cfg.rl.get("expert", "hgs")
+        expert_policy = None
+        if expert_name == "hgs":
+            expert_policy = HGSPolicy(env_name=cfg.env.name)
+        elif expert_name == "alns":
+            expert_policy = ALNSPolicy(env_name=cfg.env.name)
+
+        model = ImitationLearning(expert_policy=expert_policy, expert_name=expert_name, **common_kwargs)
+    elif cfg.rl.algorithm == "adaptive_imitation":
+        from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
+
+        expert_name = cfg.rl.get("expert", "hgs")
+        expert_policy = None
+        if expert_name == "hgs":
+            expert_policy = HGSPolicy(env_name=cfg.env.name)
+        elif expert_name == "alns":
+            expert_policy = ALNSPolicy(env_name=cfg.env.name)
+
+        model = AdaptiveImitation(
+            expert_policy=expert_policy,
+            il_weight=cfg.rl.get("il_weight", 1.0),
+            il_decay=cfg.rl.get("il_decay", 0.95),
+            patience=cfg.rl.get("patience", 5),
+            **common_kwargs,
+        )
     else:
         model = REINFORCE(baseline=cfg.rl.baseline, **common_kwargs)
 
