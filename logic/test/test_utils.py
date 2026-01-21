@@ -313,7 +313,7 @@ class TestLogUtils:
         }
         log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
         assert mock_wandb.log.called
-        assert tb_logger.log_value.called
+        assert tb_logger.add_scalar.called
 
     @patch("glob.glob")
     @patch("logic.src.utils.logging.log_utils.read_json")
