@@ -325,8 +325,7 @@ select = ["E", "F", "I", "W"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*", "*Test"]
 python_functions = ["test_*", "*_test"]
-testpaths = "app/test" # Original pyproject.toml value
-# testpaths = "test" # Overwritten by pytest.ini value
+testpaths = ["logic/test", "gui/test"]
 
 # Console output options (addopts converted to list format)
 addopts = [
@@ -334,11 +333,11 @@ addopts = [
     "-ra",              # Show summary of all test outcomes
     "--showlocals",     # Show local variables in tracebacks
     "--strict-markers", # Fail on unknown markers
-    #"--strict-config",  # Fail on unknown config options
     "--tb=short",       # Shorter traceback format
     "--color=yes",      # Color output
     "--show-capture=all", # Show captured output on failure
     "--disable-warnings", # Disable warnings to reduce noise
+    "--import-mode=importlib", # Resolve conftest conflicts
 ]
 
 # Markers for categorizing tests (converted to key=value pairs)

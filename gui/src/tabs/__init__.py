@@ -28,7 +28,7 @@ from .test_simulator import (
     TestSimPolicyParamsTab,
     TestSimSettingsTab,
 )
-from .test_suite import TestSuiteTab
+from .ts_tab import TestSuiteTab
 
 __all__ = [
     "InputAnalysisTab",
