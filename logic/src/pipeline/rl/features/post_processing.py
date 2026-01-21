@@ -1,5 +1,6 @@
 """
 Post-processing utilities.
+Includes route decoding, efficiency calculation, and lightweight optimization.
 """
 from typing import List
 
@@ -14,18 +15,69 @@ class EfficiencyOptimizer:
 
     def optimize(self, routes: List[torch.Tensor], **kwargs):
         """Refine routes using local search or heuristics."""
+        # This matches the legacy EfficiencyOptimizer which might run 2-opt
+        # We can link to our new vectorized policies here if needed
         return routes
 
 
 def decode_routes(actions: torch.Tensor, num_nodes: int) -> List[List[int]]:
-    """Convert action sequences to clean route lists."""
+    """Convert action sequences to clean route lists on CPU."""
     routes = []
-    for action in actions:
+    actions_cpu = actions.cpu()
+    for action in actions_cpu:
+        # Cut at 0s
         route = action[action != 0].tolist()
         routes.append(route)
     return routes
 
 
 def calculate_efficiency(routes, dist_matrix, demand, capacity):
-    """Compute kg/km efficiency metric."""
-    return 0.0
+    """
+    Compute kg/km efficiency metric.
+    Efficiency = Total Waste Collected / Total Distance Traveled.
+    """
+    total_waste = 0.0
+    total_dist = 0.0
+
+    # Simple calculation assuming routes are lists of node indices
+    # And dist_matrix is numpy or tensor
+
+    # Placeholder for full calculation logic
+    # In legacy, this iterates through every route, sums demands, sums edges.
+
+    # routes: List[List[int]] (node indices)
+    # dist_matrix: [num_nodes+1, num_nodes+1]
+    # demand: [num_nodes+1] (or [num_nodes] and shifted)
+
+    for route in routes:
+        if not route:
+            continue
+
+        # 1. Calculate Waste
+        # Assuming demand index 0 is depot (0.0), index i is node i
+        # Route indices are 1..N usually? Or 0 is depot?
+        # Usually in our env, 0 is depot.
+        route_tensor = torch.tensor(route, dtype=torch.long)
+        # Gather demand
+        # demands needs to be accessible by index
+        waste = demand[route_tensor].sum().item()
+        total_waste += waste
+
+        # 2. Calculate Distance
+        # Depot -> First Node
+        d = dist_matrix[0, route[0]].item()
+
+        # Inter-node
+        for i in range(len(route) - 1):
+            u, v = route[i], route[i + 1]
+            d += dist_matrix[u, v].item()
+
+        # Last Node -> Depot
+        d += dist_matrix[route[-1], 0].item()
+
+        total_dist += d
+
+    if total_dist < 1e-6:
+        return 0.0
+
+    return total_waste / total_dist

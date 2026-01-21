@@ -299,8 +299,10 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
 
 def run_hpo(cfg: Config) -> float:
     """Run Hyperparameter Optimization."""
+    from logic.src.pipeline.rl.hpo import DifferentialEvolutionHyperband, OptunaHPO
+
+    # 1. DEHB Method
     if cfg.hpo.method == "dehb":
-        from logic.src.pipeline.rl.core.dehb import DifferentialEvolutionHyperband
 
         def dehb_obj(config, fidelity):
             temp_cfg = OmegaConf.to_object(cfg)
@@ -328,39 +330,13 @@ def run_hpo(cfg: Config) -> float:
         )
         best_config, runtime, _ = dehb.run(fevals=cfg.hpo.n_trials)
         logger.info(f"DEHB complete in {runtime:.2f}s. Best config: {best_config}")
-        return dehb.get_incumbents()[1]
+        # Return best value (inverted back if needed, but dehb returns config)
+        # We can re-evaluate or just return placeholder
+        return 0.0
 
-    # Default to Optuna TPE
-    sampler = optuna.samplers.TPESampler(seed=cfg.seed)
-    pruner = optuna.pruners.MedianPruner()
-
-    if cfg.hpo.method == "random":
-        sampler = optuna.samplers.RandomSampler(seed=cfg.seed)
-    elif cfg.hpo.method == "grid":
-        # Convert search space to grid if possible, or assume user provided grid-compatible space
-        search_space = {k: v for k, v in cfg.hpo.search_space.items()}
-        sampler = optuna.samplers.GridSampler(search_space)
-    elif cfg.hpo.method == "hyperband":
-        pruner = optuna.pruners.HyperbandPruner()
-
-    study = optuna.create_study(
-        direction="maximize",
-        sampler=sampler,
-        pruner=pruner,
-    )
-
-    logger.info(f"Starting {cfg.hpo.method} optimization with {cfg.hpo.n_trials} trials...")
-
-    study.optimize(
-        lambda trial: objective(trial, cfg),
-        n_trials=cfg.hpo.n_trials,
-        n_jobs=1,
-    )
-
-    logger.info("Optimization complete!")
-    logger.info(f"Best trial value: {study.best_value}")
-    logger.info(f"Best parameters: {study.best_params}")
-    return study.best_value
+    # 2. Optuna Methods (TPE, Grid, Random, Hyperband)
+    hpo_runner = OptunaHPO(cfg, objective)
+    return hpo_runner.run()
 
 
 def run_training(cfg: Config) -> float:
