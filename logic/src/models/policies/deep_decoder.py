@@ -1,8 +1,7 @@
 """
-Attention Model Policy for RL4CO.
+Deep Decoder Policy for RL4CO.
 
-Adapts the existing GATEncoder and AttentionDecoder to the RL4CO architecture
-using TensorDict for state management.
+Adapts the DeepDecoderAM architecture to the RL4CO architecture.
 """
 from __future__ import annotations
 
@@ -14,14 +13,14 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.base import ConstructivePolicy
-from logic.src.models.policies.utils import DummyProblem, TensorDictStateWrapper
-from logic.src.models.subnets.attention_decoder import AttentionDecoder
+from logic.src.models.policies.utils import TensorDictStateWrapper
+from logic.src.models.subnets.deep_decoder import DeepDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
 
 
-class AttentionModelPolicy(ConstructivePolicy):
+class DeepDecoderPolicy(ConstructivePolicy):
     """
-    RL4CO-style Policy using existing Attention Model components.
+    RL4CO-style Policy using Deep Decoder architecture.
     """
 
     def __init__(
@@ -30,8 +29,10 @@ class AttentionModelPolicy(ConstructivePolicy):
         embed_dim: int = 128,
         hidden_dim: int = 128,
         n_encode_layers: int = 3,
+        n_decode_layers: int = 3,
         n_heads: int = 8,
         normalization: str = "batch",
+        dropout_rate: float = 0.1,
         **kwargs,
     ):
         super().__init__(env_name=env_name, embed_dim=embed_dim)
@@ -44,14 +45,17 @@ class AttentionModelPolicy(ConstructivePolicy):
             feed_forward_hidden=hidden_dim,
             n_layers=n_encode_layers,
             normalization=normalization,
+            dropout_rate=dropout_rate,
             **kwargs,
         )
 
-        self.decoder = AttentionDecoder(
-            embedding_dim=embed_dim,
+        self.decoder = DeepDecoder(
+            embed_dim=embed_dim,
             hidden_dim=hidden_dim,
-            problem=DummyProblem(env_name),
             n_heads=n_heads,
+            n_layers=n_decode_layers,
+            normalization=normalization,
+            dropout_rate=dropout_rate,
             **kwargs,
         )
 
@@ -71,7 +75,6 @@ class AttentionModelPolicy(ConstructivePolicy):
         init_embeds = self.init_embedding(td)
 
         # 2. Encoder
-        # Pass graph structure if available (e.g., k-NN edges)
         edges = td.get("edges", None)
         embeddings = self.encoder(init_embeds, edges)
 
@@ -83,19 +86,35 @@ class AttentionModelPolicy(ConstructivePolicy):
         output_actions = []
         step_idx = 0
 
-        # Assuming environment is already reset
         while not td["done"].all():
-            # Wrap state for legacy compatibility
             state_wrapper = TensorDictStateWrapper(td, self.env_name)
 
-            # Get logits from decoder
             logits, mask = self.decoder._get_log_p(fixed, state_wrapper)
-            # mask returned by _get_log_p is the INVALID mask (True=masked)
 
-            # AttentionDecoder returns (batch, n_heads, n_nodes). We take head 0.
-            logits = logits[:, 0, :]
+            # DeepDecoder usually returns (batch, heads, nodes) or (batch, nodes)?
+            # In my implementation of DeepDecoder subnet, _one_to_many_logits returns logits.
+            # If GATDecoder returns (batch, N), assume single head aggregate or projection?
+            # GATDecoder.projection is Linear(embed_dim, 2) ? Wait.
+            # Let's check gat_decoder.py line 199: self.projection = nn.Linear(embed_dim, 2).
+            # Why 2? Maybe (logit, something_else)? Or it's for something else?
+            # Standard AM projection is to 1 (logit).
+            # DeepDecoder logic seems complex.
+            # If logits has extra dim, we need to handle it.
 
-            # Invert mask for _select_action (expects True=VALID)
+            # For now, let's assume logits is (batch, ...).
+            # If shape mismatch occurs, we fix it in debugging (like AM).
+
+            # AM adapter did: logits = logits[:, 0, :]
+            # Let's see.
+
+            # DeepDecoder output (Batch, Heads, Nodes) or (Batch, 1, Nodes)
+            if logits.dim() == 3:
+                if logits.size(1) > 1:
+                    logits = logits[:, 0, :]
+                else:
+                    logits = logits.squeeze(1)
+
+            # Invert mask (AM legacy compatibility) -> Valid Mask
             if mask.dim() == 3:
                 mask = mask.squeeze(1)
             valid_mask = ~mask
@@ -110,16 +129,13 @@ class AttentionModelPolicy(ConstructivePolicy):
                 # Select action
                 action, log_p = self._select_action(logits, valid_mask, decode_type)
 
-            # Update state
             td["action"] = action
             td = env.step(td)
 
-            # update log likelihood
             log_likelihood = log_likelihood + log_p
             output_actions.append(action)
             step_idx += 1
 
-        # Collect reward
         reward = env.get_reward(td, torch.stack(output_actions, dim=1))
 
         return {

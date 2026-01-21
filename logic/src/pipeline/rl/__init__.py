@@ -11,6 +11,7 @@ from logic.src.pipeline.rl.baselines import (
     RolloutBaseline,
     get_baseline,
 )
+from logic.src.pipeline.rl.ppo import PPO
 from logic.src.pipeline.rl.reinforce import REINFORCE
 
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     "get_baseline",
     "BASELINE_REGISTRY",
     "REINFORCE",
+    "PPO",
 ]
