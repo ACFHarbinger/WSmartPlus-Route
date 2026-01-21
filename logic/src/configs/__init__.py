@@ -89,6 +89,11 @@ class RLConfig:
     symnco_alpha: float = 0.2
     symnco_beta: float = 1.0
 
+    # Random Local Search expert specific
+    expert: str = "hgs"  # hgs, alns, random_ls
+    random_ls_iterations: int = 100
+    random_ls_op_probs: Optional[Dict[str, float]] = None
+
 
 @dataclass
 class HPOConfig:

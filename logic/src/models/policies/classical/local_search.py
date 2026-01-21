@@ -353,42 +353,34 @@ def vectorized_relocate(tours, dist_matrix, max_iterations=200):
 
         improved = (gain > 0.001) & mask
 
+        improved = (gain > 0.001) & mask
+
         if improved.any():
-            # Apply relocate by rewriting the row
-            # Expensive part: we need to slice and concat for each row?
-            # Or mask based generic reconstruction.
-            # Only do it for improved batch items.
+            # Apply relocate using a vectorized index map
+            seq_b = torch.arange(max_len, device=device).view(1, max_len).expand(B, max_len)
+            idx_map = seq_b.clone()
 
-            batch_mask = improved.squeeze(1)
-            b_indices = torch.nonzero(batch_mask).squeeze(1)
+            # For each instance, we want to move i to after j
+            # Case 1: i < j. Sequence: [0..i-1], [i+1..j], i, [j+1..N-1]
+            mask_i_lt_j = (i < j) & improved
+            # Elements in (i, j]: index shifts left
+            shift_left = mask_i_lt_j & (seq_b > i) & (seq_b <= j)
+            idx_map[shift_left] = seq_b[shift_left] + 1
+            # Element at j mapping to original i
+            target_mask = mask_i_lt_j & (seq_b == j)
+            idx_map[target_mask] = i.expand(-1, max_len)[target_mask]
 
-            for b_idx in b_indices:
-                tour = tours[b_idx]
-                val_i = i[b_idx].item()
-                val_j = j[b_idx].item()
+            # Case 2: j < i. Sequence: [0..j], i, [j+1..i-1], [i+1..N-1]
+            mask_j_lt_i = (j < i) & improved
+            # Elements in (j, i): index shifts right
+            shift_right = mask_j_lt_i & (seq_b > j) & (seq_b < i)
+            idx_map[shift_right] = seq_b[shift_right] - 1
+            # Element at j+1 mapping to original i
+            target_mask = mask_j_lt_i & (seq_b == j + 1)
+            idx_map[target_mask] = i.expand(-1, max_len)[target_mask]
 
-                # Manual shift for specific row (CPU or GPU op)
-                # GPU slice concat
-                # Remove i
-                node_val = tour[val_i]
-                # Concat [0..i) and (i+1..end)
-                rem_tour = torch.cat([tour[:val_i], tour[val_i + 1 :], torch.tensor([0], device=device)])
-
-                # Insert after j
-                # If j > i, index j has shifted down by 1?
-                # Logic: j is index in ORIGINAL tour.
-                # If j < i: index j is same. Insert at j+1.
-                # If j > i: index j becomes j-1. Insert at j.
-
-                eff_j = val_j
-                if val_j > val_i:
-                    eff_j -= 1
-
-                # Insert at eff_j + 1
-                final_tour = torch.cat([rem_tour[: eff_j + 1], node_val.view(1), rem_tour[eff_j + 1 : -1]])
-                # Ensure length matches (we appended 0 earlier, removed one)
-
-                tours[b_idx] = final_tour
+            # Apply relocation
+            tours = torch.gather(tours, 1, idx_map)
 
     return tours
 
@@ -472,40 +464,73 @@ def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200):
         improved = (gain > 0.001) & mask
 
         if improved.any():
-            batch_mask = improved.squeeze(1)
-            b_indices = torch.nonzero(batch_mask).squeeze(1)
+            # Apply tail swap using a vectorized index map
+            seq_b = torch.arange(max_len, device=device).view(1, max_len).expand(B, max_len)
+            idx_map = seq_b.clone()
 
-            for b_idx in b_indices:
-                tour = tours[b_idx]
-                idx_i = i[b_idx].item()
-                idx_j = j[b_idx].item()
-                e_i = end_i[b_idx].item()
-                e_j = end_j[b_idx].item()
+            # For instances where R1 is before R2 (e_i <= j)
+            mask_i_lt_j = (end_i <= j) & improved
+            if mask_i_lt_j.any():
+                # Define segments
+                # s_p1: [0..i] -> stays
+                # s_t1: [i+1..e_i-1] -> moves to R2 tail
+                # s_gap: [e_i..j] -> shifts
+                # s_t2: [j+1..e_j-1] -> moves to R1 tail
+                # s_end: [e_j..max_len-1] -> stays
 
-                # Segments
-                # Route 1: [start_1 ... i] + [j+1 ... e_j] + 0
-                # Route 2: [start_2 ... j] + [i+1 ... e_i] + 0
+                len_t1 = end_i - (i + 1)
+                len_t2 = end_j - (j + 1)
+                len_gap = j - end_i + 1
 
-                if e_i < idx_j:
-                    p1 = tour[: idx_i + 1]
-                    p2 = tour[idx_j + 1 : e_j]
-                    p3 = tour[e_i : idx_j + 1]
-                    p4 = tour[idx_i + 1 : e_i]
-                    p5 = tour[e_j:]
-                    new_tour = torch.cat([p1, p2, p3, p4, p5])
+                # New R1 tail starts at i+1
+                # Range [i+1, i+len_t2]: maps to [j+1, j+len_t2]
+                r1_tail_mask = mask_i_lt_j & (seq_b > i) & (seq_b <= i + len_t2)
+                idx_map[r1_tail_mask] = (j + 1).view(B, 1).expand(-1, max_len)[r1_tail_mask] + (
+                    seq_b[r1_tail_mask] - (i + 1).view(B, 1).expand(-1, max_len)[r1_tail_mask]
+                )
 
-                elif e_j < idx_i:
-                    p1 = tour[: idx_j + 1]
-                    p2 = tour[idx_i + 1 : e_i]
-                    p3 = tour[e_j : idx_i + 1]
-                    p4 = tour[idx_j + 1 : e_j]
-                    p5 = tour[e_i:]
-                    new_tour = torch.cat([p1, p2, p3, p4, p5])
+                # Gap shifts
+                # Range [i+len_t2+1, i+len_t2+len_gap]: maps to [e_i, j]
+                gap_mask = mask_i_lt_j & (seq_b > i + len_t2) & (seq_b <= i + len_t2 + len_gap)
+                idx_map[gap_mask] = (end_i).view(B, 1).expand(-1, max_len)[gap_mask] + (
+                    seq_b[gap_mask] - (i + len_t2 + 1).view(B, 1).expand(-1, max_len)[gap_mask]
+                )
 
-                else:
-                    continue
+                # New R2 tail starts after gap
+                # Range [i+len_t2+len_gap+1, e_j-1]: maps to [i+1, e_i-1]
+                r2_tail_mask = mask_i_lt_j & (seq_b > i + len_t2 + len_gap) & (seq_b < end_j.view(B, 1))
+                idx_map[r2_tail_mask] = (i + 1).view(B, 1).expand(-1, max_len)[r2_tail_mask] + (
+                    seq_b[r2_tail_mask] - (i + len_t2 + len_gap + 1).view(B, 1).expand(-1, max_len)[r2_tail_mask]
+                )
 
-                tours[b_idx] = new_tour
+            # For instances where R2 is before R1 (e_j <= i)
+            mask_j_lt_i = (end_j <= i) & improved
+            if mask_j_lt_i.any():
+                # Symmetry: same logic but swap i/j and end_i/end_j
+                len_t2 = end_j - (j + 1)
+                len_t1 = end_i - (i + 1)
+                len_gap = i - end_j + 1
+
+                # New R2 tail starts at j+1
+                r2_tail_mask = mask_j_lt_i & (seq_b > j) & (seq_b <= j + len_t1)
+                idx_map[r2_tail_mask] = (i + 1).view(B, 1).expand(-1, max_len)[r2_tail_mask] + (
+                    seq_b[r2_tail_mask] - (j + 1).view(B, 1).expand(-1, max_len)[r2_tail_mask]
+                )
+
+                # Gap shifts
+                gap_mask = mask_j_lt_i & (seq_b > j + len_t1) & (seq_b <= j + len_t1 + len_gap)
+                idx_map[gap_mask] = (end_j).view(B, 1).expand(-1, max_len)[gap_mask] + (
+                    seq_b[gap_mask] - (j + len_t1 + 1).view(B, 1).expand(-1, max_len)[gap_mask]
+                )
+
+                # New R1 tail starts after gap
+                r1_tail_mask = mask_j_lt_i & (seq_b > j + len_t1 + len_gap) & (seq_b < end_i.view(B, 1))
+                idx_map[r1_tail_mask] = (j + 1).view(B, 1).expand(-1, max_len)[r1_tail_mask] + (
+                    seq_b[r1_tail_mask] - (j + len_t1 + len_gap + 1).view(B, 1).expand(-1, max_len)[r1_tail_mask]
+                )
+
+            # Apply tail swap
+            tours = torch.gather(tours, 1, idx_map)
 
     return tours
 
@@ -629,46 +654,34 @@ def vectorized_swap_star(tours, dist_matrix, max_iterations=100):
         improved = (total_gain > 0.001) & mask
 
         if improved.any():
+            # Apply Swap* moves using a vectorized priority-based indexing
+            # We move pos_i to after ins_u and pos_j to after ins_v
+            seq_b = torch.arange(max_len, device=device).view(1, max_len).expand(B, max_len).float()
+            weights = seq_b * 10.0
+
+            # For improved instances, change weights of moved indices
+            # Node u (at i) moves to after ins_u
+            # Node v (at j) moves to after ins_v
+            # We use a small tie-breaker if ins_u == ins_v
+            weight_u = best_ins_u_idx.float() * 10.0 + 5.0
+            weight_v = best_ins_v_idx.float() * 10.0 + 5.1
+
+            # Scatter weights for moved nodes
+            # We need to target indices i and j
+            weights.scatter_(1, i, weight_u)
+            weights.scatter_(1, j, weight_v)
+
+            # Sort weights to get the new index map
+            # We only want to apply this to improved rows.
+            # To keep it fully vectorized, we always sort and gather, but for non-improved
+            # rows we ensure weights stay original.
+            orig_weights = seq_b * 10.0
+            weights = torch.where(improved, weights, orig_weights)
+
+            idx_map = torch.argsort(weights, dim=1)
+
             # Apply moves
-            batch_mask = improved.squeeze(1)
-            b_indices = torch.nonzero(batch_mask).squeeze(1)
-
-            for b_idx in b_indices:
-                tour = tours[b_idx]
-
-                pos_i, pos_j = i[b_idx].item(), j[b_idx].item()
-                ins_u, ins_v = (
-                    best_ins_u_idx[b_idx].item(),
-                    best_ins_v_idx[b_idx].item(),
-                )
-                val_u, val_v = node_i[b_idx].item(), node_j[b_idx].item()
-
-                t_list = tour.tolist()
-
-                tgt_u, tgt_v = ins_u + 1, ins_v + 1
-
-                first_rem, second_rem = min(pos_i, pos_j), max(pos_i, pos_j)
-
-                if first_rem < tgt_u:
-                    tgt_u -= 1
-                if second_rem < tgt_u:
-                    tgt_u -= 1
-
-                if first_rem < tgt_v:
-                    tgt_v -= 1
-                if second_rem < tgt_v:
-                    tgt_v -= 1
-
-                new_t = [x for k, x in enumerate(t_list) if k != pos_i and k != pos_j]
-
-                if tgt_u > tgt_v:
-                    new_t.insert(tgt_u, val_u)
-                    new_t.insert(tgt_v, val_v)
-                else:
-                    new_t.insert(tgt_v, val_v)
-                    new_t.insert(tgt_u, val_u)
-
-                tours[b_idx] = torch.tensor(new_t, device=device)
+            tours = torch.gather(tours, 1, idx_map)
 
     return tours
 
@@ -762,39 +775,64 @@ def vectorized_three_opt(tours, dist_matrix, max_iterations=100):
         best_gain, best_case = torch.max(all_gains, dim=1)  # (B,), (B,)
 
         improved = (best_gain > 0.001) & mask.squeeze(1)
-        if not improved.any():
-            continue
+        if improved.any():
+            # Apply 3-opt improvements using vectorized index maps
+            seq_b = torch.arange(max_len, device=device).view(1, max_len).expand(B, max_len)
+            idx_map = seq_b.clone()
 
-        # 2. Apply Improvements
-        # This is the complex part: we need to reconstruct the tour for each improved case.
-        b_indices = torch.nonzero(improved).squeeze(1)
+            # For each case, we define how indices map
+            # We want to select based on best_case
+            # Indices for segments
+            # S1: [0..i], S2: [i+1..j], S3: [j+1..k], S4: [k+1..max_len-1]
+            len3 = k - j
 
-        for b_idx in b_indices:
-            case = best_case[b_idx].item()
-            t = tours[b_idx]
-            idx_i, idx_j, idx_k = i[b_idx].item(), j[b_idx].item(), k[b_idx].item()
+            # Construct masks for segments in a hypothetical newly ordered tour
+            # All cases keep S1 and S4 in place.
+            # Case 4 (idx 0): S1, S2^R, S3^R, S4
+            mask0 = (best_case == 0) & improved
+            # S2^R: [i+1, j] maps to original [i+1, j] reversed
+            c0_s2 = mask0.view(B, 1) & (seq_b > i) & (seq_b <= j)
+            idx_map[c0_s2] = i.expand(-1, max_len)[c0_s2] + j.expand(-1, max_len)[c0_s2] + 1 - seq_b[c0_s2]
+            # S3^R: [j+1, k] maps to original [j+1, k] reversed
+            c0_s3 = mask0.view(B, 1) & (seq_b > j) & (seq_b <= k)
+            idx_map[c0_s3] = j.expand(-1, max_len)[c0_s3] + k.expand(-1, max_len)[c0_s3] + 1 - seq_b[c0_s3]
 
-            # Segments:
-            # S1: [0 ... idx_i]
-            # S2: [idx_i+1 ... idx_j]
-            # S3: [idx_j+1 ... idx_k]
-            # S4: [idx_k+1 ... max_len-1]
-            s1 = t[: idx_i + 1]
-            s2 = t[idx_i + 1 : idx_j + 1]
-            s3 = t[idx_j + 1 : idx_k + 1]
-            s4 = t[idx_k + 1 :]
+            # Case 5 (idx 1): S1, S3, S2, S4
+            mask1 = (best_case == 1) & improved
+            # S3: [i+1, i+len3] maps to original [j+1, k]
+            c1_s3 = mask1.view(B, 1) & (seq_b > i) & (seq_b <= i + len3)
+            idx_map[c1_s3] = seq_b[c1_s3] - i.expand(-1, max_len)[c1_s3] + j.expand(-1, max_len)[c1_s3]
+            # S2: [i+len3+1, k] maps to original [i+1, j]
+            c1_s2 = mask1.view(B, 1) & (seq_b > i + len3) & (seq_b <= k)
+            idx_map[c1_s2] = (
+                seq_b[c1_s2]
+                - (i.expand(-1, max_len)[c1_s2] + len3.expand(-1, max_len)[c1_s2])
+                + i.expand(-1, max_len)[c1_s2]
+            )
 
-            if case == 0:  # Case 4: S1 + S2^R + S3^R + S4
-                new_t = torch.cat([s1, s2.flip(0), s3.flip(0), s4])
-            elif case == 1:  # Case 5: S1 + S3 + S2 + S4
-                new_t = torch.cat([s1, s3, s2, s4])
-            elif case == 2:  # Case 6: S1 + S3 + S2^R + S4
-                new_t = torch.cat([s1, s3, s2.flip(0), s4])
-            elif case == 3:  # Case 7: S1 + S3^R + S2 + S4
-                new_t = torch.cat([s1, s3.flip(0), s2, s4])
-            else:
-                continue
+            # Case 6 (idx 2): S1, S3, S2^R, S4
+            mask2 = (best_case == 2) & improved
+            # S3: [i+1, i+len3] maps to original [j+1, k]
+            c2_s3 = mask2.view(B, 1) & (seq_b > i) & (seq_b <= i + len3)
+            idx_map[c2_s3] = seq_b[c2_s3] - i.expand(-1, max_len)[c2_s3] + j.expand(-1, max_len)[c2_s3]
+            # S2^R: [i+len3+1, k] maps to original [i+1, j] reversed
+            c2_s2 = mask2.view(B, 1) & (seq_b > i + len3) & (seq_b <= k)
+            idx_map[c2_s2] = i.expand(-1, max_len)[c2_s2] + k.expand(-1, max_len)[c2_s2] + 1 - seq_b[c2_s2]
 
-            tours[b_idx] = new_t
+            # Case 7 (idx 3): S1, S3^R, S2, S4
+            mask3 = (best_case == 3) & improved
+            # S3^R: [i+1, i+len3] maps to original [j+1, k] reversed
+            c3_s3 = mask3.view(B, 1) & (seq_b > i) & (seq_b <= i + len3)
+            idx_map[c3_s3] = i.expand(-1, max_len)[c3_s3] + 1 + k.expand(-1, max_len)[c3_s3] - seq_b[c3_s3]
+            # S2: [i+len3+1, k] maps to original [i+1, j]
+            c3_s2 = mask3.view(B, 1) & (seq_b > i + len3) & (seq_b <= k)
+            idx_map[c3_s2] = (
+                seq_b[c3_s2]
+                - (i.expand(-1, max_len)[c3_s2] + len3.expand(-1, max_len)[c3_s2])
+                + i.expand(-1, max_len)[c3_s2]
+            )
+
+            # Apply improvements
+            tours = torch.gather(tours, 1, idx_map)
 
     return tours
