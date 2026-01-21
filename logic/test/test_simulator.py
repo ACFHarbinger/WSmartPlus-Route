@@ -255,6 +255,7 @@ class TestCheckpoints:
         state = {"data": "final_state"}
 
         def state_getter():
+            """Helper to get current state for checkpointing."""
             return state
 
         with checkpoint_manager(basic_checkpoint, checkpoint_interval=5, state_getter=state_getter) as hook:
@@ -273,6 +274,7 @@ class TestCheckpoints:
         state = {"data": "error_state"}
 
         def state_getter():
+            """Helper to get current state for checkpointing."""
             return state
 
         error_to_raise = ValueError("Simulation Failed")

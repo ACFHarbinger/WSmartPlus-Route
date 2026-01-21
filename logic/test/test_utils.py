@@ -11,6 +11,7 @@ Merges functionality from:
 - test_utils.py
 """
 
+from typing import Tuple
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
@@ -352,7 +353,8 @@ class TestFunctions:
     def test_compute_in_batches_tuple(self):
         """Test compute_in_batches with tuple return."""
 
-        def f(x):
+        def f(x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+            """Helper function for batch computation test."""
             return x * 2, x + 1
 
         x = torch.arange(10)
@@ -363,7 +365,8 @@ class TestFunctions:
     def test_compute_in_batches_none(self):
         """Test compute_in_batches with None return."""
 
-        def f(x):
+        def f(x: torch.Tensor) -> None:
+            """Helper function returning None for batch computation test."""
             return None
 
         x = torch.arange(10)
@@ -392,12 +395,14 @@ class TestFunctions:
     def test_sample_many(self):
         """Test sample_many sampling loop."""
 
-        def inner_func(x):
+        def inner_func(x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+            """Helper function simulating model forward pass for sampling test."""
             batch_size = x.size(0)
             return torch.randn(batch_size, 5, 5), torch.randint(0, 5, (batch_size, 5))
 
-        def get_cost(input, pi):
-            batch_size = input.size(0)
+        def get_cost(input_data: torch.Tensor, pi: torch.Tensor) -> Tuple[torch.Tensor, None]:
+            """Helper function simulating cost calculation for sampling test."""
+            batch_size = input_data.size(0)
             return torch.rand(batch_size), None
 
         input_data = torch.rand(2, 10)

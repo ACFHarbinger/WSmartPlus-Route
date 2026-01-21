@@ -152,6 +152,15 @@ class TemporalAttentionModel(AttentionModel):
         )
 
     def _get_initial_embeddings(self, nodes):
+        """
+        Get initial embeddings for nodes, incorporating predicted future fill levels.
+
+        Args:
+            nodes (dict): Input data containing node features and history.
+
+        Returns:
+            torch.Tensor: Combined embeddings (static + temporal).
+        """
         # Get the base embeddings from context embedder (without temporal features)
         base_embeddings = self.context_embedder.init_node_embeddings(nodes, temporal_features=False)
 

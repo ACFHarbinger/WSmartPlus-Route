@@ -37,7 +37,11 @@ from logic.src.utils.logging.visualize_utils import (
 
 
 class TestVisualizeUtils(unittest.TestCase):
+    """Test suite for core visualization utilities."""
+
     def test_get_batch(self):
+        """Test generation of sample data batches for visualization."""
+
         device = torch.device("cpu")
         batch = get_batch(device, size=10, batch_size=2)
         self.assertTrue("depot" in batch)
@@ -47,6 +51,8 @@ class TestVisualizeUtils(unittest.TestCase):
     @patch("logic.src.utils.logging.visualize_utils.os.listdir")
     @patch("logic.src.utils.logging.visualize_utils.torch.load")
     def test_plot_weight_trajectories(self, mock_load, mock_listdir, mock_plt):
+        """Test plotting of model weight changes over epochs."""
+
         mock_listdir.return_value = ["epoch-1.pt", "epoch-2.pt"]
         # Mock checkpoint
         mock_load.side_effect = [
@@ -62,6 +68,8 @@ class TestVisualizeUtils(unittest.TestCase):
 
     @patch("logic.src.utils.logging.visualize_utils.SummaryWriter")
     def test_log_weight_distributions(self, mock_writer_cls):
+        """Test logging of model weight histograms to TensorBoard."""
+
         model = MagicMock()
         model.named_parameters.return_value = [("p1", torch.randn(5))]
         mock_writer = mock_writer_cls.return_value
@@ -72,6 +80,8 @@ class TestVisualizeUtils(unittest.TestCase):
 
     @patch("logic.src.utils.logging.visualize_utils.SummaryWriter")
     def test_project_node_embeddings(self, mock_writer_cls):
+        """Test projection and logging of node embeddings to TensorBoard."""
+
         model = MagicMock()
         model._get_initial_embeddings.return_value = torch.randn(2, 5, 10)  # B, N, D
         model.embedder.return_value = torch.randn(2, 5, 10)
@@ -84,6 +94,8 @@ class TestVisualizeUtils(unittest.TestCase):
     @patch("logic.src.utils.logging.visualize_utils.plt")
     @patch("logic.src.utils.logging.visualize_utils.sns")
     def test_plot_attention_heatmaps(self, mock_sns, mock_plt):
+        """Test generation of attention heatmaps for model layers."""
+
         model = MagicMock()
         # Create a mock layer
         layer = MagicMock()
@@ -119,12 +131,18 @@ class TestVisualizeUtils(unittest.TestCase):
 
 @patch("logic.src.utils.logging.plot_utils.plt")
 class TestPlotUtils(unittest.TestCase):
+    """Test suite for general plotting utilities."""
+
     def test_plot_linechart(self, mock_plt):
+        """Test line chart generation for evaluation metrics."""
+
         msg = np.zeros((1, 2, 6))  # 1 policy, 2 points, 6 metrics
         plot_linechart("out.png", msg, mock_plt.plot, ["pol1"])
         mock_plt.savefig.assert_called()
 
     def test_plot_tsp(self, mock_plt):
+        """Test plotting of TSP tours."""
+
         xy = np.random.rand(5, 2)
         tour = np.array([0, 1, 2, 3, 4, 0])
         ax = MagicMock()
@@ -133,6 +151,8 @@ class TestPlotUtils(unittest.TestCase):
         ax.scatter.assert_called()
 
     def test_plot_vehicle_routes(self, mock_plt):
+        """Test plotting of multi-vehicle routing solutions."""
+
         data = {
             "depot": torch.tensor([0.5, 0.5]),
             "loc": torch.rand(5, 2),
