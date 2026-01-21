@@ -45,7 +45,7 @@ class VRPPEnv(RL4COEnvBase):
             device: Device for torch tensors ('cpu' or 'cuda').
             **kwargs: Additional keyword arguments.
         """
-        generator_params = generator_params or {"num_loc": 50}
+        generator_params = generator_params or kwargs
         if generator is None:
             generator = VRPPGenerator(**generator_params, device=device)
 

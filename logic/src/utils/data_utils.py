@@ -260,9 +260,10 @@ def convert_pkl_to_td(pkl_path, td_path):
         {
             "locs": locs,
             "depot": depots,
-            "waste": waste,
+            "demand": waste,
+            "waste": waste.clone(),  # Keep for compatibility with logging or other parts
             "prize": waste.clone(),
-            "capacity": torch.ones(len(data)),
+            "capacity": torch.full((len(data),), 100.0),
             "max_waste": max_waste,
             "max_length": torch.full((len(data),), 2.4),
         },

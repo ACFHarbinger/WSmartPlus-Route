@@ -146,6 +146,9 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
                 move_to(bat, opts["device"], non_blocking=True),
                 (move_to(d_matrix, opts["device"], non_blocking=True) if d_matrix is not None else None),
             )
+        # Move all to CPU for robust aggregation
+        ucost = ucost.cpu()
+        c_dict = {k: v.cpu() if isinstance(v, torch.Tensor) else v for k, v in c_dict.items()}
         return ucost, c_dict, attn_dict
 
     set_decode_type(model, "greedy")
@@ -160,7 +163,7 @@ def validate_update(model, dataset, opts, cw_dict=None, metric=None, dist_matrix
         )
 
     all_costs = {"overflows": [], "kg": [], "km": []}
-    all_ucosts = move_to(torch.tensor([]), opts["device"], non_blocking=True)
+    all_ucosts = torch.tensor([])
     attention_dict = {"attention_weights": [], "graph_masks": []}
 
     dataloader = torch.utils.data.DataLoader(

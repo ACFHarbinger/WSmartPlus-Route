@@ -52,6 +52,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
     # If cfg.env is a dataclass, we can access attributes directly
     env_name = cfg.env.name
     env_kwargs = {k: v for k, v in vars(cfg.env).items() if k != "name"}
+    env_kwargs["device"] = cfg.device  # Pass device to environment
     env = get_env(env_name, **env_kwargs)
 
     # 2. Initialize Policy
@@ -77,7 +78,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
         "hidden_dim": cfg.model.hidden_dim,
         "n_encode_layers": cfg.model.num_encoder_layers,
         "n_heads": cfg.model.num_heads,
-        "normalization": "batch",
+        "normalization": cfg.model.normalization,
     }
     if cfg.model.name == "deep_decoder":
         policy_kwargs["n_decode_layers"] = cfg.model.num_decoder_layers
@@ -363,6 +364,8 @@ def run_training(cfg: Config) -> float:
     seed_everything(cfg.seed)
     model = create_model(cfg)
 
+    from pytorch_lightning.loggers import CSVLogger
+
     trainer = WSTrainer(
         max_epochs=cfg.train.n_epochs,
         project_name="wsmart-route",
@@ -370,7 +373,7 @@ def run_training(cfg: Config) -> float:
         accelerator=cfg.device if cfg.device != "cuda" else "auto",
         devices=1 if cfg.device == "cuda" else "auto",
         gradient_clip_val=float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0,
-        logger=False,
+        logger=CSVLogger("logs", name="lightning_logs"),
         callbacks=[SpeedMonitor(epoch_time=True)],
     )
 

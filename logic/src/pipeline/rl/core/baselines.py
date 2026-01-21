@@ -14,8 +14,11 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 
-class Baseline(ABC):
+class Baseline(nn.Module, ABC):
     """Base class for baselines."""
+
+    def __init__(self):
+        super().__init__()
 
     @abstractmethod
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
@@ -38,7 +41,9 @@ class Baseline(ABC):
             return dataset.dataset
         return dataset
 
-    def epoch_callback(self, policy: nn.Module, epoch: int):
+    def epoch_callback(
+        self, policy: nn.Module, epoch: int, val_dataset: Optional[Any] = None, env: Optional[Any] = None
+    ):
         """Optional callback at epoch end."""
         pass
 
@@ -49,6 +54,9 @@ class Baseline(ABC):
 
 class NoBaseline(Baseline):
     """No baseline (vanilla REINFORCE)."""
+
+    def __init__(self, **kwargs):
+        super().__init__()
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """
@@ -75,6 +83,7 @@ class ExponentialBaseline(Baseline):
         Args:
             beta: Decay factor for exponential moving average (default: 0.8).
         """
+        super().__init__()
         self.beta = beta
         self.running_mean: Optional[torch.Tensor] = None
 
@@ -122,9 +131,10 @@ class RolloutBaseline(Baseline):
             bl_alpha: Significance level for T-test to decide on updates.
             **kwargs: Additional keyword arguments.
         """
+        super().__init__()
         self.update_every = update_every
         self.bl_alpha = bl_alpha
-        self.baseline_policy: Optional[nn.Module] = None
+        self.baseline_policy = None
         if policy is not None:
             self.setup(policy)
 
@@ -159,12 +169,8 @@ class RolloutBaseline(Baseline):
             policy.eval()
             with torch.no_grad():
                 for batch in loader:
-                    # Move batch to device
+                    # Get device from policy
                     device = next(policy.parameters()).device
-                    if isinstance(batch, (dict, TensorDict)):
-                        batch = {k: v.to(device) if hasattr(v, "to") else v for k, v in batch.items()}
-                    else:
-                        batch = batch.to(device)
 
                     # Reset environment for the batch
                     # if it's a dict-like, we only want the data part for reset
@@ -176,8 +182,12 @@ class RolloutBaseline(Baseline):
                     if isinstance(td_data, dict):
                         td_data = TensorDict(td_data, batch_size=[len(next(iter(td_data.values())))])
 
+                    # Move to device after converting to TensorDict
+                    td_data = td_data.to(device)
+
                     try:
                         td_data = env.reset(td_data)
+                        td_data = td_data.to(device)  # Ensure on policy device after reset
                     except Exception as e:
                         print(
                             f"DEBUG: batch type: {type(batch)}, keys: {batch.keys() if hasattr(batch, 'keys') else 'N/A'}"
@@ -198,7 +208,11 @@ class RolloutBaseline(Baseline):
         if isinstance(td_copy, dict):
             td_copy = TensorDict(td_copy, batch_size=[len(next(iter(td_copy.values())))])
 
+        # Get device from policy
+        device = next(policy.parameters()).device
+        td_copy = td_copy.to(device)
         td_copy = env.reset(td_copy)
+        td_copy = td_copy.to(device)  # Ensure on policy device after reset
         policy.eval()
         with torch.no_grad():
             out = policy(td_copy, env, decode_type="greedy")
@@ -273,6 +287,7 @@ class WarmupBaseline(Baseline):
             warmup_epochs: Number of epochs for warmup transition.
             beta: Beta parameter for the warmup exponential baseline.
         """
+        super().__init__()
         self.baseline = baseline
         self.warmup_baseline = ExponentialBaseline(beta=beta)
         self.alpha = 0.0
@@ -302,15 +317,19 @@ class WarmupBaseline(Baseline):
     def unwrap_batch(self, batch: Any) -> Tuple[Any, Optional[torch.Tensor]]:
         return self.baseline.unwrap_batch(batch)
 
-    def epoch_callback(self, policy: nn.Module, epoch: int):
+    def epoch_callback(
+        self, policy: nn.Module, epoch: int, val_dataset: Optional[Any] = None, env: Optional[Any] = None
+    ):
         """
         Update warmup alpha and call inner baseline callback.
 
         Args:
             policy: Current policy.
             epoch: Current epoch number.
+            val_dataset: Validation dataset.
+            env: Environment.
         """
-        self.baseline.epoch_callback(policy, epoch)
+        self.baseline.epoch_callback(policy, epoch, val_dataset, env)
         if epoch < self.warmup_epochs:
             self.alpha = (epoch + 1) / float(self.warmup_epochs)
         else:
@@ -327,6 +346,7 @@ class CriticBaseline(Baseline):
         Args:
             critic: Critic neural network module.
         """
+        super().__init__()
         self.critic = critic
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
@@ -358,6 +378,9 @@ class POMOBaseline(Baseline):
     """
     POMO baseline: mean reward across starts of the SAME instance.
     """
+
+    def __init__(self, **kwargs):
+        super().__init__()
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """
