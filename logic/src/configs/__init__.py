@@ -65,6 +65,14 @@ class RLConfig:
     eps_clip: float = 0.2
     value_loss_weight: float = 0.5
 
+    # SAPO specific
+    sapo_tau_pos: float = 0.1
+    sapo_tau_neg: float = 1.0
+
+    # DR-GRPO specific
+    dr_grpo_group_size: int = 8
+    dr_grpo_epsilon: float = 0.2
+
 
 @dataclass
 class Config:
