@@ -12,6 +12,12 @@ import numpy as np
 import pandas as pd
 from gurobipy import GRB, quicksum
 
+from logic.src.models.policies.classical.adaptive_large_neighborhood_search import (
+    run_alns,
+    run_alns_ortools,
+    run_alns_package,
+)
+from logic.src.models.policies.classical.hybrid_genetic_search import run_hgs
 from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
 from logic.src.pipeline.simulations.processor import (
     convert_to_dict,
@@ -19,13 +25,7 @@ from logic.src.pipeline.simulations.processor import (
 )
 
 from .adapters import IPolicy, PolicyRegistry
-from .adaptive_large_neighborhood_search import (
-    run_alns,
-    run_alns_ortools,
-    run_alns_package,
-)
 from .branch_cut_and_price import run_bcp
-from .hybrid_genetic_search import run_hgs
 from .lin_kernighan import solve_lk
 from .look_ahead_aux import (
     add_bins_to_collect,

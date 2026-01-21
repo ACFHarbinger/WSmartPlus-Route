@@ -11,76 +11,13 @@ from typing import Optional
 import torch
 from tensordict import TensorDict
 
+from logic.src.data.transforms import batchify
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.utils import DummyProblem, TensorDictStateWrapper
 from logic.src.models.subnets.attention_decoder import AttentionDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
-
-
-class TensorDictStateWrapper:
-    """
-    Wraps a TensorDict to expose methods expected by legacy AttentionDecoder.
-    """
-
-    def __init__(self, td: TensorDict, problem_name: str = "vrpp"):
-        self.td = td
-        self.problem_name = problem_name
-
-        # Expose common properties directly
-        self.dist_matrix = td.get("dist", None)
-        # Handle 'demands_with_depot' for WCVRP partial updates
-        if "demand" in td.keys():
-            # In WCVRPEnv, demand includes all nodes.
-            # Encoder/Decoder expects [batch, steps, 1] usually?
-            # Actually legacy code expects [batch, n_nodes].
-            self.demands_with_depot = td["demand"]
-
-    def get_mask(self) -> Optional[torch.Tensor]:
-        """Get action mask from TensorDict."""
-        # RL4CO envs provide "action_mask" where True means VALID.
-        # AttentionDecoder expects mask where True means INVALID (masked out).
-        # So we invert it.
-        if "action_mask" in self.td.keys():
-            mask = ~self.td["action_mask"]
-            if mask.dim() == 2:
-                mask = mask.unsqueeze(1)
-            return mask
-        return None
-
-    def get_edges_mask(self) -> Optional[torch.Tensor]:
-        return self.td.get("graph_mask", None)
-
-    def get_current_node(self) -> torch.Tensor:
-        """Get current node (last visited)."""
-        return self.td["current_node"].long()
-
-    def get_current_profit(self) -> torch.Tensor:
-        """For VRPP: get cumulative collected prize."""
-        # This is used for context embedding.
-        val = self.td.get("collected_prize", torch.zeros(self.td.batch_size, device=self.td.device))
-        if val.dim() == 1:
-            val = val.unsqueeze(-1)
-        return val
-
-    def get_current_efficiency(self) -> torch.Tensor:
-        """For WCVRP: get current efficiency."""
-        # Legacy placeholder
-        val = torch.zeros(self.td.batch_size, device=self.td.device)
-        return val.unsqueeze(-1)
-
-    def get_remaining_overflows(self) -> torch.Tensor:
-        """For WCVRP: get remaining overflows."""
-        # Legacy placeholder
-        val = torch.zeros(self.td.batch_size, device=self.td.device)
-        return val.unsqueeze(-1)
-
-
-class DummyProblem:
-    """Minimal problem wrapper for AttentionDecoder init."""
-
-    def __init__(self, name: str):
-        self.NAME = name
 
 
 class AttentionModelPolicy(ConstructivePolicy):
@@ -125,6 +62,7 @@ class AttentionModelPolicy(ConstructivePolicy):
         env: RL4COEnvBase,
         decode_type: str = "sampling",
         num_starts: int = 1,
+        actions: Optional[torch.Tensor] = None,
         **kwargs,
     ) -> dict:
         """
@@ -134,20 +72,28 @@ class AttentionModelPolicy(ConstructivePolicy):
         init_embeds = self.init_embedding(td)
 
         # 2. Encoder
-        # Pass graph structure if available (e.g., k-NN edges)
         edges = td.get("edges", None)
+        assert self.encoder is not None, "Encoder is not initialized"
         embeddings = self.encoder(init_embeds, edges)
 
-        # 3. Decoder Precomputation
+        # 3. Multi-start expansion if needed
+        if num_starts > 1:
+            td = batchify(td, num_starts)
+            embeddings = embeddings.unsqueeze(1).repeat(1, num_starts, 1, 1).reshape(-1, *embeddings.shape[1:])
+
+        # 4. Decoder Precomputation
+        assert self.decoder is not None, "Decoder is not initialized"
         fixed = self.decoder._precompute(embeddings)
 
-        # 4. Decoding Loop
+        # 5. Decoding Loop
         log_likelihood = 0
-        actions = []
+        output_actions = []
+        step_idx = 0
 
         # Assuming environment is already reset
         while not td["done"].all():
             # Wrap state for legacy compatibility
+            assert self.env_name is not None, "env_name must be set"
             state_wrapper = TensorDictStateWrapper(td, self.env_name)
 
             # Get logits from decoder
@@ -162,8 +108,15 @@ class AttentionModelPolicy(ConstructivePolicy):
                 mask = mask.squeeze(1)
             valid_mask = ~mask
 
-            # Select action
-            action, log_p = self._select_action(logits, valid_mask, decode_type)
+            if actions is not None:
+                # Teacher forcing
+                action = actions[:, step_idx]
+                # Compute log_prob of this action
+                probs = torch.softmax(logits.masked_fill(~valid_mask, float("-inf")), dim=-1)
+                log_p = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-10).squeeze(-1)
+            else:
+                # Select action
+                action, log_p = self._select_action(logits, valid_mask, decode_type)
 
             # Update state
             td["action"] = action
@@ -171,13 +124,19 @@ class AttentionModelPolicy(ConstructivePolicy):
 
             # update log likelihood
             log_likelihood = log_likelihood + log_p
-            actions.append(action)
+            output_actions.append(action)
+            step_idx += 1
 
         # Collect reward
-        reward = env.get_reward(td, torch.stack(actions, dim=1))
+        reward = env.get_reward(td, torch.stack(output_actions, dim=1))
 
-        return {
+        out = {
             "reward": reward,
             "log_likelihood": log_likelihood,
-            "actions": torch.stack(actions, dim=1),
+            "actions": torch.stack(output_actions, dim=1),
         }
+
+        if kwargs.get("return_init_embeds", False):
+            out["init_embeds"] = init_embeds
+
+        return out

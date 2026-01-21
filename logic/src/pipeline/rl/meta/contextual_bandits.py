@@ -1,0 +1,141 @@
+"""
+Contextual Bandit Approach for Weight Configuration Selection.
+"""
+import math
+import random
+from collections import defaultdict
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+
+from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
+
+
+class WeightContextualBandit(WeightAdjustmentStrategy):
+    """
+    A contextual bandit approach for dynamically selecting weight configurations.
+    """
+
+    def __init__(
+        self,
+        num_days: int = 10,
+        initial_weights: Optional[Dict[str, float]] = None,
+        context_features: Optional[List[str]] = None,
+        features_aggregation: str = "avg",
+        exploration_strategy: str = "ucb",
+        exploration_factor: float = 0.5,
+        num_weight_configs: int = 10,
+        weight_ranges: Optional[Dict[str, Tuple[float, float]]] = None,
+        window_size: int = 20,
+        **kwargs,
+    ):
+        self.num_days = num_days
+        self.weight_ranges = weight_ranges
+        self.weight_configs = self._generate_weight_configs(initial_weights, num_weight_configs)
+        self.num_configs = len(self.weight_configs)
+
+        self.context_features = context_features or []
+        self.features_aggregation = features_aggregation
+        self.exploration_strategy = exploration_strategy
+        self.exploration_factor = exploration_factor
+
+        # Thompson sampling
+        self.alpha = np.ones(self.num_configs)
+        self.beta = np.ones(self.num_configs)
+
+        # UCB
+        self.trials = np.zeros(self.num_configs)
+        self.total_trials = 0
+
+        # Reward tracking
+        self.rewards = defaultdict(list)
+        self.window_size = window_size
+
+        self.current_config_idx = 0
+        self.current_config = self.weight_configs[0]
+
+        self.contexts = []
+        self.context_rewards = defaultdict(lambda: defaultdict(list))
+        self.history = []
+
+    def propose_weights(self, context: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
+        if context is None:
+            return self.current_config
+
+        # In the new pipeline, context should contain the features
+        context_key = self._context_to_key(context)
+        self.contexts.append(context)
+
+        if self.exploration_strategy == "ucb":
+            selected_idx = self._select_ucb(context_key)
+        elif self.exploration_strategy == "thompson_sampling":
+            selected_idx = self._select_thompson_sampling(context_key)
+        else:
+            selected_idx = self._select_epsilon_greedy(context_key)
+
+        self.current_config_idx = selected_idx
+        self.current_config = self.weight_configs[selected_idx]
+
+        return self.current_config
+
+    def feedback(self, reward: float, metrics: Any, day: Optional[int] = None, step: Optional[int] = None):
+        context = self.contexts[-1] if self.contexts else None
+        context_key = self._context_to_key(context) if context else None
+
+        if context_key:
+            self.context_rewards[context_key][self.current_config_idx].append(reward)
+            if len(self.context_rewards[context_key][self.current_config_idx]) > self.window_size:
+                self.context_rewards[context_key][self.current_config_idx].pop(0)
+
+        self.trials[self.current_config_idx] += 1
+        self.total_trials += 1
+
+        # Thompson sampling update
+        norm_reward = max(0, min(1, (reward + 10) / 20))  # Placeholder normalization
+        self.alpha[self.current_config_idx] += norm_reward
+        self.beta[self.current_config_idx] += 1 - norm_reward
+
+    def get_current_weights(self) -> Dict[str, float]:
+        return self.current_config
+
+    def _generate_weight_configs(self, initial_weights, num_configs):
+        configs = []
+        if initial_weights:
+            configs.append(initial_weights.copy())
+
+        if self.weight_ranges:
+            components = list(self.weight_ranges.keys())
+            while len(configs) < num_configs:
+                config = {c: random.uniform(self.weight_ranges[c][0], self.weight_ranges[c][1]) for c in components}
+                configs.append(config)
+        return configs if configs else [initial_weights]
+
+    def _context_to_key(self, context: Dict[str, Any]) -> Tuple:
+        # Simplified context to key mapping
+        return tuple(sorted(context.items()))
+
+    def _select_ucb(self, context_key):
+        if self.total_trials == 0:
+            return random.randint(0, self.num_configs - 1)
+
+        scores = np.zeros(self.num_configs)
+        for i in range(self.num_configs):
+            r_list = self.context_rewards[context_key][i]
+            mean_r = np.mean(r_list) if r_list else 0
+            conf = self.exploration_factor * math.sqrt(math.log(self.total_trials + 1) / (self.trials[i] + 1))
+            scores[i] = mean_r + conf
+        return np.argmax(scores)
+
+    def _select_thompson_sampling(self, context_key):
+        samples = [np.random.beta(self.alpha[i], self.beta[i]) for i in range(self.num_configs)]
+        return np.argmax(samples)
+
+    def _select_epsilon_greedy(self, context_key):
+        if random.random() < self.exploration_factor:
+            return random.randint(0, self.num_configs - 1)
+
+        scores = [
+            np.mean(self.context_rewards[context_key][i]) if self.context_rewards[context_key][i] else -1e6
+            for i in range(self.num_configs)
+        ]
+        return np.argmax(scores)

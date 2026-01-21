@@ -6,7 +6,7 @@ from __future__ import annotations
 import torch
 from tensordict import TensorDict
 
-from logic.src.pipeline.rl.base import RL4COLitModule
+from logic.src.pipeline.rl.core.base import RL4COLitModule
 
 
 class REINFORCE(RL4COLitModule):
@@ -41,7 +41,10 @@ class REINFORCE(RL4COLitModule):
         log_likelihood = out["log_likelihood"]
 
         # Get baseline
-        baseline_val = self.baseline.eval(td, reward)
+        if hasattr(self, "_current_baseline_val") and self._current_baseline_val is not None:
+            baseline_val = self._current_baseline_val
+        else:
+            baseline_val = self.baseline.eval(td, reward)
 
         # Advantage
         advantage = reward - baseline_val

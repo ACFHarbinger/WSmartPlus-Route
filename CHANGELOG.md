@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-01-21
+
+### Major Refactoring Completion (Phases 1-5)
+The **Old RL Pipeline** (`logic/src/pipeline/reinforcement_learning/`) features have been fully migrated to the **New Lightning Pipeline** (`logic/src/pipeline/rl/`), achieving 100% parity and enhanced modularity.
+
+### Added
+- **Robust Baselines**:
+  - `RolloutBaseline`: Now performs correct greedy rollout with T-test significance updates.
+  - `POMOBaseline`: Computes mean reward across instance augmentations/starts.
+  - `WarmupBaseline` & `CriticBaseline`: Restored and integrated.
+- **Meta-Learning Suite**:
+  - `CostWeightManager` (TD Learning): Reimplemented using tabular TD methods for adaptive weight tuning.
+  - `HyperNetworkTrainer`: Implemented via `HyperNetworkStrategy` wrapper.
+  - Registery now supports: `rnn` (RWA), `bandit` (Contextual), `morl` (Pareto), `tdl` (TD), `hypernet`.
+- **Training Infrastructure**:
+  - `TimeBasedMixin`: Full simulation parity for temporal bin fill updates in `time_training.py`.
+  - `Epoch Utilities`: Rich validation metrics (overflows, efficiency, cost) in `epoch.py`.
+  - `Post-Processing`: Full `calculate_efficiency` logic and `EfficiencyOptimizer` parity.
+- **HPO Module** (`logic/src/pipeline/rl/hpo/`):
+  - Consolidated HPO logic into dedicated module.
+  - `OptunaHPO`: Clean class-based interface for Optuna (TPE, Grid, Random, Hyperband).
+  - `DEHB`: Integrated Differential Evolution Hyperband.
+
+### Changed
+- **Folder Structure**:
+  - Moved `dehb` from `features/` to `hpo/`.
+  - Created alias proxies in `pipeline/rl/policies/` for classical solvers (`hgs`, `alns`).
+- **Logic**:
+  - `MetaRLModule` now automatically passes environment context to strategies like HyperNet and TDL.
+  - `HRLModule` Manager now computes Actor-Critic (PPO) loss instead of no-op.
+
+## [2.0.0] - 2026-01-21
+
+### Added
+- **New RL Pipeline (`logic/src/pipeline/rl/`)**: Modular, PyTorch Lightning-based architecture.
+  - **Algorithms**: REINFORCE, PPO, SAPO, GSPO, DR-GRPO, POMO, SymNCO.
+  - **Baselines**: Rollout (greedy), Warmup (exponential->greedy), POMO (mean-augmented), Critic (network).
+  - **Meta-Learning**: Unified `MetaRLModule` with RNN, Contextual Bandit, and Pareto (MORL) strategies.
+  - **Hierarchical RL**: `HRLModule` with Manager-Worker architecture.
+  - **HPO**: Lightning-integrated Hyperparameter Optimization using Optuna and DEHB.
+  - **Hybrid Policies**: `NeuralHeuristicHybrid` combining AM/TAM with ALNS/HGS.
+- **Environment Layer (`logic/src/envs/`)**: RL4CO-compatible `VRPPEnv` and `WCVRPEnv` with diverse generators.
+- **Data Layer**: Optimized `TensorDict`-based datasets and generators in `logic/src/data/`.
+
+### Changed
+- Refactored `logic/src/pipeline/reinforcement_learning/` into the new `logic/src/pipeline/rl/` package.
+- Standardized all policy inputs/outputs to `TensorDict`.
+- Unified training loop via `WSTrainer` (Lightning Wrapper).
+- Updated `alns.py` and `hgs.py` to support `pd.DataFrame` coordinate inputs for distance calculation.
+
+### Removed
+- Legacy training scripts (`manager_train.py`, `worker_train.py`) in favor of `main.py` entry points.
+
 ## [Unreleased]
 
 ### Added

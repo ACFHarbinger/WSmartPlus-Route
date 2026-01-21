@@ -31,6 +31,7 @@ class WCVRPEnv(RL4COEnvBase):
         generator_params: Optional[dict] = None,
         overflow_penalty: float = 10.0,
         collection_reward: float = 1.0,
+        cost_weight: float = 1.0,
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ):
@@ -41,25 +42,32 @@ class WCVRPEnv(RL4COEnvBase):
         super().__init__(generator, generator_params, device, **kwargs)
         self.overflow_penalty = overflow_penalty
         self.collection_reward = collection_reward
+        self.cost_weight = cost_weight
 
-    def _reset(self, td: TensorDict, batch_size: Optional[int] = None) -> TensorDict:
+    def _reset(self, td: TensorDict, batch_size: Optional[Union[int, list[int], tuple[int, ...]]] = None) -> TensorDict:
         """Initialize WCVRP episode state."""
         device = td.device
-        bs = td.batch_size[0] if batch_size is None else batch_size
-        num_nodes = td["locs"].shape[1]
+        if batch_size is None:
+            bs = td.batch_size
+        elif isinstance(batch_size, int):
+            bs = (batch_size,)
+        else:
+            bs = tuple(batch_size)
 
-        td["current_node"] = torch.zeros(bs, 1, dtype=torch.long, device=device)
-        td["visited"] = torch.zeros(bs, num_nodes, dtype=torch.bool, device=device)
-        td["visited"][:, 0] = True
+        num_nodes = td["locs"].shape[-2]
 
-        td["tour"] = torch.zeros(bs, 0, dtype=torch.long, device=device)
-        td["tour_length"] = torch.zeros(bs, device=device)
+        td["current_node"] = torch.zeros(*bs, 1, dtype=torch.long, device=device)
+        td["visited"] = torch.zeros(*bs, num_nodes, dtype=torch.bool, device=device)
+        td["visited"][..., 0] = True
+
+        td["tour"] = torch.zeros(*bs, 0, dtype=torch.long, device=device)
+        td["tour_length"] = torch.zeros(*bs, device=device)
 
         # Vehicle load tracking
-        td["current_load"] = torch.zeros(bs, device=device)
-        td["total_collected"] = torch.zeros(bs, device=device)
+        td["current_load"] = torch.zeros(*bs, device=device)
+        td["total_collected"] = torch.zeros(*bs, device=device)
 
-        td["i"] = torch.zeros(bs, 1, dtype=torch.long, device=device)
+        td["i"] = torch.zeros(*bs, 1, dtype=torch.long, device=device)
 
         return td
 
@@ -135,7 +143,11 @@ class WCVRPEnv(RL4COEnvBase):
         not_at_depot = current != 0
         total_cost = cost + return_distance * not_at_depot.float()
 
-        reward = self.collection_reward * collection - total_cost
+        # Store individual components in TensorDict for logging/meta access
+        td["collection"] = collection
+        td["cost"] = total_cost
+
+        reward = self.collection_reward * collection - self.cost_weight * total_cost
         return reward
 
 

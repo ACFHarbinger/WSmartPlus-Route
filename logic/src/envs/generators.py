@@ -50,7 +50,7 @@ class Generator(ABC):
         self._kwargs = kwargs
 
     @abstractmethod
-    def _generate(self, batch_size: int) -> TensorDict:
+    def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
         """
         Generate a batch of problem instances.
 
@@ -58,36 +58,41 @@ class Generator(ABC):
         problem-specific instance data.
 
         Args:
-            batch_size: Number of instances to generate.
+            batch_size: Batch size(s) to generate.
 
         Returns:
             TensorDict containing the generated instances.
         """
         raise NotImplementedError
 
-    def __call__(self, batch_size: int) -> TensorDict:
+    def __call__(self, batch_size: Union[int, list[int], tuple[int, ...]] = 1) -> TensorDict:
         """
         Generate a batch of problem instances.
 
         Args:
-            batch_size: Number of instances to generate.
+            batch_size: Number of instances or batch size tuple to generate.
 
         Returns:
             TensorDict containing the generated instances.
         """
+        if isinstance(batch_size, int):
+            batch_size = (batch_size,)
+        else:
+            batch_size = tuple(batch_size)
+
         td = self._generate(batch_size)
         return td.to(self.device)
 
-    def _generate_locations(self, batch_size: int, num_loc: Optional[int] = None) -> torch.Tensor:
+    def _generate_locations(self, batch_size: tuple[int, ...], num_loc: Optional[int] = None) -> torch.Tensor:
         """
         Generate location coordinates based on the specified distribution.
 
         Args:
-            batch_size: Number of instances.
+            batch_size: Batch size tuple.
             num_loc: Number of locations (uses self.num_loc if None).
 
         Returns:
-            Tensor of shape (batch_size, num_loc, 2) containing coordinates.
+            Tensor of shape (*batch_size, num_loc, 2) containing coordinates.
         """
         num_loc = num_loc or self.num_loc
 
@@ -103,18 +108,18 @@ class Generator(ABC):
         else:
             raise ValueError(f"Unknown location distribution: {self.loc_distribution}")
 
-    def _uniform_locations(self, batch_size: int, num_loc: int) -> torch.Tensor:
+    def _uniform_locations(self, batch_size: tuple[int, ...], num_loc: int) -> torch.Tensor:
         """Generate uniformly distributed locations."""
-        return torch.rand(batch_size, num_loc, 2, device=self.device) * (self.max_loc - self.min_loc) + self.min_loc
+        return torch.rand(*batch_size, num_loc, 2, device=self.device) * (self.max_loc - self.min_loc) + self.min_loc
 
-    def _normal_locations(self, batch_size: int, num_loc: int) -> torch.Tensor:
+    def _normal_locations(self, batch_size: tuple[int, ...], num_loc: int) -> torch.Tensor:
         """Generate normally distributed locations (clipped to bounds)."""
         center = (self.max_loc + self.min_loc) / 2
         std = (self.max_loc - self.min_loc) / 6  # ~99.7% within bounds
-        locs = torch.randn(batch_size, num_loc, 2, device=self.device) * std + center
+        locs = torch.randn(*batch_size, num_loc, 2, device=self.device) * std + center
         return torch.clamp(locs, self.min_loc, self.max_loc)
 
-    def _clustered_locations(self, batch_size: int, num_loc: int, num_clusters: int = 3) -> torch.Tensor:
+    def _clustered_locations(self, batch_size: tuple[int, ...], num_loc: int, num_clusters: int = 3) -> torch.Tensor:
         """Generate clustered locations using Gaussian mixture."""
         num_clusters = self._kwargs.get("num_clusters", num_clusters)
 
@@ -122,17 +127,17 @@ class Generator(ABC):
         centers = self._uniform_locations(batch_size, num_clusters)
 
         # Assign points to clusters
-        cluster_assignments = torch.randint(0, num_clusters, (batch_size, num_loc), device=self.device)
+        cluster_assignments = torch.randint(0, num_clusters, (*batch_size, num_loc), device=self.device)
 
         # Generate points around cluster centers
         std = (self.max_loc - self.min_loc) / 10
-        offsets = torch.randn(batch_size, num_loc, 2, device=self.device) * std
+        offsets = torch.randn(*batch_size, num_loc, 2, device=self.device) * std
 
         # Get assigned cluster centers
-        locs = torch.zeros(batch_size, num_loc, 2, device=self.device)
+        locs = torch.zeros(*batch_size, num_loc, 2, device=self.device)
         for i in range(num_clusters):
             mask = cluster_assignments == i
-            locs[mask] = centers[:, i : i + 1, :].expand(-1, num_loc, -1)[mask]
+            locs[mask] = centers[..., i : i + 1, :].expand(*batch_size, num_loc, -1)[mask]
 
         locs = locs + offsets
         return torch.clamp(locs, self.min_loc, self.max_loc)
@@ -201,7 +206,7 @@ class VRPPGenerator(Generator):
         self.max_length = max_length
         self.depot_type = depot_type
 
-    def _generate(self, batch_size: int) -> TensorDict:
+    def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
         """Generate VRPP instances."""
         # Generate locations
         locs = self._generate_locations(batch_size)
@@ -216,7 +221,7 @@ class VRPPGenerator(Generator):
         prize = self._generate_prize(batch_size)
 
         # Compute max_waste per instance (for normalization)
-        max_waste = torch.full((batch_size,), self.capacity, device=self.device)
+        max_waste = torch.full((*batch_size,), self.capacity, device=self.device)
 
         # Compute max_length if not specified
         max_length = self.max_length
@@ -230,48 +235,48 @@ class VRPPGenerator(Generator):
                 "depot": depot,
                 "waste": waste,
                 "prize": prize,
-                "capacity": torch.full((batch_size,), self.capacity, device=self.device),
+                "capacity": torch.full((*batch_size,), self.capacity, device=self.device),
                 "max_waste": max_waste,
-                "max_length": torch.full((batch_size,), max_length, device=self.device),
+                "max_length": torch.full((*batch_size,), max_length, device=self.device),
             },
-            batch_size=[batch_size],
+            batch_size=batch_size,
             device=self.device,
         )
 
-    def _generate_depot(self, batch_size: int) -> torch.Tensor:
+    def _generate_depot(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate depot location based on depot_type."""
         if self.depot_type == "center":
             center = (self.max_loc + self.min_loc) / 2
-            return torch.full((batch_size, 2), center, device=self.device)
+            return torch.full((*batch_size, 2), center, device=self.device)
         elif self.depot_type == "corner":
-            return torch.full((batch_size, 2), self.min_loc, device=self.device)
+            return torch.full((*batch_size, 2), self.min_loc, device=self.device)
         elif self.depot_type == "random":
-            return self._uniform_locations(batch_size, 1).squeeze(1)
+            return self._uniform_locations(batch_size, 1).squeeze(-2)
         else:
             raise ValueError(f"Unknown depot type: {self.depot_type}")
 
-    def _generate_waste(self, batch_size: int) -> torch.Tensor:
+    def _generate_waste(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate waste/demand values."""
         if self.waste_distribution == "uniform":
             return (
-                torch.rand(batch_size, self.num_loc, device=self.device) * (self.max_waste - self.min_waste)
+                torch.rand(*batch_size, self.num_loc, device=self.device) * (self.max_waste - self.min_waste)
                 + self.min_waste
             )
         elif self.waste_distribution == "gamma":
             # Gamma distribution for more realistic waste patterns
             alpha = self._kwargs.get("waste_alpha", 2.0)
             beta = self._kwargs.get("waste_beta", 0.3)
-            waste = torch.distributions.Gamma(alpha, 1 / beta).sample((batch_size, self.num_loc))
+            waste = torch.distributions.Gamma(alpha, 1 / beta).sample((*batch_size, self.num_loc))
             waste = waste.to(self.device)
             return torch.clamp(waste, self.min_waste, self.max_waste)
         else:
             raise ValueError(f"Unknown waste distribution: {self.waste_distribution}")
 
-    def _generate_prize(self, batch_size: int) -> torch.Tensor:
+    def _generate_prize(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate prize values."""
         if self.prize_distribution == "uniform":
             return (
-                torch.rand(batch_size, self.num_loc, device=self.device) * (self.max_prize - self.min_prize)
+                torch.rand(*batch_size, self.num_loc, device=self.device) * (self.max_prize - self.min_prize)
                 + self.min_prize
             )
         elif self.prize_distribution == "distance_correlated":
@@ -279,7 +284,7 @@ class VRPPGenerator(Generator):
             # (further locations have higher prizes as incentive)
             depot = self._generate_depot(batch_size)
             locs = self._generate_locations(batch_size)
-            distances = torch.norm(locs - depot.unsqueeze(1), dim=-1)
+            distances = torch.norm(locs - depot.unsqueeze(-2), dim=-1)
             max_dist = distances.max(dim=-1, keepdim=True).values
             normalized_dist = distances / (max_dist + 1e-8)
             return normalized_dist * (self.max_prize - self.min_prize) + self.min_prize
@@ -338,13 +343,13 @@ class WCVRPGenerator(Generator):
         self.cost_km = cost_km
         self.revenue_kg = revenue_kg
 
-    def _generate(self, batch_size: int) -> TensorDict:
+    def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
         """Generate WCVRP instances."""
         # Generate locations
         locs = self._generate_locations(batch_size)
 
         # Generate depot at center
-        depot = torch.full((batch_size, 2), (self.max_loc + self.min_loc) / 2, device=self.device)
+        depot = torch.full((*batch_size, 2), (self.max_loc + self.min_loc) / 2, device=self.device)
 
         # Generate fill levels (waste amount at each bin)
         fill = self._generate_fill_levels(batch_size)
@@ -354,26 +359,26 @@ class WCVRPGenerator(Generator):
                 "locs": locs,
                 "depot": depot,
                 "demand": fill,  # Fill level as demand
-                "capacity": torch.full((batch_size,), self.capacity, device=self.device),
-                "cost_km": torch.full((batch_size,), self.cost_km, device=self.device),
-                "revenue_kg": torch.full((batch_size,), self.revenue_kg, device=self.device),
+                "capacity": torch.full((*batch_size,), self.capacity, device=self.device),
+                "cost_km": torch.full((*batch_size,), self.cost_km, device=self.device),
+                "revenue_kg": torch.full((*batch_size,), self.revenue_kg, device=self.device),
             },
-            batch_size=[batch_size],
+            batch_size=batch_size,
             device=self.device,
         )
 
-    def _generate_fill_levels(self, batch_size: int) -> torch.Tensor:
+    def _generate_fill_levels(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate bin fill levels."""
         if self.fill_distribution == "uniform":
             return (
-                torch.rand(batch_size, self.num_loc, device=self.device) * (self.max_fill - self.min_fill)
+                torch.rand(*batch_size, self.num_loc, device=self.device) * (self.max_fill - self.min_fill)
                 + self.min_fill
             )
         elif self.fill_distribution == "beta":
             # Beta distribution for fill levels (tends toward 0 or 1)
             alpha = self._kwargs.get("fill_alpha", 2.0)
             beta = self._kwargs.get("fill_beta", 5.0)
-            fill = torch.distributions.Beta(alpha, beta).sample((batch_size, self.num_loc))
+            fill = torch.distributions.Beta(alpha, beta).sample((*batch_size, self.num_loc))
             fill = fill.to(self.device)
             return fill * (self.max_fill - self.min_fill) + self.min_fill
         else:
@@ -387,17 +392,17 @@ class TSPGenerator(Generator):
     Simple generator for TSP benchmarking with just locations.
     """
 
-    def _generate(self, batch_size: int) -> TensorDict:
+    def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
         """Generate TSP instances."""
         # Generate locations (including depot as first location)
         all_locs = self._generate_locations(batch_size, self.num_loc + 1)
 
         return TensorDict(
             {
-                "locs": all_locs[:, 1:, :],  # Customer locations
-                "depot": all_locs[:, 0, :],  # First location as depot
+                "locs": all_locs[..., 1:, :],  # Customer locations
+                "depot": all_locs[..., 0, :],  # First location as depot
             },
-            batch_size=[batch_size],
+            batch_size=batch_size,
             device=self.device,
         )
 
