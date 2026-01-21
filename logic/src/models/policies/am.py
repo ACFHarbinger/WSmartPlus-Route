@@ -11,6 +11,7 @@ from typing import Optional
 import torch
 from tensordict import TensorDict
 
+from logic.src.data.transforms import batchify
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.base import ConstructivePolicy
@@ -71,16 +72,20 @@ class AttentionModelPolicy(ConstructivePolicy):
         init_embeds = self.init_embedding(td)
 
         # 2. Encoder
-        # Pass graph structure if available (e.g., k-NN edges)
         edges = td.get("edges", None)
         assert self.encoder is not None, "Encoder is not initialized"
         embeddings = self.encoder(init_embeds, edges)
 
-        # 3. Decoder Precomputation
+        # 3. Multi-start expansion if needed
+        if num_starts > 1:
+            td = batchify(td, num_starts)
+            embeddings = embeddings.unsqueeze(1).repeat(1, num_starts, 1, 1).reshape(-1, *embeddings.shape[1:])
+
+        # 4. Decoder Precomputation
         assert self.decoder is not None, "Decoder is not initialized"
         fixed = self.decoder._precompute(embeddings)
 
-        # 4. Decoding Loop
+        # 5. Decoding Loop
         log_likelihood = 0
         output_actions = []
         step_idx = 0

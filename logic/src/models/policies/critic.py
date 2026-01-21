@@ -3,6 +3,8 @@ Critic Network for RL4CO.
 """
 from __future__ import annotations
 
+import copy
+
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
@@ -26,6 +28,7 @@ class CriticNetwork(nn.Module):
         normalization: str = "batch",
         dropout_rate: float = 0.0,
         aggregation: str = "avg",
+        encoder: nn.Module = None,
         **kwargs,
     ):
         super().__init__()
@@ -33,15 +36,18 @@ class CriticNetwork(nn.Module):
 
         self.init_embedding = get_init_embedding(env_name, embed_dim)
 
-        self.encoder = GraphAttentionEncoder(
-            n_heads=n_heads,
-            embed_dim=embed_dim,
-            feed_forward_hidden=hidden_dim,
-            n_layers=n_layers,
-            normalization=normalization,
-            dropout_rate=dropout_rate,
-            **kwargs,
-        )
+        if encoder is not None:
+            self.encoder = encoder
+        else:
+            self.encoder = GraphAttentionEncoder(
+                n_heads=n_heads,
+                embed_dim=embed_dim,
+                feed_forward_hidden=hidden_dim,
+                n_layers=n_layers,
+                normalization=normalization,
+                dropout_rate=dropout_rate,
+                **kwargs,
+            )
 
         self.value_head = nn.Sequential(
             nn.Linear(embed_dim, hidden_dim),
@@ -72,3 +78,22 @@ class CriticNetwork(nn.Module):
 
         value = self.value_head(graph_embed)
         return value
+
+
+def create_critic_from_actor(policy: nn.Module, backbone_name: str = "encoder", **critic_kwargs):
+    """
+    Create a critic network re-using the encoder from the policy.
+    """
+    encoder = getattr(policy, backbone_name, None)
+    if encoder is None:
+        raise ValueError(f"Critic requires a backbone in the policy network: {backbone_name}")
+
+    # Deepcopy the encoder to ensure independent weights initially
+    critic = CriticNetwork(
+        env_name=policy.env_name,  # Assuming policy has env_name
+        embed_dim=policy.embed_dim,
+        encoder=copy.deepcopy(encoder),
+        **critic_kwargs,
+    ).to(next(policy.parameters()).device)
+
+    return critic
