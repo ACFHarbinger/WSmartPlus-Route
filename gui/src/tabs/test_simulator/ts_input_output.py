@@ -1,3 +1,10 @@
+"""
+I/O and context settings tab for the test simulator.
+
+This module manages the configuration of input file paths, output
+directories, and the problem context (area, waste type) for simulation runs.
+"""
+
 import os
 
 from PySide6.QtWidgets import (
@@ -16,7 +23,12 @@ from gui.src.utils.app_definitions import COUNTY_AREAS, DATA_DISTRIBUTIONS, WAST
 
 
 class TestSimIOTab(QWidget):
+    """
+    Sub-tab for managing simulation I/O paths and problem context (Area, Waste Type).
+    """
+
     def __init__(self, settings_tab):  # <-- Accept settings_tab
+        """Initialize the I/O configurations tab."""
         super().__init__()
         self.settings_tab = settings_tab  # <-- Store reference to settings tab
 
@@ -152,6 +164,7 @@ class TestSimIOTab(QWidget):
             print(f"Warning: Could not update default paths. Error: {e}")
 
     def get_params(self):
+        """Retrieve the configured I/O and context parameters as a dictionary."""
         params = {
             # I/O
             "output_dir": self.output_dir_input.text().strip(),

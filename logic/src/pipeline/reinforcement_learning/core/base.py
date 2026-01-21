@@ -16,8 +16,8 @@ import numpy as np
 import torch
 
 from logic.src.pipeline.reinforcement_learning.core.epoch import complete_train_pass
-from logic.src.utils.log_utils import log_epoch
-from logic.src.utils.visualize_utils import visualize_epoch
+from logic.src.utils.logging.log_utils import log_epoch
+from logic.src.utils.logging.visualize_utils import visualize_epoch
 
 
 class BaseReinforceTrainer(ABC):

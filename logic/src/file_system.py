@@ -26,12 +26,14 @@ from .utils.crypto_utils import (
     load_key,
 )
 from .utils.definitions import ROOT_DIR
-from .utils.io_utils import (
-    confirm_proceed,
+from .utils.io.files import confirm_proceed
+from .utils.io.preview import (
     preview_changes,
     preview_file_changes,
     preview_file_statistics,
     preview_pattern_files_statistics,
+)
+from .utils.io.processing import (
     process_file,
     process_file_statistics,
     process_pattern_files,

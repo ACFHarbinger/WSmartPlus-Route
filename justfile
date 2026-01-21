@@ -53,7 +53,7 @@ run-eval:
     bash scripts/evaluation.sh
 
 # Run data generation script (scripts/gen_data.sh)
-run-gen:
+run-gen-data:
     bash scripts/gen_data.sh
 
 # Run meta-training script (scripts/meta_train.sh)

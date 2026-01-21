@@ -75,12 +75,13 @@ def swap_2_routes(routes_list):
 
 
 # Function to swap n random bins inside a route
-def swap_n_route_random(routes_list):
+def swap_n_route_random(routes_list, n=None):
     """
     Intra-route perturbation: Swap n pairs of random bins within their routes.
 
     Args:
         routes_list (List[List[int]]): Current routing solution.
+        n (int, optional): Number of pairs to swap.
 
     Returns:
         List[List[int]]: Mutated routing solution.
@@ -88,8 +89,11 @@ def swap_n_route_random(routes_list):
     chosen_n = None
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list, 1)[0]
-        possible_n = [2, 3, 4, 5]
-        chosen_n = rsample(possible_n, 1)[0]
+        if n is None:
+            possible_n = [2, 3, 4, 5]
+            chosen_n = rsample(possible_n, 1)[0]
+        else:
+            chosen_n = n
         if len(chosen_route) > chosen_n + 2:
             if chosen_n == 2:
                 swap_bin_1 = rsample(chosen_route[1 : len(chosen_route) - 1], 1)[0]
@@ -253,13 +257,14 @@ def swap_n_route_random(routes_list):
 
 
 # Function to swap n random bins inside a route
-def swap_n_route_consecutive(routes_list):
+def swap_n_route_consecutive(routes_list, n=None):
     """
     Intra-route perturbation: Swap two consecutive sequences of n bins
     within the same route.
 
     Args:
         routes_list (List[List[int]]): Current routing solution.
+        n (int, optional): Number of consecutive nodes to swap.
 
     Returns:
         List[List[int]]: Mutated routing solution.
@@ -267,8 +272,11 @@ def swap_n_route_consecutive(routes_list):
     chosen_n = None
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list, 1)[0]
-        possible_n = [2, 3, 4, 5]
-        chosen_n = rsample(possible_n, 1)[0]
+        if n is None:
+            possible_n = [2, 3, 4, 5]
+            chosen_n = rsample(possible_n, 1)[0]
+        else:
+            chosen_n = n
         if len(chosen_route) > chosen_n + 2:
             if chosen_n == 2:
                 swap_bin_1 = rsample(chosen_route[1 : len(chosen_route) - 2], 1)[0]

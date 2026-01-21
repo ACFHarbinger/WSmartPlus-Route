@@ -128,7 +128,7 @@ def sim_opts(tmp_path, setup_sim_data):
         "two_opt_max_iter": 0,
         "temperature": 1.0,
         "decode_type": "greedy",
-        "vertex_method": "center",
+        "vertex_method": "mmn",
         # Explicit data_dir provided to override default hardcoded lookup if logic allows,
         # but logic often uses ROOT_DIR. setup_sim_data mocks ROOT_DIR.
         "data_dir": str(setup_sim_data / "data" / "wsr_simulator"),
@@ -142,15 +142,16 @@ def setup_sim_data(tmp_path, mocker):
     Creates necessary dummy CSV/Excel files for loader.
     """
     # Patch ROOT_DIR in key places
-    mocker.patch("logic.src.pipeline.simulator.states.ROOT_DIR", str(tmp_path))
-    mocker.patch("logic.src.pipeline.simulator.simulation.ROOT_DIR", str(tmp_path))
-    mocker.patch("logic.src.pipeline.simulator.checkpoints.ROOT_DIR", str(tmp_path))
+    mocker.patch("logic.src.pipeline.simulations.states.ROOT_DIR", str(tmp_path))
+    mocker.patch("logic.src.pipeline.simulations.simulator.ROOT_DIR", str(tmp_path))
+    mocker.patch("logic.src.pipeline.simulations.checkpoints.ROOT_DIR", str(tmp_path))
     mocker.patch("logic.src.utils.definitions.ROOT_DIR", str(tmp_path))
     # Mock fast_tsp to avoid solver crashes with dummy data
     mocker.patch("logic.src.policies.single_vehicle.fast_tsp.find_tour", return_value=[0, 1, 0])
     # Patch the singleton repository instance directly since it's already initialized
     mocker.patch(
-        "logic.src.pipeline.simulator.loader._repository.default_data_dir", str(tmp_path / "data" / "wsr_simulator")
+        "logic.src.pipeline.simulations.loader._repository.default_data_dir",
+        str(tmp_path / "data" / "wsr_simulator"),
     )
 
     data_dir = tmp_path / "data" / "wsr_simulator"
@@ -166,7 +167,7 @@ def setup_sim_data(tmp_path, mocker):
     waste_dir.mkdir(parents=True, exist_ok=True)
 
     # Create dummy Facilities.csv
-    pd.DataFrame({"Sigla": ["RM"], "Lat": [40.0], "Lng": [-8.0], "ID": [1000]}).to_csv(
+    pd.DataFrame({"Sigla": ["CTEASO"], "Lat": [40.0], "Lng": [-8.0], "ID": [1000]}).to_csv(
         coord_dir / "Facilities.csv", index=False
     )
 

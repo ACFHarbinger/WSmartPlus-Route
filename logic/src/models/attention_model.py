@@ -8,8 +8,8 @@ import torch.nn.functional as F
 
 from logic.src.models.context_embedder import VRPPContextEmbedder, WCContextEmbedder
 from logic.src.models.model_factory import NeuralComponentFactory
-from logic.src.utils.beam_search import CachedLookup
-from logic.src.utils.functions import sample_many
+from logic.src.utils.functions.beam_search import CachedLookup
+from logic.src.utils.functions.function import sample_many
 
 
 class AttentionModel(nn.Module):
@@ -292,6 +292,7 @@ class AttentionModel(nn.Module):
                     expanded_dist_matrix,
                     mask=expanded_mask,
                     expert_pi=expert_pi,
+                    **kwargs,
                 )
                 cost, cost_dict, mask = self.problem.get_costs(expanded_input, pi, cost_weights, expanded_dist_matrix)
             else:
@@ -304,10 +305,19 @@ class AttentionModel(nn.Module):
                     dist_matrix,
                     mask=mask,
                     expert_pi=expert_pi,
+                    **kwargs,
                 )
                 cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, dist_matrix)
         else:
-            log_p, pi = self.decoder(input, embeddings, cost_weights, None, mask=mask, expert_pi=expert_pi)
+            log_p, pi = self.decoder(
+                input,
+                embeddings,
+                cost_weights,
+                None,
+                mask=mask,
+                expert_pi=expert_pi,
+                **kwargs,
+            )
             cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, None)
 
         use_kl = kwargs.get("kl_loss", False) and expert_pi is not None

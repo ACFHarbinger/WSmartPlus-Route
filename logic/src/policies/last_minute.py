@@ -22,16 +22,23 @@ This policy is useful for:
 - Benchmarking against fixed-schedule policies
 """
 
-from typing import List
+import re
+from typing import Any, List, Tuple
 
 import numpy as np
 from numpy.typing import NDArray
 from pandas import DataFrame
 
-from logic.src.pipeline.simulator.loader import load_area_and_waste_type_params
+from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
 
+from .adapters import IPolicy, PolicyRegistry
 from .multi_vehicle import find_routes
-from .single_vehicle import find_route, get_multi_tour
+from .single_vehicle import (
+    find_route,
+    get_multi_tour,
+    get_route_cost,
+    local_search_2opt,
+)
 
 
 def policy_last_minute(
@@ -185,3 +192,143 @@ def policy_profit_reactive(
     else:
         tour = [0]
     return tour
+
+
+@PolicyRegistry.register("policy_last_minute")
+class LastMinutePolicy(IPolicy):
+    """
+    Last-minute (reactive) collection policy class.
+    Executes threshold-based collection.
+    """
+
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+        """
+        Execute the last-minute policy.
+        """
+        policy = kwargs["policy"]
+        bins = kwargs["bins"]
+        distancesC = kwargs["distancesC"]
+        waste_type = kwargs["waste_type"]
+        area = kwargs["area"]
+        n_vehicles = kwargs["n_vehicles"]
+        coords = kwargs["coords"]
+        distance_matrix = kwargs["distance_matrix"]
+        two_opt_max_iter = kwargs.get("two_opt_max_iter", 0)
+        paths_between_states = kwargs.get("paths_between_states")
+        config = kwargs.get("config", {})
+        last_minute_config = config.get("last_minute", {})
+
+        if "policy_last_minute_and_path" in policy:
+            try:
+                cf = int(policy.rsplit("_and_path", 1)[1])
+            except IndexError:
+                # Fallback or error handling
+                cf = 90  # Default? Or raise error like original?
+                # Original used rsplit which raises IndexError if not found, but logic implies it relies on name
+
+            # Override from config if present
+            if "cf" in last_minute_config:
+                cf = int(last_minute_config["cf"])
+
+            if cf <= 0:
+                raise ValueError(f"Invalid cf value for policy_last_minute_and_path: {cf}")
+
+            # Logic from Adapter: setCollectionLvlandFreq
+            # But bins.setCollectionLvlandFreq modifies the bins object.
+            # We should probably do it here as it was in the adapter.
+            bins.setCollectionLvlandFreq(cf=cf / 100)
+
+            tour = policy_last_minute_and_path(
+                bins.c,
+                distancesC,
+                paths_between_states,
+                bins.collectlevl,
+                waste_type,
+                area,
+                n_vehicles,
+                coords,
+            )
+        else:
+            # Standard last minute
+            try:
+                # Check if it ends with digits
+                match = re.search(r"last_minute(\d+)", policy)
+                if match:
+                    cf = int(match.group(1))
+                else:
+                    # Fallback if policy name doesn't match expected pattern precisely
+                    # The original rsplit might fail if suffix has other things.
+                    # Let's use robust extraction.
+                    cf = 90
+            except Exception:
+                cf = 90
+
+            # Override from config if present
+            if "cf" in last_minute_config:
+                cf = int(last_minute_config["cf"])
+
+            if cf <= 0:
+                raise ValueError(f"Invalid cf value for policy_last_minute: {cf}")
+
+            bins.setCollectionLvlandFreq(cf=cf / 100)
+            tour = policy_last_minute(
+                bins.c,
+                distancesC,
+                bins.collectlevl,
+                waste_type,
+                area,
+                n_vehicles,
+                coords,
+            )
+
+        if two_opt_max_iter > 0:
+            tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
+        cost = get_route_cost(distance_matrix, tour) if tour else 0
+        return tour, cost, None
+
+
+@PolicyRegistry.register("policy_profit_reactive")
+class ProfitPolicy(IPolicy):
+    """
+    Profit-based reactive collection policy class.
+    """
+
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+        """
+        Execute the profit-based policy.
+        """
+        policy = kwargs["policy"]
+        bins = kwargs["bins"]
+        distancesC = kwargs["distancesC"]
+        waste_type = kwargs["waste_type"]
+        area = kwargs["area"]
+        n_vehicles = kwargs["n_vehicles"]
+        coords = kwargs["coords"]
+        distance_matrix = kwargs["distance_matrix"]
+        two_opt_max_iter = kwargs.get("two_opt_max_iter", 0)
+        config = kwargs.get("config", {})
+        profit_config = config.get("profit_reactive", {})
+
+        # Pattern: policy_profit_reactive_<threshold>
+        try:
+            threshold = float(policy.rsplit("_reactive", 1)[1])
+        except (IndexError, ValueError):
+            threshold = 0.0
+
+        # Override from config
+        threshold = profit_config.get("threshold", threshold)
+
+        tour = policy_profit_reactive(
+            bins.c,
+            distancesC,
+            waste_type,
+            area,
+            n_vehicles,
+            coords,
+            profit_threshold=threshold,
+        )
+
+        if two_opt_max_iter > 0:
+            tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
+        cost = get_route_cost(distance_matrix, tour) if tour else 0
+        return tour, cost, None
