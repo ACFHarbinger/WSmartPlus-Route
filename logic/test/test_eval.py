@@ -1,3 +1,6 @@
+"""
+Unit tests for the evaluation pipeline.
+"""
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -7,7 +10,11 @@ from logic.src.pipeline.eval import eval_dataset, get_best, run_evaluate_model
 
 
 class TestEval:
+    """Test suite for evaluation functions."""
+
     def test_get_best(self):
+        """Test extraction of best sequences and costs from batch results."""
+
         # seqs: (batch, seq_len)
         seqs = np.array([[1, 2], [3, 4], [5, 6]])
         costs = np.array([10.0, 5.0, 20.0])
@@ -29,6 +36,8 @@ class TestEval:
     @patch("logic.src.pipeline.eval.setup_cost_weights")
     @patch("logic.src.pipeline.eval.torch.utils.data.DataLoader")
     def test_eval_dataset_logic(self, mock_loader, mock_setup_weights, mock_save, mock_load_model, eval_opts):
+        """Test core logic of dataset evaluation loop."""
+
         # Mocks
         mock_model = MagicMock()
         mock_load_model.return_value = (mock_model, {})
@@ -71,6 +80,8 @@ class TestEval:
     @patch("logic.src.pipeline.eval.setup_cost_weights")
     @patch("logic.src.pipeline.eval.torch.utils.data.DataLoader")
     def test_eval_dataset_beam_search(self, mock_loader, mock_setup_weights, mock_save, mock_load_model, eval_opts):
+        """Test dataset evaluation using beam search decoding."""
+
         # Mocks
         mock_model = MagicMock()
         mock_load_model.return_value = (mock_model, {})
@@ -107,6 +118,8 @@ class TestEval:
 
     @patch("logic.src.pipeline.eval.eval_dataset")
     def test_run_evaluate_model(self, mock_eval):
+        """Test the main entry point for model evaluation."""
+
         # Just calls eval_dataset in loop
         opts = {
             "seed": 1234,

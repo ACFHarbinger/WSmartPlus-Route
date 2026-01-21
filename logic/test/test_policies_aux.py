@@ -83,6 +83,7 @@ class TestLookAheadSelect:
 
     @pytest.fixture
     def sample_routes(self):
+        """Fixture providing a sample set of routing results."""
         return [[0, 1, 2, 0], [0, 3, 4, 0]]
 
     def test_remove_bin(self, sample_routes):
@@ -143,6 +144,7 @@ class TestLookAheadMove:
 
     @pytest.fixture
     def sample_routes(self):
+        """Fixture providing a sample set of routing results for move operations."""
         return [[0, 1, 2, 3, 0], [0, 4, 5, 0]]
 
     def test_move_1_route(self, sample_routes):
@@ -160,6 +162,7 @@ class TestLookAheadMove:
         with patch("random.sample") as mock_sample:
 
             def side_eff(pop, k):
+                """Mock side effect for random sample."""
                 return [pop[0]] if k == 1 else pop[:k]
 
             mock_sample.side_effect = side_eff
@@ -192,6 +195,7 @@ class TestLookAheadSwap:
 
     @pytest.fixture
     def sample_routes(self):
+        """Fixture providing a sample set of routing results for swap operations."""
         return [[0, 1, 2, 3, 4, 0], [0, 5, 6, 7, 0]]
 
     def test_swap_1_route(self, sample_routes):
@@ -207,12 +211,14 @@ class TestLookAheadSwap:
     def test_swap_n_route_random(self, sample_routes):
         """Test random n-swap within route."""
 
-        def run_with_n(n):
+        def run_with_n(n: int) -> None:
+            """Helper to run swap test with different n values."""
             routes = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]]
 
             with patch("random.sample") as mock_sample:
 
                 def side_eff(pop, k):
+                    """Mock side effect for random selection in swap."""
                     if len(pop) < k:
                         return pop
                     return pop[:k]
@@ -250,6 +256,7 @@ class TestLookAheadSolutions:
 
     @pytest.fixture
     def sample_data(self):
+        """Fixture providing a sample dataframe of bin data."""
         return pd.DataFrame(
             {
                 "#bin": [i for i in range(7)],
@@ -262,14 +269,17 @@ class TestLookAheadSolutions:
 
     @pytest.fixture
     def bins_coord_dict(self):
+        """Fixture providing bin coordinates as a dictionary."""
         return {i: [0.0, 0.0] for i in range(7)}
 
     @pytest.fixture
     def bins_coord_df(self):
+        """Fixture providing bin coordinates as a dataframe."""
         return pd.DataFrame({"Lat": [0.0] * 7, "Lng": [0.0] * 7}, index=[i for i in range(7)])
 
     @pytest.fixture
     def dist_matrix(self):
+        """Fixture providing a sample distance matrix."""
         return np.ones((7, 7))
 
     def test_find_initial_solution(self, sample_data, bins_coord_df, dist_matrix):
@@ -310,6 +320,7 @@ class TestALNSAux:
 
     @pytest.fixture
     def sample_data(self):
+        """Fixture providing sample ALNS problem data."""
         return {
             "dist_matrix": np.array([[0, 10, 10, 10], [10, 0, 5, 5], [10, 5, 0, 5], [10, 5, 5, 0]]),
             "demands": {1: 10, 2: 10, 3: 10},
@@ -368,6 +379,7 @@ class TestHGSAux:
 
     @pytest.fixture
     def sample_data(self):
+        """Fixture providing sample HGS problem data."""
         return {
             "dist_matrix": np.array([[0, 10, 10, 10], [10, 0, 5, 5], [10, 5, 0, 5], [10, 5, 5, 0]]),
             "demands": {1: 10, 2: 10, 3: 10},

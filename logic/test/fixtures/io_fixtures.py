@@ -1,3 +1,6 @@
+"""
+Fixtures for I/O and data processing unit tests.
+"""
 import shutil
 import tempfile
 

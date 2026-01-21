@@ -1,3 +1,6 @@
+"""
+Fixtures for file system and cryptography unit tests.
+"""
 import pytest
 
 
