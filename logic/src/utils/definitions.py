@@ -1,34 +1,27 @@
-"""
-Global definitions, constants, and mappings for the WSmart+ Route framework.
-
-This module contains:
-- Path definitions
-- Waste management constants (depots, waste types)
-- Physics constants (Earth radius, max waste)
-- Model registry lists (encoders, decoders)
-- Hyperparameter optimization keys
-- Function maps for operations and statistics
-- GUI and Test Suite configurations
-"""
+from __future__ import annotations
 
 import os
 import statistics
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 # Paths
-path = Path(os.getcwd())
-parts = path.parts
-ROOT_DIR = Path(*parts[: parts.index("WSmart-Route") + 1])
-ICON_FILE = os.path.join(ROOT_DIR, "assets", "images", "logo-wsmartroute-white.png")
+path: Path = Path(os.getcwd())
+parts: tuple[str, ...] = path.parts
+ROOT_DIR: Path = Path(*parts[: parts.index("WSmart-Route") + 1])
+ICON_FILE: str = os.path.join(ROOT_DIR, "assets", "images", "logo-wsmartroute-white.png")
 
 # Multi-core processing settings
-CORE_LOCK_WAIT_TIME = 10
-LOCK_TIMEOUT = CORE_LOCK_WAIT_TIME
+CORE_LOCK_WAIT_TIME: int = 10
+LOCK_TIMEOUT: int = CORE_LOCK_WAIT_TIME
 
 
-def update_lock_wait_time(num_cpu_cores=None):
+def update_lock_wait_time(num_cpu_cores: Optional[int] = None) -> int:
     """
     Updates the global LOCK_TIMEOUT based on the number of CPU cores.
+
+    Args:
+        num_cpu_cores: Number of CPU cores to scale the timeout by.
 
     Returns:
         The new (or default) value of LOCK_TIMEOUT.
@@ -43,30 +36,30 @@ def update_lock_wait_time(num_cpu_cores=None):
 
 
 # Waste management information
-MAP_DEPOTS = {
+MAP_DEPOTS: Dict[str, str] = {
     "mixrmbac": "CTEASO",  # Rio Maior, Bombarral, Azambuja, Cadaval
     "riomaior": "CTEASO",
     "figueiradafoz": "CITVRSU",
 }
 
-WASTE_TYPES = {
+WASTE_TYPES: Dict[str, str] = {
     "glass": "Embalagens de Vidro",
     "plastic": "Mistura de embalagens",
     "paper": "Embalagens de papel e cartão",
 }
 
 # Distance matrix
-EARTH_RADIUS = 6371
-EARTH_WMP_RADIUS = 6378137
+EARTH_RADIUS: int = 6371
+EARTH_WMP_RADIUS: int = 6378137
 
 # WSmart+ route simulation settings
-PBAR_WAIT_TIME = 0.1
+PBAR_WAIT_TIME: float = 0.1
 
-METRICS = ["overflows", "kg", "ncol", "kg_lost", "km", "kg/km", "cost", "profit"]
-SIM_METRICS = METRICS + ["days", "time"]
-DAY_METRICS = ["day"] + METRICS + ["tour"]
-LOSS_KEYS = ["nll", "reinforce_loss", "baseline_loss"]
-TQDM_COLOURS = [
+METRICS: List[str] = ["overflows", "kg", "ncol", "kg_lost", "km", "kg/km", "cost", "profit"]
+SIM_METRICS: List[str] = METRICS + ["days", "time"]
+DAY_METRICS: List[str] = ["day"] + METRICS + ["tour"]
+LOSS_KEYS: List[str] = ["nll", "reinforce_loss", "baseline_loss"]
+TQDM_COLOURS: List[str] = [
     "red",
     "blue",
     "green",
@@ -74,11 +67,11 @@ TQDM_COLOURS = [
     "magenta",
     "cyan",
     "white",
-]  # , 'black']
+]
 
 # Plotting
-MARKERS = ["P", "s", "^", "8", "*"]
-PLOT_COLOURS = [
+MARKERS: List[str] = ["P", "s", "^", "8", "*"]
+PLOT_COLOURS: List[str] = [
     "red",
     "blue",
     "green",
@@ -86,98 +79,104 @@ PLOT_COLOURS = [
     "magenta",
     "cyan",
     "black",
-]  # , 'white']
-LINESTYLES = ["dotted", "dashed", "dashdot", (0, (3, 5, 1, 5, 1, 5)), "solid"]
+]
+LINESTYLES: List[Union[str, Tuple[int, Tuple[int, ...]]]] = [
+    "dotted",
+    "dashed",
+    "dashdot",
+    (0, (3, 5, 1, 5, 1, 5)),
+    "solid",
+]
 
 # Problem definition
-MAX_WASTE = 1.0
-MAX_LENGTHS = {20: 2, 50: 3, 100: 4, 150: 5, 225: 6, 317: 7}
-VEHICLE_CAPACITY = 100.0
+MAX_WASTE: float = 1.0
+MAX_LENGTHS: Dict[int, int] = {20: 2, 50: 3, 100: 4, 150: 5, 225: 6, 317: 7}
+VEHICLE_CAPACITY: float = 100.0
 
 # Model configurations
-SUB_NET_ENCS = ["tgc"]
-PRED_ENC_MODELS = ["tam"]
-ENC_DEC_MODELS = ["ddam"]
+SUB_NET_ENCS: List[str] = ["tgc"]
+PRED_ENC_MODELS: List[str] = ["tam"]
+ENC_DEC_MODELS: List[str] = ["ddam"]
 
 # Hyper-Parameter Optimization
-HOP_KEYS = (
+HOP_KEYS: Tuple[str, ...] = (
     "hop_method",
     "hop_range",
     "hop_epochs",
-    "metric",  # Hyper-Parameter Optimization (HPO)
+    "metric",
     "n_trials",
     "timeout",
     "n_startup_trials",
     "n_warmup_steps",
-    "interval_steps",  # Bayesian Optimization (BO)
+    "interval_steps",
     "eta",
     "indpb",
     "tournsize",
     "cxpb",
     "mutpb",
     "n_pop",
-    "n_gen",  # Distributed Evolutionary Algorithm (DEA)
-    "fevals",  # Differential Evolutionary Hyperband Optimization (DEHBO)
+    "n_gen",
+    "fevals",
     "cpu_cores",
     "verbose",
     "train_best",
     "local_mode",
-    "num_samples",  # Ray Tune framework
+    "num_samples",
     "max_tres",
-    "reduction_factor",  # Hyperband Optimization (HBO) - Ray Tune
-    "max_failures",  # Random Search (RS) - Ray Tune
+    "reduction_factor",
+    "max_failures",
     "grid",
-    "max_conc",  # Grid Search (GS) - Ray Tune
+    "max_conc",
 )
 
 # File system settings
-CONFIRM_TIMEOUT = 30
+CONFIRM_TIMEOUT: int = 30
 
-FS_COMMANDS = ["create", "read", "update", "delete", "cryptography"]
+FS_COMMANDS: List[str] = ["create", "read", "update", "delete", "cryptography"]
 
-OPERATION_MAP = {
-    "=": lambda x, y: y,  # Replace with right value
-    "==": lambda x, y: x == y,  # Compare equality of both values
-    "!=": lambda x, y: x != y,  # Compare inequality of both values
-    "+": lambda x, y: x + y,  # Add value
-    "+=": lambda x, y: x + y,  # Same as '+'
-    "-": lambda x, y: x - y,  # Subtract value
-    "-=": lambda x, y: x - y,  # Same as '-'
-    "*": lambda x, y: x * y,  # Multiply by value
-    "*=": lambda x, y: x * y,  # Same as '*'
-    "/": lambda x, y: x / y,  # Divide by value
-    "/=": lambda x, y: x / y,  # Same as '/'
-    "**": lambda x, y: x**y,  # Power of value
-    "**=": lambda x, y: x**y,  # Same as '**'
-    "//": lambda x, y: x // y,  # Floor division by value
-    "//=": lambda x, y: x // y,  # Same as '//'
-    "%": lambda x, y: x % y,  # Modulo operation
-    "%=": lambda x, y: x % y,  # Same as '%'
-    "": lambda x, y: x,  # Dont perform any change
-    "<<": lambda x, y: x << y,  # Perform left shit
-    "<<=": lambda x, y: x << y,  # Same as '<<'
-    "<": lambda x, y: x < y,  # Check if left value is smaller
-    "<=": lambda x, y: x <= y,  # Check if left value is smaller or equal
-    ">>": lambda x, y: x >> y,  # Perform right shift
-    ">>=": lambda x, y: x >> y,  # Same as '>>'
-    ">": lambda x, y: x > y,  # Check if left value is larger
-    ">=": lambda x, y: x >= y,  # Check if left value is larger or equal
-    "|": lambda x, y: x | y,  # Perform bit-wise OR operation
-    "|=": lambda x, y: x | y,  # Same as '|'
-    "&": lambda x, y: x & y,  # Perform bit-wise AND operation
-    "&=": lambda x, y: x & y,  # Same as '&'
-    "^": lambda x, y: x ^ y,  # Perform bit-wise XOR operation
-    "^=": lambda x, y: x ^ y,  # Same as '^'
-    "is": lambda x, y: x is y,  # Compares identity
-    "isnot": lambda x, y: x is not y,  # Compares negation of identity
-    "in": lambda x, y: x in y,  # Checks membership
-    "notin": lambda x, y: x not in y,  # Checks negation of membership
-    "@": lambda x, y: x @ y,  # Perform matrix multiplication
-    "@=": lambda x, y: x @ y,  # Same as '@'
-    "divmod": lambda x, y: divmod(x, y),  # Division with remainder (return tuple)
+OPERATION_MAP: Dict[str, Callable[[Any, Any], Any]] = {
+    "=": lambda x, y: y,
+    "==": lambda x, y: x == y,
+    "!=": lambda x, y: x != y,
+    "+": lambda x, y: x + y,
+    "+=": lambda x, y: x + y,
+    "-": lambda x, y: x - y,
+    "-=": lambda x, y: x - y,
+    "*": lambda x, y: x * y,
+    "*=": lambda x, y: x * y,
+    "/": lambda x, y: x / y,
+    "/=": lambda x, y: x / y,
+    "**": lambda x, y: x**y,
+    "**=": lambda x, y: x**y,
+    "//": lambda x, y: x // y,
+    "//=": lambda x, y: x // y,
+    "%": lambda x, y: x % y,
+    "%=": lambda x, y: x % y,
+    "": lambda x, y: x,
+    "<<": lambda x, y: x << y,
+    "<<=": lambda x, y: x << y,
+    "<": lambda x, y: x < y,
+    "<=": lambda x, y: x <= y,
+    ">>": lambda x, y: x >> y,
+    ">>=": lambda x, y: x >> y,
+    ">": lambda x, y: x > y,
+    ">=": lambda x, y: x >= y,
+    "|": lambda x, y: x | y,
+    "|=": lambda x, y: x | y,
+    "&": lambda x, y: x & y,
+    "&=": lambda x, y: x & y,
+    "^": lambda x, y: x ^ y,
+    "^=": lambda x, y: x ^ y,
+    "is": lambda x, y: x is y,
+    "isnot": lambda x, y: x is not y,
+    "in": lambda x, y: x in y,
+    "notin": lambda x, y: x not in y,
+    "@": lambda x, y: x @ y,
+    "@=": lambda x, y: x @ y,
+    "divmod": lambda x, y: divmod(x, y),
 }
 
-STATS_FUNCTION_MAP = {
+STATS_FUNCTION_MAP: Dict[str, Callable[..., Any]] = {
     "mean": statistics.mean,
     "stdev": statistics.stdev,
     "median": statistics.median,
@@ -191,12 +190,12 @@ STATS_FUNCTION_MAP = {
 }
 
 # GUI settings
-CTRL_C_TIMEOUT = 2.0
+CTRL_C_TIMEOUT: float = 2.0
 
-APP_STYLES = ["fusion", "windows", "windowsxp", "macintosh"]
+APP_STYLES: List[str] = ["fusion", "windows", "windowsxp", "macintosh"]
 
 # Test suite settings
-TEST_MODULES = {
+TEST_MODULES: Dict[str, str] = {
     "parser": "test_configs_parser.py",
     "train": "test_train_command.py",
     "mrl": "test_mrl_train_command.py",
