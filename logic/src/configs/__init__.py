@@ -22,6 +22,10 @@ class EnvConfig:
     min_loc: float = 0.0
     max_loc: float = 1.0
     capacity: Optional[float] = None
+    overflow_penalty: float = 1.0
+    collection_reward: float = 1.0
+    cost_weight: float = 1.0
+    prize_weight: float = 1.0
 
 
 @dataclass
@@ -45,6 +49,7 @@ class ModelConfig:
     num_decoder_layers: int = 3
     num_heads: int = 8
     encoder_type: str = "gat"
+    normalization: str = "instance"
 
 
 @dataclass
@@ -119,6 +124,7 @@ class RLConfig:
 
     algorithm: str = "reinforce"
     baseline: str = "rollout"
+    bl_warmup_epochs: int = 0
     entropy_weight: float = 0.0
     max_grad_norm: float = 1.0
 
