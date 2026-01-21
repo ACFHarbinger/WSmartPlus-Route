@@ -25,10 +25,9 @@ import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSHP
 import numpy as np
 import pandas as pd
+import wandb
 from distributed import Client
 from loguru import logger
-
-import wandb
 
 from .de_async import AsyncDifferentialEvolution
 from .dehb_base import DifferentialEvolutionHyperbandBase

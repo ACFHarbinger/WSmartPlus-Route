@@ -13,6 +13,7 @@ import webbrowser
 from collections import defaultdict
 
 import folium
+import logic.src.utils.definitions as udef
 import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -36,8 +37,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-import logic.src.utils.definitions as udef
 
 from ..helpers import ChartWorker, FileTailerWorker
 from ..utils.app_definitions import HEATMAP_METRICS, TARGET_METRICS
