@@ -15,6 +15,7 @@ from logic.src.pipeline.rl.core.baselines import (
     get_baseline,
 )
 from logic.src.pipeline.rl.core.dr_grpo import DRGRPO
+from logic.src.pipeline.rl.core.gdpo import GDPO
 from logic.src.pipeline.rl.core.gspo import GSPO
 from logic.src.pipeline.rl.core.hrl import HRLModule
 from logic.src.pipeline.rl.core.imitation import ImitationLearning
@@ -40,6 +41,7 @@ __all__ = [
     "PPO",
     "SAPO",
     "GSPO",
+    "GDPO",
     "AdaptiveImitation",
     "DRGRPO",
     "ImitationLearning",

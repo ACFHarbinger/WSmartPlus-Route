@@ -27,6 +27,7 @@ from logic.src.models.policies.classical.hybrid import NeuralHeuristicHybrid
 from logic.src.models.policies.classical.random_local_search import RandomLocalSearchPolicy
 from logic.src.pipeline.rl import (
     DRGRPO,
+    GDPO,
     GSPO,
     POMO,
     PPO,
@@ -173,6 +174,14 @@ def create_model(cfg: Config) -> pl.LightningModule:
         model = DRGRPO(
             critic=critic,
             ppo_epochs=cfg.rl.ppo_epochs,
+            **common_kwargs,
+        )
+    elif cfg.rl.algorithm == "gdpo":
+        model = GDPO(
+            gdpo_objective_keys=cfg.rl.gdpo_objective_keys,
+            gdpo_objective_weights=cfg.rl.gdpo_objective_weights,
+            gdpo_conditional_key=cfg.rl.gdpo_conditional_key,
+            gdpo_renormalize=cfg.rl.gdpo_renormalize,
             **common_kwargs,
         )
     elif cfg.rl.algorithm == "pomo":

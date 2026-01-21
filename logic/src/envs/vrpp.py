@@ -146,6 +146,10 @@ class VRPPEnv(RL4COEnvBase):
         not_at_depot = current != 0
         total_cost = cost + return_distance * not_at_depot.float()
 
+        # Store decomposed rewards for GDPO
+        td["reward_prize"] = prize
+        td["reward_cost"] = -total_cost  # Convention: maximized, so negative cost
+
         reward = self.prize_weight * prize - self.cost_weight * total_cost
         return reward
 

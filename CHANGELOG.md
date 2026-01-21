@@ -5,7 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-01-21
+
+### CWCVRP Lightning Migration & GDPO Support
+Successfully migrated the Capacitated Waste Collection VRP (CWCVRP) pipeline to the new PyTorch Lightning architecture, achieving verifyied parity, and integrated Gradient-Decomposed Policy Optimization (GDPO).
+
+### Added
+- **GDPO Algorithm**: Implemented `GDPO` (Gradient-Decomposed Policy Optimization) in `pipeline/rl/core/gdpo.py` and consolidated it into `train_lightning.py`.
+- **Decomposed Rewards**: Updated `VRPPEnv` and `WCVRPEnv` to calculate and store decomposed reward components (`reward_prize`, `reward_cost`, `reward_collection`) for advanced gradient analysis.
+- **Baseline Improvements**: Enabled `bl_warmup_epochs` configuration and refactored `Baseline` classes to inherit from `torch.nn.Module` for automatic device management.
+- **Parity Report**: Added `CWCVRP_LIGHTNING_MIGRATION_REPORT.md` documenting the successful parity verification between Legacy and Lightning pipelines.
+
+### Changed
+- **`CWCVRP` Pipeline**: Fully migrated to Lightning, verified with `val/reward` (~ -2.78) matching inverted legacy costs.
+- **`RLConfig`**: Added GDPO-specific configurations (`gdpo_objective_keys`, `gdpo_objective_weights`, etc.) and `bl_warmup_epochs`.
+- **Infrastructure**: Refactored `generators.py` and `data_utils.py` for cleaner data handling.
+
+### Fixed
+- **Device Mismatch**: Resolved critical `RuntimeError` in `reinforce.py` where reward and baseline tensors were on different devices.
+- **Optimization**: Support for `RMSprop` in Lightning `configure_optimizers` to match legacy defaults.
+
 ## [3.1.0] - 2026-01-21
+
+## [3.2.0] - 2026-01-21
+
+### Multi-Objective Optimization (GDPO)
+Introduction of Group reward-Decoupled Normalization Policy Optimization (GDPO) for stable multi-objective learning.
+
+### Added
+- **GDPO Algorithm**: Implementation of `GDPO` in `logic/src/pipeline/rl/core/gdpo.py`, featuring decoupled Z-score normalization and weighted aggregation.
+- **Decomposed Rewards**: `VRPPEnv` and `WCVRPEnv` now expose individual reward components (`reward_prize`, `reward_cost`, `reward_overflow`) in `TensorDict`.
+- **Config**: Added fields to `RLConfig` for GDPO objectives, weights, and conditional keys.
+- **Integration**: Added `gdpo` support to `train_lightning.py`.
 
 ### Vectorization & Expert Policy Suite
 A major performance upgrade and the introduction of a new stochastic expert for imitation learning.
