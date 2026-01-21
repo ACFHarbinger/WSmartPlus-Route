@@ -16,6 +16,7 @@ class TensorDictStateWrapper:
     """
 
     def __init__(self, td: TensorDict, problem_name: str = "vrpp"):
+        """Initialize TensorDictStateWrapper."""
         self.td = td
         self.problem_name = problem_name
 
@@ -39,6 +40,7 @@ class TensorDictStateWrapper:
         return None
 
     def get_edges_mask(self) -> Optional[torch.Tensor]:
+        """Get edge mask from TensorDict."""
         return self.td.get("graph_mask", None)
 
     def get_current_node(self) -> torch.Tensor:
@@ -70,4 +72,5 @@ class DummyProblem:
     """Minimal problem wrapper for legacy component initialization."""
 
     def __init__(self, name: str):
+        """Initialize DummyProblem."""
         self.NAME = name

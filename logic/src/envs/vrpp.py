@@ -34,6 +34,17 @@ class VRPPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ):
+        """
+        Initialize VRPPEnv.
+
+        Args:
+            generator: Problem instance generator.
+            generator_params: Parameters for generator initialization.
+            prize_weight: Weight for prize collection in reward.
+            cost_weight: Weight for travel cost in reward.
+            device: Device for torch tensors ('cpu' or 'cuda').
+            **kwargs: Additional keyword arguments.
+        """
         generator_params = generator_params or {"num_loc": 50}
         if generator is None:
             generator = VRPPGenerator(**generator_params, device=device)

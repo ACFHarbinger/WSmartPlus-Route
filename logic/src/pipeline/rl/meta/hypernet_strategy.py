@@ -30,6 +30,7 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
         buffer_size: int = 100,
         **kwargs,
     ):
+        """Initialize Hypernetwork Meta-Learning Strategy."""
         super().__init__()
         self.cost_weight_keys = list(initial_weights.keys())
         self.device = device
@@ -153,4 +154,5 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
         self.optimizer.train(epochs=1)
 
     def get_current_weights(self) -> Dict[str, float]:
+        """Get current hypernetwork weights."""
         return self.current_weights

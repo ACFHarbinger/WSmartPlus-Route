@@ -29,6 +29,14 @@ class ImitationLearning(RL4COLitModule):
         expert_name: str = "hgs",
         **kwargs,
     ):
+        """
+        Initialize ImitationLearning module.
+
+        Args:
+            expert_policy: Expert policy or solver to imitate.
+            expert_name: Name of expert solver ('hgs', 'local_search').
+            **kwargs: Arguments passed to RL4COLitModule.
+        """
         # Baseline is not used in IL, but we keep the structure
         kwargs["baseline"] = "none"
         super().__init__(**kwargs)

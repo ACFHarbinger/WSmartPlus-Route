@@ -30,6 +30,19 @@ class PPO(RL4COLitModule):
         mini_batch_size: int | float = 0.25,
         **kwargs,
     ):
+        """
+        Initialize PPO module.
+
+        Args:
+            critic: Critic network for value estimation.
+            ppo_epochs: Number of PPO optimization epochs per batch.
+            eps_clip: Clipping parameter for PPO surrogate objective.
+            value_loss_weight: Weight for value function loss.
+            entropy_weight: Weight for entropy bonus.
+            max_grad_norm: Maximum gradient norm for clipping.
+            mini_batch_size: Mini-batch size (int or fraction of batch).
+            **kwargs: Arguments passed to RL4COLitModule.
+        """
         super().__init__(**kwargs)
         self.critic = critic
         self.ppo_epochs = ppo_epochs
@@ -55,6 +68,16 @@ class PPO(RL4COLitModule):
         return torch.tensor(0.0, device=td.device)
 
     def training_step(self, batch: TensorDict, batch_idx: int):
+        """
+        Execute PPO training step with multiple optimization epochs.
+
+        Args:
+            batch: TensorDict batch.
+            batch_idx: Batch index.
+
+        Returns:
+            Loss tensor from last optimization step.
+        """
         env = self.env
         td = env.reset(batch.clone())
 
@@ -174,6 +197,12 @@ class PPO(RL4COLitModule):
         return nn.MSELoss()(values, rewards)
 
     def configure_optimizers(self):
+        """
+        Configure optimizer for policy and critic parameters.
+
+        Returns:
+            Adam optimizer with combined policy and critic parameters.
+        """
         # Combined parameters from policy and critic
         params = list(self.policy.parameters()) + list(self.critic.parameters())
         return torch.optim.Adam(params, **self.optimizer_kwargs)

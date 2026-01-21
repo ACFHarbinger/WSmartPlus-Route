@@ -29,6 +29,7 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         meta_optimizer: str = "adam",
         **kwargs,
     ):
+        """Initialize AdaptiveWeightOptimizer."""
         self.device = torch.device(device)
         self.weight_names = list(initial_weights.keys())
         self.num_weights = len(self.weight_names)
@@ -78,14 +79,17 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         self.meta_step = 0
 
     def propose_weights(self, context=None):
+        """Propose weights based on context."""
         self.update_weights_internal()
         return self.get_current_weights()
 
     def feedback(self, reward, metrics, day=None, step=None):
+        """Provide feedback to weight optimizer."""
         self.update_histories(metrics, reward)
         self.meta_learning_step()
 
     def update_histories(self, performance_metrics, reward):
+        """Update performance histories."""
         self.weight_history.append(self.current_weights.clone().detach().cpu())
         p_tensor = torch.as_tensor(performance_metrics, dtype=torch.float32).cpu()
         self.performance_history.append(p_tensor)
@@ -97,6 +101,7 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
             self.reward_history.pop(0)
 
     def prepare_meta_learning_batch(self):
+        """Prepare batch for meta learning."""
         if len(self.weight_history) < 2:
             return None, 0
 
@@ -129,6 +134,7 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         return None, 0
 
     def meta_learning_step(self):
+        """Execute meta learning step."""
         features, targets = self.prepare_meta_learning_batch()
         if features is None:
             return None
@@ -154,6 +160,7 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         return loss.item()
 
     def recommend_weights(self):
+        """Recommend weights based on learning."""
         if len(self.weight_history) < self.history_length:
             return self.current_weights
 
@@ -175,10 +182,12 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
             return new_weights
 
     def update_weights_internal(self, force_update=False):
+        """Update weights internally."""
         if len(self.weight_history) < self.history_length and not force_update:
             return False
         self.current_weights = self.recommend_weights()
         return True
 
     def get_current_weights(self):
+        """Get current weights."""
         return {name: self.current_weights[i].item() for i, name in enumerate(self.weight_names)}

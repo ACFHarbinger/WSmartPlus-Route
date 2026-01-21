@@ -31,6 +31,7 @@ class TemporalAMPolicy(AttentionModelPolicy):
         predictor_layers: int = 2,
         **kwargs,
     ):
+        """Initialize TemporalAMPolicy."""
         super().__init__(
             env_name=env_name,
             embed_dim=embed_dim,

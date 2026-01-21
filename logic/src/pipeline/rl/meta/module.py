@@ -32,6 +32,7 @@ class MetaRLModule(pl.LightningModule):
         hidden_size: int = 64,
         **kwargs,
     ):
+        """Initialize MetaRLModule."""
         super().__init__()
         self.save_hyperparameters(ignore=["agent"])
         self.agent = agent
@@ -103,7 +104,9 @@ class MetaRLModule(pl.LightningModule):
         return self.agent.configure_optimizers()
 
     def validation_step(self, batch: TensorDict, batch_idx: int):
+        """Validation step for meta RL."""
         return self.agent.validation_step(batch, batch_idx)
 
     def test_step(self, batch: TensorDict, batch_idx: int):
+        """Test step for meta RL."""
         return self.agent.test_step(batch, batch_idx)

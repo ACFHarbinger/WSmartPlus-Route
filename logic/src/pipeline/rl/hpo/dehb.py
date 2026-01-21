@@ -25,6 +25,7 @@ class DifferentialEvolutionHyperband:
         output_path: str = "./dehb_output",
         **kwargs,
     ):
+        """Initialize DifferentialEvolutionHyperband."""
         self.cs = cs
         self.f = f
         self.min_fidelity = min_fidelity
@@ -98,6 +99,7 @@ class DifferentialEvolutionHyperband:
         return best_config, runtime, self.history
 
     def get_incumbents(self):
+        """Get best configurations found."""
         # Return best config found
         idx = np.argmin([self._eval(p, self.max_fidelity) for p in self.population])
         best_config = {name: val for name, val in zip(self.parameter_names, self.population[idx])}

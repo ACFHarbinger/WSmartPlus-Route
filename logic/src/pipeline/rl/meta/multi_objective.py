@@ -14,12 +14,30 @@ class ParetoSolution:
     """Represents a solution on the Pareto front."""
 
     def __init__(self, weights, objectives, reward, model_id=None):
+        """
+        Initialize a Pareto solution.
+
+        Args:
+            weights: Weight configuration dict.
+            objectives: Objective values dict.
+            reward: Total reward.
+            model_id: Optional model identifier.
+        """
         self.weights = copy.deepcopy(weights)
         self.objectives = copy.deepcopy(objectives)
         self.reward = reward
         self.model_id = model_id
 
     def dominates(self, other):
+        """
+        Check if this solution dominates another.
+
+        Args:
+            other: Another ParetoSolution.
+
+        Returns:
+            bool: True if this solution dominates the other.
+        """
         # Higher is better for all objectives assumed here (should be normalized)
         # Or specifically handled for waste_efficiency (max) and overflow_rate (min)
         waste_better = self.objectives.get("waste_efficiency", 0) >= other.objectives.get("waste_efficiency", 0)
@@ -36,10 +54,25 @@ class ParetoFront:
     """Maintains a set of non-dominated solutions."""
 
     def __init__(self, max_size=50):
+        """
+        Initialize Pareto front.
+
+        Args:
+            max_size: Maximum number of solutions to keep.
+        """
         self.solutions = []
         self.max_size = max_size
 
     def add_solution(self, solution):
+        """
+        Add a solution to the Pareto front if non-dominated.
+
+        Args:
+            solution: ParetoSolution to add.
+
+        Returns:
+            bool: True if solution was added.
+        """
         # Check dominance
         for existing in self.solutions:
             if existing.dominates(solution):
@@ -67,6 +100,18 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
         adaptation_rate: float = 0.1,
         **kwargs,
     ):
+        """
+        Initialize MORLWeightOptimizer.
+
+        Args:
+            initial_weights: Initial weight configuration.
+            weight_names: Names of weight components to optimize.
+            objective_names: Names of objectives to track.
+            history_window: Window size for performance history.
+            exploration_factor: Probability of random exploration.
+            adaptation_rate: Rate of weight perturbation.
+            **kwargs: Additional keyword arguments.
+        """
         self.weight_names = weight_names
         self.objective_names = objective_names
         self.current_weights = copy.deepcopy(initial_weights)
@@ -77,6 +122,15 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
         self.pareto_front = ParetoFront()
 
     def propose_weights(self, context=None):
+        """
+        Propose weight configuration with optional exploration.
+
+        Args:
+            context: Optional context dict (unused).
+
+        Returns:
+            Dict[str, float]: Proposed weights.
+        """
         if np.random.random() < self.exploration_factor:
             # Random perturbation
             for name in self.weight_names:
@@ -84,6 +138,15 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
         return self.current_weights
 
     def feedback(self, reward, metrics, day=None, step=None):
+        """
+        Update optimizer with feedback.
+
+        Args:
+            reward: Observed reward.
+            metrics: Metrics dict with objective values.
+            day: Current day (optional).
+            step: Current step (optional).
+        """
         # Simplified objective calculation
         objectives = {
             "waste_efficiency": metrics.get("collection", 0) / (metrics.get("cost", 1) + 1e-6),
@@ -95,4 +158,10 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
         self.pareto_front.add_solution(sol)
 
     def get_current_weights(self):
+        """
+        Get current weight configuration.
+
+        Returns:
+            Dict[str, float]: Current weights.
+        """
         return self.current_weights

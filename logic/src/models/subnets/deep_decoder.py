@@ -20,6 +20,7 @@ class DeepAttentionModelFixed(typing.NamedTuple):
     context_node_projected: torch.Tensor
 
     def __getitem__(self, key):
+        """Get item from DeepAttentionModelFixed."""
         if torch.is_tensor(key) or isinstance(key, slice):
             return DeepAttentionModelFixed(
                 node_embeddings=self.node_embeddings[key],
@@ -48,6 +49,7 @@ class DeepDecoder(nn.Module):
         temp: float = 1.0,
         **kwargs,
     ):
+        """Initialize DeepDecoder."""
         super().__init__()
         self.embed_dim = embed_dim
         self.n_heads = n_heads

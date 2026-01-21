@@ -27,6 +27,14 @@ class SymNCO(POMO):
         beta: float = 1.0,  # weight for solution symmetricity loss
         **kwargs,
     ):
+        """
+        Initialize SymNCO module.
+
+        Args:
+            alpha: Weight for invariance loss.
+            beta: Weight for solution symmetricity loss.
+            **kwargs: Arguments passed to POMO.
+        """
         super().__init__(**kwargs)
         self.alpha = alpha
         self.beta = beta
