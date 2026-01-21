@@ -4,7 +4,10 @@ Baseline implementations for policy gradient methods.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from torch.utils.data import Dataset
 
 import torch
 import torch.nn as nn
@@ -52,13 +55,22 @@ class ExponentialBaseline(Baseline):
 
 class RolloutBaseline(Baseline):
     """
-    Greedy rollout baseline.
+    Greedy rollout baseline with significance-based updates.
 
     Uses greedy decoding with a frozen policy copy as baseline.
+    The baseline policy is updated only if the current policy outperforms it
+    significantly according to a T-test.
     """
 
-    def __init__(self, policy: Optional[nn.Module] = None, update_every: int = 1):
+    def __init__(
+        self,
+        policy: Optional[nn.Module] = None,
+        update_every: int = 1,
+        bl_alpha: float = 0.05,
+        **kwargs,
+    ):
         self.update_every = update_every
+        self.bl_alpha = bl_alpha
         self.baseline_policy: Optional[nn.Module] = None
         if policy is not None:
             self.setup(policy)
@@ -69,22 +81,123 @@ class RolloutBaseline(Baseline):
 
         self.baseline_policy = copy.deepcopy(policy)
         if self.baseline_policy is not None:
+            self.baseline_policy.eval()
             for param in self.baseline_policy.parameters():
                 param.requires_grad = False
 
-    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
-        """Run greedy baseline rollout."""
-        if self.baseline_policy is None:
-            return torch.zeros_like(reward)
+    def _rollout(self, policy: nn.Module, td_or_dataset: any, env: Optional[any] = None) -> torch.Tensor:
+        """Run greedy rollout on a batch or dataset."""
+        if env is None:
+            raise ValueError("Environment (env) is required for RolloutBaseline evaluation")
 
-        # This assumes we have access to env and td
-        # In practice, this would be called differently
-        return torch.zeros_like(reward)  # Placeholder
+        from torch.utils.data import DataLoader, Dataset
+
+        from logic.src.data.datasets import tensordict_collate_fn
+
+        if isinstance(td_or_dataset, Dataset):
+            # We use a simple DataLoader to batch the dataset
+            loader = DataLoader(
+                td_or_dataset,
+                batch_size=64,
+                collate_fn=tensordict_collate_fn,
+                num_workers=0,
+            )
+            rewards = []
+            policy.eval()
+            with torch.no_grad():
+                for batch in loader:
+                    # Move batch to device
+                    device = next(policy.parameters()).device
+                    batch = batch.to(device)
+                    # Reset environment for the batch
+                    batch = env.reset(batch)
+                    out = policy(batch, env, decode_type="greedy")
+                    rewards.append(out["reward"].cpu())
+            return torch.cat(rewards)
+
+        # If it's a TensorDict (single batch)
+        td_copy = env.reset(td_or_dataset.clone())
+        policy.eval()
+        with torch.no_grad():
+            out = policy(td_copy, env, decode_type="greedy")
+        return out["reward"]
+
+    def wrap_dataset(self, policy: nn.Module, dataset: Dataset, env: any) -> Dataset:
+        """Wrap the dataset with rollout baseline values."""
+        from logic.src.data.datasets import BaselineDataset
+
+        print("Evaluating baseline on dataset...")
+        bl_vals = self._rollout(self.baseline_policy, dataset.data if hasattr(dataset, "data") else dataset, env)
+        return BaselineDataset(dataset, bl_vals.view(-1, 1))
+
+    def unwrap_batch(self, batch: any) -> tuple[any, any]:
+        """Unwrap the batch."""
+        if isinstance(batch, dict) and "data" in batch and "baseline" in batch:
+            return batch["data"], batch["baseline"].view(-1)
+        return batch, None
+
+    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+        """
+        Compute baseline value.
+        If the batch was wrapped and unwrapped, we already have it.
+        Otherwise, if we have a baseline policy, we could run it here (less efficient).
+        """
+        # In the context of our Lightning shared_step, if unwrap_batch was called,
+        # the baseline value would be passed directly.
+        # But REINFORCE.shared_step currently calls self.baseline.eval(td, reward).
+        return torch.zeros_like(reward)
+
+    def epoch_callback(
+        self, policy: nn.Module, epoch: int, val_dataset: Optional[any] = None, env: Optional[any] = None
+    ):
+        """Update baseline policy if current policy improves significantly."""
+        if (epoch + 1) % self.update_every == 0:
+            if val_dataset is not None and self.baseline_policy is not None and env is not None:
+                from scipy import stats
+
+                # Evaluate candidate
+                candidate_vals = self._rollout(policy, val_dataset, env)
+                candidate_mean = candidate_vals.mean().item()
+
+                # Evaluate baseline
+                baseline_vals = self._rollout(self.baseline_policy, val_dataset, env)
+                baseline_mean = baseline_vals.mean().item()
+
+                # T-test for significance
+                t_stat, p_val = stats.ttest_rel(candidate_vals.cpu().numpy(), baseline_vals.cpu().numpy())
+
+                if candidate_mean > baseline_mean and p_val / 2 < self.bl_alpha:
+                    print(f"Update baseline: {baseline_mean:.4f} -> {candidate_mean:.4f} (p={p_val/2:.4f})")
+                    self.setup(policy)
+            else:
+                self.setup(policy)
+
+
+class WarmupBaseline(Baseline):
+    """Gradual transition from ExponentialBaseline to target baseline."""
+
+    def __init__(self, baseline: Baseline, warmup_epochs: int = 1, beta: float = 0.8):
+        self.baseline = baseline
+        self.warmup_baseline = ExponentialBaseline(beta=beta)
+        self.alpha = 0.0
+        self.warmup_epochs = warmup_epochs
+
+    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+        if self.alpha >= 1.0:
+            return self.baseline.eval(td, reward)
+        if self.alpha <= 0.0:
+            return self.warmup_baseline.eval(td, reward)
+
+        v_target = self.baseline.eval(td, reward)
+        v_warmup = self.warmup_baseline.eval(td, reward)
+        return self.alpha * v_target + (1 - self.alpha) * v_warmup
 
     def epoch_callback(self, policy: nn.Module, epoch: int):
-        """Update baseline policy periodically."""
-        if (epoch + 1) % self.update_every == 0:
-            self.setup(policy)
+        self.baseline.epoch_callback(policy, epoch)
+        if epoch < self.warmup_epochs:
+            self.alpha = (epoch + 1) / float(self.warmup_epochs)
+        else:
+            self.alpha = 1.0
 
 
 class CriticBaseline(Baseline):
@@ -99,12 +212,28 @@ class CriticBaseline(Baseline):
         return self.critic(td).squeeze(-1)
 
 
+class POMOBaseline(Baseline):
+    """
+    POMO baseline: mean reward across starts of the SAME instance.
+    This assumes that the input reward tensor contains results for multiple starts/augmentations
+    reshaped accordingly.
+    """
+
+    def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+        # In POMO/SymNCO, the 'shared baseline' logic is often handled inside the algorithm's
+        # shared_step rather than here, because it needs to know the number of starts.
+        # This class serves as a signal or placeholder if needed.
+        return torch.zeros_like(reward)
+
+
 # Baseline registry
 BASELINE_REGISTRY = {
     "none": NoBaseline,
     "exponential": ExponentialBaseline,
     "rollout": RolloutBaseline,
     "critic": CriticBaseline,
+    "warmup": WarmupBaseline,
+    "pomo": POMOBaseline,
 }
 
 
