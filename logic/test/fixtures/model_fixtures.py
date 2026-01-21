@@ -261,6 +261,7 @@ def mock_dr_grpo_deps():
     model = MagicMock()
 
     def model_side_effect(input, return_pi=False, expert_pi=None, imitation_mode=False, **kwargs):
+        """Mock side effect for DR-GRPO model call."""
         if isinstance(input, dict):
             first_val = next(iter(input.values()))
             current_batch_size = first_val.size(0)
@@ -289,6 +290,7 @@ def mock_dr_grpo_deps():
     baseline.unwrap_batch.side_effect = lambda x: (x, None)
 
     def baseline_eval_side_effect(input, c=None):
+        """Mock side effect for DR-GRPO baseline evaluation."""
         if isinstance(input, dict):
             first_val = next(iter(input.values()))
             bs = first_val.size(0)
@@ -321,6 +323,7 @@ def mock_gspo_deps():
     model = MagicMock()
 
     def model_side_effect(input, *args, **kwargs):
+        """Mock side effect for GSPO model call."""
         if isinstance(input, dict):
             first_val = next(iter(input.values()))
             current_batch_size = first_val.size(0)
@@ -370,6 +373,7 @@ def mock_sapo_deps():
     msg_len = 5
 
     def model_side_effect(input, *args, **kwargs):
+        """Mock side effect for SAPO model call."""
         if isinstance(input, dict):
             first_val = next(iter(input.values()))
             current_batch_size = first_val.size(0)

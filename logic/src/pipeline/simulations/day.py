@@ -17,16 +17,19 @@ Functions:
     get_daily_results: Formats raw outputs into structured metric dictionary
     run_day: Main orchestrator for single-day simulation
 """
+from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
 
 import numpy as np
 import pandas as pd
 import torch
 
-from logic.src.pipeline.simulations.context import SimulationDayContext
 from logic.src.utils.definitions import DAY_METRICS
 from logic.src.utils.functions.function import move_to
+
+if TYPE_CHECKING:
+    from logic.src.pipeline.simulations.context import SimulationDayContext
 
 
 def set_daily_waste(
@@ -56,7 +59,7 @@ def set_daily_waste(
         waste_tensor = waste_tensor.pin_memory()
     model_data["waste"] = waste_tensor
 
-    if "fill_history" in model_data:
+    if "fill_history" in model_data and fill is not None:
         fill_tensor = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0).div(100.0)
         if device.type == "cuda":
             fill_tensor = fill_tensor.pin_memory()
@@ -74,7 +77,7 @@ def get_daily_results(
     sum_lost: float,
     coordinates: pd.DataFrame,
     profit: float,
-) -> Dict[str, Union[int, float, List[int]]]:
+) -> Dict[str, Union[int, float, List[Union[int, str]]]]:
     """
     Formats raw simulation outputs into structured daily log dictionary.
 
@@ -96,7 +99,7 @@ def get_daily_results(
         Dictionary with keys from DAY_METRICS:
             - day, overflows, kg_lost, kg, ncol, km, kg/km, cost, profit, tour
     """
-    dlog: Dict[str, Union[int, float, List[int]]] = {key: 0 for key in DAY_METRICS}
+    dlog: Dict[str, Any] = {key: 0 for key in DAY_METRICS}
     dlog["day"] = day
     dlog["overflows"] = new_overflows
     dlog["kg_lost"] = sum_lost
@@ -121,7 +124,7 @@ def get_daily_results(
     return dlog
 
 
-def send_daily_output_to_gui(*args, **kwargs):
+def send_daily_output_to_gui(*args: Any, **kwargs: Any) -> Any:
     """
     Proxy function to send daily simulation updates to the GUI.
 
