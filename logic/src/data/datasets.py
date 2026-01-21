@@ -97,6 +97,24 @@ class GeneratorDataset(Dataset):
         return self.generator(batch_size=1)[0]
 
 
+class BaselineDataset(Dataset):
+    """
+    Dataset wrapping baseline values for training.
+    """
+
+    def __init__(self, dataset: Dataset, baseline: torch.Tensor):
+        super().__init__()
+        self.dataset = dataset
+        self.baseline = baseline
+        assert len(self.dataset) == len(self.baseline)
+
+    def __getitem__(self, item: int) -> dict:
+        return {"data": self.dataset[item], "baseline": self.baseline[item]}
+
+    def __len__(self) -> int:
+        return len(self.dataset)
+
+
 def tensordict_collate_fn(batch: list[TensorDict]) -> TensorDict:
     """Collate list of TensorDicts into batched TensorDict."""
     return torch.stack(batch)  # type: ignore

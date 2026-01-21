@@ -143,8 +143,21 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         return out
 
-    def training_step(self, batch: TensorDict, batch_idx: int) -> torch.Tensor:
-        out = self.shared_step(batch, batch_idx, phase="train")
+    def training_step(self, batch: any, batch_idx: int) -> torch.Tensor:
+        # 1. Unwrap batch if it was wrapped by baseline (e.g. RolloutBaseline)
+        if hasattr(self.baseline, "unwrap_batch"):
+            td, baseline_val = self.baseline.unwrap_batch(batch)
+        else:
+            td, baseline_val = batch, None
+
+        # 2. Run shared step
+        out = self.shared_step(td, batch_idx, phase="train")
+
+        # 3. Calculate loss with baseline_val if available
+        # Pass baseline_val to calculate_loss if needed
+        # We'll update calculate_loss signature later or use a private attribute
+        self._current_baseline_val = baseline_val
+
         return out["loss"]
 
     def validation_step(self, batch: TensorDict, batch_idx: int) -> dict:
@@ -153,10 +166,26 @@ class RL4COLitModule(pl.LightningModule, ABC):
     def test_step(self, batch: TensorDict, batch_idx: int) -> dict:
         return self.shared_step(batch, batch_idx, phase="test")
 
+    def on_train_epoch_start(self) -> None:
+        """Prepare dataset for the new epoch (e.g. wrap with baseline)."""
+        from logic.src.pipeline.rl.utils.epoch import prepare_epoch
+
+        self.train_dataset = prepare_epoch(
+            self.policy, self.env, self.baseline, self.train_dataset, self.current_epoch, phase="train"
+        )
+
     def on_train_epoch_end(self):
-        """Update baseline at epoch end."""
+        """Update baseline and regenerate dataset."""
+        from logic.src.pipeline.rl.utils.epoch import regenerate_dataset
+
         if hasattr(self.baseline, "epoch_callback"):
-            self.baseline.epoch_callback(self.policy, self.current_epoch)
+            # For RolloutBaseline, we pass val_dataset for the T-test
+            self.baseline.epoch_callback(self.policy, self.current_epoch, val_dataset=self.val_dataset, env=self.env)
+
+        # Regenerate training dataset for next epoch
+        new_dataset = regenerate_dataset(self.env, self.train_data_size)
+        if new_dataset is not None:
+            self.train_dataset = new_dataset
 
     def configure_optimizers(self):
         """Configure optimizer and optional scheduler."""
@@ -204,7 +233,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
-            collate_fn=tensordict_collate_fn,
+            collate_fn=lambda x: x if isinstance(x, dict) else tensordict_collate_fn(x),
             num_workers=self.num_workers,
             shuffle=True,
         )

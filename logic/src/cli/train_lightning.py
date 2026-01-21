@@ -21,6 +21,9 @@ from logic.src.models.policies import (
     SymNCOPolicy,
     TemporalAMPolicy,
 )
+from logic.src.models.policies.classical.alns import ALNSPolicy
+from logic.src.models.policies.classical.hgs import HGSPolicy
+from logic.src.models.policies.classical.hybrid import NeuralHeuristicHybrid
 from logic.src.pipeline.rl import (
     DRGRPO,
     GSPO,
@@ -57,6 +60,9 @@ def create_model(cfg: Config) -> pl.LightningModule:
         "temporal": TemporalAMPolicy,
         "pointer": PointerNetworkPolicy,
         "symnco": SymNCOPolicy,
+        "alns": ALNSPolicy,
+        "hgs": HGSPolicy,
+        "hybrid": NeuralHeuristicHybrid,
     }
 
     if cfg.model.name not in policy_map:
@@ -75,7 +81,12 @@ def create_model(cfg: Config) -> pl.LightningModule:
     if cfg.model.name == "deep_decoder":
         policy_kwargs["n_decode_layers"] = cfg.model.num_decoder_layers
 
-    policy = policy_cls(**policy_kwargs)
+    if cfg.model.name == "hybrid":
+        neural = AttentionModelPolicy(**policy_kwargs)
+        heuristic = ALNSPolicy(env_name=cfg.env.name)
+        policy = NeuralHeuristicHybrid(neural, heuristic)
+    else:
+        policy = policy_cls(**policy_kwargs)
 
     # 3. Initialize RL Module
     common_kwargs = {
@@ -252,8 +263,40 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
         return float("-inf")
 
 
-def run_hpo(cfg: Config) -> None:
+def run_hpo(cfg: Config) -> float:
     """Run Hyperparameter Optimization."""
+    if cfg.hpo.method == "dehb":
+        from logic.src.pipeline.rl.hpo.dehb import DifferentialEvolutionHyperband
+
+        def dehb_obj(config, fidelity):
+            temp_cfg = OmegaConf.to_object(cfg)
+            # Update config with suggested values
+            for k, v in config.items():
+                # Recursive attribute setting
+                parts = k.split(".")
+                obj = temp_cfg
+                for part in parts[:-1]:
+                    obj = getattr(obj, part)
+                setattr(obj, parts[-1], v)
+
+            model = create_model(temp_cfg)
+            trainer = WSTrainer(max_epochs=int(fidelity), enable_progress_bar=False, logger=False)
+            trainer.fit(model)
+            # DEHB minimizes, so we return negative reward if maximizing
+            reward = trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()
+            return {"fitness": -reward}
+
+        dehb = DifferentialEvolutionHyperband(
+            cs=cfg.hpo.search_space,
+            f=dehb_obj,
+            min_fidelity=cfg.hpo.min_epochs or 1,
+            max_fidelity=cfg.hpo.n_epochs_per_trial,
+        )
+        best_config, runtime, _ = dehb.run(fevals=cfg.hpo.n_trials)
+        logger.info(f"DEHB complete in {runtime:.2f}s. Best config: {best_config}")
+        return dehb.get_incumbents()[1]
+
+    # Default to Optuna
     study = optuna.create_study(
         direction="maximize",
         sampler=optuna.samplers.TPESampler(seed=cfg.seed),
@@ -271,9 +314,10 @@ def run_hpo(cfg: Config) -> None:
     logger.info("Optimization complete!")
     logger.info(f"Best trial value: {study.best_value}")
     logger.info(f"Best parameters: {study.best_params}")
+    return study.best_value
 
 
-def run_training(cfg: Config) -> None:
+def run_training(cfg: Config) -> float:
     """Run single model training."""
     seed_everything(cfg.seed)
     model = create_model(cfg)
@@ -290,17 +334,16 @@ def run_training(cfg: Config) -> None:
     )
 
     trainer.fit(model)
+    return trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()
 
 
 @hydra.main(version_base=None, config_name="config")
-def main(cfg: Config) -> None:
+def main(cfg: Config) -> float:
     """Unified entry point."""
-    # Decide whether to run HPO or Training
-    # If hpo.n_trials > 0, we assume HPO mode
     if cfg.hpo.n_trials > 0:
-        run_hpo(cfg)
+        return run_hpo(cfg)
     else:
-        run_training(cfg)
+        return run_training(cfg)
 
 
 if __name__ == "__main__":
