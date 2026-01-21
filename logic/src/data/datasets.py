@@ -1,41 +1,89 @@
 """
-TensorDict-based datasets for training.
+Dataset classes for WSmart-Route.
 """
-from __future__ import annotations
+from typing import Union
 
-from typing import List
-
+import tensordict
 import torch
-from tensordict import TensorDict
+from packaging import version
+from tensordict.tensordict import TensorDict
 from torch.utils.data import Dataset
+
+# Version check for tensordict
+if version.parse(tensordict.__version__) <= version.parse("0.4.0"):
+    td_kwargs = {"_run_checks": False}
+else:
+    td_kwargs = {}
 
 
 class TensorDictDataset(Dataset):
-    """Dataset wrapping a TensorDict."""
+    """
+    Dataset compatible with TensorDicts.
+    """
 
-    def __init__(self, data: TensorDict):
-        self.data = data
+    def __init__(self, td: TensorDict):
+        self.data = td
 
-    def __len__(self) -> int:
+    def __len__(self):
         return self.data.batch_size[0]
 
-    def __getitem__(self, idx: int) -> TensorDict:
+    def __getitem__(self, idx):
         return self.data[idx]
 
-    @classmethod
-    def load(cls, path: str) -> TensorDictDataset:
-        """Load TensorDict from file."""
-        data = torch.load(path)
-        if not isinstance(data, TensorDict):
-            raise ValueError(f"Expected TensorDict in {path}, got {type(data)}")
-        return cls(data)
+    @staticmethod
+    def load(path: str):
+        return TensorDictDataset(torch.load(path))
+
+    def save(self, path: str):
+        torch.save(self.data, path)
+
+
+class FastTdDataset(Dataset):
+    """
+    Optimized Dataset for TensorDicts.
+    """
+
+    def __init__(self, td: TensorDict):
+        self.data_len = td.batch_size[0]
+        self.data = td
+
+    def __len__(self):
+        return self.data_len
+
+    def __getitems__(self, idx):
+        return self.data[idx]
+
+    @staticmethod
+    def collate_fn(batch: Union[dict, TensorDict]):
+        return batch
+
+
+class TensorDictDatasetFastGeneration(Dataset):
+    """
+    Dataset optimized for fast instantiation (avoiding list comp).
+    """
+
+    def __init__(self, td: TensorDict):
+        self.data = td
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitems__(self, index):
+        return TensorDict(
+            {key: item[index] for key, item in self.data.items()},
+            batch_size=torch.Size([len(index)]),
+            **td_kwargs,
+        )
+
+    @staticmethod
+    def collate_fn(batch: Union[dict, TensorDict]):
+        return batch
 
 
 class GeneratorDataset(Dataset):
     """
     Dataset that generates instances on-the-fly.
-
-    Useful for training with infinite data.
     """
 
     def __init__(self, generator, size: int):
@@ -49,13 +97,6 @@ class GeneratorDataset(Dataset):
         return self.generator(batch_size=1)[0]
 
 
-def tensordict_collate_fn(batch: List[TensorDict]) -> TensorDict:
+def tensordict_collate_fn(batch: list[TensorDict]) -> TensorDict:
     """Collate list of TensorDicts into batched TensorDict."""
-    return torch.stack(batch)
-
-
-__all__ = [
-    "TensorDictDataset",
-    "GeneratorDataset",
-    "tensordict_collate_fn",
-]
+    return torch.stack(batch)  # type: ignore

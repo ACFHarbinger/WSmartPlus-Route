@@ -27,6 +27,7 @@ class PPO(RL4COLitModule):
         value_loss_weight: float = 0.5,
         entropy_weight: float = 0.0,
         max_grad_norm: float = 0.5,
+        mini_batch_size: int | float = 0.25,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -36,6 +37,7 @@ class PPO(RL4COLitModule):
         self.value_loss_weight = value_loss_weight
         self.entropy_weight = entropy_weight
         self.max_grad_norm = max_grad_norm
+        self.mini_batch_size = mini_batch_size
 
         # We use manual optimization to allow multiple epochs per batch
         self.automatic_optimization = False
@@ -68,66 +70,85 @@ class PPO(RL4COLitModule):
 
         # 2. PPO Optimization Loop
         from pytorch_lightning.core.optimizer import LightningOptimizer
+        from torch.utils.data import DataLoader
+
+        from logic.src.data.datasets import FastTdDataset
 
         opt = self.optimizers()
 
-        # Ensure we have a single optimizer for constructive PPO
         if isinstance(opt, list):
             opt = opt[0]
 
         assert isinstance(opt, LightningOptimizer)
 
+        # Create DataLoader for mini-batching
+        # Add necessary keys to TensorDict
+        td.set("logprobs", old_log_p)
+        td.set("reward", old_reward)
+        td.set("action", old_actions)
+
+        # Determine mini_batch_size
+        bs = td.batch_size[0]
+        mbs = self.mini_batch_size
+        if isinstance(mbs, float):
+            mbs = int(bs * mbs)
+
+        if mbs > bs:
+            mbs = bs
+
+        dataset = FastTdDataset(td)
+        dataloader = DataLoader(dataset, batch_size=mbs, shuffle=True, collate_fn=FastTdDataset.collate_fn)
+
         for _ in range(self.ppo_epochs):
-            # Re-evaluate log probabilities of the same actions
-            # Teacher forcing using 'actions' argument
-            td_new = env.reset(batch.clone())
-            new_out = self.policy(td_new, env, actions=old_actions)
-            new_log_p = new_out["log_likelihood"]
+            for sub_td in dataloader:
+                sub_td = sub_td.to(td.device)
+                previous_reward = sub_td["reward"]  # [batch]
 
-            # Re-evaluate values
-            new_values = self.critic(batch).squeeze(-1)
+                # Re-evaluate logic
+                # Need to clone to avoid in-place issues
+                new_out = self.policy(sub_td.clone(), env, actions=sub_td["action"])
+                new_log_p = new_out["log_likelihood"]
 
-            # Advantage estimation
-            advantage = self.calculate_advantages(old_reward, new_values)
+                # Re-evaluate values
+                new_values = self.critic(sub_td).squeeze(-1)  # [batch]
 
-            # Calculate Ratio
-            ratio = self.calculate_ratio(new_log_p, old_log_p)
+                # Advantage estimation
+                advantage = self.calculate_advantages(previous_reward, new_values)
 
-            # Actor Loss
-            actor_loss = self.calculate_actor_loss(ratio, advantage)
+                # Ratio
+                # sub_td["logprobs"] is old_log_p
+                ratio = self.calculate_ratio(new_log_p, sub_td["logprobs"])
 
-            # Critic Loss
-            critic_loss = self.calculate_critic_loss(new_values, old_reward)
+                # Actor Loss
+                actor_loss = self.calculate_actor_loss(ratio, advantage)
 
-            # Total Loss
-            loss = actor_loss + self.value_loss_weight * critic_loss
+                # Critic Loss
+                critic_loss = self.calculate_critic_loss(new_values, previous_reward)
 
-            # Entropy bias (optional)
-            if self.entropy_weight > 0 and "entropy" in new_out:
-                loss = loss - self.entropy_weight * new_out["entropy"].mean()
+                # Total Loss
+                loss = actor_loss + self.value_loss_weight * critic_loss
 
-            # Manual Optimization
-            opt.zero_grad()
-            self.manual_backward(loss)
+                # Entropy
+                if self.entropy_weight > 0 and "entropy" in new_out:
+                    loss = loss - self.entropy_weight * new_out["entropy"].mean()
 
-            if self.max_grad_norm > 0:
-                # Clip gradients for both policy and critic
-                # LightningOptimizer needs to be unwrapped for clip_gradients
-                from torch.optim import Optimizer
+                # Manual Optimization Step
+                opt.zero_grad()
+                self.manual_backward(loss)
 
-                torch_opt = opt.optimizer if hasattr(opt, "optimizer") else opt
-                assert isinstance(torch_opt, Optimizer)
-                self.clip_gradients(torch_opt, gradient_clip_val=self.max_grad_norm, gradient_clip_algorithm="norm")
+                if self.max_grad_norm > 0:
+                    torch_opt = opt.optimizer if hasattr(opt, "optimizer") else opt
+                    # mypy ignore because we know it's a valid optimizer but the union type is tricky
+                    self.clip_gradients(torch_opt, gradient_clip_val=self.max_grad_norm, gradient_clip_algorithm="norm")  # type: ignore
 
-            opt.step()
+                opt.step()
 
-        # Log metrics (using values from last optimization step)
+        # Log metrics (using last batch approximation)
         self.log("train/reward", old_reward.mean(), prog_bar=True)
         self.log("train/loss", loss, prog_bar=True)
         self.log("train/actor_loss", actor_loss)
         self.log("train/critic_loss", critic_loss)
         self.log("train/advantage", advantage.mean())
-        self.log("train/ratio", ratio.mean())
 
         return loss
 
