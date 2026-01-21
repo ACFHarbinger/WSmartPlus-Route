@@ -58,8 +58,8 @@ class ImitationLearning(RL4COLitModule):
                 # Assuming expert_policy is an HGSPolicy instance or wrapper
                 expert_out = self.expert_policy(td, self.env)
                 expert_actions = expert_out["actions"]  # [batch, seq_len]
-            elif self.expert_name == "local_search":
-                # Assuming initial random solution then LS
+            elif self.expert_name in ["local_search", "random_ls"]:
+                # Assuming expert_policy is an instance of RandomLocalSearchPolicy
                 expert_out = self.expert_policy(td, self.env)
                 expert_actions = expert_out["actions"]
             else:
