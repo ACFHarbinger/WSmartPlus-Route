@@ -24,6 +24,7 @@ class ModelConfig:
     embed_dim: int = 128
     hidden_dim: int = 512
     num_encoder_layers: int = 3
+    num_decoder_layers: int = 3
     num_heads: int = 8
     encoder_type: str = "gat"
 
@@ -58,6 +59,11 @@ class RLConfig:
     baseline: str = "rollout"
     entropy_weight: float = 0.0
     max_grad_norm: float = 1.0
+
+    # PPO specific
+    ppo_epochs: int = 10
+    eps_clip: float = 0.2
+    value_loss_weight: float = 0.5
 
 
 @dataclass
