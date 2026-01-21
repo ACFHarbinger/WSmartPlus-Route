@@ -6,13 +6,16 @@ This module provides functions for:
 - Loading XML configuration files and converting them to dictionaries.
 """
 
+from __future__ import annotations
+
 import os
 import xml.etree.ElementTree as ET
+from typing import Any, Dict, List, Union
 
 import yaml
 
 
-def load_yaml_config(config_path: str) -> dict:
+def load_yaml_config(config_path: str) -> dict[str, Any]:
     """
     Loads a YAML configuration file.
 
@@ -20,7 +23,7 @@ def load_yaml_config(config_path: str) -> dict:
         config_path (str): Path to the YAML file.
 
     Returns:
-        dict: The configuration dictionary.
+        dict[str, Any]: The configuration dictionary.
 
     Raises:
         ValueError: If parsing fails.
@@ -32,7 +35,7 @@ def load_yaml_config(config_path: str) -> dict:
             raise ValueError(f"Error parsing YAML file: {e}")
 
 
-def load_xml_config(config_path: str) -> dict:
+def load_xml_config(config_path: str) -> dict[str, Any]:
     """
     Loads an XML configuration file and converts it to a dictionary.
 
@@ -40,7 +43,7 @@ def load_xml_config(config_path: str) -> dict:
         config_path (str): Path to the XML file.
 
     Returns:
-        dict: The configuration dictionary.
+        dict[str, Any]: The configuration dictionary.
 
     Raises:
         ValueError: If parsing fails.
@@ -49,7 +52,7 @@ def load_xml_config(config_path: str) -> dict:
         tree = ET.parse(config_path)
         root = tree.getroot()
 
-        def xml_to_dict(element):
+        def xml_to_dict(element: ET.Element) -> Union[Dict[str, Any], List[Any], str, int, float]:
             """
             Helper to convert XML element to dictionary.
 
@@ -62,14 +65,14 @@ def load_xml_config(config_path: str) -> dict:
             # Helper to convert XML element to dictionary
             if len(element) == 0:
                 try:
-                    return int(element.text)
+                    return int(element.text) if element.text is not None else ""
                 except (ValueError, TypeError):
                     try:
-                        return float(element.text)
+                        return float(element.text) if element.text is not None else ""
                     except (ValueError, TypeError):
-                        return element.text
+                        return element.text if element.text is not None else ""
 
-            result = {}
+            result: dict[str, Any] = {}
             for child in element:
                 child_data = xml_to_dict(child)
                 if child.tag in result:
@@ -90,7 +93,7 @@ def load_xml_config(config_path: str) -> dict:
         raise ValueError(f"Error parsing XML file: {e}")
 
 
-def load_config(config_path: str) -> dict:
+def load_config(config_path: str) -> dict[str, Any]:
     """
     Loads a YAML or XML configuration file based on extension.
 
@@ -98,7 +101,7 @@ def load_config(config_path: str) -> dict:
         config_path (str): Path to the configuration file.
 
     Returns:
-        dict: The configuration dictionary.
+        dict[str, Any]: The configuration dictionary.
 
     Raises:
         FileNotFoundError: If the file does not exist.
@@ -109,7 +112,7 @@ def load_config(config_path: str) -> dict:
 
     _, ext = os.path.splitext(config_path)
 
-    config = {}
+    config: dict[str, Any] = {}
     if ext.lower() == ".yaml" or ext.lower() == ".yml":
         config = load_yaml_config(config_path)
         if config is None:

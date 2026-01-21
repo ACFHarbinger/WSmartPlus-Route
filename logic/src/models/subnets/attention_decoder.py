@@ -1,7 +1,8 @@
 """Standard Attention Decoder for constructive routing problems."""
+from __future__ import annotations
 
 import math
-import typing
+from typing import Any, NamedTuple, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -9,7 +10,7 @@ import torch.nn as nn
 from logic.src.utils.functions.function import compute_in_batches
 
 
-class AttentionModelFixed(typing.NamedTuple):
+class AttentionModelFixed(NamedTuple):
     """
     Context for AttentionModel decoder that is fixed during decoding so can be precomputed/cached
     This class allows for efficient indexing of multiple Tensors at once
@@ -21,7 +22,7 @@ class AttentionModelFixed(typing.NamedTuple):
     glimpse_val: torch.Tensor
     logit_key: torch.Tensor
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Union[int, slice, torch.Tensor]) -> AttentionModelFixed:
         """Allows slicing the fixed context."""
         if torch.is_tensor(key) or isinstance(key, slice):
             return AttentionModelFixed(
@@ -31,7 +32,14 @@ class AttentionModelFixed(typing.NamedTuple):
                 glimpse_val=self.glimpse_val[:, key],  # dim 0 are the heads
                 logit_key=self.logit_key[key],
             )
-        return self[key]
+        # Fallback for integer indexing if needed, though usually used with tensors/slices
+        return AttentionModelFixed(
+            node_embeddings=self.node_embeddings[key].unsqueeze(0),
+            context_node_projected=self.context_node_projected[key].unsqueeze(0),
+            glimpse_key=self.glimpse_key[:, key].unsqueeze(1),
+            glimpse_val=self.glimpse_val[:, key].unsqueeze(1),
+            logit_key=self.logit_key[key].unsqueeze(0),
+        )
 
 
 class AttentionDecoder(nn.Module):
@@ -46,18 +54,18 @@ class AttentionDecoder(nn.Module):
         self,
         embedding_dim: int,
         hidden_dim: int,
-        problem,
+        problem: Any,
         n_heads: int = 8,
         tanh_clipping: float = 10.0,
         mask_inner: bool = True,
         mask_logits: bool = True,
         mask_graph: bool = False,
-        shrink_size: int = None,
+        shrink_size: Optional[int] = None,
         pomo_size: int = 0,
         spatial_bias: bool = False,
         spatial_bias_scale: float = 1.0,
-        decode_type: str = None,
-    ):
+        decode_type: Optional[str] = None,
+    ) -> None:
         """
         Args:
             embedding_dim: Dimension of input embeddings.
@@ -105,13 +113,13 @@ class AttentionDecoder(nn.Module):
             self.project_node_step = nn.Linear(1, 3 * embedding_dim, bias=False)
 
         self.project_out = nn.Linear(embedding_dim, embedding_dim, bias=False)
-        self.temp = 1.0
+        self.temp: float = 1.0
 
-    def set_step_context_dim(self, dim):
+    def set_step_context_dim(self, dim: int) -> None:
         """Sets the dimension of the step context projection."""
         self.project_step_context = nn.Linear(dim, self.embedding_dim, bias=False)
 
-    def set_decode_type(self, decode_type, temp=None):
+    def set_decode_type(self, decode_type: str, temp: Optional[float] = None) -> None:
         """Sets the decoding type and temperature."""
         self.decode_type = decode_type
         if temp is not None:
@@ -119,14 +127,14 @@ class AttentionDecoder(nn.Module):
 
     def forward(
         self,
-        input,
-        embeddings,
-        cost_weights=None,
-        dist_matrix=None,
-        mask=None,
-        expert_pi=None,
-        **kwargs,
-    ):
+        input: Union[torch.Tensor, dict[str, torch.Tensor]],
+        embeddings: torch.Tensor,
+        cost_weights: Optional[torch.Tensor] = None,
+        dist_matrix: Optional[torch.Tensor] = None,
+        mask: Optional[torch.Tensor] = None,
+        expert_pi: Optional[torch.Tensor] = None,
+        **kwargs: Any,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Wrapper around _inner to match standard Module behavior.
         """
@@ -144,15 +152,15 @@ class AttentionDecoder(nn.Module):
 
     def _inner(
         self,
-        nodes,
-        edges,
-        embeddings,
-        cost_weights,
-        dist_matrix,
-        profit_vars=None,
-        mask=None,
-        expert_pi=None,
-    ):
+        nodes: Union[torch.Tensor, dict[str, torch.Tensor]],
+        edges: Optional[torch.Tensor],
+        embeddings: torch.Tensor,
+        cost_weights: Optional[torch.Tensor],
+        dist_matrix: Optional[torch.Tensor],
+        profit_vars: Optional[torch.Tensor] = None,
+        mask: Optional[torch.Tensor] = None,
+        expert_pi: Optional[torch.Tensor] = None,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         outputs = []
         sequences = []
         state = self.problem.make_state(
@@ -166,7 +174,7 @@ class AttentionDecoder(nn.Module):
 
         fixed = self._precompute(embeddings)
 
-        i = 0
+        i: int = 0
         batch_size = state.ids.size(0)
         while not (
             self.shrink_size is None and (state.all_finished() if expert_pi is None else i >= expert_pi.size(1))
@@ -209,8 +217,8 @@ class AttentionDecoder(nn.Module):
 
                 if self.pomo_size > 0 and i == 0:
                     current_batch_size = selected.size(0)
-                    B = current_batch_size // self.pomo_size
-                    forced_selected = torch.arange(1, self.pomo_size + 1, device=selected.device).repeat(B)
+                    B_val = current_batch_size // self.pomo_size
+                    forced_selected = torch.arange(1, self.pomo_size + 1, device=selected.device).repeat(B_val)
                     selected = forced_selected
 
             state = state.update(selected)
@@ -229,7 +237,7 @@ class AttentionDecoder(nn.Module):
 
         return torch.stack(outputs, 1), torch.stack(sequences, 1)
 
-    def _select_node(self, probs, mask):
+    def _select_node(self, probs: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
         assert (probs == probs).all(), "Probs should not contain any nans"
 
         if self.decode_type == "greedy":
@@ -246,7 +254,7 @@ class AttentionDecoder(nn.Module):
             assert False, "Unknown decode type"
         return selected
 
-    def _precompute(self, embeddings, num_steps=1):
+    def _precompute(self, embeddings: torch.Tensor, num_steps: int = 1) -> AttentionModelFixed:
         graph_embed = embeddings.mean(1)  # Defaulting to avg for now, or use configured
 
         fixed_context = self.project_fixed_context(graph_embed)[:, None, :]
@@ -263,7 +271,7 @@ class AttentionDecoder(nn.Module):
         )
         return AttentionModelFixed(embeddings, fixed_context, *fixed_attention_node_data)
 
-    def _make_heads(self, v, num_steps=None):
+    def _make_heads(self, v: torch.Tensor, num_steps: Optional[int] = None) -> torch.Tensor:
         assert num_steps is None or v.size(1) == 1 or v.size(1) == num_steps
         return (
             v.contiguous()
@@ -278,7 +286,13 @@ class AttentionDecoder(nn.Module):
             .permute(3, 0, 1, 2, 4)
         )
 
-    def _get_log_p(self, fixed, state, normalize=True, mask_val=-math.inf):
+    def _get_log_p(
+        self,
+        fixed: AttentionModelFixed,
+        state: Any,
+        normalize: bool = True,
+        mask_val: float = -math.inf,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         query = fixed.context_node_projected + self.project_step_context(
             self._get_parallel_step_context(fixed.node_embeddings, state)
         )
@@ -290,7 +304,7 @@ class AttentionDecoder(nn.Module):
         if self.mask_graph:
             graph_mask = state.get_edges_mask()
 
-        dist_bias = None
+        dist_bias: Optional[torch.Tensor] = None
         if self.spatial_bias and state.dist_matrix is not None:
             dist_matrix = state.dist_matrix
             current_node = state.get_current_node()
@@ -313,7 +327,9 @@ class AttentionDecoder(nn.Module):
         assert not torch.isnan(log_p).any()
         return log_p, mask
 
-    def _get_parallel_step_context(self, embeddings, state, from_depot=False):
+    def _get_parallel_step_context(
+        self, embeddings: torch.Tensor, state: Any, from_depot: bool = False
+    ) -> torch.Tensor:
         current_node = state.get_current_node()
         batch_size, num_steps = current_node.size()
 
@@ -349,7 +365,9 @@ class AttentionDecoder(nn.Module):
         else:
             assert False, "Unsupported problem"
 
-    def _get_attention_node_data(self, fixed, state):
+    def _get_attention_node_data(
+        self, fixed: AttentionModelFixed, state: Any
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         if self.is_wc and self.allow_partial:
             # Need to provide information of how much each node has already been served
             # Clone demands as they are needed by the backprop whereas they are updated later
@@ -366,17 +384,17 @@ class AttentionDecoder(nn.Module):
 
     def _one_to_many_logits(
         self,
-        query,
-        glimpse_K,
-        glimpse_V,
-        logit_K,
-        mask,
-        graph_mask=None,
-        dist_bias=None,
-        mask_val=-math.inf,
-    ):
+        query: torch.Tensor,
+        glimpse_K: torch.Tensor,
+        glimpse_V: torch.Tensor,
+        logit_K: torch.Tensor,
+        mask: torch.Tensor,
+        graph_mask: Optional[torch.Tensor] = None,
+        dist_bias: Optional[torch.Tensor] = None,
+        mask_val: float = -math.inf,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         batch_size, num_steps, embed_dim = query.size()
-        key_size = val_size = embed_dim // self.n_heads
+        key_size = embed_dim // self.n_heads
 
         glimpse_Q = query.view(batch_size, num_steps, self.n_heads, 1, key_size).permute(2, 0, 1, 3, 4)
         compatibility = torch.matmul(glimpse_Q, glimpse_K.transpose(-2, -1)) / math.sqrt(glimpse_Q.size(-1))
@@ -385,10 +403,11 @@ class AttentionDecoder(nn.Module):
             compatibility += dist_bias.unsqueeze(0).unsqueeze(2)
         if self.mask_inner:
             compatibility[mask[None, :, :, None, :].expand_as(compatibility)] = -math.inf
-            if self.mask_graph:
+            if self.mask_graph and graph_mask is not None:
                 compatibility[graph_mask[None, :, :, None, :].expand_as(compatibility)] = -math.inf
 
         heads = torch.matmul(torch.softmax(compatibility, dim=-1), glimpse_V)
+        val_size = embed_dim // self.n_heads
         glimpse = self.project_out(
             heads.permute(1, 2, 3, 0, 4).contiguous().view(-1, num_steps, 1, self.n_heads * val_size)
         )
@@ -399,7 +418,7 @@ class AttentionDecoder(nn.Module):
         if dist_bias is not None:
             logits += dist_bias.unsqueeze(1) if logits.size(1) > 1 else dist_bias
 
-        if self.mask_logits and self.mask_graph:
+        if self.mask_logits and self.mask_graph and graph_mask is not None:
             logits[graph_mask] = mask_val
         if self.tanh_clipping > 0:
             logits = torch.tanh(logits) * self.tanh_clipping
@@ -407,7 +426,14 @@ class AttentionDecoder(nn.Module):
             logits[mask] = mask_val
         return logits, glimpse.squeeze(-2)
 
-    def _calc_log_likelihood(self, _log_p, a, mask, return_entropy=False, kl_loss=False):
+    def _calc_log_likelihood(
+        self,
+        _log_p: torch.Tensor,
+        a: torch.Tensor,
+        mask: Optional[torch.Tensor],
+        return_entropy: bool = False,
+        kl_loss: bool = False,
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
         if kl_loss:
             epsilon = 0.01
             n_actions = _log_p.size(-1)
@@ -458,7 +484,13 @@ class AttentionDecoder(nn.Module):
             return ll, entropy
         return ll
 
-    def _get_log_p_topk(self, fixed, state, k=None, normalize=True):
+    def _get_log_p_topk(
+        self,
+        fixed: AttentionModelFixed,
+        state: Any,
+        k: Optional[int] = None,
+        normalize: bool = True,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Gets top-k log probabilities and their indices."""
         log_p, _ = self._get_log_p(fixed, state, normalize=normalize)
         if k is not None and k < log_p.size(-1):
@@ -468,7 +500,14 @@ class AttentionDecoder(nn.Module):
             torch.arange(log_p.size(-1), device=log_p.device, dtype=torch.int64).repeat(log_p.size(0), 1)[:, None, :],
         )
 
-    def propose_expansions(self, beam, fixed, expand_size=None, normalize=False, max_calc_batch_size=4096):
+    def propose_expansions(
+        self,
+        beam: Any,
+        fixed: AttentionModelFixed,
+        expand_size: Optional[int] = None,
+        normalize: bool = False,
+        max_calc_batch_size: int = 4096,
+    ) -> Tuple[Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]:
         """
         Proposes expansions for beam search.
 

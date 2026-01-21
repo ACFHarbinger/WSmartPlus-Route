@@ -1503,7 +1503,11 @@ class TestHexalyOptimizer:
 
 
 class TestSingleVehiclePolicies:
+    """Test suite for single-vehicle routing policies and heuristics."""
+
     def test_find_route(self):
+        """Test finding a route using TSP heuristic."""
+
         test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         test_to_collect = [1, 2]
         with patch(
@@ -1514,12 +1518,16 @@ class TestSingleVehiclePolicies:
             assert res_route == [0, 1, 2, 0]
 
     def test_get_route_cost(self):
+        """Test calculation of total cost for a given route."""
+
         test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         test_tour = [0, 1, 2, 0]
         res_cost = single_vehicle.get_route_cost(test_C, test_tour)
         assert abs(float(res_cost) - 35.0) < 1e-6
 
     def test_get_multi_tour(self):
+        """Test splitting a single tour into multiple trips based on capacity."""
+
         test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         test_tour = [0, 1, 2, 0]  # ID 1, node 0; ID 2, node 1
         test_bins_waste = np.array([60, 60])
@@ -1529,6 +1537,8 @@ class TestSingleVehiclePolicies:
         assert 0 in res_multi[1:-1]
 
     def test_get_partial_tour(self):
+        """Test reducing a tour to fit within capacity constraints."""
+
         C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         tour = [0, 1, 2, 0]
         bins_waste = np.array([60, 60])
@@ -1538,6 +1548,8 @@ class TestSingleVehiclePolicies:
         assert len(reduced_tour) < 4
 
     def test_dist_matrix_from_graph(self):
+        """Test distance matrix generation from a NetworkX graph."""
+
         G = nx.Graph()
         G.add_edge(0, 1, weight=5)
         G.add_edge(1, 2, weight=5)
@@ -1546,6 +1558,8 @@ class TestSingleVehiclePolicies:
         assert paths[0][2] == [0, 1, 2]
 
     def test_get_path_cost(self):
+        """Test path cost calculation on a graph."""
+
         G = nx.Graph()
         G.add_edge(0, 1, weight=10)
         G.add_edge(1, 2, weight=5)
@@ -1553,6 +1567,8 @@ class TestSingleVehiclePolicies:
         assert single_vehicle.get_path_cost(G, path) == 15
 
     def test_local_search_2opt(self):
+        """Test 2-opt local search optimization."""
+
         # 4 nodes: 0, 1, 2, 3
         # Inefficient tour: 0 -> 2 -> 1 -> 3 -> 0
         # Optimal (linear): 0 -> 1 -> 2 -> 3 -> 0

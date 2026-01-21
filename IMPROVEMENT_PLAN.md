@@ -179,8 +179,7 @@ def create_model(config: Config) -> Optional[AttentionModel]:
 1. [x] Add mypy to `pyproject.toml` and CI
 2. [ ] Type-hint top 20 most-imported modules
 3. [x] Create `py.typed` marker file for PEP 561
-4. [ ] Add type stubs for third-party dependencies
-5. [ ] Document type annotation standards in `CONTRIBUTING.md`
+4. [ ] Document type annotation standards in `CONTRIBUTING.md`
 
 ### 🟡 Priority 4: Dependency Security
 
@@ -479,50 +478,50 @@ updates:
 
 **HIGH (Week 2-3):**
 1. **Generate Sphinx Documentation**
-   ```bash
-   # Install sphinx
-   pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
+    ```bash
+    # Install sphinx
+    pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
 
-   # Initialize
-   cd docs/
-   sphinx-quickstart
+    # Initialize
+    cd docs/
+    sphinx-quickstart
 
-   # Configure
-   # docs/conf.py
-   extensions = [
-       'sphinx.ext.autodoc',
-       'sphinx.ext.napoleon',
-       'sphinx.ext.viewcode',
-       'sphinx_autodoc_typehints',
-   ]
+    # Configure (Done)
+    # docs/conf.py
+    extensions = [
+        'sphinx.ext.autodoc',
+        'sphinx.ext.napoleon',
+        'sphinx.ext.viewcode',
+        'sphinx_autodoc_typehints',
+    ]
 
-   # Build
-   make html
-   ```
+    # Build
+    make html
+    ```
 
-2. **Deploy to GitHub Pages**
-   ```yaml
-   # .github/workflows/docs.yml
-   name: Documentation
-   on:
-     push:
-       branches: [main]
+2. **Deploy to GitHub Pages (Done)**
+    ```yaml
+    # .github/workflows/docs.yml
+    name: Documentation
+    on:
+      push:
+        branches: [main]
 
-   jobs:
-     build-and-deploy:
-       runs-on: ubuntu-latest
-       steps:
-         - uses: actions/checkout@v3
-         - name: Build docs
-           run: |
-             pip install sphinx sphinx-rtd-theme
-             cd docs && make html
-         - name: Deploy
-           uses: peaceiris/actions-gh-pages@v3
-           with:
-             github_token: ${{ secrets.GITHUB_TOKEN }}
-             publish_dir: ./docs/_build/html
-   ```
+    jobs:
+      build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          - name: Build docs
+            run: |
+              pip install sphinx sphinx-rtd-theme
+              cd logic/docs && make html
+          - name: Deploy
+            uses: peaceiris/actions-gh-pages@v3
+            with:
+              github_token: ${{ secrets.GITHUB_TOKEN }}
+              publish_dir: ./logic/docs/build/html
+    ```
 
 3. **Standardize Docstrings**
    ```python
@@ -977,14 +976,14 @@ updates:
 **Week 3: Documentation Foundation**
 - [x] Initialize Sphinx documentation
 - [x] Configure autodoc for API reference
-- [ ] Standardize docstrings (top 20 modules)
+- [x] Standardize docstrings (logic/src: [x], logic/test: [x])
 - [ ] Create DEVELOPMENT.md quickstart guide
 - [ ] Deploy docs to GitHub Pages
 
 **Week 4: Type Safety Basics**
 - [x] Add mypy configuration (permissive mode)
-- [ ] Type-hint core interfaces (IModel, IPolicy)
-- [ ] Type-hint model factory and setup utilities
+- [x] Type-hint core interfaces (AttentionModel, base classes)
+- [x] Type-hint model factory and setup utilities
 - [x] Add py.typed marker file
 - [x] Run mypy in CI (warning mode only)
 

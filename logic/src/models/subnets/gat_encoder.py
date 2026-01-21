@@ -1,5 +1,9 @@
 """Graph Attention Encoder."""
+from __future__ import annotations
 
+from typing import Any, List, Optional
+
+import torch
 import torch.nn as nn
 
 from ..modules import ActivationFunction, FeedForward, MultiHeadAttention, Normalization
@@ -13,16 +17,16 @@ class FeedForwardSubLayer(nn.Module):
 
     def __init__(
         self,
-        embed_dim,
-        feed_forward_hidden,
-        activation,
-        af_param,
-        threshold,
-        replacement_value,
-        n_params,
-        dist_range,
-        bias=True,
-    ):
+        embed_dim: int,
+        feed_forward_hidden: int,
+        activation: str,
+        af_param: float,
+        threshold: float,
+        replacement_value: float,
+        n_params: int,
+        dist_range: List[float],
+        bias: bool = True,
+    ) -> None:
         """Initializes the FeedForwardSubLayer."""
         super(FeedForwardSubLayer, self).__init__()
         self.sub_layers = (
@@ -42,7 +46,7 @@ class FeedForwardSubLayer(nn.Module):
             else FeedForward(embed_dim, embed_dim)
         )
 
-    def forward(self, h, mask=None):
+    def forward(self, h: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Forward pass."""
         return self.sub_layers(h)
 
@@ -55,25 +59,25 @@ class MultiHeadAttentionLayer(nn.Module):
 
     def __init__(
         self,
-        n_heads,
-        embed_dim,
-        feed_forward_hidden,
-        normalization,
-        epsilon_alpha,
-        learn_affine,
-        track_stats,
-        mbeta,
-        lr_k,
-        n_groups,
-        activation,
-        af_param,
-        threshold,
-        replacement_value,
-        n_params,
-        uniform_range,
-        connection_type="skip",
-        expansion_rate=4,
-    ):
+        n_heads: int,
+        embed_dim: int,
+        feed_forward_hidden: int,
+        normalization: str,
+        epsilon_alpha: float,
+        learn_affine: bool,
+        track_stats: bool,
+        mbeta: float,
+        lr_k: float,
+        n_groups: int,
+        activation: str,
+        af_param: float,
+        threshold: float,
+        replacement_value: float,
+        n_params: int,
+        uniform_range: List[float],
+        connection_type: str = "skip",
+        expansion_rate: int = 4,
+    ) -> None:
         """Initializes the MultiHeadAttentionLayer."""
         super(MultiHeadAttentionLayer, self).__init__()
 
@@ -122,7 +126,7 @@ class MultiHeadAttentionLayer(nn.Module):
             lr_k,
         )
 
-    def forward(self, h, mask=None):
+    def forward(self, h: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Forward pass.
 
@@ -139,7 +143,7 @@ class MultiHeadAttentionLayer(nn.Module):
         if h.dim() == 4:  # (B, S, D, n)
             # Permute to (B, S, n, D) for Norm(D)
             h_perm = h.permute(0, 1, 3, 2).contiguous()
-            h_norm = self.norm1(h_perm)
+            h_norm: torch.Tensor = self.norm1(h_perm)
             h = h_norm.permute(0, 1, 3, 2)
         else:
             h = self.norm1(h)
@@ -151,7 +155,8 @@ class MultiHeadAttentionLayer(nn.Module):
             h_norm = self.norm2(h_perm)
             h = h_norm.permute(0, 1, 3, 2)
         else:
-            return self.norm2(h)
+            res: torch.Tensor = self.norm2(h)
+            return res
 
         return h
 
@@ -164,29 +169,29 @@ class GraphAttentionEncoder(nn.Module):
 
     def __init__(
         self,
-        n_heads,
-        embed_dim,
-        n_layers,
-        n_sublayers=None,
-        feed_forward_hidden=512,
-        normalization="batch",
-        epsilon_alpha=1e-05,
-        learn_affine=True,
-        track_stats=False,
-        momentum_beta=0.1,
-        locresp_k=1.0,
-        n_groups=3,
-        activation="gelu",
-        af_param=1.0,
-        threshold=6.0,
-        replacement_value=6.0,
-        n_params=3,
-        uniform_range=[0.125, 1 / 3],
-        dropout_rate=0.1,
-        agg=None,
-        connection_type="skip",
-        expansion_rate=4,
-    ):
+        n_heads: int,
+        embed_dim: int,
+        n_layers: int,
+        n_sublayers: Optional[int] = None,
+        feed_forward_hidden: int = 512,
+        normalization: str = "batch",
+        epsilon_alpha: float = 1e-05,
+        learn_affine: bool = True,
+        track_stats: bool = False,
+        momentum_beta: float = 0.1,
+        locresp_k: float = 1.0,
+        n_groups: int = 3,
+        activation: str = "gelu",
+        af_param: float = 1.0,
+        threshold: float = 6.0,
+        replacement_value: float = 6.0,
+        n_params: int = 3,
+        uniform_range: List[float] = [0.125, 1 / 3],
+        dropout_rate: float = 0.1,
+        agg: Any = None,
+        connection_type: str = "skip",
+        expansion_rate: int = 4,
+    ) -> None:
         """
         Initializes the GraphAttentionEncoder.
 
@@ -246,7 +251,7 @@ class GraphAttentionEncoder(nn.Module):
         )
         self.dropout = nn.Dropout(dropout_rate)
 
-    def forward(self, x, edges=None):
+    def forward(self, x: torch.Tensor, edges: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Forward pass.
 
@@ -275,4 +280,5 @@ class GraphAttentionEncoder(nn.Module):
             # Simple mean pooling to return to standard embedding size
             curr = curr.mean(dim=-1)
 
-        return self.dropout(curr)  # (batch_size, graph_size, embed_dim)
+        res: torch.Tensor = self.dropout(curr)
+        return res  # (batch_size, graph_size, embed_dim)
