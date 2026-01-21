@@ -86,9 +86,16 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
     def _init_baseline(self):
         """Initialize baseline for advantage estimation."""
-        from logic.src.pipeline.rl.core.baselines import get_baseline
+        from logic.src.pipeline.rl.core.baselines import WarmupBaseline, get_baseline
 
-        self.baseline = get_baseline(self.baseline_type, self.policy)
+        baseline = get_baseline(self.baseline_type, self.policy)
+
+        # Handle warmup
+        warmup_epochs = self.hparams.get("bl_warmup_epochs", 0)
+        if warmup_epochs > 0:
+            baseline = WarmupBaseline(baseline, warmup_epochs)
+
+        self.baseline = baseline
 
     @abstractmethod
     def calculate_loss(
@@ -130,6 +137,9 @@ class RL4COLitModule(pl.LightningModule, ABC):
         """
         # Unwrap batch if it's from a baseline dataset
         batch, baseline_val = self.baseline.unwrap_batch(batch)
+        batch = batch.to(self.device)
+        if baseline_val is not None:
+            baseline_val = baseline_val.to(self.device)
         self._current_baseline_val = baseline_val
 
         td = self.env.reset(batch)
@@ -255,6 +265,8 @@ class RL4COLitModule(pl.LightningModule, ABC):
             optimizer = torch.optim.Adam(self.policy.parameters(), **self.optimizer_kwargs)
         elif self.optimizer_name.lower() == "adamw":
             optimizer = torch.optim.AdamW(self.policy.parameters(), **self.optimizer_kwargs)
+        elif self.optimizer_name.lower() == "rmsprop":
+            optimizer = torch.optim.RMSprop(self.policy.parameters(), **self.optimizer_kwargs)
         else:
             raise ValueError(f"Unknown optimizer: {self.optimizer_name}")
 

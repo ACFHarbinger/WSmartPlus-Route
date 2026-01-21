@@ -47,7 +47,7 @@ class WCVRPEnv(RL4COEnvBase):
             device: Device for torch tensors ('cpu' or 'cuda').
             **kwargs: Additional keyword arguments.
         """
-        generator_params = generator_params or {"num_loc": 50}
+        generator_params = generator_params or kwargs
         if generator is None:
             generator = WCVRPGenerator(**generator_params, device=device)
 
@@ -155,11 +155,21 @@ class WCVRPEnv(RL4COEnvBase):
         not_at_depot = current != 0
         total_cost = cost + return_distance * not_at_depot.float()
 
+        # Calculate overflows: unvisited nodes where demand >= max_waste
+        # In current WCVRP, visited nodes have demand=0 in the final td.
+        max_waste = td.get("max_waste", torch.tensor(1.0, device=td.device))
+        if max_waste.dim() > 0:
+            max_waste = max_waste.unsqueeze(-1)
+
+        # We only care about customers (index 1 onwards) for overflows in legacy
+        overflows = (td["demand"][..., 1:] >= max_waste).float().sum(-1)
+
         # Store individual components in TensorDict for logging/meta access
         td["collection"] = collection
         td["cost"] = total_cost
+        td["overflows"] = overflows
 
-        reward = self.collection_reward * collection - self.cost_weight * total_cost
+        reward = self.collection_reward * collection - self.cost_weight * total_cost - self.overflow_penalty * overflows
         return reward
 
 
