@@ -1,3 +1,6 @@
+"""
+Data processing and aggregation utilities for logs and results.
+"""
 from __future__ import annotations
 
 import glob

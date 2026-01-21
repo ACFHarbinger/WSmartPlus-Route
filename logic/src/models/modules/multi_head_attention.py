@@ -1,3 +1,6 @@
+"""
+Multi-Head Attention module for transformer-based models.
+"""
 from __future__ import annotations
 
 import math
