@@ -75,10 +75,11 @@ class DeepDecoderPolicy(ConstructivePolicy):
         init_embeds = self.init_embedding(td)
 
         # 2. Encoder
-        edges = td.get("edges", None)
-        embeddings = self.encoder(init_embeds, edges)
+        assert self.encoder is not None, "Encoder is not initialized"
+        embeddings = self.encoder(init_embeds)
 
         # 3. Decoder Precomputation
+        assert self.decoder is not None, "Decoder is not initialized"
         fixed = self.decoder._precompute(embeddings)
 
         # 4. Decoding Loop
@@ -87,6 +88,8 @@ class DeepDecoderPolicy(ConstructivePolicy):
         step_idx = 0
 
         while not td["done"].all():
+            # Wrap state
+            assert self.env_name is not None, "env_name must be set"
             state_wrapper = TensorDictStateWrapper(td, self.env_name)
 
             logits, mask = self.decoder._get_log_p(fixed, state_wrapper)

@@ -67,7 +67,15 @@ class PPO(RL4COLitModule):
             self.critic(batch).squeeze(-1)  # (batch)
 
         # 2. PPO Optimization Loop
+        from pytorch_lightning.core.optimizer import LightningOptimizer
+
         opt = self.optimizers()
+
+        # Ensure we have a single optimizer for constructive PPO
+        if isinstance(opt, list):
+            opt = opt[0]
+
+        assert isinstance(opt, LightningOptimizer)
 
         for _ in range(self.ppo_epochs):
             # Re-evaluate log probabilities of the same actions
@@ -104,7 +112,12 @@ class PPO(RL4COLitModule):
 
             if self.max_grad_norm > 0:
                 # Clip gradients for both policy and critic
-                self.clip_gradients(opt, gradient_clip_val=self.max_grad_norm, gradient_clip_algorithm="norm")
+                # LightningOptimizer needs to be unwrapped for clip_gradients
+                from torch.optim import Optimizer
+
+                torch_opt = opt.optimizer if hasattr(opt, "optimizer") else opt
+                assert isinstance(torch_opt, Optimizer)
+                self.clip_gradients(torch_opt, gradient_clip_val=self.max_grad_norm, gradient_clip_algorithm="norm")
 
             opt.step()
 
