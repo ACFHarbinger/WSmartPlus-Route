@@ -24,6 +24,7 @@ class ModelConfig:
     embed_dim: int = 128
     hidden_dim: int = 512
     num_encoder_layers: int = 3
+    num_decoder_layers: int = 3
     num_heads: int = 8
     encoder_type: str = "gat"
 
@@ -36,6 +37,7 @@ class TrainConfig:
     batch_size: int = 256
     train_data_size: int = 100000
     val_data_size: int = 10000
+    val_dataset: Optional[str] = None
     num_workers: int = 4
 
 
@@ -59,6 +61,51 @@ class RLConfig:
     entropy_weight: float = 0.0
     max_grad_norm: float = 1.0
 
+    # PPO specific
+    ppo_epochs: int = 10
+    eps_clip: float = 0.2
+    value_loss_weight: float = 0.5
+
+    # SAPO specific
+    sapo_tau_pos: float = 0.1
+    sapo_tau_neg: float = 1.0
+
+    # DR-GRPO specific
+    dr_grpo_group_size: int = 8
+    dr_grpo_epsilon: float = 0.2
+
+    # Meta-RL specific
+    use_meta: bool = False
+    meta_lr: float = 1e-3
+    meta_hidden_dim: int = 64
+    meta_history_length: int = 10
+
+    # POMO / Augmentation specific
+    num_augment: int = 1
+    num_starts: Optional[int] = None
+    augment_fn: str = "dihedral8"
+
+    # SymNCO specific
+    symnco_alpha: float = 0.2
+    symnco_beta: float = 1.0
+
+
+@dataclass
+class HPOConfig:
+    """Hyperparameter optimization configuration."""
+
+    method: str = "dehbo"  # dehbo, rs, gs, bo
+    metric: str = "reward"
+    n_trials: int = 20
+    n_epochs_per_trial: int = 10
+    num_workers: int = 4
+    search_space: Dict[str, List[Any]] = field(
+        default_factory=lambda: {
+            "rl.entropy_weight": [0.0, 0.1],
+            "optim.lr": [1e-5, 1e-3],
+        }
+    )
+
 
 @dataclass
 class Config:
@@ -69,6 +116,7 @@ class Config:
     train: TrainConfig = field(default_factory=TrainConfig)
     optim: OptimConfig = field(default_factory=OptimConfig)
     rl: RLConfig = field(default_factory=RLConfig)
+    hpo: HPOConfig = field(default_factory=HPOConfig)
     seed: int = 42
     device: str = "cuda"
     experiment_name: Optional[str] = None
@@ -80,5 +128,6 @@ __all__ = [
     "TrainConfig",
     "OptimConfig",
     "RLConfig",
+    "HPOConfig",
     "Config",
 ]

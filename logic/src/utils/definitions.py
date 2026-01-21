@@ -96,6 +96,16 @@ MAX_WASTE: float = 1.0
 MAX_LENGTHS: Dict[int, int] = {20: 2, 50: 3, 100: 4, 150: 5, 225: 6, 317: 7}
 VEHICLE_CAPACITY: float = 100.0
 
+PROBLEMS: List[str] = [
+    "vrpp",
+    "cvrpp",
+    "wcvrp",
+    "cwcvrp",
+    "sdwcvrp",
+    "scwcvrp",
+    "swcvrp",
+]
+
 # Model configurations
 SUB_NET_ENCS: List[str] = ["tgc"]
 PRED_ENC_MODELS: List[str] = ["tam"]
