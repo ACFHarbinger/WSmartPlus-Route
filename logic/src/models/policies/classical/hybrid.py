@@ -25,6 +25,7 @@ class NeuralHeuristicHybrid(ConstructivePolicy):
         heuristic_policy: Union[ALNSPolicy, HGSPolicy],
         **kwargs,
     ):
+        """Initialize NeuralHeuristicHybrid."""
         super().__init__(env_name=neural_policy.env_name, **kwargs)
         self.neural_policy = neural_policy
         self.heuristic_policy = heuristic_policy

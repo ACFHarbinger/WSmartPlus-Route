@@ -11,6 +11,13 @@ class EfficiencyOptimizer:
     """Optimizes routes post-generation."""
 
     def __init__(self, problem, **kwargs):
+        """
+        Initialize EfficiencyOptimizer.
+
+        Args:
+            problem: Description for problem.
+            **kwargs: Description for **kwargs.
+        """
         self.problem = problem
 
     def optimize(self, routes: List[torch.Tensor], **kwargs):

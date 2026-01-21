@@ -35,6 +35,16 @@ class NoBaseline(Baseline):
     """No baseline (vanilla REINFORCE)."""
 
     def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+        """
+        Return zero baseline (no variance reduction).
+
+        Args:
+            td: TensorDict with environment state (unused).
+            reward: Current batch rewards.
+
+        Returns:
+            torch.Tensor: Zeros matching the reward shape.
+        """
         return torch.zeros_like(reward)
 
 
@@ -42,10 +52,26 @@ class ExponentialBaseline(Baseline):
     """Exponential moving average baseline."""
 
     def __init__(self, beta: float = 0.8):
+        """
+        Initialize ExponentialBaseline.
+
+        Args:
+            beta: Decay factor for exponential moving average (default: 0.8).
+        """
         self.beta = beta
         self.running_mean: Optional[torch.Tensor] = None
 
     def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+        """
+        Compute baseline value using exponential moving average.
+
+        Args:
+            td: TensorDict with environment state.
+            reward: Current batch rewards.
+
+        Returns:
+            torch.Tensor: Baseline value expanded to match reward shape.
+        """
         if self.running_mean is None:
             self.running_mean = reward.mean().detach()
         else:
@@ -69,6 +95,15 @@ class RolloutBaseline(Baseline):
         bl_alpha: float = 0.05,
         **kwargs,
     ):
+        """
+        Initialize RolloutBaseline.
+
+        Args:
+            policy: Policy to use as initial baseline (will be copied).
+            update_every: Update baseline every N epochs.
+            bl_alpha: Significance level for T-test to decide on updates.
+            **kwargs: Additional keyword arguments.
+        """
         self.update_every = update_every
         self.bl_alpha = bl_alpha
         self.baseline_policy: Optional[nn.Module] = None
@@ -179,12 +214,30 @@ class WarmupBaseline(Baseline):
     """Gradual transition from ExponentialBaseline to target baseline."""
 
     def __init__(self, baseline: Baseline, warmup_epochs: int = 1, beta: float = 0.8):
+        """
+        Initialize WarmupBaseline.
+
+        Args:
+            baseline: Target baseline to transition to.
+            warmup_epochs: Number of epochs for warmup transition.
+            beta: Beta parameter for the warmup exponential baseline.
+        """
         self.baseline = baseline
         self.warmup_baseline = ExponentialBaseline(beta=beta)
         self.alpha = 0.0
         self.warmup_epochs = warmup_epochs
 
     def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+        """
+        Compute blended baseline value based on warmup progress.
+
+        Args:
+            td: TensorDict with environment state.
+            reward: Current batch rewards.
+
+        Returns:
+            torch.Tensor: Blended baseline value.
+        """
         if self.alpha >= 1.0:
             return self.baseline.eval(td, reward)
         if self.alpha <= 0.0:
@@ -195,6 +248,13 @@ class WarmupBaseline(Baseline):
         return self.alpha * v_target + (1 - self.alpha) * v_warmup
 
     def epoch_callback(self, policy: nn.Module, epoch: int):
+        """
+        Update warmup alpha and call inner baseline callback.
+
+        Args:
+            policy: Current policy.
+            epoch: Current epoch number.
+        """
         self.baseline.epoch_callback(policy, epoch)
         if epoch < self.warmup_epochs:
             self.alpha = (epoch + 1) / float(self.warmup_epochs)
@@ -206,9 +266,25 @@ class CriticBaseline(Baseline):
     """Learned critic baseline."""
 
     def __init__(self, critic: Optional[nn.Module] = None):
+        """
+        Initialize CriticBaseline.
+
+        Args:
+            critic: Critic neural network module.
+        """
         self.critic = critic
 
     def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+        """
+        Compute baseline value using learned critic.
+
+        Args:
+            td: TensorDict with environment state.
+            reward: Current batch rewards (used for shape if critic is None).
+
+        Returns:
+            torch.Tensor: Critic value predictions.
+        """
         if self.critic is None:
             return torch.zeros_like(reward)
         return self.critic(td).squeeze(-1)
@@ -220,6 +296,16 @@ class POMOBaseline(Baseline):
     """
 
     def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
+        """
+        Compute POMO baseline as mean reward across starting points.
+
+        Args:
+            td: TensorDict with environment state.
+            reward: Reward tensor with shape [batch, num_starts].
+
+        Returns:
+            torch.Tensor: Mean reward expanded to match input shape.
+        """
         # Reward shape: [batch, num_starts]
         if reward.dim() > 1:
             return reward.mean(dim=1, keepdim=True).expand_as(reward)

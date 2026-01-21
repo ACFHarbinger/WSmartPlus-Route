@@ -30,6 +30,16 @@ class POMO(REINFORCE):
         num_starts: Optional[int] = None,
         **kwargs,
     ):
+        """
+        Initialize POMO module.
+
+        Args:
+            num_augment: Number of data augmentations during inference.
+            augment_fn: Augmentation function ('dihedral8', 'symmetric', or callable).
+            first_aug_identity: If True, first augmentation is identity.
+            num_starts: Number of starting points for multi-start decoding.
+            **kwargs: Arguments passed to REINFORCE.
+        """
         # POMO generally uses a shared baseline of rewards across starts
         # We set baseline to 'no' because we handle the shared baseline logic in calculate_loss
         kwargs["baseline"] = "none"

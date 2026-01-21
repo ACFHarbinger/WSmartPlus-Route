@@ -39,6 +39,7 @@ class WSTrainer(pl.Trainer):
         enable_progress_bar: bool = True,
         **kwargs,
     ):
+        """Initialize WSTrainer."""
         # Build callbacks
         callbacks = callbacks or []
         callbacks = self._add_default_callbacks(callbacks, enable_progress_bar)

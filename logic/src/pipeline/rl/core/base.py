@@ -43,6 +43,24 @@ class RL4COLitModule(pl.LightningModule, ABC):
         num_workers: int = 4,
         **kwargs,
     ):
+        """
+        Initialize the RL4COLitModule.
+
+        Args:
+            env: The RL environment for the problem.
+            policy: The neural network policy.
+            baseline: Type of baseline for variance reduction ('rollout', 'exponential', 'critic', etc.).
+            optimizer: Optimizer name ('adam' or 'adamw').
+            optimizer_kwargs: Keyword arguments for the optimizer.
+            lr_scheduler: Learning rate scheduler name ('cosine', 'step', or None).
+            lr_scheduler_kwargs: Keyword arguments for the scheduler.
+            train_data_size: Number of training samples to generate per epoch.
+            val_data_size: Number of validation samples.
+            val_dataset_path: Optional path to a pre-saved validation dataset.
+            batch_size: Batch size for training and validation.
+            num_workers: Number of workers for data loading.
+            **kwargs: Additional keyword arguments.
+        """
         super().__init__()
         self.save_hyperparameters(ignore=["env", "policy"])
 
@@ -144,6 +162,16 @@ class RL4COLitModule(pl.LightningModule, ABC):
         return out
 
     def training_step(self, batch: any, batch_idx: int) -> torch.Tensor:
+        """
+        Execute a single training step.
+
+        Args:
+            batch: Input batch, potentially wrapped by baseline.
+            batch_idx: Index of the current batch.
+
+        Returns:
+            torch.Tensor: The computed loss.
+        """
         # 1. Unwrap batch if it was wrapped by baseline (e.g. RolloutBaseline)
         if hasattr(self.baseline, "unwrap_batch"):
             td, baseline_val = self.baseline.unwrap_batch(batch)
@@ -161,9 +189,29 @@ class RL4COLitModule(pl.LightningModule, ABC):
         return out["loss"]
 
     def validation_step(self, batch: TensorDict, batch_idx: int) -> dict:
+        """
+        Execute a single validation step.
+
+        Args:
+            batch: TensorDict batch for validation.
+            batch_idx: Index of the current batch.
+
+        Returns:
+            dict: Output dictionary with metrics.
+        """
         return self.shared_step(batch, batch_idx, phase="val")
 
     def test_step(self, batch: TensorDict, batch_idx: int) -> dict:
+        """
+        Execute a single test step.
+
+        Args:
+            batch: TensorDict batch for testing.
+            batch_idx: Index of the current batch.
+
+        Returns:
+            dict: Output dictionary with metrics.
+        """
         return self.shared_step(batch, batch_idx, phase="test")
 
     def on_train_epoch_start(self) -> None:
@@ -219,6 +267,12 @@ class RL4COLitModule(pl.LightningModule, ABC):
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 
     def setup(self, stage: str) -> None:
+        """
+        Set up datasets for training and validation.
+
+        Args:
+            stage: The stage ('fit', 'validate', 'test', or 'predict').
+        """
         if stage == "fit":
             from torch.utils.data import Dataset
 
@@ -238,6 +292,12 @@ class RL4COLitModule(pl.LightningModule, ABC):
                 )
 
     def train_dataloader(self) -> DataLoader:
+        """
+        Create the training DataLoader.
+
+        Returns:
+            DataLoader: DataLoader for training data.
+        """
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
@@ -247,6 +307,12 @@ class RL4COLitModule(pl.LightningModule, ABC):
         )
 
     def val_dataloader(self) -> DataLoader:
+        """
+        Create the validation DataLoader.
+
+        Returns:
+            DataLoader: DataLoader for validation data.
+        """
         return DataLoader(
             self.val_dataset,
             batch_size=self.batch_size,
