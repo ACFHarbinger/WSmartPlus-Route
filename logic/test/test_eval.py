@@ -34,7 +34,7 @@ class TestEval:
     @patch("logic.src.pipeline.eval.load_model")
     @patch("logic.src.pipeline.eval.save_dataset")
     @patch("logic.src.pipeline.eval.setup_cost_weights")
-    @patch("logic.src.pipeline.eval.torch.utils.data.DataLoader")
+    @patch("logic.src.pipeline.eval.DataLoader")
     def test_eval_dataset_logic(self, mock_loader, mock_setup_weights, mock_save, mock_load_model, eval_opts):
         """Test core logic of dataset evaluation loop."""
 
@@ -78,7 +78,7 @@ class TestEval:
     @patch("logic.src.pipeline.eval.load_model")
     @patch("logic.src.pipeline.eval.save_dataset")
     @patch("logic.src.pipeline.eval.setup_cost_weights")
-    @patch("logic.src.pipeline.eval.torch.utils.data.DataLoader")
+    @patch("logic.src.pipeline.eval.DataLoader")
     def test_eval_dataset_beam_search(self, mock_loader, mock_setup_weights, mock_save, mock_load_model, eval_opts):
         """Test dataset evaluation using beam search decoding."""
 

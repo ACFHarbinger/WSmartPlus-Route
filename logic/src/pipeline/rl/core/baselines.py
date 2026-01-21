@@ -139,12 +139,14 @@ class RolloutBaseline(Baseline):
     def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
         """
         Compute baseline value.
-        If the batch was wrapped and unwrapped, we already have it.
-        Otherwise, if we have a baseline policy, we could run it here (less efficient).
         """
-        # In the context of our Lightning shared_step, if unwrap_batch was called,
-        # the baseline value would be passed directly.
-        # But REINFORCE.shared_step currently calls self.baseline.eval(td, reward).
+        # If we have a baseline policy, run it to get the baseline value
+        if self.baseline_policy is not None:
+            # Note: This is computationally expensive if done every step
+            # Ideally use wrap_dataset/unwrap_batch flow
+            with torch.no_grad():
+                out = self.baseline_policy(td, None, decode_type="greedy")
+            return out["reward"]
         return torch.zeros_like(reward)
 
     def epoch_callback(
@@ -215,15 +217,13 @@ class CriticBaseline(Baseline):
 class POMOBaseline(Baseline):
     """
     POMO baseline: mean reward across starts of the SAME instance.
-    This assumes that the input reward tensor contains results for multiple starts/augmentations
-    reshaped accordingly.
     """
 
     def eval(self, td: TensorDict, reward: torch.Tensor) -> torch.Tensor:
-        # In POMO/SymNCO, the 'shared baseline' logic is often handled inside the algorithm's
-        # shared_step rather than here, because it needs to know the number of starts.
-        # This class serves as a signal or placeholder if needed.
-        return torch.zeros_like(reward)
+        # Reward shape: [batch, num_starts]
+        if reward.dim() > 1:
+            return reward.mean(dim=1, keepdim=True).expand_as(reward)
+        return reward.mean()
 
 
 # Baseline registry

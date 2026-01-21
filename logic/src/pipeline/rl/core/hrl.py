@@ -87,7 +87,25 @@ class HRLModule(pl.LightningModule):
         self.log("train/manager_visit_rate", mask_action.float().mean())
         self.log("train/reward", total_reward.mean(), prog_bar=True)
 
-        return None
+        # Implement PPO loss for manager
+        # V_pred from critic? Manager needs a critic or it outputs value itself (manager_value is returned)
+
+        # Returns: R = r + gamma * V(s')
+        # Here we only have 1 step horizon for simplicity in this port: Reward is immediate
+        returns = total_reward.detach()
+        advantage = returns - manager_value
+
+        # PPO Clip
+        # For full PPO we need a replay buffer or multi-step rollout.
+        # Here we implement A2C style update (ratio=1) or just Value loss + Policy Gradient
+
+        actor_loss = -(advantage * torch.log(gate_action.float() + 1e-8)).mean()  # Simplified for gate
+        critic_loss = advantage.pow(2).mean()
+
+        loss = actor_loss + 0.5 * critic_loss
+
+        self.log("train/manager_loss", loss)
+        return loss
 
     def configure_optimizers(self):
         params = list(self.manager.parameters()) + list(self.worker.parameters())
