@@ -101,6 +101,16 @@ logic/src/
 | `logic/src/data/datasets.py` | ✅ Created |
 | `logic/src/configs/__init__.py` | ✅ Created |
 
+### Phase 6: Migration (New) ✅
+
+| File | Status |
+|------|--------|
+| `logic/src/models/policies/am.py` | ✅ Created |
+| `logic/src/cli/train_lightning.py` | ✅ Created |
+| `logic/src/envs/vrpp.py` | ✅ Fixed |
+| `logic/src/envs/wcvrp.py` | ✅ Fixed |
+| `main.py` | ✅ Updated |
+
 ---
 
 ## Dependencies Added

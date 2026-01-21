@@ -326,9 +326,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
 
 # Cake - Uncomment if you are using it
 # tools/**
@@ -400,66 +397,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-
-# API keys
-assets/api/*.lic
-
-# Temporary files
-*.~lock.*.*#
-*job_out*.out
-condaenv.*.requirements.txt
-
-# Virtual environments
-/**/.venv
-/**/.libR
-/**/.env
-/**/wsr
-/**/?wsr
-#/**/uv.lock
-#/**/pyproject.toml
-#/**/.python-version
-
-# Training logs and results
-logs/
-wandb/
-lightning_logs/
-model_weights/
-
-# Build distribution
-/**/dist
-/**/build
-/**/target
-/**/wsmart_route.egg-info
-
-# WSmart Route simulator temporary files
-temp/
-cache/
-Resultados/
-**/WSmartRoute/
-WSmartRoute.zip
-
-# Datafiles that exceed Github memory limit
-data/wsr_simulator/bins_waste/Enchimentos_de_Sensores\[RioMaior\].csv
-
-# Datasets
-/data/datasets/
-/data/wsr_simulator/
-
-# Secrets
-assets/api
-assets/keys/
-
-# Local files and directories
-**/results/
-**/daily_*/
-**/fill_history/
-outputs/
-checkpoints/
-
-# To include
-!assets/logs
-!assets/model_weights
-!assets/*.out
-!assets/*.pkl
-#!**/fill_history/
-!**/fill_history/enchimentos*
