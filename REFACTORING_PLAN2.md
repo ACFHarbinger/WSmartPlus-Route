@@ -2,7 +2,7 @@
 
 > **Version**: 2.0
 > **Created**: January 2026
-> **Status**: Active
+> **Status**: Completed (January 2026)
 > **Scope**: Integration of `logic/src/pipeline/reinforcement_learning/` features into `logic/src/pipeline/rl/`
 
 ---
@@ -48,14 +48,16 @@ This document details the migration plan for bringing features from the old rein
 rl/
 ├── __init__.py
 ├── base.py           # RL4COLitModule base class
-├── baselines.py      # Baseline implementations (incomplete)
+├── baselines.py      # Complete Baseline implementations
 ├── reinforce.py      # REINFORCE algorithm
 ├── ppo.py            # PPO algorithm
 ├── sapo.py           # SAPO algorithm
-├── gspo.py           # GSPO algorithm (incomplete)
+├── gspo.py           # GSPO algorithm
 ├── dr_grpo.py        # DR-GRPO algorithm
-├── hrl.py            # HRL module (basic)
-├── meta.py           # Meta-RL module (basic)
+├── hrl.py            # HRL module
+├── meta/             # Full Meta-RL package
+├── hpo/              # Lightning-based HPO (Optuna, DEHB)
+├── utils/            # Epoch, time-based, post-processing utils
 └── pomo.py           # POMO implementation
 ```
 

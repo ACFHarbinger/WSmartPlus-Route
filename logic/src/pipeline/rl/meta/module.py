@@ -11,7 +11,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.models.meta_rnn import WeightAdjustmentRNN
-from logic.src.pipeline.rl.meta import get_meta_strategy
+from logic.src.pipeline.rl.meta.registry import get_meta_strategy
 
 
 class MetaRLModule(pl.LightningModule):
