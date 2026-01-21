@@ -1,3 +1,6 @@
+"""
+Environment, model, and optimizer setup utilities.
+"""
 from __future__ import annotations
 
 import os
