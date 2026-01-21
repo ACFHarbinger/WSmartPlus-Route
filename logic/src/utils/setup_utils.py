@@ -1,22 +1,16 @@
-"""
-Setup utilities for initializing models, environments, and optimizers.
-
-This module encapsulates the logic for:
-- Configuring cost function weights
-- Initializing Hierarchical RL (HRL) managers
-- Loading pre-trained models
-- Setting up solver environments (Gurobi)
-- Creating model/baseline pairs
-- Configuring optimizers and learning rate schedulers
-"""
+from __future__ import annotations
 
 import os
+import threading
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import gurobipy as gp
 import torch
+import torch.nn as nn
 import torch.optim as optim
 from dotenv import dotenv_values
 
+import logic.src.utils.definitions as udef
 from logic.src.models import GATLSTManager
 from logic.src.utils.crypto_utils import decrypt_file_data
 from logic.src.utils.definitions import ROOT_DIR
@@ -27,121 +21,108 @@ from logic.src.utils.functions.function import (
 )
 
 
-def setup_cost_weights(opts, def_val=1.0):
+def setup_cost_weights(opts: Dict[str, Any], def_val: float = 1.0) -> Dict[str, float]:
     """
     Sets up the cost weights dictionary based on problem type.
 
     Args:
-        opts (dict): Options dictionary.
-        def_val (float, optional): Default weight value. Defaults to 1.0.
+        opts: Options dictionary.
+        def_val: Default weight value. Defaults to 1.0.
 
     Returns:
-        dict: Dictionary of cost weights (waste, length, overflows, etc.).
+        Dictionary of cost weights (waste, length, overflows, etc.).
     """
 
-    def _set_val(cost_weight, default_value):
+    def _set_val(cost_weight: Optional[float], default_value: float) -> float:
         return default_value if cost_weight is None else cost_weight
 
-    # def _set_weight(opts, cost_weight, default_value=1.):
-    # return opts.get(cost_weight, default_value)
-
-    cw_dict = {}
-    if opts["problem"] in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp", "swcvrp"]:
+    cw_dict: Dict[str, float] = {}
+    if opts["problem"] in udef.PROBLEMS:  # type: ignore
         cw_dict["waste"] = opts["w_waste"] = _set_val(opts["w_waste"], def_val)
         cw_dict["length"] = opts["w_length"] = _set_val(opts["w_length"], def_val)
-        cw_dict["overflows"] = opts["w_overflows"] = _set_val(opts["w_overflows"], def_val)
-    elif opts["problem"] in ["vrpp", "cvrpp"]:
-        cw_dict["waste"] = opts["w_waste"] = _set_val(opts["w_waste"], def_val)
-        cw_dict["length"] = opts["w_length"] = _set_val(opts["w_length"], def_val)
+        if "overflows" in opts or opts["problem"] in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp", "swcvrp"]:
+            cw_dict["overflows"] = opts["w_overflows"] = _set_val(opts.get("w_overflows"), def_val)
     return cw_dict
 
 
-def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None, worker_model=None):
+def setup_hrl_manager(
+    opts: Dict[str, Any],
+    device: torch.device,
+    configs: Optional[Dict[str, Any]] = None,
+    policy: Optional[str] = None,
+    base_path: Optional[str] = None,
+    worker_model: Optional[nn.Module] = None,
+) -> Optional[GATLSTManager]:
     """
     Initializes and loads the Manager model for Hierarchical RL.
 
     Args:
-        opts (dict): Options dictionary.
+        opts: Options dictionary.
         device: Torch device.
-        configs (dict, optional): Configuration dictionary.
-        policy (str, optional): Policy name.
-        base_path (str, optional): Base path for models.
-        worker_model (nn.Module, optional): Worker model instance for shared encoder.
+        configs: Configuration dictionary.
+        policy: Policy name.
+        base_path: Base path for models.
+        worker_model: Worker model instance for shared encoder.
 
     Returns:
-        GATLSTManager or None: The initialized manager model, or None if not applicable.
+        The initialized manager model, or None if not applicable.
     """
-    hrl_path = None
-    if opts.get("model_path") is not None:
-        if policy in opts["model_path"]:
-            hrl_path = opts["model_path"][policy]
+    if configs is None:
+        configs = {}
+
+    hrl_path: Optional[str] = None
+    if opts.get("model_path") is not None and policy is not None:
+        model_paths: Dict[str, str] = opts["model_path"]
+        if policy in model_paths:
+            hrl_path = model_paths[policy]
         else:
-            # Fallback: Try to find a match by stripping suffixes like _gamma1, _emp, etc.
-            # This is common in the simulator where policy names are augmented.
-            base_policy = policy.split("_gamma")[0].split("_emp")[0]
-            if base_policy in opts["model_path"]:
-                hrl_path = opts["model_path"][base_policy]
+            base_policy: str = policy.split("_gamma")[0].split("_emp")[0]
+            if base_policy in model_paths:
+                hrl_path = model_paths[base_policy]
             else:
-                # Last resort: check if any key in model_path is a prefix of our policy name
-                for key in opts["model_path"].keys():
+                for key in model_paths.keys():
                     if policy.startswith(key):
-                        hrl_path = opts["model_path"][key]
+                        hrl_path = model_paths[key]
                         break
 
-    if "mrl_method" not in configs or configs["mrl_method"] != "hrl":
+    if configs.get("mrl_method") != "hrl":
+        return None
+
+    if hrl_path is None:
         return None
 
     if base_path is not None and not os.path.exists(hrl_path):
         hrl_path = os.path.join(base_path, hrl_path)
 
-    # --- Logic from load_model to handle directory ---
     if os.path.isfile(hrl_path):
-        pass  # hrl_path is already the file
+        pass
     elif os.path.isdir(hrl_path):
-        # Find latest epoch
-        epoch = max(
-            int(os.path.splitext(filename)[0].split("-")[1])
-            for filename in os.listdir(hrl_path)
-            if os.path.splitext(filename)[1] == ".pt" and "epoch" in filename
-        )
-        hrl_path = os.path.join(hrl_path, "epoch-{}.pt".format(epoch))
+        pt_files: List[str] = [f for f in os.listdir(hrl_path) if f.endswith(".pt") and "epoch" in f]
+        if not pt_files:
+            return None
+        epoch: int = max(int(os.path.splitext(f)[0].split("-")[1]) for f in pt_files)
+        hrl_path = os.path.join(hrl_path, f"epoch-{epoch}.pt")
     else:
-        # If explicitly requested but not found, maybe valid to return None or raise error?
-        # For robustness, if we can't find it, we skip HRL
         return None
 
-    # Get params from configs if available, else opts
-    if configs is not None:
-        mrl_history = configs.get("mrl_history", opts.get("mrl_history", 10))
-        gat_hidden = configs.get("gat_hidden", opts.get("gat_hidden", 128))
-        lstm_hidden = configs.get("lstm_hidden", opts.get("lstm_hidden", 64))
-        global_input_dim = configs.get("global_input_dim", opts.get("global_input_dim", 3))
-    else:
-        mrl_history = opts.get("mrl_history", 10)
-        gat_hidden = opts.get("gat_hidden", 128)
-        lstm_hidden = opts.get("lstm_hidden", 64)
-        global_input_dim = opts.get("global_input_dim", 3)
+    mrl_history: int = configs.get("mrl_history", opts.get("mrl_history", 10))
+    gat_hidden: int = configs.get("gat_hidden", opts.get("gat_hidden", 128))
+    lstm_hidden: int = configs.get("lstm_hidden", opts.get("lstm_hidden", 64))
+    global_input_dim: int = configs.get("global_input_dim", opts.get("global_input_dim", 3))
 
-    # Load data first to inspect dimensions
-    load_data = torch_load_cpu(hrl_path)
-    if isinstance(load_data, dict) and "manager" in load_data:
-        state_dict = load_data["manager"]
-    else:
-        state_dict = load_data
+    load_data: Any = torch_load_cpu(hrl_path)
+    state_dict: Dict[str, torch.Tensor] = (
+        load_data["manager"] if isinstance(load_data, dict) and "manager" in load_data else load_data
+    )
 
-    # Detect global_input_dim from checkpoint if possible
-    # weight shape: (hidden_dim, hidden_dim + global_input_dim)
     if "gate_head.0.weight" in state_dict:
-        weight_shape = state_dict["gate_head.0.weight"].shape
-        # weight_shape[1] is hidden_dim + global_input_dim
-        # hidden_dim is usually 128 (gat_hidden)
-        in_dim = weight_shape[1]
-        detected_dim = in_dim - gat_hidden
+        weight_shape: torch.Size = state_dict["gate_head.0.weight"].shape
+        in_dim: int = weight_shape[1]
+        detected_dim: int = in_dim - gat_hidden
         if detected_dim > 0 and detected_dim != global_input_dim:
-            # print(f"Detected global_input_dim {detected_dim} from checkpoint (was {global_input_dim})")
             global_input_dim = detected_dim
 
-    manager = GATLSTManager(
+    manager: GATLSTManager = GATLSTManager(
         input_dim_static=2,
         input_dim_dynamic=mrl_history,
         hidden_dim=gat_hidden,
@@ -149,7 +130,9 @@ def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None, w
         device=device,
         global_input_dim=global_input_dim,
         shared_encoder=(
-            worker_model.embedder if (worker_model is not None and opts.get("shared_encoder", True)) else None
+            worker_model.embedder
+            if (worker_model is not None and opts.get("shared_encoder", True) and hasattr(worker_model, "embedder"))
+            else None  # type: ignore
         ),
     ).to(device)
 
@@ -158,62 +141,85 @@ def setup_hrl_manager(opts, device, configs=None, policy=None, base_path=None, w
     return manager
 
 
-def setup_model(policy, general_path, model_paths, device, lock, temperature=1, decode_type="greedy"):
+def setup_model(
+    policy: str,
+    general_path: str,
+    model_paths: Dict[str, str],
+    device: torch.device,
+    lock: threading.Lock,
+    temperature: float = 1.0,
+    decode_type: str = "greedy",
+) -> Tuple[nn.Module, Dict[str, Any]]:
     """
     Sets up and loads a specific model based on policy.
 
     Args:
-        policy (str): Policy identifier.
-        general_path (str): Base path for models.
-        model_paths (dict): Mapping of policy names to file paths.
+        policy: Policy identifier.
+        general_path: Base path for models.
+        model_paths: Mapping of policy names to file paths.
         device: Torch device.
         lock: Threading lock for safe loading.
-        temperature (float, optional): Softmax temperature. Defaults to 1.
-        decode_type (str, optional): Decoding strategy. Defaults to "greedy".
+        temperature: Softmax temperature. Defaults to 1.
+        decode_type: Decoding strategy. Defaults to "greedy".
 
     Returns:
         tuple: (model, configs)
     """
 
-    def _load_model(general_path, model_name, device, temperature, decode_type, lock):
-        model_path = os.path.join(general_path, model_name)
+    def _load_model(
+        general_path: str,
+        model_name: str,
+        device: torch.device,
+        temperature: float,
+        decode_type: str,
+        lock: threading.Lock,
+    ) -> Tuple[nn.Module, Dict[str, Any]]:
+        model_path: str = os.path.join(general_path, model_name)
         with lock:
             model, configs = load_model(model_path)
 
         model.to(device)
         model.eval()
-        model.set_decode_type(decode_type, temp=temperature)
+        if hasattr(model, "set_decode_type"):
+            model.set_decode_type(decode_type, temp=temperature)
         return model, configs
 
-    pol_strip, _ = policy.rsplit("_", 1)
+    pol_strip: str = policy.rsplit("_", 1)[0]
     return _load_model(general_path, model_paths[pol_strip], device, temperature, decode_type, lock)
 
 
-def setup_env(policy, server=False, gplic_filename=None, symkey_name=None, env_filename=None):
+def setup_env(
+    policy: str,
+    server: bool = False,
+    gplic_filename: Optional[str] = None,
+    symkey_name: Optional[str] = None,
+    env_filename: Optional[str] = None,
+) -> Optional[gp.Env]:
     """
     Sets up the solver environment (e.g., Gurobi).
 
     Args:
-        policy (str): Policy name to determine environment type.
-        server (bool, optional): Whether running on a server (requires specific license handling).
-        gplic_filename (str, optional): Gurobi license filename.
-        symkey_name (str, optional): Symmetric key name for decryption.
-        env_filename (str, optional): Environment variables filename.
+        policy: Policy name to determine environment type.
+        server: Whether running on a server (requires specific license handling).
+        gplic_filename: Gurobi license filename.
+        symkey_name: Symmetric key name for decryption.
+        env_filename: Environment variables filename.
 
     Returns:
-        gp.Env or None: The Gurobi environment, or None if not applicable.
+        The Gurobi environment, or None if not applicable.
     """
     if "vrpp" in policy and "hexaly" not in policy:
+        params: Dict[str, Any] = {}
         if server:
 
-            def convert_int(param):
+            def convert_int(param: str) -> Union[int, str]:
                 """Helper to convert string parameters to int if possible."""
                 return int(param) if param.isdigit() else param
 
             if gplic_filename is not None:
-                gplic_path = os.path.join(ROOT_DIR, "assets", "api", gplic_filename)
+                gplic_path: str = os.path.join(ROOT_DIR, "assets", "api", gplic_filename)
                 if symkey_name:
-                    data = decrypt_file_data(gplic_path, symkey_name=symkey_name, env_filename=env_filename)
+                    data: str = decrypt_file_data(gplic_path, symkey_name=symkey_name, env_filename=env_filename)
                 else:
                     with open(gplic_path, "r") as gp_file:
                         data = gp_file.read()
@@ -222,32 +228,34 @@ def setup_env(policy, server=False, gplic_filename=None, symkey_name=None, env_f
                 }
             else:
                 assert env_filename is not None
-                env_path = os.path.join(ROOT_DIR, "env", env_filename)
-                config = dotenv_values(env_path)
-                glp_ls = ["WLSACCESSID", "WLSSECRET", "LICENSEID"]
-                params = {glp: convert_int(config.get(glp, "")) for glp in glp_ls}
+                env_path: str = os.path.join(ROOT_DIR, "env", env_filename)
+                config: Dict[str, Optional[str]] = dotenv_values(env_path)
+                glp_ls: List[str] = ["WLSACCESSID", "WLSSECRET", "LICENSEID"]
+                params = {glp: convert_int(config.get(glp, "")) for glp in glp_ls}  # type: ignore
                 for glp_key, glp_val in params.items():
                     if isinstance(glp_val, str) and glp_val == "":
                         raise ValueError(f"Missing parameter {glp_key} for Gurobi license")
         else:
-            params = {}
             if gplic_filename is not None:
                 gplic_path = os.path.join(ROOT_DIR, "assets", "api", gplic_filename)
                 if os.path.exists(gplic_path):
                     os.environ["GRB_LICENSE_FILE"] = gplic_path
         params["OutputFlag"] = 0
         return gp.Env(params=params)
+    return None
 
 
-def setup_model_and_baseline(problem, data_load, use_cuda, opts):
+def setup_model_and_baseline(
+    problem: Any, data_load: Dict[str, Any], use_cuda: bool, opts: Dict[str, Any]
+) -> Tuple[nn.Module, Any]:
     """
     Sets up the neural model and the reinforcement learning baseline.
 
     Args:
         problem: The problem instance (or class).
-        data_load (dict): Loaded checkpoint data.
-        use_cuda (bool): Whether to use CUDA.
-        opts (dict): Options dictionary.
+        data_load: Loaded checkpoint data.
+        use_cuda: Whether to use CUDA.
+        opts: Options dictionary.
 
     Returns:
         tuple: (model, baseline)
@@ -257,7 +265,6 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         CriticBaseline,
         CriticNetwork,
         DeepDecoderAttentionModel,
-        # Encoders removed from import as they are handled by factory
         ExponentialBaseline,
         NoBaseline,
         POMOBaseline,
@@ -273,7 +280,7 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         TGCComponentFactory,
     )
 
-    factory_class = {
+    factory_cls: Optional[Type[Any]] = {
         "gat": AttentionComponentFactory,
         "gcn": GCNComponentFactory,
         "gac": GACComponentFactory,
@@ -281,22 +288,22 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
         "ggac": GGACComponentFactory,
     }.get(opts["encoder"], None)
 
-    assert factory_class is not None, "Unknown encoder: {}".format(opts["encoder"])
+    assert factory_cls is not None, "Unknown encoder: {}".format(opts["encoder"])
 
-    factory = factory_class()
+    factory: Any = factory_cls()
 
-    model_class = {
+    model_cls: Optional[Type[nn.Module]] = {
         "am": AttentionModel,
         "tam": TemporalAttentionModel,
         "ddam": DeepDecoderAttentionModel,
     }.get(opts["model"], None)
-    assert model_class is not None, "Unknown model: {}".format(model_class)
+    assert model_cls is not None, "Unknown model: {}".format(opts["model"])
 
-    model = model_class(
+    model: nn.Module = model_cls(
         opts["embedding_dim"],
         opts["hidden_dim"],
         problem,
-        factory,  # Changed from encoder_class to factory
+        factory,
         opts["n_encode_layers"],
         opts["n_encode_sublayers"],
         opts["n_decode_layers"],
@@ -334,14 +341,13 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
     if use_cuda and torch.cuda.device_count() > 1:
         model = torch.nn.DataParallel(model)
 
-    # Overwrite model parameters by parameters to load
-    model_ = get_inner_model(model)
-    model_.load_state_dict({**model_.state_dict(), **data_load.get("model", {})})
+    model_inner: nn.Module = get_inner_model(model)
+    model_inner.load_state_dict({**model_inner.state_dict(), **data_load.get("model", {})})
 
-    # Initialize baseline
+    baseline: Any
     if opts["baseline"] == "exponential":
         baseline = ExponentialBaseline(opts["exp_beta"])
-    elif opts["baseline"] == "critic" or opts["baseline"] == "critic_lstm":
+    elif opts["baseline"] in ["critic", "critic_lstm"]:
         baseline = CriticBaseline(
             (
                 CriticNetwork(
@@ -368,32 +374,33 @@ def setup_model_and_baseline(problem, data_load, use_cuda, opts):
     if opts["bl_warmup_epochs"] > 0:
         baseline = WarmupBaseline(baseline, opts["bl_warmup_epochs"], warmup_exp_beta=opts["exp_beta"])
 
-    # Load baseline from data, make sure script is called with same type of baseline
     if "baseline" in data_load:
         baseline.load_state_dict(data_load["baseline"])
 
     return model, baseline
 
 
-def setup_optimizer_and_lr_scheduler(model, baseline, data_load, opts):
+def setup_optimizer_and_lr_scheduler(
+    model: nn.Module, baseline: Any, data_load: Dict[str, Any], opts: Dict[str, Any]
+) -> Tuple[optim.Optimizer, Any]:
     """
     Sets up the optimizer and learning rate scheduler.
 
     Args:
-        model (nn.Module): The actor model.
-        baseline (Baseline): The RL baseline.
-        data_load (dict): Loaded checkpoint data.
-        opts (dict): Options dictionary.
+        model: The actor model.
+        baseline: The RL baseline.
+        data_load: Loaded checkpoint data.
+        opts: Options dictionary.
 
     Returns:
         tuple: (optimizer, lr_scheduler)
     """
-    optimizer_params = [{"params": model.parameters(), "lr": opts["lr_model"]}] + (
-        [{"params": baseline.get_learnable_parameters(), "lr": opts["lr_critic_value"]}]
-        if len(baseline.get_learnable_parameters()) > 0
-        else []
-    )
-    optimizer_cls = {
+    optimizer_params: List[Dict[str, Any]] = [{"params": model.parameters(), "lr": opts["lr_model"]}]
+    learnable_params: List[Any] = baseline.get_learnable_parameters()
+    if len(learnable_params) > 0:
+        optimizer_params.append({"params": learnable_params, "lr": opts["lr_critic_value"]})
+
+    optimizer_cls: Optional[Type[optim.Optimizer]] = {
         "adam": optim.Adam,
         "adamax": optim.Adamax,
         "adamw": optim.AdamW,
@@ -410,9 +417,8 @@ def setup_optimizer_and_lr_scheduler(model, baseline, data_load, opts):
     }.get(opts["optimizer"], None)
     assert optimizer_cls is not None, "Unknown optimizer: {}".format(opts["optimizer"])
 
-    optimizer = optimizer_cls(optimizer_params)
+    optimizer: optim.Optimizer = optimizer_cls(optimizer_params)
 
-    # Load optimizer state, make sure script is called with same type of optimizer
     if "optimizer" in data_load:
         optimizer.load_state_dict(data_load["optimizer"])
         for state in optimizer.state.values():
@@ -420,8 +426,7 @@ def setup_optimizer_and_lr_scheduler(model, baseline, data_load, opts):
                 if torch.is_tensor(v):
                     state[k] = v.to(opts["device"])
 
-    # Initialize learning rate scheduler!
-    scheduler_factory = {
+    scheduler_factory: Optional[Callable[[optim.Optimizer], Any]] = {
         "exp": lambda opt: optim.lr_scheduler.ExponentialLR(opt, opts["lr_decay"]),
         "step": lambda opt: optim.lr_scheduler.StepLR(opt, opts["lrs_step_size"], opts["lr_decay"]),
         "mult": lambda opt: optim.lr_scheduler.MultiplicativeLR(opt, lambda epoch: opts["lr_decay"]),
@@ -453,5 +458,5 @@ def setup_optimizer_and_lr_scheduler(model, baseline, data_load, opts):
     }.get(opts["lr_scheduler"], None)
     assert scheduler_factory is not None, "Unknown learning rate scheduler: {}".format(opts["lr_scheduler"])
 
-    lr_scheduler = scheduler_factory(optimizer)
+    lr_scheduler: Any = scheduler_factory(optimizer)
     return optimizer, lr_scheduler

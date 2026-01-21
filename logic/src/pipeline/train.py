@@ -15,10 +15,12 @@ import os
 import random
 import sys
 import traceback
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 
 import numpy as np
 import torch
-from tensorboard_logger import Logger as TbLogger
+import torch.nn as nn
+from tensorboard_logger import Logger as TbLogger  # type: ignore
 
 import wandb
 from logic.src.cli import (
@@ -61,7 +63,7 @@ from logic.src.utils.setup_utils import (
 )
 
 
-def hyperparameter_optimization(opts):
+def hyperparameter_optimization(opts: Dict[str, Any]) -> Union[Tuple[nn.Module, Optional[nn.Module]], None]:
     """
     Orchestrates the Hyperparameter Optimization (HPO) process.
 
@@ -125,7 +127,7 @@ def hyperparameter_optimization(opts):
         return train_reinforcement_learning(final_opts, cost_weights)
 
 
-def train_meta_reinforcement_learning(opts):
+def train_meta_reinforcement_learning(opts: Dict[str, Any]) -> Union[Tuple[nn.Module, Optional[nn.Module]], int]:
     """
     Dispatches Meta-Reinforcement Learning training.
 
@@ -155,7 +157,9 @@ def train_meta_reinforcement_learning(opts):
     return train_reinforcement_learning(opts, train_func)
 
 
-def train_reinforcement_learning(opts, train_function, cost_weights=None):
+def train_reinforcement_learning(
+    opts: Dict[str, Any], train_function: Callable[..., Any], cost_weights: Optional[Dict[str, float]] = None
+) -> Tuple[nn.Module, Optional[nn.Module]]:
     """
     The core Reinforcement Learning training pipeline.
 
@@ -168,9 +172,9 @@ def train_reinforcement_learning(opts, train_function, cost_weights=None):
     6. Saves the final model and arguments.
 
     Args:
-        opts (dict): Configuration options.
-        train_function (callable): The training routine to execute (e.g., `train_reinforce_epoch`).
-        cost_weights (dict, optional): Weights for different cost components.
+        opts: Configuration options.
+        train_function: The training routine to execute (e.g., `train_reinforce_epoch`).
+        cost_weights: Weights for different cost components.
 
     Returns:
         tuple: (model, manager) - The trained model and associated Manager agent (if any).
@@ -318,7 +322,7 @@ def train_reinforcement_learning(opts, train_function, cost_weights=None):
     return model, manager
 
 
-def run_training(args, command):
+def run_training(args: Dict[str, Any], command: str) -> None:
     """
     High-level dispatcher for the training script CLI.
 

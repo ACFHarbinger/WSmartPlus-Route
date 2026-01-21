@@ -1,11 +1,4 @@
-"""
-Input/Output utilities facade.
-Redirects to the new granular modules:
-- logic.src.io.files
-- logic.src.io.splitting
-- logic.src.io.processing
-- logic.src.io.locking
-"""
+from __future__ import annotations
 
 # Re-export from new modules
 from .io.files import (

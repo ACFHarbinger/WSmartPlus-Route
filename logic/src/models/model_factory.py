@@ -1,8 +1,7 @@
-"""
-This module contains the Factory Pattern implementation for creating neural model components.
-"""
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Any
 
 import torch.nn as nn
 
@@ -21,12 +20,12 @@ class NeuralComponentFactory(ABC):
     """
 
     @abstractmethod
-    def create_encoder(self, **kwargs) -> nn.Module:
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
         """Create an encoder instance."""
         pass
 
     @abstractmethod
-    def create_decoder(self, **kwargs) -> nn.Module:
+    def create_decoder(self, **kwargs: Any) -> nn.Module:
         """Create a decoder instance."""
         pass
 
@@ -34,11 +33,11 @@ class NeuralComponentFactory(ABC):
 class AttentionComponentFactory(NeuralComponentFactory):
     """Factory for Angle-based Attention Models."""
 
-    def create_encoder(self, **kwargs) -> nn.Module:
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
         """Create Graph Attention Encoder."""
         return GraphAttentionEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs) -> nn.Module:
+    def create_decoder(self, **kwargs: Any) -> nn.Module:
         """Create Attention Decoder."""
         return AttentionDecoder(**kwargs)
 
@@ -46,11 +45,11 @@ class AttentionComponentFactory(NeuralComponentFactory):
 class GCNComponentFactory(NeuralComponentFactory):
     """Factory for Graph Convolutional Network Models."""
 
-    def create_encoder(self, **kwargs) -> nn.Module:
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
         """Create GCN Encoder."""
         return GraphConvolutionEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs) -> nn.Module:
+    def create_decoder(self, **kwargs: Any) -> nn.Module:
         """Create Attention Decoder."""
         return AttentionDecoder(**kwargs)
 
@@ -58,11 +57,11 @@ class GCNComponentFactory(NeuralComponentFactory):
 class GACComponentFactory(NeuralComponentFactory):
     """Factory for Graph Attention Convolution Models."""
 
-    def create_encoder(self, **kwargs) -> nn.Module:
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
         """Create Graph Attention Convolution Encoder."""
         return GraphAttConvEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs) -> nn.Module:
+    def create_decoder(self, **kwargs: Any) -> nn.Module:
         """Create Attention Decoder."""
         return AttentionDecoder(**kwargs)
 
@@ -70,11 +69,11 @@ class GACComponentFactory(NeuralComponentFactory):
 class TGCComponentFactory(NeuralComponentFactory):
     """Factory for Transformer Graph Convolution Models."""
 
-    def create_encoder(self, **kwargs) -> nn.Module:
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
         """Create Transformer Graph Convolution Encoder."""
         return TransGraphConvEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs) -> nn.Module:
+    def create_decoder(self, **kwargs: Any) -> nn.Module:
         """Create Attention Decoder."""
         return AttentionDecoder(**kwargs)
 
@@ -82,11 +81,11 @@ class TGCComponentFactory(NeuralComponentFactory):
 class GGACComponentFactory(NeuralComponentFactory):
     """Factory for Gated Graph Attention Convolution Models."""
 
-    def create_encoder(self, **kwargs) -> nn.Module:
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
         """Create Gated Graph Attention Convolution Encoder."""
         return GatedGraphAttConvEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs) -> nn.Module:
+    def create_decoder(self, **kwargs: Any) -> nn.Module:
         """Create Attention Decoder."""
         return AttentionDecoder(**kwargs)
 
@@ -94,11 +93,11 @@ class GGACComponentFactory(NeuralComponentFactory):
 class MLPComponentFactory(NeuralComponentFactory):
     """Factory for MLP-based Models."""
 
-    def create_encoder(self, **kwargs) -> nn.Module:
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
         """Create MLP Encoder."""
         return MLPEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs) -> nn.Module:
+    def create_decoder(self, **kwargs: Any) -> nn.Module:
         """Create Attention Decoder."""
         return AttentionDecoder(**kwargs)
 
@@ -106,7 +105,7 @@ class MLPComponentFactory(NeuralComponentFactory):
 class MoEComponentFactory(NeuralComponentFactory):
     """Factory for Mixture of Experts Models."""
 
-    def __init__(self, num_experts=4, k=2, noisy_gating=True):
+    def __init__(self, num_experts: int = 4, k: int = 2, noisy_gating: bool = True) -> None:
         """
         Initialize the MoE Component Factory.
 
@@ -119,7 +118,7 @@ class MoEComponentFactory(NeuralComponentFactory):
         self.k = k
         self.noisy_gating = noisy_gating
 
-    def create_encoder(self, **kwargs) -> nn.Module:
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
         """Create MoE Graph Attention Encoder."""
         from logic.src.models.subnets.moe_encoder import MoEGraphAttentionEncoder
 
@@ -129,6 +128,6 @@ class MoEComponentFactory(NeuralComponentFactory):
         kwargs["noisy_gating"] = self.noisy_gating
         return MoEGraphAttentionEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs) -> nn.Module:
+    def create_decoder(self, **kwargs: Any) -> nn.Module:
         """Create Attention Decoder."""
         return AttentionDecoder(**kwargs)

@@ -1,17 +1,10 @@
-"""
-Data utility functions for the WSmart+ Route framework.
-
-This module provides tools for:
-- Saving and loading datasets (pickle format).
-- Data collators for PyTorch DataLoaders.
-- Loading and processing graph coordinates and waste data.
-- Generating synthetic waste levels and prize distributions.
-"""
+from __future__ import annotations
 
 import json
 import math
 import os
 import pickle
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -21,28 +14,28 @@ from logic.src.pipeline.simulations.processor import process_coordinates, proces
 from logic.src.utils.functions.function import get_path_until_string
 
 
-def check_extension(filename):
+def check_extension(filename: str) -> str:
     """
     Ensures filename has .pkl extension.
 
     Args:
-        filename (str): Input filename.
+        filename: Input filename.
 
     Returns:
-        str: Filename with .pkl extension.
+        Filename with .pkl extension.
     """
     if os.path.splitext(filename)[1] != ".pkl":
         return filename + ".pkl"
     return filename
 
 
-def save_dataset(dataset, filename):
+def save_dataset(dataset: Any, filename: str) -> None:
     """
     Saves a dataset using pickle.
 
     Args:
-        dataset (Any): The data to save.
-        filename (str): Target filename.
+        dataset: The data to save.
+        filename: Target filename.
 
     Raises:
         Exception: If directory creation fails.
@@ -58,32 +51,31 @@ def save_dataset(dataset, filename):
         pickle.dump(dataset, f, pickle.HIGHEST_PROTOCOL)
 
 
-def load_dataset(filename):
+def load_dataset(filename: str) -> Any:
     """
     Loads a dataset from a pickle file.
 
     Args:
-        filename (str): The filename.
+        filename: The filename.
 
     Returns:
-        Any: The loaded dataset.
+        The loaded dataset.
     """
     with open(check_extension(filename), "rb") as f:
         return pickle.load(f)
 
 
-def collate_fn(batch):
+def collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Collate function for PyTorch DataLoader.
     Filters out None values from samples.
 
     Args:
-        batch (list): List of samples.
+        batch: List of samples.
 
     Returns:
-        dict: Collated batch.
+        Collated batch.
     """
-    # batch = [{key: val if val is not None else torch.empty(1) for key, val in sample.items()} for sample in batch]
     batch = [{key: val for key, val in sample.items() if val is not None} for sample in batch]
 
     # Empty lists can break collate
@@ -92,30 +84,40 @@ def collate_fn(batch):
     return torch.utils.data.dataloader.default_collate(batch)
 
 
-def load_focus_coords(graph_size, method, area, waste_type, focus_graph, focus_size=1):
+def load_focus_coords(
+    graph_size: int,
+    method: Optional[str],
+    area: str,
+    waste_type: str,
+    focus_graph: str,
+    focus_size: int = 1,
+) -> Tuple[np.ndarray, np.ndarray, Optional[np.ndarray], List[int]]:
     """
     Loads coordinates and depot information from simulator data.
 
     Args:
-        graph_size (int): Size of the graph.
-        method (str or None): Method for coordinate processing (e.g., 'naive', 'k-means').
-        area (str): Geographic area name.
-        waste_type (str): Type of waste.
-        focus_graph (str): Path to focus graph file.
-        focus_size (int, optional): Replication factor for focus graph. Defaults to 1.
+        graph_size: Size of the graph.
+        method: Method for coordinate processing (e.g., 'naive', 'k-means').
+        area: Geographic area name.
+        waste_type: Type of waste.
+        focus_graph: Path to focus graph file.
+        focus_size: Replication factor for focus graph. Defaults to 1.
 
     Returns:
-        tuple: (ret_val) containing depot, locations, minmax array, and index.
+        Tuple of (depot, locations, minmax array, index).
     """
     focus_graph_dir = get_path_until_string(focus_graph, "wsr_simulator")
+    if focus_graph_dir is None:
+        raise ValueError(f"Could not find 'wsr_simulator' in path {focus_graph}")
+
     depot = load_depot(focus_graph_dir, area)
     data, coords = load_simulator_data(focus_graph_dir, graph_size, area, waste_type)
-    with open(os.path.join(focus_graph)) as js:
+    with open(focus_graph) as js:
         idx = json.load(js)
 
     _, coords = process_data(data, coords, depot, idx[0])
     if method is None:
-        return coords, idx, None, None
+        return coords, idx, None, None  # type: ignore
 
     depot, loc = process_coordinates(coords, method)
     if focus_size > 0:
@@ -129,35 +131,33 @@ def load_focus_coords(graph_size, method, area, waste_type, focus_graph, focus_s
             idx,
         )
     else:
-        ret_val = (depot, loc, None, idx)
-    # depot = np.array([coords['Lng'].iloc[0], coords['Lat'].iloc[0]])
-    # loc = np.array([[x, y] for x, y in zip(coords['Lng'].iloc[1:], coords['Lat'].iloc[1:])])
-    return ret_val
+        ret_val = (depot, loc, None, idx)  # type: ignore
+    return ret_val  # type: ignore
 
 
-def _get_fill_gamma(dataset_size, problem_size, gamma_option):
+def _get_fill_gamma(dataset_size: int, problem_size: int, gamma_option: int) -> np.ndarray:
     """
     Generates waste levels using a Gamma distribution.
 
     Args:
-        dataset_size (int): Number of instances.
-        problem_size (int): Number of bins per instance.
-        gamma_option (int): Index to select gamma parameters (alpha, theta).
+        dataset_size: Number of instances.
+        problem_size: Number of bins per instance.
+        gamma_option: Index to select gamma parameters (alpha, theta).
 
     Returns:
-        np.ndarray: Generated waste levels [dataset_size, problem_size].
+        Generated waste levels [dataset_size, problem_size].
     """
 
-    def __set_distribution_param(size, param):
+    def __set_distribution_param(size: int, param: List[int]) -> List[int]:
         """
         Sets a distribution parameter if not already present.
 
         Args:
-            size (int): Size to match.
-            param (list): Parameter list.
+            size: Size to match.
+            param: Parameter list.
 
         Returns:
-            list: Adjusted parameter list.
+            Adjusted parameter list.
         """
         param_len = len(param)
         if size == param_len:
@@ -187,22 +187,28 @@ def _get_fill_gamma(dataset_size, problem_size, gamma_option):
     return np.random.gamma(k, th, size=(dataset_size, problem_size)) / 100.0
 
 
-def generate_waste_prize(problem_size, distribution, graph, dataset_size=1, bins=None):
+def generate_waste_prize(
+    problem_size: int,
+    distribution: str,
+    graph: Tuple[Any, Any],
+    dataset_size: int = 1,
+    bins: Optional[Any] = None,
+) -> Union[np.ndarray, torch.Tensor]:
     """
     Generates waste or prize values based on a distribution or empirical data.
 
     Args:
-        problem_size (int): Number of nodes/bins.
-        distribution (str): Distribution type ('empty', 'const', 'unif', 'gammaX', 'emp', 'dist').
-        graph (tuple): (depot, loc) coordinates.
-        dataset_size (int, optional): Number of datasets to generate. Defaults to 1.
-        bins (object, optional): Bins object for empirical sampling.
+        problem_size: Number of nodes/bins.
+        distribution: Distribution type ('empty', 'const', 'unif', 'gammaX', 'emp', 'dist').
+        graph: (depot, loc) coordinates.
+        dataset_size: Number of datasets to generate. Defaults to 1.
+        bins: Bins object for empirical sampling.
 
     Returns:
-        np.ndarray: Generated waste/prizes.
+        Generated waste/prizes.
     """
     if distribution == "empty":
-        wp = np.zeros(shape=(dataset_size, problem_size))
+        wp: Any = np.zeros(shape=(dataset_size, problem_size))
     elif distribution == "const":
         wp = np.ones(shape=(dataset_size, problem_size))
     elif distribution == "unif":
@@ -211,6 +217,8 @@ def generate_waste_prize(problem_size, distribution, graph, dataset_size=1, bins
         gamma_option = int(distribution[-1]) - 1
         wp = _get_fill_gamma(dataset_size, problem_size, gamma_option)
     elif "emp" in distribution:
+        if bins is None:
+            raise ValueError("bins must be provided for empirical distribution")
         wp = bins.stochasticFilling(n_samples=dataset_size, only_fill=True) / 100.0
     else:
         assert distribution == "dist"
@@ -219,8 +227,8 @@ def generate_waste_prize(problem_size, distribution, graph, dataset_size=1, bins
             wp = np.linalg.norm(depot[:, None, :] - loc, axis=-1)
             return (1 + (wp / wp.max(axis=-1, keepdims=True) * 99).astype(int)) / 100.0
         else:
-            wp = (depot[None, :] - loc).norm(p=2, dim=-1)
-            return (1 + (wp / wp.max(dim=-1, keepdim=True)[0] * 99).int()).float() / 100.0
+            wp_float = (depot[None, :] - loc).norm(p=2, dim=-1)
+            return (1 + (wp_float / wp_float.max(dim=-1, keepdim=True)[0] * 99).int()).float() / 100.0
 
     if dataset_size == 1:
         return wp[0]
