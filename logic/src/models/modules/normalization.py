@@ -114,5 +114,9 @@ class Normalization(nn.Module):
             return self.normalizer(input.permute(0, 2, 1)).permute(0, 2, 1)
         elif isinstance(self.normalizer, nn.LayerNorm):
             return self.normalizer(input)
+        elif isinstance(self.normalizer, nn.GroupNorm):
+            # GroupNorm expects (N, C, *)
+            # Input is (B, N, C) -> Permute to (B, C, N)
+            return self.normalizer(input.permute(0, 2, 1)).permute(0, 2, 1)
         else:
             return self.normalizer(input)

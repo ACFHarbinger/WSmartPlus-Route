@@ -38,6 +38,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         lr_scheduler_kwargs: Optional[dict] = None,
         train_data_size: int = 100000,
         val_data_size: int = 10000,
+        val_dataset_path: Optional[str] = None,
         batch_size: int = 256,
         num_workers: int = 4,
         **kwargs,
@@ -52,6 +53,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         # Data params
         self.train_data_size = train_data_size
         self.val_data_size = val_data_size
+        self.val_dataset_path = val_dataset_path
         self.batch_size = batch_size
         self.num_workers = num_workers
 
@@ -66,7 +68,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
     def _init_baseline(self):
         """Initialize baseline for advantage estimation."""
-        from logic.src.pipeline.rl.baselines import get_baseline
+        from logic.src.pipeline.rl.core.baselines import get_baseline
 
         self.baseline = get_baseline(self.baseline_type, self.policy)
 
@@ -120,18 +122,42 @@ class RL4COLitModule(pl.LightningModule, ABC):
         if phase == "train":
             out["loss"] = self.calculate_loss(td, out, batch_idx)
 
+        # Merge granular metrics from td if available
+        for key in ["collection", "cost"]:
+            if key in td.keys():
+                out[key] = td[key]
+
         # Log metrics
         reward_mean = out["reward"].mean()
         self.log(f"{phase}/reward", reward_mean, prog_bar=True, sync_dist=True)
-        self.log(f"{phase}/cost", -reward_mean, sync_dist=True)
 
-        if "log_likelihood" in out:
-            self.log(f"{phase}/log_likelihood", out["log_likelihood"].mean(), sync_dist=True)
+        if "collection" in out:
+            self.log(f"{phase}/collection", out["collection"].mean(), sync_dist=True)
+        if "cost" in out:
+            self.log(f"{phase}/cost", out["cost"].mean(), sync_dist=True)
+        else:
+            self.log(f"{phase}/cost_total", -reward_mean, sync_dist=True)
+
+        # Store for meta-learning or logging access
+        self.last_out = out
 
         return out
 
-    def training_step(self, batch: TensorDict, batch_idx: int) -> torch.Tensor:
-        out = self.shared_step(batch, batch_idx, phase="train")
+    def training_step(self, batch: any, batch_idx: int) -> torch.Tensor:
+        # 1. Unwrap batch if it was wrapped by baseline (e.g. RolloutBaseline)
+        if hasattr(self.baseline, "unwrap_batch"):
+            td, baseline_val = self.baseline.unwrap_batch(batch)
+        else:
+            td, baseline_val = batch, None
+
+        # 2. Run shared step
+        out = self.shared_step(td, batch_idx, phase="train")
+
+        # 3. Calculate loss with baseline_val if available
+        # Pass baseline_val to calculate_loss if needed
+        # We'll update calculate_loss signature later or use a private attribute
+        self._current_baseline_val = baseline_val
+
         return out["loss"]
 
     def validation_step(self, batch: TensorDict, batch_idx: int) -> dict:
@@ -140,10 +166,26 @@ class RL4COLitModule(pl.LightningModule, ABC):
     def test_step(self, batch: TensorDict, batch_idx: int) -> dict:
         return self.shared_step(batch, batch_idx, phase="test")
 
+    def on_train_epoch_start(self) -> None:
+        """Prepare dataset for the new epoch (e.g. wrap with baseline)."""
+        from logic.src.pipeline.rl.features.epoch import prepare_epoch
+
+        self.train_dataset = prepare_epoch(
+            self.policy, self.env, self.baseline, self.train_dataset, self.current_epoch, phase="train"
+        )
+
     def on_train_epoch_end(self):
-        """Update baseline at epoch end."""
+        """Update baseline and regenerate dataset."""
+        from logic.src.pipeline.rl.features.epoch import regenerate_dataset
+
         if hasattr(self.baseline, "epoch_callback"):
-            self.baseline.epoch_callback(self.policy, self.current_epoch)
+            # For RolloutBaseline, we pass val_dataset for the T-test
+            self.baseline.epoch_callback(self.policy, self.current_epoch, val_dataset=self.val_dataset, env=self.env)
+
+        # Regenerate training dataset for next epoch
+        new_dataset = regenerate_dataset(self.env, self.train_data_size)
+        if new_dataset is not None:
+            self.train_dataset = new_dataset
 
     def configure_optimizers(self):
         """Configure optimizer and optional scheduler."""
@@ -168,22 +210,30 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 
-    def setup(self, stage: Optional[str] = None):
-        """Initialize datasets."""
-        self.train_dataset = GeneratorDataset(
-            self.env.generator,
-            self.train_data_size,
-        )
-        self.val_dataset = GeneratorDataset(
-            self.env.generator,
-            self.val_data_size,
-        )
+    def setup(self, stage: str) -> None:
+        if stage == "fit":
+            from torch.utils.data import Dataset
+
+            self.train_dataset: Dataset = GeneratorDataset(
+                self.env.generator,
+                self.train_data_size,
+            )
+            if self.val_dataset_path is not None:
+                # Load validation dataset from file (legacy parity)
+                from logic.src.data.datasets import TensorDictDataset
+
+                self.val_dataset: Dataset = TensorDictDataset.load(self.val_dataset_path)
+            else:
+                self.val_dataset = GeneratorDataset(
+                    self.env.generator,
+                    self.val_data_size,
+                )
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
-            collate_fn=tensordict_collate_fn,
+            collate_fn=lambda x: x if isinstance(x, dict) else tensordict_collate_fn(x),
             num_workers=self.num_workers,
             shuffle=True,
         )

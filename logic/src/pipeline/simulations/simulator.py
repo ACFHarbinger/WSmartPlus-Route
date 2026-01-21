@@ -37,6 +37,7 @@ from tqdm import tqdm
 from logic.src.utils.definitions import ROOT_DIR, SIM_METRICS
 from logic.src.utils.logging.log_utils import log_to_json, output_stats
 
+from .checkpoints import CheckpointError
 from .states import SimulationContext
 
 if TYPE_CHECKING:
@@ -259,11 +260,8 @@ def sequential_simulations(
                     else:
                         log[policy] = lg
 
-            except Exception:
-                # Need to check for CheckpointError specifically if imported
-                # For now, catch all to be safe and match original partial catch
-                # The original code imported CheckpointError
-                # Let's re-add it or keep it general
+            except CheckpointError:
+                # Skip broken checkpoints
                 pass
 
         if opts["n_samples"] > 1:
