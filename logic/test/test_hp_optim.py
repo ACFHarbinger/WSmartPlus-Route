@@ -167,7 +167,11 @@ class TestHPOFunctions:
 
         dist_matrix = torch.zeros(5, 5)
         avg_cost, avg_ucost, all_costs = validate_update(
-            mock_model, mock_dataset, hpo_opts, metric="overflows", dist_matrix=dist_matrix
+            mock_model,
+            mock_dataset,
+            hpo_opts,
+            metric="overflows",
+            dist_matrix=dist_matrix,
         )
 
         assert isinstance(avg_cost, torch.Tensor)

@@ -309,7 +309,15 @@ class AttentionModel(nn.Module):
                 )
                 cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, dist_matrix)
         else:
-            log_p, pi = self.decoder(input, embeddings, cost_weights, None, mask=mask, expert_pi=expert_pi, **kwargs)
+            log_p, pi = self.decoder(
+                input,
+                embeddings,
+                cost_weights,
+                None,
+                mask=mask,
+                expert_pi=expert_pi,
+                **kwargs,
+            )
             cost, cost_dict, mask = self.problem.get_costs(input, pi, cost_weights, None)
 
         use_kl = kwargs.get("kl_loss", False) and expert_pi is not None

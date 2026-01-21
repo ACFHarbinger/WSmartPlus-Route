@@ -150,7 +150,8 @@ def setup_sim_data(tmp_path, mocker):
     mocker.patch("logic.src.policies.single_vehicle.fast_tsp.find_tour", return_value=[0, 1, 0])
     # Patch the singleton repository instance directly since it's already initialized
     mocker.patch(
-        "logic.src.pipeline.simulations.loader._repository.default_data_dir", str(tmp_path / "data" / "wsr_simulator")
+        "logic.src.pipeline.simulations.loader._repository.default_data_dir",
+        str(tmp_path / "data" / "wsr_simulator"),
     )
 
     data_dir = tmp_path / "data" / "wsr_simulator"

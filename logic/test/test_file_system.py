@@ -15,7 +15,14 @@ class TestFileSystem:
     @patch("os.path.isdir", return_value=True)
     @patch("os.path.exists", return_value=True)
     def test_update_directory(
-        self, mock_exists, mock_isdir, mock_confirm, mock_preview, mock_stats, mock_process, fs_update_dir_opts
+        self,
+        mock_exists,
+        mock_isdir,
+        mock_confirm,
+        mock_preview,
+        mock_stats,
+        mock_process,
+        fs_update_dir_opts,
     ):
         res = update_file_system_entries(fs_update_dir_opts)
         assert res == 1
@@ -81,11 +88,13 @@ class TestFileSystem:
             "input_keys": [],
             "stats_function": None,
         }
-        with patch("logic.src.file_system.os.path.isdir", return_value=True), patch(
-            "logic.src.file_system.preview_pattern_files_statistics"
-        ), patch("logic.src.file_system.preview_changes") as mock_preview, patch(
-            "logic.src.file_system.confirm_proceed", return_value=True
-        ), patch("logic.src.file_system.process_pattern_files"):
+        with (
+            patch("logic.src.file_system.os.path.isdir", return_value=True),
+            patch("logic.src.file_system.preview_pattern_files_statistics"),
+            patch("logic.src.file_system.preview_changes") as mock_preview,
+            patch("logic.src.file_system.confirm_proceed", return_value=True),
+            patch("logic.src.file_system.process_pattern_files"),
+        ):
             res = update_file_system_entries(opts)
             assert res == 1
             mock_preview.assert_called()
@@ -99,9 +108,10 @@ class TestFileSystem:
             "output_filename": "stats.json",
             "stats_function": lambda x: x,
         }
-        with patch("logic.src.file_system.os.path.isdir", return_value=True), patch(
-            "logic.src.file_system.process_pattern_files_statistics"
-        ) as mock_process:
+        with (
+            patch("logic.src.file_system.os.path.isdir", return_value=True),
+            patch("logic.src.file_system.process_pattern_files_statistics") as mock_process,
+        ):
             res = update_file_system_entries(opts)
             assert res == 1
             mock_process.assert_called()

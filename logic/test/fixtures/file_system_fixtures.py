@@ -37,7 +37,13 @@ def fs_delete_opts():
 @pytest.fixture
 def fs_crypto_gen_opts():
     """Options for generating keys."""
-    return {"symkey_name": "testkey", "salt_size": 16, "key_length": 32, "hash_iterations": 1000, "env_file": ".env"}
+    return {
+        "symkey_name": "testkey",
+        "salt_size": 16,
+        "key_length": 32,
+        "hash_iterations": 1000,
+        "env_file": ".env",
+    }
 
 
 @pytest.fixture

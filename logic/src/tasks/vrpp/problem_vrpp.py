@@ -264,7 +264,7 @@ class VRPPDataset(BaseDataset):
                     edge_strat,
                     distribution,
                     bins,
-                    graph=(graph[0][i, :], graph[1][i, :, :]) if graph and i < focus_size else None,
+                    graph=((graph[0][i, :], graph[1][i, :, :]) if graph and i < focus_size else None),
                 )
                 for i in tqdm(range(num_samples))
             ]

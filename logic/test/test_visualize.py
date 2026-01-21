@@ -221,7 +221,14 @@ class TestVisualizeEpochCoverage:
 
         problem = MagicMock()
         opts = {
-            "viz_modes": ["trajectory", "distributions", "embeddings", "heatmaps", "logit_lens", "loss"],
+            "viz_modes": [
+                "trajectory",
+                "distributions",
+                "embeddings",
+                "heatmaps",
+                "logit_lens",
+                "loss",
+            ],
             "log_dir": "logs",
             "run_name": "test_run",
             "graph_size": 20,
@@ -245,7 +252,18 @@ class TestVisualizeEpochCoverage:
         opts = {"viz_modes": []}
         visualize_epoch(model, None, opts, 1)  # Should return immediately
 
-    @patch("sys.argv", ["prog", "--mode", "distributions", "--model_path", "model.pt", "--log_dir", "logs"])
+    @patch(
+        "sys.argv",
+        [
+            "prog",
+            "--mode",
+            "distributions",
+            "--model_path",
+            "model.pt",
+            "--log_dir",
+            "logs",
+        ],
+    )
     @patch("logic.src.utils.logging.visualize_utils.load_model_instance")
     @patch("logic.src.utils.logging.visualize_utils.log_weight_distributions")
     def test_main_distributions(self, mock_log, mock_load):

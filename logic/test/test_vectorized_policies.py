@@ -15,7 +15,9 @@ from logic.src.pipeline.reinforcement_learning.policies.local_search import (
     vectorized_two_opt,
     vectorized_two_opt_star,
 )
-from logic.src.pipeline.reinforcement_learning.policies.split_algorithm import vectorized_linear_split
+from logic.src.pipeline.reinforcement_learning.policies.split_algorithm import (
+    vectorized_linear_split,
+)
 
 
 class TestVectorizedLocalSearch:
@@ -44,7 +46,11 @@ class TestVectorizedLocalSearch:
     @pytest.mark.unit
     def test_vectorized_three_opt(self, v_device):
         """Test 3-opt improvement."""
-        pts = torch.tensor([[0, 0], [2, 0], [2, 2], [0, 2], [1, 3], [-1, 3]], dtype=torch.float32, device=v_device)
+        pts = torch.tensor(
+            [[0, 0], [2, 0], [2, 2], [0, 2], [1, 3], [-1, 3]],
+            dtype=torch.float32,
+            device=v_device,
+        )
         diff = pts.unsqueeze(1) - pts.unsqueeze(0)
         dist_matrix = torch.sqrt((diff**2).sum(dim=2)).unsqueeze(0)
         tours = torch.tensor([[0, 1, 3, 5, 2, 4, 0]], device=v_device)
@@ -83,7 +89,10 @@ class TestVectorizedLocalSearch:
     @pytest.mark.unit
     def test_vectorized_two_opt_star(self, v_device):
         """Test vectorized two-opt* operator."""
-        pts = torch.tensor([[0.0, 0.0], [0.0, 1.0], [0.0, 2.0], [1.0, 1.0], [1.0, 2.0]], device=v_device)
+        pts = torch.tensor(
+            [[0.0, 0.0], [0.0, 1.0], [0.0, 2.0], [1.0, 1.0], [1.0, 2.0]],
+            device=v_device,
+        )
         diff = pts.unsqueeze(1) - pts.unsqueeze(0)
         dist = torch.sqrt((diff**2).sum(dim=2)).unsqueeze(0)
         tours = torch.tensor([[0, 1, 4, 0, 3, 2, 0]], device=v_device)
@@ -93,7 +102,10 @@ class TestVectorizedLocalSearch:
     @pytest.mark.unit
     def test_vectorized_swap_star(self, v_device):
         """Test vectorized swap* operator."""
-        pts = torch.tensor([[0.0, 0.0], [0.0, 1.0], [0.0, 2.0], [1.0, 1.0], [1.0, 2.0]], device=v_device)
+        pts = torch.tensor(
+            [[0.0, 0.0], [0.0, 1.0], [0.0, 2.0], [1.0, 1.0], [1.0, 2.0]],
+            device=v_device,
+        )
         diff = pts.unsqueeze(1) - pts.unsqueeze(0)
         dist = torch.sqrt((diff**2).sum(dim=2)).unsqueeze(0)
         tours = torch.tensor([[0, 1, 4, 0, 3, 2, 0]], device=v_device)

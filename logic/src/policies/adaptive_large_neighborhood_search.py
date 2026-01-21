@@ -107,7 +107,10 @@ class ALNSSolver:
 
             n_remove = random.randint(
                 self.params.min_removal,
-                max(self.params.min_removal, int(self.n_nodes * self.params.max_removal_pct)),
+                max(
+                    self.params.min_removal,
+                    int(self.n_nodes * self.params.max_removal_pct),
+                ),
             )
 
             partial_routes, removed = destroy_op(copy.deepcopy(current_routes), n_remove)

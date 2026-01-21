@@ -189,7 +189,10 @@ class WarmupBaseline(Baseline):
         v, loss = self.baseline.eval(x, c)
         vw, lw = self.warmup_baseline.eval(x, c)
         # Return convex combination of baseline and of loss
-        return self.alpha * v + (1 - self.alpha) * vw, self.alpha * loss + (1 - self.alpha) * lw
+        return (
+            self.alpha * v + (1 - self.alpha) * vw,
+            self.alpha * loss + (1 - self.alpha) * lw,
+        )
 
     def epoch_callback(self, model, epoch):
         """

@@ -1,6 +1,7 @@
 """
 Persistence utilities (locking, thread-safe I/O).
 """
+
 import json
 
 import pandas as pd
