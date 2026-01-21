@@ -59,14 +59,17 @@ class ALNSPolicy(ConstructivePolicy):
             td_idx = td[i]
 
             # Extract data
-            dist_matrix = td_idx["locs"]  # Simplified, usually needs distance calc or pre-computed
-            # If locs are coords, we need to compute distance matrix
-            if dist_matrix.dim() == 2 and dist_matrix.shape[-1] == 2:
-                from logic.src.utils.functions.function import compute_distance_matrix
+            locs = td_idx["locs"]
+            if locs.dim() == 2 and locs.shape[-1] == 2:
+                import pandas as pd
 
-                dist_matrix_np = compute_distance_matrix(dist_matrix.cpu().numpy(), method="og")
+                coords_df = pd.DataFrame(locs.cpu().numpy(), columns=["Lat", "Lng"])
+                coords_df["ID"] = range(len(coords_df))
+                from logic.src.pipeline.simulations.network import compute_distance_matrix
+
+                dist_matrix_np = compute_distance_matrix(coords_df, method="ogd")
             else:
-                dist_matrix_np = dist_matrix.cpu().numpy()
+                dist_matrix_np = locs.cpu().numpy()
 
             demands = td_idx.get("demand", td_idx.get("prize", torch.zeros(dist_matrix_np.shape[0]))).cpu().numpy()
             demands_dict = {j: float(demands[j]) for j in range(len(demands))}
