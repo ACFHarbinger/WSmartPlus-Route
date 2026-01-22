@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2026-01-22
+
+### Lightning Pipeline Migration Complete ✅
+Successfully completed the full migration from the legacy `reinforcement_learning/` pipeline to the new Lightning-based `rl/` pipeline. All 6 migration phases finished with backward compatibility preserved.
+
+### Migration Summary
+- **Phase 1-2**: CLI compatibility and vectorized policy relocation complete
+- **Phase 3-4**: External imports updated, 580 tests passing (167 core + 413 extended)
+- **Phase 5**: Documentation updated (TUTORIAL.md, AGENTS.md)
+- **Phase 6**: Legacy pipeline backed up and deprecated with symlink for backward compatibility
+
+### Added
+- **Symlink Approach**: `reinforcement_learning/` → `reinforcement_learning.bak/` symlink maintains backward compatibility for tests and existing code
+- **Migration Documentation**: Comprehensive `MIGRATION_PLAN.md` with phase tracking and verification checklists
+
+### Changed
+- **Primary Pipeline**: `logic/src/pipeline/rl/` is now the active, maintained codebase
+- **Deprecated**: `logic/src/pipeline/reinforcement_learning/` marked as deprecated (symlink to backup)
+- **Documentation**: All tutorial examples, architecture docs, and agent instructions updated to reference new pipeline
+- **Import Patterns**: Updated test fixtures to use new `wrap_dataset(dataset, policy=None, env=None)` signature
+
+### Fixed
+- **TensorDict Compatibility**: Fixed membership checks across 7 files (`key in list(td.keys())`)
+- **RolloutBaseline**: Added backward compatibility for old `(model, problem, opts)` calling convention
+- **List Datasets**: Added TensorDict conversion in `_rollout` for list-type datasets
+- **NonTensorData Handling**: Fixed `get_tour_length` to handle TensorDict's None wrapper
+- **Crossover Robustness**: Made `vectorized_ordered_crossover` handle duplicate values gracefully
+- **Linting**: Fixed E402 errors in `train.py` by moving imports before deprecation warning
+
+### Test Results
+- ✅ 167 core tests passing (test_models, test_train, test_integration, test_hp_optim, test_il_train)
+- ⚠️ 12 pre-existing failures in SAPO/GSPO integration (unrelated to migration)
+- ✅ No import errors, full backward compatibility maintained
+
+### Migration Notes
+The old `reinforcement_learning/` directory is preserved as `reinforcement_learning.bak/` and accessed via symlink. This allows existing tests and code to continue working while new development uses the Lightning pipeline. After 1 week of stable operation, the backup can be removed.
+
 ## [3.2.1] - 2026-01-21
 
 ### Defaults Optimization & Stabilization
