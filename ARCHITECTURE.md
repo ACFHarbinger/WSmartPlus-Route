@@ -1,7 +1,7 @@
 # WSmart-Route Architecture
 
-> **Version**: 2.0
-> **Last Updated**: January 2026
+> **Version**: 4.0
+> **Last Updated**: January 22, 2026 (Lightning Migration Complete)
 > **Purpose**: Comprehensive system design documentation for WSmart+ Route
 
 WSmart-Route is a high-performance framework designed to solve complex Combinatorial Optimization (CO) problems, specifically the Vehicle Routing Problem with Profits (VRPP) and Capacitated Waste Collection VRP (CWC VRP). It bridges the gap between Deep Reinforcement Learning (DRL) and Operations Research (OR) by providing a unified environment for training, benchmarking, and deploying intelligent agents alongside classical solvers.
@@ -263,33 +263,34 @@ logic/src/
 │   │   ├── context.py
 │   │   ├── checkpoints.py
 │   │   └── wsmart_bin_analysis/
-│   └── reinforcement_learning/   # RL algorithms
-│       ├── core/
-│       │   ├── reinforce.py
-│       │   ├── ppo.py
-│       │   ├── sapo.py
-│       │   ├── gspo.py
-│       │   ├── dr_grpo.py
-│       │   ├── base.py
-│       │   ├── epoch.py
-│       │   ├── reinforce_baselines.py
-│       │   └── post_processing.py
-│       ├── meta/
-│       │   ├── meta_trainers.py
-│       │   ├── contextual_bandits.py
-│       │   ├── multi_objective.py
-│       │   ├── weight_strategy.py
-│       │   ├── weight_optimizer.py
-│       │   └── temporal_difference_learning.py
-│       ├── hyperparameter_optimization/
-│       │   ├── hpo.py
-│       │   └── dehb/
-│       ├── policies/
-│       │   ├── hgs_vectorized.py
-│       │   ├── split_algorithm.py
-│       │   └── local_search.py
-│       ├── manager_train.py
-│       └── worker_train.py
+│   ├── rl/                       # NEW: Lightning-based RL pipeline (ACTIVE)
+│   │   ├── core/                 # RL algorithms
+│   │   │   ├── base.py           # RL4COLitModule
+│   │   │   ├── reinforce.py
+│   │   │   ├── ppo.py
+│   │   │   ├── sapo.py
+│   │   │   ├── gspo.py
+│   │   │   ├── dr_grpo.py
+│   │   │   ├── pomo.py
+│   │   │   ├── symnco.py
+│   │   │   ├── imitation.py
+│   │   │   ├── adaptive_imitation.py
+│   │   │   ├── hrl.py
+│   │   │   └── baselines.py      # Rollout, Critic, POMO, Warmup, etc.
+│   │   ├── meta/                 # Meta-learning
+│   │   │   ├── contextual_bandits.py
+│   │   │   ├── multi_objective.py
+│   │   │   ├── td_learning.py
+│   │   │   ├── weight_optimizer.py
+│   │   │   └── hypernet_strategy.py
+│   │   ├── hpo/                  # Hyperparameter optimization
+│   │   │   ├── optuna_hpo.py
+│   │   │   └── dehb.py
+│   │   └── features/             # Training utilities
+│   │       ├── epoch.py          # Epoch management
+│   │       ├── time_training.py  # Temporal training
+│   │       └── post_processing.py
+│   └── reinforcement_learning/   # DEPRECATED: Symlink to .bak (backward compat)
 │
 ├── data/                         # Data generation
 │   ├── generate_data.py
@@ -746,8 +747,8 @@ WSmart-Route/
 │   │   │   └── swcvrp/           # SWCVRP problems
 │   │   ├── pipeline/             # Orchestration
 │   │   │   ├── simulations/      # Simulator engine
-│   │   │   ├── reinforcement_learning/  # RL algorithms (Legacy)
-│   │   │   ├── rl/                       # RL algorithms (Lightning)
+│   │   │   ├── rl/                       # RL algorithms (Lightning-based, ACTIVE)
+│   │   │   ├── reinforcement_learning/   # DEPRECATED: Symlink → .bak/
 │   │   │   │   ├── core/         # Core RL
 │   │   │   │   ├── meta/         # Meta-learning
 │   │   │   │   ├── hpo/          # Hyperparameter optimization
@@ -764,7 +765,7 @@ WSmart-Route/
 │   ├── src/                      # Source code
 │   │   ├── windows/              # Application windows
 │   │   ├── tabs/                 # Functional tabs
-│   │   │   ├── reinforcement_learning/
+│   │   │   ├── reinforcement_learning/   # DEPRECATED
 │   │   │   ├── evaluation/
 │   │   │   ├── test_simulator/
 │   │   │   ├── generate_data/

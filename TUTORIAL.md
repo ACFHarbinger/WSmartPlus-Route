@@ -19,7 +19,7 @@ WSmart+ Route is a masterclass in bridging Deep Reinforcement Learning with Oper
     -   [3.3 Classical Policies](#33-classical-policies-logicsrcpolicies)
     -   [3.4 Problem Environments](#34-problem-environments-logicsrcproblems)
     -   [3.5 The Simulator Engine](#35-the-simulator-engine-logicsrcpipelinesimulator)
-    -   [3.6 Reinforcement Learning Pipeline](#36-reinforcement-learning-pipeline-logicsrcpipelinereinforcement_learning)
+    -   [3.6 Reinforcement Learning Pipeline](#36-reinforcement-learning-pipeline-logicsrcpipelinerl)
 4.  [GUI Layer: The Command Center (`gui/src/`)](#4-gui-layer-the-command-center-guisrc)
     -   [4.1 PySide6 Architecture](#41-pyside6-architecture)
     -   [4.2 Background Workers](#42-background-workers)
@@ -662,75 +662,69 @@ class FinishingState(SimState):
         return None
 ```
 
-### 3.6 Reinforcement Learning Pipeline (`logic/src/pipeline/reinforcement_learning/`)
+### 3.6 Reinforcement Learning Pipeline (`logic/src/pipeline/rl/`)
 
-#### REINFORCE (`reinforcement_learning/core/reinforce.py`)
+> **Note**: The old `logic/src/pipeline/reinforcement_learning/` is deprecated. Use the new Lightning-based pipeline.
 
-Implements policy gradient algorithms:
+#### REINFORCE (`rl/core/reinforce.py`)
+
+Implements policy gradient algorithms using PyTorch Lightning:
 
 **REINFORCE Algorithm:**
 ```python
-def train_batch(self, batch):
-    # Forward pass
-    log_probs, actions = self.model(batch)
+from logic.src.pipeline.rl.core import REINFORCE
+from logic.src.pipeline.rl.core.baselines import RolloutBaseline
 
-    # Calculate rewards
-    costs = self.problem.calculate_cost(actions)
+# Create RL algorithm with baseline
+rl = REINFORCE(
+    baseline=RolloutBaseline(model),
+    entropy_weight=0.01,
+    max_grad_norm=1.0,
+)
 
-    # Baseline (reduce variance)
-    baseline = self.baseline.estimate(batch)
-    advantage = -costs - baseline
-
-    # Policy gradient
-    loss = -(log_probs * advantage).mean()
-
-    # Backward pass
-    self.optimizer.zero_grad()
-    loss.backward()
-    self.optimizer.step()
-
-    return loss.item()
+# Train step (called by Lightning Trainer)
+loss = rl.compute_loss(batch, model)
 ```
 
 **Available RL Algorithms:**
 
 | Algorithm | File | Description |
 |-----------|------|-------------|
-| REINFORCE | `reinforce.py` | Vanilla policy gradient |
-| PPO | `reinforce.py` | Proximal Policy Optimization |
-| SAPO | `reinforce.py` | Self-Adaptive Policy Optimization |
-| GSPO | `reinforce.py` | Generalized Self-Play Optimization |
-| DR-GRPO | `reinforce.py` | Distributional Robust GRPO |
+| REINFORCE | `rl/core/reinforce.py` | Vanilla policy gradient |
+| PPO | `rl/core/ppo.py` | Proximal Policy Optimization |
+| SAPO | `rl/core/sapo.py` | Self-Adaptive Policy Optimization |
+| GSPO | `rl/core/gspo.py` | Generalized Self-Play Optimization |
+| DR-GRPO | `rl/core/dr_grpo.py` | Distributional Robust GRPO |
+| POMO | `rl/core/pomo.py` | Policy Optimization with Multiple Optima |
+| SymNCO | `rl/core/symnco.py` | Symmetry-aware NCO |
+| Imitation | `rl/core/imitation.py` | Imitation Learning |
 
 **Baseline Options:**
 - **Rollout**: Greedy evaluation of current policy
 - **Exponential**: Moving average of past costs
 - **Critic**: Trained value network
 - **POMO**: Policy Optimization with Multiple Optima
+- **Warmup**: Gradual transition between baselines
 
-#### Epoch Manager (`reinforcement_learning/core/epoch.py`)
+#### Epoch Features (`rl/features/epoch.py`)
 
-Orchestrates the inner training loop:
+Utilities for epoch management:
 
 ```python
-class EpochManager:
-    def run_epoch(self, model, dataloader, optimizer):
-        epoch_loss = 0
+from logic.src.pipeline.rl.features.epoch import (
+    prepare_epoch,
+    regenerate_dataset,
+    compute_validation_metrics,
+)
 
-        for batch in dataloader:
-            # Move to device
-            batch = move_to_device(batch, self.device)
+# Regenerate training data
+dataset = regenerate_dataset(cfg.env, num_samples=cfg.train.train_data_size)
 
-            # Training step
-            loss = self.reinforce.train_batch(batch)
-
-            # Accumulate
-            epoch_loss += loss
-
-        return epoch_loss / len(dataloader)
+# Compute validation metrics
+metrics = compute_validation_metrics(model, val_dataset, problem)
 ```
 
-#### DEHB (`reinforcement_learning/hyperparameter_optimization/dehb.py`)
+#### DEHB (`rl/hpo/dehb.py`)
 
 **Differential Evolution Hyperband** for automated hyperparameter tuning:
 
@@ -741,7 +735,7 @@ class EpochManager:
 4.  Select best configuration based on validation performance.
 
 ```python
-from logic.src.pipeline.reinforcement_learning.hyperparameter_optimization.dehb import DEHB
+from logic.src.pipeline.rl.hpo import DifferentialEvolutionHyperband
 
 search_space = {
     'lr_model': (1e-5, 1e-3, 'log'),
@@ -750,11 +744,10 @@ search_space = {
     'batch_size': [256, 512, 1024],
 }
 
-dehb = DEHB(
+dehb = DifferentialEvolutionHyperband(
     search_space=search_space,
-    min_budget=1,
-    max_budget=100,
-    n_workers=4
+    min_fidelity=1,
+    max_fidelity=100,
 )
 
 best_config = dehb.run(objective_function, n_trials=100)
@@ -1347,31 +1340,47 @@ class MyDecoder(nn.Module):
 
 ### 7.6 Adding a New RL Algorithm
 
-**Step 1: Create Algorithm**
+**Step 1: Create Algorithm (Lightning-based)**
 ```python
-# logic/src/pipeline/reinforcement_learning/core/my_algorithm.py
-class MyRLAlgorithm:
-    def __init__(self, model, optimizer, **kwargs):
-        self.model = model
-        self.optimizer = optimizer
+# logic/src/pipeline/rl/core/my_algorithm.py
+from logic.src.pipeline.rl.core.base import RL4COLitModule
 
-    def train_batch(self, batch):
-        # Forward pass
-        outputs = self.model(batch)
+class MyRLAlgorithm(RL4COLitModule):
+    """Custom RL algorithm using Lightning."""
 
-        # Calculate loss
-        loss = self.compute_loss(outputs, batch)
+    def __init__(self, baseline=None, entropy_weight=0.0, **kwargs):
+        super().__init__(**kwargs)
+        self.baseline = baseline
+        self.entropy_weight = entropy_weight
 
-        # Backward pass
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
+    def loss(self, td, batch, reward, log_likelihood):
+        """Compute the RL loss."""
+        # Get baseline value
+        if self.baseline is not None:
+            bl_val = self.baseline.eval(td, reward)
+        else:
+            bl_val = 0
 
-        return loss.item()
+        # Advantage
+        advantage = reward - bl_val
 
-    def compute_loss(self, outputs, batch):
-        # Your loss computation
-        raise NotImplementedError
+        # Policy gradient loss
+        loss = -(advantage * log_likelihood).mean()
+
+        # Optional entropy bonus
+        if self.entropy_weight > 0:
+            entropy = -log_likelihood.mean()
+            loss -= self.entropy_weight * entropy
+
+        return loss
+```
+
+**Step 2: Register in Registry**
+```python
+# logic/src/pipeline/rl/core/__init__.py
+from logic.src.pipeline.rl.core.my_algorithm import MyRLAlgorithm
+
+RL_ALGORITHM_REGISTRY['my_algorithm'] = MyRLAlgorithm
 ```
 
 ---
@@ -1477,22 +1486,35 @@ if torch.cuda.device_count() > 1:
 
 **Creating a Custom Baseline:**
 ```python
-# logic/src/pipeline/reinforcement_learning/core/my_baseline.py
-class MyBaseline:
-    def __init__(self, decay=0.95):
+# logic/src/pipeline/rl/core/my_baseline.py
+from logic.src.pipeline.rl.core.baselines import Baseline
+import torch
+
+class MyBaseline(Baseline):
+    """Custom exponential moving average baseline."""
+
+    def __init__(self, decay: float = 0.95):
+        super().__init__()
         self.decay = decay
-        self.running_mean = None
+        self.running_mean: torch.Tensor | None = None
 
-    def estimate(self, batch):
+    def eval(self, td, reward, env=None):
+        """Return the baseline estimate."""
         if self.running_mean is None:
-            return torch.zeros(batch['coords'].shape[0])
-        return self.running_mean
+            return torch.zeros_like(reward)
+        return self.running_mean.expand_as(reward)
 
-    def update(self, rewards):
+    def epoch_callback(self, policy, epoch, val_dataset=None, env=None):
+        """Update running mean at end of epoch."""
+        pass  # Could update based on epoch statistics
+
+    def update(self, rewards: torch.Tensor):
+        """Update running mean with batch rewards."""
+        batch_mean = rewards.mean()
         if self.running_mean is None:
-            self.running_mean = rewards.mean()
+            self.running_mean = batch_mean
         else:
-            self.running_mean = self.decay * self.running_mean + (1 - self.decay) * rewards.mean()
+            self.running_mean = self.decay * self.running_mean + (1 - self.decay) * batch_mean
 ```
 
 ### 9.3 Distance Matrix Computation

@@ -110,11 +110,13 @@ logic/src/
 ├── cli/              # Command-line interface & argument parsing
 ├── models/           # Neural network architectures
 │   ├── modules/      # Atomic components (attention, normalization)
-│   └── subnets/      # Encoders, decoders, predictors
+│   ├── subnets/      # Encoders, decoders, predictors
+│   └── policies/     # Classical policies (HGS, local_search, split)
 ├── policies/         # Classical & heuristic algorithms
 ├── tasks/            # Problem definitions (VRPP, WCVRP, etc.)
 ├── pipeline/         # Training, evaluation, simulation orchestration
-│   ├── reinforcement_learning/  # RL algorithms & HPO
+│   ├── rl/           # NEW: Lightning-based RL pipeline
+│   ├── reinforcement_learning/  # DEPRECATED: Legacy RL (use rl/ instead)
 │   └── simulations/            # Simulator engine
 ├── data/             # Data generation utilities
 └── utils/            # Helper functions & utilities
@@ -575,38 +577,62 @@ This section maintains a registry of intelligent agents, orchestration component
 | **Context** | `context.py` | Simulation configuration encapsulation. |
 | **Checkpoints** | `checkpoints.py` | Save/resume simulation state. |
 
-### 10.8 Reinforcement Learning (`logic/src/pipeline/reinforcement_learning/`)
+### 10.8 Reinforcement Learning Pipeline (`logic/src/pipeline/rl/`)
 
-#### Core Algorithms (`core/`)
+> **Note**: This is the new Lightning-based pipeline. The old `reinforcement_learning/` is deprecated.
+
+#### Core Algorithms (`rl/core/`)
 
 | Component | File | Description |
 |-----------|------|-------------|
-| **REINFORCE** | `reinforce.py` | Policy gradient with baselines for Manager/Worker. |
+| **RL4COLitModule** | `base.py` | Base Lightning module for all RL algorithms. |
+| **REINFORCE** | `reinforce.py` | Policy gradient with baselines. |
 | **PPO** | `ppo.py` | Proximal Policy Optimization. |
-| **SAPO** | `sapo.py` | Soft Actor-Proxy Optimization variant. |
+| **SAPO** | `sapo.py` | Self-Adaptive Policy Optimization. |
 | **GSPO** | `gspo.py` | Gradient-Scaled Proxy Optimization. |
 | **DR-GRPO** | `dr_grpo.py` | Divergence-Regularized GRPO. |
-| **EpochManager** | `epoch.py` | Inner training loop orchestration. |
-| **ReinforceBaselines** | `reinforce_baselines.py` | Exponential, Critic, Rollout, POMO baselines. |
-| **PostProcessor** | `post_processing.py` | Output refinement for efficiency (kg/km). |
+| **POMO** | `pomo.py` | Policy Optimization with Multiple Optima. |
+| **SymNCO** | `symnco.py` | Symmetry-aware Neural Combinatorial Optimization. |
+| **Imitation** | `imitation.py` | Imitation Learning from expert policies. |
+| **AdaptiveImitation** | `adaptive_imitation.py` | IL to RL transition. |
+| **HRL** | `hrl.py` | Hierarchical RL (Manager-Worker). |
 
-#### Meta-Learning (`meta/`)
+#### Baselines (`rl/core/baselines.py`)
+
+| Baseline | Description |
+|----------|-------------|
+| **NoBaseline** | Zero baseline (high variance). |
+| **ExponentialBaseline** | Moving average of past costs. |
+| **RolloutBaseline** | Greedy rollout of policy. |
+| **CriticBaseline** | Learned value network. |
+| **WarmupBaseline** | Gradual transition between baselines. |
+| **POMOBaseline** | Multi-start best-of-N baseline. |
+
+#### Meta-Learning (`rl/meta/`)
 
 | Component | File | Description |
 |-----------|------|-------------|
-| **MetaTrainers** | `meta_trainers.py` | Task-aware training strategies. |
-| **ContextualBandits** | `contextual_bandits.py` | UCB/Thompson Sampling for objective weights. |
-| **MultiObjective** | `multi_objective.py` | Pareto-optimal objective handling. |
-| **WeightStrategy** | `weight_strategy.py` | Dynamic weight adjustment policies. |
-| **WeightOptimizer** | `weight_optimizer.py` | Meta-optimization of training weights. |
-| **TDLearning** | `temporal_difference_learning.py` | TD-based value learning. |
+| **WeightContextualBandit** | `contextual_bandits.py` | UCB/Thompson Sampling for weight selection. |
+| **MORLWeightOptimizer** | `multi_objective.py` | Multi-objective Pareto optimization. |
+| **CostWeightManager** | `td_learning.py` | TD-based weight learning. |
+| **RewardWeightOptimizer** | `weight_optimizer.py` | Gradient-based weight optimization. |
+| **HyperNetStrategy** | `hypernet_strategy.py` | Meta-learning via hypernetworks. |
 
-#### Hyperparameter Optimization (`hyperparameter_optimization/`)
+#### Hyperparameter Optimization (`rl/hpo/`)
 
 | Component | File | Description |
 |-----------|------|-------------|
-| **HPO** | `hpo.py` | Main HPO orchestrator (Grid, Random, DEHB). |
-| **DEHB** | `dehb/` | Differential Evolution Hyperband. |
+| **OptunaHPO** | `optuna_hpo.py` | Optuna-based HPO with various samplers. |
+| **DifferentialEvolutionHyperband** | `dehb.py` | DEHB for efficient HPO. |
+
+#### Features (`rl/features/`)
+
+| Component | File | Description |
+|-----------|------|-------------|
+| **prepare_epoch** | `epoch.py` | Epoch preparation utilities. |
+| **regenerate_dataset** | `epoch.py` | Dynamic dataset regeneration. |
+| **TimeBasedTraining** | `time_training.py` | Multi-day temporal training. |
+| **PostProcessor** | `post_processing.py` | Route refinement for efficiency. |
 
 ### 10.9 Utility Layer (`logic/src/utils/`)
 
