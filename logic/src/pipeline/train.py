@@ -8,13 +8,13 @@ This script serves as the primary entry point for:
 
 It orchestrates environment setup, data loading, model initialization, and training loop execution.
 """
-
 import argparse
 import json
 import os
 import random
 import sys
 import traceback
+import warnings
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 
 import numpy as np
@@ -60,6 +60,12 @@ from logic.src.utils.setup_utils import (
     setup_cost_weights,
     setup_model_and_baseline,
     setup_optimizer_and_lr_scheduler,
+)
+
+warnings.warn(
+    "logic.src.pipeline.train is deprecated. Use logic.src.cli.train_lightning instead.",
+    DeprecationWarning,
+    stacklevel=2,
 )
 
 

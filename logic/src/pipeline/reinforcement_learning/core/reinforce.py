@@ -17,6 +17,12 @@ import yaml  # type: ignore
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from logic.src.models.policies.classical.hgs import (
+    VectorizedHGS,
+)
+from logic.src.models.policies.classical.local_search import (
+    vectorized_two_opt,
+)
 from logic.src.pipeline.reinforcement_learning.core.base import BaseReinforceTrainer
 from logic.src.pipeline.reinforcement_learning.core.epoch import (
     prepare_batch,
@@ -24,12 +30,6 @@ from logic.src.pipeline.reinforcement_learning.core.epoch import (
     prepare_time_dataset,
     set_decode_type,
     update_time_dataset,
-)
-from logic.src.pipeline.reinforcement_learning.policies.hgs_vectorized import (
-    VectorizedHGS,
-)
-from logic.src.pipeline.reinforcement_learning.policies.local_search import (
-    vectorized_two_opt,
 )
 from logic.src.utils.functions.function import move_to
 
@@ -94,7 +94,7 @@ class StandardTrainer(BaseReinforceTrainer):
         daily_loss: Dict[str, List[torch.Tensor]] = {key: [] for key in loss_keys}
 
         day_dataloader: DataLoader = DataLoader(
-            self.baseline.wrap_dataset(self.training_dataset),
+            self.baseline.wrap_dataset(self.training_dataset, policy=self.model, env=self.problem),
             batch_size=self.opts["batch_size"],
             pin_memory=True,
         )
@@ -190,11 +190,16 @@ class StandardTrainer(BaseReinforceTrainer):
                 bl_val = cost_pomo.mean(dim=1, keepdim=True).expand_as(cost_pomo).reshape(-1)
                 bl_loss = torch.tensor([0.0], device=self.opts["device"])
             else:
-                bl_val, bl_loss = (
-                    self.baseline.eval(x, cost)
-                    if bl_val is None
-                    else (bl_val, torch.tensor(0.0, device=self.opts["device"]))
-                )
+                if bl_val is None:
+                    baseline_out = self.baseline.eval(x, cost, env=self.problem)
+                    if isinstance(baseline_out, tuple):
+                        bl_val, bl_loss = baseline_out
+                    else:
+                        bl_val = baseline_out
+                        bl_loss = torch.tensor(0.0, device=self.opts["device"])
+                else:
+                    bl_loss = torch.tensor(0.0, device=self.opts["device"])
+
                 if not isinstance(bl_loss, torch.Tensor):
                     bl_loss = torch.tensor([bl_loss], device=self.opts["device"], dtype=torch.float)
                 elif bl_loss.dim() == 0:

@@ -4,16 +4,16 @@ Fixtures for Meta-Reinforcement Learning (MRL) and Hyperparameter Optimization.
 
 import pytest
 import torch
-from logic.src.pipeline.reinforcement_learning.meta.contextual_bandits import (
+from logic.src.pipeline.rl.meta.contextual_bandits import (
     WeightContextualBandit,
 )
-from logic.src.pipeline.reinforcement_learning.meta.multi_objective import (
+from logic.src.pipeline.rl.meta.multi_objective import (
     MORLWeightOptimizer,
 )
-from logic.src.pipeline.reinforcement_learning.meta.temporal_difference_learning import (
+from logic.src.pipeline.rl.meta.td_learning import (
     CostWeightManager,
 )
-from logic.src.pipeline.reinforcement_learning.meta.weight_optimizer import (
+from logic.src.pipeline.rl.meta.weight_optimizer import (
     RewardWeightOptimizer,
 )
 

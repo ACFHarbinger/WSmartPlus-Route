@@ -643,11 +643,11 @@ def prepare_batch(batch, batch_id, dataset, dataloader, opts, day=1):
             batch[k] = v
     if opts.get("focus_graph") is not None:
         if opts.get("encoder") in ["gac", "tgc"]:
-            batch["edges"] = dataset.edges.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1).float()
+            batch["edges"] = dataset.edges.unsqueeze(0).expand(max(1, torch.cuda.device_count()), -1, -1).float()
         else:
-            batch["edges"] = dataset.edges.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1).bool()
+            batch["edges"] = dataset.edges.unsqueeze(0).expand(max(1, torch.cuda.device_count()), -1, -1).bool()
     if dataset.dist_matrix is not None:
-        batch["dist"] = dataset.dist_matrix.unsqueeze(0).expand(torch.cuda.device_count(), -1, -1)
+        batch["dist"] = dataset.dist_matrix.unsqueeze(0).expand(max(1, torch.cuda.device_count()), -1, -1)
     else:
         batch["dist"] = None
     return batch

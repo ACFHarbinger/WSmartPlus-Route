@@ -84,17 +84,26 @@ def vectorized_ordered_crossover(parent1, parent2):
     exists_in_seg = (p2_rolled.unsqueeze(2) == segment.unsqueeze(1)).any(dim=2)  # (B, N)
 
     # We want elements where ~exists_in_seg
-    # Since 'num_rem' is CONSTANT across batch, we can reshape.
-    # valid_vals: (B, num_rem)
-    # We select values where mask is False.
-    # Since we know exactly num_rem values exist, we can use masking and reshape.
-    valid_vals = p2_rolled[~exists_in_seg].view(B, num_rem)
-
-    # 5. Place valid values into offspring
-    # Determine indices to fill in offspring: [end...N-1, 0...start-1]
+    # Handle each batch element separately to be robust to duplicates
     fill_idx = torch.cat([torch.arange(end, N, device=device), torch.arange(0, start, device=device)])
 
-    offspring[:, fill_idx] = valid_vals
+    for b in range(B):
+        valid_mask = ~exists_in_seg[b]
+        valid_vals_b = p2_rolled[b][valid_mask]
+
+        # Pad or truncate to match num_rem
+        if len(valid_vals_b) < num_rem:
+            # Pad with values from parent1 that aren't in segment
+            missing = num_rem - len(valid_vals_b)
+            # Use first missing values from parent1 outside segment
+            extra = parent1[b][torch.cat([torch.arange(0, start, device=device), torch.arange(end, N, device=device)])][
+                :missing
+            ]
+            valid_vals_b = torch.cat([valid_vals_b, extra])
+        elif len(valid_vals_b) > num_rem:
+            valid_vals_b = valid_vals_b[:num_rem]
+
+        offspring[b, fill_idx] = valid_vals_b
 
     return offspring
 

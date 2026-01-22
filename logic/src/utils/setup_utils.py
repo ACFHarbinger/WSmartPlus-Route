@@ -367,7 +367,7 @@ def setup_model_and_baseline(
             ).to(opts["device"])
         )
     elif opts["baseline"] == "rollout":
-        baseline = RolloutBaseline(model, problem, opts)
+        baseline = RolloutBaseline(policy=model, update_every=opts.get("bl_update_every", 1))
     elif opts["baseline"] == "pomo":
         baseline = POMOBaseline(opts.get("pomo_size", 0))
     else:

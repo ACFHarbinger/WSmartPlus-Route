@@ -94,7 +94,11 @@ class WCContextEmbedder(ContextEmbedder):
         Returns:
             torch.Tensor: Combined embeddings for depot and nodes.
         """
-        waste_key = "waste" if "waste" in nodes else ("noisy_waste" if "noisy_waste" in nodes else "real_waste")
+        waste_key = (
+            "waste"
+            if "waste" in list(nodes.keys())
+            else ("noisy_waste" if "noisy_waste" in list(nodes.keys()) else "real_waste")
+        )
         if temporal_features:
             features = tuple([waste_key] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
         else:
@@ -166,7 +170,11 @@ class VRPPContextEmbedder(ContextEmbedder):
         Returns:
             torch.Tensor: Combined embeddings for depot and nodes.
         """
-        waste_key = "waste" if "waste" in nodes else ("noisy_waste" if "noisy_waste" in nodes else "real_waste")
+        waste_key = (
+            "waste"
+            if "waste" in list(nodes.keys())
+            else ("noisy_waste" if "noisy_waste" in list(nodes.keys()) else "real_waste")
+        )
         # Logic identical to WC in original code, reused here
         if temporal_features:
             features = tuple([waste_key] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])

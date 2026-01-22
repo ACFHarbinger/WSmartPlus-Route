@@ -490,6 +490,14 @@ def do_batch_rep(v: Any, n: int) -> Any:
         return [do_batch_rep(v_, n) for v_ in v]
     elif isinstance(v, tuple):
         return tuple(do_batch_rep(v_, n) for v_ in v)
+    if isinstance(v, torch.Tensor):
+        return v[None, ...].expand(n, *v.size()).contiguous().view(-1, *v.size()[1:])
+
+    # Handle TensorDict or other objects with unsqueeze/expand/reshape
+    if hasattr(v, "unsqueeze") and hasattr(v, "batch_size"):
+        # TensorDict-like
+        return v.unsqueeze(0).expand(n, *v.batch_size).clone().reshape(-1)
+
     return v[None, ...].expand(n, *v.size()).contiguous().view(-1, *v.size()[1:])
 
 

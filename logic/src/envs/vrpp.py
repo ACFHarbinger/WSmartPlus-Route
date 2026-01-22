@@ -132,7 +132,7 @@ class VRPPEnv(RL4COEnvBase):
 
         Reward = (prize_weight * total_prize) - (cost_weight * tour_length)
         """
-        prize = td["collected_prize"] if "collected_prize" in td.keys() else torch.zeros_like(td["tour_length"])
+        prize = td["collected_prize"] if "collected_prize" in list(td.keys()) else torch.zeros_like(td["tour_length"])
         cost = td["tour_length"]
 
         # Also add return to depot distance if not already there

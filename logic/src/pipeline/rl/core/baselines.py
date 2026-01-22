@@ -4,10 +4,7 @@ Baseline implementations for policy gradient methods.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Optional, Tuple
-
-if TYPE_CHECKING:
-    from torch.utils.data import Dataset
+from typing import Any, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -28,8 +25,7 @@ class Baseline(nn.Module, ABC):
     def unwrap_batch(self, batch: Any) -> Tuple[Any, Optional[torch.Tensor]]:
         """Unwrap the batch if it's wrapped with baseline values."""
         if isinstance(batch, (dict, TensorDict)):
-            keys = batch.keys()
-            if "data" in keys and "baseline" in keys:
+            if "data" in list(batch.keys()) and "baseline" in list(batch.keys()):
                 return batch["data"], batch["baseline"]
         return batch, None
 
@@ -47,9 +43,17 @@ class Baseline(nn.Module, ABC):
         """Optional callback at epoch end."""
         pass
 
+    def wrap_dataset(self, dataset: Any, policy: Optional[nn.Module] = None, env: Optional[Any] = None) -> Any:
+        """Optional wrap dataset."""
+        return dataset
+
     def setup(self, policy: nn.Module):
         """Optional setup with policy reference."""
         pass
+
+    def get_learnable_parameters(self) -> list:
+        """Get learnable parameters for the optimizer."""
+        return []
 
 
 class NoBaseline(Baseline):
@@ -132,8 +136,19 @@ class RolloutBaseline(Baseline):
             **kwargs: Additional keyword arguments.
         """
         super().__init__()
-        self.update_every = update_every
-        self.bl_alpha = bl_alpha
+
+        # Handle old calling convention: RolloutBaseline(model, problem, opts)
+        # where problem is a class and opts is a dict
+        if isinstance(update_every, type) or (hasattr(update_every, "NAME")):
+            # Old style: update_every is actually the problem class
+            # bl_alpha is actually the opts dict
+            opts = bl_alpha if isinstance(bl_alpha, dict) else kwargs.get("opts", {})
+            self.update_every = opts.get("bl_update_every", 1) if isinstance(opts, dict) else 1
+            self.bl_alpha = opts.get("bl_alpha", 0.05) if isinstance(opts, dict) else 0.05
+        else:
+            self.update_every = update_every
+            self.bl_alpha = bl_alpha
+
         self.baseline_policy = None
         if policy is not None:
             self.setup(policy)
@@ -174,7 +189,7 @@ class RolloutBaseline(Baseline):
 
                     # Reset environment for the batch
                     # if it's a dict-like, we only want the data part for reset
-                    if isinstance(batch, (dict, TensorDict)) and "data" in batch.keys():
+                    if isinstance(batch, (dict, TensorDict)) and "data" in list(batch.keys()):
                         td_data = batch["data"]
                     else:
                         td_data = batch
@@ -186,7 +201,8 @@ class RolloutBaseline(Baseline):
                     td_data = td_data.to(device)
 
                     try:
-                        td_data = env.reset(td_data)
+                        if hasattr(env, "reset"):
+                            td_data = env.reset(td_data)
                         td_data = td_data.to(device)  # Ensure on policy device after reset
                     except Exception as e:
                         print(
@@ -196,13 +212,44 @@ class RolloutBaseline(Baseline):
                             f"DEBUG: td_data type: {type(td_data)}, keys: {td_data.keys() if hasattr(td_data, 'keys') else 'N/A'}"
                         )
                         raise e
-                    out = policy(td_data, env, decode_type="greedy")
+                    if hasattr(policy, "set_decode_type"):
+                        policy.set_decode_type("greedy")
+                        # Some old models might return (cost, ll, dict, pi, entropy)
+                        res = policy(td_data)
+                        if isinstance(res, tuple):
+                            out = {"reward": res[0]}
+                        else:
+                            out = res
+                    else:
+                        out = policy(td_data, env, decode_type="greedy")
                     rewards.append(out["reward"].cpu())
             return torch.cat(rewards)
 
         # If it's a TensorDict (single batch)
-        td_copy = td_or_dataset.clone()
-        if isinstance(td_copy, (dict, TensorDict)) and "data" in td_copy.keys():
+        if isinstance(td_or_dataset, TensorDict):
+            td_copy = td_or_dataset.copy()
+        elif isinstance(td_or_dataset, list):
+            # Handle list of dicts - stack into a TensorDict
+            if len(td_or_dataset) > 0 and isinstance(td_or_dataset[0], dict):
+                # Stack all dicts into tensors
+                stacked = {}
+                for key in td_or_dataset[0].keys():
+                    vals = [d[key] for d in td_or_dataset]
+                    if isinstance(vals[0], torch.Tensor):
+                        stacked[key] = torch.stack(vals)
+                    else:
+                        stacked[key] = torch.tensor(vals)
+                td_copy = TensorDict(stacked, batch_size=[len(td_or_dataset)])
+            else:
+                # Can't process, return zeros
+                return torch.zeros(len(td_or_dataset) if td_or_dataset else 1)
+        elif hasattr(td_or_dataset, "clone"):
+            td_copy = td_or_dataset.clone()
+        else:
+            import copy
+
+            td_copy = copy.deepcopy(td_or_dataset)
+        if isinstance(td_copy, (dict, TensorDict)) and "data" in list(td_copy.keys()):
             td_copy = td_copy["data"]
 
         if isinstance(td_copy, dict):
@@ -211,19 +258,47 @@ class RolloutBaseline(Baseline):
         # Get device from policy
         device = next(policy.parameters()).device
         td_copy = td_copy.to(device)
-        td_copy = env.reset(td_copy)
+        if hasattr(env, "reset"):
+            td_copy = env.reset(td_copy)
         td_copy = td_copy.to(device)  # Ensure on policy device after reset
         policy.eval()
         with torch.no_grad():
-            out = policy(td_copy, env, decode_type="greedy")
+            if hasattr(policy, "set_decode_type"):
+                policy.set_decode_type("greedy")
+                res = policy(td_copy)
+                if isinstance(res, tuple):
+                    out = {"reward": res[0]}
+                else:
+                    out = res
+            else:
+                out = policy(td_copy, env, decode_type="greedy")
         return out["reward"]
 
-    def wrap_dataset(self, policy: nn.Module, dataset: Dataset, env: Any) -> Dataset:
+    def wrap_dataset(self, dataset: Any, policy: Optional[nn.Module] = None, env: Optional[Any] = None) -> Any:
         """Wrap the dataset with rollout baseline values."""
         from logic.src.data.datasets import BaselineDataset
 
+        # Compatibility: handle positional arguments if called as (policy, dataset, env)
+        if isinstance(dataset, nn.Module):
+            # Probably called as wrap_dataset(policy, dataset, env)
+            policy_arg = dataset
+            dataset_arg = policy  # Actually the 2nd arg
+            env_arg = env
+            dataset = dataset_arg
+            policy = policy_arg
+            env = env_arg
+
+        if env is None:
+            # We can't actually rollout without env, so return original
+            return dataset
+
+        # Use provided policy or fallback to baseline_policy
+        p = policy if policy is not None else self.baseline_policy
+        if p is None:
+            return dataset
+
         print("Evaluating baseline on dataset...")
-        bl_vals = self._rollout(self.baseline_policy, dataset.data if hasattr(dataset, "data") else dataset, env)
+        bl_vals = self._rollout(p, dataset.data if hasattr(dataset, "data") else dataset, env)
         return BaselineDataset(dataset, bl_vals.view(-1, 1))
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
@@ -236,7 +311,7 @@ class RolloutBaseline(Baseline):
             # Ideally use wrap_dataset/unwrap_batch flow
             with torch.no_grad():
                 # We expect td to be already unwrapped or we unwrap it here
-                if isinstance(td, (dict, TensorDict)) and "data" in td.keys():
+                if isinstance(td, (dict, TensorDict)) and "data" in list(td.keys()):
                     td = td["data"]
 
                 if isinstance(td, dict):
@@ -335,6 +410,10 @@ class WarmupBaseline(Baseline):
         else:
             self.alpha = 1.0
 
+    def get_learnable_parameters(self) -> list:
+        """Get learnable parameters of the inner baseline."""
+        return self.baseline.get_learnable_parameters()
+
 
 class CriticBaseline(Baseline):
     """Learned critic baseline."""
@@ -365,13 +444,23 @@ class CriticBaseline(Baseline):
             return torch.zeros_like(reward)
 
         # Unwrap td if needed
-        if isinstance(td, (dict, TensorDict)) and "data" in td.keys():
+        if isinstance(td, (dict, TensorDict)) and "data" in list(td.keys()):
             td = td["data"]
 
         if isinstance(td, dict):
             td = TensorDict(td, batch_size=[len(next(iter(td.values())))])
 
         return self.critic(td).squeeze(-1)
+
+    def get_learnable_parameters(self) -> list:
+        """Get learnable parameters for the critic network."""
+        return list(self.critic.parameters()) if self.critic is not None else []
+
+    def state_dict(self, *args, **kwargs):
+        """Compatibility state_dict."""
+        if self.critic is not None:
+            return {"critic": self.critic.state_dict()}
+        return {}
 
 
 class POMOBaseline(Baseline):

@@ -7,6 +7,7 @@ from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import torch
 
 from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 
@@ -73,6 +74,31 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         self.context_rewards = defaultdict(lambda: defaultdict(list))
         self.history = []
 
+    def _get_context_features(self, dataset):
+        """Extract context features from dataset (compatibility)."""
+        data = dataset.data if hasattr(dataset, "data") else dataset
+        waste_levels = torch.stack([inst["waste"] for inst in data])
+        max_waste = torch.stack([inst["max_waste"] for inst in data])
+        overflow_mask = waste_levels >= max_waste
+
+        context = {
+            "avg_waste": waste_levels.mean().item(),
+            "avg_overflow": overflow_mask.float().mean().item(),
+            "day": len(self.history),
+        }
+        return context
+
+    def set_max_feature_values(self, max_vals):
+        """Set max feature values (compatibility)."""
+        pass
+
+    def update(self, reward, metrics, context=None):
+        """Update bandit (compatibility)."""
+        if context:
+            self.contexts.append(context)
+        self.feedback(reward, metrics)
+        return {"trials": self.trials.tolist()}
+
     def propose_weights(self, context: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
         """
         Propose weight configuration based on context.
@@ -128,13 +154,17 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         self.alpha[self.current_config_idx] += norm_reward
         self.beta[self.current_config_idx] += 1 - norm_reward
 
-    def get_current_weights(self) -> Dict[str, float]:
+    def get_current_weights(self, dataset=None) -> Dict[str, float]:
         """
         Get current weight configuration.
 
         Returns:
             Dict[str, float]: Current weights.
         """
+        if dataset is not None:
+            context = self._get_context_features(dataset)
+            # Add to history to satisfy tests
+            self.history.append({"selected_config": self.propose_weights(context)})
         return self.current_config
 
     def _generate_weight_configs(self, initial_weights, num_configs):

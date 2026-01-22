@@ -2,22 +2,25 @@
 This package contains deep learning models for solving Vehicle Routing Problems.
 """
 
-from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
+from logic.src.pipeline.rl.core.baselines import (
+    Baseline as Baseline,
+)
+from logic.src.pipeline.rl.core.baselines import (
     CriticBaseline as CriticBaseline,
 )
-from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
+from logic.src.pipeline.rl.core.baselines import (
     ExponentialBaseline as ExponentialBaseline,
 )
-from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
+from logic.src.pipeline.rl.core.baselines import (
     NoBaseline as NoBaseline,
 )
-from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
+from logic.src.pipeline.rl.core.baselines import (
     POMOBaseline as POMOBaseline,
 )
-from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
+from logic.src.pipeline.rl.core.baselines import (
     RolloutBaseline as RolloutBaseline,
 )
-from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
+from logic.src.pipeline.rl.core.baselines import (
     WarmupBaseline as WarmupBaseline,
 )
 

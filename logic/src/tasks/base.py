@@ -52,7 +52,10 @@ class BaseProblem:
         if pi.size(-1) == 1:
             return torch.zeros(pi.size(0), device=pi.device)
 
-        if dist_matrix is not None:
+        # Check if dist_matrix is valid (not None and is a real tensor)
+        use_dist_matrix = dist_matrix is not None and isinstance(dist_matrix, torch.Tensor)
+
+        if use_dist_matrix:
             src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
             dst_mask: torch.Tensor = dst_vertices != 0
             pair_mask: torch.Tensor = (src_vertices != 0) & (dst_mask)

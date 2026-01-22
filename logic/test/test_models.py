@@ -6,18 +6,26 @@ import torch
 import torch.nn as nn
 
 import logic.src.tasks.vrpp.problem_vrpp as problem_module
+from logic.src.data.datasets import BaselineDataset
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.modules.moe import MoE
 from logic.src.models.modules.moe_feed_forward import MoEFeedForward
 from logic.src.models.moe_model import MoEAttentionModel, MoETemporalAttentionModel
 from logic.src.models.subnets.moe_encoder import MoEGraphAttentionEncoder
-from logic.src.pipeline.reinforcement_learning.core.reinforce_baselines import (
-    BaselineDataset,
-    CriticBaseline,
-    ExponentialBaseline,
-    NoBaseline,
-    RolloutBaseline,
-    WarmupBaseline,
+from logic.src.pipeline.rl.core.baselines import (
+    CriticBaseline as CriticBaseline,
+)
+from logic.src.pipeline.rl.core.baselines import (
+    ExponentialBaseline as ExponentialBaseline,
+)
+from logic.src.pipeline.rl.core.baselines import (
+    NoBaseline as NoBaseline,
+)
+from logic.src.pipeline.rl.core.baselines import (
+    RolloutBaseline as RolloutBaseline,
+)
+from logic.src.pipeline.rl.core.baselines import (
+    WarmupBaseline as WarmupBaseline,
 )
 from logic.src.policies.neural_agent import NeuralAgent
 from logic.src.tasks.vrpp.problem_vrpp import CVRPP
@@ -178,7 +186,7 @@ class TestReinforceBaselines:
 
     def test_warmup_baseline(self, mock_baseline):
         """Verifies warmup alpha updates."""
-        wb = WarmupBaseline(mock_baseline, n_epochs=2, warmup_exp_beta=0.8)
+        wb = WarmupBaseline(mock_baseline, warmup_epochs=2, beta=0.8)
         assert wb.alpha == 0
 
         # Test alpha update
@@ -189,19 +197,20 @@ class TestReinforceBaselines:
         """Verifies exponential moving average updates."""
         eb = ExponentialBaseline(beta=0.8)
         c = torch.tensor([10.0, 20.0])
-        v, loss = eb.eval(None, c)
-        assert v == 15.0  # Mean
-        assert loss == 0
+        v = eb.eval(None, c)
+        assert torch.allclose(v, torch.tensor([15.0, 15.0]))
 
         c2 = torch.tensor([20.0, 30.0])  # Mean 25
-        v2, l2 = eb.eval(None, c2)
+        v2 = eb.eval(None, c2)
         # v2 = 0.8 * 15 + 0.2 * 25 = 12 + 5 = 17
-        assert v2 == 17.0
+        assert torch.allclose(v2, torch.tensor([17.0, 17.0]))
 
     def test_no_baseline(self):
         """Verifies no-op baseline."""
         nb = NoBaseline()
-        assert nb.eval(None, None) == (0, 0)
+        reward = torch.tensor([10.0, 20.0])
+        v = nb.eval(None, reward)
+        assert torch.all(v == 0)
 
     def test_critic_baseline(self):
         """Verifies critic network evaluation and state dicts."""
@@ -215,9 +224,8 @@ class TestReinforceBaselines:
         c = torch.tensor([1.0, 2.0])
 
         # Test eval
-        v, loss = cb.eval(x, c)
+        v = cb.eval(x, c)
         assert torch.allclose(v, torch.tensor([1.0, 2.0]))
-        assert loss == 0  # MSE loss between 1,2 and 1,2 is 0
 
         # Test learnable parameters
         params = cb.get_learnable_parameters()
@@ -231,71 +239,46 @@ class TestReinforceBaselines:
     def test_rollout_baseline(self, mocker):
         """Verifies rollout baseline evaluation and updates."""
         # Mocks
-        mock_model = MagicMock()
-        mock_problem = MagicMock()
-        mock_problem.make_dataset.return_value = [1, 2]
+        mock_policy = MagicMock(spec=nn.Module)
+        mock_policy.parameters.return_value = [torch.tensor([1.0])]
 
-        # Mock rollout to return values for baseline
-        mocker.patch(
-            "logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.rollout",
-            return_value=torch.tensor([10.0, 20.0]),
-        )
+        # Mock deepcopy to return a specific mock for the baseline policy
+        mock_baseline_policy = MagicMock(spec=nn.Module)
+        mock_baseline_policy.parameters.return_value = [torch.tensor([1.0])]
+        mocker.patch("copy.deepcopy", return_value=mock_baseline_policy)
 
-        opts = {
-            "val_size": 2,
-            "graph_size": 5,
-            "area": "a",
-            "waste_type": "w",
-            "dm_filepath": "p",
-            "edge_threshold": 1,
-            "edge_method": "m",
-            "focus_graph": False,
-            "eval_focus_size": 0,
-            "data_distribution": "d",
-            "vertex_method": "v",
-            "distance_method": "d",
-            "bl_alpha": 0.05,
-        }
+        # Initialize
+        rb = RolloutBaseline(policy=mock_policy, update_every=1, bl_alpha=0.05)
+        # Note: RolloutBaseline.setup(policy) calls deepcopy(policy)
+        assert rb.baseline_policy is mock_baseline_policy
 
-        # Initialize (dataset creation)
-        rb = RolloutBaseline(mock_model, mock_problem, opts)
-        assert rb.mean == 15.0
-        assert rb.epoch == 0
+        # Mock _rollout
+        mocker.patch.object(rb, "_rollout", return_value=torch.tensor([10.0, 20.0]))
 
-        # Test wrap/unwrap
-        # mock wrap_dataset calling rollout again
-        ds = rb.wrap_dataset([3, 4])
-        assert isinstance(ds, BaselineDataset)
-        assert len(ds) == 2
+        # Test eval
+        td = MagicMock()
+        reward = torch.tensor([10.0, 20.0])
+        v = rb.eval(td, reward, env=MagicMock())
+        assert torch.all(v == torch.tensor([10.0, 20.0]))
 
-        # Test eval (inference only)
-        # We must set return_value on the COPIED model inside rb, not the original mock_model
-        rb.model.return_value = (torch.tensor([1.0]), None, None)
-        v, loss = rb.eval(torch.tensor([1.0]), None)
-        assert v == torch.tensor([1.0])
-        assert loss == 0
+        # Mocking ttest_rel to simulate significant improvement
+        mocker.patch("scipy.stats.ttest_rel", return_value=(MagicMock(), 0.001))
+        # candidate values mean 15 > baseline values mean 5 (improvement)
+        rb._rollout.side_effect = [torch.tensor([10.0, 20.0]), torch.tensor([5.0, 5.0])]
 
-        # Test epoch_callback (update logic)
-        # Case 1: Improvement
-        mocker.patch(
-            "logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.rollout",
-            return_value=torch.tensor([5.0, 5.0]),
-        )  # Mean 5 < 15
-        mocker.patch(
-            "logic.src.pipeline.reinforcement_learning.core.reinforce_baselines.stats.ttest_rel",
-            return_value=(-5.0, 0.001),
-        )  # Significant
-
-        candidate_model = MagicMock()
-        rb.epoch_callback(candidate_model, 1)
-        # Should have updated model
-        assert rb.epoch == 1
+        # We want to see if setup is called again
+        mock_setup = mocker.patch.object(rb, "setup")
+        rb.epoch_callback(mock_policy, 0, val_dataset=MagicMock(), env=MagicMock())
+        assert mock_setup.called
 
     def test_baseline_dataset(self):
         """Verifies dataset wrapping."""
         ds = BaselineDataset([1, 2], [3, 4])
         assert len(ds) == 2
         item = ds[0]
+        # BaselineDataset now stores data in 'data' and baseline in 'baseline'
+        assert "data" in item
+        assert "baseline" in item
         assert item["data"] == 1
         assert item["baseline"] == 3
 

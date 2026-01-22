@@ -157,7 +157,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         # Merge granular metrics from td if available
         for key in ["collection", "cost"]:
-            if key in td.keys():
+            if key in list(td.keys()):
                 out[key] = td[key]
 
         # Log metrics
