@@ -25,7 +25,7 @@ from typing import Any, List, Tuple
 import numpy as np
 import torch
 
-from logic.src.pipeline.reinforcement_learning.policies.local_search import (
+from logic.src.models.policies.classical.local_search import (
     vectorized_two_opt,
 )
 from logic.src.policies.adapters import IPolicy
@@ -383,9 +383,9 @@ class NeuralAgent:
         # If we use `model.forward`, we must ensure input dict has what it needs.
 
         input_for_model = input.copy()  # Shallow copy
-        if "edges" not in input_for_model and edges is not None:
+        if "edges" not in list(input_for_model.keys()) and edges is not None:
             input_for_model["edges"] = edges
-        if "dist" not in input_for_model and dist_matrix is not None:
+        if "dist" not in list(input_for_model.keys()) and dist_matrix is not None:
             input_for_model["dist"] = dist_matrix
 
         # Populate temporal features (fill1, fill2, ...) if model has temporal_horizon > 0

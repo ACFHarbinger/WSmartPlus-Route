@@ -82,8 +82,8 @@ class TimeBasedMixin:
 
             # Current Demand/Waste
             # Usually "demand" or "current_fill"
-            key = "demand" if "demand" in td.keys() else "current_fill"
-            if key in td.keys():
+            key = "demand" if "demand" in list(td.keys()) else "current_fill"
+            if key in list(td.keys()):
                 current_fill = td[key]  # [batch, num_nodes+1] usually? Or [batch, num_nodes]
 
                 # Reset visited to 0
@@ -106,7 +106,7 @@ class TimeBasedMixin:
         # Generate waste increments
         # Simple Logic: 0.1 * capacity * random
         # Real logic should interact with 'generation_rate' if present in data
-        if "generation_rate" in td.keys():
+        if "generation_rate" in list(td.keys()):
             rate = td["generation_rate"]
         else:
             rate = 0.05 * capacity  # Default 5% per day

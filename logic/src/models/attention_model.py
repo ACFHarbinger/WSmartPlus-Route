@@ -403,7 +403,7 @@ class AttentionModel(nn.Module):
         Returns:
             tuple: (costs, pis)
         """
-        edges: Optional[torch.Tensor] = input.pop("edges") if "edges" in input.keys() else None
+        edges: Optional[torch.Tensor] = input.pop("edges") if "edges" in list(input.keys()) else None
         return sample_many(
             lambda x: self.decoder._inner(*x[:3], cost_weights, x[3]),  # type: ignore
             lambda x, pi: self.problem.get_costs(x[0], pi, cost_weights)[:2],
