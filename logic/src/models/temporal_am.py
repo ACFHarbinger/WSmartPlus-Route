@@ -164,7 +164,7 @@ class TemporalAttentionModel(AttentionModel):
         # Get the base embeddings from context embedder (without temporal features)
         base_embeddings = self.context_embedder.init_node_embeddings(nodes, temporal_features=False)
 
-        if "fill_history" not in nodes or not self.predict_future:
+        if "fill_history" not in list(nodes.keys()) or not self.predict_future:
             return base_embeddings
 
         fill_history = nodes["fill_history"]
@@ -210,7 +210,7 @@ class TemporalAttentionModel(AttentionModel):
         Returns:
             tuple: (cost, log_likelihood, cost_dict, pi, entropy)
         """
-        if "fill_history" not in input and self.predict_future:
+        if "fill_history" not in list(input.keys()) and self.predict_future:
             batch_size = input["loc"].size(0)
             graph_size = input["loc"].size(1)
 
@@ -253,6 +253,6 @@ class TemporalAttentionModel(AttentionModel):
         Returns:
             dict: Simulation results.
         """
-        if "fill_history" in input and "current_fill" in input:
+        if "fill_history" in list(input.keys()) and "current_fill" in list(input.keys()):
             input["fill_history"] = self.update_fill_history(input["fill_history"], input["current_fill"])
         return super().compute_simulator_day(input, graph, run_tsp)

@@ -363,8 +363,8 @@ def vectorized_relocate(tours, dist_matrix, max_iterations=200):
             # For each instance, we want to move i to after j
             # Case 1: i < j. Sequence: [0..i-1], [i+1..j], i, [j+1..N-1]
             mask_i_lt_j = (i < j) & improved
-            # Elements in (i, j]: index shifts left
-            shift_left = mask_i_lt_j & (seq_b > i) & (seq_b <= j)
+            # Elements in [i, j): index shifts left
+            shift_left = mask_i_lt_j & (seq_b >= i) & (seq_b < j)
             idx_map[shift_left] = seq_b[shift_left] + 1
             # Element at j mapping to original i
             target_mask = mask_i_lt_j & (seq_b == j)

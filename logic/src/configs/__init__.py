@@ -26,6 +26,18 @@ class EnvConfig:
     collection_reward: float = 1.0
     cost_weight: float = 1.0
     prize_weight: float = 1.0
+    # NEW FIELDS:
+    area: str = "riomaior"
+    waste_type: str = "plastic"
+    focus_graph: Optional[str] = None
+    focus_size: int = 0
+    eval_focus_size: int = 0
+    distance_method: str = "ogd"
+    dm_filepath: Optional[str] = None
+    waste_filepath: Optional[str] = None
+    vertex_method: str = "mmn"
+    edge_threshold: float = 0.0
+    edge_method: Optional[str] = None
 
 
 @dataclass
@@ -49,7 +61,17 @@ class ModelConfig:
     num_decoder_layers: int = 3
     num_heads: int = 8
     encoder_type: str = "gat"
+    # NEW FIELDS:
+    temporal_horizon: int = 0
+    tanh_clipping: float = 10.0
     normalization: str = "instance"
+    activation: str = "gelu"
+    dropout: float = 0.1
+    mask_inner: bool = True
+    mask_logits: bool = True
+    mask_graph: bool = False
+    spatial_bias: bool = False
+    connection_type: str = "residual"
 
 
 @dataclass
@@ -72,6 +94,18 @@ class TrainConfig:
     val_dataset: Optional[str] = None
     num_workers: int = 4
     precision: str = "16-mixed"  # "16-mixed", "bf16-mixed", "32-true"
+    # NEW FIELDS:
+    train_time: bool = False
+    eval_time_days: int = 1
+    accumulation_steps: int = 1
+    enable_scaler: bool = False
+    checkpoint_epochs: int = 1
+    shrink_size: Optional[int] = None
+    post_processing_epochs: int = 0
+    lr_post_processing: float = 0.001
+    efficiency_weight: float = 0.8
+    overflow_weight: float = 0.2
+    log_step: int = 50
 
 
 @dataclass
@@ -137,6 +171,7 @@ class RLConfig:
     ppo_epochs: int = 10
     eps_clip: float = 0.2
     value_loss_weight: float = 0.5
+    mini_batch_size: float = 0.25
 
     # SAPO specific
     sapo_tau_pos: float = 0.1
@@ -145,12 +180,6 @@ class RLConfig:
     # DR-GRPO specific
     dr_grpo_group_size: int = 8
     dr_grpo_epsilon: float = 0.2
-
-    # Meta-RL specific
-    use_meta: bool = False
-    meta_lr: float = 1e-3
-    meta_hidden_dim: int = 64
-    meta_history_length: int = 10
 
     # POMO / Augmentation specific
     num_augment: int = 1
@@ -161,10 +190,35 @@ class RLConfig:
     symnco_alpha: float = 0.2
     symnco_beta: float = 1.0
 
-    # Random Local Search expert specific
+    # Imitation
     expert: str = "hgs"  # hgs, alns, random_ls
+    imitation_weight: float = 0.0
+    imitation_decay: float = 1.0
+    imitation_threshold: float = 0.05
+    reannealing_threshold: float = 0.05
+    reannealing_patience: int = 5
     random_ls_iterations: int = 100
     random_ls_op_probs: Optional[Dict[str, float]] = None
+
+    # Meta-RL
+    use_meta: bool = False
+    meta_strategy: str = "rnn"  # rnn|bandit|morl|tdl|hypernet
+    meta_lr: float = 1e-3
+    meta_hidden_dim: int = 64
+    meta_history_length: int = 10
+    mrl_exploration_factor: float = 2.0
+    mrl_range: List[float] = field(default_factory=lambda: [0.01, 5.0])
+
+    # HRL
+    hrl_threshold: float = 0.9
+    hrl_epochs: int = 4
+    hrl_clip_eps: float = 0.2
+
+    # Contextual Bandits
+    cb_exploration_method: str = "ucb"
+    cb_num_configs: int = 10
+    cb_epsilon_decay: float = 0.995
+    cb_min_epsilon: float = 0.01
 
     # GDPO specific
     gdpo_objective_keys: List[str] = field(default_factory=lambda: ["reward_prize", "reward_cost"])
@@ -197,6 +251,14 @@ class HPOConfig:
             "optim.lr": [1e-5, 1e-3],
         }
     )
+    # NEW FIELDS:
+    hop_range: List[float] = field(default_factory=lambda: [0.0, 2.0])
+    fevals: int = 100
+    timeout: Optional[int] = None
+    n_startup_trials: int = 5
+    n_warmup_steps: int = 3
+    min_fidelity: int = 1
+    max_fidelity: int = 10
 
 
 @dataclass
@@ -224,6 +286,23 @@ class Config:
     seed: int = 42
     device: str = "cuda"
     experiment_name: Optional[str] = None
+    # NEW FIELDS:
+    wandb_mode: str = "offline"
+    no_tensorboard: bool = False
+    no_progress_bar: bool = False
+    output_dir: str = "assets/model_weights"
+    log_dir: str = "logs"
+
+
+__all__ = [
+    "EnvConfig",
+    "ModelConfig",
+    "TrainConfig",
+    "OptimConfig",
+    "RLConfig",
+    "HPOConfig",
+    "Config",
+]
 
 
 __all__ = [

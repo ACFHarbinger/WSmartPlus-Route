@@ -199,10 +199,10 @@ def mock_optimizer(mocker):
 def mock_baseline(mocker):
     """Returns a mock baseline."""
     mock_bl = mocker.MagicMock()
-    mock_bl.wrap_dataset.side_effect = lambda x: x  # Pass through
+    mock_bl.wrap_dataset.side_effect = lambda dataset, policy=None, env=None: dataset  # Pass through
     mock_bl.unwrap_batch.side_effect = lambda x: (x, None)  # Simple unwrap
-    # eval returns (bl_val, bl_loss)
-    mock_bl.eval.return_value = (torch.zeros(2), 0.0)
+    # eval returns baseline_val (Tensor)
+    mock_bl.eval.side_effect = lambda td, reward, env=None: torch.zeros_like(reward)
     return mock_bl
 
 
@@ -221,9 +221,9 @@ def mock_ppo_deps(mocker):
 
     mock_optimizer = MagicMock()
     mock_baseline = MagicMock()
-    mock_baseline.wrap_dataset = lambda x: x
+    mock_baseline.wrap_dataset = lambda dataset, policy=None, env=None: dataset
     mock_baseline.unwrap_batch = lambda x: (x, None)
-    mock_baseline.eval.return_value = torch.tensor([1.0, 1.0])
+    mock_baseline.eval.side_effect = lambda td, reward, env=None: torch.ones_like(reward)
 
     mock_problem = MagicMock()
     mock_problem.NAME = "cwcvrp"
@@ -285,17 +285,12 @@ def mock_dr_grpo_deps():
 
     optimizer = MagicMock()
     baseline = MagicMock()
-    baseline.wrap_dataset.side_effect = lambda x: x
+    baseline.wrap_dataset.side_effect = lambda dataset, policy=None, env=None: dataset
     baseline.unwrap_batch.side_effect = lambda x: (x, None)
 
-    def baseline_eval_side_effect(input, c=None):
+    def baseline_eval_side_effect(td, reward, env=None):
         """Mock side effect for DR-GRPO baseline evaluation."""
-        if isinstance(input, dict):
-            first_val = next(iter(input.values()))
-            bs = first_val.size(0)
-        else:
-            bs = 4
-        return (torch.zeros(bs), torch.zeros(1))
+        return torch.zeros_like(reward)
 
     baseline.eval.side_effect = baseline_eval_side_effect
 
@@ -344,9 +339,9 @@ def mock_gspo_deps():
 
     optimizer = MagicMock()
     baseline = MagicMock()
-    baseline.wrap_dataset.side_effect = lambda x: x
+    baseline.wrap_dataset.side_effect = lambda dataset, policy=None, env=None: dataset
     baseline.unwrap_batch.side_effect = lambda x: (x, None)
-    baseline.eval.return_value = (torch.zeros(4), torch.zeros(1))
+    baseline.eval.side_effect = lambda td, reward, env=None: torch.zeros_like(reward)
 
     dataset = MagicMock()
     dataset.__len__.return_value = 4
@@ -393,9 +388,9 @@ def mock_sapo_deps():
 
     optimizer = MagicMock()
     baseline = MagicMock()
-    baseline.wrap_dataset.side_effect = lambda x: x
+    baseline.wrap_dataset.side_effect = lambda dataset, policy=None, env=None: dataset
     baseline.unwrap_batch.side_effect = lambda x: (x, None)
-    baseline.eval.return_value = (torch.zeros(4), torch.zeros(1))
+    baseline.eval.side_effect = lambda td, reward, env=None: torch.zeros_like(reward)
 
     dataset = MagicMock()
     dataset.__len__.return_value = 4
