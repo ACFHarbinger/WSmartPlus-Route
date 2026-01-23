@@ -4126,6 +4126,24 @@ wheels = [
 ]
 
 [[package]]
+name = "torchrl"
+version = "0.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cloudpickle" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "tensordict" },
+    { name = "torch" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d2/97/011fc9051ef5772e17446287846245512167d7f030e0635795803ecaaf31/torchrl-0.3.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:9301411a8f249d7be1cb45277a9ab74072bb797fbfe4c5df97bd906d397dced6", size = 1178968, upload-time = "2024-03-01T22:32:08.271Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/7a/b8c7a9700d9594a2cbb5fd47a422066e943dd1f70a9f5b53d5cffe433bf4/torchrl-0.3.1-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:4f7d161a6c9d135639cb02729208ed1b54ec32957c69fb000eb32ef3f79507fe", size = 886901, upload-time = "2024-03-01T22:32:10.376Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/3a/144e8c08db314b43fe2b38051ae2bbd92c9d8b01a664551a93e969cb99d9/torchrl-0.3.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:919a484c40e4de8777a173ebe8656974566f8514f44ca02c8e87b882b6b5c650", size = 5809034, upload-time = "2024-03-01T22:32:17.204Z" },
+    { url = "https://files.pythonhosted.org/packages/07/4b/b26a007240add67821f3476ba21e5dd3ed74fad7c0d4930d345f2cd27025/torchrl-0.3.1-cp39-cp39-win_amd64.whl", hash = "sha256:8db67545db46ef4d66ea5fafdf4a989da471599d4edc924eba7cbb91f2f11480", size = 840180, upload-time = "2024-03-01T22:32:19.926Z" },
+]
+
+[[package]]
 name = "torchvision"
 version = "0.17.2"
 source = { registry = "https://pypi.org/simple" }
@@ -4654,6 +4672,7 @@ dependencies = [
     { name = "torch-scatter" },
     { name = "torch-tb-profiler" },
     { name = "torchaudio" },
+    { name = "torchrl" },
     { name = "torchvision" },
     { name = "tornado" },
     { name = "tqdm" },
@@ -4922,6 +4941,7 @@ requires-dist = [
     { name = "torch-scatter", specifier = ">=2.1.2", index = "https://data.pyg.org/whl/torch-2.2.2+cu121.html" },
     { name = "torch-tb-profiler", specifier = ">=0.4.3" },
     { name = "torchaudio", specifier = ">=2.2.2" },
+    { name = "torchrl", specifier = ">=0.3.1" },
     { name = "torchvision", specifier = ">=0.17.2" },
     { name = "tornado", specifier = ">=6.5.2" },
     { name = "tqdm", specifier = ">=4.67.1" },
