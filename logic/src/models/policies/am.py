@@ -122,7 +122,7 @@ class AttentionModelPolicy(ConstructivePolicy):
 
             # Update state
             td["action"] = action
-            td = env.step(td)
+            td = env.step(td)["next"]
 
             # update log likelihood
             log_likelihood = log_likelihood + log_p

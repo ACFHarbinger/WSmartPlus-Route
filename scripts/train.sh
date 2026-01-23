@@ -232,6 +232,7 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             rl.reannealing_patience="$REHEAT_PAT" \
             rl.reannealing_threshold="$REHEAT_THRESH" \
             rl.algorithm="'$RL_ALGO'" \
+            hpo.n_trials=0 \
             $EXTRA_ARGS;
 
         if [ "$VERBOSE" = false ]; then

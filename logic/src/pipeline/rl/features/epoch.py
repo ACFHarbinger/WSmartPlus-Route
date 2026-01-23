@@ -10,8 +10,6 @@ import torch.nn as nn
 from tensordict import TensorDict
 from torch.utils.data import Dataset
 
-from logic.src.data.datasets import GeneratorDataset
-
 
 def prepare_epoch(
     model: nn.Module,
@@ -42,7 +40,14 @@ def regenerate_dataset(
     Regenerate training dataset using environment generator.
     """
     if hasattr(env, "generator"):
-        return GeneratorDataset(env.generator, size)
+        # Pre-generate for efficiency
+        from logic.src.data.datasets import TensorDictDataset
+
+        gen = env.generator
+        if hasattr(gen, "to"):
+            gen = gen.to("cpu")
+        data = gen(batch_size=size)
+        return TensorDictDataset(data)
     return None
 
 

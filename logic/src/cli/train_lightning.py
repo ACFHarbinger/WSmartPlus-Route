@@ -88,7 +88,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
     # Remove fields not used in policy __init__ if needed, or rely on **kwargs
     for key in ["lr_critic", "lr_critic_value"]:
         policy_kwargs.pop(key, None)
-    policy_kwargs.pop("name")
+    policy_kwargs.pop("name", None)
     if cfg.model.name == "hybrid":
         neural = AttentionModelPolicy(**policy_kwargs)
         heuristic = ALNSPolicy(env_name=cfg.env.name)
@@ -99,9 +99,18 @@ def create_model(cfg: Config) -> pl.LightningModule:
         policy = policy_cls(**policy_kwargs)
 
     # 3. Initialize RL Module
-    common_kwargs = vars(cfg.rl).copy()
+    # Convert to primitive dict using OmegaConf to avoid 'Unions of containers' errors during checkpointing
+    # This strips types like List[Any] that cause issues with save_hyperparameters
+    if isinstance(cfg.rl, dict):
+        common_kwargs = cfg.rl.copy()
+    else:
+        # Works for both Dataclass and DictConfig
+        common_kwargs = OmegaConf.to_container(OmegaConf.create(cfg.rl), resolve=True)
     # Merge train and optim config into common_kwargs
-    train_params = vars(cfg.train)
+    if isinstance(cfg.train, dict):
+        train_params = cfg.train.copy()
+    else:
+        train_params = OmegaConf.to_container(OmegaConf.create(cfg.train), resolve=True)
     common_kwargs.update(train_params)
 
     # Specific remapping if needed
