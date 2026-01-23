@@ -4,6 +4,7 @@ Environment module for WSmart-Route.
 This module provides RL4CO-style environment abstractions for
 combinatorial optimization problems.
 """
+
 from logic.src.envs.base import ImprovementEnvBase, RL4COEnvBase
 from logic.src.envs.generators import (
     GENERATOR_REGISTRY,
@@ -41,7 +42,7 @@ def get_env(name: str, **kwargs) -> RL4COEnvBase:
     """
     name = name.lower()
     if name not in ENV_REGISTRY:
-        raise ValueError(f"Unknown environment: {name}. " f"Available: {list(ENV_REGISTRY.keys())}")
+        raise ValueError(f"Unknown environment: {name}. Available: {list(ENV_REGISTRY.keys())}")
     return ENV_REGISTRY[name](**kwargs)
 
 

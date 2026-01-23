@@ -36,7 +36,10 @@ from logic.src.file_system import (
 )
 from logic.src.pipeline.eval import run_evaluate_model
 from logic.src.pipeline.test import run_wsr_simulator_test
-from logic.src.pipeline.train import hyperparameter_optimization, run_training
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=DeprecationWarning)
+    from logic.src.pipeline.train import hyperparameter_optimization, run_training
 from logic.test import PyTestRunner
 
 warnings.filterwarnings(
@@ -273,7 +276,13 @@ def main(args):
 
 if __name__ == "__main__":
     # Commands that use the new Hydra/Lightning parser
-    HYDRA_COMMANDS = ["train_hydra", "train_lightning", "mrl_train", "hp_optim", "hp_optim_hydra"]
+    HYDRA_COMMANDS = [
+        "train_hydra",
+        "train_lightning",
+        "mrl_train",
+        "hp_optim",
+        "hp_optim_hydra",
+    ]
 
     if len(sys.argv) > 1 and sys.argv[1] in HYDRA_COMMANDS:
         # Bypass legacy parsing and delegate to Hydra/Lightning pipeline

@@ -1,6 +1,7 @@
 """
 Environment, model, and optimizer setup utilities.
 """
+
 from __future__ import annotations
 
 import os
@@ -43,7 +44,13 @@ def setup_cost_weights(opts: Dict[str, Any], def_val: float = 1.0) -> Dict[str, 
     if opts["problem"] in udef.PROBLEMS:  # type: ignore
         cw_dict["waste"] = opts["w_waste"] = _set_val(opts["w_waste"], def_val)
         cw_dict["length"] = opts["w_length"] = _set_val(opts["w_length"], def_val)
-        if "overflows" in opts or opts["problem"] in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp", "swcvrp"]:
+        if "overflows" in opts or opts["problem"] in [
+            "wcvrp",
+            "cwcvrp",
+            "sdwcvrp",
+            "scwcvrp",
+            "swcvrp",
+        ]:
             cw_dict["overflows"] = opts["w_overflows"] = _set_val(opts.get("w_overflows"), def_val)
     return cw_dict
 

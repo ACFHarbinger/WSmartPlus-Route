@@ -1,6 +1,7 @@
 """
 Fixtures for evaluation pipeline unit tests.
 """
+
 from unittest.mock import MagicMock
 
 import pytest

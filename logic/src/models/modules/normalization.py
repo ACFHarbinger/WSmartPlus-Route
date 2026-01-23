@@ -1,6 +1,7 @@
 """
 Normalization layers (Batch, Layer, Instance).
 """
+
 from __future__ import annotations
 
 import math

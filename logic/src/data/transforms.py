@@ -1,6 +1,7 @@
 """
 Data augmentation transforms for RL4CO.
 """
+
 import math
 from typing import Callable, List, Union
 

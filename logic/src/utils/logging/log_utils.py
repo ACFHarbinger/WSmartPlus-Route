@@ -1,6 +1,7 @@
 """
 Logging systems for terminal, file, and GUI communication.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -118,7 +119,10 @@ def log_values(
 
 
 def log_epoch(
-    x_tup: Tuple[str, int], loss_keys: List[str], epoch_loss: Dict[str, List[torch.Tensor]], opts: Dict[str, Any]
+    x_tup: Tuple[str, int],
+    loss_keys: List[str],
+    epoch_loss: Dict[str, List[torch.Tensor]],
+    opts: Dict[str, Any],
 ) -> None:
     """
     Logs summary statistics for a completed epoch.
@@ -546,7 +550,10 @@ def update_log(
 
 @compose_dirpath
 def load_log_dict(
-    dir_paths: List[str], nsamples: List[int], show_incomplete: bool = False, lock: Optional[threading.Lock] = None
+    dir_paths: List[str],
+    nsamples: List[int],
+    show_incomplete: bool = False,
+    lock: Optional[threading.Lock] = None,
 ) -> Dict[str, str]:
     """
     Loads log filenames for multiple graph sizes/runs.

@@ -125,7 +125,7 @@ def add_eval_args(parser):
         "--vertex_method",
         type=str,
         default="mmn",
-        help="Method to transform vertex coordinates " "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
+        help="Method to transform vertex coordinates 'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
     )
     parser.add_argument("--w_length", type=float, default=1.0, help="Weight for length in cost function")
     parser.add_argument("--w_waste", type=float, default=1.0, help="Weight for waste in cost function")
@@ -258,7 +258,7 @@ def add_test_sim_args(parser):
         type=float,
         default=0.84,
         nargs="+",
-        help="Param value for Gurobi VRPP policy " "(higher = more conservative with regards to amount of overflows)",
+        help="Param value for Gurobi VRPP policy (higher = more conservative with regards to amount of overflows)",
     )
     parser.add_argument(
         "--hexaly_param",
@@ -266,8 +266,7 @@ def add_test_sim_args(parser):
         type=float,
         default=2.0,
         nargs="+",
-        help="Param value for Hexaly optimizer policy "
-        "(higher = more conservative with regards to amount of overflows)",
+        help="Param value for Hexaly optimizer policy (higher = more conservative with regards to amount of overflows)",
     )
     parser.add_argument(
         "--cpu_cores",
@@ -322,7 +321,7 @@ def add_test_sim_args(parser):
         "--vm",
         type=str,
         default="mmn",
-        help="Method to transform vertex coordinates " "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
+        help="Method to transform vertex coordinates 'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
     )
     parser.add_argument(
         "--distance_method",

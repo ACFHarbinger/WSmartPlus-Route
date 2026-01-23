@@ -1,6 +1,7 @@
 """
 REINFORCE algorithm implementation.
 """
+
 from typing import TYPE_CHECKING, Optional
 
 import torch
@@ -23,6 +24,7 @@ class REINFORCE(RL4COLitModule):
         self,
         entropy_weight: float = 0.0,
         max_grad_norm: float = 1.0,
+        lr_critic: float = 1e-4,
         **kwargs,
     ):
         """

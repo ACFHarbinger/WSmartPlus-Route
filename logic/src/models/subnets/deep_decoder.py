@@ -1,6 +1,7 @@
 """
 Deep Decoder logic extracted from DeepDecoderAttentionModel.
 """
+
 import math
 import typing
 
@@ -141,7 +142,9 @@ class DeepDecoder(nn.Module):
             raise NotImplementedError("Parallel steps > 1 not supported yet")
 
         current_node_embed = torch.gather(
-            embeddings, 1, current_node.unsqueeze(-1).expand(-1, -1, embeddings.size(-1))
+            embeddings,
+            1,
+            current_node.unsqueeze(-1).expand(-1, -1, embeddings.size(-1)),
         ).view(batch_size, num_steps, -1)
 
         return torch.cat(

@@ -2,6 +2,7 @@
 Lightning Callbacks for WSmart-Route.
 Adapted from rl4co/utils/callbacks/speed_monitor.py.
 """
+
 import time
 from typing import Optional
 

@@ -2,7 +2,9 @@ import pytest
 import torch
 from tensordict import TensorDict
 
-from logic.src.models.policies.classical.random_local_search import RandomLocalSearchPolicy
+from logic.src.models.policies.classical.random_local_search import (
+    RandomLocalSearchPolicy,
+)
 
 
 @pytest.mark.unit
@@ -57,7 +59,14 @@ def test_random_local_search_policy_custom_probs():
     )
 
     # Only two_opt
-    op_probs = {"two_opt": 1.0, "swap": 0.0, "relocate": 0.0, "two_opt_star": 0.0, "swap_star": 0.0, "three_opt": 0.0}
+    op_probs = {
+        "two_opt": 1.0,
+        "swap": 0.0,
+        "relocate": 0.0,
+        "two_opt_star": 0.0,
+        "swap_star": 0.0,
+        "three_opt": 0.0,
+    }
 
     policy = RandomLocalSearchPolicy(env_name="cvrpp", n_iterations=5, op_probs=op_probs).to(device)
 

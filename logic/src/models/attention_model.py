@@ -1,6 +1,7 @@
 """
 Core Attention Model for constructive routing.
 """
+
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -221,7 +222,13 @@ class AttentionModel(nn.Module):
         mask: Optional[torch.Tensor] = None,
         expert_pi: Optional[torch.Tensor] = None,
         **kwargs: Any,
-    ) -> Tuple[torch.Tensor, torch.Tensor, Dict[str, torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]:
+    ) -> Tuple[
+        torch.Tensor,
+        torch.Tensor,
+        Dict[str, torch.Tensor],
+        Optional[torch.Tensor],
+        Optional[torch.Tensor],
+    ]:
         """
         Forward pass of the Attention Model.
 
@@ -389,7 +396,11 @@ class AttentionModel(nn.Module):
         return self.decoder.propose_expansions(beam, fixed, expand_size, normalize, max_calc_batch_size)  # type: ignore
 
     def sample_many(
-        self, input: Dict[str, Any], cost_weights: Optional[torch.Tensor] = None, batch_rep: int = 1, iter_rep: int = 1
+        self,
+        input: Dict[str, Any],
+        cost_weights: Optional[torch.Tensor] = None,
+        batch_rep: int = 1,
+        iter_rep: int = 1,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Sample multiple solutions for the same input (e.g., for POMO or validation).

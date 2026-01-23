@@ -2,7 +2,6 @@
 Unified Training and Hyperparameter Optimization entry point using PyTorch Lightning and Hydra.
 """
 
-
 import hydra
 import optuna
 import pytorch_lightning as pl
@@ -24,7 +23,9 @@ from logic.src.models.policies import (
 from logic.src.models.policies.classical.alns import ALNSPolicy
 from logic.src.models.policies.classical.hgs import HGSPolicy
 from logic.src.models.policies.classical.hybrid import NeuralHeuristicHybrid
-from logic.src.models.policies.classical.random_local_search import RandomLocalSearchPolicy
+from logic.src.models.policies.classical.random_local_search import (
+    RandomLocalSearchPolicy,
+)
 from logic.src.pipeline.rl import (
     DRGRPO,
     GDPO,
@@ -54,6 +55,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
     env_name = cfg.env.name
     env_kwargs = {k: v for k, v in vars(cfg.env).items() if k != "name"}
     env_kwargs["device"] = cfg.device  # Pass device to environment
+    env_kwargs["batch_size"] = cfg.train.batch_size  # Match training batch size
     env = get_env(env_name, **env_kwargs)
 
     # 2. Initialize Policy
@@ -84,6 +86,8 @@ def create_model(cfg: Config) -> pl.LightningModule:
         policy_kwargs["n_heads"] = policy_kwargs.pop("num_heads")
 
     # Remove fields not used in policy __init__ if needed, or rely on **kwargs
+    for key in ["lr_critic", "lr_critic_value"]:
+        policy_kwargs.pop(key, None)
     policy_kwargs.pop("name")
     if cfg.model.name == "hybrid":
         neural = AttentionModelPolicy(**policy_kwargs)
@@ -107,7 +111,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
     common_kwargs["optimizer_kwargs"] = {
         "lr": cfg.optim.lr,
         "weight_decay": cfg.optim.weight_decay,
-        "lr_critic": cfg.optim.lr_critic,
     }
     common_kwargs["lr_scheduler"] = cfg.optim.lr_scheduler
 
@@ -121,6 +124,11 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
     common_kwargs["lr_scheduler_kwargs"] = scheduler_kwargs
     common_kwargs["baseline"] = cfg.rl.baseline
+
+    # Clean up common_kwargs to avoid passing unexpected args to LightningModule
+    # some algorithm specific args might be in cfg.rl but not in common_kwargs base
+    for key in ["lr_critic", "lr_critic_value"]:
+        common_kwargs.pop(key, None)
 
     if cfg.rl.algorithm == "ppo":
         from logic.src.models.policies.critic import create_critic_from_actor
@@ -223,30 +231,34 @@ def create_model(cfg: Config) -> pl.LightningModule:
         from logic.src.pipeline.rl.core.imitation import ImitationLearning
 
         # Determine expert
-        expert_name = cfg.rl.get("expert", "hgs")
+        expert_name = cfg.rl.get("imitation_mode", "hgs")
         expert_policy = None
         if expert_name == "hgs":
             expert_policy = HGSPolicy(env_name=cfg.env.name)
         elif expert_name == "alns":
             expert_policy = ALNSPolicy(env_name=cfg.env.name)
-        elif expert_name == "random_ls":
+        elif expert_name in ["random_ls", "2opt"]:
             expert_policy = RandomLocalSearchPolicy(
-                env_name=cfg.env.name, n_iterations=cfg.rl.random_ls_iterations, op_probs=cfg.rl.random_ls_op_probs
+                env_name=cfg.env.name,
+                n_iterations=cfg.rl.random_ls_iterations,
+                op_probs=cfg.rl.random_ls_op_probs,
             )
 
         model = ImitationLearning(expert_policy=expert_policy, expert_name=expert_name, **common_kwargs)
     elif cfg.rl.algorithm == "adaptive_imitation":
         from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
 
-        expert_name = cfg.rl.get("expert", "hgs")
+        expert_name = cfg.rl.get("imitation_mode", "hgs")
         expert_policy = None
         if expert_name == "hgs":
             expert_policy = HGSPolicy(env_name=cfg.env.name)
         elif expert_name == "alns":
             expert_policy = ALNSPolicy(env_name=cfg.env.name)
-        elif expert_name == "random_ls":
+        elif expert_name in ["random_ls", "2opt"]:
             expert_policy = RandomLocalSearchPolicy(
-                env_name=cfg.env.name, n_iterations=cfg.rl.random_ls_iterations, op_probs=cfg.rl.random_ls_op_probs
+                env_name=cfg.env.name,
+                n_iterations=cfg.rl.random_ls_iterations,
+                op_probs=cfg.rl.random_ls_op_probs,
             )
 
         model = AdaptiveImitation(
@@ -257,7 +269,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
             **common_kwargs,
         )
     else:
-        model = REINFORCE(baseline=cfg.rl.baseline, **common_kwargs)
+        model = REINFORCE(**common_kwargs)
 
     if getattr(cfg.rl, "use_meta", False):
         model = MetaRLModule(
@@ -285,7 +297,7 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
                 key,
                 range_val[0],
                 range_val[1],
-                log=True if range_val[0] > 0 and range_val[1] / range_val[0] > 10 else False,
+                log=(True if range_val[0] > 0 and range_val[1] / range_val[0] > 10 else False),
             )
         elif isinstance(range_val[0], int):
             val = trial.suggest_int(key, range_val[0], range_val[1])
@@ -321,7 +333,10 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
     except optuna.exceptions.TrialPruned:
         raise
     except Exception as e:
+        import traceback
+
         logger.error(f"Trial failed: {e}")
+        logger.error(traceback.format_exc())
         return float("-inf")
 
 
@@ -390,7 +405,7 @@ def run_training(cfg: Config) -> float:
         experiment_name=cfg.experiment_name,
         accelerator=cfg.device if cfg.device != "cuda" else "auto",
         devices=1 if cfg.device == "cuda" else "auto",
-        gradient_clip_val=float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0,
+        gradient_clip_val=(float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0),
         logger=CSVLogger("logs", name="lightning_logs"),
         callbacks=[SpeedMonitor(epoch_time=True)],
         precision=cfg.train.precision,

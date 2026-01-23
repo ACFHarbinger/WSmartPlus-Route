@@ -186,13 +186,12 @@ test-marker:
 lint:
 	$(call print_header)
 	@echo -e "$(BLUE)🔍 Linting with ruff...$(NC)"
-	$(UV) run ruff check .
+	$(UV) run ruff check . --fix --exclude ".venv"
 
 format:
 	$(call print_header)
 	@echo -e "$(BLUE)✨ Formatting with black & ruff...$(NC)"
-	$(UV) run ruff format .
-	$(UV) run black .
+	$(UV) run ruff format . --exclude ".venv"
 
 # --- Maintenance ---
 

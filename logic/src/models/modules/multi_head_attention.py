@@ -1,6 +1,7 @@
 """
 Multi-Head Attention module for transformer-based models.
 """
+
 from __future__ import annotations
 
 import math
@@ -64,7 +65,10 @@ class MultiHeadAttention(nn.Module):
                 param.data.uniform_(-stdv, stdv)
 
     def forward(
-        self, q: torch.Tensor, h: Optional[torch.Tensor] = None, mask: Optional[torch.Tensor] = None
+        self,
+        q: torch.Tensor,
+        h: Optional[torch.Tensor] = None,
+        mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Computes the multi-head attention.

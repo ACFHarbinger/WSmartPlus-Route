@@ -2,12 +2,17 @@
 SymNCO algorithm implementation.
 Based on Kim et al. (2022) and Adapted from RL4CO.
 """
+
 from __future__ import annotations
 
 from tensordict import TensorDict
 
 from logic.src.pipeline.rl.core.pomo import POMO
-from logic.src.utils.losses import invariance_loss, problem_symmetricity_loss, solution_symmetricity_loss
+from logic.src.utils.losses import (
+    invariance_loss,
+    problem_symmetricity_loss,
+    solution_symmetricity_loss,
+)
 
 
 class SymNCO(POMO):
@@ -65,7 +70,12 @@ class SymNCO(POMO):
             td = self.augmentation(td)
 
         # Run policy (must return init_embeds or proj_embeddings)
-        out = self.policy(td, self.env, decode_type="sampling" if phase == "train" else "greedy", num_starts=n_start)
+        out = self.policy(
+            td,
+            self.env,
+            decode_type="sampling" if phase == "train" else "greedy",
+            num_starts=n_start,
+        )
 
         # reward: [batch, n_aug, n_start]
         reward = out["reward"].view(bs, n_aug, n_start)

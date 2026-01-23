@@ -161,15 +161,15 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
         fi
 
         uv run python main.py train_lightning \
-            experiment=hpo \
-            env.name="$PROBLEM" \
-            model.name="$ACTUAL_MODEL_NAME" \
-            model.encoder_type="$ACTUAL_ENCODER_TYPE" \
+            +experiment=hpo \
+            env.name="'$PROBLEM'" \
+            model.name="'$ACTUAL_MODEL_NAME'" \
+            model.encoder_type="'$ACTUAL_ENCODER_TYPE'" \
             hpo.n_epochs_per_trial="$H_EPOCHS" \
-            env.waste_type="$WTYPE" \
-            env.data_distribution="$D_DIST" \
+            env.waste_type="'$WTYPE'" \
+            env.data_distribution="'$D_DIST'" \
             train.n_epochs="$EPOCHS" \
-            env.vertex_method="$VERTEX_M" \
+            env.vertex_method="'$VERTEX_M'" \
             hpo.eta="$ETA" \
             hpo.mutpb="$MUTPB" \
             train.batch_size="$B_SIZE" \
@@ -177,32 +177,32 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             train.val_data_size="$N_VAL_DATA" \
             model.temporal_horizon="${H_VAL}" \
             train.train_time=true \
-            train.val_dataset="$T_DATASET" \
-            model.normalization="$NORM" \
+            train.val_dataset="'$T_DATASET'" \
+            model.normalization="'$NORM'" \
             model.embed_dim="$EMBED_DIM" \
             hpo.cxpb="$CXPB" \
-            env.area="$AREA" \
-            model.activation="$ACTIVATION" \
+            env.area="'$AREA'" \
+            model.activation="'$ACTIVATION'" \
             model.num_encoder_layers="$N_ENC_L" \
-            optim.optimizer="$OPTIM" \
+            optim.optimizer="'$OPTIM'" \
             model.hidden_dim="$HIDDEN_DIM" \
             env.num_loc="$SIZE" \
             no_tensorboard=true \
             hpo.hop_range="[${RANGE[0]}, ${RANGE[1]}]" \
             hpo.fevals="$FEVALS" \
-            hpo.metric="$METRIC" \
+            hpo.metric="'$METRIC'" \
             hpo.n_pop="$N_POP" \
             env.focus_size="$F_SIZE" \
             env.eval_focus_size="$VAL_F_SIZE" \
-            env.focus_graph="$FOCUS_GRAPH" \
+            env.focus_graph="'$FOCUS_GRAPH'" \
             rl.exp_beta="$EXP_BETA" \
-            optim.lr_scheduler="$LR_SCHEDULER" \
+            optim.lr_scheduler="'$LR_SCHEDULER'" \
             optim.lr_decay="$LR_DECAY" \
             optim.lr="$LR_MODEL" \
             rl.lr_critic_value="$LR_CV" \
             model.dropout="$DROPOUT" \
             train.eval_batch_size="$VAL_B_SIZE" \
-            model.aggregation_graph="$AGG_G" \
+            model.aggregation_graph="'$AGG_G'" \
             rl.max_grad_norm="$MAX_NORM" \
             train.accumulation_steps="$ACC_STEPS" \
             seed="$SEED" \
@@ -211,7 +211,7 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             env.collection_reward="$W_WASTE" \
             env.overflow_penalty="$W_OVER" \
             train.epoch_start="$START" \
-            wandb_mode="$WB_MODE" \
+            wandb_mode="'$WB_MODE'" \
             $EXTRA_ARGS;
 
         if [ "$VERBOSE" = false ]; then

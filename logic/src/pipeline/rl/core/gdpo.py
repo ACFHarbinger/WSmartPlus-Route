@@ -4,6 +4,7 @@ GDPO: Group reward-Decoupled Normalization Policy Optimization.
 This module implements the GDPO algorithm which normalizes reward components
 independently before aggregation to prevent reward collapse in multi-objective RL.
 """
+
 from typing import TYPE_CHECKING, List, Optional
 
 import torch
@@ -53,9 +54,9 @@ class GDPO(REINFORCE):
         if self.objective_weights is None:
             self.objective_weights = [1.0] * len(self.objective_keys)
 
-        assert len(self.objective_weights) == len(self.objective_keys), (
-            f"Weights length {len(self.objective_weights)} != " f"Objectives length {len(self.objective_keys)}"
-        )
+        assert len(self.objective_weights) == len(
+            self.objective_keys
+        ), f"Weights length {len(self.objective_weights)} != Objectives length {len(self.objective_keys)}"
 
         self.register_buffer("weights_tensor", torch.tensor(self.objective_weights, dtype=torch.float32))
 
@@ -142,6 +143,10 @@ class GDPO(REINFORCE):
         self.log("train/gdpo_advantage_mean", aggregated_advantage.mean(), sync_dist=True)
         for i, key in enumerate(self.objective_keys):
             self.log(f"train/gdpo_{key}_raw_mean", raw_rewards[:, i].mean(), sync_dist=True)
-            self.log(f"train/gdpo_{key}_norm_std", normalized_advantages[:, i].std(), sync_dist=True)
+            self.log(
+                f"train/gdpo_{key}_norm_std",
+                normalized_advantages[:, i].std(),
+                sync_dist=True,
+            )
 
         return loss

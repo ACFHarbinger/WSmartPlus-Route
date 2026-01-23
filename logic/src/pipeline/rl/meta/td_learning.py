@@ -2,6 +2,7 @@
 Cost Weight Manager using Temporal Difference (TD) Learning.
 Robust implementation for adaptive multi-objective weight management.
 """
+
 from __future__ import annotations
 
 import random
@@ -55,7 +56,12 @@ class CostWeightManager(WeightAdjustmentStrategy):
         if initial_weights and isinstance(initial_weights, dict):
             self.weights = initial_weights.copy()
         else:
-            self.weights = {"w_lost": 1.0, "w_waste": 1.0, "w_length": 0.05, "w_overflows": 5.0}
+            self.weights = {
+                "w_lost": 1.0,
+                "w_waste": 1.0,
+                "w_length": 0.05,
+                "w_overflows": 5.0,
+            }
 
         # Handle weight_ranges list from old API
         if "weight_ranges" in kwargs and isinstance(kwargs["weight_ranges"], list):
@@ -157,7 +163,12 @@ class CostWeightManager(WeightAdjustmentStrategy):
         self.values[self.last_state] = new_val
 
         self.history.append(
-            {"state": self.last_state, "reward": reward, "value": new_val, "weights": self.weights.copy()}
+            {
+                "state": self.last_state,
+                "reward": reward,
+                "value": new_val,
+                "weights": self.weights.copy(),
+            }
         )
 
         # Decrease epsilon over time

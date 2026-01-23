@@ -1,6 +1,7 @@
 """
 Soft Adaptive Policy Optimization (SAPO) algorithm.
 """
+
 from __future__ import annotations
 
 import torch

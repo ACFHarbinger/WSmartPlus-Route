@@ -2,6 +2,7 @@
 Epoch-level utilities for RL training.
 Includes expanded dataset handling and validation metric computation.
 """
+
 from typing import Dict, Optional
 
 import torch
@@ -13,7 +14,12 @@ from logic.src.data.datasets import GeneratorDataset
 
 
 def prepare_epoch(
-    model: nn.Module, env: any, baseline: any, dataset: Dataset, epoch: int, phase: str = "train"
+    model: nn.Module,
+    env: any,
+    baseline: any,
+    dataset: Dataset,
+    epoch: int,
+    phase: str = "train",
 ) -> Dataset:
     """
     Prepare dataset for a new epoch.

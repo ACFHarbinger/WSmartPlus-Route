@@ -5,6 +5,7 @@ Implements a Manager-Worker architecture:
 - Manager: GATLSTManager (decides if/what to collect)
 - Worker: ConstructivePolicy (decides the route)
 """
+
 from __future__ import annotations
 
 import pytorch_lightning as pl

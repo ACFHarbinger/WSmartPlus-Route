@@ -256,7 +256,10 @@ class VectorizedALNS:
 
             # 4. Evaluate
             _, candidate_costs = vectorized_linear_split(
-                candidate_solutions, self.dist_matrix, self.demands, self.vehicle_capacity
+                candidate_solutions,
+                self.dist_matrix,
+                self.demands,
+                self.vehicle_capacity,
             )
 
             # 5. Accept/Reject

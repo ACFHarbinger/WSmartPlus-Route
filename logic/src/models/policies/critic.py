@@ -1,6 +1,7 @@
 """
 Critic Network for RL4CO.
 """
+
 from __future__ import annotations
 
 import copy
