@@ -40,6 +40,9 @@ class TrainConfig:
     checkpoint_encoder: bool = False
     load_path: Optional[str] = None
     resume: Optional[str] = None
+    logs_dir: Optional[str] = None
+    model_weights_path: Optional[str] = None
+    final_model_path: Optional[str] = None
     eval_batch_size: int = 256
     persistent_workers: bool = True
     pin_memory: bool = False

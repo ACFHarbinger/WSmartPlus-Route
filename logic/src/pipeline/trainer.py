@@ -38,16 +38,18 @@ class WSTrainer(pl.Trainer):
         callbacks: Optional[list[Callback]] = None,
         logger: Optional[Union[Logger, bool]] = None,
         enable_progress_bar: bool = True,
+        model_weights_path: Optional[str] = None,
+        logs_dir: Optional[str] = None,
         **kwargs,
     ):
         """Initialize WSTrainer."""
         # Build callbacks
         callbacks = callbacks or []
-        callbacks = self._add_default_callbacks(callbacks, enable_progress_bar)
+        callbacks = self._add_default_callbacks(callbacks, enable_progress_bar, model_weights_path)
 
         # Build logger
         if logger is None:
-            logger = self._create_default_logger(project_name, experiment_name)
+            logger = self._create_default_logger(project_name, experiment_name, logs_dir)
 
         super().__init__(
             max_epochs=max_epochs,
@@ -65,14 +67,17 @@ class WSTrainer(pl.Trainer):
         self,
         callbacks: list[Callback],
         enable_progress_bar: bool,
+        model_weights_path: Optional[str] = None,
     ) -> list[Callback]:
         """Add default callbacks if not present."""
         callback_types = {type(c) for c in callbacks}
 
         # Add checkpoint callback
         if ModelCheckpoint not in callback_types:
+            dirpath = model_weights_path if model_weights_path else "checkpoints"
             callbacks.append(
                 ModelCheckpoint(
+                    dirpath=dirpath,
                     monitor="val/reward",
                     mode="max",
                     save_top_k=3,
@@ -91,6 +96,7 @@ class WSTrainer(pl.Trainer):
         self,
         project_name: str,
         experiment_name: Optional[str],
+        logs_dir: Optional[str] = None,
     ) -> Logger:
         """Create default WandB logger."""
         try:
@@ -103,4 +109,4 @@ class WSTrainer(pl.Trainer):
             # Fall back to TensorBoard if WandB not available
             from pytorch_lightning.loggers import TensorBoardLogger
 
-            return TensorBoardLogger("lightning_logs", name=experiment_name)
+            return TensorBoardLogger(logs_dir or "logs", name="")

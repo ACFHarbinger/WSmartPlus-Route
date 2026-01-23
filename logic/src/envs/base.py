@@ -67,6 +67,11 @@ class RL4COEnvBase(EnvBase):
             if self.generator is None:
                 raise ValueError("Either provide td or set a generator for the environment")
             td = self.generator(batch_size or self.batch_size)
+        else:
+            # TorchRL requires out-of-place updates for reset
+            # So we clone the structure (and data if needed, but shallow copy of dict + tensor ref is usually enough if we don't modify tensors in-place in a way that affects original)
+            # However, safe bet is to clone.
+            td = td.clone()
 
         # Move to device
         td = td.to(self.device)
