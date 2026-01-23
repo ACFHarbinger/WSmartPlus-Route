@@ -17,7 +17,7 @@ import torch
 from logic.src.cli.base_parser import ConfigsParser
 from logic.src.cli.data_parser import add_gen_data_args, validate_gen_data_args
 from logic.src.data.builders import VRPInstanceBuilder
-from logic.src.utils.data_utils import check_extension, save_dataset
+from logic.src.utils.data_utils import check_extension, save_dataset, save_td_dataset
 from logic.src.utils.definitions import ROOT_DIR
 
 
@@ -150,13 +150,13 @@ def generate_datasets(opts):
 
                     elif opts["dataset_type"] == "train_time":
                         builder.set_num_days(opts["n_epochs"])
-                        # Note: original code used num_days=opts['n_epochs'] for train_time
 
                         if "filename" not in opts or opts["filename"] is None:
+                            ext = ".td"
                             if opts.get("mu", None) is not None:
                                 filename = os.path.join(
                                     datadir,
-                                    "{}{}{}_{}{}_seed{}_{}_{}.pkl".format(
+                                    "{}{}{}_{}{}_seed{}_{}_{}{}".format(
                                         problem,
                                         size,
                                         "_{}".format(dist) if dist is not None else "",
@@ -165,41 +165,43 @@ def generate_datasets(opts):
                                         opts["seed"],
                                         f"gaussian{opts['mu']}",
                                         f"_{opts['sigma']}",
+                                        ext,
                                     ),
                                 )
                             else:
                                 filename = os.path.join(
                                     datadir,
-                                    "{}{}{}_{}{}_seed{}.pkl".format(
+                                    "{}{}{}_{}{}_seed{}{}".format(
                                         problem,
                                         size,
                                         "_{}".format(dist) if dist is not None else "",
                                         opts["name"],
                                         n_days if n_days > 1 else "",
                                         opts["seed"],
+                                        ext,
                                     ),
                                 )
                         else:
-                            filename = check_extension(opts["filename"])
+                            filename = check_extension(opts["filename"], ".td")
 
                         assert opts.get("f", opts.get("overwrite", False)) or not os.path.isfile(
-                            check_extension(filename)
+                            check_extension(filename, ".td")
                         ), "File already exists! Try running with -f option to overwrite."
 
-                        dataset = builder.build()
-                        save_dataset(dataset, filename)
+                        dataset = builder.build_td()
+                        save_td_dataset(dataset, filename)
                     else:
                         assert opts["dataset_type"] == "train"
-                        # So for 'train', we generate 1 day per epoch file.
                         builder.set_num_days(1)
 
                         for epoch in range(opts["epoch_start"], opts["n_epochs"]):
                             print("- Generating epoch {} data".format(epoch))
                             if "filename" not in opts or opts["filename"] is None:
+                                ext = ".td"
                                 if opts.get("mu", None) is not None:
                                     filename = os.path.join(
                                         datadir,
-                                        "{}{}{}_{}{}_seed{}_{}_{}.pkl".format(
+                                        "{}{}{}_{}{}_seed{}_{}_{}{}".format(
                                             problem,
                                             size,
                                             ("_{}".format(dist) if dist is not None else ""),
@@ -208,29 +210,31 @@ def generate_datasets(opts):
                                             opts["seed"],
                                             f"gaussian{opts['mu']}",
                                             f"_{opts['sigma']}",
+                                            ext,
                                         ),
                                     )
                                 else:
                                     filename = os.path.join(
                                         datadir,
-                                        "{}{}{}_{}{}_seed{}.pkl".format(
+                                        "{}{}{}_{}{}_seed{}{}".format(
                                             problem,
                                             size,
                                             ("_{}".format(dist) if dist is not None else ""),
                                             opts["name"],
                                             epoch if opts["n_epochs"] > 1 else "",
                                             opts["seed"],
+                                            ext,
                                         ),
                                     )
                             else:
-                                filename = check_extension(opts["filename"])
+                                filename = check_extension(opts["filename"], ".td")
 
                             assert opts.get("f", opts.get("overwrite", False)) or not os.path.isfile(
-                                check_extension(filename)
+                                check_extension(filename, ".td")
                             ), "File already exists! Try running with -f option to overwrite."
 
-                            dataset = builder.build()
-                            save_dataset(dataset, filename)
+                            dataset = builder.build_td()
+                            save_td_dataset(dataset, filename)
         except Exception as e:
             has_dists = len(distributions) >= 1 and distributions[0] is not None
             raise Exception(
