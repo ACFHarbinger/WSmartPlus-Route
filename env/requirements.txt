@@ -2,7 +2,7 @@
 torch==2.8.0
 torch-geometric==2.6.1
 torch-tb-profiler==0.4.3
-torchaudio==2.9.1
+torchaudio==2.10.0
 torchvision==0.23.0
 
 # Install Operations Research software
@@ -10,7 +10,7 @@ ortools==9.15.6755
 fast_tsp==0.1.4
 
 # Install other dependencies
-setuptools==80.9.0
+setuptools==80.10.1
 
 # Install OS-specific requirements
 pefile==2024.8.26; sys_platform == 'win32'
@@ -36,7 +36,7 @@ appdirs==1.4.4
 asttokens==3.0.1
 async-timeout==5.0.1
 attrs==25.4.0
-blessed==1.25.0
+blessed==1.27.0
 branca==0.8.2
 Brotli==1.2.0
 cachetools==6.2.4
@@ -141,14 +141,14 @@ nbformat==5.10.4
 nest_asyncio==1.6.0
 networkx==3.2.1
 numpy==2.0.2
-nvidia-ml-py==13.590.44
+nvidia-ml-py==13.590.48
 opencensus==0.11.4
 opencensus-context==0.1.3
 openrouteservice==2.3.3
 openpyxl==3.1.5
-optuna==4.6.0
+optuna==4.7.0
 osmnx==2.0.7
-packaging==25.0
+packaging==26.0
 pandas==2.3.3
 parso==0.8.5
 partd==1.4.2
@@ -176,10 +176,10 @@ pydantic==2.12.5
 pydantic_core==2.41.5
 Pygments==2.19.2
 pyinstaller==6.18.0
-pyinstaller-hooks-contrib==2025.11
+pyinstaller-hooks-contrib==2026.0
 pyogrio==0.11.1
 pyOpenSSL==25.3.0
-pyparsing==3.3.1
+pyparsing==3.3.2
 pyproj==3.6.1
 PySide6==6.10.1
 PySocks==1.7.1
@@ -206,7 +206,7 @@ scikit-image==0.24.0
 scikit-learn==1.6.1
 scipy==1.13.1
 seaborn==0.13.2
-sentry-sdk==2.49.0
+sentry-sdk==2.50.0
 setproctitle==1.3.7
 shapely==2.0.7
 shellingham==1.5.4
@@ -217,7 +217,7 @@ smmap==5.0.2
 sniffio==1.3.1
 snuggs==1.4.7
 sortedcontainers==2.4.0
-SQLAlchemy==2.0.45
+SQLAlchemy==2.0.46
 stack_data==0.6.3
 starlette==0.49.3
 statsmodels==0.14.6
@@ -247,10 +247,10 @@ uvicorn==0.39.0
 virtualenv==20.36.1
 wandb==0.24.0
 watchfiles==1.1.1
-wcwidth==0.2.14
+wcwidth==0.3.1
 websockets==15.0.1
 Werkzeug==3.1.5
-wheel==0.45.1
+wheel==0.46.3
 wrapt==2.0.1
 xyzservices==2025.11.0
 yarl==1.22.0
