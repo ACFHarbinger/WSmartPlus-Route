@@ -80,10 +80,157 @@ class BaseProblem:
         state = cls.make_state(input, cost_weights=cost_weights, **kwargs)
         return beam_search_func(state, beam_size, propose_expansions)
 
-    @staticmethod
-    def make_state(*args, **kwargs):
-        """Should be overridden."""
-        raise NotImplementedError
+    @classmethod
+    def make_state(
+        cls, input_data: Any, edges: Any = None, cost_weights: Any = None, dist_matrix: Any = None, **kwargs: Any
+    ) -> Any:
+        """
+        Bridge to RL4CO environments.
+        Initializes a TensorDict from the input and returns a state wrapper.
+        """
+        from tensordict import TensorDict
+
+        from logic.src.envs import get_env
+        from logic.src.models.policies.utils import TensorDictStateWrapper
+
+        env_name = cls.NAME
+
+        if isinstance(input_data, dict):
+            # Determine batch size from typical batched tensors
+            bs = 1
+            device = torch.device("cpu")
+            for k in ["loc", "locs", "waste", "prize", "demand"]:
+                if k in input_data and torch.is_tensor(input_data[k]):
+                    bs = input_data[k].size(0)
+                    device = input_data[k].device
+                    break
+
+            # Initialize environment (lazy loading or re-use could be better but this is safe)
+            # We pass any extra args like cost weights if needed, though get_reward handles it usually
+            env = get_env(env_name, batch_size=torch.Size([bs]), device=device)
+
+            # Create TensorDict, unsqueezing non-batched tensors if needed
+            td_data = {}
+            for k, v in input_data.items():
+                if torch.is_tensor(v):
+                    # Key mapping for simulator compatibility
+                    target_key = k
+                    if k == "loc":
+                        target_key = "locs"
+                    elif k == "waste":
+                        # In new RL4CO envs: VRPP uses 'prize', WCVRP uses 'demand'
+                        if env_name in ["vrpp", "cvrpp"]:
+                            target_key = "prize"
+                        else:
+                            target_key = "demand"
+
+                    if v.dim() >= 1 and v.size(0) == bs:
+                        td_data[target_key] = v
+                    elif v.dim() >= 2:  # Potentially a shared matrix like 'dist'
+                        td_data[target_key] = v.unsqueeze(0).expand(bs, *([-1] * v.dim()))
+                    else:
+                        # Scalar or weird shape, try to expand
+                        td_data[target_key] = (
+                            v.expand(bs, *([-1] * v.dim())) if v.dim() > 0 else v.unsqueeze(0).expand(bs)
+                        )
+                else:
+                    td_data[k] = v
+
+            td = TensorDict(td_data, batch_size=[bs], device=device)
+        elif isinstance(input_data, TensorDict):
+            td = input_data
+            bs = td.batch_size[0] if len(td.batch_size) > 0 else 1
+            env = get_env(env_name, batch_size=torch.Size([bs]), device=td.device)
+        else:
+            # Fallback for weird cases
+            td = TensorDict({}, batch_size=[1])
+            env = get_env(env_name, batch_size=torch.Size([1]))
+
+        # Ensure 'dist' and 'edges' are present and correctly shaped
+        if "dist" not in td.keys() and dist_matrix is not None:
+            if dist_matrix.dim() == 2:
+                td["dist"] = dist_matrix.unsqueeze(0).expand(td.batch_size[0], -1, -1)
+            else:
+                td["dist"] = dist_matrix
+        if "edges" not in td.keys() and edges is not None:
+            if edges.dim() == 2:
+                td["edges"] = edges.unsqueeze(0).expand(td.batch_size[0], -1, -1)
+            else:
+                td["edges"] = edges
+
+        # Consolidate 'locs' logic: usually we concatenate depot and nodes
+        # If we have both 'locs' (customers) and 'depot', we must concatenate them to form the full graph for the environment
+        if "depot" in td.keys() and "locs" in td.keys():
+            depot = td["depot"]
+            locs = td["locs"]
+
+            # Check if locs likely excludes depot (e.g., simpler dimension check or if it matches raw 'loc' size)
+            # We assume if separate depot is provided, locs usually contains just customers (standard VRP lib format)
+            # To be safe, we check tensor dimensions.
+            # depot: (B, 2) or (B, 1, 2). locs: (B, N, 2).
+            # If we align them:
+            if depot.dim() == locs.dim() and depot.dim() == 3:
+                pass  # shapes match (B, 1, 2) and (B, N, 2)
+            elif depot.dim() == 2 and locs.dim() == 3:
+                depot = depot.unsqueeze(1)
+
+            # Now depot is (B, 1, 2). locs is (B, N, 2).
+            # If N=100 (customers). We want 101.
+            # If locs was 101, it might already include depot.
+            # But the simulation passed 'loc' which was mapped to 'locs'. And simulation 'loc' excludes depot.
+            # So we ALWAYS concatenate if we came from that path.
+            # We can rely on the fact that we just created TD from input_data.
+
+            # Update locs
+            td["locs"] = torch.cat([depot, locs], dim=1)
+
+            # Update demand/prize
+            target_key = "prize" if env_name in ["vrpp", "cvrpp"] else "demand"
+            if target_key in td.keys():
+                dem = td[target_key]
+                # Prepend 0 for depot
+                zero_dem = torch.zeros(td.batch_size[0], 1, device=td.device)
+                td[target_key] = torch.cat([zero_dem, dem], dim=1)
+
+        # Final check for environment-specific required keys
+        if "locs" not in td.keys() and "loc" in td.keys():
+            td["locs"] = td["loc"]
+
+        # Ensure capacity is present
+        if "capacity" not in td.keys():
+            # Try to get from profit_vars (simulation) or kwargs
+            profit_vars = kwargs.get("profit_vars")
+            if profit_vars and "vehicle_capacity" in profit_vars:
+                # WCVRP uses 'capacity'
+                td["capacity"] = torch.full((td.batch_size[0],), profit_vars["vehicle_capacity"], device=td.device)
+            elif "vehicle_capacity" in kwargs:
+                td["capacity"] = torch.full((td.batch_size[0],), kwargs["vehicle_capacity"], device=td.device)
+            else:
+                # Default capacity if not provided (e.g. VRPP might not strictly need it for env init but WCVRP does)
+                # For WCVRP, we usually normalize demand so capacity is 1.0, but simulation might use real values (e.g. 70, 100)
+                # If we don't have it, we default to 1.0 (assuming normalized)
+                if env_name in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
+                    td["capacity"] = torch.ones(td.batch_size[0], device=td.device)
+
+        # TorchRL requires reset to return a NEW TensorDict (out-of-place)
+        # We clone the input data to a new TensorDict to ensure we don't modify the input in-place in a way that upsets TorchRL
+        # Actually, env.reset often expects to populate a fresh TD or modify one.
+        # The error says: "EnvBase._reset should return outplace changes to the input tensordict."
+        # This means we should probably pass a fresh TD or rely on reset to return one.
+        # But we need to pass the problem data (locs, demands) to reset so it can generate the state.
+        # If we pass `td`, reset uses it.
+        # The issue might be that `td` is sharing storage or something?
+        # TorchRL requires reset to return a NEW TensorDict (out-of-place)
+        # We must populate the new TensorDict with the problem definition so reset can use it
+        # to generate the initial state (e.g. current_node, visited mask).
+        td_reset = TensorDict(
+            source={k: v for k, v in td.items()},
+            batch_size=td.batch_size,
+            device=td.device,
+        )
+        td = env.reset(td_reset)
+
+        return TensorDictStateWrapper(td, env_name, env=env)
 
 
 class VRPP(BaseProblem):

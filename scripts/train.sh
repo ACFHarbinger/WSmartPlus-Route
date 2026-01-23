@@ -78,6 +78,8 @@ ACC_STEPS=1
 N_WORKERS=8
 PERSISTENT_WORKERS=true
 PIN_MEMORY=true
+LOGS_DIR="logs"
+MODEL_WEIGHTS_PATH="model_weights"
 
 IMITATION_W=1.0
 IMITATION_DECAY=0.91
@@ -138,6 +140,7 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
         M_NAME="${MODEL_NAMES[m_idx]}"
         E_NAME="${MODEL_ENCODERS[m_idx]}"
         H_VAL="${HORIZON[m_idx]}"
+        FINAL_MODEL_PATH="assets/${MODEL_WEIGHTS_PATH}/${PROBLEM}${SIZE}_${AREA}_${WTYPE}/${DATA_DIST}/${M_NAME}${E_NAME}${H_VAL}/epoch-$((TOTAL_EPOCHS-1)).pt"
 
         echo ""
         echo -e "${BLUE}===== [TRAIN] ${M_NAME} model with ${E_NAME} encoder =====${NC}"
@@ -239,6 +242,9 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             train.num_workers="$N_WORKERS" \
             train.persistent_workers="$PERSISTENT_WORKERS" \
             train.pin_memory="$PIN_MEMORY" \
+            train.logs_dir="'$LOGS_DIR'" \
+            train.model_weights_path="'$MODEL_WEIGHTS_PATH'" \
+            train.final_model_path="'$FINAL_MODEL_PATH'" \
             hpo.n_trials=0 \
             $EXTRA_ARGS;
 
