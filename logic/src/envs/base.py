@@ -89,11 +89,14 @@ class RL4COEnvBase(EnvBase):
         """
         Execute action and return new state as 'next' entry.
         """
-        # Copy to avoid cycles and in-place modification of the original state
-        td = td.copy()
+        # Copy and clean to avoid cycles
+        td_next = td.copy()
+        for key in ["next", "reward", "done"]:
+            if key in td_next.keys():
+                del td_next[key]
 
         # Execute problem-specific step
-        td_next = self._step_instance(td)
+        td_next = self._step_instance(td_next)
 
         # Update common fields in the next state
         td_next["i"] = td["i"] + 1

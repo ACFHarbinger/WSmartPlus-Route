@@ -12,7 +12,11 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 # Paths
 path: Path = Path(os.getcwd())
 parts: tuple[str, ...] = path.parts
-ROOT_DIR: Path = Path(*parts[: parts.index("WSmart-Route") + 1])
+try:
+    root_dir = Path(*parts[: parts.index("WSmart-Route") + 1])
+except ValueError:
+    root_dir = Path(*parts[: parts.index("WSmartPlus-Route") + 1])
+ROOT_DIR: Path = root_dir
 ICON_FILE: str = os.path.join(ROOT_DIR, "assets", "images", "logo-wsmartroute-white.png")
 
 # Multi-core processing settings
