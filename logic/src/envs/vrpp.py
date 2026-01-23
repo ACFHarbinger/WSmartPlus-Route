@@ -53,16 +53,10 @@ class VRPPEnv(RL4COEnvBase):
         self.prize_weight = prize_weight
         self.cost_weight = cost_weight
 
-    def _reset(self, td: TensorDict, batch_size: Optional[Union[int, list[int], tuple[int, ...]]] = None) -> TensorDict:
+    def _reset_instance(self, td: TensorDict) -> TensorDict:
         """Initialize VRPP episode state."""
         device = td.device
-        if batch_size is None:
-            bs = td.batch_size
-        elif isinstance(batch_size, int):
-            bs = (batch_size,)
-        else:
-            bs = tuple(batch_size)
-
+        bs = td.batch_size
         num_nodes = td["locs"].shape[-2]
 
         # Initialize state fields
@@ -75,12 +69,9 @@ class VRPPEnv(RL4COEnvBase):
         td["tour_length"] = torch.zeros(*bs, device=device)
         td["collected_prize"] = torch.zeros(*bs, device=device)
 
-        # Step counter
-        td["i"] = torch.zeros(*bs, 1, dtype=torch.long, device=device)
-
         return td
 
-    def _step(self, td: TensorDict) -> TensorDict:
+    def _step_instance(self, td: TensorDict) -> TensorDict:
         """Execute action and update state."""
         action = td["action"]
         current = td["current_node"].squeeze(-1)
@@ -108,9 +99,6 @@ class VRPPEnv(RL4COEnvBase):
 
         # Append to tour
         td["tour"] = torch.cat([td["tour"], action.unsqueeze(-1)], dim=-1)
-
-        # Increment step counter
-        td["i"] = td["i"] + 1
 
         return td
 

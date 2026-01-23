@@ -243,11 +243,27 @@ class RLConfig:
     meta_history_length: int = 10
     mrl_exploration_factor: float = 2.0
     mrl_range: List[float] = field(default_factory=lambda: [0.01, 5.0])
+    mrl_batch_size: int = 256
+    mrl_step: int = 10
 
     # HRL
     hrl_threshold: float = 0.9
     hrl_epochs: int = 4
     hrl_clip_eps: float = 0.2
+    hrl_pid_target: float = 0.0003
+    hrl_lambda_waste: float = 300.0
+    hrl_lambda_cost: float = 0.5
+    hrl_lambda_overflow_initial: float = 2000.0
+    hrl_lambda_overflow_min: float = 100.0
+    hrl_lambda_overflow_max: float = 5000.0
+    hrl_lambda_pruning: float = 0.5
+    hrl_lambda_mask_aux: float = 5.0
+    hrl_entropy_coef: float = 0.01
+    shared_encoder: bool = True
+    gat_hidden_dim: int = 128
+    lstm_hidden_dim: int = 64
+    gate_prob_threshold: float = 0.5
+    lr_critic_value: float = 1e-4
 
     # Contextual Bandits
     cb_exploration_method: str = "ucb"
