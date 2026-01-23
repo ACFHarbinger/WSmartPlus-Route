@@ -6,6 +6,8 @@ handling coordinate normalization, demand scaling, and feature extraction.
 """
 
 import numpy as np
+import torch
+from tensordict import TensorDict
 
 from logic.src.pipeline.simulations.bins import Bins
 from logic.src.pipeline.simulations.processor import process_coordinates
@@ -125,59 +127,10 @@ class VRPInstanceBuilder:
                   - waste (list): Waste levels (or demand) for nodes.
                   - max_waste (float): Maximum capacity or waste limit.
         """
-        if self._focus_graph is not None:
-            assert self._focus_size > 0, "Focus size must be positive when using focus graph"
-
-            # Load focus coordinates
-            depot, loc, mm_arr, idx = load_focus_coords(
-                self._problem_size,
-                self._method,
-                self._area,
-                self._waste_type,
-                self._focus_graph,
-                self._focus_size,
-            )
-
-            # Generate remaining random coordinates
-            remaining_coords_size = self._dataset_size - self._focus_size
-            if remaining_coords_size > 0:
-                random_coords = np.random.uniform(
-                    mm_arr[0],
-                    mm_arr[1],
-                    size=(
-                        remaining_coords_size,
-                        self._problem_size + 1,
-                        mm_arr.shape[-1],
-                    ),
-                )
-                depots, locs = process_coordinates(random_coords, self._method, col_names=None)
-                depot = np.concatenate((depot, depots))
-                loc = np.concatenate((loc, locs))
-
-            assert depot.shape[-1] == loc.shape[-1] and depot.shape[0] == loc.shape[0]
-
-            # Set up bins if using empirical distribution
-            bins = None
-            if self._distribution == "emp":
-                data_dir = get_path_until_string(self._focus_graph, "wsr_simulator")
-                bins = Bins(
-                    self._problem_size,
-                    data_dir,
-                    sample_dist=self._distribution,
-                    area=self._area,
-                    indices=idx[0],
-                    grid=None,
-                    waste_type=self._waste_type,
-                )
-        else:
-            bins = None
-            coord_size = 2 if self._method != "triple" else 3
-            depot = np.random.uniform(size=(self._dataset_size, coord_size))
-            loc = np.random.uniform(size=(self._dataset_size, self._problem_size, coord_size))
+        depot, loc, bins, idx = self._prepare_coordinates()
 
         # Generate waste/fill values over days
         fill_values = []
-        # For waste generation, we pass the tuple of (depot, loc)
         coords = (depot, loc)
 
         for _ in range(self._num_days):
@@ -220,3 +173,124 @@ class VRPInstanceBuilder:
                     np.full(self._dataset_size, MAX_WASTE).tolist(),
                 )
             )
+
+    def build_td(self) -> TensorDict:
+        """
+        Generates the dataset as a batched TensorDict.
+
+        Returns:
+            TensorDict: A TensorDict with keys matching environment expectations.
+        """
+        # We reuse the logic but convert to tensors before returning
+        # Note: self._num_days is handled by taking the first day for train data
+        # or keeping it as (dataset_size, num_days, num_loc) for simulation data.
+
+        # Reuse build for now, then convert? Or refactor build?
+        # Let's refactor slightly to get raw arrays.
+        depot, loc, bins, idx = self._prepare_coordinates()
+
+        fill_values = []
+        coords = (depot, loc)
+        for _ in range(self._num_days):
+            waste = generate_waste_prize(self._problem_size, self._distribution, coords, self._dataset_size, bins)
+            if self._dataset_size == 1 and len(waste.shape) == 1:
+                waste = waste[None, :]
+            fill_values.append(waste)
+
+        fill_values = np.array(fill_values)  # (num_days, dataset_size, num_loc)
+        fill_values = np.transpose(fill_values, (1, 0, 2))  # (dataset_size, num_days, num_loc)
+
+        # For training data, we usually expect 1 day.
+        # If num_days > 1, we keep the temporal dimension.
+        # But for RL4COEnvBase reset, it usually expects 'demand' or 'waste' of shape (bs, num_loc)
+
+        bs = self._dataset_size
+        device = "cpu"  # Generate on CPU
+
+        depot_tensor = torch.tensor(depot, dtype=torch.float32, device=device)
+        locs_tensor = torch.tensor(loc, dtype=torch.float32, device=device)
+
+        # Handle noise for stochastic variants
+        if self._problem_name == "swcvrp":
+            real_waste = torch.tensor(fill_values, dtype=torch.float32, device=device)
+            noise = torch.randn_like(real_waste) * np.sqrt(self._noise_variance) + self._noise_mean
+            noisy_waste = torch.clamp(real_waste + noise, 0, MAX_WASTE)
+
+            # For TensorDict, we usually want (bs, num_loc) for demand.
+            # If num_days == 1, squeeze it.
+            if self._num_days == 1:
+                real_waste = real_waste.squeeze(1)
+                noisy_waste = noisy_waste.squeeze(1)
+
+            td_data = {
+                "depot": depot_tensor,
+                "locs": locs_tensor,
+                "real_waste": real_waste,
+                "demand": noisy_waste,
+                "waste": noisy_waste,
+            }
+        else:
+            waste = torch.tensor(fill_values, dtype=torch.float32, device=device)
+            if self._num_days == 1:
+                waste = waste.squeeze(1)
+
+            td_data = {
+                "depot": depot_tensor,
+                "locs": locs_tensor,
+                "demand": waste,
+                "waste": waste,
+                "prize": waste.clone(),
+            }
+
+        # Common attributes
+        td_data.update(
+            {
+                "capacity": torch.full((bs,), self.vehicle_cap, device=device),
+                "max_waste": torch.full((bs,), float(MAX_WASTE), device=device),
+                "max_length": torch.full((bs,), 2.4, device=device),  # Default or parameterized
+            }
+        )
+
+        return TensorDict(td_data, batch_size=[bs], device=device)
+
+    def _prepare_coordinates(self):
+        """Internal helper to prepare depot and location coordinates."""
+        if self._focus_graph is not None:
+            assert self._focus_size > 0, "Focus size must be positive when using focus graph"
+            depot, loc, mm_arr, idx = load_focus_coords(
+                self._problem_size,
+                self._method,
+                self._area,
+                self._waste_type,
+                self._focus_graph,
+                self._focus_size,
+            )
+            remaining_coords_size = self._dataset_size - self._focus_size
+            if remaining_coords_size > 0:
+                random_coords = np.random.uniform(
+                    mm_arr[0],
+                    mm_arr[1],
+                    size=(remaining_coords_size, self._problem_size + 1, mm_arr.shape[-1]),
+                )
+                depots, locs = process_coordinates(random_coords, self._method, col_names=None)
+                depot = np.concatenate((depot, depots))
+                loc = np.concatenate((loc, locs))
+            bins = None
+            if self._distribution == "emp":
+                data_dir = get_path_until_string(self._focus_graph, "wsr_simulator")
+                bins = Bins(
+                    self._problem_size,
+                    data_dir,
+                    sample_dist=self._distribution,
+                    area=self._area,
+                    indices=idx[0],
+                    grid=None,
+                    waste_type=self._waste_type,
+                )
+        else:
+            bins = None
+            idx = [None]
+            coord_size = 2 if self._method != "triple" else 3
+            depot = np.random.uniform(size=(self._dataset_size, coord_size))
+            loc = np.random.uniform(size=(self._dataset_size, self._problem_size, coord_size))
+        return depot, loc, bins, idx
