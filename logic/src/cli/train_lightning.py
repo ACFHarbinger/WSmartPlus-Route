@@ -234,8 +234,8 @@ def create_model(cfg: Config) -> pl.LightningModule:
     elif cfg.rl.algorithm == "hrl":
         from logic.src.models.gat_lstm_manager import GATLSTManager
 
-        manager = GATLSTManager(device=cfg.device, hidden_dim=cfg.rl.meta_hidden_dim)
-        model = HRLModule(manager=manager, worker=policy, env=env, lr=cfg.rl.meta_lr)
+        manager = GATLSTManager(device=cfg.device, hidden_dim=cfg.meta_rl.meta_hidden_dim)
+        model = HRLModule(manager=manager, worker=policy, env=env, lr=cfg.meta_rl.meta_lr)
     elif cfg.rl.algorithm == "imitation":
         from logic.src.pipeline.rl.core.imitation import ImitationLearning
 
@@ -280,12 +280,12 @@ def create_model(cfg: Config) -> pl.LightningModule:
     else:
         model = REINFORCE(**common_kwargs)
 
-    if getattr(cfg.rl, "use_meta", False):
+    if getattr(cfg.meta_rl, "use_meta", False):
         model = MetaRLModule(
             agent=model,
-            meta_lr=cfg.rl.meta_lr,
-            history_length=cfg.rl.meta_history_length,
-            hidden_size=cfg.rl.meta_hidden_dim,
+            meta_lr=cfg.meta_rl.meta_lr,
+            history_length=cfg.meta_rl.meta_history_length,
+            hidden_size=cfg.meta_rl.meta_hidden_dim,
         )
 
     return model
