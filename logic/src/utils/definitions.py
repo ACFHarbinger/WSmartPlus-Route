@@ -117,7 +117,6 @@ PROBLEMS: List[str] = [
     "cwcvrp",
     "sdwcvrp",
     "scwcvrp",
-    "swcvrp",
 ]
 
 # Model configurations

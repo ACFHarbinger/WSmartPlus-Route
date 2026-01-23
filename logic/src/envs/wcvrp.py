@@ -33,6 +33,8 @@ class WCVRPEnv(RL4COEnvBase):
         overflow_penalty: float = 10.0,
         collection_reward: float = 1.0,
         cost_weight: float = 1.0,
+        revenue_kg: Optional[float] = None,
+        cost_km: Optional[float] = None,
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ):
@@ -45,6 +47,8 @@ class WCVRPEnv(RL4COEnvBase):
             overflow_penalty: Penalty for bin overflow.
             collection_reward: Reward weight for waste collection.
             cost_weight: Weight for travel cost in reward.
+            revenue_kg: Optional revenue per kg (overrides collection_reward).
+            cost_km: Optional cost per km (overrides cost_weight).
             device: Device for torch tensors ('cpu' or 'cuda').
             **kwargs: Additional keyword arguments.
         """
@@ -54,8 +58,8 @@ class WCVRPEnv(RL4COEnvBase):
 
         super().__init__(generator, generator_params, device, **kwargs)
         self.overflow_penalty = overflow_penalty
-        self.collection_reward = collection_reward
-        self.cost_weight = cost_weight
+        self.collection_reward = revenue_kg if revenue_kg is not None else collection_reward
+        self.cost_weight = cost_km if cost_km is not None else cost_weight
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
         """Initialize WCVRP episode state."""

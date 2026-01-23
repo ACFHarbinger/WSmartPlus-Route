@@ -13,6 +13,7 @@ from logic.src.envs.generators import (
     WCVRPGenerator,
     get_generator,
 )
+from logic.src.envs.swcvrp import SCWCVRPEnv
 from logic.src.envs.vrpp import CVRPPEnv, VRPPEnv
 from logic.src.envs.wcvrp import CWCVRPEnv, SDWCVRPEnv, WCVRPEnv
 
@@ -23,6 +24,7 @@ ENV_REGISTRY = {
     "wcvrp": WCVRPEnv,
     "cwcvrp": CWCVRPEnv,
     "sdwcvrp": SDWCVRPEnv,
+    "scwcvrp": SCWCVRPEnv,
 }
 
 
@@ -62,6 +64,7 @@ __all__ = [
     "WCVRPEnv",
     "CWCVRPEnv",
     "SDWCVRPEnv",
+    "SCWCVRPEnv",
     # Registry
     "ENV_REGISTRY",
     "get_env",
