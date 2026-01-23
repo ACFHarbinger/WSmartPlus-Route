@@ -4,6 +4,7 @@ Attention Model Policy for RL4CO.
 Adapts the existing GATEncoder and AttentionDecoder to the RL4CO architecture
 using TensorDict for state management.
 """
+
 from __future__ import annotations
 
 from typing import Optional

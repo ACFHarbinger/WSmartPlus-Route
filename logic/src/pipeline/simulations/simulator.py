@@ -25,6 +25,7 @@ Functions:
     sequential_simulations: Execute batch of runs sequentially
     display_log_metrics: Format and display aggregated results
 """
+
 from __future__ import annotations
 
 import os

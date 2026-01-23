@@ -5,6 +5,7 @@ Batch Docstring Adder Script
 This script automatically adds docstrings to all remaining functions
 that are missing them in the WSmart-Route codebase.
 """
+
 import re
 from pathlib import Path
 from typing import List
@@ -21,13 +22,23 @@ MISSING_DOCSTRINGS = {
     "logic/src/models/policies/classical/hybrid.py": ["__init__"],
     "logic/src/models/policies/classical/alns.py": ["__init__"],
     "logic/src/models/policies/classical/hgs.py": ["__init__"],
-    "logic/src/models/embeddings/__init__.py": ["__init__", "__init__", "forward", "__init__", "forward"],
+    "logic/src/models/embeddings/__init__.py": [
+        "__init__",
+        "__init__",
+        "forward",
+        "__init__",
+        "forward",
+    ],
     "logic/src/models/subnets/deep_decoder.py": ["__getitem__", "__init__"],
     "logic/src/pipeline/trainer.py": ["__init__"],
     "logic/src/pipeline/rl/features/post_processing.py": ["__init__"],
     "logic/src/pipeline/rl/hpo/optuna_hpo.py": ["__init__"],
     "logic/src/pipeline/rl/hpo/dehb.py": ["__init__", "get_incumbents"],
-    "logic/src/pipeline/rl/meta/module.py": ["__init__", "validation_step", "test_step"],
+    "logic/src/pipeline/rl/meta/module.py": [
+        "__init__",
+        "validation_step",
+        "test_step",
+    ],
     "logic/src/pipeline/rl/meta/weight_optimizer.py": [
         "__init__",
         "propose_weights",
@@ -39,8 +50,15 @@ MISSING_DOCSTRINGS = {
         "update_weights_internal",
         "get_current_weights",
     ],
-    "logic/src/pipeline/rl/meta/td_learning.py": ["__init__", "state_dict", "load_state_dict"],
-    "logic/src/pipeline/rl/meta/hypernet_strategy.py": ["__init__", "get_current_weights"],
+    "logic/src/pipeline/rl/meta/td_learning.py": [
+        "__init__",
+        "state_dict",
+        "load_state_dict",
+    ],
+    "logic/src/pipeline/rl/meta/hypernet_strategy.py": [
+        "__init__",
+        "get_current_weights",
+    ],
 }
 
 

@@ -3,7 +3,9 @@ import time
 import torch
 from tensordict import TensorDict
 
-from logic.src.models.policies.classical.random_local_search import RandomLocalSearchPolicy
+from logic.src.models.policies.classical.random_local_search import (
+    RandomLocalSearchPolicy,
+)
 
 
 def benchmark_ls(batch_size=512, num_nodes=50, iterations=100):

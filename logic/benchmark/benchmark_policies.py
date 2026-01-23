@@ -5,6 +5,7 @@ This module provides tools for comparing the performance of different
 routing policies across various problem sizes. It measures execution time
 and solution quality (reward) for neural and classical solvers.
 """
+
 import time
 
 import pandas as pd

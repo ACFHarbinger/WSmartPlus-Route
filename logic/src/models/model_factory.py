@@ -1,6 +1,7 @@
 """
 Factory pattern for neural components (encoders, decoders).
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

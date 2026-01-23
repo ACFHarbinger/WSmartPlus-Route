@@ -1,6 +1,7 @@
 """
 Contextual Bandit Approach for Weight Configuration Selection.
 """
+
 import math
 import random
 from collections import defaultdict
@@ -128,7 +129,13 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
 
         return self.current_config
 
-    def feedback(self, reward: float, metrics: Any, day: Optional[int] = None, step: Optional[int] = None):
+    def feedback(
+        self,
+        reward: float,
+        metrics: Any,
+        day: Optional[int] = None,
+        step: Optional[int] = None,
+    ):
         """
         Update bandit state with feedback.
 
@@ -204,7 +211,7 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
             return random.randint(0, self.num_configs - 1)
 
         scores = [
-            np.mean(self.context_rewards[context_key][i]) if self.context_rewards[context_key][i] else -1e6
+            (np.mean(self.context_rewards[context_key][i]) if self.context_rewards[context_key][i] else -1e6)
             for i in range(self.num_configs)
         ]
         return np.argmax(scores)

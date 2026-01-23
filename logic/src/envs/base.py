@@ -4,6 +4,7 @@ Base environment class for combinatorial optimization problems.
 This module provides the foundation for RL4CO-style environment abstraction,
 enabling unified state management via TensorDict and problem-agnostic interfaces.
 """
+
 from __future__ import annotations
 
 from abc import abstractmethod
@@ -88,6 +89,9 @@ class RL4COEnvBase(EnvBase):
         """
         Execute action and return new state as 'next' entry.
         """
+        # Copy to avoid cycles and in-place modification of the original state
+        td = td.copy()
+
         # Execute problem-specific step
         td_next = self._step_instance(td)
 

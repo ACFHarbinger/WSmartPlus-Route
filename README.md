@@ -13,8 +13,6 @@
 [![PyVRP](https://img.shields.io/badge/PyVRP-0.9.1-blue)](https://pyvrp.org/)
 [![TorchRL](https://img.shields.io/badge/TorchRL-0.1.0-blue)](https://github.com/acfharbinger/torchrl)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Test](https://github.com/acfharbinger/nglab/actions/workflows/ci.yml/badge.svg)](https://github.com/acfharbinger/nglab/actions/workflows/ci.yml)
 
 </br>
 
@@ -26,6 +24,7 @@
 [![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
 [![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
 [![Coverage](https://img.shields.io/badge/coverage-54.14%25-green.svg)](https://coverage.readthedocs.io/)
+[![Test](https://github.com/acfharbinger/nglab/actions/workflows/ci.yml/badge.svg)](https://github.com/acfharbinger/nglab/actions/workflows/ci.yml)
 
 </br>
 

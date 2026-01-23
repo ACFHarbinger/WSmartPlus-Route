@@ -1,6 +1,7 @@
 """
 Unit tests for file system and cryptographic operations.
 """
+
 from unittest.mock import mock_open, patch
 
 from logic.src.file_system import (

@@ -1,6 +1,7 @@
 """
 Fixtures for vectorized policy unit tests.
 """
+
 import pytest
 import torch
 

@@ -4,6 +4,7 @@ VRPP Environment implementation.
 Vehicle Routing Problem with Profits: Select profitable subset
 of nodes to visit while minimizing travel cost.
 """
+
 from __future__ import annotations
 
 from typing import Optional, Union

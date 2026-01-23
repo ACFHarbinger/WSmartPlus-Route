@@ -101,7 +101,7 @@ class BatchBeam(typing.NamedTuple):
     but rather (sum_i beam_size_i, ...), i.e. flattened. This makes some operations a bit cumbersome.
     """
 
-    score: (torch.Tensor)  # Current heuristic score of each entry in beam (used to select most promising)
+    score: torch.Tensor  # Current heuristic score of each entry in beam (used to select most promising)
     state: None  # To track the state
     parent: torch.Tensor
     action: torch.Tensor
@@ -275,9 +275,9 @@ class CachedLookup(object):
 
     def __getitem__(self, key):
         """Retrieves data with caching."""
-        assert not isinstance(key, slice), (
-            "CachedLookup does not support slicing, " "you can slice the result of an index operation instead"
-        )
+        assert not isinstance(
+            key, slice
+        ), "CachedLookup does not support slicing, you can slice the result of an index operation instead"
 
         if torch.is_tensor(key):  # If tensor, idx all tensors by this tensor:
             if self.key is None:

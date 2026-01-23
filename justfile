@@ -92,16 +92,15 @@ test-marker marker=marker:
 
 # Check code quality with ruff
 lint:
-    uv run ruff check .
+    uv run ruff check . --fix --exclude ".venv"
 
 # Check docstring coverage
 check-docs:
-    uv run python logic/src/utils/check_docstrings.py
+    uv run python logic/src/utils/check_docstrings.py logic/
 
 # Format code with black and ruff
 format:
-    uv run ruff format .
-    uv run black .
+    uv run ruff format . --exclude ".venv"
 
 # --- Maintenance ---
 
@@ -113,6 +112,10 @@ clean:
     find . -type d -name ".mypy_cache" -exec rm -rf {} +
     rm -rf build/
     rm -rf dist/
+    rm -rf temp/
+    rm -rf wandb/
+    rm -rf outputs/
+    rm -rf checkpoints/
     rm -rf *.egg-info
 
 # Generic run command

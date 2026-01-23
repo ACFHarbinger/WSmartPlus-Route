@@ -1,6 +1,7 @@
 """
 Mathematical and environment-related helper functions.
 """
+
 from __future__ import annotations
 
 import json
@@ -399,7 +400,10 @@ def get_path_until_string(path: str, end_str: str) -> Optional[str]:
 
 # Tensor functions
 def compute_in_batches(
-    f: Callable[..., Any], calc_batch_size: int, *args: torch.Tensor, n: Optional[int] = None
+    f: Callable[..., Any],
+    calc_batch_size: int,
+    *args: torch.Tensor,
+    n: Optional[int] = None,
 ) -> Any:
     """
     Computes memory heavy function f(*args) in batches.

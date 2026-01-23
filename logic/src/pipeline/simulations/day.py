@@ -17,6 +17,7 @@ Functions:
     get_daily_results: Formats raw outputs into structured metric dictionary
     run_day: Main orchestrator for single-day simulation
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast

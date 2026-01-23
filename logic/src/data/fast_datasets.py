@@ -1,6 +1,7 @@
 """
 Optimized dataset implementations for TensorDicts.
 """
+
 from typing import Union
 
 import tensordict

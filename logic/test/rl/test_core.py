@@ -39,7 +39,10 @@ class TestRLCore:
         )
 
         td = TensorDict({"loc": torch.randn(2, 5, 2)}, batch_size=[2])
-        out = {"reward": torch.tensor([1.0, 2.0]), "log_likelihood": torch.tensor([-0.5, -0.6], requires_grad=True)}
+        out = {
+            "reward": torch.tensor([1.0, 2.0]),
+            "log_likelihood": torch.tensor([-0.5, -0.6], requires_grad=True),
+        }
 
         loss = model.calculate_loss(td, out, 0)
         assert isinstance(loss, torch.Tensor)

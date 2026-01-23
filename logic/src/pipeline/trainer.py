@@ -1,6 +1,7 @@
 """
 Custom PyTorch Lightning Trainer for WSmart-Route.
 """
+
 from __future__ import annotations
 
 from typing import Optional, Union

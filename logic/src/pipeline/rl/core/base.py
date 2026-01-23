@@ -1,6 +1,7 @@
 """
 PyTorch Lightning base module for RL training.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -162,12 +163,28 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         # Log metrics
         reward_mean = out["reward"].mean()
-        self.log(f"{phase}/reward", reward_mean, prog_bar=True, sync_dist=True)
+        self.log(
+            f"{phase}/reward",
+            reward_mean,
+            prog_bar=True,
+            sync_dist=True,
+            batch_size=batch.batch_size[0],
+        )
 
         if "collection" in out:
-            self.log(f"{phase}/collection", out["collection"].mean(), sync_dist=True)
+            self.log(
+                f"{phase}/collection",
+                out["collection"].mean(),
+                sync_dist=True,
+                batch_size=batch.batch_size[0],
+            )
         if "cost" in out:
-            self.log(f"{phase}/cost", out["cost"].mean(), sync_dist=True)
+            self.log(
+                f"{phase}/cost",
+                out["cost"].mean(),
+                sync_dist=True,
+                batch_size=batch.batch_size[0],
+            )
         else:
             self.log(f"{phase}/cost_total", -reward_mean, sync_dist=True)
 
@@ -234,7 +251,12 @@ class RL4COLitModule(pl.LightningModule, ABC):
         from logic.src.pipeline.rl.features.epoch import prepare_epoch
 
         self.train_dataset = prepare_epoch(
-            self.policy, self.env, self.baseline, self.train_dataset, self.current_epoch, phase="train"
+            self.policy,
+            self.env,
+            self.baseline,
+            self.train_dataset,
+            self.current_epoch,
+            phase="train",
         )
 
     def on_train_epoch_end(self):
@@ -243,7 +265,12 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         if hasattr(self.baseline, "epoch_callback"):
             # For RolloutBaseline, we pass val_dataset for the T-test
-            self.baseline.epoch_callback(self.policy, self.current_epoch, val_dataset=self.val_dataset, env=self.env)
+            self.baseline.epoch_callback(
+                self.policy,
+                self.current_epoch,
+                val_dataset=self.val_dataset,
+                env=self.env,
+            )
 
         # Regenerate training dataset for next epoch if configured
         if self.hparams.get("regenerate_per_epoch", False):
@@ -274,10 +301,19 @@ class RL4COLitModule(pl.LightningModule, ABC):
             return optimizer
 
         # Get scheduler
-        if self.lr_scheduler_name.lower() == "cosine":
+        name = self.lr_scheduler_name.lower()
+        if name == "cosine":
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, **self.lr_scheduler_kwargs)
-        elif self.lr_scheduler_name.lower() == "step":
+        elif name == "step":
             scheduler = torch.optim.lr_scheduler.StepLR(optimizer, **self.lr_scheduler_kwargs)
+        elif name == "lambda":
+            gamma = self.lr_scheduler_kwargs.get("gamma", 1.0)
+            scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: gamma**epoch)
+        elif name == "exp":
+            gamma = self.lr_scheduler_kwargs.get("gamma", 0.99)
+            scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=gamma)
+        elif name == "plateau":
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, **self.lr_scheduler_kwargs)
         else:
             raise ValueError(f"Unknown scheduler: {self.lr_scheduler_name}")
 

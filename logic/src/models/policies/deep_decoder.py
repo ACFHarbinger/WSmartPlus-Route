@@ -3,6 +3,7 @@ Deep Decoder Policy for RL4CO.
 
 Adapts the DeepDecoderAM architecture to the RL4CO architecture.
 """
+
 from __future__ import annotations
 
 from typing import Optional

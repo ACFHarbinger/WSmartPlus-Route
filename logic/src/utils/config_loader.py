@@ -52,7 +52,9 @@ def load_xml_config(config_path: str) -> dict[str, Any]:
         tree = ET.parse(config_path)
         root = tree.getroot()
 
-        def xml_to_dict(element: ET.Element) -> Union[Dict[str, Any], List[Any], str, int, float]:
+        def xml_to_dict(
+            element: ET.Element,
+        ) -> Union[Dict[str, Any], List[Any], str, int, float]:
             """
             Helper to convert XML element to dictionary.
 

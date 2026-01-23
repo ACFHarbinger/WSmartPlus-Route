@@ -1,6 +1,7 @@
 """
 Configuration constants and global mappings.
 """
+
 from __future__ import annotations
 
 import os
@@ -58,7 +59,16 @@ EARTH_WMP_RADIUS: int = 6378137
 # WSmart+ route simulation settings
 PBAR_WAIT_TIME: float = 0.1
 
-METRICS: List[str] = ["overflows", "kg", "ncol", "kg_lost", "km", "kg/km", "cost", "profit"]
+METRICS: List[str] = [
+    "overflows",
+    "kg",
+    "ncol",
+    "kg_lost",
+    "km",
+    "kg/km",
+    "cost",
+    "profit",
+]
 SIM_METRICS: List[str] = METRICS + ["days", "time"]
 DAY_METRICS: List[str] = ["day"] + METRICS + ["tour"]
 LOSS_KEYS: List[str] = ["nll", "reinforce_loss", "baseline_loss"]

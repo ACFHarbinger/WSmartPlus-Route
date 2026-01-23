@@ -2,6 +2,7 @@
 Neural-Heuristic Hybrid Policy.
 Uses a neural model for construction and a heuristic for refinement.
 """
+
 from __future__ import annotations
 
 from typing import Union

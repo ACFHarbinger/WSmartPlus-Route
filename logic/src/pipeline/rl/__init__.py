@@ -10,6 +10,7 @@ Core Modules:
 - hpo/: Hyperparameter optimization utilities
 - features/: Training features and hooks
 """
+
 from logic.src.pipeline.rl.core import (
     DRGRPO,
     GDPO,
@@ -30,8 +31,8 @@ __all__ = [
     "GSPO",
     "DRGRPO",
     "GDPO",
-    "MetaRLModule",
     "HRLModule",
+    "MetaRLModule",
     "POMO",
     "SymNCO",
 ]

@@ -2,6 +2,7 @@
 POMO (Policy Optimization with Multiple Optima) implementation.
 Based on Kwon et al. (2020) and Adapted from RL4CO.
 """
+
 from __future__ import annotations
 
 from typing import Callable, Optional, Union
@@ -51,7 +52,9 @@ class POMO(REINFORCE):
         self.augmentation: Optional[StateAugmentation]
         if self.num_augment > 1:
             self.augmentation = StateAugmentation(
-                num_augment=num_augment, augment_fn=augment_fn, first_aug_identity=first_aug_identity
+                num_augment=num_augment,
+                augment_fn=augment_fn,
+                first_aug_identity=first_aug_identity,
             )
         else:
             self.augmentation = None
@@ -86,7 +89,12 @@ class POMO(REINFORCE):
             td = self.augmentation(td)
 
         # Run policy with multi-start
-        out = self.policy(td, self.env, decode_type="sampling" if phase == "train" else "greedy", num_starts=n_start)
+        out = self.policy(
+            td,
+            self.env,
+            decode_type="sampling" if phase == "train" else "greedy",
+            num_starts=n_start,
+        )
 
         # Reshape rewards and log_probs if we have multiple starts/augments
         # out['reward'] is [batch * n_aug * n_start]

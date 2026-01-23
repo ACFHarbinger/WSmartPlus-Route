@@ -1,6 +1,7 @@
 """
 Base class for optimization problem definitions.
 """
+
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Type
@@ -36,7 +37,9 @@ class BaseProblem:
 
     @staticmethod
     def get_tour_length(
-        dataset: Dict[str, Any], pi: torch.Tensor, dist_matrix: Optional[torch.Tensor] = None
+        dataset: Dict[str, Any],
+        pi: torch.Tensor,
+        dist_matrix: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Calculates the tour length (L2 norm or from distance matrix).
