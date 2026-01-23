@@ -88,7 +88,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         """Initialize baseline for advantage estimation."""
         from logic.src.pipeline.rl.core.baselines import WarmupBaseline, get_baseline
 
-        baseline = get_baseline(self.baseline_type, self.policy)
+        baseline = get_baseline(self.baseline_type, self.policy, **self.hparams)
 
         # Handle warmup
         warmup_epochs = self.hparams.get("bl_warmup_epochs", 0)

@@ -1,3 +1,7 @@
+---
+description: For updating or creating python docstrings and documentation.
+---
+
 # Workflow: Documentation Update
 
 **Trigger:** New feature implementation, code refactoring, or specific documentation debt reduction task.

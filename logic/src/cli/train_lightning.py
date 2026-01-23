@@ -72,41 +72,55 @@ def create_model(cfg: Config) -> pl.LightningModule:
         raise ValueError(f"Unknown model name: {cfg.model.name}. Available: {list(policy_map.keys())}")
 
     policy_cls = policy_map[cfg.model.name]
+    policy_kwargs = vars(cfg.model).copy()
+    policy_kwargs["env_name"] = cfg.env.name
 
-    policy_kwargs = {
-        "env_name": cfg.env.name,
-        "embed_dim": cfg.model.embed_dim,
-        "hidden_dim": cfg.model.hidden_dim,
-        "n_encode_layers": cfg.model.num_encoder_layers,
-        "n_heads": cfg.model.num_heads,
-        "normalization": cfg.model.normalization,
-    }
-    if cfg.model.name == "deep_decoder":
-        policy_kwargs["n_decode_layers"] = cfg.model.num_decoder_layers
+    # Mapping for backward compatibility with existing policy classes
+    if "num_encoder_layers" in policy_kwargs:
+        policy_kwargs["n_encode_layers"] = policy_kwargs.pop("num_encoder_layers")
+    if "num_decoder_layers" in policy_kwargs:
+        policy_kwargs["n_decode_layers"] = policy_kwargs.pop("num_decoder_layers")
+    if "num_heads" in policy_kwargs:
+        policy_kwargs["n_heads"] = policy_kwargs.pop("num_heads")
 
+    # Remove fields not used in policy __init__ if needed, or rely on **kwargs
+    policy_kwargs.pop("name")
     if cfg.model.name == "hybrid":
         neural = AttentionModelPolicy(**policy_kwargs)
         heuristic = ALNSPolicy(env_name=cfg.env.name)
         policy = NeuralHeuristicHybrid(neural, heuristic)
     else:
+        # Some policies like ALNSPolicy/HGSPolicy might take more specific args
+        # For now, pass what we have in ModelConfig
         policy = policy_cls(**policy_kwargs)
 
     # 3. Initialize RL Module
-    common_kwargs = {
-        "env": env,
-        "policy": policy,
-        "optimizer": cfg.optim.optimizer,
-        "optimizer_kwargs": {"lr": cfg.optim.lr, "weight_decay": cfg.optim.weight_decay},
-        "lr_scheduler": cfg.optim.lr_scheduler,
-        "lr_scheduler_kwargs": cfg.optim.lr_scheduler_kwargs,
-        "train_data_size": cfg.train.train_data_size,
-        "val_data_size": cfg.train.val_data_size,
-        "val_dataset_path": cfg.train.val_dataset,
-        "batch_size": cfg.train.batch_size,
-        "num_workers": cfg.train.num_workers,
-        "entropy_weight": cfg.rl.entropy_weight,
-        "max_grad_norm": cfg.rl.max_grad_norm,
+    common_kwargs = vars(cfg.rl).copy()
+    # Merge train and optim config into common_kwargs
+    train_params = vars(cfg.train)
+    common_kwargs.update(train_params)
+
+    # Specific remapping if needed
+    common_kwargs["env"] = env
+    common_kwargs["policy"] = policy
+    common_kwargs["optimizer"] = cfg.optim.optimizer
+    common_kwargs["optimizer_kwargs"] = {
+        "lr": cfg.optim.lr,
+        "weight_decay": cfg.optim.weight_decay,
+        "lr_critic": cfg.optim.lr_critic,
     }
+    common_kwargs["lr_scheduler"] = cfg.optim.lr_scheduler
+
+    # Merge scheduler kwargs if any
+    scheduler_kwargs = cfg.optim.lr_scheduler_kwargs.copy()
+    # Map explicit scheduler fields to kwargs if they are not None/default
+    if cfg.optim.lr_decay != 1.0:
+        scheduler_kwargs["gamma"] = cfg.optim.lr_decay
+    if cfg.optim.lr_min_value != 0.0:
+        scheduler_kwargs["eta_min"] = cfg.optim.lr_min_value
+
+    common_kwargs["lr_scheduler_kwargs"] = scheduler_kwargs
+    common_kwargs["baseline"] = cfg.rl.baseline
 
     if cfg.rl.algorithm == "ppo":
         from logic.src.models.policies.critic import create_critic_from_actor
@@ -209,11 +223,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
         from logic.src.pipeline.rl.core.imitation import ImitationLearning
 
         # Determine expert
-        # We need a constructive policy wrapper for the expert
-        # Does the user want HGS as expert?
-        # HGS is a ConstructiveSolver but not a policy with 'forward' in the same way?
-        # Actually in recent edits I added HGSPolicy!
-
         expert_name = cfg.rl.get("expert", "hgs")
         expert_policy = None
         if expert_name == "hgs":

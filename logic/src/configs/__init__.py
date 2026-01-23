@@ -38,6 +38,11 @@ class EnvConfig:
     vertex_method: str = "mmn"
     edge_threshold: float = 0.0
     edge_method: Optional[str] = None
+    # Data distribution and generation
+    data_distribution: Optional[str] = None
+    min_fill: float = 0.0
+    max_fill: float = 1.0
+    fill_distribution: str = "uniform"
 
 
 @dataclass
@@ -72,6 +77,24 @@ class ModelConfig:
     mask_graph: bool = False
     spatial_bias: bool = False
     connection_type: str = "residual"
+    # Hyper-parameters for specialized layers
+    num_encoder_sublayers: Optional[int] = None
+    num_predictor_layers: Optional[int] = None
+    learn_affine: bool = True
+    track_stats: bool = False
+    epsilon_alpha: float = 1e-5
+    momentum_beta: float = 0.1
+    lrnorm_k: Optional[float] = None
+    gnorm_groups: int = 4
+    activation_param: float = 1.0
+    activation_threshold: Optional[float] = None
+    activation_replacement: Optional[float] = None
+    activation_num_parameters: int = 3
+    activation_uniform_range: List[float] = field(default_factory=lambda: [0.125, 0.333])
+    aggregation_graph: str = "avg"
+    aggregation_node: str = "sum"
+    spatial_bias_scale: float = 1.0
+    hyper_expansion: int = 4
 
 
 @dataclass
@@ -106,6 +129,13 @@ class TrainConfig:
     efficiency_weight: float = 0.8
     overflow_weight: float = 0.2
     log_step: int = 50
+    # Process control
+    epoch_start: int = 0
+    eval_only: bool = False
+    checkpoint_encoder: bool = False
+    load_path: Optional[str] = None
+    resume: Optional[str] = None
+    eval_batch_size: int = 256
 
 
 @dataclass
@@ -125,6 +155,11 @@ class OptimConfig:
     weight_decay: float = 0.0
     lr_scheduler: Optional[str] = None
     lr_scheduler_kwargs: Dict[str, Any] = field(default_factory=dict)
+    # Learning rate details
+    lr_critic: float = 1e-4
+    lr_decay: float = 1.0
+    lr_min_value: float = 0.0
+    lr_min_decay: float = 1e-8
 
 
 @dataclass
@@ -225,6 +260,20 @@ class RLConfig:
     gdpo_objective_weights: Optional[List[float]] = None
     gdpo_conditional_key: Optional[str] = None
     gdpo_renormalize: bool = True
+    # Missing from parsers
+    gamma: float = 0.99
+    gspo_epsilon: float = 0.2
+    gspo_epochs: int = 3
+    dr_grpo_epochs: int = 3
+    exp_beta: float = 0.8
+    bl_alpha: float = 0.05
+    cb_context_features: List[str] = field(
+        default_factory=lambda: ["waste", "overflow", "length", "visited_ratio", "day"]
+    )
+    cb_features_aggregation: str = "avg"
+    morl_objectives: List[str] = field(default_factory=lambda: ["waste_efficiency", "overflow_rate"])
+    morl_adaptation_rate: float = 0.1
+    imitation_decay_step: int = 1
 
 
 @dataclass
@@ -259,6 +308,25 @@ class HPOConfig:
     n_warmup_steps: int = 3
     min_fidelity: int = 1
     max_fidelity: int = 10
+    # Ray Tune and DEA specifics
+    interval_steps: int = 1
+    eta: float = 10.0
+    indpb: float = 0.2
+    tournsize: int = 3
+    cxpb: float = 0.7
+    mutpb: float = 0.2
+    n_pop: int = 20
+    n_gen: int = 10
+    cpu_cores: int = 1
+    verbose: int = 2
+    train_best: bool = True
+    local_mode: bool = False
+    num_samples: int = 20
+    max_tres: int = 14
+    reduction_factor: int = 3
+    max_failures: int = 3
+    grid: List[float] = field(default_factory=lambda: [0.0, 0.5, 1.0, 1.5, 2.0])
+    max_conc: int = 4
 
 
 @dataclass
@@ -292,6 +360,7 @@ class Config:
     no_progress_bar: bool = False
     output_dir: str = "assets/model_weights"
     log_dir: str = "logs"
+    run_name: Optional[str] = None
 
 
 __all__ = [
