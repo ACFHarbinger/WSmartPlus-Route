@@ -112,7 +112,7 @@ if [[ "$command" == "train" ]]; then
         et=0.3
     fi
 
-    python main.py "$command" --model "${model[0]}" --baseline rollout --train_dataset virtual \
+    uv run python main.py "$command" --model "${model[0]}" --baseline rollout --train_dataset virtual \
     --val_dataset data/datasets/wcvrp/wcvrp_unif20_val_seed1234.pkl --problem "$problem" \
     --batch_size "$bs" --data_distribution "$dd" --n_epochs "$ne" --eval_batch_size "$ebs" \
     --graph_size "$gs" --epoch_start "$es" --edge_threshold "$et" --n_other_layers 2;
@@ -162,7 +162,7 @@ elif [[ "$command" == "test" ]]; then
         nv=1
     fi
 
-    python main.py "$command" --policies "${model[@]}" --dd "$dd" --problem "$problem" --size "$gs" \
+    uv run python main.py "$command" --policies "${model[@]}" --dd "$dd" --problem "$problem" --size "$gs" \
     --days "$days" --output_dir "$od" --n_samples "$ns" --cpu_cores "$NUMBER_OF_CORES" --server_run --resume;
     #--lvl "${lvl[@]}" --cf "${cf[@]}" --n_vehicles "$nv"
 else

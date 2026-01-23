@@ -108,7 +108,7 @@ fi
 
 # Multi-word string argument construction (optional flags are added as separate arguments)
 PYTHON_CMD=(
-    python main.py eval
+    uv run python main.py eval
     --model "$MODEL_PATH"
     --datasets ${DATASET_ARGS}
     $OVERWRITE_FLAG

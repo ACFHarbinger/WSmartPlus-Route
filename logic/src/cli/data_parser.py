@@ -18,7 +18,9 @@ def add_gen_data_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
     Returns:
         The parser instance with data generation arguments attached.
     """
-    parser.add_argument("--name", type=str, help="Name to identify dataset")
+    parser.add_argument(
+        "--name", type=str, help="Name to identify dataset. For training data, this will result in .td files."
+    )
     parser.add_argument(
         "--filename",
         default=None,

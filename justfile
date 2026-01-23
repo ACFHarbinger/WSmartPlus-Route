@@ -117,6 +117,7 @@ clean:
     rm -rf outputs/
     rm -rf checkpoints/
     rm -rf *.egg-info
+    rm .coverage
 
 # Generic run command
 run *args:

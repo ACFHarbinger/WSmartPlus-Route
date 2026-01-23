@@ -19,18 +19,19 @@ from logic.src.pipeline.simulations.processor import process_coordinates, proces
 from logic.src.utils.functions.function import get_path_until_string
 
 
-def check_extension(filename: str) -> str:
+def check_extension(filename: str, extension: str = ".pkl") -> str:
     """
-    Ensures filename has .pkl extension.
+    Ensures filename has the specified extension.
 
     Args:
         filename: Input filename.
+        extension: Desired extension (e.g., '.pkl', '.td', '.pt').
 
     Returns:
-        Filename with .pkl extension.
+        Filename with the specified extension.
     """
-    if os.path.splitext(filename)[1] != ".pkl":
-        return filename + ".pkl"
+    if os.path.splitext(filename)[1] != extension:
+        return filename + extension
     return filename
 
 
@@ -52,8 +53,34 @@ def save_dataset(dataset: Any, filename: str) -> None:
         except Exception:
             raise Exception("directories to save datasets do not exist and could not be created")
 
-    with open(check_extension(filename), "wb") as f:
-        pickle.dump(dataset, f, pickle.HIGHEST_PROTOCOL)
+
+def save_td_dataset(td: TensorDict, filename: str) -> None:
+    """
+    Saves a TensorDict dataset.
+
+    Args:
+        td: The TensorDict to save.
+        filename: Target filename.
+    """
+    filedir = os.path.split(filename)[0]
+    if filedir and not os.path.isdir(filedir):
+        os.makedirs(filedir, exist_ok=True)
+
+    torch.save(td, check_extension(filename, ".td"))
+
+
+def load_td_dataset(filename: str, device: str = "cpu") -> TensorDict:
+    """
+    Loads a TensorDict dataset.
+
+    Args:
+        filename: The filename.
+        device: Device to load onto.
+
+    Returns:
+        The loaded TensorDict.
+    """
+    return torch.load(check_extension(filename, ".td"), map_location=device)
 
 
 def load_dataset(filename: str) -> Any:
@@ -66,7 +93,7 @@ def load_dataset(filename: str) -> Any:
     Returns:
         The loaded dataset.
     """
-    with open(check_extension(filename), "rb") as f:
+    with open(check_extension(filename, ".pkl"), "rb") as f:
         return pickle.load(f)
 
 
@@ -238,39 +265,3 @@ def generate_waste_prize(
     if dataset_size == 1:
         return wp[0]
     return wp
-
-
-def convert_pkl_to_td(pkl_path, td_path):
-    print(f"Loading {pkl_path}...")
-    with open(pkl_path, "rb") as f:
-        data = pickle.load(f)
-
-    # data is a list of tuples: (depot, loc, waste, max_waste)
-    # depot: list [2]
-    # loc: list [num_loc, 2]
-    # waste: list [num_days, num_loc]
-    # max_waste: float
-
-    depots = torch.tensor([d[0] for d in data])
-    locs = torch.tensor([d[1] for d in data])
-    # For waste, for now we take the first day
-    waste = torch.tensor([d[2][0] for d in data])
-    max_waste = torch.tensor([d[3] for d in data])
-
-    td = TensorDict(
-        {
-            "locs": locs,
-            "depot": depots,
-            "demand": waste,
-            "waste": waste.clone(),  # Keep for compatibility with logging or other parts
-            "prize": waste.clone(),
-            "capacity": torch.full((len(data),), 100.0),
-            "max_waste": max_waste,
-            "max_length": torch.full((len(data),), 2.4),
-        },
-        batch_size=[len(data)],
-    )
-
-    print(f"Saving to {td_path}...")
-    torch.save(td, td_path)
-    print("Done.")
