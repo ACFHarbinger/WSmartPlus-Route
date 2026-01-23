@@ -247,7 +247,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
             available_gpus = available_gpus.strip().split(",")
             self.available_gpus = [int(_id) for _id in available_gpus]
         except KeyError as e:
-            print("Unable to find valid GPU devices. " f"Environment variable {str(e)} not visible!")
+            print(f"Unable to find valid GPU devices. Environment variable {str(e)} not visible!")
             self.available_gpus = []
         self.gpu_usage = dict()
         for _id in self.available_gpus:
@@ -1034,7 +1034,7 @@ class DifferentialEvolutionHyperband(DifferentialEvolutionHyperbandBase):
                 "The run parameters 'verbose' is deprecated since the changes in v0.1.2. "
                 "Please use the 'log_level' parameter when initializing DEHB."
             )
-            raise TypeError("Used deprecated parameter 'verbose'. " "Please check the logs for more information.")
+            raise TypeError("Used deprecated parameter 'verbose'. Please check the logs for more information.")
         # check if run has already been called before
         if self.start is not None:
             logger.warning(

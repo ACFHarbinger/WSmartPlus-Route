@@ -1,6 +1,7 @@
 """
 Meta-Learning Strategy Registry.
 """
+
 from typing import Dict, Type
 
 from logic.src.pipeline.rl.meta.contextual_bandits import WeightContextualBandit

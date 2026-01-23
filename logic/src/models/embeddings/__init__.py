@@ -4,6 +4,7 @@ Problem-specific initialization embeddings.
 Each problem type requires different input features to be embedded
 before being processed by the encoder.
 """
+
 from __future__ import annotations
 
 import torch
@@ -153,7 +154,7 @@ def get_init_embedding(env_name: str, embed_dim: int = 128) -> nn.Module:
     """
     if env_name not in INIT_EMBEDDING_REGISTRY:
         raise ValueError(
-            f"Unknown environment for embedding: {env_name}. " f"Available: {list(INIT_EMBEDDING_REGISTRY.keys())}"
+            f"Unknown environment for embedding: {env_name}. Available: {list(INIT_EMBEDDING_REGISTRY.keys())}"
         )
     return INIT_EMBEDDING_REGISTRY[env_name](embed_dim=embed_dim)
 

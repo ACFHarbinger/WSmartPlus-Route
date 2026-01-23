@@ -5,6 +5,7 @@ This script manages model evaluation and inference across one or multiple GPUs.
 It supports various decoding strategies (Greedy, Sampling, Beam Search) and
 calculates key performance metrics (Cost, Distance, Waste, Overflows).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -62,7 +63,9 @@ def get_best(
     return [sequences[i] if i >= 0 else None for i in result], [float(cost[i]) if i >= 0 else math.inf for i in result]
 
 
-def eval_dataset_mp(args: Tuple[str, int, float, Dict[str, Any], int, int]) -> List[Dict[str, Any]]:
+def eval_dataset_mp(
+    args: Tuple[str, int, float, Dict[str, Any], int, int],
+) -> List[Dict[str, Any]]:
     """
     Worker function for multiprocessing evaluation.
 
@@ -315,7 +318,11 @@ def _eval_dataset(
                 # We don't need cost_weights here as we only want back the c_dict
                 _, c_dict, _ = model.problem.get_costs(batch_i, seq_tensor, None, batch_i.get("dist_matrix"))  # type: ignore
             else:
-                c_dict = {"length": torch.tensor(0.0), "waste": torch.tensor(0.0), "overflows": torch.tensor(0.0)}
+                c_dict = {
+                    "length": torch.tensor(0.0),
+                    "waste": torch.tensor(0.0),
+                    "overflows": torch.tensor(0.0),
+                }
 
             # Note VRP only
             results.append(

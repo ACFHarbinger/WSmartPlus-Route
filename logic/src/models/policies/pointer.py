@@ -1,6 +1,7 @@
 """
 Pointer Network Policy Adapter.
 """
+
 from typing import Optional
 
 import torch
@@ -54,7 +55,8 @@ class PointerNetworkPolicy(ConstructivePolicy):
         # PointerNetwork specific embedding and encoding
         # (Adapted from PointerNetwork.forward)
         embedded_inputs = torch.mm(
-            inputs.transpose(0, 1).contiguous().view(-1, inputs.size(-1)), self.model.embedding
+            inputs.transpose(0, 1).contiguous().view(-1, inputs.size(-1)),
+            self.model.embedding,
         ).view(graph_size, batch_size, -1)
 
         # Set decode type in legacy decoder

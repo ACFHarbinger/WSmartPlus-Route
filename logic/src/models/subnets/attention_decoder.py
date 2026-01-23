@@ -1,4 +1,5 @@
 """Standard Attention Decoder for constructive routing problems."""
+
 from __future__ import annotations
 
 import math
@@ -65,6 +66,7 @@ class AttentionDecoder(nn.Module):
         spatial_bias: bool = False,
         spatial_bias_scale: float = 1.0,
         decode_type: Optional[str] = None,
+        **kwargs,
     ) -> None:
         """
         Args:

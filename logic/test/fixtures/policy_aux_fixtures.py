@@ -1,6 +1,7 @@
 """
 Fixtures for policy auxiliary function tests (Look-ahead, HGS, ALNS).
 """
+
 import numpy as np
 import pandas as pd
 import pytest

@@ -2,6 +2,7 @@
 Hypernetwork Strategy for Meta-RL.
 Wraps the HypernetworkOptimizer model to provide adaptive weights.
 """
+
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
@@ -113,7 +114,9 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
             day_progress = self.current_day / getattr(self.optimizer.hypernetwork, "n_days", 365)
 
             metric_tensor = torch.tensor(
-                [efficiency, overflows, kg, km, kg_lost, day_progress], dtype=torch.float32, device=self.device
+                [efficiency, overflows, kg, km, kg_lost, day_progress],
+                dtype=torch.float32,
+                device=self.device,
             )
 
         elif isinstance(metrics, (list, tuple)):
@@ -130,7 +133,9 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
 
         # Prepare weights tensor
         weights_tensor = torch.tensor(
-            [self.current_weights.get(k, 1.0) for k in self.cost_weight_keys], dtype=torch.float32, device=self.device
+            [self.current_weights.get(k, 1.0) for k in self.cost_weight_keys],
+            dtype=torch.float32,
+            device=self.device,
         )
 
         # Update Buffer
@@ -144,7 +149,10 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
         loss_val = -reward
 
         self.optimizer.update_buffer(
-            metrics=metric_tensor, day=self.current_day, weights=weights_tensor, performance=loss_val
+            metrics=metric_tensor,
+            day=self.current_day,
+            weights=weights_tensor,
+            performance=loss_val,
         )
 
         # Train Step

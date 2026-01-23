@@ -2,6 +2,7 @@
 Differential Evolution Hyperband (DEHB) implementation.
 Ported and adapted from the legacy codebase.
 """
+
 import time
 from typing import Callable, Dict, Tuple
 

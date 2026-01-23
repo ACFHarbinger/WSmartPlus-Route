@@ -1,6 +1,7 @@
 """
 Data processing and aggregation utilities for logs and results.
 """
+
 from __future__ import annotations
 
 import glob
@@ -208,7 +209,9 @@ def process_list_two_inputs(
 
 
 def find_single_input_values(
-    data: Union[Dict[str, Any], List[Any]], current_path: str = "", output_key: str = "km"
+    data: Union[Dict[str, Any], List[Any]],
+    current_path: str = "",
+    output_key: str = "km",
 ) -> List[Tuple[str, Union[int, float]]]:
     """
     Recursively find all *source* values for single-input mode.
@@ -432,14 +435,22 @@ def process_file(
         if isinstance(data, dict):
             if has_2_inputs:
                 modified = process_dict_two_inputs(
-                    data, cast(str, input_keys[0]), cast(Union[str, int, float], key_value), output_key, process_func
+                    data,
+                    cast(str, input_keys[0]),
+                    cast(Union[str, int, float], key_value),
+                    output_key,
+                    process_func,
                 )
             else:
                 modified = process_dict_of_dicts(data, output_key, process_func, update_val)
         elif isinstance(data, list):
             if has_2_inputs:
                 modified = process_list_two_inputs(
-                    data, cast(str, input_keys[0]), cast(Union[str, int, float], key_value), output_key, process_func
+                    data,
+                    cast(str, input_keys[0]),
+                    cast(Union[str, int, float], key_value),
+                    output_key,
+                    process_func,
                 )
             else:
                 modified = process_list_of_dicts(data, output_key, process_func, update_val)

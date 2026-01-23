@@ -5,6 +5,7 @@ Handles temporal aspects of the WCVRP environment:
 - Dataset augmentation with fill history.
 - Simulation of waste accumulation.
 """
+
 from typing import Dict, List
 
 import torch
@@ -124,7 +125,7 @@ class TimeBasedMixin:
 
         td[key] = new_fill
 
-        print(f"Time Training: Updated dataset for Day {day+1}. Mean fill: {new_fill.mean():.3f}")
+        print(f"Time Training: Updated dataset for Day {day + 1}. Mean fill: {new_fill.mean():.3f}")
 
 
 def prepare_time_dataset(dataset, day, history):

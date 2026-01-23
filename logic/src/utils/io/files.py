@@ -1,6 +1,7 @@
 """
 Safe file operation utilities (read, write, zip).
 """
+
 from __future__ import annotations
 
 import json
@@ -124,7 +125,13 @@ def compose_dirpath(fun: T) -> T:
     """
 
     def inner(
-        home_dir: str, ndays: int, nbins: Union[int, List[int]], output_dir: str, area: str, *args: Any, **kwargs: Any
+        home_dir: str,
+        ndays: int,
+        nbins: Union[int, List[int]],
+        output_dir: str,
+        area: str,
+        *args: Any,
+        **kwargs: Any,
     ) -> Any:
         """
         Inner wrapper function.

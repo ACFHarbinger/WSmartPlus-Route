@@ -1,6 +1,7 @@
 """
 Baseline implementations for policy gradient methods.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -38,12 +39,21 @@ class Baseline(nn.Module, ABC):
         return dataset
 
     def epoch_callback(
-        self, policy: nn.Module, epoch: int, val_dataset: Optional[Any] = None, env: Optional[Any] = None
+        self,
+        policy: nn.Module,
+        epoch: int,
+        val_dataset: Optional[Any] = None,
+        env: Optional[Any] = None,
     ):
         """Optional callback at epoch end."""
         pass
 
-    def wrap_dataset(self, dataset: Any, policy: Optional[nn.Module] = None, env: Optional[Any] = None) -> Any:
+    def wrap_dataset(
+        self,
+        dataset: Any,
+        policy: Optional[nn.Module] = None,
+        env: Optional[Any] = None,
+    ) -> Any:
         """Optional wrap dataset."""
         return dataset
 
@@ -80,7 +90,7 @@ class NoBaseline(Baseline):
 class ExponentialBaseline(Baseline):
     """Exponential moving average baseline."""
 
-    def __init__(self, beta: float = 0.8):
+    def __init__(self, beta: float = 0.8, **kwargs):
         """
         Initialize ExponentialBaseline.
 
@@ -274,7 +284,12 @@ class RolloutBaseline(Baseline):
                 out = policy(td_copy, env, decode_type="greedy")
         return out["reward"]
 
-    def wrap_dataset(self, dataset: Any, policy: Optional[nn.Module] = None, env: Optional[Any] = None) -> Any:
+    def wrap_dataset(
+        self,
+        dataset: Any,
+        policy: Optional[nn.Module] = None,
+        env: Optional[Any] = None,
+    ) -> Any:
         """Wrap the dataset with rollout baseline values."""
         from logic.src.data.datasets import BaselineDataset
 
@@ -325,7 +340,11 @@ class RolloutBaseline(Baseline):
         return torch.zeros_like(reward)
 
     def epoch_callback(
-        self, policy: nn.Module, epoch: int, val_dataset: Optional[Any] = None, env: Optional[Any] = None
+        self,
+        policy: nn.Module,
+        epoch: int,
+        val_dataset: Optional[Any] = None,
+        env: Optional[Any] = None,
     ):
         """Update baseline policy if current policy improves significantly."""
         if (epoch + 1) % self.update_every == 0:
@@ -344,7 +363,7 @@ class RolloutBaseline(Baseline):
                 t_stat, p_val = stats.ttest_rel(candidate_vals.cpu().numpy(), baseline_vals.cpu().numpy())
 
                 if candidate_mean > baseline_mean and p_val / 2 < self.bl_alpha:
-                    print(f"Update baseline: {baseline_mean:.4f} -> {candidate_mean:.4f} (p={p_val/2:.4f})")
+                    print(f"Update baseline: {baseline_mean:.4f} -> {candidate_mean:.4f} (p={p_val / 2:.4f})")
                     self.setup(policy)
             else:
                 self.setup(policy)
@@ -353,7 +372,7 @@ class RolloutBaseline(Baseline):
 class WarmupBaseline(Baseline):
     """Gradual transition from ExponentialBaseline to target baseline."""
 
-    def __init__(self, baseline: Baseline, warmup_epochs: int = 1, beta: float = 0.8):
+    def __init__(self, baseline: Baseline, warmup_epochs: int = 1, beta: float = 0.8, **kwargs):
         """
         Initialize WarmupBaseline.
 
@@ -393,7 +412,11 @@ class WarmupBaseline(Baseline):
         return self.baseline.unwrap_batch(batch)
 
     def epoch_callback(
-        self, policy: nn.Module, epoch: int, val_dataset: Optional[Any] = None, env: Optional[Any] = None
+        self,
+        policy: nn.Module,
+        epoch: int,
+        val_dataset: Optional[Any] = None,
+        env: Optional[Any] = None,
     ):
         """
         Update warmup alpha and call inner baseline callback.
@@ -418,7 +441,7 @@ class WarmupBaseline(Baseline):
 class CriticBaseline(Baseline):
     """Learned critic baseline."""
 
-    def __init__(self, critic: Optional[nn.Module] = None):
+    def __init__(self, critic: Optional[nn.Module] = None, **kwargs):
         """
         Initialize CriticBaseline.
 

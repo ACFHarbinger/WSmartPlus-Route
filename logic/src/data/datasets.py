@@ -1,6 +1,7 @@
 """
 Dataset classes for WSmart-Route.
 """
+
 from typing import Union
 
 import tensordict
@@ -255,7 +256,9 @@ class BaselineDataset(Dataset):
         return len(self.dataset)
 
 
-def tensordict_collate_fn(batch: list[Union[dict, TensorDict]]) -> Union[dict, TensorDict]:
+def tensordict_collate_fn(
+    batch: list[Union[dict, TensorDict]],
+) -> Union[dict, TensorDict]:
     """Collate list of TensorDicts or dicts into batched TensorDict or dict."""
     if isinstance(batch[0], dict):
         collated = {key: tensordict_collate_fn([d[key] for d in batch]) for key in batch[0].keys()}

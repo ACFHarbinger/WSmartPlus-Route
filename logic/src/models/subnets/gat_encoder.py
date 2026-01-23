@@ -1,4 +1,5 @@
 """Graph Attention Encoder."""
+
 from __future__ import annotations
 
 from typing import Any, List, Optional
@@ -191,6 +192,7 @@ class GraphAttentionEncoder(nn.Module):
         agg: Any = None,
         connection_type: str = "skip",
         expansion_rate: int = 4,
+        **kwargs,
     ) -> None:
         """
         Initializes the GraphAttentionEncoder.

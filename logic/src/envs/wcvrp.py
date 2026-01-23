@@ -4,6 +4,7 @@ WCVRP Environment implementation.
 Waste Collection Vehicle Routing Problem: Collect waste from bins
 while respecting vehicle capacity constraints.
 """
+
 from __future__ import annotations
 
 from typing import Optional, Union

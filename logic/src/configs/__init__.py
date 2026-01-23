@@ -1,6 +1,7 @@
 """
 Configuration dataclasses for WSmart-Route.
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
@@ -226,7 +227,7 @@ class RLConfig:
     symnco_beta: float = 1.0
 
     # Imitation
-    expert: str = "hgs"  # hgs, alns, random_ls
+    imitation_mode: str = "hgs"  # hgs, alns, random_ls, 2opt
     imitation_weight: float = 0.0
     imitation_decay: float = 1.0
     imitation_threshold: float = 0.05
@@ -237,7 +238,7 @@ class RLConfig:
 
     # Meta-RL
     use_meta: bool = False
-    meta_strategy: str = "rnn"  # rnn|bandit|morl|tdl|hypernet
+    meta_strategy: str = "rnn"  # rnn|bandit|morl|tdl|hypernet|hrl
     meta_lr: float = 1e-3
     meta_hidden_dim: int = 64
     meta_history_length: int = 10

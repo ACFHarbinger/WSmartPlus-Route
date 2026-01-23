@@ -92,7 +92,7 @@ def add_gen_data_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
         "--vertex_method",
         type=str,
         default="mmn",
-        help="Method to transform vertex coordinates " "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
+        help="Method to transform vertex coordinates 'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
     )
     return parser
 

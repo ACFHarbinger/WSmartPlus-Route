@@ -136,7 +136,7 @@ def add_train_args(parser):
         "--vertex_method",
         type=str,
         default="mmn",
-        help="Method to transform vertex coordinates " "'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
+        help="Method to transform vertex coordinates 'mmn'|'mun'|'smsd'|'ecp'|'utmp'|'wmp'|'hdp'|'c3d'|'s4d'",
     )
 
     # Model
@@ -183,7 +183,7 @@ def add_train_args(parser):
         "--tanh_clipping",
         type=float,
         default=10.0,
-        help="Clip the parameters to within +- this value using tanh. " "Set to 0 to not perform any clipping.",
+        help="Clip the parameters to within +- this value using tanh. Set to 0 to not perform any clipping.",
     )
     parser.add_argument(
         "--normalization",

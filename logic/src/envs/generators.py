@@ -4,6 +4,7 @@ Data generators for combinatorial optimization problem instances.
 This module provides generator classes that create problem instances
 as TensorDict objects for use with RL4CO-style environments.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -521,5 +522,5 @@ def get_generator(name: str, **kwargs: Any) -> Generator:
         ValueError: If generator name is not found.
     """
     if name not in GENERATOR_REGISTRY:
-        raise ValueError(f"Unknown generator: {name}. " f"Available generators: {list(GENERATOR_REGISTRY.keys())}")
+        raise ValueError(f"Unknown generator: {name}. Available generators: {list(GENERATOR_REGISTRY.keys())}")
     return GENERATOR_REGISTRY[name](**kwargs)

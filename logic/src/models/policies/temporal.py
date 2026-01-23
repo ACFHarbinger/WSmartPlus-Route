@@ -1,6 +1,7 @@
 """
 Temporal Attention Model Policy.
 """
+
 from typing import Optional, Union
 
 import torch

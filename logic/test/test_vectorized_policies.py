@@ -1,6 +1,7 @@
 """
 Unit tests for vectorized policy implementations (Local Search, HGS, Split).
 """
+
 import pytest
 import torch
 from tensordict.tensordict import TensorDict
@@ -194,7 +195,11 @@ class TestVectorizedPolicies:
 
         # 2. Initialize Solver
         solver = VectorizedALNS(
-            dist_matrix=dist_matrix, demands=demands, vehicle_capacity=capacity, time_limit=1.0, device=device
+            dist_matrix=dist_matrix,
+            demands=demands,
+            vehicle_capacity=capacity,
+            time_limit=1.0,
+            device=device,
         )
 
         # 3. Solve

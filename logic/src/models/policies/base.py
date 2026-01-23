@@ -1,6 +1,7 @@
 """
 Base policy classes for constructive and improvement methods.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

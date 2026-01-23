@@ -5,6 +5,7 @@ This module provides the fundamental trainer classes for the WSmart+ Route pipel
 - StandardTrainer: Base implementation of REINFORCE/PPO training logic.
 - TimeTrainer: Extension for time-dependent/sequential decision processes.
 """
+
 from __future__ import annotations
 
 import os
@@ -84,7 +85,11 @@ class StandardTrainer(BaseReinforceTrainer):
         set_decode_type(self.model, "sampling")
 
         daily_total_samples: int = 0
-        loss_keys: List[str] = list(self.cost_weights.keys()) + ["total", "nll", "reinforce_loss"]
+        loss_keys: List[str] = list(self.cost_weights.keys()) + [
+            "total",
+            "nll",
+            "reinforce_loss",
+        ]
         if self.opts["baseline"] is not None:
             loss_keys.append("baseline_loss")
         if self.opts.get("imitation_weight", 0) > 0:
@@ -150,7 +155,13 @@ class StandardTrainer(BaseReinforceTrainer):
         batch: Dict[str, Any],
         batch_id: int,
         opt_step: bool = True,
-    ) -> Tuple[Optional[torch.Tensor], Dict[str, Any], Dict[str, Any], torch.Tensor, Optional[Dict[str, Any]]]:
+    ) -> Tuple[
+        Optional[torch.Tensor],
+        Dict[str, Any],
+        Dict[str, Any],
+        torch.Tensor,
+        Optional[Dict[str, Any]],
+    ]:
         """
         Train on a single batch of data.
 

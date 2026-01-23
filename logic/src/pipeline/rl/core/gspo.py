@@ -1,6 +1,7 @@
 """
 Group Sequence Policy Optimization (GSPO) algorithm.
 """
+
 from __future__ import annotations
 
 import torch
