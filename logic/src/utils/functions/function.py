@@ -56,7 +56,14 @@ def load_problem(name: str) -> Type[Any]:
     Raises:
         AssertionError: If problem name is unsupported.
     """
-    from logic.src.tasks import CVRPP, CWCVRP, SCWCVRP, SDWCVRP, VRPP, WCVRP
+    from logic.src.envs.problems import (
+        CVRPP,
+        CWCVRP,
+        SCWCVRP,
+        SDWCVRP,
+        VRPP,
+        WCVRP,
+    )
 
     problem = {
         "vrpp": VRPP,
