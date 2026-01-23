@@ -135,7 +135,7 @@ class DeepDecoderPolicy(ConstructivePolicy):
                 action, log_p = self._select_action(logits, valid_mask, decode_type)
 
             td["action"] = action
-            td = env.step(td)
+            td = env.step(td)["next"]
 
             log_likelihood = log_likelihood + log_p
             output_actions.append(action)

@@ -183,10 +183,14 @@ class RolloutBaseline(Baseline):
         from logic.src.data.datasets import tensordict_collate_fn
 
         if isinstance(td_or_dataset, Dataset):
-            # We use a simple DataLoader to batch the dataset
+            # Determine strict batch size from environment
+            batch_size = 64  # Default
+            if hasattr(env, "batch_size") and len(env.batch_size) > 0:
+                batch_size = int(env.batch_size[0])
+
             loader = DataLoader(
                 td_or_dataset,
-                batch_size=64,
+                batch_size=batch_size,
                 collate_fn=tensordict_collate_fn,
                 num_workers=0,
             )
@@ -215,13 +219,15 @@ class RolloutBaseline(Baseline):
                             td_data = env.reset(td_data)
                         td_data = td_data.to(device)  # Ensure on policy device after reset
                     except Exception as e:
-                        print(
-                            f"DEBUG: batch type: {type(batch)}, keys: {batch.keys() if hasattr(batch, 'keys') else 'N/A'}"
-                        )
-                        print(
-                            f"DEBUG: td_data type: {type(td_data)}, keys: {td_data.keys() if hasattr(td_data, 'keys') else 'N/A'}"
-                        )
                         raise e
+                    # Padding logic for last batch
+                    real_size = td_data.batch_size[0]
+                    if real_size != batch_size:
+                        pad_size = batch_size - real_size
+                        # Repeat the first element to pad
+                        padding = td_data[0].expand(pad_size).clone()
+                        td_data = torch.cat([td_data, padding], 0)
+
                     if hasattr(policy, "set_decode_type"):
                         policy.set_decode_type("greedy")
                         # Some old models might return (cost, ll, dict, pi, entropy)
@@ -232,7 +238,14 @@ class RolloutBaseline(Baseline):
                             out = res
                     else:
                         out = policy(td_data, env, decode_type="greedy")
+
+                    # Unpad rewards
+                    if real_size != batch_size:
+                        out["reward"] = out["reward"][:real_size]
+
                     rewards.append(out["reward"].cpu())
+            if len(rewards) == 0:
+                return torch.tensor([], device="cpu")
             return torch.cat(rewards)
 
         # If it's a TensorDict (single batch)
@@ -313,7 +326,7 @@ class RolloutBaseline(Baseline):
             return dataset
 
         print("Evaluating baseline on dataset...")
-        bl_vals = self._rollout(p, dataset.data if hasattr(dataset, "data") else dataset, env)
+        bl_vals = self._rollout(p, dataset, env)
         return BaselineDataset(dataset, bl_vals.view(-1, 1))
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
@@ -348,7 +361,12 @@ class RolloutBaseline(Baseline):
     ):
         """Update baseline policy if current policy improves significantly."""
         if (epoch + 1) % self.update_every == 0:
-            if val_dataset is not None and self.baseline_policy is not None and env is not None:
+            if (
+                val_dataset is not None
+                and len(val_dataset) > 0
+                and self.baseline_policy is not None
+                and env is not None
+            ):
                 from scipy import stats
 
                 # Evaluate candidate

@@ -12,7 +12,7 @@ import torch
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
 
-from logic.src.data.datasets import GeneratorDataset, tensordict_collate_fn
+from logic.src.data.datasets import tensordict_collate_fn
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
 
@@ -331,29 +331,29 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
             # If num_workers > 0, we should generate on CPU to avoid CUDA fork issues
             # and transfer to device in shared_step.
-            generator = self.env.generator
-            if self.num_workers > 0 and generator.device.type != "cpu":
-                if hasattr(generator, "to"):
-                    generator = generator.to("cpu")
-                else:
-                    # Fallback or warning if .to() is not available (though we just added it)
-                    print("Warning: Generator on GPU with num_workers > 0. Forces CPU generator.")
-                    # Ideally we wouldn't reach here if we assume generators.py is updated.
+            from logic.src.data.datasets import TensorDictDataset
 
-            self.train_dataset: Dataset = GeneratorDataset(
-                generator,
-                self.train_data_size,
-            )
+            # Pre-generate dataset on CPU for efficiency and VRAM saving
+            # This avoids the overhead of generating 1 instance at a time in __getitem__
+            gen = self.env.generator
+            if hasattr(gen, "to"):
+                gen = gen.to("cpu")
+
+            if self.local_rank == 0:
+                print(f"Pre-generating training dataset ({self.train_data_size} instances) on CPU...")
+
+            data = gen(batch_size=self.train_data_size)
+            self.train_dataset = TensorDictDataset(data)
             if self.val_dataset_path is not None:
                 # Load validation dataset from file (legacy parity)
                 from logic.src.data.datasets import TensorDictDataset
 
                 self.val_dataset: Dataset = TensorDictDataset.load(self.val_dataset_path)
             else:
-                self.val_dataset = GeneratorDataset(
-                    generator,  # Use same CPU generator for validation if generated
-                    self.val_data_size,
-                )
+                if self.local_rank == 0:
+                    print(f"Pre-generating validation dataset ({self.val_data_size} instances) on CPU...")
+                val_data = gen(batch_size=self.val_data_size)
+                self.val_dataset = TensorDictDataset(val_data)
 
     def train_dataloader(self) -> DataLoader:
         """
@@ -362,12 +362,16 @@ class RL4COLitModule(pl.LightningModule, ABC):
         Returns:
             DataLoader: DataLoader for training data.
         """
+        # print("DEBUG: Creating train_dataloader")
+        # Ensure we don't use workers if dataset is on CPU (to avoid copy overhead or fork issues)
+        # But TensorDictDataset is efficient.
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
-            collate_fn=tensordict_collate_fn,
+            shuffle=True,  # Shuffle for training
             num_workers=self.num_workers,
-            shuffle=True,
+            collate_fn=tensordict_collate_fn,
+            pin_memory=self.num_workers > 0,
         )
 
     def val_dataloader(self) -> DataLoader:
