@@ -116,7 +116,7 @@ class TrainConfig:
     train_data_size: int = 100000
     val_data_size: int = 10000
     val_dataset: Optional[str] = None
-    num_workers: int = 4
+    num_workers: int = 0
     precision: str = "16-mixed"  # "16-mixed", "bf16-mixed", "32-true"
     # NEW FIELDS:
     train_time: bool = False
