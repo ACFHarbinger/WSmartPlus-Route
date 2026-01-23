@@ -41,3 +41,5 @@ class TrainConfig:
     load_path: Optional[str] = None
     resume: Optional[str] = None
     eval_batch_size: int = 256
+    persistent_workers: bool = True
+    pin_memory: bool = False
