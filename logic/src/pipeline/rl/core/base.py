@@ -89,6 +89,56 @@ class RL4COLitModule(pl.LightningModule, ABC):
         # Initialize baseline
         self._init_baseline()
 
+    def save_weights(self, path: str):
+        """
+        Save model weights and hyperparameters.
+
+        Args:
+            path: Path to save the weights to.
+        """
+        import json
+        import os
+
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        # Save weights and hparams to .pt file
+        torch.save(
+            {
+                "state_dict": self.state_dict(),
+                "hparams": self.hparams,
+            },
+            path,
+        )
+
+        # Save hparams to sidecar args.json
+        args_path = os.path.join(os.path.dirname(path), "args.json")
+
+        # Convert hparams to a serializable dict
+        # Filter out non-serializable objects (env, policy) if they were not ignored
+        hparams_dict = {}
+        for k, v in self.hparams.items():
+            if isinstance(v, (int, float, str, bool, list, dict)) or v is None:
+                hparams_dict[k] = v
+            elif hasattr(v, "__str__"):
+                hparams_dict[k] = str(v)
+
+        try:
+            with open(args_path, "w") as f:
+                json.dump(hparams_dict, f, indent=4)
+        except Exception as e:
+            print(f"Warning: Could not save sidecar args.json: {e}")
+
+        # Save full Hydra config if available
+        if hasattr(self, "cfg") and self.cfg is not None:
+            config_path = os.path.join(os.path.dirname(path), "config.yaml")
+            try:
+                from omegaconf import OmegaConf
+
+                OmegaConf.save(config=self.cfg, f=config_path)
+            except Exception as e:
+                print(f"Warning: Could not save config.yaml: {e}")
+
     def _init_baseline(self):
         """Initialize baseline for advantage estimation."""
         from logic.src.pipeline.rl.core.baselines import WarmupBaseline, get_baseline

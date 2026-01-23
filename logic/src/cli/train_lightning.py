@@ -106,12 +106,21 @@ def create_model(cfg: Config) -> pl.LightningModule:
     else:
         # Works for both Dataclass and DictConfig
         common_kwargs = OmegaConf.to_container(OmegaConf.create(cfg.rl), resolve=True)
-    # Merge train and optim config into common_kwargs
+    # Merge train, model and optim config into common_kwargs
     if isinstance(cfg.train, dict):
         train_params = cfg.train.copy()
     else:
         train_params = OmegaConf.to_container(OmegaConf.create(cfg.train), resolve=True)
     common_kwargs.update(train_params)
+
+    if isinstance(cfg.model, dict):
+        model_params = cfg.model.copy()
+    else:
+        model_params = OmegaConf.to_container(OmegaConf.create(cfg.model), resolve=True)
+    common_kwargs.update(model_params)
+
+    # We must remove 'name' as it's used in get_baseline and might conflict if passed in kwargs
+    common_kwargs.pop("name", None)
 
     # Specific remapping if needed
     common_kwargs["env"] = env
@@ -133,6 +142,30 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
     common_kwargs["lr_scheduler_kwargs"] = scheduler_kwargs
     common_kwargs["baseline"] = cfg.rl.baseline
+
+    # REMAPPING FOR SIMULATION COMPATIBILITY (args.json)
+    # The simulation's load_model expects legacy key names
+    common_kwargs["problem"] = cfg.env.name
+    common_kwargs["model"] = cfg.model.name
+    common_kwargs["encoder"] = cfg.model.encoder_type
+    common_kwargs["embedding_dim"] = cfg.model.embed_dim
+    common_kwargs["n_encode_layers"] = cfg.model.num_encoder_layers
+    common_kwargs["n_encode_sublayers"] = cfg.model.num_encoder_sublayers
+    common_kwargs["n_decode_layers"] = cfg.model.num_decoder_layers
+    common_kwargs["n_heads"] = cfg.model.num_heads
+    common_kwargs["n_predict_layers"] = cfg.model.num_predictor_layers
+    common_kwargs["learn_affine"] = cfg.model.learn_affine
+    common_kwargs["track_stats"] = cfg.model.track_stats
+    common_kwargs["epsilon_alpha"] = cfg.model.epsilon_alpha
+    common_kwargs["momentum_beta"] = cfg.model.momentum_beta
+    common_kwargs["af_param"] = cfg.model.activation_param
+    common_kwargs["af_threshold"] = cfg.model.activation_threshold
+    common_kwargs["af_replacement"] = cfg.model.activation_replacement
+    common_kwargs["af_nparams"] = cfg.model.activation_num_parameters
+    common_kwargs["af_urange"] = cfg.model.activation_uniform_range
+    common_kwargs["aggregation"] = cfg.model.aggregation_node
+    common_kwargs["aggregation_graph"] = cfg.model.aggregation_graph
+    common_kwargs["hidden_dim"] = cfg.model.hidden_dim
 
     # Clean up common_kwargs to avoid passing unexpected args to LightningModule
     # some algorithm specific args might be in cfg.rl but not in common_kwargs base
@@ -430,13 +463,20 @@ def run_training(cfg: Config) -> float:
         accelerator=cfg.device if cfg.device != "cuda" else "auto",
         devices=1 if cfg.device == "cuda" else "auto",
         gradient_clip_val=(float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0),
-        logger=CSVLogger("logs", name="lightning_logs"),
+        logger=CSVLogger(cfg.train.logs_dir or "logs", name=""),
         callbacks=[SpeedMonitor(epoch_time=True)],
         precision=cfg.train.precision,
         log_every_n_steps=cfg.train.log_step,
+        model_weights_path=cfg.train.model_weights_path,
+        logs_dir=cfg.train.logs_dir,
     )
 
     trainer.fit(model)
+
+    # Save final weights if path is provided
+    if cfg.train.final_model_path:
+        model.save_weights(cfg.train.final_model_path)
+
     return trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()
 
 

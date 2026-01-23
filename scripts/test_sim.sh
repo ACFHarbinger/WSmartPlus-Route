@@ -73,7 +73,7 @@ POLICIES=("amgat")
 #"gurobi_vrpp" "hexaly_vrpp"
 #"amgat" "amggac" "amtgc"
 declare -A MODEL_PATHS
-MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat"
+MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat0"
 MODEL_PATHS["amgat_hrl"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat_hrl"
 MODEL_PATHS["amggac"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amggac"
 MODEL_PATHS["amtgc"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amtgc_hrl"

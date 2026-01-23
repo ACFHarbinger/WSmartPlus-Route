@@ -223,22 +223,105 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     elif os.path.isdir(path):
         if epoch is None:
             pt_files = [f for f in os.listdir(path) if f.endswith(".pt")]
+            # Filter for epoch-N.pt or epochN.pt
+            import re
+
             epochs = []
             for f in pt_files:
                 name = os.path.splitext(f)[0]
-                if "-" in name:
-                    parts = name.split("-")
-                    if len(parts) == 2 and parts[0] == "epoch" and parts[1].isdigit():
-                        epochs.append(int(parts[1]))
+                # Match both epoch-100 and epoch100
+                m = re.match(r"epoch-?(\d+)", name)
+                if m:
+                    epochs.append(int(m.group(1)))
 
             if not epochs:
-                raise ValueError("No valid epoch files (epoch-N.pt) found in directory: {}".format(path))
+                raise ValueError("No valid epoch files (epoch-N.pt or epochN.pt) found in directory: {}".format(path))
             epoch = max(epochs)
-        model_filename = os.path.join(path, "epoch-{}.pt".format(epoch))
+
+        # Check if version with hyphen exists first
+        hyphen_path = os.path.join(path, "epoch-{}.pt".format(epoch))
+        if os.path.exists(hyphen_path):
+            model_filename = hyphen_path
+        else:
+            model_filename = os.path.join(path, "epoch{}.pt".format(epoch))
     else:
         assert False, "{} is not a valid directory or file".format(path)
 
-    args = load_args(os.path.join(path, "args.json"))
+    # Load hyperparameters
+    args = {}
+    config_yaml_path = os.path.join(path, "config.yaml")
+    hparams_yaml_path = os.path.join(path, "hparams.yaml")
+    args_json_path = os.path.join(path, "args.json")
+
+    if os.path.exists(config_yaml_path) or os.path.exists(hparams_yaml_path):
+        yaml_path = config_yaml_path if os.path.exists(config_yaml_path) else hparams_yaml_path
+        from omegaconf import OmegaConf
+
+        cfg = OmegaConf.load(yaml_path)
+        # If it's a Lightning hparams.yaml, it might have nested keys or different structure
+        # If it's our config.yaml, it's a full Hydra config
+
+        if "model" in cfg and "env" in cfg:
+            # Full Hydra Config
+            args = {
+                "problem": cfg.env.name,
+                "encoder": cfg.model.encoder_type,
+                "model": cfg.model.name,
+                "embedding_dim": cfg.model.embed_dim,
+                "hidden_dim": cfg.model.hidden_dim,
+                "n_heads": cfg.model.num_heads,
+                "n_encode_layers": cfg.model.num_encoder_layers,
+                "n_encode_sublayers": cfg.model.num_encoder_sublayers,
+                "n_decode_layers": cfg.model.num_decoder_layers,
+                "n_predict_layers": cfg.model.num_predictor_layers,
+                "normalization": cfg.model.normalization,
+                "activation": cfg.model.activation,
+                "dropout": cfg.model.dropout,
+                "tanh_clipping": cfg.model.tanh_clipping,
+                "learn_affine": cfg.model.learn_affine,
+                "track_stats": cfg.model.track_stats,
+                "epsilon_alpha": cfg.model.epsilon_alpha,
+                "momentum_beta": cfg.model.momentum_beta,
+                "lrnorm_k": cfg.model.lrnorm_k,
+                "gnorm_groups": cfg.model.gnorm_groups,
+                "af_param": cfg.model.activation_param,
+                "af_threshold": cfg.model.activation_threshold,
+                "af_replacement": cfg.model.activation_replacement,
+                "af_nparams": cfg.model.activation_num_parameters,
+                "af_urange": cfg.model.activation_uniform_range,
+                "aggregation": cfg.model.aggregation_node,
+                "aggregation_graph": cfg.model.aggregation_graph,
+                "spatial_bias": cfg.model.spatial_bias,
+                "spatial_bias_scale": cfg.model.spatial_bias_scale,
+                "shrink_size": cfg.model.shrink_size,
+                "temporal_horizon": cfg.model.temporal_horizon,
+                "mask_inner": cfg.model.mask_inner,
+                "mask_logits": cfg.model.mask_logits,
+                "mask_graph": cfg.model.mask_graph,
+                "checkpoint_encoder": cfg.model.checkpoint_encoder,
+            }
+            if "rl" in cfg:
+                args["entropy_weight"] = cfg.rl.entropy_weight
+        else:
+            # Maybe it's a flat DictConfig or Lightning hparams
+            args = OmegaConf.to_container(cfg, resolve=True)
+            # Apply some basic remapping if needed
+            if "embed_dim" in args and "embedding_dim" not in args:
+                args["embedding_dim"] = args["embed_dim"]
+            if "num_encoder_layers" in args and "n_encode_layers" not in args:
+                args["n_encode_layers"] = args["num_encoder_layers"]
+            if "num_heads" in args and "n_heads" not in args:
+                args["n_heads"] = args["num_heads"]
+    elif os.path.exists(args_json_path):
+        args = load_args(args_json_path)
+    else:
+        # Check if the path contains hparams.yaml (saved by lightning)
+        # We already checked but let's be thorough if we're in a lightning directory
+        pass
+
+    if not args:
+        raise ValueError("Could not find hyperparameters in directory: {}".format(path))
+
     problem = load_problem(args["problem"])
 
     # Map encoder name to Factory Class
