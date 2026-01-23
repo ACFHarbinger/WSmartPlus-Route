@@ -36,10 +36,6 @@ from logic.src.file_system import (
 )
 from logic.src.pipeline.eval import run_evaluate_model
 from logic.src.pipeline.test import run_wsr_simulator_test
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", category=DeprecationWarning)
-    from logic.src.pipeline.train import hyperparameter_optimization, run_training
 from logic.test import PyTestRunner
 
 warnings.filterwarnings(
@@ -196,11 +192,7 @@ def main(args):
             elif comm == "test_suite":
                 run_test_suite(opts)
             else:
-                if comm in ["train", "mrl_train"]:
-                    run_training(opts, comm)
-                elif comm == "hp_optim":
-                    hyperparameter_optimization(opts)
-                elif comm == "gen_data":
+                if comm == "gen_data":
                     generate_datasets(opts)
                 elif comm == "eval":
                     run_evaluate_model(opts)
@@ -275,8 +267,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    # Commands that use the new Hydra/Lightning parser
     HYDRA_COMMANDS = [
+        "train",
         "train_hydra",
         "train_lightning",
         "mrl_train",

@@ -13,18 +13,12 @@ from logic.src.cli.base_parser import (
 from logic.src.cli.data_parser import add_gen_data_args, validate_gen_data_args
 from logic.src.cli.fs_parser import add_files_args, validate_file_system_args
 from logic.src.cli.gui_parser import add_gui_args, validate_gui_args
-from logic.src.cli.hpo_parser import add_hp_optim_args
-from logic.src.cli.meta_train_parser import add_mrl_train_args
 from logic.src.cli.registry import get_parser
 from logic.src.cli.sim_parser import (
     add_eval_args,
     add_test_sim_args,
     validate_eval_args,
     validate_test_sim_args,
-)
-from logic.src.cli.train_parser import (
-    add_train_args,
-    validate_train_args,
 )
 from logic.src.cli.ts_parser import add_test_suite_args, validate_test_suite_args
 from logic.src.cli.tui import launch_tui
@@ -42,9 +36,7 @@ def parse_params():
         command, opts = parser.parse_process_args()
 
         # --- COMMAND-SPECIFIC VALIDATION AND POST-PROCESSING ---
-        if command in ["train", "mrl_train", "hp_optim"]:
-            opts = validate_train_args(opts)
-        elif command == "gen_data":
+        if command == "gen_data":
             opts = validate_gen_data_args(opts)
         elif command == "eval":
             opts = validate_eval_args(opts)
