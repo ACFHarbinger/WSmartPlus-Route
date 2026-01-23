@@ -90,15 +90,16 @@ class NoBaseline(Baseline):
 class ExponentialBaseline(Baseline):
     """Exponential moving average baseline."""
 
-    def __init__(self, beta: float = 0.8, **kwargs):
+    def __init__(self, beta: float = 0.8, exp_beta: Optional[float] = None, **kwargs):
         """
         Initialize ExponentialBaseline.
 
         Args:
-            beta: Decay factor for exponential moving average (default: 0.8).
+            beta: Decay factor for exponential moving average.
+            exp_beta: Alternative name for beta (matching RLConfig).
         """
         super().__init__()
-        self.beta = beta
+        self.beta = exp_beta if exp_beta is not None else beta
         self.running_mean: Optional[torch.Tensor] = None
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
@@ -390,20 +391,29 @@ class RolloutBaseline(Baseline):
 class WarmupBaseline(Baseline):
     """Gradual transition from ExponentialBaseline to target baseline."""
 
-    def __init__(self, baseline: Baseline, warmup_epochs: int = 1, beta: float = 0.8, **kwargs):
+    def __init__(
+        self,
+        baseline: Baseline,
+        warmup_epochs: int = 1,
+        bl_warmup_epochs: Optional[int] = None,
+        beta: float = 0.8,
+        exp_beta: Optional[float] = None,
+        **kwargs,
+    ):
         """
         Initialize WarmupBaseline.
 
         Args:
             baseline: Target baseline to transition to.
             warmup_epochs: Number of epochs for warmup transition.
+            bl_warmup_epochs: Alternative name for warmup_epochs.
             beta: Beta parameter for the warmup exponential baseline.
+            exp_beta: Alternative name for beta.
         """
         super().__init__()
         self.baseline = baseline
-        self.warmup_baseline = ExponentialBaseline(beta=beta)
-        self.alpha = 0.0
-        self.warmup_epochs = warmup_epochs
+        self.warmup_epochs = bl_warmup_epochs if bl_warmup_epochs is not None else warmup_epochs
+        self.warmup_baseline = ExponentialBaseline(beta=beta, exp_beta=exp_beta)
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """

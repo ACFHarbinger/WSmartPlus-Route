@@ -42,6 +42,8 @@ class RL4COLitModule(pl.LightningModule, ABC):
         val_dataset_path: Optional[str] = None,
         batch_size: int = 256,
         num_workers: int = 4,
+        persistent_workers: bool = True,
+        pin_memory: bool = False,
         **kwargs,
     ):
         """
@@ -75,6 +77,8 @@ class RL4COLitModule(pl.LightningModule, ABC):
         self.val_dataset_path = val_dataset_path
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.persistent_workers = persistent_workers
+        self.pin_memory = pin_memory
 
         # Optimizer params
         self.optimizer_name = optimizer
@@ -138,12 +142,32 @@ class RL4COLitModule(pl.LightningModule, ABC):
         """
         # Unwrap batch if it's from a baseline dataset
         batch, baseline_val = self.baseline.unwrap_batch(batch)
-        batch = batch.to(self.device)
+
+        # Move to device (crucial when pin_memory=False)
+        if hasattr(batch, "to"):
+            batch = batch.to(self.device)
+        elif isinstance(batch, dict):
+            batch = {k: v.to(self.device) if hasattr(v, "to") else v for k, v in batch.items()}
+
         if baseline_val is not None:
             baseline_val = baseline_val.to(self.device)
         self._current_baseline_val = baseline_val
 
-        td = self.env.reset(batch)
+        # env.reset expects data on the environment's device.
+        # Ensure batch is a TensorDict (converting from dict if necessary).
+        if isinstance(batch, dict):
+            if "data" in batch:
+                # Handling BaselineDataset wrapped output
+                td_data = batch["data"]
+                if not isinstance(td_data, TensorDict):
+                    td_data = TensorDict(td_data, batch_size=[len(next(iter(td_data.values())))])
+                td = self.env.reset(td_data.to(self.device))
+            else:
+                # Direct dict from TensorDict.to_dict() collation
+                td_batch = TensorDict(batch, batch_size=[len(next(iter(batch.values())))])
+                td = self.env.reset(td_batch.to(self.device))
+        else:
+            td = self.env.reset(batch.to(self.device))
 
         # Run policy
         out = self.policy(
@@ -163,12 +187,14 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         # Log metrics
         reward_mean = out["reward"].mean()
+        batch_size = out["reward"].shape[0]
+
         self.log(
             f"{phase}/reward",
             reward_mean,
             prog_bar=True,
             sync_dist=True,
-            batch_size=batch.batch_size[0],
+            batch_size=batch_size,
         )
 
         if "collection" in out:
@@ -176,14 +202,14 @@ class RL4COLitModule(pl.LightningModule, ABC):
                 f"{phase}/collection",
                 out["collection"].mean(),
                 sync_dist=True,
-                batch_size=batch.batch_size[0],
+                batch_size=batch_size,
             )
         if "cost" in out:
             self.log(
                 f"{phase}/cost",
                 out["cost"].mean(),
                 sync_dist=True,
-                batch_size=batch.batch_size[0],
+                batch_size=batch_size,
             )
         else:
             self.log(f"{phase}/cost_total", -reward_mean, sync_dist=True)
@@ -371,7 +397,8 @@ class RL4COLitModule(pl.LightningModule, ABC):
             shuffle=True,  # Shuffle for training
             num_workers=self.num_workers,
             collate_fn=tensordict_collate_fn,
-            pin_memory=self.num_workers > 0,
+            pin_memory=self.pin_memory if self.num_workers > 0 else False,
+            persistent_workers=self.persistent_workers if self.num_workers > 0 else False,
         )
 
     def val_dataloader(self) -> DataLoader:
@@ -386,4 +413,6 @@ class RL4COLitModule(pl.LightningModule, ABC):
             batch_size=self.batch_size,
             collate_fn=tensordict_collate_fn,
             num_workers=self.num_workers,
+            pin_memory=self.pin_memory if self.num_workers > 0 else False,
+            persistent_workers=self.persistent_workers if self.num_workers > 0 else False,
         )

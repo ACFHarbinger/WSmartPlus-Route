@@ -261,8 +261,13 @@ def tensordict_collate_fn(
 ) -> Union[dict, TensorDict]:
     """Collate list of TensorDicts or dicts into batched TensorDict or dict."""
     if isinstance(batch[0], dict):
-        collated = {key: tensordict_collate_fn([d[key] for d in batch]) for key in batch[0].keys()}
-        # If all values are TensorDicts or tensors, we could try making it a TensorDict,
-        # but BaselineDataset Specifically needs a dict for RL4COLitModule.unwrap_batch
-        return collated
+        # We recursively collate the values
+        return {key: tensordict_collate_fn([d[key] for d in batch]) for key in batch[0].keys()}
+
+    if isinstance(batch[0], TensorDict):
+        # We stack and convert to dict for pin_memory compatibility.
+        # TensorDict's __init__ is called in the pin_memory thread without batch_size,
+        # which causes errors. Standard dicts of tensors are safe.
+        return torch.stack(batch).to_dict()
+
     return torch.stack(batch)  # type: ignore
