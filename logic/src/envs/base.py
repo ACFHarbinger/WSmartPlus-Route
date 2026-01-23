@@ -6,19 +6,20 @@ enabling unified state management via TensorDict and problem-agnostic interfaces
 """
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, Optional, Union
 
 import torch
 from tensordict import TensorDict
+from torchrl.envs import EnvBase
 
 
-class RL4COEnvBase(ABC):
+class RL4COEnvBase(EnvBase):
     """
     Base environment class for combinatorial optimization problems.
 
     This class provides a unified interface for problem environments following
-    the RL4CO architecture pattern. All problem-specific environments should
+    the torchrl/RL4CO architecture pattern. All problem-specific environments should
     inherit from this class.
 
     Attributes:
@@ -34,6 +35,7 @@ class RL4COEnvBase(ABC):
         generator: Optional[Any] = None,
         generator_params: Optional[dict] = None,
         device: Union[str, torch.device] = "cpu",
+        batch_size: Optional[Union[torch.Size, int]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -43,93 +45,87 @@ class RL4COEnvBase(ABC):
             generator: Data generator instance for creating problem instances.
             generator_params: Parameters to pass to the generator if not provided.
             device: Device to place tensors on.
+            batch_size: Batch size for the environment.
             **kwargs: Additional keyword arguments.
         """
-        self.device = torch.device(device)
+        if batch_size is None:
+            batch_size = torch.Size([])
+        elif isinstance(batch_size, int):
+            batch_size = torch.Size([batch_size])
+
+        super().__init__(device=device, batch_size=batch_size)
         self.generator = generator
         self.generator_params = generator_params or {}
         self._kwargs = kwargs
 
-    @abstractmethod
-    def _reset(self, td: TensorDict, batch_size: Optional[int] = None) -> TensorDict:
+    def _reset(self, td: Optional[TensorDict] = None, batch_size: Optional[int] = None) -> TensorDict:
         """
         Initialize episode state from problem instance.
-
-        This method should be implemented by subclasses to handle
-        problem-specific state initialization.
-
-        Args:
-            td: TensorDict containing the problem instance data.
-            batch_size: Optional batch size for generating new instances.
-
-        Returns:
-            TensorDict with initialized state fields.
         """
-        raise NotImplementedError
+        if td is None:
+            if self.generator is None:
+                raise ValueError("Either provide td or set a generator for the environment")
+            td = self.generator(batch_size or self.batch_size)
+
+        # Move to device
+        td = td.to(self.device)
+
+        # Call problem-specific reset (must be implemented by subclasses)
+        td = self._reset_instance(td)
+
+        # Add common fields
+        td["action_mask"] = self._get_action_mask(td)
+        td["i"] = torch.zeros((*td.batch_size, 1), dtype=torch.long, device=self.device)
+
+        return td
 
     @abstractmethod
+    def _reset_instance(self, td: TensorDict) -> TensorDict:
+        """Problem-specific instance initialization."""
+        raise NotImplementedError
+
     def _step(self, td: TensorDict) -> TensorDict:
         """
-        Execute action and return new state.
-
-        This method should be implemented by subclasses to handle
-        problem-specific state transitions.
-
-        Args:
-            td: TensorDict containing current state and action.
-
-        Returns:
-            TensorDict with updated state after action execution.
+        Execute action and return new state as 'next' entry.
         """
+        # Execute problem-specific step
+        td_next = self._step_instance(td)
+
+        # Update common fields in the next state
+        td_next["i"] = td["i"] + 1
+        td_next["action_mask"] = self._get_action_mask(td_next)
+        td_next["done"] = self._check_done(td_next)
+
+        # Reward is usually computed at the end in CO, but can be step-wise
+        # TorchRL expects 'reward' and 'done' in the output of _step
+        td_next["reward"] = self._get_reward(td_next, td.get("action", None))
+
+        return td_next
+
+    @abstractmethod
+    def _step_instance(self, td: TensorDict) -> TensorDict:
+        """Problem-specific state transition."""
         raise NotImplementedError
 
     @abstractmethod
     def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Compute final reward/cost for complete solution.
-
-        This method should be implemented by subclasses to compute
-        problem-specific rewards (typically called at episode end).
-
-        Args:
-            td: TensorDict containing the complete solution state.
-            actions: Optional tensor of actions taken (tour sequence).
-
-        Returns:
-            Tensor of rewards for each instance in the batch.
-        """
+        """Compute reward."""
         raise NotImplementedError
 
     @abstractmethod
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
-        """
-        Return mask of valid actions.
-
-        This method should be implemented by subclasses to compute
-        problem-specific action masking.
-
-        Args:
-            td: TensorDict containing current state.
-
-        Returns:
-            Boolean tensor indicating valid (True) and invalid (False) actions.
-        """
+        """Return mask of valid actions."""
         raise NotImplementedError
+
+    def _set_seed(self, seed: Optional[int]):
+        """Set random seed for reproducibility."""
+        if seed is not None:
+            torch.manual_seed(seed)
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:
         """
         Check if episodes are complete.
-
-        Default implementation checks if all nodes are visited or
-        we've returned to depot. Override for problem-specific logic.
-
-        Args:
-            td: TensorDict containing current state.
-
-        Returns:
-            Boolean tensor indicating which episodes are done.
         """
-        # Default: done when current node is depot and we've moved
         current_node = td.get("current_node", None)
         step_count = td.get("i", None)
 
@@ -139,118 +135,15 @@ class RL4COEnvBase(ABC):
         # Done if we're back at depot (node 0) after at least one step
         return (current_node.squeeze(-1) == 0) & (step_count.squeeze(-1) > 0)
 
-    def reset(self, td: Optional[TensorDict] = None, batch_size: Optional[int] = None) -> TensorDict:
-        """
-        Public reset with common preprocessing.
-
-        This method handles the common reset logic and delegates
-        problem-specific initialization to _reset().
-
-        Args:
-            td: Optional TensorDict containing problem instance.
-                If None, generates new instances using the generator.
-            batch_size: Batch size for generating new instances.
-
-        Returns:
-            TensorDict with initialized state ready for rollout.
-        """
-        # Generate new instances if not provided
-        if td is None:
-            if self.generator is None:
-                raise ValueError("Either provide td or set a generator for the environment")
-            td = self.generator(batch_size or 1)
-
-        # Move to device
-        td = td.to(self.device)
-
-        # Call problem-specific reset
-        td = self._reset(td, batch_size)
-
-        # Add common fields
-        td["action_mask"] = self._get_action_mask(td)
-        td["done"] = torch.zeros(td.batch_size, dtype=torch.bool, device=td.device)
-
-        return td
-
-    def step(self, td: TensorDict) -> TensorDict:
-        """
-        Public step with common postprocessing.
-
-        This method handles the common step logic and delegates
-        problem-specific state transition to _step().
-
-        Args:
-            td: TensorDict containing current state and action.
-
-        Returns:
-            TensorDict with updated state after action execution.
-        """
-        # Execute problem-specific step
-        td = self._step(td)
-
-        # Update common fields
-        td["action_mask"] = self._get_action_mask(td)
-        td["done"] = self._check_done(td)
-
-        return td
-
     def get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Public method to compute rewards.
-
-        Args:
-            td: TensorDict containing the solution state.
-            actions: Optional tensor of actions taken.
-
-        Returns:
-            Tensor of rewards.
         """
         return self._get_reward(td, actions)
-
-    def to(self, device: Union[str, torch.device]) -> "RL4COEnvBase":
-        """
-        Move environment to specified device.
-
-        Args:
-            device: Target device.
-
-        Returns:
-            Self for method chaining.
-        """
-        self.device = torch.device(device)
-        return self
-
-    @staticmethod
-    def _make_spec(td: TensorDict) -> dict:
-        """
-        Create specification dict describing the observation and action spaces.
-
-        This is useful for compatibility with RL libraries that expect
-        explicit space definitions.
-
-        Args:
-            td: Sample TensorDict to infer shapes from.
-
-        Returns:
-            Dictionary describing observation and action spaces.
-        """
-        return {
-            "observation_shape": dict(td.items()),
-            "action_shape": td.get("action_mask", torch.tensor([])).shape,
-        }
 
     def render(self, td: TensorDict, **kwargs: Any) -> Any:
         """
         Render the current state (optional).
-
-        Override in subclasses for visualization support.
-
-        Args:
-            td: TensorDict containing current state.
-            **kwargs: Rendering options.
-
-        Returns:
-            Rendered output (implementation-specific).
         """
         raise NotImplementedError(f"Rendering not implemented for {self.name}")
 
@@ -273,28 +166,13 @@ class ImprovementEnvBase(RL4COEnvBase):
     def _get_initial_solution(self, td: TensorDict) -> torch.Tensor:
         """
         Generate initial solution for improvement.
-
-        Args:
-            td: TensorDict containing the problem instance.
-
-        Returns:
-            Tensor representing the initial solution.
         """
         raise NotImplementedError
 
-    def reset(self, td: Optional[TensorDict] = None, batch_size: Optional[int] = None) -> TensorDict:
+    def _reset_instance(self, td: TensorDict) -> TensorDict:
         """
         Reset with initial solution generation.
-
-        Args:
-            td: Optional TensorDict containing problem instance.
-            batch_size: Batch size for generating new instances.
-
-        Returns:
-            TensorDict with initialized state including initial solution.
         """
-        td = super().reset(td, batch_size)
-
         # Generate initial solution
         td["solution"] = self._get_initial_solution(td)
 
