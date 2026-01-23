@@ -89,30 +89,30 @@ echo -e "${BLUE}===== [TRAIN] $MODEL with $ENCODER encoder =====${NC}"
 
 # Use train_lightning with Hydra config overrides
 uv run python main.py train_lightning \
-    model=$MODEL \
+    model.name=$MODEL \
     model.encoder_type=$ENCODER \
     env.name=$PROBLEM \
     env.num_loc=$GRAPH_SIZE \
-    env.generator.data_dist=$DATA_DIST \
-    model.embedding_dim=$EMBEDDING_DIM \
+    env.data_distribution=$DATA_DIST \
+    model.embed_dim=$EMBEDDING_DIM \
     model.hidden_dim=$HIDDEN_DIM \
     model.num_heads=$N_HEADS \
-    model.num_layers=$N_ENCODE_LAYERS \
+    model.num_encoder_layers=$N_ENCODE_LAYERS \
     model.normalization=$NORMALIZATION \
     model.activation=$ACTIVATION \
     model.dropout=$DROPOUT \
-    train.optimizer=$OPTIMIZER \
-    train.lr=$LR_MODEL \
+    optim.optimizer=$OPTIMIZER \
+    optim.lr=$LR_MODEL \
     train.batch_size=$BATCH_SIZE \
-    train.epoch_size=$EPOCH_SIZE \
+    train.train_data_size=$EPOCH_SIZE \
     train.n_epochs=$EPOCHS \
-    train.max_grad_norm=$MAX_GRAD_NORM \
-    train.baseline=$BASELINE \
-    train.bl_alpha=$BL_ALPHA \
-    train.exp_beta=$EXP_BETA \
-    train.seed=$SEED \
+    rl.max_grad_norm=$MAX_GRAD_NORM \
+    rl.baseline=$BASELINE \
+    rl.bl_alpha=$BL_ALPHA \
+    rl.exp_beta=$EXP_BETA \
+    seed=$SEED \
     train.log_step=$LOG_STEP \
-    logger.wandb.mode=$WANDB_MODE \
+    wandb_mode=$WANDB_MODE \
     "$@"  # Pass additional arguments from command line
 
 # Redirect to /dev/null again if quiet

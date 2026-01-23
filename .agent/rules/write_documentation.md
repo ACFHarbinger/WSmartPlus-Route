@@ -1,3 +1,8 @@
+---
+trigger: model_decision
+description: When updating or creating python docstrings and documentation.
+---
+
 # Rule: Write Documentation
 
 **Role:** Expert Technical Writer & Python Developer
