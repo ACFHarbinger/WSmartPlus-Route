@@ -75,6 +75,9 @@ MAX_NORM=1.0
 EXP_BETA=0.8
 BL_ALPHA=0.05
 ACC_STEPS=1
+N_WORKERS=8
+PERSISTENT_WORKERS=true
+PIN_MEMORY=true
 
 IMITATION_W=1.0
 IMITATION_DECAY=0.91
@@ -232,6 +235,10 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             rl.reannealing_patience="$REHEAT_PAT" \
             rl.reannealing_threshold="$REHEAT_THRESH" \
             rl.algorithm="'$RL_ALGO'" \
+            rl.baseline="'$BL'" \
+            train.num_workers="$N_WORKERS" \
+            train.persistent_workers="$PERSISTENT_WORKERS" \
+            train.pin_memory="$PIN_MEMORY" \
             hpo.n_trials=0 \
             $EXTRA_ARGS;
 
