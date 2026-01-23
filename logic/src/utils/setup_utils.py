@@ -49,7 +49,6 @@ def setup_cost_weights(opts: Dict[str, Any], def_val: float = 1.0) -> Dict[str, 
             "cwcvrp",
             "sdwcvrp",
             "scwcvrp",
-            "swcvrp",
         ]:
             cw_dict["overflows"] = opts["w_overflows"] = _set_val(opts.get("w_overflows"), def_val)
     return cw_dict

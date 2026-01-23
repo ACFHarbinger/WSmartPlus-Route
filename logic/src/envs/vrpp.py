@@ -32,6 +32,8 @@ class VRPPEnv(RL4COEnvBase):
         generator_params: Optional[dict] = None,
         prize_weight: float = 1.0,
         cost_weight: float = 1.0,
+        revenue_kg: Optional[float] = None,
+        cost_km: Optional[float] = None,
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ):
@@ -43,6 +45,8 @@ class VRPPEnv(RL4COEnvBase):
             generator_params: Parameters for generator initialization.
             prize_weight: Weight for prize collection in reward.
             cost_weight: Weight for travel cost in reward.
+            revenue_kg: Optional revenue per kg (overrides prize_weight).
+            cost_km: Optional cost per km (overrides cost_weight).
             device: Device for torch tensors ('cpu' or 'cuda').
             **kwargs: Additional keyword arguments.
         """
@@ -51,8 +55,8 @@ class VRPPEnv(RL4COEnvBase):
             generator = VRPPGenerator(**generator_params, device=device)
 
         super().__init__(generator, generator_params, device, **kwargs)
-        self.prize_weight = prize_weight
-        self.cost_weight = cost_weight
+        self.prize_weight = revenue_kg if revenue_kg is not None else prize_weight
+        self.cost_weight = cost_km if cost_km is not None else cost_weight
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
         """Initialize VRPP episode state."""
