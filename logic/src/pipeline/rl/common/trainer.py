@@ -92,6 +92,9 @@ class WSTrainer(pl.Trainer):
 
                 strategy = DDPStrategy(find_unused_parameters=True)
 
+        if strategy is None:
+            strategy = "auto"
+
         # Build callbacks
         callbacks = callbacks or []
         callbacks = self._add_default_callbacks(callbacks, enable_progress_bar, model_weights_path)

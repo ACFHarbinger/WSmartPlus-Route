@@ -333,6 +333,8 @@ class AttentionDecoder(nn.Module):
         self, embeddings: torch.Tensor, state: Any, from_depot: bool = False
     ) -> torch.Tensor:
         current_node = state.get_current_node()
+        if current_node.dim() == 1:
+            current_node = current_node.unsqueeze(-1)
         batch_size, num_steps = current_node.size()
 
         if self.is_vrpp:

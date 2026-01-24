@@ -108,9 +108,10 @@ class TemporalAMPolicy(AttentionModelPolicy):
 
         # Start the actual training loop
         log_likelihood: Union[torch.Tensor, float] = 0.0
+        entropy: Union[torch.Tensor, float] = 0.0
         output_actions = []
         step_idx = 0
-
+        # Assuming environment is already reset
         while not td["done"].all():
             # Wrap state
             assert self.env_name is not None, "env_name must be set"
@@ -127,7 +128,8 @@ class TemporalAMPolicy(AttentionModelPolicy):
                 probs = torch.softmax(logits.masked_fill(~valid_mask, float("-inf")), dim=-1)
                 log_p = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-10).squeeze(-1)
             else:
-                action, log_p = self._select_action(logits, valid_mask, decode_type)
+                action, log_p, entropy_step = self._select_action(logits, valid_mask, decode_type)
+                entropy = entropy + entropy_step
 
             td["action"] = action
             td = env.step(td)["next"]
@@ -142,4 +144,5 @@ class TemporalAMPolicy(AttentionModelPolicy):
             "reward": reward,
             "log_likelihood": log_likelihood,
             "actions": torch.stack(output_actions, dim=1),
+            "entropy": entropy,
         }

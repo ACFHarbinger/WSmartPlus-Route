@@ -89,10 +89,15 @@ class AttentionModelPolicy(ConstructivePolicy):
 
         # 5. Decoding Loop
         log_likelihood = 0
+        entropy = 0
         output_actions = []
         step_idx = 0
 
         # Assuming environment is already reset
+        # Sync batch size for TorchRL compatibility
+        if hasattr(env, "batch_size"):
+            env.batch_size = td.batch_size
+
         while not td["done"].all():
             # Wrap state for legacy compatibility
             assert self.env_name is not None, "env_name must be set"
@@ -118,7 +123,8 @@ class AttentionModelPolicy(ConstructivePolicy):
                 log_p = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-10).squeeze(-1)
             else:
                 # Select action
-                action, log_p = self._select_action(logits, valid_mask, decode_type)
+                action, log_p, entropy_step = self._select_action(logits, valid_mask, decode_type)
+                entropy = entropy + entropy_step
 
             # Update state
             td["action"] = action
@@ -142,6 +148,7 @@ class AttentionModelPolicy(ConstructivePolicy):
             "reward": reward,
             "log_likelihood": log_likelihood,
             "actions": actions_tensor,
+            "entropy": entropy,
         }
 
         if kwargs.get("return_init_embeds", False):
