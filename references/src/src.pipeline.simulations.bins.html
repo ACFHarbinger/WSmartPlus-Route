@@ -1,0 +1,901 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>src.pipeline.simulations.bins &#8212; WSmart-Route  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-shadow.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-punk.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-noir.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/hoverxref.js"></script>
+    <script src="../../_static/js/tooltipster.bundle.min.js"></script>
+    <script src="../../_static/js/micromodal.min.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.pipeline.simulations.bins';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="src.pipeline.simulations.simulator" href="src.pipeline.simulations.simulator.html" />
+    <link rel="prev" title="src.pipeline.simulations.network" href="src.pipeline.simulations.network.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">WSmart-Route  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.vrpp_optimizer.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vrpp_optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.last_minute.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.last_minute</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.regular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.regular</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_vrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.embeddings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.embeddings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.modules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.modules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.hypernet.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hypernet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.temporal_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.temporal_am</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.model_factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.model_factory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.moe_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.moe_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.gat_lstm_manager.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.gat_lstm_manager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.attention_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.context_embedder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.context_embedder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.pointer_network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.pointer_network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.meta_rnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta_rnn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.critic_network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.critic_network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.deep_decoder_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deep_decoder_am</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.setup_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.setup_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.losses.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.losses</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.config_loader.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.config_loader</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.definitions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.definitions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.crypto_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.crypto_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.check_docstrings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.check_docstrings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.pylogger.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.pylogger</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.debug_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.debug_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.add_docstrings_batch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.add_docstrings_batch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.task_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.task_utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.data_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.data_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.sim_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.sim_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.train_lightning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_lightning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.tui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.tui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.test.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.test</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.eval.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.eval</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.trainer.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.trainer</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.train.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.train</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.optim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.optim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.meta_rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.meta_rl</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.callbacks</span></code></a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/references/src/src.pipeline.simulations.bins.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>src.pipeline.simulations.bins</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins"><code class="docutils literal notranslate"><span class="pre">Bins</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.__get_stdev"><code class="docutils literal notranslate"><span class="pre">Bins.__get_stdev()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins._predictdaystooverflow"><code class="docutils literal notranslate"><span class="pre">Bins._predictdaystooverflow()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.set_statistics"><code class="docutils literal notranslate"><span class="pre">Bins.set_statistics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.is_stochastic"><code class="docutils literal notranslate"><span class="pre">Bins.is_stochastic()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.get_fill_history"><code class="docutils literal notranslate"><span class="pre">Bins.get_fill_history()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.get_level_history"><code class="docutils literal notranslate"><span class="pre">Bins.get_level_history()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.predictdaystooverflow"><code class="docutils literal notranslate"><span class="pre">Bins.predictdaystooverflow()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.set_indices"><code class="docutils literal notranslate"><span class="pre">Bins.set_indices()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.set_sample_waste"><code class="docutils literal notranslate"><span class="pre">Bins.set_sample_waste()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.collect"><code class="docutils literal notranslate"><span class="pre">Bins.collect()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins._process_filling"><code class="docutils literal notranslate"><span class="pre">Bins._process_filling()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.stochasticFilling"><code class="docutils literal notranslate"><span class="pre">Bins.stochasticFilling()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.deterministicFilling"><code class="docutils literal notranslate"><span class="pre">Bins.deterministicFilling()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.loadFilling"><code class="docutils literal notranslate"><span class="pre">Bins.loadFilling()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.__setDistribution"><code class="docutils literal notranslate"><span class="pre">Bins.__setDistribution()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.setGammaDistribution"><code class="docutils literal notranslate"><span class="pre">Bins.setGammaDistribution()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.freqvisit2"><code class="docutils literal notranslate"><span class="pre">Bins.freqvisit2()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.setCollectionLvlandFreq"><code class="docutils literal notranslate"><span class="pre">Bins.setCollectionLvlandFreq()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.bins">
+<span id="src-pipeline-simulations-bins"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.bins" title="src.pipeline.simulations.bins"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.bins</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.bins" title="Link to this heading">#</a></h1>
+<p>Bin State Management and Waste Accumulation Simulation.</p>
+<p>This module implements the physics of waste bin filling, collection, and overflow
+tracking for the WSmart-Route simulator. It supports both stochastic (statistical)
+and deterministic (empirical) waste generation patterns.</p>
+<p>The Bins class maintains:</p>
+<ul class="simple">
+<li><p>Current fill levels (observed and real)</p></li>
+<li><p>Statistical profiles (mean, std dev) updated online via Welford’s method</p></li>
+<li><p>Overflow tracking and waste loss calculations</p></li>
+<li><p>Collection history and performance metrics</p></li>
+</ul>
+<p>Waste Generation Modes:
+- Stochastic: Samples from Gamma distributions or empirical grid data
+- Deterministic: Loads pre-recorded daily fill values from pickle files
+- Noisy: Optionally adds Gaussian noise to simulate sensor uncertainty</p>
+<p>Classes:
+Bins: Core state manager for waste bin population</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.bins.Bins" title="src.pipeline.simulations.bins.Bins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Bins</span></code></a></p></td>
+<td><p>Manages the state and dynamics of a population of waste collection bins.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.bins.</span></span><span class="sig-name descname"><span class="pre">Bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gamma'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.GridBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_variance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins" title="Link to this definition">#</a></dt>
+<dd><p>Manages the state and dynamics of a population of waste collection bins.</p>
+<p>This class simulates the temporal evolution of bin fill levels through:</p>
+<ul class="simple">
+<li><p>Daily waste deposition (stochastic or pre-recorded)</p></li>
+<li><p>Collection events that empty bins</p></li>
+<li><p>Overflow detection and waste loss calculation</p></li>
+<li><p>Online statistical learning (mean, variance) via Welford’s algorithm</p></li>
+</ul>
+<p>The Bins object maintains two parallel state vectors:
+- real_c: Ground truth fill levels (0-100%)
+- c: Observed fill levels (may include sensor noise)</p>
+<p>Attributes:
+n: Number of bins in the system
+distribution: ‘gamma’ or ‘emp’ for sampling strategy
+revenue: Revenue per kg of collected waste
+density: Waste density (kg/L)
+volume: Bin volume (L)
+expenses: Cost per km traveled
+c: Observed fill levels (0-100%) with optional noise
+real_c: True fill levels (0-100%)
+means: Running mean fill per day (Welford’s algorithm)
+std: Running standard deviation of daily fills
+lost: Cumulative waste lost to overflows per bin (kg)
+collected: Cumulative waste collected per bin (kg)
+ncollections: Number of times each bin was collected
+history: Daily fill increments (List of np.ndarray)
+level_history: Daily absolute levels after filling
+travel: Total distance traveled (km)
+profit: Cumulative profit (revenue - costs)</p>
+<p class="rubric">Initialization</p>
+<p>Initializes the bin population with area-specific parameters.</p>
+<p>Args:
+n: Number of bins to manage
+data_dir: Root directory for simulation data
+sample_dist: Distribution type - ‘gamma’ or ‘emp’ (empirical)
+grid: Pre-configured GridBase object for empirical sampling
+area: Geographic area name (e.g., ‘Rio Maior’)
+waste_type: Waste stream type (‘paper’, ‘plastic’, ‘glass’)
+indices: Subset of bin IDs to use (None = all bins)
+waste_file: Path to pickle file with pre-recorded fill data
+noise_mean: Mean of Gaussian sensor noise
+noise_variance: Variance of Gaussian sensor noise</p>
+<p>Raises:
+AssertionError: If sample_dist not in [‘emp’, ‘gamma’]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.__get_stdev">
+<span class="sig-name descname"><span class="pre">__get_stdev</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.__get_stdev" title="Link to this definition">#</a></dt>
+<dd><p>Computes the current standard deviation of bin fills using the square differences.</p>
+<p>Returns:
+np.ndarray: Per-bin standard deviation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins._predictdaystooverflow">
+<span class="sig-name descname"><span class="pre">_predictdaystooverflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ui</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins._predictdaystooverflow" title="Link to this definition">#</a></dt>
+<dd><p>Internal math for predicting days until a bin overflows.</p>
+<p>Uses the Gamma distribution CDF to estimate the probability of
+reaching 100% capacity within a 31-day window.</p>
+<p>Args:
+ui: Mean fill rate.
+vi: Variance of fill rate.
+f: Current fill level.
+cl: Confidence level (0-1).</p>
+<p>Returns:
+np.ndarray: Predicted days to overflow per bin (clipped at 31).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.set_statistics">
+<span class="sig-name descname"><span class="pre">set_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stats_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.set_statistics" title="Link to this definition">#</a></dt>
+<dd><p>Loads pre-computed fill statistics from a CSV file.</p>
+<p>Args:
+stats_file: Path to the statistics CSV relative to data_dir.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.is_stochastic">
+<span class="sig-name descname"><span class="pre">is_stochastic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.is_stochastic" title="Link to this definition">#</a></dt>
+<dd><p>Checks if the bins are using stochastic filling.</p>
+<p>Returns:
+bool: True if waste_fills is not provided (using sampling).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.get_fill_history">
+<span class="sig-name descname"><span class="pre">get_fill_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.get_fill_history" title="Link to this definition">#</a></dt>
+<dd><p>Retrieves the history of daily fill increments.</p>
+<p>Args:
+device: Optional torch.device to return data as a tensor.</p>
+<p>Returns:
+Union[np.ndarray, torch.Tensor]: Fill history.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.get_level_history">
+<span class="sig-name descname"><span class="pre">get_level_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.get_level_history" title="Link to this definition">#</a></dt>
+<dd><p>Retrieves the history of daily absolute fill levels.</p>
+<p>Args:
+device: Optional torch.device to return data as a tensor.</p>
+<p>Returns:
+Union[np.ndarray, torch.Tensor]: Level history.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.predictdaystooverflow">
+<span class="sig-name descname"><span class="pre">predictdaystooverflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.predictdaystooverflow" title="Link to this definition">#</a></dt>
+<dd><p>Predicts days to overflow based on current running statistics.</p>
+<p>Args:
+cl: Confidence level for prediction.</p>
+<p>Returns:
+np.ndarray: Predicted days to overflow per bin.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.set_indices">
+<span class="sig-name descname"><span class="pre">set_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.set_indices" title="Link to this definition">#</a></dt>
+<dd><p>Sets the subset of bin indices to be included in simulation logic.</p>
+<p>Args:
+indices: List or array of 0-based bin indices (optional).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.set_sample_waste">
+<span class="sig-name descname"><span class="pre">set_sample_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.set_sample_waste" title="Link to this definition">#</a></dt>
+<dd><p>Sets the current waste profile from the loaded waste_fills based on sample ID.</p>
+<p>Args:
+sample_id: Integer index of the sample to use.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.collect">
+<span class="sig-name descname"><span class="pre">collect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idsfull</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.collect" title="Link to this definition">#</a></dt>
+<dd><p>Processes waste collection from bins in the tour.</p>
+<p>Empties visited bins, updates collection statistics, and computes profit.
+Uses Welford’s online algorithm to update mean and standard deviation
+of daily fills without storing full history.</p>
+<p>Args:
+idsfull: List of bin IDs visited in tour (includes depot as 0)
+cost: Total tour distance in km (default: 0)</p>
+<p>Returns:
+Tuple containing:
+- total_collected: Per-bin collected waste array (kg)
+- sum_collected: Total kg collected across all bins
+- n_collected: Number of bins collected
+- profit: Net profit = (kg × revenue) - (km × cost_per_km)</p>
+<p>Note:
+If tour has ≤2 nodes (only depot), no collection occurs.
+Visited bins are reset to 0% fill level (both real and observed).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins._process_filling">
+<span class="sig-name descname"><span class="pre">_process_filling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">todaysfilling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisyfilling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins._process_filling" title="Link to this definition">#</a></dt>
+<dd><p>Processes daily waste deposition and updates bin states.</p>
+<p>Core simulation step that:</p>
+<ol class="arabic simple">
+<li><p>Records today’s fill in history</p></li>
+<li><p>Detects and logs overflows (&gt;100% capacity)</p></li>
+<li><p>Updates real and observed fill levels</p></li>
+<li><p>Optionally injects sensor noise</p></li>
+</ol>
+<p>Args:
+todaysfilling: Array of waste added today (% of capacity)
+noisyfilling: Optional pre-computed noisy observations</p>
+<p>Returns:
+Tuple containing:
+- n_overflows: Number of bins that overflowed (int)
+- fill_increment: Today’s fill increments (np.ndarray)
+- observed_levels: Current observed fill levels (np.ndarray)
+- waste_lost: Total kg of waste lost to overflows (float)</p>
+<p>Note:
+Waste exceeding 100% capacity is lost (environmental impact).
+Noise can be pre-recorded (noisyfilling) or generated on-the-fly.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.stochasticFilling">
+<span class="sig-name descname"><span class="pre">stochasticFilling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.stochasticFilling" title="Link to this definition">#</a></dt>
+<dd><p>Generates daily waste fills by sampling from statistical distributions.</p>
+<p>Supports two modes:</p>
+<ul class="simple">
+<li><p>Gamma: Samples from configured Gamma(k, θ) per bin</p></li>
+<li><p>Empirical: Samples from historical data via GridBase</p></li>
+</ul>
+<p>Args:
+n_samples: Number of samples to generate (default: 1)
+only_fill: If True, return only fill values without state update</p>
+<p>Returns:
+If only_fill=True:
+- np.ndarray: Sampled fill values (clipped to 100%)
+If only_fill=False:
+- Tuple: (n_overflows, fill, levels, waste_lost) from _process_filling</p>
+<p>Note:
+Negative samples are clipped to 0 (physical constraint).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.deterministicFilling">
+<span class="sig-name descname"><span class="pre">deterministicFilling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.deterministicFilling" title="Link to this definition">#</a></dt>
+<dd><p>Loads deterministic fill levels for a specific date from historical data.</p>
+<p>Args:
+date: datetime or string identifier for the target date.</p>
+<p>Returns:
+Tuple: (n_overflows, fill, levels, waste_lost) from _process_filling.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.loadFilling">
+<span class="sig-name descname"><span class="pre">loadFilling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.loadFilling" title="Link to this definition">#</a></dt>
+<dd><p>Loads deterministic waste fills from pre-recorded data.</p>
+<p>Retrieves the exact fill values for a specific day from the loaded
+waste_fills array. Supports both real and noisy observation streams.</p>
+<p>Args:
+day: Simulation day index (int)</p>
+<p>Returns:
+Tuple: (n_overflows, fill, levels, waste_lost) from _process_filling</p>
+<p>Note:
+If start_with_fill=True, day 0 contains initial state.
+Otherwise, indexing is offset by 1 (day-1).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.__setDistribution">
+<span class="sig-name descname"><span class="pre">__setDistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.__setDistribution" title="Link to this definition">#</a></dt>
+<dd><p>Internal helper to set sampling distribution parameters.</p>
+<p>Args:
+param1: First parameter (e.g., k for Gamma).
+param2: Second parameter (e.g., theta for Gamma).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.setGammaDistribution">
+<span class="sig-name descname"><span class="pre">setGammaDistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.setGammaDistribution" title="Link to this definition">#</a></dt>
+<dd><p>Configures the bins with one of the predefined Gamma distribution profiles.</p>
+<p>Profiles vary in variability and mean fill rates to simulate
+different urban environments.</p>
+<p>Args:
+option: Integer 0-3 selecting the predefined profile.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.freqvisit2">
+<span class="sig-name descname"><span class="pre">freqvisit2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ui</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.freqvisit2" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the recommended visit frequency and target overflow level.</p>
+<p>Args:
+ui: Mean daily fill rate.
+vi: Variance of daily fill rate.
+cf: Target confidence level (e.g., 0.9 for 90% service level).</p>
+<p>Returns:
+Tuple[int, float]: (Optimal days between visits, Target level at visit).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.Bins.setCollectionLvlandFreq">
+<span class="sig-name descname"><span class="pre">setCollectionLvlandFreq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.Bins.setCollectionLvlandFreq" title="Link to this definition">#</a></dt>
+<dd><p>Propagates service level targets to visit frequency and level thresholds.</p>
+<p>Args:
+cf: Service level confidence factor (default: 0.9).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="src.pipeline.simulations.network.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.network</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="src.pipeline.simulations.simulator.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.simulator</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins"><code class="docutils literal notranslate"><span class="pre">Bins</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.__get_stdev"><code class="docutils literal notranslate"><span class="pre">Bins.__get_stdev()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins._predictdaystooverflow"><code class="docutils literal notranslate"><span class="pre">Bins._predictdaystooverflow()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.set_statistics"><code class="docutils literal notranslate"><span class="pre">Bins.set_statistics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.is_stochastic"><code class="docutils literal notranslate"><span class="pre">Bins.is_stochastic()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.get_fill_history"><code class="docutils literal notranslate"><span class="pre">Bins.get_fill_history()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.get_level_history"><code class="docutils literal notranslate"><span class="pre">Bins.get_level_history()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.predictdaystooverflow"><code class="docutils literal notranslate"><span class="pre">Bins.predictdaystooverflow()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.set_indices"><code class="docutils literal notranslate"><span class="pre">Bins.set_indices()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.set_sample_waste"><code class="docutils literal notranslate"><span class="pre">Bins.set_sample_waste()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.collect"><code class="docutils literal notranslate"><span class="pre">Bins.collect()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins._process_filling"><code class="docutils literal notranslate"><span class="pre">Bins._process_filling()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.stochasticFilling"><code class="docutils literal notranslate"><span class="pre">Bins.stochasticFilling()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.deterministicFilling"><code class="docutils literal notranslate"><span class="pre">Bins.deterministicFilling()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.loadFilling"><code class="docutils literal notranslate"><span class="pre">Bins.loadFilling()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.__setDistribution"><code class="docutils literal notranslate"><span class="pre">Bins.__setDistribution()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.setGammaDistribution"><code class="docutils literal notranslate"><span class="pre">Bins.setGammaDistribution()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.freqvisit2"><code class="docutils literal notranslate"><span class="pre">Bins.freqvisit2()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.Bins.setCollectionLvlandFreq"><code class="docutils literal notranslate"><span class="pre">Bins.setCollectionLvlandFreq()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By ACFHarbinger
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, ACFHarbinger.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

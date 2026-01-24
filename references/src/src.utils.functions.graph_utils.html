@@ -1,0 +1,737 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>src.utils.functions.graph_utils &#8212; WSmart-Route  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-shadow.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-punk.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-noir.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/hoverxref.js"></script>
+    <script src="../../_static/js/tooltipster.bundle.min.js"></script>
+    <script src="../../_static/js/micromodal.min.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.utils.functions.graph_utils';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="src.utils.functions.boolmask" href="src.utils.functions.boolmask.html" />
+    <link rel="prev" title="src.utils.functions.function" href="src.utils.functions.function.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">WSmart-Route  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.vrpp_optimizer.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vrpp_optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.last_minute.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.last_minute</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.regular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.regular</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_vrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.embeddings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.embeddings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.modules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.modules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.hypernet.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hypernet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.temporal_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.temporal_am</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.model_factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.model_factory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.moe_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.moe_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.gat_lstm_manager.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.gat_lstm_manager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.attention_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.context_embedder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.context_embedder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.pointer_network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.pointer_network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.meta_rnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta_rnn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.critic_network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.critic_network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.deep_decoder_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deep_decoder_am</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.setup_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.setup_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.losses.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.losses</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.config_loader.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.config_loader</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.definitions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.definitions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.crypto_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.crypto_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.check_docstrings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.check_docstrings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.pylogger.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.pylogger</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.debug_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.debug_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.add_docstrings_batch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.add_docstrings_batch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.task_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.task_utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.data_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.data_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.sim_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.sim_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.train_lightning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_lightning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.tui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.tui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.test.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.test</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.eval.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.eval</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.trainer.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.trainer</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.train.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.train</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.optim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.optim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.meta_rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.meta_rl</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.callbacks</span></code></a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/references/src/src.utils.functions.graph_utils.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>src.utils.functions.graph_utils</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.generate_adj_matrix"><code class="docutils literal notranslate"><span class="pre">generate_adj_matrix()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.get_edge_idx_dist"><code class="docutils literal notranslate"><span class="pre">get_edge_idx_dist()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.sort_by_pairs"><code class="docutils literal notranslate"><span class="pre">sort_by_pairs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.get_adj_knn"><code class="docutils literal notranslate"><span class="pre">get_adj_knn()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.adj_to_idx"><code class="docutils literal notranslate"><span class="pre">adj_to_idx()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.idx_to_adj"><code class="docutils literal notranslate"><span class="pre">idx_to_adj()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.tour_to_adj"><code class="docutils literal notranslate"><span class="pre">tour_to_adj()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.get_adj_osm"><code class="docutils literal notranslate"><span class="pre">get_adj_osm()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.find_longest_path"><code class="docutils literal notranslate"><span class="pre">find_longest_path()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.functions.graph_utils">
+<span id="src-utils-functions-graph-utils"></span><h1><a class="reference internal" href="#module-src.utils.functions.graph_utils" title="src.utils.functions.graph_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.graph_utils</span></code></a><a class="headerlink" href="#module-src.utils.functions.graph_utils" title="Link to this heading">#</a></h1>
+<p>Graph processing utilities.</p>
+<p>This module provides functions for:</p>
+<ul class="simple">
+<li><p>Generating adjacency matrices (random, KNN, distance-based).</p></li>
+<li><p>Converting between matrix and edge index formats.</p></li>
+<li><p>Interfacing with OpenStreetMap (OSM) for realistic graph generation.</p></li>
+<li><p>Finding specific paths (e.g., longest path in DAG).</p></li>
+</ul>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.functions.graph_utils.generate_adj_matrix" title="src.utils.functions.graph_utils.generate_adj_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_adj_matrix</span></code></a></p></td>
+<td><p>Generates a random adjacency matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.functions.graph_utils.get_edge_idx_dist" title="src.utils.functions.graph_utils.get_edge_idx_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_edge_idx_dist</span></code></a></p></td>
+<td><p>Generates edge indices based on shortest distances in the distance matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.functions.graph_utils.sort_by_pairs" title="src.utils.functions.graph_utils.sort_by_pairs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_by_pairs</span></code></a></p></td>
+<td><p>Sorts edge indices by their linear index (row * size + col).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.functions.graph_utils.get_adj_knn" title="src.utils.functions.graph_utils.get_adj_knn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_adj_knn</span></code></a></p></td>
+<td><p>Generates an adjacency matrix based on K-Nearest Neighbors.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.functions.graph_utils.adj_to_idx" title="src.utils.functions.graph_utils.adj_to_idx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">adj_to_idx</span></code></a></p></td>
+<td><p>Converts dimensionality-2 adjacency matrix to a [2, num_edges] index array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.functions.graph_utils.idx_to_adj" title="src.utils.functions.graph_utils.idx_to_adj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">idx_to_adj</span></code></a></p></td>
+<td><p>Converts edge index array back to an adjacency matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.functions.graph_utils.tour_to_adj" title="src.utils.functions.graph_utils.tour_to_adj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tour_to_adj</span></code></a></p></td>
+<td><p>Converts a sequence of nodes (tour) into an adjacency matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.functions.graph_utils.get_adj_osm" title="src.utils.functions.graph_utils.get_adj_osm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_adj_osm</span></code></a></p></td>
+<td><p>Computes an adjacency matrix via OpenStreetMap for given coordinates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.functions.graph_utils.find_longest_path" title="src.utils.functions.graph_utils.find_longest_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_longest_path</span></code></a></p></td>
+<td><p>Find the longest path in a DAG represented by a distance matrix.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.functions.graph_utils.generate_adj_matrix">
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.graph_utils.</span></span><span class="sig-name descname"><span class="pre">generate_adj_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.graph_utils.generate_adj_matrix" title="Link to this definition">#</a></dt>
+<dd><p>Generates a random adjacency matrix.</p>
+<p>Args:
+size (int): Number of nodes (excluding depot if add_depot is True).
+num_edges (int or float): Number or ratio of edges to create.
+undirected (bool, optional): Whether the graph is undirected. Defaults to False.
+add_depot (bool, optional): Whether to add a depot node (index 0). Defaults to True.
+negative (bool, optional): If True, returns 1 - adj (0 indicates edge). Defaults to False.</p>
+<p>Returns:
+np.ndarray: The adjacency matrix.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.functions.graph_utils.get_edge_idx_dist">
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.graph_utils.</span></span><span class="sig-name descname"><span class="pre">get_edge_idx_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.graph_utils.get_edge_idx_dist" title="Link to this definition">#</a></dt>
+<dd><p>Generates edge indices based on shortest distances in the distance matrix.</p>
+<p>Args:
+dist_matrix (np.ndarray): Distance matrix.
+num_edges (int or float): Number of edges to keep.
+add_depot (bool, optional): Add depot connections. Defaults to True.
+undirected (bool, optional): Treat as undirected. Defaults to True.</p>
+<p>Returns:
+np.ndarray: Edge indices [2, num_edges].</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.functions.graph_utils.sort_by_pairs">
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.graph_utils.</span></span><span class="sig-name descname"><span class="pre">sort_by_pairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.graph_utils.sort_by_pairs" title="Link to this definition">#</a></dt>
+<dd><p>Sorts edge indices by their linear index (row * size + col).</p>
+<p>Args:
+graph_size (int): Size of the graph (number of nodes).
+edge_idx (Tensor): Edge indices.</p>
+<p>Returns:
+Tensor: Sorted edge indices.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.functions.graph_utils.get_adj_knn">
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.graph_utils.</span></span><span class="sig-name descname"><span class="pre">get_adj_knn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_neighbors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.graph_utils.get_adj_knn" title="Link to this definition">#</a></dt>
+<dd><p>Generates an adjacency matrix based on K-Nearest Neighbors.</p>
+<p>Args:
+dist_mat (np.ndarray): Distance matrix.
+k_neighbors (int or float): Number or ratio of neighbors to connect.
+add_depot (bool, optional): Add depot connections. Defaults to True.
+negative (bool, optional): If True, returns 1 - adj. Defaults to True.</p>
+<p>Returns:
+np.ndarray: The adjacency matrix.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.functions.graph_utils.adj_to_idx">
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.graph_utils.</span></span><span class="sig-name descname"><span class="pre">adj_to_idx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.graph_utils.adj_to_idx" title="Link to this definition">#</a></dt>
+<dd><p>Converts dimensionality-2 adjacency matrix to a [2, num_edges] index array.</p>
+<p>Args:
+adj_matrix (np.ndarray): The adjacency matrix.
+negative (bool, optional): If True, 0 represents an edge. Defaults to True.</p>
+<p>Returns:
+np.ndarray: Matrix of edge indices.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.functions.graph_utils.idx_to_adj">
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.graph_utils.</span></span><span class="sig-name descname"><span class="pre">idx_to_adj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.graph_utils.idx_to_adj" title="Link to this definition">#</a></dt>
+<dd><p>Converts edge index array back to an adjacency matrix.</p>
+<p>Args:
+edge_idx (Tensor or np.ndarray): Edge indices.
+negative (bool, optional): If True, 0 represents an edge. Defaults to False.</p>
+<p>Returns:
+np.ndarray: The adjacency matrix.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.functions.graph_utils.tour_to_adj">
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.graph_utils.</span></span><span class="sig-name descname"><span class="pre">tour_to_adj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour_nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.graph_utils.tour_to_adj" title="Link to this definition">#</a></dt>
+<dd><p>Converts a sequence of nodes (tour) into an adjacency matrix.</p>
+<p>Args:
+tour_nodes (list): List of node indices in visit order.</p>
+<p>Returns:
+np.ndarray: Adjacency matrix representation of the tour.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.functions.graph_utils.get_adj_osm">
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.graph_utils.</span></span><span class="sig-name descname"><span class="pre">get_adj_osm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.graph_utils.get_adj_osm" title="Link to this definition">#</a></dt>
+<dd><p>Computes an adjacency matrix via OpenStreetMap for given coordinates.</p>
+<p>Args:
+coords (pd.DataFrame): DataFrame with ‘Lat’ and ‘Lng’ columns.
+size (int): Number of nodes.
+args (list): Must contain the OSM Graph object G as first element.
+add_depot (bool, optional): Add depot. Defaults to True.
+negative (bool, optional): Inverse representation. Defaults to True.</p>
+<p>Returns:
+np.ndarray: The adjacency matrix.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.functions.graph_utils.find_longest_path">
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.graph_utils.</span></span><span class="sig-name descname"><span class="pre">find_longest_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_vertex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.graph_utils.find_longest_path" title="Link to this definition">#</a></dt>
+<dd><p>Find the longest path in a DAG represented by a distance matrix.</p>
+<p>Args:
+dist_matrix (torch.Tensor): n x n tensor where dist_matrix[i][j] is the weight
+of edge from node i to node j. Use -inf for no edge.
+start_vertex (int): Starting vertex index (default: 0).</p>
+<p>Returns:
+tuple: (max_length, path) where max_length is the longest path length
+and path is the list of node indices.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="src.utils.functions.function.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.function</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="src.utils.functions.boolmask.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.boolmask</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.generate_adj_matrix"><code class="docutils literal notranslate"><span class="pre">generate_adj_matrix()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.get_edge_idx_dist"><code class="docutils literal notranslate"><span class="pre">get_edge_idx_dist()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.sort_by_pairs"><code class="docutils literal notranslate"><span class="pre">sort_by_pairs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.get_adj_knn"><code class="docutils literal notranslate"><span class="pre">get_adj_knn()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.adj_to_idx"><code class="docutils literal notranslate"><span class="pre">adj_to_idx()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.idx_to_adj"><code class="docutils literal notranslate"><span class="pre">idx_to_adj()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.tour_to_adj"><code class="docutils literal notranslate"><span class="pre">tour_to_adj()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.get_adj_osm"><code class="docutils literal notranslate"><span class="pre">get_adj_osm()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.graph_utils.find_longest_path"><code class="docutils literal notranslate"><span class="pre">find_longest_path()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By ACFHarbinger
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, ACFHarbinger.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
