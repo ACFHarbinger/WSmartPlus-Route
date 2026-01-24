@@ -8,9 +8,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 import torch
 
-# Training imports from the new entry point
-from logic.src.cli.train_lightning import run_training
 from logic.src.configs import Config
+
+# Training imports from the new entry point
+from logic.src.pipeline.features.train import run_training
 
 # Simulation imports
 from logic.src.pipeline.simulations.simulator import sequential_simulations
@@ -30,8 +31,8 @@ class TestIntegrationTraining:
 
         # We mock WSTrainer to avoid actual training in unit tests,
         # but check if run_training flow completes.
-        with patch("logic.src.cli.train_lightning.WSTrainer") as mock_trainer_cls, patch(
-            "logic.src.cli.train_lightning.create_model"
+        with patch("logic.src.pipeline.features.train.WSTrainer") as mock_trainer_cls, patch(
+            "logic.src.pipeline.features.train.create_model"
         ):
             mock_trainer = mock_trainer_cls.return_value
             mock_trainer.callback_metrics = {"val/reward": torch.tensor(0.1)}

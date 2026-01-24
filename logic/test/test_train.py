@@ -5,13 +5,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 import torch
 
-from logic.src.cli.train_lightning import create_model, run_training
 from logic.src.configs import Config
-from logic.src.pipeline.trainer import WSTrainer
+from logic.src.pipeline.features.train import create_model, run_training
+from logic.src.pipeline.rl.common import WSTrainer
 
 
 class TestTrainingOrchestration:
-    """Tests for train_lightning.py orchestration logic."""
+    """Tests for train.py orchestration logic."""
 
     @pytest.mark.unit
     def test_create_model_reinforce(self):
@@ -20,8 +20,8 @@ class TestTrainingOrchestration:
         cfg.rl.algorithm = "reinforce"
         cfg.model.name = "am"
 
-        with patch("logic.src.cli.train_lightning.get_env"), patch(
-            "logic.src.cli.train_lightning.AttentionModelPolicy"
+        with patch("logic.src.pipeline.features.train.get_env"), patch(
+            "logic.src.pipeline.features.train.AttentionModelPolicy"
         ):
             model = create_model(cfg)
             from logic.src.pipeline.rl.core.reinforce import REINFORCE
@@ -35,8 +35,8 @@ class TestTrainingOrchestration:
         cfg.rl.algorithm = "ppo"
         cfg.model.name = "am"
 
-        with patch("logic.src.cli.train_lightning.get_env"), patch(
-            "logic.src.cli.train_lightning.AttentionModelPolicy"
+        with patch("logic.src.pipeline.features.train.get_env"), patch(
+            "logic.src.pipeline.features.train.AttentionModelPolicy"
         ), patch("logic.src.models.policies.critic.create_critic_from_actor"):
             model = create_model(cfg)
             from logic.src.pipeline.rl.core.ppo import PPO
@@ -44,8 +44,8 @@ class TestTrainingOrchestration:
             assert isinstance(model, PPO)
 
     @pytest.mark.unit
-    @patch("logic.src.cli.train_lightning.WSTrainer")
-    @patch("logic.src.cli.train_lightning.create_model")
+    @patch("logic.src.pipeline.features.train.WSTrainer")
+    @patch("logic.src.pipeline.features.train.create_model")
     def test_run_training_flow(self, mock_create, mock_trainer_cls):
         """Verify run_training initializes model and calls trainer.fit."""
         cfg = Config()
@@ -68,7 +68,7 @@ class TestWSTrainer:
     @pytest.mark.unit
     def test_wstrainer_init_defaults(self):
         """Verify WSTrainer sets up default callbacks and loggers."""
-        with patch("logic.src.pipeline.trainer.WSTrainer._create_default_logger"):
+        with patch("logic.src.pipeline.rl.common.WSTrainer._create_default_logger"):
             trainer = WSTrainer(max_epochs=5)
             assert trainer.max_epochs == 5
             # Check for ModelCheckpoint and RichProgressBar in callbacks

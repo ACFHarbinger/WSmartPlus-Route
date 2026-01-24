@@ -2,9 +2,8 @@
 RL Pipeline module for WSmart-Route.
 """
 
-from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
-from logic.src.pipeline.rl.core.base import RL4COLitModule
-from logic.src.pipeline.rl.core.baselines import (
+from logic.src.pipeline.rl.common.base import RL4COLitModule
+from logic.src.pipeline.rl.common.baselines import (
     BASELINE_REGISTRY,
     Baseline,
     CriticBaseline,
@@ -15,6 +14,7 @@ from logic.src.pipeline.rl.core.baselines import (
     WarmupBaseline,
     get_baseline,
 )
+from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
 from logic.src.pipeline.rl.core.dr_grpo import DRGRPO
 from logic.src.pipeline.rl.core.gdpo import GDPO
 from logic.src.pipeline.rl.core.gspo import GSPO

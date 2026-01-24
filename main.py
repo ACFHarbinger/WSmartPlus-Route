@@ -34,8 +34,8 @@ from logic.src.file_system import (
     perform_cryptographic_operations,
     update_file_system_entries,
 )
-from logic.src.pipeline.eval import run_evaluate_model
-from logic.src.pipeline.test import run_wsr_simulator_test
+from logic.src.pipeline.features.eval import run_evaluate_model
+from logic.src.pipeline.features.test import run_wsr_simulator_test
 from logic.test import PyTestRunner
 
 warnings.filterwarnings(
@@ -278,7 +278,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1 and sys.argv[1] in HYDRA_COMMANDS:
         # Bypass legacy parsing and delegate to Hydra/Lightning pipeline
-        from logic.src.cli.train_lightning import main as unified_main
+        from logic.src.pipeline.features.train import main as unified_main
 
         if sys.argv[1] == "mrl_train":
             sys.argv.append("rl.use_meta=True")
