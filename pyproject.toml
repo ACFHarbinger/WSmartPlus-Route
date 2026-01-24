@@ -241,6 +241,7 @@ dependencies = [
     "optuna-integration[pytorch-lightning]>=4.7.0",
     "statsmodels>=0.14.6",
     "torchrl>=0.3.1",
+    "dehb>=0.1.2",
 ]
 
 # Corrected 'dev' dependencies

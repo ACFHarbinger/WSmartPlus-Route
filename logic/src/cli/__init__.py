@@ -20,14 +20,6 @@ from logic.src.cli.sim_parser import (
     validate_eval_args,
     validate_test_sim_args,
 )
-from logic.src.cli.train_parser import (
-    add_hp_optim_args,
-    add_mrl_train_args,
-    add_train_args,
-    validate_hp_optim_args,
-    validate_mrl_train_args,
-    validate_train_args,
-)
 from logic.src.cli.ts_parser import add_test_suite_args, validate_test_suite_args
 from logic.src.cli.tui import launch_tui
 
@@ -58,12 +50,6 @@ def parse_params():
             opts = validate_gui_args(opts)
         elif command == "test_suite":
             opts = validate_test_suite_args(opts)
-        elif command == "train" or command == "train_lightning":
-            opts = validate_train_args(opts)
-        elif command == "mrl_train":
-            opts = validate_mrl_train_args(opts)
-        elif command == "hp_optim":
-            opts = validate_hp_optim_args(opts)
         return command, opts
     except (argparse.ArgumentError, AssertionError) as e:
         parser.error_message(f"Error: {e}", print_help=True)

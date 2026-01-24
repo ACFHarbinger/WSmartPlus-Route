@@ -102,7 +102,7 @@ class TestDEHB:
         """Test DEHB run execution (simplified)."""
         cs = get_config_space({})
         # Mock objective function returning a fitness dict
-        f = MagicMock(return_value={"fitness": 0.5})
+        f = MagicMock(return_value={"fitness": 0.5, "cost": 1.0})
 
         dehb = DifferentialEvolutionHyperband(
             cs=cs,
