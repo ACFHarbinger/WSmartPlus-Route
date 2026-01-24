@@ -310,6 +310,8 @@ class AttentionDecoder(nn.Module):
         if self.spatial_bias and state.dist_matrix is not None:
             dist_matrix = state.dist_matrix
             current_node = state.get_current_node()
+            if current_node.dim() == 1:
+                current_node = current_node.unsqueeze(-1)
             index = current_node.unsqueeze(-1).expand(-1, -1, dist_matrix.size(-1))
             dist_bias = -self.spatial_bias_scale * dist_matrix.gather(1, index).detach()
 

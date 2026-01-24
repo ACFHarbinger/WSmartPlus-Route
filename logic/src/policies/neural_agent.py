@@ -93,7 +93,7 @@ class NeuralAgent:
         mask = None
         if hrl_manager is not None and waste_history is not None:
             # Static: Customer Locations (Batch, N, 2)
-            static_feat = input["loc"]
+            static_feat = input["locs"]
             # Dynamic: Waste History (Batch, N, History)
             dynamic_feat = waste_history
 
@@ -269,10 +269,10 @@ class NeuralAgent:
         if hrl_manager is not None and waste_history is not None:
             # Static: Customer Locations (Batch, N, 2)
             # Should be shape (1, N, 2) if single instance
-            if input["loc"].dim() == 2:
-                static_feat = input["loc"].unsqueeze(0)
+            if input["locs"].dim() == 2:
+                static_feat = input["locs"].unsqueeze(0)
             else:
-                static_feat = input["loc"]
+                static_feat = input["locs"]
 
             # Dynamic: Waste History (Batch, N, History)
             # waste_history likely (N, History) if single instance

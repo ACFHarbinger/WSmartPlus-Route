@@ -340,7 +340,7 @@ class AttentionModel(nn.Module):
 
         if return_pi:
             if pad:
-                pad_dim = input["loc"].size(1) + 1
+                pad_dim = input["locs"].size(1) + 1
                 pi = F.pad(pi, (0, (pad_dim) - pi.size(-1)), value=0)
             return cost, ll, cost_dict, pi, entropy
         return cost, ll, cost_dict, None, entropy

@@ -171,9 +171,9 @@ class BatchRewardScaler:
         self.eps = eps
 
     def __call__(self, scores: torch.Tensor) -> torch.Tensor:
-        """Normalize scores within batch."""
+        """Normalize scores within batch using population statistics."""
         mean = scores.mean()
-        std = scores.std()
+        std = scores.std(correction=0)
         return (scores - mean) / (std + self.eps)
 
 

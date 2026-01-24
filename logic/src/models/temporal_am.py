@@ -211,8 +211,9 @@ class TemporalAttentionModel(AttentionModel):
             tuple: (cost, log_likelihood, cost_dict, pi, entropy)
         """
         if "fill_history" not in list(input.keys()) and self.predict_future:
-            batch_size = input["loc"].size(0)
-            graph_size = input["loc"].size(1)
+            locs_key = "locs" if "locs" in input else "loc"
+            batch_size = input[locs_key].size(0)
+            graph_size = input[locs_key].size(1)
 
             # For VRP-like problems, adjust for depot (excluded from graph size)
             if self.is_vrpp or self.is_wc:
@@ -220,7 +221,7 @@ class TemporalAttentionModel(AttentionModel):
 
             fill_history = torch.zeros(
                 (batch_size, graph_size, self.temporal_horizon),
-                device=input["loc"].device,
+                device=input[locs_key].device,
             )
             input["fill_history"] = fill_history
         return super().forward(input, cost_weights, return_pi, pad, mask, expert_pi, **kwargs)
