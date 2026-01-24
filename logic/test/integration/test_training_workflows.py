@@ -7,7 +7,7 @@ import pytest
 import torch
 from logic.src.envs import VRPPEnv, WCVRPEnv
 from logic.src.models.policies import AttentionModelPolicy
-from logic.src.pipeline.rl.core import PPO, REINFORCE
+from logic.src.pipeline.rl.core import A2C, PPO, REINFORCE
 from pytorch_lightning import Trainer
 
 
@@ -90,6 +90,69 @@ def test_ppo_training_loop():
         accelerator="cpu",
         logger=False,
         enable_checkpointing=False,
+    )
+
+    trainer.fit(module)
+    assert trainer.global_step > 0
+
+
+@pytest.mark.integration
+def test_a2c_training_loop():
+    """Test A2C training loop for a few steps."""
+    env = WCVRPEnv(num_loc=10, batch_size=[2], check_env_specs=False)
+    policy = AttentionModelPolicy(
+        env_name="wcvrp",
+        embed_dim=128,
+        hidden_dim=128,
+    )
+    # A2C will create its own critic if not provided
+
+    module = A2C(
+        env=env,
+        policy=policy,
+        batch_size=2,
+        train_data_size=10,
+    )
+
+    trainer = Trainer(
+        max_epochs=1,
+        limit_train_batches=2,
+        limit_val_batches=0,
+        accelerator="cpu",
+        logger=False,
+    )
+
+    trainer.fit(module)
+    assert trainer.global_step > 0
+
+
+@pytest.mark.integration
+def test_ppo_multistart_training_loop():
+    """Test PPO with multistart decoding."""
+    env = VRPPEnv(num_loc=10, batch_size=[2], check_env_specs=False)
+    policy = AttentionModelPolicy(
+        env_name="vrpp",
+        embed_dim=128,
+        hidden_dim=128,
+    )
+    critic = SimpleCritic(embed_dim=128)
+
+    # Enable multistart in PPO kwargs via policy/strategy config if supported
+    # Or just test that passing decode_kwargs works
+    module = PPO(
+        env=env,
+        policy=policy,
+        critic=critic,
+        batch_size=2,
+        train_data_size=10,
+        decode_kwargs={"multistart": True, "num_starts": 5, "select_best": True},
+    )
+
+    trainer = Trainer(
+        max_epochs=1,
+        limit_train_batches=1,
+        accelerator="cpu",
+        logger=False,
     )
 
     trainer.fit(module)

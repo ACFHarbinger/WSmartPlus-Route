@@ -24,7 +24,7 @@ from tqdm import tqdm
 
 import logic.src.utils.definitions as udef
 from logic.src.cli import ConfigsParser, add_test_sim_args, validate_test_sim_args
-from logic.src.pipeline.simulations.loader import load_indices
+from logic.src.pipeline.simulations.loader import load_indices, load_simulator_data
 from logic.src.pipeline.simulations.simulator import (
     display_log_metrics,
     init_single_sim_worker,
@@ -278,17 +278,24 @@ def run_wsr_simulator_test(opts):
     random.seed(opts["seed"])
     np.random.seed(opts["seed"])
     torch.manual_seed(opts["seed"])
-    if opts["area"] == "mixrmbac" and opts["size"] not in [20, 50, 225]:
-        data_size = 20 if opts["size"] < 20 else 50 if opts["size"] < 50 else 225
-    elif opts["area"] == "riomaior" and opts["size"] not in [57, 104, 203, 317]:
-        # data_size = 57 if opts['size'] < 57 else 203 if opts['size'] < 203 else 317
-        data_size = 317
-    elif opts["area"] == "both" and opts["size"] not in [57, 371, 485, 542]:
-        data_size = 57 if opts["size"] < 57 else 371 if opts["size"] < 371 else 485 if opts["size"] < 485 else 542
-    else:
-        data_size = opts["size"]
+    # Dynamically determine the available pool size based on area and waste type
+    try:
+        # Use opts.get("data_dir") which might be None if using default filesystem repository
+        data_tmp, _ = load_simulator_data(opts.get("data_dir"), opts["size"], opts["area"], opts["waste_type"])
+        data_size = len(data_tmp)
+    except Exception:
+        # Fallback to legacy hardcoded values if loading fails
+        # print(f"DEBUG: load_simulator_data failed with {repr(e)}. Fallback used.")
+        if opts["area"] == "mixrmbac" and opts["size"] not in [20, 50, 225]:
+            data_size = 20 if opts["size"] < 20 else 50 if opts["size"] < 50 else 225
+        elif opts["area"] == "riomaior" and opts["size"] not in [57, 104, 203, 317]:
+            data_size = 317
+        elif opts["area"] == "both" and opts["size"] not in [57, 371, 485, 542]:
+            data_size = 57 if opts["size"] < 57 else 371 if opts["size"] < 371 else 485 if opts["size"] < 485 else 542
+        else:
+            data_size = opts["size"]
 
-    print(f"Area {opts['area']} ({data_size} full) for {opts['size']} bins")
+    print(f"Area {opts['area']} ({data_size} available) for {opts['size']} bins")
     if data_size != opts["size"] and (opts["bin_idx_file"] is None or opts["bin_idx_file"] == ""):
         opts["bin_idx_file"] = f"graphs_{opts['size']}V_{opts['n_samples']}N.json"
 

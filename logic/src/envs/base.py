@@ -47,9 +47,44 @@ class RL4COEnvBase(EnvBase):
         try:
             # Try to let EnvBase handle it
             super(RL4COEnvBase, self.__class__).batch_size.fset(self, value)
-        except ValueError:
+        except (ValueError, RuntimeError):
             # Suppress spec re-indexing errors in 0.3.1
             self._batch_size = value
+
+            def _safe_set_shape(s, shp):
+                if s is None:
+                    return
+                try:
+                    s.shape = shp
+                except (ValueError, RuntimeError):
+                    if hasattr(s, "items"):
+                        for _, v in s.items():
+                            _safe_set_shape(v, shp)
+
+            # Manually sync spec shapes if EnvBase failed to do so
+            if hasattr(self, "reward_spec"):
+                _safe_set_shape(self.reward_spec, (*value, 1))
+            if hasattr(self, "done_spec"):
+                _safe_set_shape(self.done_spec, (*value, 1))
+
+            # Sync container shapes
+            for spec_name in ["observation_spec", "action_spec", "input_spec", "output_spec"]:
+                try:
+                    # Use getattr safely as these are often properties
+                    spec = getattr(self, spec_name, None)
+                    if spec is not None:
+                        if hasattr(spec, "shape"):
+                            try:
+                                spec.shape = value
+                            except (ValueError, RuntimeError):
+                                pass
+                        # Also sync internal done/terminated if they are in there
+                        if hasattr(spec, "items"):
+                            for k, v in spec.items():
+                                if k in ["done", "terminated", "truncated", "reward"]:
+                                    _safe_set_shape(v, (*value, 1))
+                except (KeyError, AttributeError):
+                    continue
         except Exception:
             # Fallback for older TorchRL
             self._batch_size = value
@@ -105,8 +140,19 @@ class RL4COEnvBase(EnvBase):
         """Create environment specs."""
         from torchrl.data import DiscreteTensorSpec, UnboundedContinuousTensorSpec
 
-        self.done_spec = DiscreteTensorSpec(n=2, shape=self.batch_size, dtype=torch.bool, device=self.device)
-        self.reward_spec = UnboundedContinuousTensorSpec(shape=self.batch_size, device=self.device)
+        self.done_spec = DiscreteTensorSpec(n=2, shape=(*self.batch_size, 1), dtype=torch.bool, device=self.device)
+        self.reward_spec = UnboundedContinuousTensorSpec(shape=(*self.batch_size, 1), device=self.device)
+
+    def step(self, td: TensorDict) -> TensorDict:
+        """
+        Execute action and update state.
+        Synchronizes environment batch size with input TensorDict.
+        """
+        # print(f"DEBUG: step() entering. td.batch_size={td.batch_size}, self.batch_size={self.batch_size}")
+        self.batch_size = td.batch_size
+        out = super().step(td)
+        # print(f"DEBUG: step() exiting. out['next']['done'].shape={out['next']['done'].shape}")
+        return out
 
     def reset(self, td: Optional[TensorDict] = None, **kwargs) -> TensorDict:
         """
@@ -145,8 +191,12 @@ class RL4COEnvBase(EnvBase):
         td["action_mask"] = self._get_action_mask(td)
         td["i"] = torch.zeros(td.batch_size, dtype=torch.long, device=self.device)
 
-        # Initialize done signals with [B] shape
-        td["done"] = torch.zeros(td.batch_size, dtype=torch.bool, device=self.device)
+        # Initialize done signals with [B, 1] shape
+        td["done"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)
+        if "terminated" in td.keys():
+            td["terminated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)
+        if "truncated" in td.keys():
+            td["truncated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)
 
         return td
 
@@ -171,20 +221,26 @@ class RL4COEnvBase(EnvBase):
         # Update common fields in the next state
         td_next["i"] = td["i"] + 1
         td_next["action_mask"] = self._get_action_mask(td_next)
-        td_next["done"] = self._check_done(td_next)
+        done = self._check_done(td_next)
+
+        # Ensure done shape matches spec [B, 1]
+        if done.dim() == len(td_next.batch_size):
+            done = done.unsqueeze(-1)
+        elif done.dim() > len(td_next.batch_size) + 1:
+            done = done.reshape((*td_next.batch_size, 1))
+
+        td_next["done"] = done
+        td_next["terminated"] = done.clone()
+        td_next["truncated"] = torch.zeros_like(done)
 
         # Reward calculation
         reward = self._get_reward(td_next, td.get("action", None))
 
-        # Ensure reward shape matches batch_size [B] for consistency
-        # Use reshape as a safer alternative to view if dimensions might shift
-        try:
-            reward = reward.reshape(td_next.batch_size)
-        except RuntimeError:
-            # Fallback if reshape fails - try to squeeze all extra dimensions
-            reward = reward.flatten()
-            if reward.numel() == td_next.batch_size.numel():
-                reward = reward.reshape(td_next.batch_size)
+        # Ensure reward shape matches batch_size [B, 1] for consistency
+        if reward.dim() == len(td_next.batch_size):
+            reward = reward.unsqueeze(-1)
+        elif reward.dim() > len(td_next.batch_size) + 1:
+            reward = reward.reshape((*td_next.batch_size, 1))
 
         td_next["reward"] = reward
 

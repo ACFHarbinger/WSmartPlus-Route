@@ -65,17 +65,23 @@ class A2C(RL4COLitModule):
             optimizer_kwargs={"lr": actor_lr},
             **kwargs,
         )
+        self.automatic_optimization = False
 
         self.save_hyperparameters(ignore=["env", "policy", "critic"])
 
         # Critic network
         if critic is None:
             from logic.src.models.critic_network import CriticNetwork
+            from logic.src.models.model_factory import AttentionComponentFactory
+            from logic.src.models.policies.utils import DummyProblem
 
             critic = CriticNetwork(
-                embed_dim=getattr(policy, "embed_dim", 128),
+                problem=DummyProblem(env.name if hasattr(env, "name") else "vrpp"),
+                component_factory=AttentionComponentFactory(),
+                embedding_dim=getattr(policy, "embed_dim", 128),
                 hidden_dim=256,
-                num_layers=3,
+                n_layers=3,
+                n_sublayers=1,
             )
         self.critic = critic
 
@@ -166,11 +172,30 @@ class A2C(RL4COLitModule):
     def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
         """
         Execute a single training step with both optimizers.
-
-        A2C requires manual optimization since we have two optimizers.
         """
+        opts = self.optimizers()
+        if isinstance(opts, list):
+            actor_opt, critic_opt = opts
+        else:
+            # Fallback if only one optimizer is returned
+            actor_opt = opts
+            critic_opt = None
+
+        # Execute step
         out = self.shared_step(batch, batch_idx, phase="train")
         loss = out["loss"]
+
+        # Manual optimization
+        actor_opt.zero_grad()
+        if critic_opt is not None:
+            critic_opt.zero_grad()
+
+        self.manual_backward(loss)
+
+        actor_opt.step()
+        if critic_opt is not None:
+            critic_opt.step()
+
         return loss
 
 

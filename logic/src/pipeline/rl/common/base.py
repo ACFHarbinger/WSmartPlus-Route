@@ -205,8 +205,8 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         # env.reset expects data on the environment's device.
         # Ensure batch is a TensorDict (converting from dict if necessary).
-        if isinstance(batch, dict):
-            if "data" in batch:
+        if isinstance(batch, (dict, TensorDict)):
+            if "data" in batch.keys():
                 # Handling BaselineDataset wrapped output
                 td_data = batch["data"]
                 if not isinstance(td_data, TensorDict):
