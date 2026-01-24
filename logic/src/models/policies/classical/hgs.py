@@ -108,12 +108,26 @@ class HGSPolicy(ConstructivePolicy):
 
             # Flatten routes with depot separators
             flat_actions = []
+
+            # Check if routes is a list of lists (multiple tours) or a flat list (single tour)
+            if routes and isinstance(routes[0], int):
+                # Single tour case: wrap in list
+                routes = [routes]
+
             for route in routes:
                 flat_actions.append(0)  # Start at depot
-                if isinstance(route, torch.Tensor):
+                if isinstance(route, (list, tuple)):
+                    flat_actions.extend(route)
+                elif isinstance(route, torch.Tensor):
                     flat_actions.extend(route.tolist())
                 else:
-                    flat_actions.extend(route)
+                    # Fallback or error if route is not iterable (e.g. int)
+                    # Ideally this shouldn't happen if we handled the single tour case
+                    try:
+                        flat_actions.extend(route)
+                    except TypeError:
+                        # If route is a single node (int), treat as length-1 route
+                        flat_actions.append(route)
             flat_actions.append(0)  # Return to depot
 
             all_actions.append(torch.tensor(flat_actions, device=device, dtype=torch.long))

@@ -56,7 +56,7 @@ AGG_G="avg"
 CONNECTION="static_hyper"
 HYPER_LANES=4
 
-RL_ALGO="reinforce"
+RL_ALGO="adaptive_imitation"
 OPTIM="rmsprop"
 LR_MODEL=0.0001
 LR_SCHEDULER="lambda"

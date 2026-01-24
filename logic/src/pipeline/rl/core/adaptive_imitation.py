@@ -41,7 +41,49 @@ class AdaptiveImitation(REINFORCE):
             patience: Epochs without improvement before resetting IL weight.
             **kwargs: Arguments passed to REINFORCE.
         """
+        # Exclude non-serializable objects from hyperparameters
+        self.save_hyperparameters(ignore=["expert_policy", "env", "policy"])
         super().__init__(**kwargs)
+
+        # Manually remove complex objects from hparams to prevent YAML serialization errors
+        if hasattr(self, "hparams"):
+            keys_to_remove = []
+            allowed_types = (int, float, str, bool, type(None))
+            for k, v in self.hparams.items():
+                # Remove known complex objects
+                if k in ["expert_policy", "env", "policy"]:
+                    keys_to_remove.append(k)
+                    continue
+
+                # Keep strictly primitive types
+                if isinstance(v, allowed_types):
+                    continue
+
+                # Allow strictly primitive lists
+                if isinstance(v, (list, tuple)):
+                    if all(isinstance(x, allowed_types) for x in v):
+                        continue
+                    else:
+                        print(f"[AdaptiveImitation] Removing non-primitive list hparam: {k}")
+                        keys_to_remove.append(k)
+                        continue
+
+                # Allow strictly primitive dicts (shallow check)
+                if isinstance(v, dict):
+                    if all(isinstance(x, allowed_types) for x in v.values()):
+                        continue
+                    else:
+                        print(f"[AdaptiveImitation] Removing non-primitive dict hparam: {k}")
+                        keys_to_remove.append(k)
+                        continue
+
+                # Everything else
+                print(f"[AdaptiveImitation] Removing complex hparam: {k} (type: {type(v)})")
+                keys_to_remove.append(k)
+
+            for k in keys_to_remove:
+                self.hparams.pop(k, None)
+
         self.expert_policy = expert_policy
         self.il_weight = il_weight
         self.initial_il_weight = il_weight
@@ -58,6 +100,7 @@ class AdaptiveImitation(REINFORCE):
         td: TensorDict,
         out: dict,
         batch_idx: int,
+        env: any = None,  # Accept env to match RL4COLitModule.shared_step
     ) -> torch.Tensor:
         """
         Compute Combined Loss: RL + IL.
@@ -75,7 +118,8 @@ class AdaptiveImitation(REINFORCE):
         # Teacher Forcing: Evaluate log likelihood of expert actions under current policy
         # We need to clone td because policy/env might modify it or expert did?
         # Ideally td passed to calculate_loss is fresh from reset in shared_step
-        td_il = td.clone()
+        # We use td directly to avoid RecursionError in cloning if td has cycles
+        td_il = td
 
         il_out = self.policy(td_il, self.env, actions=expert_actions)
         log_likelihood = il_out["log_likelihood"]

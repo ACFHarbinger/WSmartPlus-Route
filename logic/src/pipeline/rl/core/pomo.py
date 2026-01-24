@@ -48,6 +48,7 @@ class POMO(REINFORCE):
 
         self.num_augment = num_augment
         self.num_starts = num_starts
+        self.augment_fn = augment_fn
 
         self.augmentation: Optional[StateAugmentation]
         if self.num_augment > 1:

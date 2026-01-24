@@ -267,6 +267,22 @@ norm = Normalization(dim, normalization='instance')
 norm = nn.LayerNorm(dim)
 ```
 
+#### Configuration Sanitization
+When passing Hydra/OmegaConf configs to Lightning modules (saved as hyperparameters):
+1.  **Deep Sanitize**: Convert `DictConfig` and `ListConfig` to primitive `dict` and `list`.
+2.  **Order Matters**: Sanitize *before* injecting complex objects like `env` or `policy`.
+3.  **Removal**: Remove non-serializable objects (like `env` instance) from `hparams` manually if needed in `__init__`.
+
+```python
+# CORRECT: Sanitize first, then inject
+common_kwargs = deep_sanitize(cfg.rl)
+common_kwargs["env"] = env  # injected after
+model = MyModule(**common_kwargs)
+
+# WRONG: Passing DictConfig directly causes YAML errors
+model = MyModule(**cfg.rl)
+```
+
 #### State Transitions
 **Never modify** `state_*.py` files without ensuring `logic/test/test_problems.py` passes:
 
