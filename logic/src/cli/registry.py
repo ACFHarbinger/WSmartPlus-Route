@@ -7,6 +7,11 @@ from logic.src.cli.data_parser import add_gen_data_args
 from logic.src.cli.fs_parser import add_files_args
 from logic.src.cli.gui_parser import add_gui_args
 from logic.src.cli.sim_parser import add_eval_args, add_test_sim_args
+from logic.src.cli.train_parser import (
+    add_hp_optim_args,
+    add_mrl_train_args,
+    add_train_args,
+)
 from logic.src.cli.ts_parser import add_test_suite_args
 
 
@@ -40,6 +45,21 @@ def get_parser() -> ConfigsParser:
     # Test Suite
     ts_parser = subparsers.add_parser("test_suite", help="Run the test suite")
     add_test_suite_args(ts_parser)
+
+    # Train
+    train_p = subparsers.add_parser("train", help="Train a model (Legacy)")
+    add_train_args(train_p)
+
+    train_l_p = subparsers.add_parser("train_lightning", help="Train a model with Lightning")
+    add_train_args(train_l_p)
+
+    # MRL Train
+    mrl_p = subparsers.add_parser("mrl_train", help="Meta-RL training")
+    add_mrl_train_args(mrl_p)
+
+    # HP Optim
+    hpo_p = subparsers.add_parser("hp_optim", help="Hyperparameter optimization")
+    add_hp_optim_args(hpo_p)
 
     # TUI
     subparsers.add_parser("tui", help="Launch the Terminal User Interface")

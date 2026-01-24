@@ -11,6 +11,8 @@ import torch
 import torch.nn as nn
 from tensordict import TensorDict
 
+from logic.src.pipeline.rl.utils import safe_td_copy
+
 
 class Baseline(nn.Module, ABC):
     """Base class for baselines."""
@@ -225,9 +227,10 @@ class RolloutBaseline(Baseline):
                     real_size = td_data.batch_size[0]
                     if real_size != batch_size:
                         pad_size = batch_size - real_size
-                        # Repeat the first element to pad
-                        padding = td_data[0].expand(pad_size).clone()
-                        td_data = torch.cat([td_data, padding], 0)
+                        # Repeat the first element to pad safely
+                        padding = td_data[0].expand(pad_size)
+                        padding_safe = safe_td_copy(padding)
+                        td_data = torch.cat([td_data, padding_safe], 0)
 
                     if hasattr(policy, "set_decode_type"):
                         policy.set_decode_type("greedy")
@@ -249,42 +252,12 @@ class RolloutBaseline(Baseline):
                 return torch.tensor([], device="cpu")
             return torch.cat(rewards)
 
-        # If it's a TensorDict (single batch)
-        if isinstance(td_or_dataset, TensorDict):
-            td_copy = td_or_dataset.copy()
-        elif isinstance(td_or_dataset, list):
-            # Handle list of dicts - stack into a TensorDict
-            if len(td_or_dataset) > 0 and isinstance(td_or_dataset[0], dict):
-                # Stack all dicts into tensors
-                stacked = {}
-                for key in td_or_dataset[0].keys():
-                    vals = [d[key] for d in td_or_dataset]
-                    if isinstance(vals[0], torch.Tensor):
-                        stacked[key] = torch.stack(vals)
-                    else:
-                        stacked[key] = torch.tensor(vals)
-                td_copy = TensorDict(stacked, batch_size=[len(td_or_dataset)])
-            else:
-                # Can't process, return zeros
-                return torch.zeros(len(td_or_dataset) if td_or_dataset else 1)
-        elif hasattr(td_or_dataset, "clone"):
-            td_copy = td_or_dataset.clone()
         else:
             import copy
 
             td_copy = copy.deepcopy(td_or_dataset)
-        if isinstance(td_copy, (dict, TensorDict)) and "data" in list(td_copy.keys()):
-            td_copy = td_copy["data"]
 
-        if isinstance(td_copy, dict):
-            td_copy = TensorDict(td_copy, batch_size=[len(next(iter(td_copy.values())))])
-
-        # Get device from policy
-        device = next(policy.parameters()).device
-        td_copy = td_copy.to(device)
-        if hasattr(env, "reset"):
-            td_copy = env.reset(td_copy)
-        td_copy = td_copy.to(device)  # Ensure on policy device after reset
+        # Actually run the rollout on the batch
         policy.eval()
         with torch.no_grad():
             if hasattr(policy, "set_decode_type"):
@@ -295,7 +268,10 @@ class RolloutBaseline(Baseline):
                 else:
                     out = res
             else:
+                if env is None:
+                    raise ValueError("Environment (env) is required for RolloutBaseline evaluation")
                 out = policy(td_copy, env, decode_type="greedy")
+
         return out["reward"]
 
     def wrap_dataset(
@@ -414,6 +390,7 @@ class WarmupBaseline(Baseline):
         self.baseline = baseline
         self.warmup_epochs = bl_warmup_epochs if bl_warmup_epochs is not None else warmup_epochs
         self.warmup_baseline = ExponentialBaseline(beta=beta, exp_beta=exp_beta)
+        self.alpha = 0.0
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
         """

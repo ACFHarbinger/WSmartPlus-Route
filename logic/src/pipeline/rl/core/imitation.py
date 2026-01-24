@@ -9,6 +9,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.pipeline.rl.core.base import RL4COLitModule
+from logic.src.pipeline.rl.utils import safe_td_copy
 
 
 class ImitationLearning(RL4COLitModule):
@@ -76,7 +77,7 @@ class ImitationLearning(RL4COLitModule):
         # We need to call the policy again with the expert actions.
 
         # Reset env to ensure clean state
-        td_clone = td.clone()
+        td_clone = safe_td_copy(td)
         td_clone = self.env.reset(td_clone)
 
         # Teacher Forcing: Evaluate log likelihood of expert actions

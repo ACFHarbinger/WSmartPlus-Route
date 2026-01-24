@@ -222,9 +222,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
         )
         model: pl.LightningModule = PPO(
             critic=critic,
-            ppo_epochs=cfg.rl.ppo_epochs,
-            eps_clip=cfg.rl.eps_clip,
-            value_loss_weight=cfg.rl.value_loss_weight,
             **common_kwargs,
         )
     elif cfg.rl.algorithm == "sapo":
@@ -240,9 +237,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
         )
         model = SAPO(
             critic=critic,
-            tau_pos=cfg.rl.sapo_tau_pos,
-            tau_neg=cfg.rl.sapo_tau_neg,
-            ppo_epochs=cfg.rl.ppo_epochs,
             **common_kwargs,
         )
     elif cfg.rl.algorithm == "gspo":
@@ -258,7 +252,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
         )
         model = GSPO(
             critic=critic,
-            ppo_epochs=cfg.rl.ppo_epochs,
             **common_kwargs,
         )
     elif cfg.rl.algorithm == "dr_grpo":
@@ -274,7 +267,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
         )
         model = DRGRPO(
             critic=critic,
-            ppo_epochs=cfg.rl.ppo_epochs,
             **common_kwargs,
         )
     elif cfg.rl.algorithm == "gdpo":
