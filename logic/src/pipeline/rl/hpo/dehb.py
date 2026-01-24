@@ -1,18 +1,18 @@
 """
-Differential Evolution Hyperband (DEHB) implementation.
-Ported and adapted from the legacy codebase.
+Differential Evolution Hyperband (DEHB) wrapper.
 """
 
 import time
 from typing import Callable, Dict, Tuple
 
-import numpy as np
+import ConfigSpace
+from dehb import DEHB
 
 
-class DifferentialEvolutionHyperband:
+class DifferentialEvolutionHyperband(DEHB):
     """
-    DEHB: Differential Evolution Hyperband.
-    Combines the strengths of DE (evolution) and Hyperband (multi-fidelity).
+    Wrapper for DEHB to be compatible with the existing interface expected by
+    the WSmart-Route HPO pipeline and tests.
     """
 
     def __init__(
@@ -26,82 +26,65 @@ class DifferentialEvolutionHyperband:
         output_path: str = "./dehb_output",
         **kwargs,
     ):
-        """Initialize DifferentialEvolutionHyperband."""
-        self.cs = cs
-        self.f = f
-        self.min_fidelity = min_fidelity
-        self.max_fidelity = max_fidelity
-        self.eta = eta
-        self.n_workers = n_workers
-        self.output_path = output_path
+        """
+        Initialize DifferentialEvolutionHyperband wrapper.
 
-        self.parameter_names = list(cs.keys())
-        self.bounds = np.array([cs[name] for name in self.parameter_names])
+        Args:
+            cs: Configuration space definition (dict of ranges).
+            f: Objective function to minimize.
+            min_fidelity: Minimum fidelity (e.g. epochs).
+            max_fidelity: Maximum fidelity.
+            eta: Halving rate.
+            n_workers: Number of workers.
+            output_path: Path for logs and results.
+            **kwargs: Additional arguments for DEHB.
+        """
+        self.parameter_names = list(cs.keys()) if isinstance(cs, dict) else []
 
-        # Hyperband parameters
-        self.s_max = int(np.floor(np.log(self.max_fidelity / self.min_fidelity) / np.log(self.eta)))
-        self.B = (self.s_max + 1) * self.max_fidelity
+        # Convert simple dict config space to ConfigSpace object if needed
+        config_space = cs
+        if isinstance(cs, dict):
+            config_space = ConfigSpace.ConfigurationSpace()
+            for name, (low, high) in cs.items():
+                # specific handling for validation that expects floats
+                hp = ConfigSpace.UniformFloatHyperparameter(name, lower=low, upper=high)
+                config_space.add_hyperparameter(hp)
 
-        self.population = []
-        self.history = []
-
-    def _sample_random_config(self) -> np.ndarray:
-        return np.array([np.random.uniform(low, high) for low, high in self.bounds])
-
-    def _init_population(self, size: int):
-        self.population = [self._sample_random_config() for _ in range(size)]
-
-    def _eval(self, config_vec: np.ndarray, fidelity: int) -> float:
-        config = {name: val for name, val in zip(self.parameter_names, config_vec)}
-        result = self.f(config, fidelity)
-        # Returning fitness (lower is better assumed by DEHB usually, or handle maximize)
-        return result.get("fitness", 1e6)
+        super().__init__(
+            cs=config_space,
+            f=f,
+            min_fidelity=min_fidelity,
+            max_fidelity=max_fidelity,
+            eta=eta,
+            n_workers=n_workers,
+            output_path=output_path,
+            **kwargs,
+        )
 
     def run(self, fevals: int = 100, **kwargs):
-        """Simple sequential DEHB execution for parity."""
+        """
+        Run DEHB optimization.
+
+        Args:
+            fevals: Number of function evaluations budget.
+
+        Returns:
+            Tuple of (best_config, runtime, history)
+        """
         start_time = time.time()
-        best_fitness = float("inf")
-        best_config = None
 
-        # Initial population eval at min fidelity
-        if not self.population:
-            self._init_population(20)
+        # DEHB.run returns (traj, runtime, history) arrays
+        # We pass fevals to DEHB.run
+        super().run(fevals=fevals, **kwargs)
 
-        for i, config_vec in enumerate(self.population):
-            fitness = self._eval(config_vec, self.min_fidelity)
-            if fitness < best_fitness:
-                best_fitness = fitness
-                best_config = config_vec
+        total_runtime = time.time() - start_time
 
-        # Main evolution loop (Simplified for now)
-        for i in range(fevals):
-            # DE Step: Mutation + Crossover
-            target_idx = np.random.randint(0, len(self.population))
-            idxs = [idx for idx in range(len(self.population)) if idx != target_idx]
-            a, b, c = [self.population[idx] for idx in np.random.choice(idxs, 3, replace=False)]
+        # Get best configuration found
+        # incumbents returns (config, score)
+        best_config, best_score = self.get_incumbents()
 
-            # Mutation
-            mutant = np.clip(a + 0.5 * (b - c), self.bounds[:, 0], self.bounds[:, 1])
+        # Convert ConfigSpace configuration to dict for compatibility
+        if hasattr(best_config, "get_dictionary"):
+            best_config = best_config.get_dictionary()
 
-            # Crossover
-            trial = np.copy(self.population[target_idx])
-            cross_points = np.random.rand(len(self.bounds)) < 0.7
-            trial[cross_points] = mutant[cross_points]
-
-            # Evaluate at increasing fidelity (Successive Halving logic placeholder)
-            fitness = self._eval(trial, self.max_fidelity)
-
-            if fitness < best_fitness:
-                best_fitness = fitness
-                best_config = trial
-                self.population[target_idx] = trial
-
-        runtime = time.time() - start_time
-        return best_config, runtime, self.history
-
-    def get_incumbents(self):
-        """Get best configurations found."""
-        # Return best config found
-        idx = np.argmin([self._eval(p, self.max_fidelity) for p in self.population])
-        best_config = {name: val for name, val in zip(self.parameter_names, self.population[idx])}
-        return best_config, self._eval(self.population[idx], self.max_fidelity)
+        return best_config, total_runtime, self.history
