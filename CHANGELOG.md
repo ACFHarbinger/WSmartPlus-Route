@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-01-24
+
+### Legacy Pipeline Removal
+The legacy `reinforcement_learning/` pipeline has been permanently removed after the successful migration to the PyTorch Lightning architecture.
+
+### Changed
+- **Directory Structure**: Removed `logic/src/pipeline/reinforcement_learning/` and corresponding symlinks.
+- **Training Entry Point**: Centralized training logic in `logic/src/pipeline/features/train.py`.
+- **Documentation**: Updated all architecture guides to reflect the consolidated pipeline structure.
+
 ## [4.0.0] - 2026-01-22
 
 ### Lightning Pipeline Migration Complete ✅
