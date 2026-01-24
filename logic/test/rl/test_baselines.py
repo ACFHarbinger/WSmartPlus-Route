@@ -5,7 +5,7 @@ Tests for RL baseline implementations.
 import pytest
 import torch
 import torch.nn as nn
-from logic.src.pipeline.rl.core.baselines import (
+from logic.src.pipeline.rl.common.baselines import (
     CriticBaseline,
     ExponentialBaseline,
     NoBaseline,

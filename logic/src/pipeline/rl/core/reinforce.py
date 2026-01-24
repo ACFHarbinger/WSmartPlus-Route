@@ -10,7 +10,7 @@ from tensordict import TensorDict
 if TYPE_CHECKING:
     from logic.src.envs.base import RL4COEnvBase
 
-from logic.src.pipeline.rl.core.base import RL4COLitModule
+from logic.src.pipeline.rl.common.base import RL4COLitModule
 
 
 class REINFORCE(RL4COLitModule):

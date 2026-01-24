@@ -4,7 +4,7 @@ Tests for RL4COLitModule base class.
 
 import pytest
 import torch
-from logic.src.pipeline.rl.core.base import RL4COLitModule
+from logic.src.pipeline.rl.common.base import RL4COLitModule
 from tensordict import TensorDict
 
 

@@ -3,7 +3,7 @@ Tests for RL pipeline features (epoch utilities, metrics).
 """
 
 import torch
-from logic.src.pipeline.rl.features.epoch import compute_validation_metrics, prepare_epoch
+from logic.src.pipeline.rl.common.epoch import compute_validation_metrics, prepare_epoch
 from tensordict import TensorDict
 
 
