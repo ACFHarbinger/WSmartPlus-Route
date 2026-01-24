@@ -12,6 +12,7 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
+from logic.src.utils.functions.decoding import get_decoding_strategy
 
 
 class ConstructivePolicy(nn.Module, ABC):
@@ -68,35 +69,26 @@ class ConstructivePolicy(nn.Module, ABC):
         logits: torch.Tensor,
         mask: torch.Tensor,
         decode_type: str = "sampling",
-    ) -> tuple[torch.Tensor, torch.Tensor]:
+        **kwargs,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
-        Select action based on logits and decode type.
+        Select action based on logits and decode type using DecodingStrategy.
 
         Args:
             logits: Action logits [batch, num_nodes]
             mask: Valid action mask [batch, num_nodes]
-            decode_type: Decoding strategy
+            decode_type: Decoding strategy name
+            **kwargs: Additional arguments for decoding strategy (temperature, etc.)
 
         Returns:
-            Tuple of (action, log_prob)
+            Tuple of (action, log_prob, entropy)
         """
-        # Apply mask
-        logits = logits.masked_fill(~mask, float("-inf"))
+        # Get strategy (can be cached if needed)
+        strategy = get_decoding_strategy(decode_type, **kwargs)
 
-        # Compute probabilities
-        probs = torch.softmax(logits, dim=-1)
-
-        if decode_type == "greedy":
-            action = probs.argmax(dim=-1)
-            log_prob = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-8).squeeze(-1)
-        elif decode_type == "sampling":
-            dist = torch.distributions.Categorical(probs)
-            action = dist.sample()
-            log_prob = dist.log_prob(action)
-        else:
-            raise ValueError(f"Unknown decode_type: {decode_type}")
-
-        return action, log_prob
+        # Step
+        action, log_prob, entropy = strategy.step(logits, mask)
+        return action, log_prob, entropy
 
 
 class ImprovementPolicy(nn.Module, ABC):
