@@ -5,6 +5,7 @@ Configuration dataclasses for WSmart-Route.
 from dataclasses import dataclass, field
 from typing import Optional
 
+from .decoding import DecodingConfig
 from .env import EnvConfig
 from .hpo import HPOConfig
 from .meta_rl import MetaRLConfig

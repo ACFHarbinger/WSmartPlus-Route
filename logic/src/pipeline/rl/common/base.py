@@ -324,7 +324,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
     def on_train_epoch_start(self) -> None:
         """Prepare dataset for the new epoch (e.g. wrap with baseline)."""
-        from logic.src.pipeline.rl.features.epoch import prepare_epoch
+        from logic.src.pipeline.rl.common.epoch import prepare_epoch
 
         self.train_dataset = prepare_epoch(
             self.policy,
@@ -337,7 +337,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
     def on_train_epoch_end(self):
         """Update baseline and regenerate dataset."""
-        from logic.src.pipeline.rl.features.epoch import regenerate_dataset
+        from logic.src.pipeline.rl.common.epoch import regenerate_dataset
 
         if hasattr(self.baseline, "epoch_callback"):
             # For RolloutBaseline, we pass val_dataset for the T-test

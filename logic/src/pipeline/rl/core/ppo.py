@@ -80,6 +80,31 @@ class PPO(RL4COLitModule):
         Returns:
             Loss tensor from last optimization step.
         """
+        if hasattr(self.baseline, "unwrap_batch"):
+            batch, _ = self.baseline.unwrap_batch(batch)
+
+        # Ensure batch is a TensorDict (converting from dict if necessary)
+        # This handles cases where collation returns a dict or unwrap returns a dict
+        if isinstance(batch, dict):
+            # If it's a dict, convert to TensorDict
+            # We assume it has a batch size equal to the length of its values
+            bs = len(next(iter(batch.values())))
+            batch = TensorDict(batch, batch_size=[bs])
+
+        # Move to device if needed (usually handled by Lightning but explicit safety)
+        if hasattr(batch, "to"):
+            batch = batch.to(self.device)
+
+        # DEBUG: Check batch contents
+        # print(f"DEBUG: PPO batch keys: {batch.keys()}")
+        # if "done" in batch.keys():
+        #     print(f"DEBUG: batch['done'].shape: {batch['done'].shape}")
+        # print(f"DEBUG: env.batch_size: {self.env.batch_size}")
+
+        # Remove done if present to avoid shape mismatch in reset
+        if "done" in batch.keys():
+            del batch["done"]
+
         env = self.env
         td = env.reset(safe_td_copy(batch))
 
@@ -116,7 +141,7 @@ class PPO(RL4COLitModule):
         bs = td.batch_size[0]
         mbs = self.mini_batch_size
         if isinstance(mbs, float):
-            mbs = int(bs * mbs)
+            mbs = max(1, int(bs * mbs))
 
         if mbs > bs:
             mbs = bs
