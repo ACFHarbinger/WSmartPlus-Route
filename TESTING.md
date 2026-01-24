@@ -82,7 +82,10 @@ WSmart-Route/
 │       ├── test_simulator.py        # Simulation engine
 │       ├── test_subnets.py          # Encoders and decoders
 │       ├── test_suite.py            # Test runner wrapper
+│       ├── test_subnets.py          # Encoders and decoders
+│       ├── test_suite.py            # Test runner wrapper
 │       ├── test_train.py            # Training pipeline
+│       ├── test_utils.py            # Utility functions
 │       ├── test_utils.py            # Utility functions
 │       ├── test_vectorized_policies.py
 │       └── test_visualize.py        # Visualization utilities

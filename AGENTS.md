@@ -113,11 +113,11 @@ logic/src/
 │   ├── subnets/      # Encoders, decoders, predictors
 │   └── policies/     # Classical policies (HGS, local_search, split)
 ├── policies/         # Classical & heuristic algorithms
-├── tasks/            # Problem definitions (VRPP, WCVRP, etc.)
+├── envs/             # Problem environments (replacing tasks/)
 ├── pipeline/         # Training, evaluation, simulation orchestration
-│   ├── rl/           # NEW: Lightning-based RL pipeline
-│   ├── reinforcement_learning/  # DEPRECATED: Legacy RL (use rl/ instead)
-│   └── simulations/            # Simulator engine
+│   ├── rl/           # Lightning-based RL pipeline
+│   ├── features/     # Feature-specific implementations (train, eval, test)
+│   └── simulations/  # Simulator engine
 ├── data/             # Data generation utilities
 └── utils/            # Helper functions & utilities
 ```
@@ -481,9 +481,9 @@ This section maintains a registry of intelligent agents, orchestration component
 
 | Agent Name | File | Responsibilities |
 |------------|------|------------------|
-| **Trainer** | `pipeline/train.py` | Central entry for `train`, `mrl_train`, `hp_optim`. Manages device selection, data loading, epoch loops. |
-| **Evaluator** | `pipeline/eval.py` | Model evaluation on test datasets. Supports `greedy`, `sampling`, `beam_search` decoding. |
-| **Tester** | `pipeline/test.py` | Simulation testing across multiple seeds and policies. Parallel execution with checkpointing. |
+| **Trainer** | `pipeline/features/train.py` | Central entry for `train`, `mrl_train`, `hp_optim`. Manages device selection, data loading, epoch loops. |
+| **Evaluator** | `pipeline/features/eval.py` | Model evaluation on test datasets. Supports `greedy`, `sampling`, `beam_search` decoding. |
+| **Tester** | `pipeline/features/test.py` | Simulation testing across multiple seeds and policies. Parallel execution with checkpointing. |
 
 ### 10.2 Neural Models (`logic/src/models/`)
 
@@ -595,7 +595,7 @@ This section maintains a registry of intelligent agents, orchestration component
 
 ### 10.8 Reinforcement Learning Pipeline (`logic/src/pipeline/rl/`)
 
-> **Note**: This is the new Lightning-based pipeline. The old `reinforcement_learning/` is deprecated.
+> **Note**: This pipeline uses PyTorch Lightning for all RL algorithms.
 
 #### Core Algorithms (`rl/core/`)
 

@@ -575,7 +575,7 @@ GUI Layer (gui/) ──depends on──▶ Logic Layer (logic/)
 #### New Model
 1. Create `logic/src/models/my_model.py`
 2. Register in `logic/src/models/model_factory.py`
-3. Add CLI arguments in `logic/src/cli/train_parser.py`
+3. Add configuration in `assets/configs/train.yaml` or relevant Hydra config
 4. Write tests in `logic/test/test_models.py`
 
 #### New Policy

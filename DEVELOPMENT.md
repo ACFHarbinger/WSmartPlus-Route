@@ -163,7 +163,7 @@ WSmart-Route/
 │   │   ├── models/        # Neural network models
 │   │   ├── policies/      # Classical optimization algorithms
 │   │   ├── tasks/         # Problem definitions
-│   │   ├── pipeline/      # Training, evaluation, simulation
+│   │   ├── pipeline/      # Orchestration (rl, features, simulations)
 │   │   ├── data/          # Data generation
 │   │   └── utils/         # Utilities
 │   └── test/              # Unit & integration tests
