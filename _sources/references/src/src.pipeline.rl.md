@@ -19,6 +19,15 @@ src.pipeline.rl.hpo
 src.pipeline.rl.features
 ```
 
+## Submodules
+
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.pipeline.rl.utils
+```
+
 ## Package Contents
 
 ### Data

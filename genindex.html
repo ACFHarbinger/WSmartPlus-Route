@@ -599,6 +599,7 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.sim_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.sim_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.train_lightning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_lightning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.train_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.tui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.tui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
@@ -1168,6 +1169,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.envs.swcvrp.html#src.envs.swcvrp.SCWCVRPEnv._reset_instance">(src.envs.swcvrp.SCWCVRPEnv method)</a>
 </li>
+        <li><a href="references/src/src.envs.vrpp.html#src.envs.vrpp.CVRPPEnv._reset_instance">(src.envs.vrpp.CVRPPEnv method)</a>
+</li>
         <li><a href="references/src/src.envs.vrpp.html#src.envs.vrpp.VRPPEnv._reset_instance">(src.envs.vrpp.VRPPEnv method)</a>
 </li>
         <li><a href="references/src/src.envs.wcvrp.html#src.envs.wcvrp.WCVRPEnv._reset_instance">(src.envs.wcvrp.WCVRPEnv method)</a>
@@ -1218,11 +1221,15 @@ document.write(`
 </li>
         <li><a href="references/src/src.envs.wcvrp.html#src.envs.wcvrp.SDWCVRPEnv._step">(src.envs.wcvrp.SDWCVRPEnv method)</a>
 </li>
+        <li><a href="references/src/src.envs.wcvrp.html#src.envs.wcvrp.WCVRPEnv._step">(src.envs.wcvrp.WCVRPEnv method)</a>
+</li>
       </ul></li>
       <li><a href="references/src/src.envs.base.html#src.envs.base.RL4COEnvBase._step_instance">_step_instance() (src.envs.base.RL4COEnvBase method)</a>
 
       <ul>
         <li><a href="references/src/src.envs.swcvrp.html#src.envs.swcvrp.SCWCVRPEnv._step_instance">(src.envs.swcvrp.SCWCVRPEnv method)</a>
+</li>
+        <li><a href="references/src/src.envs.vrpp.html#src.envs.vrpp.CVRPPEnv._step_instance">(src.envs.vrpp.CVRPPEnv method)</a>
 </li>
         <li><a href="references/src/src.envs.vrpp.html#src.envs.vrpp.VRPPEnv._step_instance">(src.envs.vrpp.VRPPEnv method)</a>
 </li>
@@ -1287,7 +1294,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.cli.gui_parser.html#src.cli.gui_parser.add_gui_args">add_gui_args() (in module src.cli.gui_parser)</a>
 </li>
+      <li><a href="references/src/src.cli.train_parser.html#src.cli.train_parser.add_hp_optim_args">add_hp_optim_args() (in module src.cli.train_parser)</a>
+</li>
       <li><a href="references/src/src.models.policies.classical.hybrid_genetic_search.html#src.models.policies.classical.hybrid_genetic_search.VectorizedPopulation.add_individuals">add_individuals() (src.models.policies.classical.hybrid_genetic_search.VectorizedPopulation method)</a>
+</li>
+      <li><a href="references/src/src.cli.train_parser.html#src.cli.train_parser.add_mrl_train_args">add_mrl_train_args() (in module src.cli.train_parser)</a>
 </li>
       <li><a href="references/src/src.policies.look_ahead_aux.sans_opt.html#src.policies.look_ahead_aux.sans_opt.add_n_bins_consecutive">add_n_bins_consecutive() (in module src.policies.look_ahead_aux.sans_opt)</a>
 
@@ -1317,13 +1328,15 @@ document.write(`
         <li><a href="references/src/src.policies.look_ahead_aux.select.html#src.policies.look_ahead_aux.select.add_route_with_removed_bins_random">(in module src.policies.look_ahead_aux.select)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.pipeline.rl.meta.multi_objective.html#src.pipeline.rl.meta.multi_objective.ParetoFront.add_solution">add_solution() (src.pipeline.rl.meta.multi_objective.ParetoFront method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.pipeline.rl.meta.multi_objective.html#src.pipeline.rl.meta.multi_objective.ParetoFront.add_solution">add_solution() (src.pipeline.rl.meta.multi_objective.ParetoFront method)</a>
+</li>
       <li><a href="references/src/src.cli.sim_parser.html#src.cli.sim_parser.add_test_sim_args">add_test_sim_args() (in module src.cli.sim_parser)</a>
 </li>
       <li><a href="references/src/src.cli.ts_parser.html#src.cli.ts_parser.add_test_suite_args">add_test_suite_args() (in module src.cli.ts_parser)</a>
+</li>
+      <li><a href="references/src/src.cli.train_parser.html#src.cli.train_parser.add_train_args">add_train_args() (in module src.cli.train_parser)</a>
 </li>
       <li><a href="references/src/src.utils.functions.graph_utils.html#src.utils.functions.graph_utils.adj_to_idx">adj_to_idx() (in module src.utils.functions.graph_utils)</a>
 </li>
@@ -1421,8 +1434,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.data.transforms.html#src.data.transforms.batchify">batchify() (in module src.data.transforms)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.utils.functions.beam_search.html#src.utils.functions.beam_search.beam_search">beam_search() (in module src.utils.functions.beam_search)</a>
 
       <ul>
@@ -1431,7 +1442,11 @@ document.write(`
         <li><a href="references/src/src.models.attention_model.html#src.models.attention_model.AttentionModel.beam_search">(src.models.attention_model.AttentionModel method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.checkpoints.html#src.pipeline.simulations.checkpoints.CheckpointHook.before_day">before_day() (src.pipeline.simulations.checkpoints.CheckpointHook method)</a>
+</li>
+      <li><a href="references/src/src.envs.problems.html#src.envs.problems.BIN_CAPACITY">BIN_CAPACITY (in module src.envs.problems)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.bins.html#src.pipeline.simulations.bins.Bins">Bins (class in src.pipeline.simulations.bins)</a>
 </li>
@@ -1625,10 +1640,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.look_ahead_aux.computations.html#src.policies.look_ahead_aux.computations.compute_load_excess_penalty">compute_load_excess_penalty() (in module src.policies.look_ahead_aux.computations)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.policies.look_ahead_aux.computations.html#src.policies.look_ahead_aux.computations.compute_profit">compute_profit() (in module src.policies.look_ahead_aux.computations)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.policies.look_ahead_aux.computations.html#src.policies.look_ahead_aux.computations.compute_real_profit">compute_real_profit() (in module src.policies.look_ahead_aux.computations)</a>
 </li>
       <li><a href="references/src/src.policies.look_ahead_aux.computations.html#src.policies.look_ahead_aux.computations.compute_route_time">compute_route_time() (in module src.policies.look_ahead_aux.computations)</a>
@@ -1717,6 +1732,8 @@ document.write(`
         <li><a href="references/src/src.policies.alns_aux.alns_package.html#src.policies.alns_aux.alns_package.ALNSState.cost">(src.policies.alns_aux.alns_package.ALNSState property)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.envs.problems.html#src.envs.problems.COST_KM">COST_KM (in module src.envs.problems)</a>
+</li>
       <li><a href="references/src/src.configs.env.html#src.configs.env.EnvConfig.cost_weight">cost_weight (src.configs.env.EnvConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.td_learning.html#src.pipeline.rl.meta.td_learning.CostWeightManager">CostWeightManager (class in src.pipeline.rl.meta.td_learning)</a>
@@ -2385,9 +2402,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.modules.connections.html#src.models.modules.connections.get_connection_module">get_connection_module() (in module src.models.modules.connections)</a>
 </li>
-      <li><a href="references/src/src.envs.problems.html#src.envs.problems.VRPP.get_costs">get_costs() (src.envs.problems.VRPP static method)</a>
+      <li><a href="references/src/src.envs.problems.html#src.envs.problems.CVRPP.get_costs">get_costs() (src.envs.problems.CVRPP static method)</a>
 
       <ul>
+        <li><a href="references/src/src.envs.problems.html#src.envs.problems.VRPP.get_costs">(src.envs.problems.VRPP static method)</a>
+</li>
         <li><a href="references/src/src.envs.problems.html#src.envs.problems.WCVRP.get_costs">(src.envs.problems.WCVRP static method)</a>
 </li>
       </ul></li>
@@ -3125,6 +3144,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.cli.train_lightning.html#module-src.cli.train_lightning">src.cli.train_lightning</a>
 </li>
+        <li><a href="references/src/src.cli.train_parser.html#module-src.cli.train_parser">src.cli.train_parser</a>
+</li>
         <li><a href="references/src/src.cli.ts_parser.html#module-src.cli.ts_parser">src.cli.ts_parser</a>
 </li>
         <li><a href="references/src/src.cli.tui.html#module-src.cli.tui">src.cli.tui</a>
@@ -3358,6 +3379,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.meta.weight_optimizer.html#module-src.pipeline.rl.meta.weight_optimizer">src.pipeline.rl.meta.weight_optimizer</a>
 </li>
         <li><a href="references/src/src.pipeline.rl.meta.weight_strategy.html#module-src.pipeline.rl.meta.weight_strategy">src.pipeline.rl.meta.weight_strategy</a>
+</li>
+        <li><a href="references/src/src.pipeline.rl.utils.html#module-src.pipeline.rl.utils">src.pipeline.rl.utils</a>
 </li>
         <li><a href="references/src/src.pipeline.simulations.html#module-src.pipeline.simulations">src.pipeline.simulations</a>
 </li>
@@ -4148,6 +4171,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.resume">resume (src.configs.train.TrainConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.envs.problems.html#src.envs.problems.REVENUE_KG">REVENUE_KG (in module src.envs.problems)</a>
+</li>
       <li><a href="references/src/src.pipeline.rl.meta.weight_optimizer.html#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer">RewardWeightOptimizer (class in src.pipeline.rl.meta.weight_optimizer)</a>
 </li>
       <li><a href="references/src/src.configs.html#src.configs.Config.rl">rl (src.configs.Config attribute)</a>
@@ -4214,6 +4239,8 @@ document.write(`
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.pipeline.rl.utils.html#src.pipeline.rl.utils.safe_td_copy">safe_td_copy() (in module src.pipeline.rl.utils)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.GridBase.sample">sample() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.GridBase method)</a>
 
       <ul>
@@ -4542,6 +4569,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.cli.train_lightning.html#module-src.cli.train_lightning">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.cli.train_parser
+
+      <ul>
+        <li><a href="references/src/src.cli.train_parser.html#module-src.cli.train_parser">module</a>
 </li>
       </ul></li>
       <li>
@@ -5363,6 +5397,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.pipeline.rl.meta.weight_strategy.html#module-src.pipeline.rl.meta.weight_strategy">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.rl.utils
+
+      <ul>
+        <li><a href="references/src/src.pipeline.rl.utils.html#module-src.pipeline.rl.utils">module</a>
 </li>
       </ul></li>
       <li>
@@ -6378,11 +6419,17 @@ document.write(`
 </li>
       <li><a href="references/src/src.cli.gui_parser.html#src.cli.gui_parser.validate_gui_args">validate_gui_args() (in module src.cli.gui_parser)</a>
 </li>
+      <li><a href="references/src/src.cli.train_parser.html#src.cli.train_parser.validate_hp_optim_args">validate_hp_optim_args() (in module src.cli.train_parser)</a>
+</li>
+      <li><a href="references/src/src.cli.train_parser.html#src.cli.train_parser.validate_mrl_train_args">validate_mrl_train_args() (in module src.cli.train_parser)</a>
+</li>
       <li><a href="references/src/src.cli.sim_parser.html#src.cli.sim_parser.validate_test_sim_args">validate_test_sim_args() (in module src.cli.sim_parser)</a>
 </li>
       <li><a href="references/src/src.cli.ts_parser.html#src.cli.ts_parser.validate_test_suite_args">validate_test_suite_args() (in module src.cli.ts_parser)</a>
 </li>
       <li><a href="references/src/src.envs.problems.html#src.envs.problems.BaseProblem.validate_tours">validate_tours() (src.envs.problems.BaseProblem static method)</a>
+</li>
+      <li><a href="references/src/src.cli.train_parser.html#src.cli.train_parser.validate_train_args">validate_train_args() (in module src.cli.train_parser)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.core.base.html#src.pipeline.rl.core.base.RL4COLitModule.validation_step">validation_step() (src.pipeline.rl.core.base.RL4COLitModule method)</a>
 
@@ -6406,10 +6453,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.classical.local_search.html#src.models.policies.classical.local_search.vectorized_swap">vectorized_swap() (in module src.models.policies.classical.local_search)</a>
 </li>
-      <li><a href="references/src/src.models.policies.classical.local_search.html#src.models.policies.classical.local_search.vectorized_swap_star">vectorized_swap_star() (in module src.models.policies.classical.local_search)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.models.policies.classical.local_search.html#src.models.policies.classical.local_search.vectorized_swap_star">vectorized_swap_star() (in module src.models.policies.classical.local_search)</a>
+</li>
       <li><a href="references/src/src.models.policies.classical.local_search.html#src.models.policies.classical.local_search.vectorized_three_opt">vectorized_three_opt() (in module src.models.policies.classical.local_search)</a>
 </li>
       <li><a href="references/src/src.models.policies.classical.local_search.html#src.models.policies.classical.local_search.vectorized_two_opt">vectorized_two_opt() (in module src.models.policies.classical.local_search)</a>
@@ -6424,8 +6471,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.classical.hybrid_genetic_search.html#src.models.policies.classical.hybrid_genetic_search.VectorizedPopulation">VectorizedPopulation (class in src.models.policies.classical.hybrid_genetic_search)</a>
 </li>
-      <li><a href="references/src/src.utils.definitions.html#src.utils.definitions.VEHICLE_CAPACITY">VEHICLE_CAPACITY (in module src.utils.definitions)</a>
+      <li><a href="references/src/src.envs.problems.html#src.envs.problems.VEHICLE_CAPACITY">VEHICLE_CAPACITY (in module src.envs.problems)</a>
+
+      <ul>
+        <li><a href="references/src/src.utils.definitions.html#src.utils.definitions.VEHICLE_CAPACITY">(in module src.utils.definitions)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.configs.hpo.html#src.configs.hpo.HPOConfig.verbose">verbose (src.configs.hpo.HPOConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.verify_names">verify_names() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load)</a>

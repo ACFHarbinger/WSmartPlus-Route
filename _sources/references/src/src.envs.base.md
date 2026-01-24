@@ -79,7 +79,6 @@ Bases: {py:obj}`torchrl.envs.EnvBase`
 
 ````{py:method} _step_instance(td: tensordict.TensorDict) -> tensordict.TensorDict
 :canonical: src.envs.base.RL4COEnvBase._step_instance
-:abstractmethod:
 
 ```{autodoc2-docstring} src.envs.base.RL4COEnvBase._step_instance
 ```

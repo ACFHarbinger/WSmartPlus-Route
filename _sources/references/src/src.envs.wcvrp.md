@@ -72,6 +72,11 @@ Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
 
 ````
 
+````{py:method} _step(td: tensordict.TensorDict) -> tensordict.TensorDict
+:canonical: src.envs.wcvrp.WCVRPEnv._step
+
+````
+
 ````{py:method} _get_action_mask(td: tensordict.TensorDict) -> torch.Tensor
 :canonical: src.envs.wcvrp.WCVRPEnv._get_action_mask
 

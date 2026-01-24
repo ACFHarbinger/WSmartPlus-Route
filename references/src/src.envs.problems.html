@@ -235,6 +235,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.sim_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.sim_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.train_lightning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_lightning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.train_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.tui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.tui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
@@ -431,7 +432,12 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.COST_KM"><code class="docutils literal notranslate"><span class="pre">COST_KM</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.REVENUE_KG"><code class="docutils literal notranslate"><span class="pre">REVENUE_KG</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BIN_CAPACITY"><code class="docutils literal notranslate"><span class="pre">BIN_CAPACITY</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.VEHICLE_CAPACITY"><code class="docutils literal notranslate"><span class="pre">VEHICLE_CAPACITY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem"><code class="docutils literal notranslate"><span class="pre">BaseProblem</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.validate_tours"><code class="docutils literal notranslate"><span class="pre">BaseProblem.validate_tours()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.get_tour_length"><code class="docutils literal notranslate"><span class="pre">BaseProblem.get_tour_length()</span></code></a></li>
@@ -446,6 +452,7 @@ document.write(`
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.CVRPP"><code class="docutils literal notranslate"><span class="pre">CVRPP</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.CVRPP.NAME"><code class="docutils literal notranslate"><span class="pre">CVRPP.NAME</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.CVRPP.get_costs"><code class="docutils literal notranslate"><span class="pre">CVRPP.get_costs()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.WCVRP"><code class="docutils literal notranslate"><span class="pre">WCVRP</span></code></a><ul class="nav section-nav flex-column">
@@ -515,8 +522,52 @@ Provides the BaseProblem interface expected by legacy AttentionModel and Evaluat
 </table>
 </div>
 </section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.envs.problems.COST_KM" title="src.envs.problems.COST_KM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">COST_KM</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.envs.problems.REVENUE_KG" title="src.envs.problems.REVENUE_KG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REVENUE_KG</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.envs.problems.BIN_CAPACITY" title="src.envs.problems.BIN_CAPACITY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BIN_CAPACITY</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.envs.problems.VEHICLE_CAPACITY" title="src.envs.problems.VEHICLE_CAPACITY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VEHICLE_CAPACITY</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.envs.problems.COST_KM">
+<span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">COST_KM</span></span><a class="headerlink" href="#src.envs.problems.COST_KM" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.envs.problems.REVENUE_KG">
+<span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">REVENUE_KG</span></span><a class="headerlink" href="#src.envs.problems.REVENUE_KG" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.envs.problems.BIN_CAPACITY">
+<span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">BIN_CAPACITY</span></span><a class="headerlink" href="#src.envs.problems.BIN_CAPACITY" title="Link to this definition">#</a></dt>
+<dd><p>100.0</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.envs.problems.VEHICLE_CAPACITY">
+<span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">VEHICLE_CAPACITY</span></span><a class="headerlink" href="#src.envs.problems.VEHICLE_CAPACITY" title="Link to this definition">#</a></dt>
+<dd><p>100.0</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.envs.problems.BaseProblem">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">BaseProblem</span></span><a class="headerlink" href="#src.envs.problems.BaseProblem" title="Link to this definition">#</a></dt>
@@ -574,6 +625,11 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.problems.CVRPP.NAME" title="Link to this definition">#</a></dt>
 <dd><p>‘cvrpp’</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.envs.problems.CVRPP.get_costs">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cw_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.envs.problems.CVRPP.get_costs" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -681,7 +737,12 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.COST_KM"><code class="docutils literal notranslate"><span class="pre">COST_KM</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.REVENUE_KG"><code class="docutils literal notranslate"><span class="pre">REVENUE_KG</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BIN_CAPACITY"><code class="docutils literal notranslate"><span class="pre">BIN_CAPACITY</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.VEHICLE_CAPACITY"><code class="docutils literal notranslate"><span class="pre">VEHICLE_CAPACITY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem"><code class="docutils literal notranslate"><span class="pre">BaseProblem</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.validate_tours"><code class="docutils literal notranslate"><span class="pre">BaseProblem.validate_tours()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.get_tour_length"><code class="docutils literal notranslate"><span class="pre">BaseProblem.get_tour_length()</span></code></a></li>
@@ -696,6 +757,7 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.CVRPP"><code class="docutils literal notranslate"><span class="pre">CVRPP</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.CVRPP.NAME"><code class="docutils literal notranslate"><span class="pre">CVRPP.NAME</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.CVRPP.get_costs"><code class="docutils literal notranslate"><span class="pre">CVRPP.get_costs()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.WCVRP"><code class="docutils literal notranslate"><span class="pre">WCVRP</span></code></a><ul class="nav section-nav flex-column">

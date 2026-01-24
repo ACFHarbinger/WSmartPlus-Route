@@ -235,6 +235,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.sim_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.sim_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.train_lightning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_lightning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.train_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.tui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.tui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
@@ -443,7 +444,9 @@ document.write(`
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv.name"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv.name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv._reset_instance"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv._reset_instance()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv._reset"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv._reset()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv._step_instance"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv._step_instance()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv._step"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv._step()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv._get_action_mask"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv._get_action_mask()</span></code></a></li>
 </ul>
@@ -571,16 +574,26 @@ device: Device for torch tensors (‘cpu’ or ‘cuda’).
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.envs.vrpp.CVRPPEnv._reset">
-<span class="sig-name descname"><span class="pre">_reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.vrpp.CVRPPEnv._reset" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.envs.vrpp.CVRPPEnv._reset_instance">
+<span class="sig-name descname"><span class="pre">_reset_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.vrpp.CVRPPEnv._reset_instance" title="Link to this definition">#</a></dt>
 <dd><p>Initialize CVRPP state with capacity tracking.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.envs.vrpp.CVRPPEnv._reset">
+<span class="sig-name descname"><span class="pre">_reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensordict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.vrpp.CVRPPEnv._reset" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.envs.vrpp.CVRPPEnv._step_instance">
+<span class="sig-name descname"><span class="pre">_step_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.vrpp.CVRPPEnv._step_instance" title="Link to this definition">#</a></dt>
+<dd><p>Execute action with capacity tracking.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.vrpp.CVRPPEnv._step">
 <span class="sig-name descname"><span class="pre">_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.vrpp.CVRPPEnv._step" title="Link to this definition">#</a></dt>
-<dd><p>Execute action with capacity tracking.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.vrpp.CVRPPEnv._get_action_mask">
@@ -653,7 +666,9 @@ device: Device for torch tensors (‘cpu’ or ‘cuda’).
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv.name"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv.name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv._reset_instance"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv._reset_instance()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv._reset"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv._reset()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv._step_instance"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv._step_instance()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv._step"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv._step()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.vrpp.CVRPPEnv._get_action_mask"><code class="docutils literal notranslate"><span class="pre">CVRPPEnv._get_action_mask()</span></code></a></li>
 </ul>

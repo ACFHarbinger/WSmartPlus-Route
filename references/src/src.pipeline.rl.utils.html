@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.cli.data_parser &#8212; WSmart-Route  documentation</title>
+    <title>src.pipeline.rl.utils &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.cli.data_parser';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.pipeline.rl.utils';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.cli.ts_parser" href="src.cli.ts_parser.html" />
-    <link rel="prev" title="src.cli.gui_parser" href="src.cli.gui_parser.html" />
+    <link rel="next" title="src.pipeline.test" href="src.pipeline.test.html" />
+    <link rel="prev" title="src.pipeline.rl.features.post_processing" href="src.pipeline.rl.features.post_processing.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -228,10 +228,10 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.task_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.task_utils</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.base_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.data_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.data_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.data_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.sim_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.sim_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.train_lightning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_lightning</span></code></a></li>
@@ -249,9 +249,9 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.test.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.test</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.eval.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.eval</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.trainer.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.trainer</span></code></a></li>
@@ -336,7 +336,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.cli.data_parser.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.pipeline.rl.utils.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -420,7 +420,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.cli.data_parser</h1>
+    <h1>src.pipeline.rl.utils</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -433,8 +433,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.data_parser.add_gen_data_args"><code class="docutils literal notranslate"><span class="pre">add_gen_data_args()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.data_parser.validate_gen_data_args"><code class="docutils literal notranslate"><span class="pre">validate_gen_data_args()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.utils.safe_td_copy"><code class="docutils literal notranslate"><span class="pre">safe_td_copy()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -450,20 +449,19 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.cli.data_parser">
-<span id="src-cli-data-parser"></span><h1><a class="reference internal" href="#module-src.cli.data_parser" title="src.cli.data_parser"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.data_parser</span></code></a><a class="headerlink" href="#module-src.cli.data_parser" title="Link to this heading">#</a></h1>
-<p>Data generation related argument parsers.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.utils">
+<span id="src-pipeline-rl-utils"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.utils" title="src.pipeline.rl.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.utils</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.utils" title="Link to this heading">#</a></h1>
+<p>Reinforcement Learning utilities for WSmart-Route.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.cli.data_parser.add_gen_data_args" title="src.cli.data_parser.add_gen_data_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_gen_data_args</span></code></a></p></td>
-<td><p>Add all arguments related to data generation to the given parser.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.cli.data_parser.validate_gen_data_args" title="src.cli.data_parser.validate_gen_data_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_gen_data_args</span></code></a></p></td>
-<td><p>Validate and post-process arguments for data generation.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.rl.utils.safe_td_copy" title="src.pipeline.rl.utils.safe_td_copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">safe_td_copy</span></code></a></p></td>
+<td><p>Perform a deep copy of a TensorDict that is safe against circular references
+and complex objects (like Shiboken/Qt proxy objects).
+Only clones Tensors and recurse into nested TensorDicts or dicts.</p></td>
 </tr>
 </tbody>
 </table>
@@ -472,27 +470,11 @@ document.write(`
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="src.cli.data_parser.add_gen_data_args">
-<span class="sig-prename descclassname"><span class="pre">src.cli.data_parser.</span></span><span class="sig-name descname"><span class="pre">add_gen_data_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">argparse.ArgumentParser</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">argparse.ArgumentParser</span></span></span><a class="headerlink" href="#src.cli.data_parser.add_gen_data_args" title="Link to this definition">#</a></dt>
-<dd><p>Add all arguments related to data generation to the given parser.</p>
-<p>Args:
-parser: The argparse parser or subparser.</p>
-<p>Returns:
-The parser instance with data generation arguments attached.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.cli.data_parser.validate_gen_data_args">
-<span class="sig-prename descclassname"><span class="pre">src.cli.data_parser.</span></span><span class="sig-name descname"><span class="pre">validate_gen_data_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.cli.data_parser.validate_gen_data_args" title="Link to this definition">#</a></dt>
-<dd><p>Validate and post-process arguments for data generation.</p>
-<p>This function checks consistency between arguments, such as ensuring a
-filename is only provided when a single dataset is being generated.</p>
-<p>Args:
-args: Dictionary of parsed arguments.</p>
-<p>Returns:
-The validated and potentially modified dictionary of arguments.</p>
-<p>Raises:
-AssertionError: If incompatible arguments are provided (e.g., mu/sigma length mismatch).</p>
+<dt class="sig sig-object py" id="src.pipeline.rl.utils.safe_td_copy">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.utils.</span></span><span class="sig-name descname"><span class="pre">safe_td_copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.rl.utils.safe_td_copy" title="Link to this definition">#</a></dt>
+<dd><p>Perform a deep copy of a TensorDict that is safe against circular references
+and complex objects (like Shiboken/Qt proxy objects).
+Only clones Tensors and recurse into nested TensorDicts or dicts.</p>
 </dd></dl>
 
 </section>
@@ -511,20 +493,20 @@ AssertionError: If incompatible arguments are provided (e.g., mu/sigma length mi
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.cli.gui_parser.html"
+       href="src.pipeline.rl.features.post_processing.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.features.post_processing</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.cli.ts_parser.html"
+       href="src.pipeline.test.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.test</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -547,8 +529,7 @@ AssertionError: If incompatible arguments are provided (e.g., mu/sigma length mi
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.data_parser.add_gen_data_args"><code class="docutils literal notranslate"><span class="pre">add_gen_data_args()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.data_parser.validate_gen_data_args"><code class="docutils literal notranslate"><span class="pre">validate_gen_data_args()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.utils.safe_td_copy"><code class="docutils literal notranslate"><span class="pre">safe_td_copy()</span></code></a></li>
 </ul>
 </li>
 </ul>

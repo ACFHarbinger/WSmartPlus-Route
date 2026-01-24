@@ -119,19 +119,29 @@ Bases: {py:obj}`src.envs.vrpp.VRPPEnv`
 
 ````
 
-````{py:method} _reset(td: tensordict.TensorDict, batch_size: typing.Optional[int] = None) -> tensordict.TensorDict
+````{py:method} _reset_instance(td: tensordict.TensorDict) -> tensordict.TensorDict
+:canonical: src.envs.vrpp.CVRPPEnv._reset_instance
+
+```{autodoc2-docstring} src.envs.vrpp.CVRPPEnv._reset_instance
+```
+
+````
+
+````{py:method} _reset(tensordict: typing.Optional[tensordict.TensorDict] = None, **kwargs) -> tensordict.TensorDict
 :canonical: src.envs.vrpp.CVRPPEnv._reset
 
-```{autodoc2-docstring} src.envs.vrpp.CVRPPEnv._reset
+````
+
+````{py:method} _step_instance(td: tensordict.TensorDict) -> tensordict.TensorDict
+:canonical: src.envs.vrpp.CVRPPEnv._step_instance
+
+```{autodoc2-docstring} src.envs.vrpp.CVRPPEnv._step_instance
 ```
 
 ````
 
 ````{py:method} _step(td: tensordict.TensorDict) -> tensordict.TensorDict
 :canonical: src.envs.vrpp.CVRPPEnv._step
-
-```{autodoc2-docstring} src.envs.vrpp.CVRPPEnv._step
-```
 
 ````
 
