@@ -86,31 +86,16 @@ class DeepDecoderPolicy(ConstructivePolicy):
 
         # 4. Decoding Loop
         log_likelihood = 0
+        entropy = 0
         output_actions = []
         step_idx = 0
-
+        # Assuming environment is already reset
         while not td["done"].all():
             # Wrap state
             assert self.env_name is not None, "env_name must be set"
             state_wrapper = TensorDictStateWrapper(td, self.env_name)
 
             logits, mask = self.decoder._get_log_p(fixed, state_wrapper)
-
-            # DeepDecoder usually returns (batch, heads, nodes) or (batch, nodes)?
-            # In my implementation of DeepDecoder subnet, _one_to_many_logits returns logits.
-            # If GATDecoder returns (batch, N), assume single head aggregate or projection?
-            # GATDecoder.projection is Linear(embed_dim, 2) ? Wait.
-            # Let's check gat_decoder.py line 199: self.projection = nn.Linear(embed_dim, 2).
-            # Why 2? Maybe (logit, something_else)? Or it's for something else?
-            # Standard AM projection is to 1 (logit).
-            # DeepDecoder logic seems complex.
-            # If logits has extra dim, we need to handle it.
-
-            # For now, let's assume logits is (batch, ...).
-            # If shape mismatch occurs, we fix it in debugging (like AM).
-
-            # AM adapter did: logits = logits[:, 0, :]
-            # Let's see.
 
             # DeepDecoder output (Batch, Heads, Nodes) or (Batch, 1, Nodes)
             if logits.dim() == 3:
@@ -132,7 +117,8 @@ class DeepDecoderPolicy(ConstructivePolicy):
                 log_p = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-10).squeeze(-1)
             else:
                 # Select action
-                action, log_p = self._select_action(logits, valid_mask, decode_type)
+                action, log_p, entropy_step = self._select_action(logits, valid_mask, decode_type)
+                entropy = entropy + entropy_step
 
             td["action"] = action
             td = env.step(td)["next"]
@@ -147,4 +133,5 @@ class DeepDecoderPolicy(ConstructivePolicy):
             "reward": reward,
             "log_likelihood": log_likelihood,
             "actions": torch.stack(output_actions, dim=1),
+            "entropy": entropy,
         }

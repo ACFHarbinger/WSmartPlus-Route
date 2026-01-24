@@ -383,6 +383,7 @@ markers = [
     "fast: marks tests as fast running",
     "unit: marks tests as unit tests",
     "integration: marks tests as integration tests",
+    "e2e: marks tests as end-to-end",
     "validation: marks tests that validate argument combinations",
     "edge_case: marks tests for edge cases",
     "parametrize: marks parametrized tests",

@@ -67,7 +67,7 @@ class WCVRPEnv(RL4COEnvBase):
         bs = td.batch_size
         num_nodes = td["locs"].shape[-2]
 
-        td["current_node"] = torch.zeros(*bs, 1, dtype=torch.long, device=device)
+        td["current_node"] = torch.zeros(bs, dtype=torch.long, device=device)
         td["visited"] = torch.zeros(*bs, num_nodes, dtype=torch.bool, device=device)
         td["visited"][..., 0] = True
 
@@ -119,7 +119,8 @@ class WCVRPEnv(RL4COEnvBase):
         # We MUST do this on td['demand'] which will be in td_next
         td["demand"].scatter_(1, action.unsqueeze(-1), 0)
 
-        # Note: visited and current_node are updated in super()._step_instance
+        # Update current node (overriding super which might used unsqueezed action)
+        td["current_node"] = action.squeeze(-1) if action.dim() > 1 else action
 
         return td
 
@@ -150,9 +151,16 @@ class WCVRPEnv(RL4COEnvBase):
         cost = td["tour_length"]
 
         # Add return to depot
-        current = td["current_node"].squeeze(-1)
+        current = td["current_node"]
+        if current.dim() > 1:
+            current = current.squeeze(-1)
+        if current.dim() == 0:
+            current = current.unsqueeze(0)
+
         locs = td["locs"]
-        current_loc = locs.gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
+        # Use robust indexing
+        current_idx = current[:, None, None].expand(-1, -1, 2)
+        current_loc = locs.gather(1, current_idx).squeeze(1)
         depot_loc = td["depot"]
         return_distance = torch.norm(depot_loc - current_loc, dim=-1)
 
@@ -185,7 +193,14 @@ class WCVRPEnv(RL4COEnvBase):
         td["reward_overflow"] = -overflows
 
         reward = self.collection_reward * collection - self.cost_weight * total_cost - self.overflow_penalty * overflows
-        return reward
+
+        # Ensure it's 1D [B] matching batch_size
+        if reward.dim() > 1:
+            reward = reward.squeeze(-1)
+        if reward.dim() == 0:
+            reward = reward.unsqueeze(0)
+
+        return reward.view(td.batch_size)
 
 
 class CWCVRPEnv(WCVRPEnv):
