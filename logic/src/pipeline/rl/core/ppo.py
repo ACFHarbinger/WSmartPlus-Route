@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 from tensordict import TensorDict
 
-from logic.src.pipeline.rl.core.base import RL4COLitModule
+from logic.src.pipeline.rl.common.base import RL4COLitModule
 from logic.src.pipeline.rl.utils import safe_td_copy
 
 

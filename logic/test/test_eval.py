@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import torch
 
-from logic.src.pipeline.eval import eval_dataset, get_best, run_evaluate_model
+from logic.src.pipeline.features.eval import eval_dataset, get_best, run_evaluate_model
 
 
 class TestEval:
@@ -32,10 +32,10 @@ class TestEval:
         np.testing.assert_array_equal(best_seqs[1], [5, 6])
         assert best_costs[1] == 20.0
 
-    @patch("logic.src.pipeline.eval.load_model")
-    @patch("logic.src.pipeline.eval.save_dataset")
-    @patch("logic.src.pipeline.eval.setup_cost_weights")
-    @patch("logic.src.pipeline.eval.DataLoader")
+    @patch("logic.src.pipeline.features.eval.load_model")
+    @patch("logic.src.pipeline.features.eval.save_dataset")
+    @patch("logic.src.pipeline.features.eval.setup_cost_weights")
+    @patch("logic.src.pipeline.features.eval.DataLoader")
     def test_eval_dataset_logic(self, mock_loader, mock_setup_weights, mock_save, mock_load_model, eval_opts):
         """Test core logic of dataset evaluation loop."""
 
@@ -76,10 +76,10 @@ class TestEval:
         mock_save.assert_called()
         mock_model.sample_many.assert_called()
 
-    @patch("logic.src.pipeline.eval.load_model")
-    @patch("logic.src.pipeline.eval.save_dataset")
-    @patch("logic.src.pipeline.eval.setup_cost_weights")
-    @patch("logic.src.pipeline.eval.DataLoader")
+    @patch("logic.src.pipeline.features.eval.load_model")
+    @patch("logic.src.pipeline.features.eval.save_dataset")
+    @patch("logic.src.pipeline.features.eval.setup_cost_weights")
+    @patch("logic.src.pipeline.features.eval.DataLoader")
     def test_eval_dataset_beam_search(self, mock_loader, mock_setup_weights, mock_save, mock_load_model, eval_opts):
         """Test dataset evaluation using beam search decoding."""
 
@@ -117,7 +117,7 @@ class TestEval:
         eval_dataset("data.pkl", 1, 1.0, eval_opts)
         mock_model.beam_search.assert_called()
 
-    @patch("logic.src.pipeline.eval.eval_dataset")
+    @patch("logic.src.pipeline.features.eval.eval_dataset")
     def test_run_evaluate_model(self, mock_eval):
         """Test the main entry point for model evaluation."""
 

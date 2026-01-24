@@ -12,8 +12,8 @@ import pandas as pd
 import torch
 from tabulate import tabulate
 
-from logic.src.cli.train_lightning import create_model
 from logic.src.configs import Config, EnvConfig, ModelConfig, TrainConfig
+from logic.src.pipeline.features.train import create_model
 
 
 def benchmark(problem="vrpp", sizes=[20, 50], num_instances=16):

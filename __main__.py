@@ -25,8 +25,8 @@ from logic.src.cli import (
     validate_test_sim_args,
     validate_train_args,
 )
-from logic.src.pipeline.test import run_wsr_simulator_test
-from logic.src.pipeline.train import run_training
+from logic.src.pipeline.features.test import run_wsr_simulator_test
+from logic.src.pipeline.features.train import run_training
 
 # Ensure that the app root directory is on the path if needed
 sys.path.insert(0, os.path.dirname(__file__))
