@@ -59,4 +59,5 @@ __all__ = [
     "MetaRLConfig",
     "HPOConfig",
     "Config",
+    "DecodingConfig",
 ]

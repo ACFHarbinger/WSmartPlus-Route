@@ -18,7 +18,9 @@ from logic.src.pipeline.rl.common.baselines import (
     WarmupBaseline,
     get_baseline,
 )
+from logic.src.pipeline.rl.common.reward_scaler import BatchRewardScaler, RewardScaler
 from logic.src.pipeline.rl.common.trainer import WSTrainer
+from logic.src.pipeline.rl.common.utils import get_lightning_device, get_optimizer, get_scheduler
 
 __all__ = [
     "RL4COLitModule",
@@ -32,4 +34,9 @@ __all__ = [
     "get_baseline",
     "BASELINE_REGISTRY",
     "WSTrainer",
+    "RewardScaler",
+    "BatchRewardScaler",
+    "get_optimizer",
+    "get_scheduler",
+    "get_lightning_device",
 ]
