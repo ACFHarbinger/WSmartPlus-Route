@@ -97,7 +97,11 @@ class WCContextEmbedder(ContextEmbedder):
         waste_key = (
             "waste"
             if "waste" in list(nodes.keys())
-            else ("noisy_waste" if "noisy_waste" in list(nodes.keys()) else "real_waste")
+            else (
+                "demand"
+                if "demand" in list(nodes.keys())
+                else ("noisy_waste" if "noisy_waste" in list(nodes.keys()) else "real_waste")
+            )
         )
         if temporal_features:
             features = tuple([waste_key] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
@@ -108,7 +112,8 @@ class WCContextEmbedder(ContextEmbedder):
         # nodes['loc']: [batch, graph_size, 2]
         # nodes[feat]: [batch, graph_size]
 
-        node_features = torch.cat((nodes["loc"], *(nodes[feat][:, :, None] for feat in features)), -1)
+        locs_key = "locs" if "locs" in nodes.keys() else "loc"
+        node_features = torch.cat((nodes[locs_key], *(nodes[feat][:, :, None] for feat in features)), -1)
 
         # Embed depot and nodes
         return torch.cat(
@@ -173,7 +178,11 @@ class VRPPContextEmbedder(ContextEmbedder):
         waste_key = (
             "waste"
             if "waste" in list(nodes.keys())
-            else ("noisy_waste" if "noisy_waste" in list(nodes.keys()) else "real_waste")
+            else (
+                "demand"
+                if "demand" in list(nodes.keys())
+                else ("noisy_waste" if "noisy_waste" in list(nodes.keys()) else "real_waste")
+            )
         )
         # Logic identical to WC in original code, reused here
         if temporal_features:
@@ -181,7 +190,8 @@ class VRPPContextEmbedder(ContextEmbedder):
         else:
             features = (waste_key,)
 
-        node_features = torch.cat((nodes["loc"], *(nodes[feat][:, :, None] for feat in features)), -1)
+        locs_key = "locs" if "locs" in nodes.keys() else "loc"
+        node_features = torch.cat((nodes[locs_key], *(nodes[feat][:, :, None] for feat in features)), -1)
 
         return torch.cat(
             (

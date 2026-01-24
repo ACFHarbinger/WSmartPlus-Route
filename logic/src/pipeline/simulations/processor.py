@@ -369,7 +369,7 @@ class SimulationDataMapper:
         problem_size = len(dist_matrix) - 1
         depot, loc = self.format_coordinates(coordinates, method)
         model_data = {
-            "loc": torch.as_tensor(loc, dtype=torch.float32),
+            "locs": torch.as_tensor(loc, dtype=torch.float32),
             "depot": torch.as_tensor(depot, dtype=torch.float32),
             "waste": torch.zeros(problem_size),
         }

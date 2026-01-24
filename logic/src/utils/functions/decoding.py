@@ -141,16 +141,18 @@ class DecodingStrategy(ABC):
             # Use log_likelihood as proxy
             reward = log_likelihood
 
-        # Reshape to [batch // num_starts, num_starts, ...]
+        # Reshape to [batch // num_starts, num_starts]
         batch_size = reward.shape[0] // num_starts
-        reward = reward.view(batch_size, num_starts, *reward.shape[1:])
+        reward = reward.view(batch_size, num_starts)
 
-        # Get best indices
+        # Get best indices [batch_size]
         best_idx = reward.argmax(dim=1)
 
         # Gather best
         actions = actions.view(batch_size, num_starts, -1)
-        actions = actions.gather(1, best_idx.unsqueeze(-1).expand(-1, -1, actions.shape[-1]))
+        # best_idx is [batch_size], we need [batch_size, 1, seq_len]
+        gather_idx = best_idx.view(batch_size, 1, 1).expand(-1, -1, actions.shape[-1])
+        actions = actions.gather(1, gather_idx)
         actions = actions.squeeze(1)
 
         log_likelihood = log_likelihood.view(batch_size, num_starts)
@@ -376,8 +378,10 @@ def top_p_filter(logits: torch.Tensor, p: float) -> torch.Tensor:
 
     # Remove tokens with cumulative probability above threshold
     sorted_indices_to_remove = cumulative_probs > p
-    # Keep at least one token
-    sorted_indices_to_remove[:, 0] = False
+
+    # Shift indices to the right to keep the first token that crosses the threshold
+    sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
+    sorted_indices_to_remove[..., 0] = False
 
     # Scatter back to original ordering
     indices_to_remove = sorted_indices_to_remove.scatter(1, sorted_indices, sorted_indices_to_remove)
@@ -396,7 +400,19 @@ def batchify(td: TensorDict, num_repeats: int) -> TensorDict:
         TensorDict [batch * num_repeats, ...]
     """
     # Use interleave to keep instances together
-    return td.repeat_interleave(num_repeats, dim=0)
+    # Use interleave to keep instances together
+    # Some TensorDict versions might not have repeat_interleave on the object
+    try:
+        return td.repeat_interleave(num_repeats, dim=0)
+    except AttributeError:
+        # Fallback: repeat manually for each key
+        # We must set batch_size FIRST to allow item assignment of different shape
+        new_batch_size = torch.Size([td.batch_size[0] * num_repeats, *td.batch_size[1:]])
+        new_td = TensorDict({}, batch_size=new_batch_size, device=td.device)
+        for key, val in td.items():
+            if isinstance(val, torch.Tensor):
+                new_td[key] = val.repeat_interleave(num_repeats, dim=0)
+        return new_td
 
 
 def unbatchify(td: TensorDict, num_repeats: int) -> TensorDict:
