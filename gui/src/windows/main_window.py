@@ -42,8 +42,16 @@ from ..tabs import (
     GenDataAdvancedTab,
     GenDataGeneralTab,
     GenDataProblemTab,
+    HyperParamOptimParserTab,
     InputAnalysisTab,
+    MetaRLTrainParserTab,
     OutputAnalysisTab,
+    RLCostsTab,
+    RLDataTab,
+    RLModelTab,
+    RLOptimizerTab,
+    RLOutputTab,
+    RLTrainingTab,
     RunScriptsTab,
     TestSimAdvancedTab,
     TestSimIOTab,
@@ -121,6 +129,7 @@ class MainWindow(QWidget):
         # --- CHANGED: Added 'Analysis' to the list ---
         self.command_combo.addItems(
             [
+                "Train Model",
                 "Generate Data",
                 "Evaluate",
                 "Test Simulator",
@@ -145,6 +154,16 @@ class MainWindow(QWidget):
 
         main_layout.addLayout(command_layout)
 
+        self.train_tabs_map = {
+            "Data": RLDataTab(),
+            "Model": RLModelTab(),
+            "Training": RLTrainingTab(),
+            "Optimizer": RLOptimizerTab(),
+            "Cost Weights": RLCostsTab(),
+            "Output": RLOutputTab(),
+            "Hyper-Parameter Optimization": HyperParamOptimParserTab(),
+            "Meta-Learning": MetaRLTrainParserTab(),
+        }
         self.gen_data_tabs_map = {
             "General Output": GenDataGeneralTab(),
             "Problem Definition": GenDataProblemTab(),
@@ -185,6 +204,7 @@ class MainWindow(QWidget):
 
         # --- CHANGED: Add 'Analysis' to all_tabs ---
         self.all_tabs = {
+            "Train Model": self.train_tabs_map,
             "Generate Data": self.gen_data_tabs_map,
             "Evaluate": self.eval_tabs_map,
             "Test Simulator": self.test_sim_tabs_map,

@@ -11,6 +11,16 @@ from .file_system import (
     FileSystemUpdateTab,
 )
 from .generate_data import GenDataAdvancedTab, GenDataGeneralTab, GenDataProblemTab
+from .hyperparam_optim import HyperParamOptimParserTab
+from .meta_rl_train import MetaRLTrainParserTab
+from .reinforcement_learning import (
+    RLCostsTab,
+    RLDataTab,
+    RLModelTab,
+    RLOptimizerTab,
+    RLOutputTab,
+    RLTrainingTab,
+)
 from .scripts import RunScriptsTab
 from .test_simulator import (
     TestSimAdvancedTab,
@@ -33,6 +43,14 @@ __all__ = [
     "GenDataAdvancedTab",
     "GenDataGeneralTab",
     "GenDataProblemTab",
+    "HyperParamOptimParserTab",
+    "MetaRLTrainParserTab",
+    "RLCostsTab",
+    "RLDataTab",
+    "RLModelTab",
+    "RLOptimizerTab",
+    "RLOutputTab",
+    "RLTrainingTab",
     "RunScriptsTab",
     "TestSimAdvancedTab",
     "TestSimIOTab",
