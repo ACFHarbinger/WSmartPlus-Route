@@ -216,6 +216,51 @@ class GeneratorDataset(Dataset):
         return self.generator(batch_size=1)[0]
 
 
+class ExtraKeyDataset(Dataset):
+    """
+    Dataset that includes an extra key/value pair (e.g., for baseline rewards).
+    """
+
+    def __init__(self, dataset: Dataset, extra: dict[str, torch.Tensor]):
+        """
+        Initialize the ExtraKeyDataset.
+
+        Args:
+            dataset: The underlying dataset.
+            extra: Dictionary of extra tensors to include (e.g., {'baseline': ...}).
+        """
+        super().__init__()
+        self.dataset = dataset
+        self.extra = extra
+        # Validate lengths
+        for k, v in extra.items():
+            assert len(dataset) == len(v), f"Length mismatch for key {k}: {len(dataset)} vs {len(v)}"
+
+    def __getitem__(self, idx: int) -> dict:
+        """
+        Retrieve a sample with extra keys.
+
+        Args:
+            idx: Index of the sample.
+
+        Returns:
+            dict: Dictionary with 'data' and extra keys.
+        """
+        item = {"data": self.dataset[idx]}
+        for k, v in self.extra.items():
+            item[k] = v[idx]
+        return item
+
+    def __len__(self) -> int:
+        """
+        Return the number of samples.
+
+        Returns:
+            int: Number of samples.
+        """
+        return len(self.dataset)
+
+
 class BaselineDataset(Dataset):
     """
     Dataset wrapping baseline values for training.

@@ -203,6 +203,13 @@ clean:
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg-info
+    rm -rf dist/
+    rm -rf temp/
+    rm -rf wandb/
+    rm -rf outputs/
+    rm -rf checkpoints/
+    rm -rf *.egg-info
+    rm -rf logs/
+    rm -rf outputs/
+    rm -rf model_weights/
 	@echo -e "$(GREEN)✓ Cleanup complete.$(NC)"

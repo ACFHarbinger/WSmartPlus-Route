@@ -40,9 +40,58 @@ class WSTrainer(pl.Trainer):
         enable_progress_bar: bool = True,
         model_weights_path: Optional[str] = None,
         logs_dir: Optional[str] = None,
+        # RL4CO-style optimizations
+        precision: Union[int, str] = "16-mixed",
+        matmul_precision: str = "medium",
+        disable_jit_profiling: bool = True,
+        auto_ddp: bool = True,
+        reload_dataloaders_every_n_epochs: int = 1,
         **kwargs,
     ):
-        """Initialize WSTrainer."""
+        """
+        Initialize WSTrainer with RL-specific optimizations.
+
+        Args:
+            max_epochs: Maximum number of training epochs.
+            accelerator: Hardware accelerator ('auto', 'gpu', 'cpu').
+            devices: Number of devices or 'auto'.
+            gradient_clip_val: Gradient clipping value.
+            log_every_n_steps: Logging frequency.
+            check_val_every_n_epoch: Validation frequency.
+            project_name: WandB project name.
+            experiment_name: Experiment name for logging.
+            callbacks: Custom callbacks.
+            logger: Logger instance or False to disable.
+            enable_progress_bar: Show progress bar.
+            model_weights_path: Path for checkpoint saving.
+            logs_dir: Directory for logs.
+            precision: Training precision ('32', '16-mixed', 'bf16-mixed').
+            matmul_precision: Matmul precision for Ampere+ GPUs ('highest', 'high', 'medium').
+            disable_jit_profiling: Disable JIT profiling for memory optimization.
+            auto_ddp: Auto-configure DDP for multi-GPU.
+            reload_dataloaders_every_n_epochs: Reload dataloaders every N epochs (for RL).
+            **kwargs: Additional Trainer arguments.
+        """
+        import torch
+
+        # RL4CO Optimization 1: Disable JIT profiling (memory optimization)
+        if disable_jit_profiling:
+            torch._C._jit_set_profiling_executor(False)
+            torch._C._jit_set_profiling_mode(False)
+
+        # RL4CO Optimization 2: Set matmul precision for Ampere+ GPUs
+        if torch.cuda.is_available():
+            torch.set_float32_matmul_precision(matmul_precision)
+
+        # RL4CO Optimization 3: Auto DDP configuration
+        strategy = kwargs.pop("strategy", None)
+        if strategy is None and auto_ddp:
+            n_devices = devices if isinstance(devices, int) else torch.cuda.device_count()
+            if n_devices > 1:
+                from pytorch_lightning.strategies import DDPStrategy
+
+                strategy = DDPStrategy(find_unused_parameters=True)
+
         # Build callbacks
         callbacks = callbacks or []
         callbacks = self._add_default_callbacks(callbacks, enable_progress_bar, model_weights_path)
@@ -60,6 +109,9 @@ class WSTrainer(pl.Trainer):
             check_val_every_n_epoch=check_val_every_n_epoch,
             callbacks=callbacks,
             logger=logger,
+            precision=precision,
+            strategy=strategy,
+            reload_dataloaders_every_n_epochs=reload_dataloaders_every_n_epochs,
             **kwargs,
         )
 
