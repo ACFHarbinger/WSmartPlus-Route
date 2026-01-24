@@ -5,8 +5,9 @@ from unittest.mock import MagicMock
 import torch
 import torch.nn as nn
 
-import logic.src.tasks.vrpp.problem_vrpp as problem_module
 from logic.src.data.datasets import BaselineDataset
+from logic.src.envs import problems as problem_module
+from logic.src.envs.problems import CVRPP
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.modules.moe import MoE
 from logic.src.models.modules.moe_feed_forward import MoEFeedForward
@@ -28,7 +29,6 @@ from logic.src.pipeline.rl.core.baselines import (
     WarmupBaseline as WarmupBaseline,
 )
 from logic.src.policies.neural_agent import NeuralAgent
-from logic.src.tasks.vrpp.problem_vrpp import CVRPP
 
 # Patch globals that are expected to be initialized by Dataset
 problem_module.COST_KM = 1.0
@@ -427,7 +427,8 @@ class TestMoEModel:
             "loc": torch.rand(2, 5, 2),
             "demand": torch.rand(2, 5),
             "waste": torch.rand(2, 5),
-            "max_waste": torch.rand(2),
+            "capacity": torch.full((2,), 1000.0),
+            "max_waste": torch.full((2,), 1000.0),
         }
 
         model.set_decode_type("greedy")

@@ -110,14 +110,42 @@ class RL4COEnvBase(EnvBase):
 
         # Reward is usually computed at the end in CO, but can be step-wise
         # TorchRL expects 'reward' and 'done' in the output of _step
-        td_next["reward"] = self._get_reward(td_next, td.get("action", None))
+        reward = self._get_reward(td_next, td.get("action", None))
+
+        # Ensure reward shape matches batch_size + (1,) for TorchRL compliance
+        if reward.shape != (*td_next.batch_size, 1):
+            reward = reward.view(*td_next.batch_size, 1)
+        td_next["reward"] = reward
 
         return td_next
 
-    @abstractmethod
     def _step_instance(self, td: TensorDict) -> TensorDict:
-        """Problem-specific state transition."""
-        raise NotImplementedError
+        """
+        Core state transition logic common to most routing problems.
+        Updates visited mask, current node, and tour tracking.
+        """
+        action = td["action"]
+        current = td.get("current_node", torch.zeros_like(action)).squeeze(-1)
+        locs = td["locs"]
+
+        # Compute distance traveled
+        current_loc = locs.gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
+        next_loc = locs.gather(1, action[:, None, None].expand(-1, -1, 2)).squeeze(1)
+        distance = torch.norm(next_loc - current_loc, dim=-1)
+
+        # Update tour length
+        td["tour_length"] = td.get("tour_length", torch.zeros_like(distance)) + distance
+
+        # Update visited
+        td["visited"] = td["visited"].scatter(1, action.unsqueeze(-1), True)
+
+        # Update current node
+        td["current_node"] = action.unsqueeze(-1)
+
+        # Append to tour
+        td["tour"] = torch.cat([td["tour"], action.unsqueeze(-1)], dim=-1)
+
+        return td
 
     @abstractmethod
     def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:

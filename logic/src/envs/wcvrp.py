@@ -77,46 +77,52 @@ class WCVRPEnv(RL4COEnvBase):
         # Vehicle load tracking
         td["current_load"] = torch.zeros(*bs, device=device)
         td["total_collected"] = torch.zeros(*bs, device=device)
+        td["collected_prize"] = td["total_collected"]  # Alias for compatibility
+
+        # Initial overflows
+        max_waste = td.get("max_waste", torch.tensor(1.0, device=device))
+        demand = td["demand"]
+        if max_waste.dim() > 1:
+            max_waste = max_waste[..., 1:]
+        td["cur_overflows"] = (demand[..., 1:] >= max_waste).float().sum(-1)
 
         return td
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
         """Execute action and update state."""
+        # Core mechanics
+        td = super()._step_instance(td)
+
         action = td["action"]
-        current = td["current_node"].squeeze(-1)
-        locs = td["locs"]
-
-        # Compute distance
-        current_loc = locs.gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
-        next_loc = locs.gather(1, action[:, None, None].expand(-1, -1, 2)).squeeze(1)
-        distance = torch.norm(next_loc - current_loc, dim=-1)
-
-        td["tour_length"] = td["tour_length"] + distance
-
-        # Collection logic
         is_not_depot = action != 0
         demand_at_node = td["demand"].gather(1, action.unsqueeze(-1)).squeeze(-1)
 
-        # Collect waste
-        collected = demand_at_node * is_not_depot.float()
+        # Collect waste (clamped to max_waste if present)
+        max_w = td.get("max_waste", torch.tensor(1e9, device=td.device))
+        if max_w.dim() > 1:
+            max_w_at_node = max_w.gather(1, action.unsqueeze(-1)).squeeze(-1)
+        else:
+            max_w_at_node = max_w
+
+        collected = torch.min(demand_at_node, max_w_at_node) * is_not_depot.float()
         td["current_load"] = td["current_load"] + collected
         td["total_collected"] = td["total_collected"] + collected
+        td["collected_prize"] = td["total_collected"]  # Alias
 
         # Empty at depot
         at_depot = action == 0
         td["current_load"] = torch.where(at_depot, torch.zeros_like(td["current_load"]), td["current_load"])
 
         # Clear bin (set demand to 0 after collection)
-        new_demand = td["demand"].clone()
-        new_demand.scatter_(1, action.unsqueeze(-1), 0)
-        td["demand"] = new_demand
+        # We MUST do this on td['demand'] which will be in td_next
+        td["demand"].scatter_(1, action.unsqueeze(-1), 0)
 
-        # Update state
-        td["visited"] = td["visited"].scatter(1, action.unsqueeze(-1), True)
-        td["current_node"] = action.unsqueeze(-1)
-        td["tour"] = torch.cat([td["tour"], action.unsqueeze(-1)], dim=-1)
+        # Note: visited and current_node are updated in super()._step_instance
 
         return td
+
+    def _step(self, td: TensorDict) -> TensorDict:
+        return super(WCVRPEnv, self)._step(td)
 
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
         """Mask based on capacity and visited status."""
@@ -154,16 +160,20 @@ class WCVRPEnv(RL4COEnvBase):
         # Calculate overflows: unvisited nodes where demand >= max_waste
         # In current WCVRP, visited nodes have demand=0 in the final td.
         max_waste = td.get("max_waste", torch.tensor(1.0, device=td.device))
-        if max_waste.dim() > 0:
-            max_waste = max_waste.unsqueeze(-1)
 
-        # We only care about customers (index 1 onwards) for overflows in legacy
-        overflows = (td["demand"][..., 1:] >= max_waste).float().sum(-1)
+        # We only care about customers (index 1 onwards) for overflows
+        demand = td["demand"][..., 1:]
+        if max_waste.dim() > 1:  # (B, N)
+            max_waste = max_waste[..., 1:]
+
+        overflows = (demand >= max_waste).float().sum(-1)
 
         # Store individual components in TensorDict for logging/meta access
         td["collection"] = collection
+        td["collected_prize"] = collection  # Alias
         td["cost"] = total_cost
         td["overflows"] = overflows
+        td["cur_overflows"] = overflows  # Alias
 
         # Store decomposed rewards for GDPO (signed for maximization)
         td["reward_collection"] = collection

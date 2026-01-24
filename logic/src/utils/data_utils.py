@@ -53,6 +53,9 @@ def save_dataset(dataset: Any, filename: str) -> None:
         except Exception:
             raise Exception("directories to save datasets do not exist and could not be created")
 
+    with open(filename, "wb") as f:
+        pickle.dump(dataset, f)
+
 
 def save_td_dataset(td: TensorDict, filename: str) -> None:
     """

@@ -160,49 +160,65 @@ class CVRPPEnv(VRPPEnv):
 
     name: str = "cvrpp"
 
-    def _reset(self, td: TensorDict, batch_size: Optional[int] = None) -> TensorDict:
+    def _reset_instance(self, td: TensorDict) -> TensorDict:
         """Initialize CVRPP state with capacity tracking."""
-        td = super()._reset(td, batch_size)
+        td = super()._reset_instance(td)
 
-        bs = td.batch_size[0] if batch_size is None else batch_size
+        bs = td.batch_size[0]
         device = td.device
 
         # Track remaining capacity
         capacity = td.get("capacity", torch.ones(bs, device=device) * 100)
+        td["capacity"] = capacity  # Ensure it's in the TensorDict for _step
         td["remaining_capacity"] = capacity.clone()
         td["collected"] = torch.zeros(bs, device=device)
 
         return td
 
-    def _step(self, td: TensorDict) -> TensorDict:
+    def _reset(self, tensordict: Optional[TensorDict] = None, **kwargs) -> TensorDict:
+        # Correct TorchRL signature
+        return super()._reset(tensordict, **kwargs)
+
+    def _step_instance(self, td: TensorDict) -> TensorDict:
         """Execute action with capacity tracking."""
-        td = super()._step(td)
+        # RL4CO base calls _step_instance, then updates mask.
+        # So we must update our state here.
         action = td["action"]
 
         # Update capacity when collecting
-        demand = td["demand"].gather(1, action.unsqueeze(-1)).squeeze(-1)
+        demand = td.get("demand", td.get("prize", torch.zeros_like(td["remaining_capacity"].unsqueeze(-1))))
+        if demand.dim() > 1:
+            demand_at_node = demand.gather(1, action.unsqueeze(-1)).squeeze(-1)
+        else:
+            demand_at_node = demand
 
         # Reset capacity at depot
         at_depot = action == 0
         td["remaining_capacity"] = torch.where(
             at_depot,
             td["capacity"],
-            td["remaining_capacity"] - demand,
+            td["remaining_capacity"] - demand_at_node,
         )
         td["collected"] = torch.where(
             at_depot,
             torch.zeros_like(td["collected"]),
-            td["collected"] + demand,
+            td["collected"] + demand_at_node,
         )
 
         return td
+
+    def _step(self, td: TensorDict) -> TensorDict:
+        # RL4CO base _step calls _step_instance and then _get_action_mask.
+        # Since we use _step_instance above, we just call super().
+        return super(VRPPEnv, self)._step(td)
 
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
         """Mask nodes that would exceed capacity."""
         mask = super()._get_action_mask(td)
 
         # Mask nodes whose demand exceeds remaining capacity
-        demand = td["demand"]
+        # For VRPP-based envs, we might use 'prize' as demand for consistency
+        demand = td.get("demand", td.get("prize", torch.zeros_like(td["remaining_capacity"].unsqueeze(-1))))
         remaining = td["remaining_capacity"].unsqueeze(-1)
         exceeds_capacity = demand > remaining
 

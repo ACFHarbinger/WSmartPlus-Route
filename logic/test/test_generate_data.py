@@ -153,6 +153,14 @@ class TestGenerateData:
             ([0, 0], [[0, 0]], [[0.1]], [1.0])  # 1 instance
         ]
 
+        # Configure build_td to return a dummy TensorDict
+        import torch
+        from tensordict import TensorDict
+
+        mock_instance.build_td.return_value = TensorDict(
+            {"locs": torch.zeros(1, 2, 2), "depot": torch.zeros(1, 2)}, batch_size=[1]
+        )
+
         return mock_instance
 
     @pytest.mark.parametrize("problem", ["vrpp", "wcvrp"])
@@ -164,12 +172,12 @@ class TestGenerateData:
         gen_data_opts["graph_sizes"] = [50]
         gen_data_opts["data_distributions"] = ["gamma1"]
 
-        mock_save = mocker.patch("logic.src.data.generate_data.save_dataset")
+        mock_save = mocker.patch("logic.src.data.generate_data.save_td_dataset")
 
         # Act
         generate_datasets(gen_data_opts)
 
-        # Assert save_dataset was called exactly once
+        # Assert save_td_dataset was called exactly once
         mock_save.assert_called_once()
 
         # Assert Builder methods were called
@@ -180,7 +188,7 @@ class TestGenerateData:
         mock_builder.set_area.assert_called_with(gen_data_opts["area"])
         mock_builder.set_method.assert_called_with(gen_data_opts["vertex_method"])
         mock_builder.set_problem_name.assert_called_with(problem)
-        mock_builder.build.assert_called_once()
+        mock_builder.build_td.assert_called_once()
 
     @pytest.mark.parametrize(
         "problem, expected_distributions",
@@ -211,13 +219,13 @@ class TestGenerateData:
         gen_data_opts["graph_sizes"] = [10]
         gen_data_opts["data_distributions"] = ["all"]
 
-        mocker.patch("logic.src.data.generate_data.save_dataset")
+        mocker.patch("logic.src.data.generate_data.save_td_dataset")
 
         # Act
         generate_datasets(gen_data_opts)
 
         # Assert build called correct number of times
-        assert mock_builder.build.call_count == len(expected_distributions)
+        assert mock_builder.build_td.call_count == len(expected_distributions)
 
         # Check that set_distribution was called with each expected distribution
         called_distributions = [call.args[0] for call in mock_builder.set_distribution.call_args_list]
@@ -235,13 +243,13 @@ class TestGenerateData:
             "dummy2",
         ]  # Strings to avoid TypeError in os.path.isfile
 
-        mocker.patch("logic.src.data.generate_data.save_dataset")
+        mocker.patch("logic.src.data.generate_data.save_td_dataset")
 
         # Act
         generate_datasets(gen_data_opts)
 
         # Assert build called correct number of times
-        assert mock_builder.build.call_count == len(gen_data_opts["graph_sizes"])
+        assert mock_builder.build_td.call_count == len(gen_data_opts["graph_sizes"])
 
         # Check sizes
         called_sizes = [call.args[0] for call in mock_builder.set_problem_size.call_args_list]

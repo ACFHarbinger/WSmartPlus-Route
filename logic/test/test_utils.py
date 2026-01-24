@@ -179,10 +179,7 @@ class TestLoadModel:
         model_dir = tmp_path / "model_dir"
         model_dir.mkdir()
 
-        # Create dummy epoch file
-        (model_dir / "epoch-10.pt").touch()
-
-        mock_load_args.return_value = {
+        hparams = {
             "problem": "vrpp",
             "model": "am",
             "encoder": "gat",
@@ -210,6 +207,14 @@ class TestLoadModel:
             "aggregation_graph": "avg",
             "tanh_clipping": 10.0,
         }
+        mock_load_args.return_value = hparams
+
+        # Create dummy epoch file and args.json with content
+        (model_dir / "epoch-10.pt").touch()
+        import json
+
+        with open(model_dir / "args.json", "w") as f:
+            json.dump(hparams, f)
 
         mock_problem = MagicMock()
         mock_load_problem.return_value = mock_problem
