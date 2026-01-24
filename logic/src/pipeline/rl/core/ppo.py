@@ -9,6 +9,7 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.pipeline.rl.core.base import RL4COLitModule
+from logic.src.pipeline.rl.utils import safe_td_copy
 
 
 class PPO(RL4COLitModule):
@@ -80,7 +81,7 @@ class PPO(RL4COLitModule):
             Loss tensor from last optimization step.
         """
         env = self.env
-        td = env.reset(batch.clone())
+        td = env.reset(safe_td_copy(batch))
 
         with torch.no_grad():
             # Sampling rollout
@@ -130,7 +131,7 @@ class PPO(RL4COLitModule):
 
                 # Re-evaluate logic
                 # Need to clone to avoid in-place issues
-                new_out = self.policy(sub_td.clone(), env, actions=sub_td["action"])
+                new_out = self.policy(safe_td_copy(sub_td), env, actions=sub_td["action"])
                 new_log_p = new_out["log_likelihood"]
 
                 # Re-evaluate values

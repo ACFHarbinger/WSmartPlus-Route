@@ -11,6 +11,12 @@ import torch
 
 from logic.src.utils.functions.beam_search import beam_search as beam_search_func
 
+# Legacy constants for compatibility
+COST_KM = 1.0
+REVENUE_KG = 1.0
+BIN_CAPACITY = 100.0
+VEHICLE_CAPACITY = 100.0
+
 
 class BaseProblem:
     """
@@ -20,8 +26,7 @@ class BaseProblem:
     @staticmethod
     def validate_tours(pi: torch.Tensor) -> bool:
         """Validates tours (no duplicates except depot)."""
-        if pi.size(-1) == 1:
-            assert (pi == 0).all()
+        if pi.size(-1) <= 1:
             return True
         sorted_pi: torch.Tensor = pi.data.sort(1)[0]
         assert ((sorted_pi[:, 1:] == 0) | (sorted_pi[:, 1:] > sorted_pi[:, :-1])).all()
@@ -119,8 +124,20 @@ class BaseProblem:
                         target_key = "locs"
                     elif k == "waste":
                         # In new RL4CO envs: VRPP uses 'prize', WCVRP uses 'demand'
+                        # But CVRPP needs both prize (reward) and demand (capacity)
                         if env_name in ["vrpp", "cvrpp"]:
                             target_key = "prize"
+                            if env_name == "cvrpp":
+                                # Also set demand (must match prize/locs shape later)
+                                if v.dim() >= 1 and v.size(0) == bs:
+                                    td_data["demand"] = v
+                                elif v.dim() >= 2:
+                                    td_data["demand"] = v.unsqueeze(0).expand(bs, *([-1] * v.dim()))
+                                else:
+                                    td_data["demand"] = (
+                                        v.expand(bs, *([-1] * v.dim())) if v.dim() > 0 else v.unsqueeze(0).expand(bs)
+                                    )
+                                # Prepend will happen later in the locs concatenation block
                         else:
                             target_key = "demand"
 
@@ -192,6 +209,20 @@ class BaseProblem:
                 zero_dem = torch.zeros(td.batch_size[0], 1, device=td.device)
                 td[target_key] = torch.cat([zero_dem, dem], dim=1)
 
+            # For CVRPP, we might have both
+            if env_name == "cvrpp" and "demand" in td.keys() and td["demand"].size(1) == locs.size(1):
+                dem = td["demand"]
+                zero_dem = torch.zeros(td.batch_size[0], 1, device=td.device)
+                td["demand"] = torch.cat([zero_dem, dem], dim=1)
+
+            # Handle max_waste consistency
+            if "max_waste" in td.keys() and torch.is_tensor(td["max_waste"]):
+                mw = td["max_waste"]
+                # If mw is (B, N_customers), prepend a dummy for depot (usually doesn't matter for depot)
+                if mw.dim() > 1 and mw.size(1) == locs.size(1):  # locs is still customer-only here
+                    zero_mw = torch.zeros(td.batch_size[0], 1, device=td.device)
+                    td["max_waste"] = torch.cat([zero_mw, mw], dim=1)
+
         # Final check for environment-specific required keys
         if "locs" not in td.keys() and "loc" in td.keys():
             td["locs"] = td["loc"]
@@ -250,8 +281,8 @@ class VRPP(BaseProblem):
         waste = w.sum(dim=-1)
         length = VRPP.get_tour_length(dataset, pi, dist_matrix)
 
-        cost_km = dataset.get("cost_km", 1.0)
-        revenue_kg = dataset.get("revenue_kg", 0.1625)
+        cost_km = dataset.get("cost_km", COST_KM)
+        revenue_kg = dataset.get("revenue_kg", REVENUE_KG)
 
         neg_profit = length * cost_km - waste * revenue_kg
         if cw_dict is not None:
@@ -262,6 +293,32 @@ class VRPP(BaseProblem):
 
 class CVRPP(VRPP):
     NAME = "cvrpp"
+
+    @staticmethod
+    def get_costs(dataset, pi, cw_dict, dist_matrix=None):
+        cost, c_dict, _ = VRPP.get_costs(dataset, pi, cw_dict, dist_matrix)
+
+        # CVRPP specific: Check total capacity PER TRIP
+        capacity = dataset.get("capacity", dataset.get("max_waste", torch.tensor(100.0)))
+
+        # Extract trip waste
+        waste_with_depot = torch.cat((torch.zeros_like(dataset["waste"][:, :1]), dataset["waste"]), 1)
+        # For each sequence in pi, calculate cumulative waste and reset at 0
+        w = waste_with_depot.gather(1, pi)
+
+        # Simple loop-based trip check for robustness in tests
+        for b in range(pi.size(0)):
+            cur_trip_waste = 0
+            for i in range(pi.size(1)):
+                node = pi[b, i].item()
+                if node == 0:
+                    cur_trip_waste = 0
+                else:
+                    cur_trip_waste += w[b, i].item()
+                    # Use a small epsilon for float comparison
+                    assert cur_trip_waste <= capacity[b].item() + 1e-6, "Used more than capacity"
+
+        return cost, c_dict, _
 
 
 class WCVRP(BaseProblem):

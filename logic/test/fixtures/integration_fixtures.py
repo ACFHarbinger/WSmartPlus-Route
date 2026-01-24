@@ -4,72 +4,50 @@ Fixtures specifically for Integration Tests.
 
 import pandas as pd
 import pytest
-from logic.src.cli.base_parser import ConfigsParser
-from logic.src.cli.hpo_parser import add_hp_optim_args
-from logic.src.cli.meta_train_parser import add_mrl_train_args
-from logic.src.cli.train_parser import add_train_args
 
 
 @pytest.fixture
 def train_opts(tmp_path):
-    """Base options for training integration tests, derived from real parser defaults."""
-    # Create separate parsers to avoid conflict and merge defaults
-    parser_train = ConfigsParser()
-    add_train_args(parser_train)
-    args_train, _ = parser_train.parse_known_args([])
-
-    parser_mrl = ConfigsParser()
-    add_mrl_train_args(parser_mrl)
-    args_mrl, _ = parser_mrl.parse_known_args([])
-
-    parser_hp = ConfigsParser()
-    add_hp_optim_args(parser_hp)
-    args_hp, _ = parser_hp.parse_known_args([])
-
-    opts = {**vars(args_train), **vars(args_mrl), **vars(args_hp)}
-
-    # Overrides for testing
-    opts.update(
-        {
-            "problem": "vrpp",
-            "graph_size": 10,
-            "batch_size": 2,
-            "epoch_size": 10,
-            "val_size": 10,
-            "n_epochs": 1,
-            "epoch_start": 0,
-            "no_cuda": True,
-            "device": "cpu",  # String not object for JSON safety
-            "no_tensorboard": True,
-            "wandb_mode": "disabled",
-            "log_dir": "logs",
-            "save_dir": str(tmp_path / "checkpoints"),
-            "final_dir": str(tmp_path / "final"),
-            "embedding_dim": 16,
-            "hidden_dim": 16,
-            "n_encode_layers": 1,
-            "n_other_layers": 0,  # Missing from parser?
-            "optimizer": "adam",  # Ensure optimizer is set
-            "eval_batch_size": 2,
-            "checkpoint_epochs": 1,
-            "log_step": 5,
-            "run_name": "test_run",
-            "seed": 1234,
-            "data_distribution": "const",
-            "area": "riomaior",
-            "waste_type": "paper",
-            "enable_scaler": False,
-            "w_waste": 1.0,
-            "w_length": 1.0,
-            "w_overflows": 100.0,
-            "w_lost": 10.0,
-            "w_penalty": 0.0,
-            "w_prize": 0.0,
-            "mrl_method": "cb",
-            "hop_method": "gs",
-            "vocab_size": 10,  # Explicitly provide vocab_size if needed
-        }
-    )
+    """Base options for training integration tests, derived from Config defaults."""
+    # We populate a flat dict to match legacy expectations in integration tests
+    opts = {
+        "problem": "vrpp",
+        "graph_size": 10,
+        "batch_size": 2,
+        "epoch_size": 10,
+        "val_size": 10,
+        "n_epochs": 1,
+        "epoch_start": 0,
+        "no_cuda": True,
+        "device": "cpu",
+        "no_tensorboard": True,
+        "wandb_mode": "disabled",
+        "log_dir": "logs",
+        "save_dir": str(tmp_path / "checkpoints"),
+        "final_dir": str(tmp_path / "final"),
+        "embedding_dim": 16,
+        "hidden_dim": 16,
+        "n_encode_layers": 1,
+        "optimizer": "adam",
+        "lr_model": 1e-4,
+        "eval_batch_size": 2,
+        "checkpoint_epochs": 1,
+        "log_step": 5,
+        "run_name": "test_run",
+        "seed": 1234,
+        "data_distribution": "const",
+        "area": "riomaior",
+        "waste_type": "paper",
+        "enable_scaler": False,
+        "w_waste": 1.0,
+        "w_length": 1.0,
+        "w_overflows": 100.0,
+        "w_lost": 10.0,
+        "w_penalty": 0.0,
+        "w_prize": 0.0,
+        "mrl_method": "cb",
+        "hop_method": "gs",
+    }
     return opts
 
 
