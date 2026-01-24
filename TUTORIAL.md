@@ -664,7 +664,9 @@ class FinishingState(SimState):
 
 ### 3.6 Reinforcement Learning Pipeline (`logic/src/pipeline/rl/`)
 
-> **Note**: The old `logic/src/pipeline/reinforcement_learning/` is deprecated. Use the new Lightning-based pipeline.
+### 3.6 Reinforcement Learning Pipeline (`logic/src/pipeline/rl/`)
+
+The RL pipeline uses PyTorch Lightning for scalable training and easy experiment management.
 
 #### REINFORCE (`rl/core/reinforce.py`)
 

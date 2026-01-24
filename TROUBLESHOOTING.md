@@ -248,7 +248,7 @@ uv run ruff check .
 
 #### Symptom: `AttributeError: 'str' object has no attribute 'generator'`
 *   **Cause**: The environment object (`env`) was converted to a string during HParam sanitization before `model.setup()` could use it.
-*   **Fix**: Ensure `env` is injected into `common_kwargs` *after* the `deep_sanitize` call in `train_lightning.py`.
+*   **Fix**: Ensure `env` is injected into `common_kwargs` *after* the `deep_sanitize` call in `logic/src/pipeline/features/train.py`.
 
 #### Symptom: `TypeError: calculate_loss() got an unexpected keyword argument 'env'`
 *   **Cause**: The `calculate_loss` method signature in `AdaptiveImitation` (or other RL modules) does not match the base class `RL4COLitModule`.

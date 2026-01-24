@@ -69,8 +69,8 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 │  │   Models    │  │  Policies   │  │   Tasks     │  │     Pipeline        │ │
 │  │  (Neural)   │  │ (Classical) │  │ (Problems)  │  │ (Train/Eval/Sim)    │ │
 │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘ │
-│         │                │                │                     │           │
-│         └────────────────┼────────────────┼─────────────────────┘           │
+│         │                │                │                    │            │
+│         └────────────────┼────────────────┼────────────────────┘           │
 │                          ▼                ▼                                 │
 │                    ┌─────────────────────────────┐                          │
 │                    │     Simulator Engine        │                          │
@@ -168,9 +168,6 @@ logic/src/
 │   ├── __init__.py               # parse_params(), launch_tui()
 │   ├── base_parser.py            # ConfigsParser base class
 │   ├── registry.py               # Command dispatcher
-│   ├── train_parser.py           # Training arguments
-│   ├── meta_train_parser.py      # Meta-RL arguments
-│   ├── hpo_parser.py             # HPO arguments
 │   ├── sim_parser.py             # Simulation/eval arguments
 │   ├── data_parser.py            # Data generation arguments
 │   ├── fs_parser.py              # File system arguments
@@ -190,6 +187,30 @@ logic/src/
 │   ├── hypernet.py               # Weight generation
 │   ├── moe_model.py              # Mixture of experts
 │   ├── model_factory.py          # Factory pattern
+│   ├── embeddings/               # Problem embeddings
+│   │   ├── __init__.py           # Registry & factory
+│   │   ├── vrpp.py               # VRPP embedding
+│   │   ├── cvrpp.py              # CVRPP embedding
+│   │   └── wcvrp.py              # WCVRP embedding
+│   ├── policies/                 # Neural policy wrappers
+│   │   ├── am.py
+│   │   ├── base.py
+│   │   ├── critic.py
+│   │   ├── deep_decoder.py
+│   │   ├── pointer.py
+│   │   ├── symnco.py
+│   │   ├── temporal.py
+│   │   ├── utils.py
+│   │   └── classical/            # Classical policy wrappers
+│   │   │   ├── __init__.py
+│   │   │   ├── alns.py           # ALNS wrapper
+│   │   │   ├── adaptive_large_neighborhood_search.py
+│   │   │   ├── hgs.py            # HGS wrapper
+│   │   │   ├── hybrid_genetic_search.py
+│   │   │   ├── hybrid.py
+│   │   │   ├── local_search.py   # Local search operators
+│   │   │   ├── random_local_search.py
+│   │   │   └── split.py          # Split algorithm
 │   ├── modules/                  # Atomic components
 │   │   ├── multi_head_attention.py
 │   │   ├── graph_convolution.py
@@ -217,6 +238,7 @@ logic/src/
 │       ├── attention_decoder.py
 │       ├── gat_decoder.py
 │       ├── ptr_decoder.py
+│       ├── deep_decoder.py
 │       └── grf_predictor.py
 │
 ├── policies/                     # Classical algorithms
@@ -237,20 +259,16 @@ logic/src/
 │   ├── look_ahead_aux/           # Look-ahead helpers
 │   └── hgs_aux/                  # HGS components
 │
-├── tasks/                        # Problem definitions
+├── envs/                         # Problem environments (formerly tasks/)
 │   ├── base.py                   # BaseProblem class
-│   ├── vrpp/
-│   │   └── problem_vrpp.py       # VRPP, CVRPP
-│   ├── wcvrp/
-│   │   └── problem_wcvrp.py      # WCVRP, CWCVRP, SDWCVRP
-│   └── swcvrp/
-│       └── problem_swcvrp.py     # SCWCVRP
+│   ├── generators.py             # Data generators
+│   ├── problems.py               # Problem registry
+│   ├── vrpp.py                   # VRPP implementation
+│   ├── wcvrp.py                  # WCVRP implementation
+│   ├── swcvrp.py                 # SWCVRP implementation
+│   └── .py.typed
 │
 ├── pipeline/                     # Orchestration
-│   ├── train_lightning.py        # Main training entry point (Hydra)
-│   ├── train.py                  # Legacy training entry point
-│   ├── eval.py                   # Evaluation pipeline
-│   ├── test.py                   # Simulation testing
 │   ├── simulations/              # Simulator engine
 │   │   ├── simulator.py
 │   │   ├── day.py
@@ -263,9 +281,14 @@ logic/src/
 │   │   ├── context.py
 │   │   ├── checkpoints.py
 │   │   └── wsmart_bin_analysis/
-│   ├── rl/                       # NEW: Lightning-based RL pipeline (ACTIVE)
-│   │   ├── core/                 # RL algorithms
+│   ├── rl/                       # Lightning-based RL pipeline (ACTIVE)
+│   │   ├── common/               # Training utilities
 │   │   │   ├── base.py           # RL4COLitModule
+│   │   │   ├── baselines.py      # Rollout, Critic, POMO, Warmup, etc.
+│   │   │   ├── epoch.py          # Epoch management
+│   │   │   ├── time_training.py  # Temporal training
+│   │   │   └── post_processing.py
+│   │   ├── core/                 # RL algorithms
 │   │   │   ├── reinforce.py
 │   │   │   ├── ppo.py
 │   │   │   ├── sapo.py
@@ -276,7 +299,6 @@ logic/src/
 │   │   │   ├── imitation.py
 │   │   │   ├── adaptive_imitation.py
 │   │   │   ├── hrl.py
-│   │   │   └── baselines.py      # Rollout, Critic, POMO, Warmup, etc.
 │   │   ├── meta/                 # Meta-learning
 │   │   │   ├── contextual_bandits.py
 │   │   │   ├── multi_objective.py
@@ -286,15 +308,17 @@ logic/src/
 │   │   ├── hpo/                  # Hyperparameter optimization
 │   │   │   ├── optuna_hpo.py
 │   │   │   └── dehb.py
-│   │   └── features/             # Training utilities
-│   │       ├── epoch.py          # Epoch management
-│   │       ├── time_training.py  # Temporal training
-│   │       └── post_processing.py
-│   └── reinforcement_learning/   # DEPRECATED: Symlink to .bak (backward compat)
+│   ├── features/                 # Feature-specific implementations
+│   │   ├── train.py              # Main training entry point (Hydra)
+│   │   ├── eval.py               # Evaluation pipeline
+│   │   └── test.py               # Simulation testing
 │
 ├── data/                         # Data generation
 │   ├── generate_data.py
-│   └── builders.py
+│   ├── builders.py
+│   ├── datasets.py
+│   ├── fast_datasets.py
+│   └── transforms.py
 │
 └── utils/                        # Utilities
     ├── definitions.py            # Global constants
@@ -748,11 +772,10 @@ WSmart-Route/
 │   │   ├── pipeline/             # Orchestration
 │   │   │   ├── simulations/      # Simulator engine
 │   │   │   ├── rl/                       # RL algorithms (Lightning-based, ACTIVE)
-│   │   │   ├── reinforcement_learning/   # DEPRECATED: Symlink → .bak/
 │   │   │   │   ├── core/         # Core RL
 │   │   │   │   ├── meta/         # Meta-learning
 │   │   │   │   ├── hpo/          # Hyperparameter optimization
-│   │   │   │   └── policies/     # RL policies
+│   │   │   │   └── features/     # Training utilities
 │   │   ├── data/                 # Data generation
 │   │   └── utils/                # Utilities
 │   │       ├── functions/        # Algorithm helpers
