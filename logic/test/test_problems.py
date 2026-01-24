@@ -235,6 +235,25 @@ class TestStateWCVRP:
         # In WCVRPEnv, collected waste is cumulative
         assert state.td["collected_prize"].item() == 10.0
 
+    @pytest.mark.unit
+    def test_batched_max_waste_broadcasting(self):
+        """Test that WCVRP handles multi-instance batch with 1D max_waste."""
+        from logic.src.envs.problems import WCVRP
+
+        batch_size = 2
+        n_loc = 3
+        input_data = {
+            "depot": torch.zeros(batch_size, 2),
+            "loc": torch.rand(batch_size, n_loc, 2),
+            "waste": torch.tensor([[0.5, 1.2, 0.8], [1.5, 0.4, 1.1]]),  # Instance 1: 1 overflow, Instance 2: 2
+            "max_waste": torch.tensor([1.0, 1.0]),  # 1D batched scalars
+        }
+        state = WCVRP.make_state(input_data)
+
+        # Check initial overflows for each instance
+        expected_overflows = torch.tensor([1.0, 2.0])
+        assert torch.all(state.td["cur_overflows"] == expected_overflows)
+
 
 class TestStateCVRPP:
     """Tests for StateCVRPP logic."""

@@ -84,6 +84,8 @@ class WCVRPEnv(RL4COEnvBase):
         demand = td["demand"]
         if max_waste.dim() > 1:
             max_waste = max_waste[..., 1:]
+        elif max_waste.dim() == 1:
+            max_waste = max_waste.unsqueeze(-1)
         td["cur_overflows"] = (demand[..., 1:] >= max_waste).float().sum(-1)
 
         return td
@@ -165,6 +167,8 @@ class WCVRPEnv(RL4COEnvBase):
         demand = td["demand"][..., 1:]
         if max_waste.dim() > 1:  # (B, N)
             max_waste = max_waste[..., 1:]
+        elif max_waste.dim() == 1:
+            max_waste = max_waste.unsqueeze(-1)
 
         overflows = (demand >= max_waste).float().sum(-1)
 
