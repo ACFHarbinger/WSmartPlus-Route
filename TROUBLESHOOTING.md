@@ -246,6 +246,14 @@ uv run ruff check .
     python main.py train_lightning env.num_loc=50 model=am env.name=vrpp
     ```
 
+#### Symptom: `AttributeError: 'str' object has no attribute 'generator'`
+*   **Cause**: The environment object (`env`) was converted to a string during HParam sanitization before `model.setup()` could use it.
+*   **Fix**: Ensure `env` is injected into `common_kwargs` *after* the `deep_sanitize` call in `train_lightning.py`.
+
+#### Symptom: `TypeError: calculate_loss() got an unexpected keyword argument 'env'`
+*   **Cause**: The `calculate_loss` method signature in `AdaptiveImitation` (or other RL modules) does not match the base class `RL4COLitModule`.
+*   **Fix**: Update the method signature to accept `env: any = None`.
+
 #### Symptom: `RuntimeError: mat1 and mat2 shapes cannot be multiplied`
 *   **Cause**: Tensor dimension mismatch in neural network.
 *   **Fix**:
@@ -797,6 +805,10 @@ python main.py train_lightning train.enable_scaler=true
 ### 12.1 ALNS Not Improving
 
 **Symptom**: ALNS solution quality stagnates early.
+
+### 12.2 HGS crashes with `TypeError: 'int' object is not iterable`
+*   **Cause**: Vectorized HGS solver returning a single integer or flat list for a route, instead of a list of routes, which the parsing loop doesn't expect.
+*   **Fix**: Update `logic/src/models/policies/classical/hgs.py` to check `isinstance(routes[0], int)` and wrap single routes in a list.
 
 **Causes**:
 1. Temperature cooling too fast

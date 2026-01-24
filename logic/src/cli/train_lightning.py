@@ -2,6 +2,8 @@
 Unified Training and Hyperparameter Optimization entry point using PyTorch Lightning and Hydra.
 """
 
+from collections.abc import MutableMapping
+
 import hydra
 import optuna
 import pytorch_lightning as pl
@@ -166,6 +168,41 @@ def create_model(cfg: Config) -> pl.LightningModule:
     common_kwargs["aggregation"] = cfg.model.aggregation_node
     common_kwargs["aggregation_graph"] = cfg.model.aggregation_graph
     common_kwargs["hidden_dim"] = cfg.model.hidden_dim
+
+    # Specific remapping if needed
+    common_kwargs["optimizer"] = cfg.optim.optimizer
+    common_kwargs["optimizer_kwargs"] = {
+        "lr": cfg.optim.lr,
+        "weight_decay": cfg.optim.weight_decay,
+    }
+    common_kwargs["lr_scheduler"] = cfg.optim.lr_scheduler
+
+    # SANITIZATION: Ensure all values are primitives to satisfy YAML serialization
+    # Recursively convert DictConfig/ListConfig/integers/floats/strings
+    from omegaconf import DictConfig, ListConfig
+
+    def deep_sanitize(obj):
+        if isinstance(obj, (dict, MutableMapping, DictConfig)):
+            # Force conversion to dict if it's OmegaConf
+            if isinstance(obj, DictConfig):
+                obj = OmegaConf.to_container(obj, resolve=True)
+            return {k: deep_sanitize(v) for k, v in obj.items()}
+        elif isinstance(obj, (list, tuple, ListConfig)):
+            # Force conversion to list if it's OmegaConf
+            if isinstance(obj, ListConfig):
+                obj = OmegaConf.to_container(obj, resolve=True)
+            return [deep_sanitize(v) for v in obj]
+        elif isinstance(obj, (int, float, str, bool, type(None))):
+            return obj
+        # Fallback for objects that might be convertible to str
+        return str(obj)
+
+    # Sanitize common_kwargs before adding complex objects
+    common_kwargs = deep_sanitize(common_kwargs)
+
+    # Inject complex objects AFTER sanitization to avoid string conversion
+    common_kwargs["env"] = env
+    common_kwargs["policy"] = policy
 
     # Clean up common_kwargs to avoid passing unexpected args to LightningModule
     # some algorithm specific args might be in cfg.rl but not in common_kwargs base

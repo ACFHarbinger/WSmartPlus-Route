@@ -90,10 +90,15 @@ def create_critic_from_actor(policy: nn.Module, backbone_name: str = "encoder", 
     if encoder is None:
         raise ValueError(f"Critic requires a backbone in the policy network: {backbone_name}")
 
+    # Resolve arguments that might be in critic_kwargs OR in policy
+    # Priority: critic_kwargs > policy attribute
+    env_name = critic_kwargs.pop("env_name", getattr(policy, "env_name", None))
+    embed_dim = critic_kwargs.pop("embed_dim", getattr(policy, "embed_dim", 128))
+
     # Deepcopy the encoder to ensure independent weights initially
     critic = CriticNetwork(
-        env_name=policy.env_name,  # Assuming policy has env_name
-        embed_dim=policy.embed_dim,
+        env_name=env_name,
+        embed_dim=embed_dim,
         encoder=copy.deepcopy(encoder),
         **critic_kwargs,
     ).to(next(policy.parameters()).device)

@@ -308,6 +308,8 @@ If you have `just` installed, use these commands:
 | `just lint` | Run code linting (Ruff) |
 | `just format` | Format code (Black/Ruff) |
 | `just build-docs` | Build Sphinx documentation |
+| `just run-train` | Run the training pipeline (Hydra + Lightning) |
+| `just run-sim` | Run the simulation pipeline |
 
 ---
 
