@@ -15,6 +15,26 @@ NC='\033[0m' # No Color
 # Default to verbose mode
 VERBOSE=true
 
+# Load Task Config first to get general settings and PROBLEM definition
+TASK_CONFIG="scripts/configs/tasks/train.yaml"
+DATA_CONFIG="scripts/configs/data/train_data.yaml"
+eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
+
+# Now load the specific environment config based on the problem defined in the task
+if [ -z "$PROBLEM" ]; then
+    echo "Error: PROBLEM variable not found in $TASK_CONFIG"
+    exit 1
+fi
+
+ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+if [ ! -f "$ENV_CONFIG" ]; then
+    echo "Error: Environment config $ENV_CONFIG not found."
+    exit 1
+fi
+
+# Reload with Env config included
+eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG")
+
 # Handle --quiet if it appears after other arguments
 for arg in "$@"; do
     if [[ "$arg" == "--quiet" ]]; then
@@ -28,97 +48,19 @@ if [ "$VERBOSE" = false ]; then
     exec >/dev/null 2>&1
 fi
 
-EDGE_T=1.0
-EDGE_M="knn"
-DIST_M="gmaps"
-VERTEX_M="mmn"
 
-GAMMA=1.0
-W_LEN=10.0
-W_OVER=10.0
-W_WASTE=10.0
-# emp W_LEN = 1.5, 1.0, 1.0, 1.0
-# gamma W_LEN = 2.5, 1.75, 1.75, 1.75
-
-EMBED_DIM=128
-HIDDEN_DIM=512
-N_ENC_L=3
-N_ENC_SL=1
-N_PRED_L=2
-N_DEC_L=2
-
-N_HEADS=8
-NORM="instance"
-ACTI_F="gelu"
-DROPOUT=0.1
-AGG="sum"
-AGG_G="avg"
-CONNECTION="static_hyper"
-HYPER_LANES=4
-
-RL_ALGO="reinforce"
-OPTIM="rmsprop"
-LR_MODEL=0.0001
-LR_SCHEDULER="lambda"
-LR_DECAY=1.0
-
-LOG_STEP=10
-VIZ_STEP=100
-B_SIZE=128
-N_DATA=1280
-N_VAL_DATA=128
-VAL_B_SIZE=128
-
-BL="exponential"
-POMO_SIZE=0
-MAX_NORM=1.0
-EXP_BETA=0.8
-BL_ALPHA=0.05
-ACC_STEPS=1
-N_WORKERS=8
-PERSISTENT_WORKERS=true
-PIN_MEMORY=true
-LOGS_DIR="logs"
-MODEL_WEIGHTS_PATH="model_weights"
-
-IMITATION_W=1.0
-IMITATION_DECAY=0.91
-IMITATION_DECAY_STEP=1
-STOP_THRESH=0.1
-REHEAT_PAT=3
-REHEAT_THRESH=0.05
-IMITATION_MODE="hgs"
-TWO_OPT_MAX_ITER=100
-HGS_CONFIG_PATH="assets/configs/lookahead_hgs.yaml"
-
-SIZE=100
-AREA="riomaior"
-WTYPE="plastic"
-F_SIZE=1280
-VAL_F_SIZE=0
-DM_METHOD="gmaps"
-F_GRAPH="graphs_${SIZE}V_1N_${WTYPE}.json"
-DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}[${AREA}].csv"
-
-SEED=42
-START=0
-EPOCHS=100
+# Derived Variables
+# (Variables that depend on yaml config values or complex logic)
 TOTAL_EPOCHS=$(($START + $EPOCHS))
-PROBLEM="cwcvrp"
-DATA_PROBLEM="wcvrp"
 DATASET_NAME="time${TOTAL_EPOCHS}"
 VAL_DATASET_NAME="${DATASET_NAME}_val"
+
 DATASETS=()
 VAL_DATASETS=()
-DATA_DISTS=("gamma1")
+# DATA_DISTS loaded from YAML as array
 for dist in "${DATA_DISTS[@]}"; do
     DATASETS+=("data/datasets/${DATA_PROBLEM}/${DATA_PROBLEM}${SIZE}_${dist}_${DATASET_NAME}_seed${SEED}.pkl")
 done
-
-MODEL_NAMES=("am") #"amgc" "transgcn" "ddam" "tam")
-MODEL_ENCODERS=("gat") #"gat" "gcn" "gcn2" "gcn3")
-HORIZON=(0 0 0 0 3)
-WB_MODE="disabled" # 'online'|'offline'|'disabled'
 
 echo -e "${BLUE}Starting training script (Hydra-based)...${NC}"
 echo -e "${CYAN}---------------------------------------${NC}"
@@ -140,6 +82,18 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
         M_NAME="${MODEL_NAMES[m_idx]}"
         E_NAME="${MODEL_ENCODERS[m_idx]}"
         H_VAL="${HORIZON[m_idx]}"
+
+        # DYNAMICALLY LOAD MODEL CONFIG HERE
+        # We reload everything to ensure model-specific params override correctly
+        # Order: Task -> Env -> Model
+        MODEL_CONFIG="scripts/configs/models/${M_NAME}.yaml"
+
+        if [ -f "$MODEL_CONFIG" ]; then
+             eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG" "$MODEL_CONFIG")
+        else
+             echo "Warning: Model config $MODEL_CONFIG not found, using defaults loaded earlier."
+        fi
+
         FINAL_MODEL_PATH="assets/${MODEL_WEIGHTS_PATH}/${PROBLEM}${SIZE}_${AREA}_${WTYPE}/${DATA_DIST}/${M_NAME}${E_NAME}${H_VAL}/epoch-$((TOTAL_EPOCHS-1)).pt"
 
         echo ""
@@ -243,6 +197,7 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             train.persistent_workers="$PERSISTENT_WORKERS" \
             train.pin_memory="$PIN_MEMORY" \
             train.logs_dir="'$LOGS_DIR'" \
+            train.reload_dataloaders_every_n_epochs="$RELOAD_DATALOADERS_EVERY_N_EPOCHS" \
             train.model_weights_path="'$MODEL_WEIGHTS_PATH'" \
             train.final_model_path="'$FINAL_MODEL_PATH'" \
             hpo.n_trials=0 \

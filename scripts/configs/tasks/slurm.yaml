@@ -1,4 +1,4 @@
-# General
+# General Slurm Settings
 number_of_cores: 32
 command: "train"
 model: ["amgc"]
@@ -19,7 +19,3 @@ ns: 100 # Num Samples
 lvl: []
 cf: []
 nv: 1 # Num Vehicles
-
-# defaults
-dd_train: "unif"
-dd_test: "gamma1"

@@ -1,0 +1,3 @@
+# Data Configuration for Slurm
+dd_train: "unif"
+dd_test: "gamma1"

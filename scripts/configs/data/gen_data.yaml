@@ -1,25 +1,8 @@
-# General
-verbose: true
-seed: 42
-start: 0
-n_epochs: 100
-
-# Problem Definition
-problem: "wcvrp"
-area: "riomaior"
-vertex_method: "mmn"
-wtype: "plastic"
-
 # Data Specs
 data_dir: "datasets"
 sim_data_dir: "daily_waste"
 d_type: "train_time"
 d_type_sim: "test_simulator"
-
-# Generation Flags
-generate_dataset: 0
-generate_val_dataset: 0
-generate_test_dataset: 1
 
 # Dataset Names
 dataset_name: "time"

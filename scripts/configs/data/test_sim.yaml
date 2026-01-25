@@ -1,0 +1,22 @@
+# Paths and Data Specs
+data_dist: "gamma1"
+stats_path: ""
+sym_key: "skey"
+env_file: "vars.env"
+gp_lic_file: "gurobi.lic"
+hex_dat_file: "hexaly.dat.enc"
+google_api_file: "google.lic.enc"
+
+config_paths:
+  hgs: "assets/configs/lookahead_hgs.yaml"
+  alns: "assets/configs/lookahead_alns.yaml"
+  sans: "assets/configs/lookahead_sans.yaml"
+  bcp: "assets/configs/lookahead_bcp.yaml"
+  vrpp: "assets/configs/vrpp.yaml"
+  lookahead_a: "assets/configs/lookahead_a.yaml"
+  lookahead_b: "assets/configs/lookahead_b.yaml"
+
+edge_thresh: 1.0
+edge_method: "knn"
+vertex_method: "mmn"
+dist_method: "gmaps"

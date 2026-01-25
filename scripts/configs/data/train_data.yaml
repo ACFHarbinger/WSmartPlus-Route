@@ -1,0 +1,6 @@
+# Training Data Configuration
+f_size: 1280
+val_f_size: 0
+n_data: 1280
+n_val_data: 128
+data_dists: ["gamma1"]

@@ -42,9 +42,22 @@ conda activate /users5/vlabist/afonsofernandes/anaconda3/envs/wsr
 
 # To execute this slurm script: sbatch slurm.sh
 
-# Load configuration from YAML
-CONFIG_FILE="scripts/configs/slurm.yaml"
-eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE")
+# Load Task Config first to get general settings and PROBLEM definition
+TASK_CONFIG="scripts/configs/tasks/slurm.yaml"
+DATA_CONFIG="scripts/configs/data/slurm.yaml"
+eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
+
+# Now load the specific environment config based on the problem defined in the task
+if [ -n "$PROBLEM" ]; then
+    ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+    if [ -f "$ENV_CONFIG" ]; then
+        eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$TASK_CONFIG")
+    fi
+fi
+
+# MAP ENVIRONMENT VARIABLES TO SCRIPT VARIABLES
+if [ -n "$SIZE" ]; then GS="$SIZE"; fi
+if [ -n "$EDGE_T" ]; then ET="$EDGE_T"; fi
 
 # Use YAML variables as base defaults
 NUMBER_OF_CORES=${NUMBER_OF_CORES} # Loaded from YAML

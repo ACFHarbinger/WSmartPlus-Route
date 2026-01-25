@@ -503,6 +503,7 @@ def run_training(cfg: Config) -> float:
         log_every_n_steps=cfg.train.log_step,
         model_weights_path=cfg.train.model_weights_path,
         logs_dir=cfg.train.logs_dir,
+        reload_dataloaders_every_n_epochs=cfg.train.reload_dataloaders_every_n_epochs,
     )
 
     trainer.fit(model)

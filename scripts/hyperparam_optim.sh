@@ -26,11 +26,33 @@ if [ "$VERBOSE" = false ]; then
 fi
 
 
-# Load configuration from YAML
-CONFIG_FILE="scripts/configs/hyperparam_optim.yaml"
+# Load Task Config first to get general settings and PROBLEM definition
+TASK_CONFIG="scripts/configs/tasks/hpo.yaml"
+DATA_CONFIG="scripts/configs/data/hpo.yaml"
+eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
 
-# Load variables
-eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE")
+# Now load the specific environment config based on the problem defined in the task
+if [ -n "$PROBLEM" ]; then
+    ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+    if [ -f "$ENV_CONFIG" ]; then
+        # Load Task + Data + Env (Task overrides Env values for HPO)
+        eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$TASK_CONFIG")
+    fi
+fi
+
+# Load Model Config (for initial shell variables)
+MODEL_NAME_0="${MODEL_NAMES[0]}"
+MODEL_CONFIG="scripts/configs/models/${MODEL_NAME_0}.yaml"
+if [ -f "$MODEL_CONFIG" ]; then
+    eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
+fi
+
+# MAP ENVIRONMENT VARIABLES TO SCRIPT VARIABLES
+if [ -n "$VERTEX_M" ]; then VERTEX_M="$VERTEX_M"; fi
+if [ -n "$EDGE_T" ]; then EDGE_T="$EDGE_T"; fi
+if [ -n "$EDGE_M" ]; then EDGE_M="$EDGE_M"; fi
+if [ -n "$NORM" ]; then NORM="$NORM"; fi
+if [ -n "$ACTI_F" ]; then ACTIVATION="$ACTI_F"; fi
 
 # Derived Variables
 # Construct DATASET path using loaded variables
@@ -94,6 +116,11 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
                 ;;
         esac
 
+        MODEL_CONFIG="scripts/configs/models/${M_NAME}.yaml"
+        if [ -f "$MODEL_CONFIG" ]; then
+             eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
+        fi
+
         if [ "$VERBOSE" = false ]; then
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
             exec 3>&- 4>&-  # Close the temporary file descriptors
@@ -152,6 +179,11 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             train.epoch_start="$START" \
             wandb_mode="'$WB_MODE'" \
             $EXTRA_ARGS;
+
+        MODEL_CONFIG="scripts/configs/models/${M_NAME}.yaml"
+        if [ -f "$MODEL_CONFIG" ]; then
+             eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
+        fi
 
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1

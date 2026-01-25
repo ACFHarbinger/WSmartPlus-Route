@@ -46,3 +46,4 @@ class TrainConfig:
     eval_batch_size: int = 256
     persistent_workers: bool = True
     pin_memory: bool = False
+    reload_dataloaders_every_n_epochs: int = 1

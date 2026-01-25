@@ -26,28 +26,63 @@ def to_bash_value(value):
         return f'"{str(value)}"'
 
 
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: python yaml_to_env.py <config.yaml>", file=sys.stderr)
-        sys.exit(1)
-
-    config_path = sys.argv[1]
-
+def load_config(config_path):
     if not os.path.exists(config_path):
         print(f"Error: Config file not found at {config_path}", file=sys.stderr)
         sys.exit(1)
 
     with open(config_path, "r") as f:
         try:
-            config = yaml.safe_load(f)
+            config = yaml.safe_load(f) or {}
         except yaml.YAMLError as e:
-            print(f"Error parsing YAML: {e}", file=sys.stderr)
+            print(f"Error parsing YAML {config_path}: {e}", file=sys.stderr)
             sys.exit(1)
 
-    if not config:
-        return
+    if "defaults" not in config:
+        return config
 
-    for key, value in config.items():
+    defaults = config.pop("defaults")
+    final_merged = {}
+
+    config_dir = os.path.dirname(os.path.abspath(config_path))
+    # If we are in a subdirectory (like tasks/), the base config dir is the parent
+    if os.path.basename(config_dir) in ["models", "envs", "data", "tasks"]:
+        config_dir = os.path.dirname(config_dir)
+
+    for d in defaults:
+        if d == "_self_":
+            final_merged.update(config)
+        elif isinstance(d, dict):
+            for folder, filename in d.items():
+                if filename:
+                    # Look for file in the same configs/ folder structure
+                    sub_config_path = os.path.join(config_dir, folder, f"{filename}.yaml")
+                    if os.path.exists(sub_config_path):
+                        sub_config = load_config(sub_config_path)
+                        final_merged.update(sub_config)
+                    else:
+                        print(f"Warning: Default config {sub_config_path} not found.", file=sys.stderr)
+        elif isinstance(d, str):
+            # Handle pure strings if needed, maybe as direct siblings or full paths
+            pass
+
+    # Merge remaining keys from config that might not have been merged via _self_
+    final_merged.update(config)
+    return final_merged
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: python yaml_to_env.py <config1.yaml> [<config2.yaml> ...]", file=sys.stderr)
+        sys.exit(1)
+
+    final_config = {}
+
+    for config_path in sys.argv[1:]:
+        config = load_config(config_path)
+        final_config.update(config)
+
+    for key, value in final_config.items():
         bash_var_name = key.upper()
         bash_value = to_bash_value(value)
         if isinstance(value, dict):
