@@ -109,7 +109,7 @@ class RewardScaler:
 
         # Sync with Welford stats for property access
         self._mean = self._ema_mean.item()
-        self._m2 = self._ema_var.item() * max(self._count, 1)
+        self._m2 = (self._ema_var.item() if self._ema_var is not None else 0.0) * max(self._count, 1)
 
     def __call__(self, scores: torch.Tensor, update: bool = True) -> torch.Tensor:
         """

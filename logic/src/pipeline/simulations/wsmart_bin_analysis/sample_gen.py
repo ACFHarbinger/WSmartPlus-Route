@@ -186,7 +186,7 @@ if __name__ == "__main__":
     PATH = "/mnt/c/Users/Utilizador/OneDriveUL/Desktop/Masters/Wsmart+Route/Initial_studies/"
 
     # First load the necessary files
-    grid = OldGridBase(PATH)
+    grid = OldGridBase(PATH, area="cascais")
 
     # create a array with random fill level for each bin
     fill = np.zeros(grid.get_num_bins())

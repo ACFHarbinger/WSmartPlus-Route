@@ -19,7 +19,7 @@ class TimeBasedMixin:
         """Initialize time-based training state."""
         self.temporal_horizon = opts.get("temporal_horizon", 0)
         self.current_day = 0
-        self.fill_history = []
+        self.fill_history: List[torch.Tensor] = []
         # Store a REFERENCE to the dataset we are modifying
         self.current_dataset = None
 
@@ -46,6 +46,7 @@ class TimeBasedMixin:
         self.fill_history.append(routes)
 
         # Access the TensorDict underlying the dataset
+        td: TensorDict
         if hasattr(self.current_dataset, "data"):
             td = self.current_dataset.data
         else:
@@ -84,6 +85,7 @@ class TimeBasedMixin:
             # Current Demand/Waste
             # Usually "demand" or "current_fill"
             key = "demand" if "demand" in list(td.keys()) else "current_fill"
+            current_fill: torch.Tensor
             if key in list(td.keys()):
                 current_fill = td[key]  # [batch, num_nodes+1] usually? Or [batch, num_nodes]
 

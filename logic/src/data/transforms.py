@@ -3,6 +3,7 @@ Data augmentation transforms for RL4CO.
 """
 
 import math
+from collections.abc import Callable as ABCCallable
 from typing import Callable, List, Union
 
 import torch
@@ -98,7 +99,7 @@ def get_augment_function(augment_fn: Union[str, Callable]):
     Raises:
         ValueError: If augment_fn string is not recognized.
     """
-    if isinstance(augment_fn, Callable):
+    if isinstance(augment_fn, ABCCallable):
         return augment_fn
     if augment_fn == "dihedral8":
         return dihedral_8_augmentation_wrapper
@@ -118,7 +119,7 @@ class StateAugmentation:
         augment_fn: Union[str, Callable] = "symmetric",
         first_aug_identity: bool = True,
         normalize: bool = False,
-        feats: List[str] = None,
+        feats: List[str] | None = None,
     ):
         """
         Initialize StateAugmentation transform.
