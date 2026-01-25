@@ -16,6 +16,7 @@ Completed a major testing overhaul, introducing End-to-End (E2E) and Integration
 - **Integration Testing**:
   - `logic/test/integration/test_training_advanced.py`: Validated advanced RL algorithms (DR-GRPO, GDPO) and checkpoint resumption.
   - `logic/test/integration/test_simulation.py`: Component-level tests for `SimulationContext`, `run_day`, and wrappers.
+  - `logic/test/integration/test_evaluation_workflow.py`: Verified evaluation pipeline (checkpoint loading, inference loop, and metrics).
 - **Test Infrastructure**:
   - Patched `VRPPEnv` and `CriticNetwork` for compatibility during testing.
   - `walkthrough.md`: Documentation of test results and coverage.
@@ -198,14 +199,17 @@ The **Old RL Pipeline** (`logic/src/pipeline/reinforcement_learning/`) features 
 ### Added
 - `logic/src/dehb/` directory containing extracted DEHB library (internalized).
 - `TESTING.md`: Comprehensive documentation on the project's testing strategy and organization.
-- `DEPENDENCIES.md`: Detailed policy on dependency management and security.
-- `logic/src/py.typed`: PEP 561 marker file for type hints support.
+- Added property-based tests using `Hypothesis` for robust input validation.
+- Implemented **Contract Tests** for Gurobi, Hexaly, PyVRP, and OR-Tools solvers.
+- Introduced **Performance Benchmark Suite** for neural decoders and OR solvers.
 
 ### Changed
 - Moved DEHB implementation from `logic/src/pipeline/reinforcement_learning/hyperparameter_optimization/` to `logic/src/dehb/`.
 - Updated all import statements in `hpo.py` and test files to reflect DEHB move.
 - Updated `.gitignore` to exclude `.pytest_cache`, `.mypy_cache`, and `.ruff_cache`.
 - Increased code coverage threshold to 60% with enforcement in `pyproject.toml`.
+- Improved `BaseProblem` and `VRPP` logic for full `TensorDict` compatibility.
+- Fixed inconsistent return types in `multi_vehicle.py` solver wrappers.
 
 ### Fixed
 - Cleaned up 500+ `__pycache__` directories from the repository.
