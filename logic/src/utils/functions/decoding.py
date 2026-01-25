@@ -66,7 +66,7 @@ class DecodingStrategy(ABC):
         logits: torch.Tensor,
         mask: torch.Tensor,
         td: Optional[TensorDict] = None,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Select action from logits.
 

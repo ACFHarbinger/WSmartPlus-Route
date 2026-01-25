@@ -159,7 +159,7 @@ class Bins:
                 same_file=True,
             )
         else:
-            self.grid: Optional[GridBase] = grid  # type: ignore[assignment]
+            self.grid = grid  # type: ignore[assignment]
         if waste_file is not None:
             with open(os.path.join(data_dir, waste_file), "rb") as file:
                 self.waste_fills = pickle.load(file)

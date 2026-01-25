@@ -249,7 +249,7 @@ def dist_matrix_from_graph(G: nx.Graph) -> Tuple[np.ndarray, List[List[List[int]
             Distance matrix is N x N numpy array of shortest path lengths.
             Path matrix contains the sequence of nodes for each shortest path.
     """
-    paths_between_states = []
+    paths_between_states: List[List[List[int]]] = []
     n_vertices = len(G.nodes)
     dist_matrix = np.zeros((n_vertices, n_vertices), int)
     for id_i in range(n_vertices):

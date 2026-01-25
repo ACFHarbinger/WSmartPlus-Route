@@ -48,11 +48,11 @@ class Container:
             my_rec (pd.DataFrame): Dataframe containing collection events.
             info (pd.DataFrame): Dataframe containing static container information (metadata).
         """
-        self.df: pd.DataFrame = None
-        self.info: pd.DataFrame = None
-        self.recs: pd.DataFrame = None
-        self.id: int = None
-        self.tag: TAG = None
+        self.df: pd.DataFrame
+        self.info: pd.DataFrame
+        self.recs: pd.DataFrame
+        self.id: int
+        self.tag: Optional[TAG] = None
 
         self.df = my_df.set_index("Date")
         self.df.drop(["ID"], axis=1, inplace=True, errors="ignore")
@@ -306,7 +306,7 @@ class Container:
         elif use == "avg_dist":
             mv = self.recs["Avg_Dist"].rolling(window, center=True).mean().ffill().bfill()
         else:
-            raise f"The key name {use} must be one of {KEYS}"
+            raise ValueError(f"The key name {use} must be one of {KEYS}")
 
         cut_mask = mv < mv_thresh
         with warnings.catch_warnings():
@@ -634,7 +634,7 @@ class Container:
                 self.calc_spearman(idx, idx + 1)
             return 1
 
-    def place_collections(self, dist_thresh: int, c_trash: int, max_fill: int, spear_thresh: int = None):
+    def place_collections(self, dist_thresh: int, c_trash: int, max_fill: int, spear_thresh=None):  # type: ignore[assignment]
         """
         Orchestrator of the collections placement. Touches each event only once to guarantee
         stopping. Interates from left to rigth only once touching in event that have an Avg_Dist
@@ -735,7 +735,7 @@ class Container:
         elif use == "avg_dist":
             mv = self.recs["Avg_Dist"].rolling(window, center=True).mean().ffill().bfill()
         else:
-            raise f"The key name {use} must be one of {KEYS}"
+            raise ValueError(f"The key name {use} must be one of {KEYS}")
 
         cut_mask = mv < mv_thresh
         self.recs = self.recs[~cut_mask]

@@ -2,6 +2,8 @@
 Consistency and symmetry losses for NCO.
 """
 
+from typing import Union
+
 import torch
 import torch.nn.functional as F
 
@@ -36,10 +38,13 @@ def invariance_loss(proj_embed: torch.Tensor, num_augment: int) -> torch.Tensor:
     pe = proj_embed.view(bs, num_augment, -1)
 
     # Cosine similarity between first augmentation and others
-    similarity: torch.Tensor | float = 0.0
+    similarity: Union[torch.Tensor, float] = 0.0
     ref = pe[:, 0]
     for i in range(1, num_augment):
         similarity += F.cosine_similarity(ref, pe[:, i], dim=-1)
 
     # We want to maximize similarity, so minimize negative similarity
+    # Ensure similarity is a tensor before calling mean
+    if isinstance(similarity, float):
+        return torch.tensor(-similarity / (num_augment - 1))
     return -(similarity / (num_augment - 1)).mean()

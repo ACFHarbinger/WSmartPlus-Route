@@ -397,8 +397,12 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
         if os.path.isfile(matrix_path):
             distance_matrix = np.loadtxt(matrix_path, delimiter=",")[1:, 1:]
             if eval_kwarg("focus_idx", kwargs):
-                idx = kwargs["focus_idx"][0] if isinstance(kwargs["focus_idx"][0], Iterable) else kwargs["focus_idx"]
-                idx = np.array([-1] + idx) + 1
+                idx_list = (
+                    list(kwargs["focus_idx"][0])
+                    if isinstance(kwargs["focus_idx"][0], Iterable)
+                    else list(kwargs["focus_idx"])
+                )
+                idx = np.array([-1] + idx_list) + 1
                 return distance_matrix[idx[:, None], idx]
             else:
                 return distance_matrix
@@ -411,7 +415,7 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
 
     # Strategy Execution
     strategy_cls = STRATEGIES[method]
-    strategy = strategy_cls()
+    strategy = strategy_cls()  # type: ignore[abstract]
 
     kwargs["verbose"] = to_save
 
@@ -513,7 +517,7 @@ def get_paths_between_states(
     Returns:
         List[List[List[int]]]: A 2D list where result[i][j] is the path from i to j.
     """
-    paths_between_states = []
+    paths_between_states: List[List[List[int]]] = []
     for ii in range(0, n_bins):
         paths_between_states.append([])
         for jj in range(n_bins):

@@ -16,7 +16,7 @@ class Predictor:
     Predictor class that interfaces with R scripts to perform ARIMA-based forecasting.
     """
 
-    def __init__(self, train_data: pd.DataFrame, test_data: pd.DataFrame, fit_name: str = None):
+    def __init__(self, train_data: pd.DataFrame, test_data: pd.DataFrame, fit_name: str = None):  # type: ignore[assignment]
         """
         Initialize the predictor and trigger ARIMA script.
 
@@ -93,7 +93,7 @@ class Predictor:
         self.mean39error = (test - combined_df.rolling(window=40).mean().iloc[39:-1].values).abs()
         # self.mean39error = (test - combined_df.iloc[39:-1]).abs()
 
-    def fit_predict(self, train_data: pd.DataFrame, test_data: pd.DataFrame, fit_name: str = None):
+    def fit_predict(self, train_data: pd.DataFrame, test_data: pd.DataFrame, fit_name=None):  # type: ignore[assignment]
         """Trigger the R scripts to fit models and generate predictions."""
         self.save_cache(train_data, test_data)
         try:

@@ -65,15 +65,15 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         self.total_trials = 0
 
         # Reward tracking
-        self.rewards = defaultdict(list)
+        self.rewards: Dict[Any, List[float]] = defaultdict(list)
         self.window_size = window_size
 
         self.current_config_idx = 0
         self.current_config = self.weight_configs[0]
 
-        self.contexts = []
-        self.context_rewards = defaultdict(lambda: defaultdict(list))
-        self.history = []
+        self.contexts: List[Dict[str, Any]] = []
+        self.context_rewards: Dict[Any, Dict[int, List[float]]] = defaultdict(lambda: defaultdict(list))
+        self.history: List[Dict[str, Any]] = []
 
     def _get_context_features(self, dataset):
         """Extract context features from dataset (compatibility)."""

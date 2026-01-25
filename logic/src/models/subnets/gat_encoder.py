@@ -39,7 +39,7 @@ class FeedForwardSubLayer(nn.Module):
                     threshold,
                     replacement_value,
                     n_params,
-                    tuple(dist_range) if isinstance(dist_range, list) else dist_range,
+                    tuple(dist_range) if dist_range is not None else None,
                 ),
                 FeedForward(feed_forward_hidden, embed_dim, bias=bias),
             )
