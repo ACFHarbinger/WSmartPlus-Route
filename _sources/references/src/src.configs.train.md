@@ -348,4 +348,15 @@
 
 ````
 
+````{py:attribute} reload_dataloaders_every_n_epochs
+:canonical: src.configs.train.TrainConfig.reload_dataloaders_every_n_epochs
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.configs.train.TrainConfig.reload_dataloaders_every_n_epochs
+```
+
+````
+
 `````
