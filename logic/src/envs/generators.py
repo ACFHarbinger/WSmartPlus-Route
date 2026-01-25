@@ -93,15 +93,15 @@ class Generator(ABC):
         if hasattr(self, "min_waste"):
             kwargs.update(
                 {
-                    "min_waste": self.min_waste,
-                    "max_waste": self.max_waste,
-                    "waste_distribution": self.waste_distribution,
-                    "min_prize": self.min_prize,
-                    "max_prize": self.max_prize,
-                    "prize_distribution": self.prize_distribution,
-                    "capacity": self.capacity,
-                    "max_length": self.max_length,
-                    "depot_type": self.depot_type,
+                    "min_waste": self.min_waste,  # type: ignore[attr-defined]
+                    "max_waste": self.max_waste,  # type: ignore[attr-defined]
+                    "waste_distribution": self.waste_distribution,  # type: ignore[attr-defined]
+                    "min_prize": self.min_prize,  # type: ignore[attr-defined]
+                    "max_prize": self.max_prize,  # type: ignore[attr-defined]
+                    "prize_distribution": self.prize_distribution,  # type: ignore[attr-defined]
+                    "capacity": self.capacity,  # type: ignore[attr-defined]
+                    "max_length": self.max_length,  # type: ignore[attr-defined]
+                    "depot_type": self.depot_type,  # type: ignore[attr-defined]
                 }
             )
 
@@ -109,13 +109,13 @@ class Generator(ABC):
         if hasattr(self, "min_fill"):
             kwargs.update(
                 {
-                    "min_fill": self.min_fill,
-                    "max_fill": self.max_fill,
-                    "fill_distribution": self.fill_distribution,
-                    "capacity": self.capacity,
-                    "cost_km": self.cost_km,
-                    "revenue_kg": self.revenue_kg,
-                    "depot_type": self.depot_type,
+                    "min_fill": self.min_fill,  # type: ignore[attr-defined]
+                    "max_fill": self.max_fill,  # type: ignore[attr-defined]
+                    "fill_distribution": self.fill_distribution,  # type: ignore[attr-defined]
+                    "capacity": self.capacity,  # type: ignore[attr-defined]
+                    "cost_km": self.cost_km,  # type: ignore[attr-defined]
+                    "revenue_kg": self.revenue_kg,  # type: ignore[attr-defined]
+                    "depot_type": self.depot_type,  # type: ignore[attr-defined]
                 }
             )
 
@@ -123,8 +123,8 @@ class Generator(ABC):
         if hasattr(self, "noise_mean"):
             kwargs.update(
                 {
-                    "noise_mean": self.noise_mean,
-                    "noise_variance": self.noise_variance,
+                    "noise_mean": self.noise_mean,  # type: ignore[attr-defined]
+                    "noise_variance": self.noise_variance,  # type: ignore[attr-defined]
                 }
             )
 
@@ -347,7 +347,7 @@ class VRPPGenerator(Generator):
             # Gamma distribution for more realistic waste patterns
             alpha = self._kwargs.get("waste_alpha", 2.0)
             beta = self._kwargs.get("waste_beta", 0.3)
-            waste = torch.distributions.Gamma(alpha, 1 / beta).sample((*batch_size, self.num_loc))
+            waste = torch.distributions.Gamma(alpha, 1 / beta).sample(torch.Size((*batch_size, self.num_loc)))
             waste = waste.to(self.device)
             return torch.clamp(waste, self.min_waste, self.max_waste)
         else:
@@ -477,7 +477,7 @@ class WCVRPGenerator(Generator):
             # Beta distribution for fill levels (tends toward 0 or 1)
             alpha = self._kwargs.get("fill_alpha", 2.0)
             beta = self._kwargs.get("fill_beta", 5.0)
-            fill = torch.distributions.Beta(alpha, beta).sample((*batch_size, self.num_loc))
+            fill = torch.distributions.Beta(alpha, beta).sample(torch.Size((*batch_size, self.num_loc)))
             fill = fill.to(self.device)
             return fill * (self.max_fill - self.min_fill) + self.min_fill
         else:

@@ -5,8 +5,9 @@ Implements a Manager-Worker architecture:
 - Manager: GATLSTManager (decides if/what to collect)
 - Worker: ConstructivePolicy (decides the route)
 """
-
 from __future__ import annotations
+
+from typing import cast
 
 import pytorch_lightning as pl
 import torch
@@ -72,7 +73,7 @@ class HRLModule(pl.LightningModule):
         """
         Combined training step for Manager and Worker with PPO.
         """
-        opt = self.optimizers()
+        opt = cast(torch.optim.Optimizer, self.optimizers())
 
         # --- 1. Collection Phase ---
         td = self.env.reset(batch)

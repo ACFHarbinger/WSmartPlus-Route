@@ -174,9 +174,7 @@ class SimulationDataMapper:
         new_data = self.setup_df(depot, new_data, ["ID", "Stock", "Accum_Rate"])
         return new_data, coords
 
-    def format_coordinates(
-        self, coords: Any, method: str, col_names: Optional[List[str]] = ["Lat", "Lng"]
-    ) -> Tuple[Any, Any]:
+    def format_coordinates(self, coords: Any, method: str, col_names: Optional[List[str]] = None) -> Tuple[Any, Any]:
         """
         Normalizes and formats coordinates based on the specified method.
         Supported methods: 'mmn', 'mun', 'smsd', 'ecp', 'utmp', 'wmp', 'hdp', 'c3d', 's4d'.
@@ -193,7 +191,13 @@ class SimulationDataMapper:
             "s4d",
         ]
 
-        IS_PANDAS = col_names is not None and hasattr(coords, "columns")
+        if col_names is None:
+            col_names = ["Lat", "Lng"]
+
+        # Type guard: col_names is now definitely not None
+        assert col_names is not None
+
+        IS_PANDAS = hasattr(coords, "columns")
         lat = coords[col_names[0]] if IS_PANDAS else coords[:, :, 0]
         lng = coords[col_names[1]] if IS_PANDAS else coords[:, :, 1]
 

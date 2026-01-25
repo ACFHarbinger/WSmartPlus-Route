@@ -5,7 +5,7 @@ PyTorch Lightning base module for RL training.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Dict, Optional, Union
 
 import pytorch_lightning as pl
 import torch
@@ -70,6 +70,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         self.env = env
         self.policy = policy
         self.baseline_type = baseline
+        self.train_dataset: Optional[Any] = None
 
         # Data params
         self.train_data_size = train_data_size
@@ -175,7 +176,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
     def shared_step(
         self,
-        batch: TensorDict,
+        batch: Union[TensorDict, Dict[str, Any]],
         batch_idx: int,
         phase: str,
     ) -> dict:

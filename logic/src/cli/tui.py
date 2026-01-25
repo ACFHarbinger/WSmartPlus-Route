@@ -74,32 +74,23 @@ class TerminalUI:
         radio_list = RadioList(values)
         kb = KeyBindings()
 
-        @kb.add("enter")
-        def _(event):
-            # Ensure the highlighted one is selected as current
-            radio_list.current_value = radio_list.values[radio_list._selected_index][0]
-            event.app.exit(result=radio_list.current_value)
-
-        @kb.add("c-c")
-        @kb.add("escape")
-        def _(event):
-            event.app.exit(result=None)
-
         # Custom handlers for arrows to sync selection (asterisk) with highlight
-        @radio_list.control.key_bindings.add("up")
+        @kb.add("up")
         def _(event):
             radio_list._selected_index = (radio_list._selected_index - 1) % len(radio_list.values)
             radio_list.current_value = radio_list.values[radio_list._selected_index][0]
 
-        @radio_list.control.key_bindings.add("down")
+        @kb.add("down")
         def _(event):
             radio_list._selected_index = (radio_list._selected_index + 1) % len(radio_list.values)
             radio_list.current_value = radio_list.values[radio_list._selected_index][0]
 
-        # Override RadioList internal enter behavior to submit
-        radio_list.control.key_bindings.add("enter")(
-            lambda event: event.app.exit(result=radio_list.values[radio_list._selected_index][0])
-        )
+        # Override enter to submit
+        @kb.add("enter", filter=True)  # Ensure it overrides
+        def _(event):
+            # Ensure the highlighted one is selected as current
+            radio_list.current_value = radio_list.values[radio_list._selected_index][0]
+            event.app.exit(result=radio_list.current_value)
 
         container = Frame(
             HSplit(
@@ -112,7 +103,7 @@ class TerminalUI:
             style="class:dialog",
         )
 
-        app = Application(
+        app: Application = Application(
             layout=Layout(container, focused_element=radio_list),
             key_bindings=kb,
             full_screen=False,
@@ -127,7 +118,7 @@ class TerminalUI:
         default: Union[str, int, bool] = "",
         is_int: bool = False,
         is_bool: bool = False,
-        choices: List[str] = None,
+        choices: Optional[List[str]] = None,
     ) -> Any:
         """A prompt-toolkit based prompt that supports Esc to cancel and Rich colors."""
 

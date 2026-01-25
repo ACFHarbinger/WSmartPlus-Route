@@ -3,7 +3,7 @@ Unified Training and Hyperparameter Optimization entry point using PyTorch Light
 """
 
 from collections.abc import MutableMapping
-from typing import Any, Dict, cast
+from typing import Any, Dict, Tuple, Union, cast
 
 import hydra
 import optuna
@@ -203,7 +203,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
         return str(obj)
 
     # Sanitize common_kwargs before adding complex objects
-    common_kwargs = deep_sanitize(common_kwargs)
+    common_kwargs = cast(Dict[str, Any], deep_sanitize(common_kwargs))
 
     # Inject complex objects AFTER sanitization to avoid string conversion
     common_kwargs["env"] = env
@@ -462,7 +462,7 @@ def run_hpo(cfg: Config) -> float:
             return {"fitness": -reward}
 
         dehb = DifferentialEvolutionHyperband(
-            cs=cfg.hpo.search_space,
+            cs=cast(Dict[str, Union[Tuple[float, float], list]], cfg.hpo.search_space),
             f=dehb_obj,
             min_fidelity=getattr(cfg.hpo, "min_epochs", 1) or 1,
             max_fidelity=cfg.hpo.n_epochs_per_trial,

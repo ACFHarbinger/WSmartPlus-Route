@@ -87,7 +87,12 @@ class ConstructivePolicy(nn.Module, ABC):
         strategy = get_decoding_strategy(decode_type, **kwargs)
 
         # Step
-        action, log_prob, entropy = strategy.step(logits, mask)
+        result = strategy.step(logits, mask)
+        if len(result) == 3:
+            action, log_prob, entropy = result
+        else:
+            action, log_prob = result[:2]  # type: ignore[misc]
+            entropy = result[2] if len(result) > 2 else torch.tensor(0.0)
         return action, log_prob, entropy
 
 

@@ -10,7 +10,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from logic.src.models.context_embedder import VRPPContextEmbedder, WCContextEmbedder
+from logic.src.models.context_embedder import (
+    ContextEmbedder,
+    VRPPContextEmbedder,
+    WCContextEmbedder,
+)
 from logic.src.models.model_factory import NeuralComponentFactory
 from logic.src.utils.functions.beam_search import CachedLookup
 from logic.src.utils.functions.function import sample_many
@@ -130,7 +134,7 @@ class AttentionModel(nn.Module):
         self.is_vrpp = problem.NAME == "vrpp" or problem.NAME == "cvrpp"
         node_dim = 3
         if self.is_wc:
-            self.context_embedder = WCContextEmbedder(
+            self.context_embedder: ContextEmbedder = WCContextEmbedder(
                 embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
             )
         else:

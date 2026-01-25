@@ -21,7 +21,7 @@ class Baseline(nn.Module, ABC):
         super().__init__()
 
     @abstractmethod
-    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
         """Compute baseline value."""
         raise NotImplementedError
 
@@ -74,7 +74,7 @@ class NoBaseline(Baseline):
     def __init__(self, **kwargs):
         super().__init__()
 
-    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
         """
         Return zero baseline (no variance reduction).
 
@@ -104,7 +104,7 @@ class ExponentialBaseline(Baseline):
         self.beta = exp_beta if exp_beta is not None else beta
         self.running_mean: Optional[torch.Tensor] = None
 
-    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
         """
         Compute baseline value using exponential moving average.
 
@@ -170,9 +170,9 @@ class RolloutBaseline(Baseline):
         """Copy policy for baseline."""
         import copy
 
-        self.baseline_policy = copy.deepcopy(policy)
+        self.baseline_policy = copy.deepcopy(policy)  # type: ignore[assignment]
         if self.baseline_policy is not None:
-            self.baseline_policy.eval()
+            self.baseline_policy.eval()  # type: ignore[misc]
             for param in self.baseline_policy.parameters():
                 param.requires_grad = False
 
@@ -306,7 +306,7 @@ class RolloutBaseline(Baseline):
         bl_vals = self._rollout(p, dataset, env)
         return BaselineDataset(dataset, bl_vals.view(-1, 1))
 
-    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
         """
         Compute baseline value.
         """
@@ -392,7 +392,7 @@ class WarmupBaseline(Baseline):
         self.warmup_baseline = ExponentialBaseline(beta=beta, exp_beta=exp_beta)
         self.alpha = 0.0
 
-    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
         """
         Compute blended baseline value based on warmup progress.
 
@@ -456,7 +456,7 @@ class CriticBaseline(Baseline):
         super().__init__()
         self.critic = critic
 
-    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
         """
         Compute baseline value using learned critic.
 
@@ -499,7 +499,7 @@ class POMOBaseline(Baseline):
     def __init__(self, **kwargs):
         super().__init__()
 
-    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
         """
         Compute POMO baseline as mean reward across starting points.
 

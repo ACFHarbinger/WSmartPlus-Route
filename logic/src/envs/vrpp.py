@@ -175,7 +175,7 @@ class CVRPPEnv(VRPPEnv):
 
         return td
 
-    def _reset(self, tensordict: Optional[TensorDict] = None, **kwargs) -> TensorDict:
+    def _reset(self, tensordict: Optional[TensorDict] = None, **kwargs) -> TensorDict:  # type: ignore[override]
         # Correct TorchRL signature
         return super()._reset(tensordict, **kwargs)
 

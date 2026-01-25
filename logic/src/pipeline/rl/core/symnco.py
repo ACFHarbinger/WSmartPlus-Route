@@ -5,6 +5,7 @@ Based on Kim et al. (2022) and Adapted from RL4CO.
 
 from __future__ import annotations
 
+import torch
 from tensordict import TensorDict
 
 from logic.src.pipeline.rl.core.pomo import POMO
@@ -93,6 +94,7 @@ class SymNCO(POMO):
             loss_ss = solution_symmetricity_loss(reward, ll, dim=-1)
 
             # 3. Invariance loss (invariant representation across augmentations)
+            loss_inv: float | torch.Tensor
             if "proj_embeddings" in out:
                 loss_inv = invariance_loss(out["proj_embeddings"], n_aug)
             else:

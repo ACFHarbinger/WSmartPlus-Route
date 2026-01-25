@@ -23,7 +23,7 @@ This policy is useful for:
 """
 
 import re
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -241,7 +241,7 @@ class LastMinutePolicy(IPolicy):
             tour = policy_last_minute_and_path(
                 bins.c,
                 distancesC,
-                paths_between_states,
+                cast(List[List[int]], paths_between_states),
                 bins.collectlevl,
                 waste_type,
                 area,

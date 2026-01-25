@@ -186,7 +186,7 @@ class VRPPPolicy(IPolicy):
             n_vehicles,
             config=vrpp_config,
         )
-        tour = []
+        tour: List[int] = []
         cost = 0
         if routes:
             tour = find_route(distancesC, np.array(routes)) if run_tsp else routes

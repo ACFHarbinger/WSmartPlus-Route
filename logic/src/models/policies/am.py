@@ -7,7 +7,7 @@ using TensorDict for state management.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Union
 
 import torch
 from tensordict import TensorDict
@@ -88,8 +88,8 @@ class AttentionModelPolicy(ConstructivePolicy):
         fixed = self.decoder._precompute(embeddings)
 
         # 5. Decoding Loop
-        log_likelihood = 0
-        entropy = 0
+        log_likelihood: Union[int, float, torch.Tensor] = 0
+        entropy: Union[int, float, torch.Tensor] = 0
         output_actions = []
         step_idx = 0
 
