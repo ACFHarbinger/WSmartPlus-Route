@@ -1,0 +1,8 @@
+# Data Configuration for HPO
+data_dist: "gamma1"
+n_data: 128000
+n_val_data: 1280
+val_b_size: 256
+dataset_name: "real"
+f_size: 1
+val_f_size: 1280

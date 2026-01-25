@@ -26,38 +26,31 @@ if [ "$VERBOSE" = false ]; then
     exec >/dev/null 2>&1
 fi
 
-SEED=42
-START=0
-N_EPOCHS=100
-PROBLEM="wcvrp"
-AREA="riomaior"
-VERTEX_METHOD="mmn"
+# Load Task Config first to get general settings and PROBLEM definition
+TASK_CONFIG="scripts/configs/tasks/gen_data.yaml"
+DATA_CONFIG="scripts/configs/data/gen_data.yaml"
+eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
 
-DATA_DIR="datasets"
-SIM_DATA_DIR="daily_waste"
-D_TYPE="train_time" #"train"
-D_TYPE_SIM="test_simulator"
+# Now load the specific environment config based on the problem defined in the task
+if [ -n "$PROBLEM" ]; then
+    ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+    if [ -f "$ENV_CONFIG" ]; then
+        eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG")
+    fi
+fi
 
-WTYPE="plastic"
-FOCUS_SIZE=1280
-VAL_FOCUS_SIZE=128
-TEST_FOCUS_SIZE=1
-SIZES=(20 50 100 170)
+# MAP ENVIRONMENT VARIABLES TO SCRIPT VARIABLES
+if [ -n "$WTYPE" ]; then WTYPE="$WTYPE"; fi # Already set if loaded env
+if [ -n "$AREA" ]; then AREA="$AREA"; fi
+if [ -n "$VERTEX_M" ]; then VERTEX_METHOD="$VERTEX_M"; fi
+
+# Derived Variables
+FOCUS_GRAPHS=()
 for size in "${SIZES[@]}"; do
     FOCUS_GRAPHS+=("data/wsr_simulator/bins_selection/graphs_${size}V_1N_${WTYPE}.json")
 done
 
-N_DATA=1280
-N_VAL_DATA=128
-N_TEST_DATA=1
-DATASET_NAME="time"
 VAL_DATASET_NAME="${DATASET_NAME}_val"
-TEST_DATASET_NAME="wsr"
-DATA_DISTS=("gamma1")
-
-GENERATE_DATASET=0
-GENERATE_VAL_DATASET=0
-GENERATE_TEST_DATASET=1
 
 echo -e "${BLUE}Starting data generation module...${NC}"
 echo -e "${CYAN}---------------------------------------${NC}"

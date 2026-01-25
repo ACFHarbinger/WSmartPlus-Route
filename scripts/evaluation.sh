@@ -33,8 +33,29 @@ fi
 # Load default values from YAML
 # ==============================================================================
 
-CONFIG_FILE="scripts/configs/evaluation.yaml"
-eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE")
+# Load Task Config first to get general settings and PROBLEM definition
+CONFIG_FILE="scripts/configs/tasks/evaluation.yaml"
+DATA_CONFIG="scripts/configs/data/eval_data.yaml"
+eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE" "$DATA_CONFIG")
+
+# Now load the specific environment config based on the problem defined in the task
+if [ -n "$PROBLEM" ]; then
+    ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+    if [ -f "$ENV_CONFIG" ]; then
+        eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE" "$DATA_CONFIG" "$ENV_CONFIG")
+    fi
+fi
+
+# MAP ENVIRONMENT VARIABLES TO SCRIPT VARIABLES
+# The environment config (e.g. cwcvrp.yaml) exports variables like SIZE, WTYPE, etc.
+# The evaluation script expects GRAPH_SIZE, WASTE_TYPE, etc.
+if [ -n "$SIZE" ]; then GRAPH_SIZE="$SIZE"; fi
+if [ -n "$AREA" ]; then AREA="$AREA"; fi # Redundant but safe
+if [ -n "$WTYPE" ]; then WASTE_TYPE="$WTYPE"; fi
+if [ -n "$EDGE_T" ]; then EDGE_THRESHOLD="$EDGE_T"; fi
+if [ -n "$EDGE_M" ]; then EDGE_METHOD="$EDGE_M"; fi
+if [ -n "$DIST_M" ]; then DISTANCE_METHOD="$DIST_M"; fi
+if [ -n "$VERTEX_M" ]; then VERTEX_METHOD="$VERTEX_M"; fi
 
 
 # ==============================================================================
@@ -93,7 +114,7 @@ PYTHON_CMD=(
     $NO_CUDA_FLAG
     $NO_PROGRESS_BAR_FLAG
     $COMPRESS_MASK_FLAG # Disabled by default, set as a flag manually if needed
-    --max_calc_batch_size "$MAX_CALC_BATCH_size"
+    --max_calc_batch_size "$MAX_CALC_BATCH_SIZE"
     --results_dir "$RESULTS_DIR"
     $MULTIPROCESSING_FLAG # Disabled by default, set as a flag manually if needed
     --graph_size "$GRAPH_SIZE"

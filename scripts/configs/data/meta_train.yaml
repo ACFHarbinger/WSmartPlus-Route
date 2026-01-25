@@ -1,0 +1,8 @@
+# Data Configuration for Meta-RL
+n_data: 1280
+n_val_data: 0
+f_size: 1280
+val_f_size: 0
+data_dists: ["gamma1"]
+size: 100
+dm_method: "gmaps"
