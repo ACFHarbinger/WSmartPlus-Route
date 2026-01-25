@@ -5,6 +5,8 @@ Combines PPO/REINFORCE with Imitation Learning using an annealing schedule.
 
 from __future__ import annotations
 
+from typing import Any
+
 import torch
 from tensordict import TensorDict
 
@@ -25,7 +27,7 @@ class AdaptiveImitation(REINFORCE):
 
     def __init__(
         self,
-        expert_policy: any,
+        expert_policy: Any,
         il_weight: float = 1.0,
         il_decay: float = 0.95,
         patience: int = 5,
@@ -100,7 +102,7 @@ class AdaptiveImitation(REINFORCE):
         td: TensorDict,
         out: dict,
         batch_idx: int,
-        env: any = None,  # Accept env to match RL4COLitModule.shared_step
+        env: Any = None,  # Accept env to match RL4COLitModule.shared_step
     ) -> torch.Tensor:
         """
         Compute Combined Loss: RL + IL.

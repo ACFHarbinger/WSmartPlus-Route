@@ -32,6 +32,7 @@ class NormalizedActivationFunction(nn.Module):
             bias: Whether to use bias in adaptive softmax.
         """
         super(NormalizedActivationFunction, self).__init__()
+        self.norm_activation: nn.Module
         if naf_name == "softmin":
             self.norm_activation = nn.Softmin(dim=dim)
         elif naf_name == "softmax":
@@ -47,11 +48,11 @@ class NormalizedActivationFunction(nn.Module):
             if cutoffs is None:
                 cutoffs = [n_classes // 4, n_classes // 2, 3 * n_classes // 4]
             self.norm_activation = nn.AdaptiveLogSoftmaxWithLoss(
-                in_features=dim,
+                in_features=dim if dim is not None else 0,
                 n_classes=n_classes,
                 cutoffs=cutoffs,
-                div_value=dval,
-                head_bias=bias,
+                div_value=float(dval) if dval is not None else 4.0,
+                head_bias=bool(bias) if bias is not None else False,
             )
         else:
             raise ValueError("Unknown normalized activation function: {}".format(naf_name))

@@ -92,7 +92,7 @@ class LinearSplit:
             d_x_0[i] = dmat[node, 0]
             prev_node = node
 
-        res = ([], -float("inf"))
+        res: Tuple[List[List[int]], float] = ([], -float("inf"))
         if self.max_vehicles == 0:
             res = self._split_unlimited(n, giant_tour, cum_load, cum_rev, cum_dist, d_0_x, d_x_0)
         else:
@@ -106,7 +106,7 @@ class LinearSplit:
     def _fallback_split(self, giant_tour: List[int]) -> Tuple[List[List[int]], float]:
         routes = []
         current_route = []
-        current_load = 0
+        current_load = 0.0
 
         for node in giant_tour:
             dem = self.demands.get(node, 0)

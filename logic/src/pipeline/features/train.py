@@ -3,6 +3,7 @@ Unified Training and Hyperparameter Optimization entry point using PyTorch Light
 """
 
 from collections.abc import MutableMapping
+from typing import Any, Dict, cast
 
 import hydra
 import optuna
@@ -107,18 +108,22 @@ def create_model(cfg: Config) -> pl.LightningModule:
         common_kwargs = cfg.rl.copy()
     else:
         # Works for both Dataclass and DictConfig
-        common_kwargs = OmegaConf.to_container(OmegaConf.create(cfg.rl), resolve=True)
+        common_kwargs = cast(Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.rl)), resolve=True))
     # Merge train, model and optim config into common_kwargs
     if isinstance(cfg.train, dict):
         train_params = cfg.train.copy()
     else:
-        train_params = OmegaConf.to_container(OmegaConf.create(cfg.train), resolve=True)
+        train_params = cast(
+            Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.train)), resolve=True)
+        )
     common_kwargs.update(train_params)
 
     if isinstance(cfg.model, dict):
         model_params = cfg.model.copy()
     else:
-        model_params = OmegaConf.to_container(OmegaConf.create(cfg.model), resolve=True)
+        model_params = cast(
+            Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.model)), resolve=True)
+        )
     common_kwargs.update(model_params)
 
     # We must remove 'name' as it's used in get_baseline and might conflict if passed in kwargs
@@ -303,7 +308,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
         # Determine expert
         expert_name = getattr(cfg.rl, "imitation_mode", "hgs")
-        expert_policy = None
+        expert_policy: Any = None
         if expert_name == "hgs":
             expert_policy = HGSPolicy(env_name=cfg.env.name)
         elif expert_name == "alns":

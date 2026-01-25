@@ -5,6 +5,8 @@ Trains a policy to mimic an expert solver (e.g., HGS, Local Search).
 
 from __future__ import annotations
 
+from typing import Any
+
 import torch
 from tensordict import TensorDict
 
@@ -27,7 +29,7 @@ class ImitationLearning(RL4COLitModule):
 
     def __init__(
         self,
-        expert_policy: any = None,  # Policy or Solver class
+        expert_policy: Any = None,  # Policy or Solver class
         expert_name: str = "hgs",
         **kwargs,
     ):
@@ -50,6 +52,7 @@ class ImitationLearning(RL4COLitModule):
         td: TensorDict,
         out: dict,
         batch_idx: int,
+        env: Any = None,
     ) -> torch.Tensor:
         """
         Compute Cross Entropy Loss between Policy and Expert.
