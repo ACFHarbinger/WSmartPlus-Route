@@ -289,7 +289,15 @@ disallow_untyped_defs = false
 explicit_package_bases = true
 
 files = ["logic/src/", "gui/src"]
-exclude = ["logic/test/", "gui/test/", "logic/docs/", "gui/docs/", "notebooks/"]
+exclude = [
+    "logic/test/",
+    "gui/test/",
+    "logic/docs/",
+    "gui/docs/",
+    "notebooks/",
+    "logic/src/pipeline/simulations/wsmart_bin_analysis/test",
+    "logic/src/pipeline/simulations/wsmart_bin_analysis/python experiental",
+]
 
 [tool.uv.sources]
 hexaly = { index = "hexaly_package" }

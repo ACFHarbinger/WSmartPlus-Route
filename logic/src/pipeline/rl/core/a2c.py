@@ -9,13 +9,14 @@ Reference: RL4CO (https://github.com/ai4co/rl4co)
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
+from logic.src.models.policies.base import ConstructivePolicy
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 
 
@@ -58,9 +59,12 @@ class A2C(RL4COLitModule):
         # A2C uses critic baseline
         kwargs["baseline"] = "critic"
 
+        # Cast policy to expected type
+        policy_cast = cast(ConstructivePolicy, policy)
+
         super().__init__(
             env=env,
-            policy=policy,
+            policy=policy_cast,
             optimizer=actor_optimizer,
             optimizer_kwargs={"lr": actor_lr},
             **kwargs,

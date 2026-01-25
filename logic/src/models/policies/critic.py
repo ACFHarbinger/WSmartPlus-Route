@@ -5,6 +5,7 @@ Critic Network for RL4CO.
 from __future__ import annotations
 
 import copy
+from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -29,7 +30,7 @@ class CriticNetwork(nn.Module):
         normalization: str = "batch",
         dropout_rate: float = 0.0,
         aggregation: str = "avg",
-        encoder: nn.Module = None,
+        encoder: Optional[nn.Module] = None,
         **kwargs,
     ):
         """Initialize CriticNetwork."""

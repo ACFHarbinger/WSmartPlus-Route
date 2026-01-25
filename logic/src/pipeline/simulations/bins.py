@@ -137,7 +137,7 @@ class Bins:
         else:
             self.indices = np.array(indices)
         if grid is None and sample_dist == "emp":
-            src_area = area.translate(str.maketrans("", "", "-_ ")).lower()
+            src_area = area.translate(str.maketrans("", "", "-_ ")).lower() if area is not None else ""
             waste_csv = f"out_rate_crude[{src_area}].csv"
             info_csv = f"out_info[{src_area}].csv"
 
@@ -159,7 +159,7 @@ class Bins:
                 same_file=True,
             )
         else:
-            self.grid = grid
+            self.grid: Optional[GridBase] = grid  # type: ignore[assignment]
         if waste_file is not None:
             with open(os.path.join(data_dir, waste_file), "rb") as file:
                 self.waste_fills = pickle.load(file)
@@ -281,7 +281,7 @@ class Bins:
             indices: List or array of 0-based bin indices (optional).
         """
         if indices is not None:
-            self.indices = indices
+            self.indices = np.array(indices)  # type: ignore[assignment]
         else:
             self.indices = list(range(self.n))
 
@@ -362,7 +362,7 @@ class Bins:
         self.real_c[bin_ids] = 0
         self.c[bin_ids] = 0  # Observed bins are also emptied
         self.travel += cost
-        profit = np.sum(total_collected) * self.revenue - cost * self.expenses
+        profit = np.sum(total_collected) * self.revenue - float(cost) * self.expenses  # type: ignore[assignment]
         self.profit += profit
         return total_collected, float(np.sum(collected)), bin_ids.size, float(profit)
 

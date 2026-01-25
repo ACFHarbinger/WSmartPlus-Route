@@ -23,6 +23,8 @@ class BaseProblem:
     Legacy base class for routing problems.
     """
 
+    NAME: str = "base"
+
     @staticmethod
     def validate_tours(pi: torch.Tensor) -> bool:
         """Validates tours (no duplicates except depot)."""
@@ -45,6 +47,7 @@ class BaseProblem:
         use_dist_matrix = dist_matrix is not None and isinstance(dist_matrix, torch.Tensor)
         if use_dist_matrix:
             # Simple distance matrix lookup
+            assert dist_matrix is not None
             if dist_matrix.dim() == 2:
                 dist_matrix = dist_matrix.unsqueeze(0)
             src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]

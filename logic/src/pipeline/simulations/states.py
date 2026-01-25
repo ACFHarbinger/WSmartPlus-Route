@@ -126,7 +126,7 @@ class SimulationContext:
 
         # State Variables
         self.current_state: Optional["SimState"] = None
-        self.result = None
+        self.result: Optional[Dict[str, Any]] = None
 
         # Simulation Data
         self.data_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator")
@@ -303,7 +303,7 @@ class InitializingState(SimState):
                 ctx.model_weights_path,
                 opts["model_path"],
                 ctx.device,
-                ctx.lock,
+                ctx.lock,  # type: ignore
                 opts["temperature"],
                 opts["decode_type"],
             )
@@ -462,7 +462,7 @@ class RunningState(SimState):
 
                     # 2. Merge matching configs
                     # If I have keys 'lookahead' and 'hgs' and policy is 'policy_look_ahead_hgs', merge both.
-                    for key, cfg in ctx.config.items():
+                    for key, cfg in (ctx.config or {}).items():
                         if key in ctx.policy:
                             # Merge cfg into current_policy_config
                             # Simple update for now (shallow merge of top keys)
@@ -512,7 +512,7 @@ class RunningState(SimState):
                         overflows=ctx.overflows,
                         day=day,
                         model_env=ctx.model_env,
-                        model_ls=ctx.model_tup,
+                        model_ls=ctx.model_tup or (None, None),
                         n_vehicles=opts["n_vehicles"],
                         area=opts["area"],
                         realtime_log_path=realtime_log_path,
@@ -572,7 +572,7 @@ class RunningState(SimState):
 
         except CheckpointError as e:
             ctx.result = e.error_result
-            if opts.get("print_output"):
+            if opts.get("print_output") and ctx.result:
                 final_simulation_summary(ctx.result, ctx.policy, opts["n_samples"])
             ctx.transition_to(None)  # End
         except Exception as e:

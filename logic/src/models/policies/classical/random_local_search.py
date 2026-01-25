@@ -83,6 +83,7 @@ class RandomLocalSearchPolicy(ConstructivePolicy):
         td: TensorDict,
         env: RL4COEnvBase,
         decode_type: str = "greedy",  # Ignored
+        num_starts: int = 1,
         **kwargs,
     ) -> dict:
         """
