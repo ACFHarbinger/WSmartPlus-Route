@@ -266,8 +266,8 @@ def _run_gurobi_optimizer(
     mdl.Params.TimeLimit = time_limit
 
     contentores_coletados = []
-    profit = 0
-    cost = 0
+    profit = 0.0
+    cost = 0.0
     mdl.optimize()
     if mdl.status in [GRB.OPTIMAL, GRB.TIME_LIMIT]:
         # resultados_y = []
@@ -318,7 +318,7 @@ def _run_gurobi_optimizer(
             x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis
         )
 
-        cost = sum(x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis)
+        cost = sum([x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis])
         contentores_coletados = [contentor for contentor in contentores_coletados]
     return [0] + contentores_coletados, profit, cost
 

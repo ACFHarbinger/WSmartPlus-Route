@@ -94,7 +94,7 @@ if __name__ == "__main__":
         exit_code = 1
     except Exception as e:
         traceback.print_exc(file=sys.stderr)
-        print("\n" + e)
+        print("\n" + str(e))
         exit_code = 1
     finally:
         sys.stdout.flush()

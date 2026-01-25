@@ -117,7 +117,7 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
         self.objective_names = objective_names
         self.current_weights = copy.deepcopy(initial_weights)
         self.history_window = history_window
-        self.performance_history = deque(maxlen=history_window)
+        self.performance_history: deque[Dict[str, float]] = deque(maxlen=history_window)
         self.exploration_factor = exploration_factor
         self.adaptation_rate = adaptation_rate
         self.pareto_front = ParetoFront()

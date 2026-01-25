@@ -302,7 +302,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
         from logic.src.pipeline.rl.core.imitation import ImitationLearning
 
         # Determine expert
-        expert_name = cfg.rl.get("imitation_mode", "hgs")
+        expert_name = getattr(cfg.rl, "imitation_mode", "hgs")
         expert_policy = None
         if expert_name == "hgs":
             expert_policy = HGSPolicy(env_name=cfg.env.name)
@@ -311,15 +311,15 @@ def create_model(cfg: Config) -> pl.LightningModule:
         elif expert_name in ["random_ls", "2opt"]:
             expert_policy = RandomLocalSearchPolicy(
                 env_name=cfg.env.name,
-                n_iterations=cfg.rl.random_ls_iterations,
-                op_probs=cfg.rl.random_ls_op_probs,
+                n_iterations=getattr(cfg.rl, "random_ls_iterations", 100),
+                op_probs=getattr(cfg.rl, "random_ls_op_probs", None),
             )
 
         model = ImitationLearning(expert_policy=expert_policy, expert_name=expert_name, **common_kwargs)
     elif cfg.rl.algorithm == "adaptive_imitation":
         from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
 
-        expert_name = cfg.rl.get("imitation_mode", "hgs")
+        expert_name = getattr(cfg.rl, "imitation_mode", "hgs")
         expert_policy = None
         if expert_name == "hgs":
             expert_policy = HGSPolicy(env_name=cfg.env.name)
@@ -328,15 +328,15 @@ def create_model(cfg: Config) -> pl.LightningModule:
         elif expert_name in ["random_ls", "2opt"]:
             expert_policy = RandomLocalSearchPolicy(
                 env_name=cfg.env.name,
-                n_iterations=cfg.rl.random_ls_iterations,
-                op_probs=cfg.rl.random_ls_op_probs,
+                n_iterations=getattr(cfg.rl, "random_ls_iterations", 100),
+                op_probs=getattr(cfg.rl, "random_ls_op_probs", None),
             )
 
         model = AdaptiveImitation(
             expert_policy=expert_policy,
-            il_weight=cfg.rl.get("il_weight", 1.0),
-            il_decay=cfg.rl.get("il_decay", 0.95),
-            patience=cfg.rl.get("patience", 5),
+            il_weight=getattr(cfg.rl, "il_weight", 1.0),
+            il_decay=getattr(cfg.rl, "il_decay", 0.95),
+            patience=getattr(cfg.rl, "patience", 5),
             **common_kwargs,
         )
     else:
@@ -459,7 +459,7 @@ def run_hpo(cfg: Config) -> float:
         dehb = DifferentialEvolutionHyperband(
             cs=cfg.hpo.search_space,
             f=dehb_obj,
-            min_fidelity=cfg.hpo.min_epochs or 1,
+            min_fidelity=getattr(cfg.hpo, "min_epochs", 1) or 1,
             max_fidelity=cfg.hpo.n_epochs_per_trial,
         )
         best_config, runtime, _ = dehb.run(fevals=cfg.hpo.n_trials)
