@@ -8,7 +8,7 @@ enabling unified state management via TensorDict and problem-agnostic interfaces
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import torch
 from tensordict import TensorDict
@@ -150,7 +150,7 @@ class RL4COEnvBase(EnvBase):
         """
         # print(f"DEBUG: step() entering. td.batch_size={td.batch_size}, self.batch_size={self.batch_size}")
         self.batch_size = td.batch_size
-        out = super().step(td)
+        out = cast(TensorDict, super().step(td))
         # print(f"DEBUG: step() exiting. out['next']['done'].shape={out['next']['done'].shape}")
         return out
 

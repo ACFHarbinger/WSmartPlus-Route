@@ -3,7 +3,7 @@ Differential Evolution Hyperband (DEHB) wrapper.
 """
 
 import time
-from typing import Callable, Dict, Tuple
+from typing import Callable, Dict, Tuple, Union
 
 import ConfigSpace
 from dehb import DEHB
@@ -42,7 +42,7 @@ class DifferentialEvolutionHyperband(DEHB):
         self.parameter_names = list(cs.keys()) if isinstance(cs, dict) else []
 
         # Convert simple dict config space to ConfigSpace object if needed
-        config_space = cs
+        config_space: Union[ConfigSpace.ConfigurationSpace, Dict] = cs
         if isinstance(cs, dict):
             config_space = ConfigSpace.ConfigurationSpace()
             for name, (low, high) in cs.items():

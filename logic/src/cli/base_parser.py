@@ -168,7 +168,7 @@ class StoreDictKeyPair(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: List[str],
+        values: Union[str, Sequence[Any], None],
         option_string: Optional[str] = None,
     ) -> None:
         """Invoke action to parse key=value strings into a dictionary.
