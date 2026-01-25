@@ -66,14 +66,14 @@
 ```
 ````
 
-````{py:function} generate_key(salt_size: int = 16, key_length: int = 32, hash_iterations: int = 100000, symkey_name: str = None, env_filename: str = '.env') -> typing.Tuple[bytes, bytes]
+````{py:function} generate_key(salt_size: int = 16, key_length: int = 32, hash_iterations: int = 100000, symkey_name: typing.Optional[str] = None, env_filename: str = '.env') -> typing.Tuple[bytes, bytes]
 :canonical: src.utils.crypto_utils.generate_key
 
 ```{autodoc2-docstring} src.utils.crypto_utils.generate_key
 ```
 ````
 
-````{py:function} load_key(symkey_name: str = None, env_filename: str = '.env') -> bytes
+````{py:function} load_key(symkey_name: typing.Optional[str] = None, env_filename: str = '.env') -> bytes
 :canonical: src.utils.crypto_utils.load_key
 
 ```{autodoc2-docstring} src.utils.crypto_utils.load_key
@@ -87,42 +87,42 @@
 ```
 ````
 
-````{py:function} encrypt_file_data(key: bytes, input: typing.Union[os.PathLike, typing.Any], output_file: os.PathLike = None) -> bytes
+````{py:function} encrypt_file_data(key: bytes, input: typing.Union[str, os.PathLike, typing.Any], output_file: typing.Optional[typing.Union[str, os.PathLike]] = None) -> bytes
 :canonical: src.utils.crypto_utils.encrypt_file_data
 
 ```{autodoc2-docstring} src.utils.crypto_utils.encrypt_file_data
 ```
 ````
 
-````{py:function} decrypt_file_data(key: bytes, input: typing.Union[os.PathLike, typing.Any], output_file: os.PathLike = None) -> str
+````{py:function} decrypt_file_data(key: bytes, input: typing.Union[str, os.PathLike, typing.Any], output_file: typing.Optional[typing.Union[str, os.PathLike]] = None) -> str
 :canonical: src.utils.crypto_utils.decrypt_file_data
 
 ```{autodoc2-docstring} src.utils.crypto_utils.decrypt_file_data
 ```
 ````
 
-````{py:function} encrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLike = None) -> typing.List[bytes]
+````{py:function} encrypt_directory(key: bytes, input_dir: typing.Union[str, os.PathLike], output_dir: typing.Optional[typing.Union[str, os.PathLike]] = None) -> typing.List[bytes]
 :canonical: src.utils.crypto_utils.encrypt_directory
 
 ```{autodoc2-docstring} src.utils.crypto_utils.encrypt_directory
 ```
 ````
 
-````{py:function} decrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLike = None) -> typing.List[str]
+````{py:function} decrypt_directory(key: bytes, input_dir: typing.Union[str, os.PathLike], output_dir: typing.Optional[typing.Union[str, os.PathLike]] = None) -> typing.List[str]
 :canonical: src.utils.crypto_utils.decrypt_directory
 
 ```{autodoc2-docstring} src.utils.crypto_utils.decrypt_directory
 ```
 ````
 
-````{py:function} encrypt_zip_directory(key: bytes, input_dir: os.PathLike, output_enczip: os.PathLike = None) -> bytes
+````{py:function} encrypt_zip_directory(key: bytes, input_dir: typing.Union[str, os.PathLike], output_enczip: typing.Optional[typing.Union[str, os.PathLike]] = None) -> bytes
 :canonical: src.utils.crypto_utils.encrypt_zip_directory
 
 ```{autodoc2-docstring} src.utils.crypto_utils.encrypt_zip_directory
 ```
 ````
 
-````{py:function} decrypt_zip(key: bytes, input_enczip: os.PathLike, output_dir: os.PathLike = None) -> str
+````{py:function} decrypt_zip(key: bytes, input_enczip: typing.Union[str, os.PathLike], output_dir: typing.Optional[typing.Union[str, os.PathLike]] = None) -> str
 :canonical: src.utils.crypto_utils.decrypt_zip
 
 ```{autodoc2-docstring} src.utils.crypto_utils.decrypt_zip

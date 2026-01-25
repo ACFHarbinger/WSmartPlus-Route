@@ -18,6 +18,7 @@ src.cli.gui_parser
 src.cli.data_parser
 src.cli.ts_parser
 src.cli.sim_parser
+src.cli.train_parser
 src.cli.registry
 src.cli.tui
 src.cli.fs_parser

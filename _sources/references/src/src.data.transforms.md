@@ -130,7 +130,7 @@
 ```
 ````
 
-`````{py:class} StateAugmentation(num_augment: int = 8, augment_fn: typing.Union[str, typing.Callable] = 'symmetric', first_aug_identity: bool = True, normalize: bool = False, feats: typing.List[str] = None)
+`````{py:class} StateAugmentation(num_augment: int = 8, augment_fn: typing.Union[str, typing.Callable] = 'symmetric', first_aug_identity: bool = True, normalize: bool = False, feats: typing.Optional[typing.List[str]] = None)
 :canonical: src.data.transforms.StateAugmentation
 
 ```{autodoc2-docstring} src.data.transforms.StateAugmentation

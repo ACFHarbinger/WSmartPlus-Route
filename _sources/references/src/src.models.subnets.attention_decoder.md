@@ -30,8 +30,6 @@
 `````{py:class} AttentionModelFixed
 :canonical: src.models.subnets.attention_decoder.AttentionModelFixed
 
-Bases: {py:obj}`typing.NamedTuple`
-
 ```{autodoc2-docstring} src.models.subnets.attention_decoder.AttentionModelFixed
 ```
 

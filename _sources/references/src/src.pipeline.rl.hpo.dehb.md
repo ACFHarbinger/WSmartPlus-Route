@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} DifferentialEvolutionHyperband(cs: typing.Dict[str, typing.Tuple[float, float]], f: typing.Callable, min_fidelity: int = 1, max_fidelity: int = 10, eta: int = 3, n_workers: int = 1, output_path: str = './dehb_output', **kwargs)
+`````{py:class} DifferentialEvolutionHyperband(cs: typing.Dict[str, typing.Union[typing.Tuple[float, float], list]], f: typing.Callable, min_fidelity: int = 1, max_fidelity: int = 10, eta: int = 3, n_workers: int = 1, output_path: str = './dehb_output', **kwargs)
 :canonical: src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband
 
 Bases: {py:obj}`dehb.DEHB`

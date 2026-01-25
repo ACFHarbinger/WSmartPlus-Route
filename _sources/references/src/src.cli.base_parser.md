@@ -137,7 +137,7 @@ Bases: {py:obj}`argparse.Action`
 ```{autodoc2-docstring} src.cli.base_parser.StoreDictKeyPair.__init__
 ```
 
-````{py:method} __call__(parser: argparse.ArgumentParser, namespace: argparse.Namespace, values: typing.List[str], option_string: typing.Optional[str] = None) -> None
+````{py:method} __call__(parser: argparse.ArgumentParser, namespace: argparse.Namespace, values: typing.Union[str, typing.Sequence[typing.Any], None], option_string: typing.Optional[str] = None) -> None
 :canonical: src.cli.base_parser.StoreDictKeyPair.__call__
 
 ```{autodoc2-docstring} src.cli.base_parser.StoreDictKeyPair.__call__

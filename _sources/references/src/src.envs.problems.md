@@ -105,6 +105,17 @@
 ```{autodoc2-docstring} src.envs.problems.BaseProblem
 ```
 
+````{py:attribute} NAME
+:canonical: src.envs.problems.BaseProblem.NAME
+:type: str
+:value: >
+   'base'
+
+```{autodoc2-docstring} src.envs.problems.BaseProblem.NAME
+```
+
+````
+
 ````{py:method} validate_tours(pi: torch.Tensor) -> bool
 :canonical: src.envs.problems.BaseProblem.validate_tours
 :staticmethod:

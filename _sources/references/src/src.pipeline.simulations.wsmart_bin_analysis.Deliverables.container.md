@@ -235,7 +235,7 @@ Bases: {py:obj}`enum.Enum`
 
 ````
 
-````{py:method} place_collections(dist_thresh: int, c_trash: int, max_fill: int, spear_thresh: int = None)
+````{py:method} place_collections(dist_thresh: int, c_trash: int, max_fill: int, spear_thresh=None)
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.place_collections
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.place_collections

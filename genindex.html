@@ -596,6 +596,7 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.data_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.data_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.sim_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.sim_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.train_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.tui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.tui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
@@ -1327,7 +1328,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.cli.gui_parser.html#src.cli.gui_parser.add_gui_args">add_gui_args() (in module src.cli.gui_parser)</a>
 </li>
+      <li><a href="references/src/src.cli.train_parser.html#src.cli.train_parser.add_hp_optim_args">add_hp_optim_args() (in module src.cli.train_parser)</a>
+</li>
       <li><a href="references/src/src.models.policies.classical.hybrid_genetic_search.html#src.models.policies.classical.hybrid_genetic_search.VectorizedPopulation.add_individuals">add_individuals() (src.models.policies.classical.hybrid_genetic_search.VectorizedPopulation method)</a>
+</li>
+      <li><a href="references/src/src.cli.train_parser.html#src.cli.train_parser.add_mrl_train_args">add_mrl_train_args() (in module src.cli.train_parser)</a>
 </li>
       <li><a href="references/src/src.policies.look_ahead_aux.sans_opt.html#src.policies.look_ahead_aux.sans_opt.add_n_bins_consecutive">add_n_bins_consecutive() (in module src.policies.look_ahead_aux.sans_opt)</a>
 
@@ -1364,6 +1369,8 @@ document.write(`
       <li><a href="references/src/src.cli.sim_parser.html#src.cli.sim_parser.add_test_sim_args">add_test_sim_args() (in module src.cli.sim_parser)</a>
 </li>
       <li><a href="references/src/src.cli.ts_parser.html#src.cli.ts_parser.add_test_suite_args">add_test_suite_args() (in module src.cli.ts_parser)</a>
+</li>
+      <li><a href="references/src/src.cli.train_parser.html#src.cli.train_parser.add_train_args">add_train_args() (in module src.cli.train_parser)</a>
 </li>
       <li><a href="references/src/src.utils.functions.graph_utils.html#src.utils.functions.graph_utils.adj_to_idx">adj_to_idx() (in module src.utils.functions.graph_utils)</a>
 </li>
@@ -3215,6 +3222,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.cli.sim_parser.html#module-src.cli.sim_parser">src.cli.sim_parser</a>
 </li>
+        <li><a href="references/src/src.cli.train_parser.html#module-src.cli.train_parser">src.cli.train_parser</a>
+</li>
         <li><a href="references/src/src.cli.ts_parser.html#module-src.cli.ts_parser">src.cli.ts_parser</a>
 </li>
         <li><a href="references/src/src.cli.tui.html#module-src.cli.tui">src.cli.tui</a>
@@ -3800,9 +3809,11 @@ document.write(`
         <li><a href="references/src/src.envs.base.html#src.envs.base.RL4COEnvBase.name">(src.envs.base.RL4COEnvBase attribute)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.envs.problems.html#src.envs.problems.CVRPP.NAME">NAME (src.envs.problems.CVRPP attribute)</a>
+      <li><a href="references/src/src.envs.problems.html#src.envs.problems.BaseProblem.NAME">NAME (src.envs.problems.BaseProblem attribute)</a>
 
       <ul>
+        <li><a href="references/src/src.envs.problems.html#src.envs.problems.CVRPP.NAME">(src.envs.problems.CVRPP attribute)</a>
+</li>
         <li><a href="references/src/src.envs.problems.html#src.envs.problems.CWCVRP.NAME">(src.envs.problems.CWCVRP attribute)</a>
 </li>
         <li><a href="references/src/src.envs.problems.html#src.envs.problems.SCWCVRP.NAME">(src.envs.problems.SCWCVRP attribute)</a>
@@ -4704,6 +4715,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.cli.train_parser
+
+      <ul>
+        <li><a href="references/src/src.cli.train_parser.html#module-src.cli.train_parser">module</a>
+</li>
+      </ul></li>
+      <li>
     src.cli.ts_parser
 
       <ul>
@@ -5347,6 +5365,8 @@ document.write(`
         <li><a href="references/src/src.models.subnets.grf_predictor.html#module-src.models.subnets.grf_predictor">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.models.subnets.mlp_encoder
 
@@ -5354,8 +5374,6 @@ document.write(`
         <li><a href="references/src/src.models.subnets.mlp_encoder.html#module-src.models.subnets.mlp_encoder">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.models.subnets.moe_encoder
 
@@ -6734,6 +6752,8 @@ document.write(`
       <li><a href="references/src/src.cli.ts_parser.html#src.cli.ts_parser.validate_test_suite_args">validate_test_suite_args() (in module src.cli.ts_parser)</a>
 </li>
       <li><a href="references/src/src.envs.problems.html#src.envs.problems.BaseProblem.validate_tours">validate_tours() (src.envs.problems.BaseProblem static method)</a>
+</li>
+      <li><a href="references/src/src.cli.train_parser.html#src.cli.train_parser.validate_train_args">validate_train_args() (in module src.cli.train_parser)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.base.html#src.pipeline.rl.common.base.RL4COLitModule.validation_step">validation_step() (src.pipeline.rl.common.base.RL4COLitModule method)</a>
 

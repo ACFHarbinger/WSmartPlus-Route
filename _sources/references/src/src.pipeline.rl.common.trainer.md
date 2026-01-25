@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} WSTrainer(max_epochs: int = 100, accelerator: str = 'auto', devices: typing.Union[int, str] = 'auto', gradient_clip_val: float = 1.0, log_every_n_steps: int = 50, check_val_every_n_epoch: int = 1, project_name: str = 'wsmart-route', experiment_name: typing.Optional[str] = None, callbacks: typing.Optional[list[pytorch_lightning.callbacks.Callback]] = None, logger: typing.Optional[typing.Union[pytorch_lightning.loggers.Logger, bool]] = None, enable_progress_bar: bool = True, model_weights_path: typing.Optional[str] = None, logs_dir: typing.Optional[str] = None, precision: typing.Union[int, str] = '16-mixed', matmul_precision: str = 'medium', disable_jit_profiling: bool = True, auto_ddp: bool = True, reload_dataloaders_every_n_epochs: int = 1, **kwargs)
+`````{py:class} WSTrainer(max_epochs: int = 100, accelerator: str = 'auto', devices: typing.Union[int, str] = 'auto', gradient_clip_val: float = 1.0, log_every_n_steps: int = 50, check_val_every_n_epoch: int = 1, project_name: str = 'wsmart-route', experiment_name: typing.Optional[str] = None, callbacks: typing.Optional[list[pytorch_lightning.callbacks.Callback]] = None, logger: typing.Optional[typing.Union[pytorch_lightning.loggers.Logger, bool]] = None, enable_progress_bar: bool = True, model_weights_path: typing.Optional[str] = None, logs_dir: typing.Optional[str] = None, precision: typing.Any = '16-mixed', matmul_precision: str = 'medium', disable_jit_profiling: bool = True, auto_ddp: bool = True, reload_dataloaders_every_n_epochs: int = 1, **kwargs)
 :canonical: src.pipeline.rl.common.trainer.WSTrainer
 
 Bases: {py:obj}`pytorch_lightning.Trainer`

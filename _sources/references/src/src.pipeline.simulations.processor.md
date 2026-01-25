@@ -153,7 +153,7 @@
 
 ````
 
-````{py:method} format_coordinates(coords: typing.Any, method: str, col_names: typing.Optional[typing.List[str]] = ['Lat', 'Lng']) -> typing.Tuple[typing.Any, typing.Any]
+````{py:method} format_coordinates(coords: typing.Any, method: str, col_names: typing.Optional[typing.List[str]] = None) -> typing.Tuple[typing.Any, typing.Any]
 :canonical: src.pipeline.simulations.processor.SimulationDataMapper.format_coordinates
 
 ```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper.format_coordinates

@@ -35,7 +35,7 @@
 
 ### API
 
-````{py:function} policy_regular(n_bins: int, bins_waste: numpy.typing.NDArray[numpy.float64], distancesC: numpy.typing.NDArray[numpy.int32], lvl: int, day: int, cached: typing.Optional[typing.List[int]] = [], waste_type: str = 'plastic', area: str = 'riomaior', n_vehicles: int = 1, coords: pandas.DataFrame = None)
+````{py:function} policy_regular(n_bins: int, bins_waste: numpy.typing.NDArray[numpy.float64], distancesC: numpy.typing.NDArray[numpy.int32], lvl: int, day: int, cached: typing.Optional[typing.List[int]] = None, waste_type: str = 'plastic', area: str = 'riomaior', n_vehicles: int = 1, coords: pandas.DataFrame = None)
 :canonical: src.policies.regular.policy_regular
 
 ```{autodoc2-docstring} src.policies.regular.policy_regular

@@ -85,7 +85,7 @@
 
 ````
 
-````{py:method} _prompt(message: str, default: str = '', is_int: bool = False, is_bool: bool = False, choices: typing.List[str] = None) -> typing.Any
+````{py:method} _prompt(message: str, default: typing.Union[str, int, bool] = '', is_int: bool = False, is_bool: bool = False, choices: typing.Optional[typing.List[str]] = None) -> typing.Any
 :canonical: src.cli.tui.TerminalUI._prompt
 
 ```{autodoc2-docstring} src.cli.tui.TerminalUI._prompt

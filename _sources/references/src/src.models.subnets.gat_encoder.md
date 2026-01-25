@@ -79,7 +79,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 `````
 
-`````{py:class} GraphAttentionEncoder(n_heads: int, embed_dim: int, n_layers: int, n_sublayers: typing.Optional[int] = None, feed_forward_hidden: int = 512, normalization: str = 'batch', epsilon_alpha: float = 1e-05, learn_affine: bool = True, track_stats: bool = False, momentum_beta: float = 0.1, locresp_k: float = 1.0, n_groups: int = 3, activation: str = 'gelu', af_param: float = 1.0, threshold: float = 6.0, replacement_value: float = 6.0, n_params: int = 3, uniform_range: typing.List[float] = [0.125, 1 / 3], dropout_rate: float = 0.1, agg: typing.Any = None, connection_type: str = 'skip', expansion_rate: int = 4, **kwargs)
+`````{py:class} GraphAttentionEncoder(n_heads: int, embed_dim: int, n_layers: int, n_sublayers: typing.Optional[int] = None, feed_forward_hidden: int = 512, normalization: str = 'batch', epsilon_alpha: float = 1e-05, learn_affine: bool = True, track_stats: bool = False, momentum_beta: float = 0.1, locresp_k: float = 1.0, n_groups: int = 3, activation: str = 'gelu', af_param: float = 1.0, threshold: float = 6.0, replacement_value: float = 6.0, n_params: int = 3, uniform_range: typing.List[float] = None, dropout_rate: float = 0.1, agg: typing.Any = None, connection_type: str = 'skip', expansion_rate: int = 4, **kwargs)
 :canonical: src.models.subnets.gat_encoder.GraphAttentionEncoder
 
 Bases: {py:obj}`torch.nn.Module`

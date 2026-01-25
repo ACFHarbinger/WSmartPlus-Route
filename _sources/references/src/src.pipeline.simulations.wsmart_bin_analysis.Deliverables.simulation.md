@@ -157,7 +157,7 @@
 
 `````
 
-`````{py:class} Simulation(sim_type: str, ids: list, data_dir: str, train_split: str = None, start_date: str = None, end_date: str = None, rate_type: str = None, predictQ: bool = False, info_ver: str = None, names: str = None, savefit_name: str = None)
+`````{py:class} Simulation(sim_type: str, ids: list, data_dir: str, train_split=None, start_date=None, end_date=None, rate_type=None, predictQ: bool = False, info_ver=None, names=None, savefit_name=None)
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation
 
 Bases: {py:obj}`src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.GridBase`

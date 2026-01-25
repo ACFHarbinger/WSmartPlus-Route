@@ -39,7 +39,7 @@
 
 ### API
 
-````{py:function} fix_collections_sensor(container: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container, box_window: int, mv_thresh: int, min_days: int, dist_thresh: int, c_trash: int, max_fill: int, var_thresh: int, use: str, spear_thresh: int = None) -> tuple[float, list[src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG], src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container]
+````{py:function} fix_collections_sensor(container: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container, box_window: int, mv_thresh: int, min_days: int, dist_thresh: int, c_trash: int, max_fill: int, var_thresh: int, use: str, spear_thresh: typing.Optional[int] = None) -> tuple[float, list[src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG], src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container]
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.fix_collections_sensor
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.fix_collections_sensor

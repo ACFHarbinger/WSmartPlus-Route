@@ -91,7 +91,7 @@
 
 ````
 
-````{py:method} fit_predict(train_data: pandas.DataFrame, test_data: pandas.DataFrame, fit_name: str = None)
+````{py:method} fit_predict(train_data: pandas.DataFrame, test_data: pandas.DataFrame, fit_name=None)
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_predict
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_predict

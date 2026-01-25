@@ -62,7 +62,7 @@ Bases: {py:obj}`pytorch_lightning.LightningModule`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} shared_step(batch: tensordict.TensorDict, batch_idx: int, phase: str) -> dict
+````{py:method} shared_step(batch: typing.Union[tensordict.TensorDict, typing.Dict[str, typing.Any]], batch_idx: int, phase: str) -> dict
 :canonical: src.pipeline.rl.common.base.RL4COLitModule.shared_step
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.RL4COLitModule.shared_step
@@ -70,7 +70,7 @@ Bases: {py:obj}`pytorch_lightning.LightningModule`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} training_step(batch: any, batch_idx: int) -> torch.Tensor
+````{py:method} training_step(batch: typing.Any, batch_idx: int) -> torch.Tensor
 :canonical: src.pipeline.rl.common.base.RL4COLitModule.training_step
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.RL4COLitModule.training_step

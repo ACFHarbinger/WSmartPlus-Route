@@ -31,21 +31,21 @@
 
 ### API
 
-````{py:function} prepare_epoch(model: torch.nn.Module, env: any, baseline: any, dataset: torch.utils.data.Dataset, epoch: int, phase: str = 'train') -> torch.utils.data.Dataset
+````{py:function} prepare_epoch(model: torch.nn.Module, env: typing.Any, baseline: typing.Any, dataset: torch.utils.data.Dataset, epoch: int, phase: str = 'train') -> torch.utils.data.Dataset
 :canonical: src.pipeline.rl.common.epoch.prepare_epoch
 
 ```{autodoc2-docstring} src.pipeline.rl.common.epoch.prepare_epoch
 ```
 ````
 
-````{py:function} regenerate_dataset(env: any, size: int) -> typing.Optional[torch.utils.data.Dataset]
+````{py:function} regenerate_dataset(env: typing.Any, size: int) -> typing.Optional[torch.utils.data.Dataset]
 :canonical: src.pipeline.rl.common.epoch.regenerate_dataset
 
 ```{autodoc2-docstring} src.pipeline.rl.common.epoch.regenerate_dataset
 ```
 ````
 
-````{py:function} compute_validation_metrics(out: typing.Dict, batch: tensordict.TensorDict, env: any) -> typing.Dict[str, float]
+````{py:function} compute_validation_metrics(out: typing.Dict, batch: tensordict.TensorDict, env: typing.Any) -> typing.Dict[str, float]
 :canonical: src.pipeline.rl.common.epoch.compute_validation_metrics
 
 ```{autodoc2-docstring} src.pipeline.rl.common.epoch.compute_validation_metrics

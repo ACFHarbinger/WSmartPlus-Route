@@ -75,7 +75,7 @@
 
 ````
 
-````{py:method} set_focus_graph(focus_graph: str = None, focus_size: int = 0)
+````{py:method} set_focus_graph(focus_graph: typing.Optional[str] = None, focus_size: int = 0)
 :canonical: src.data.builders.VRPInstanceBuilder.set_focus_graph
 
 ```{autodoc2-docstring} src.data.builders.VRPInstanceBuilder.set_focus_graph

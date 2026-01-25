@@ -101,7 +101,7 @@ Bases: {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.utils.functions.decoding.DecodingStrategy.__init__
 ```
 
-````{py:method} step(logits: torch.Tensor, mask: torch.Tensor, td: typing.Optional[tensordict.TensorDict] = None) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} step(logits: torch.Tensor, mask: torch.Tensor, td: typing.Optional[tensordict.TensorDict] = None) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.utils.functions.decoding.DecodingStrategy.step
 :abstractmethod:
 
@@ -110,7 +110,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} pre_decoder_hook(td: tensordict.TensorDict, env: any) -> typing.Tuple[tensordict.TensorDict, any, int]
+````{py:method} pre_decoder_hook(td: tensordict.TensorDict, env: typing.Any) -> typing.Tuple[tensordict.TensorDict, typing.Any, int]
 :canonical: src.utils.functions.decoding.DecodingStrategy.pre_decoder_hook
 
 ```{autodoc2-docstring} src.utils.functions.decoding.DecodingStrategy.pre_decoder_hook
@@ -118,7 +118,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} post_decoder_hook(td: tensordict.TensorDict, env: any, log_likelihood: torch.Tensor, actions: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor, tensordict.TensorDict, any]
+````{py:method} post_decoder_hook(td: tensordict.TensorDict, env: typing.Any, log_likelihood: torch.Tensor, actions: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor, tensordict.TensorDict, typing.Any]
 :canonical: src.utils.functions.decoding.DecodingStrategy.post_decoder_hook
 
 ```{autodoc2-docstring} src.utils.functions.decoding.DecodingStrategy.post_decoder_hook

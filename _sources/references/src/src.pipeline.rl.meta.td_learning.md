@@ -53,7 +53,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 
 ````
 
-````{py:method} feedback(reward: float, metrics: typing.List = None, day: int = None)
+````{py:method} feedback(reward: float, metrics: typing.Any, day: typing.Optional[int] = None, step: typing.Optional[int] = None)
 :canonical: src.pipeline.rl.meta.td_learning.CostWeightManager.feedback
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.td_learning.CostWeightManager.feedback

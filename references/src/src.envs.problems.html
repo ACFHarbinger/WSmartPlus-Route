@@ -232,6 +232,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.cli.data_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.data_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.sim_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.sim_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.train_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.tui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.tui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
@@ -446,6 +447,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BIN_CAPACITY"><code class="docutils literal notranslate"><span class="pre">BIN_CAPACITY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.VEHICLE_CAPACITY"><code class="docutils literal notranslate"><span class="pre">VEHICLE_CAPACITY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem"><code class="docutils literal notranslate"><span class="pre">BaseProblem</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.NAME"><code class="docutils literal notranslate"><span class="pre">BaseProblem.NAME</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.validate_tours"><code class="docutils literal notranslate"><span class="pre">BaseProblem.validate_tours()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.get_tour_length"><code class="docutils literal notranslate"><span class="pre">BaseProblem.get_tour_length()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.beam_search"><code class="docutils literal notranslate"><span class="pre">BaseProblem.beam_search()</span></code></a></li>
@@ -579,6 +581,12 @@ Provides the BaseProblem interface expected by legacy AttentionModel and Evaluat
 <dt class="sig sig-object py" id="src.envs.problems.BaseProblem">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">BaseProblem</span></span><a class="headerlink" href="#src.envs.problems.BaseProblem" title="Link to this definition">#</a></dt>
 <dd><p>Legacy base class for routing problems.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.envs.problems.BaseProblem.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.problems.BaseProblem.NAME" title="Link to this definition">#</a></dt>
+<dd><p>‘base’</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.problems.BaseProblem.validate_tours">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_tours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.envs.problems.BaseProblem.validate_tours" title="Link to this definition">#</a></dt>
@@ -751,6 +759,7 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BIN_CAPACITY"><code class="docutils literal notranslate"><span class="pre">BIN_CAPACITY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.VEHICLE_CAPACITY"><code class="docutils literal notranslate"><span class="pre">VEHICLE_CAPACITY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem"><code class="docutils literal notranslate"><span class="pre">BaseProblem</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.NAME"><code class="docutils literal notranslate"><span class="pre">BaseProblem.NAME</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.validate_tours"><code class="docutils literal notranslate"><span class="pre">BaseProblem.validate_tours()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.get_tour_length"><code class="docutils literal notranslate"><span class="pre">BaseProblem.get_tour_length()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.problems.BaseProblem.beam_search"><code class="docutils literal notranslate"><span class="pre">BaseProblem.beam_search()</span></code></a></li>

@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} CriticNetwork(env_name: str, embed_dim: int = 128, hidden_dim: int = 128, n_layers: int = 3, n_heads: int = 8, normalization: str = 'batch', dropout_rate: float = 0.0, aggregation: str = 'avg', encoder: torch.nn.Module = None, **kwargs)
+`````{py:class} CriticNetwork(env_name: str, embed_dim: int = 128, hidden_dim: int = 128, n_layers: int = 3, n_heads: int = 8, normalization: str = 'batch', dropout_rate: float = 0.0, aggregation: str = 'avg', encoder: typing.Optional[torch.nn.Module] = None, **kwargs)
 :canonical: src.models.policies.critic.CriticNetwork
 
 Bases: {py:obj}`torch.nn.Module`
