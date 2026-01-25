@@ -120,15 +120,14 @@ class Bins:
         self.lost = np.zeros((n))
         self.distribution = sample_dist
         self.dist_param1 = np.ones((n)) * 10
-        self.dist_param2 = np.ones((n)) * 10
         self.inoverflow = np.zeros((n))
         self.collected = np.zeros((n))
         self.ncollections = np.zeros((n))
         self.history: List[np.ndarray] = []
         self.level_history: List[np.ndarray] = []
-        self.travel = 0
-        self.profit = 0
-        self.ndays = 0
+        self.travel: float = 0.0
+        self.profit: float = 0.0
+        self.ndays: int = 0
         self.collectdays = np.ones((n)) * 5
         self.collectlevl = np.ones((n)) * 80
         self.data_dir = data_dir
@@ -281,9 +280,9 @@ class Bins:
             indices: List or array of 0-based bin indices (optional).
         """
         if indices is not None:
-            self.indices = np.array(indices)  # type: ignore[assignment]
+            self.indices = np.array(indices)
         else:
-            self.indices = list(range(self.n))
+            self.indices = np.array(range(self.n))
 
     def set_sample_waste(self, sample_id: int) -> None:
         """
@@ -363,7 +362,7 @@ class Bins:
         self.c[bin_ids] = 0  # Observed bins are also emptied
         self.travel += cost
         profit = np.sum(total_collected) * self.revenue - float(cost) * self.expenses  # type: ignore[assignment]
-        self.profit += profit
+        self.profit += float(profit)
         return total_collected, float(np.sum(collected)), bin_ids.size, float(profit)
 
     def _process_filling(

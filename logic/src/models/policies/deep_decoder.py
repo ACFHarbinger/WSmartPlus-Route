@@ -85,8 +85,8 @@ class DeepDecoderPolicy(ConstructivePolicy):
         fixed = self.decoder._precompute(embeddings)
 
         # 4. Decoding Loop
-        log_likelihood = 0
-        entropy = 0
+        log_likelihood: float | torch.Tensor = 0.0
+        entropy: float | torch.Tensor = 0.0
         output_actions = []
         step_idx = 0
         # Assuming environment is already reset
