@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import math
-from typing import Any, NamedTuple, Optional, Tuple, Union
+from dataclasses import dataclass
+from typing import Any, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -11,7 +12,8 @@ import torch.nn as nn
 from logic.src.utils.functions.function import compute_in_batches
 
 
-class AttentionModelFixed(NamedTuple):
+@dataclass
+class AttentionModelFixed:
     """
     Context for AttentionModel decoder that is fixed during decoding so can be precomputed/cached
     This class allows for efficient indexing of multiple Tensors at once

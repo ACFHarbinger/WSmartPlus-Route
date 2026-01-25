@@ -21,6 +21,7 @@ from typing import (
     Sequence,
     Tuple,
     Union,
+    cast,
 )
 
 import matplotlib.pyplot as plt
@@ -38,8 +39,10 @@ def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") 
     """
     Configures loguru to log to both console and a file.
     """
+    import sys
+
     logger.remove()  # Remove default handler
-    logger.add(os.sys.stderr, level=level)
+    logger.add(sys.stderr, level=level)
     logger.add(log_path, rotation="10 MB", level=level)
     return logger
 
@@ -207,7 +210,7 @@ def log_training(loss_keys: List[str], table_df: pd.DataFrame, opts: Dict[str, A
         lower_bound: np.ndarray = np.maximum(mean_loss - std_loss, min_loss)
         upper_bound: np.ndarray = np.minimum(mean_loss + std_loss, max_loss)
 
-        fig: plt.Figure = plt.figure(
+        fig: Any = plt.figure(
             l_id,
             figsize=(20, 10),
             facecolor="white",
@@ -215,7 +218,7 @@ def log_training(loss_keys: List[str], table_df: pd.DataFrame, opts: Dict[str, A
             layout="constrained",
         )
         label: str = l_key if l_key in udef.LOSS_KEYS else f"{l_key}_cost"
-        ax: plt.Axes = fig.add_subplot(1, 1, 1)
+        ax: Any = fig.add_subplot(1, 1, 1)
         ax.plot(x_values, mean_loss, label=f"{label} μ", linewidth=2)
         ax.fill_between(x_values, lower_bound, upper_bound, alpha=0.3, label=f"{label} clip(μ ± σ)")
         ax.scatter(x_values, mean_loss, color="red", s=50, zorder=5)
@@ -265,7 +268,7 @@ def sort_log(logfile_path: str, lock: Optional[threading.Lock] = None) -> None:
     if lock is not None:
         lock.acquire(timeout=udef.LOCK_TIMEOUT)
     try:
-        log: Dict[str, Any] = read_json(logfile_path, lock=None)
+        log: Dict[str, Any] = cast(Dict[str, Any], read_json(logfile_path, lock=None))
         log = _sort_log(log)
         with open(logfile_path, "w") as fp:
             json.dump(log, fp, indent=True)
@@ -576,7 +579,9 @@ def load_log_dict(
         logs[f"{gsize}"] = os.path.join(path, f"log_mean_{ns}N.json")
         if show_incomplete and ns > 1:
             counter: Counter[str] = Counter()
-            log_full: List[Dict[str, Any]] = read_json(os.path.join(path, f"log_full_{ns}N.json"), lock)
+            log_full: List[Dict[str, Any]] = cast(
+                List[Dict[str, Any]], read_json(os.path.join(path, f"log_full_{ns}N.json"), lock)
+            )
             for run in log_full:
                 counter.update(run.keys())
 
@@ -635,14 +640,14 @@ def output_stats(
         mean_dit: Dict[str, Any]
         std_dit: Dict[str, Any]
         if os.path.isfile(mean_filename):
-            mean_dit = read_json(mean_filename, lock=None)
-            std_dit = read_json(std_filename, lock=None)
+            mean_dit = cast(Dict[str, Any], read_json(mean_filename, lock=None))
+            std_dit = cast(Dict[str, Any], read_json(std_filename, lock=None))
         else:
             mean_dit = {}
             std_dit = {}
 
         log: str = os.path.join(dir_path, f"log_full_{nsamples}N.json")
-        data: List[Dict[str, Any]] = read_json(log, lock=None)
+        data: List[Dict[str, Any]] = cast(List[Dict[str, Any]], read_json(log, lock=None))
         for pol in policies:
             tmp: List[Sequence[float]] = []
             for n_id in range(nsamples):
@@ -703,7 +708,7 @@ def runs_per_policy(
     for path, ns in zip(dir_paths, nsamples):
         dit: Dict[str, List[int]] = {pol: [] for pol in policies}
         log: str = os.path.join(path, f"log_full_{ns}N.json")
-        data: List[Dict[str, Any]] = read_json(log, lock)
+        data: List[Dict[str, Any]] = cast(List[Dict[str, Any]], read_json(log, lock))
         for id, run_data in enumerate(data):
             for key in dit:
                 if key in run_data:

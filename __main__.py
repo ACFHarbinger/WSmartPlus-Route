@@ -62,7 +62,7 @@ if __name__ == "__main__":
         elif command in ["train", "mrl_train", "hp_optim"]:
             # Validation specific to training (handles all 3 training variants)
             args = validate_train_args(parsed_args)
-            run_training(args, command)
+            run_training(args)
         else:
             # Fallback if an unknown command bypasses the parser
             raise argparse.ArgumentError(None, f"Unknown command: {command}")

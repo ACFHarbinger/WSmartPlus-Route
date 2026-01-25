@@ -18,6 +18,7 @@ from typing import (
     Type,
     TypeVar,
     Union,
+    cast,
 )
 
 import numpy as np
@@ -304,7 +305,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
                 args["entropy_weight"] = cfg.rl.entropy_weight
         else:
             # Maybe it's a flat DictConfig or Lightning hparams
-            args = OmegaConf.to_container(cfg, resolve=True)
+            args = cast(Dict[str, Any], OmegaConf.to_container(cfg, resolve=True))
             # Apply some basic remapping if needed
             if "embed_dim" in args and "embedding_dim" not in args:
                 args["embedding_dim"] = args["embed_dim"]
@@ -523,7 +524,7 @@ def compute_in_batches(
         if chunks[0] is None:
             assert all(chunk is None for chunk in chunks)
             return None
-        return torch.cat(chunks, dim)  # type: ignore
+        return torch.cat(cast(List[torch.Tensor], chunks), dim)
 
     # Depending on whether the function returned a tuple we need to concatenate each element or only the result
     if isinstance(all_res[0], tuple):
@@ -629,12 +630,13 @@ def sample_many(
     max_length = max(pi.size(-1) for pi in pis)
 
     # (batch_size * batch_rep, iter_rep, max_length) => (batch_size, batch_rep * iter_rep, max_length)
-    pis = torch.cat([F.pad(pi, (0, max_length - pi.size(-1))) for pi in pis], 1)
-    costs = torch.cat(costs, 1)
+    # (batch_size * batch_rep, iter_rep, max_length) => (batch_size, batch_rep * iter_rep, max_length)
+    pis_cat = torch.cat([F.pad(pi, (0, max_length - pi.size(-1))) for pi in pis], 1)
+    costs_cat = torch.cat(costs, 1)
 
     # (batch_size)
-    mincosts, argmincosts = costs.min(-1)
+    mincosts, argmincosts = costs_cat.min(-1)
 
     # (batch_size, minlength)
-    minpis = pis[torch.arange(pis.size(0), out=argmincosts.new()), argmincosts]
+    minpis = pis_cat[torch.arange(pis_cat.size(0), out=argmincosts.new()), argmincosts]
     return minpis, mincosts

@@ -100,4 +100,4 @@ def load_state_dict(self, state_dict):
     self.__setstate__({"state": state, "param_groups": param_groups})
 
 
-torch.optim.Optimizer.load_state_dict = load_state_dict
+torch.optim.Optimizer.load_state_dict = load_state_dict  # type: ignore[method-assign]

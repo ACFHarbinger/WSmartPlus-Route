@@ -2,6 +2,9 @@
 SymNCO Policy with projection head.
 """
 
+from typing import Optional
+
+import torch
 import torch.nn as nn
 from tensordict import TensorDict
 
@@ -29,7 +32,15 @@ class SymNCOPolicy(AttentionModelPolicy):
                 nn.Linear(embed_dim, embed_dim),
             )
 
-    def forward(self, td: TensorDict, env, **kwargs) -> dict:
+    def forward(
+        self,
+        td: TensorDict,
+        env,
+        decode_type: str = "sampling",
+        num_starts: int = 1,
+        actions: Optional[torch.Tensor] = None,
+        **kwargs,
+    ) -> dict:
         """
         Forward pass with embedding projection support.
         """

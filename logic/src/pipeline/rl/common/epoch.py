@@ -33,7 +33,7 @@ def prepare_epoch(
 
 
 def regenerate_dataset(
-    env: any,
+    env: Any,
     size: int,
 ) -> Optional[Dataset]:
     """

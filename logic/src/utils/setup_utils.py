@@ -16,7 +16,7 @@ from dotenv import dotenv_values
 
 import logic.src.constants as udef
 from logic.src.models import GATLSTManager
-from logic.src.utils.crypto_utils import decrypt_file_data
+from logic.src.utils.crypto_utils import decrypt_file_data, load_key
 from logic.src.utils.functions.function import (
     get_inner_model,
     load_model,
@@ -227,7 +227,8 @@ def setup_env(
             if gplic_filename is not None:
                 gplic_path: str = os.path.join(udef.ROOT_DIR, "assets", "api", gplic_filename)
                 if symkey_name:
-                    data: str = decrypt_file_data(gplic_path, symkey_name=symkey_name, env_filename=env_filename)
+                    key = load_key(symkey_name=symkey_name, env_filename=env_filename or ".env")
+                    data = decrypt_file_data(key, gplic_path)
                 else:
                     with open(gplic_path, "r") as gp_file:
                         data = gp_file.read()
@@ -374,7 +375,7 @@ def setup_model_and_baseline(
     elif opts["baseline"] == "rollout":
         baseline = RolloutBaseline(policy=model, update_every=opts.get("bl_update_every", 1))
     elif opts["baseline"] == "pomo":
-        baseline = POMOBaseline(opts.get("pomo_size", 0))
+        baseline = POMOBaseline()
     else:
         assert opts["baseline"] is None, "Unknown baseline: {}".format(opts["baseline"])
         baseline = NoBaseline()

@@ -35,6 +35,7 @@ class ALNSPolicy(ConstructivePolicy):
         td: TensorDict,
         env: RL4COEnvBase,
         decode_type: str = "greedy",  # Ignored for ALNS
+        num_starts: int = 1,
         **kwargs,
     ) -> dict:
         """

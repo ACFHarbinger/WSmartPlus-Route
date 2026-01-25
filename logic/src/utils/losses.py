@@ -36,7 +36,7 @@ def invariance_loss(proj_embed: torch.Tensor, num_augment: int) -> torch.Tensor:
     pe = proj_embed.view(bs, num_augment, -1)
 
     # Cosine similarity between first augmentation and others
-    similarity = 0
+    similarity: torch.Tensor | float = 0.0
     ref = pe[:, 0]
     for i in range(1, num_augment):
         similarity += F.cosine_similarity(ref, pe[:, i], dim=-1)

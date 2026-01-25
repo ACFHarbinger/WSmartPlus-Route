@@ -17,7 +17,7 @@ class DifferentialEvolutionHyperband(DEHB):
 
     def __init__(
         self,
-        cs: Dict[str, Tuple[float, float]],
+        cs: Dict[str, Union[Tuple[float, float], list]],
         f: Callable,
         min_fidelity: int = 1,
         max_fidelity: int = 10,

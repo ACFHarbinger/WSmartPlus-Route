@@ -4,7 +4,7 @@ Custom PyTorch Lightning Trainer for WSmart-Route.
 
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import (
@@ -41,7 +41,7 @@ class WSTrainer(pl.Trainer):
         model_weights_path: Optional[str] = None,
         logs_dir: Optional[str] = None,
         # RL4CO-style optimizations
-        precision: Union[int, str] = "16-mixed",
+        precision: Any = "16-mixed",
         matmul_precision: str = "medium",
         disable_jit_profiling: bool = True,
         auto_ddp: bool = True,
