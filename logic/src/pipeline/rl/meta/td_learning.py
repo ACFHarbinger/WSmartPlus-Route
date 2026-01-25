@@ -141,7 +141,7 @@ class CostWeightManager(WeightAdjustmentStrategy):
         self.last_state = self._discretize(self.weights)
         return self.weights
 
-    def feedback(self, reward: float, metrics: Optional[Any] = None, day: Optional[int] = None):
+    def feedback(self, reward: float, metrics: Any, day: Optional[int] = None, step: Optional[int] = None):
         """
         Update V(s) based on the observed reward signal.
 

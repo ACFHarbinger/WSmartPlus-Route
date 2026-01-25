@@ -7,7 +7,7 @@ to improve individual solutions within the HGS population.
 
 import random
 import time
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Tuple
 
 import numpy as np
 
@@ -59,8 +59,8 @@ class LocalSearch:
                         break
             self.neighbors[i] = cands
 
-        self.node_map = {}
-        self.route_loads = []
+        self.node_map: Dict[int, Tuple[int, int]] = {}
+        self.route_loads: List[float] = []
 
     def optimize(self, individual: Individual) -> Individual:
         """

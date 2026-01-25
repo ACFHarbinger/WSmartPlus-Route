@@ -38,27 +38,30 @@ class ActivationFunction(nn.Module):
             inplace: Whether to perform the operation in-place.
         """
         super(ActivationFunction, self).__init__()
+        self.activation: nn.Module
         if tval and rval is None and not af_name == "softplus":
             rval = tval  # Replacement value = threshold
         if af_name == "relu":
-            self.activation = nn.ReLU(inplace=inplace)
+            self.activation = nn.ReLU(inplace=bool(inplace))
         elif af_name == "leakyrelu":
-            self.activation = nn.LeakyReLU(inplace=inplace, negative_slope=fparam)
+            self.activation = nn.LeakyReLU(inplace=bool(inplace), negative_slope=fparam if fparam is not None else 1e-2)
         elif af_name == "silu":
-            self.activation = nn.SiLU(inplace=inplace)
+            self.activation = nn.SiLU(inplace=bool(inplace))
         elif af_name == "selu":
-            self.activation = nn.SELU(inplace=inplace)
+            self.activation = nn.SELU(inplace=bool(inplace))
         elif af_name == "elu":
-            self.activation = nn.ELU(inplace=inplace, alpha=fparam)
+            self.activation = nn.ELU(inplace=bool(inplace), alpha=fparam if fparam is not None else 1.0)
         elif af_name == "celu":
-            self.activation = nn.CELU(inplace=inplace, alpha=fparam)
+            self.activation = nn.CELU(inplace=bool(inplace), alpha=fparam if fparam is not None else 1.0)
         elif af_name == "prelu":
             self.activation = nn.PReLU(
                 num_parameters=n_params if n_params else 1,
                 init=fparam if fparam else 0.25,
             )
         elif af_name == "rrelu":
-            self.activation = nn.RReLU(inplace=inplace, lower=urange[0], upper=urange[1])
+            lower = urange[0] if urange else 1.0 / 8
+            upper = urange[1] if urange else 1.0 / 3
+            self.activation = nn.RReLU(inplace=bool(inplace), lower=lower, upper=upper)
         elif af_name == "gelu":
             self.activation = nn.GELU()
         elif af_name == "gelu_tanh":
@@ -68,27 +71,35 @@ class ActivationFunction(nn.Module):
         elif af_name == "tanhshrink":
             self.activation = nn.Tanhshrink()
         elif af_name == "mish":
-            self.activation = nn.Mish(inplace=inplace)
+            self.activation = nn.Mish(inplace=bool(inplace))
         elif af_name == "hardshrink":
-            self.activation = nn.Hardshrink(lambd=fparam)
+            self.activation = nn.Hardshrink(lambd=fparam if fparam is not None else 0.5)
         elif af_name == "hardtanh":
-            self.activation = nn.Hardtanh(inplace=inplace, min_val=urange[0], max_val=urange[1])
+            min_val = urange[0] if urange else -1.0
+            max_val = urange[1] if urange else 1.0
+            self.activation = nn.Hardtanh(inplace=bool(inplace), min_val=min_val, max_val=max_val)
         elif af_name == "hardswish":
-            self.activation = nn.Hardswish(inplace=inplace)
+            self.activation = nn.Hardswish(inplace=bool(inplace))
         elif af_name == "glu":
-            self.activation = nn.GLU(dim=fparam)
+            self.activation = nn.GLU(dim=int(fparam) if fparam is not None else -1)
         elif af_name == "sigmoid":
             self.activation = nn.Sigmoid()
         elif af_name == "logsigmoid":
             self.activation = nn.LogSigmoid()
         elif af_name == "hardsigmoid":
-            self.activation = nn.Hardsigmoid(inplace=inplace)
+            self.activation = nn.Hardsigmoid(inplace=bool(inplace))
         elif af_name == "threshold":
-            self.activation = nn.Threshold(inplace=inplace, threshold=tval, value=rval)
+            self.activation = nn.Threshold(
+                inplace=bool(inplace),
+                threshold=tval if tval is not None else 0.0,
+                value=rval if rval is not None else 0.0,
+            )
         elif af_name == "softplus":
-            self.activation = nn.Softplus(beta=fparam, threshold=tval)
+            self.activation = nn.Softplus(
+                beta=int(fparam) if fparam is not None else 1, threshold=int(tval) if tval is not None else 20
+            )
         elif af_name == "softshrink":
-            self.activation = nn.Softshrink(lambd=fparam)
+            self.activation = nn.Softshrink(lambd=fparam if fparam is not None else 0.5)
         elif af_name == "softsign":
             self.activation = nn.Softsign()
         else:
