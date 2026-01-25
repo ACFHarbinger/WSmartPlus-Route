@@ -83,15 +83,28 @@ class RewardScaler:
             self._update_welford(scores)
 
     def _update_welford(self, scores: torch.Tensor) -> None:
-        """Update using Welford's online algorithm."""
+        """Update using Welford's online algorithm (vectorized batch update)."""
         scores_flat = scores.detach().float().view(-1)
+        n_b = scores_flat.numel()
+        if n_b == 0:
+            return
 
-        for x in scores_flat:
-            self._count += 1
-            delta = x.item() - self._mean
-            self._mean += delta / self._count
-            delta2 = x.item() - self._mean
-            self._m2 += delta * delta2
+        # Compute batch statistics
+        mu_b = scores_flat.mean().item()
+        m2_b = (scores_flat.var(correction=0) * n_b).item()
+
+        if self._count == 0:
+            self._count = n_b
+            self._mean = mu_b
+            self._m2 = m2_b
+        else:
+            n_a = self._count
+            n = n_a + n_b
+            delta = mu_b - self._mean
+
+            self._mean += delta * (n_b / n)
+            self._m2 += m2_b + (delta**2) * (n_a * n_b / n)
+            self._count = n
 
     def _update_ema(self, scores: torch.Tensor) -> None:
         """Update using exponential moving average."""
@@ -174,7 +187,10 @@ class BatchRewardScaler:
         """Normalize scores within batch using population statistics."""
         mean = scores.mean()
         std = scores.std(correction=0)
-        return (scores - mean) / (std + self.eps)
+        # Handle constant or near-constant batches to avoid numerical instability
+        if std < self.eps:
+            return torch.zeros_like(scores)
+        return (scores - mean) / std
 
 
 __all__ = [

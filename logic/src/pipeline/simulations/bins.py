@@ -120,6 +120,7 @@ class Bins:
         self.lost = np.zeros((n))
         self.distribution = sample_dist
         self.dist_param1 = np.ones((n)) * 10
+        self.dist_param2 = np.ones((n)) * 10
         self.inoverflow = np.zeros((n))
         self.collected = np.zeros((n))
         self.ncollections = np.zeros((n))
