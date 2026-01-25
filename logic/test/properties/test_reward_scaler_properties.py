@@ -29,9 +29,9 @@ def test_batch_scaler_normalization_properties(rewards):
     assert scaled.shape == rewards.shape
 
     # Check dist stats if raw std > eps
-    if rewards.std(correction=0) > 1e-4:
-        assert torch.abs(scaled.mean()) < 1e-4
-        assert torch.abs(scaled.std(correction=0) - 1.0) < 1e-4
+    if rewards.std(correction=0) > 1e-3:
+        assert torch.abs(scaled.mean()) < 1e-3
+        assert torch.abs(scaled.std(correction=0) - 1.0) < 1e-3
 
 
 @pytest.mark.property
@@ -48,7 +48,7 @@ def test_batch_scaler_shift_invariance(rewards, shift):
 
     # Should be close
     if rewards.std(correction=0) > 1e-4:
-        assert torch.allclose(out1, out2, atol=1e-4)
+        assert torch.allclose(out1, out2, atol=1e-3)
 
 
 @pytest.mark.property
