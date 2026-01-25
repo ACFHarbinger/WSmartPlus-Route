@@ -25,81 +25,20 @@ if [ "$VERBOSE" = false ]; then
     exec >/dev/null 2>&1
 fi
 
-START=0
-EPOCHS=7
 
-EDGE_T=0.3
-EDGE_M="knn"
-VERTEX_M="mmn"
-DATA_DIST="gamma1"
+# Load configuration from YAML
+CONFIG_FILE="scripts/configs/hyperparam_optim.yaml"
 
-W_LEN=1.0
-W_OVER=1.0
-W_WASTE=1.0
+# Load variables
+eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE")
 
-EMBED_DIM=128
-HIDDEN_DIM=512
-N_ENC_L=3
-N_ENC_SL=1
-N_PRED_L=2
-N_DEC_L=2
-
-N_HEADS=8
-NORM="instance"
-ACTIVATION="gelu"
-DROPOUT=0.1
-AGG="mean"
-AGG_G="mean"
-
-OPTIM="rmsprop"
-LR_MODEL=0.0001
-LR_CV=0.0001
-LR_SCHEDULER="lambda"
-LR_DECAY=1.0
-
-B_SIZE=256
-N_DATA=128000
-N_VAL_DATA=1280
-VAL_B_SIZE=256
-
-BL="exponential"
-MAX_NORM=1.0
-EXP_BETA=0.8
-BL_ALPHA=0.05
-ACC_STEPS=1
-
-ETA=5
-N_POP=20
-FEVALS=25
-METRIC="both"
-HOP_METHOD="dehbo"
-RANGE=(0.0 2.0)
-MAX_TRES=40
-H_EPOCHS=3
-MUTPB=0.3
-CXPB=0.5
-
-SIZE=20
-AREA="Rio Maior"
-WTYPE="plastic"
-F_SIZE=1
-VAL_F_SIZE=1280
-FOCUS_GRAPH="graphs_${SIZE}V_1N_${WTYPE}.json"
-
-SEED=42
-PROBLEM="wcvrp"
-DATASET_NAME="real"
+# Derived Variables
+# Construct DATASET path using loaded variables
 DATASET="data/datasets/${PROBLEM}/${PROBLEM}${SIZE}_${DATA_DIST}_${DATASET_NAME}_seed${SEED}.pkl"
 
-TRAIN_AM=0
-TRAIN_AMGC=1
-TRAIN_TRANSGCN=1
-TRAIN_DDAM=1
-TRAIN_TAM=1
-MODEL_NAMES=("am") #"amgc" "transgcn" "ddam" "tam")
-MODEL_ENCODERS=("gat") #"gac" "tgc" "gat" "gat")
-HORIZON=(0 0 0 0 3)
-WB_MODE="disabled"
+# Focus graph
+FOCUS_GRAPH="graphs_${SIZE}V_1N_${WTYPE}.json"
+
 
 echo -e "${BLUE}Starting hyperparameter optimization module (Hydra-based)...${NC}"
 echo -e "${CYAN}---------------------------------------${NC}"

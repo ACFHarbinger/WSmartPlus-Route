@@ -27,45 +27,15 @@ if [ "$VERBOSE" = false ]; then
 fi
 
 # ==============================================================================
+
+# ==============================================================================
 # DEFAULT CONFIGURATION
-# Set default values for all evaluation parameters
+# Load default values from YAML
 # ==============================================================================
 
-# Core Evaluation Settings
-DECODE_TYPE="greedy"
-DECODE_STRATEGY="greedy"  # Defaulting to greedy for simplicity
-SOFTMAX_TEMPERATURE=1.0
-VAL_SIZE=12800
-OFFSET=0
-EVAL_BATCH_SIZE=256
-MAX_CALC_BATCH_SIZE=12800
-RESULTS_DIR="results_eval"
-MODEL_PATH="checkpoints/best_model.pt"
+CONFIG_FILE="scripts/configs/evaluation.yaml"
+eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE")
 
-# Data/Dataset Configuration
-DATASETS=("data/example_vrp_50.pkl") # Array for multiple datasets
-WIDTH=(0) # Array for multiple beam sizes (0 to disable beam search)
-GRAPH_SIZE=50
-AREA="riomaior"
-WASTE_TYPE="plastic"
-
-# Graph Configuration
-FOCUS_GRAPH=
-FOCUS_SIZE=0
-EDGE_THRESHOLD='0'
-EDGE_METHOD="knn" # Assumed a common default
-DISTANCE_METHOD="ogd"
-VERTEX_METHOD="mmn"
-
-# Flags (Default to false/unset)
-OVERWRITE_FLAG="" # -f
-NO_CUDA_FLAG=""
-NO_PROGRESS_BAR_FLAG=""
-COMPRESS_MASK_FLAG=""
-MULTIPROCESSING_FLAG=""
-
-# Optional Output
-OUTPUT_FILE=""
 
 # ==============================================================================
 # COMMAND LINE ARGUMENT PARSING

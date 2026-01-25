@@ -1,0 +1,93 @@
+# General
+verbose: true
+start: 0
+epochs: 7
+
+# Environment
+edge_t: 0.3
+edge_m: "knn"
+vertex_m: "mmn"
+data_dist: "gamma1"
+w_len: 1.0
+w_over: 1.0
+w_waste: 1.0
+
+# Model Architecture
+embed_dim: 128
+hidden_dim: 512
+n_enc_l: 3
+n_enc_sl: 1
+n_pred_l: 2
+n_dec_l: 2
+n_heads: 8
+norm: "instance"
+activation: "gelu"
+dropout: 0.1
+agg: "mean"
+agg_g: "mean"
+
+# Optimization
+optim: "rmsprop"
+lr_model: 0.0001
+lr_cv: 0.0001
+lr_scheduler: "lambda"
+lr_decay: 1.0
+b_size: 256
+n_data: 128000
+n_val_data: 1280
+val_b_size: 256
+
+# RL Baseline
+bl: "exponential"
+max_norm: 1.0
+exp_beta: 0.8
+bl_alpha: 0.05
+acc_steps: 1
+
+# HPO Specifics
+eta: 5
+n_pop: 20
+fevals: 25
+metric: "both"
+hop_method: "dehbo"
+range: [0.0, 2.0]
+max_tres: 40
+h_epochs: 3
+mutpb: 0.3
+cxpb: 0.5
+
+# Problem Instance
+size: 20
+area: "Rio Maior"
+wtype: "plastic"
+f_size: 1
+val_f_size: 1280
+focus_graph: "graphs_20V_1N_plastic.json" # Derived variables in script might override this if logic remains
+seed: 42
+problem: "wcvrp"
+
+# These depend on problem/size/dist so typically are derived,
+# but here script defined them explicitly using variables.
+# We will define the base variables and let script reconstruction logic handle the path construction if possible,
+# or hardcode the default here.
+# Script: DATASET="data/datasets/${PROBLEM}/${PROBLEM}${SIZE}_${DATA_DIST}_${DATASET_NAME}_seed${SEED}.pkl"
+# YAML doesn't support var expansion.
+# We should probably keep DATASET construction in the script, and only configure DATASET_NAME.
+dataset_name: "real"
+
+# Model Selection
+# These 0/1 flags are used for something? Script doesn't seem to use TRAIN_AM directly, it iterates MODEL_NAMES.
+# Ah, lines 94-98 define them but they are unused in the loop logic shown?
+# Wait, looking at lines 94-98: `TRAIN_AM=0` ...
+# Loops iterate `MODEL_NAMES=("am")`.
+# So those flags seem vestigial or for manual toggling. We can include them.
+train_am: 0
+train_amgc: 1
+train_transgcn: 1
+train_ddam: 1
+train_tam: 1
+
+model_names: ["am"]
+model_encoders: ["gat"]
+horizon: [0, 0, 0, 0, 3] # This corresponds to m_idx but names has 1 element. Logic handles it?
+wb_mode: "disabled"

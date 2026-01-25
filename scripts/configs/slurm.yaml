@@ -1,0 +1,25 @@
+# General
+number_of_cores: 32
+command: "train"
+model: ["amgc"]
+problem: "wcvrp"
+gs: 20 # Graph Size
+
+# Train Parameters
+bs: 256 # Batch Size
+ne: 25 # Num Epochs
+es: 0 # Epoch Start
+ebs: 256 # Eval Batch Size
+et: 0.3 # Edge Threshold
+
+# Test Parameters
+days: 365
+od: "output" # Output Dir
+ns: 100 # Num Samples
+lvl: []
+cf: []
+nv: 1 # Num Vehicles
+
+# defaults
+dd_train: "unif"
+dd_test: "gamma1"
