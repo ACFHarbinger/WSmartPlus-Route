@@ -5,7 +5,7 @@ Container management module for wsmart_bin_analysis.
 import warnings
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional
+from typing import Any, Optional, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -423,13 +423,7 @@ class Container:
             lambda group: (100 - (group["Max"] - group["Min"]).sum() / len(group) if len(group) > 0 else 100)
         ).to_numpy()
         try:
-            if len(self.recs) > 1:
-                self.recs.loc[
-                    self.recs.index[start_idx] : self.recs.index[end_idx - 1],
-                    "Avg_Dist",
-                ] = res
-            else:
-                self.recs.loc[:, "Avg_Dist"] = res
+            self.recs.loc[:, "Avg_Dist"] = res
         except:
             print("\n\nCidx are not set tup properly")
             print(
@@ -539,16 +533,13 @@ class Container:
         mask = self.recs["Avg_Dist"] < dist_thresh
         ac_mask = mask.copy(deep=True)
         while mask.any():
-            deleted_collection_indexes = []
+            deleted_collection_indexes: list[int] = []
             for index in np.where(mask)[0]:
                 idx = index - len(deleted_collection_indexes)
                 if (index >= len(self.recs) - 2) or idx == 0:
                     continue
 
                 deleted = self.adjust_one_collection(idx, c_trash=c_trash, max_fill=max_fill)
-                if deleted:
-                    deleted_collection_indexes += [index]
-
                 deleted = self.adjust_one_collection(idx - 1, c_trash=c_trash, max_fill=max_fill)
 
                 if deleted == 1:
@@ -757,8 +748,8 @@ class Container:
         start_date = pd.to_datetime(start_date, format="%d-%m-%Y", errors="raise")
         end_date = pd.to_datetime(end_date, format="%d-%m-%Y", errors="raise")
 
-        filtered_df = self.df[start_date:end_date]
-        filtered_df2 = self.recs[start_date:end_date]
+        filtered_df = self.df[cast(Any, start_date) : cast(Any, end_date)]
+        filtered_df2 = self.recs[cast(Any, start_date) : cast(Any, end_date)]
         colors = filtered_df["Rec"].map({1: "green", 0: "red"})
 
         plt.figure(figsize=fig_size)
@@ -818,7 +809,7 @@ class Container:
         start_date = pd.to_datetime(start_date, format="%d-%m-%Y", errors="raise")
         end_date = pd.to_datetime(end_date, format="%d-%m-%Y", errors="raise")
 
-        filtered_df = self.df[start_date:end_date]
+        filtered_df = self.df[cast(Any, start_date) : cast(Any, end_date)]
         colors = filtered_df["Rec"].map({1: "green", 0: "red"})
 
         plt.figure(figsize=fig_size)
@@ -870,7 +861,7 @@ class Container:
         start_date = pd.to_datetime(start_date, format="%d-%m-%Y", errors="raise")
         end_date = pd.to_datetime(end_date, format="%d-%m-%Y", errors="raise")
 
-        filtered_df2 = self.recs[start_date:end_date]
+        filtered_df2 = self.recs[cast(Any, start_date) : cast(Any, end_date)]
         colors = "orange"
         colors2 = "blue"
 

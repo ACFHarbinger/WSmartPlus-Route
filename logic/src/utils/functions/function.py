@@ -215,6 +215,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         GCNComponentFactory,
         GGACComponentFactory,
         MLPComponentFactory,
+        NeuralComponentFactory,
         TGCComponentFactory,
     )
 
@@ -338,7 +339,8 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     # Fallback/Check
     assert factory_class is not None, "Unknown encoder type: {}".format(args.get("encoder", "gat"))
 
-    component_factory = factory_class()
+    factory_type = cast(Type[NeuralComponentFactory], factory_class)
+    component_factory = factory_type()
 
     model_class = {
         "am": AttentionModel,
@@ -528,7 +530,7 @@ def compute_in_batches(
 
     # Depending on whether the function returned a tuple we need to concatenate each element or only the result
     if isinstance(all_res[0], tuple):
-        return tuple(safe_cat(res_chunks, 0) for res_chunks in zip(*all_res))
+        return tuple(safe_cat(list(res_chunks), 0) for res_chunks in zip(*all_res))
     return safe_cat(all_res, 0)
 
 

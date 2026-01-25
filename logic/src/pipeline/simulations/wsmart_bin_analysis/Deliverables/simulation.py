@@ -97,7 +97,7 @@ class GridBase:
             info = pd.read_csv(os.path.join(coords_dir, names[1]))
             return rate, info
         else:
-            rate_list: list[pd.Series] = []
+            rate_list: list[dict] = []
             info_dict = {}
             if names is None:
                 for id in ids:

@@ -559,8 +559,9 @@ class RunningState(SimState):
                         ctx.attention_dict[ctx.pol_strip].append(output_dict)
 
                     assert ctx.daily_log is not None
-                    for key, val in dlog.items():
-                        ctx.daily_log[key].append(val)
+                    if dlog is not None:
+                        for key, val in dlog.items():
+                            ctx.daily_log[key].append(val)
 
                     hook.after_day(ctx.execution_time)
 
