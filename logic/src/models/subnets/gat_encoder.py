@@ -39,7 +39,7 @@ class FeedForwardSubLayer(nn.Module):
                     threshold,
                     replacement_value,
                     n_params,
-                    dist_range,
+                    (dist_range[0], dist_range[1]) if dist_range is not None and len(dist_range) >= 2 else None,
                 ),
                 FeedForward(feed_forward_hidden, embed_dim, bias=bias),
             )
@@ -187,7 +187,7 @@ class GraphAttentionEncoder(nn.Module):
         threshold: float = 6.0,
         replacement_value: float = 6.0,
         n_params: int = 3,
-        uniform_range: List[float] = [0.125, 1 / 3],
+        uniform_range: List[float] = None,  # type: ignore
         dropout_rate: float = 0.1,
         agg: Any = None,
         connection_type: str = "skip",
@@ -222,6 +222,10 @@ class GraphAttentionEncoder(nn.Module):
             expansion_rate: Expansion rate for hyper-connections.
         """
         super(GraphAttentionEncoder, self).__init__()
+
+        # Set default uniform_range if None
+        if uniform_range is None:
+            uniform_range = [0.125, 1 / 3]
 
         self.conn_type = connection_type
         self.expansion_rate = expansion_rate

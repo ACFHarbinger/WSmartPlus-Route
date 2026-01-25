@@ -67,11 +67,11 @@ class EfficientGraphConvolution(MessagePassing):
         self.num_bases = num_bases
         self.cached = cached
         self.add_self_loops = add_self_loops
-        self.aggregators = list(aggrs)
+        self.aggregators = tuple(aggrs)  # Convert to tuple for mypy compatibility
         self.sigmoid = sigmoid
 
         self.bases_weight = Parameter(torch.Tensor(in_channels, (out_channels // num_heads) * num_bases))
-        self.comb_weight = Linear(in_channels, num_heads * num_bases * len(aggrs))
+        self.comb_weight = Linear(in_channels, num_heads * num_bases * len(self.aggregators))
 
         if bias:
             self.bias = Parameter(torch.Tensor(out_channels))

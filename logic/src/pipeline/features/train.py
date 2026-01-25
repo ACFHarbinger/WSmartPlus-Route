@@ -3,6 +3,7 @@ Unified Training and Hyperparameter Optimization entry point using PyTorch Light
 """
 
 from collections.abc import MutableMapping
+from typing import Any, Dict, Tuple, Union, cast
 
 import hydra
 import optuna
@@ -107,18 +108,22 @@ def create_model(cfg: Config) -> pl.LightningModule:
         common_kwargs = cfg.rl.copy()
     else:
         # Works for both Dataclass and DictConfig
-        common_kwargs = OmegaConf.to_container(OmegaConf.create(cfg.rl), resolve=True)
+        common_kwargs = cast(Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.rl)), resolve=True))
     # Merge train, model and optim config into common_kwargs
     if isinstance(cfg.train, dict):
         train_params = cfg.train.copy()
     else:
-        train_params = OmegaConf.to_container(OmegaConf.create(cfg.train), resolve=True)
+        train_params = cast(
+            Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.train)), resolve=True)
+        )
     common_kwargs.update(train_params)
 
     if isinstance(cfg.model, dict):
         model_params = cfg.model.copy()
     else:
-        model_params = OmegaConf.to_container(OmegaConf.create(cfg.model), resolve=True)
+        model_params = cast(
+            Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.model)), resolve=True)
+        )
     common_kwargs.update(model_params)
 
     # We must remove 'name' as it's used in get_baseline and might conflict if passed in kwargs
@@ -198,7 +203,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
         return str(obj)
 
     # Sanitize common_kwargs before adding complex objects
-    common_kwargs = deep_sanitize(common_kwargs)
+    common_kwargs = cast(Dict[str, Any], deep_sanitize(common_kwargs))
 
     # Inject complex objects AFTER sanitization to avoid string conversion
     common_kwargs["env"] = env
@@ -302,8 +307,8 @@ def create_model(cfg: Config) -> pl.LightningModule:
         from logic.src.pipeline.rl.core.imitation import ImitationLearning
 
         # Determine expert
-        expert_name = cfg.rl.get("imitation_mode", "hgs")
-        expert_policy = None
+        expert_name = getattr(cfg.rl, "imitation_mode", "hgs")
+        expert_policy: Any = None
         if expert_name == "hgs":
             expert_policy = HGSPolicy(env_name=cfg.env.name)
         elif expert_name == "alns":
@@ -311,15 +316,15 @@ def create_model(cfg: Config) -> pl.LightningModule:
         elif expert_name in ["random_ls", "2opt"]:
             expert_policy = RandomLocalSearchPolicy(
                 env_name=cfg.env.name,
-                n_iterations=cfg.rl.random_ls_iterations,
-                op_probs=cfg.rl.random_ls_op_probs,
+                n_iterations=getattr(cfg.rl, "random_ls_iterations", 100),
+                op_probs=getattr(cfg.rl, "random_ls_op_probs", None),
             )
 
         model = ImitationLearning(expert_policy=expert_policy, expert_name=expert_name, **common_kwargs)
     elif cfg.rl.algorithm == "adaptive_imitation":
         from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
 
-        expert_name = cfg.rl.get("imitation_mode", "hgs")
+        expert_name = getattr(cfg.rl, "imitation_mode", "hgs")
         expert_policy = None
         if expert_name == "hgs":
             expert_policy = HGSPolicy(env_name=cfg.env.name)
@@ -328,15 +333,15 @@ def create_model(cfg: Config) -> pl.LightningModule:
         elif expert_name in ["random_ls", "2opt"]:
             expert_policy = RandomLocalSearchPolicy(
                 env_name=cfg.env.name,
-                n_iterations=cfg.rl.random_ls_iterations,
-                op_probs=cfg.rl.random_ls_op_probs,
+                n_iterations=getattr(cfg.rl, "random_ls_iterations", 100),
+                op_probs=getattr(cfg.rl, "random_ls_op_probs", None),
             )
 
         model = AdaptiveImitation(
             expert_policy=expert_policy,
-            il_weight=cfg.rl.get("il_weight", 1.0),
-            il_decay=cfg.rl.get("il_decay", 0.95),
-            patience=cfg.rl.get("patience", 5),
+            il_weight=getattr(cfg.rl, "il_weight", 1.0),
+            il_decay=getattr(cfg.rl, "il_decay", 0.95),
+            patience=getattr(cfg.rl, "patience", 5),
             **common_kwargs,
         )
     else:
@@ -457,9 +462,9 @@ def run_hpo(cfg: Config) -> float:
             return {"fitness": -reward}
 
         dehb = DifferentialEvolutionHyperband(
-            cs=cfg.hpo.search_space,
+            cs=cast(Dict[str, Union[Tuple[float, float], list]], cfg.hpo.search_space),
             f=dehb_obj,
-            min_fidelity=cfg.hpo.min_epochs or 1,
+            min_fidelity=getattr(cfg.hpo, "min_epochs", 1) or 1,
             max_fidelity=cfg.hpo.n_epochs_per_trial,
         )
         best_config, runtime, _ = dehb.run(fevals=cfg.hpo.n_trials)

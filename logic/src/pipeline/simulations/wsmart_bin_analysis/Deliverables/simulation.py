@@ -34,7 +34,7 @@ class GridBase:
         self.data: pd.DataFrame = None
         self.__info: Union[dict, pd.DataFrame] = None
         self.__freq_table: pd.DataFrame = None
-        self.__data_dir: str = None
+        self.__data_dir: str = None  # type: ignore[assignment]
 
         self.__data_dir = data_dir
         self.data, self.__info = self.load_data(
@@ -97,7 +97,7 @@ class GridBase:
             info = pd.read_csv(os.path.join(coords_dir, names[1]))
             return rate, info
         else:
-            rate_list = []
+            rate_list: list[dict] = []
             info_dict = {}
             if names is None:
                 for id in ids:
@@ -307,15 +307,15 @@ class Simulation(GridBase):
         sim_type: str,
         ids: list,
         data_dir: str,
-        train_split: str = None,
-        start_date: str = None,
-        end_date: str = None,
-        rate_type: str = None,
+        train_split=None,
+        start_date=None,
+        end_date=None,
+        rate_type=None,
         predictQ: bool = False,
-        info_ver: str = None,
-        names: str = None,
-        savefit_name: str = None,
-    ):
+        info_ver=None,
+        names=None,
+        savefit_name=None,
+    ):  # type: ignore[assignment]
         """
         Initialize the simulation with a specific type and time range.
 
@@ -369,7 +369,7 @@ class Simulation(GridBase):
             dataframe with simulated rates
         """
         date_range = pd.date_range(self.start_date, self.end_date)
-        rate_list = []
+        rate_list: list[np.ndarray] = []
         for date in date_range:
             if self.sim_type == "sample":
                 rate_list.append(self.sample())
@@ -378,7 +378,7 @@ class Simulation(GridBase):
             elif self.sim_type == "real+sampled":
                 rate_list.append(self.get_values_by_date(date=date, sample=True))
             else:
-                raise "self.type not recognised"
+                raise ValueError("self.type not recognised")
 
         rate = pd.DataFrame(np.vstack(rate_list))
         rate.index = date_range
@@ -410,7 +410,7 @@ class Simulation(GridBase):
         else:
             return self.rates.loc[self.current_date, :].to_numpy(), None, None
 
-    def make_collections(self, bins_index_list: list[int] = None) -> np.ndarray:
+    def make_collections(self, bins_index_list: list[int] = None) -> np.ndarray:  # type: ignore[assignment]
         """
         Preforms collections on the bins specified by the index. The index is induced by the order of
         the dataframe.

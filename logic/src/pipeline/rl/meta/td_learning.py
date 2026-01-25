@@ -6,7 +6,7 @@ Robust implementation for adaptive multi-objective weight management.
 from __future__ import annotations
 
 import random
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 
@@ -88,7 +88,7 @@ class CostWeightManager(WeightAdjustmentStrategy):
         self.last_val: float = 0.0
 
         # History for logging
-        self.history = []
+        self.history: List[Dict[str, Any]] = []
 
     def get_current_weights(self) -> Dict[str, float]:
         """Return the current continuous weights."""
@@ -141,7 +141,7 @@ class CostWeightManager(WeightAdjustmentStrategy):
         self.last_state = self._discretize(self.weights)
         return self.weights
 
-    def feedback(self, reward: float, metrics: List = None, day: int = None):
+    def feedback(self, reward: float, metrics: Any, day: Optional[int] = None, step: Optional[int] = None):
         """
         Update V(s) based on the observed reward signal.
 

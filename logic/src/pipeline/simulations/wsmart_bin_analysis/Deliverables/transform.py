@@ -8,6 +8,7 @@ This module provides functions to:
 """
 
 import copy
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,7 +26,7 @@ def fix_collections_sensor(
     max_fill: int,
     var_thresh: int,
     use: str,
-    spear_thresh: int = None,
+    spear_thresh: Optional[int] = None,
 ) -> tuple[float, list[TAG], Container]:
     """
     Orchestrates the collections adjustment measures. Deletes the region of the container considered to be inactive (which has

@@ -4,6 +4,8 @@ PPO algorithm implementation.
 
 from __future__ import annotations
 
+from typing import Any
+
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
@@ -62,6 +64,7 @@ class PPO(RL4COLitModule):
         td: TensorDict,
         out: dict,
         batch_idx: int,
+        env: Any = None,
     ) -> torch.Tensor:
         """
         Dummy implementation to satisfy abstract requirement.

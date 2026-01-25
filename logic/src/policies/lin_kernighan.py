@@ -46,9 +46,9 @@ def get_candidate_set(
     for i in range(n):
         # Sort by alpha, then breakdown by distance
         indices = np.argsort(alpha_measures[i])
-        # Filter self
-        indices = [idx for idx in indices if idx != i]
-        candidates[i] = indices[:max_candidates]
+        # Filter self and cast to int
+        valid_indices = [int(idx) for idx in indices if idx != i]
+        candidates[i] = valid_indices[:max_candidates]
     return candidates
 
 

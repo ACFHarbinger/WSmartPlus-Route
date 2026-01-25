@@ -66,7 +66,7 @@ def update_biased_fitness(population: List[Individual], nb_elite: int):
             dists.append(dist)
         dists.sort()
         # Avg of closest 5
-        ind1.dist_to_parents = np.mean(dists[:5]) if dists else 0.0
+        ind1.dist_to_parents = float(np.mean(dists[:5])) if dists else 0.0
 
     # Rank by Diversity
     population.sort(key=lambda x: x.dist_to_parents, reverse=True)

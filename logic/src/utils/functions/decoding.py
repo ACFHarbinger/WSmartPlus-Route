@@ -11,7 +11,7 @@ Reference: RL4CO (https://github.com/ai4co/rl4co)
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -66,7 +66,7 @@ class DecodingStrategy(ABC):
         logits: torch.Tensor,
         mask: torch.Tensor,
         td: Optional[TensorDict] = None,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Select action from logits.
 
@@ -83,8 +83,8 @@ class DecodingStrategy(ABC):
     def pre_decoder_hook(
         self,
         td: TensorDict,
-        env: any,
-    ) -> Tuple[TensorDict, any, int]:
+        env: Any,
+    ) -> Tuple[TensorDict, Any, int]:
         """
         Hook called before decoding starts.
 
@@ -106,10 +106,10 @@ class DecodingStrategy(ABC):
     def post_decoder_hook(
         self,
         td: TensorDict,
-        env: any,
+        env: Any,
         log_likelihood: torch.Tensor,
         actions: torch.Tensor,
-    ) -> Tuple[torch.Tensor, torch.Tensor, TensorDict, any]:
+    ) -> Tuple[torch.Tensor, torch.Tensor, TensorDict, Any]:
         """
         Hook called after decoding completes.
 

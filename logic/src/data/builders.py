@@ -5,6 +5,8 @@ This module provides builder classes to construct VRP instances from raw data,
 handling coordinate normalization, demand scaling, and feature extraction.
 """
 
+from typing import Optional
+
 import numpy as np
 import torch
 from tensordict import TensorDict
@@ -89,7 +91,7 @@ class VRPInstanceBuilder:
         self._area = area
         return self
 
-    def set_focus_graph(self, focus_graph: str = None, focus_size: int = 0):
+    def set_focus_graph(self, focus_graph: Optional[str] = None, focus_size: int = 0):
         """Sets parameters for focusing on a specific subgraph."""
         self._focus_graph = focus_graph
         self._focus_size = focus_size
@@ -197,8 +199,8 @@ class VRPInstanceBuilder:
                 waste = waste[None, :]
             fill_values.append(waste)
 
-        fill_values = np.array(fill_values)  # (num_days, dataset_size, num_loc)
-        fill_values = np.transpose(fill_values, (1, 0, 2))  # (dataset_size, num_days, num_loc)
+        fill_vals = np.array(fill_values)  # (num_days, dataset_size, num_loc)
+        fill_vals = np.transpose(fill_vals, (1, 0, 2))  # (dataset_size, num_days, num_loc)
 
         # For training data, we usually expect 1 day.
         # If num_days > 1, we keep the temporal dimension.
@@ -273,8 +275,8 @@ class VRPInstanceBuilder:
                     size=(remaining_coords_size, self._problem_size + 1, mm_arr.shape[-1]),
                 )
                 depots, locs = process_coordinates(random_coords, self._method, col_names=None)
-                depot = np.concatenate((depot, depots))
-                loc = np.concatenate((loc, locs))
+                depot = np.concatenate((depot, depots))  # type ignore[assignment]
+                loc = np.concatenate((loc, locs))  # type: ignore[assignment]
             bins = None
             if self._distribution == "emp":
                 data_dir = get_path_until_string(self._focus_graph, "wsr_simulator")

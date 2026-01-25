@@ -2,7 +2,7 @@
 Dataset classes for WSmart-Route.
 """
 
-from typing import Union
+from typing import Sized, Union, cast
 
 import tensordict
 import torch
@@ -234,7 +234,9 @@ class ExtraKeyDataset(Dataset):
         self.extra = extra
         # Validate lengths
         for k, v in extra.items():
-            assert len(dataset) == len(v), f"Length mismatch for key {k}: {len(dataset)} vs {len(v)}"
+            assert len(cast(Sized, dataset)) == len(
+                v
+            ), f"Length mismatch for key {k}: {len(cast(Sized, dataset))} vs {len(v)}"
 
     def __getitem__(self, idx: int) -> dict:
         """
@@ -258,7 +260,7 @@ class ExtraKeyDataset(Dataset):
         Returns:
             int: Number of samples.
         """
-        return len(self.dataset)
+        return len(cast(Sized, self.dataset))
 
 
 class BaselineDataset(Dataset):
@@ -277,7 +279,7 @@ class BaselineDataset(Dataset):
         super().__init__()
         self.dataset = dataset
         self.baseline = baseline
-        assert len(self.dataset) == len(self.baseline)
+        assert len(cast(Sized, self.dataset)) == len(self.baseline)
 
     def __getitem__(self, item: int) -> dict:
         """
@@ -298,7 +300,7 @@ class BaselineDataset(Dataset):
         Returns:
             int: Number of samples.
         """
-        return len(self.dataset)
+        return len(cast(Sized, self.dataset))
 
 
 def tensordict_collate_fn(
@@ -313,6 +315,9 @@ def tensordict_collate_fn(
         # We stack and convert to dict for pin_memory compatibility.
         # TensorDict's __init__ is called in the pin_memory thread without batch_size,
         # which causes errors. Standard dicts of tensors are safe.
-        return torch.stack(batch).to_dict()
+        res = torch.stack(batch)  # type: ignore[arg-type]
+        if hasattr(res, "to_dict"):
+            return res.to_dict()
+        return res
 
-    return torch.stack(batch)  # type: ignore
+    return torch.stack(batch)  # type: ignore[arg-type]

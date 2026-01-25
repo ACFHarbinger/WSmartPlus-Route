@@ -12,10 +12,10 @@ from .container import Container
 def save_container_structured(
     id: int,
     container: Container,
-    ver: str = None,
-    path: str = None,
-    names: list[str] = None,
-):
+    ver=None,
+    path=None,
+    names=None,
+):  # type: ignore[assignment]
     """
     Wrapper to save container information. Names are generated automatically unless
     specified in the names parameter for which those names are used
@@ -41,7 +41,7 @@ def save_container_structured(
     info.to_csv(path + names_[2])
 
 
-def load_container_structured(id: int = None, ver: str = None, path: str = None, names=None) -> Container:
+def load_container_structured(id=None, ver=None, path=None, names=None) -> Container:  # type: ignore[assignment]
     """
     Load Container structured information froma a csv file that has been created
     by a save_container function
@@ -138,9 +138,9 @@ def save_rate_series(
     container: Container,
     rate_type: str,
     freq: str,
-    path: str = None,
-    names: list[str] = None,
-):
+    path=None,
+    names=None,
+):  # type: ignore[assignment]
     """
     Wrapper to save a Container's rate Time Series. Aditional distinctive name to in automatic naming is set to
     rate_type + rate
@@ -170,11 +170,11 @@ def save_rate_series(
     elif rate_type == "crude":
         rate = container.get_crude_rate(freq=freq)
     else:
-        raise "rate_type can only be 'mean' or 'crude' "
+        raise ValueError("rate_type can only be 'mean' or 'crude' ")
     rate.to_csv(path + names_[0], index=True, index_label=rate.index.name)
 
 
-def load_info(id: int = None, ver: str = None, path: str = None, name: str = None) -> pd.DataFrame:
+def load_info(id=None, ver=None, path=None, name=None) -> pd.DataFrame:  # type: ignore[assignment]
     """
     Load just the Container info fies fro, a csv file that has been created
     by a save_container function
@@ -203,9 +203,7 @@ def load_info(id: int = None, ver: str = None, path: str = None, name: str = Non
     return info
 
 
-def load_rate_series(
-    id: int, rate_type: str, path: str = None, name: str = None
-) -> dict[str, Union[int, pd.DataFrame]]:
+def load_rate_series(id: int, rate_type: str, path=None, name=None) -> dict[str, Union[int, pd.DataFrame]]:  # type: ignore[assignment]
     """
     Load Container structured information froma a csv file that has been created
     by a save_container function
@@ -251,7 +249,7 @@ def load_rate_global_wrapper(rate_list: list[dict]) -> pd.DataFrame:
     return df
 
 
-def verify_names(id: int = None, ver: str = None, path: str = None, names: list[str] = None) -> tuple[list[str], str]:
+def verify_names(id=None, ver=None, path=None, names=None) -> tuple[list[str], str]:  # type: ignore[assignment]
     """
     Helper function to check containers load/save inputs
     """

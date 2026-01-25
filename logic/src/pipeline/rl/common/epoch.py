@@ -3,7 +3,7 @@ Epoch-level utilities for RL training.
 Includes expanded dataset handling and validation metric computation.
 """
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -13,8 +13,8 @@ from torch.utils.data import Dataset
 
 def prepare_epoch(
     model: nn.Module,
-    env: any,
-    baseline: any,
+    env: Any,
+    baseline: Any,
     dataset: Dataset,
     epoch: int,
     phase: str = "train",
@@ -33,7 +33,7 @@ def prepare_epoch(
 
 
 def regenerate_dataset(
-    env: any,
+    env: Any,
     size: int,
 ) -> Optional[Dataset]:
     """
@@ -51,7 +51,7 @@ def regenerate_dataset(
     return None
 
 
-def compute_validation_metrics(out: Dict, batch: TensorDict, env: any) -> Dict[str, float]:
+def compute_validation_metrics(out: Dict, batch: TensorDict, env: Any) -> Dict[str, float]:
     """
     Compute rich validation metrics beyond simple reward.
 

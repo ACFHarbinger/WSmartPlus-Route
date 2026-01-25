@@ -36,6 +36,7 @@ class NeuralHeuristicHybrid(ConstructivePolicy):
         td: TensorDict,
         env: RL4COEnvBase,
         decode_type: str = "greedy",
+        num_starts: int = 1,
         **kwargs,
     ) -> dict:
         """

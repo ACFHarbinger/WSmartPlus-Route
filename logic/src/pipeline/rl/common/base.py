@@ -5,7 +5,7 @@ PyTorch Lightning base module for RL training.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Dict, Optional, Union, cast
 
 import pytorch_lightning as pl
 import torch
@@ -70,6 +70,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         self.env = env
         self.policy = policy
         self.baseline_type = baseline
+        self.train_dataset: Optional[Any] = None
 
         # Data params
         self.train_data_size = train_data_size
@@ -175,7 +176,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
     def shared_step(
         self,
-        batch: TensorDict,
+        batch: Union[TensorDict, Dict[str, Any]],
         batch_idx: int,
         phase: str,
     ) -> dict:
@@ -195,12 +196,12 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         # Move to device (crucial when pin_memory=False)
         if hasattr(batch, "to"):
-            batch = batch.to(self.device)
+            batch = cast(Any, batch).to(self.device)
         elif isinstance(batch, dict):
             batch = {k: v.to(self.device) if hasattr(v, "to") else v for k, v in batch.items()}
 
         if baseline_val is not None:
-            baseline_val = baseline_val.to(self.device)
+            baseline_val = cast(Any, baseline_val).to(self.device)
         self._current_baseline_val = baseline_val
 
         # env.reset expects data on the environment's device.
@@ -269,7 +270,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         return out
 
-    def training_step(self, batch: any, batch_idx: int) -> torch.Tensor:
+    def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
         """
         Execute a single training step.
 
@@ -326,6 +327,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         """Prepare dataset for the new epoch (e.g. wrap with baseline)."""
         from logic.src.pipeline.rl.common.epoch import prepare_epoch
 
+        assert self.train_dataset is not None
         self.train_dataset = prepare_epoch(
             self.policy,
             self.env,
@@ -412,14 +414,17 @@ class RL4COLitModule(pl.LightningModule, ABC):
             # Pre-generate dataset on CPU for efficiency and VRAM saving
             # This avoids the overhead of generating 1 instance at a time in __getitem__
             gen = self.env.generator
+            assert gen is not None
             if hasattr(gen, "to"):
                 gen = gen.to("cpu")
 
             if self.local_rank == 0:
                 print(f"Pre-generating training dataset ({self.train_data_size} instances) on CPU...")
 
+            assert gen is not None
             data = gen(batch_size=self.train_data_size)
             self.train_dataset = TensorDictDataset(data)
+            assert self.train_dataset is not None
             if self.val_dataset_path is not None:
                 # Load validation dataset from file (legacy parity)
                 from logic.src.data.datasets import TensorDictDataset
@@ -428,8 +433,11 @@ class RL4COLitModule(pl.LightningModule, ABC):
             else:
                 if self.local_rank == 0:
                     print(f"Pre-generating validation dataset ({self.val_data_size} instances) on CPU...")
-                val_data = gen(batch_size=self.val_data_size)
+                val_data = cast(Any, gen)(batch_size=self.val_data_size)
                 self.val_dataset = TensorDictDataset(val_data)
+                assert self.val_dataset is not None
+        else:
+            pass
 
     def train_dataloader(self) -> DataLoader:
         """
@@ -442,13 +450,15 @@ class RL4COLitModule(pl.LightningModule, ABC):
         # Ensure we don't use workers if dataset is on CPU (to avoid copy overhead or fork issues)
         # But TensorDictDataset is efficient.
         return DataLoader(
-            self.train_dataset,
+            cast(Any, self.train_dataset),
             batch_size=self.batch_size,
             shuffle=True,  # Shuffle for training
             num_workers=self.num_workers,
             collate_fn=tensordict_collate_fn,
-            pin_memory=self.pin_memory if self.num_workers > 0 else False,
-            persistent_workers=self.persistent_workers if self.num_workers > 0 else False,
+            pin_memory=self.pin_memory if self.num_workers > 0 and self.train_dataset is not None else False,
+            persistent_workers=self.persistent_workers
+            if self.num_workers > 0 and self.train_dataset is not None
+            else False,
         )
 
     def val_dataloader(self) -> DataLoader:
@@ -458,11 +468,14 @@ class RL4COLitModule(pl.LightningModule, ABC):
         Returns:
             DataLoader: DataLoader for validation data.
         """
+        assert self.val_dataset is not None
         return DataLoader(
-            self.val_dataset,
+            cast(Any, self.val_dataset),
             batch_size=self.batch_size,
             collate_fn=tensordict_collate_fn,
             num_workers=self.num_workers,
-            pin_memory=self.pin_memory if self.num_workers > 0 else False,
-            persistent_workers=self.persistent_workers if self.num_workers > 0 else False,
+            pin_memory=self.pin_memory if self.num_workers > 0 and self.val_dataset is not None else False,
+            persistent_workers=self.persistent_workers
+            if self.num_workers > 0 and self.val_dataset is not None
+            else False,
         )
