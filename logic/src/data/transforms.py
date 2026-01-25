@@ -8,7 +8,7 @@ from typing import Callable, List, Union
 import torch
 from tensordict import TensorDict
 
-from logic.src.utils.pylogger import get_pylogger
+from logic.src.utils.logging.pylogger import get_pylogger
 
 log = get_pylogger(__name__)
 

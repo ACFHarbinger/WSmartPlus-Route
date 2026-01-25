@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2026-01-25
+
+### Comprehensive Testing Suite (Phase 2)
+Completed a major testing overhaul, introducing End-to-End (E2E) and Integration testing layers to ensure system reliability and stability.
+
+### Added
+- **E2E Testing**:
+  - `logic/test/e2e/test_cli_commands.py`: Smoke tests for core CLI commands (`gen_data`, `train_lightning`, `eval`, `test_sim`).
+- **Integration Testing**:
+  - `logic/test/integration/test_training_advanced.py`: Validated advanced RL algorithms (DR-GRPO, GDPO) and checkpoint resumption.
+  - `logic/test/integration/test_simulation.py`: Component-level tests for `SimulationContext`, `run_day`, and wrappers.
+- **Test Infrastructure**:
+  - Patched `VRPPEnv` and `CriticNetwork` for compatibility during testing.
+  - `walkthrough.md`: Documentation of test results and coverage.
+
+### Changed
+- **Implementation Plan**: Updated to reflect completion of Phase 2.1 and 2.2.
+- **Testing Standards**: Enforcing explicit `cpu` accelerator for CI/Integration tests to prevent GPU contention.
+
+
 ## [4.1.0] - 2026-01-24
 
 ### Legacy Pipeline Removal

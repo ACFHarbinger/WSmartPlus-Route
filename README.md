@@ -12,7 +12,9 @@
 [![OR-Tools](https://img.shields.io/badge/OR_Tools-9.4-4285F4?logo=google&logoColor=white)](https://developers.google.com/optimization)
 [![PyVRP](https://img.shields.io/badge/PyVRP-0.9.1-blue)](https://pyvrp.org/)
 [![TorchRL](https://img.shields.io/badge/TorchRL-0.1.0-blue)](https://github.com/acfharbinger/torchrl)
+[![PyTorch Lightning](https://img.shields.io/badge/lightning-2.2+-792ee5?logo=pytorchlightning&logoColor=white)](https://lightning.ai/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 </br>
 

@@ -16,9 +16,9 @@ import torch
 
 from logic.src.cli.base_parser import ConfigsParser
 from logic.src.cli.data_parser import add_gen_data_args, validate_gen_data_args
+from logic.src.constants import ROOT_DIR
 from logic.src.data.builders import VRPInstanceBuilder
 from logic.src.utils.data_utils import check_extension, save_dataset, save_td_dataset
-from logic.src.utils.definitions import ROOT_DIR
 
 
 def generate_datasets(opts):

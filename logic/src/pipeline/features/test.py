@@ -22,7 +22,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-import logic.src.utils.definitions as udef
+import logic.src.constants as udef
 from logic.src.cli import ConfigsParser, add_test_sim_args, validate_test_sim_args
 from logic.src.pipeline.simulations.loader import load_indices, load_simulator_data
 from logic.src.pipeline.simulations.simulator import (

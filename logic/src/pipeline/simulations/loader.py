@@ -29,7 +29,7 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
-import logic.src.utils.definitions as udef
+import logic.src.constants as udef
 
 
 class SimulationRepository(ABC):

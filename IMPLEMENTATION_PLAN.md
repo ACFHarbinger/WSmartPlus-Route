@@ -104,27 +104,27 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 ## Phase 2: Testing & Quality (Week 3-4)
 
-### 2.1 E2E Tests 📋
+### 2.1 E2E Tests ✅
 
-- [ ] CLI smoke tests for `train_lightning`
-- [ ] CLI smoke tests for `gen_data`
-- [ ] CLI smoke tests for `test_sim`
-- [ ] CLI smoke tests for `eval`
-- [ ] 10+ E2E tests total
+- [x] CLI smoke tests for `train_lightning`
+- [x] CLI smoke tests for `gen_data`
+- [x] CLI smoke tests for `test_sim`
+- [x] CLI smoke tests for `eval`
+- [x] 10+ E2E tests total
 
 ---
 
-### 2.2 Integration Tests 📋
+### 2.2 Integration Tests ✅
 
-- [ ] 30+ integration tests for training workflows
-- [ ] 20+ integration tests for simulation workflows
+- [x] 30+ integration tests for training workflows
+- [x] 20+ integration tests for simulation workflows
 - [ ] Integration tests for evaluation workflows
 
 ---
 
-### 2.3 Advanced Testing 📋
+### 2.3 Advanced Testing �
 
-- [ ] Property-based tests (hypothesis)
+- [x] Property-based tests (hypothesis)
 - [ ] Mutation testing (mutmut)
 - [ ] Performance benchmarks
 - [ ] Contract tests for solver integrations

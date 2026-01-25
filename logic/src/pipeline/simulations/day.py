@@ -26,7 +26,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from logic.src.utils.definitions import DAY_METRICS
+from logic.src.constants import DAY_METRICS
 from logic.src.utils.functions.function import move_to
 
 if TYPE_CHECKING:

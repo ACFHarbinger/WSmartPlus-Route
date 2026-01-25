@@ -41,7 +41,7 @@ from logic.src.pipeline.rl import (
     SymNCO,
 )
 from logic.src.pipeline.rl.common.trainer import WSTrainer
-from logic.src.utils.pylogger import get_pylogger
+from logic.src.utils.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
 

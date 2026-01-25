@@ -25,7 +25,7 @@ import sys
 import traceback
 import warnings
 
-import logic.src.utils.definitions as udef
+import logic.src.constants as udef
 from gui.src.app import launch_results_window, run_app_gui
 from logic.src.cli import launch_tui, parse_params
 from logic.src.data.generate_data import generate_datasets

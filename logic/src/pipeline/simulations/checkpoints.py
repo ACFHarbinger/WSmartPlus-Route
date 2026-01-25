@@ -39,7 +39,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Callable, Dict
 
-from logic.src.utils.definitions import ROOT_DIR
+from logic.src.constants import ROOT_DIR
 
 
 class SimulationCheckpoint:
