@@ -72,9 +72,9 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         }.get(meta_optimizer.lower(), torch.optim.Adam(optimizer_params))
 
         # Initialize histories for weights and performance
-        self.weight_history = []
-        self.performance_history = []
-        self.reward_history = []
+        self.weight_history: List[torch.Tensor] = []
+        self.performance_history: List[torch.Tensor] = []
+        self.reward_history: List[float] = []
 
         # Keep track of step for logging
         self.meta_step = 0
