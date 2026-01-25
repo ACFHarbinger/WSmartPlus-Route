@@ -243,6 +243,8 @@ dependencies = [
     "torchrl>=0.3.1",
     "dehb>=0.1.2",
     "hypothesis>=6.141.1",
+    "types-PyYAML>=6.0.12.20240311",
+    "types-tabulate>=0.9.0.20240106",
 ]
 
 # Corrected 'dev' dependencies
@@ -287,7 +289,7 @@ disallow_untyped_defs = false
 explicit_package_bases = true
 
 files = ["logic/src/", "gui/src"]
-exclude = ["logic/test/", "gui/test/", "logic/docs/", "gui/docs/"]
+exclude = ["logic/test/", "gui/test/", "logic/docs/", "gui/docs/", "notebooks/"]
 
 [tool.uv.sources]
 hexaly = { index = "hexaly_package" }

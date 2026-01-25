@@ -9,7 +9,7 @@ import os
 import pickle
 import struct
 from pathlib import Path
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
@@ -34,7 +34,7 @@ def generate_key(
     salt_size: int = 16,
     key_length: int = 32,
     hash_iterations: int = 100_000,
-    symkey_name: str = None,
+    symkey_name: Optional[str] = None,
     env_filename: str = ".env",
 ) -> Tuple[bytes, bytes]:
     """
@@ -90,7 +90,7 @@ def generate_key(
     return (key, salt)
 
 
-def load_key(symkey_name: str = None, env_filename: str = ".env") -> bytes:
+def load_key(symkey_name: Optional[str] = None, env_filename: str = ".env") -> bytes:
     """
     Loads a symmetric key from environment or file parameters.
 
@@ -120,9 +120,18 @@ def load_key(symkey_name: str = None, env_filename: str = ".env") -> bytes:
             key_length, hash_iterations = pickle.load(khp_file)
     else:
         print(f"Loading salt and key params from environment variables in {env_filename}")
-        salt = base64.urlsafe_b64decode(os.getenv("SALT_STRING").encode("utf-8"))
-        key_length = int(os.getenv("KEY_LENGTH"))
-        hash_iterations = int(os.getenv("HASH_ITERATIONS"))
+        salt_str = os.getenv("SALT_STRING")
+        if not salt_str:
+            raise ValueError("SALT_STRING not found in environment")
+        salt = base64.urlsafe_b64decode(salt_str.encode("utf-8"))
+
+        kl_str = os.getenv("KEY_LENGTH")
+        hi_str = os.getenv("HASH_ITERATIONS")
+        if not kl_str or not hi_str:
+            raise ValueError("KEY_LENGTH or HASH_ITERATIONS not found in environment")
+
+        key_length = int(kl_str)
+        hash_iterations = int(hi_str)
 
     # Derive the key using the password and salt
     kdf = PBKDF2HMAC(
@@ -156,20 +165,23 @@ def encode_data(data: Any) -> bytes:
         return pickle.dumps(data)
 
 
-def encrypt_file_data(key: bytes, input: Union[os.PathLike, Any], output_file: os.PathLike = None) -> bytes:
+def encrypt_file_data(
+    key: bytes, input: Union[str, os.PathLike, Any], output_file: Optional[Union[str, os.PathLike]] = None
+) -> bytes:
     """
     Encrypt a file or data object using Fernet symmetric encryption.
 
     Args:
         key (bytes): The encryption key.
-        input (Union[os.PathLike, Any]): Path to file OR data object to encrypt.
-        output_file (os.PathLike, optional): Path to save encrypted data.
+        input (Union[str, os.PathLike, Any]): Path to file OR data object to encrypt.
+        output_file (Union[str, os.PathLike], optional): Path to save encrypted data.
 
     Returns:
         bytes: The encrypted data.
     """
     fernet = Fernet(key)
-    if os.path.isfile(input):
+    # Check if input looks like a path and exists
+    if isinstance(input, (str, Path)) and os.path.isfile(input):
         with open(input, "rb") as f:
             original_data = f.read()
     else:
@@ -182,23 +194,28 @@ def encrypt_file_data(key: bytes, input: Union[os.PathLike, Any], output_file: o
     return encrypted_data
 
 
-def decrypt_file_data(key: bytes, input: Union[os.PathLike, Any], output_file: os.PathLike = None) -> str:
+def decrypt_file_data(
+    key: bytes, input: Union[str, os.PathLike, Any], output_file: Optional[Union[str, os.PathLike]] = None
+) -> str:
     """
     Decrypt a file or data bytes using Fernet symmetric encryption.
 
     Args:
         key (bytes): The encryption key.
-        input (Union[os.PathLike, Any]): Path to encrypted file OR encrypted bytes.
-        output_file (os.PathLike, optional): Path to save decrypted content.
+        input (Union[str, os.PathLike, Any]): Path to encrypted file OR encrypted bytes.
+        output_file (Union[str, os.PathLike], optional): Path to save decrypted content.
 
     Returns:
         str: The decrypted data (decoded as utf-8 string).
     """
     fernet = Fernet(key)
-    if os.path.isfile(input):
+    if isinstance(input, (str, Path)) and os.path.isfile(input):
         with open(input, "rb") as f:
             encrypted_data = f.read()
     else:
+        # Cast input to bytes if it's not a file path
+        if not isinstance(input, bytes):
+            raise TypeError(f"Expected file path or bytes for decryption, got {type(input)}")
         encrypted_data = input
 
     decrypted_data = fernet.decrypt(encrypted_data).decode("utf-8")
@@ -208,14 +225,16 @@ def decrypt_file_data(key: bytes, input: Union[os.PathLike, Any], output_file: o
     return decrypted_data
 
 
-def encrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLike = None) -> List[bytes]:
+def encrypt_directory(
+    key: bytes, input_dir: Union[str, os.PathLike], output_dir: Optional[Union[str, os.PathLike]] = None
+) -> List[bytes]:
     """
     Encrypt all files in a directory recursively.
 
     Args:
         key (bytes): The encryption key.
-        input_dir (os.PathLike): Directory to encrypt.
-        output_dir (os.PathLike, optional): Output directory. Defaults to input_dir.
+        input_dir (Union[str, os.PathLike]): Directory to encrypt.
+        output_dir (Union[str, os.PathLike], optional): Output directory. Defaults to input_dir.
 
     Returns:
         list: List of encrypted data bytes for each file.
@@ -232,11 +251,11 @@ def encrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLik
 
     # Recursively process all files in the input directory
     encdata_ls = []
-    for root, _, files in os.walk(input_dir):
+    for root, _, files in os.walk(str(input_dir)):
         for file in files:
             input_file = os.path.join(root, file)
-            relative_path = os.path.relpath(input_file, input_dir)
-            output_file = os.path.join(output_dir, relative_path + ".enc")
+            relative_path = os.path.relpath(input_file, str(input_dir))
+            output_file = os.path.join(str(output_dir), relative_path + ".enc")
 
             # Create subdirectories in the output directory if they don't exist
             try:
@@ -247,14 +266,16 @@ def encrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLik
     return encdata_ls
 
 
-def decrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLike = None) -> List[str]:
+def decrypt_directory(
+    key: bytes, input_dir: Union[str, os.PathLike], output_dir: Optional[Union[str, os.PathLike]] = None
+) -> List[str]:
     """
     Decrypt all .enc files in a directory recursively.
 
     Args:
         key (bytes): The encryption key.
-        input_dir (os.PathLike): Directory to decrypt.
-        output_dir (os.PathLike, optional): Output directory. Defaults to input_dir.
+        input_dir (Union[str, os.PathLike]): Directory to decrypt.
+        output_dir (Union[str, os.PathLike], optional): Output directory. Defaults to input_dir.
 
     Returns:
         list: List of decrypted string data for each file.
@@ -271,13 +292,13 @@ def decrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLik
 
     # Recursively process all files in the input directory
     decdata_ls = []
-    for root, _, files in os.walk(input_dir):
+    for root, _, files in os.walk(str(input_dir)):
         for file in files:
             input_file = os.path.join(root, file)
             file_path, file_ext = os.path.splitext(input_file)
             if file_ext == ".enc":
-                relative_path = os.path.relpath(file_path, input_dir)
-                output_file = os.path.join(output_dir, relative_path)
+                relative_path = os.path.relpath(file_path, str(input_dir))
+                output_file = os.path.join(str(output_dir), relative_path)
 
                 # Create subdirectories in the output directory if they don't exist
                 try:
@@ -288,46 +309,58 @@ def decrypt_directory(key: bytes, input_dir: os.PathLike, output_dir: os.PathLik
     return decdata_ls
 
 
-def encrypt_zip_directory(key: bytes, input_dir: os.PathLike, output_enczip: os.PathLike = None) -> bytes:
+def encrypt_zip_directory(
+    key: bytes, input_dir: Union[str, os.PathLike], output_enczip: Optional[Union[str, os.PathLike]] = None
+) -> bytes:
     """
     Zip a directory and then encrypt the resulting zip file.
 
     Args:
         key (bytes): The encryption key.
-        input_dir (os.PathLike): Directory to zip and encrypt.
-        output_enczip (os.PathLike, optional): Output path for the encrypted zip.
+        input_dir (Union[str, os.PathLike]): Directory to zip and encrypt.
+        output_enczip (Union[str, os.PathLike], optional): Output path for the encrypted zip.
 
     Returns:
         bytes: The encrypted zip data.
     """
+    # str(input_dir) to satisfy os.path functions if it's PathLike
+    input_dir_str = str(input_dir)
     if output_enczip is None:
-        norm_path = os.path.normpath(input_dir)
-        output_enczip = os.path.join(os.path.dirname(norm_path), f"{os.path.basename(input_dir)}.zip")
-    tmp_zip = "{}.tmp.zip".format(output_enczip)
-    zip_directory(input_dir, tmp_zip)
-    encrypted_data = encrypt_file_data(key, tmp_zip, output_enczip)
+        norm_path = os.path.normpath(input_dir_str)
+        output_enczip = os.path.join(os.path.dirname(norm_path), f"{os.path.basename(norm_path)}.zip")
+
+    output_enczip_str = str(output_enczip)
+    tmp_zip = "{}.tmp.zip".format(output_enczip_str)
+    zip_directory(input_dir_str, tmp_zip)
+    encrypted_data = encrypt_file_data(key, tmp_zip, output_enczip_str)
     os.remove(tmp_zip)
     return encrypted_data
 
 
-def decrypt_zip(key: bytes, input_enczip: os.PathLike, output_dir: os.PathLike = None) -> str:
+def decrypt_zip(
+    key: bytes, input_enczip: Union[str, os.PathLike], output_dir: Optional[Union[str, os.PathLike]] = None
+) -> str:
     """
     Decrypt a zip file and extract its contents.
 
     Args:
         key (bytes): The encryption key.
-        input_enczip (os.PathLike): Path to the encrypted zip file.
-        output_dir (os.PathLike, optional): Directory to extract to.
+        input_enczip (Union[str, os.PathLike]): Path to the encrypted zip file.
+        output_dir (Union[str, os.PathLike], optional): Directory to extract to.
 
     Returns:
         str: The decrypted data (raw string content of the zip file).
     """
+
+    input_enczip_str = str(input_enczip)
     if output_dir is None:
-        norm_path = os.path.normpath(input_enczip)
+        norm_path = os.path.normpath(input_enczip_str)
         output_dir, _ = os.path.splitext(norm_path)
-    tmp_zip = input_enczip + ".tmp.zip"
-    decrypted_data = decrypt_file_data(key, input_enczip, tmp_zip)
-    extract_zip(tmp_zip, output_dir)
+
+    output_dir_str = str(output_dir)
+    tmp_zip = input_enczip_str + ".tmp.zip"
+    decrypted_data = decrypt_file_data(key, input_enczip_str, tmp_zip)
+    extract_zip(tmp_zip, output_dir_str)
     os.remove(tmp_zip)
     return decrypted_data
 
