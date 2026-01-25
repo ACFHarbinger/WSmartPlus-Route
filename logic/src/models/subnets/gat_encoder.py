@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, List, Optional
 
+import numpy as np
 import torch
 import torch.nn as nn
 
@@ -39,7 +40,11 @@ class FeedForwardSubLayer(nn.Module):
                     threshold,
                     replacement_value,
                     n_params,
-                    (dist_range[0], dist_range[1]) if dist_range is not None and len(dist_range) >= 2 else None,
+                    (dist_range[0], dist_range[1])
+                    if dist_range is not None
+                    and isinstance(dist_range, (list, tuple, np.ndarray))
+                    and len(dist_range) >= 2
+                    else None,
                 ),
                 FeedForward(feed_forward_hidden, embed_dim, bias=bias),
             )
