@@ -252,8 +252,8 @@ if __name__ == "__main__":
     )
     add_gen_data_args(parser)
     try:
-        parsed_args = parser.parse_process_args(sys.argv[1:], "gen_data")
-        args = validate_gen_data_args(parsed_args)
+        _, parsed_args_dict = parser.parse_process_args(sys.argv[1:], "gen_data")
+        args = validate_gen_data_args(parsed_args_dict)
         generate_datasets(args)
     except (argparse.ArgumentError, AssertionError) as e:
         exit_code = 1

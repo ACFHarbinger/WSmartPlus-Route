@@ -105,7 +105,7 @@ class RewardScaler:
         else:
             alpha = self.running_momentum
             self._ema_mean = alpha * batch_mean + (1 - alpha) * self._ema_mean
-            self._ema_var = alpha * batch_var + (1 - alpha) * self._ema_var
+            self._ema_var = alpha * batch_var + (1 - alpha) * self._ema_var if self._ema_var is not None else batch_var
 
         # Sync with Welford stats for property access
         self._mean = self._ema_mean.item()

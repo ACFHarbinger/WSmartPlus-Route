@@ -199,8 +199,8 @@ class VRPInstanceBuilder:
                 waste = waste[None, :]
             fill_values.append(waste)
 
-        fill_values = np.array(fill_values)  # (num_days, dataset_size, num_loc)
-        fill_values = np.transpose(fill_values, (1, 0, 2))  # (dataset_size, num_days, num_loc)
+        fill_vals = np.array(fill_values)  # (num_days, dataset_size, num_loc)
+        fill_vals = np.transpose(fill_vals, (1, 0, 2))  # (dataset_size, num_days, num_loc)
 
         # For training data, we usually expect 1 day.
         # If num_days > 1, we keep the temporal dimension.
