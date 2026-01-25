@@ -1,0 +1,7 @@
+# Evaluation Data Configuration
+datasets: ["data/example_vrp_50.pkl"]
+width: [0]
+val_size: 12800
+offset: 0
+eval_batch_size: 256
+max_calc_batch_size: 12800

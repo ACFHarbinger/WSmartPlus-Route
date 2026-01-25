@@ -26,11 +26,32 @@ if [ "$VERBOSE" = false ]; then
 fi
 
 
-# Load configuration from YAML
-CONFIG_FILE="scripts/configs/meta_train.yaml"
+# Load Task Config first to get general settings and PROBLEM definition
+TASK_CONFIG="scripts/configs/tasks/meta_train.yaml"
+DATA_CONFIG="scripts/configs/data/meta_train.yaml"
+eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
 
-# Load variables
-eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE")
+# Now load the specific environment config based on the problem defined in the task
+if [ -n "$PROBLEM" ]; then
+    ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+    if [ -f "$ENV_CONFIG" ]; then
+        # Load Task + Data + Env (Task overrides Env values like Rewards for Meta-RL)
+        eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$TASK_CONFIG")
+    fi
+fi
+
+# Load Model Config (defaulting to the first model in the list for initial shell variables)
+MODEL_NAME_0="${MODEL_NAMES[0]}"
+MODEL_CONFIG="scripts/configs/models/${MODEL_NAME_0}.yaml"
+if [ -f "$MODEL_CONFIG" ]; then
+    eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
+fi
+
+# MAP ENVIRONMENT VARIABLES TO SCRIPT VARIABLES
+if [ -n "$VERTEX_M" ]; then VERTEX_M="$VERTEX_M"; fi
+if [ -n "$DIST_M" ]; then DIST_M="$DIST_M"; fi
+if [ -n "$EDGE_T" ]; then EDGE_T="$EDGE_T"; fi
+if [ -n "$EDGE_M" ]; then EDGE_M="$EDGE_M"; fi
 
 # Derived Variables
 TOTAL_EPOCHS=$(($START + $EPOCHS))
@@ -93,6 +114,11 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
                 EXTRA_ARGS="model.num_predictor_layers=${N_PRED_L}"
                 ;;
         esac
+
+        MODEL_CONFIG="scripts/configs/models/${M_NAME}.yaml"
+        if [ -f "$MODEL_CONFIG" ]; then
+             eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
+        fi
 
         if [ "$VERBOSE" = false ]; then
             exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
@@ -172,6 +198,11 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             rl.entropy_weight="$HRL_ENTROPY" \
             rl.baseline="'$BL'" \
             $EXTRA_ARGS;
+
+        MODEL_CONFIG="scripts/configs/models/${M_NAME}.yaml"
+        if [ -f "$MODEL_CONFIG" ]; then
+             eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
+        fi
 
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1

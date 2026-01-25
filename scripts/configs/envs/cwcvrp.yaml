@@ -1,0 +1,15 @@
+# Environment / Problem
+problem: "cwcvrp"
+data_problem: "wcvrp"
+size: 100
+area: "riomaior"
+wtype: "plastic"
+dist_m: "gmaps"
+vertex_m: "mmn"
+edge_t: 1.0
+edge_m: "knn"
+
+# Rewards / Costs
+w_len: 10.0
+w_over: 10.0
+w_waste: 10.0

@@ -3,13 +3,27 @@
 # Default to verbose mode
 VERBOSE=true
 
-# Load configuration from YAML
-CONFIG_FILE="scripts/configs/test_sim.yaml"
-eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE")
+# Load Task Config first to get general settings and PROBLEM definition
+TASK_CONFIG="scripts/configs/tasks/test_sim.yaml"
+DATA_CONFIG="scripts/configs/data/test_sim.yaml"
+eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
 
+# Now load the specific environment config based on the problem defined in the task
+if [ -n "$PROBLEM" ]; then
+    ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+    if [ -f "$ENV_CONFIG" ]; then
+        eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG")
+    fi
+fi
 
-# Default cores
-N_CORES=22
+# MAP ENVIRONMENT VARIABLES TO SCRIPT VARIABLES
+if [ -n "$SIZE" ]; then N_BINS="$SIZE"; fi
+if [ -n "$WTYPE" ]; then WTYPE="$WTYPE"; fi
+if [ -n "$AREA" ]; then AREA="$AREA"; fi
+if [ -n "$EDGE_T" ]; then EDGE_THRESH="$EDGE_T"; fi
+if [ -n "$EDGE_M" ]; then EDGE_METHOD="$EDGE_M"; fi
+if [ -n "$DIST_M" ]; then DIST_METHOD="$DIST_M"; fi
+if [ -n "$VERTEX_M" ]; then VERTEX_METHOD="$VERTEX_M"; fi
 
 while getopts "nc:P:d:N:W:I:M:V:FvC:" flag
 do

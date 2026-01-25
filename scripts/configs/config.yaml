@@ -1,0 +1,21 @@
+defaults:
+  - _self_
+  - tasks: train
+  - envs: cwcvrp
+  - models: am
+  - data: train_data
+
+# General Configuration
+seed: 42
+verbose: true
+start: 0
+epochs: 100
+n_workers: 4
+persistent_workers: true
+pin_memory: true
+reload_dataloaders_every_n_epochs: 0
+log_step: 10
+viz_step: 100
+logs_dir: "logs"
+model_weights_path: "model_weights"
+wb_mode: "disabled"
