@@ -41,7 +41,7 @@ class BaseProblem:
         dist_matrix: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Calculates tour length."""
-        if pi.size(-1) == 1:
+        if pi.size(-1) <= 1:
             return torch.zeros(pi.size(0), device=pi.device)
 
         use_dist_matrix = dist_matrix is not None and isinstance(dist_matrix, torch.Tensor)
@@ -66,7 +66,14 @@ class BaseProblem:
                 + dist_matrix[0, 0, pi[:, 0]]
             )
         else:
-            loc_with_depot: torch.Tensor = torch.cat((dataset["depot"][:, None, :], dataset["loc"]), 1)
+            loc = dataset.get("locs") if "locs" in dataset.keys() else dataset.get("loc")
+            if loc.size(1) == dataset["depot"].size(0) + (
+                dataset.get("waste").size(1) if "waste" in dataset.keys() else 0
+            ):
+                # already concatenated
+                loc_with_depot = loc
+            else:
+                loc_with_depot: torch.Tensor = torch.cat((dataset["depot"][:, None, :], loc), 1)
             d: torch.Tensor = loc_with_depot.gather(1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1)))
             length = (
                 (d[:, 1:] - d[:, :-1]).norm(p=2, dim=-1).sum(1)
@@ -279,7 +286,7 @@ class VRPP(BaseProblem):
 
         waste_with_depot = torch.cat((torch.zeros_like(dataset["waste"][:, :1]), dataset["waste"]), 1)
         w = waste_with_depot.gather(1, pi)
-        if "max_waste" in dataset:
+        if "max_waste" in dataset.keys():
             w = w.clamp(max=dataset["max_waste"][:, None])
         waste = w.sum(dim=-1)
         length = VRPP.get_tour_length(dataset, pi, dist_matrix)
@@ -291,7 +298,11 @@ class VRPP(BaseProblem):
         if cw_dict is not None:
             neg_profit = cw_dict.get("length", 1.0) * length * cost_km - cw_dict.get("waste", 1.0) * waste * revenue_kg
 
-        return neg_profit, {"length": length, "waste": waste, "total": neg_profit}, None
+        return (
+            neg_profit,
+            {"length": length, "waste": waste, "overflows": torch.zeros_like(neg_profit), "total": neg_profit},
+            None,
+        )
 
 
 class CVRPP(VRPP):
@@ -338,7 +349,7 @@ class WCVRP(BaseProblem):
         visited_mask = torch.zeros_like(waste_with_depot, dtype=torch.bool)
         visited_mask.scatter_(1, pi, True)
 
-        max_w = dataset.get("max_waste", 1.0)
+        max_w = dataset.get("max_waste", torch.tensor(1.0, device=dataset.device))
         overflow_mask = waste_with_depot >= max_w
         overflows = torch.sum(overflow_mask[:, 1:] & ~visited_mask[:, 1:], dim=-1).float()
 

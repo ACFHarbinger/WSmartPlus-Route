@@ -81,8 +81,7 @@ jobs:
       run: uv sync --all-extras --dev
 
     - name: Test with Coverage
-      # Wrap the pytest command with xvfb-run
-      run: xvfb-run uv run pytest --cov --cov-report=xml --cov-report=term-missing
+      run: uv run pytest logic/test --cov --cov-report=xml --cov-report=term-missing
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

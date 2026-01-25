@@ -185,7 +185,7 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coo
     solution = routing.SolveWithParameters(search_parameters)
 
     if not solution:
-        return [0], 0
+        return [0]
 
     # Ensure distancesC is passed as list of lists for compute_cost (unused now but keeps signal)
     tours_subset, costs_subset, _, _ = get_solution_costs(

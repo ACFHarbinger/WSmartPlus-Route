@@ -118,16 +118,22 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 - [x] 30+ integration tests for training workflows
 - [x] 20+ integration tests for simulation workflows
-- [ ] Integration tests for evaluation workflows
+- [x] Integration tests for evaluation workflows
 
 ---
 
-### 2.3 Advanced Testing �
+### 2.3 Advanced Testing 🚧
 
 - [x] Property-based tests (hypothesis)
 - [ ] Mutation testing (mutmut)
-- [ ] Performance benchmarks
-- [ ] Contract tests for solver integrations
+- [/] Performance benchmarks
+    - [ ] Formalize `benchmark_ls.py` into automated suite
+    - [ ] Add latency/throughput tracking for neural decoders
+- [/] Contract tests for solver integrations
+    - [ ] `run_vrpp_optimizer` (Gurobi/Hexaly) interface validation
+    - [ ] `find_routes` (OR-Tools/PyVRP) consistency tests
+    - [ ] Multi-engine parity verification for common instances
+    - [ ] Edge case stability (N=0, N=1, exact capacity)
 
 ---
 
