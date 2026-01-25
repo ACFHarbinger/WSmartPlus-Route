@@ -30,7 +30,7 @@ import torch
 import wandb
 from loguru import logger
 
-import logic.src.utils.definitions as udef
+import logic.src.constants as udef
 from logic.src.utils.io.files import compose_dirpath, read_json
 
 

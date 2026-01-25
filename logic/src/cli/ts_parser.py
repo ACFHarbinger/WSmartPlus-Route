@@ -2,7 +2,7 @@
 Test suite related argument parsers.
 """
 
-from logic.src.utils.definitions import TEST_MODULES
+from logic.src.constants import TEST_MODULES
 
 
 def add_test_suite_args(parser):

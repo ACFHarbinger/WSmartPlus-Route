@@ -344,7 +344,7 @@ def mock_load_dependencies(mocker):
         "plastic": "Mistura de embalagens",
     }
     mock_udef.LOCK_TIMEOUT = 30
-    mocker.patch("logic.src.utils.definitions", mock_udef)
+    mocker.patch("logic.src.constants", mock_udef)
 
     return mock_read_csv, mock_read_excel, mock_udef
 

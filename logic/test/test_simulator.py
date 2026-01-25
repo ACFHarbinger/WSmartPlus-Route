@@ -13,6 +13,7 @@ import pytest
 import torch
 from pandas.testing import assert_frame_equal
 
+from logic.src.constants import DAY_METRICS
 from logic.src.pipeline.simulations import processor as processor_module
 from logic.src.pipeline.simulations import simulator
 from logic.src.pipeline.simulations.bins import Bins
@@ -43,7 +44,6 @@ from logic.src.pipeline.simulations.processor import (
     setup_dist_path_tup,
     sort_dataframe,
 )
-from logic.src.utils.definitions import DAY_METRICS
 
 
 class TestBins:
@@ -733,7 +733,7 @@ class TestNetwork:
     @pytest.mark.unit
     def test_compute_distance_matrix_load_file(self, mocker, tmp_path):
         """Test loading a distance matrix from a file."""
-        mocker.patch("logic.src.utils.definitions.ROOT_DIR", str(tmp_path))
+        mocker.patch("logic.src.constants.ROOT_DIR", str(tmp_path))
 
         dm_dir = tmp_path / "data" / "wsr_simulator" / "distance_matrix"
         dm_dir.mkdir(parents=True, exist_ok=True)

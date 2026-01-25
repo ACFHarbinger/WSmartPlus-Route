@@ -5,7 +5,7 @@ File system related argument parsers.
 import argparse
 
 from logic.src.cli.base_parser import UpdateFunctionMapActionFactory
-from logic.src.utils.definitions import FS_COMMANDS
+from logic.src.constants import FS_COMMANDS
 
 
 def add_files_args(parser):

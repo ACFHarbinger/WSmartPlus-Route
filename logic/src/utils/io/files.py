@@ -12,7 +12,7 @@ import zipfile
 from collections.abc import Iterable
 from typing import Any, Callable, Dict, List, Optional, TypeVar, Union, cast
 
-import logic.src.utils.definitions as udef
+import logic.src.constants as udef
 
 T = TypeVar("T", bound=Callable[..., Any])
 

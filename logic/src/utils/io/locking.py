@@ -6,7 +6,7 @@ import json
 
 import pandas as pd
 
-import logic.src.utils.definitions as udef
+import logic.src.constants as udef
 
 
 def read_output(json_path, policies, lock=None):

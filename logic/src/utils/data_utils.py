@@ -262,8 +262,9 @@ def generate_waste_prize(
             wp = np.linalg.norm(depot[:, None, :] - loc, axis=-1)
             return (1 + (wp / wp.max(axis=-1, keepdims=True) * 99).astype(int)) / 100.0
         else:
-            wp_float = (depot[None, :] - loc).norm(p=2, dim=-1)
-            return (1 + (wp_float / wp_float.max(dim=-1, keepdim=True)[0] * 99).int()).float() / 100.0
+            # Consistent numpy handling matching the >1 case
+            wp = np.linalg.norm(depot[:, None, :] - loc, axis=-1)
+            return (1 + (wp / wp.max(axis=-1, keepdims=True) * 99).astype(int)) / 100.0
 
     if dataset_size == 1:
         return wp[0]

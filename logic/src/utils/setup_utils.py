@@ -14,10 +14,9 @@ import torch.nn as nn
 import torch.optim as optim
 from dotenv import dotenv_values
 
-import logic.src.utils.definitions as udef
+import logic.src.constants as udef
 from logic.src.models import GATLSTManager
 from logic.src.utils.crypto_utils import decrypt_file_data
-from logic.src.utils.definitions import ROOT_DIR
 from logic.src.utils.functions.function import (
     get_inner_model,
     load_model,
@@ -226,7 +225,7 @@ def setup_env(
                 return int(param) if param.isdigit() else param
 
             if gplic_filename is not None:
-                gplic_path: str = os.path.join(ROOT_DIR, "assets", "api", gplic_filename)
+                gplic_path: str = os.path.join(udef.ROOT_DIR, "assets", "api", gplic_filename)
                 if symkey_name:
                     data: str = decrypt_file_data(gplic_path, symkey_name=symkey_name, env_filename=env_filename)
                 else:
@@ -237,7 +236,7 @@ def setup_env(
                 }
             else:
                 assert env_filename is not None
-                env_path: str = os.path.join(ROOT_DIR, "env", env_filename)
+                env_path: str = os.path.join(udef.ROOT_DIR, "env", env_filename)
                 config: Dict[str, Optional[str]] = dotenv_values(env_path)
                 glp_ls: List[str] = ["WLSACCESSID", "WLSSECRET", "LICENSEID"]
                 params = {glp: convert_int(config.get(glp, "")) for glp in glp_ls}  # type: ignore
@@ -246,7 +245,7 @@ def setup_env(
                         raise ValueError(f"Missing parameter {glp_key} for Gurobi license")
         else:
             if gplic_filename is not None:
-                gplic_path = os.path.join(ROOT_DIR, "assets", "api", gplic_filename)
+                gplic_path = os.path.join(udef.ROOT_DIR, "assets", "api", gplic_filename)
                 if os.path.exists(gplic_path):
                     os.environ["GRB_LICENSE_FILE"] = gplic_path
         params["OutputFlag"] = 0

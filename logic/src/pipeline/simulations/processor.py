@@ -37,7 +37,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from logic.src.utils.definitions import EARTH_RADIUS, EARTH_WMP_RADIUS, MAX_WASTE
+from logic.src.constants import EARTH_RADIUS, EARTH_WMP_RADIUS, MAX_WASTE
 from logic.src.utils.functions.graph_utils import (
     adj_to_idx,
     get_adj_knn,

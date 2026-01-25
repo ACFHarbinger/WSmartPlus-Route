@@ -35,7 +35,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 import torch
 from tqdm import tqdm
 
-from logic.src.utils.definitions import ROOT_DIR, SIM_METRICS
+from logic.src.constants import ROOT_DIR, SIM_METRICS
 from logic.src.utils.logging.log_utils import log_to_json, output_stats
 
 from .checkpoints import CheckpointError

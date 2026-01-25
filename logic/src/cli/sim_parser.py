@@ -6,7 +6,7 @@ import re
 from multiprocessing import cpu_count
 
 from logic.src.cli.base_parser import StoreDictKeyPair
-from logic.src.utils.definitions import MAP_DEPOTS, WASTE_TYPES
+from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 from logic.src.utils.functions.function import parse_softmax_temperature
 
 
@@ -432,6 +432,12 @@ def add_test_sim_args(parser):
         type=float,
         default=1.0,
         help="Weight for overflows in cost function",
+    )
+    parser.add_argument(
+        "--data_dir",
+        type=str,
+        default=None,
+        help="Directory containing the simulation data",
     )
     return parser
 
