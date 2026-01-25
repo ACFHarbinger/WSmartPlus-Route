@@ -26,7 +26,7 @@
 `````{py:class} ImitationLearning(expert_policy: any = None, expert_name: str = 'hgs', **kwargs)
 :canonical: src.pipeline.rl.core.imitation.ImitationLearning
 
-Bases: {py:obj}`logic.src.pipeline.rl.core.base.RL4COLitModule`
+Bases: {py:obj}`logic.src.pipeline.rl.common.base.RL4COLitModule`
 
 ```{autodoc2-docstring} src.pipeline.rl.core.imitation.ImitationLearning
 ```

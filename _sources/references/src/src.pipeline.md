@@ -15,15 +15,5 @@
 
 src.pipeline.simulations
 src.pipeline.rl
-```
-
-## Submodules
-
-```{toctree}
-:titlesonly:
-:maxdepth: 1
-
-src.pipeline.test
-src.pipeline.eval
-src.pipeline.trainer
+src.pipeline.features
 ```

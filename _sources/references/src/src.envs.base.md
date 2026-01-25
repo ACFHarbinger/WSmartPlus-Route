@@ -52,6 +52,36 @@ Bases: {py:obj}`torchrl.envs.EnvBase`
 
 ````
 
+````{py:property} batch_size
+:canonical: src.envs.base.RL4COEnvBase.batch_size
+:type: torch.Size
+
+````
+
+````{py:method} _make_spec(generator: typing.Optional[typing.Any] = None) -> None
+:canonical: src.envs.base.RL4COEnvBase._make_spec
+
+```{autodoc2-docstring} src.envs.base.RL4COEnvBase._make_spec
+```
+
+````
+
+````{py:method} step(td: tensordict.TensorDict) -> tensordict.TensorDict
+:canonical: src.envs.base.RL4COEnvBase.step
+
+```{autodoc2-docstring} src.envs.base.RL4COEnvBase.step
+```
+
+````
+
+````{py:method} reset(td: typing.Optional[tensordict.TensorDict] = None, **kwargs) -> tensordict.TensorDict
+:canonical: src.envs.base.RL4COEnvBase.reset
+
+```{autodoc2-docstring} src.envs.base.RL4COEnvBase.reset
+```
+
+````
+
 ````{py:method} _reset(td: typing.Optional[tensordict.TensorDict] = None, batch_size: typing.Optional[int] = None) -> tensordict.TensorDict
 :canonical: src.envs.base.RL4COEnvBase._reset
 

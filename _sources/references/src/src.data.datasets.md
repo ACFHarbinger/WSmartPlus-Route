@@ -31,6 +31,10 @@
   - ```{autodoc2-docstring} src.data.datasets.GeneratorDataset
     :summary:
     ```
+* - {py:obj}`ExtraKeyDataset <src.data.datasets.ExtraKeyDataset>`
+  - ```{autodoc2-docstring} src.data.datasets.ExtraKeyDataset
+    :summary:
+    ```
 * - {py:obj}`BaselineDataset <src.data.datasets.BaselineDataset>`
   - ```{autodoc2-docstring} src.data.datasets.BaselineDataset
     :summary:
@@ -208,6 +212,38 @@ Bases: {py:obj}`torch.utils.data.Dataset`
 :canonical: src.data.datasets.GeneratorDataset.__getitem__
 
 ```{autodoc2-docstring} src.data.datasets.GeneratorDataset.__getitem__
+```
+
+````
+
+`````
+
+`````{py:class} ExtraKeyDataset(dataset: torch.utils.data.Dataset, extra: dict[str, torch.Tensor])
+:canonical: src.data.datasets.ExtraKeyDataset
+
+Bases: {py:obj}`torch.utils.data.Dataset`
+
+```{autodoc2-docstring} src.data.datasets.ExtraKeyDataset
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.data.datasets.ExtraKeyDataset.__init__
+```
+
+````{py:method} __getitem__(idx: int) -> dict
+:canonical: src.data.datasets.ExtraKeyDataset.__getitem__
+
+```{autodoc2-docstring} src.data.datasets.ExtraKeyDataset.__getitem__
+```
+
+````
+
+````{py:method} __len__() -> int
+:canonical: src.data.datasets.ExtraKeyDataset.__len__
+
+```{autodoc2-docstring} src.data.datasets.ExtraKeyDataset.__len__
 ```
 
 ````

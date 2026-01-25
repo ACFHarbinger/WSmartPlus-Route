@@ -19,6 +19,7 @@ src.utils
 src.cli
 src.data
 src.pipeline
+src.constants
 src.envs
 src.configs
 ```

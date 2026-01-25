@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.configs.rl
+src.configs.decoding
 src.configs.train
 src.configs.env
 src.configs.optim

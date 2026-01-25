@@ -7,27 +7,18 @@
 :allowtitles:
 ```
 
+## Submodules
+
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.models.embeddings.cvrpp
+src.models.embeddings.vrpp
+src.models.embeddings.wcvrp
+```
+
 ## Package Contents
-
-### Classes
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`VRPPInitEmbedding <src.models.embeddings.VRPPInitEmbedding>`
-  - ```{autodoc2-docstring} src.models.embeddings.VRPPInitEmbedding
-    :summary:
-    ```
-* - {py:obj}`CVRPPInitEmbedding <src.models.embeddings.CVRPPInitEmbedding>`
-  - ```{autodoc2-docstring} src.models.embeddings.CVRPPInitEmbedding
-    :summary:
-    ```
-* - {py:obj}`WCVRPInitEmbedding <src.models.embeddings.WCVRPInitEmbedding>`
-  - ```{autodoc2-docstring} src.models.embeddings.WCVRPInitEmbedding
-    :summary:
-    ```
-````
 
 ### Functions
 
@@ -58,78 +49,6 @@
 ````
 
 ### API
-
-`````{py:class} VRPPInitEmbedding(embed_dim: int = 128)
-:canonical: src.models.embeddings.VRPPInitEmbedding
-
-Bases: {py:obj}`torch.nn.Module`
-
-```{autodoc2-docstring} src.models.embeddings.VRPPInitEmbedding
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.models.embeddings.VRPPInitEmbedding.__init__
-```
-
-````{py:method} forward(td: tensordict.TensorDict) -> torch.Tensor
-:canonical: src.models.embeddings.VRPPInitEmbedding.forward
-
-```{autodoc2-docstring} src.models.embeddings.VRPPInitEmbedding.forward
-```
-
-````
-
-`````
-
-`````{py:class} CVRPPInitEmbedding(embed_dim: int = 128)
-:canonical: src.models.embeddings.CVRPPInitEmbedding
-
-Bases: {py:obj}`torch.nn.Module`
-
-```{autodoc2-docstring} src.models.embeddings.CVRPPInitEmbedding
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.models.embeddings.CVRPPInitEmbedding.__init__
-```
-
-````{py:method} forward(td: tensordict.TensorDict) -> torch.Tensor
-:canonical: src.models.embeddings.CVRPPInitEmbedding.forward
-
-```{autodoc2-docstring} src.models.embeddings.CVRPPInitEmbedding.forward
-```
-
-````
-
-`````
-
-`````{py:class} WCVRPInitEmbedding(embed_dim: int = 128)
-:canonical: src.models.embeddings.WCVRPInitEmbedding
-
-Bases: {py:obj}`torch.nn.Module`
-
-```{autodoc2-docstring} src.models.embeddings.WCVRPInitEmbedding
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.models.embeddings.WCVRPInitEmbedding.__init__
-```
-
-````{py:method} forward(td: tensordict.TensorDict) -> torch.Tensor
-:canonical: src.models.embeddings.WCVRPInitEmbedding.forward
-
-```{autodoc2-docstring} src.models.embeddings.WCVRPInitEmbedding.forward
-```
-
-````
-
-`````
 
 ````{py:data} INIT_EMBEDDING_REGISTRY
 :canonical: src.models.embeddings.INIT_EMBEDDING_REGISTRY

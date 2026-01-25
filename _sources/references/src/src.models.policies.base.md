@@ -50,7 +50,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} _select_action(logits: torch.Tensor, mask: torch.Tensor, decode_type: str = 'sampling') -> tuple[torch.Tensor, torch.Tensor]
+````{py:method} _select_action(logits: torch.Tensor, mask: torch.Tensor, decode_type: str = 'sampling', **kwargs) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.policies.base.ConstructivePolicy._select_action
 
 ```{autodoc2-docstring} src.models.policies.base.ConstructivePolicy._select_action

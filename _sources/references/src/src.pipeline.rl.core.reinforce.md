@@ -26,7 +26,7 @@
 `````{py:class} REINFORCE(entropy_weight: float = 0.0, max_grad_norm: float = 1.0, lr_critic: float = 0.0001, **kwargs)
 :canonical: src.pipeline.rl.core.reinforce.REINFORCE
 
-Bases: {py:obj}`logic.src.pipeline.rl.core.base.RL4COLitModule`
+Bases: {py:obj}`logic.src.pipeline.rl.common.base.RL4COLitModule`
 
 ```{autodoc2-docstring} src.pipeline.rl.core.reinforce.REINFORCE
 ```

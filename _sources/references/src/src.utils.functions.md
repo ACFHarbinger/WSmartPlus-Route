@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.utils.functions.beam_search
+src.utils.functions.decoding
 src.utils.functions.function
 src.utils.functions.graph_utils
 src.utils.functions.boolmask

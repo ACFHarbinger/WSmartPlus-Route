@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.models.embeddings';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.models.subnets" href="src.models.subnets.html" />
+    <link rel="next" title="src.models.embeddings.cvrpp" href="src.models.embeddings.cvrpp.html" />
     <link rel="prev" title="src.models.policies.base" href="src.models.policies.base.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -217,12 +217,10 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.setup_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.setup_utils</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.losses.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.losses</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.config_loader.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.config_loader</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.definitions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.definitions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.crypto_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.crypto_utils</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data_utils</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.check_docstrings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.check_docstrings</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.pylogger.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.pylogger</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.debug_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.debug_utils</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.add_docstrings_batch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.add_docstrings_batch</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.task_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.task_utils</span></code></a></li>
@@ -234,8 +232,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.cli.data_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.data_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.sim_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.sim_parser</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.train_lightning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_lightning</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.train_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.train_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.tui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.tui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
@@ -252,9 +248,19 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.test.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.test</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.eval.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.eval</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.trainer.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.trainer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -268,6 +274,7 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.decoding</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.train.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.train</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.env</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.optim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.optim</span></code></a></li>
@@ -430,23 +437,11 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.VRPPInitEmbedding"><code class="docutils literal notranslate"><span class="pre">VRPPInitEmbedding</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.VRPPInitEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">VRPPInitEmbedding.forward()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.CVRPPInitEmbedding"><code class="docutils literal notranslate"><span class="pre">CVRPPInitEmbedding</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.CVRPPInitEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">CVRPPInitEmbedding.forward()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.WCVRPInitEmbedding"><code class="docutils literal notranslate"><span class="pre">WCVRPInitEmbedding</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.WCVRPInitEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">WCVRPInitEmbedding.forward()</span></code></a></li>
-</ul>
-</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.INIT_EMBEDDING_REGISTRY"><code class="docutils literal notranslate"><span class="pre">INIT_EMBEDDING_REGISTRY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.get_init_embedding"><code class="docutils literal notranslate"><span class="pre">get_init_embedding()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
@@ -470,25 +465,18 @@ document.write(`
 <p>Problem-specific initialization embeddings.</p>
 <p>Each problem type requires different input features to be embedded
 before being processed by the encoder.</p>
-<section id="package-contents">
-<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
-<section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.embeddings.VRPPInitEmbedding" title="src.models.embeddings.VRPPInitEmbedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VRPPInitEmbedding</span></code></a></p></td>
-<td><p>Initial embedding for VRPP problems.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.models.embeddings.CVRPPInitEmbedding" title="src.models.embeddings.CVRPPInitEmbedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CVRPPInitEmbedding</span></code></a></p></td>
-<td><p>Initial embedding for CVRPP (capacitated VRPP).</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.embeddings.WCVRPInitEmbedding" title="src.models.embeddings.WCVRPInitEmbedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WCVRPInitEmbedding</span></code></a></p></td>
-<td><p>Initial embedding for WCVRP problems.</p></td>
-</tr>
-</tbody>
-</table>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.models.embeddings.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.embeddings.cvrpp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.models.embeddings.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.embeddings.vrpp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.models.embeddings.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.embeddings.wcvrp</span></code></a></li>
+</ul>
 </div>
 </section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
@@ -516,73 +504,6 @@ before being processed by the encoder.</p>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.models.embeddings.VRPPInitEmbedding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.embeddings.</span></span><span class="sig-name descname"><span class="pre">VRPPInitEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.embeddings.VRPPInitEmbedding" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Initial embedding for VRPP problems.</p>
-<p class="rubric">Initialization</p>
-<p>Initialize VRPPInitEmbedding.</p>
-<p>Args:
-embed_dim: Description for embed_dim.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.embeddings.VRPPInitEmbedding.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.embeddings.VRPPInitEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Embed VRPP instance.</p>
-<p>Args:
-td: TensorDict with keys: locs, depot, prize</p>
-<p>Returns:
-Node embeddings [batch, num_nodes, embed_dim]</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.models.embeddings.CVRPPInitEmbedding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.embeddings.</span></span><span class="sig-name descname"><span class="pre">CVRPPInitEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.embeddings.CVRPPInitEmbedding" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Initial embedding for CVRPP (capacitated VRPP).</p>
-<p class="rubric">Initialization</p>
-<p>Initialize VRPPInitEmbedding.</p>
-<p>Args:
-embed_dim: Description for embed_dim.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.embeddings.CVRPPInitEmbedding.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.embeddings.CVRPPInitEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward.</p>
-<p>Args:
-td: Description for td.
-prize.unsqueeze(-1): Description for prize.unsqueeze(-1).
-demand.unsqueeze(-1)]: Description for demand.unsqueeze(-1)].
-dim: Description for dim.
-0]: Description for 0].</p>
-<p>Returns:
-Computation result.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.models.embeddings.WCVRPInitEmbedding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.embeddings.</span></span><span class="sig-name descname"><span class="pre">WCVRPInitEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.embeddings.WCVRPInitEmbedding" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Initial embedding for WCVRP problems.</p>
-<p class="rubric">Initialization</p>
-<p>Initialize VRPPInitEmbedding.</p>
-<p>Args:
-embed_dim: Description for embed_dim.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.embeddings.WCVRPInitEmbedding.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.embeddings.WCVRPInitEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward.</p>
-<p>Args:
-None.</p>
-<p>Returns:
-Computation result.</p>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="py data">
 <dt class="sig sig-object py" id="src.models.embeddings.INIT_EMBEDDING_REGISTRY">
 <span class="sig-prename descclassname"><span class="pre">src.models.embeddings.</span></span><span class="sig-name descname"><span class="pre">INIT_EMBEDDING_REGISTRY</span></span><a class="headerlink" href="#src.models.embeddings.INIT_EMBEDDING_REGISTRY" title="Link to this definition">#</a></dt>
@@ -631,11 +552,11 @@ Initialized embedding module.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.models.subnets.html"
+       href="src.models.embeddings.cvrpp.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.embeddings.cvrpp</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -655,23 +576,11 @@ Initialized embedding module.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.VRPPInitEmbedding"><code class="docutils literal notranslate"><span class="pre">VRPPInitEmbedding</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.VRPPInitEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">VRPPInitEmbedding.forward()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.CVRPPInitEmbedding"><code class="docutils literal notranslate"><span class="pre">CVRPPInitEmbedding</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.CVRPPInitEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">CVRPPInitEmbedding.forward()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.WCVRPInitEmbedding"><code class="docutils literal notranslate"><span class="pre">WCVRPInitEmbedding</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.WCVRPInitEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">WCVRPInitEmbedding.forward()</span></code></a></li>
-</ul>
-</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.INIT_EMBEDDING_REGISTRY"><code class="docutils literal notranslate"><span class="pre">INIT_EMBEDDING_REGISTRY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.get_init_embedding"><code class="docutils literal notranslate"><span class="pre">get_init_embedding()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.embeddings.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
