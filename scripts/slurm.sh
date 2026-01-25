@@ -41,7 +41,13 @@ conda activate /users5/vlabist/afonsofernandes/anaconda3/envs/wsr
 #conda activate /home/u024151/anaconda3/envs/wsr
 
 # To execute this slurm script: sbatch slurm.sh
-NUMBER_OF_CORES=32
+
+# Load configuration from YAML
+CONFIG_FILE="scripts/configs/slurm.yaml"
+eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE")
+
+# Use YAML variables as base defaults
+NUMBER_OF_CORES=${NUMBER_OF_CORES} # Loaded from YAML
 
 # Read arguments and execute program
 while getopts c:m:p:g: flag
@@ -55,19 +61,19 @@ do
 done
 
 if [[ -z $command ]]; then
-    command="train"
+    command=${COMMAND}
 fi
 
 if [[ -z $model ]]; then
-    model=("amgc")
+    model=(${MODEL[@]})
 fi
 
 if [[ -z $problem ]]; then
-    problem="wcvrp"
+    problem=${PROBLEM}
 fi
 
 if [[ -z $gs ]]; then
-    gs=20
+    gs=${GS}
 fi
 
 if [[ "$command" == "train" ]]; then
@@ -89,27 +95,27 @@ if [[ "$command" == "train" ]]; then
     done
 
     if [[ -z $bs ]]; then
-        bs=256
+        bs=${BS}
     fi
 
     if [[ -z $dd ]]; then
-        dd="unif"
+        dd=${DD_TRAIN}
     fi
 
     if [[ -z $ne ]]; then
-        ne=25
+        ne=${NE}
     fi
 
     if [[ -z $es ]]; then
-        es=0
+        es=${ES}
     fi
 
     if [[ -z $ebs ]]; then
-        ebs=256
+        ebs=${EBS}
     fi
 
     if [[ -z $et ]]; then
-        et=0.3
+        et=${ET}
     fi
 
     uv run python main.py "$command" --model "${model[0]}" --baseline rollout --train_dataset virtual \
@@ -135,31 +141,31 @@ elif [[ "$command" == "test" ]]; then
     done
 
     if [[ -z $days ]]; then
-        days=365
+        days=${DAYS}
     fi
 
     if [[ -z $od ]]; then
-        od="output"
+        od=${OD}
     fi
 
     if [[ -z $ns ]]; then
-        ns=100
+        ns=${NS}
     fi
 
     if [[ -z $lvl ]]; then
-        lvl=("")
+        lvl=(${LVL[@]})
     fi
 
     if [[ -z $cf ]]; then
-        cf=("")
+        cf=(${CF[@]})
     fi
 
     if [[ -z $dd ]]; then
-        dd="gamma1"
+         dd=${DD_TEST}
     fi
 
     if [[ -z $nv ]]; then
-        nv=1
+        nv=${NV}
     fi
 
     uv run python main.py "$command" --policies "${model[@]}" --dd "$dd" --problem "$problem" --size "$gs" \
