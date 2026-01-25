@@ -27,7 +27,10 @@ class DeepAttentionModelFixed(typing.NamedTuple):
                 node_embeddings=self.node_embeddings[key],
                 context_node_projected=self.context_node_projected[key],
             )
-        return self[key]
+        return DeepAttentionModelFixed(
+            node_embeddings=self.node_embeddings[key].unsqueeze(0),
+            context_node_projected=self.context_node_projected[key].unsqueeze(0),
+        )
 
 
 class DeepDecoder(nn.Module):
