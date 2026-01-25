@@ -3,12 +3,14 @@
 import torch
 import torch.nn as nn
 
+from logic.src.models.subnets.attention_decoder import AttentionDecoder
 from logic.src.models.subnets.gac_encoder import GraphAttConvEncoder
 from logic.src.models.subnets.gat_decoder import GraphAttentionDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
 from logic.src.models.subnets.gcn_encoder import GraphConvolutionEncoder
 from logic.src.models.subnets.grf_predictor import GatedRecurrentFillPredictor
 from logic.src.models.subnets.mlp_encoder import MLPEncoder
+from logic.src.models.subnets.moe_encoder import MoEGraphAttentionEncoder
 from logic.src.models.subnets.ptr_decoder import PointerDecoder
 from logic.src.models.subnets.ptr_encoder import PointerEncoder
 from logic.src.models.subnets.tgc_encoder import TransGraphConvEncoder
@@ -51,10 +53,6 @@ class TestGATDecoder:
         mask = torch.zeros(batch, graph_size, dtype=torch.bool)
 
         output = model(q, h, mask)
-        # Returns (batch, 1, 2) since q seq_len is 1
-        # Wait, gat_decoder returns softmax(out).
-        # out = self.projection(self.dropout(h)).
-        # h follows q shape.
         assert output.shape == (batch, 1, 2)
 
 
@@ -72,6 +70,32 @@ class TestGATEncoder:
         output = model(x)
         assert output.shape == (batch, graph_size, embed_dim)
 
+    def test_hyper_forward(self):
+        """Verifies hyper-connection forward pass."""
+        embed_dim = 16
+        model = GraphAttentionEncoder(
+            n_heads=2, embed_dim=embed_dim, n_layers=1, connection_type="static_hyper", expansion_rate=2
+        )
+        batch = 2
+        graph_size = 5
+        x = torch.randn(batch, graph_size, embed_dim)
+        output = model(x)
+        assert output.shape == (batch, graph_size, embed_dim)
+
+
+class TestMoEGraphAttentionEncoder:
+    """Tests for MoEGraphAttentionEncoder."""
+
+    def test_forward(self):
+        """Verifies MoE encoder forward pass."""
+        embed_dim = 16
+        model = MoEGraphAttentionEncoder(n_heads=2, embed_dim=embed_dim, n_layers=1, num_experts=2, k=1)
+        batch = 2
+        graph_size = 5
+        x = torch.randn(batch, graph_size, embed_dim)
+        output = model(x)
+        assert output.shape == (batch, graph_size, embed_dim)
+
 
 class TestGCNEncoder:
     """Tests for GraphConvolutionEncoder."""
@@ -79,16 +103,10 @@ class TestGCNEncoder:
     def test_forward(self):
         """Verifies forward pass."""
         hidden = 16
-        # Fixed Normalization to handle default n_groups or pass n_groups if we can.
-        # GCNEncoder uses default GraphConvolution.
-        # I fixed Normalization class to default n_groups=1 if None.
         model = GraphConvolutionEncoder(n_layers=1, feed_forward_hidden=hidden, n_groups=4)
         batch = 2
         graph_size = 5
         x = torch.randn(batch, graph_size, hidden)
-
-        # GCN expects edges to be Long (indices) for Embedding?
-        # Source: self.init_embed_edges(edges.type(torch.long))
         edges = torch.randint(0, 2, (batch, graph_size, graph_size))
 
         output = model(x, edges)
@@ -122,6 +140,14 @@ class TestMLPEncoder:
         x = torch.randn(batch, nodes, dim)
 
         output = model(x)
+        assert output.shape == (batch, nodes, dim)  # MLPEncoder returns [N, B, D] if input is [B, N, D]? Check source.
+        # Actually viewed source of test_subnets earlier said batch, nodes, dim.
+        # MLPEncoder source:
+        # def forward(self, x):
+        #   h = self.init_embed(x)
+        #   for layer in self.layers: h = layer(h)
+        # It should preserve shape. Let me check what passed before.
+        # Line 125 previously: assert output.shape == (batch, nodes, dim)
         assert output.shape == (batch, nodes, dim)
 
 
@@ -182,15 +208,114 @@ class TestTGCEncoder:
     def test_forward(self):
         """Verifies transformer graph conv encoder."""
         embed_dim = 16
-        # n_groups=4 compatible with 16
         model = TransGraphConvEncoder(n_heads=2, embed_dim=embed_dim, n_layers=1, n_sublayers=1, n_groups=4)
         batch = 2
         graph_size = 5
         x = torch.randn(batch, graph_size, embed_dim)
-        # TGC expects float edges (adj matrix) as it uses GraphConvolution with 'mean' agg?
-        # Yes, line 100 agg='mean'.
-        # I fixed GraphConvolution to support batched masks.
         edges = torch.randn(batch, graph_size, graph_size)
 
         output = model(x, edges)
         assert output.shape == (batch, graph_size, embed_dim)
+
+
+class TestAttentionDecoder:
+    """Tests for AttentionDecoder."""
+
+    def test_init(self):
+        """Verifies initialization."""
+        from unittest.mock import MagicMock
+
+        problem = MagicMock()
+        problem.NAME = "vrpp"
+        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem)
+        assert isinstance(model, nn.Module)
+
+    def test_precompute(self):
+        """Verifies precomputation logic."""
+        from unittest.mock import MagicMock
+
+        problem = MagicMock()
+        problem.NAME = "vrpp"
+        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem, n_heads=2)
+
+        batch, nodes, dim = 2, 5, 16
+        embeddings = torch.randn(batch, nodes, dim)
+        fixed = model._precompute(embeddings)
+
+        assert fixed.node_embeddings.shape == (batch, nodes, dim)
+        assert fixed.glimpse_key.shape == (2, batch, 1, nodes, 8)  # heads, batch, steps, nodes, key_dim (16//2=8)
+
+    def test_select_node(self):
+        """Verifies node selection logic."""
+        from unittest.mock import MagicMock
+
+        problem = MagicMock()
+        problem.NAME = "vrpp"
+        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem)
+
+        probs = torch.tensor([[0.1, 0.8, 0.1], [0.3, 0.3, 0.4]])
+        mask = torch.tensor([[0, 0, 0], [0, 0, 0]], dtype=torch.bool)
+
+        # Test greedy
+        model.decode_type = "greedy"
+        selected = model._select_node(probs, mask)
+        assert torch.equal(selected, torch.tensor([1, 2]))
+
+        # Test sampling
+        model.decode_type = "sampling"
+        selected = model._select_node(probs, mask)
+        assert selected.shape == (2,)
+
+    def test_make_heads(self):
+        """Verifies head expansion and permutation."""
+        from unittest.mock import MagicMock
+
+        problem = MagicMock()
+        problem.NAME = "vrpp"
+        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem, n_heads=2)
+
+        # [B, steps, nodes, D]
+        v = torch.randn(2, 1, 5, 16)
+        heads = model._make_heads(v)
+        # Permuted to (3, 0, 1, 2, 4) -> (heads, B, steps, nodes, D//heads)
+        assert heads.shape == (2, 2, 1, 5, 8)
+
+    def test_get_parallel_step_context_vrpp(self):
+        """Verifies step context for VRPP."""
+        from unittest.mock import MagicMock
+
+        problem = MagicMock()
+        problem.NAME = "vrpp"
+        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem)
+        # set is_vrpp manual if needed, but constructor does it
+        assert model.is_vrpp
+
+        batch, nodes, dim = 2, 5, 16
+        embeddings = torch.randn(batch, nodes, dim)
+        state = MagicMock()
+        state.get_current_node.return_value = torch.ones(batch, 1, dtype=torch.long)
+        state.get_current_profit.return_value = torch.zeros(batch, 1)
+
+        ctx = model._get_parallel_step_context(embeddings, state)
+        # ctx = [B, steps, dim + 1] for vrpp
+        assert ctx.shape == (batch, 1, dim + 1)
+
+    def test_get_parallel_step_context_wc(self):
+        """Verifies step context for WC."""
+        from unittest.mock import MagicMock
+
+        problem = MagicMock()
+        problem.NAME = "cwcvrp"
+        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem)
+        assert model.is_wc
+
+        batch, nodes, dim = 2, 5, 16
+        embeddings = torch.randn(batch, nodes, dim)
+        state = MagicMock()
+        state.get_current_node.return_value = torch.ones(batch, 1, dtype=torch.long)
+        state.get_current_efficiency.return_value = torch.zeros(batch, 1)
+        state.get_remaining_overflows.return_value = torch.zeros(batch, 1)
+
+        ctx = model._get_parallel_step_context(embeddings, state)
+        # ctx = [B, steps, dim + 2] for wc
+        assert ctx.shape == (batch, 1, dim + 2)

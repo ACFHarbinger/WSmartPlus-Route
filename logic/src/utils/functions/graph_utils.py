@@ -130,11 +130,11 @@ def get_edge_idx_dist(dist_matrix, num_edges, add_depot=True, undirected=True):
                 adj_matrix = np.hstack((np.ones(size + 1, dtype=int), adj_matrix))
 
             np.fill_diagonal(adj_matrix, 0)
-            return adj_to_idx(np.nonzero(adj_matrix), negative=False)
+            return adj_to_idx(adj_matrix, negative=False)
     else:
         adj_matrix = np.ones((size + 1, size + 1), dtype=int) if add_depot else np.ones((size, size), dtype=int)
         np.fill_diagonal(adj_matrix, 0)
-        return adj_to_idx(np.nonzero(adj_matrix), negative=False)
+        return adj_to_idx(adj_matrix, negative=False)
 
 
 def sort_by_pairs(graph_size, edge_idx):
