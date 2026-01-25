@@ -6,7 +6,7 @@ system using `rich` and `prompt_toolkit`. It provides a menu-driven experience f
 configuring simulations, training models, and managing data.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from prompt_toolkit import prompt
 from prompt_toolkit.application import Application
@@ -124,7 +124,7 @@ class TerminalUI:
     def _prompt(
         self,
         message: str,
-        default: str = "",
+        default: Union[str, int, bool] = "",
         is_int: bool = False,
         is_bool: bool = False,
         choices: List[str] = None,
@@ -449,7 +449,7 @@ class TerminalUI:
         if not sub_comm:
             return None
 
-        opts = {"fs_command": sub_comm}
+        opts: Dict[str, Any] = {"fs_command": sub_comm}
         if sub_comm == "delete":
             opts["log"] = self._prompt("Delete logs?", default=True, is_bool=True)
             if opts["log"] is None:

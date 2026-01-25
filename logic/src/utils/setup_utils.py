@@ -425,7 +425,7 @@ def setup_optimizer_and_lr_scheduler(
     }.get(opts["optimizer"], None)
     assert optimizer_cls is not None, "Unknown optimizer: {}".format(opts["optimizer"])
 
-    optimizer: optim.Optimizer = optimizer_cls(optimizer_params)
+    optimizer: optim.Optimizer = optimizer_cls(optimizer_params)  # type: ignore
 
     if "optimizer" in data_load:
         optimizer.load_state_dict(data_load["optimizer"])

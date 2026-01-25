@@ -5,7 +5,7 @@ PyTorch Lightning base module for RL training.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 import pytorch_lightning as pl
 import torch
@@ -269,7 +269,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         return out
 
-    def training_step(self, batch: any, batch_idx: int) -> torch.Tensor:
+    def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
         """
         Execute a single training step.
 

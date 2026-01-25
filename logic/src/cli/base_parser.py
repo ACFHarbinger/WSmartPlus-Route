@@ -183,6 +183,11 @@ class StoreDictKeyPair(argparse.Action):
             argparse.ArgumentError: If a string does not follow the 'key=value' format.
         """
         my_dict = {}
+        if values is None:
+            values = []
+        elif isinstance(values, str):
+            values = [values]
+
         for kv in values:
             if "=" in kv:
                 k, v = kv.split("=", 1)
