@@ -1,0 +1,86 @@
+# General Configuration
+verbose: true
+seed: 42
+start: 0
+epochs: 100
+
+# Environment / Problem
+problem: "cwcvrp"
+data_problem: "wcvrp"
+size: 100
+area: "riomaior"
+wtype: "plastic"
+dist_m: "gmaps"
+vertex_m: "mmn"
+edge_t: 1.0
+edge_m: "knn"
+
+# Training Data
+f_size: 1280
+val_f_size: 0
+n_data: 1280
+n_val_data: 128
+data_dists: ["gamma1"]
+
+# Model Hyperparameters
+embed_dim: 128
+hidden_dim: 512
+n_enc_l: 3
+n_enc_sl: 1
+n_pred_l: 2
+n_dec_l: 2
+n_heads: 8
+norm: "instance"
+acti_f: "gelu"
+dropout: 0.1
+agg: "sum" # Aggregation node
+agg_g: "avg" # Aggregation graph
+connection: "static_hyper"
+hyper_lanes: 4
+
+# RL / Optimization
+rl_algo: "reinforce"
+optim: "rmsprop"
+lr_model: 0.0001
+lr_scheduler: "lambda"
+lr_decay: 1.0
+bl: "exponential"
+pomo_size: 0
+max_norm: 1.0
+exp_beta: 0.8
+bl_alpha: 0.05
+acc_steps: 1
+gamma: 1.0
+
+# Rewards / Costs
+w_len: 10.0
+w_over: 10.0
+w_waste: 10.0
+
+# Imitation Learning / HGS
+imitation_w: 1.0
+imitation_decay: 0.91
+imitation_decay_step: 1
+stop_thresh: 0.1
+reheat_pat: 3
+reheat_thresh: 0.05
+imitation_mode: "hgs"
+two_opt_max_iter: 100
+hgs_config_path: "assets/configs/lookahead_hgs.yaml"
+
+# Training Loop
+b_size: 128
+val_b_size: 128
+log_step: 10
+viz_step: 100
+n_workers: 8
+persistent_workers: true
+pin_memory: true
+logs_dir: "logs"
+model_weights_path: "model_weights"
+wb_mode: "disabled"
+
+# Models
+model_names: ["am"]
+model_encoders: ["gat"]
+horizon: [0, 0, 0, 0, 3]

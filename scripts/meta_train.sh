@@ -25,97 +25,23 @@ if [ "$VERBOSE" = false ]; then
     exec >/dev/null 2>&1
 fi
 
-EDGE_T=1.0
-EDGE_M="knn"
-DIST_M="gmaps"
-VERTEX_M="mmn"
 
-W_LEN=1.0
-W_OVER=1000.0
-W_WASTE=100.0
+# Load configuration from YAML
+CONFIG_FILE="scripts/configs/meta_train.yaml"
 
-EMBED_DIM=128
-HIDDEN_DIM=512
-N_ENC_L=3
-N_ENC_SL=1
-N_PRED_L=2
-N_DEC_L=2
+# Load variables
+eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE")
 
-N_HEADS=8
-NORM="instance"
-ACTI_F="gelu"
-DROPOUT=0.1
-AGG="sum"
-AGG_G="avg"
-
-OPTIM="rmsprop"
-LR_MODEL=0.00005
-LR_CV=0.0001
-LR_SCHEDULER="lambda"
-LR_DECAY=1.0
-
-B_SIZE=256
-N_DATA=1280
-N_VAL_DATA=0
-VAL_B_SIZE=0
-
-BL="exponential"
-MAX_NORM=1.0
-EXP_BETA=0.8
-BL_ALPHA=0.05
-ACC_STEPS=1
-
-GAT_HIDDEN=128
-LSTM_HIDDEN=64
-GATE_THRESH=0.5
-META_METHOD="hrl"
-META_HISTORY=10
-META_LR=0.000005
-META_STEP=10
-META_B_SIZE=256
-HRL_EPOCHS=2
-HRL_CLIP_EPS=0.2
-HRL_THRESHOLD=0.9
-
-# HRL Hyperparameters for Rio Maior (Targeting < 1 overflow)
-HRL_PID_TARGET=0.0003
-HRL_LAMBDA_WASTE=300.0
-HRL_LAMBDA_COST=0.5
-HRL_LAMBDA_OVERFLOW_INIT=2000.0
-HRL_LAMBDA_OVERFLOW_MIN=100.0
-HRL_LAMBDA_OVERFLOW_MAX=5000.0
-HRL_LAMBDA_PRUNING=0.5
-HRL_LAMBDA_MASK_AUX=5.0
-HRL_ENTROPY=0.01
-
-SIZE=100
-LOG_STEP=10
-AREA="riomaior"
-WTYPE="plastic"
-F_SIZE=1280
-VAL_F_SIZE=0
-DM_METHOD="gmaps"
-F_GRAPH="graphs_${SIZE}V_1N_${WTYPE}.json"
-DM_PATH="data/wsr_simulator/distance_matrix/gmaps_distmat_${WTYPE}[${AREA}].csv"
-
-SEED=42
-START=0
-EPOCHS=100
+# Derived Variables
 TOTAL_EPOCHS=$(($START + $EPOCHS))
-PROBLEM="cwcvrp"
-DATA_PROBLEM="wcvrp"
 DATASET_NAME="time${TOTAL_EPOCHS}"
+
 DATASETS=()
-DATA_DISTS=("gamma1")
+# DATA_DISTS loaded from YAML
 for dist in "${DATA_DISTS[@]}"; do
     DATASETS+=("data/datasets/${DATA_PROBLEM}/${DATA_PROBLEM}${SIZE}_${dist}_${DATASET_NAME}_seed${SEED}.pkl")
 done
 
-MODEL_NAMES=("am") #"amgc" "transgcn" "ddam" "tam")
-MODEL_ENCODERS=("gat") #"gac" "tgc" "gat" "gat")
-HORIZON=(0 0 0 0 3)
-WB_MODE="disabled"
-LOAD_PATH=""
 
 echo -e "${BLUE}Starting Meta-RL Training Module (Hydra-based)...${NC}"
 echo -e "${CYAN}---------------------------------------${NC}"

@@ -3,6 +3,11 @@
 # Default to verbose mode
 VERBOSE=true
 
+# Load configuration from YAML
+CONFIG_FILE="scripts/configs/test_sim.yaml"
+eval $(uv run python scripts/utils/yaml_to_env.py "$CONFIG_FILE")
+
+
 # Default cores
 N_CORES=22
 
@@ -38,40 +43,14 @@ if [ "$VERBOSE" = false ]; then
     exec >/dev/null 2>&1
 fi
 
+
+# Set n_cores defaults if not set by getopts
 if [[ -z $n_cores ]]; then
     n_cores=$N_CORES
 fi
 
-SEED=42
-N_DAYS=31
-N_BINS=100
-N_SAMPLES=1
-PROBLEM="cwcvrp"
-
-AREA="riomaior"
-WTYPE="plastic"
-DATA_DIST="gamma1"
-IDX_PATH="graphs_${N_BINS}V_1N_${WTYPE}.json"
-STATS_PATH="" #"daily_waste/april_2024_summary.csv"
-
-SYM_KEY="skey"
-ENV_FILE="vars.env"
-GP_LIC_FILE="gurobi.lic"
-HEX_DAT_FILE="hexaly.dat.enc"
-GOOGLE_API_FILE="google.lic.enc"
-
-REGULAR_LEVEL=(3 4)
-LAST_MINUTE_CF=(70)
-GUROBI_PARAM=(0.84)
-HEXALY_PARAM=(0.84)
-DECODE_TYPE="greedy"
-LOOKAHEAD_CONFIGS=('a') #'a' 'b'
-POLICIES=("amgat")
-#"policy_look_ahead" "policy_look_ahead_vrpp" "policy_look_ahead_sans"
-#"policy_look_ahead_hgs" "policy_look_ahead_alns" "policy_look_ahead_bcp"
-#"policy_last_minute_and_path" "policy_last_minute" "policy_regular"
-#"gurobi_vrpp" "hexaly_vrpp"
-#"amgat" "amggac" "amtgc"
+# DYNAMIC MODEL PATHS CONSTRUCTION
+# Depends on variables (AREA, PROBLEM, etc) which may be from YAML or CLI args
 declare -A MODEL_PATHS
 MODEL_PATHS["amgat"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat0"
 MODEL_PATHS["amgat_hrl"]="${PROBLEM}${N_BINS}_${AREA}_${WTYPE}/${DATA_DIST}/amgat_hrl"
@@ -87,14 +66,7 @@ for key in "${!MODEL_PATHS[@]}"; do
     fi
 done
 
-declare -A CONFIG_PATHS
-CONFIG_PATHS["hgs"]="assets/configs/lookahead_hgs.yaml"
-CONFIG_PATHS["alns"]="assets/configs/lookahead_alns.yaml"
-CONFIG_PATHS["sans"]="assets/configs/lookahead_sans.yaml"
-CONFIG_PATHS["bcp"]="assets/configs/lookahead_bcp.yaml"
-CONFIG_PATHS["vrpp"]="assets/configs/vrpp.yaml"
-CONFIG_PATHS["lookahead_a"]="assets/configs/lookahead_a.yaml"
-CONFIG_PATHS["lookahead_b"]="assets/configs/lookahead_b.yaml"
+# CONFIG_PATHS is loaded from YAML as associative array
 
 CONFIG_PATH_ARGS=()
 for key in "${!CONFIG_PATHS[@]}"; do
@@ -102,19 +74,12 @@ for key in "${!CONFIG_PATHS[@]}"; do
 done
 
 if [[ -n "$CONFIG_PATH" ]]; then
-    # Add manual config path to the list (user override)
+    # Add manual config path
     CONFIG_PATH_ARGS+=("$CONFIG_PATH")
 fi
 
-VEHICLES=0
-REAL_TIME_LOG=1
-GATE_PROB_THRESHOLD="0.1"
-MASK_PROB_THRESHOLD="${MASK_PROB_THRESHOLD:-0.1}"
-
-EDGE_THRESH=1.0
-EDGE_METHOD="knn"
-VERTEX_METHOD="mmn"
-DIST_METHOD="gmaps"
+# Ensure defaults for variables not in YAML or if needing specific logic
+# (Most are in YAML now)
 
 # Update dependent paths based on parsed arguments
 IDX_PATH="graphs_${N_BINS}V_1N_${WTYPE}.json"
