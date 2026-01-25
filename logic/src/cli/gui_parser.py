@@ -3,7 +3,7 @@ GUI related argument parsers.
 """
 
 from logic.src.cli.base_parser import LowercaseAction
-from logic.src.utils.definitions import APP_STYLES
+from logic.src.constants import APP_STYLES
 
 
 def add_gui_args(parser):

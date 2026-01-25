@@ -13,7 +13,7 @@ import webbrowser
 from collections import defaultdict
 
 import folium
-import logic.src.utils.definitions as udef
+import logic.src.constants as udef
 import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure

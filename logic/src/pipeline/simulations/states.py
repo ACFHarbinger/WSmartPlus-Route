@@ -40,8 +40,8 @@ import torch
 from loguru import logger
 from tqdm import tqdm
 
+from logic.src.constants import DAY_METRICS, ROOT_DIR, SIM_METRICS, TQDM_COLOURS
 from logic.src.utils.config_loader import load_config
-from logic.src.utils.definitions import DAY_METRICS, ROOT_DIR, SIM_METRICS, TQDM_COLOURS
 from logic.src.utils.logging.log_utils import (
     final_simulation_summary,
     log_to_json,

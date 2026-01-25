@@ -17,7 +17,8 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from dotenv import dotenv_values, load_dotenv, set_key
 
-from .definitions import ROOT_DIR
+from logic.src.constants import ROOT_DIR
+
 from .io.files import extract_zip, zip_directory
 
 

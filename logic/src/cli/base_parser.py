@@ -9,7 +9,7 @@ import argparse
 import sys
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
-from logic.src.utils.definitions import (
+from logic.src.constants import (
     OPERATION_MAP,
     STATS_FUNCTION_MAP,
 )

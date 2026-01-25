@@ -6,7 +6,7 @@ import argparse
 import re
 from typing import Any, Dict
 
-from logic.src.utils.definitions import MAP_DEPOTS, WASTE_TYPES
+from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 
 
 def add_gen_data_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:

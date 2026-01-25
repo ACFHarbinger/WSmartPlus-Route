@@ -3,9 +3,9 @@
 import numpy as np
 import pytest
 
+from logic.src.constants import MAX_WASTE
 from logic.src.data.builders import VRPInstanceBuilder
 from logic.src.data.generate_data import generate_datasets
-from logic.src.utils.definitions import MAX_WASTE
 
 
 class TestVRPInstanceBuilder:
