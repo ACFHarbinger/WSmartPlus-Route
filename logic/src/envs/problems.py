@@ -253,17 +253,6 @@ class BaseProblem:
                 if env_name in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
                     td["capacity"] = torch.ones(td.batch_size[0], device=td.device)
 
-        # TorchRL requires reset to return a NEW TensorDict (out-of-place)
-        # We clone the input data to a new TensorDict to ensure we don't modify the input in-place in a way that upsets TorchRL
-        # Actually, env.reset often expects to populate a fresh TD or modify one.
-        # The error says: "EnvBase._reset should return outplace changes to the input tensordict."
-        # This means we should probably pass a fresh TD or rely on reset to return one.
-        # But we need to pass the problem data (locs, demands) to reset so it can generate the state.
-        # If we pass `td`, reset uses it.
-        # The issue might be that `td` is sharing storage or something?
-        # TorchRL requires reset to return a NEW TensorDict (out-of-place)
-        # We must populate the new TensorDict with the problem definition so reset can use it
-        # to generate the initial state (e.g. current_node, visited mask).
         td_reset = TensorDict(
             source={k: v for k, v in td.items()},
             batch_size=td.batch_size,
@@ -282,7 +271,11 @@ class VRPP(BaseProblem):
         VRPP.validate_tours(pi)
         if pi.size(-1) == 1:
             z = torch.zeros(pi.size(0), device=pi.device)
-            return z, {"total": z}, None
+            return (
+                z,
+                {"length": z, "waste": z, "overflows": z, "total": z},
+                None,
+            )
 
         waste_with_depot = torch.cat((torch.zeros_like(dataset["waste"][:, :1]), dataset["waste"]), 1)
         w = waste_with_depot.gather(1, pi)
@@ -343,13 +336,22 @@ class WCVRP(BaseProblem):
         WCVRP.validate_tours(pi)
         if pi.size(-1) == 1:
             overflows = (dataset["waste"] >= dataset.get("max_waste", 1.0)).float().sum(-1)
-            return overflows, {"total": overflows}, None
+            return (
+                overflows,
+                {
+                    "overflows": overflows,
+                    "length": torch.zeros_like(overflows),
+                    "waste": torch.zeros_like(overflows),
+                    "total": overflows,
+                },
+                None,
+            )
 
         waste_with_depot = torch.cat((torch.zeros_like(dataset["waste"][:, :1]), dataset["waste"]), 1)
         visited_mask = torch.zeros_like(waste_with_depot, dtype=torch.bool)
         visited_mask.scatter_(1, pi, True)
 
-        max_w = dataset.get("max_waste", torch.tensor(1.0, device=dataset.device))
+        max_w = dataset.get("max_waste", torch.tensor(1.0, device=dataset["waste"].device))
         overflow_mask = waste_with_depot >= max_w
         overflows = torch.sum(overflow_mask[:, 1:] & ~visited_mask[:, 1:], dim=-1).float()
 
