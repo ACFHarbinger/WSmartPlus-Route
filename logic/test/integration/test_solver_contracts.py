@@ -39,7 +39,7 @@ class TestVRPPOptimizerContract:
 
     @pytest.mark.integration
     @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
-    def test_vrpp_optimizer_basic_contract(self, base_vrpp_data, backend):
+    def test_vrpp_optimizer_basic_contract(self, base_vrpp_data, backend, check_license):
         data = base_vrpp_data
         routes, profit, cost = run_vrpp_optimizer(
             bins=data["bins"],
@@ -71,7 +71,7 @@ class TestVRPPOptimizerContract:
 
     @pytest.mark.integration
     @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
-    def test_vrpp_optimizer_empty_bins(self, base_vrpp_data, backend):
+    def test_vrpp_optimizer_empty_bins(self, base_vrpp_data, backend, check_license):
         """Case where no bins should be collected."""
         data = base_vrpp_data
         data["bins"] = np.zeros(len(data["bins"]))  # all empty

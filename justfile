@@ -110,6 +110,8 @@ clean:
     find . -type d -name ".pytest_cache" -exec rm -rf {} +
     find . -type d -name ".ruff_cache" -exec rm -rf {} +
     find . -type d -name ".mypy_cache" -exec rm -rf {} +
+    find . -type d -name ".hypothesis" -exec rm -rf {} +
+    find . -type f -name "coverage.xml" -exec rm {} +
     rm -rf build/
     rm -rf dist/
     rm -rf temp/

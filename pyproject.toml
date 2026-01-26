@@ -310,27 +310,30 @@ name = "pyg"
 url = "https://data.pyg.org/whl/torch-2.2.2+cu121.html"
 format = "flat"
 
-[tool.basedpyright]
-typeCheckingMode = "basic"
+[tool.pyrefly]
+# Core settings
+engine = "pylance"          # pyrefly usually wraps a core engine; pylance/pyright is standard
+ai_assisted = true          # Enables the "agentic" suggestions seen in your Antigravity view
+type_checking_mode = "basic"
 include = ["gui", "logic"]
-reportUnusedImport = "warning"
 
-# Create an override for __init__.py files
+# Ignore rules (Migration of your basedpyright ignores)
 ignore = ["**/__init__.py"]
 
-# Disables the "None is not assignable to type X" errors
-reportOptionalSubscript = "none"
-reportOptionalMemberAccess = "none"
-reportOptionalCall = "none"
-reportOptionalIterable = "none"
+[tool.pyrefly.analysis]
+reportOptionalSubscript = false
+reportOptionalMemberAccess = false
+reportOptionalCall = false
+reportOptionalIterable = false
+reportAttributeAccessIssue = false
+reportGeneralTypeIssues = false
+reportOperatorIssue = false
+reportArgumentType = false
+reportCallIssue = false
 
-# Disable function calls, attribute access, operator issues and type checking
-reportAttributeAccessIssue = "none"
-reportGeneralTypeIssues = "none"
-reportOperatorIssue = "none"
-reportArgumentType = "none"
-reportCallIssue = "none"
-
+# Enable semantic features that were missing in your greyed-out view
+indexing = true
+diagnostic_mode = "workspace"
 
 # =================================================================
 # RUFF CONFIGURATION (from ruff.toml)
