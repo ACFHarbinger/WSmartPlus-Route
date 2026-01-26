@@ -149,7 +149,7 @@ def policy_vrpp(
     return routes, profit, cost
 
 
-@PolicyRegistry.register("policy_vrpp")
+@PolicyRegistry.register("vrpp")
 class VRPPPolicy(IPolicy):
     """
     VRPP (Vehicle Routing Problem with Profits) policy class.

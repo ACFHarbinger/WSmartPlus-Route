@@ -28,7 +28,7 @@ import torch
 from logic.src.models.policies.classical.local_search import (
     vectorized_two_opt,
 )
-from logic.src.policies.adapters import IPolicy
+from logic.src.policies.adapters import IPolicy, PolicyRegistry
 from logic.src.policies.single_vehicle import (
     find_route,
     get_multi_tour,
@@ -492,6 +492,7 @@ class NeuralAgent:
         )
 
 
+@PolicyRegistry.register("neural")
 class NeuralPolicy(IPolicy):
     """
     Neural Policy wrapper.
