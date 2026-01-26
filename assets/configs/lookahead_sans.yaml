@@ -1,8 +1,0 @@
-lookahead:
-  sans:
-    time_limit: 60
-    perc_bins_can_overflow: 0
-    T_min: 0.01
-    T_init: 75
-    iterations_per_T: 5000
-    alpha: 0.95
