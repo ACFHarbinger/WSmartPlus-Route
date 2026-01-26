@@ -1,7 +1,7 @@
 """Tests for data_utils.py."""
 
 import torch
-from logic.src.utils.data_utils import check_extension, collate_fn, load_td_dataset, save_td_dataset
+from logic.src.utils.data.data_utils import check_extension, collate_fn, load_td_dataset, save_td_dataset
 from tensordict import TensorDict
 
 

@@ -176,7 +176,7 @@ from torch_geometric.nn import GATConv
 
 # Local imports - absolute
 from logic.src.models.modules import MultiHeadAttention
-from logic.src.utils.setup_utils import get_device
+from logic.src.utils.configs.setup_utils import get_device
 
 # Local imports - relative (within same package only)
 from .encoder import GATEncoder

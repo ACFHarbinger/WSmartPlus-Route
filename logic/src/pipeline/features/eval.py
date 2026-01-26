@@ -26,9 +26,9 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
 from logic.src.cli import ConfigsParser, add_eval_args, validate_eval_args
-from logic.src.utils.data_utils import save_dataset
+from logic.src.utils.configs.setup_utils import setup_cost_weights
+from logic.src.utils.data.data_utils import save_dataset
 from logic.src.utils.functions.function import load_model, move_to
-from logic.src.utils.setup_utils import setup_cost_weights
 
 if TYPE_CHECKING:
     pass

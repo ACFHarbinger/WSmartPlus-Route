@@ -16,12 +16,12 @@ from dotenv import dotenv_values
 
 import logic.src.constants as udef
 from logic.src.models import GATLSTManager
-from logic.src.utils.crypto_utils import decrypt_file_data, load_key
 from logic.src.utils.functions.function import (
     get_inner_model,
     load_model,
     torch_load_cpu,
 )
+from logic.src.utils.security.crypto_utils import decrypt_file_data, load_key
 
 
 def setup_cost_weights(opts: Dict[str, Any], def_val: float = 1.0) -> Dict[str, float]:

@@ -41,13 +41,13 @@ from loguru import logger
 from tqdm import tqdm
 
 from logic.src.constants import DAY_METRICS, ROOT_DIR, SIM_METRICS, TQDM_COLOURS
-from logic.src.utils.config_loader import load_config
+from logic.src.utils.configs.config_loader import load_config
+from logic.src.utils.configs.setup_utils import setup_env, setup_hrl_manager, setup_model
 from logic.src.utils.logging.log_utils import (
     final_simulation_summary,
     log_to_json,
     setup_system_logger,
 )
-from logic.src.utils.setup_utils import setup_env, setup_hrl_manager, setup_model
 
 from .bins import Bins
 from .checkpoints import CheckpointError, SimulationCheckpoint, checkpoint_manager

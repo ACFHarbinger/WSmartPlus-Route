@@ -18,7 +18,7 @@ repos:
     hooks:
       - id: check-docstrings
         name: Check Docstring Coverage
-        entry: uv run python logic/src/utils/check_docstrings.py
+        entry: uv run python logic/src/utils/validation/check_docstrings.py
         language: system
         pass_filenames: false
         always_run: true

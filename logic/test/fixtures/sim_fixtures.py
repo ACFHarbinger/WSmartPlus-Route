@@ -224,7 +224,7 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
         "logic.src.pipeline.simulations.states.setup_model",
         return_value=(MagicMock(), MagicMock()),
     )
-    mock_setup_env = mocker.patch("logic.src.utils.setup_utils.setup_env", return_value="mock_or_env")
+    mock_setup_env = mocker.patch("logic.src.utils.configs.setup_utils.setup_env", return_value="mock_or_env")
 
     # 7. Mock day function
     mock_dlog = {

@@ -140,6 +140,7 @@ def prepare_time_dataset(dataset, day, history):
         td = dataset.data
         # Create a 'history' entry: [batch, day, num_nodes] or summarized?
         # Usually simple TAM uses embedding features.
-        td.set("current_day", torch.tensor(day))
+        # Ensure dimension matches batch_size
+        td.set("current_day", torch.full(td.batch_size, day, device=td.device))
         # We might set specific history features here if the Model expects them
     return dataset
