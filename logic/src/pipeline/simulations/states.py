@@ -140,6 +140,102 @@ class SimulationContext:
         self.policy = opts["policies"][pol_id]
         self.pol_strip, self.data_dist = self.policy.rsplit("_", 1)
 
+        # Robust Policy Parsing
+        self.pol_name = ""
+        self.pol_engine = None
+        self.pol_threshold = None
+
+        if "vrpp" in self.pol_strip:
+            self.pol_name = "vrpp"
+            if "gurobi" in self.pol_strip:
+                self.pol_engine = "gurobi"
+            elif "hexaly" in self.pol_strip:
+                self.pol_engine = "hexaly"
+
+            # Parse threshold (e.g. vrpp_1.0)
+            try:
+                parts = self.pol_strip.split("vrpp")
+                if len(parts) > 1:
+                    threshold_part = parts[1].strip("_")
+                    # If it has more parts (like policy_vrpp_0.5_something), take first
+                    sub_parts = threshold_part.split("_")
+                    if sub_parts[0]:
+                        self.pol_threshold = float(sub_parts[0])
+            except (ValueError, IndexError):
+                pass
+
+        elif "sans" in self.pol_strip:
+            self.pol_name = "sans"
+            try:
+                parts = self.pol_strip.split("sans")
+                if len(parts) > 1:
+                    threshold_part = parts[1].strip("_")
+                    sub_parts = threshold_part.split("_")
+                    if sub_parts[0]:
+                        self.pol_threshold = float(sub_parts[0])
+            except (ValueError, IndexError):
+                pass
+
+        elif "lac" in self.pol_strip:
+            self.pol_name = "lac"
+            try:
+                parts = self.pol_strip.split("lac")
+                if len(parts) > 1:
+                    # Pattern lac_a_1.0 or lac_1.0
+                    threshold_part = parts[1].strip("_")
+                    sub_parts = threshold_part.split("_")
+                    # If first subpart is config char (a, b), threshold is second
+                    if sub_parts[0] in ["a", "b"] and len(sub_parts) > 1:
+                        self.pol_threshold = float(sub_parts[1])
+                    elif sub_parts[0]:
+                        try:
+                            self.pol_threshold = float(sub_parts[0])
+                        except ValueError:
+                            pass
+            except (ValueError, IndexError):
+                pass
+
+        elif "hgs" in self.pol_strip:
+            self.pol_name = "hgs"
+            try:
+                parts = self.pol_strip.split("hgs")
+                if len(parts) > 1:
+                    threshold_part = parts[1].strip("_")
+                    sub_parts = threshold_part.split("_")
+                    if sub_parts[0]:
+                        self.pol_threshold = float(sub_parts[0])
+            except (ValueError, IndexError):
+                pass
+
+        elif "alns" in self.pol_strip:
+            self.pol_name = "alns"
+            try:
+                parts = self.pol_strip.split("alns")
+                if len(parts) > 1:
+                    threshold_part = parts[1].strip("_")
+                    sub_parts = threshold_part.split("_")
+                    if sub_parts[0]:
+                        self.pol_threshold = float(sub_parts[0])
+            except (ValueError, IndexError):
+                pass
+
+        elif "am" in self.pol_strip or "ddam" in self.pol_strip or "transgcn" in self.pol_strip:
+            self.pol_name = "neural"
+        elif "last_minute" in self.pol_strip:
+            self.pol_name = "last_minute"
+        elif "regular" in self.pol_strip:
+            self.pol_name = "regular"
+        elif "bcp" in self.pol_strip:
+            self.pol_name = "bcp"
+        elif "lkh" in self.pol_strip:
+            self.pol_name = "lkh"
+        elif "tsp" in self.pol_strip:
+            self.pol_name = "tsp"
+        elif "cvrp" in self.pol_strip:
+            self.pol_name = "cvrp"
+        else:
+            self.pol_name = self.pol_strip
+
         # Runtime Data
         self.start_day: int = 1
         self.checkpoint: Optional[SimulationCheckpoint] = None
@@ -254,20 +350,6 @@ class InitializingState(SimState):
                 for key, path in config_paths.items():
                     try:
                         loaded = load_config(path)
-                        # Store in ctx.config under the key, OR merge if we want a unified config?
-                        # Strategy: Store all under 'configs' and also try to resolve 'active' config?
-                        # For simplicity, let's merge them into ctx.config?
-                        # But conflicts might arise.
-                        # Better strategy: ctx.config will be the dictionary of {key: loaded_content}
-                        # And run_day will pick the right one?
-                        # Or checking strict match?
-
-                        # Let's merge everything into ctx.config so lookup is easy (e.g. ctx.config['lookahead']['hgs'])
-                        # But wait, if we load two lookahead files, they might clash.
-                        # If I have keys 'lookahead' and 'hgs' and policy is 'policy_look_ahead_hgs', merge both.
-                        # For now, let's just store the full loaded dict under the cli key if the cli key is explicit.
-                        # User said "similar to model_path" where keys are policies.
-                        # So ctx.config[key] = load_config(path) is reasonable.
 
                         ctx.config[key] = loaded
                         print(f"Loaded configuration for '{key}' from {path}")
@@ -478,23 +560,6 @@ class RunningState(SimState):
                         distancesC,
                     ) = ctx.dist_tup
 
-                    policy_stripped = ctx.policy.rsplit("_", 1)[0]
-
-                    # Robust mapping of stripped policy to canonical PolicyFactory names
-                    p_name = policy_stripped
-                    if "lookahead" in policy_stripped or "look_ahead" in policy_stripped:
-                        p_name = "policy_look_ahead"
-                    elif policy_stripped.startswith("am") or "_am" in policy_stripped:
-                        p_name = "am_policy"
-                    elif "gurobi" in policy_stripped:
-                        p_name = "gurobi_vrpp"
-                    elif "hexaly" in policy_stripped:
-                        p_name = "hexaly_vrpp"
-                    elif "last_minute" in policy_stripped:
-                        p_name = "policy_last_minute"
-                    elif policy_stripped == "regular":
-                        p_name = "policy_regular"
-
                     from logic.src.pipeline.simulations.context import (
                         SimulationDayContext,
                     )
@@ -502,8 +567,10 @@ class RunningState(SimState):
                     day_context = SimulationDayContext(
                         graph_size=opts["size"],
                         full_policy=ctx.policy,
-                        policy=policy_stripped,
-                        policy_name=p_name,
+                        policy=ctx.pol_strip,
+                        policy_name=ctx.pol_name,
+                        engine=ctx.pol_engine,
+                        threshold=ctx.pol_threshold,
                         bins=ctx.bins,
                         new_data=ctx.new_data,
                         coords=ctx.coords,

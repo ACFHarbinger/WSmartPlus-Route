@@ -104,6 +104,8 @@ class SimulationDayContext(Mapping):
     w_length: float = 1.0
     w_waste: float = 1.0
     w_overflows: float = 1.0
+    engine: Optional[str] = None
+    threshold: Optional[float] = None
 
     # Optional/Mutable Fields (defaults to None or reasonable zero)
     daily_log: Optional[Dict] = None

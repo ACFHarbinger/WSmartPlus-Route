@@ -194,7 +194,7 @@ def policy_profit(
     return tour
 
 
-@PolicyRegistry.register("policy_last_minute")
+@PolicyRegistry.register("last_minute")
 class LastMinutePolicy(IPolicy):
     """
     Last-minute (reactive) collection policy class.
@@ -288,6 +288,7 @@ class LastMinutePolicy(IPolicy):
 
 
 @PolicyRegistry.register("policy_profit")
+@PolicyRegistry.register("profit")
 class ProfitPolicy(IPolicy):
     """
     Profit-based reactive collection policy class.

@@ -14,7 +14,7 @@ from logic.src.policies.look_ahead import policy_lookahead_sans
 from logic.src.policies.single_vehicle import find_route, get_route_cost, local_search_2opt
 
 
-@PolicyRegistry.register("policy_sans")
+@PolicyRegistry.register("sans")
 class SANSPolicy(IPolicy):
     """
     SANS (Simulated Annealing Neighborhood Search) policy class.
