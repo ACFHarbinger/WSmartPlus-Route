@@ -22,16 +22,12 @@ Reference:
 """
 
 import logging
-from typing import Any, List, Tuple
 
 import gurobipy as gp
 import networkx as nx
-import numpy as np
 from gurobipy import GRB
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from vrpy import VehicleRoutingProblem
-
-from logic.src.policies.adapters import IPolicy, PolicyRegistry
 
 
 def run_bcp(dist_matrix, demands, capacity, R, C, values, must_go_indices=None, env=None):
@@ -407,79 +403,3 @@ def _run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indice
         return routes, model.objVal
 
     return [], 0.0
-
-
-@PolicyRegistry.register("policy_bcp")
-class BCPPolicy(IPolicy):
-    """
-    Branch-Cut-and-Price policy class.
-    Executes PC-CVRP using exact or hybrid solvers.
-    """
-
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
-        """
-        Execute the BCP policy.
-        """
-        policy = kwargs["policy"]
-        bins = kwargs["bins"]
-        distance_matrix = kwargs["distance_matrix"]
-        kwargs["waste_type"]
-        kwargs["area"]
-        config = kwargs.get("config", {})
-        kwargs.get("distancesC")
-
-        # 1. Determine Must-Go Bins (VRPP Logic)
-        try:
-            # Pattern: policy_bcp_<threshold>
-            threshold_std = float(policy.rsplit("_", 1)[1])
-        except (IndexError, ValueError):
-            threshold_std = 1.0
-
-        if not hasattr(bins, "means") or bins.means is None:
-            raise ValueError("Bins object missing 'means' attribute.")
-        else:
-            means = bins.means
-            std = bins.std
-
-        current_fill = bins.c
-        predicted_fill = current_fill + means + (threshold_std * std)
-
-        # Must-go bins: predicted >= 100%
-        # Also include currently overflowing bins
-        must_go_indices = np.where((predicted_fill >= 100.0) | (current_fill >= 100.0))[0].tolist()
-
-        # 2. Prepare Data for BCP
-        demands = {i + 1: current_fill[i] for i in range(len(current_fill))}
-
-        bcp_config = config.get("bcp", {})
-        capacity = bcp_config.get("capacity", 100.0)
-        revenue = bcp_config.get("revenue", 1.0)
-        cost_unit = bcp_config.get("cost_unit", 1.0)
-
-        # BCP supports PC-CVRP, so we pass full matrix and must_go set.
-        # run_bcp takes ndarray for dist_matrix
-        dist_matrix_np = np.array(distance_matrix)
-
-        # Run BCP
-        best_routes, _ = run_bcp(
-            dist_matrix_np, demands, capacity, revenue, cost_unit, bcp_config, must_go_indices=set(must_go_indices)
-        )
-
-        # Convert list of lists to flat tour
-        # BCP returns node indices 1..N.
-        tour = [0]
-        if best_routes:
-            for route in best_routes:
-                # route contains node indices (1..N)
-                tour.extend(route)
-                tour.append(0)
-
-        if len(tour) == 1:
-            tour = [0, 0]
-
-        # Recalculate cost to be sure
-        cost = 0.0
-        for i in range(len(tour) - 1):
-            cost += distance_matrix[tour[i]][tour[i + 1]]
-
-        return tour, cost, None

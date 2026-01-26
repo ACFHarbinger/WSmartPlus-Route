@@ -32,6 +32,8 @@ from .look_ahead_aux.routes import create_points
 from .look_ahead_aux.solutions import find_solutions
 from .multi_vehicle import find_routes, find_routes_ortools
 from .neural_agent import NeuralAgent, NeuralPolicy
+from .policy_lac import LACPolicy
+from .policy_sans import SANSPolicy
 from .policy_vrpp import VRPPPolicy, policy_vrpp
 from .regular import RegularPolicy, policy_regular
 from .single_vehicle import find_route, get_route_cost, local_search_2opt
