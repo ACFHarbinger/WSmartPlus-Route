@@ -13,9 +13,11 @@ import copy
 import math
 import random
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+
+from logic.src.policies.adapters import IPolicy, PolicyRegistry
 
 from .alns_aux.alns_package import run_alns_package
 from .alns_aux.destroy_operators import cluster_removal, random_removal, worst_removal
@@ -251,3 +253,129 @@ def run_alns(dist_matrix, demands, capacity, R, C, values, *args):
     )
     solver = ALNSSolver(dist_matrix, demands, capacity, R, C, params)
     return solver.solve()
+
+
+@PolicyRegistry.register("policy_alns")
+class ALNSPolicy(IPolicy):
+    """
+    ALNS policy class.
+    Executes Adaptive Large Neighborhood Search for VRP.
+    """
+
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+        """
+        Execute the ALNS policy.
+        """
+        policy = kwargs["policy"]
+        bins = kwargs["bins"]
+        distance_matrix = kwargs["distance_matrix"]
+        kwargs["waste_type"]
+        kwargs["area"]
+        config = kwargs.get("config", {})
+
+        # 1. Determine Must-Go Bins (VRPP Logic)
+        try:
+            # Pattern: policy_alns_<threshold>
+            threshold_std = float(policy.rsplit("_", 1)[1])
+        except (IndexError, ValueError):
+            threshold_std = 1.0  # Default to 1.0 std dev if not specified
+
+        # Load parameters for prediction if not present in bins object
+        # (Assuming bins has .means and .std populated by DayRunner, but if not we load it)
+        if not hasattr(bins, "means") or bins.means is None:
+            raise ValueError("Bins object missing 'means'/ 'std' attributes required for prediction.")
+        else:
+            means = bins.means
+            std = bins.std
+
+        current_fill = bins.c
+        predicted_fill = current_fill + means + (threshold_std * std)
+
+        # Must-go bins: predicted >= 100%
+        # Also include currently overflowing bins
+        must_go_indices = np.where((predicted_fill >= 100.0) | (current_fill >= 100.0))[0].tolist()
+
+        # 2. Prepare Data for ALNS
+        # ALNS expects demands dict {node_idx: demand} where demand is "profit" or fill?
+        # Standard ALNS usually minimizes cost subject to capacity.
+        # But here run_alns uses R (Revenue) and C (Cost) params.
+        # Demands usually means load.
+
+        demands = {i + 1: current_fill[i] for i in range(len(current_fill))}
+
+        # ALNS Config
+        alns_config = config.get("alns", {})
+        capacity = alns_config.get("capacity", 100.0)  # Vehicle capacity
+        revenue = alns_config.get("revenue", 1.0)
+        cost_unit = alns_config.get("cost_unit", 1.0)
+
+        # Only run if there are must-go bins?
+        # VRPP logic implies we definitely serve must-go bins, and optinally others.
+        # However, run_alns is a heuristic solver. It might need to know which are required.
+        # The Custom ALNS implementation above (ALNSSolver) doesn't seem to explicitly handle "must-go"
+        # vs "optional" in its base constructive heuristic or operators, it treats all nodes
+        # as potential candidates?
+        # Actually, ALNSSolver.__init__ uses `self.nodes = list(range(1, self.n_nodes + 1))`.
+        # It assumes ALL nodes in dist_matrix (except 0) are to be visited?
+        # If so, we should only pass a subgraph or modify it.
+        # But policy_vrpp solves a Prize Collecting VRP where nodes are optional.
+        # The current ALNS implementation `ALNSSolver` seems to resolve a CVRP (visit all nodes).
+        # If we only want to visit must-go bins, we should filter the instance.
+
+        # Subsetting approach:
+        # If we only want to visit must_go_bins, we construct a sub-problem.
+        # But "LookAhead" usually passes only `must_go_bins` to solvers?
+        # Let's check LookAheadPolicy. It calls `run_alns` inside `find_solutions`?
+        # No, `look_ahead.py` calls `run_alns_package` via `run_alns`?
+        # Actually `look_ahead.py` seems to import `run_alns`.
+
+        # For now, to match VRPP logic which selects dynamic subset:
+        # We will only request service for must_go_indices.
+
+        target_nodes = must_go_indices
+        if not target_nodes:
+            return [0, 0], 0.0, None
+
+        # Map original indices to 1..K for the solver?
+        # Or just pass the full matrix and tell solver to only visit specific nodes?
+        # ALNSSolver visits `self.nodes`.
+        # We might need to filter `dist_matrix` and map indices back if we want to run small instance.
+        # OR just run on full instance if ALNS supports optional nodes (it doesn't seem to).
+
+        # Let's subset the problem.
+        # mapping: solver_idx -> original_idx (original_idx is 0..N-1 for bins, 0 for depot)
+        # Warning: dist_matrix indices: 0 is depot, 1..N are bins.
+
+        # target_nodes indices are 0-based bin indices (1-based in dist_matrix).
+        real_target_indices = [idx + 1 for idx in target_nodes]
+        subset_indices = [0] + real_target_indices  # Solver indices 0..K
+
+        # Create sub-matrix
+        dist_matrix_np = np.array(distance_matrix)
+        sub_dist_matrix = dist_matrix_np[np.ix_(subset_indices, subset_indices)]
+
+        sub_demands = {i: demands[original_idx] for i, original_idx in enumerate(real_target_indices, 1)}
+
+        # Run ALNS on sub-problem
+        best_routes, _, _ = run_alns(sub_dist_matrix, sub_demands, capacity, revenue, cost_unit, alns_config)
+
+        # Map routes back to original indices
+        tour = [0]
+        for route in best_routes:
+            # route contains indices 1..K (solver indices)
+            for node_idx in route:
+                original_matrix_idx = subset_indices[node_idx]
+                tour.append(original_matrix_idx)
+
+            tour.append(0)  # End of route
+
+        if len(tour) == 1:  # Only depot
+            tour = [0, 0]
+
+        # Calculate cost on full matrix
+        cost = 0.0
+        for i in range(len(tour) - 1):
+            cost += distance_matrix[tour[i]][tour[i + 1]]
+
+        # Flattened tour list
+        return tour, cost, None

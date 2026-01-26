@@ -9,10 +9,12 @@ Key improvements over basic LK:
 4. Iterated Local Search (ILS) with Double Bridge kicks.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.sparse.csgraph import minimum_spanning_tree
+
+from logic.src.policies.adapters import IPolicy, PolicyRegistry
 
 
 def compute_alpha_measures(distance_matrix: np.ndarray) -> np.ndarray:
@@ -212,3 +214,103 @@ def solve_lk(
     final_tour = final_p + [0]
     final_cost = sum(distance_matrix[final_tour[i], final_tour[i + 1]] for i in range(n))
     return final_tour, float(final_cost)
+
+
+@PolicyRegistry.register("policy_lkh")
+class LKHPolicy(IPolicy):
+    """
+    Lin-Kernighan Heuristic policy class.
+    Executes LK for VRP.
+    """
+
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+        """
+        Execute the LKH policy.
+        """
+        policy = kwargs["policy"]
+        bins = kwargs["bins"]
+        distance_matrix = kwargs["distance_matrix"]
+        kwargs["waste_type"]
+        kwargs["area"]
+        config = kwargs.get("config", {})
+
+        # 1. Determine Must-Go Bins (VRPP Logic)
+        try:
+            # Pattern: policy_lkh_<threshold>
+            threshold_std = float(policy.rsplit("_", 1)[1])
+        except (IndexError, ValueError):
+            threshold_std = 1.0  # Default
+
+        if not hasattr(bins, "means") or bins.means is None:
+            raise ValueError("Bins object missing 'means' attribute.")
+        else:
+            means = bins.means
+            std = bins.std
+
+        current_fill = bins.c
+        predicted_fill = current_fill + means + (threshold_std * std)
+
+        # Must-go bins
+        must_go_indices = np.where((predicted_fill >= 100.0) | (current_fill >= 100.0))[0].tolist()
+
+        # 2. Prepare Data for LKH
+        target_nodes = must_go_indices
+        if not target_nodes:
+            return [0, 0], 0.0, None
+
+        # LKH Config
+        lkh_config = config.get("lkh", {}).copy()  # Use copy to modify
+        capacity = lkh_config.get("capacity", 100.0)
+
+        # Subset mapping
+        real_target_indices = [idx + 1 for idx in target_nodes]
+        subset_indices = [0] + real_target_indices
+
+        dist_matrix_np = np.array(distance_matrix)
+        sub_dist_matrix = dist_matrix_np[np.ix_(subset_indices, subset_indices)]
+
+        # Prepare Waste array for sub-problem
+        # Config expects "waste" as array indexed 0..K (solver indices)
+        # Bins c is demand.
+        # solver index 0 is depot (demand 0).
+        # solver index i (1..K) corresponds to real_target_indices[i-1].
+
+        sub_waste = [0.0]  # Depot
+        for original_idx in real_target_indices:
+            sub_waste.append(current_fill[original_idx - 1])  # bins.c is 0-based
+
+        lkh_config["waste"] = np.array(sub_waste)
+        lkh_config["capacity"] = capacity
+
+        # Run LKH
+        # solve_lk signature: (distance_matrix: np.ndarray, config: Dict)
+        best_tour, _ = solve_lk(sub_dist_matrix, lkh_config)
+
+        # Map tour back
+        tour = []
+        if best_tour:
+            for node_idx in best_tour:
+                original_matrix_idx = subset_indices[node_idx]
+                tour.append(original_matrix_idx)
+
+        if not tour or tour == [0]:
+            # Ensure valid structure [0, ..., 0] if feasible tour found
+            # If best_tour is just [0], map it to [0]?
+            # solve_lk usually returns closed tour? "final_tour = final_p + [0]"
+            pass
+
+        # Check start/end
+        if tour and tour[0] != 0:
+            tour = [0] + tour
+        if tour and tour[-1] != 0:
+            tour.append(0)
+
+        if len(tour) <= 2:
+            tour = [0, 0]
+
+        # Recalculate cost
+        cost = 0.0
+        for i in range(len(tour) - 1):
+            cost += distance_matrix[tour[i]][tour[i + 1]]
+
+        return tour, cost, None
