@@ -20,12 +20,6 @@ from typing import Any, Dict
 from logic.src.cli import ConfigsParser, add_files_args, validate_file_system_args
 from logic.src.constants import ROOT_DIR
 
-from .utils.crypto_utils import (
-    decrypt_file_data,
-    encrypt_file_data,
-    generate_key,
-    load_key,
-)
 from .utils.io.files import confirm_proceed
 from .utils.io.preview import (
     preview_changes,
@@ -38,6 +32,12 @@ from .utils.io.processing import (
     process_file_statistics,
     process_pattern_files,
     process_pattern_files_statistics,
+)
+from .utils.security.crypto_utils import (
+    decrypt_file_data,
+    encrypt_file_data,
+    generate_key,
+    load_key,
 )
 
 

@@ -1,7 +1,7 @@
 """Tests for config_loader.py."""
 
 import pytest
-from logic.src.utils.config_loader import load_config
+from logic.src.utils.configs.config_loader import load_config
 
 
 def test_load_yaml_config(tmp_path):

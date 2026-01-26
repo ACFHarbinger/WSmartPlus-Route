@@ -423,7 +423,11 @@ class Container:
             lambda group: (100 - (group["Max"] - group["Min"]).sum() / len(group) if len(group) > 0 else 100)
         ).to_numpy()
         try:
-            self.recs.loc[:, "Avg_Dist"] = res
+            # Fix: Assign only to the slice we calculated for, matching start/end indices
+            # Note: end_idx is exclusive in python slicing usually, and here inputs are passed to DF slice
+            # calc_spearman usage: self.recs.loc[self.recs.index[start_idx] : self.recs.index[end_idx - 1], ...
+            # The slicing logic seems to target up to end_idx - 1.
+            self.recs.loc[self.recs.index[start_idx] : self.recs.index[end_idx - 1], "Avg_Dist"] = res
         except:
             print("\n\nCidx are not set tup properly")
             print(
@@ -470,11 +474,13 @@ class Container:
 
             return vec, bool(tmask.any())
 
-        # mask should be pre.shifted by -one
         def min_loop(vec: np.ndarray, mask: np.ndarray) -> tuple[np.ndarray, bool]:
             """Inner loop for monotonic min approximation."""
             shf = np.roll(vec, -1)
-            shf[-1] = np.iinfo(shf.dtype).max
+            if np.issubdtype(shf.dtype, np.floating):
+                shf[-1] = np.finfo(shf.dtype).max
+            else:
+                shf[-1] = np.iinfo(shf.dtype).max
 
             tmask = (shf < vec) & mask
             vec[tmask] = shf[tmask]

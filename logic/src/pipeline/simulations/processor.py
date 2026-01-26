@@ -485,14 +485,6 @@ def process_data(data, bins_coordinates, depot, indices=None):
     return _mapper.process_raw_data(data, bins_coordinates, depot, indices)
 
 
-def haversine_distance_old(lat1, lng1, lat2, lng2):
-    """
-    Deprecated: use network.haversine_distance.
-    Included for backward compatibility with older simulation scripts.
-    """
-    return haversine_distance(lat1, lng1, lat2, lng2)
-
-
 def process_coordinates(coords, method, col_names=["Lat", "Lng"]):
     """Wrapper for SimulationDataMapper.format_coordinates."""
     return _mapper.format_coordinates(coords, method, col_names)

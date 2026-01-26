@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 import torch
-from logic.src.utils.setup_utils import setup_cost_weights, setup_optimizer_and_lr_scheduler
+from logic.src.utils.configs.setup_utils import setup_cost_weights, setup_optimizer_and_lr_scheduler
 
 
 def test_setup_cost_weights():

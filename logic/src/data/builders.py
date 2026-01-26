@@ -14,7 +14,7 @@ from tensordict import TensorDict
 from logic.src.constants import MAX_WASTE
 from logic.src.pipeline.simulations.bins import Bins
 from logic.src.pipeline.simulations.processor import process_coordinates
-from logic.src.utils.data_utils import generate_waste_prize, load_focus_coords
+from logic.src.utils.data.data_utils import generate_waste_prize, load_focus_coords
 from logic.src.utils.functions.function import get_path_until_string
 
 

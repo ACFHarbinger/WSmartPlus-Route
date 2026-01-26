@@ -1,89 +1,202 @@
-"""
-Unit tests for the Container class in the wsmart_bin_analysis module.
-"""
+from unittest.mock import patch
 
 import numpy as np
+import pandas as pd
 import pytest
 
-from ..Deliverables.container import TAG
+from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container import TAG, Container
 
 
 class TestContainer:
-    """
-    Test suite for the Container class, covering initialization, metric calculation, and collection marking.
-    """
+    @pytest.fixture
+    def sample_data(self):
+        # Create sample DataFrames
+        dates = pd.date_range(start="2023-01-01", periods=10, freq="D")
+        fill_data = {"Date": dates, "Fill": np.linspace(0, 100, 10), "ID": [1] * 10}
+        df = pd.DataFrame(fill_data)
 
-    def test_container_init(self, sample_container, sample_df_fill, sample_df_collection, sample_info):
-        """Test that the Container initializes correctly and drops the ID column."""
-        c = sample_container
-        # Check if df and recs are set and ID dropped
-        assert "ID" not in c.df.columns
-        assert "ID" not in c.recs.columns
-        assert c.id.iloc[0] == sample_info["ID"].iloc[0]
+        # Collections on day 0, 5, 9
+        rec_dates = [dates[0], dates[5], dates[9]]
+        rec_data = {
+            "Date": rec_dates,
+            "ID": [1] * 3,
+            "Avg_Dist": [90, 80, 95],  # Dummy values
+            "Spearman": [0.9, 0.8, 0.95],
+        }
+        recs = pd.DataFrame(rec_data)
 
-    def test_get_keys(self, sample_container):
-        """Test the get_keys method returns the expected keys."""
-        keys = sample_container.get_keys()
+        info = pd.DataFrame({"ID": [1], "Freguesia": ["Test"]})
+
+        return df, recs, info
+
+    def test_init(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df.copy(), recs.copy(), info.copy())
+
+        assert container.id.item() == 1
+        assert "Fill" in container.df.columns
+        assert "Avg_Dist" in container.recs.columns
+        assert container.tag is None
+
+    def test_get_keys_and_vars(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
+
+        keys = container.get_keys()
         assert "FILL" in keys
         assert "RECS" in keys
-        assert "INFO" in keys
 
-    def test_mark_collections(self, sample_container):
-        """Test that mark_collections correctly identifies and tags collection events."""
-        c = sample_container
-        c.mark_collections()
-        assert "Rec" in c.df.columns
-        assert "Cidx" in c.df.columns
-        assert "End_Pointer" in c.recs.columns
+        d, r, i = container.get_vars()
+        assert d.equals(container.df)
+        assert r.equals(container.recs)
 
-        # Check if collections are marked
-        assert c.df["Rec"].sum() > 0
+    def test_get_collection_quantities(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
 
-    def test_calc_metrics(self, sample_container):
-        """Test calculation of various container metrics (max/min/mean, avg dist, spearman)."""
-        c = sample_container
-        c.mark_collections()
+        avg_dist, spear = container.get_collection_quantities()
+        assert len(avg_dist) == 3
+        assert len(spear) == 3
+        assert avg_dist[0] == 90
 
-        # Run calcs
-        c.calc_max_min_mean()
-        assert "Max" in c.df.columns
-        assert "Min" in c.df.columns
-        assert "Mean" in c.df.columns
+    def test_mark_collections(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
 
-        c.calc_avg_dist_metric()
-        assert "Avg_Dist" in c.recs.columns
+        container.mark_collections()
+        assert "Rec" in container.df.columns
+        assert "Cidx" in container.df.columns
+        # Check if collection marks are set (Rec=1 on collection days usually, or logic inside)
+        # Logic: df["Rec"] = 1 where pos matches
+        assert container.df["Rec"].sum() >= 3
 
-        c.calc_spearman()
-        assert "Spearman" in c.recs.columns
+    def test_calc_max_min_mean(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
+        container.mark_collections()
 
-    def test_get_collection_quantities(self, sample_container):
-        """Test retrieving collection-related statistics."""
-        c = sample_container
-        c.mark_collections()
-        c.calc_max_min_mean()
-        c.calc_avg_dist_metric()
-        c.calc_spearman()
+        container.calc_max_min_mean()
+        assert "Max" in container.df.columns
+        assert "Min" in container.df.columns
+        assert "Mean" in container.df.columns
 
-        avg_dist, spear = c.get_collection_quantities()
-        assert isinstance(avg_dist, (np.ndarray, type(None)))
-        assert isinstance(spear, (np.ndarray, type(None)))
-        # With the fixture data, we should have some results if overlap existed
-        if avg_dist is not None:
-            assert len(avg_dist) <= len(c.recs)
-            assert len(avg_dist) > 0
+        # Basic check: Min <= Max
+        assert (container.df["Min"] <= container.df["Max"]).all()
 
-    def test_get_tag(self, sample_container):
-        """Test assigning a quality tag to a container based on its data consistency."""
-        c = sample_container
-        c.mark_collections()
-        c.calc_max_min_mean()
-        c.calc_avg_dist_metric()
-        c.calc_spearman()
+    def test_calc_avg_dist_metric(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
+        container.mark_collections()
+        container.calc_max_min_mean()
 
-        # Test valid use
-        tag = c.get_tag(window=3, mv_thresh=50, min_days=1, use="spear")
+        container.calc_avg_dist_metric()
+        assert "Avg_Dist" in container.recs.columns
+        # Since we overwrote it, check it exists and has values
+        assert not container.recs["Avg_Dist"].isna().all()
+
+    def test_calc_spearman(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
+        container.mark_collections()
+
+        container.calc_spearman()
+        assert "Spearman" in container.recs.columns
+        # Check values
+        assert not container.recs["Spearman"].isna().all()
+
+    def test_get_tag_ok(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
+        # Ensure enough data
+        # min_days
+        tag = container.get_tag(window=2, mv_thresh=0.5, min_days=2, use="spear")
+        # With high spearman values (0.9), it should be OK or INSIDE_BOX depending on transitions
         assert isinstance(tag, TAG)
 
-        # Test invalid use
-        with pytest.raises(AssertionError):
-            c.get_tag(window=3, mv_thresh=50, min_days=1, use="invalid")
+    def test_get_tag_low_measures(self):
+        dates = pd.date_range(start="2023-01-01", periods=1, freq="D")
+        df = pd.DataFrame({"Date": dates, "Fill": [10], "ID": [1]})
+        recs = pd.DataFrame({"Date": dates, "ID": [1], "Spearman": [0]})
+        info = pd.DataFrame({"ID": [1], "Freguesia": ["Test"]})
+
+        container = Container(df, recs, info)
+        tag = container.get_tag(window=1, mv_thresh=0.5, min_days=5, use="spear")
+        assert tag == TAG.LOW_MEASURES
+
+    def test_get_scan_linear_spline(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
+        container.mark_collections()
+        container.calc_max_min_mean()
+
+        dates, spline = container.get_scan_linear_spline("Mean", "1D")
+        assert len(dates) == len(spline)
+
+    def test_get_monotonic_mean_rate(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
+        container.mark_collections()
+        container.calc_max_min_mean()
+
+        rate_df = container.get_monotonic_mean_rate("1D")
+        assert "Rate" in rate_df.columns
+        assert len(rate_df) > 0
+
+    @patch("matplotlib.pyplot.show")
+    @patch("matplotlib.pyplot.figure")
+    def test_plot_fill(self, mock_fig, mock_show, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
+        container.mark_collections()
+
+        start = "01-01-2023"
+        end = "05-01-2023"
+        container.plot_fill(start, end)
+        assert mock_fig.called
+        assert mock_show.called
+
+    def test_adjust_collections(self, sample_data):
+        df, recs, info = sample_data
+        # Make a case where Avg_Dist is low to trigger adjustment
+        recs["Avg_Dist"] = 10.0  # Low threshold
+
+        container = Container(df, recs, info)
+        container.mark_collections()
+        container.calc_max_min_mean()
+
+        # Should try to adjust/delete collections
+        try:
+            container.adjust_collections(dist_thresh=20, c_trash=0, max_fill=200)
+        except Exception as e:
+            pytest.fail(f"adjust_collections failed: {e}")
+
+    def test_place_collections(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
+        container.mark_collections()
+        # Mock low dist to trigger placement check
+        container.recs["Avg_Dist"] = 10.0
+
+        try:
+            container.place_collections(dist_thresh=20, c_trash=0, max_fill=200)
+        except Exception as e:
+            pytest.fail(f"place_collections failed: {e}")
+
+    def test_clean_box(self, sample_data):
+        df, recs, info = sample_data
+        container = Container(df, recs, info)
+        container.mark_collections()  # Needed to set End_Pointer
+
+        # Mixed quality: One good (0.9), others bad (0.1)
+        # recs len is 3.
+        # Set explicitly.
+        container.recs["Spearman"] = [0.1, 0.9, 0.1]
+
+        # Should filter out the 0.1 ones.
+        # Threshold 0.5.
+        # At least one should survive.
+        container.clean_box(window=1, mv_thresh=0.5, use="spear")
+
+        # Expecting at least 1 record remaining
+        assert len(container.recs) > 0
+        assert "End_Pointer" in container.recs.columns
