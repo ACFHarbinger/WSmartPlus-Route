@@ -19,8 +19,8 @@ from PySide6.QtWidgets import (
 )
 
 from ...components import ClickableHeaderWidget
+from ...constants import BASELINES
 from ...styles.globals import START_GREEN_STYLE, START_RED_STYLE
-from ...utils.app_definitions import BASELINES
 from .rl_base import BaseReinforcementLearningTab
 
 

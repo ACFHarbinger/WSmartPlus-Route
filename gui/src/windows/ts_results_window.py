@@ -38,8 +38,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..constants import HEATMAP_METRICS, TARGET_METRICS
 from ..helpers import ChartWorker, FileTailerWorker
-from ..utils.app_definitions import HEATMAP_METRICS, TARGET_METRICS
 
 
 class SimulationResultsWindow(QWidget):

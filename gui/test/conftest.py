@@ -33,10 +33,7 @@ class MockCanvas(QWidget):
         pass
 
 
-# Setup mocks *before* importing app modules
-sys.modules["folium"] = MagicMock()
-sys.modules["matplotlib.figure"] = MagicMock()
-
+# Mocking behavior
 mock_backend = MagicMock()
 mock_backend.FigureCanvasQTAgg = MockCanvas
 sys.modules["matplotlib.backends.backend_qtagg"] = mock_backend

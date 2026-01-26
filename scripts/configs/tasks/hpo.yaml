@@ -10,7 +10,7 @@ eta: 5
 n_pop: 20
 fevals: 25
 metric: "both"
-hop_method: "dehbo"
+hpo_method: "dehbo"
 range: [0.0, 2.0]
 max_tres: 40
 h_epochs: 3

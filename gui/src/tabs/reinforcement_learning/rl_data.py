@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.utils.app_definitions import (
+from gui.src.constants import (
     COUNTY_AREAS,
     DATA_DIST_PROBLEMS,
     DATA_DISTRIBUTIONS,

@@ -5,9 +5,9 @@ from typing import Tuple
 
 # Hyper-Parameter Optimization
 HOP_KEYS: Tuple[str, ...] = (
-    "hop_method",
-    "hop_range",
-    "hop_epochs",
+    "hpo_method",
+    "hpo_range",
+    "hpo_epochs",
     "metric",
     "n_trials",
     "timeout",

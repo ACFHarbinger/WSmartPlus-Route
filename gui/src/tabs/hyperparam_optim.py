@@ -17,8 +17,8 @@ from PySide6.QtWidgets import (
 )
 
 from ..components import ClickableHeaderWidget
+from ..constants.hpo import HPO_METHODS, HPO_METRICS
 from ..styles.globals import START_RED_STYLE
-from ..utils.app_definitions import HOP_METHODS, HOP_METRICS
 
 
 class HyperParamOptimParserTab(QWidget):
@@ -34,24 +34,24 @@ class HyperParamOptimParserTab(QWidget):
         form_layout = QFormLayout(content)
         form_layout.addRow(QLabel("<b>General Settings</b>"))
 
-        # --hop_method
-        self.hop_method_combo = QComboBox()
-        self.hop_method_combo.addItems(HOP_METHODS.keys())
-        self.hop_method_combo.setCurrentText("")
-        form_layout.addRow(QLabel("Optimization Method:"), self.hop_method_combo)
+        # --hpo_method
+        self.hpo_method_combo = QComboBox()
+        self.hpo_method_combo.addItems(HPO_METHODS.keys())
+        self.hpo_method_combo.setCurrentText("")
+        form_layout.addRow(QLabel("Optimization Method:"), self.hpo_method_combo)
 
-        # --hop_range (nargs='+')
-        self.hop_range_input = QLineEdit("0.0 2.0")
-        self.hop_range_input.setPlaceholderText("Min-Max values (space separated)")
-        form_layout.addRow(QLabel("Hyper-Parameter Range:"), self.hop_range_input)
+        # --hpo_range (nargs='+')
+        self.hpo_range_input = QLineEdit("0.0 2.0")
+        self.hpo_range_input.setPlaceholderText("Min-Max values (space separated)")
+        form_layout.addRow(QLabel("Hyper-Parameter Range:"), self.hpo_range_input)
 
-        # --hop_epochs
-        self.hop_epochs_input = QSpinBox(minimum=1, maximum=50, value=7)
-        form_layout.addRow(QLabel("Optimization Epochs:"), self.hop_epochs_input)
+        # --hpo_epochs
+        self.hpo_epochs_input = QSpinBox(minimum=1, maximum=50, value=7)
+        form_layout.addRow(QLabel("Optimization Epochs:"), self.hpo_epochs_input)
 
         # --metric
         self.metric_combo = QComboBox()
-        self.metric_combo.addItems(HOP_METRICS.keys())
+        self.metric_combo.addItems(HPO_METRICS.keys())
         self.metric_combo.setCurrentText("Validation Loss")
         form_layout.addRow(QLabel("Metric to Optimize:"), self.metric_combo)
 
@@ -259,9 +259,9 @@ class HyperParamOptimParserTab(QWidget):
     def get_params(self):
         params = {
             # General HPO
-            "hop_method": self.hop_method_combo.currentText(),
-            "hop_epochs": self.hop_epochs_input.value(),
-            "metric": HOP_METRICS[self.metric_combo.currentText()],
+            "hpo_method": self.hpo_method_combo.currentText(),
+            "hpo_epochs": self.hpo_epochs_input.value(),
+            "metric": HPO_METRICS[self.metric_combo.currentText()],
             # Ray Tune
             "cpu_cores": self.cpu_cores_input.value(),
             "verbose": self.verbose_input.value(),
@@ -292,16 +292,16 @@ class HyperParamOptimParserTab(QWidget):
 
         # Handle nargs='+' and optional arguments
 
-        # --hop_range (nargs='+')
-        hop_range_text = self.hop_range_input.text().strip()
-        if hop_range_text:
+        # --hpo_range (nargs='+')
+        hpo_range_text = self.hpo_range_input.text().strip()
+        if hpo_range_text:
             try:
-                params["hop_range"] = [float(x) for x in hop_range_text.split()]
+                params["hpo_range"] = [float(x) for x in hpo_range_text.split()]
             except ValueError:
-                print("Warning: hop_range must contain space-separated floats. Defaulting to None.")
-                params["hop_range"] = None
+                print("Warning: hpo_range must contain space-separated floats. Defaulting to None.")
+                params["hpo_range"] = None
         else:
-            params["hop_range"] = None
+            params["hpo_range"] = None
 
         # --grid (nargs='+')
         grid_text = self.grid_input.text().strip()

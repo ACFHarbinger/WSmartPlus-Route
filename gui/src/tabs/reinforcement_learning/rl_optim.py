@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.utils.app_definitions import LR_SCHEDULERS, OPTIMIZERS
+from gui.src.constants import LR_SCHEDULERS, OPTIMIZERS
 
 from .rl_base import BaseReinforcementLearningTab
 

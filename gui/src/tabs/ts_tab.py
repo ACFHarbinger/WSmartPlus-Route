@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..utils.app_definitions import TEST_MODULES
+from gui.src.constants.test_suite import TEST_MODULES
 
 
 class TestSuiteTab(QWidget):

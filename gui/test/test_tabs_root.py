@@ -8,7 +8,7 @@ def test_hyperparam_optim_tab(qapp):
     tab = HyperParamOptimParserTab()
     assert hasattr(tab, "get_params")
     params = tab.get_params()
-    assert "hop_method" in params
+    assert "hpo_method" in params
     assert "timeout" in params
 
 

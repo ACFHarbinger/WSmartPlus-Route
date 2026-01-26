@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.utils.app_definitions import DECODE_STRATEGIES, DECODE_TYPES
+from gui.src.constants.models import DECODE_STRATEGIES, DECODE_TYPES
 
 
 class EvalDecodingTab(QWidget):
