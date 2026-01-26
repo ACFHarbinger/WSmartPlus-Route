@@ -174,6 +174,22 @@ class VRPPPolicy(IPolicy):
 
         vrpp_config = config.get("vrpp", {})
 
+        # Engine override logic
+        if "engine" in kwargs:
+            engine = kwargs["engine"]
+            # Replace prefix if it matches known optimizers
+            if "gurobi" in policy or "hexaly" in policy:
+                parts = policy.split("_", 1)
+                if len(parts) > 1:
+                    policy = f"{engine}_{parts[1]}"
+                else:
+                    # Fallback if format is weird
+                    policy = f"{engine}_{policy}"
+            else:
+                # If policy name doesn't start with engine, prepend or replace?
+                # Assuming standard format "gurobi_vrpp_0.5"
+                pass
+
         routes, _, _ = policy_vrpp(
             policy,
             bins.c,

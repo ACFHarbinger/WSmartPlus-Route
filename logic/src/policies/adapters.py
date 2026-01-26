@@ -108,6 +108,15 @@ class PolicyFactory:
         """
         # Local imports to avoid circular dependencies
         # as these modules import IPolicy/PolicyRegistry from this file
+        # Ensure new policies are imported so they register themselves
+        import logic.src.policies.policy_alns  # noqa
+        import logic.src.policies.policy_bcp  # noqa
+        import logic.src.policies.policy_cvrp  # noqa
+        import logic.src.policies.policy_hgs  # noqa
+        import logic.src.policies.policy_lac  # noqa
+        import logic.src.policies.policy_lkh  # noqa
+        import logic.src.policies.policy_sans  # noqa
+        import logic.src.policies.policy_tsp  # noqa
         from logic.src.policies.last_minute import LastMinutePolicy, ProfitPolicy
         from logic.src.policies.look_ahead import LookAheadPolicy
         from logic.src.policies.neural_agent import NeuralPolicy
@@ -131,6 +140,14 @@ class PolicyFactory:
             return ProfitPolicy()
         elif "policy_look_ahead" in policy_name:
             return LookAheadPolicy()
+        elif "policy_sans" in policy_name:
+            from logic.src.policies.policy_sans import SANSPolicy
+
+            return SANSPolicy()
+        elif "policy_lac" in policy_name:
+            from logic.src.policies.policy_lac import LACPolicy
+
+            return LACPolicy()
         else:
             raise ValueError(f"Unknown policy: {policy_name}")
 
@@ -168,6 +185,38 @@ def __getattr__(name: str) -> Any:
         from logic.src.policies.look_ahead import LookAheadPolicy
 
         return LookAheadPolicy
+    elif name == "TSPPolicy":
+        from logic.src.policies.policy_tsp import TSPPolicy
+
+        return TSPPolicy
+    elif name == "CVRPPolicy":
+        from logic.src.policies.policy_cvrp import CVRPPolicy
+
+        return CVRPPolicy
+    elif name == "ALNSPolicy":
+        from logic.src.policies.policy_alns import ALNSPolicy
+
+        return ALNSPolicy
+    elif name == "BCPPolicy":
+        from logic.src.policies.policy_bcp import BCPPolicy
+
+        return BCPPolicy
+    elif name == "HGSPolicy":
+        from logic.src.policies.policy_hgs import HGSPolicy
+
+        return HGSPolicy
+    elif name == "LKHPolicy":
+        from logic.src.policies.policy_lkh import LKHPolicy
+
+        return LKHPolicy
+    elif name == "SANSPolicy":
+        from logic.src.policies.policy_sans import SANSPolicy
+
+        return SANSPolicy
+    elif name == "LACPolicy":
+        from logic.src.policies.policy_lac import LACPolicy
+
+        return LACPolicy
     elif name == "PolicyAdapter":
         return IPolicy
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
