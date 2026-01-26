@@ -1,7 +1,7 @@
 import pytest
 import torch
 import torch.nn.functional as F
-from hypothesis import given
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 from logic.src.utils.functions.decoding import (
@@ -23,6 +23,7 @@ def logits_tensor(draw, batch_size=None, n_items=None):
 
 
 @pytest.mark.property
+@settings(suppress_health_check=[HealthCheck.too_slow])
 @given(logits=logits_tensor(), k=st.integers(min_value=1, max_value=20))
 def test_top_k_filter_masking(logits, k):
     """

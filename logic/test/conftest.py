@@ -137,6 +137,45 @@ def disable_wandb():
         os.environ["WANDB_MODE"] = original_wandb_mode
 
 
+def _has_gurobi_license():
+    """Returns True if Gurobi is installed and has a valid license."""
+    try:
+        import gurobipy as gp
+
+        # Attempt to create a tiny model to verify license validity
+        m = gp.Model("check")
+        m.dispose()
+        return True
+    except Exception:
+        return False
+
+
+def _has_hexaly_license():
+    """Returns True if Hexaly is installed and has a valid license."""
+    try:
+        import hexaly.optimizer
+
+        # Attempt to create a context to verify license
+        with hexaly.optimizer.HexalyOptimizer():
+            pass
+        return True
+    except Exception:
+        return False
+
+
+@pytest.fixture(autouse=False)
+def check_license(backend):
+    """Check if the backend has a valid license."""
+    if backend == "gurobi":
+        if not _has_gurobi_license():
+            pytest.skip("Gurobi license not found")
+    elif backend == "hexaly":
+        if not _has_hexaly_license():
+            pytest.skip("Hexaly license not found")
+    else:
+        pytest.skip("Invalid backend")
+
+
 @pytest.fixture(scope="session", autouse=True)
 def cleanup_test_root(request):
     """Cleanup test root directory after session."""
@@ -158,7 +197,14 @@ def session_cleanup():
     """
     yield  # Run tests first
 
-    artifacts_to_clean = [Path("test_dehb_output"), Path("dummy.log")]
+    artifacts_to_clean = [
+        Path("test_dehb_output"),
+        Path("dummy.log"),
+        project_root / "assets" / "keys" / "testkey.pkl",
+        project_root / "assets" / "keys" / "testkey.salt",
+        project_root / "assets" / "output" / "2_days",
+        project_root / "assets" / "output" / "5_days",
+    ]
 
     # We use os.getcwd() to look in the current working directory where tests were run
     cwd = Path.cwd()
