@@ -1,0 +1,437 @@
+"""Tests for CLI argument parsing utilities."""
+
+import copy
+import sys
+from unittest.mock import patch
+
+import pytest
+from logic.src.cli import ConfigsParser, LowercaseAction, parse_params
+
+
+class TestConfigsParser:
+    """Test suite for ConfigsParser class"""
+
+    @pytest.mark.arg_parser
+    def test_lowercase_action(self):
+        """Test LowercaseAction converts strings to lowercase"""
+        parser = ConfigsParser()
+        parser.add_argument("--test", action=LowercaseAction)
+        args = parser.parse_args(["--test", "UPPERCASE"])
+        assert args.test == "uppercase"
+
+    @pytest.mark.arg_parser
+    def test_lowercase_action_none(self):
+        """Test LowercaseAction handles None values"""
+        parser = ConfigsParser()
+        parser.add_argument("--test", action=LowercaseAction, default=None)
+        args = parser.parse_args([])
+        assert args.test is None
+
+    @pytest.mark.arg_parser
+    def test_parse_process_args_basic(self):
+        """
+        Test basic parsing functionality where arguments are separated normally.
+        """
+        parser = ConfigsParser()
+        subparsers = parser.add_subparsers(dest="command")
+        cmd_parser = subparsers.add_parser("run")
+        cmd_parser.add_argument("--value", type=int)
+
+        # Test input: ['run', '--value', '10']
+        command, args = parser.parse_process_args(["run", "--value", "10"])
+
+        assert command == "run"
+        assert args["value"] == 10
+
+    @pytest.mark.arg_parser
+    def test_parse_process_args_nargs_string_splitting(self):
+        """
+        Test the custom logic: splitting a single string with spaces
+        into multiple arguments when nargs is defined.
+        """
+        parser = ConfigsParser()
+        subparsers = parser.add_subparsers(dest="command")
+        cmd_parser = subparsers.add_parser("run")
+        # Arg with nargs='+'
+        cmd_parser.add_argument("--list_items", nargs="+", type=str)
+
+        # Scenario: Arguments passed as a single string "a b c" instead of 'a', 'b', 'c'
+        # This triggers lines 66-70 in parse_process_args
+        raw_args = ["run", "--list_items", "item1 item2 item3"]
+        command, args = parser.parse_process_args(raw_args)
+
+        assert command == "run"
+        assert args["list_items"] == ["item1", "item2", "item3"]
+
+    @pytest.mark.arg_parser
+    def test_parse_process_args_nargs_standard(self):
+        """
+        Test that standard space-separated arguments still work
+        and aren't negatively affected by the splitting logic.
+        """
+        parser = ConfigsParser()
+        subparsers = parser.add_subparsers(dest="command")
+        cmd_parser = subparsers.add_parser("run")
+        cmd_parser.add_argument("--list_items", nargs="+", type=str)
+
+        # Standard input: ['run', '--list_items', 'item1', 'item2']
+        raw_args = ["run", "--list_items", "item1", "item2"]
+        command, args = parser.parse_process_args(raw_args)
+
+        assert command == "run"
+        assert args["list_items"] == ["item1", "item2"]
+
+    @pytest.mark.arg_parser
+    def test_parse_process_args_default_sys_argv(self):
+        """
+        Test that the method defaults to sys.argv[1:] if args=None.
+        """
+        parser = ConfigsParser()
+        subparsers = parser.add_subparsers(dest="command")
+        cmd_parser = subparsers.add_parser("test_cmd")
+        cmd_parser.add_argument("--flag", action="store_true")
+
+        # Mock sys.argv
+        with patch.object(sys, "argv", ["script_name.py", "test_cmd", "--flag"]):
+            command, args = parser.parse_process_args(None)
+
+            assert command == "test_cmd"
+            assert args["flag"] is True
+
+    @pytest.mark.arg_parser
+    def test_parser_initialization(self):
+        """Test that parser initializes correctly"""
+        parser = ConfigsParser(description="Test parser")
+        assert parser is not None
+        assert isinstance(parser, ConfigsParser)
+
+    @pytest.mark.arg_parser
+    def test_parse_command_valid(self):
+        """Test parsing valid commands"""
+        with patch.object(sys, "argv", ["script.py", "train"]):
+            parser = ConfigsParser()
+            subparsers = parser.add_subparsers(dest="command")
+            subparsers.add_parser("train")
+            command = parser.parse_command()
+            assert command == "train"
+
+    @pytest.mark.arg_parser
+    def test_parse_command_invalid(self):
+        """Test parsing invalid commands exits"""
+        with patch.object(sys, "argv", ["script.py", "invalid_command"]):
+            parser = ConfigsParser()
+            subparsers = parser.add_subparsers(dest="command")
+            subparsers.add_parser("train")
+            with pytest.raises(SystemExit):
+                parser.parse_command()
+
+    @pytest.mark.arg_parser
+    def test_error_message(self, capsys):
+        """Test error message printing"""
+        parser = ConfigsParser()
+        with pytest.raises(Exception):
+            parser.error_message("Test error", print_help=False)
+        captured = capsys.readouterr()
+        assert "Test error" in captured.out
+
+    @pytest.mark.edge_case
+    def test_missing_required_command(self):
+        """Test error when no command is provided"""
+        with patch.object(sys, "argv", ["script.py"]):
+            ConfigsParser()
+            with pytest.raises(SystemExit):
+                parse_params()
+
+    @pytest.mark.edge_case
+    def test_parse_process_args_mixed_types(self):
+        """
+        Test that splitting logic works correctly when mixed with other arguments
+        and ignores flags (starts with '-').
+        """
+        parser = ConfigsParser()
+        subparsers = parser.add_subparsers(dest="command")
+        cmd_parser = subparsers.add_parser("run")
+        cmd_parser.add_argument("--numbers", nargs="+", type=int)
+        cmd_parser.add_argument("--other", type=str)
+
+        # Input with numbers as a single string and a separate flag following it
+        raw_args = ["run", "--numbers", "1 2 3", "--other", "value"]
+        command, args = parser.parse_process_args(raw_args)
+
+        assert command == "run"
+        # Should be converted to ints by the type=int in add_argument after splitting
+        assert args["numbers"] == [1, 2, 3]
+        assert args["other"] == "value"
+
+
+class TestFileSystemCommand:
+    """Test suite for file system command"""
+
+    @pytest.mark.file_system
+    def test_fs_update_command(self, base_file_system_update_args):
+        """Test file system update command"""
+        args = base_file_system_update_args + [
+            "--output_key",
+            "waste",
+            "--update_value",
+            "1.5",
+        ]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert command == ("file_system", "update")
+            assert args_dict["target_entry"] == "path/to/file.pkl"
+            assert args_dict["update_value"] == 1.5
+
+    @pytest.mark.file_system
+    def test_fs_delete_command(self, base_file_system_delete_args):
+        """Test file system delete command"""
+        args = base_file_system_delete_args + [
+            "--log_dir",
+            "logs",
+            "--log",
+            "--delete_preview",
+        ]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert command == ("file_system", "delete")
+            assert args_dict["log_dir"] == "logs"
+            assert args_dict["delete_preview"] is True
+
+    @pytest.mark.file_system
+    def test_fs_cryptography_command(self, base_file_system_crypto_args):
+        """Test file system cryptography command"""
+        args = base_file_system_crypto_args + [
+            "--symkey_name",
+            "mykey",
+            "--salt_size",
+            "16",
+            "--key_length",
+            "32",
+        ]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert command == ("file_system", "cryptography")
+            assert args_dict["symkey_name"] == "mykey"
+            assert args_dict["salt_size"] == 16
+
+    @pytest.mark.file_system
+    def test_missing_fs_subcommand(self):
+        """Test error when no file system subcommand is provided"""
+        # Scenario: User enters 'file_system' but forgets 'update', 'delete', or 'cryptography'
+        with patch.object(sys, "argv", ["script.py", "file_system"]):
+            with pytest.raises(SystemExit):
+                parse_params()
+
+    @pytest.mark.file_system
+    def test_invalid_fs_subcommand(self):
+        """Test error when an invalid file system subcommand is provided"""
+        # Scenario: User enters a subcommand that doesn't exist
+        with patch.object(sys, "argv", ["script.py", "file_system", "destroy"]):
+            with pytest.raises(SystemExit):
+                parse_params()
+
+    @pytest.mark.file_system
+    def test_fs_update_mutual_exclusivity(self, base_file_system_update_args):
+        """
+        Test that update_operation and stats_function are mutually exclusive.
+        We mock the mapping dictionaries to ensure the ActionFactory accepts the values,
+        allowing the code to reach the validation logic in validate_file_system_args.
+        """
+        args = base_file_system_update_args + [
+            "--update_operation",
+            "op_test",
+            "--stats_function",
+            "stat_test",
+        ]
+
+        # Mock the maps used by UpdateFunctionMapActionFactory so our test inputs are considered valid
+        # This allows us to bypass the ValueError in the Action and hit the AssertionError in validation
+        with (
+            patch("logic.src.cli.base_parser.OPERATION_MAP", {"op_test": 1}),
+            patch("logic.src.cli.base_parser.STATS_FUNCTION_MAP", {"stat_test": 1}),
+            patch.object(sys, "argv", args),
+        ):
+            # Expect AssertionError: "'update_operation' and 'stats_function' arguments are mutually exclusive"
+            # note: parse_params catches the AssertionError and re-raises it via error_message()
+            with pytest.raises(AssertionError, match="mutually exclusive"):
+                parse_params()
+
+    @pytest.mark.file_system
+    def test_fs_input_keys_multiple(self, base_file_system_update_args):
+        """Test input_keys argument accepting multiple values (nargs='*')"""
+        args = base_file_system_update_args + ["--input_keys", "key1", "key2", "key3"]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert command == ("file_system", "update")
+            assert args_dict["input_keys"] == ["key1", "key2", "key3"]
+
+
+class TestGenDataCommand:
+    """Test suite for generate data command"""
+
+    @pytest.mark.gen_data
+    def test_gen_data_basic(self, base_gen_data_args):
+        """Test basic data generation"""
+        args = base_gen_data_args + ["50"]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert command == "gen_data"
+            assert args_dict["problem"] == "vrpp"
+            assert args_dict["dataset_size"] == 10000
+            assert args_dict["graph_sizes"] == [20, 50]
+
+    @pytest.mark.gen_data
+    def test_gen_data_with_focus_graphs(self, base_gen_data_args):
+        """Test data generation with focus graphs"""
+        args = base_gen_data_args[:2] + [
+            "--graph_sizes",
+            "20",
+            "--focus_graphs",
+            "path/to/graph.txt",
+            "--focus_size",
+            "100",
+            "--area",
+            "riomaior",
+            "--waste_type",
+            "plastic",
+            "--problem",
+            "vrpp",
+        ]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert args_dict["focus_graphs"] == ["path/to/graph.txt"]
+            assert args_dict["focus_size"] == 100
+            assert args_dict["area"] == "riomaior"
+
+    @pytest.mark.gen_data
+    def test_gen_data_filename_validation(self, base_gen_data_args):
+        """Test that filename requires single dataset"""
+        args = base_gen_data_args[:3] + [
+            "all",
+            "--graph_sizes",
+            "20",
+            "50",
+            "--filename",
+            "test.pkl",
+        ]
+        print("#######" * 10 + "Args:", args)
+        with patch.object(sys, "argv", args):
+            with pytest.raises(
+                AssertionError,
+                match="Can only specify filename when generating a single dataset",
+            ):
+                command, args_dict = parse_params()
+
+
+class TestEvalCommand:
+    """Test suite for evaluation command"""
+
+    @pytest.mark.eval
+    def test_eval_basic(self, base_eval_args):
+        """Test basic evaluation"""
+        args = base_eval_args + ["--eval_batch_size", "256"]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert command == "eval"
+            assert args_dict["datasets"] == ["dataset1.pkl"]
+            assert args_dict["eval_batch_size"] == 256
+
+    @pytest.mark.eval
+    def test_eval_multiple_datasets(self, base_eval_args):
+        """Test evaluation with multiple datasets"""
+        args = base_eval_args[:3] + [
+            "dataset1.pkl",
+            "dataset2.pkl",
+            "dataset3.pkl",
+            "--decode_type",
+            "sampling",
+            "--width",
+            "10",
+        ]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert len(args_dict["datasets"]) == 3
+            assert args_dict["decode_type"] == "sampling"
+
+    @pytest.mark.eval
+    def test_eval_area_normalization(self, base_eval_args):
+        """Test area name normalization in eval"""
+        args = base_eval_args[:3] + ["test.pkl", "--area", "Rio-Maior"]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert args_dict["area"] == "riomaior"
+
+
+class TestTestCommand:
+    """Test suite for simulator test command"""
+
+    @pytest.mark.test_sim
+    def test_test_basic(self, base_test_args):
+        """Test basic simulator test"""
+        args = copy.deepcopy(base_test_args)
+        args.insert(4, "policy2")
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert command == "test_sim"
+            assert args_dict["policies"] == ["policy1", "policy2"]
+            assert args_dict["days"] == 31
+            assert args_dict["size"] == 50
+
+    @pytest.mark.test_sim
+    def test_test_days_validation(self, base_test_args):
+        """Test days parameter validation"""
+        args = base_test_args[:-3] + ["0"]
+        with patch.object(sys, "argv", args):
+            with pytest.raises(AssertionError, match="Must run the simulation for 1 or more days"):
+                parse_params()
+
+    @pytest.mark.test_sim
+    def test_test_samples_validation(self, base_test_args):
+        """Test samples parameter validation"""
+        args = base_test_args[:-4] + ["--n_samples", "0"]
+        with patch.object(sys, "argv", args):
+            with pytest.raises(AssertionError, match="Number of samples must be non-negative integer"):
+                parse_params()
+
+    @pytest.mark.test_sim
+    def test_test_with_gurobi_params(self, base_test_args):
+        """Test simulator with Gurobi parameters"""
+        args = base_test_args[:-5] + [
+            "gurobi",
+            "--gurobi_param",
+            "0.84",
+            "--cpu_cores",
+            "4",
+        ]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert args_dict["gurobi_param"] == [0.84]
+            assert args_dict["cpu_cores"] == 4
+
+
+class TestGUICommand:
+    """Test suite for GUI command"""
+
+    @pytest.mark.gui
+    def test_gui_basic(self, base_gui_args):
+        """Test basic GUI command"""
+        with patch.object(sys, "argv", base_gui_args):
+            command, args_dict = parse_params()
+            assert command == "gui"
+            assert args_dict["app_style"] == "fusion"
+
+    @pytest.mark.gui
+    def test_gui_with_style(self, base_gui_args):
+        """Test GUI with custom style"""
+        args = base_gui_args + ["--app_style", "Windows"]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert args_dict["app_style"] == "windows"  # LowercaseAction
+
+    @pytest.mark.gui
+    def test_gui_test_mode(self, base_gui_args):
+        """Test GUI test mode"""
+        args = base_gui_args + ["--test_only"]
+        with patch.object(sys, "argv", args):
+            command, args_dict = parse_params()
+            assert args_dict["test_only"] is True

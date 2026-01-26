@@ -1,0 +1,44 @@
+"""Tests for CriticNetwork."""
+
+from unittest.mock import MagicMock
+
+import torch
+from logic.src.models.critic_network import CriticNetwork
+
+
+def test_critic_network_init():
+    """Verify initialization of CriticNetwork."""
+    problem = MagicMock()
+    problem.NAME = "vrpp"
+    component_factory = MagicMock()
+
+    model = CriticNetwork(
+        problem=problem, component_factory=component_factory, embedding_dim=16, hidden_dim=16, n_layers=1, n_sublayers=1
+    )
+    assert model.embedding_dim == 16
+    assert not model.is_wc
+    assert model.is_vrpp
+
+
+def test_critic_network_forward():
+    """Verify forward pass logic."""
+    problem = MagicMock()
+    problem.NAME = "vrpp"
+    component_factory = MagicMock()
+
+    # Mock encoder
+    mock_encoder = MagicMock(return_value=torch.randn(2, 5, 16))
+    component_factory.create_encoder.return_value = mock_encoder
+
+    model = CriticNetwork(
+        problem=problem, component_factory=component_factory, embedding_dim=16, hidden_dim=16, n_layers=1, n_sublayers=1
+    )
+
+    # Mock inputs
+    inputs = {"depot": torch.randn(2, 2), "loc": torch.randn(2, 5, 2), "waste": torch.randn(2, 5)}
+
+    # Mock context embedder result
+    model._init_embed = MagicMock(return_value=torch.randn(2, 5, 3))
+
+    out = model(inputs)
+    assert out.shape == (2, 1)
