@@ -127,7 +127,7 @@ class PolicyFactory:
             return NeuralPolicy()
         elif ("gurobi" in policy_name or "hexaly" in policy_name) and "vrpp" in policy_name:
             return VRPPPolicy()
-        elif "policy_profit_reactive" in policy_name:
+        elif "policy_profit" in policy_name:
             return ProfitPolicy()
         elif "policy_look_ahead" in policy_name:
             return LookAheadPolicy()

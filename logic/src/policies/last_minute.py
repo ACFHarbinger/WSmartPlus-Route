@@ -152,7 +152,7 @@ def policy_last_minute_and_path(
     return tour
 
 
-def policy_profit_reactive(
+def policy_profit(
     bins: NDArray[np.float64],
     distancesC: NDArray[np.int32],
     waste_type: str = "plastic",
@@ -287,7 +287,7 @@ class LastMinutePolicy(IPolicy):
         return tour, cost, None
 
 
-@PolicyRegistry.register("policy_profit_reactive")
+@PolicyRegistry.register("policy_profit")
 class ProfitPolicy(IPolicy):
     """
     Profit-based reactive collection policy class.
@@ -309,7 +309,7 @@ class ProfitPolicy(IPolicy):
         config = kwargs.get("config", {})
         profit_config = config.get("profit_reactive", {})
 
-        # Pattern: policy_profit_reactive_<threshold>
+        # Pattern: policy_profit_<threshold>
         try:
             threshold = float(policy.rsplit("_reactive", 1)[1])
         except (IndexError, ValueError):
@@ -318,7 +318,7 @@ class ProfitPolicy(IPolicy):
         # Override from config
         threshold = profit_config.get("threshold", threshold)
 
-        tour = policy_profit_reactive(
+        tour = policy_profit(
             bins.c,
             distancesC,
             waste_type,
