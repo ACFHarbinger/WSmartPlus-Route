@@ -11,7 +11,7 @@ from logic.src.policies.adapters import IPolicy, PolicyRegistry
 from logic.src.policies.hybrid_genetic_search import run_hgs
 
 
-@PolicyRegistry.register("policy_hgs")
+@PolicyRegistry.register("hgs")
 class HGSPolicy(IPolicy):
     """
     Hybrid Genetic Search policy class.

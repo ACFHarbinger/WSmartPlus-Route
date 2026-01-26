@@ -15,7 +15,7 @@ from logic.src.policies.look_ahead_aux.solutions import find_solutions
 from logic.src.policies.single_vehicle import find_route, get_route_cost, local_search_2opt
 
 
-@PolicyRegistry.register("policy_lac")
+@PolicyRegistry.register("lac")
 class LACPolicy(IPolicy):
     """
     LAC policy class.

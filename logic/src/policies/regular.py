@@ -89,7 +89,7 @@ def policy_regular(
     return tour
 
 
-@PolicyRegistry.register("policy_regular")
+@PolicyRegistry.register("regular")
 class RegularPolicy(IPolicy):
     """
     Regular (periodic) collection policy class.

@@ -12,7 +12,7 @@ from logic.src.policies.adapters import IPolicy, PolicyRegistry
 from logic.src.policies.single_vehicle import find_route, get_multi_tour
 
 
-@PolicyRegistry.register("policy_tsp")
+@PolicyRegistry.register("tsp")
 class TSPPolicy(IPolicy):
     """
     Traveling Salesperson Policy (TSP).

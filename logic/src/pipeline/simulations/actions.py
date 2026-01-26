@@ -128,14 +128,15 @@ class PolicyExecutionAction(SimulationAction):
 
     def execute(self, context: Dict[str, Any]) -> None:
         """Execute the selected routing policy."""
-        policy_name = context["policy_name"]
-        adapter = PolicyFactory.get_adapter(policy_name)
+        # Standardized parameters
+        policy_name = str(context.get("policy_name") or context.get("policy") or "")
+        engine = context.get("engine")
+        threshold = context.get("threshold")
 
-        # NeuralPolicyAdapter expects 'fill' in context, which FillAction just put there.
+        # Get adapter with explicit parameters
+        adapter = PolicyFactory.get_adapter(policy_name, engine=engine, threshold=threshold)
 
-        # Extract config
-        context.get("config", {})
-
+        # Policy execution
         tour, cost, extra_output = adapter.execute(**context)
 
         context["tour"] = tour
@@ -143,9 +144,9 @@ class PolicyExecutionAction(SimulationAction):
         context["extra_output"] = extra_output
 
         # Handle specific extra outputs updates
-        if "policy_regular" in policy_name:
+        if "regular" in policy_name:
             context["cached"] = extra_output
-        elif policy_name[:2] == "am" or policy_name[:4] == "ddam" or "transgcn" in policy_name:
+        elif policy_name.startswith("am") or policy_name.startswith("ddam") or "transgcn" in policy_name:
             context["output_dict"] = extra_output
 
 

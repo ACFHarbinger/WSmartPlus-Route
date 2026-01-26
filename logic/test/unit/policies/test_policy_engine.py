@@ -12,7 +12,7 @@ import logic.src.policies.policy_alns as policy_alns_module
 import logic.src.policies.policy_sans as policy_sans_module
 import logic.src.policies.policy_lac as policy_lac_module
 
-from logic.src.policies.adapters import PolicyRegistry
+from logic.src.policies.adapters import PolicyRegistry, PolicyFactory
 from logic.src.policies.policy_bcp import BCPPolicy
 from logic.src.policies.policy_vrpp import VRPPPolicy
 from logic.src.policies.policy_hgs import HGSPolicy
@@ -68,6 +68,26 @@ def mock_engine_data():
         "coords": coords,
         "graph_size": n_bins
     }
+
+def test_policy_factory_standardized():
+    # Test that PolicyFactory correctly identifies policies from Registry or Fallback
+    # Registry test (standard name)
+    p = PolicyFactory.get_adapter("hgs")
+    assert isinstance(p, HGSPolicy)
+
+    # Registry test (with policy_ prefix)
+    # Note: We standardized them to NOT have prefix, but get_adapter handles f"policy_{name}" fallback
+    p = PolicyFactory.get_adapter("alns")
+    assert isinstance(p, ALNSPolicy)
+
+    # Fallback test (neural)
+    p = PolicyFactory.get_adapter("am_policy")
+    from logic.src.policies.neural_agent import NeuralPolicy
+    assert isinstance(p, NeuralPolicy)
+
+    # VRPP test
+    p = PolicyFactory.get_adapter("vrpp")
+    assert isinstance(p, VRPPPolicy)
 
 def test_bcp_engine_override(mock_engine_data):
     # Patch where it is used: policy_bcp module

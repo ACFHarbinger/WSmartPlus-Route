@@ -13,7 +13,7 @@ from logic.src.policies.multi_vehicle import find_routes
 from logic.src.policies.single_vehicle import get_route_cost
 
 
-@PolicyRegistry.register("policy_cvrp")
+@PolicyRegistry.register("cvrp")
 class CVRPPolicy(IPolicy):
     """
     Capacitated Vehicle Routing Policy (CVRP).

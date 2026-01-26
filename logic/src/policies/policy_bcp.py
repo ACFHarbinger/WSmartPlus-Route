@@ -11,7 +11,7 @@ from logic.src.policies.adapters import IPolicy, PolicyRegistry
 from logic.src.policies.branch_cut_and_price import run_bcp
 
 
-@PolicyRegistry.register("policy_bcp")
+@PolicyRegistry.register("bcp")
 class BCPPolicy(IPolicy):
     """
     BCP policy class.

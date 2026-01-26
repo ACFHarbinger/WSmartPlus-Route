@@ -11,7 +11,7 @@ from logic.src.policies.adapters import IPolicy, PolicyRegistry
 from logic.src.policies.lin_kernighan import solve_lk
 
 
-@PolicyRegistry.register("policy_lkh")
+@PolicyRegistry.register("lkh")
 class LKHPolicy(IPolicy):
     """
     Lin-Kernighan Heuristic policy class.

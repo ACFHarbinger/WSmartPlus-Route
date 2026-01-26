@@ -93,12 +93,17 @@ class PolicyFactory:
     """
 
     @staticmethod
-    def get_adapter(policy_name: str) -> IPolicy:
+    def get_adapter(
+        name: str, engine: Optional[str] = None, threshold: Optional[float] = None, **kwargs: Any
+    ) -> IPolicy:
         """
-        Create and return the appropriate PolicyAdapter for the given policy name.
+        Create and return the appropriate PolicyAdapter for the given parameters.
 
         Args:
-            policy_name (str): Policy identifier string
+            name (str): Concise identifier for the policy (e.g., 'vrpp', 'hgs', 'neural')
+            engine (Optional[str]): Solver engine to use (e.g., 'gurobi', 'hexaly', 'pyvrp')
+            threshold (Optional[float]): Statistical threshold for must-go selection
+            **kwargs (Any): Additional configuration parameters
 
         Returns:
             IPolicy: Concrete adapter instance
@@ -107,8 +112,6 @@ class PolicyFactory:
             ValueError: If policy name doesn't match any known pattern
         """
         # Local imports to avoid circular dependencies
-        # as these modules import IPolicy/PolicyRegistry from this file
-        # Ensure new policies are imported so they register themselves
         import logic.src.policies.policy_alns  # noqa
         import logic.src.policies.policy_bcp  # noqa
         import logic.src.policies.policy_cvrp  # noqa
@@ -123,33 +126,35 @@ class PolicyFactory:
         from logic.src.policies.policy_vrpp import VRPPPolicy
         from logic.src.policies.regular import RegularPolicy
 
-        # Try Registry first
-        cls = PolicyRegistry.get(policy_name)
+        # Try Registry first (prefer concise names, fallback to policy_ prefix)
+        cls = PolicyRegistry.get(name) or PolicyRegistry.get(f"policy_{name}")
+
         if cls:
             return cls()
 
-        if "policy_last_minute" in policy_name:
+        # Fallback for complex legacy names or un-registered policies
+        if "last_minute" in name:
             return LastMinutePolicy()
-        elif "policy_regular" in policy_name:
+        elif "regular" in name:
             return RegularPolicy()
-        elif policy_name[:2] == "am" or policy_name[:4] == "ddam" or "transgcn" in policy_name:
+        elif name == "neural" or name[:2] == "am" or name[:4] == "ddam" or "transgcn" in name:
             return NeuralPolicy()
-        elif ("gurobi" in policy_name or "hexaly" in policy_name) and "vrpp" in policy_name:
+        elif "vrpp" in name:
             return VRPPPolicy()
-        elif "policy_profit" in policy_name:
+        elif "profit" in name:
             return ProfitPolicy()
-        elif "policy_look_ahead" in policy_name:
+        elif "look_ahead" in name or "lookahead" in name:
             return LookAheadPolicy()
-        elif "policy_sans" in policy_name:
+        elif "sans" in name:
             from logic.src.policies.policy_sans import SANSPolicy
 
             return SANSPolicy()
-        elif "policy_lac" in policy_name:
+        elif "lac" in name:
             from logic.src.policies.policy_lac import LACPolicy
 
             return LACPolicy()
         else:
-            raise ValueError(f"Unknown policy: {policy_name}")
+            raise ValueError(f"Unknown policy: {name}")
 
 
 # Backward compatibility aliases

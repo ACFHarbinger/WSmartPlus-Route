@@ -11,7 +11,7 @@ from logic.src.policies.adapters import IPolicy, PolicyRegistry
 from logic.src.policies.adaptive_large_neighborhood_search import run_alns
 
 
-@PolicyRegistry.register("policy_alns")
+@PolicyRegistry.register("alns")
 class ALNSPolicy(IPolicy):
     """
     ALNS policy class.
