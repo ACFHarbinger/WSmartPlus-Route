@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.utils.app_definitions import COUNTY_AREAS, VERTEX_METHODS
+from gui.src.constants import COUNTY_AREAS, VERTEX_METHODS
 
 from ...components import ClickableHeaderWidget
 

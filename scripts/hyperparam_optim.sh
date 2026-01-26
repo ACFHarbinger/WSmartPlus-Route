@@ -67,7 +67,7 @@ echo -e "${CYAN}---------------------------------------${NC}"
 echo -e "${CYAN}[CONFIG]${NC} Problem:    ${MAGENTA}$PROBLEM${NC}"
 echo -e "${CYAN}[CONFIG]${NC} Graph size: ${MAGENTA}$SIZE${NC}"
 echo -e "${CYAN}[CONFIG]${NC} Area:       ${MAGENTA}$AREA${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Method:     ${MAGENTA}$HOP_METHOD${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Method:     ${MAGENTA}$HPO_METHOD${NC}"
 echo -e "${CYAN}---------------------------------------${NC}"
 echo ""
 

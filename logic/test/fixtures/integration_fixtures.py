@@ -46,7 +46,7 @@ def train_opts(tmp_path):
         "w_penalty": 0.0,
         "w_prize": 0.0,
         "mrl_method": "cb",
-        "hop_method": "gs",
+        "hpo_method": "gs",
     }
     return opts
 

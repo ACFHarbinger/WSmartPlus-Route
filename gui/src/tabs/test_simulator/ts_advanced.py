@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.utils.app_definitions import (
+from gui.src.constants import (
     DISTANCE_MATRIX_METHODS,
     EDGE_METHODS,
     VERTEX_METHODS,

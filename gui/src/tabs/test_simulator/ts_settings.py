@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.utils.app_definitions import (
+from gui.src.constants import (
     DATA_DISTRIBUTIONS,
     PROBLEM_TYPES,
     SIMULATOR_TEST_POLICIES,
