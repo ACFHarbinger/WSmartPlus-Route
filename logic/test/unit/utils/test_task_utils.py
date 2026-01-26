@@ -2,7 +2,7 @@
 
 import numpy as np
 import torch
-from logic.src.utils.task_utils import calculate_edges, make_instance_generic
+from logic.src.utils.tasks.task_utils import calculate_edges, make_instance_generic
 
 
 def test_calculate_edges_dist():

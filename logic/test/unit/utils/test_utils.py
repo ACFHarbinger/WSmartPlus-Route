@@ -18,9 +18,7 @@ import pandas as pd
 import pytest
 import torch
 import torch.nn as nn
-
-# Imports from project
-from logic.src.utils.debug_utils import watch
+from logic.src.utils.configs.setup_utils import setup_cost_weights, setup_env, setup_model
 from logic.src.utils.functions.function import (
     add_attention_hooks,
     compute_in_batches,
@@ -49,7 +47,9 @@ from logic.src.utils.logging.log_utils import (
     output_stats,
     runs_per_policy,
 )
-from logic.src.utils.setup_utils import setup_cost_weights, setup_env, setup_model
+
+# Imports from project
+from logic.src.utils.validation.debug_utils import watch
 
 # ============================================================================
 # Debug Utils Tests
@@ -59,8 +59,8 @@ from logic.src.utils.setup_utils import setup_cost_weights, setup_env, setup_mod
 class TestDebugUtils:
     """Class for debug_utils tests."""
 
-    @patch("logic.src.utils.debug_utils.sys._getframe")
-    @patch("logic.src.utils.debug_utils.sys.settrace")
+    @patch("logic.src.utils.validation.debug_utils.sys._getframe")
+    @patch("logic.src.utils.validation.debug_utils.sys.settrace")
     def test_watch_variable(self, mock_settrace, mock_getframe):
         """Test enabling the watcher."""
         # Mock frame setup
@@ -89,8 +89,8 @@ class TestDebugUtils:
 
         callback.assert_called_with(10, 99, mock_frame)
 
-    @patch("logic.src.utils.debug_utils.sys._getframe")
-    @patch("logic.src.utils.debug_utils.sys.settrace")
+    @patch("logic.src.utils.validation.debug_utils.sys._getframe")
+    @patch("logic.src.utils.validation.debug_utils.sys.settrace")
     def test_watch_not_found(self, mock_settrace, mock_getframe):
         """Test watch raises NameError if var not found."""
         mock_frame = MagicMock()
@@ -101,9 +101,9 @@ class TestDebugUtils:
         with pytest.raises(NameError):
             watch("missing_var")
 
-    @patch("logic.src.utils.debug_utils.sys._getframe")
-    @patch("logic.src.utils.debug_utils.sys.settrace")
-    @patch("logic.src.utils.debug_utils.traceback.extract_stack")
+    @patch("logic.src.utils.validation.debug_utils.sys._getframe")
+    @patch("logic.src.utils.validation.debug_utils.sys.settrace")
+    @patch("logic.src.utils.validation.debug_utils.traceback.extract_stack")
     def test_default_callback(self, mock_extract, mock_settrace, mock_getframe):
         """Test the default print callback."""
         mock_frame = MagicMock()
@@ -529,7 +529,7 @@ class TestSetupUtils:
         weights = setup_cost_weights(opts)
         assert weights == {}
 
-    @patch("logic.src.utils.setup_utils.load_model")
+    @patch("logic.src.utils.configs.setup_utils.load_model")
     def test_setup_model_am(self, mock_load):
         """Test setup_model for Attention Model."""
         mock_model = MagicMock()
@@ -542,7 +542,7 @@ class TestSetupUtils:
         assert configs == mock_configs
         mock_load.assert_called_once()
 
-    @patch("logic.src.utils.setup_utils.gp.Env", create=True)
+    @patch("logic.src.utils.configs.setup_utils.gp.Env", create=True)
     def test_setup_env_gurobi(self, mock_gp_env):
         """Test setup_env for Gurobi."""
         mock_env = MagicMock()

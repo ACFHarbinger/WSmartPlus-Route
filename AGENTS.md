@@ -297,7 +297,7 @@ python main.py test_suite --module test_problems
 Ensure tensors are explicitly moved to device using `setup_utils.py`:
 
 ```python
-from logic.src.utils.setup_utils import get_device
+from logic.src.utils.configs.setup_utils import get_device
 
 device = get_device(cuda_enabled=True)
 tensor = tensor.to(device)

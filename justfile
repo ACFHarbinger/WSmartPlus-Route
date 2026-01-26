@@ -96,7 +96,7 @@ lint:
 
 # Check docstring coverage
 check-docs:
-    uv run python logic/src/utils/check_docstrings.py logic/
+    uv run python logic/src/utils/validation/check_docstrings.py logic/
 
 # Format code with black and ruff
 format:
