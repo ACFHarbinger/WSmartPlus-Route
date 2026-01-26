@@ -339,9 +339,10 @@ diagnostic_mode = "workspace"
 # RUFF CONFIGURATION (from ruff.toml)
 # =================================================================
 [tool.ruff]
-src = ["logic"]
+src = ["logic", "gui"]
 line-length = 120
 target-version = "py39"
+exclude = ["notebooks/", "logic/test/", "gui/test/", "logic/docs/", "gui/docs/"]
 
 [tool.ruff.lint]
 # Ignore E501 (line length) for notebooks specifically if they are messy
