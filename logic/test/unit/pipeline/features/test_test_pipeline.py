@@ -38,15 +38,22 @@ class TestPipelineFeaturesTest:
     @patch("logic.src.pipeline.features.test.display_log_metrics")
     def test_simulator_testing_sequential(self, mock_display, mock_send, mock_seq, mock_load, mock_udef, opts):
         # Configure mocks
+        # Bottom-Up Mapping:
+        # display_log_metrics -> mock_display
+        # send_final_output_to_gui -> mock_send
+        # sequential_simulations -> mock_seq
+        # load_indices -> mock_load
+        # udef -> mock_udef
+
         mock_udef.ROOT_DIR = "/tmp/test"
-        mock_udef.SIM_METRICS = ["profit"]  # if needed
+        mock_udef.SIM_METRICS = ["profit"]
         mock_udef.LOCK_TIMEOUT = 10
 
         mock_load.return_value = [0, 1]
         mock_seq.return_value = ({"policy1": [1.0]}, {"policy1": [0.1]}, [])
 
         device = torch.device("cpu")
-        data_size = 10
+        data_size = 20
 
         print("Calling simulator_testing...")
         try:

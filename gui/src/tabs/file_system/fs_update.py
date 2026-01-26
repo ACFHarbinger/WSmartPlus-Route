@@ -17,8 +17,8 @@ from PySide6.QtWidgets import (
 )
 
 from ...components import ClickableHeaderWidget
+from ...constants import FUNCTION_MAP, OPERATION_MAP
 from ...styles.globals import START_RED_STYLE
-from ...utils.app_definitions import FUNCTION_MAP, OPERATION_MAP
 
 
 class FileSystemUpdateTab(QWidget):

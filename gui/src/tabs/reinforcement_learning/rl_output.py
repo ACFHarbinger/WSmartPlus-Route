@@ -11,8 +11,8 @@ from PySide6.QtWidgets import (
     QSpinBox,
 )
 
+from ...constants import WB_MODES
 from ...styles.globals import START_GREEN_STYLE
-from ...utils.app_definitions import WB_MODES
 from .rl_base import BaseReinforcementLearningTab
 
 

@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.utils.app_definitions import DATA_DISTRIBUTIONS, PROBLEM_TYPES
+from gui.src.constants import DATA_DISTRIBUTIONS, PROBLEM_TYPES
 
 from ...styles.globals import (
     SECONDARY_BUTTON_STYLE,

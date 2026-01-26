@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.utils.app_definitions import (
+from gui.src.constants import (
     AGGREGATION_FUNCTIONS,
     CB_EXPLORATION_METHODS,
     MRL_METHODS,

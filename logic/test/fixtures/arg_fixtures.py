@@ -51,7 +51,7 @@ def base_hp_optim_args():
         "256",
         "--epoch_size",
         "128000",
-        "--hop_method",
+        "--hpo_method",
         "bo",
     ]
 

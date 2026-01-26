@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.utils.app_definitions import (
+from gui.src.constants import (
     ACTIVATION_FUNCTIONS,
     AGGREGATION_FUNCTIONS,
     ENCODERS,
