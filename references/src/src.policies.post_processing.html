@@ -470,6 +470,10 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.RandomLocalSearchPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor.process()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.PathPostProcessor"><code class="docutils literal notranslate"><span class="pre">PathPostProcessor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.PathPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">PathPostProcessor.process()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -518,6 +522,11 @@ logic/src/models/policies/classical/local_search.py</p></td>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.post_processing.RandomLocalSearchPostProcessor" title="src.policies.post_processing.RandomLocalSearchPostProcessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor</span></code></a></p></td>
 <td><p>Performs stochastic local search refinement by applying random operators.
 Mirrors the logic of RandomLocalSearchPolicy but as a post-processor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.post_processing.PathPostProcessor" title="src.policies.post_processing.PathPostProcessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PathPostProcessor</span></code></a></p></td>
+<td><p>Refines the tour by including nodes that lie on the shortest paths between consecutive
+stops in the tour, provided they fit within the vehicle capacity.
+mirrors the logic of the deprecated LastMinuteAndPathSelection.</p></td>
 </tr>
 </tbody>
 </table>
@@ -641,6 +650,27 @@ List[int]: The refined tour.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.post_processing.PathPostProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.post_processing.</span></span><span class="sig-name descname"><span class="pre">PathPostProcessor</span></span><a class="headerlink" href="#src.policies.post_processing.PathPostProcessor" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.policies.post_processing.IPostProcessor" title="src.policies.post_processing.IPostProcessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.post_processing.IPostProcessor</span></code></a></p>
+<p>Refines the tour by including nodes that lie on the shortest paths between consecutive
+stops in the tour, provided they fit within the vehicle capacity.
+mirrors the logic of the deprecated LastMinuteAndPathSelection.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.post_processing.PathPostProcessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.post_processing.PathPostProcessor.process" title="Link to this definition">#</a></dt>
+<dd><p>Refine the tour by picking up convenient bins along the path.</p>
+<p>Args:
+tour: The current tour (list of bin IDs).
+**kwargs: Context containing ‘bins’ or ‘total_fill’, ‘paths_between_states’,
+and ‘vehicle_capacity’.</p>
+<p>Returns:
+List[int]: The expanded tour including opportunistic pickups.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 </section>
@@ -717,6 +747,10 @@ List[int]: The refined tour.</p>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.RandomLocalSearchPostProcessor"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.RandomLocalSearchPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor.process()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.PathPostProcessor"><code class="docutils literal notranslate"><span class="pre">PathPostProcessor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.PathPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">PathPostProcessor.process()</span></code></a></li>
 </ul>
 </li>
 </ul>
