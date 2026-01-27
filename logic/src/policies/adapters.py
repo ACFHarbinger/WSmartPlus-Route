@@ -88,17 +88,22 @@ class PolicyFactory:
         """
         Create and return the appropriate PolicyAdapter for the given parameters.
         """
-        # Local imports to avoid circular dependencies
-        import logic.src.policies.policy_alns  # noqa
-        import logic.src.policies.policy_bcp  # noqa
-        import logic.src.policies.policy_cvrp  # noqa
-        import logic.src.policies.policy_hgs  # noqa
-        import logic.src.policies.policy_lac  # noqa
-        import logic.src.policies.policy_lkh  # noqa
-        import logic.src.policies.policy_sans  # noqa
-        import logic.src.policies.policy_tsp  # noqa
-        from logic.src.policies.neural_agent import NeuralPolicy
-        from logic.src.policies.policy_vrpp import VRPPPolicy
+        # Local imports to avoid circular dependencies and trigger registration
+        import logic.src.policies.neural_agent as neural_agent  # noqa
+        import logic.src.policies.policy_alns as policy_alns  # noqa
+        import logic.src.policies.policy_bcp as policy_bcp  # noqa
+        import logic.src.policies.policy_cvrp as policy_cvrp  # noqa
+        import logic.src.policies.policy_hgs as policy_hgs  # noqa
+        import logic.src.policies.policy_lac as policy_lac  # noqa
+        import logic.src.policies.policy_lkh as policy_lkh  # noqa
+        import logic.src.policies.policy_sans as policy_sans  # noqa
+        import logic.src.policies.policy_tsp as policy_tsp  # noqa
+        import logic.src.policies.policy_vrpp as policy_vrpp  # noqa
+
+        # Normalize name
+        if not isinstance(name, str):
+            raise TypeError(f"Policy name must be a string, got {type(name)}")
+        name = name.lower()
 
         # Try Registry first
         cls = PolicyRegistry.get(name) or PolicyRegistry.get(f"policy_{name}")
@@ -106,19 +111,20 @@ class PolicyFactory:
         if cls:
             return cls()
 
-        # Fallback for complex names or un-registered policies
-        if name == "neural" or name[:2] == "am" or name[:4] == "ddam" or "transgcn" in name:
+        # Fallback for complex names or un-registered policies (backward compatibility)
+        if name == "regular" or "regular" in name:
+            # Fallback to TSP for legacy regular execution (selection happens in Action)
+            from logic.src.policies.policy_tsp import TSPPolicy
+
+            return TSPPolicy()
+        elif name == "neural" or name[:2] == "am" or name[:4] == "ddam" or "transgcn" in name:
+            from logic.src.policies.neural_agent import NeuralPolicy
+
             return NeuralPolicy()
         elif "vrpp" in name:
+            from logic.src.policies.policy_vrpp import VRPPPolicy
+
             return VRPPPolicy()
-        elif "sans" in name:
-            from logic.src.policies.policy_sans import SANSPolicy
-
-            return SANSPolicy()
-        elif "lac" in name:
-            from logic.src.policies.policy_lac import LACPolicy
-
-            return LACPolicy()
         elif name == "tsp" or "tsp" in name:
             from logic.src.policies.policy_tsp import TSPPolicy
 
@@ -128,8 +134,8 @@ class PolicyFactory:
 
             return CVRPPolicy()
         else:
-            # Default to CVRP or TSP based on vehicles if unknown but looks like a policy
-            if "policy" in name:
+            # Default to CVRP or TSP based on vehicles if unknown but looks like a legacy name
+            if name.startswith("policy_") or "_policy" in name:
                 from logic.src.policies.policy_cvrp import CVRPPolicy
                 from logic.src.policies.policy_tsp import TSPPolicy
 

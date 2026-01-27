@@ -8,7 +8,9 @@ from logic.src.policies.policy_cvrp import CVRPPolicy
 
 class MockBins:
     def __init__(self, n=5):
+        self.n = n
         self.c = np.ones(n) * 10.0 # 10.0 fill
+        self.collectlevl = 90.0
 
 @pytest.fixture
 def mock_params():
@@ -42,10 +44,10 @@ def test_tsp_policy(mock_params):
         # Assume it just returns the tour if valid
         mock_get_multi.return_value = [0, 1, 2, 3, 4, 5, 0]
 
-        policy = PolicyRegistry.get("policy_tsp")()
+        policy = PolicyRegistry.get("tsp")()
         assert isinstance(policy, TSPPolicy)
 
-        tour, cost, extra = policy.execute(policy="policy_tsp", **mock_params)
+        tour, cost, extra = policy.execute(policy="tsp", **mock_params)
 
         assert tour == [0, 1, 2, 3, 4, 5, 0]
         # Valid cost (mocked distances are 1.0 everywhere except diagonal)
@@ -65,10 +67,10 @@ def test_cvrp_policy(mock_params):
         # Mock find_routes (CVRP)
         mock_find.return_value = [0, 1, 2, 0, 3, 4, 5, 0] # 2 routes
 
-        policy = PolicyRegistry.get("policy_cvrp")()
+        policy = PolicyRegistry.get("cvrp")()
         assert isinstance(policy, CVRPPolicy)
 
-        tour, cost, extra = policy.execute(policy="policy_cvrp", **mock_params)
+        tour, cost, extra = policy.execute(policy="cvrp", **mock_params)
 
         assert tour == [0, 1, 2, 0, 3, 4, 5, 0]
         # 7 edges. 1.0 each (except 0-0 dep-dep? no dep-dep in this list)

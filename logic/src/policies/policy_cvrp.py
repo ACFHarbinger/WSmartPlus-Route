@@ -51,4 +51,9 @@ class CVRPPolicy(IPolicy):
         distance_matrix = kwargs.get("distance_matrix", distancesC)
         cost = get_route_cost(distance_matrix, tour)
 
+        if hasattr(tour, "tolist"):
+            tour = tour.tolist()
+        elif not isinstance(tour, list):
+            tour = list(tour)
+
         return tour, cost, tour
