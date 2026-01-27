@@ -133,11 +133,90 @@ class PolicyExecutionAction(SimulationAction):
         engine = context.get("engine")
         threshold = context.get("threshold")
 
-        # Get adapter with explicit parameters
-        adapter = PolicyFactory.get_adapter(policy_name, engine=engine, threshold=threshold)
+        # 1. Selection Phase (Modular & Agnostic)
+        import numpy as np
 
-        # Policy execution
-        tour, cost, extra_output = adapter.execute(**context)
+        from logic.src.policies.must_go_selection import MustGoSelectionFactory, SelectionContext
+
+        # Map policy name to selection strategy
+        strategy_name = (
+            "regular"
+            if "regular" in policy_name
+            else "lookahead"
+            if "ahead" in policy_name
+            else "means_std"
+            if "vrpp" in policy_name or "hgs" in policy_name or "alns" in policy_name
+            else "last_minute_and_path"
+            if "and_path" in policy_name
+            else "last_minute"
+            if "last_minute" in policy_name
+            else "revenue"
+            if "profit" in policy_name
+            else "regular"
+        )
+
+        # Determine threshold/param for selection
+        sel_threshold = threshold if threshold is not None else 0.5
+        if "regular" in strategy_name:
+            import re
+
+            match = re.search(r"regular(\d+)", policy_name)
+            sel_threshold = float(int(match.group(1)) - 1) if match else 0.0
+        elif "last_minute" in strategy_name:
+            import re
+
+            match = re.search(r"last_minute(\d+)", policy_name)
+            sel_threshold = float(match.group(1)) if match else 90.0
+
+        bins = context["bins"]
+        sel_ctx = SelectionContext(
+            bin_ids=np.arange(0, bins.n, dtype="int32"),
+            current_fill=bins.c,
+            accumulation_rates=bins.means,
+            std_deviations=bins.std,
+            current_day=context.get("day", 0),
+            threshold=sel_threshold,
+            next_collection_day=context.get("next_collection_day"),
+            distance_matrix=context.get("distance_matrix"),
+            paths_between_states=context.get("paths_between_states"),
+            vehicle_capacity=context.get("max_capacity", 100.0),
+        )
+
+        # Use Factory to get strategy and select bins
+        try:
+            strategy = MustGoSelectionFactory.create_strategy(strategy_name)
+            must_go = strategy.select_bins(sel_ctx)
+        except Exception:
+            must_go = []
+
+        # 2. Short-circuit if no targets identified (Agnostic Contract)
+        if not must_go and "neural" not in policy_name:
+            context["tour"] = [0, 0]
+            context["cost"] = 0.0
+            context["extra_output"] = None
+            return
+
+        # 3. Routing Phase
+        # Map policy to Core Solver
+        solver_key = (
+            "vrpp"
+            if "vrpp" in policy_name
+            else "hgs"
+            if "hgs" in policy_name
+            else "alns"
+            if "alns" in policy_name
+            else "neural"
+            if ("am" in policy_name or "ddam" in policy_name or "transgcn" in policy_name)
+            else "tsp"
+            if context.get("n_vehicles", 1) == 1
+            else "cvrp"
+        )
+
+        # Get adapter
+        adapter = PolicyFactory.get_adapter(solver_key, engine=engine, threshold=threshold)
+
+        # Policy execution (Agnostic: receives targets)
+        tour, cost, extra_output = adapter.execute(must_go=must_go, **context)
 
         context["tour"] = tour
         context["cost"] = cost
@@ -146,7 +225,7 @@ class PolicyExecutionAction(SimulationAction):
         # Handle specific extra outputs updates
         if "regular" in policy_name:
             context["cached"] = extra_output
-        elif policy_name.startswith("am") or policy_name.startswith("ddam") or "transgcn" in policy_name:
+        elif solver_key == "neural":
             context["output_dict"] = extra_output
 
 

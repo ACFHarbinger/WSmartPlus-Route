@@ -1,108 +1,90 @@
 """
-SANS Policy Adapter.
-
-Adapts the Simulated Annealing Neighborhood Search (SANS) logic
-from LookAhead with VRPP-style statistical bin selection.
+SANS Policy Adapter (Simulated Annealing).
 """
 from typing import Any, List, Tuple
 
 import numpy as np
+import pandas as pd
 
-from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
-from logic.src.policies.adapters import IPolicy, PolicyRegistry
-from logic.src.policies.look_ahead import policy_lookahead_sans
-from logic.src.policies.single_vehicle import find_route, get_route_cost, local_search_2opt
+from logic.src.pipeline.simulations.processor import convert_to_dict, create_dataframe_from_matrix
+
+from .adapters import IPolicy, PolicyRegistry
+from .look_ahead_aux import compute_initial_solution, improved_simulated_annealing
 
 
 @PolicyRegistry.register("sans")
 class SANSPolicy(IPolicy):
     """
-    SANS (Simulated Annealing Neighborhood Search) policy class.
-    Uses statistical prediction for must-go bins and SA for routing.
+    Simulated Annealing policy class.
     """
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
         Execute the SANS policy.
         """
-        policy = kwargs["policy"]
+        must_go = kwargs.get("must_go", [])
+        if not must_go:
+            return [0, 0], 0.0, None
+
         bins = kwargs["bins"]
         distance_matrix = kwargs["distance_matrix"]
-        new_data = kwargs["new_data"]
         coords = kwargs["coords"]
         area = kwargs["area"]
         waste_type = kwargs["waste_type"]
-        distancesC = kwargs["distancesC"]
-        run_tsp = kwargs["run_tsp"]
-        two_opt_max_iter = kwargs.get("two_opt_max_iter", 0)
         config = kwargs.get("config", {})
+        sans_config = config.get("sans", {})
 
-        # 1. Determine Must-Go Bins (VRPP Logic)
-        try:
-            # Pattern: policy_sans_<threshold>
-            threshold_std = float(policy.rsplit("_", 1)[1])
-        except (IndexError, ValueError):
-            threshold_std = 1.0  # Default
+        from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
 
-        if not hasattr(bins, "means") or bins.means is None:
-            raise ValueError("Bins object missing 'means' attribute.")
+        Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
 
-        means = bins.means
-        std = bins.std
-        current_fill = bins.c
-        predicted_fill = current_fill + means + (threshold_std * std)
+        # Prepare data for SANS logic
+        data = create_dataframe_from_matrix(bins.c)  # Simplification
+        data["Stock"] = bins.c.astype("float32")
+        data["Accum_Rate"] = bins.means.astype("float32")
+        data["#bin"] = np.arange(1, bins.n + 1)
+        # Add depot
+        depot_row = pd.DataFrame([{"#bin": 0, "Stock": 0.0, "Accum_Rate": 0.0}])
+        data = pd.concat([depot_row, data], ignore_index=True)
 
-        # Must-go bins (0-based indices as expected by policy_lookahead_sans internally?
-        # Actually LookAheadPolicy passes it as-is, and policy_lookahead_sans does b+1)
-        must_go_bins = np.where((predicted_fill >= 100.0) | (current_fill >= 100.0))[0].tolist()
+        coords_dict = convert_to_dict(coords)
+        id_to_index = {i: i for i in range(len(distance_matrix))}
 
-        if not must_go_bins:
-            return [0, 0], 0.0, None
+        initial_routes = compute_initial_solution(data, coords_dict, distance_matrix, Q, id_to_index)
+        current_route = initial_routes[0] if initial_routes else [0, 0]
 
-        # 2. Prepare Parameters and Values
-        vehicle_capacity, R, B, C, E = load_area_and_waste_type_params(area, waste_type)
+        # Ensure must_go bins are in the route
+        must_go_1 = [b + 1 for b in must_go]  # must_go is 0-based
+        route_set = set(current_route)
+        for b in must_go_1:
+            if b not in route_set:
+                current_route.insert(1, b)
 
-        sans_config = config.get("lookahead", {}).get("sans", {})
-        values = {
-            "R": R,
-            "C": C,
-            "E": E,
-            "B": B,
-            "vehicle_capacity": vehicle_capacity,
-            "Omega": config.get("lookahead", {}).get("Omega", 0.1),
-            "time_limit": sans_config.get("time_limit", 60),
-            "perc_bins_can_overflow": sans_config.get("perc_bins_can_overflow", 0),
-        }
+        params = (
+            sans_config.get("T_init", 75),
+            sans_config.get("iterations_per_T", 5000),
+            sans_config.get("alpha", 0.95),
+            sans_config.get("T_min", 0.01),
+        )
 
-        T_min = sans_config.get("T_min", 0.01)
-        T_init = sans_config.get("T_init", 75)
-        iterations_per_T = sans_config.get("iterations_per_T", 5000)
-        alpha = sans_config.get("alpha", 0.95)
-        params = (T_init, iterations_per_T, alpha, T_min)
+        optimized_routes, best_profit, last_distance, _, _ = improved_simulated_annealing(
+            [current_route],
+            distance_matrix,
+            sans_config.get("time_limit", 60),
+            id_to_index,
+            data,
+            Q,
+            *params,
+            R,
+            V,
+            B,
+            C,
+            must_go_1,
+            perc_bins_can_overflow=sans_config.get("perc_bins_can_overflow", 0.0),
+            volume=V,
+            density_val=B,
+            max_vehicles=1,
+        )
 
-        # 3. Prepare Data
-        # Match LookAheadPolicy.execute transformation
-        # new_data.loc[1:, "Stock"] = bins.c.astype("float32")
-        # new_data.loc[1:, "Accum_Rate"] = bins.means.astype("float32")
-        # Note: We should probably work on a copy to avoid side effects if this kwargs is shared
-        new_data_copy = new_data.copy()
-        new_data_copy.loc[1:, "Stock"] = bins.c.astype("float32")
-        new_data_copy.loc[1:, "Accum_Rate"] = bins.means.astype("float32")
-
-        # 4. Run SANS
-        routes, _, _ = policy_lookahead_sans(new_data_copy, coords, distance_matrix, params, must_go_bins, values)
-
-        tour = []
-        if routes:
-            routes = routes[0]  # Take first route
-            tour = find_route(distancesC, np.array(routes)) if run_tsp else routes
-            if two_opt_max_iter > 0:
-                tour = local_search_2opt(tour, distance_matrix, two_opt_max_iter)
-
-        if not tour:
-            tour = [0, 0]
-
-        # Recalculate cost
-        cost = get_route_cost(distance_matrix, tour)
-
-        return tour, cost, None
+        tour = optimized_routes[0] if optimized_routes else [0, 0]
+        return tour, last_distance, None

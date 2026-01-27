@@ -1,58 +1,59 @@
 """
 CVRP Policy module.
 
-Implements a multi-vehicle routing policy (CVRP) that visits all bins.
-Use this policy when n_vehicles > 1 or default multi-vehicle behavior is desired.
+Implements a multi-vehicle routing policy (CVRP) that visits a specific set of bins.
+Agnostic to how the targets were selected.
 """
 
 from typing import Any, List, Tuple
 
+import numpy as np
+
 from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
-from logic.src.policies.adapters import IPolicy, PolicyRegistry
-from logic.src.policies.multi_vehicle import find_routes
-from logic.src.policies.single_vehicle import get_route_cost
+
+from .adapters import IPolicy, PolicyRegistry
+from .multi_vehicle import find_routes
+from .single_vehicle import get_route_cost, local_search_2opt
 
 
 @PolicyRegistry.register("cvrp")
 class CVRPPolicy(IPolicy):
     """
     Capacitated Vehicle Routing Policy (CVRP).
-    Visits all bins using multiple vehicles.
+    Visits provided 'must_go' bins using multiple vehicles.
     """
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
         Execute the CVRP policy.
         """
-        # Unpack arguments
         bins = kwargs["bins"]
         distancesC = kwargs["distancesC"]
         waste_type = kwargs["waste_type"]
         area = kwargs["area"]
-        n_vehicles = kwargs.get("n_vehicles", 1)  # Default to passed value (usually from env or config)
+        n_vehicles = kwargs.get("n_vehicles", 1)
         cached = kwargs.get("cached")
-        coords = kwargs.get("coords")  # Needed for multi-vehicle heuristic?
+        coords = kwargs.get("coords")
+        must_go = kwargs.get("must_go", [])
 
-        # Determine capacity
+        to_collect = must_go if must_go else list(range(1, bins.n + 1))
+
+        if not to_collect:
+            return [0, 0], 0.0, None
+
         max_capacity, _, _, _, _ = load_area_and_waste_type_params(area, waste_type)
 
-        bins_waste = bins.c
-        n_bins = len(bins_waste)
-
-        # All bins 1..N
-        to_collect = list(range(1, n_bins + 1))
-
-        # Run CVRP Logic
-        # Explicit (n_vehicles >= 1) logic, but typically used for > 1
-        # find_routes handles partitioning.
-
-        if cached is not None and len(cached) > 1:
+        if cached is not None and len(cached) > 1 and not must_go:
             tour = cached
         else:
-            # Note: find_routes signature: (distances, bin_waste, capacity, tour_indices, n_vehicles, coords)
-            tour = find_routes(distancesC, bins_waste, max_capacity, to_collect, n_vehicles, coords)
+            tour = find_routes(distancesC, bins.c, max_capacity, np.array(to_collect), n_vehicles, coords)
 
-        # Calculate cost
-        cost = get_route_cost(distancesC, tour)
+        # Post-processing
+        two_opt_iter = kwargs.get("two_opt_max_iter", 0)
+        distance_matrix = kwargs.get("distance_matrix", distancesC)
+        if two_opt_iter > 0:
+            tour = local_search_2opt(tour, distance_matrix, two_opt_iter)
+
+        cost = get_route_cost(distance_matrix, tour)
 
         return tour, cost, tour

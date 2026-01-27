@@ -1,98 +1,59 @@
 """
 LKH Policy Adapter.
-
-Adapts the Lin-Kernighan Heuristic (LKH) logic to the common policy interface.
 """
 from typing import Any, List, Tuple
 
 import numpy as np
 
-from logic.src.policies.adapters import IPolicy, PolicyRegistry
-from logic.src.policies.lin_kernighan import solve_lk
+from .adapters import IPolicy, PolicyRegistry
+from .lin_kernighan import solve_lk
+from .single_vehicle import get_route_cost
 
 
 @PolicyRegistry.register("lkh")
 class LKHPolicy(IPolicy):
     """
-    Lin-Kernighan Heuristic policy class.
-    Executes LKH for VRP/TSP.
+    Lin-Kernighan heuristic policy class.
     """
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
         Execute the LKH policy.
         """
-        policy = kwargs["policy"]
+        must_go = kwargs.get("must_go", [])
+        if not must_go:
+            return [0, 0], 0.0, None
+
         bins = kwargs["bins"]
         distance_matrix = kwargs["distance_matrix"]
         config = kwargs.get("config", {})
+        lkh_config = config.get("lkh", {})
 
-        # Standard VRPP logic for subset selection
-        try:
-            param = float(policy.rsplit("_", 1)[1])
-        except (IndexError, ValueError):
-            param = 1.0
+        # 1. Map to local subset
+        map_local_to_global = {0: 0}
+        for idx, i in enumerate(must_go):
+            map_local_to_global[idx + 1] = i + 1
 
-        if hasattr(bins, "means") and bins.means is not None:
-            means = bins.means
-            std = bins.std
-        else:
-            means = np.zeros_like(bins.c)
-            std = np.zeros_like(bins.c)
+        n_nodes = len(must_go) + 1
+        sub_matrix = np.zeros((n_nodes, n_nodes))
+        local_waste = np.zeros(n_nodes)
 
-        current_fill = bins.c
-        predicted_fill = current_fill + means + (param * std)
-        must_go_indices = np.where((predicted_fill >= 100.0) | (current_fill >= 100.0))[0].tolist()
+        # Load params (need B, E for specific weight calc if needed, or just % fill)
+        # Using bins.c for simplicity or loading if required.
+        for r in range(n_nodes):
+            orig_node_idx = map_local_to_global[r]
+            local_waste[r] = bins.c[orig_node_idx - 1] if r > 0 else 0
+            for c in range(n_nodes):
+                sub_matrix[r, c] = distance_matrix[map_local_to_global[r]][map_local_to_global[c]]
 
-        target_nodes = must_go_indices
-        if not target_nodes:
-            return [0, 0], 0.0, None
-
-        # LKH Config
-        lkh_config = config.get("lkh", {}).copy()
         capacity = lkh_config.get("capacity", 100.0)
+        lk_tour_local, _ = solve_lk(sub_matrix, waste=local_waste, capacity=capacity)
+        lk_tour_global = [map_local_to_global[i] for i in lk_tour_local]
 
-        # Subset mapping
-        real_target_indices = [idx + 1 for idx in target_nodes]
-        subset_indices = [0] + real_target_indices
+        # Final capacity check
+        if lkh_config.get("check_capacity", True):
+            from .single_vehicle import get_multi_tour
 
-        dist_matrix_np = np.array(distance_matrix)
-        sub_dist_matrix = dist_matrix_np[np.ix_(subset_indices, subset_indices)]
+            lk_tour_global = get_multi_tour(lk_tour_global, bins.c, capacity, distance_matrix)
 
-        # Prepare Waste array for sub-problem
-        sub_waste = [0.0]  # Depot
-        for original_idx in real_target_indices:
-            sub_waste.append(current_fill[original_idx - 1])
-
-        lkh_config["waste"] = np.array(sub_waste)
-        lkh_config["capacity"] = capacity
-
-        # Run LKH
-        best_tour, _ = solve_lk(sub_dist_matrix, lkh_config)
-
-        # Map tour back
-        tour = []
-        if best_tour:
-            for node_idx in best_tour:
-                original_matrix_idx = subset_indices[node_idx]
-                tour.append(original_matrix_idx)
-
-        # Ensure valid structure
-        if not tour:
-            tour = [0, 0]
-        elif tour[0] != 0:
-            tour = [0] + tour
-
-        if tour[-1] != 0:
-            tour.append(0)
-
-        if len(tour) <= 2:
-            # If just [0, 0] or [0]
-            tour = [0, 0]
-
-        # Recalculate cost
-        cost = 0.0
-        for i in range(len(tour) - 1):
-            cost += distance_matrix[tour[i]][tour[i + 1]]
-
-        return tour, cost, None
+        return lk_tour_global, get_route_cost(distance_matrix, lk_tour_global), None
