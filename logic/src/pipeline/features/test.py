@@ -337,11 +337,106 @@ def run_wsr_simulator_test(opts):
 
     # Define the full policy names
     policies = []
+
+    from logic.src.utils.configs.config_loader import load_config
+
     for pol in opts["policies"]:
         tmp_pols = [pol]
 
         for tmp_pol in tmp_pols:
-            policies.append("{}_{}".format(tmp_pol, opts["data_distribution"]))
+            # Attempt to load policy config to get must_go/post_processing for naming
+            # e.g. tmp_pol might be "policy_hgs"
+            # Config file: scripts/configs/policies/{tmp_pol}.yaml
+
+            # Default parts
+            prefix_str = ""
+            suffix_str = ""
+            variant_name = None
+            cfg_path = None
+
+            try:
+                # Strip 'policy_' if present for cleaner lookup, though file usually match
+                # Actually valid policies in opts usually match filename basename without ext
+                cfg_path = os.path.join(udef.ROOT_DIR, "scripts", "configs", "policies", f"{tmp_pol}.yaml")
+                if not os.path.exists(cfg_path):
+                    # Try adding policy_ prefix if missing
+                    if not tmp_pol.startswith("policy_"):
+                        cfg_path = os.path.join(
+                            udef.ROOT_DIR, "scripts", "configs", "policies", f"policy_{tmp_pol}.yaml"
+                        )
+
+                if os.path.exists(cfg_path):
+                    pol_cfg = load_config(cfg_path)
+
+                    # Flatten if needed (standard logic seems to be key-based wrapper like 'hgs': {...})
+                    inner_cfg = []
+
+                    if pol_cfg:
+                        # Iterate values to find list
+                        for k, v in pol_cfg.items():
+                            if isinstance(v, list):
+                                inner_cfg = v
+                                break
+                            if isinstance(v, dict):
+                                # If it's a dict, check if it has 'must_go' or is wrapper
+                                if "must_go" in v or "post_processing" in v:
+                                    # It's a single dict config? or dict containing list?
+                                    # Usually structure: {policy_name: [ ... ]}
+                                    pass
+                                else:
+                                    # Maybe one level deeper?
+                                    for sub_k, sub_v in v.items():
+                                        if isinstance(sub_v, list):
+                                            inner_cfg = sub_v
+                                            variant_name = sub_k
+                                            break
+
+                    # Extract must_go, post_processing
+                    mg_list = []
+                    pp_list = []
+
+                    for item in inner_cfg:
+                        if isinstance(item, dict):
+                            if "must_go" in item:
+                                mg_list = item["must_go"]
+                            if "post_processing" in item:
+                                pp_list = item["post_processing"]
+
+                    # Build Prefix from must_go
+                    if mg_list:
+                        first_mg = mg_list[0]
+                        if isinstance(first_mg, str):
+                            clean_mg = first_mg.replace("mg_", "").replace(".xml", "").replace(".yaml", "")
+                            prefix_str = f"{clean_mg}_"
+
+                    # Build Suffix from post_processing
+                    if pp_list:
+                        first_pp = pp_list[0]
+                        if isinstance(first_pp, str):
+                            clean_pp = first_pp.replace("pp_", "").replace(".xml", "").replace(".yaml", "")
+                            suffix_str = f"_{clean_pp}"
+
+            except Exception as e:
+                print(f"Warning: Could not load config for naming {tmp_pol}: {e}")
+
+            # Format: {must_go}_{policy}_{post_processing}_{distribution}
+            middle_name = tmp_pol.replace("policy_", "")
+            if variant_name and variant_name.lower() != "default":
+                middle_name = f"{middle_name}_{variant_name}"
+
+            full_name = f"{prefix_str}{middle_name}{suffix_str}_{opts['data_distribution']}"
+            policies.append(full_name)
+
+            # Add config path to opts so it gets loaded in InitializingState
+            if "config_path" not in opts or not isinstance(opts["config_path"], dict):
+                opts["config_path"] = opts.get("config_path", {}) if isinstance(opts.get("config_path"), dict) else {}
+
+            # Map the engine name (e.g. 'hgs') to its config path
+            # RunningState checks if key is in full policy name. 'hgs' is in 'lookahead_..._hgs_...'
+            if cfg_path and os.path.exists(cfg_path):
+                # Use the clean engine name or variant as key
+                key = tmp_pol.replace("policy_", "")
+                opts["config_path"][key] = cfg_path
 
     opts["policies"] = policies
     print("Policy full names:", policies)

@@ -45,4 +45,4 @@ class LookaheadSelection(MustGoSelectionStrategy):
                     must_go_bins.append(i)
                     break
 
-        return [b + 1 for b in must_go_bins]
+        return must_go_bins
