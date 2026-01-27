@@ -13,13 +13,15 @@ The Command Pattern provides:
 Classes:
     SimulationAction: Abstract base class for all simulation commands
     FillAction: Executes daily bin filling (stochastic or empirical)
+    MustGoSelectionAction: Identifies targets for collection
     PolicyExecutionAction: Runs routing policy and computes tours
+    PostProcessAction: Refines generated tours
     CollectAction: Processes waste collection from visited bins
     LogAction: Records daily metrics and outputs results
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any
 
 from logic.src.pipeline.simulations.day import get_daily_results
 from logic.src.policies.adapters import PolicyFactory
@@ -74,7 +76,7 @@ class FillAction(SimulationAction):
         overflows: Cumulative overflow count (updated if exists)
     """
 
-    def execute(self, context: Dict[str, Any]) -> None:
+    def execute(self, context: Any) -> None:
         """Execute daily bin filling."""
         bins = context["bins"]
         day = context["day"]
@@ -92,6 +94,91 @@ class FillAction(SimulationAction):
         # Accumulate overflows in context (if needed by subsequent steps or final return)
         if "overflows" in context:
             context["overflows"] += new_overflows
+
+
+class MustGoSelectionAction(SimulationAction):
+    """
+    Identifies which bins are targets for collection based on various strategies.
+
+    Strategies range from simple fill-threshold rules (Regular, Last-Minute)
+    to sophisticated stochastic prediction (Means/Std Dev). The output is
+    a list of 'must_go' bin indices stored in the context for policy execution.
+
+    Context Inputs:
+        policy_name: Policy identifier used to map to selection strategy
+        bins: Bin state management object
+        threshold: Global override threshold
+        distance_matrix: Distance information
+        paths_between_states: Shortest paths
+        max_capacity: Vehicle capacity
+
+    Context Outputs:
+        must_go: List of bin indices identified for collection (List[int])
+    """
+
+    def execute(self, context: Any) -> None:
+        """Identify bins targets for collection."""
+        import numpy as np
+
+        from logic.src.policies.must_go_selection import MustGoSelectionFactory, SelectionContext
+
+        # Standardized parameters mapping
+        policy_name = str(context.get("policy_name") or context.get("policy") or "")
+        threshold = context.get("threshold")
+
+        # 1. Map policy name to selection strategy
+        strategy_name = (
+            "regular"
+            if "regular" in policy_name
+            else "lookahead"
+            if "ahead" in policy_name
+            else "means_std"
+            if "vrpp" in policy_name or "hgs" in policy_name or "alns" in policy_name
+            else "last_minute_and_path"
+            if "and_path" in policy_name
+            else "last_minute"
+            if "last_minute" in policy_name
+            else "revenue"
+            if "profit" in policy_name
+            else "regular"
+        )
+
+        # 2. Determine strategy-specific parameters
+        sel_threshold = threshold if threshold is not None else 0.5
+        if "regular" in strategy_name:
+            import re
+
+            match = re.search(r"regular(\d+)", policy_name)
+            sel_threshold = float(int(match.group(1)) - 1) if match else 0.0
+        elif "last_minute" in strategy_name:
+            import re
+
+            match = re.search(r"last_minute(\d+)", policy_name)
+            sel_threshold = float(match.group(1)) if match else 90.0
+
+        # 3. Build Selection Context
+        bins = context["bins"]
+        sel_ctx = SelectionContext(
+            bin_ids=np.arange(0, bins.n, dtype="int32"),
+            current_fill=bins.c,
+            accumulation_rates=bins.means,
+            std_deviations=bins.std,
+            current_day=context.get("day", 0),
+            threshold=sel_threshold,
+            next_collection_day=context.get("next_collection_day"),
+            distance_matrix=context.get("distance_matrix"),
+            paths_between_states=context.get("paths_between_states"),
+            vehicle_capacity=context.get("max_capacity", 100.0),
+        )
+
+        # 4. Use Factory to select bins
+        try:
+            strategy = MustGoSelectionFactory.create_strategy(strategy_name)
+            must_go = strategy.select_bins(sel_ctx)
+        except Exception:
+            must_go = []
+
+        context["must_go"] = must_go
 
 
 class PolicyExecutionAction(SimulationAction):
@@ -126,68 +213,13 @@ class PolicyExecutionAction(SimulationAction):
         output_dict: Neural model outputs (attention, embeddings, etc.)
     """
 
-    def execute(self, context: Dict[str, Any]) -> None:
+    def execute(self, context: Any) -> None:
         """Execute the selected routing policy."""
-        # Standardized parameters
+        # 1. Standardized parameters
         policy_name = str(context.get("policy_name") or context.get("policy") or "")
         engine = context.get("engine")
         threshold = context.get("threshold")
-
-        # 1. Selection Phase (Modular & Agnostic)
-        import numpy as np
-
-        from logic.src.policies.must_go_selection import MustGoSelectionFactory, SelectionContext
-
-        # Map policy name to selection strategy
-        strategy_name = (
-            "regular"
-            if "regular" in policy_name
-            else "lookahead"
-            if "ahead" in policy_name
-            else "means_std"
-            if "vrpp" in policy_name or "hgs" in policy_name or "alns" in policy_name
-            else "last_minute_and_path"
-            if "and_path" in policy_name
-            else "last_minute"
-            if "last_minute" in policy_name
-            else "revenue"
-            if "profit" in policy_name
-            else "regular"
-        )
-
-        # Determine threshold/param for selection
-        sel_threshold = threshold if threshold is not None else 0.5
-        if "regular" in strategy_name:
-            import re
-
-            match = re.search(r"regular(\d+)", policy_name)
-            sel_threshold = float(int(match.group(1)) - 1) if match else 0.0
-        elif "last_minute" in strategy_name:
-            import re
-
-            match = re.search(r"last_minute(\d+)", policy_name)
-            sel_threshold = float(match.group(1)) if match else 90.0
-
-        bins = context["bins"]
-        sel_ctx = SelectionContext(
-            bin_ids=np.arange(0, bins.n, dtype="int32"),
-            current_fill=bins.c,
-            accumulation_rates=bins.means,
-            std_deviations=bins.std,
-            current_day=context.get("day", 0),
-            threshold=sel_threshold,
-            next_collection_day=context.get("next_collection_day"),
-            distance_matrix=context.get("distance_matrix"),
-            paths_between_states=context.get("paths_between_states"),
-            vehicle_capacity=context.get("max_capacity", 100.0),
-        )
-
-        # Use Factory to get strategy and select bins
-        try:
-            strategy = MustGoSelectionFactory.create_strategy(strategy_name)
-            must_go = strategy.select_bins(sel_ctx)
-        except Exception:
-            must_go = []
+        must_go = context.get("must_go", [])
 
         # 2. Short-circuit if no targets identified (Agnostic Contract)
         if not must_go and "neural" not in policy_name:
@@ -229,6 +261,62 @@ class PolicyExecutionAction(SimulationAction):
             context["output_dict"] = extra_output
 
 
+class PostProcessAction(SimulationAction):
+    """
+    Refines generated collection tours using modular refinement strategies.
+
+    This action applies optimization passes (like fast_tsp or Local Search) to the
+    tour generated by a policy. It enables clean separation between the base
+    routing algorithm and late-stage refinement.
+
+    Context Inputs:
+        tour: Original tour from PolicyExecutionAction
+        post_process: Name of post-processing strategy
+        config: Simulation configuration (containing post_process_cfg)
+        distance_matrix: Required for cost re-computation
+
+    Context Outputs:
+        tour: Refined tour (replaces previous tour)
+        cost: Refined cost (replaces previous cost)
+    """
+
+    def execute(self, context: Any) -> None:
+        """Refine the generated collection tour."""
+        tour = context.get("tour")
+        if not tour or len(tour) <= 2:
+            return
+
+        # 1. Determine if post-processing is requested
+        post_process_name = context.get("post_process") or context.get("config", {}).get("post_process")
+
+        if post_process_name and post_process_name.lower() != "none":
+            from logic.src.policies.post_processing import PostProcessorFactory
+
+            # 2. Extract configuration parameters for post-processing
+            config = context.get("config", {})
+            post_process_config = config.get("post_process_cfg", {})
+            # Merge with context for processor.process access
+            proc_kwargs = {**context, **post_process_config}
+
+            try:
+                # 3. Apply refinement
+                processor = PostProcessorFactory.create(post_process_name)
+                refined_tour = processor.process(tour, **proc_kwargs)
+
+                # 4. Update context with refined tour and re-compute cost
+                if refined_tour != tour:
+                    from logic.src.policies.single_vehicle import get_route_cost
+
+                    dist_matrix = context.get("distance_matrix")
+                    new_cost = get_route_cost(dist_matrix, refined_tour)
+
+                    context["tour"] = refined_tour
+                    context["cost"] = new_cost
+            except Exception as e:
+                # Log error and keep original tour
+                print(f"Post-processing skipped due to error: {e}")
+
+
 class CollectAction(SimulationAction):
     """
     Processes waste collection from bins visited in the tour.
@@ -255,7 +343,7 @@ class CollectAction(SimulationAction):
         profit: Net profit for this day (float)
     """
 
-    def execute(self, context: Dict[str, Any]) -> None:
+    def execute(self, context: Any) -> None:
         """Execute waste collection based on the generated tour."""
         bins = context["bins"]
         tour = context["tour"]
@@ -298,7 +386,7 @@ class LogAction(SimulationAction):
         daily_log: Structured dictionary of today's metrics
     """
 
-    def execute(self, context: Dict[str, Any]) -> None:
+    def execute(self, context: Any) -> None:
         """Log daily results and update GUI."""
         tour = context["tour"]
         cost = context["cost"]

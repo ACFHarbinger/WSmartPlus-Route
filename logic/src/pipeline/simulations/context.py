@@ -121,6 +121,7 @@ class SimulationDayContext(Mapping):
     fill: Any = None
     total_fill: Any = None
     extra_output: Any = None
+    must_go: Optional[List[int]] = None
 
     @property
     def field_names(self):

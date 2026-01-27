@@ -20,7 +20,7 @@ Functions:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -65,7 +65,7 @@ def set_daily_waste(
         if device.type == "cuda":
             fill_tensor = fill_tensor.pin_memory()
         model_data["current_fill"] = fill_tensor
-    return cast(Dict[str, Any], move_to(model_data, device, non_blocking=True))
+    return move_to(model_data, device, non_blocking=True)
 
 
 def get_daily_results(
@@ -154,10 +154,19 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
         CollectAction,
         FillAction,
         LogAction,
+        MustGoSelectionAction,
         PolicyExecutionAction,
+        PostProcessAction,
     )
 
-    commands = [FillAction(), PolicyExecutionAction(), CollectAction(), LogAction()]
+    commands = [
+        FillAction(),
+        MustGoSelectionAction(),
+        PolicyExecutionAction(),
+        PostProcessAction(),
+        CollectAction(),
+        LogAction(),
+    ]
 
     for command in commands:
         command.execute(context)
