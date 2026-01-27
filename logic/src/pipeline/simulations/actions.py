@@ -158,8 +158,9 @@ class MustGoSelectionAction(SimulationAction):
                     strategies.append({"name": item, "params": {}})
         else:
             # Fallback to legacy parsing from policy_name
-            policy_name = context.get("policy_name", "")
-            search_str = policy_name.lower()
+            # Priorities: policy (stripped) > full_policy > policy_name (normalized)
+            policy_name = context.get("policy") or context.get("full_policy") or context.get("policy_name", "")
+            search_str = str(policy_name).lower()
 
             strat = "regular"
             params = {}
