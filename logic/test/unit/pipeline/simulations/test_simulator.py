@@ -931,7 +931,7 @@ class TestDay:
         run_day(
             make_day_context(
                 graph_size=3,
-                full_policy="policy_regular3_gamma1",
+                full_policy="regular3_policy_tsp_gamma1",
                 bins=mock_run_day_deps["bins"],
                 new_data=mock_run_day_deps["new_data"],
                 coords=mock_run_day_deps["coords"],
@@ -972,7 +972,7 @@ class TestDay:
         run_day(
             make_day_context(
                 graph_size=3,
-                full_policy="policy_regular3_gamma1",
+                full_policy="regular3_policy_tsp_gamma1",
                 bins=mock_run_day_deps["bins"],
                 new_data=mock_run_day_deps["new_data"],
                 coords=mock_run_day_deps["coords"],
@@ -1102,9 +1102,9 @@ class TestDay:
             run_day(
                 make_day_context(
                     graph_size=3,
-                    full_policy="meanstd_does_not_exist_gamma1",
-                    policy="meanstd_does_not_exist",
-                    policy_name="meanstd_does_not_exist",
+                    full_policy="meanstd0.84_does_not_exist_gamma1",
+                    policy="meanstd0.84_does_not_exist",
+                    policy_name="meanstd0.84_does_not_exist",
                     bins=mock_run_day_deps["bins"],
                     new_data=mock_run_day_deps["new_data"],
                     coords=mock_run_day_deps["coords"],
@@ -1517,8 +1517,6 @@ class TestDayResults:
         # --- CRITICAL: Correct way to mock instance method with side_effect ---
         def stochastic_filling_mock(self, n_samples=1, only_fill=False):
             """Mock for stochastic filling behavior."""
-            # Debug: Check if loop is running
-            print(f"DEBUG: stochasticFilling called. ndays={self.ndays}. n_samples={n_samples}, only_fill={only_fill}")
             # This function WILL receive `self` (the Bins instance) automatically
             daily_overflow = 30.0
             todaysfilling = np.array([100.0, 0.0, 0.0])  # Bin 1 fills 100, others 0

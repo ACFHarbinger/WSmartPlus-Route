@@ -3,8 +3,6 @@
 import numpy as np
 import pytest
 from logic.src.pipeline.simulations.actions import MustGoSelectionAction, PostProcessAction
-import logic.src.pipeline.simulations.actions as actions_mod
-print(f"DEBUG: actions module file: {actions_mod.__file__}")
 
 class SimpleContext(dict):
     """A simple context that supports both dict access and attributes."""

@@ -1,7 +1,5 @@
 <config>
     <regular>
-        <level>3</level>
-        <level>4</level>
-        <level>5</level>
+        <lvl>3</lvl>
     </regular>
 </config>

@@ -72,14 +72,19 @@ jobs:
 
     - name: Install system dependencies
       run: |
+        sudo apt-get update
         sudo apt-get install -y \
           libegl1 libopengl0 libxcb-cursor0 libdbus-1-3 \
-          libxkbcommon-x11-0 xvfb
+          libxkbcommon-x11-0 xvfb libxcb-icccm4 \
+          libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
+          libxcb-render-util0 libxcb-xinerama0 libxcb-shape0
 
     - name: Install dependencies
       run: uv sync --all-extras --dev
 
     - name: Test with Coverage
+      env:
+        QT_DEBUG_PLUGINS: 1
       # Run tests with coverage using xvfb
       run: xvfb-run uv run pytest --cov --cov-report=xml --cov-report=term-missing
 

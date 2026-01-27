@@ -59,4 +59,5 @@ class LookaheadSelection(MustGoSelectionStrategy):
                     must_go_bins.append(i)
                     break
 
-        return must_go_bins
+        # Return 1-based bin IDs
+        return [idx + 1 for idx in must_go_bins]
