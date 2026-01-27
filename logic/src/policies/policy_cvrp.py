@@ -13,7 +13,7 @@ from logic.src.pipeline.simulations.loader import load_area_and_waste_type_param
 
 from .adapters import IPolicy, PolicyRegistry
 from .multi_vehicle import find_routes
-from .single_vehicle import get_route_cost, local_search_2opt
+from .single_vehicle import get_route_cost
 
 
 @PolicyRegistry.register("cvrp")
@@ -48,12 +48,7 @@ class CVRPPolicy(IPolicy):
         else:
             tour = find_routes(distancesC, bins.c, max_capacity, np.array(to_collect), n_vehicles, coords)
 
-        # Post-processing
-        two_opt_iter = kwargs.get("two_opt_max_iter", 0)
         distance_matrix = kwargs.get("distance_matrix", distancesC)
-        if two_opt_iter > 0:
-            tour = local_search_2opt(tour, distance_matrix, two_opt_iter)
-
         cost = get_route_cost(distance_matrix, tour)
 
         return tour, cost, tour

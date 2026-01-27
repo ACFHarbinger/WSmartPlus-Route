@@ -12,7 +12,7 @@ import numpy as np
 from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
 
 from .adapters import IPolicy, PolicyRegistry
-from .single_vehicle import find_route, get_multi_tour, get_route_cost, local_search_2opt
+from .single_vehicle import find_route, get_multi_tour, get_route_cost
 
 
 @PolicyRegistry.register("tsp")
@@ -50,12 +50,7 @@ class TSPPolicy(IPolicy):
         # Handle capacity
         tour = get_multi_tour(tour, bins.c, max_capacity, distancesC)
 
-        # Post-processing
-        two_opt_iter = kwargs.get("two_opt_max_iter", 0)
         distance_matrix = kwargs.get("distance_matrix", distancesC)
-        if two_opt_iter > 0:
-            tour = local_search_2opt(tour, distance_matrix, two_opt_iter)
-
         cost = get_route_cost(distance_matrix, tour)
 
         return tour, cost, tour
