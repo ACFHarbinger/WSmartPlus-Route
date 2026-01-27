@@ -99,8 +99,7 @@ check-docs:
     uv run python logic/src/utils/validation/check_docstrings.py logic/src
 
 build-docs:
-    cd logic/docs
-    uv run make html
+    cd logic/docs && uv run make html
 
 # Format code with black and ruff
 format:

@@ -1194,6 +1194,42 @@ class Network:
             from googlemaps import Client
             client = Client(key=self.api_key)
             # ... API calls ...
+
+### 11.4 Selection Strategies
+
+Modular strategies control *which* bins are selected for collection each day.
+
+| Strategy | Description | Configuration Parameters |
+|----------|-------------|--------------------------|
+| **LastMinute** | Reactive: Collect when fill level > threshold | `threshold` (0.0-1.0) |
+| **Lookahead** | Proactive: Collect if overflow predicted within N days | `lookahead_days` (int) |
+| **Revenue** | Profit-driven: Collect if Revenue > Cost | `price_per_kg`, `cost_per_km` |
+| **Regular** | Periodic: Fixed schedule (e.g., every 3 days) | `frequency` (days) |
+| **MeansStdDev** | Statistical: Collect if current + mean fill * days > capacity | `confidence_factor` (float) |
+
+These strategies are composable via `MustGoSelectionAction` and can be chained with `PostProcessAction` for complex behaviors.
+
+### 11.5 Post-Processing
+
+The `PostProcessAction` allows for modular refinement of generated tours. It functions as a middleware layer between policy execution and the final simulation step.
+
+- **Purpose**: Refine tours (e.g., local search, TSP re-optimization) completely independent of the generation policy.
+- **Configuration**: List of processors defined in `post_processing` key of simulation config.
+- **Support**: Can Use XML/YAML configs similarly to selection strategies.
+
+```python
+# actions.py
+class PostProcessAction(SimulationAction):
+    def execute(self, context):
+        tour = context.get("tour")
+        processors = context.get("config").get("post_processing", [])
+
+        for pp_name in processors:
+             processor = PostProcessorFactory.create(pp_name)
+             tour = processor.process(tour)
+
+        context["tour"] = tour
+```
 ```
 
 ---
@@ -1325,6 +1361,7 @@ class TrainingTab(QWidget):
 | `assets/configs/train.yaml` | Training defaults |
 | `assets/configs/sim.yaml` | Simulation defaults |
 | `assets/configs/areas/*.yaml` | Area-specific settings |
+| `scripts/configs/policies/*.{yaml,xml}` | Detailed Policy Configurations |
 | `.env` | Environment secrets (git-ignored) |
 
 ### 13.3 Configuration Dataclass
