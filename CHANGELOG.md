@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.0] - 2026-01-27
+
+### Simulator Pipeline Overhaul & Selection Strategies
+Introduced a modular **Selection Strategy** system for the Simulator, allowing for granular control over bin collection criteria (Last Minute, Lookahead, Revenue, etc.) via XML/YAML configurations.
+
+### Added
+- **Selection Strategies** (`logic/src/policies/selection/`):
+  - `LastMinuteSelection`: Reactive threshold-based collection.
+  - `LookaheadSelection`: Predictive overflow prevention.
+  - `RevenueThresholdSelection`: Profit-driven selection.
+  - `RegularSelection`: Periodic schedule enforcement.
+  - `MeansAndStdDevSelection`: Statistical overflow prediction.
+- **Configuration System**:
+  - `scripts/configs/policies/`: Modular XML/YAML policy configs.
+  - `scripts/utils/yaml_to_env.py`: Utility for environment variable conversion.
+- **Decoding Strategies** (`logic/src/utils/functions/decoding.py`):
+  - Unified `Greedy`, `Sampling`, `BeamSearch`, and `Evaluate` strategies.
+
+### Changed
+- **Simulator Engine**: Refactored `actions.py` to use `MustGoSelectionAction` and `PostProcessAction` for composable behavior.
+- **Testing**: Added comprehensive unit tests for selection actions and fixtures in `logic/test/fixtures/sim_fixtures.py`.
+
 ## [4.2.0] - 2026-01-25
 
 ### Comprehensive Testing Suite (Phase 2)

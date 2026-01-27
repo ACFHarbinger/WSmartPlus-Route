@@ -451,8 +451,27 @@ export QT_LOGGING_RULES="*.debug=false"
 # Start with default experiment config
 python main.py train_lightning experiment=base
 
+```bash
 # Override specific options
 python main.py train_lightning experiment=base train.batch_size=128 model.hidden_dim=256
+```
+
+### 6.5 Policy & Selection Configuration
+
+Policies and selection strategies use a mix of YAML and XML configurations located in `scripts/configs/policies/`.
+
+- **YAML (*.yaml)**: Defines classical or neural policy adaptors (e.g., `policy_alns.yaml`).
+  - Can reference sub-components like Selection Strategies via XML pointers.
+- **XML (*.xml)**: Defines specific selection strategy behaviors (e.g., `mg_lookahead_days7.xml`).
+  - Used for modular composition of strategies.
+
+**Example Usage:**
+
+To use a specific policy configuration during simulation:
+
+```bash
+# Run simulation with ALNS policy configured via YAML
+python main.py test_sim --policies policy_alns
 ```
 
 ---

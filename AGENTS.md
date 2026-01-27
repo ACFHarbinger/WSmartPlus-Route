@@ -547,13 +547,12 @@ This section maintains a registry of intelligent agents, orchestration component
 |-----------|------|-------------|
 | **GRFPredictor** | `grf_predictor.py` | Gated recurrent predictor for future bin fill levels. |
 
-### 10.5 Classical Policies (`logic/src/policies/`)
+### 10.5 Classical Policies & Selection (`logic/src/policies/`)
+
+#### Routing Policies
 
 | Policy | File | Type | Description |
 |--------|------|------|-------------|
-| **Regular** | `regular.py` | Periodic | Fixed-schedule collection baseline. |
-| **LastMinute** | `last_minute.py` | Reactive | Threshold-triggered collection. |
-| **LookAhead** | `look_ahead.py` | Rolling Horizon | N-day planning with sub-optimization. |
 | **ALNS** | `adaptive_large_neighborhood_search.py` | Metaheuristic | Destroy-repair operators with adaptive weights. |
 | **BCP** | `branch_cut_and_price.py` | Exact | Branch-Cut-and-Price via Gurobi/OR-Tools/VRPy. |
 | **HGS** | `hybrid_genetic_search.py` | Genetic | Evolutionary operators with local search and Split. |
@@ -561,9 +560,18 @@ This section maintains a registry of intelligent agents, orchestration component
 | **SingleVehicle** | `single_vehicle.py` | TSP Heuristic | fast_tsp for single-vehicle sequencing. |
 | **LinKernighan** | `lin_kernighan.py` | Local Search | Lin-Kernighan TSP heuristic. |
 | **NeuralAgent** | `neural_agent.py` | Agent Wrapper | Interfaces neural models with simulator. |
-| **VRPPPolicy** | `policy_vrpp.py` | VRPP-specific | VRPP problem logic. |
-| **VRPPOptimizer** | `vrpp_optimizer.py` | Exact/Hybrid | Gurobi/Hexaly interface for VRPP. |
+| **PostProcessing** | `post_processing.py` | Refinement | Route improvement heuristics. |
 | **PolicyFactory** | `adapters.py` | Factory | Central policy instantiation via `get_adapter()`. |
+
+#### Selection Strategies (`logic/src/policies/selection/`)
+
+| Strategy | File | Description |
+|----------|------|-------------|
+| **Regular** | `selection_regular.py` | Fixed-frequency collection (e.g., every 3 days). |
+| **LastMinute** | `selection_last_minute.py` | Collect when fill level exceeds threshold. |
+| **LookAhead** | `selection_lookahead.py` | Collect if overflow predicted within N days. |
+| **Revenue** | `selection_revenue.py` | Collect if profit > cost. |
+| **MeansStdDev** | `selection_means_std.py` | Statistical overflow prediction. |
 
 ### 10.6 Problem Environments (`logic/src/tasks/`)
 
