@@ -305,3 +305,87 @@ class RandomLocalSearchPostProcessor(IPostProcessor):
             return current_routes.squeeze(0).cpu().tolist()
         except Exception:
             return tour
+
+
+# --- Concrete Implementation: Path Refinement ---
+@PostProcessorRegistry.register("path")
+class PathPostProcessor(IPostProcessor):
+    """
+    Refines the tour by including nodes that lie on the shortest paths between consecutive
+    stops in the tour, provided they fit within the vehicle capacity.
+    mirrors the logic of the deprecated LastMinuteAndPathSelection.
+    """
+
+    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+        """
+        Refine the tour by picking up convenient bins along the path.
+
+        Args:
+            tour: The current tour (list of bin IDs).
+            **kwargs: Context containing 'bins' or 'total_fill', 'paths_between_states',
+                      and 'vehicle_capacity'.
+
+        Returns:
+            List[int]: The expanded tour including opportunistic pickups.
+        """
+
+        # 1. Extract context data
+        bins = kwargs.get("bins")
+        paths = kwargs.get("paths_between_states")
+
+        # Retrieve fill levels (Simulations put 'total_fill' in context)
+        current_fill = kwargs.get("total_fill")
+        if current_fill is None and bins is not None:
+            current_fill = getattr(bins, "c", None)
+
+        if current_fill is None or paths is None:
+            return tour
+
+        capacity = kwargs.get("max_capacity") or kwargs.get("vehicle_capacity", 100.0)
+
+        # 2. Initialize State
+        selected_nodes = set(tour)
+        if 0 in selected_nodes:
+            selected_nodes.remove(0)
+
+        current_load = sum(current_fill[node - 1] for node in selected_nodes)
+
+        new_tour = [tour[0]]
+
+        # 3. Iterate edges and fill gaps
+        for i in range(len(tour) - 1):
+            u = tour[i]
+            v = tour[i + 1]
+
+            # Retrieve path segment
+            # paths is List[List[List[int]]] typically
+            try:
+                segment = paths[u][v]
+            except IndexError:
+                segment = [u, v]
+
+            if not segment:
+                # Should not happen if data valid, but safe fallback
+                new_tour.append(v)
+                continue
+
+            # Iterate intermediate nodes (skip u)
+            for node in segment[1:]:
+                if node == 0:
+                    if node == v:
+                        new_tour.append(node)
+                    continue
+
+                if node == v:
+                    new_tour.append(node)
+                    continue
+
+                if node not in selected_nodes:
+                    waste = current_fill[node - 1]
+                    if current_load + waste <= capacity:
+                        current_load += waste
+                        selected_nodes.add(node)
+                        new_tour.append(node)
+                    # else: skip
+
+        return new_tour

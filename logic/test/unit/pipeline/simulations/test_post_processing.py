@@ -51,3 +51,72 @@ class TestClassicalLocalSearchPostProcessor:
         assert len(refined_tour) == len(tour)
         assert refined_tour[0] == 0
         assert refined_tour[-1] == 0
+
+class TestPathPostProcessor:
+    def test_path_refinement_fills_gap(self):
+        # Scenario: Tour 0 -> 1 -> 3 -> 0
+        # Path 1->3 goes through 2: [1, 2, 3]
+        # Bin 2 is not in tour. fits capacity.
+
+        processor = PostProcessorFactory.create("path")
+
+        tour = [0, 1, 3, 0]
+
+        # Mock paths: paths[1][3] = [1, 2, 3]
+        # We need a structure that supports paths[u][v]
+        # Minimal mock using dict/list
+        paths = [[[] for _ in range(4)] for _ in range(4)]
+        paths[1][3] = [1, 2, 3]
+
+        # Mock fill levels: bin 1=10, bin 2=10, bin 3=10
+        # Indices in fill array are bin_id-1.
+        # bin 1 -> idx 0, etc.
+        current_fill = np.array([10.0, 10.0, 10.0, 10.0]) # 4 bins
+
+        refined = processor.process(
+            tour,
+            paths_between_states=paths,
+            total_fill=current_fill,
+            vehicle_capacity=100.0,
+            bins=None
+        )
+
+        # Expect 2 to be inserted between 1 and 3
+        expected = [0, 1, 2, 3, 0]
+        assert refined == expected
+
+    def test_path_refinement_skip_if_full(self):
+        processor = PostProcessorFactory.create("path")
+        tour = [0, 1, 3, 0]
+        paths = [[[] for _ in range(4)] for _ in range(4)]
+        paths[1][3] = [1, 2, 3]
+        current_fill = np.array([50.0, 50.0, 50.0, 50.0])
+
+        # Current load: 1(50) + 3(50) = 100. Capacity = 100.
+        # Node 2(50) + 100 = 150 > 100. Should skip.
+
+        refined = processor.process(
+            tour,
+            paths_between_states=paths,
+            total_fill=current_fill,
+            vehicle_capacity=100.0
+        )
+
+        assert refined == tour
+
+    def test_path_refinement_skip_existing(self):
+        # If 2 is already in tour, don't double add
+        processor = PostProcessorFactory.create("path")
+        tour = [0, 1, 2, 3, 0]
+        paths = [[[] for _ in range(4)] for _ in range(4)]
+        paths[1][3] = [1, 2, 3]
+        current_fill = np.array([10.0, 10.0, 10.0, 10.0])
+
+        refined = processor.process(
+            tour,
+            paths_between_states=paths,
+            total_fill=current_fill,
+            vehicle_capacity=100.0
+        )
+
+        assert refined == tour
