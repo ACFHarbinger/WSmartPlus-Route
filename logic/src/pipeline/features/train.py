@@ -518,10 +518,46 @@ def run_training(cfg: Config) -> float:
 @hydra.main(version_base=None, config_name="config")
 def main(cfg: Config) -> float:
     """Unified entry point."""
-    if cfg.hpo.n_trials > 0:
-        return run_hpo(cfg)
+    if cfg.task == "train":
+        if cfg.hpo.n_trials > 0:
+            return run_hpo(cfg)
+        else:
+            return run_training(cfg)
+    elif cfg.task == "eval":
+        from omegaconf import OmegaConf
+
+        from logic.src.pipeline.features.eval import run_evaluate_model, validate_eval_args
+
+        # Convert Hydra config to dict
+        eval_args = OmegaConf.to_container(cfg.eval, resolve=True)
+        # Validate and run
+        args = validate_eval_args(eval_args)
+        run_evaluate_model(args)
+        return 0.0
+    elif cfg.task == "test_sim":
+        from omegaconf import OmegaConf
+
+        from logic.src.pipeline.features.test import run_wsr_simulator_test, validate_test_sim_args
+
+        # Convert Hydra config to dict
+        sim_args = OmegaConf.to_container(cfg.sim, resolve=True)
+        # Validate and run
+        args = validate_test_sim_args(sim_args)
+        run_wsr_simulator_test(args)
+        return 0.0
+    elif cfg.task == "gen_data":
+        from omegaconf import OmegaConf
+
+        from logic.src.data.generate_data import generate_datasets, validate_gen_data_args
+
+        # Convert Hydra config to dict
+        data_args = OmegaConf.to_container(cfg.data, resolve=True)
+        # Validate and run
+        args = validate_gen_data_args(data_args)
+        generate_datasets(args)
+        return 0.0
     else:
-        return run_training(cfg)
+        raise ValueError(f"Unknown task: {cfg.task}")
 
 
 if __name__ == "__main__":

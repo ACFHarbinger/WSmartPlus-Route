@@ -17,6 +17,8 @@ def test_cli_help():
         text=True,
     )
     assert result.returncode == 0
+    assert result.returncode == 0
+    # main.py --help still goes to legacy parser for other commands
     assert "usage:" in result.stdout or "Usage:" in result.stdout
 
 
@@ -30,21 +32,15 @@ def test_cli_gen_data_smoke(tmp_path, problem):
             sys.executable,
             "main.py",
             "gen_data",
-            "--dataset_type",
-            "test_simulator",
-            "--problem",
-            problem,
-            "--data_distributions",
-            "unif",
-            "--graph_sizes",
-            "10",
-            "--dataset_size",
-            "2",
-            "--data_dir",
-            str(output_dir),
-            "--name",
-            "smoke_test",
-            "-f",
+            "task=gen_data",
+            "data.dataset_type=test_simulator",
+            f"data.problem={problem}",
+            "data.data_distributions=['unif']",
+            "data.graph_sizes=[10]",
+            "data.dataset_size=2",
+            f"data.data_dir={output_dir}",
+            "data.name=smoke_test",
+            "data.overwrite=true",
         ],
         capture_output=True,
         text=True,
@@ -103,21 +99,15 @@ def test_cli_eval_smoke(tmp_path):
             sys.executable,
             "main.py",
             "gen_data",
-            "--dataset_type",
-            "test_simulator",
-            "--problem",
-            "vrpp",
-            "--data_distributions",
-            "unif",
-            "--graph_sizes",
-            "10",
-            "--dataset_size",
-            "2",
-            "--data_dir",
-            str(data_dir),
-            "--name",
-            "eval_test",
-            "-f",
+            "task=gen_data",
+            "data.dataset_type=test_simulator",
+            "data.problem=vrpp",
+            "data.data_distributions=['unif']",
+            "data.graph_sizes=[10]",
+            "data.dataset_size=2",
+            f"data.data_dir={data_dir}",
+            "data.name=eval_test",
+            "data.overwrite=true",
         ],
         check=True,
         capture_output=True,
@@ -139,7 +129,9 @@ def test_cli_eval_smoke(tmp_path):
         capture_output=True,
         text=True,
     )
+    # main.py eval --help invokes Hydra help
     assert result.returncode == 0
+    assert "Powered by Hydra" in result.stdout or "== Configuration groups ==" in result.stdout
 
 
 @pytest.mark.e2e
@@ -156,7 +148,8 @@ def test_cli_test_sim_smoke():
         text=True,
     )
     assert result.returncode == 0
-    assert "usage:" in result.stdout or "Usage:" in result.stdout
+    # main.py test_sim --help invokes Hydra help
+    assert "Powered by Hydra" in result.stdout or "== Configuration groups ==" in result.stdout
 
 
 @pytest.mark.e2e

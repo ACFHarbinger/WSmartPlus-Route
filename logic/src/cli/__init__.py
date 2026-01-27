@@ -10,24 +10,10 @@ from logic.src.cli.base_parser import (
     StoreDictKeyPair,
     UpdateFunctionMapActionFactory,
 )
-from logic.src.cli.data_parser import add_gen_data_args, validate_gen_data_args
 from logic.src.cli.fs_parser import add_files_args, validate_file_system_args
 from logic.src.cli.gui_parser import add_gui_args, validate_gui_args
 from logic.src.cli.registry import get_parser
-from logic.src.cli.sim_parser import (
-    add_eval_args,
-    add_test_sim_args,
-    validate_eval_args,
-    validate_test_sim_args,
-)
-from logic.src.cli.train_parser import (
-    add_hp_optim_args,
-    add_mrl_train_args,
-    add_train_args,
-    validate_train_args,
-)
 from logic.src.cli.ts_parser import add_test_suite_args, validate_test_suite_args
-from logic.src.cli.tui import launch_tui
 
 
 def parse_params():
@@ -42,13 +28,8 @@ def parse_params():
         command, opts = parser.parse_process_args()
 
         # --- COMMAND-SPECIFIC VALIDATION AND POST-PROCESSING ---
-        if command == "gen_data":
-            opts = validate_gen_data_args(opts)
-        elif command == "eval":
-            opts = validate_eval_args(opts)
-        elif command == "test_sim":
-            opts = validate_test_sim_args(opts)
-        elif command == "file_system":
+        # "gen_data", "eval", "test_sim", "train" are now fully handled by Hydra or removed from legacy flow
+        if command == "file_system":
             # This returns a tuple: (fs_command, validated_opts)
             command, opts = validate_file_system_args(opts)
             command = ("file_system", command)  # Re-wrap for main() function handling

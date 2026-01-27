@@ -5,13 +5,16 @@ Configuration dataclasses for WSmart-Route.
 from dataclasses import dataclass, field
 from typing import Optional
 
+from .data import DataConfig
 from .decoding import DecodingConfig
 from .env import EnvConfig
+from .eval import EvalConfig
 from .hpo import HPOConfig
 from .meta_rl import MetaRLConfig
 from .model import ModelConfig
 from .optim import OptimConfig
 from .rl import RLConfig
+from .sim import SimConfig
 from .train import TrainConfig
 
 
@@ -27,9 +30,13 @@ class Config:
         rl: RL algorithm configuration.
         meta_rl: Meta-RL configuration.
         hpo: HPO configuration.
+        eval: Evaluation configuration.
+        sim: Simulation configuration.
+        data: Data generation configuration.
         seed: Random seed.
         device: Device to use ('cpu', 'cuda').
         experiment_name: Optional name for the experiment.
+        task: Task to perform ('train', 'eval', 'test_sim', 'gen_data').
     """
 
     env: EnvConfig = field(default_factory=EnvConfig)
@@ -39,9 +46,13 @@ class Config:
     rl: RLConfig = field(default_factory=RLConfig)
     meta_rl: MetaRLConfig = field(default_factory=MetaRLConfig)
     hpo: HPOConfig = field(default_factory=HPOConfig)
+    eval: EvalConfig = field(default_factory=EvalConfig)
+    sim: SimConfig = field(default_factory=SimConfig)
+    data: DataConfig = field(default_factory=DataConfig)
     seed: int = 42
     device: str = "cuda"
     experiment_name: Optional[str] = None
+    task: str = "train"
     # NEW FIELDS:
     wandb_mode: str = "offline"
     no_tensorboard: bool = False
@@ -59,6 +70,9 @@ __all__ = [
     "RLConfig",
     "MetaRLConfig",
     "HPOConfig",
+    "EvalConfig",
+    "SimConfig",
+    "DataConfig",
     "Config",
     "DecodingConfig",
 ]
