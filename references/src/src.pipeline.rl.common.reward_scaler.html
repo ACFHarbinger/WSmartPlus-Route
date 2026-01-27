@@ -250,6 +250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -527,6 +528,11 @@ scale: Scaling mode:
 running_momentum: Momentum for exponential moving average (0 = cumulative, 1 = instant)
 eps: Small constant for numerical stability</p>
 <p class="rubric">Initialization</p>
+<p>Initialize RewardScaler.</p>
+<p>Args:
+scale: Scaling mode (‘norm’, ‘scale’, ‘none’).
+running_momentum: Momentum for stats updates.
+eps: Numerical stability constant.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.reward_scaler.RewardScaler.mean">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mean</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.pipeline.rl.common.reward_scaler.RewardScaler.mean" title="Link to this definition">#</a></dt>
@@ -603,6 +609,9 @@ Scaled scores</p>
 <dd><p>Per-batch reward scaler (no running statistics).</p>
 <p>Normalizes each batch independently.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize BatchRewardScaler.</p>
+<p>Args:
+eps: Numerical stability constant.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.reward_scaler.BatchRewardScaler.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.reward_scaler.BatchRewardScaler.__call__" title="Link to this definition">#</a></dt>

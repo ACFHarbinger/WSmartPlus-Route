@@ -250,6 +250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -648,16 +649,9 @@ Processed logits</p>
 <dd><p>Bases: <a class="reference internal" href="#src.utils.functions.decoding.DecodingStrategy" title="src.utils.functions.decoding.DecodingStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.utils.functions.decoding.DecodingStrategy</span></code></a></p>
 <p>Greedy decoding: always select the action with highest probability.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize DecodingStrategy.</p>
+<p>Initialize Greedy decoding.</p>
 <p>Args:
-temperature: Temperature for softmax scaling. Higher = more random.
-top_k: Keep only top-k logits before sampling.
-top_p: Keep smallest set of logits with cumsum &gt;= top_p (nucleus sampling).
-tanh_clipping: Apply tanh clipping to logits (Bello et al., 2016).
-mask_logits: Whether to apply masking to invalid actions.
-multistart: Whether to use multiple starting points.
-num_starts: Number of starting points for multistart.
-select_best: Whether to select best solution from multiple starts.</p>
+**kwargs: Passed to super class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.functions.decoding.Greedy.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.functions.decoding.Greedy.step" title="Link to this definition">#</a></dt>
@@ -698,16 +692,10 @@ select_best: Whether to select best solution from multiple starts.</p>
 <p>Note: Beam search requires special handling in the policy forward pass.
 This implementation provides the step function for scoring candidates.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize DecodingStrategy.</p>
+<p>Initialize BeamSearch decoding.</p>
 <p>Args:
-temperature: Temperature for softmax scaling. Higher = more random.
-top_k: Keep only top-k logits before sampling.
-top_p: Keep smallest set of logits with cumsum &gt;= top_p (nucleus sampling).
-tanh_clipping: Apply tanh clipping to logits (Bello et al., 2016).
-mask_logits: Whether to apply masking to invalid actions.
-multistart: Whether to use multiple starting points.
-num_starts: Number of starting points for multistart.
-select_best: Whether to select best solution from multiple starts.</p>
+beam_width: Number of beams to maintain.
+**kwargs: Passed to super class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.functions.decoding.BeamSearch.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.functions.decoding.BeamSearch.step" title="Link to this definition">#</a></dt>
@@ -725,16 +713,10 @@ Tuple of (top_k_actions, top_k_log_probs, entropy) each with shape [batch, beam_
 <p>Evaluate decoding: compute log probability of given actions.</p>
 <p>Used for evaluating pre-computed solutions.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize DecodingStrategy.</p>
+<p>Initialize Evaluate decoding.</p>
 <p>Args:
-temperature: Temperature for softmax scaling. Higher = more random.
-top_k: Keep only top-k logits before sampling.
-top_p: Keep smallest set of logits with cumsum &gt;= top_p (nucleus sampling).
-tanh_clipping: Apply tanh clipping to logits (Bello et al., 2016).
-mask_logits: Whether to apply masking to invalid actions.
-multistart: Whether to use multiple starting points.
-num_starts: Number of starting points for multistart.
-select_best: Whether to select best solution from multiple starts.</p>
+actions: Pre-defined actions to evaluate [batch, seq_len].
+**kwargs: Passed to super class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.functions.decoding.Evaluate.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.functions.decoding.Evaluate.step" title="Link to this definition">#</a></dt>

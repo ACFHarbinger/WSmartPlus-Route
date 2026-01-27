@@ -273,6 +273,9 @@ Bases: {py:obj}`src.pipeline.rl.common.baselines.Baseline`
 ````{py:method} unwrap_batch(batch: typing.Any) -> typing.Tuple[typing.Any, typing.Optional[torch.Tensor]]
 :canonical: src.pipeline.rl.common.baselines.WarmupBaseline.unwrap_batch
 
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.WarmupBaseline.unwrap_batch
+```
+
 ````
 
 ````{py:method} epoch_callback(policy: torch.nn.Module, epoch: int, val_dataset: typing.Optional[typing.Any] = None, env: typing.Optional[typing.Any] = None)

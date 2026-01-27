@@ -20,17 +20,29 @@
     :summary:
     ```
 * - {py:obj}`VRPP <src.envs.problems.VRPP>`
-  -
+  - ```{autodoc2-docstring} src.envs.problems.VRPP
+    :summary:
+    ```
 * - {py:obj}`CVRPP <src.envs.problems.CVRPP>`
-  -
+  - ```{autodoc2-docstring} src.envs.problems.CVRPP
+    :summary:
+    ```
 * - {py:obj}`WCVRP <src.envs.problems.WCVRP>`
-  -
+  - ```{autodoc2-docstring} src.envs.problems.WCVRP
+    :summary:
+    ```
 * - {py:obj}`CWCVRP <src.envs.problems.CWCVRP>`
-  -
+  - ```{autodoc2-docstring} src.envs.problems.CWCVRP
+    :summary:
+    ```
 * - {py:obj}`SDWCVRP <src.envs.problems.SDWCVRP>`
-  -
+  - ```{autodoc2-docstring} src.envs.problems.SDWCVRP
+    :summary:
+    ```
 * - {py:obj}`SCWCVRP <src.envs.problems.SCWCVRP>`
-  -
+  - ```{autodoc2-docstring} src.envs.problems.SCWCVRP
+    :summary:
+    ```
 ````
 
 ### Data
@@ -159,6 +171,9 @@
 
 Bases: {py:obj}`src.envs.problems.BaseProblem`
 
+```{autodoc2-docstring} src.envs.problems.VRPP
+```
+
 ````{py:attribute} NAME
 :canonical: src.envs.problems.VRPP.NAME
 :value: >
@@ -184,6 +199,9 @@ Bases: {py:obj}`src.envs.problems.BaseProblem`
 :canonical: src.envs.problems.CVRPP
 
 Bases: {py:obj}`src.envs.problems.VRPP`
+
+```{autodoc2-docstring} src.envs.problems.CVRPP
+```
 
 ````{py:attribute} NAME
 :canonical: src.envs.problems.CVRPP.NAME
@@ -211,6 +229,9 @@ Bases: {py:obj}`src.envs.problems.VRPP`
 
 Bases: {py:obj}`src.envs.problems.BaseProblem`
 
+```{autodoc2-docstring} src.envs.problems.WCVRP
+```
+
 ````{py:attribute} NAME
 :canonical: src.envs.problems.WCVRP.NAME
 :value: >
@@ -237,6 +258,9 @@ Bases: {py:obj}`src.envs.problems.BaseProblem`
 
 Bases: {py:obj}`src.envs.problems.WCVRP`
 
+```{autodoc2-docstring} src.envs.problems.CWCVRP
+```
+
 ````{py:attribute} NAME
 :canonical: src.envs.problems.CWCVRP.NAME
 :value: >
@@ -254,6 +278,9 @@ Bases: {py:obj}`src.envs.problems.WCVRP`
 
 Bases: {py:obj}`src.envs.problems.WCVRP`
 
+```{autodoc2-docstring} src.envs.problems.SDWCVRP
+```
+
 ````{py:attribute} NAME
 :canonical: src.envs.problems.SDWCVRP.NAME
 :value: >
@@ -270,6 +297,9 @@ Bases: {py:obj}`src.envs.problems.WCVRP`
 :canonical: src.envs.problems.SCWCVRP
 
 Bases: {py:obj}`src.envs.problems.WCVRP`
+
+```{autodoc2-docstring} src.envs.problems.SCWCVRP
+```
 
 ````{py:attribute} NAME
 :canonical: src.envs.problems.SCWCVRP.NAME

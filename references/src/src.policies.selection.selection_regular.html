@@ -250,6 +250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -465,6 +466,7 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.selection.selection_regular">
 <span id="src-policies-selection-selection-regular"></span><h1><a class="reference internal" href="#module-src.policies.selection.selection_regular" title="src.policies.selection.selection_regular"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_regular</span></code></a><a class="headerlink" href="#module-src.policies.selection.selection_regular" title="Link to this heading">#</a></h1>
+<p>Regular interval selection strategy module.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -490,7 +492,12 @@ Scheduled if (current_day % (frequency + 1)) == 1.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection.selection_regular.RegularSelection.select_bins">
 <span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.must_go_selection.html#src.policies.must_go_selection.SelectionContext" title="src.policies.must_go_selection.SelectionContext"><span class="pre">src.policies.must_go_selection.SelectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection.selection_regular.RegularSelection.select_bins" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Select all bins if it is a scheduled collection day.</p>
+<p>Args:
+context: SelectionContext with day and threshold (freq).</p>
+<p>Returns:
+List[int]: List of all bin IDs if collection day, else empty.</p>
+</dd></dl>
 
 </dd></dl>
 

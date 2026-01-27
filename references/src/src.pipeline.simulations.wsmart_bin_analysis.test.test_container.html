@@ -250,6 +250,7 @@
 <li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -480,6 +481,7 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.wsmart_bin_analysis.test.test_container">
 <span id="src-pipeline-simulations-wsmart-bin-analysis-test-test-container"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.wsmart_bin_analysis.test.test_container" title="src.pipeline.simulations.wsmart_bin_analysis.test.test_container"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.test.test_container</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.wsmart_bin_analysis.test.test_container" title="Link to this heading">#</a></h1>
+<p>Tests for the Container class in wsmart_bin_analysis.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -487,7 +489,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer" title="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestContainer</span></code></a></p></td>
-<td></td>
+<td><p>Test suite for the Container class.</p></td>
 </tr>
 </tbody>
 </table>
@@ -498,85 +500,104 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.test.test_container.</span></span><span class="sig-name descname"><span class="pre">TestContainer</span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer" title="Link to this definition">#</a></dt>
-<dd><dl class="py method">
+<dd><p>Test suite for the Container class.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.sample_data">
 <span class="sig-name descname"><span class="pre">sample_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.sample_data" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Provide sample data for container tests.</p>
+<p>Returns:
+tuple: (df, recs, info) for initialized Container.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_init">
 <span class="sig-name descname"><span class="pre">test_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_init" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test initialization of Container.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_keys_and_vars">
 <span class="sig-name descname"><span class="pre">test_get_keys_and_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_keys_and_vars" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test retrieval of keys and variables.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_collection_quantities">
 <span class="sig-name descname"><span class="pre">test_get_collection_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_collection_quantities" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test calculation of avg distance and spearman.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_mark_collections">
 <span class="sig-name descname"><span class="pre">test_mark_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_mark_collections" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test marking of collections in dataframe.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_calc_max_min_mean">
 <span class="sig-name descname"><span class="pre">test_calc_max_min_mean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_calc_max_min_mean" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test calculation of max, min, and mean fill levels.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_calc_avg_dist_metric">
 <span class="sig-name descname"><span class="pre">test_calc_avg_dist_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_calc_avg_dist_metric" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test calculation of average distance metrics.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_calc_spearman">
 <span class="sig-name descname"><span class="pre">test_calc_spearman</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_calc_spearman" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test calculation of Spearman correlation for fill rates.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_tag_ok">
 <span class="sig-name descname"><span class="pre">test_get_tag_ok</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_tag_ok" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test successful tagging of container quality.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_tag_low_measures">
 <span class="sig-name descname"><span class="pre">test_get_tag_low_measures</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_tag_low_measures" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test tagging when there are too few measures.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_scan_linear_spline">
 <span class="sig-name descname"><span class="pre">test_get_scan_linear_spline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_scan_linear_spline" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test linear spline interpolation for scans.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_monotonic_mean_rate">
 <span class="sig-name descname"><span class="pre">test_get_monotonic_mean_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_get_monotonic_mean_rate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test calculation of monotonic mean fill rate.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_plot_fill">
 <span class="sig-name descname"><span class="pre">test_plot_fill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mock_fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mock_show</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_plot_fill" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test plotting of container fill levels.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_adjust_collections">
 <span class="sig-name descname"><span class="pre">test_adjust_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_adjust_collections" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test adjusting collections based on distance thresholds.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_place_collections">
 <span class="sig-name descname"><span class="pre">test_place_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_place_collections" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test placing collections based on fill levels and thresholds.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_clean_box">
 <span class="sig-name descname"><span class="pre">test_clean_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer.test_clean_box" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Test cleaning/filtering of record quality.</p>
+</dd></dl>
 
 </dd></dl>
 

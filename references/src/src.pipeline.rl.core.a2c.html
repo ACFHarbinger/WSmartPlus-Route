@@ -250,6 +250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -520,21 +521,19 @@ value_loss_coef: Coefficient for value loss.
 normalize_advantage: Whether to normalize advantages.
 **kwargs: Additional arguments for base class.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the RL4COLitModule.</p>
+<p>Initialize A2C algorithm.</p>
 <p>Args:
-env: The RL environment for the problem.
-policy: The neural network policy.
-baseline: Type of baseline for variance reduction (‘rollout’, ‘exponential’, ‘critic’, etc.).
-optimizer: Optimizer name (‘adam’ or ‘adamw’).
-optimizer_kwargs: Keyword arguments for the optimizer.
-lr_scheduler: Learning rate scheduler name (‘cosine’, ‘step’, or None).
-lr_scheduler_kwargs: Keyword arguments for the scheduler.
-train_data_size: Number of training samples to generate per epoch.
-val_data_size: Number of validation samples.
-val_dataset_path: Optional path to a pre-saved validation dataset.
-batch_size: Batch size for training and validation.
-num_workers: Number of workers for data loading.
-**kwargs: Additional keyword arguments.</p>
+env: RL environment.
+policy: Actor policy network.
+critic: Critic policy network.
+actor_optimizer: Optimizer name for actor.
+actor_lr: Learning rate for actor.
+critic_optimizer: Optimizer name for critic.
+critic_lr: Learning rate for critic.
+entropy_coef: Entropy regularization coefficient.
+value_loss_coef: Critic loss coefficient.
+normalize_advantage: Whether to normalize advantages.
+**kwargs: Additional args passed to RL4COLitModule.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.a2c.A2C.calculate_loss">
 <span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.a2c.A2C.calculate_loss" title="Link to this definition">#</a></dt>

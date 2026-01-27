@@ -250,6 +250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -501,16 +502,14 @@ document.write(`
 <p>N-step PPO algorithm.</p>
 <p>Performs PPO updates using N-step returns for better credit assignment.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize PPO module.</p>
+<p>Initialize N-step PPO.</p>
 <p>Args:
-critic: Critic network for value estimation.
-ppo_epochs: Number of PPO optimization epochs per batch.
-eps_clip: Clipping parameter for PPO surrogate objective.
-value_loss_weight: Weight for value function loss.
-entropy_weight: Weight for entropy bonus.
-max_grad_norm: Maximum gradient norm for clipping.
-mini_batch_size: Mini-batch size (int or fraction of batch).
-**kwargs: Arguments passed to RL4COLitModule.</p>
+env: RL environment.
+policy: Actor network.
+critic: Critic network.
+n_steps: Number of lookahead steps.
+gamma: Discount factor.
+**kwargs: Passed to PPO super class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.ppo_nstep.PPOStep.calculate_loss">
 <span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.ppo_nstep.PPOStep.calculate_loss" title="Link to this definition">#</a></dt>

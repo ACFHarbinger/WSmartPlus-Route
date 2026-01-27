@@ -250,6 +250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -513,22 +514,25 @@ Provides the BaseProblem interface expected by legacy AttentionModel and Evaluat
 <td><p>Legacy base class for routing problems.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.envs.problems.VRPP" title="src.envs.problems.VRPP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VRPP</span></code></a></p></td>
-<td></td>
+<td><p>Vehicle Routing Problem with Profits (VRPP).
+Objective: Maximize Profit (Revenue - Cost).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.envs.problems.CVRPP" title="src.envs.problems.CVRPP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CVRPP</span></code></a></p></td>
-<td></td>
+<td><p>Capacitated VRPP.
+Includes vehicle capacity constraints.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.envs.problems.WCVRP" title="src.envs.problems.WCVRP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WCVRP</span></code></a></p></td>
-<td></td>
+<td><p>Waste Collection VRP (WCVRP).
+Objective: Minimize Overflow + TourLength - CollectedWaste.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.envs.problems.CWCVRP" title="src.envs.problems.CWCVRP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CWCVRP</span></code></a></p></td>
-<td></td>
+<td><p>Capacitated WCVRP.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.envs.problems.SDWCVRP" title="src.envs.problems.SDWCVRP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SDWCVRP</span></code></a></p></td>
-<td></td>
+<td><p>Stochastic Demand WCVRP.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.envs.problems.SCWCVRP" title="src.envs.problems.SCWCVRP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCWCVRP</span></code></a></p></td>
-<td></td>
+<td><p>Selective Capacitated WCVRP.</p></td>
 </tr>
 </tbody>
 </table>
@@ -621,6 +625,8 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <dt class="sig sig-object py" id="src.envs.problems.VRPP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">VRPP</span></span><a class="headerlink" href="#src.envs.problems.VRPP" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.envs.problems.BaseProblem" title="src.envs.problems.BaseProblem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.envs.problems.BaseProblem</span></code></a></p>
+<p>Vehicle Routing Problem with Profits (VRPP).
+Objective: Maximize Profit (Revenue - Cost).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.problems.VRPP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.problems.VRPP.NAME" title="Link to this definition">#</a></dt>
@@ -630,7 +636,15 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.problems.VRPP.get_costs">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cw_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.envs.problems.VRPP.get_costs" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Compute VRPP costs/rewards.</p>
+<p>Args:
+dataset: Problem data.
+pi: Tours [batch, nodes].
+cw_dict: Cost weights dictionary.
+dist_matrix: Optional distance matrix.</p>
+<p>Returns:
+Tuple of (negative_profit, cost_dict, None).</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -638,6 +652,8 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <dt class="sig sig-object py" id="src.envs.problems.CVRPP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">CVRPP</span></span><a class="headerlink" href="#src.envs.problems.CVRPP" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.envs.problems.VRPP" title="src.envs.problems.VRPP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.envs.problems.VRPP</span></code></a></p>
+<p>Capacitated VRPP.
+Includes vehicle capacity constraints.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.problems.CVRPP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.problems.CVRPP.NAME" title="Link to this definition">#</a></dt>
@@ -647,7 +663,15 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.problems.CVRPP.get_costs">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cw_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.envs.problems.CVRPP.get_costs" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Compute CVRPP costs (same as VRPP but checks capacity).</p>
+<p>Args:
+dataset: Problem data.
+pi: Tours.
+cw_dict: Cost weights.
+dist_matrix: optional.</p>
+<p>Returns:
+Tuple of (cost, dict, None).</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -655,6 +679,8 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <dt class="sig sig-object py" id="src.envs.problems.WCVRP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">WCVRP</span></span><a class="headerlink" href="#src.envs.problems.WCVRP" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.envs.problems.BaseProblem" title="src.envs.problems.BaseProblem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.envs.problems.BaseProblem</span></code></a></p>
+<p>Waste Collection VRP (WCVRP).
+Objective: Minimize Overflow + TourLength - CollectedWaste.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.problems.WCVRP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.problems.WCVRP.NAME" title="Link to this definition">#</a></dt>
@@ -664,7 +690,15 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.problems.WCVRP.get_costs">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cw_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.envs.problems.WCVRP.get_costs" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Compute WCVRP costs.</p>
+<p>Args:
+dataset: Problem data.
+pi: Tours.
+cw_dict: Cost weights.
+dist_matrix: Optional distance matrix.</p>
+<p>Returns:
+Tuple of (cost, dict, None).</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -672,6 +706,7 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <dt class="sig sig-object py" id="src.envs.problems.CWCVRP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">CWCVRP</span></span><a class="headerlink" href="#src.envs.problems.CWCVRP" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.envs.problems.WCVRP" title="src.envs.problems.WCVRP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.envs.problems.WCVRP</span></code></a></p>
+<p>Capacitated WCVRP.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.problems.CWCVRP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.problems.CWCVRP.NAME" title="Link to this definition">#</a></dt>
@@ -684,6 +719,7 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <dt class="sig sig-object py" id="src.envs.problems.SDWCVRP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">SDWCVRP</span></span><a class="headerlink" href="#src.envs.problems.SDWCVRP" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.envs.problems.WCVRP" title="src.envs.problems.WCVRP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.envs.problems.WCVRP</span></code></a></p>
+<p>Stochastic Demand WCVRP.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.problems.SDWCVRP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.problems.SDWCVRP.NAME" title="Link to this definition">#</a></dt>
@@ -696,6 +732,7 @@ Initializes a TensorDict from the input and returns a state wrapper.</p>
 <dt class="sig sig-object py" id="src.envs.problems.SCWCVRP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.problems.</span></span><span class="sig-name descname"><span class="pre">SCWCVRP</span></span><a class="headerlink" href="#src.envs.problems.SCWCVRP" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.envs.problems.WCVRP" title="src.envs.problems.WCVRP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.envs.problems.WCVRP</span></code></a></p>
+<p>Selective Capacitated WCVRP.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.problems.SCWCVRP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.problems.SCWCVRP.NAME" title="Link to this definition">#</a></dt>

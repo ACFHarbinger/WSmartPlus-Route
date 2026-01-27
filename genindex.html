@@ -614,6 +614,7 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -2673,10 +2674,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.utils.html#src.models.policies.utils.TensorDictStateWrapper.get_finished">get_finished() (src.models.policies.utils.TensorDictStateWrapper method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.envs.generators.html#src.envs.generators.get_generator">get_generator() (in module src.envs.generators)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.FileSystemRepository.get_indices">get_indices() (src.pipeline.simulations.loader.FileSystemRepository method)</a>
 
       <ul>
@@ -2706,6 +2707,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.bins.html#src.pipeline.simulations.bins.Bins.get_level_history">get_level_history() (src.pipeline.simulations.bins.Bins method)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.utils.html#src.pipeline.rl.common.utils.get_lightning_device">get_lightning_device() (in module src.pipeline.rl.common.utils)</a>
+</li>
+      <li><a href="references/src/src.pipeline.dashboard.html#src.pipeline.dashboard.get_lightning_runs">get_lightning_runs() (in module src.pipeline.dashboard)</a>
 </li>
       <li><a href="references/src/src.utils.logging.log_utils.html#src.utils.logging.log_utils.get_loss_stats">get_loss_stats() (in module src.utils.logging.log_utils)</a>
 </li>
@@ -2772,6 +2775,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.rl.common.utils.html#src.pipeline.rl.common.utils.get_scheduler">get_scheduler() (in module src.pipeline.rl.common.utils)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.checkpoints.html#src.pipeline.simulations.checkpoints.SimulationCheckpoint.get_simulation_info">get_simulation_info() (src.pipeline.simulations.checkpoints.SimulationCheckpoint method)</a>
+</li>
+      <li><a href="references/src/src.pipeline.dashboard.html#src.pipeline.dashboard.get_simulation_logs">get_simulation_logs() (in module src.pipeline.dashboard)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.FileSystemRepository.get_simulator_data">get_simulator_data() (src.pipeline.simulations.loader.FileSystemRepository method)</a>
 
@@ -2871,6 +2876,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.simulations.states.html#src.pipeline.simulations.states.SimState.handle">(src.pipeline.simulations.states.SimState method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.pipeline.dashboard.html#src.pipeline.dashboard.haversine">haversine() (in module src.pipeline.dashboard)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.network.html#src.pipeline.simulations.network.haversine_distance">haversine_distance() (in module src.pipeline.simulations.network)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.network.html#src.pipeline.simulations.network.HaversineStrategy">HaversineStrategy (class in src.pipeline.simulations.network)</a>
@@ -2897,10 +2904,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.hpo.html#src.configs.hpo.HPOConfig">HPOConfig (class in src.configs.hpo)</a>
 </li>
-      <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.hrl_clip_eps">hrl_clip_eps (src.configs.meta_rl.MetaRLConfig attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.hrl_clip_eps">hrl_clip_eps (src.configs.meta_rl.MetaRLConfig attribute)</a>
+</li>
       <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.hrl_entropy_coef">hrl_entropy_coef (src.configs.meta_rl.MetaRLConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.hrl_epochs">hrl_epochs (src.configs.meta_rl.MetaRLConfig attribute)</a>
@@ -3063,8 +3070,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.modules.multi_head_attention.html#src.models.modules.multi_head_attention.MultiHeadAttention.last_attn">last_attn (src.models.modules.multi_head_attention.MultiHeadAttention attribute)</a>
 </li>
-      <li><a href="references/src/src.policies.selection.selection_last_minute.html#src.policies.selection.selection_last_minute.LastMinuteAndPathSelection">LastMinuteAndPathSelection (class in src.policies.selection.selection_last_minute)</a>
-</li>
       <li><a href="references/src/src.policies.selection.selection_last_minute.html#src.policies.selection.selection_last_minute.LastMinuteSelection">LastMinuteSelection (class in src.policies.selection.selection_last_minute)</a>
 </li>
       <li><a href="references/src/src.configs.model.html#src.configs.model.ModelConfig.learn_affine">learn_affine (src.configs.model.ModelConfig attribute)</a>
@@ -3105,6 +3110,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.load_depot">load_depot() (in module src.pipeline.simulations.loader)</a>
 </li>
+      <li><a href="references/src/src.pipeline.dashboard.html#src.pipeline.dashboard.load_distance_matrix">load_distance_matrix() (in module src.pipeline.dashboard)</a>
+</li>
       <li><a href="references/src/src.utils.data.data_utils.html#src.utils.data.data_utils.load_focus_coords">load_focus_coords() (in module src.utils.data.data_utils)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.load_id_containers">load_id_containers() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load)</a>
@@ -3133,6 +3140,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.load_rate_series">load_rate_series() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load)</a>
 </li>
+      <li><a href="references/src/src.pipeline.dashboard.html#src.pipeline.dashboard.load_simulation_history">load_simulation_history() (in module src.pipeline.dashboard)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.load_simulator_data">load_simulator_data() (in module src.pipeline.simulations.loader)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.checkpoints.html#src.pipeline.simulations.checkpoints.SimulationCheckpoint.load_state">load_state() (src.pipeline.simulations.checkpoints.SimulationCheckpoint method)</a>
@@ -3147,12 +3156,14 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.utils.data.data_utils.html#src.utils.data.data_utils.load_td_dataset">load_td_dataset() (in module src.utils.data.data_utils)</a>
 </li>
-      <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_xml_config">load_xml_config() (in module src.utils.configs.config_loader)</a>
+      <li><a href="references/src/src.pipeline.dashboard.html#src.pipeline.dashboard.load_training_data">load_training_data() (in module src.pipeline.dashboard)</a>
 </li>
-      <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_yaml_config">load_yaml_config() (in module src.utils.configs.config_loader)</a>
+      <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_xml_config">load_xml_config() (in module src.utils.configs.config_loader)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_yaml_config">load_yaml_config() (in module src.utils.configs.config_loader)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.bins.html#src.pipeline.simulations.bins.Bins.loadFilling">loadFilling() (src.pipeline.simulations.bins.Bins method)</a>
 </li>
       <li><a href="references/src/src.configs.hpo.html#src.configs.hpo.HPOConfig.local_mode">local_mode (src.configs.hpo.HPOConfig attribute)</a>
@@ -3362,6 +3373,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.conftest.html#src.pipeline.simulations.wsmart_bin_analysis.test.conftest.mock_load_data">mock_load_data() (in module src.pipeline.simulations.wsmart_bin_analysis.test.conftest)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.conftest.html#src.pipeline.simulations.wsmart_bin_analysis.test.conftest.mock_subprocess">mock_subprocess() (in module src.pipeline.simulations.wsmart_bin_analysis.test.conftest)</a>
+</li>
+      <li><a href="references/src/src.pipeline.dashboard.html#src.pipeline.dashboard.mode">mode (in module src.pipeline.dashboard)</a>
 </li>
       <li><a href="references/src/src.configs.html#src.configs.Config.model">model (src.configs.Config attribute)</a>
 
@@ -3598,6 +3611,8 @@ document.write(`
         <li><a href="references/src/src.models.temporal_am.html#module-src.models.temporal_am">src.models.temporal_am</a>
 </li>
         <li><a href="references/src/src.pipeline.html#module-src.pipeline">src.pipeline</a>
+</li>
+        <li><a href="references/src/src.pipeline.dashboard.html#module-src.pipeline.dashboard">src.pipeline.dashboard</a>
 </li>
         <li><a href="references/src/src.pipeline.features.html#module-src.pipeline.features">src.pipeline.features</a>
 </li>
@@ -4280,11 +4295,15 @@ document.write(`
 </li>
       <li><a href="references/src/src.cli.base_parser.html#src.cli.base_parser.ConfigsParser.parse_process_args">parse_process_args() (src.cli.base_parser.ConfigsParser method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.dashboard.html#src.pipeline.dashboard.parse_simulation_log_line">parse_simulation_log_line() (in module src.pipeline.dashboard)</a>
+</li>
       <li><a href="references/src/src.utils.functions.function.html#src.utils.functions.function.parse_softmax_temperature">parse_softmax_temperature() (in module src.utils.functions.function)</a>
 </li>
       <li><a href="references/src/src.constants.paths.html#src.constants.paths.parts">parts (in module src.constants.paths)</a>
 </li>
       <li><a href="references/src/src.constants.paths.html#src.constants.paths.path">path (in module src.constants.paths)</a>
+</li>
+      <li><a href="references/src/src.policies.post_processing.html#src.policies.post_processing.PathPostProcessor">PathPostProcessor (class in src.policies.post_processing)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.paths_between_states">paths_between_states (src.pipeline.simulations.context.SimulationDayContext attribute)</a>
 
@@ -4376,10 +4395,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.rl.core.ppo_stepwise.html#src.pipeline.rl.core.ppo_stepwise.PPOStepwise">PPOStepwise (class in src.pipeline.rl.core.ppo_stepwise)</a>
 </li>
-      <li><a href="references/src/src.utils.functions.decoding.html#src.utils.functions.decoding.DecodingStrategy.pre_decoder_hook">pre_decoder_hook() (src.utils.functions.decoding.DecodingStrategy method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.utils.functions.decoding.html#src.utils.functions.decoding.DecodingStrategy.pre_decoder_hook">pre_decoder_hook() (src.utils.functions.decoding.DecodingStrategy method)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.pre_process_container_metrics">pre_process_container_metrics() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.pre_process_data">pre_process_data() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract)</a>
@@ -4432,6 +4451,8 @@ document.write(`
         <li><a href="references/src/src.policies.post_processing.html#src.policies.post_processing.FastTSPPostProcessor.process">(src.policies.post_processing.FastTSPPostProcessor method)</a>
 </li>
         <li><a href="references/src/src.policies.post_processing.html#src.policies.post_processing.IPostProcessor.process">(src.policies.post_processing.IPostProcessor method)</a>
+</li>
+        <li><a href="references/src/src.policies.post_processing.html#src.policies.post_processing.PathPostProcessor.process">(src.policies.post_processing.PathPostProcessor method)</a>
 </li>
         <li><a href="references/src/src.policies.post_processing.html#src.policies.post_processing.RandomLocalSearchPostProcessor.process">(src.policies.post_processing.RandomLocalSearchPostProcessor method)</a>
 </li>
@@ -4523,6 +4544,8 @@ document.write(`
       <li><a href="references/src/src.configs.sim.html#src.configs.sim.SimConfig.real_time_log">real_time_log (src.configs.sim.SimConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.realtime_log_path">realtime_log_path (src.pipeline.simulations.context.SimulationDayContext attribute)</a>
+</li>
+      <li><a href="references/src/src.pipeline.dashboard.html#src.pipeline.dashboard.realtime_mode">realtime_mode (in module src.pipeline.dashboard)</a>
 </li>
       <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.reannealing_patience">reannealing_patience (src.configs.rl.RLConfig attribute)</a>
 </li>
@@ -4777,8 +4800,6 @@ document.write(`
       <li><a href="references/src/src.policies.must_go_selection.html#src.policies.must_go_selection.MustGoSelectionStrategy.select_bins">select_bins() (src.policies.must_go_selection.MustGoSelectionStrategy method)</a>
 
       <ul>
-        <li><a href="references/src/src.policies.selection.selection_last_minute.html#src.policies.selection.selection_last_minute.LastMinuteAndPathSelection.select_bins">(src.policies.selection.selection_last_minute.LastMinuteAndPathSelection method)</a>
-</li>
         <li><a href="references/src/src.policies.selection.selection_last_minute.html#src.policies.selection.selection_last_minute.LastMinuteSelection.select_bins">(src.policies.selection.selection_last_minute.LastMinuteSelection method)</a>
 </li>
         <li><a href="references/src/src.policies.selection.selection_lookahead.html#src.policies.selection.selection_lookahead.LookaheadSelection.select_bins">(src.policies.selection.selection_lookahead.LookaheadSelection method)</a>
@@ -5742,6 +5763,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.pipeline.html#module-src.pipeline">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.dashboard
+
+      <ul>
+        <li><a href="references/src/src.pipeline.dashboard.html#module-src.pipeline.dashboard">module</a>
 </li>
       </ul></li>
       <li>

@@ -19,10 +19,6 @@
   - ```{autodoc2-docstring} src.policies.selection.selection_last_minute.LastMinuteSelection
     :summary:
     ```
-* - {py:obj}`LastMinuteAndPathSelection <src.policies.selection.selection_last_minute.LastMinuteAndPathSelection>`
-  - ```{autodoc2-docstring} src.policies.selection.selection_last_minute.LastMinuteAndPathSelection
-    :summary:
-    ```
 ````
 
 ### API
@@ -38,20 +34,8 @@ Bases: {py:obj}`src.policies.must_go_selection.MustGoSelectionStrategy`
 ````{py:method} select_bins(context: src.policies.must_go_selection.SelectionContext) -> typing.List[int]
 :canonical: src.policies.selection.selection_last_minute.LastMinuteSelection.select_bins
 
-````
-
-`````
-
-`````{py:class} LastMinuteAndPathSelection
-:canonical: src.policies.selection.selection_last_minute.LastMinuteAndPathSelection
-
-Bases: {py:obj}`src.policies.must_go_selection.MustGoSelectionStrategy`
-
-```{autodoc2-docstring} src.policies.selection.selection_last_minute.LastMinuteAndPathSelection
+```{autodoc2-docstring} src.policies.selection.selection_last_minute.LastMinuteSelection.select_bins
 ```
-
-````{py:method} select_bins(context: src.policies.must_go_selection.SelectionContext) -> typing.List[int]
-:canonical: src.policies.selection.selection_last_minute.LastMinuteAndPathSelection.select_bins
 
 ````
 

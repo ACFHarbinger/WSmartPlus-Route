@@ -56,6 +56,9 @@ Bases: {py:obj}`torchrl.envs.EnvBase`
 :canonical: src.envs.base.RL4COEnvBase.batch_size
 :type: torch.Size
 
+```{autodoc2-docstring} src.envs.base.RL4COEnvBase.batch_size
+```
+
 ````
 
 ````{py:method} _make_spec(generator: typing.Optional[typing.Any] = None) -> None

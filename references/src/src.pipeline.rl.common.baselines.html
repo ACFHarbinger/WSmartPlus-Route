@@ -250,6 +250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -522,7 +523,7 @@ document.write(`
 <td><p>No baseline (vanilla REINFORCE).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.rl.common.baselines.ExponentialBaseline" title="src.pipeline.rl.common.baselines.ExponentialBaseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExponentialBaseline</span></code></a></p></td>
-<td><p>Exponential moving average baseline.</p></td>
+<td><p>Moving average (exponential) baseline.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.rl.common.baselines.RolloutBaseline" title="src.pipeline.rl.common.baselines.RolloutBaseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RolloutBaseline</span></code></a></p></td>
 <td><p>Greedy rollout baseline with significance-based updates.</p></td>
@@ -570,7 +571,7 @@ document.write(`
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Base class for baselines.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
+<p>Initialize the baseline.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.Baseline.eval">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.Baseline.eval" title="Link to this definition">#</a></dt>
@@ -581,6 +582,10 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.Baseline.unwrap_batch">
 <span class="sig-name descname"><span class="pre">unwrap_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.Baseline.unwrap_batch" title="Link to this definition">#</a></dt>
 <dd><p>Unwrap the batch if it’s wrapped with baseline values.</p>
+<p>Args:
+batch: Wrapped batch.</p>
+<p>Returns:
+Tuple: Unwrapped batch data and optional baseline.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -621,7 +626,7 @@ document.write(`
 <dd><p>Bases: <a class="reference internal" href="#src.pipeline.rl.common.baselines.Baseline" title="src.pipeline.rl.common.baselines.Baseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.Baseline</span></code></a></p>
 <p>No baseline (vanilla REINFORCE).</p>
 <p class="rubric">Initialization</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
+<p>Initialize NoBaseline.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.NoBaseline.eval">
 <span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.NoBaseline.eval" title="Link to this definition">#</a></dt>
@@ -640,12 +645,13 @@ torch.Tensor: Zeros matching the reward shape.</p>
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.ExponentialBaseline">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.baselines.</span></span><span class="sig-name descname"><span class="pre">ExponentialBaseline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.baselines.ExponentialBaseline" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.pipeline.rl.common.baselines.Baseline" title="src.pipeline.rl.common.baselines.Baseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.Baseline</span></code></a></p>
-<p>Exponential moving average baseline.</p>
+<p>Moving average (exponential) baseline.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize ExponentialBaseline.</p>
 <p>Args:
 beta: Decay factor for exponential moving average.
-exp_beta: Alternative name for beta (matching RLConfig).</p>
+exp_beta: Alternative name for beta (matching RLConfig).
+**kwargs: Additional arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.ExponentialBaseline.eval">
 <span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.ExponentialBaseline.eval" title="Link to this definition">#</a></dt>
@@ -735,7 +741,12 @@ torch.Tensor: Blended baseline value.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.WarmupBaseline.unwrap_batch">
 <span class="sig-name descname"><span class="pre">unwrap_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.WarmupBaseline.unwrap_batch" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Unwrap the batch using the inner baseline.</p>
+<p>Args:
+batch: Wrapped batch.</p>
+<p>Returns:
+Tuple: Unwrapped batch data and optional baseline.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.WarmupBaseline.epoch_callback">
@@ -797,7 +808,7 @@ torch.Tensor: Critic value predictions.</p>
 <dd><p>Bases: <a class="reference internal" href="#src.pipeline.rl.common.baselines.Baseline" title="src.pipeline.rl.common.baselines.Baseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.Baseline</span></code></a></p>
 <p>POMO baseline: mean reward across starts of the SAME instance.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
+<p>Initialize POMOBaseline.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.POMOBaseline.eval">
 <span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.POMOBaseline.eval" title="Link to this definition">#</a></dt>

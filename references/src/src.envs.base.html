@@ -250,6 +250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -536,12 +537,15 @@ batch_size: Batch size for the environment.
 <dl class="py property">
 <dt class="sig sig-object py" id="src.envs.base.RL4COEnvBase.batch_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">batch_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Size</span></em><a class="headerlink" href="#src.envs.base.RL4COEnvBase.batch_size" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Batch size of the environment.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.base.RL4COEnvBase._make_spec">
 <span class="sig-name descname"><span class="pre">_make_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.envs.base.RL4COEnvBase._make_spec" title="Link to this definition">#</a></dt>
-<dd><p>Create environment specs.</p>
+<dd><p>Create environment specs (reward_spec, done_spec, etc.).</p>
+<p>Args:
+generator: Optional data generator.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -578,8 +582,11 @@ Synchronizes environment batch size with input TensorDict.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.base.RL4COEnvBase._step_instance">
 <span class="sig-name descname"><span class="pre">_step_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.base.RL4COEnvBase._step_instance" title="Link to this definition">#</a></dt>
-<dd><p>Core state transition logic common to most routing problems.
-Updates visited mask, current node, and tour tracking.</p>
+<dd><p>Problem-specific state transition logic.</p>
+<p>Args:
+td: TensorDict containing the current state.</p>
+<p>Returns:
+TensorDict: The updated state (next state).</p>
 </dd></dl>
 
 <dl class="py method">

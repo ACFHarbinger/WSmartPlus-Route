@@ -39,6 +39,10 @@
   - ```{autodoc2-docstring} src.policies.post_processing.RandomLocalSearchPostProcessor
     :summary:
     ```
+* - {py:obj}`PathPostProcessor <src.policies.post_processing.PathPostProcessor>`
+  - ```{autodoc2-docstring} src.policies.post_processing.PathPostProcessor
+    :summary:
+    ```
 ````
 
 ### API
@@ -127,6 +131,9 @@ Bases: {py:obj}`src.policies.post_processing.IPostProcessor`
 ````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.List[int]
 :canonical: src.policies.post_processing.FastTSPPostProcessor.process
 
+```{autodoc2-docstring} src.policies.post_processing.FastTSPPostProcessor.process
+```
+
 ````
 
 `````
@@ -148,6 +155,9 @@ Bases: {py:obj}`src.policies.post_processing.IPostProcessor`
 ````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.List[int]
 :canonical: src.policies.post_processing.ClassicalLocalSearchPostProcessor.process
 
+```{autodoc2-docstring} src.policies.post_processing.ClassicalLocalSearchPostProcessor.process
+```
+
 ````
 
 `````
@@ -162,6 +172,27 @@ Bases: {py:obj}`src.policies.post_processing.IPostProcessor`
 
 ````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.List[int]
 :canonical: src.policies.post_processing.RandomLocalSearchPostProcessor.process
+
+```{autodoc2-docstring} src.policies.post_processing.RandomLocalSearchPostProcessor.process
+```
+
+````
+
+`````
+
+`````{py:class} PathPostProcessor
+:canonical: src.policies.post_processing.PathPostProcessor
+
+Bases: {py:obj}`src.policies.post_processing.IPostProcessor`
+
+```{autodoc2-docstring} src.policies.post_processing.PathPostProcessor
+```
+
+````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.List[int]
+:canonical: src.policies.post_processing.PathPostProcessor.process
+
+```{autodoc2-docstring} src.policies.post_processing.PathPostProcessor.process
+```
 
 ````
 

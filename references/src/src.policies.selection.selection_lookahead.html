@@ -250,6 +250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -465,6 +466,7 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.selection.selection_lookahead">
 <span id="src-policies-selection-selection-lookahead"></span><h1><a class="reference internal" href="#module-src.policies.selection.selection_lookahead" title="src.policies.selection.selection_lookahead"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_lookahead</span></code></a><a class="headerlink" href="#module-src.policies.selection.selection_lookahead" title="Link to this heading">#</a></h1>
+<p>Lookahead selection strategy module.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -472,7 +474,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.selection.selection_lookahead.LookaheadSelection" title="src.policies.selection.selection_lookahead.LookaheadSelection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LookaheadSelection</span></code></a></p></td>
-<td><p>Predictive look-ahead selection strategy.</p></td>
+<td><p>Predictive selection strategy looking N days ahead.</p></td>
 </tr>
 </tbody>
 </table>
@@ -484,11 +486,17 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.selection.selection_lookahead.LookaheadSelection">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.selection.selection_lookahead.</span></span><span class="sig-name descname"><span class="pre">LookaheadSelection</span></span><a class="headerlink" href="#src.policies.selection.selection_lookahead.LookaheadSelection" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.policies.must_go_selection.html#src.policies.must_go_selection.MustGoSelectionStrategy" title="src.policies.must_go_selection.MustGoSelectionStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.must_go_selection.MustGoSelectionStrategy</span></code></a></p>
-<p>Predictive look-ahead selection strategy.</p>
+<p>Predictive selection strategy looking N days ahead.</p>
+<p>Selects bins that will overflow within the lookahead horizon.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection.selection_lookahead.LookaheadSelection.select_bins">
 <span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.must_go_selection.html#src.policies.must_go_selection.SelectionContext" title="src.policies.must_go_selection.SelectionContext"><span class="pre">src.policies.must_go_selection.SelectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection.selection_lookahead.LookaheadSelection.select_bins" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Select bins predicted to overflow within N days.</p>
+<p>Args:
+context: SelectionContext with fill levels, accumulation rates, and lookahead parameters.</p>
+<p>Returns:
+List[int]: List of bin IDs (1-based index).</p>
+</dd></dl>
 
 </dd></dl>
 
