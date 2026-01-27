@@ -1,0 +1,5 @@
+<config>
+  <fast_tsp>
+    <n_routes>1</n_routes>
+  </fast_tsp>
+</config>

@@ -156,7 +156,7 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
 
         # Parameters from kwargs (extracted from context/config in actions.py)
         # Default to 50 iterations as a safe post-processing refinement
-        max_iter = kwargs.get("max_iterations", kwargs.get("post_process_max_iter", 50))
+        max_iter = kwargs.get("n_iterations", kwargs.get("post_process_iterations", 50))
 
         # Ensure Tensors
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
