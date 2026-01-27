@@ -80,6 +80,7 @@ class NoBaseline(Baseline):
     """No baseline (vanilla REINFORCE)."""
 
     def __init__(self, **kwargs):
+        """Initialize NoBaseline."""
         super().__init__()
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
@@ -98,7 +99,9 @@ class NoBaseline(Baseline):
 
 
 class ExponentialBaseline(Baseline):
-    """Exponential moving average baseline."""
+    """
+    Moving average (exponential) baseline.
+    """
 
     def __init__(self, beta: float = 0.8, exp_beta: Optional[float] = None, **kwargs):
         """
@@ -107,6 +110,7 @@ class ExponentialBaseline(Baseline):
         Args:
             beta: Decay factor for exponential moving average.
             exp_beta: Alternative name for beta (matching RLConfig).
+            **kwargs: Additional arguments.
         """
         super().__init__()
         self.beta = exp_beta if exp_beta is not None else beta
@@ -422,6 +426,14 @@ class WarmupBaseline(Baseline):
         return self.alpha * v_target + (1 - self.alpha) * v_warmup
 
     def unwrap_batch(self, batch: Any) -> Tuple[Any, Optional[torch.Tensor]]:
+        """Unwrap the batch using the inner baseline.
+
+        Args:
+            batch: Wrapped batch.
+
+        Returns:
+            Tuple: Unwrapped batch data and optional baseline.
+        """
         return self.baseline.unwrap_batch(batch)
 
     def epoch_callback(
@@ -505,6 +517,7 @@ class POMOBaseline(Baseline):
     """
 
     def __init__(self, **kwargs):
+        """Initialize POMOBaseline."""
         super().__init__()
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
