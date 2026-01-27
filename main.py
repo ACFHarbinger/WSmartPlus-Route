@@ -27,7 +27,7 @@ import warnings
 
 import logic.src.constants as udef
 from gui.src.app import launch_results_window, run_app_gui
-from logic.src.cli import launch_tui, parse_params
+from logic.src.cli import parse_params
 from logic.src.data.generate_data import generate_datasets
 from logic.src.file_system import (
     delete_file_system_entries,
@@ -162,15 +162,6 @@ def main(args):
     """
     comm, opts = args
 
-    # Handle TUI redirection
-    if comm == "tui":
-        res = launch_tui()
-        if res:
-            comm, opts = res
-        else:
-            print("TUI session cancelled.")
-            return 0
-
     exit_code = 0
     try:
         if isinstance(comm, tuple) and len(comm) > 1:
@@ -274,16 +265,49 @@ if __name__ == "__main__":
         "mrl_train",
         "hp_optim",
         "hp_optim_hydra",
+        "eval",
+        "test_sim",
+        "gen_data",
     ]
 
     if len(sys.argv) > 1 and sys.argv[1] in HYDRA_COMMANDS:
+        # Map command to task override
+        command = sys.argv[1]
+
+        # Inject task override if needed, handling the case where it might already be specified
+        task_override = f"task={command}" if command in ["eval", "test_sim", "gen_data", "train"] else None
+
+        # For legacy train commands like 'train_hydra', default to 'task=train' (already default in config)
+        if command in ["train_hydra", "train_lightning", "mrl_train", "hp_optim", "hp_optim_hydra"]:
+            # These might have specific handling needs or default to train task
+            pass
+
+        if command == "eval":
+            sys.argv.append("task=eval")
+        elif command == "test_sim":
+            sys.argv.append("task=test_sim")
+        elif command == "gen_data":
+            sys.argv.append("task=gen_data")
+
         # Bypass legacy parsing and delegate to Hydra/Lightning pipeline
         from logic.src.pipeline.features.train import main as unified_main
 
-        if sys.argv[1] == "mrl_train":
-            sys.argv.append("rl.use_meta=True")
+        # Remove the command from argv as Hydra expects overrides
+        # But we need to keep argv[0] (script name)
+        # Actually, Hydra expects config overrides.
+        # If we run `python main.py eval`, sys.argv is ['main.py', 'eval']
+        # We want `python main.py task=eval` conceptually for Hydra.
+        # But `unified_main` is decorated with @hydra.main which parses sys.argv.
+        # So we need to modify sys.argv to remove 'eval' and add 'task=eval'.
 
-        sys.argv.pop(1)
+        if command in ["eval", "test_sim", "gen_data"]:
+            sys.argv.pop(1)  # Remove the command
+        elif command == "mrl_train":
+            sys.argv.append("rl.use_meta=True")
+            sys.argv.pop(1)  # Remove the command
+        else:  # For other commands like "train", "train_hydra", etc.
+            sys.argv.pop(1)  # Remove the command
+
         unified_main()
     else:
         main(parse_params())

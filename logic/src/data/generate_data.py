@@ -8,15 +8,16 @@ and their variants (VRPP, WCVRP) with configurable parameters.
 import argparse
 import os
 import random
+import re
 import sys
 import traceback
+from typing import Any, Dict
 
 import numpy as np
 import torch
 
 from logic.src.cli.base_parser import ConfigsParser
-from logic.src.cli.data_parser import add_gen_data_args, validate_gen_data_args
-from logic.src.constants import ROOT_DIR
+from logic.src.constants import MAP_DEPOTS, ROOT_DIR, WASTE_TYPES
 from logic.src.data.builders import VRPInstanceBuilder
 from logic.src.utils.data.data_utils import check_extension, save_dataset, save_td_dataset
 
@@ -244,13 +245,75 @@ def generate_datasets(opts):
             )
 
 
+def validate_gen_data_args(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Validate and post-process arguments for data generation.
+
+    This function checks consistency between arguments, such as ensuring a
+    filename is only provided when a single dataset is being generated.
+
+    Args:
+        args: Dictionary of parsed arguments.
+
+    Returns:
+        The validated and potentially modified dictionary of arguments.
+
+    Raises:
+        AssertionError: If incompatible arguments are provided (e.g., mu/sigma length mismatch).
+    """
+    args = args.copy()
+    assert (
+        "filename" not in args
+        or args["filename"] is None
+        or (
+            (isinstance(args.get("problem"), str) and args.get("problem") != "all")
+            or (isinstance(args.get("problem"), list) and len(args["problem"]) == 1)
+        )
+        and len(args.get("graph_sizes", [])) == 1
+    ), "Can only specify filename when generating a single dataset"
+
+    if args["problem"] in ["all", "swcvrp"]:
+        assert "mu" in args and args["mu"] is not None, "Must specify mu when generating swcvrp datasets"
+        assert "sigma" in args and args["sigma"] is not None, "Must specify sigma when generating swcvrp datasets"
+        assert len(args["mu"]) == len(args["sigma"]), "Must specify same number of mu and sigma values"
+
+    assert (
+        "focus_graphs" not in args
+        or args["focus_graphs"] is None
+        or len(args["focus_graphs"]) == len(args.get("graph_sizes", []))
+    )
+
+    if "focus_graphs" not in args or args["focus_graphs"] is None:
+        args["focus_graphs"] = [None] * len(args.get("graph_sizes", []))
+    else:
+        args["area"] = re.sub(r"[^a-zA-Z]", "", args.get("area", "").lower())
+        assert args["area"] in MAP_DEPOTS.keys(), "Unknown area {}, available areas: {}".format(
+            args["area"], MAP_DEPOTS.keys()
+        )
+
+    args["waste_type"] = re.sub(r"[^a-zA-Z]", "", args.get("waste_type", "").lower())
+    assert (
+        args["waste_type"] in WASTE_TYPES.keys() or args["waste_type"] is None
+    ), "Unknown waste type {}, available waste types: {}".format(args["waste_type"], WASTE_TYPES.keys())
+    return args
+
+
 if __name__ == "__main__":
     exit_code = 0
     parser = ConfigsParser(
         description="Data Generator Runner",
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    add_gen_data_args(parser)
+    parser = ConfigsParser(
+        description="Data Generator Runner",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    # Note: Legacy add_gen_data_args is removed. This entry point might need update if still used without Hydra.
+    # For now we assume this main block is for legacy support but we are removing the parser file.
+    # If this main block is run, it will fail without add_gen_data_args unless we move that too or remove this block.
+    # Given the user request to delete parser files, we assume legacy entry points are deprecated.
+    # We will just print a message nicely if someone tries running this directly.
+    print("Please use 'python main.py gen_data ...' or Hydra CLI.", file=sys.stderr)
+    sys.exit(1)
     try:
         _, parsed_args_dict = parser.parse_process_args(sys.argv[1:], "gen_data")
         args = validate_gen_data_args(parsed_args_dict)
