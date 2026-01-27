@@ -1,3 +1,6 @@
+"""
+Last Minute selection strategy module.
+"""
 from typing import List
 
 import numpy as np
@@ -13,6 +16,15 @@ class LastMinuteSelection(MustGoSelectionStrategy):
     """
 
     def select_bins(self, context: SelectionContext) -> List[int]:
+        """
+        Select bins that exceed the fill threshold.
+
+        Args:
+            context: SelectionContext with fill levels and threshold.
+
+        Returns:
+            List[int]: List of bin IDs (1-based index).
+        """
         must_go = np.nonzero(context.current_fill > context.threshold)[0] + 1
         return must_go.tolist()
 
@@ -23,6 +35,15 @@ class LastMinuteAndPathSelection(MustGoSelectionStrategy):
     """
 
     def select_bins(self, context: SelectionContext) -> List[int]:
+        """
+        Select bins based on threshold + path optimization for filling gaps.
+
+        Args:
+            context: SelectionContext with fill levels, threshold, and network data.
+
+        Returns:
+            List[int]: List of bin IDs (1-based index).
+        """
         # 1. Identify critical bins (exceeding threshold)
         critical_bins = np.nonzero(context.current_fill > context.threshold)[0] + 1
 

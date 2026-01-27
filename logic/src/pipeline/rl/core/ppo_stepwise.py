@@ -29,6 +29,15 @@ class PPOStepwise(PPO):
         critic: nn.Module,
         **kwargs,
     ):
+        """
+        Initialize PPOStepwise.
+
+        Args:
+            env: RL Environment.
+            policy: Actor network.
+            critic: Critic network.
+            **kwargs: Passed to super class.
+        """
         super().__init__(env=env, policy=policy, critic=critic, **kwargs)
 
     def calculate_loss(

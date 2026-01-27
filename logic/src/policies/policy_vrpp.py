@@ -437,6 +437,13 @@ def _run_hexaly_optimizer(
         no_improv_iter = [0]
 
         def callback(opt, type):
+            """
+            Callback function for checking early stopping criteria.
+
+            Args:
+                opt: The Hexaly optimizer instance.
+                type: The callback type (e.g., TIME_TICKED).
+            """
             if opt.solution.status == hx.HxSolutionStatus.INFEASIBLE:
                 return
             if type == hx.HxCallbackType.TIME_TICKED:

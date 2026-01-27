@@ -1,3 +1,4 @@
+"""Mediator class for handling communication between different GUI components."""
 import re
 import sys
 
@@ -13,6 +14,11 @@ class UIMediator(QObject):
     command_updated = Signal(str)
 
     def __init__(self, main_window):
+        """Initialize the Mediator.
+
+        Args:
+            main_window: The main application window.
+        """
         # Pass main_window as parent if it's a QObject to ensure proper cleanup
         parent = main_window if isinstance(main_window, QObject) else None
         super().__init__(parent)

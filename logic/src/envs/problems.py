@@ -264,10 +264,27 @@ class BaseProblem:
 
 
 class VRPP(BaseProblem):
+    """
+    Vehicle Routing Problem with Profits (VRPP).
+    Objective: Maximize Profit (Revenue - Cost).
+    """
+
     NAME = "vrpp"
 
     @staticmethod
     def get_costs(dataset, pi, cw_dict, dist_matrix=None):
+        """
+        Compute VRPP costs/rewards.
+
+        Args:
+            dataset: Problem data.
+            pi: Tours [batch, nodes].
+            cw_dict: Cost weights dictionary.
+            dist_matrix: Optional distance matrix.
+
+        Returns:
+            Tuple of (negative_profit, cost_dict, None).
+        """
         VRPP.validate_tours(pi)
         if pi.size(-1) == 1:
             z = torch.zeros(pi.size(0), device=pi.device)
@@ -299,10 +316,27 @@ class VRPP(BaseProblem):
 
 
 class CVRPP(VRPP):
+    """
+    Capacitated VRPP.
+    Includes vehicle capacity constraints.
+    """
+
     NAME = "cvrpp"
 
     @staticmethod
     def get_costs(dataset, pi, cw_dict, dist_matrix=None):
+        """
+        Compute CVRPP costs (same as VRPP but checks capacity).
+
+        Args:
+            dataset: Problem data.
+            pi: Tours.
+            cw_dict: Cost weights.
+            dist_matrix: optional.
+
+        Returns:
+            Tuple of (cost, dict, None).
+        """
         cost, c_dict, _ = VRPP.get_costs(dataset, pi, cw_dict, dist_matrix)
 
         # CVRPP specific: Check total capacity PER TRIP
@@ -329,10 +363,27 @@ class CVRPP(VRPP):
 
 
 class WCVRP(BaseProblem):
+    """
+    Waste Collection VRP (WCVRP).
+    Objective: Minimize Overflow + TourLength - CollectedWaste.
+    """
+
     NAME = "wcvrp"
 
     @staticmethod
     def get_costs(dataset, pi, cw_dict, dist_matrix=None):
+        """
+        Compute WCVRP costs.
+
+        Args:
+            dataset: Problem data.
+            pi: Tours.
+            cw_dict: Cost weights.
+            dist_matrix: Optional distance matrix.
+
+        Returns:
+            Tuple of (cost, dict, None).
+        """
         WCVRP.validate_tours(pi)
         if pi.size(-1) == 1:
             overflows = (dataset["waste"] >= dataset.get("max_waste", 1.0)).float().sum(-1)
@@ -370,12 +421,18 @@ class WCVRP(BaseProblem):
 
 
 class CWCVRP(WCVRP):
+    """Capacitated WCVRP."""
+
     NAME = "cwcvrp"
 
 
 class SDWCVRP(WCVRP):
+    """Stochastic Demand WCVRP."""
+
     NAME = "sdwcvrp"
 
 
 class SCWCVRP(WCVRP):
+    """Selective Capacitated WCVRP."""
+
     NAME = "scwcvrp"

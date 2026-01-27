@@ -58,6 +58,7 @@ class MustGoSelectionRegistry:
         """Decorator to register a strategy."""
 
         def wrapper(strategy_cls: Type[MustGoSelectionStrategy]):
+            """Register the class with the given name."""
             cls._strategies[name.lower()] = strategy_cls
             return strategy_cls
 

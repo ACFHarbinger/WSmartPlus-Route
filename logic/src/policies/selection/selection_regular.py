@@ -1,3 +1,6 @@
+"""
+Regular interval selection strategy module.
+"""
 from typing import List
 
 from ..must_go_selection import MustGoSelectionStrategy, SelectionContext
@@ -12,6 +15,15 @@ class RegularSelection(MustGoSelectionStrategy):
     """
 
     def select_bins(self, context: SelectionContext) -> List[int]:
+        """
+        Select all bins if it is a scheduled collection day.
+
+        Args:
+            context: SelectionContext with day and threshold (freq).
+
+        Returns:
+            List[int]: List of all bin IDs if collection day, else empty.
+        """
         # threshold is used as frequency 'lvl'
         if (context.current_day % (int(context.threshold) + 1)) == 1:
             # Return all bins (1-based IDs)

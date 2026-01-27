@@ -187,6 +187,15 @@ def create_model(cfg: Config) -> pl.LightningModule:
     from omegaconf import DictConfig, ListConfig
 
     def deep_sanitize(obj):
+        """
+        Recursively convert OmegaConf objects to primitive types (dict/list).
+
+        Args:
+            obj: The configuration object (DictConfig, ListConfig, or other).
+
+        Returns:
+            The sanitized object (dict, list, or primitive).
+        """
         if isinstance(obj, (dict, MutableMapping, DictConfig)):
             # Force conversion to dict if it's OmegaConf
             if isinstance(obj, DictConfig):

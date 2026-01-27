@@ -33,10 +33,12 @@ class RL4COEnvBase(EnvBase):
 
     @property
     def batch_size(self) -> torch.Size:
+        """Batch size of the environment."""
         return self._batch_size
 
     @batch_size.setter
     def batch_size(self, value: torch.Size) -> None:
+        """Set the batch size of the environment."""
         # Check if value is a torch.Size object
         if not isinstance(value, torch.Size):
             if isinstance(value, int):
@@ -137,7 +139,12 @@ class RL4COEnvBase(EnvBase):
         self._kwargs = kwargs
 
     def _make_spec(self, generator: Optional[Any] = None) -> None:
-        """Create environment specs."""
+        """
+        Create environment specs (reward_spec, done_spec, etc.).
+
+        Args:
+            generator: Optional data generator.
+        """
         from torchrl.data import DiscreteTensorSpec, UnboundedContinuousTensorSpec
 
         self.done_spec = DiscreteTensorSpec(n=2, shape=(*self.batch_size, 1), dtype=torch.bool, device=self.device)
@@ -247,6 +254,15 @@ class RL4COEnvBase(EnvBase):
         return td_next
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
+        """
+        Problem-specific state transition logic.
+
+        Args:
+            td: TensorDict containing the current state.
+
+        Returns:
+            TensorDict: The updated state (next state).
+        """
         """
         Core state transition logic common to most routing problems.
         Updates visited mask, current node, and tour tracking.
