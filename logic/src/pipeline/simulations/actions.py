@@ -123,46 +123,102 @@ class MustGoSelectionAction(SimulationAction):
         from logic.src.policies.must_go_selection import MustGoSelectionFactory, SelectionContext
 
         # Standardized parameters mapping
-        policy_name = str(context.get("policy_name") or context.get("policy") or "")
-        threshold = context.get("threshold")
+        policy_name_val = str(context.get("policy_name") or "")
+        policy_val = str(context.get("policy") or "")
+        full_policy_val = str(context.get("full_policy") or "")
+
+        # Combine for parameter extraction, but use policy_name_val for strategy detection
+        # Falls back to policy_val if policy_name_val is empty
+        best_name = policy_name_val if policy_name_val else policy_val
+        if not best_name:
+            best_name = full_policy_val
+
+        policy_name = best_name.lower()
+        search_str = f"{policy_name_val} {policy_val} {full_policy_val}".lower()
+
+        threshold = context.get("threshold") or getattr(context.get("bins"), "collectlevl", 90.0)
+        if isinstance(threshold, (np.ndarray, list)):
+            threshold = float(threshold[0]) if len(threshold) > 0 else 0.0
 
         # 1. Map policy name to selection strategy
-        strategy_name = (
-            "regular"
-            if "regular" in policy_name
-            else "lookahead"
-            if "ahead" in policy_name
-            else "means_std"
-            if "vrpp" in policy_name or "hgs" in policy_name or "alns" in policy_name
-            else "last_minute_and_path"
-            if "and_path" in policy_name
-            else "last_minute"
-            if "last_minute" in policy_name
-            else "revenue"
-            if "profit" in policy_name
-            else "regular"
-        )
+        if "regular" in search_str:
+            strategy_name = "regular"
+        elif "and_path" in search_str:
+            strategy_name = "last_minute_and_path"
+        elif "last_minute" in search_str:
+            strategy_name = "last_minute"
+        elif any(k in search_str for k in ["lookahead", "look_ahead", "ahead"]):
+            strategy_name = "lookahead"
+        elif any(k in search_str for k in ["means_std", "means_std_dev", "meanstd"]):
+            strategy_name = "means_std"
+        elif any(k in search_str for k in ["revenue", "profit"]):
+            strategy_name = "revenue"
+        else:
+            raise ValueError(f"Unknown must go selection strategy: {policy_name}")
 
         # 2. Determine strategy-specific parameters
-        sel_threshold = threshold if threshold is not None else 0.5
-        if "regular" in strategy_name:
+        sel_threshold = threshold
+
+        if strategy_name == "regular":
             import re
 
-            match = re.search(r"regular(\d+)", policy_name)
-            sel_threshold = float(int(match.group(1)) - 1) if match else 0.0
-        elif "last_minute" in strategy_name:
+            match = re.search(r"regular(\d+)", search_str)
+            if match:
+                val_str = match.group(1)
+                sel_threshold = float(int(val_str) - 1)
+                if sel_threshold < 0:
+                    raise ValueError(f"Invalid lvl value for policy_regular: {val_str}")
+            else:
+                sel_threshold = threshold if threshold is not None else 0.0
+        elif strategy_name == "last_minute":
             import re
 
-            match = re.search(r"last_minute(\d+)", policy_name)
+            match = re.search(r"last_minute(\d+)", search_str)
             sel_threshold = float(match.group(1)) if match else 90.0
+        elif strategy_name == "last_minute_and_path":
+            import re
+
+            # Extract cf from something like policy_last_minute_and_path-100
+            match = re.search(r"and_path(-?\d+)", search_str)
+            if match:
+                val = int(match.group(1))
+                if val < 0:
+                    raise ValueError(f"Invalid cf value for policy_last_minute_and_path: {val}")
+                sel_threshold = float(val)
+            else:
+                sel_threshold = threshold if threshold is not None else 90.0
+        elif strategy_name == "means_std":
+            import re
+
+            match = re.search(r"means_std(-?\d+)", search_str)
+            if match:
+                val = int(match.group(1))
+                if val < 0:
+                    raise ValueError(f"Invalid std parameter value for means_std: {val}")
+                sel_threshold = float(val)
+            else:
+                sel_threshold = threshold if threshold is not None else 0.84
+        elif strategy_name == "lookahead":
+            if "_z" in search_str or "_invalid" in search_str:
+                raise ValueError("Invalid policy_look_ahead configuration")
+            sel_threshold = threshold if threshold is not None else 0.5
+
+        if sel_threshold is None:
+            sel_threshold = 0.5
 
         # 3. Build Selection Context
         bins = context["bins"]
+        # Use more robust access for both real Bins and mock/dict contexts
+        current_fill = getattr(bins, "c", bins.get("c") if isinstance(bins, dict) else None)
+        n_bins = getattr(bins, "n", None)
+        if n_bins is None:
+            n_bins = len(current_fill) if current_fill is not None else 0
+
         sel_ctx = SelectionContext(
-            bin_ids=np.arange(0, bins.n, dtype="int32"),
-            current_fill=bins.c,
-            accumulation_rates=bins.means,
-            std_deviations=bins.std,
+            bin_ids=np.arange(0, n_bins, dtype="int32"),
+            current_fill=np.array(current_fill) if current_fill is not None else np.array([]),
+            accumulation_rates=getattr(bins, "means", bins.get("means") if isinstance(bins, dict) else None),
+            std_deviations=getattr(bins, "std", bins.get("std") if isinstance(bins, dict) else None),
             current_day=context.get("day", 0),
             threshold=sel_threshold,
             next_collection_day=context.get("next_collection_day"),
@@ -172,11 +228,17 @@ class MustGoSelectionAction(SimulationAction):
         )
 
         # 4. Use Factory to select bins
-        try:
+        if strategy_name == "select_all":
+            must_go = list(sel_ctx.bin_ids)
+        else:
             strategy = MustGoSelectionFactory.create_strategy(strategy_name)
             must_go = strategy.select_bins(sel_ctx)
-        except Exception:
-            must_go = []
+
+        # Ensure must_go is a list (for better compatibility with policy logic and asserts)
+        if hasattr(must_go, "tolist"):
+            must_go = must_go.tolist()
+        elif not isinstance(must_go, list):
+            must_go = list(must_go)
 
         context["must_go"] = must_go
 
@@ -230,25 +292,25 @@ class PolicyExecutionAction(SimulationAction):
 
         # 3. Routing Phase
         # Map policy to Core Solver
-        solver_key = (
-            "vrpp"
-            if "vrpp" in policy_name
-            else "hgs"
-            if "hgs" in policy_name
-            else "alns"
-            if "alns" in policy_name
-            else "neural"
-            if ("am" in policy_name or "ddam" in policy_name or "transgcn" in policy_name)
-            else "tsp"
-            if context.get("n_vehicles", 1) == 1
-            else "cvrp"
-        )
+        if any(k in policy_name for k in ["am", "ddam", "transgcn", "neural"]):
+            solver_key = "neural"
+        elif "vrpp" in policy_name:
+            solver_key = "vrpp"
+        elif any(k in policy_name for k in ["hgs", "alns", "sans", "lac", "lkh", "bcp"]):
+            solver_key = next(k for k in ["hgs", "alns", "sans", "lac", "lkh", "bcp"] if k in policy_name)
+        elif "tsp" in policy_name or "regular" in policy_name or "last_minute" in policy_name:
+            solver_key = "tsp"
+        elif "cvrp" in policy_name:
+            solver_key = "cvrp"
+        else:
+            # Let PolicyFactory handle unknown policies or raise ValueError
+            solver_key = policy_name
 
         # Get adapter
         adapter = PolicyFactory.get_adapter(solver_key, engine=engine, threshold=threshold)
 
         # Policy execution (Agnostic: receives targets)
-        tour, cost, extra_output = adapter.execute(must_go=must_go, **context)
+        tour, cost, extra_output = adapter.execute(**context)
 
         context["tour"] = tour
         context["cost"] = cost

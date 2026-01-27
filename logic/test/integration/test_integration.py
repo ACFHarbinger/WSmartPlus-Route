@@ -69,10 +69,10 @@ class TestIntegrationSimulation:
         """Test Neural policy integration in simulation."""
         mock_setup.return_value = (MagicMock(), {})
         mock_exec.return_value = ([0, 1, 2, 0], 10.0, None)
-        sim_opts["policies"] = ["am_emp"]
+        sim_opts["policies"] = ["meanstd0.84_am_emp"]
         log, _, failed = self._run_sim(sim_opts)
         assert not failed
-        assert "am_emp" in log
+        assert any("am_emp" in k for k in log.keys())
 
 
 class TestIntegrationProblems:

@@ -6,7 +6,7 @@ from typing import Any, List, Tuple
 import numpy as np
 import pandas as pd
 
-from logic.src.pipeline.simulations.processor import convert_to_dict, create_dataframe_from_matrix
+from logic.src.pipeline.simulations.processor import convert_to_dict
 
 from .adapters import IPolicy, PolicyRegistry
 from .look_ahead_aux import compute_initial_solution, improved_simulated_annealing
@@ -39,10 +39,15 @@ class SANSPolicy(IPolicy):
         Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
 
         # Prepare data for SANS logic
-        data = create_dataframe_from_matrix(bins.c)  # Simplification
-        data["Stock"] = bins.c.astype("float32")
-        data["Accum_Rate"] = bins.means.astype("float32")
-        data["#bin"] = np.arange(1, bins.n + 1)
+        # Create DataFrame directly instead of using create_dataframe_from_matrix which might expect 2D
+        data = pd.DataFrame(
+            {
+                "ID": np.arange(1, bins.n + 1),
+                "#bin": np.arange(1, bins.n + 1),
+                "Stock": bins.c.astype("float32"),
+                "Accum_Rate": bins.means.astype("float32"),
+            }
+        )
         # Add depot
         depot_row = pd.DataFrame([{"#bin": 0, "Stock": 0.0, "Accum_Rate": 0.0}])
         data = pd.concat([depot_row, data], ignore_index=True)

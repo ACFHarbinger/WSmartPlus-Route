@@ -1102,9 +1102,9 @@ class TestDay:
             run_day(
                 make_day_context(
                     graph_size=3,
-                    full_policy="this_policy_does_not_exist_gamma1",
-                    policy="this_policy_does_not_exist",
-                    policy_name="this_policy_does_not_exist",
+                    full_policy="meanstd_does_not_exist_gamma1",
+                    policy="meanstd_does_not_exist",
+                    policy_name="meanstd_does_not_exist",
                     bins=mock_run_day_deps["bins"],
                     new_data=mock_run_day_deps["new_data"],
                     coords=mock_run_day_deps["coords"],
@@ -1397,7 +1397,7 @@ class TestDayResults:
     def test_single_simulation_happy_path_am(self, wsr_opts, mock_lock_counter, mock_torch_device, mocker, tmp_path):
         """test single simulation with happy path"""
         opts = wsr_opts
-        opts["policies"] = ["am_policy_gamma1"]
+        opts["policies"] = ["means_std_policy_am_gamma1"]
         opts["days"] = 5
         opts["area"] = "riomaior"
         opts["size"] = 3
@@ -1680,7 +1680,7 @@ class TestDayResults:
             5.0,  # Total days
         ]
 
-        assert result["am_policy_gamma1"][:-1] == pytest.approx(expected_results)
+        assert result["means_std_policy_am_gamma1"][:-1] == pytest.approx(expected_results)
 
     @pytest.mark.integration
     def test_single_simulation_resume(self, wsr_opts, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
