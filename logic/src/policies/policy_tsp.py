@@ -7,8 +7,6 @@ Agnostic to how the targets were selected.
 
 from typing import Any, List, Tuple
 
-import numpy as np
-
 from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
 
 from .adapters import IPolicy, PolicyRegistry
@@ -35,22 +33,37 @@ class TSPPolicy(IPolicy):
 
         # If no must_go provided, fallback to all bins (legacy behavior)
         # but in modular mode, this typically won't be empty.
-        to_collect = must_go if must_go else list(range(1, bins.n + 1))
+        to_collect = (
+            must_go
+            if (must_go is not None and len(must_go) > 0)
+            else list(range(1, getattr(bins, "n", len(getattr(bins, "c", []))) + 1))
+        )
 
-        if not to_collect:
+        if to_collect is None or len(to_collect) == 0:
             return [0, 0], 0.0, None
+
+        # Force to a list for compatibility with downstream checks and asserts
+        if hasattr(to_collect, "tolist"):
+            to_collect = to_collect.tolist()
+        elif not isinstance(to_collect, list):
+            to_collect = list(to_collect)
 
         max_capacity, _, _, _, _ = load_area_and_waste_type_params(area, waste_type)
 
-        if cached is not None and len(cached) > 1 and not must_go:
+        if cached is not None and len(cached) > 1 and (must_go is None or len(must_go) == 0):
             tour = cached
         else:
-            tour = find_route(distancesC, np.array(to_collect))
+            tour = find_route(distancesC, to_collect)
 
         # Handle capacity
         tour = get_multi_tour(tour, bins.c, max_capacity, distancesC)
 
         distance_matrix = kwargs.get("distance_matrix", distancesC)
         cost = get_route_cost(distance_matrix, tour)
+
+        if hasattr(tour, "tolist"):
+            tour = tour.tolist()
+        elif not isinstance(tour, list):
+            tour = list(tour)
 
         return tour, cost, tour

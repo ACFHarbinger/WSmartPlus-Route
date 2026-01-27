@@ -416,9 +416,7 @@ def mock_run_day_deps(mocker):
         real_distancesC,  # Real int matrix
     )
 
-    # 5. Patch external calls
-    mock_policy_regular = mocker.patch("logic.src.policies.regular.policy_regular", return_value=[0, 1, 2, 0])
-    mock_send_output = mocker.patch("logic.src.pipeline.simulations.actions.send_daily_output_to_gui", autospec=True)
+    mocker.patch("logic.src.pipeline.simulations.actions.send_daily_output_to_gui")
     mocker.patch("logic.src.policies.single_vehicle.get_route_cost", return_value=50.0)
     mocker.patch("logic.src.policies.single_vehicle.find_route", return_value=[0, 1, 0])
 
@@ -431,8 +429,7 @@ def mock_run_day_deps(mocker):
         "coords": mock_coords,
         "distance_matrix": real_dist_matrix,
         "distancesC": real_distancesC,
-        "mock_policy_regular": mock_policy_regular,
-        "mock_send_output": mock_send_output,
+        "mock_send_output": mocker.patch("logic.src.pipeline.simulations.actions.send_daily_output_to_gui"),
     }
 
 
