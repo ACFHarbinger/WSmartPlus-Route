@@ -30,6 +30,17 @@ class PPOStep(PPO):
         gamma: float = 0.99,
         **kwargs,
     ):
+        """
+        Initialize N-step PPO.
+
+        Args:
+            env: RL environment.
+            policy: Actor network.
+            critic: Critic network.
+            n_steps: Number of lookahead steps.
+            gamma: Discount factor.
+            **kwargs: Passed to PPO super class.
+        """
         super().__init__(env=env, policy=policy, critic=critic, **kwargs)
         self.n_steps = n_steps
         self.gamma = gamma

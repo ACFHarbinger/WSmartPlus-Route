@@ -205,6 +205,16 @@ class VectorizedALNS:
     """
 
     def __init__(self, dist_matrix, demands, vehicle_capacity, time_limit=1.0, device="cuda"):
+        """
+        Initialize the Vectorized ALNS solver.
+
+        Args:
+            dist_matrix: Distance matrix [B, N, N].
+            demands: Node demands [B, N].
+            vehicle_capacity: Vehicle capacity constraint.
+            time_limit: Time limit for solving in seconds.
+            device: Computation device ('cpu' or 'cuda').
+        """
         self.dist_matrix = dist_matrix
         self.demands = demands
         self.vehicle_capacity = vehicle_capacity
@@ -218,6 +228,17 @@ class VectorizedALNS:
         self.r_weights = torch.ones(len(self.repair_ops), device=device)
 
     def solve(self, initial_solutions, n_iterations=100, time_limit=None):
+        """
+        Run the ALNS algorithm.
+
+        Args:
+            initial_solutions: Initial tours [B, N].
+            n_iterations: Number of ALNS iterations.
+            time_limit: Optional time limit override.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Best routes [B, N] and costs [B].
+        """
         B, N = initial_solutions.size()
         start_time = time.time()
 

@@ -20,10 +20,13 @@ from .pandas_model import PandasModel
 
 
 class InputAnalysisTab(QWidget):
+    """Tab for analyzing input data and visualizing distributions."""
+
     # Signal to request the worker to start loading
     load_request = Signal(str)
 
     def __init__(self):
+        """Initialize the InputAnalysisTab."""
         super().__init__()
         # self.df = None # OLD: single DF
         self.dfs = {}  # NEW: Store multiple DFs indexed by slice name
@@ -97,6 +100,7 @@ class InputAnalysisTab(QWidget):
         self.tabs.addTab(self.chart_widget, "Visualization")
 
     def load_file(self):
+        """Open a file dialog to load data for analysis."""
         file_path, _ = QFileDialog.getOpenFileName(self, "Open Data File", "", "Data Files (*.csv *.xlsx *.pkl)")
         if not file_path:
             return
@@ -191,6 +195,7 @@ class InputAnalysisTab(QWidget):
         QMessageBox.critical(self, "Error Loading File", message)
 
     def plot_data(self):
+        """Plot the selected data using the chosen visualization."""
         # Use the currently selected DataFrame
         if self.current_slice_key is None:
             return
@@ -287,6 +292,7 @@ class InputAnalysisTab(QWidget):
             QMessageBox.warning(self, "Plot Error", f"Could not plot data: {str(e)}")
 
     def get_params(self):
+        """Get the parameters for this tab."""
         return {}  # No CLI params needed
 
     # Add a cleanup method for the thread
@@ -298,6 +304,7 @@ class InputAnalysisTab(QWidget):
 
     # You might also want a dedicated cleanup method if closeEvent isn't reliably called:
     def shutdown(self):
+        """Shutdown the background worker threads."""
         if self.worker_thread.isRunning():
             self.worker_thread.quit()
             self.worker_thread.wait()

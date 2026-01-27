@@ -1,3 +1,6 @@
+"""
+Eval Config module.
+"""
 from dataclasses import dataclass
 from typing import List, Optional
 

@@ -56,6 +56,22 @@ class A2C(RL4COLitModule):
         normalize_advantage: bool = True,
         **kwargs,
     ):
+        """
+        Initialize A2C algorithm.
+
+        Args:
+            env: RL environment.
+            policy: Actor policy network.
+            critic: Critic policy network.
+            actor_optimizer: Optimizer name for actor.
+            actor_lr: Learning rate for actor.
+            critic_optimizer: Optimizer name for critic.
+            critic_lr: Learning rate for critic.
+            entropy_coef: Entropy regularization coefficient.
+            value_loss_coef: Critic loss coefficient.
+            normalize_advantage: Whether to normalize advantages.
+            **kwargs: Additional args passed to RL4COLitModule.
+        """
         # A2C uses critic baseline
         kwargs["baseline"] = "critic"
 
@@ -65,7 +81,7 @@ class A2C(RL4COLitModule):
         super().__init__(
             env=env,
             policy=policy_cast,
-            optimizer=actor_optimizer,
+            optimizer=actor_optimizer,  # Ignored as we override configure_optimizers
             optimizer_kwargs={"lr": actor_lr},
             **kwargs,
         )

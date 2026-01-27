@@ -1,3 +1,6 @@
+"""
+Lookahead selection strategy module.
+"""
 from typing import List
 
 import numpy as np
@@ -7,10 +10,21 @@ from ..must_go_selection import MustGoSelectionStrategy, SelectionContext
 
 class LookaheadSelection(MustGoSelectionStrategy):
     """
-    Predictive look-ahead selection strategy.
+    Predictive selection strategy looking N days ahead.
+
+    Selects bins that will overflow within the lookahead horizon.
     """
 
     def select_bins(self, context: SelectionContext) -> List[int]:
+        """
+        Select bins predicted to overflow within N days.
+
+        Args:
+            context: SelectionContext with fill levels, accumulation rates, and lookahead parameters.
+
+        Returns:
+            List[int]: List of bin IDs (1-based index).
+        """
         if context.lookahead_days is None and context.accumulation_rates is None:
             return []
 

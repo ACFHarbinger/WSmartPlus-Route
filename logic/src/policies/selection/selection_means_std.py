@@ -1,3 +1,6 @@
+"""
+Mean and Standard Deviation based selection strategy module.
+"""
 from typing import List
 
 import numpy as np
@@ -11,6 +14,15 @@ class MeansAndStdDevSelection(MustGoSelectionStrategy):
     """
 
     def select_bins(self, context: SelectionContext) -> List[int]:
+        """
+        Select bins that are statistically likely to overflow.
+
+        Args:
+            context: Selection context containing fill levels, rates, and std devs.
+
+        Returns:
+            List[int]: List of bin IDs (1-based) predicted to overflow.
+        """
         if context.accumulation_rates is None or context.std_deviations is None:
             return []
 
