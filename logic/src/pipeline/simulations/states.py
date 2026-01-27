@@ -363,6 +363,29 @@ class InitializingState(SimState):
                 except Exception:
                     pass
 
+        # Explicitly load policy_neural.yaml if not already loaded
+        neural_cfg_path = os.path.join(ROOT_DIR, "scripts", "configs", "policies", "policy_neural.yaml")
+        if os.path.exists(neural_cfg_path):
+            try:
+                neural_cfg = load_config(neural_cfg_path)
+                if neural_cfg:
+                    # Flatten 'neural' key if present
+                    if "neural" in neural_cfg:
+                        for pol_key, pol_val in neural_cfg["neural"].items():
+                            ctx.config[pol_key] = pol_val
+                            # Extract model_path for opts
+                            if isinstance(pol_val, list):
+                                for item in pol_val:
+                                    if isinstance(item, dict) and "model_path" in item:
+                                        if opts.get("model_path") is None:
+                                            opts["model_path"] = {}
+                                        opts["model_path"][pol_key] = item["model_path"]
+                    else:
+                        ctx.config.update(neural_cfg)
+                print(f"Loaded configuration from {neural_cfg_path}")
+            except Exception as e:
+                print(f"Warning: Failed to load neural config {neural_cfg_path}: {e}")
+
         # Setup Data
         data, bins_coordinates, depot = setup_basedata(opts["size"], ctx.data_dir, opts["area"], opts["waste_type"])
         ctx.checkpoint = SimulationCheckpoint(ctx.results_dir, opts["checkpoint_dir"], ctx.policy, ctx.sample_id)

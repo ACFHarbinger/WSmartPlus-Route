@@ -260,7 +260,6 @@ def simulator_testing(opts, data_size, device):
         opts["policies"],
         log,
         log_std,
-        log_std,
         lock,
     )
 

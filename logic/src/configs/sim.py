@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -103,7 +103,7 @@ class SimConfig:
     gapik_file: Optional[str] = None
     real_time_log: bool = False
     stats_filepath: Optional[str] = None
-    model_path: Optional[Dict[str, str]] = None
+    model_path: Optional[Any] = None
     config_path: Optional[Dict[str, str]] = None
     w_length: float = 1.0
     w_waste: float = 1.0

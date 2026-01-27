@@ -1,0 +1,8 @@
+vrpp:
+  gurobi:
+    - Omega: 0.1
+    - delta: 0
+    - psi: 1
+    - engine: "gurobi"
+    - must_go: ["mg_lookahead_days7.xml"]
+    - post_processing: []

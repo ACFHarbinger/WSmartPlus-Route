@@ -34,6 +34,7 @@ class SelectionContext:
     revenue_kg: float = 0.0
     bin_density: float = 0.0
     bin_volume: float = 0.0
+    lookahead_days: Optional[int] = None
 
 
 class MustGoSelectionStrategy(ABC):

@@ -23,8 +23,10 @@ Classes:
 from abc import ABC, abstractmethod
 from typing import Any
 
+from logic.src.constants import ROOT_DIR
 from logic.src.pipeline.simulations.day import get_daily_results
 from logic.src.policies.adapters import PolicyFactory
+from logic.src.utils.configs.config_loader import load_config
 from logic.src.utils.logging.log_utils import send_daily_output_to_gui
 
 
@@ -117,96 +119,89 @@ class MustGoSelectionAction(SimulationAction):
     """
 
     def execute(self, context: Any) -> None:
-        """Identify bins targets for collection."""
+        """
+        Identifies bins that MUST be collected on the current day.
+        """
+        import os
+        import re
+
         import numpy as np
 
         from logic.src.policies.must_go_selection import MustGoSelectionFactory, SelectionContext
 
-        # Standardized parameters mapping
-        policy_name_val = str(context.get("policy_name") or "")
-        policy_val = str(context.get("policy") or "")
-        full_policy_val = str(context.get("full_policy") or "")
+        # 1. Gather all strategies to run
+        strategies = []
 
-        # Combine for parameter extraction, but use policy_name_val for strategy detection
-        # Falls back to policy_val if policy_name_val is empty
-        best_name = policy_name_val if policy_name_val else policy_val
-        if not best_name:
-            best_name = full_policy_val
+        # Check config for 'must_go' list
+        config_must_go = context.get("config", {}).get("must_go")
+        if config_must_go:
+            if not isinstance(config_must_go, list):
+                config_must_go = [config_must_go]
 
-        policy_name = best_name.lower()
-        search_str = f"{policy_name_val} {policy_val} {full_policy_val}".lower()
+            for item in config_must_go:
+                if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
+                    # Load config file (e.g. mg_lookahead_days7.xml)
+                    fpath = os.path.join(ROOT_DIR, "scripts", "configs", "policies", item)
+                    try:
+                        cfg = load_config(fpath)
+                        # Extract strategy name and params
+                        # Flatten if root is 'config'
+                        if "config" in cfg and len(cfg) == 1:
+                            cfg = cfg["config"]
 
-        threshold = context.get("threshold") or getattr(context.get("bins"), "collectlevl", 90.0)
-        if isinstance(threshold, (np.ndarray, list)):
-            threshold = float(threshold[0]) if len(threshold) > 0 else 0.0
-
-        # 1. Map policy name to selection strategy
-        if "regular" in search_str:
-            strategy_name = "regular"
-        elif "and_path" in search_str:
-            strategy_name = "last_minute_and_path"
-        elif "last_minute" in search_str:
-            strategy_name = "last_minute"
-        elif any(k in search_str for k in ["lookahead", "look_ahead", "ahead"]):
-            strategy_name = "lookahead"
-        elif any(k in search_str for k in ["means_std", "means_std_dev", "meanstd"]):
-            strategy_name = "means_std"
-        elif any(k in search_str for k in ["revenue", "profit"]):
-            strategy_name = "revenue"
+                        for k, v in cfg.items():
+                            strategies.append({"name": k, "params": v if isinstance(v, dict) else {}})
+                    except Exception as e:
+                        print(f"Error loading must_go config {item}: {e}")
+                else:
+                    # It's a direct name like "means_std" (legacy or simple string)
+                    strategies.append({"name": item, "params": {}})
         else:
-            raise ValueError(f"Unknown must go selection strategy: {policy_name}")
+            # Fallback to legacy parsing from policy_name
+            policy_name = context.get("policy_name", "")
+            search_str = policy_name.lower()
 
-        # 2. Determine strategy-specific parameters
-        sel_threshold = threshold
+            strat = "regular"
+            params = {}
 
-        if strategy_name == "regular":
-            import re
-
-            match = re.search(r"regular(\d+)", search_str)
-            if match:
-                val_str = match.group(1)
-                sel_threshold = float(int(val_str) - 1)
-                if sel_threshold < 0:
-                    raise ValueError(f"Invalid lvl value for policy_regular: {val_str}")
+            if any(k in search_str for k in ["last_minute", "lastminute"]):
+                if "and_path" in search_str:
+                    strat = "last_minute_and_path"
+                    match = re.search(r"and_path(-?\d+)", search_str)
+                    if match:
+                        params["threshold"] = float(match.group(1))
+                else:
+                    strat = "last_minute"
+                    match = re.search(r"last_minute(\d+)", search_str)
+                    if match:
+                        params["threshold"] = float(match.group(1))
+            elif any(k in search_str for k in ["lookahead", "look_ahead", "ahead"]):
+                strat = "lookahead"
+                match = re.search(r"ahead_?(\d+)", search_str)
+                if match:
+                    params["lookahead_days"] = int(match.group(1))
+            elif any(k in search_str for k in ["means_std", "means_std_dev", "meanstd"]):
+                strat = "means_std"
+                match = re.search(r"means_std(-?\d+)", search_str)
+                if match:
+                    params["threshold"] = float(match.group(1))
+            elif any(k in search_str for k in ["revenue", "profit"]):
+                strat = "revenue"
+            elif any(k in search_str for k in ["select_all"]):
+                strat = "select_all"
             else:
-                sel_threshold = threshold if threshold is not None else 0.0
-        elif strategy_name == "last_minute":
-            import re
+                strat = "regular"
+                match = re.search(r"regular(\d+)", search_str)
+                if match:
+                    params["threshold"] = float(int(match.group(1)) - 1)
 
-            match = re.search(r"last_minute(\d+)", search_str)
-            sel_threshold = float(match.group(1)) if match else 90.0
-        elif strategy_name == "last_minute_and_path":
-            import re
+            # Check context threshold overriding
+            if context.get("threshold") is not None and "threshold" not in params:
+                params["threshold"] = context.get("threshold")
 
-            # Extract cf from something like policy_last_minute_and_path-100
-            match = re.search(r"and_path(-?\d+)", search_str)
-            if match:
-                val = int(match.group(1))
-                if val < 0:
-                    raise ValueError(f"Invalid cf value for policy_last_minute_and_path: {val}")
-                sel_threshold = float(val)
-            else:
-                sel_threshold = threshold if threshold is not None else 90.0
-        elif strategy_name == "means_std":
-            import re
+            strategies.append({"name": strat, "params": params})
 
-            match = re.search(r"means_std(-?\d+)", search_str)
-            if match:
-                val = int(match.group(1))
-                if val < 0:
-                    raise ValueError(f"Invalid std parameter value for means_std: {val}")
-                sel_threshold = float(val)
-            else:
-                sel_threshold = threshold if threshold is not None else 0.84
-        elif strategy_name == "lookahead":
-            if "_z" in search_str or "_invalid" in search_str:
-                raise ValueError("Invalid policy_look_ahead configuration")
-            sel_threshold = threshold if threshold is not None else 0.5
-
-        if sel_threshold is None:
-            sel_threshold = 0.5
-
-        # 3. Build Selection Context
+        # 2. Execute all strategies and union results
         bins = context["bins"]
         # Use more robust access for both real Bins and mock/dict contexts
         current_fill = getattr(bins, "c", bins.get("c") if isinstance(bins, dict) else None)
@@ -214,33 +209,72 @@ class MustGoSelectionAction(SimulationAction):
         if n_bins is None:
             n_bins = len(current_fill) if current_fill is not None else 0
 
-        sel_ctx = SelectionContext(
-            bin_ids=np.arange(0, n_bins, dtype="int32"),
-            current_fill=np.array(current_fill) if current_fill is not None else np.array([]),
-            accumulation_rates=getattr(bins, "means", bins.get("means") if isinstance(bins, dict) else None),
-            std_deviations=getattr(bins, "std", bins.get("std") if isinstance(bins, dict) else None),
-            current_day=context.get("day", 0),
-            threshold=sel_threshold,
-            next_collection_day=context.get("next_collection_day"),
-            distance_matrix=context.get("distance_matrix"),
-            paths_between_states=context.get("paths_between_states"),
-            vehicle_capacity=context.get("max_capacity", 100.0),
-        )
+        accumulation_rates = getattr(bins, "means", bins.get("means") if isinstance(bins, dict) else None)
+        std_deviations = getattr(bins, "std", bins.get("std") if isinstance(bins, dict) else None)
 
-        # 4. Use Factory to select bins
-        if strategy_name == "select_all":
-            must_go = list(sel_ctx.bin_ids)
-        else:
-            strategy = MustGoSelectionFactory.create_strategy(strategy_name)
-            must_go = strategy.select_bins(sel_ctx)
+        final_must_go = set()
 
-        # Ensure must_go is a list (for better compatibility with policy logic and asserts)
-        if hasattr(must_go, "tolist"):
-            must_go = must_go.tolist()
-        elif not isinstance(must_go, list):
-            must_go = list(must_go)
+        for strat_info in strategies:
+            s_name = strat_info["name"]
+            s_params = strat_info["params"]
 
-        context["must_go"] = must_go
+            # Determine threshold
+            thresh = 0.5
+            la_days = None
+
+            if "threshold" in s_params:
+                thresh = float(s_params["threshold"])
+            elif "days" in s_params:
+                la_days = int(s_params["days"])
+
+            # Handle specific key mappings if needed (e.g. lookahead uses days not threshold)
+            if s_name == "lookahead":
+                if "days" in s_params:
+                    la_days = int(s_params["days"])
+                if "lookahead_days" in s_params:
+                    la_days = int(s_params["lookahead_days"])  # Legacy/Fallback
+
+            # Legacy param catch-up from dict above
+            if "lookahead_days" in s_params:
+                la_days = s_params["lookahead_days"]
+            if "threshold" in s_params:
+                thresh = s_params["threshold"]
+
+            sel_ctx = SelectionContext(
+                bin_ids=np.arange(0, n_bins, dtype="int32"),
+                current_fill=np.array(current_fill) if current_fill is not None else np.array([]),
+                accumulation_rates=accumulation_rates,
+                std_deviations=std_deviations,
+                current_day=context.get("day", 0),
+                threshold=thresh,
+                next_collection_day=context.get("next_collection_day"),
+                distance_matrix=context.get("distance_matrix"),
+                paths_between_states=context.get("paths_between_states"),
+                vehicle_capacity=context.get("max_capacity", 100.0),
+                lookahead_days=la_days,
+            )
+
+            if s_name == "select_all":
+                res = list(sel_ctx.bin_ids)
+            else:
+                try:
+                    strategy = MustGoSelectionFactory.create_strategy(s_name)
+                    res = strategy.select_bins(sel_ctx)
+                except ValueError:
+                    # Strategy might not be registered or name mismatch
+                    # For now print warning
+                    # print(f"Warning: Unknown strategy {s_name}")
+                    res = []
+
+            # Ensure list
+            if hasattr(res, "tolist"):
+                res = res.tolist()
+            elif not isinstance(res, list):
+                res = list(res)
+
+            final_must_go.update(res)
+
+        context["must_go"] = list(final_must_go)
 
 
 class PolicyExecutionAction(SimulationAction):
@@ -348,35 +382,68 @@ class PostProcessAction(SimulationAction):
         if not tour or len(tour) <= 2:
             return
 
-        # 1. Determine if post-processing is requested
-        post_process_name = context.get("post_process") or context.get("config", {}).get("post_process")
+        # 1. Determine list of post-processors
+        config = context.get("config", {})
 
-        if post_process_name and post_process_name.lower() != "none":
+        # Check config for 'post_processing' list
+        pp_list = config.get("post_processing") or context.get("post_process")
+
+        if pp_list:
+            if not isinstance(pp_list, list):
+                if isinstance(pp_list, str) and pp_list.lower() != "none":
+                    pp_list = [pp_list]
+                else:
+                    pp_list = []
+
+            import os
+
             from logic.src.policies.post_processing import PostProcessorFactory
 
-            # 2. Extract configuration parameters for post-processing
-            config = context.get("config", {})
-            post_process_config = config.get("post_process_cfg", {})
-            # Merge with context for processor.process access
-            proc_kwargs = {**context, **post_process_config}
+            for item in pp_list:
+                pp_name = ""
+                pp_params = {**context}  # Start with Context
 
-            try:
-                # 3. Apply refinement
-                processor = PostProcessorFactory.create(post_process_name)
-                refined_tour = processor.process(tour, **proc_kwargs)
+                if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
+                    # Load config
+                    fpath = os.path.join(ROOT_DIR, "scripts", "configs", "policies", item)
+                    try:
+                        cfg = load_config(fpath)
+                        if "config" in cfg and len(cfg) == 1:
+                            cfg = cfg["config"]
 
-                # 4. Update context with refined tour and re-compute cost
-                if refined_tour != tour:
-                    from logic.src.policies.single_vehicle import get_route_cost
+                        for k, v in cfg.items():
+                            pp_name = k
+                            if isinstance(v, dict):
+                                pp_params.update(v)
+                    except Exception as e:
+                        print(f"Error loading post_processing config {item}: {e}")
+                        continue
+                else:
+                    pp_name = item
 
-                    dist_matrix = context.get("distance_matrix")
-                    new_cost = get_route_cost(dist_matrix, refined_tour)
+                if not pp_name or pp_name.lower() == "none":
+                    continue
 
-                    context["tour"] = refined_tour
-                    context["cost"] = new_cost
-            except Exception as e:
-                # Log error and keep original tour
-                print(f"Post-processing skipped due to error: {e}")
+                try:
+                    # Apply refinement
+                    processor = PostProcessorFactory.create(pp_name)
+                    # Merge context with params but prioritize params from config?
+                    # Actually pp_params already has context + config params
+
+                    refined_tour = processor.process(tour, **pp_params)
+
+                    if refined_tour != tour:
+                        from logic.src.policies.single_vehicle import get_route_cost
+
+                        dist_matrix = context.get("distance_matrix")
+                        new_cost = get_route_cost(dist_matrix, refined_tour)
+
+                        tour = refined_tour
+                        context["tour"] = refined_tour
+                        context["cost"] = new_cost
+
+                except Exception as e:
+                    print(f"Post-processing {pp_name} skipped due to error: {e}")
 
 
 class CollectAction(SimulationAction):
