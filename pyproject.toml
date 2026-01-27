@@ -391,8 +391,6 @@ testpaths = ["logic/test", "gui/test"]
 addopts = [
     "-v",                      # Verbose output
     "-ra",                     # Show summary of all test outcomes
-    "--cov=logic/src",         # Coverage for logic/src
-    "--cov=gui/src",           # Coverage for gui/src
     "--showlocals",            # Show local variables in tracebacks
     "--strict-markers",        # Fail on unknown markers
     "--tb=short",              # Shorter traceback format

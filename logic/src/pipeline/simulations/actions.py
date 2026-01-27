@@ -157,44 +157,215 @@ class MustGoSelectionAction(SimulationAction):
                     # It's a direct name like "means_std" (legacy or simple string)
                     strategies.append({"name": item, "params": {}})
         else:
-            # Fallback to legacy parsing from policy_name
-            # Priorities: policy (stripped) > full_policy > policy_name (normalized)
-            policy_name = context.get("policy") or context.get("full_policy") or context.get("policy_name", "")
-            search_str = str(policy_name).lower()
+            # Fallback to legacy parsing from policy strings
+            # Use combined search string to catch suffixes in any of the policy fields
+            full_policy = str(context.get("full_policy") or "").lower()
+            policy = str(context.get("policy") or "").lower()
+            policy_name_orig = str(context.get("policy_name") or "").lower()
+            search_str = f"{full_policy} {policy} {policy_name_orig}"
 
-            strat = "regular"
+            strat = None
             params = {}
+            display_name = context.get("policy_name") or context.get("policy") or "policy"
 
-            if any(k in search_str for k in ["last_minute", "lastminute"]):
-                if "and_path" in search_str:
-                    strat = "last_minute_and_path"
-                    match = re.search(r"and_path(-?\d+)", search_str)
-                    if match:
-                        params["threshold"] = float(match.group(1))
+            def _validate_must_go_strategy_parameter(
+                match, param_name, group_num, type="int", error_msg=None, default=None
+            ):
+                if not match:
+                    if default is not None:
+                        return default
+                    if error_msg:
+                        raise ValueError(error_msg)
+                    raise ValueError(f"No {param_name} value found in must go selection strategy!")
+
+                val_str = match.group(group_num)
+                try:
+                    # Support negative numbers via basic string manipulation or float/int conversion
+                    val = int(val_str) if type == "int" else float(val_str)
+                except ValueError:
+                    raise ValueError(f"Invalid {param_name} value for {display_name}: {val_str}")
+
+                if val < 0:
+                    if type == "int":
+                        raise ValueError(f"Invalid {param_name} value for {display_name}: {int(val)}")
+                    elif type == "float":
+                        raise ValueError(f"Invalid {param_name} value for {display_name}: {float(val)}")
+                return val
+
+            # Define words to analyze and relevant keyword lists for each strategy
+            words = search_str.split()
+            lm_keywords = ["last_minute", "lastminute", "and_path"]
+            la_keywords = ["lookahead", "look_ahead", "ahead"]
+            ms_keywords = ["means_std", "means_std_dev", "meanstd"]
+            rev_keywords = ["revenue", "profit"]
+            reg_keywords = ["regular", "select_all", "neural"]
+
+            # Helper to check if a word is a valid default (non-parameterized) name for a strategy
+            def is_valid_default_name(w, keywords):
+                """Check if a word is a valid default (non-parameterized) name for a strategy.
+
+                Args:
+                    w (str): The word to validate.
+                    keywords (list): List of keywords to check against.
+
+                Returns:
+                    bool: True if the word matches the naming convention, False otherwise.
+                """
+                # Standard naming convention: (policy_)?keyword(_policy|_dev|_std|_am_gamma|_gamma\d*|_and_path|_emp|_stoch)?$
+                pattern = r"^(policy_)?(?:{})(?:_policy|_dev|_std|_am_gamma|_gamma\d*|_and_path|_emp|_stoch)?$".format(
+                    "|".join(keywords)
+                )
+                return bool(re.match(pattern, w))
+
+            # Strictly identify if a word 'belongs' to a strategy (allows trailing digits like last_minute90)
+            def is_word_assigned(w, keywords):
+                """Identify if a word 'belongs' to a strategy.
+
+                Args:
+                    w (str): The word to check.
+                    keywords (list): List of keywords to check against.
+
+                Returns:
+                    bool: True if the word belongs to a strategy, False otherwise.
+                """
+                for k in keywords:
+                    if re.search(rf"(^|_){k}(-?\d*|_|$)", w):
+                        return True
+                return False
+
+            # IDENTIFICATION: Decide which strategy block to enter solely based on display_name
+            # or first word priority to avoid context collisions (e.g. neural != means_std)
+            match_strat = None
+            if is_word_assigned(display_name, lm_keywords):
+                match_strat = "last_minute"
+            elif is_word_assigned(display_name, la_keywords):
+                match_strat = "lookahead"
+            elif is_word_assigned(display_name, ms_keywords):
+                match_strat = "means_std"
+            elif is_word_assigned(display_name, rev_keywords):
+                match_strat = "revenue"
+            elif is_word_assigned(display_name, reg_keywords):
+                match_strat = "regular"
+
+            # Fallback if display_name is generic/unknown
+            if not match_strat:
+                if any(is_word_assigned(w, lm_keywords) for w in words):
+                    match_strat = "last_minute"
+                elif any(is_word_assigned(w, la_keywords) for w in words):
+                    match_strat = "lookahead"
+                elif any(is_word_assigned(w, ms_keywords) for w in words):
+                    match_strat = "means_std"
+                elif any(is_word_assigned(w, rev_keywords) for w in words):
+                    match_strat = "revenue"
+                elif any(is_word_assigned(w, reg_keywords) for w in words):
+                    match_strat = "regular"
+
+            # 1. Last Minute logic
+            if match_strat == "last_minute":
+                found_v = None
+                is_identifiable = False
+                for w in words:
+                    if is_word_assigned(w, lm_keywords):
+                        m = re.search(r"(?:last_minute|and_path)(-?\d+)", w)
+                        if m:
+                            found_v = _validate_must_go_strategy_parameter(m, "cf", 1, type="int")
+                            is_identifiable = True
+                        elif is_valid_default_name(w, lm_keywords):
+                            is_identifiable = True
+                        else:
+                            # It's an assignment attempt but messed up
+                            raise ValueError("No cf value found in must go selection strategy!")
+
+                if is_identifiable:
+                    strat = "last_minute_and_path" if "and_path" in search_str else "last_minute"
+                    params["threshold"] = found_v if found_v is not None else 90
+
+            # 2. Lookahead logic
+            elif match_strat == "lookahead":
+                found_v = None
+                is_identifiable = False
+                for w in words:
+                    if is_word_assigned(w, la_keywords):
+                        m = re.search(r"ahead_?(\d+)", w)
+                        if m:
+                            found_v = _validate_must_go_strategy_parameter(m, "days", 1, type="int")
+                            is_identifiable = True
+                        elif is_valid_default_name(w, la_keywords):
+                            is_identifiable = True
+                        else:
+                            raise ValueError(f"Invalid {display_name} configuration")
+
+                if is_identifiable:
+                    strat = "lookahead"
+                    params["lookahead_days"] = found_v if found_v is not None else 7
+
+            # 3. Means/Std logic
+            elif match_strat == "means_std":
+                found_v = None
+                is_identifiable = False
+                for w in words:
+                    if is_word_assigned(w, ms_keywords):
+                        m = re.search(r"mean(?:s_std|std)(?:_?)(-?\d+)", w)
+                        if m:
+                            found_v = _validate_must_go_strategy_parameter(m, "parameter", 1, type="float")
+                            is_identifiable = True
+                        elif is_valid_default_name(w, ["means_std", "means_std_dev"]):
+                            is_identifiable = True
+                        else:
+                            raise ValueError(f"Unknown must go selection strategy: {display_name}")
+
+                if is_identifiable:
+                    strat = "means_std"
+                    params["threshold"] = found_v if found_v is not None else 2.0
+
+            # 4. Revenue logic
+            elif match_strat == "revenue":
+                found_v = None
+                is_identifiable = False
+                for w in words:
+                    if is_word_assigned(w, rev_keywords):
+                        m = re.search(r"revenue(?:_?)(-?\d+)", w)
+                        if m:
+                            found_v = _validate_must_go_strategy_parameter(m, "threshold", 1, type="float")
+                            is_identifiable = True
+                        elif is_valid_default_name(w, rev_keywords):
+                            is_identifiable = True
+
+                if is_identifiable:
+                    strat = "revenue"
+                    params["threshold"] = found_v if found_v is not None else 0.5
+
+            # 5. Regular / Select All / Neural Fallback
+            if not strat:
+                # Identification for Regular is broader to catch fallbacks like Select All / Neural
+                if match_strat == "regular" or any(is_word_assigned(w, reg_keywords) for w in words):
+                    found_v = None
+                    is_identifiable = False
+                    for w in words:
+                        if is_word_assigned(w, ["regular"]):
+                            m = re.search(r"regular(?:_?)(\d+)", w)
+                            if m:
+                                found_v = _validate_must_go_strategy_parameter(m, "lvl", 1, type="int")
+                                is_identifiable = True
+                            elif is_valid_default_name(w, ["regular"]):
+                                is_identifiable = True
+                            else:
+                                if is_word_assigned(w, ["regular"]):
+                                    raise ValueError(f"Invalid lvl value for {display_name}: unknown")
+                        elif is_word_assigned(w, ["select_all", "neural"]):
+                            is_identifiable = True
+
+                    if is_identifiable:
+                        strat = "regular"
+                        lvl = found_v if found_v is not None else 1
+                        if lvl == 0:
+                            raise ValueError(f"Invalid lvl value for {display_name}: {lvl}")
+                        params["threshold"] = float(lvl - 1)
+                    else:
+                        raise ValueError(f"Unknown must go selection strategy: Unknown policy: {display_name}")
                 else:
-                    strat = "last_minute"
-                    match = re.search(r"last_minute(\d+)", search_str)
-                    if match:
-                        params["threshold"] = float(match.group(1))
-            elif any(k in search_str for k in ["lookahead", "look_ahead", "ahead"]):
-                strat = "lookahead"
-                match = re.search(r"ahead_?(\d+)", search_str)
-                if match:
-                    params["lookahead_days"] = int(match.group(1))
-            elif any(k in search_str for k in ["means_std", "means_std_dev", "meanstd"]):
-                strat = "means_std"
-                match = re.search(r"means_std(-?\d+)", search_str)
-                if match:
-                    params["threshold"] = float(match.group(1))
-            elif any(k in search_str for k in ["revenue", "profit"]):
-                strat = "revenue"
-            elif any(k in search_str for k in ["select_all"]):
-                strat = "select_all"
-            else:
-                strat = "regular"
-                match = re.search(r"regular(\d+)", search_str)
-                if match:
-                    params["threshold"] = float(int(match.group(1)) - 1)
+                    # Final fallback: Truly unknown policy
+                    raise ValueError(f"Unknown must go selection strategy: Unknown policy: {display_name}")
 
             # Check context threshold overriding
             if context.get("threshold") is not None and "threshold" not in params:
@@ -258,14 +429,8 @@ class MustGoSelectionAction(SimulationAction):
             if s_name == "select_all":
                 res = list(sel_ctx.bin_ids)
             else:
-                try:
-                    strategy = MustGoSelectionFactory.create_strategy(s_name)
-                    res = strategy.select_bins(sel_ctx)
-                except ValueError:
-                    # Strategy might not be registered or name mismatch
-                    # For now print warning
-                    # print(f"Warning: Unknown strategy {s_name}")
-                    res = []
+                strategy = MustGoSelectionFactory.create_strategy(s_name)
+                res = strategy.select_bins(sel_ctx)
 
             # Ensure list
             if hasattr(res, "tolist"):
@@ -318,29 +483,36 @@ class PolicyExecutionAction(SimulationAction):
         threshold = context.get("threshold")
         must_go = context.get("must_go", [])
 
-        # 2. Short-circuit if no targets identified (Agnostic Contract)
-        if not must_go and "neural" not in policy_name:
-            context["tour"] = [0, 0]
-            context["cost"] = 0.0
-            context["extra_output"] = None
-            return
-
-        # 3. Routing Phase
-        # Map policy to Core Solver
+        # 2. IDENTIFY ROUTING ENGINE
+        solver_key = None
         if any(k in policy_name for k in ["am", "ddam", "transgcn", "neural"]):
             solver_key = "neural"
         elif "vrpp" in policy_name:
             solver_key = "vrpp"
         elif any(k in policy_name for k in ["hgs", "alns", "sans", "lac", "lkh", "bcp"]):
             solver_key = next(k for k in ["hgs", "alns", "sans", "lac", "lkh", "bcp"] if k in policy_name)
-        elif "tsp" in policy_name or "regular" in policy_name or "last_minute" in policy_name:
+        elif "tsp" in policy_name:
             solver_key = "tsp"
         elif "cvrp" in policy_name:
             solver_key = "cvrp"
-        else:
-            # Let PolicyFactory handle unknown policies or raise ValueError
-            solver_key = policy_name
 
+        # 3. SELECTION STRATEGY FALLBACK (Default to TSP for routing if no engine specified)
+        if solver_key is None:
+            # These are selection strategies, but they imply a simple TSP route
+            selection_keys = ["regular", "last_minute", "select_all", "lookahead", "means_std", "revenue"]
+            if any(k in policy_name for k in selection_keys):
+                solver_key = "tsp"
+            else:
+                raise ValueError(f"Unknown policy: {policy_name}")
+
+        # 4. Short-circuit if no targets identified (Agnostic Contract)
+        if not must_go and solver_key != "neural":
+            context["tour"] = [0, 0]
+            context["cost"] = 0.0
+            context["extra_output"] = None
+            return
+
+        # 4. Routing Phase
         # Get adapter
         adapter = PolicyFactory.get_adapter(solver_key, engine=engine, threshold=threshold)
 

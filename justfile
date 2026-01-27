@@ -72,7 +72,7 @@ run-sim:
 
 # Run all tests
 test:
-    uv run pytest
+    uv run pytest --cov=logic/src --cov=gui/src --cov-report=xml --cov-report=term-missing
 
 # Run fast unit tests
 test-fast:
