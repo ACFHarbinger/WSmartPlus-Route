@@ -114,7 +114,7 @@ Bases: {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.policies.adapters.PolicyFactory
 ```
 
-````{py:method} get_adapter(policy_name: str) -> src.policies.adapters.IPolicy
+````{py:method} get_adapter(name: str, engine: typing.Optional[str] = None, threshold: typing.Optional[float] = None, **kwargs: typing.Any) -> src.policies.adapters.IPolicy
 :canonical: src.policies.adapters.PolicyFactory.get_adapter
 :staticmethod:
 

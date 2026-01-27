@@ -13,9 +13,14 @@
 :titlesonly:
 :maxdepth: 3
 
+src.utils.tasks
 src.utils.io
+src.utils.security
+src.utils.data
 src.utils.functions
 src.utils.logging
+src.utils.validation
+src.utils.configs
 ```
 
 ## Submodules
@@ -24,14 +29,6 @@ src.utils.logging
 :titlesonly:
 :maxdepth: 1
 
-src.utils.setup_utils
-src.utils.losses
-src.utils.config_loader
-src.utils.crypto_utils
 src.utils.io_utils
-src.utils.data_utils
-src.utils.check_docstrings
-src.utils.debug_utils
 src.utils.add_docstrings_batch
-src.utils.task_utils
 ```

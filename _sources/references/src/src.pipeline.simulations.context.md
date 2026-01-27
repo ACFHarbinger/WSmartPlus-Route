@@ -400,6 +400,28 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````
 
+````{py:attribute} engine
+:canonical: src.pipeline.simulations.context.SimulationDayContext.engine
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.context.SimulationDayContext.engine
+```
+
+````
+
+````{py:attribute} threshold
+:canonical: src.pipeline.simulations.context.SimulationDayContext.threshold
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.context.SimulationDayContext.threshold
+```
+
+````
+
 ````{py:attribute} daily_log
 :canonical: src.pipeline.simulations.context.SimulationDayContext.daily_log
 :type: typing.Optional[typing.Dict]
@@ -539,6 +561,17 @@ Bases: {py:obj}`collections.abc.Mapping`
    None
 
 ```{autodoc2-docstring} src.pipeline.simulations.context.SimulationDayContext.extra_output
+```
+
+````
+
+````{py:attribute} must_go
+:canonical: src.pipeline.simulations.context.SimulationDayContext.must_go
+:type: typing.Optional[typing.List[int]]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.context.SimulationDayContext.must_go
 ```
 
 ````

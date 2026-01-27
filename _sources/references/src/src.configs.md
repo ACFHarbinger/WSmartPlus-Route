@@ -15,10 +15,13 @@
 
 src.configs.rl
 src.configs.decoding
+src.configs.eval
 src.configs.train
 src.configs.env
 src.configs.optim
+src.configs.data
 src.configs.hpo
+src.configs.sim
 src.configs.model
 src.configs.meta_rl
 ```
@@ -134,6 +137,39 @@ src.configs.meta_rl
 
 ````
 
+````{py:attribute} eval
+:canonical: src.configs.Config.eval
+:type: src.configs.eval.EvalConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.Config.eval
+```
+
+````
+
+````{py:attribute} sim
+:canonical: src.configs.Config.sim
+:type: src.configs.sim.SimConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.Config.sim
+```
+
+````
+
+````{py:attribute} data
+:canonical: src.configs.Config.data
+:type: src.configs.data.DataConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.Config.data
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.Config.seed
 :type: int
@@ -163,6 +199,17 @@ src.configs.meta_rl
    None
 
 ```{autodoc2-docstring} src.configs.Config.experiment_name
+```
+
+````
+
+````{py:attribute} task
+:canonical: src.configs.Config.task
+:type: str
+:value: >
+   'train'
+
+```{autodoc2-docstring} src.configs.Config.task
 ```
 
 ````

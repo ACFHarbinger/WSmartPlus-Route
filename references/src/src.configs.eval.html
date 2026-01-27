@@ -1,0 +1,917 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>src.configs.eval &#8212; WSmart-Route  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-shadow.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-punk.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-noir.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/hoverxref.js"></script>
+    <script src="../../_static/js/tooltipster.bundle.min.js"></script>
+    <script src="../../_static/js/micromodal.min.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.configs.eval';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="src.configs.train" href="src.configs.train.html" />
+    <link rel="prev" title="src.configs.decoding" href="src.configs.decoding.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">WSmart-Route  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_sans.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_sans</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_lac.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_lac</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_hgs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_hgs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.must_go_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.must_go_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_tsp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_cvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_vrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_lkh.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_lkh</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_bcp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_bcp</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.embeddings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.embeddings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.modules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.modules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.hypernet.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hypernet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.temporal_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.temporal_am</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.model_factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.model_factory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.moe_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.moe_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.gat_lstm_manager.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.gat_lstm_manager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.attention_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.context_embedder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.context_embedder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.pointer_network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.pointer_network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.meta_rnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta_rnn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.critic_network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.critic_network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.deep_decoder_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deep_decoder_am</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.add_docstrings_batch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.add_docstrings_batch</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.decoding</span></code></a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.eval</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.train.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.train</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.optim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.optim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.sim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.sim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.meta_rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.meta_rl</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.callbacks</span></code></a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/references/src/src.configs.eval.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>src.configs.eval</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig"><code class="docutils literal notranslate"><span class="pre">EvalConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.datasets"><code class="docutils literal notranslate"><span class="pre">EvalConfig.datasets</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.overwrite"><code class="docutils literal notranslate"><span class="pre">EvalConfig.overwrite</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.output_filename"><code class="docutils literal notranslate"><span class="pre">EvalConfig.output_filename</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.val_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.val_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.offset"><code class="docutils literal notranslate"><span class="pre">EvalConfig.offset</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.eval_batch_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.eval_batch_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.decode_type"><code class="docutils literal notranslate"><span class="pre">EvalConfig.decode_type</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.width"><code class="docutils literal notranslate"><span class="pre">EvalConfig.width</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.decode_strategy"><code class="docutils literal notranslate"><span class="pre">EvalConfig.decode_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.softmax_temperature"><code class="docutils literal notranslate"><span class="pre">EvalConfig.softmax_temperature</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.model"><code class="docutils literal notranslate"><span class="pre">EvalConfig.model</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.seed"><code class="docutils literal notranslate"><span class="pre">EvalConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.data_distribution"><code class="docutils literal notranslate"><span class="pre">EvalConfig.data_distribution</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.no_cuda"><code class="docutils literal notranslate"><span class="pre">EvalConfig.no_cuda</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.no_progress_bar"><code class="docutils literal notranslate"><span class="pre">EvalConfig.no_progress_bar</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.compress_mask"><code class="docutils literal notranslate"><span class="pre">EvalConfig.compress_mask</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.max_calc_batch_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.max_calc_batch_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.results_dir"><code class="docutils literal notranslate"><span class="pre">EvalConfig.results_dir</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.multiprocessing"><code class="docutils literal notranslate"><span class="pre">EvalConfig.multiprocessing</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.graph_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.graph_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.area"><code class="docutils literal notranslate"><span class="pre">EvalConfig.area</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.waste_type"><code class="docutils literal notranslate"><span class="pre">EvalConfig.waste_type</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">EvalConfig.focus_graph</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.focus_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.edge_threshold"><code class="docutils literal notranslate"><span class="pre">EvalConfig.edge_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.edge_method"><code class="docutils literal notranslate"><span class="pre">EvalConfig.edge_method</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.distance_method"><code class="docutils literal notranslate"><span class="pre">EvalConfig.distance_method</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.dm_filepath"><code class="docutils literal notranslate"><span class="pre">EvalConfig.dm_filepath</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.vertex_method"><code class="docutils literal notranslate"><span class="pre">EvalConfig.vertex_method</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.w_length"><code class="docutils literal notranslate"><span class="pre">EvalConfig.w_length</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.w_waste"><code class="docutils literal notranslate"><span class="pre">EvalConfig.w_waste</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.w_overflows"><code class="docutils literal notranslate"><span class="pre">EvalConfig.w_overflows</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.problem"><code class="docutils literal notranslate"><span class="pre">EvalConfig.problem</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.encoder"><code class="docutils literal notranslate"><span class="pre">EvalConfig.encoder</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.load_path"><code class="docutils literal notranslate"><span class="pre">EvalConfig.load_path</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.eval">
+<span id="src-configs-eval"></span><h1><a class="reference internal" href="#module-src.configs.eval" title="src.configs.eval"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.eval</span></code></a><a class="headerlink" href="#module-src.configs.eval" title="Link to this heading">#</a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.eval.EvalConfig" title="src.configs.eval.EvalConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EvalConfig</span></code></a></p></td>
+<td><p>Evaluation configuration.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.eval.</span></span><span class="sig-name descname"><span class="pre">EvalConfig</span></span><a class="headerlink" href="#src.configs.eval.EvalConfig" title="Link to this definition">#</a></dt>
+<dd><p>Evaluation configuration.</p>
+<p>Attributes:
+datasets: Filename of the dataset(s) to evaluate.
+overwrite: Set true to overwrite.
+output_filename: Name of the results file to write.
+val_size: Number of instances used for reporting validation performance.
+offset: Offset where to start in dataset.
+eval_batch_size: Batch size to use during (baseline) evaluation.
+decode_type: Decode type, greedy or sampling.
+width: Sizes of beam to use for beam search (or number of samples for sampling).
+decode_strategy: Beam search (bs), Sampling (sample) or Greedy (greedy).
+softmax_temperature: Softmax temperature (sampling or bs).
+model: Model filename.
+seed: Random seed to use.
+data_distribution: Data distribution of the dataset.
+no_cuda: Disable CUDA.
+no_progress_bar: Disable progress bar.
+compress_mask: Compress mask into long.
+max_calc_batch_size: Size for subbatches.
+results_dir: Name of evaluation results directory.
+multiprocessing: Use multiprocessing to parallelize over multiple GPUs.
+graph_size: The size of the problem graph.
+area: County area of the bins locations.
+waste_type: Type of waste bins selected for the optimization problem.
+focus_graph: Path to the file with the coordinates of the graph to focus on.
+focus_size: Number of focus graphs to include in the training data.
+edge_threshold: How many of all possible edges to consider.
+edge_method: Method for getting edges (‘dist’|’knn’).
+distance_method: Method to compute distance matrix.
+dm_filepath: Path to the distance matrix file.
+vertex_method: Method to transform vertex coordinates.
+w_length: Weight for length in cost function.
+w_waste: Weight for waste in cost function.
+w_overflows: Weight for overflows in cost function.
+problem: Problem to evaluate.
+encoder: Encoder to use.
+load_path: Path to load model parameters and optimizer state from.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.datasets">
+<span class="sig-name descname"><span class="pre">datasets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.datasets" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.overwrite">
+<span class="sig-name descname"><span class="pre">overwrite</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.overwrite" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.output_filename">
+<span class="sig-name descname"><span class="pre">output_filename</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.output_filename" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.val_size">
+<span class="sig-name descname"><span class="pre">val_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.val_size" title="Link to this definition">#</a></dt>
+<dd><p>12800</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.offset" title="Link to this definition">#</a></dt>
+<dd><p>0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.eval_batch_size">
+<span class="sig-name descname"><span class="pre">eval_batch_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.eval_batch_size" title="Link to this definition">#</a></dt>
+<dd><p>256</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.decode_type">
+<span class="sig-name descname"><span class="pre">decode_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.decode_type" title="Link to this definition">#</a></dt>
+<dd><p>‘greedy’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.width">
+<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.width" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.decode_strategy">
+<span class="sig-name descname"><span class="pre">decode_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.decode_strategy" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.softmax_temperature">
+<span class="sig-name descname"><span class="pre">softmax_temperature</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.softmax_temperature" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.model">
+<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.model" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.seed" title="Link to this definition">#</a></dt>
+<dd><p>42</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.data_distribution">
+<span class="sig-name descname"><span class="pre">data_distribution</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.data_distribution" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.no_cuda">
+<span class="sig-name descname"><span class="pre">no_cuda</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.no_cuda" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.no_progress_bar">
+<span class="sig-name descname"><span class="pre">no_progress_bar</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.no_progress_bar" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.compress_mask">
+<span class="sig-name descname"><span class="pre">compress_mask</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.compress_mask" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.max_calc_batch_size">
+<span class="sig-name descname"><span class="pre">max_calc_batch_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.max_calc_batch_size" title="Link to this definition">#</a></dt>
+<dd><p>12800</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.results_dir">
+<span class="sig-name descname"><span class="pre">results_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.results_dir" title="Link to this definition">#</a></dt>
+<dd><p>‘results’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.multiprocessing">
+<span class="sig-name descname"><span class="pre">multiprocessing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.multiprocessing" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.graph_size">
+<span class="sig-name descname"><span class="pre">graph_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.graph_size" title="Link to this definition">#</a></dt>
+<dd><p>50</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.area">
+<span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.area" title="Link to this definition">#</a></dt>
+<dd><p>‘riomaior’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.waste_type">
+<span class="sig-name descname"><span class="pre">waste_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.waste_type" title="Link to this definition">#</a></dt>
+<dd><p>‘plastic’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.focus_graph">
+<span class="sig-name descname"><span class="pre">focus_graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.focus_graph" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.focus_size">
+<span class="sig-name descname"><span class="pre">focus_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.focus_size" title="Link to this definition">#</a></dt>
+<dd><p>0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.edge_threshold">
+<span class="sig-name descname"><span class="pre">edge_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.edge_threshold" title="Link to this definition">#</a></dt>
+<dd><p>‘0’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.edge_method">
+<span class="sig-name descname"><span class="pre">edge_method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.edge_method" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.distance_method">
+<span class="sig-name descname"><span class="pre">distance_method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.distance_method" title="Link to this definition">#</a></dt>
+<dd><p>‘ogd’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.dm_filepath">
+<span class="sig-name descname"><span class="pre">dm_filepath</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.dm_filepath" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.vertex_method">
+<span class="sig-name descname"><span class="pre">vertex_method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.vertex_method" title="Link to this definition">#</a></dt>
+<dd><p>‘mmn’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.w_length">
+<span class="sig-name descname"><span class="pre">w_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.w_length" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.w_waste">
+<span class="sig-name descname"><span class="pre">w_waste</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.w_waste" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.w_overflows">
+<span class="sig-name descname"><span class="pre">w_overflows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.w_overflows" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.problem">
+<span class="sig-name descname"><span class="pre">problem</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.problem" title="Link to this definition">#</a></dt>
+<dd><p>‘cwcvrp’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.encoder">
+<span class="sig-name descname"><span class="pre">encoder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.encoder" title="Link to this definition">#</a></dt>
+<dd><p>‘gat’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.load_path">
+<span class="sig-name descname"><span class="pre">load_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.load_path" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="src.configs.decoding.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.decoding</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="src.configs.train.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.train</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig"><code class="docutils literal notranslate"><span class="pre">EvalConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.datasets"><code class="docutils literal notranslate"><span class="pre">EvalConfig.datasets</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.overwrite"><code class="docutils literal notranslate"><span class="pre">EvalConfig.overwrite</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.output_filename"><code class="docutils literal notranslate"><span class="pre">EvalConfig.output_filename</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.val_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.val_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.offset"><code class="docutils literal notranslate"><span class="pre">EvalConfig.offset</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.eval_batch_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.eval_batch_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.decode_type"><code class="docutils literal notranslate"><span class="pre">EvalConfig.decode_type</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.width"><code class="docutils literal notranslate"><span class="pre">EvalConfig.width</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.decode_strategy"><code class="docutils literal notranslate"><span class="pre">EvalConfig.decode_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.softmax_temperature"><code class="docutils literal notranslate"><span class="pre">EvalConfig.softmax_temperature</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.model"><code class="docutils literal notranslate"><span class="pre">EvalConfig.model</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.seed"><code class="docutils literal notranslate"><span class="pre">EvalConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.data_distribution"><code class="docutils literal notranslate"><span class="pre">EvalConfig.data_distribution</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.no_cuda"><code class="docutils literal notranslate"><span class="pre">EvalConfig.no_cuda</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.no_progress_bar"><code class="docutils literal notranslate"><span class="pre">EvalConfig.no_progress_bar</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.compress_mask"><code class="docutils literal notranslate"><span class="pre">EvalConfig.compress_mask</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.max_calc_batch_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.max_calc_batch_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.results_dir"><code class="docutils literal notranslate"><span class="pre">EvalConfig.results_dir</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.multiprocessing"><code class="docutils literal notranslate"><span class="pre">EvalConfig.multiprocessing</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.graph_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.graph_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.area"><code class="docutils literal notranslate"><span class="pre">EvalConfig.area</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.waste_type"><code class="docutils literal notranslate"><span class="pre">EvalConfig.waste_type</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">EvalConfig.focus_graph</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.focus_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.edge_threshold"><code class="docutils literal notranslate"><span class="pre">EvalConfig.edge_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.edge_method"><code class="docutils literal notranslate"><span class="pre">EvalConfig.edge_method</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.distance_method"><code class="docutils literal notranslate"><span class="pre">EvalConfig.distance_method</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.dm_filepath"><code class="docutils literal notranslate"><span class="pre">EvalConfig.dm_filepath</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.vertex_method"><code class="docutils literal notranslate"><span class="pre">EvalConfig.vertex_method</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.w_length"><code class="docutils literal notranslate"><span class="pre">EvalConfig.w_length</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.w_waste"><code class="docutils literal notranslate"><span class="pre">EvalConfig.w_waste</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.w_overflows"><code class="docutils literal notranslate"><span class="pre">EvalConfig.w_overflows</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.problem"><code class="docutils literal notranslate"><span class="pre">EvalConfig.problem</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.encoder"><code class="docutils literal notranslate"><span class="pre">EvalConfig.encoder</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.load_path"><code class="docutils literal notranslate"><span class="pre">EvalConfig.load_path</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By ACFHarbinger
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, ACFHarbinger.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

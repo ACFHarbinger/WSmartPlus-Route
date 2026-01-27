@@ -51,10 +51,6 @@
   - ```{autodoc2-docstring} src.pipeline.simulations.processor.process_data
     :summary:
     ```
-* - {py:obj}`haversine_distance_old <src.pipeline.simulations.processor.haversine_distance_old>`
-  - ```{autodoc2-docstring} src.pipeline.simulations.processor.haversine_distance_old
-    :summary:
-    ```
 * - {py:obj}`process_coordinates <src.pipeline.simulations.processor.process_coordinates>`
   - ```{autodoc2-docstring} src.pipeline.simulations.processor.process_coordinates
     :summary:
@@ -228,13 +224,6 @@
 :canonical: src.pipeline.simulations.processor.process_data
 
 ```{autodoc2-docstring} src.pipeline.simulations.processor.process_data
-```
-````
-
-````{py:function} haversine_distance_old(lat1, lng1, lat2, lng2)
-:canonical: src.pipeline.simulations.processor.haversine_distance_old
-
-```{autodoc2-docstring} src.pipeline.simulations.processor.haversine_distance_old
 ```
 ````
 

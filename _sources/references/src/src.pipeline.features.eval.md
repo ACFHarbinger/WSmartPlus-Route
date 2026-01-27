@@ -31,6 +31,10 @@
   - ```{autodoc2-docstring} src.pipeline.features.eval._eval_dataset
     :summary:
     ```
+* - {py:obj}`validate_eval_args <src.pipeline.features.eval.validate_eval_args>`
+  - ```{autodoc2-docstring} src.pipeline.features.eval.validate_eval_args
+    :summary:
+    ```
 * - {py:obj}`run_evaluate_model <src.pipeline.features.eval.run_evaluate_model>`
   - ```{autodoc2-docstring} src.pipeline.features.eval.run_evaluate_model
     :summary:
@@ -86,6 +90,13 @@
 :canonical: src.pipeline.features.eval._eval_dataset
 
 ```{autodoc2-docstring} src.pipeline.features.eval._eval_dataset
+```
+````
+
+````{py:function} validate_eval_args(args: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.features.eval.validate_eval_args
+
+```{autodoc2-docstring} src.pipeline.features.eval.validate_eval_args
 ```
 ````
 

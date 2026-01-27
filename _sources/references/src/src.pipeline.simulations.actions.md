@@ -23,8 +23,16 @@
   - ```{autodoc2-docstring} src.pipeline.simulations.actions.FillAction
     :summary:
     ```
+* - {py:obj}`MustGoSelectionAction <src.pipeline.simulations.actions.MustGoSelectionAction>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.actions.MustGoSelectionAction
+    :summary:
+    ```
 * - {py:obj}`PolicyExecutionAction <src.pipeline.simulations.actions.PolicyExecutionAction>`
   - ```{autodoc2-docstring} src.pipeline.simulations.actions.PolicyExecutionAction
+    :summary:
+    ```
+* - {py:obj}`PostProcessAction <src.pipeline.simulations.actions.PostProcessAction>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.actions.PostProcessAction
     :summary:
     ```
 * - {py:obj}`CollectAction <src.pipeline.simulations.actions.CollectAction>`
@@ -66,10 +74,28 @@ Bases: {py:obj}`src.pipeline.simulations.actions.SimulationAction`
 ```{autodoc2-docstring} src.pipeline.simulations.actions.FillAction
 ```
 
-````{py:method} execute(context: typing.Dict[str, typing.Any]) -> None
+````{py:method} execute(context: typing.Any) -> None
 :canonical: src.pipeline.simulations.actions.FillAction.execute
 
 ```{autodoc2-docstring} src.pipeline.simulations.actions.FillAction.execute
+```
+
+````
+
+`````
+
+`````{py:class} MustGoSelectionAction
+:canonical: src.pipeline.simulations.actions.MustGoSelectionAction
+
+Bases: {py:obj}`src.pipeline.simulations.actions.SimulationAction`
+
+```{autodoc2-docstring} src.pipeline.simulations.actions.MustGoSelectionAction
+```
+
+````{py:method} execute(context: typing.Any) -> None
+:canonical: src.pipeline.simulations.actions.MustGoSelectionAction.execute
+
+```{autodoc2-docstring} src.pipeline.simulations.actions.MustGoSelectionAction.execute
 ```
 
 ````
@@ -84,10 +110,28 @@ Bases: {py:obj}`src.pipeline.simulations.actions.SimulationAction`
 ```{autodoc2-docstring} src.pipeline.simulations.actions.PolicyExecutionAction
 ```
 
-````{py:method} execute(context: typing.Dict[str, typing.Any]) -> None
+````{py:method} execute(context: typing.Any) -> None
 :canonical: src.pipeline.simulations.actions.PolicyExecutionAction.execute
 
 ```{autodoc2-docstring} src.pipeline.simulations.actions.PolicyExecutionAction.execute
+```
+
+````
+
+`````
+
+`````{py:class} PostProcessAction
+:canonical: src.pipeline.simulations.actions.PostProcessAction
+
+Bases: {py:obj}`src.pipeline.simulations.actions.SimulationAction`
+
+```{autodoc2-docstring} src.pipeline.simulations.actions.PostProcessAction
+```
+
+````{py:method} execute(context: typing.Any) -> None
+:canonical: src.pipeline.simulations.actions.PostProcessAction.execute
+
+```{autodoc2-docstring} src.pipeline.simulations.actions.PostProcessAction.execute
 ```
 
 ````
@@ -102,7 +146,7 @@ Bases: {py:obj}`src.pipeline.simulations.actions.SimulationAction`
 ```{autodoc2-docstring} src.pipeline.simulations.actions.CollectAction
 ```
 
-````{py:method} execute(context: typing.Dict[str, typing.Any]) -> None
+````{py:method} execute(context: typing.Any) -> None
 :canonical: src.pipeline.simulations.actions.CollectAction.execute
 
 ```{autodoc2-docstring} src.pipeline.simulations.actions.CollectAction.execute
@@ -120,7 +164,7 @@ Bases: {py:obj}`src.pipeline.simulations.actions.SimulationAction`
 ```{autodoc2-docstring} src.pipeline.simulations.actions.LogAction
 ```
 
-````{py:method} execute(context: typing.Dict[str, typing.Any]) -> None
+````{py:method} execute(context: typing.Any) -> None
 :canonical: src.pipeline.simulations.actions.LogAction.execute
 
 ```{autodoc2-docstring} src.pipeline.simulations.actions.LogAction.execute

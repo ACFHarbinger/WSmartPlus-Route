@@ -16,6 +16,7 @@
 src.policies.alns_aux
 src.policies.look_ahead_aux
 src.policies.hgs_aux
+src.policies.selection
 ```
 
 ## Submodules
@@ -24,19 +25,25 @@ src.policies.hgs_aux
 :titlesonly:
 :maxdepth: 1
 
+src.policies.policy_alns
+src.policies.policy_sans
+src.policies.policy_lac
 src.policies.branch_cut_and_price
 src.policies.multi_vehicle
-src.policies.vrpp_optimizer
+src.policies.policy_hgs
+src.policies.must_go_selection
 src.policies.lin_kernighan
-src.policies.last_minute
 src.policies.hybrid_genetic_search
 src.policies.adapters
+src.policies.policy_tsp
 src.policies.neural_agent
 src.policies.adaptive_large_neighborhood_search
-src.policies.regular
+src.policies.policy_cvrp
 src.policies.policy_vrpp
 src.policies.single_vehicle
-src.policies.look_ahead
+src.policies.post_processing
+src.policies.policy_lkh
+src.policies.policy_bcp
 ```
 
 ## Package Contents
@@ -51,28 +58,12 @@ src.policies.look_ahead
   - ```{autodoc2-docstring} src.policies.__all__
     :summary:
     ```
-* - {py:obj}`RegularPolicyAdapter <src.policies.RegularPolicyAdapter>`
-  - ```{autodoc2-docstring} src.policies.RegularPolicyAdapter
-    :summary:
-    ```
-* - {py:obj}`LookAheadPolicyAdapter <src.policies.LookAheadPolicyAdapter>`
-  - ```{autodoc2-docstring} src.policies.LookAheadPolicyAdapter
-    :summary:
-    ```
-* - {py:obj}`LastMinutePolicyAdapter <src.policies.LastMinutePolicyAdapter>`
-  - ```{autodoc2-docstring} src.policies.LastMinutePolicyAdapter
-    :summary:
-    ```
 * - {py:obj}`NeuralPolicyAdapter <src.policies.NeuralPolicyAdapter>`
   - ```{autodoc2-docstring} src.policies.NeuralPolicyAdapter
     :summary:
     ```
 * - {py:obj}`VRPPPolicyAdapter <src.policies.VRPPPolicyAdapter>`
   - ```{autodoc2-docstring} src.policies.VRPPPolicyAdapter
-    :summary:
-    ```
-* - {py:obj}`ProfitPolicyAdapter <src.policies.ProfitPolicyAdapter>`
-  - ```{autodoc2-docstring} src.policies.ProfitPolicyAdapter
     :summary:
     ```
 * - {py:obj}`create_policy <src.policies.create_policy>`
@@ -93,36 +84,6 @@ src.policies.look_ahead
 
 ````
 
-````{py:data} RegularPolicyAdapter
-:canonical: src.policies.RegularPolicyAdapter
-:value: >
-   None
-
-```{autodoc2-docstring} src.policies.RegularPolicyAdapter
-```
-
-````
-
-````{py:data} LookAheadPolicyAdapter
-:canonical: src.policies.LookAheadPolicyAdapter
-:value: >
-   None
-
-```{autodoc2-docstring} src.policies.LookAheadPolicyAdapter
-```
-
-````
-
-````{py:data} LastMinutePolicyAdapter
-:canonical: src.policies.LastMinutePolicyAdapter
-:value: >
-   None
-
-```{autodoc2-docstring} src.policies.LastMinutePolicyAdapter
-```
-
-````
-
 ````{py:data} NeuralPolicyAdapter
 :canonical: src.policies.NeuralPolicyAdapter
 :value: >
@@ -139,16 +100,6 @@ src.policies.look_ahead
    None
 
 ```{autodoc2-docstring} src.policies.VRPPPolicyAdapter
-```
-
-````
-
-````{py:data} ProfitPolicyAdapter
-:canonical: src.policies.ProfitPolicyAdapter
-:value: >
-   None
-
-```{autodoc2-docstring} src.policies.ProfitPolicyAdapter
 ```
 
 ````

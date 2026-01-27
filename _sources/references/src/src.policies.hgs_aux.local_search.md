@@ -91,6 +91,22 @@
 
 ````
 
+````{py:method} _move_swap_star(u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.hgs_aux.local_search.LocalSearch._move_swap_star
+
+```{autodoc2-docstring} src.policies.hgs_aux.local_search.LocalSearch._move_swap_star
+```
+
+````
+
+````{py:method} _move_3opt_intra(u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.hgs_aux.local_search.LocalSearch._move_3opt_intra
+
+```{autodoc2-docstring} src.policies.hgs_aux.local_search.LocalSearch._move_3opt_intra
+```
+
+````
+
 ````{py:method} _move_2opt_star(u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool
 :canonical: src.policies.hgs_aux.local_search.LocalSearch._move_2opt_star
 

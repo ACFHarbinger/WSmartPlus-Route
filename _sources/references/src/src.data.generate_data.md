@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.data.generate_data.generate_datasets
     :summary:
     ```
+* - {py:obj}`validate_gen_data_args <src.data.generate_data.validate_gen_data_args>`
+  - ```{autodoc2-docstring} src.data.generate_data.validate_gen_data_args
+    :summary:
+    ```
 ````
 
 ### API
@@ -27,5 +31,12 @@
 :canonical: src.data.generate_data.generate_datasets
 
 ```{autodoc2-docstring} src.data.generate_data.generate_datasets
+```
+````
+
+````{py:function} validate_gen_data_args(args: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]
+:canonical: src.data.generate_data.validate_gen_data_args
+
+```{autodoc2-docstring} src.data.generate_data.validate_gen_data_args
 ```
 ````
