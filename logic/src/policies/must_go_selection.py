@@ -79,7 +79,7 @@ class MustGoSelectionFactory:
         Create a selection strategy by name.
         """
         # Lazy imports to avoid circular dependencies and kept strategies separated
-        from .selection.selection_last_minute import LastMinuteAndPathSelection, LastMinuteSelection
+        from .selection.selection_last_minute import LastMinuteSelection
         from .selection.selection_lookahead import LookaheadSelection
         from .selection.selection_means_std import MeansAndStdDevSelection
         from .selection.selection_regular import RegularSelection
@@ -90,7 +90,6 @@ class MustGoSelectionFactory:
             "regular": RegularSelection,
             "lookahead": LookaheadSelection,
             "last_minute": LastMinuteSelection,
-            "last_minute_and_path": LastMinuteAndPathSelection,
             "revenue": RevenueThresholdSelection,
             "revenue_threshold": RevenueThresholdSelection,
         }
