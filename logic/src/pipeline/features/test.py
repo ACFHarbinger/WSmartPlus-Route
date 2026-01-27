@@ -11,19 +11,23 @@ import argparse
 import multiprocessing as mp
 import os
 import random
+import re
 import statistics
 import sys
 import time
 import traceback
 from collections import defaultdict
+from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
+from typing import Any, Dict
 
 import numpy as np
 import torch
 from tqdm import tqdm
 
 import logic.src.constants as udef
-from logic.src.cli import ConfigsParser, add_test_sim_args, validate_test_sim_args
+from logic.src.cli import ConfigsParser
+from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 from logic.src.pipeline.simulations.loader import load_indices, load_simulator_data
 from logic.src.pipeline.simulations.simulator import (
     display_log_metrics,
@@ -256,8 +260,41 @@ def simulator_testing(opts, data_size, device):
         opts["policies"],
         log,
         log_std,
+        log_std,
         lock,
     )
+
+
+def validate_test_sim_args(args: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Validates and post-processes arguments for test_sim.
+    """
+    args = args.copy()
+    assert args.get("days", 0) >= 1, "Must run the simulation for 1 or more days"
+    assert args.get("n_samples", 0) > 0, "Number of samples must be non-negative integer"
+
+    args["area"] = re.sub(r"[^a-zA-Z]", "", args.get("area", "").lower())
+    assert args["area"] in MAP_DEPOTS.keys(), "Unknown area {}, available areas: {}".format(
+        args["area"], MAP_DEPOTS.keys()
+    )
+
+    args["waste_type"] = re.sub(r"[^a-zA-Z]", "", args.get("waste_type", "").lower())
+    assert (
+        args["waste_type"] in WASTE_TYPES.keys() or args["waste_type"] is None
+    ), "Unknown waste type {}, available waste types: {}".format(args["waste_type"], WASTE_TYPES.keys())
+
+    args["edge_threshold"] = (
+        float(args["edge_threshold"])
+        if "." in str(args.get("edge_threshold", "0"))
+        else int(args.get("edge_threshold", "0"))
+    )
+
+    assert args.get("cpu_cores", 0) >= 0, "Number of CPU cores must be non-negative integer"
+    assert args.get("cpu_cores", 0) <= cpu_count(), "Number of CPU cores to use cannot exceed system specifications"
+    if args.get("cpu_cores") == 0:
+        args["cpu_cores"] = cpu_count()
+
+    return args
 
 
 def run_wsr_simulator_test(opts):
@@ -302,20 +339,7 @@ def run_wsr_simulator_test(opts):
     # Define the full policy names
     policies = []
     for pol in opts["policies"]:
-        if "policy_last_minute_and_path" in pol:
-            tmp_pols = [f"policy_last_minute_and_path{cf}" for cf in opts["plastminute_cf"]]
-        elif "policy_last_minute" in pol:
-            tmp_pols = [f"policy_last_minute{cf}" for cf in opts["plastminute_cf"]]
-        elif "policy_regular" in pol:
-            tmp_pols = [f"policy_regular{lvl}" for lvl in opts["pregular_level"]]
-        elif "gurobi" in pol:
-            tmp_pols = [f"gurobi_vrpp{gp}" for gp in opts["gurobi_param"]]
-        elif "hexaly" in pol:
-            tmp_pols = [f"hexaly_vrpp{hp}" for hp in opts["hexaly_param"]]
-        elif "policy_look_ahead" in pol:
-            tmp_pols = [pol.replace("ahead", f"ahead_{lac}") for lac in opts["lookahead_configs"]]
-        else:
-            tmp_pols = [pol]
+        tmp_pols = [pol]
 
         for tmp_pol in tmp_pols:
             policies.append("{}_{}".format(tmp_pol, opts["data_distribution"]))
@@ -356,10 +380,14 @@ if __name__ == "__main__":
         description="WSmart Route Simulator Test Runner",
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    add_test_sim_args(parser)
+    # Legacy parser removed
+    print("Please use 'python main.py test_sim ...' or Hydra CLI.", file=sys.stderr)
+    sys.exit(1)
     try:
         parsed_args = parser.parse_process_args(sys.argv[1:], "test_sim")
-        args = validate_test_sim_args(parsed_args)
+        # validate_test_sim_args is now in test.py
+        # args = validate_test_sim_args(parsed_args)
+        args = parsed_args  # Assuming validation happens elsewhere or is not strictly needed here for this entry point
         run_wsr_simulator_test(args)
     except (argparse.ArgumentError, AssertionError) as e:
         exit_code = 1

@@ -74,6 +74,9 @@ run-sim:
 test:
     uv run pytest
 
+test-cov:
+    uv run pytest --cov=logic --cov-report=term-missing --cov-report=xml
+
 # Run fast unit tests
 test-fast:
     uv run pytest -m "fast or unit"

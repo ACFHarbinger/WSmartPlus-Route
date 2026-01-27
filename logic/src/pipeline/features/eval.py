@@ -14,6 +14,7 @@ import itertools
 import math
 import os
 import random
+import re
 import sys
 import time
 import traceback
@@ -25,7 +26,8 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
-from logic.src.cli import ConfigsParser, add_eval_args, validate_eval_args
+from logic.src.cli import ConfigsParser
+from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 from logic.src.utils.configs.setup_utils import setup_cost_weights
 from logic.src.utils.data.data_utils import save_dataset
 from logic.src.utils.functions.function import load_model, move_to
@@ -74,7 +76,7 @@ def eval_dataset_mp(
             (dataset_path, width, softmax_temp, opts, device_id, num_processes)
     """
     (dataset_path, width, softmax_temp, opts, i, num_processes) = args
-    model, _ = load_model(opts.get("load_path", opts["model"]))
+    model, _ = load_model(opts.get("load_path") or opts["model"])
     val_size = opts["val_size"] // num_processes
     dataset = model.problem.make_dataset(
         filename=dataset_path,
@@ -121,7 +123,7 @@ def eval_dataset(
         tuple: (costs, tours, durations) - Evaluation statistics and results.
     """
     # Even with multiprocessing, we load the model here since it contains the name where to write results
-    model, _ = load_model(opts.get("load_path", opts["model"]))
+    model, _ = load_model(opts.get("load_path") or opts["model"])
     use_cuda = torch.cuda.is_available()
     results: List[Dict[str, Any]] = []
 
@@ -338,6 +340,33 @@ def _eval_dataset(
     return results
 
 
+def validate_eval_args(args: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Validates and post-processes arguments for eval.
+    """
+    args = args.copy()
+    # Handle the -o alias for output_filename
+    if "output_filename" in args and args["output_filename"] is not None:
+        args["o"] = args["output_filename"]
+
+    assert (
+        "o" not in args
+        or args["o"] is None
+        or (len(args.get("datasets") or []) == 1 and len(args.get("width") or []) <= 1)
+    ), "Cannot specify result filename with more than one dataset or more than one width"
+
+    args["area"] = re.sub(r"[^a-zA-Z]", "", args.get("area", "").lower())
+    assert args["area"] in MAP_DEPOTS.keys(), "Unknown area {}, available areas: {}".format(
+        args["area"], MAP_DEPOTS.keys()
+    )
+
+    args["waste_type"] = re.sub(r"[^a-zA-Z]", "", args.get("waste_type", "").lower())
+    assert (
+        args["waste_type"] in WASTE_TYPES.keys() or args["waste_type"] is None
+    ), "Unknown waste type {}, available waste types: {}".format(args["waste_type"], WASTE_TYPES.keys())
+    return args
+
+
 def run_evaluate_model(opts: Dict[str, Any]) -> None:
     """
     Main entry point for the evaluation script.
@@ -361,7 +390,9 @@ def run_evaluate_model(opts: Dict[str, Any]) -> None:
 if __name__ == "__main__":
     exit_code = 0
     parser = ConfigsParser(description="Evaluation Runner", formatter_class=argparse.RawTextHelpFormatter)
-    add_eval_args(parser)
+    parser = ConfigsParser(description="Evaluation Runner", formatter_class=argparse.RawTextHelpFormatter)
+    print("Please use 'python main.py eval ...' or Hydra CLI.", file=sys.stderr)
+    sys.exit(1)
     try:
         parsed_args = parser.parse_process_args(sys.argv[1:], "eval")
         args = validate_eval_args(parsed_args)
