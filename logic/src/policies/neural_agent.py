@@ -394,12 +394,16 @@ class NeuralAgent:
         if horizon > 0 and waste_history is not None:
             # waste_history: (Days, N) or (N, Days). After processing/hrl: dynamic_feat (1, N, History)
             # If hrl_manager was used, dynamic_feat is already processed. If not, we process it now.
-            if hrl_manager is None:
-                # static_feat/dynamic_feat logic from HRL block above
-                if input["loc"].dim() == 2:
-                    h_static = input["loc"].unsqueeze(0)
+            if dynamic_feat is None:
+                # Get location tensor regardless of key
+                loc_tensor = input.get("locs", input.get("loc"))
+                if loc_tensor is None:
+                    raise KeyError("Input must contain 'loc' or 'locs'")
+
+                if loc_tensor.dim() == 2:
+                    h_static = loc_tensor.unsqueeze(0)
                 else:
-                    h_static = input["loc"]
+                    h_static = loc_tensor
 
                 if waste_history.dim() == 2:
                     h_feat = waste_history.unsqueeze(0)
@@ -413,9 +417,6 @@ class NeuralAgent:
                 if h_feat.max() > 2.0:
                     h_feat = h_feat / 100.0
                 dynamic_feat = h_feat
-            else:
-                # dynamic_feat already defined in HRL block
-                pass
 
             for h in range(1, horizon + 1):
                 # Extraction:
