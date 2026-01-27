@@ -40,10 +40,10 @@ from logic.test.test_definitions import TEST_MODULES
 class PyTestRunner:
     """Manages test execution with pytest"""
 
-    def __init__(self, root_dir: str = "tests"):
+    def __init__(self, test_dir: str = "tests"):
         """Initialize the test runner."""
-        self.root_dir = Path(root_dir)
-        self.test_dir = self.root_dir
+        self.test_dir = Path(test_dir)
+        self.root_dir = self.test_dir
         self.available_modules = self._discover_test_modules()
 
     def _discover_test_modules(self) -> List[str]:
