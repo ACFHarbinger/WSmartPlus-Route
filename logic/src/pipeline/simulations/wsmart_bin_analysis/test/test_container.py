@@ -30,6 +30,7 @@ class TestContainer:
         return df, recs, info
 
     def test_init(self, sample_data):
+        """Test initialization of Container."""
         df, recs, info = sample_data
         container = Container(df.copy(), recs.copy(), info.copy())
 
@@ -39,6 +40,7 @@ class TestContainer:
         assert container.tag is None
 
     def test_get_keys_and_vars(self, sample_data):
+        """Test retrieval of keys and variables."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
 
@@ -51,6 +53,7 @@ class TestContainer:
         assert r.equals(container.recs)
 
     def test_get_collection_quantities(self, sample_data):
+        """Test calculation of avg distance and spearman."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
 
@@ -60,6 +63,7 @@ class TestContainer:
         assert avg_dist[0] == 90
 
     def test_mark_collections(self, sample_data):
+        """Test marking of collections in dataframe."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
 
@@ -71,6 +75,7 @@ class TestContainer:
         assert container.df["Rec"].sum() >= 3
 
     def test_calc_max_min_mean(self, sample_data):
+        """Test calculation of max, min, and mean fill levels."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
         container.mark_collections()

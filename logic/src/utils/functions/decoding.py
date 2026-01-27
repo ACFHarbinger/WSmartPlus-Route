@@ -205,6 +205,12 @@ class Greedy(DecodingStrategy):
     """Greedy decoding: always select the action with highest probability."""
 
     def __init__(self, **kwargs):
+        """
+        Initialize Greedy decoding.
+
+        Args:
+            **kwargs: Passed to super class.
+        """
         # Greedy ignores temperature and sampling parameters
         super().__init__(temperature=1.0, top_k=None, top_p=None, **kwargs)
 
@@ -263,6 +269,13 @@ class BeamSearch(DecodingStrategy):
     """
 
     def __init__(self, beam_width: int = 5, **kwargs):
+        """
+        Initialize BeamSearch decoding.
+
+        Args:
+            beam_width: Number of beams to maintain.
+            **kwargs: Passed to super class.
+        """
         super().__init__(**kwargs)
         self.beam_width = beam_width
 
@@ -298,6 +311,13 @@ class Evaluate(DecodingStrategy):
     """
 
     def __init__(self, actions: Optional[torch.Tensor] = None, **kwargs):
+        """
+        Initialize Evaluate decoding.
+
+        Args:
+            actions: Pre-defined actions to evaluate [batch, seq_len].
+            **kwargs: Passed to super class.
+        """
         super().__init__(**kwargs)
         self.actions = actions
         self.step_idx = 0

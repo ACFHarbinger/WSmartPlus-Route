@@ -18,6 +18,7 @@ class Baseline(nn.Module, ABC):
     """Base class for baselines."""
 
     def __init__(self):
+        """Initialize the baseline."""
         super().__init__()
 
     @abstractmethod
@@ -26,7 +27,14 @@ class Baseline(nn.Module, ABC):
         raise NotImplementedError
 
     def unwrap_batch(self, batch: Any) -> Tuple[Any, Optional[torch.Tensor]]:
-        """Unwrap the batch if it's wrapped with baseline values."""
+        """Unwrap the batch if it's wrapped with baseline values.
+
+        Args:
+            batch: Wrapped batch.
+
+        Returns:
+            Tuple: Unwrapped batch data and optional baseline.
+        """
         if isinstance(batch, (dict, TensorDict)):
             if "data" in list(batch.keys()) and "baseline" in list(batch.keys()):
                 return batch["data"], batch["baseline"]

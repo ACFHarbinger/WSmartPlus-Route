@@ -1,3 +1,6 @@
+"""
+Utilities to convert YAML configuration files to environment variables.
+"""
 import os
 import sys
 
@@ -5,6 +8,14 @@ import yaml
 
 
 def to_bash_value(value):
+    """Convert a Python value to a Bash-friendly string representation.
+
+    Args:
+        value: The value to convert.
+
+    Returns:
+        str: Bash-friendly string representation.
+    """
     if isinstance(value, bool):
         return "true" if value else "false"
     elif isinstance(value, dict):
@@ -27,6 +38,14 @@ def to_bash_value(value):
 
 
 def load_config(config_path):
+    """Load a YAML configuration file and recursively merge its defaults.
+
+    Args:
+        config_path: Path to the YAML configuration file.
+
+    Returns:
+        dict: Merged configuration dictionary.
+    """
     if not os.path.exists(config_path):
         print(f"Error: Config file not found at {config_path}", file=sys.stderr)
         sys.exit(1)
@@ -72,6 +91,7 @@ def load_config(config_path):
 
 
 def main():
+    """Main entry point to convert YAML files to environment variables."""
     if len(sys.argv) < 2:
         print("Usage: python yaml_to_env.py <config1.yaml> [<config2.yaml> ...]", file=sys.stderr)
         sys.exit(1)

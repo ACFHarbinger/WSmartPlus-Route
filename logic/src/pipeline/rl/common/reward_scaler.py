@@ -36,6 +36,14 @@ class RewardScaler:
         running_momentum: float = 0.0,
         eps: float = 1e-8,
     ):
+        """
+        Initialize RewardScaler.
+
+        Args:
+            scale: Scaling mode ('norm', 'scale', 'none').
+            running_momentum: Momentum for stats updates.
+            eps: Numerical stability constant.
+        """
         self.scale = scale
         self.running_momentum = running_momentum
         self.eps = eps
@@ -181,6 +189,12 @@ class BatchRewardScaler:
     """
 
     def __init__(self, eps: float = 1e-8):
+        """
+        Initialize BatchRewardScaler.
+
+        Args:
+            eps: Numerical stability constant.
+        """
         self.eps = eps
 
     def __call__(self, scores: torch.Tensor) -> torch.Tensor:

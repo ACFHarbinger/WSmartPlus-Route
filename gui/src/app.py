@@ -1,3 +1,4 @@
+"""Main entry point for the GUI application."""
 import argparse
 import signal
 import sys
@@ -24,6 +25,11 @@ def launch_results_window(policy_names, log_path):
 
 
 def run_app_gui(opts):
+    """Initialize and run the main GUI application.
+
+    Args:
+        opts: Configuration options for the GUI application.
+    """
     app = QApplication(sys.argv)
     try:
         app_icon = QIcon(ICON_FILE)

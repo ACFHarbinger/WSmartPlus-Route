@@ -92,6 +92,16 @@ class FastTSPPostProcessor(IPostProcessor):
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+        """
+        Refine the tour by splitting it into trips and optimizing each with fast_tsp.
+
+        Args:
+            tour: The initial tour to refine (list of node IDs).
+            **kwargs: Keyword arguments containing 'distance_matrix'.
+
+        Returns:
+            List[int]: The optimized tour with reduced total distance.
+        """
         distance_matrix = kwargs.get("distance_matrix")
         if distance_matrix is None:
             return tour
@@ -136,9 +146,26 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
     """
 
     def __init__(self, operator_name: str = "2opt"):
+        """
+        Initialize the classical local search processor.
+
+        Args:
+            operator_name: The name of the local search operator to use
+                (e.g., '2opt', 'swap', 'relocate'). Defaults to '2opt'.
+        """
         self.operator_name = operator_name
 
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+        """
+        Apply vectorized local search to the tour.
+
+        Args:
+            tour: The initial tour to refine.
+            **kwargs: Context containing 'distance_matrix' and optionally 'n_iterations'.
+
+        Returns:
+            List[int]: The refined tour after applying the local search operator.
+        """
         import torch
 
         from logic.src.models.policies.classical.local_search import (
@@ -203,6 +230,16 @@ class RandomLocalSearchPostProcessor(IPostProcessor):
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+        """
+        Apply random local search operators stochastically.
+
+        Args:
+            tour: The initial tour to refine.
+            **kwargs: Context containing 'distance_matrix', 'n_iterations', and optionally 'op_probs'.
+
+        Returns:
+            List[int]: The refined tour.
+        """
         import torch
 
         from logic.src.models.policies.classical.local_search import (
