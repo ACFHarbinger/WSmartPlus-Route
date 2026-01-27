@@ -292,6 +292,7 @@ exclude = [
     "gui/test/",
     "logic/docs/",
     "gui/docs/",
+    "logic/benchmark/",
     "notebooks/",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/test",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/python experiental",
@@ -339,10 +340,19 @@ diagnostic_mode = "workspace"
 # RUFF CONFIGURATION (from ruff.toml)
 # =================================================================
 [tool.ruff]
-src = ["logic", "gui"]
+src = ["logic/src", "gui/src"]
 line-length = 120
 target-version = "py39"
-exclude = ["notebooks/", "logic/test/", "gui/test/", "logic/docs/", "gui/docs/"]
+exclude = [
+    "notebooks/",
+    "logic/test/",
+    "gui/test/",
+    "logic/docs/",
+    "gui/docs/",
+    "logic/benchmark/",
+    "logic/src/pipeline/simulations/wsmart_bin_analysis/test",
+    "logic/src/pipeline/simulations/wsmart_bin_analysis/python experiental",
+]
 
 [tool.ruff.lint]
 # Ignore E501 (line length) for notebooks specifically if they are messy
@@ -381,6 +391,8 @@ testpaths = ["logic/test", "gui/test"]
 addopts = [
     "-v",                      # Verbose output
     "-ra",                     # Show summary of all test outcomes
+    "--cov=logic/src",         # Coverage for logic/src
+    "--cov=gui/src",           # Coverage for gui/src
     "--showlocals",            # Show local variables in tracebacks
     "--strict-markers",        # Fail on unknown markers
     "--tb=short",              # Shorter traceback format
@@ -452,8 +464,10 @@ wsr_temp_dir = "./temp_test"
 # COVERAGE CONFIGURATION (from [tool:coverage] and [coverage:*])
 # =================================================================
 [tool.coverage.run]
-source = ["."]
+source = ["logic/src", "gui/src"]
 omit = [
+    "logic/src/pipeline/simulations/wsmart_bin_analysis/python experiental",
+    "*/benchmark/*",
     "*/test/*",
     "*/test_*",
     "*/__pycache__/*",

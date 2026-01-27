@@ -1,0 +1,22 @@
+lac:
+  a:
+    - 500
+    - 75
+    - 0.7
+    - 0
+    - 0.095
+    - 0
+    - 0
+    - must_go: ["mg_lookahead_days7.xml"]
+    - post_processing: []
+
+  b:
+    - 2000
+    - 75
+    - 0.7
+    - 0
+    - 0.095
+    - 0
+    - 0
+    - must_go: ["mg_lookahead_days7.xml"]
+    - post_processing: []

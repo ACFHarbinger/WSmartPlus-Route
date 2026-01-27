@@ -11,6 +11,9 @@ class LookaheadSelection(MustGoSelectionStrategy):
     """
 
     def select_bins(self, context: SelectionContext) -> List[int]:
+        if context.lookahead_days is None and context.accumulation_rates is None:
+            return []
+
         if context.accumulation_rates is None:
             return []
 
@@ -23,7 +26,9 @@ class LookaheadSelection(MustGoSelectionStrategy):
             return []
 
         next_coll_day = context.next_collection_day
-        if next_coll_day is None:
+        if context.lookahead_days is not None:
+            next_coll_day = context.lookahead_days
+        elif next_coll_day is None:
             coll_days = []
             for i in must_go_bins:
                 if context.accumulation_rates[i] > 0:

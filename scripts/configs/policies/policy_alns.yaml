@@ -1,0 +1,12 @@
+alns:
+  custom:
+    - time_limit: 60
+    - max_iterations: 5000
+    - start_temp: 100
+    - cooling_rate: 0.995
+    - reaction_factor: 0.1
+    - min_removal: 1
+    - max_removal_pct: 0.3
+    - engine: "custom"
+    - must_go: ["mg_lookahead_days7.xml"]
+    - post_processing: []

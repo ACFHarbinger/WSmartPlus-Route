@@ -1,0 +1,5 @@
+neural:
+  amgat:
+    - model_path: "assets/model_weights/cwcvrp100_riomaior_plastic/gamma1/amgat"
+    - must_go: ["mg_means_std0.84.xml"]
+    - post_processing: []
