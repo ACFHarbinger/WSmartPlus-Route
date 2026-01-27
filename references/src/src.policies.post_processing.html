@@ -250,7 +250,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.dashboard</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -471,10 +470,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.RandomLocalSearchPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor.process()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.PathPostProcessor"><code class="docutils literal notranslate"><span class="pre">PathPostProcessor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.PathPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">PathPostProcessor.process()</span></code></a></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -523,9 +518,6 @@ logic/src/models/policies/classical/local_search.py</p></td>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.post_processing.RandomLocalSearchPostProcessor" title="src.policies.post_processing.RandomLocalSearchPostProcessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor</span></code></a></p></td>
 <td><p>Performs stochastic local search refinement by applying random operators.
 Mirrors the logic of RandomLocalSearchPolicy but as a post-processor.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.post_processing.PathPostProcessor" title="src.policies.post_processing.PathPostProcessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PathPostProcessor</span></code></a></p></td>
-<td><p>Opportunistic path-based expansion.</p></td>
 </tr>
 </tbody>
 </table>
@@ -649,27 +641,6 @@ List[int]: The refined tour.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="src.policies.post_processing.PathPostProcessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.post_processing.</span></span><span class="sig-name descname"><span class="pre">PathPostProcessor</span></span><a class="headerlink" href="#src.policies.post_processing.PathPostProcessor" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.policies.post_processing.IPostProcessor" title="src.policies.post_processing.IPostProcessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.post_processing.IPostProcessor</span></code></a></p>
-<p>Opportunistic path-based expansion.</p>
-<p>Checks the shortest paths between consecutive nodes in the tour.
-If a bin lies on the path and has waste that fits in remaining capacity,
-it is added to the route.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.post_processing.PathPostProcessor.process">
-<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.post_processing.PathPostProcessor.process" title="Link to this definition">#</a></dt>
-<dd><p>Refine tour by collecting extra bins along the path.</p>
-<p>Args:
-tour: Initial tour.
-**kwargs: Context containing ‘bins’, ‘paths_between_states’, ‘max_capacity’.</p>
-<p>Returns:
-List[int]: Refined tour with added bins.</p>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 </section>
 </section>
@@ -746,10 +717,6 @@ List[int]: Refined tour with added bins.</p>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.RandomLocalSearchPostProcessor"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.RandomLocalSearchPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor.process()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.PathPostProcessor"><code class="docutils literal notranslate"><span class="pre">PathPostProcessor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.post_processing.PathPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">PathPostProcessor.process()</span></code></a></li>
 </ul>
 </li>
 </ul>
