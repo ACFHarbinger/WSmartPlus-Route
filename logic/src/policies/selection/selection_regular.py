@@ -25,6 +25,13 @@ class RegularSelection(MustGoSelectionStrategy):
             List[int]: List of all bin IDs if collection day, else empty.
         """
         # threshold is used as frequency 'lvl'
+        # Prevent ZeroDivisionError if threshold + 1 is 0 (i.e., threshold is -1)
+        if context.threshold < 0:
+            return []
+
+        if context.threshold == 0:
+            return (context.bin_ids + 1).tolist()
+
         if (context.current_day % (int(context.threshold) + 1)) == 1:
             # Return all bins (1-based IDs)
             return (context.bin_ids + 1).tolist()

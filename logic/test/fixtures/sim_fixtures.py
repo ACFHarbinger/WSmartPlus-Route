@@ -440,26 +440,12 @@ def make_day_context():
     def _make(**kwargs):
         full_policy = kwargs.get("full_policy", "policy_regular3_gamma1")
 
-        # Determine policy_name and policy if not provided
+            # Determine policy_name and policy if not provided
         if "policy_name" not in kwargs or "policy" not in kwargs:
-            # Basic parsing logic (matching day.py/states.py)
-            if "lookahead" in full_policy or "look_ahead" in full_policy:
-                p_name = "policy_look_ahead"
-            elif full_policy.startswith("am") or "_am" in full_policy:
-                p_name = "am_policy"
-            elif "gurobi" in full_policy:
-                p_name = "gurobi_vrpp"
-            elif "hexaly" in full_policy:
-                p_name = "hexaly_vrpp"
-            elif "last_minute" in full_policy:
-                p_name = "policy_last_minute"
-            else:
-                p_name = "policy_regular"
-
             # Simple policy (without gamma/threshold)
             p_simple = full_policy.split("_gamma")[0] if "_gamma" in full_policy else full_policy
 
-            kwargs.setdefault("policy_name", p_name)
+            kwargs.setdefault("policy_name", p_simple)
             kwargs.setdefault("policy", p_simple)
 
         defaults = {
