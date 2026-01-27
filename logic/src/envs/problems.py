@@ -89,6 +89,7 @@ class BaseProblem:
         fixed = model.precompute_fixed(input, edges=input.get("edges"))
 
         def propose_expansions(beam):
+            """Propose expansions for the current beam search state."""
             return model.propose_expansions(beam, fixed, normalize=True)
 
         # Note: make_state is problem-specific, must be implemented by subclasses

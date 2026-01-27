@@ -49,6 +49,7 @@ class PostProcessorRegistry:
         """Decorator to register a post-processor."""
 
         def wrapper(processor_cls: Type[IPostProcessor]):
+            """Wrapper for registering the processor class."""
             cls._strategies[name.lower()] = processor_cls
             return processor_cls
 

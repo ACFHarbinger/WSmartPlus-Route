@@ -1,3 +1,4 @@
+"""Tests for the Container class in wsmart_bin_analysis."""
 from unittest.mock import patch
 
 import numpy as np
@@ -8,8 +9,15 @@ from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container i
 
 
 class TestContainer:
+    """Test suite for the Container class."""
+
     @pytest.fixture
     def sample_data(self):
+        """Provide sample data for container tests.
+
+        Returns:
+            tuple: (df, recs, info) for initialized Container.
+        """
         # Create sample DataFrames
         dates = pd.date_range(start="2023-01-01", periods=10, freq="D")
         fill_data = {"Date": dates, "Fill": np.linspace(0, 100, 10), "ID": [1] * 10}
@@ -89,6 +97,7 @@ class TestContainer:
         assert (container.df["Min"] <= container.df["Max"]).all()
 
     def test_calc_avg_dist_metric(self, sample_data):
+        """Test calculation of average distance metrics."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
         container.mark_collections()
@@ -100,6 +109,7 @@ class TestContainer:
         assert not container.recs["Avg_Dist"].isna().all()
 
     def test_calc_spearman(self, sample_data):
+        """Test calculation of Spearman correlation for fill rates."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
         container.mark_collections()
@@ -110,6 +120,7 @@ class TestContainer:
         assert not container.recs["Spearman"].isna().all()
 
     def test_get_tag_ok(self, sample_data):
+        """Test successful tagging of container quality."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
         # Ensure enough data
@@ -119,6 +130,7 @@ class TestContainer:
         assert isinstance(tag, TAG)
 
     def test_get_tag_low_measures(self):
+        """Test tagging when there are too few measures."""
         dates = pd.date_range(start="2023-01-01", periods=1, freq="D")
         df = pd.DataFrame({"Date": dates, "Fill": [10], "ID": [1]})
         recs = pd.DataFrame({"Date": dates, "ID": [1], "Spearman": [0]})
@@ -129,6 +141,7 @@ class TestContainer:
         assert tag == TAG.LOW_MEASURES
 
     def test_get_scan_linear_spline(self, sample_data):
+        """Test linear spline interpolation for scans."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
         container.mark_collections()
@@ -138,6 +151,7 @@ class TestContainer:
         assert len(dates) == len(spline)
 
     def test_get_monotonic_mean_rate(self, sample_data):
+        """Test calculation of monotonic mean fill rate."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
         container.mark_collections()
@@ -150,6 +164,7 @@ class TestContainer:
     @patch("matplotlib.pyplot.show")
     @patch("matplotlib.pyplot.figure")
     def test_plot_fill(self, mock_fig, mock_show, sample_data):
+        """Test plotting of container fill levels."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
         container.mark_collections()
@@ -161,6 +176,7 @@ class TestContainer:
         assert mock_show.called
 
     def test_adjust_collections(self, sample_data):
+        """Test adjusting collections based on distance thresholds."""
         df, recs, info = sample_data
         # Make a case where Avg_Dist is low to trigger adjustment
         recs["Avg_Dist"] = 10.0  # Low threshold
@@ -176,6 +192,7 @@ class TestContainer:
             pytest.fail(f"adjust_collections failed: {e}")
 
     def test_place_collections(self, sample_data):
+        """Test placing collections based on fill levels and thresholds."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
         container.mark_collections()
@@ -188,6 +205,7 @@ class TestContainer:
             pytest.fail(f"place_collections failed: {e}")
 
     def test_clean_box(self, sample_data):
+        """Test cleaning/filtering of record quality."""
         df, recs, info = sample_data
         container = Container(df, recs, info)
         container.mark_collections()  # Needed to set End_Pointer
