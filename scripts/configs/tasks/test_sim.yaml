@@ -6,23 +6,13 @@ n_cores: 22
 seed: 42
 n_days: 31
 n_bins: 100
-n_samples: 1
+n_samples: 10
+checkpoints: 30
+real_time_log: 1
 problem: "cwcvrp"
 
 # Policy Parameters
-regular_level: [3, 4]
-last_minute_cf: [70]
-gurobi_param: [0.84]
-hexaly_param: [0.84]
-decode_type: "greedy"
-lookahead_configs: ["a"]
-policies: ["amgat"]
-
+policies: ["hgs"]
 vehicles: 0
-real_time_log: 1
 gate_prob_threshold: "0.1"
 mask_prob_threshold: "0.1"
-
-checkpoints: 30
-run_tsp: 1
-two_opt_max_iter: 0

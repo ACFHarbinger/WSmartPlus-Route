@@ -255,6 +255,7 @@ class SimulationContext:
         self.execution_time: float = 0
         self.tic: float = 0
         self.config: Optional[Dict[str, Any]] = None
+        self.vehicle_capacity: Optional[float] = None
 
         # Progress Bar items
         self.tqdm_pos: int = variables_dict.get("tqdm_pos", 0)
@@ -363,9 +364,11 @@ class InitializingState(SimState):
                 except Exception:
                     pass
 
-        # Explicitly load policy_neural.yaml if not already loaded
+        # Explicitly load policy_neural.yaml only if running neural policies
+        should_load_neural = any(x in ctx.pol_strip for x in ["am", "ptr", "transgcn", "neural", "ddam"])
+
         neural_cfg_path = os.path.join(ROOT_DIR, "scripts", "configs", "policies", "policy_neural.yaml")
-        if os.path.exists(neural_cfg_path):
+        if should_load_neural and os.path.exists(neural_cfg_path):
             try:
                 neural_cfg = load_config(neural_cfg_path)
                 if neural_cfg:
@@ -388,6 +391,13 @@ class InitializingState(SimState):
 
         # Setup Data
         data, bins_coordinates, depot = setup_basedata(opts["size"], ctx.data_dir, opts["area"], opts["waste_type"])
+
+        # Load vehicle capacity
+        from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
+
+        capacities, _, _, _, _ = load_area_and_waste_type_params(opts["area"], opts["waste_type"])
+        ctx.vehicle_capacity = capacities
+
         ctx.checkpoint = SimulationCheckpoint(ctx.results_dir, opts["checkpoint_dir"], ctx.policy, ctx.sample_id)
 
         # Resume Logic
@@ -573,6 +583,15 @@ class RunningState(SimState):
                             # Simple update for now (shallow merge of top keys)
                             # Deep merge would be better but keeping it simple.
                             current_policy_config.update(cfg)
+
+                    # Inject vehicle capacity for HGS if not present
+                    # This corrects the efficiency issue where HGS defaults to 100 capacity
+                    if "hgs" in ctx.pol_strip and ctx.vehicle_capacity is not None:
+                        # Ensure hgs config exists
+                        if "hgs" not in current_policy_config:
+                            current_policy_config["hgs"] = {}
+                        if "capacity" not in current_policy_config["hgs"]:
+                            current_policy_config["hgs"]["capacity"] = ctx.vehicle_capacity
 
                     # Prepare SimulationDayContext
                     assert ctx.dist_tup is not None
