@@ -2,83 +2,55 @@
 HGS Policy Adapter.
 
 Adapts the Hybrid Genetic Search (HGS) logic to the common policy interface.
+Now agnostic to bin selection.
 """
 from typing import Any, List, Tuple
 
 import numpy as np
 
-from logic.src.policies.adapters import IPolicy, PolicyRegistry
-from logic.src.policies.hybrid_genetic_search import run_hgs
+from .adapters import IPolicy, PolicyRegistry
+from .hybrid_genetic_search import run_hgs
+from .single_vehicle import get_route_cost
 
 
 @PolicyRegistry.register("hgs")
 class HGSPolicy(IPolicy):
     """
     Hybrid Genetic Search policy class.
-    Executes HGS for VRP.
+    Visits pre-selected 'must_go' bins.
     """
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
         Execute the HGS policy.
         """
-        policy = kwargs["policy"]
-        bins = kwargs["bins"]
-        distance_matrix = kwargs["distance_matrix"]
-        # kwargs["waste_type"] and kwargs["area"] are available but not directly used
-        # unless passed down via config if needed.
-        config = kwargs.get("config", {})
-
-        # 1. Determine Must-Go Bins (VRPP Logic)
-        try:
-            # Pattern: policy_hgs_<threshold>
-            threshold_std = float(policy.rsplit("_", 1)[1])
-        except (IndexError, ValueError):
-            threshold_std = 1.0  # Default
-
-        if not hasattr(bins, "means") or bins.means is None:
-            raise ValueError("Bins object missing 'means' attribute.")
-        else:
-            means = bins.means
-            std = bins.std
-
-        current_fill = bins.c
-        predicted_fill = current_fill + means + (threshold_std * std)
-
-        # Must-go bins
-        must_go_indices = np.where((predicted_fill >= 100.0) | (current_fill >= 100.0))[0].tolist()
-
-        # 2. Prepare Data for HGS
-        # HGS visits all nodes in the passed matrix/demands.
-        # We must subset for just the target bins.
-
-        target_nodes = must_go_indices
-        if not target_nodes:
+        must_go = kwargs.get("must_go", [])
+        if not must_go:
             return [0, 0], 0.0, None
 
-        # Build demands dict {node_idx: demand}
-        # Note: demands dict keys will be 1..K (new indices)
-        demands = {i + 1: current_fill[i] for i in range(len(current_fill))}  # Full demands
-
-        # HGS Config
+        bins = kwargs["bins"]
+        distance_matrix = kwargs["distance_matrix"]
+        config = kwargs.get("config", {})
         hgs_config = config.get("hgs", {})
 
-        # Engine override
-        if "engine" in kwargs:
-            hgs_config["engine"] = kwargs["engine"]
+        # 1. Prepare Data for HGS
+        # indices in must_go are 0-based relative to bins array
+        # we need 1-based indices for the run_hgs mapping
+        demands = {i + 1: bins.c[i] for i in range(bins.n)}
 
         capacity = hgs_config.get("capacity", 100.0)
         revenue = hgs_config.get("revenue", 1.0)
         cost_unit = hgs_config.get("cost_unit", 1.0)
 
-        # Subset mapping
-        real_target_indices = [idx + 1 for idx in target_nodes]
-        subset_indices = [0] + real_target_indices
+        # Subset mapping (nodes to visit: depot + must_go)
+        # must_go contains 0-based indices
+        subset_indices = [0] + [idx + 1 for idx in must_go]
 
         dist_matrix_np = np.array(distance_matrix)
         sub_dist_matrix = dist_matrix_np[np.ix_(subset_indices, subset_indices)]
 
-        sub_demands = {i: demands[original_idx] for i, original_idx in enumerate(real_target_indices, 1)}
+        # demands for subset nodes
+        sub_demands = {i: demands[orig_idx] for i, orig_idx in enumerate([idx + 1 for idx in must_go], 1)}
 
         # Run HGS
         best_routes, _, _ = run_hgs(sub_dist_matrix, sub_demands, capacity, revenue, cost_unit, hgs_config)
@@ -95,9 +67,5 @@ class HGSPolicy(IPolicy):
         if len(tour) == 1:
             tour = [0, 0]
 
-        # Recalculate cost
-        cost = 0.0
-        for i in range(len(tour) - 1):
-            cost += distance_matrix[tour[i]][tour[i + 1]]
-
+        cost = get_route_cost(distance_matrix, tour)
         return tour, cost, None
