@@ -266,6 +266,7 @@ class NeuralAgent:
         hook_data = add_attention_hooks(self.model.embedder)
 
         mask = None
+        dynamic_feat = None
         if hrl_manager is not None and waste_history is not None:
             # Static: Customer Locations (Batch, N, 2)
             # Should be shape (1, N, 2) if single instance
@@ -503,6 +504,9 @@ class NeuralPolicy(IPolicy):
         """
         Execute the neural policy.
         """
+        must_go = kwargs.get("must_go", [])
+        if "must_go" in kwargs and not must_go:
+            return [0, 0], 0.0, None
         model_env = kwargs["model_env"]
         model_ls = kwargs["model_ls"]
         bins = kwargs["bins"]

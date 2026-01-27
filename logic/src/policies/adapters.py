@@ -79,17 +79,6 @@ class PolicyRegistry:
 class PolicyFactory:
     """
     Factory for creating policy adapters.
-
-    Implements the Factory Method pattern to instantiate the appropriate
-    PolicyAdapter based on the policy name string.
-
-    Policy Name Patterns:
-    ---------------------
-    - 'policy_regular*': RegularPolicyAdapter
-    - 'policy_last_minute*': LastMinutePolicyAdapter
-    - 'am*', 'ddam*', 'transgcn*': NeuralPolicyAdapter
-    - '*vrpp*' with 'gurobi' or 'hexaly': VRPPPolicyAdapter
-    - 'policy_look_ahead*': LookAheadPolicyAdapter
     """
 
     @staticmethod
@@ -98,18 +87,6 @@ class PolicyFactory:
     ) -> IPolicy:
         """
         Create and return the appropriate PolicyAdapter for the given parameters.
-
-        Args:
-            name (str): Concise identifier for the policy (e.g., 'vrpp', 'hgs', 'neural')
-            engine (Optional[str]): Solver engine to use (e.g., 'gurobi', 'hexaly', 'pyvrp')
-            threshold (Optional[float]): Statistical threshold for must-go selection
-            **kwargs (Any): Additional configuration parameters
-
-        Returns:
-            IPolicy: Concrete adapter instance
-
-        Raises:
-            ValueError: If policy name doesn't match any known pattern
         """
         # Local imports to avoid circular dependencies
         import logic.src.policies.policy_alns  # noqa
@@ -120,31 +97,20 @@ class PolicyFactory:
         import logic.src.policies.policy_lkh  # noqa
         import logic.src.policies.policy_sans  # noqa
         import logic.src.policies.policy_tsp  # noqa
-        from logic.src.policies.last_minute import LastMinutePolicy, ProfitPolicy
-        from logic.src.policies.look_ahead import LookAheadPolicy
         from logic.src.policies.neural_agent import NeuralPolicy
         from logic.src.policies.policy_vrpp import VRPPPolicy
-        from logic.src.policies.regular import RegularPolicy
 
-        # Try Registry first (prefer concise names, fallback to policy_ prefix)
+        # Try Registry first
         cls = PolicyRegistry.get(name) or PolicyRegistry.get(f"policy_{name}")
 
         if cls:
             return cls()
 
-        # Fallback for complex legacy names or un-registered policies
-        if "last_minute" in name:
-            return LastMinutePolicy()
-        elif "regular" in name:
-            return RegularPolicy()
-        elif name == "neural" or name[:2] == "am" or name[:4] == "ddam" or "transgcn" in name:
+        # Fallback for complex names or un-registered policies
+        if name == "neural" or name[:2] == "am" or name[:4] == "ddam" or "transgcn" in name:
             return NeuralPolicy()
         elif "vrpp" in name:
             return VRPPPolicy()
-        elif "profit" in name:
-            return ProfitPolicy()
-        elif "look_ahead" in name or "lookahead" in name:
-            return LookAheadPolicy()
         elif "sans" in name:
             from logic.src.policies.policy_sans import SANSPolicy
 
@@ -153,28 +119,32 @@ class PolicyFactory:
             from logic.src.policies.policy_lac import LACPolicy
 
             return LACPolicy()
+        elif name == "tsp" or "tsp" in name:
+            from logic.src.policies.policy_tsp import TSPPolicy
+
+            return TSPPolicy()
+        elif name == "cvrp" or "cvrp" in name:
+            from logic.src.policies.policy_cvrp import CVRPPolicy
+
+            return CVRPPolicy()
         else:
+            # Default to CVRP or TSP based on vehicles if unknown but looks like a policy
+            if "policy" in name:
+                from logic.src.policies.policy_cvrp import CVRPPolicy
+                from logic.src.policies.policy_tsp import TSPPolicy
+
+                n_vehicles = kwargs.get("n_vehicles", 1)
+                return TSPPolicy() if n_vehicles == 1 else CVRPPolicy()
+
             raise ValueError(f"Unknown policy: {name}")
 
 
 # Backward compatibility aliases
-# We use __getattr__ to lazily import these classes to avoid circular dependencies
-# since these modules import IPolicy from this file.
-
-
 def __getattr__(name: str) -> Any:
     """
-    Lazy loader for module-level attributes (backward compatibility aliases).
+    Lazy loader for module-level attributes.
     """
-    if name == "LastMinutePolicyAdapter":
-        from logic.src.policies.last_minute import LastMinutePolicy
-
-        return LastMinutePolicy
-    elif name == "ProfitPolicyAdapter":
-        from logic.src.policies.last_minute import ProfitPolicy
-
-        return ProfitPolicy
-    elif name == "NeuralPolicyAdapter":
+    if name == "NeuralPolicyAdapter":
         from logic.src.policies.neural_agent import NeuralPolicy
 
         return NeuralPolicy
@@ -182,14 +152,6 @@ def __getattr__(name: str) -> Any:
         from logic.src.policies.policy_vrpp import VRPPPolicy
 
         return VRPPPolicy
-    elif name == "RegularPolicyAdapter":
-        from logic.src.policies.regular import RegularPolicy
-
-        return RegularPolicy
-    elif name == "LookAheadPolicyAdapter":
-        from logic.src.policies.look_ahead import LookAheadPolicy
-
-        return LookAheadPolicy
     elif name == "TSPPolicy":
         from logic.src.policies.policy_tsp import TSPPolicy
 
