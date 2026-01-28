@@ -2,6 +2,7 @@
 Unified Training and Hyperparameter Optimization entry point using PyTorch Lightning and Hydra.
 """
 
+import os
 from collections.abc import MutableMapping
 from typing import Any, Dict, Tuple, Union, cast
 
@@ -42,6 +43,7 @@ from logic.src.pipeline.rl import (
     SymNCO,
 )
 from logic.src.pipeline.rl.common.trainer import WSTrainer
+from logic.src.utils.configs.config_loader import load_yaml_config
 from logic.src.utils.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
@@ -94,7 +96,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
     policy_kwargs.pop("name", None)
     if cfg.model.name == "hybrid":
         neural = AttentionModelPolicy(**policy_kwargs)
-        heuristic = ALNSPolicy(env_name=cfg.env.name)
+        heuristic = ALNSPolicy(env_name=cfg.env.name, max_iterations=500)
         policy = NeuralHeuristicHybrid(neural, heuristic)
     else:
         # Some policies like ALNSPolicy/HGSPolicy might take more specific args
@@ -312,47 +314,63 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
         manager = GATLSTManager(device=cfg.device, hidden_dim=cfg.meta_rl.meta_hidden_dim)
         model = HRLModule(manager=manager, worker=policy, env=env, lr=cfg.meta_rl.meta_lr)
-    elif cfg.rl.algorithm == "imitation":
-        from logic.src.pipeline.rl.core.imitation import ImitationLearning
+    elif cfg.rl.algorithm in ["imitation", "adaptive_imitation"]:
+        # Helper to load expert policy with custom config
+        def get_expert_policy(expert_name: str, env_name: str, cfg: Config) -> Any:
+            expert_map = {
+                "hgs": HGSPolicy,
+                "alns": ALNSPolicy,
+                "random_ls": RandomLocalSearchPolicy,
+                "2opt": RandomLocalSearchPolicy,
+            }
+            if expert_name not in expert_map:
+                raise ValueError(f"Unknown expert: {expert_name}")
 
-        # Determine expert
+            expert_cls = expert_map[expert_name]
+            expert_kwargs = {"env_name": env_name}
+
+            # Strategy: Load from model.policy_config OR default path
+            config_path = getattr(cfg.model, "policy_config", None)
+            if config_path is None:
+                default_path = f"scripts/configs/models/{expert_name}.yaml"
+                if os.path.exists(default_path):
+                    config_path = default_path
+
+            if config_path and os.path.exists(config_path):
+                try:
+                    custom_params = load_yaml_config(config_path)
+                    if custom_params:
+                        expert_kwargs.update(custom_params)
+                        logger.info(f"Loaded {expert_name} configuration from {config_path}")
+                except Exception as e:
+                    logger.warning(f"Failed to load {expert_name} config from {config_path}: {e}")
+
+            # Specific legacy overrides if manual cfg.rl fields are present
+            if expert_name in ["random_ls", "2opt"]:
+                if "n_iterations" not in expert_kwargs:
+                    expert_kwargs["n_iterations"] = getattr(cfg.rl, "random_ls_iterations", 100)
+                if "op_probs" not in expert_kwargs:
+                    expert_kwargs["op_probs"] = getattr(cfg.rl, "random_ls_op_probs", None)
+
+            return expert_cls(**expert_kwargs)
+
         expert_name = getattr(cfg.rl, "imitation_mode", "hgs")
-        expert_policy: Any = None
-        if expert_name == "hgs":
-            expert_policy = HGSPolicy(env_name=cfg.env.name)
-        elif expert_name == "alns":
-            expert_policy = ALNSPolicy(env_name=cfg.env.name)
-        elif expert_name in ["random_ls", "2opt"]:
-            expert_policy = RandomLocalSearchPolicy(
-                env_name=cfg.env.name,
-                n_iterations=getattr(cfg.rl, "random_ls_iterations", 100),
-                op_probs=getattr(cfg.rl, "random_ls_op_probs", None),
+        expert_policy = get_expert_policy(expert_name, cfg.env.name, cfg)
+
+        if cfg.rl.algorithm == "imitation":
+            from logic.src.pipeline.rl.core.imitation import ImitationLearning
+
+            model = ImitationLearning(expert_policy=expert_policy, expert_name=expert_name, **common_kwargs)
+        else:  # adaptive_imitation
+            from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
+
+            model = AdaptiveImitation(
+                expert_policy=expert_policy,
+                il_weight=getattr(cfg.rl, "il_weight", 1.0),
+                il_decay=getattr(cfg.rl, "il_decay", 0.95),
+                patience=getattr(cfg.rl, "patience", 5),
+                **common_kwargs,
             )
-
-        model = ImitationLearning(expert_policy=expert_policy, expert_name=expert_name, **common_kwargs)
-    elif cfg.rl.algorithm == "adaptive_imitation":
-        from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
-
-        expert_name = getattr(cfg.rl, "imitation_mode", "hgs")
-        expert_policy = None
-        if expert_name == "hgs":
-            expert_policy = HGSPolicy(env_name=cfg.env.name)
-        elif expert_name == "alns":
-            expert_policy = ALNSPolicy(env_name=cfg.env.name)
-        elif expert_name in ["random_ls", "2opt"]:
-            expert_policy = RandomLocalSearchPolicy(
-                env_name=cfg.env.name,
-                n_iterations=getattr(cfg.rl, "random_ls_iterations", 100),
-                op_probs=getattr(cfg.rl, "random_ls_op_probs", None),
-            )
-
-        model = AdaptiveImitation(
-            expert_policy=expert_policy,
-            il_weight=getattr(cfg.rl, "il_weight", 1.0),
-            il_decay=getattr(cfg.rl, "il_decay", 0.95),
-            patience=getattr(cfg.rl, "patience", 5),
-            **common_kwargs,
-        )
     else:
         model = REINFORCE(**common_kwargs)
 

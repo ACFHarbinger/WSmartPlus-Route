@@ -22,13 +22,15 @@ class ALNSPolicy(ConstructivePolicy):
         self,
         env_name: str,
         time_limit: float = 5.0,
-        max_iterations: int = 100,
+        max_iterations: int = 500,
+        max_vehicles: int = 0,
         **kwargs,
     ):
         """Initialize ALNSPolicy."""
         super().__init__(env_name=env_name, **kwargs)
         self.time_limit = time_limit
         self.max_iterations = max_iterations
+        self.max_vehicles = max_vehicles
 
     def forward(
         self,
@@ -45,7 +47,10 @@ class ALNSPolicy(ConstructivePolicy):
         device = td.device
 
         # Extract data
-        locs = td["locs"]  # (batch, num_nodes, 2)
+        customers = td["locs"]  # (batch, num_nodes, 2)
+        depot = td["depot"].unsqueeze(1)  # (batch, 1, 2)
+        locs = torch.cat([depot, customers], dim=1)  # (batch, num_nodes + 1, 2)
+
         device = locs.device
         num_nodes = locs.shape[1]
 
@@ -58,10 +63,13 @@ class ALNSPolicy(ConstructivePolicy):
             dist_matrix = locs
 
         # Extract demands
-        demands = td.get("demand", td.get("prize", torch.zeros(batch_size, num_nodes, device=device)))
+        prizes = td.get("prize", torch.zeros(batch_size, num_nodes - 1, device=device))
+        demands_at_nodes = td.get("demand", prizes)
+        # Prepend 0 for depot
+        demands = torch.cat([torch.zeros(batch_size, 1, device=device), demands_at_nodes], dim=1)
 
         # Extract capacity
-        capacity = td.get("capacity", torch.ones(batch_size, device=device) * 1.0)
+        capacity = td.get("capacity", torch.ones(batch_size, device=device) * 100.0)
         if capacity.dim() == 0:
             capacity = capacity.expand(batch_size)
 
@@ -93,6 +101,7 @@ class ALNSPolicy(ConstructivePolicy):
             initial_solutions=initial_solutions,
             n_iterations=self.max_iterations,
             time_limit=self.time_limit,
+            max_vehicles=kwargs.get("max_vehicles", self.max_vehicles),
         )
 
         # Convert routes to actions (padded tensor)
