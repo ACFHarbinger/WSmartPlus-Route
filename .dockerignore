@@ -1,0 +1,8 @@
+.venv
+__pycache__
+.git
+.agent
+lightning_logs/*
+assets/output/*
+*.pt
+*.egg-info

@@ -86,7 +86,7 @@ jobs:
       env:
         QT_DEBUG_PLUGINS: 1
       # Run tests with coverage using xvfb
-      run: xvfb-run uv run pytest --cov --cov-report=xml --cov-report=term-missing
+      run: xvfb-run uv run pytest --cov=logic/src --cov=gui/src --cov-report=xml --cov-report=term-missing
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
