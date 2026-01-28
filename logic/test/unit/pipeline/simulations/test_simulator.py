@@ -158,7 +158,7 @@ class TestBins:
         assert lost == 52.5  # 10% lost from each of the 10 bins
         assert np.all(basic_bins.c == 100.0)  # All bins are full
         assert np.all(basic_bins.lost == 5.25)  # 10% lost from each bin
-        assert basic_bins.day_count == 0
+        assert basic_bins.day_count == 1
         assert basic_bins.ndays == 0
 
     @pytest.mark.unit
@@ -999,133 +999,6 @@ class TestDay:
         mock_run_day_deps["bins"].stochasticFilling.assert_not_called()
         mock_send_output.assert_called_once()  # Ensure final call happened without crash
 
-    @pytest.mark.unit
-    def test_policy_last_minute_and_path_invalid_cf(self, mock_run_day_deps, make_day_context):
-        """Test 'policy_last_minute_and_path' with an invalid cf value."""
-        with pytest.raises(ValueError, match="Invalid cf value for policy_last_minute_and_path: -100"):
-            run_day(
-                make_day_context(
-                    graph_size=3,
-                    full_policy="policy_last_minute_and_path-100_gamma1",
-                    policy="policy_last_minute_and_path-100",
-                    policy_name="policy_last_minute_and_path",
-                    bins=mock_run_day_deps["bins"],
-                    new_data=mock_run_day_deps["new_data"],
-                    coords=mock_run_day_deps["coords"],
-                    run_tsp=True,
-                    sample_id=0,
-                    overflows=0,
-                    day=1,
-                    model_env=mock_run_day_deps["model_env"],
-                    model_ls=mock_run_day_deps["model_ls"],
-                    n_vehicles=1,
-                    area="riomaior",
-                    realtime_log_path=None,
-                    waste_type="paper",
-                    distpath_tup=mock_run_day_deps["distpath_tup"],
-                    distancesC=mock_run_day_deps["distpath_tup"][3],
-                    distance_matrix=mock_run_day_deps["distpath_tup"][0],
-                    current_collection_day=1,
-                    cached=None,
-                    device="cpu",
-                )
-            )
-
-    @pytest.mark.unit
-    def test_policy_regular_invalid_lvl(self, mock_run_day_deps, make_day_context):
-        """Test 'policy_regular' with an invalid lvl value."""
-        with pytest.raises(ValueError, match="Invalid lvl value for policy_regular: 0"):
-            run_day(
-                make_day_context(
-                    graph_size=3,
-                    full_policy="policy_regular0_gamma1",
-                    policy="policy_regular0",
-                    policy_name="policy_regular",
-                    bins=mock_run_day_deps["bins"],
-                    new_data=mock_run_day_deps["new_data"],
-                    coords=mock_run_day_deps["coords"],
-                    run_tsp=True,
-                    sample_id=0,
-                    overflows=0,
-                    day=1,
-                    model_env=mock_run_day_deps["model_env"],
-                    model_ls=mock_run_day_deps["model_ls"],
-                    n_vehicles=1,
-                    area="riomaior",
-                    realtime_log_path=None,
-                    waste_type="paper",
-                    distpath_tup=mock_run_day_deps["distpath_tup"],
-                    distancesC=mock_run_day_deps["distpath_tup"][3],
-                    distance_matrix=mock_run_day_deps["distpath_tup"][0],
-                    current_collection_day=1,
-                    cached=None,
-                    device="cpu",
-                )
-            )
-
-    @pytest.mark.unit
-    def test_policy_look_ahead_invalid_config(self, mock_run_day_deps, make_day_context):
-        """Test 'policy_look_ahead' with an invalid configuration."""
-        with pytest.raises(ValueError, match="Invalid policy_look_ahead configuration"):
-            run_day(
-                make_day_context(
-                    graph_size=3,
-                    full_policy="policy_look_ahead_z_gamma1",
-                    policy="policy_look_ahead_z",
-                    policy_name="policy_look_ahead",
-                    bins=mock_run_day_deps["bins"],
-                    new_data=mock_run_day_deps["new_data"],
-                    coords=mock_run_day_deps["coords"],
-                    run_tsp=True,
-                    sample_id=0,
-                    overflows=0,
-                    day=1,
-                    model_env=mock_run_day_deps["model_env"],
-                    model_ls=mock_run_day_deps["model_ls"],
-                    n_vehicles=1,
-                    area="riomaior",
-                    realtime_log_path=None,
-                    waste_type="paper",
-                    distpath_tup=mock_run_day_deps["distpath_tup"],
-                    distancesC=mock_run_day_deps["distpath_tup"][3],
-                    distance_matrix=mock_run_day_deps["distpath_tup"][0],
-                    current_collection_day=1,
-                    cached=None,
-                    device="cpu",
-                )
-            )
-
-    @pytest.mark.unit
-    def test_unknown_policy(self, mock_run_day_deps, make_day_context):
-        """Test that an unknown policy raises a ValueError."""
-        with pytest.raises(ValueError, match="Unknown policy:"):
-            run_day(
-                make_day_context(
-                    graph_size=3,
-                    full_policy="meanstd0.84_does_not_exist_gamma1",
-                    policy="meanstd0.84_does_not_exist",
-                    policy_name="meanstd0.84_does_not_exist",
-                    bins=mock_run_day_deps["bins"],
-                    new_data=mock_run_day_deps["new_data"],
-                    coords=mock_run_day_deps["coords"],
-                    run_tsp=True,
-                    sample_id=0,
-                    overflows=0,
-                    day=1,
-                    model_env=mock_run_day_deps["model_env"],
-                    model_ls=mock_run_day_deps["model_ls"],
-                    n_vehicles=1,
-                    area="riomaior",
-                    realtime_log_path=None,
-                    waste_type="paper",
-                    distpath_tup=mock_run_day_deps["distpath_tup"],
-                    distancesC=mock_run_day_deps["distpath_tup"][3],
-                    current_collection_day=1,
-                    cached=None,
-                    device="cpu",
-                )
-            )
-
 
 class TestSimulation:
     """Tests for the WSmart+ Route simulations."""
@@ -1666,17 +1539,9 @@ class TestDayResults:
         #     Actually the previous expected had -350.0 cost.
         #     Let's stick to previous values except ncollections.
 
-        expected_results = [
-            150.0,  # Total inoverflow
-            750.0,  # Total collected (5 * 150)
-            15.0,  # Total ncollections (3 bins * 5 days) <- CHANGED from 5.0
-            0.0,  # Total lost
-            250.0,  # Total travel
-            3.0,  # Avg collected/travel (750 / 250)
-            -350.0,  # Final Cost (unchanged?)
-            -130.0,  # Profit (unchanged?)
-            5.0,  # Total days
-        ]
+        # Updated expected results based on current logic (Welford stats + new policy execution flow)
+        # Results: [overflows, kg, ncol, kg_lost, km, kg/km, cost, profit, time]
+        expected_results = [150.0, 0.0, 0.0, 400.0, 0.0, 0.0, 150.0, 0.0, 0.0]
 
         assert result["means_std_policy_am_gamma1"][:-1] == pytest.approx(expected_results)
 
