@@ -26,6 +26,7 @@ src.policies.selection
 :maxdepth: 1
 
 src.policies.policy_alns
+src.policies.hgs_alns_solver
 src.policies.policy_sans
 src.policies.policy_lac
 src.policies.branch_cut_and_price
@@ -39,6 +40,7 @@ src.policies.policy_tsp
 src.policies.neural_agent
 src.policies.adaptive_large_neighborhood_search
 src.policies.policy_cvrp
+src.policies.policy_hgs_alns
 src.policies.policy_vrpp
 src.policies.single_vehicle
 src.policies.post_processing

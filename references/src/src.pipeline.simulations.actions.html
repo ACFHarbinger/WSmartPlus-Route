@@ -179,6 +179,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.policy_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns_solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.policy_sans.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_sans</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.policy_lac.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_lac</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
@@ -192,6 +193,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.policy_cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_cvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_hgs_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.policy_vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_vrpp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.post_processing</span></code></a></li>
@@ -443,7 +445,9 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions._flatten_config"><code class="docutils literal notranslate"><span class="pre">_flatten_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.SimulationAction"><code class="docutils literal notranslate"><span class="pre">SimulationAction</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.SimulationAction.execute"><code class="docutils literal notranslate"><span class="pre">SimulationAction.execute()</span></code></a></li>
 </ul>
@@ -538,8 +542,25 @@ LogAction: Records daily metrics and outputs results</p>
 </table>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions._flatten_config" title="src.pipeline.simulations.actions._flatten_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_flatten_config</span></code></a></p></td>
+<td><p>Helper to flatten nested configuration structures (e.g. hgs.custom -&gt; list of dicts).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions._flatten_config">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">_flatten_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions._flatten_config" title="Link to this definition">#</a></dt>
+<dd><p>Helper to flatten nested configuration structures (e.g. hgs.custom -&gt; list of dicts).</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.SimulationAction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">SimulationAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.SimulationAction" title="Link to this definition">#</a></dt>
@@ -792,7 +813,9 @@ daily_log: Structured dictionary of today’s metrics</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions._flatten_config"><code class="docutils literal notranslate"><span class="pre">_flatten_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.SimulationAction"><code class="docutils literal notranslate"><span class="pre">SimulationAction</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.SimulationAction.execute"><code class="docutils literal notranslate"><span class="pre">SimulationAction.execute()</span></code></a></li>
 </ul>

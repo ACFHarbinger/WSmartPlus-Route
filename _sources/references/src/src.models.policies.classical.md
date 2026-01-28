@@ -21,4 +21,31 @@ src.models.policies.classical.adaptive_large_neighborhood_search
 src.models.policies.classical.alns
 src.models.policies.classical.hgs
 src.models.policies.classical.local_search
+src.models.policies.classical.hgs_alns
 ```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.models.policies.classical.__all__>`
+  - ```{autodoc2-docstring} src.models.policies.classical.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.models.policies.classical.__all__
+:value: >
+   ['HGSALNSPolicy']
+
+```{autodoc2-docstring} src.models.policies.classical.__all__
+```
+
+````
