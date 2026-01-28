@@ -116,7 +116,7 @@ docker-build:
 # Run the dashboard in a container with live log mounting
 docker-dashboard:
     docker run -p 8501:8501 \
-      -v $(pwd)/lightning_logs:/app/lightning_logs \
+      -v $(pwd)/logs:/app/logs \
       -v $(pwd)/assets/output:/app/assets/output \
       wsmart-dashboard
 
