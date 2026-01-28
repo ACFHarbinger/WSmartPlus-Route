@@ -58,6 +58,13 @@ def benchmark(problem="vrpp", sizes=[20, 50], num_instances=16):
                 model.eval()
 
                 # Warmup
+                try:
+                    device = next(model.parameters()).device
+                except StopIteration:
+                    device = cfg.device
+
+                td = td.to(device)
+
                 if p_name == "am":
                     with torch.no_grad():
                         model.policy(td.clone(), env)
@@ -86,7 +93,9 @@ def benchmark(problem="vrpp", sizes=[20, 50], num_instances=16):
                 print(f"  {p_name.upper()}: {avg_time:.4f}s/inst, Reward: {avg_reward:.2f}")
 
             except Exception as e:
+                import traceback
                 print(f"  {p_name.upper()} Failed: {e}")
+                traceback.print_exc()
                 results.append(
                     {
                         "Policy": p_name.upper(),
@@ -99,7 +108,7 @@ def benchmark(problem="vrpp", sizes=[20, 50], num_instances=16):
 
     df = pd.DataFrame(results)
     print("\n\n=== Final Benchmark Results ===")
-    print(tabulate(df, headers="keys", tablefmt="markdown", showindex=False))
+    print(tabulate(df.values.tolist(), headers=df.columns.tolist(), tablefmt="markdown", showindex=False))
 
 
 if __name__ == "__main__":

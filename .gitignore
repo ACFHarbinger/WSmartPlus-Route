@@ -452,6 +452,9 @@ debug/
 assets/api
 assets/keys/
 
+# Agents
+mcp.json
+
 # Local files and directories
 **/results/
 **/daily_*/

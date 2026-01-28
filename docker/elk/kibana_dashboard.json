@@ -1,0 +1,25 @@
+{
+    "attributes": {
+        "description": "Dashboard for WSmart-Route test results and benchmarks",
+        "hits": 0,
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+        },
+        "optionsJSON": "{\"hidePanelTitles\":false,\"useMargins\":true}",
+        "panelsJSON": "[{\"version\":\"8.11.1\",\"type\":\"visualization\",\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":15},\"panelIndex\":\"panel_1\",\"embeddableConfig\":{},\"panelRefName\":\"panel_0\"}]",
+        "title": "WSmart-Route Metrics Board",
+        "version": 1
+    },
+    "coreMigrationVersion": "8.11.1",
+    "id": "ws-route-dashboard",
+    "managed": false,
+    "references": [
+        {
+            "name": "panel_0",
+            "type": "visualization",
+            "id": "ws-route-test-count"
+        }
+    ],
+    "type": "dashboard",
+    "updated_at": "2026-01-28T19:00:00.000Z"
+}
