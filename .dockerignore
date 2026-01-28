@@ -2,7 +2,7 @@
 __pycache__
 .git
 .agent
-lightning_logs/*
+logs/*
 assets/output/*
 *.pt
 *.egg-info
