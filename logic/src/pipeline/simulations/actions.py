@@ -250,8 +250,6 @@ class MustGoSelectionAction(SimulationAction):
                     print(f"Warning: MustGo Strategy '{s_name}' error: {e}")
                     res = []
 
-            print(f"DEBUG_STRAT: {s_name} selected {len(res)} bins")
-
             # Ensure list
             if hasattr(res, "tolist"):
                 res = res.tolist()

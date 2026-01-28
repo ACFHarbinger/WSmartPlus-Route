@@ -94,6 +94,7 @@ class PolicyFactory:
         import logic.src.policies.policy_bcp as policy_bcp  # noqa
         import logic.src.policies.policy_cvrp as policy_cvrp  # noqa
         import logic.src.policies.policy_hgs as policy_hgs  # noqa
+        import logic.src.policies.policy_hgs_alns as policy_hgs_alns  # noqa
         import logic.src.policies.policy_lac as policy_lac  # noqa
         import logic.src.policies.policy_lkh as policy_lkh  # noqa
         import logic.src.policies.policy_sans as policy_sans  # noqa
@@ -178,6 +179,10 @@ def __getattr__(name: str) -> Any:
         from logic.src.policies.policy_hgs import HGSPolicy
 
         return HGSPolicy
+    elif name == "HGSALNSPolicy":
+        from logic.src.policies.policy_hgs_alns import HGSALNSPolicy
+
+        return HGSALNSPolicy
     elif name == "LKHPolicy":
         from logic.src.policies.policy_lkh import LKHPolicy
 
