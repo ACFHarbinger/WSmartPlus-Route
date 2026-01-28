@@ -31,9 +31,10 @@ class ALNSPolicy(IPolicy):
         config = kwargs.get("config", {})
         alns_config = config.get("alns", {})
 
-        # Prepare demands (0-based indices in must_go)
+        # Prepare demands (1-based indices in must_go)
         # ALNS uses {global_id: weight} where global_id is typically 1..N
-        demands = {idx + 1: bins.c[idx] for idx in must_go}
+        # bins.c is 0-indexed, so we use idx-1.
+        demands = {idx: bins.c[idx - 1] for idx in must_go}
 
         capacity = alns_config.get("capacity", 100.0)
         revenue = alns_config.get("revenue", 1.0)

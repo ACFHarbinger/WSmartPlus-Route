@@ -59,7 +59,7 @@ class SANSPolicy(IPolicy):
         current_route = initial_routes[0] if initial_routes else [0, 0]
 
         # Ensure must_go bins are in the route
-        must_go_1 = [b + 1 for b in must_go]  # must_go is 0-based
+        must_go_1 = list(must_go)  # must_go is 1-based
         route_set = set(current_route)
         for b in must_go_1:
             if b not in route_set:
