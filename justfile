@@ -14,7 +14,7 @@ marker := "fast"
 
 # Sync dependencies using uv
 sync:
-    uv sync
+    uv sync --all-groups
 
 # Install dependencies via pip
 install:
@@ -41,6 +41,10 @@ gen-data problem=problem size=size:
 # Launch the GUI
 gui:
     uv run python main.py gui
+
+# Launch the dashboard
+dashboard:
+    uv run streamlit run dashboard.py
 
 # --- Script Runners ---
 
@@ -105,6 +109,17 @@ build-docs:
 format:
     uv run ruff format . --exclude ".venv"
 
+# Build the dashboard docker image
+docker-build:
+    docker build -t wsmart-dashboard .
+
+# Run the dashboard in a container with live log mounting
+docker-dashboard:
+    docker run -p 8501:8501 \
+      -v $(pwd)/lightning_logs:/app/lightning_logs \
+      -v $(pwd)/assets/output:/app/assets/output \
+      wsmart-dashboard
+
 # --- Maintenance ---
 
 # Clean caches and artifacts
@@ -115,6 +130,7 @@ clean:
     find . -type d -name ".mypy_cache" -exec rm -rf {} +
     find . -type d -name ".hypothesis" -exec rm -rf {} +
     find . -type f -name "coverage.xml" -exec rm {} +
+    find . -type f -name ".coverage" -exec rm {} +
     rm -rf build/
     rm -rf dist/
     rm -rf temp/

@@ -243,6 +243,8 @@ dependencies = [
     "torchrl>=0.3.1",
     "dehb>=0.1.2",
     "hypothesis>=6.141.1",
+    "streamlit>=1.50.0",
+    "streamlit-folium>=0.25.3",
 ]
 
 # Corrected 'dev' dependencies

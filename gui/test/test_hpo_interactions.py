@@ -1,5 +1,6 @@
 import pytest
 
+from unittest.mock import patch
 from gui.src.tabs.hyperparam_optim import HyperParamOptimParserTab
 
 
@@ -22,14 +23,16 @@ class TestHPOInteractions:
 
     def test_get_params_basic(self, hpo_tab):
         """Test basic parameters."""
-        hpo_tab.hpo_epochs_input.setValue(15)
-        hpo_tab.cpu_cores_input.setValue(4)
+        with patch("multiprocessing.cpu_count", return_value=4):
+            hpo_tab.cpu_cores_input.setMaximum(16)
+            hpo_tab.hpo_epochs_input.setValue(15)
+            hpo_tab.cpu_cores_input.setValue(4)
 
-        params = hpo_tab.get_params()
+            params = hpo_tab.get_params()
 
-        assert params["hpo_epochs"] == 15
-        assert params["cpu_cores"] == 4
-        assert params["train_best"] is True  # Default
+            assert params["hpo_epochs"] == 15
+            assert params["cpu_cores"] == 4
+            assert params["train_best"] is True  # Default
 
     def test_method_mapping(self, hpo_tab):
         """Test HPO Method mapping."""
