@@ -12,6 +12,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.models.policies.am import AttentionModelPolicy
+from logic.src.utils.logging.structured_logging import log_benchmark_metric
 
 
 def benchmark_neural_model(
@@ -37,7 +38,8 @@ def benchmark_neural_model(
 
     # Setup environment
     from logic.src.envs import get_env
-    env = get_env("vrpp", device=device)
+    from logic.src.envs.base import RL4COEnvBase
+    env: RL4COEnvBase = get_env("vrpp", device=device)
 
     # Instantiate policy directly
     policy = AttentionModelPolicy(
@@ -50,6 +52,7 @@ def benchmark_neural_model(
     policy.eval()
 
     # Generate dummy data using env's generator
+    assert env.generator is not None, "Environment must have a generator"
     td = env.generator(batch_size=(batch_size,))
     td = env.reset(td)
 
@@ -76,6 +79,18 @@ def benchmark_neural_model(
     print(f"    - Latency: {latency:.4f}s")
     print(f"    - Throughput: {instances_per_second:.2f} instances/s")
     print(f"    - Latency per Instance: {ms_per_instance:.4f}ms")
+
+    log_benchmark_metric(
+        f"neural_{model_name}",
+        {"latency": latency, "throughput": instances_per_second, "ms_per_inst": ms_per_instance},
+        {
+            "policy": model_name,
+            "num_nodes": num_nodes,
+            "batch_size": batch_size,
+            "device": device,
+            "decode_type": decode_type
+        }
+    )
 
     return {
         "latency": latency,
