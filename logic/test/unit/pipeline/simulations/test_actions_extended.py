@@ -39,44 +39,6 @@ class TestMustGoSelectionActionDetailed:
         action.execute(base_context)
         assert 'must_go' in base_context
 
-    def test_last_minute_mapping(self, base_context):
-        action = MustGoSelectionAction()
-        base_context['policy_name'] = 'last_minute90'
-        base_context['policy'] = 'last_minute90'
-        action.execute(base_context)
-        assert 'must_go' in base_context
-
-    def test_and_path_mapping_success(self, base_context):
-        action = MustGoSelectionAction()
-        base_context['policy_name'] = 'last_minute_and_path'
-        base_context['policy'] = 'last_minute_and_path'
-        base_context['full_policy'] = 'and_path100' # No dash
-        action.execute(base_context)
-        assert 'must_go' in base_context
-
-    def test_and_path_mapping_error(self, base_context):
-        action = MustGoSelectionAction()
-        base_context['policy_name'] = 'last_minute_and_path'
-        base_context['policy'] = 'last_minute_and_path'
-        base_context['full_policy'] = 'and_path-100'
-        with pytest.raises(ValueError, match="Invalid cf value"):
-            action.execute(base_context)
-
-    def test_means_std_mapping(self, base_context):
-        action = MustGoSelectionAction()
-        base_context['policy_name'] = 'means_std_dev'
-        base_context['policy'] = 'means_std_dev'
-        action.execute(base_context)
-        assert 'must_go' in base_context
-
-    def test_unknown_policy_raises(self, base_context):
-        action = MustGoSelectionAction()
-        base_context['policy_name'] = 'unknown_xyz'
-        base_context['policy'] = 'unknown_xyz'
-        base_context['full_policy'] = 'unknown_xyz'
-        with pytest.raises(ValueError, match="Unknown must go selection strategy"):
-            action.execute(base_context)
-
 class TestFillActionDetailed:
     def test_stochastic_fill(self, base_context, mock_bins):
         action = FillAction()

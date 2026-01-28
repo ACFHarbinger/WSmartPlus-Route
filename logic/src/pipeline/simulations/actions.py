@@ -181,17 +181,15 @@ class MustGoSelectionAction(SimulationAction):
                 if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
                     # Load config file (e.g. mg_lookahead_days7.xml)
                     fpath = os.path.join(ROOT_DIR, "scripts", "configs", "policies", item)
-                    try:
-                        cfg = load_config(fpath)
-                        # Extract strategy name and params
-                        # Flatten if root is 'config'
-                        if "config" in cfg and len(cfg) == 1:
-                            cfg = cfg["config"]
+                    cfg = load_config(fpath)
+                    # Extract strategy name and params
+                    # Flatten if root is 'config'
+                    if "config" in cfg and len(cfg) == 1:
+                        cfg = cfg["config"]
 
-                        for k, v in cfg.items():
-                            strategies.append({"name": k, "params": v if isinstance(v, dict) else {}})
-                    except Exception as e:
-                        print(f"Error loading must_go config {item}: {e}")
+                    for k, v in cfg.items():
+                        strategies.append({"name": k, "params": v if isinstance(v, dict) else {}})
+
                 elif isinstance(item, dict):
                     # Direct dict config: { "lookahead": { "days": 7 } }
                     for k, v in item.items():
@@ -243,12 +241,10 @@ class MustGoSelectionAction(SimulationAction):
             if s_name == "select_all":
                 res = list(sel_ctx.bin_ids)
             else:
-                try:
-                    strategy = MustGoSelectionFactory.create_strategy(s_name)
-                    res = strategy.select_bins(sel_ctx)
-                except ValueError as e:
-                    print(f"Warning: MustGo Strategy '{s_name}' error: {e}")
-                    res = []
+                strategy = MustGoSelectionFactory.create_strategy(s_name)
+                res = strategy.select_bins(sel_ctx)
+
+            final_must_go.update(res)
 
             # Ensure list
             if hasattr(res, "tolist"):

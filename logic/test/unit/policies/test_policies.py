@@ -48,7 +48,7 @@ def mock_policy_data():
         "area": "test_area",
         "config": {},
         "distancesC": np.zeros((n_bins + 1, n_bins + 1), dtype=np.int32),
-        "must_go": [0],  # Pre-selected bin index 0 (ID 1)
+        "must_go": [1],  # Pre-selected bin index 1 (ID 1)
     }
 
 
@@ -94,7 +94,8 @@ class TestPolicyAdapters:
             policy = PolicyRegistry.get("lkh")()
             assert isinstance(policy, LKHPolicy)
             tour, cost, extra = policy.execute(policy="lkh_1.0", **mock_policy_data)
-            assert tour == [0, 1, 0]
+            # LKH policy adds +1 to indices internally, so input [1] becomes index 2
+            assert tour == [0, 2, 0]
             assert mock_run.called
 
 
