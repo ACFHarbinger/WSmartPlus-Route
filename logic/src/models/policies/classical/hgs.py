@@ -56,7 +56,11 @@ class HGSPolicy(ConstructivePolicy):
         device = td.device
 
         # Extract data
-        locs = td["locs"]  # (batch, num_nodes, 2)
+        customers = td["locs"]  # (batch, num_nodes, 2)
+        depot = td["depot"].unsqueeze(1)  # (batch, 1, 2)
+        locs = torch.cat([depot, customers], dim=1)  # (batch, num_nodes + 1, 2)
+
+        device = locs.device
         num_nodes = locs.shape[1]
 
         # Compute distance matrix if needed
@@ -69,7 +73,10 @@ class HGSPolicy(ConstructivePolicy):
             dist_matrix = locs
 
         # Extract demands
-        demands = td.get("demand", td.get("prize", torch.zeros(batch_size, num_nodes, device=device)))
+        prizes = td.get("prize", torch.zeros(batch_size, num_nodes - 1, device=device))
+        demands_at_nodes = td.get("demand", prizes)
+        # Prepend 0 for depot
+        demands = torch.cat([torch.zeros(batch_size, 1, device=device), demands_at_nodes], dim=1)
 
         # Extract capacity
         capacity = td.get("capacity", torch.ones(batch_size, device=device) * 100.0)

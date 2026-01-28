@@ -55,3 +55,4 @@ class ModelConfig:
     aggregation_node: str = "sum"
     spatial_bias_scale: float = 1.0
     hyper_expansion: int = 4
+    policy_config: Optional[str] = None
