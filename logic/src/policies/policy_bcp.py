@@ -29,8 +29,9 @@ class BCPPolicy(IPolicy):
         bcp_config = config.get("bcp", {})
 
         # BCP uses global IDs (1..N)
-        demands = {idx + 1: bins.c[idx] for idx in must_go}
-        global_must_go = {idx + 1 for idx in must_go}
+        # bins.c is 0-indexed, so we use idx-1.
+        demands = {idx: bins.c[idx - 1] for idx in must_go}
+        global_must_go = set(must_go)
 
         capacity = bcp_config.get("capacity", 100.0)
         revenue = bcp_config.get("revenue", 1.0)

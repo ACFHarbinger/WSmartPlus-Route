@@ -34,8 +34,8 @@ class HGSPolicy(IPolicy):
         hgs_config = config.get("hgs", {})
 
         # 1. Prepare Data for HGS
-        # indices in must_go are 0-based relative to bins array
-        # we need 1-based indices for the run_hgs mapping
+        # indices in must_go are 1-based bin IDs (1..N)
+        # Bins.c is 0-indexed (0..N-1), so we use idx-1 to access it.
         demands = {i + 1: bins.c[i] for i in range(bins.n)}
 
         capacity = hgs_config.get("capacity", 100.0)
@@ -43,14 +43,14 @@ class HGSPolicy(IPolicy):
         cost_unit = hgs_config.get("cost_unit", 1.0)
 
         # Subset mapping (nodes to visit: depot + must_go)
-        # must_go contains 0-based indices
-        subset_indices = [0] + [idx + 1 for idx in must_go]
+        # must_go contains 1-based IDs
+        subset_indices = [0] + must_go
 
         dist_matrix_np = np.array(distance_matrix)
         sub_dist_matrix = dist_matrix_np[np.ix_(subset_indices, subset_indices)]
 
         # demands for subset nodes
-        sub_demands = {i: demands[orig_idx] for i, orig_idx in enumerate([idx + 1 for idx in must_go], 1)}
+        sub_demands = {i: demands[orig_idx] for i, orig_idx in enumerate(must_go, 1)}
 
         # Run HGS
         best_routes, _, _ = run_hgs(sub_dist_matrix, sub_demands, capacity, revenue, cost_unit, hgs_config)

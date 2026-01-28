@@ -204,7 +204,7 @@ class Bins:
             p = 1 - stats.gamma.cdf(100 - f, k, scale=th)
             aux[np.nonzero(p > cl)[0]] = ii
             n = np.minimum(n, aux)
-            if (p > cl).all():
+            if np.all(p > cl):
                 return n
         return n
 
@@ -335,16 +335,6 @@ class Bins:
             If tour has ≤2 nodes (only depot), no collection occurs.
             Visited bins are reset to 0% fill level (both real and observed).
         """
-        # Update mean and standard deviation using Welford's method
-        todaysfilling = np.array(self.history[-1])
-        old_means = self.means.copy()
-
-        self.day_count += 1
-        delta = todaysfilling - old_means
-        self.means += delta / self.day_count
-        self.square_diff += delta * (todaysfilling - self.means)
-        self.std = self.__get_stdev()
-
         # Check if tour has bins to collect
         ids = set(idsfull)
         total_collected = np.zeros((self.n))
@@ -394,6 +384,17 @@ class Bins:
             Noise can be pre-recorded (noisyfilling) or generated on-the-fly.
         """
         self.history.append(todaysfilling)
+
+        # Update mean and standard deviation using Welford's method
+        # This is now done daily regardless of collection
+        todaysfilling_arr = np.array(todaysfilling)
+        old_means = self.means.copy()
+
+        self.day_count += 1
+        delta = todaysfilling_arr - old_means
+        self.means += delta / self.day_count
+        self.square_diff += delta * (todaysfilling_arr - self.means)
+        self.std = self.__get_stdev()
 
         # Lost overflows
         todays_lost = (np.maximum(self.real_c + todaysfilling - 100, 0) / 100) * self.volume * self.density
@@ -446,6 +447,7 @@ class Bins:
         Note:
             Negative samples are clipped to 0 (physical constraint).
         """
+        todaysfilling = np.zeros(self.n)
         if self.distribution == "gamma":
             todaysfilling = np.random.gamma(self.dist_param1, self.dist_param2, size=(n_samples, self.n))
             if n_samples <= 1:
