@@ -514,13 +514,13 @@ class VectorizedHGS:
                 pop.compute_biased_fitness()
                 no_improv = 0
 
-        best_cost, best_idx = torch.min(pop.costs, dim=1)
+        best_cost_pop, best_idx = torch.min(pop.costs, dim=1)
         best_giant = pop.population[torch.arange(B), best_idx]
-        best_routes, _ = vectorized_linear_split(
+        best_routes, best_final_costs = vectorized_linear_split(
             best_giant,
             self.dist_matrix,
             self.demands,
             self.vehicle_capacity,
             max_vehicles=max_vehicles,
         )
-        return best_routes, best_cost
+        return best_routes, best_final_costs
