@@ -1,5 +1,6 @@
 import pytest
 
+from unittest.mock import patch
 from gui.src.constants import VERTEX_METHODS
 from gui.src.tabs.test_simulator.ts_advanced import TestSimAdvancedTab
 
@@ -35,22 +36,24 @@ class TestSimAdvancedInteractions:
 
     def test_get_params_custom(self, adv_tab):
         """Test valid custom inputs."""
-        adv_tab.cpu_cores_input.setValue(4)
-        adv_tab.env_file_input.setText("production.env")
-        adv_tab.edge_threshold_input.setValue(0.75)
+        with patch("multiprocessing.cpu_count", return_value=4):
+            adv_tab.cpu_cores_input.setMaximum(16)
+            adv_tab.cpu_cores_input.setValue(4)
+            adv_tab.env_file_input.setText("production.env")
+            adv_tab.edge_threshold_input.setValue(0.75)
 
-        # Toggle flags
-        adv_tab.server_run_check.setChecked(True)
-        adv_tab.no_progress_check.setChecked(False)
+            # Toggle flags
+            adv_tab.server_run_check.setChecked(True)
+            adv_tab.no_progress_check.setChecked(False)
 
-        # Keys (Need to toggle visible? Code doesn't check visibility for params, just text existence)
-        adv_tab.hexlic_file_input.setText("/path/to/hexaly.lic")
+            # Keys (Need to toggle visible? Code doesn't check visibility for params, just text existence)
+            adv_tab.hexlic_file_input.setText("/path/to/hexaly.lic")
 
-        params = adv_tab.get_params()
+            params = adv_tab.get_params()
 
-        assert params["cpu_cores"] == 4
-        assert params["env_file"] == "production.env"
-        assert params["edge_threshold"] == 0.75
-        assert params["server_run"] is True
-        assert params["no_progress_bar"] is False
-        assert params["hexlic_file"] == "/path/to/hexaly.lic"
+            assert params["cpu_cores"] == 4
+            assert params["env_file"] == "production.env"
+            assert params["edge_threshold"] == 0.75
+            assert params["server_run"] is True
+            assert params["no_progress_bar"] is False
+            assert params["hexlic_file"] == "/path/to/hexaly.lic"
