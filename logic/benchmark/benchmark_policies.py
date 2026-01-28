@@ -14,6 +14,7 @@ from tabulate import tabulate
 
 from logic.src.configs import Config, EnvConfig, ModelConfig, TrainConfig
 from logic.src.pipeline.features.train import create_model
+from logic.src.utils.logging.structured_logging import log_benchmark_metric
 
 
 def benchmark(problem="vrpp", sizes=[20, 50], num_instances=16):
@@ -91,6 +92,12 @@ def benchmark(problem="vrpp", sizes=[20, 50], num_instances=16):
                     }
                 )
                 print(f"  {p_name.upper()}: {avg_time:.4f}s/inst, Reward: {avg_reward:.2f}")
+
+                log_benchmark_metric(
+                    "policy_comparison",
+                    {"avg_time": avg_time, "avg_reward": avg_reward, "total_time": duration},
+                    {"policy": p_name, "num_nodes": graph_size, "num_instances": num_instances, "problem": problem}
+                )
 
             except Exception as e:
                 import traceback

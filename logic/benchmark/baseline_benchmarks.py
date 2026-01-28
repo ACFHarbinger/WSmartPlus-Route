@@ -14,6 +14,7 @@ from tensordict import TensorDict
 from logic.src.models.policies.classical.random_local_search import (
     RandomLocalSearchPolicy,
 )
+from logic.src.utils.logging.structured_logging import log_benchmark_metric
 from logic.src.policies.policy_vrpp import run_vrpp_optimizer
 from logic.src.policies.multi_vehicle import find_routes, find_routes_ortools
 
@@ -60,6 +61,18 @@ def benchmark_random_local_search(
 
     print(f"    - Total Time: {total_time:.4f}s")
     print(f"    - Time per Instance: {time_per_instance:.6f}s")
+
+    log_benchmark_metric(
+        "baseline_rls",
+        {"total_time": total_time, "time_per_instance": time_per_instance},
+        {
+            "policy": "random_ls",
+            "batch_size": batch_size,
+            "num_nodes": num_nodes,
+            "iterations": iterations,
+            "device": str(device)
+        }
+    )
 
     return {
         "total_time": total_time,
@@ -109,6 +122,12 @@ def benchmark_vrpp_solvers(num_nodes: int = 20, time_limit: int = 2) -> Dict[str
                 "tour_len": len(tour)
             }
             print(f"    - {solver.capitalize()}: {elapsed:.4f}s, Profit: {profit:.2f}")
+
+            log_benchmark_metric(
+                f"baseline_vrpp_{solver}",
+                {"time": elapsed, "profit": profit, "cost": cost},
+                {"policy": solver, "num_nodes": num_nodes, "time_limit": time_limit}
+            )
         except Exception as e:
             print(f"    - {solver.capitalize()} failed: {e}")
 
@@ -134,6 +153,11 @@ def benchmark_multi_vehicle_solvers(num_nodes: int = 50, n_vehicles: int = 5) ->
         elapsed = time.time() - start
         results["pyvrp"] = elapsed
         print(f"    - PyVRP: {elapsed:.4f}s")
+        log_benchmark_metric(
+            "baseline_multi_pyvrp",
+            {"time": elapsed},
+            {"policy": "pyvrp", "num_nodes": num_nodes, "n_vehicles": n_vehicles}
+        )
     except Exception as e:
         print(f"    - PyVRP failed: {e}")
 
@@ -144,6 +168,11 @@ def benchmark_multi_vehicle_solvers(num_nodes: int = 50, n_vehicles: int = 5) ->
         elapsed = time.time() - start
         results["ortools"] = elapsed
         print(f"    - OR-Tools: {elapsed:.4f}s")
+        log_benchmark_metric(
+            "baseline_multi_ortools",
+            {"time": elapsed},
+            {"policy": "ortools", "num_nodes": num_nodes, "n_vehicles": n_vehicles}
+        )
     except Exception as e:
         print(f"    - OR-Tools failed: {e}")
 
