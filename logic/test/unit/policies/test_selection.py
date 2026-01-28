@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 from logic.src.policies.selection.selection_regular import RegularSelection
-from logic.src.policies.selection.selection_last_minute import LastMinuteSelection, LastMinuteAndPathSelection
+from logic.src.policies.selection.selection_last_minute import LastMinuteSelection
 from logic.src.policies.selection.selection_lookahead import LookaheadSelection
 from logic.src.policies.must_go_selection import SelectionContext
 

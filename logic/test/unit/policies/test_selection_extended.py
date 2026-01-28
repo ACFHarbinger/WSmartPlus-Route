@@ -1,7 +1,7 @@
 
 import numpy as np
 import pytest
-from logic.src.policies.selection.selection_last_minute import LastMinuteSelection, LastMinuteAndPathSelection
+from logic.src.policies.selection.selection_last_minute import LastMinuteSelection
 from logic.src.policies.selection.selection_means_std import MeansAndStdDevSelection
 from logic.src.policies.selection.selection_revenue import RevenueThresholdSelection
 from logic.src.policies.must_go_selection import SelectionContext
@@ -31,49 +31,6 @@ class TestLastMinuteSelection:
         must_go = strategy.select_bins(base_context)
         # Bins > 40 are indices 1, 3, 4 -> IDs 2, 4, 5
         assert must_go == [2, 4, 5]
-
-class TestLastMinuteAndPathSelection:
-    def test_select_bins_no_critical(self, base_context):
-        base_context.current_fill = np.zeros(5)
-        strategy = LastMinuteAndPathSelection()
-        assert strategy.select_bins(base_context) == []
-
-    def test_select_bins_no_path_info(self, base_context):
-        strategy = LastMinuteAndPathSelection()
-        # Should return only critical if path info is missing
-        assert strategy.select_bins(base_context) == [2]
-
-    def test_select_bins_with_path(self, base_context):
-        # Setup path info: tour might go 0 -> 2 -> 4 -> 0
-        # If Bin 2 is critical, and Bin 4 is on path and fits.
-        base_context.distance_matrix = np.array([
-            [0, 10, 10, 10, 10, 10],
-            [10, 0, 10, 10, 10, 10],
-            [10, 10, 0, 10, 10, 10],
-            [10, 10, 10, 0, 10, 10],
-            [10, 10, 10, 10, 0, 10],
-            [10, 10, 10, 10, 10, 0]
-        ])
-        # Bin 2 is index 2 in tour logic (0 is depot)
-        # Let's say path 0->2 goes through bin 1.
-        base_context.paths_between_states = [
-            [[], [], [1], [], [], []], # From 0
-            [[], [], [], [], [], []],
-            [[0], [], [], [], [], []], # To 0
-            # ... rest
-        ]
-        # Make paths_between_states larger for safety
-        n = 6
-        base_context.paths_between_states = [[[] for _ in range(n)] for _ in range(n)]
-        base_context.paths_between_states[0][2] = [1]
-        base_context.paths_between_states[2][0] = []
-
-        base_context.vehicle_capacity = 200.0 # Plenty of space
-        strategy = LastMinuteAndPathSelection()
-        must_go = strategy.select_bins(base_context)
-        # Critical is 2. Path 0->2 contains 1.
-        assert 2 in must_go
-        assert 1 in must_go
 
 class TestMeansAndStdDevSelection:
     def test_select_bins_no_data(self, base_context):

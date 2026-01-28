@@ -4,6 +4,7 @@ Policies module for WSmart-Route.
 
 from logic.src.models.policies.am import AttentionModelPolicy
 from logic.src.models.policies.base import ConstructivePolicy, ImprovementPolicy
+from logic.src.models.policies.classical.hgs_alns import HGSALNSPolicy
 from logic.src.models.policies.deep_decoder import DeepDecoderPolicy
 from logic.src.models.policies.pointer import PointerNetworkPolicy
 from logic.src.models.policies.symnco import SymNCOPolicy
@@ -17,4 +18,5 @@ __all__ = [
     "TemporalAMPolicy",
     "PointerNetworkPolicy",
     "SymNCOPolicy",
+    "HGSALNSPolicy",
 ]
