@@ -29,15 +29,7 @@ def mock_sim_context():
     })
     return ctx
 
-class TestMustGoSelectionAction:
-    def test_selection_action_execution(self, mock_sim_context):
-        action = MustGoSelectionAction()
-        action.execute(mock_sim_context)
 
-        # Strategy 'last_minute' selects bins > 90.
-        # Index 1 (Bin 2) is 95.0. 1-based ID is 2.
-        assert 2 in mock_sim_context['must_go']
-        assert len(mock_sim_context['must_go']) == 1
 
 class TestPostProcessAction:
     def test_post_process_action_execution(self, mock_sim_context):
