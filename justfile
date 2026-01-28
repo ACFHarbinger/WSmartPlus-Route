@@ -46,6 +46,20 @@ gui:
 dashboard:
     uv run streamlit run dashboard.py
 
+# --- Advanced Testing & Benchmarks ---
+
+# Run mutation tests using mutmut
+mutation-test:
+    export PYTHONPATH=. && uv run mutmut run --paths-to-mutate logic/src/
+
+# Show mutation test results
+mutation-report:
+    uv run mutmut show all
+
+# Run performance benchmarks
+benchmark:
+    export PYTHONPATH=. && uv run python -m logic.benchmark.run_all
+
 # --- Script Runners ---
 
 # Run training script (scripts/train.sh)
