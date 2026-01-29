@@ -209,6 +209,66 @@ def render_simulation_controls(
     show_route = st.sidebar.checkbox("Show Route Lines", value=True)
     show_stats = st.sidebar.checkbox("Show Statistics", value=True)
 
+    display_options = {
+        "Haversine (Spherical)": "hsd",
+        "Geodesic (WGS84)": "gdsc",
+        "Euclidean (Planar)": "ogd",
+        "Load Matrix (Custom)": "load_matrix",
+    }
+
+    strategy_label = st.sidebar.selectbox(
+        "Distance Strategy",
+        options=list(display_options.keys()),
+        index=3,  # Default to Load Matrix if available, or Haversine
+        help="Choose method for calculating edge distances.\n'Load Matrix' allows selecting a custom file.",
+    )
+
+    distance_strategy = display_options[strategy_label]
+
+    selected_matrix_file = None
+    selected_index_file = None
+    if distance_strategy == "load_matrix":
+        import os
+
+        from logic.src.constants import ROOT_DIR
+
+        matrix_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator", "distance_matrix")
+
+        # Helper to recursively find files
+        matrix_files = []
+        if os.path.exists(matrix_dir):
+            for root, dirs, files in os.walk(matrix_dir):
+                for file in files:
+                    if file.endswith((".csv", ".xlsx", ".txt")):
+                        rel_path = os.path.relpath(os.path.join(root, file), matrix_dir)
+                        matrix_files.append(rel_path)
+
+        selected_matrix_file = st.sidebar.selectbox(
+            "Select Matrix File",
+            options=sorted(matrix_files),
+            index=0 if matrix_files else 0,
+            help="Select the distance matrix file to load.",
+        )
+
+        # Bin Index File Selector
+        bins_selection_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator", "bins_selection")
+        index_files = []
+        if os.path.exists(bins_selection_dir):
+            for root, dirs, files in os.walk(bins_selection_dir):
+                for file in files:
+                    if file.endswith(".json"):
+                        rel_path = os.path.relpath(os.path.join(root, file), bins_selection_dir)
+                        index_files.append(rel_path)
+
+        selected_index_file = st.sidebar.selectbox(
+            "Select Bin Index File (Optional)",
+            options=["None"] + sorted(index_files),
+            index=0,
+            help="Select a JSON file containing bin indices to subset the matrix.",
+        )
+        if selected_index_file == "None":
+            selected_index_file = None
+
     return {
         "selected_log": selected_log,
         "selected_policy": selected_policy,
@@ -217,6 +277,9 @@ def render_simulation_controls(
         "selected_day": selected_day,
         "show_route": show_route,
         "show_stats": show_stats,
+        "distance_strategy": distance_strategy,
+        "selected_matrix_file": selected_matrix_file,
+        "selected_index_file": selected_index_file,
     }
 
 

@@ -242,6 +242,65 @@ def render_simulation_visualizer() -> None:
     if not tour:
         st.warning("No tour data available for this entry.")
     else:
+        # Determine instance name from log path for distance matrix
+        import os
+
+        import numpy as np
+        import pandas as pd
+
+        from logic.src.constants import ROOT_DIR
+
+        dist_matrix = None
+
+        # Load Matrix Strategy (Custom File)
+        if controls.get("distance_strategy") == "load_matrix":
+            selected_file = controls.get("selected_matrix_file")
+            if selected_file:
+                matrix_path = os.path.join(ROOT_DIR, "data", "wsr_simulator", "distance_matrix", selected_file)
+                if os.path.isfile(matrix_path):
+                    try:
+                        df = pd.read_csv(matrix_path, header=None)
+                        loaded_data = np.loadtxt(matrix_path, delimiter=",")
+                        sliced_data = loaded_data[1:, 1:]
+
+                        # Apply Bin Index Subsetting if selected
+                        selected_index_file = controls.get("selected_index_file")
+                        if selected_index_file:
+                            import json
+
+                            index_path = os.path.join(
+                                ROOT_DIR, "data", "wsr_simulator", "bins_selection", selected_index_file
+                            )
+                            if os.path.isfile(index_path):
+                                with open(index_path, "r") as f:
+                                    indices_list = json.load(f)
+
+                                sample_idx = 0
+                                if isinstance(controls.get("selected_sample"), int):
+                                    sample_idx = controls["selected_sample"]
+
+                                if 0 <= sample_idx < len(indices_list):
+                                    idx_list = indices_list[sample_idx]
+                                    target_indices = np.array([-1] + idx_list) + 1
+
+                                    # Robustness check: ensure indices conform to matrix bounds
+                                    max_idx = sliced_data.shape[0] - 1
+                                    valid_indices = target_indices[target_indices <= max_idx]
+
+                                    if len(valid_indices) < len(target_indices):
+                                        st.warning(f"Some indices were out of bounds and ignored. Max index: {max_idx}")
+
+                                    sliced_data = sliced_data[valid_indices[:, None], valid_indices]
+                                else:
+                                    st.warning(
+                                        f"Sample index {sample_idx} out of range for index file (len={len(indices_list)}). Using full matrix."
+                                    )
+
+                        dist_matrix = pd.DataFrame(sliced_data)
+
+                    except Exception as e:
+                        st.error(f"Failed to load matrix {selected_file}: {e}")
+
         # Determine served bins (those with bin_state_c_after = 0, meaning collected)
         served_indices = []
         for i, state in enumerate(bin_states_after):
@@ -252,7 +311,11 @@ def render_simulation_visualizer() -> None:
             tour=tour,
             bin_states=bin_states,
             served_indices=served_indices,
+            vehicle_id=0,
             show_route=controls["show_route"],
+            zoom_start=13,
+            distance_matrix=dist_matrix,
+            dist_strategy=controls.get("distance_strategy", "hsd"),
         )
 
         st_folium(sim_map, width=None, height=500, returned_objects=[])

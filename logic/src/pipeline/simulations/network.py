@@ -369,7 +369,6 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
     assert method in STRATEGIES.keys(), f"Method {method} not supported. usage: {list(STRATEGIES.keys())}"
 
     # Evaluate keyword arguments helper
-    # Evaluate keyword arguments helper
     def eval_kwarg(kwarg, kwargs):
         """Check if keyword argument exists and is not None."""
         return True if kwarg in kwargs and kwargs[kwarg] is not None else False
