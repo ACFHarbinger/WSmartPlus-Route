@@ -250,6 +250,7 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
 </ul>
@@ -449,7 +450,9 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_random_removal"><code class="docutils literal notranslate"><span class="pre">vectorized_random_removal()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_worst_removal"><code class="docutils literal notranslate"><span class="pre">vectorized_worst_removal()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal"><code class="docutils literal notranslate"><span class="pre">vectorized_cluster_removal()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion"><code class="docutils literal notranslate"><span class="pre">vectorized_greedy_insertion()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion"><code class="docutils literal notranslate"><span class="pre">vectorized_regret_2_insertion()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.VectorizedALNS"><code class="docutils literal notranslate"><span class="pre">VectorizedALNS</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.VectorizedALNS.solve"><code class="docutils literal notranslate"><span class="pre">VectorizedALNS.solve()</span></code></a></li>
 </ul>
@@ -508,12 +511,19 @@ dist_matrix: (B, N_all, N_all)
 n_remove: int
 p: determinism parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion" title="src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_greedy_insertion</span></code></a></p></td>
-<td><p>Inserts removed nodes into partial tours greedily based on permutation cost.
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal" title="src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_cluster_removal</span></code></a></p></td>
+<td><p>Removes a cluster of spatially related nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion" title="src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_greedy_insertion</span></code></a></p></td>
+<td><p>Inserts removed nodes into partial tours greedily.
+Optimized for giant tour representation where neighbors are non-null nodes.
 Args:
 partial_tours: (B, N) with some -1s or shorter?
 removed_nodes: (B, n_rem)
 dist_matrix: (B, N_all, N_all)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion" title="src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_regret_2_insertion</span></code></a></p></td>
+<td><p>Inserts nodes based on Regret-2 criterion: Maximize (cost_2nd_best - cost_best).</p></td>
 </tr>
 </tbody>
 </table>
@@ -545,13 +555,26 @@ p: determinism parameter</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal">
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.classical.adaptive_large_neighborhood_search.</span></span><span class="sig-name descname"><span class="pre">vectorized_cluster_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal" title="Link to this definition">#</a></dt>
+<dd><p>Removes a cluster of spatially related nodes.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.classical.adaptive_large_neighborhood_search.</span></span><span class="sig-name descname"><span class="pre">vectorized_greedy_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial_tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Inserts removed nodes into partial tours greedily based on permutation cost.
+<dd><p>Inserts removed nodes into partial tours greedily.
+Optimized for giant tour representation where neighbors are non-null nodes.
 Args:
 partial_tours: (B, N) with some -1s or shorter?
 removed_nodes: (B, n_rem)
 dist_matrix: (B, N_all, N_all)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion">
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.classical.adaptive_large_neighborhood_search.</span></span><span class="sig-name descname"><span class="pre">vectorized_regret_2_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial_tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion" title="Link to this definition">#</a></dt>
+<dd><p>Inserts nodes based on Regret-2 criterion: Maximize (cost_2nd_best - cost_best).</p>
 </dd></dl>
 
 <dl class="py class">
@@ -568,14 +591,9 @@ time_limit: Time limit for solving in seconds.
 device: Computation device (‘cpu’ or ‘cuda’).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.classical.adaptive_large_neighborhood_search.VectorizedALNS.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solutions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.classical.adaptive_large_neighborhood_search.VectorizedALNS.solve" title="Link to this definition">#</a></dt>
-<dd><p>Run the ALNS algorithm.</p>
-<p>Args:
-initial_solutions: Initial tours [B, N].
-n_iterations: Number of ALNS iterations.
-time_limit: Optional time limit override.</p>
-<p>Returns:
-Tuple[torch.Tensor, torch.Tensor]: Best routes [B, N] and costs [B].</p>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solutions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vehicles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_temp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooling_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9995</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.classical.adaptive_large_neighborhood_search.VectorizedALNS.solve" title="Link to this definition">#</a></dt>
+<dd><p>High-performance ALNS Solve.
+Optimizes the giant tour as a TSP and splits only at the end.</p>
 </dd></dl>
 
 </dd></dl>
@@ -635,7 +653,9 @@ Tuple[torch.Tensor, torch.Tensor]: Best routes [B, N] and costs [B].</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_random_removal"><code class="docutils literal notranslate"><span class="pre">vectorized_random_removal()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_worst_removal"><code class="docutils literal notranslate"><span class="pre">vectorized_worst_removal()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal"><code class="docutils literal notranslate"><span class="pre">vectorized_cluster_removal()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion"><code class="docutils literal notranslate"><span class="pre">vectorized_greedy_insertion()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion"><code class="docutils literal notranslate"><span class="pre">vectorized_regret_2_insertion()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.VectorizedALNS"><code class="docutils literal notranslate"><span class="pre">VectorizedALNS</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.classical.adaptive_large_neighborhood_search.VectorizedALNS.solve"><code class="docutils literal notranslate"><span class="pre">VectorizedALNS.solve()</span></code></a></li>
 </ul>

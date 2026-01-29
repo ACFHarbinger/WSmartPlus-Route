@@ -614,6 +614,7 @@ window.addEventListener("load", load);
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
 </ul>
@@ -775,6 +776,7 @@ document.write(`
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
@@ -1359,10 +1361,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.functions.graph_utils.html#src.utils.functions.graph_utils.adj_to_idx">adj_to_idx() (in module src.utils.functions.graph_utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.adjust_collections">adjust_collections() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.adjust_one_collection">adjust_one_collection() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.advance_timestep">advance_timestep() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation method)</a>
@@ -1375,6 +1377,8 @@ document.write(`
         <li><a href="references/src/src.models.modules.gated_graph_convolution.html#src.models.modules.gated_graph_convolution.GatedGraphConvolution.aggregate">(src.models.modules.gated_graph_convolution.GatedGraphConvolution method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.aggregate_metrics_by_day">aggregate_metrics_by_day() (in module src.pipeline.ui.services.log_parser)</a>
+</li>
       <li><a href="references/src/src.configs.model.html#src.configs.model.ModelConfig.aggregation_graph">aggregation_graph (src.configs.model.ModelConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.model.html#src.configs.model.ModelConfig.aggregation_node">aggregation_node (src.configs.model.ModelConfig attribute)</a>
@@ -1410,6 +1414,8 @@ document.write(`
       <li><a href="references/src/src.constants.user_interface.html#src.constants.user_interface.APP_STYLES">APP_STYLES (in module src.constants.user_interface)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.network.html#src.pipeline.simulations.network.apply_edges">apply_edges() (in module src.pipeline.simulations.network)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.charts.html#src.pipeline.ui.components.charts.apply_moving_average">apply_moving_average() (in module src.pipeline.ui.components.charts)</a>
 </li>
       <li><a href="references/src/src.configs.data.html#src.configs.data.DataConfig.area">area (src.configs.data.DataConfig attribute)</a>
 
@@ -1492,6 +1498,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.checkpoints.html#src.pipeline.simulations.checkpoints.CheckpointHook.before_day">before_day() (src.pipeline.simulations.checkpoints.CheckpointHook method)</a>
 </li>
       <li><a href="references/src/src.envs.problems.html#src.envs.problems.BIN_CAPACITY">BIN_CAPACITY (in module src.envs.problems)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.maps.html#src.pipeline.ui.components.maps.BIN_COLORS">BIN_COLORS (in module src.pipeline.ui.components.maps)</a>
 </li>
       <li><a href="references/src/src.policies.must_go_selection.html#src.policies.must_go_selection.SelectionContext.bin_density">bin_density (src.policies.must_go_selection.SelectionContext attribute)</a>
 </li>
@@ -1629,6 +1637,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.cb_num_configs">cb_num_configs (src.configs.meta_rl.MetaRLConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.styles.styling.html#src.pipeline.ui.styles.styling.CHART_COLORS">CHART_COLORS (in module src.pipeline.ui.styles.styling)</a>
+</li>
       <li><a href="references/src/src.policies.look_ahead_aux.check.html#src.policies.look_ahead_aux.check.check_bins_overflowing_feasibility">check_bins_overflowing_feasibility() (in module src.policies.look_ahead_aux.check)</a>
 </li>
       <li><a href="references/src/src.utils.validation.check_docstrings.html#src.utils.validation.check_docstrings.check_docstrings_recursive">check_docstrings_recursive() (in module src.utils.validation.check_docstrings)</a>
@@ -1699,6 +1709,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.classical.hybrid_genetic_search.html#src.models.policies.classical.hybrid_genetic_search.VectorizedPopulation.compute_biased_fitness">compute_biased_fitness() (src.models.policies.classical.hybrid_genetic_search.VectorizedPopulation method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.compute_daily_stats">compute_daily_stats() (in module src.pipeline.ui.services.data_loader)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.network.html#src.pipeline.simulations.network.compute_distance_matrix">compute_distance_matrix() (in module src.pipeline.simulations.network)</a>
 </li>
       <li><a href="references/src/src.policies.look_ahead_aux.computations.html#src.policies.look_ahead_aux.computations.compute_distance_per_route">compute_distance_per_route() (in module src.policies.look_ahead_aux.computations)</a>
@@ -1711,8 +1723,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.look_ahead_aux.computations.html#src.policies.look_ahead_aux.computations.compute_profit">compute_profit() (in module src.policies.look_ahead_aux.computations)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.policies.look_ahead_aux.computations.html#src.policies.look_ahead_aux.computations.compute_real_profit">compute_real_profit() (in module src.policies.look_ahead_aux.computations)</a>
 </li>
       <li><a href="references/src/src.policies.look_ahead_aux.computations.html#src.policies.look_ahead_aux.computations.compute_route_time">compute_route_time() (in module src.policies.look_ahead_aux.computations)</a>
@@ -1723,6 +1733,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.look_ahead_aux.computations.html#src.policies.look_ahead_aux.computations.compute_shift_excess_penalty">compute_shift_excess_penalty() (in module src.policies.look_ahead_aux.computations)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.models.temporal_am.html#src.models.temporal_am.TemporalAttentionModel.compute_simulator_day">compute_simulator_day() (src.models.temporal_am.TemporalAttentionModel method)</a>
 
       <ul>
@@ -1821,6 +1833,12 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.policies.post_processing.html#src.policies.post_processing.PostProcessorFactory.create">create() (src.policies.post_processing.PostProcessorFactory static method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.components.charts.html#src.pipeline.ui.components.charts.create_bar_chart">create_bar_chart() (in module src.pipeline.ui.components.charts)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.benchmark_charts.html#src.pipeline.ui.components.benchmark_charts.create_benchmark_comparison_chart">create_benchmark_comparison_chart() (in module src.pipeline.ui.components.benchmark_charts)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.maps.html#src.pipeline.ui.components.maps.create_bin_heatmap">create_bin_heatmap() (in module src.pipeline.ui.components.maps)</a>
+</li>
       <li><a href="references/src/src.models.policies.critic.html#src.models.policies.critic.create_critic_from_actor">create_critic_from_actor() (in module src.models.policies.critic)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.processor.html#src.pipeline.simulations.processor.create_dataframe_from_matrix">create_dataframe_from_matrix() (in module src.pipeline.simulations.processor)</a>
@@ -1861,13 +1879,29 @@ document.write(`
         <li><a href="references/src/src.models.model_factory.html#src.models.model_factory.TGCComponentFactory.create_encoder">(src.models.model_factory.TGCComponentFactory method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.pipeline.ui.components.charts.html#src.pipeline.ui.components.charts.create_kpi_cards_html">create_kpi_cards_html() (in module src.pipeline.ui.components.charts)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.styles.styling.html#src.pipeline.ui.styles.styling.create_kpi_html">create_kpi_html() (in module src.pipeline.ui.styles.styling)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.styles.styling.html#src.pipeline.ui.styles.styling.create_kpi_row">create_kpi_row() (in module src.pipeline.ui.styles.styling)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.benchmark_charts.html#src.pipeline.ui.components.benchmark_charts.create_latency_throughput_scatter">create_latency_throughput_scatter() (in module src.pipeline.ui.components.benchmark_charts)</a>
+</li>
       <li><a href="references/src/src.pipeline.features.train.html#src.pipeline.features.train.create_model">create_model() (in module src.pipeline.features.train)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.maps.html#src.pipeline.ui.components.maps.create_multi_route_map">create_multi_route_map() (in module src.pipeline.ui.components.maps)</a>
 </li>
       <li><a href="references/src/src.policies.look_ahead_aux.routes.html#src.policies.look_ahead_aux.routes.create_points">create_points() (in module src.policies.look_ahead_aux.routes)</a>
 </li>
       <li><a href="references/src/src.policies.html#src.policies.create_policy">create_policy (in module src.policies)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.components.maps.html#src.pipeline.ui.components.maps.create_simulation_map">create_simulation_map() (in module src.pipeline.ui.components.maps)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.charts.html#src.pipeline.ui.components.charts.create_simulation_metrics_chart">create_simulation_metrics_chart() (in module src.pipeline.ui.components.charts)</a>
+</li>
       <li><a href="references/src/src.policies.must_go_selection.html#src.policies.must_go_selection.MustGoSelectionFactory.create_strategy">create_strategy() (src.policies.must_go_selection.MustGoSelectionFactory static method)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.charts.html#src.pipeline.ui.components.charts.create_training_loss_chart">create_training_loss_chart() (in module src.pipeline.ui.components.charts)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.baselines.html#src.pipeline.rl.common.baselines.CriticBaseline">CriticBaseline (class in src.pipeline.rl.common.baselines)</a>
 </li>
@@ -1888,6 +1922,8 @@ document.write(`
       <li><a href="references/src/src.policies.must_go_selection.html#src.policies.must_go_selection.SelectionContext.current_day">current_day (src.policies.must_go_selection.SelectionContext attribute)</a>
 </li>
       <li><a href="references/src/src.policies.must_go_selection.html#src.policies.must_go_selection.SelectionContext.current_fill">current_fill (src.policies.must_go_selection.SelectionContext attribute)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.styles.styling.html#src.pipeline.ui.styles.styling.CUSTOM_CSS">CUSTOM_CSS (in module src.pipeline.ui.styles.styling)</a>
 </li>
       <li><a href="references/src/src.models.modules.moe.html#src.models.modules.moe.MoE.cv_squared">cv_squared() (src.models.modules.moe.MoE method)</a>
 </li>
@@ -1914,7 +1950,11 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.daily_log">daily_log (src.pipeline.simulations.context.SimulationDayContext attribute)</a>
 </li>
       <li><a href="references/src/src.configs.html#src.configs.Config.data">data (src.configs.Config attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.DayLogEntry.data">(src.pipeline.ui.services.log_parser.DayLogEntry attribute)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.configs.data.html#src.configs.data.DataConfig.data_dir">data_dir (src.configs.data.DataConfig attribute)</a>
 
       <ul>
@@ -1940,8 +1980,14 @@ document.write(`
       <li><a href="references/src/src.configs.eval.html#src.configs.eval.EvalConfig.datasets">datasets (src.configs.eval.EvalConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.day">day (src.pipeline.simulations.context.SimulationDayContext attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.DayLogEntry.day">(src.pipeline.ui.services.log_parser.DayLogEntry attribute)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.constants.simulation.html#src.constants.simulation.DAY_METRICS">DAY_METRICS (in module src.constants.simulation)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.DayLogEntry">DayLogEntry (class in src.pipeline.ui.services.log_parser)</a>
 </li>
       <li><a href="references/src/src.configs.sim.html#src.configs.sim.SimConfig.days">days (src.configs.sim.SimConfig attribute)</a>
 </li>
@@ -2004,6 +2050,10 @@ document.write(`
       <li><a href="references/src/src.data.transforms.html#src.data.transforms.dihedral_8_augmentation">dihedral_8_augmentation() (in module src.data.transforms)</a>
 </li>
       <li><a href="references/src/src.data.transforms.html#src.data.transforms.dihedral_8_augmentation_wrapper">dihedral_8_augmentation_wrapper() (in module src.data.transforms)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.discover_simulation_logs">discover_simulation_logs() (in module src.pipeline.ui.services.data_loader)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.discover_training_runs">discover_training_runs() (in module src.pipeline.ui.services.data_loader)</a>
 </li>
       <li><a href="references/src/src.utils.logging.plot_utils.html#src.utils.logging.plot_utils.discrete_cmap">discrete_cmap() (in module src.utils.logging.plot_utils)</a>
 </li>
@@ -2103,6 +2153,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.model.html#src.configs.model.ModelConfig.embed_dim">embed_dim (src.configs.model.ModelConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.utils.logging.structured_logging.html#src.utils.logging.structured_logging.LogstashTcpHandler.emit">emit() (src.utils.logging.structured_logging.LogstashTcpHandler method)</a>
+</li>
       <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.enable_scaler">enable_scaler (src.configs.train.TrainConfig attribute)</a>
 </li>
       <li><a href="references/src/src.constants.models.html#src.constants.models.ENC_DEC_MODELS">ENC_DEC_MODELS (in module src.constants.models)</a>
@@ -2120,6 +2172,8 @@ document.write(`
       <li><a href="references/src/src.utils.security.crypto_utils.html#src.utils.security.crypto_utils.encrypt_zip_directory">encrypt_zip_directory() (in module src.utils.security.crypto_utils)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.engine">engine (src.pipeline.simulations.context.SimulationDayContext attribute)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.entries_to_dataframe">entries_to_dataframe() (in module src.pipeline.ui.services.data_loader)</a>
 </li>
       <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.entropy_weight">entropy_weight (src.configs.rl.RLConfig attribute)</a>
 </li>
@@ -2317,6 +2371,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.filter_containers">filter_containers() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.filter_entries">filter_entries() (in module src.pipeline.ui.services.log_parser)</a>
+</li>
       <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.final_model_path">final_model_path (src.configs.train.TrainConfig attribute)</a>
 </li>
       <li><a href="references/src/src.utils.logging.log_utils.html#src.utils.logging.log_utils.final_simulation_summary">final_simulation_summary() (in module src.utils.logging.log_utils)</a>
@@ -2369,7 +2425,13 @@ document.write(`
         <li><a href="references/src/src.configs.eval.html#src.configs.eval.EvalConfig.focus_size">(src.configs.eval.EvalConfig attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.utils.logging.structured_logging.html#src.utils.logging.structured_logging.JsonFormatter.format">format() (src.utils.logging.structured_logging.JsonFormatter method)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.processor.html#src.pipeline.simulations.processor.SimulationDataMapper.format_coordinates">format_coordinates() (src.pipeline.simulations.processor.SimulationDataMapper method)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.styles.styling.html#src.pipeline.ui.styles.styling.format_number">format_number() (in module src.pipeline.ui.styles.styling)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.styles.styling.html#src.pipeline.ui.styles.styling.format_percentage">format_percentage() (in module src.pipeline.ui.styles.styling)</a>
 </li>
       <li><a href="references/src/src.models.attention_model.html#src.models.attention_model.AttentionModel.forward">forward() (src.models.attention_model.AttentionModel method)</a>
 
@@ -2605,6 +2667,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.functions.beam_search.html#src.utils.functions.beam_search.get_beam_search_results">get_beam_search_results() (in module src.utils.functions.beam_search)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.services.benchmark_loader.html#src.pipeline.ui.services.benchmark_loader.get_benchmark_log_path">get_benchmark_log_path() (in module src.pipeline.ui.services.benchmark_loader)</a>
+</li>
       <li><a href="references/src/src.pipeline.features.eval.html#src.pipeline.features.eval.get_best">get_best() (in module src.pipeline.features.eval)</a>
 </li>
       <li><a href="references/src/src.policies.lin_kernighan.html#src.policies.lin_kernighan.get_candidate_set">get_candidate_set() (in module src.policies.lin_kernighan)</a>
@@ -2661,6 +2725,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.sample_gen.html#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_daterange">get_daterange() (src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.get_day_range">get_day_range() (in module src.pipeline.ui.services.log_parser)</a>
+</li>
       <li><a href="references/src/src.utils.functions.decoding.html#src.utils.functions.decoding.get_decoding_strategy">get_decoding_strategy() (in module src.utils.functions.decoding)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.FileSystemRepository.get_depot">get_depot() (src.pipeline.simulations.loader.FileSystemRepository method)</a>
@@ -2687,8 +2753,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.utils.html#src.models.policies.utils.TensorDictStateWrapper.get_finished">get_finished() (src.models.policies.utils.TensorDictStateWrapper method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.envs.generators.html#src.envs.generators.get_generator">get_generator() (in module src.envs.generators)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.FileSystemRepository.get_indices">get_indices() (src.pipeline.simulations.loader.FileSystemRepository method)</a>
@@ -2703,6 +2767,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.sample_gen.html#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_info">(src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.models.embeddings.html#src.models.embeddings.get_init_embedding">get_init_embedding() (in module src.models.embeddings)</a>
 </li>
       <li><a href="references/src/src.utils.functions.function.html#src.utils.functions.function.get_inner_model">get_inner_model() (in module src.utils.functions.function)</a>
@@ -2721,7 +2787,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.rl.common.utils.html#src.pipeline.rl.common.utils.get_lightning_device">get_lightning_device() (in module src.pipeline.rl.common.utils)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.get_logs_dir">get_logs_dir() (in module src.pipeline.ui.services.data_loader)</a>
+</li>
       <li><a href="references/src/src.utils.logging.log_utils.html#src.utils.logging.log_utils.get_loss_stats">get_loss_stats() (in module src.utils.logging.log_utils)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.maps.html#src.pipeline.ui.components.maps.get_map_center">get_map_center() (in module src.pipeline.ui.components.maps)</a>
 </li>
       <li><a href="references/src/src.models.policies.utils.html#src.models.policies.utils.TensorDictStateWrapper.get_mask">get_mask() (src.models.policies.utils.TensorDictStateWrapper method)</a>
 </li>
@@ -2755,6 +2825,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.get_overall_sensors_statistics">get_overall_sensors_statistics() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.styles.styling.html#src.pipeline.ui.styles.styling.get_page_config">get_page_config() (in module src.pipeline.ui.styles.styling)</a>
+</li>
       <li><a href="references/src/src.models.policies.classical.hybrid_genetic_search.html#src.models.policies.classical.hybrid_genetic_search.VectorizedPopulation.get_parents">get_parents() (src.models.policies.classical.hybrid_genetic_search.VectorizedPopulation method)</a>
 </li>
       <li><a href="references/src/src.cli.registry.html#src.cli.registry.get_parser">get_parser() (in module src.cli.registry)</a>
@@ -2770,6 +2842,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_pred_errors">get_pred_errors() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_pred_values">get_pred_values() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor method)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.get_project_root">get_project_root() (in module src.pipeline.ui.services.data_loader)</a>
 </li>
       <li><a href="references/src/src.utils.logging.pylogger.html#src.utils.logging.pylogger.get_pylogger">get_pylogger() (in module src.utils.logging.pylogger)</a>
 </li>
@@ -2787,6 +2861,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.checkpoints.html#src.pipeline.simulations.checkpoints.SimulationCheckpoint.get_simulation_info">get_simulation_info() (src.pipeline.simulations.checkpoints.SimulationCheckpoint method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.get_simulation_metadata">get_simulation_metadata() (in module src.pipeline.ui.services.data_loader)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.get_simulation_output_dir">get_simulation_output_dir() (in module src.pipeline.ui.services.data_loader)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.FileSystemRepository.get_simulator_data">get_simulator_data() (src.pipeline.simulations.loader.FileSystemRepository method)</a>
 
       <ul>
@@ -2803,9 +2881,17 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.policies.must_go_selection.html#src.policies.must_go_selection.MustGoSelectionRegistry.get_strategy_class">get_strategy_class() (src.policies.must_go_selection.MustGoSelectionRegistry class method)</a>
 </li>
+      <li><a href="references/src/src.utils.logging.structured_logging.html#src.utils.logging.structured_logging.get_structured_logger">get_structured_logger() (in module src.utils.logging.structured_logging)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_tag">get_tag() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container method)</a>
 </li>
       <li><a href="references/src/src.envs.problems.html#src.envs.problems.BaseProblem.get_tour_length">get_tour_length() (src.envs.problems.BaseProblem static method)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.benchmark_loader.html#src.pipeline.ui.services.benchmark_loader.get_unique_benchmarks">get_unique_benchmarks() (in module src.pipeline.ui.services.benchmark_loader)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.get_unique_policies">get_unique_policies() (in module src.pipeline.ui.services.log_parser)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.get_unique_samples">get_unique_samples() (in module src.pipeline.ui.services.log_parser)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.GridBase.get_values_by_date">get_values_by_date() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.GridBase method)</a>
 
@@ -3070,6 +3156,14 @@ document.write(`
   </ul></td>
 </tr></table>
 
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.utils.logging.structured_logging.html#src.utils.logging.structured_logging.JsonFormatter">JsonFormatter (class in src.utils.logging.structured_logging)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -3107,6 +3201,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.functions.function.html#src.utils.functions.function.load_args">load_args() (in module src.utils.functions.function)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.services.benchmark_loader.html#src.pipeline.ui.services.benchmark_loader.load_benchmark_data">load_benchmark_data() (in module src.pipeline.ui.services.benchmark_loader)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.load_cache">load_cache() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor method)</a>
 </li>
       <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_config">load_config() (in module src.utils.configs.config_loader)</a>
@@ -3125,6 +3221,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.load_depot">load_depot() (in module src.pipeline.simulations.loader)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.components.maps.html#src.pipeline.ui.components.maps.load_distance_matrix">load_distance_matrix() (in module src.pipeline.ui.components.maps)</a>
+</li>
       <li><a href="references/src/src.utils.data.data_utils.html#src.utils.data.data_utils.load_focus_coords">load_focus_coords() (in module src.utils.data.data_utils)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.load_id_containers">load_id_containers() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load)</a>
@@ -3141,6 +3239,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.logging.visualize_utils.html#src.utils.logging.visualize_utils.load_model_instance">load_model_instance() (in module src.utils.logging.visualize_utils)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.load_multiple_training_runs">load_multiple_training_runs() (in module src.pipeline.ui.services.data_loader)</a>
+</li>
       <li><a href="references/src/src.configs.eval.html#src.configs.eval.EvalConfig.load_path">load_path (src.configs.eval.EvalConfig attribute)</a>
 
       <ul>
@@ -3152,6 +3252,10 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.load_rate_global_wrapper">load_rate_global_wrapper() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.load_rate_series">load_rate_series() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.load_simulation_log">load_simulation_log() (in module src.pipeline.ui.services.data_loader)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.load_simulation_log_fresh">load_simulation_log_fresh() (in module src.pipeline.ui.services.data_loader)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.load_simulator_data">load_simulator_data() (in module src.pipeline.simulations.loader)</a>
 </li>
@@ -3167,12 +3271,14 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.utils.data.data_utils.html#src.utils.data.data_utils.load_td_dataset">load_td_dataset() (in module src.utils.data.data_utils)</a>
 </li>
-      <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_xml_config">load_xml_config() (in module src.utils.configs.config_loader)</a>
+      <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.load_training_metrics">load_training_metrics() (in module src.pipeline.ui.services.data_loader)</a>
 </li>
-      <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_yaml_config">load_yaml_config() (in module src.utils.configs.config_loader)</a>
+      <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_xml_config">load_xml_config() (in module src.utils.configs.config_loader)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_yaml_config">load_yaml_config() (in module src.utils.configs.config_loader)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.bins.html#src.pipeline.simulations.bins.Bins.loadFilling">loadFilling() (src.pipeline.simulations.bins.Bins method)</a>
 </li>
       <li><a href="references/src/src.configs.hpo.html#src.configs.hpo.HPOConfig.local_mode">local_mode (src.configs.hpo.HPOConfig attribute)</a>
@@ -3195,6 +3301,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.data.transforms.html#src.data.transforms.log">log (in module src.data.transforms)</a>
 </li>
+      <li><a href="references/src/src.utils.logging.structured_logging.html#src.utils.logging.structured_logging.log_benchmark_metric">log_benchmark_metric() (in module src.utils.logging.structured_logging)</a>
+</li>
       <li><a href="references/src/src.configs.html#src.configs.Config.log_dir">log_dir (src.configs.Config attribute)</a>
 </li>
       <li><a href="references/src/src.utils.logging.log_utils.html#src.utils.logging.log_utils.log_epoch">log_epoch() (in module src.utils.logging.log_utils)</a>
@@ -3206,6 +3314,8 @@ document.write(`
       <li><a href="references/src/src.utils.logging.log_utils.html#src.utils.logging.log_utils.log_plot">log_plot() (in module src.utils.logging.log_utils)</a>
 </li>
       <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.log_step">log_step (src.configs.train.TrainConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.utils.logging.structured_logging.html#src.utils.logging.structured_logging.log_test_metric">log_test_metric() (in module src.utils.logging.structured_logging)</a>
 </li>
       <li><a href="references/src/src.utils.logging.log_utils.html#src.utils.logging.log_utils.log_to_json">log_to_json() (in module src.utils.logging.log_utils)</a>
 </li>
@@ -3226,6 +3336,8 @@ document.write(`
       <li><a href="references/src/src.models.subnets.attention_decoder.html#src.models.subnets.attention_decoder.AttentionModelFixed.logit_key">logit_key (src.models.subnets.attention_decoder.AttentionModelFixed attribute)</a>
 </li>
       <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.logs_dir">logs_dir (src.configs.train.TrainConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.utils.logging.structured_logging.html#src.utils.logging.structured_logging.LogstashTcpHandler">LogstashTcpHandler (class in src.utils.logging.structured_logging)</a>
 </li>
       <li><a href="references/src/src.policies.must_go_selection.html#src.policies.must_go_selection.SelectionContext.lookahead_days">lookahead_days (src.policies.must_go_selection.SelectionContext attribute)</a>
 </li>
@@ -3268,6 +3380,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.features.train.html#src.pipeline.features.train.main">main() (in module src.pipeline.features.train)</a>
 
       <ul>
+        <li><a href="references/src/src.pipeline.ui.app.html#src.pipeline.ui.app.main">(in module src.pipeline.ui.app)</a>
+</li>
         <li><a href="references/src/src.utils.add_docstrings_batch.html#src.utils.add_docstrings_batch.main">(in module src.utils.add_docstrings_batch)</a>
 </li>
         <li><a href="references/src/src.utils.logging.visualize_utils.html#src.utils.logging.visualize_utils.main">(in module src.utils.logging.visualize_utils)</a>
@@ -3769,6 +3883,32 @@ document.write(`
 </li>
         <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.test_transform.html#module-src.pipeline.simulations.wsmart_bin_analysis.test.test_transform">src.pipeline.simulations.wsmart_bin_analysis.test.test_transform</a>
 </li>
+        <li><a href="references/src/src.pipeline.ui.html#module-src.pipeline.ui">src.pipeline.ui</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.app.html#module-src.pipeline.ui.app">src.pipeline.ui.app</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.components.html#module-src.pipeline.ui.components">src.pipeline.ui.components</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.components.benchmark_charts.html#module-src.pipeline.ui.components.benchmark_charts">src.pipeline.ui.components.benchmark_charts</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.components.charts.html#module-src.pipeline.ui.components.charts">src.pipeline.ui.components.charts</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.components.maps.html#module-src.pipeline.ui.components.maps">src.pipeline.ui.components.maps</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.components.sidebar.html#module-src.pipeline.ui.components.sidebar">src.pipeline.ui.components.sidebar</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.services.html#module-src.pipeline.ui.services">src.pipeline.ui.services</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.services.benchmark_loader.html#module-src.pipeline.ui.services.benchmark_loader">src.pipeline.ui.services.benchmark_loader</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.services.data_loader.html#module-src.pipeline.ui.services.data_loader">src.pipeline.ui.services.data_loader</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.services.log_parser.html#module-src.pipeline.ui.services.log_parser">src.pipeline.ui.services.log_parser</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.styles.html#module-src.pipeline.ui.styles">src.pipeline.ui.styles</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.styles.styling.html#module-src.pipeline.ui.styles.styling">src.pipeline.ui.styles.styling</a>
+</li>
         <li><a href="references/src/src.policies.html#module-src.policies">src.policies</a>
 </li>
         <li><a href="references/src/src.policies.adapters.html#module-src.policies.adapters">src.policies.adapters</a>
@@ -3922,6 +4062,8 @@ document.write(`
         <li><a href="references/src/src.utils.logging.plot_utils.html#module-src.utils.logging.plot_utils">src.utils.logging.plot_utils</a>
 </li>
         <li><a href="references/src/src.utils.logging.pylogger.html#module-src.utils.logging.pylogger">src.utils.logging.pylogger</a>
+</li>
+        <li><a href="references/src/src.utils.logging.structured_logging.html#module-src.utils.logging.structured_logging">src.utils.logging.structured_logging</a>
 </li>
         <li><a href="references/src/src.utils.logging.visualize_utils.html#module-src.utils.logging.visualize_utils">src.utils.logging.visualize_utils</a>
 </li>
@@ -4308,6 +4450,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.cli.base_parser.html#src.cli.base_parser.ConfigsParser.parse_command">parse_command() (src.cli.base_parser.ConfigsParser method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.parse_day_log_line">parse_day_log_line() (in module src.pipeline.ui.services.log_parser)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.parse_log_file">parse_log_file() (in module src.pipeline.ui.services.log_parser)</a>
+</li>
       <li><a href="references/src/src.cli.html#src.cli.parse_params">parse_params() (in module src.cli)</a>
 </li>
       <li><a href="references/src/src.cli.base_parser.html#src.cli.base_parser.ConfigsParser.parse_process_args">parse_process_args() (src.cli.base_parser.ConfigsParser method)</a>
@@ -4379,6 +4525,12 @@ document.write(`
       <li><a href="references/src/src.configs.sim.html#src.configs.sim.SimConfig.policies">policies (src.configs.sim.SimConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.policy">policy (src.pipeline.simulations.context.SimulationDayContext attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.DayLogEntry.policy">(src.pipeline.ui.services.log_parser.DayLogEntry attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.model.html#src.configs.model.ModelConfig.policy_config">policy_config (src.configs.model.ModelConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.policy_name">policy_name (src.pipeline.simulations.context.SimulationDayContext attribute)</a>
 </li>
@@ -4408,12 +4560,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.ppo_epochs">ppo_epochs (src.configs.rl.RLConfig attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.rl.core.ppo_nstep.html#src.pipeline.rl.core.ppo_nstep.PPOStep">PPOStep (class in src.pipeline.rl.core.ppo_nstep)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.core.ppo_stepwise.html#src.pipeline.rl.core.ppo_stepwise.PPOStepwise">PPOStepwise (class in src.pipeline.rl.core.ppo_stepwise)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.utils.functions.decoding.html#src.utils.functions.decoding.DecodingStrategy.pre_decoder_hook">pre_decoder_hook() (src.utils.functions.decoding.DecodingStrategy method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.pre_process_container_metrics">pre_process_container_metrics() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform)</a>
@@ -4616,6 +4768,22 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.envs.base.html#src.envs.base.RL4COEnvBase.render">render() (src.envs.base.RL4COEnvBase method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.components.sidebar.html#src.pipeline.ui.components.sidebar.render_about_section">render_about_section() (in module src.pipeline.ui.components.sidebar)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.sidebar.html#src.pipeline.ui.components.sidebar.render_auto_refresh_toggle">render_auto_refresh_toggle() (in module src.pipeline.ui.components.sidebar)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.app.html#src.pipeline.ui.app.render_benchmark_analysis">render_benchmark_analysis() (in module src.pipeline.ui.app)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.sidebar.html#src.pipeline.ui.components.sidebar.render_mode_selector">render_mode_selector() (in module src.pipeline.ui.components.sidebar)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.sidebar.html#src.pipeline.ui.components.sidebar.render_simulation_controls">render_simulation_controls() (in module src.pipeline.ui.components.sidebar)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.app.html#src.pipeline.ui.app.render_simulation_visualizer">render_simulation_visualizer() (in module src.pipeline.ui.app)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.components.sidebar.html#src.pipeline.ui.components.sidebar.render_training_controls">render_training_controls() (in module src.pipeline.ui.components.sidebar)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.app.html#src.pipeline.ui.app.render_training_monitor">render_training_monitor() (in module src.pipeline.ui.app)</a>
+</li>
       <li><a href="references/src/src.envs.base.html#src.envs.base.RL4COEnvBase.reset">reset() (src.envs.base.RL4COEnvBase method)</a>
 
       <ul>
@@ -4624,14 +4792,14 @@ document.write(`
         <li><a href="references/src/src.utils.functions.decoding.html#src.utils.functions.decoding.Evaluate.reset">(src.utils.functions.decoding.Evaluate method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.models.modules.efficient_graph_convolution.html#src.models.modules.efficient_graph_convolution.EfficientGraphConvolution.reset_parameters">reset_parameters() (src.models.modules.efficient_graph_convolution.EfficientGraphConvolution method)</a>
 
       <ul>
         <li><a href="references/src/src.models.modules.gated_graph_convolution.html#src.models.modules.gated_graph_convolution.GatedGraphConvolution.reset_parameters">(src.models.modules.gated_graph_convolution.GatedGraphConvolution method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.reset_simulation">reset_simulation() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation method)</a>
 </li>
       <li><a href="references/src/src.configs.eval.html#src.configs.eval.EvalConfig.results_dir">results_dir (src.configs.eval.EvalConfig attribute)</a>
@@ -4666,6 +4834,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.constants.paths.html#src.constants.paths.ROOT_DIR">ROOT_DIR (in module src.constants.paths)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.components.maps.html#src.pipeline.ui.components.maps.ROUTE_COLORS">ROUTE_COLORS (in module src.pipeline.ui.components.maps)</a>
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.styles.styling.html#src.pipeline.ui.styles.styling.ROUTE_COLORS">(in module src.pipeline.ui.styles.styling)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.pipeline.rl.hpo.dehb.html#src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband.run">run() (src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband method)</a>
 
       <ul>
@@ -4741,7 +4915,11 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.conftest.html#src.pipeline.simulations.wsmart_bin_analysis.test.conftest.sample_df_fill">sample_df_fill() (in module src.pipeline.simulations.wsmart_bin_analysis.test.conftest)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.sample_id">sample_id (src.pipeline.simulations.context.SimulationDayContext attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.DayLogEntry.sample_id">(src.pipeline.ui.services.log_parser.DayLogEntry attribute)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.conftest.html#src.pipeline.simulations.wsmart_bin_analysis.test.conftest.sample_info">sample_info() (in module src.pipeline.simulations.wsmart_bin_analysis.test.conftest)</a>
 </li>
       <li><a href="references/src/src.utils.functions.function.html#src.utils.functions.function.sample_many">sample_many() (in module src.utils.functions.function)</a>
@@ -5782,8 +5960,6 @@ document.write(`
         <li><a href="references/src/src.models.temporal_am.html#module-src.models.temporal_am">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline
 
@@ -5833,6 +6009,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.common.html#module-src.pipeline.rl.common">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.rl.common.base
 
@@ -6293,6 +6471,97 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.test_transform.html#module-src.pipeline.simulations.wsmart_bin_analysis.test.test_transform">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.html#module-src.pipeline.ui">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.app
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.app.html#module-src.pipeline.ui.app">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.components
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.components.html#module-src.pipeline.ui.components">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.components.benchmark_charts
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.components.benchmark_charts.html#module-src.pipeline.ui.components.benchmark_charts">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.components.charts
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.components.charts.html#module-src.pipeline.ui.components.charts">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.components.maps
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.components.maps.html#module-src.pipeline.ui.components.maps">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.components.sidebar
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.components.sidebar.html#module-src.pipeline.ui.components.sidebar">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.services
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.services.html#module-src.pipeline.ui.services">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.services.benchmark_loader
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.services.benchmark_loader.html#module-src.pipeline.ui.services.benchmark_loader">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.services.data_loader
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.services.data_loader.html#module-src.pipeline.ui.services.data_loader">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.services.log_parser
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.services.log_parser.html#module-src.pipeline.ui.services.log_parser">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.styles
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.styles.html#module-src.pipeline.ui.styles">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.styles.styling
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.styles.styling.html#module-src.pipeline.ui.styles.styling">module</a>
 </li>
       </ul></li>
       <li>
@@ -6835,6 +7104,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.utils.logging.structured_logging
+
+      <ul>
+        <li><a href="references/src/src.utils.logging.structured_logging.html#module-src.utils.logging.structured_logging">module</a>
+</li>
+      </ul></li>
+      <li>
     src.utils.logging.visualize_utils
 
       <ul>
@@ -6915,6 +7191,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.constants.stats.html#src.constants.stats.STATS_FUNCTION_MAP">STATS_FUNCTION_MAP (in module src.constants.stats)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.styles.styling.html#src.pipeline.ui.styles.styling.STATUS_COLORS">STATUS_COLORS (in module src.pipeline.ui.styles.styling)</a>
+</li>
       <li><a href="references/src/src.pipeline.rl.common.reward_scaler.html#src.pipeline.rl.common.reward_scaler.RewardScaler.std">std (src.pipeline.rl.common.reward_scaler.RewardScaler property)</a>
 </li>
       <li><a href="references/src/src.policies.must_go_selection.html#src.policies.must_go_selection.SelectionContext.std_deviations">std_deviations (src.policies.must_go_selection.SelectionContext attribute)</a>
@@ -6944,6 +7222,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.bins.html#src.pipeline.simulations.bins.Bins.stochasticFilling">stochasticFilling() (src.pipeline.simulations.bins.Bins method)</a>
 </li>
       <li><a href="references/src/src.cli.base_parser.html#src.cli.base_parser.StoreDictKeyPair">StoreDictKeyPair (class in src.cli.base_parser)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.stream_log_file">stream_log_file() (in module src.pipeline.ui.services.log_parser)</a>
 </li>
       <li><a href="references/src/src.constants.models.html#src.constants.models.SUB_NET_ENCS">SUB_NET_ENCS (in module src.constants.models)</a>
 </li>
@@ -7315,6 +7595,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.rl.common.reward_scaler.html#src.pipeline.rl.common.reward_scaler.RewardScaler.variance">variance (src.pipeline.rl.common.reward_scaler.RewardScaler property)</a>
 </li>
+      <li><a href="references/src/src.models.policies.classical.adaptive_large_neighborhood_search.html#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal">vectorized_cluster_removal() (in module src.models.policies.classical.adaptive_large_neighborhood_search)</a>
+</li>
       <li><a href="references/src/src.models.policies.classical.adaptive_large_neighborhood_search.html#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion">vectorized_greedy_insertion() (in module src.models.policies.classical.adaptive_large_neighborhood_search)</a>
 </li>
       <li><a href="references/src/src.models.policies.classical.split.html#src.models.policies.classical.split.vectorized_linear_split">vectorized_linear_split() (in module src.models.policies.classical.split)</a>
@@ -7322,6 +7604,8 @@ document.write(`
       <li><a href="references/src/src.models.policies.classical.hybrid_genetic_search.html#src.models.policies.classical.hybrid_genetic_search.vectorized_ordered_crossover">vectorized_ordered_crossover() (in module src.models.policies.classical.hybrid_genetic_search)</a>
 </li>
       <li><a href="references/src/src.models.policies.classical.adaptive_large_neighborhood_search.html#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_random_removal">vectorized_random_removal() (in module src.models.policies.classical.adaptive_large_neighborhood_search)</a>
+</li>
+      <li><a href="references/src/src.models.policies.classical.adaptive_large_neighborhood_search.html#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion">vectorized_regret_2_insertion() (in module src.models.policies.classical.adaptive_large_neighborhood_search)</a>
 </li>
       <li><a href="references/src/src.models.policies.classical.local_search.html#src.models.policies.classical.local_search.vectorized_relocate">vectorized_relocate() (in module src.models.policies.classical.local_search)</a>
 </li>
@@ -7331,10 +7615,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.classical.local_search.html#src.models.policies.classical.local_search.vectorized_three_opt">vectorized_three_opt() (in module src.models.policies.classical.local_search)</a>
 </li>
-      <li><a href="references/src/src.models.policies.classical.local_search.html#src.models.policies.classical.local_search.vectorized_two_opt">vectorized_two_opt() (in module src.models.policies.classical.local_search)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.models.policies.classical.local_search.html#src.models.policies.classical.local_search.vectorized_two_opt">vectorized_two_opt() (in module src.models.policies.classical.local_search)</a>
+</li>
       <li><a href="references/src/src.models.policies.classical.local_search.html#src.models.policies.classical.local_search.vectorized_two_opt_star">vectorized_two_opt_star() (in module src.models.policies.classical.local_search)</a>
 </li>
       <li><a href="references/src/src.models.policies.classical.adaptive_large_neighborhood_search.html#src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_worst_removal">vectorized_worst_removal() (in module src.models.policies.classical.adaptive_large_neighborhood_search)</a>

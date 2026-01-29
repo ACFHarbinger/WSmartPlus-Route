@@ -403,4 +403,15 @@
 
 ````
 
+````{py:attribute} policy_config
+:canonical: src.configs.model.ModelConfig.policy_config
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.model.ModelConfig.policy_config
+```
+
+````
+
 `````

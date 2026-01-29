@@ -17,4 +17,5 @@ src.utils.logging.plot_utils
 src.utils.logging.visualize_utils
 src.utils.logging.log_utils
 src.utils.logging.pylogger
+src.utils.logging.structured_logging
 ```

@@ -35,8 +35,16 @@
   - ```{autodoc2-docstring} src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_worst_removal
     :summary:
     ```
+* - {py:obj}`vectorized_cluster_removal <src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal>`
+  - ```{autodoc2-docstring} src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal
+    :summary:
+    ```
 * - {py:obj}`vectorized_greedy_insertion <src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion>`
   - ```{autodoc2-docstring} src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion
+    :summary:
+    ```
+* - {py:obj}`vectorized_regret_2_insertion <src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion>`
+  - ```{autodoc2-docstring} src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion
     :summary:
     ```
 ````
@@ -57,10 +65,24 @@
 ```
 ````
 
+````{py:function} vectorized_cluster_removal(tours, dist_matrix, n_remove)
+:canonical: src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal
+
+```{autodoc2-docstring} src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_cluster_removal
+```
+````
+
 ````{py:function} vectorized_greedy_insertion(partial_tours, removed_nodes, dist_matrix)
 :canonical: src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion
 
 ```{autodoc2-docstring} src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_greedy_insertion
+```
+````
+
+````{py:function} vectorized_regret_2_insertion(partial_tours, removed_nodes, dist_matrix)
+:canonical: src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion
+
+```{autodoc2-docstring} src.models.policies.classical.adaptive_large_neighborhood_search.vectorized_regret_2_insertion
 ```
 ````
 
@@ -76,7 +98,7 @@
 ```{autodoc2-docstring} src.models.policies.classical.adaptive_large_neighborhood_search.VectorizedALNS.__init__
 ```
 
-````{py:method} solve(initial_solutions, n_iterations=100, time_limit=None)
+````{py:method} solve(initial_solutions, n_iterations=2000, time_limit=None, max_vehicles=0, start_temp=0.5, cooling_rate=0.9995)
 :canonical: src.models.policies.classical.adaptive_large_neighborhood_search.VectorizedALNS.solve
 
 ```{autodoc2-docstring} src.models.policies.classical.adaptive_large_neighborhood_search.VectorizedALNS.solve

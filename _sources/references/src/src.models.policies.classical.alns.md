@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ALNSPolicy(env_name: str, time_limit: float = 5.0, max_iterations: int = 100, **kwargs)
+`````{py:class} ALNSPolicy(env_name: str, time_limit: float = 5.0, max_iterations: int = 500, max_vehicles: int = 0, **kwargs)
 :canonical: src.models.policies.classical.alns.ALNSPolicy
 
 Bases: {py:obj}`logic.src.models.policies.base.ConstructivePolicy`

@@ -14,6 +14,7 @@
 :maxdepth: 3
 
 src.pipeline.simulations
+src.pipeline.ui
 src.pipeline.rl
 src.pipeline.features
 ```
