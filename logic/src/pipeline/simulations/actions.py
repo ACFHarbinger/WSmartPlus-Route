@@ -220,8 +220,12 @@ class MustGoSelectionAction(SimulationAction):
 
             # Determine threshold/days from params if standard keys exist
             # This logic mimics the old parameter extraction but from dict
-            thresh = s_params.get("threshold") or s_params.get("cf") or s_params.get("limit") or 0.5
-            la_days = s_params.get("days", s_params.get("lookahead_days"))
+            thresh = 0.0
+            la_days = None
+
+            if isinstance(s_params, dict):
+                thresh = s_params.get("threshold") or s_params.get("cf") or s_params.get("param") or s_params.get("lvl")
+                la_days = s_params.get("days", s_params.get("lookahead_days"))
 
             sel_ctx = SelectionContext(
                 bin_ids=np.arange(0, n_bins, dtype="int32"),
@@ -411,7 +415,9 @@ class PostProcessAction(SimulationAction):
 
             for item in pp_list:
                 pp_name = ""
-                pp_params = {**context}  # Start with Context
+                pp_params = {
+                    k: v for k, v in context.items() if k != "tour"
+                }  # Start with Context (excluding tour to avoid duplication)
 
                 if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
                     # Load config

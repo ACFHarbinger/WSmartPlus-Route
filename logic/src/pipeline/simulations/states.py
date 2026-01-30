@@ -350,7 +350,10 @@ class InitializingState(SimState):
             if isinstance(config_paths, dict):
                 for key, path in config_paths.items():
                     try:
-                        loaded = load_config(path)
+                        if isinstance(path, dict):
+                            loaded = path
+                        else:
+                            loaded = load_config(path)
 
                         ctx.config[key] = loaded
                         print(f"Loaded configuration for '{key}' from {path}")
