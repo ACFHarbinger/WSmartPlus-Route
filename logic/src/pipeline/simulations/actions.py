@@ -220,7 +220,7 @@ class MustGoSelectionAction(SimulationAction):
 
             # Determine threshold/days from params if standard keys exist
             # This logic mimics the old parameter extraction but from dict
-            thresh = s_params.get("threshold", 0.5)
+            thresh = s_params.get("threshold") or s_params.get("cf") or s_params.get("limit") or 0.5
             la_days = s_params.get("days", s_params.get("lookahead_days"))
 
             sel_ctx = SelectionContext(
