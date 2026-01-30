@@ -302,19 +302,25 @@ class PolicyExecutionAction(SimulationAction):
 
         # 2. IDENTIFY ROUTING ENGINE FROM CONFIG
         raw_cfg = context.get("config", {})
-        flat_cfg = _flatten_config(raw_cfg)
-        policy_cfg = flat_cfg.get("policy", {})
-
-        # If policy is just a string in config (legacy), wrap it?
-        # But we expect proper config objects now per user request.
 
         solver_key = None
 
-        # 2a. Check explicit config first
-        if isinstance(policy_cfg, dict):
-            solver_key = policy_cfg.get("type") or policy_cfg.get("solver") or policy_cfg.get("engine")
-        elif isinstance(policy_cfg, str):
-            solver_key = policy_cfg
+        # Check for top-level keys that map to known policies
+        known_policy_keys = ["vrpp", "cvrp", "tsp", "hgs", "alns", "bcp", "sans", "neural"]
+        for key in known_policy_keys:
+            if key in raw_cfg:
+                solver_key = key
+                break
+
+        flat_cfg = _flatten_config(raw_cfg)
+        policy_cfg = flat_cfg.get("policy", {})
+
+        # 2a. Check explicit config first (if not found by top-level key)
+        if not solver_key:
+            if isinstance(policy_cfg, dict):
+                solver_key = policy_cfg.get("type") or policy_cfg.get("solver") or policy_cfg.get("engine")
+            elif isinstance(policy_cfg, str):
+                solver_key = policy_cfg
 
         # 2b. Fallback to 'engine' context var if not in policy config
         if not solver_key and engine:
