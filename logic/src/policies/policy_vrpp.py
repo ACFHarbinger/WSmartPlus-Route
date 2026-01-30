@@ -508,12 +508,30 @@ class VRPPPolicy(IPolicy):
         n_vehicles = kwargs.get("n_vehicles", 1)
         config = kwargs.get("config", {})
 
+        optimizer = "hexaly" if "hexaly" in policy_name else "gurobi"
+        time_limit = config.get("time_limit", 60)
+
         # Configuration & Parameters
         Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
         values = {"Q": Q, "R": R, "B": B, "C": C, "V": V}
-        values.update(config.get("vrpp", {}))
 
-        optimizer = "hexaly" if "hexaly" in policy_name else "gurobi"
+        # Extract VRPP config (handle nested optimizer key and list format)
+        vrpp_cfg = config.get("vrpp", {})
+        if optimizer in vrpp_cfg:
+            opt_cfg = vrpp_cfg[optimizer]
+            if isinstance(opt_cfg, list):
+                for item in opt_cfg:
+                    if isinstance(item, dict):
+                        values.update(item)
+            elif isinstance(opt_cfg, dict):
+                values.update(opt_cfg)
+        else:
+            values.update(vrpp_cfg)
+
+        # Defaults
+        values.setdefault("Omega", 0.1)
+        values.setdefault("delta", 0.0)
+        values.setdefault("psi", 1.0)
         time_limit = config.get("time_limit", 60)
 
         # Standardize distance matrix format

@@ -301,6 +301,7 @@ if __name__ == "__main__":
         # So we need to modify sys.argv to remove 'eval' and add 'task=eval'.
 
         if command in ["eval", "test_sim", "gen_data"]:
+            sys.argv.append(f"task={command}")
             sys.argv.pop(1)  # Remove the command
         elif command == "mrl_train":
             sys.argv.append("rl.use_meta=True")

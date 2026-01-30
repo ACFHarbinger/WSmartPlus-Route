@@ -41,6 +41,7 @@ from logic.src.utils.logging.log_utils import (
     runs_per_policy,
     send_final_output_to_gui,
 )
+from logic.src.utils.logging.logger_writer import setup_logger_redirection
 
 
 def simulator_testing(opts, data_size, device):
@@ -55,6 +56,9 @@ def simulator_testing(opts, data_size, device):
         data_size (int): Total number of bins in the area.
         device (torch.device): Computation device for neural policies.
     """
+    # redirect output to file
+    setup_logger_redirection()
+
     manager = mp.Manager()
     lock = manager.Lock()
     sample_idx_dict = {pol: list(range(opts["n_samples"])) for pol in opts["policies"]}

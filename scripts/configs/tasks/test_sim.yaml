@@ -11,7 +11,7 @@ checkpoints: 30
 real_time_log: 1
 
 # Policy Parameters
-policies: ["tsp"]
+policies: ["tsp", "cvrp", "vrpp", "hgs", "alns", "bcp", "sans"]
 n_vehicles: 0
 problem: "cwcvrp"
 gate_prob_threshold: 0.1
