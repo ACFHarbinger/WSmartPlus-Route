@@ -8,6 +8,7 @@ reports aggregate metrics like Profit, Cost, and Waste components.
 """
 
 import argparse
+import copy
 import multiprocessing as mp
 import os
 import random
@@ -395,51 +396,119 @@ def run_wsr_simulator_test(opts):
                     mg_list = []
                     pp_list = []
 
-                    for item in inner_cfg:
+                    # We need to find the specific dict inside inner_cfg that holds 'must_go'
+                    match_item_idx = -1
+                    for idx, item in enumerate(inner_cfg):
                         if isinstance(item, dict):
                             if "must_go" in item:
                                 mg_list = item["must_go"]
+                                match_item_idx = idx
                             if "post_processing" in item:
                                 pp_list = item["post_processing"]
 
-                    # Build Prefix from must_go
-                    if mg_list:
-                        first_mg = mg_list[0]
-                        if isinstance(first_mg, str):
-                            clean_mg = first_mg.replace("mg_", "").replace(".xml", "").replace(".yaml", "")
-                            prefix_str = f"{clean_mg}_"
+                    # Determine Variants
+                    # List of tuples: (prefix_str, suffix_str, custom_config_dict_or_None)
+                    variants = []
+                    if mg_list and len(mg_list) > 1:
+                        # Expansion Case: Create a variant for each must_go item
+                        for mg_item in mg_list:
+                            # 1. Generate Prefix
+                            v_prefix = ""
+                            if isinstance(mg_item, str):
+                                clean_mg = mg_item.replace("mg_", "").replace(".xml", "").replace(".yaml", "")
+                                v_prefix = f"{clean_mg}_"
 
-                    # Build Suffix from post_processing
-                    if pp_list:
-                        first_pp = pp_list[0]
-                        if isinstance(first_pp, str):
-                            clean_pp = first_pp.replace("pp_", "").replace(".xml", "").replace(".yaml", "")
-                            suffix_str = f"_{clean_pp}"
+                            # 2. Generate Suffix (Common)
+                            v_suffix = ""
+                            if pp_list:
+                                first_pp = pp_list[0]
+                                if isinstance(first_pp, str):
+                                    clean_pp = first_pp.replace("pp_", "").replace(".xml", "").replace(".yaml", "")
+                                    v_suffix = f"_{clean_pp}"
+
+                            # 3. Create Custom Config Overriding must_go
+                            # We must deepcopy to avoid mutating the original for other variants
+                            var_cfg = copy.deepcopy(pol_cfg)
+
+                            # Navigate to the same inner list in var_cfg
+                            # Re-run logic to find inner_cfg in the copy
+                            var_inner = []
+                            # We follow the same heuristic path
+                            if var_cfg:
+                                found = False
+                                for k, v in var_cfg.items():
+                                    if isinstance(v, list):
+                                        var_inner = v
+                                        found = True
+                                        break
+                                    if isinstance(v, dict):
+                                        if "must_go" in v or "post_processing" in v:
+                                            pass
+                                        else:
+                                            for sub_k, sub_v in v.items():
+                                                if isinstance(sub_v, list):
+                                                    var_inner = sub_v
+                                                    found = True
+                                                    break
+                                    if found:
+                                        break
+
+                            # Now patch the specific item
+                            if var_inner and match_item_idx >= 0 and match_item_idx < len(var_inner):
+                                if isinstance(var_inner[match_item_idx], dict):
+                                    var_inner[match_item_idx]["must_go"] = [mg_item]
+
+                            variants.append((v_prefix, v_suffix, var_cfg))
+
+                    else:
+                        # Standard Case (Single Policy)
+                        prefix_str = ""
+                        if mg_list:
+                            first_mg = mg_list[0]
+                            if isinstance(first_mg, str):
+                                clean_mg = first_mg.replace("mg_", "").replace(".xml", "").replace(".yaml", "")
+                                prefix_str = f"{clean_mg}_"
+
+                        suffix_str = ""
+                        if pp_list:
+                            first_pp = pp_list[0]
+                            if isinstance(first_pp, str):
+                                clean_pp = first_pp.replace("pp_", "").replace(".xml", "").replace(".yaml", "")
+                                suffix_str = f"_{clean_pp}"
+
+                        variants.append((prefix_str, suffix_str, None))
 
             except Exception as e:
                 print(f"Warning: Could not load config for naming {tmp_pol}: {e}")
+                variants = [("", "", None)]
 
-            # Format: {must_go}_{policy}_{post_processing}_{distribution}
-            middle_name = tmp_pol.replace("policy_", "")
-            if variant_name and variant_name.lower() != "default":
-                middle_name = f"{middle_name}_{variant_name}"
+            # Register All Variants
+            for prefix, suffix, custom_cfg in variants:
+                # Format: {must_go}_{policy}_{post_processing}_{distribution}
+                middle_name = tmp_pol.replace("policy_", "")
+                if variant_name and variant_name.lower() != "default":
+                    middle_name = f"{middle_name}_{variant_name}"
 
-            full_name = f"{prefix_str}{middle_name}{suffix_str}_{opts['data_distribution']}"
-            policies.append(full_name)
+                full_name = f"{prefix}{middle_name}{suffix}_{opts['data_distribution']}"
+                policies.append(full_name)
 
-            # Add config path to opts so it gets loaded in InitializingState
-            if "config_path" not in opts or not isinstance(opts["config_path"], dict):
-                opts["config_path"] = opts.get("config_path", {}) if isinstance(opts.get("config_path"), dict) else {}
+                # Add config path/dict to opts
+                if "config_path" not in opts or not isinstance(opts["config_path"], dict):
+                    opts["config_path"] = (
+                        opts.get("config_path", {}) if isinstance(opts.get("config_path"), dict) else {}
+                    )
 
-            # Map the engine name (e.g. 'hgs') to its config path
-            # RunningState checks if key is in full policy name. 'hgs' is in 'lookahead_..._hgs_...'
-            if cfg_path and os.path.exists(cfg_path):
-                # Use the clean engine name or variant as key
-                key = tmp_pol.replace("policy_", "")
-                opts["config_path"][key] = cfg_path
+                # Map the UNIQUE variant name to its config
+                # This ensures states.py loads the specific config for this specific run
+                key = full_name
+                if custom_cfg:
+                    # In-memory override
+                    opts["config_path"][key] = custom_cfg
+                elif cfg_path and os.path.exists(cfg_path):
+                    # Standard file path, but keyed by full_name so it's only loaded when this policy runs
+                    opts["config_path"][key] = cfg_path
 
     opts["policies"] = policies
-    print("Policy full names:", policies)
 
     # Setup the output directories
     try:

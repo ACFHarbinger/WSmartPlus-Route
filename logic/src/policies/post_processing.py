@@ -75,9 +75,9 @@ class PostProcessorFactory:
             # Fallback for dynamic/mapped names if needed
             if name.lower() == "fast_tsp":
                 return FastTSPPostProcessor()
-            elif name.lower() in ["2opt", "swap", "relocate", "swap_star", "3opt"]:
+            elif name.lower() in ["2opt", "2opt_star", "swap", "relocate", "swap_star", "3opt"]:
                 return ClassicalLocalSearchPostProcessor(operator_name=name.lower())
-            elif name.lower() == "random":
+            elif name.lower() in ["random", "random_local_search"]:
                 return RandomLocalSearchPostProcessor()
 
             raise ValueError(f"Unknown post-processor: {name}")
