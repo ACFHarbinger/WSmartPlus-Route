@@ -265,8 +265,9 @@ def sort_log(logfile_path: str, lock: Optional[threading.Lock] = None) -> None:
         logfile_path: Path to the log file.
         lock: Thread lock.
     """
-    if lock is not None:
-        lock.acquire(timeout=udef.LOCK_TIMEOUT)
+    acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
+    if not acquired:
+        return
     try:
         log: Dict[str, Any] = cast(Dict[str, Any], read_json(logfile_path, lock=None))
         log = _sort_log(log)
@@ -315,8 +316,9 @@ def log_to_json(
     Returns:
         The updated log data.
     """
-    if lock is not None:
-        lock.acquire(timeout=udef.LOCK_TIMEOUT)
+    acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
+    if not acquired:
+        return [] if sample_id is not None else {}
     try:
         read_failed: bool = False
         old: Union[Dict[str, Any], List[Any]]
@@ -405,8 +407,9 @@ def log_to_json2(
     Returns:
         The final data structure written (or attempted to write).
     """
-    if lock is not None:
-        lock.acquire(timeout=udef.LOCK_TIMEOUT)
+    acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
+    if not acquired:
+        return [] if sample_id is not None else {}
 
     data_to_write: Union[Dict[str, Any], List[Any]]
     try:
@@ -484,8 +487,9 @@ def log_to_pickle(
         lock: Thread lock.
         dw_func: Post-write callback function.
     """
-    if lock is not None:
-        lock.acquire(timeout=udef.LOCK_TIMEOUT)
+    acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
+    if not acquired:
+        return
     try:
         with open(pickle_path, "wb") as file:
             pickle.dump(log, file)
@@ -519,8 +523,9 @@ def update_log(
     Returns:
         The updated log data.
     """
-    if lock is not None:
-        lock.acquire(timeout=udef.LOCK_TIMEOUT)
+    acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
+    if not acquired:
+        return {}
     try:
         new_logs: Union[Dict[str, Any], List[Any]]
         try:
@@ -634,8 +639,9 @@ def output_stats(
     """
     mean_filename: str = os.path.join(dir_path, f"log_mean_{nsamples}N.json")
     std_filename: str = os.path.join(dir_path, f"log_std_{nsamples}N.json")
-    if lock is not None:
-        lock.acquire(timeout=udef.LOCK_TIMEOUT)
+    acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
+    if not acquired:
+        return {}, {}
     try:
         mean_dit: Dict[str, Any]
         std_dit: Dict[str, Any]
@@ -818,8 +824,9 @@ def send_daily_output_to_gui(
     )
     log_msg: str = f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}"
 
-    if lock is not None:
-        lock.acquire(timeout=udef.LOCK_TIMEOUT)
+    acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
+    if not acquired:
+        return
     try:
         with open(log_path, "a") as f:
             f.write(log_msg + "\n")
@@ -865,8 +872,9 @@ def send_final_output_to_gui(
 
     summary_message: str = f"GUI_SUMMARY_LOG_START: {json.dumps(summary_data)}"
 
-    if lock is not None:
-        lock.acquire(timeout=udef.LOCK_TIMEOUT)
+    acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
+    if not acquired:
+        return
     try:
         with open(log_path, "a") as f:
             f.write(summary_message + "\n")

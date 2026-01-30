@@ -140,34 +140,44 @@ POLICIES_STR="[$(quote_list POLICIES)]"
 
 
 # Build command arguments array
-CMD_ARGS=(
-    "sim.policies=${POLICIES_STR}"
-    "sim.data_distribution=$DATA_DIST"
-    "sim.cpu_cores=$n_cores"
-    "sim.n_samples=$N_SAMPLES"
-    "sim.area=$AREA"
-    "sim.bin_idx_file=$IDX_PATH"
-    "sim.size=$N_BINS"
-    "sim.seed=$SEED"
-    "sim.problem=$PROBLEM"
-    "sim.n_vehicles=$VEHICLES"
-    "sim.vertex_method=$VERTEX_METHOD"
-    "sim.distance_method=$DIST_METHOD"
-    "sim.edge_threshold=$EDGE_THRESH"
-    "sim.edge_method=$EDGE_METHOD"
-    "sim.waste_type=$WTYPE"
-    "sim.env_file=$ENV_FILE"
-    "sim.gplic_file=$GP_LIC_FILE"
-    "sim.gapik_file=$GOOGLE_API_FILE"
-    "sim.waste_filepath=$WASTE_PATH"
-    "sim.symkey_name=$SYM_KEY"
-    "sim.dm_filepath='$DM_PATH'"
-    "sim.days=$N_DAYS"
-    "sim.cpd=$CHECKPOINTS"
-    "sim.gate_prob_threshold=$GATE_PROB_THRESHOLD"
-    "sim.mask_prob_threshold=$MASK_PROB_THRESHOLD"
-    "sim.log_level=${LOG_LEVEL:-WARNING}"
-)
+# Helper to add arg if value exists
+add_arg() {
+    local key=$1
+    local value=$2
+    if [[ -n "$value" ]]; then
+        CMD_ARGS+=("$key=$value")
+    fi
+}
+
+CMD_ARGS=()
+add_arg "sim.policies" "${POLICIES_STR}"
+add_arg "sim.data_distribution" "$DATA_DIST"
+add_arg "sim.cpu_cores" "$n_cores"
+add_arg "sim.n_samples" "$N_SAMPLES"
+add_arg "sim.area" "$AREA"
+add_arg "sim.bin_idx_file" "$IDX_PATH"
+add_arg "sim.size" "$N_BINS"
+add_arg "sim.seed" "$SEED"
+add_arg "sim.problem" "$PROBLEM"
+add_arg "sim.n_vehicles" "$VEHICLES"
+add_arg "sim.vertex_method" "$VERTEX_METHOD"
+add_arg "sim.distance_method" "$DIST_METHOD"
+add_arg "sim.edge_threshold" "$EDGE_THRESH"
+add_arg "sim.edge_method" "$EDGE_METHOD"
+add_arg "sim.waste_type" "$WTYPE"
+add_arg "sim.env_file" "$ENV_FILE"
+add_arg "sim.gplic_file" "$GP_LIC_FILE"
+add_arg "sim.gapik_file" "$GOOGLE_API_FILE"
+add_arg "sim.waste_filepath" "$WASTE_PATH"
+add_arg "sim.symkey_name" "$SYM_KEY"
+if [[ -n "$DM_PATH" ]]; then
+    CMD_ARGS+=("sim.dm_filepath='$DM_PATH'")
+fi
+add_arg "sim.days" "$N_DAYS"
+add_arg "sim.cpd" "$CHECKPOINTS"
+add_arg "sim.gate_prob_threshold" "$GATE_PROB_THRESHOLD"
+add_arg "sim.mask_prob_threshold" "$MASK_PROB_THRESHOLD"
+add_arg "sim.log_level" "${LOG_LEVEL:-WARNING}"
 
 # Conditionally add optional arguments
 if [ -n "$STATS_PATH" ]; then
@@ -181,15 +191,10 @@ fi
 if [ "$REAL_TIME" -eq 0 ]; then
     echo -e "${BLUE}Running with real_time_log...${NC}"
     CMD_ARGS+=("sim.real_time_log=true")
-    # Decode type conditional if needed, but it seems common in previous logic?
-    # Previous logic only added decode_type in non-real-time block?
-    # Let's check: Yes, decode_type only in else block previously.
-    # But usually decode_type is relevant for neural models.
-    # I will add it if it's set.
-    CMD_ARGS+=("sim.decode_type=$DECODE_TYPE")
+    add_arg "sim.decode_type" "$DECODE_TYPE"
 else
     echo -e "${BLUE}Running without real_time_log...${NC}"
-    CMD_ARGS+=("sim.decode_type=$DECODE_TYPE")
+    add_arg "sim.decode_type" "$DECODE_TYPE"
 fi
 
 # Execute
