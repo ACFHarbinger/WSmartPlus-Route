@@ -109,7 +109,7 @@ def log_benchmark_metric(
     # Ensure logger is initialized with a file if not already
     logger = logging.getLogger(logger_name)
     if not logger.handlers:
-        get_structured_logger(name=logger_name, log_file="logs/benchmarks.jsonl")
+        get_structured_logger(name=logger_name, log_file="logs/benchmarks/benchmarks.jsonl")
 
     extra = {
         "benchmark": benchmark,

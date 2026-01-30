@@ -13,7 +13,7 @@ import streamlit as st
 
 def get_benchmark_log_path() -> Path:
     """Get the path to the benchmark log file."""
-    return Path("logs/benchmarks.jsonl")
+    return Path("logs/benchmarks/benchmarks.jsonl")
 
 
 @st.cache_data(ttl=30)

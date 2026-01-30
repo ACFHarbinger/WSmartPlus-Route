@@ -259,9 +259,16 @@ def render_simulation_visualizer() -> None:
                 matrix_path = os.path.join(ROOT_DIR, "data", "wsr_simulator", "distance_matrix", selected_file)
                 if os.path.isfile(matrix_path):
                     try:
-                        df = pd.read_csv(matrix_path, header=None)
-                        loaded_data = np.loadtxt(matrix_path, delimiter=",")
-                        sliced_data = loaded_data[1:, 1:]
+                        if matrix_path.endswith((".xlsx", ".xls")):
+                            df = pd.read_excel(matrix_path, header=None)
+                        else:
+                            # Default to CSV
+                            df = pd.read_csv(matrix_path, header=None)
+
+                        loaded_data = df.to_numpy()
+                        # Assume first row and col are headers/indices and strip them
+                        # Force conversion to float to handle potential string types in the sliced region
+                        sliced_data = loaded_data[1:, 1:].astype(float)
 
                         # Apply Bin Index Subsetting if selected
                         selected_index_file = controls.get("selected_index_file")
@@ -352,7 +359,7 @@ def render_benchmark_analysis() -> None:
 
     if df.empty:
         st.warning(
-            "⚠️ No benchmark data found in `logs/benchmarks.jsonl`.\n\n"
+            "⚠️ No benchmark data found in `logs/benchmarks/benchmarks.jsonl`.\n\n"
             "Run `just benchmark` to generate some benchmarks."
         )
         return
