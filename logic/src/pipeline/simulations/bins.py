@@ -99,7 +99,7 @@ class Bins:
         Raises:
             AssertionError: If sample_dist not in ['emp', 'gamma']
         """
-        assert sample_dist in ["emp", "gamma"]
+        assert sample_dist == "emp" or "gamma" in sample_dist
         self.n = n
         self.noise_mean = noise_mean
         self.noise_variance = noise_variance
