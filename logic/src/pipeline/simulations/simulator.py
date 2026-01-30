@@ -211,9 +211,9 @@ def sequential_simulations(
     log_std: Optional[Dict[str, Any]] = None
     log_full: Dict[str, List[List[float]]] = {}
 
-    if opts["n_samples"] > 1:
-        log_std = {}
-        log_full = {policy: [] for policy in opts["policies"]}
+    # Always initialize accumulation structures to support metrics for N=1 case
+    log_std = {}
+    log_full = {policy: [] for policy in opts["policies"]}
 
     # Create overall progress bar FIRST with position=1
     overall_progress = tqdm(
@@ -256,16 +256,14 @@ def sequential_simulations(
                 if result_dict and "success" in result_dict and result_dict["success"]:
                     lg = result_dict[policy]
 
-                    if opts["n_samples"] > 1:
-                        log_full[policy].append(lg)
-                    else:
-                        log[policy] = lg
-
+                    # Always append to log_full to support uniform aggregation logic
+                    log_full[policy].append(lg)
+                    log[policy] = lg
             except CheckpointError:
                 # Skip broken checkpoints
                 pass
 
-        if opts["n_samples"] > 1:
+        if opts["n_samples"] >= 1:
             if opts["resume"]:
                 res_log, res_std = output_stats(
                     results_dir,

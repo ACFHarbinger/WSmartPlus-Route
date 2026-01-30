@@ -2,6 +2,7 @@
 Sim Config module.
 """
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 
@@ -73,7 +74,7 @@ class SimConfig:
     checkpoint_dir: str = "temp"
     checkpoint_days: int = 0
     log_level: str = "INFO"
-    log_file: str = "logs/simulation.log"
+    log_file: str = f"logs/simulations/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
     cpd: int = 5
     n_samples: int = 1
     resume: bool = False

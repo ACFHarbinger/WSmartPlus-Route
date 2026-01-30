@@ -31,6 +31,22 @@ class LookaheadSelection(MustGoSelectionStrategy):
         if context.accumulation_rates is None:
             return []
 
+        # 1. Static Lookahead Logic (if days provided)
+        if context.lookahead_days is not None:
+            horizon = context.lookahead_days
+            # Vectorized check: which bins will overflow in 'horizon' days?
+            # Assuming monotonic increase: checking the furthest day is sufficient.
+            # current + horizon * rate >= 100
+            predicted_fill = context.current_fill + (horizon * context.accumulation_rates)
+
+            # Find indices where fill >= 100
+            must_go_indices = np.where(predicted_fill >= 100)[0]
+
+            # Convert to 1-based IDs
+            return [int(idx) + 1 for idx in must_go_indices]
+
+        # 2. Dynamic Lookahead Logic (Legacy/Cluster behavior)
+        # First, identify bins that will overflow "soon" (e.g., tomorrow) to set a baseline cadence
         must_go_bins = []
         for i in range(len(context.current_fill)):
             if context.current_fill[i] + context.accumulation_rates[i] >= 100:
@@ -39,25 +55,25 @@ class LookaheadSelection(MustGoSelectionStrategy):
         if not must_go_bins:
             return []
 
+        # Determine dynamic horizon based on critical bins
         next_coll_day = context.next_collection_day
-        if context.lookahead_days is not None:
-            next_coll_day = context.lookahead_days
-        elif next_coll_day is None:
+        if next_coll_day is None:
             coll_days = []
             for i in must_go_bins:
                 if context.accumulation_rates[i] > 0:
-                    days = int(np.ceil(100.0 / context.accumulation_rates[i]))
-                    coll_days.append(days)
+                    days = int(np.ceil((100.0 - context.current_fill[i]) / context.accumulation_rates[i]))
+                    coll_days.append(max(1, days))  # Ensure at least 1 day
             next_coll_day = int(np.min(coll_days)) if coll_days else 1
 
+        # Extend selection to others overflowing within this dynamic horizon
         for i in range(len(context.current_fill)):
             if i in must_go_bins:
                 continue
 
-            for j in range(context.current_day + 1, context.current_day + next_coll_day):
-                if context.current_fill[i] + j * context.accumulation_rates[i] >= 100:
+            # Iterate from tomorrow up to horizon
+            for k in range(1, next_coll_day + 1):
+                if context.current_fill[i] + k * context.accumulation_rates[i] >= 100:
                     must_go_bins.append(i)
                     break
 
-        # Return 1-based bin IDs
         return [idx + 1 for idx in must_go_bins]

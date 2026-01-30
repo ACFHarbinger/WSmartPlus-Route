@@ -124,7 +124,6 @@ class FillAction(SimulationAction):
             new_overflows, fill, total_fill, sum_lost = bins.stochasticFilling()
         else:
             new_overflows, fill, total_fill, sum_lost = bins.loadFilling(day)
-
         context["new_overflows"] = new_overflows
         context["fill"] = fill
         context["total_fill"] = total_fill
