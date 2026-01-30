@@ -197,22 +197,28 @@ def simulator_testing(opts, data_size, device):
                         print(f"Task failed with exception: {e}")
                         traceback.print_exc(file=sys.stdout)
         except KeyboardInterrupt:
-            print("\n\n[WARNING] Caught CTRL+C. Terminating worker processes...")
-            p.terminate()
-            # p.join()
-            raise
+            # Replaced blocking logic with immediate termination
+            print("\n\n[WARNING] Caught CTRL+C. Forcing immediate shutdown...")
+
+            # Close stream to ensure last messages are flushed
+            sys.stdout.flush()
+            sys.stderr.flush()
+
+            try:
+                if "p" in locals() and p is not None:
+                    p.terminate()
+            except Exception:
+                pass
+
+            # os._exit(1) terminates the process immediately without running cleanup handlers
+            # (which were causing issues) or waiting for threads to join.
+            os._exit(1)
         finally:
             if "p" in locals() and p is not None:
                 try:
                     p.close()
                 except ValueError:
                     pass
-                try:
-                    # This join is only hit on a successful or non-KeyboardInterrupt error exit.
-                    p.join()
-                except Exception as e:
-                    if not isinstance(e, KeyboardInterrupt):
-                        raise Exception(f"[CLEANUP ERROR] Failed to join pool cleanly: {type(e).__name__}")
         if opts["n_samples"] > 1:
             if opts["resume"]:
                 log, log_std = output_stats(
