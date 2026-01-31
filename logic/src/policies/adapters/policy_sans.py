@@ -11,9 +11,10 @@ import pandas as pd
 
 from logic.src.pipeline.simulations.processor import convert_to_dict
 
-from .adapters import PolicyRegistry
-from .base_routing_policy import BaseRoutingPolicy
-from .look_ahead_aux import compute_initial_solution, improved_simulated_annealing
+from ..base_routing_policy import BaseRoutingPolicy
+from ..look_ahead_aux.simulated_annealing import improved_simulated_annealing
+from ..look_ahead_aux.solution_initialization import compute_initial_solution
+from .factory import PolicyRegistry
 
 
 @PolicyRegistry.register("sans")

@@ -30,7 +30,8 @@ import pandas
 import scipy.stats as stats
 import torch
 
-from .loader import load_area_and_waste_type_params
+from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
+
 from .wsmart_bin_analysis import GridBase
 
 

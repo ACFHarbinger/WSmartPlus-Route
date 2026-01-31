@@ -90,16 +90,16 @@ class PolicyFactory:
         """
         # Local imports to avoid circular dependencies and trigger registration
         import logic.src.policies.neural_agent as neural_agent  # noqa
-        import logic.src.policies.policy_alns as policy_alns  # noqa
-        import logic.src.policies.policy_bcp as policy_bcp  # noqa
-        import logic.src.policies.policy_cvrp as policy_cvrp  # noqa
-        import logic.src.policies.policy_hgs as policy_hgs  # noqa
-        import logic.src.policies.policy_hgs_alns as policy_hgs_alns  # noqa
-        import logic.src.policies.policy_lac as policy_lac  # noqa
-        import logic.src.policies.policy_lkh as policy_lkh  # noqa
-        import logic.src.policies.policy_sans as policy_sans  # noqa
-        import logic.src.policies.policy_tsp as policy_tsp  # noqa
-        import logic.src.policies.policy_vrpp as policy_vrpp  # noqa
+        import logic.src.policies.adapters.policy_alns as policy_alns  # noqa
+        import logic.src.policies.adapters.policy_bcp as policy_bcp  # noqa
+        import logic.src.policies.adapters.policy_cvrp as policy_cvrp  # noqa
+        import logic.src.policies.adapters.policy_hgs as policy_hgs  # noqa
+        import logic.src.policies.adapters.policy_hgs_alns as policy_hgs_alns  # noqa
+        import logic.src.policies.adapters.policy_lac as policy_lac  # noqa
+        import logic.src.policies.adapters.policy_lkh as policy_lkh  # noqa
+        import logic.src.policies.adapters.policy_sans as policy_sans  # noqa
+        import logic.src.policies.adapters.policy_tsp as policy_tsp  # noqa
+        import logic.src.policies.adapters.policy_vrpp as policy_vrpp  # noqa
 
         # Normalize name
         if not isinstance(name, str):
@@ -115,7 +115,7 @@ class PolicyFactory:
         # Fallback for complex names or un-registered policies (backward compatibility)
         if name == "regular" or "regular" in name:
             # Fallback to TSP for legacy regular execution (selection happens in Action)
-            from logic.src.policies.policy_tsp import TSPPolicy
+            from logic.src.policies.adapters.policy_tsp import TSPPolicy
 
             return TSPPolicy()
         elif name == "neural" or name[:2] == "am" or name[:4] == "ddam" or "transgcn" in name:
@@ -123,22 +123,22 @@ class PolicyFactory:
 
             return NeuralPolicy()
         elif "vrpp" in name:
-            from logic.src.policies.policy_vrpp import VRPPPolicy
+            from logic.src.policies.adapters.policy_vrpp import VRPPPolicy
 
             return VRPPPolicy()
         elif name == "tsp" or "tsp" in name:
-            from logic.src.policies.policy_tsp import TSPPolicy
+            from logic.src.policies.adapters.policy_tsp import TSPPolicy
 
             return TSPPolicy()
         elif name == "cvrp" or "cvrp" in name:
-            from logic.src.policies.policy_cvrp import CVRPPolicy
+            from logic.src.policies.adapters.policy_cvrp import CVRPPolicy
 
             return CVRPPolicy()
         else:
             # Default to CVRP or TSP based on vehicles if unknown but looks like a legacy name
             if name.startswith("policy_") or "_policy" in name:
-                from logic.src.policies.policy_cvrp import CVRPPolicy
-                from logic.src.policies.policy_tsp import TSPPolicy
+                from logic.src.policies.adapters.policy_cvrp import CVRPPolicy
+                from logic.src.policies.adapters.policy_tsp import TSPPolicy
 
                 n_vehicles = kwargs.get("n_vehicles", 1)
                 return TSPPolicy() if n_vehicles == 1 else CVRPPolicy()

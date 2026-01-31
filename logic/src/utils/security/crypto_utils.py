@@ -77,7 +77,7 @@ def generate_key(
         dir_path = os.path.join(ROOT_DIR, "assets", "keys")
         try:
             os.makedirs(dir_path, exist_ok=True)
-        except Exception:
+        except OSError:
             raise Exception("directories to save output files do not exist and could not be created")
 
         with open(os.path.join(dir_path, f"{symkey_name}.salt"), "wb") as salt_file:
@@ -245,7 +245,7 @@ def encrypt_directory(
         output_dir = input_dir
     try:
         os.makedirs(output_dir, exist_ok=True)
-    except Exception:
+    except OSError:
         raise Exception("directories to save output files do not exist and could not be created")
 
     # Recursively process all files in the input directory
@@ -259,7 +259,7 @@ def encrypt_directory(
             # Create subdirectories in the output directory if they don't exist
             try:
                 os.makedirs(os.path.dirname(output_file), exist_ok=True)
-            except Exception:
+            except OSError:
                 raise Exception("subdirectories to save output files do not exist and could not be created")
             encdata_ls.append(encrypt_file_data(key, input_file, output_file))
     return encdata_ls
@@ -286,7 +286,7 @@ def decrypt_directory(
         output_dir = input_dir
     try:
         os.makedirs(output_dir, exist_ok=True)
-    except Exception:
+    except OSError:
         raise Exception("directories to save output files do not exist and could not be created")
 
     # Recursively process all files in the input directory
@@ -302,7 +302,7 @@ def decrypt_directory(
                 # Create subdirectories in the output directory if they don't exist
                 try:
                     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-                except Exception:
+                except OSError:
                     raise Exception("subdirectories to save output files do not exist and could not be created")
                 decdata_ls.append(decrypt_file_data(key, input_file, output_file))
     return decdata_ls

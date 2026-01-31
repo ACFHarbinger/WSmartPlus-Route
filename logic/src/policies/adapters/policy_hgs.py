@@ -1,29 +1,30 @@
 """
-ALNS Policy Adapter.
+HGS Policy Adapter.
 
-Adapts the Adaptive Large Neighborhood Search (ALNS) logic to the agnostic interface.
+Adapts the Hybrid Genetic Search (HGS) logic to the common policy interface.
+Now agnostic to bin selection.
 """
 
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-from .adapters import PolicyRegistry
-from .adaptive_large_neighborhood_search import run_alns
-from .base_routing_policy import BaseRoutingPolicy
+from ..base_routing_policy import BaseRoutingPolicy
+from ..hybrid_genetic_search import run_hgs
+from .factory import PolicyRegistry
 
 
-@PolicyRegistry.register("alns")
-class ALNSPolicy(BaseRoutingPolicy):
+@PolicyRegistry.register("hgs")
+class HGSPolicy(BaseRoutingPolicy):
     """
-    ALNS policy class.
+    Hybrid Genetic Search policy class.
 
-    Visits pre-selected 'must_go' bins using Adaptive Large Neighborhood Search.
+    Visits pre-selected 'must_go' bins using evolutionary optimization.
     """
 
     def _get_config_key(self) -> str:
-        """Return config key for ALNS."""
-        return "alns"
+        """Return config key for HGS."""
+        return "hgs"
 
     def _run_solver(
         self,
@@ -36,12 +37,12 @@ class ALNSPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float]:
         """
-        Run ALNS solver.
+        Run HGS solver.
 
         Returns:
             Tuple of (routes, solver_cost)
         """
-        routes, _, solver_cost = run_alns(
+        routes, _, solver_cost = run_hgs(
             sub_dist_matrix,
             sub_demands,
             capacity,

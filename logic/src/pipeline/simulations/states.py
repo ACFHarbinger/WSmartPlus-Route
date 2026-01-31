@@ -349,14 +349,14 @@ class InitializingState(SimState):
 
                         ctx.config[key] = loaded
                         print(f"Loaded configuration for '{key}' from {path}")
-                    except Exception as e:
+                    except (OSError, ValueError) as e:
                         print(f"Warning: Failed to load config file {path}: {e}")
             else:
                 # Legacy fall back if it's a string (though arg_parser should prevent this)
                 try:
                     ctx.config = load_config(config_paths)  # Assuming single path
                     print(f"Loaded configuration from {config_paths}")
-                except Exception:
+                except (OSError, ValueError):
                     pass
 
         # Explicitly load policy_neural.yaml only if running neural policies
@@ -381,14 +381,14 @@ class InitializingState(SimState):
                     else:
                         ctx.config.update(neural_cfg)
                 print(f"Loaded configuration from {neural_cfg_path}")
-            except Exception as e:
+            except (OSError, ValueError) as e:
                 print(f"Warning: Failed to load neural config {neural_cfg_path}: {e}")
 
         # Setup Data
         data, bins_coordinates, depot = setup_basedata(opts["size"], ctx.data_dir, opts["area"], opts["waste_type"])
 
         # Load vehicle capacity
-        from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
+        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 
         capacities, _, _, _, _ = load_area_and_waste_type_params(opts["area"], opts["waste_type"])
         ctx.vehicle_capacity = capacities
@@ -680,8 +680,6 @@ class RunningState(SimState):
             if opts.get("print_output") and ctx.result:
                 final_simulation_summary(ctx.result, ctx.policy, opts["n_samples"])
             ctx.transition_to(None)  # End
-        except Exception as e:
-            raise e
 
 
 class FinishingState(SimState):

@@ -5,6 +5,9 @@ This package contains all routing policies (classical, heuristic, and neural)
 used for solving the Waste Collection Vehicle Routing Problem.
 """
 
+from .adapters.policy_lac import LACPolicy
+from .adapters.policy_sans import SANSPolicy
+from .adapters.policy_vrpp import VRPPPolicy, run_vrpp_optimizer
 from .adaptive_large_neighborhood_search import (
     ALNSParams,
     run_alns,
@@ -13,13 +16,10 @@ from .adaptive_large_neighborhood_search import (
 )
 from .branch_cut_and_price import run_bcp
 from .hybrid_genetic_search import run_hgs
+from .look_ahead_aux.route_search import find_solutions
 from .look_ahead_aux.routes import create_points
-from .look_ahead_aux.solutions import find_solutions
 from .multi_vehicle import find_routes, find_routes_ortools
 from .neural_agent import NeuralAgent, NeuralPolicy
-from .policy_lac import LACPolicy
-from .policy_sans import SANSPolicy
-from .policy_vrpp import VRPPPolicy, run_vrpp_optimizer
 from .single_vehicle import find_route, get_route_cost, local_search_2opt
 
 __all__ = [
@@ -41,7 +41,7 @@ __all__ = [
     "run_vrpp_optimizer",
 ]
 
-from .adapters import (
+from .adapters.factory import (
     PolicyFactory,
 )
 

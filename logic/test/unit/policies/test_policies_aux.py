@@ -9,7 +9,7 @@ This module consolidates tests for:
 
 from unittest.mock import patch
 
-import logic.src.policies.look_ahead_aux.solutions as solutions
+import logic.src.policies.look_ahead_aux.solution_initialization as solutions
 import numpy as np
 import pandas as pd
 import pytest
