@@ -15,3 +15,5 @@ WASTE_TYPES: Dict[str, str] = {
     "plastic": "Mistura de embalagens",
     "paper": "Embalagens de papel e cartão",
 }
+
+CRITICAL_FILL_THRESHOLD: float = 0.9
