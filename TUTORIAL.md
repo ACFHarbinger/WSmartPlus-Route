@@ -102,7 +102,7 @@ WSmart-Route/
 │   ├── src/
 │   │   ├── models/          # Neural architectures
 │   │   ├── policies/        # Classical solvers
-│   │   ├── problems/        # Environment physics
+│   │   ├── envs/            # Problem environments
 │   │   ├── pipeline/        # Training/evaluation orchestration
 │   │   └── utils/           # Shared utilities
 │   └── test/                # Test suite
@@ -467,9 +467,9 @@ from logic.src.policies.last_minute import LastMinute
 policy = LastMinute(threshold=0.9)  # Trigger at 90% full
 ```
 
-### 3.4 Problem Environments (`logic/src/problems/`)
+### 3.4 Problem Environments (`logic/src/envs/`)
 
-#### VRPP (`problems/vrpp/`)
+#### VRPP (`envs/vrpp.py`)
 
 **Vehicle Routing Problem with Profits** models scenarios where:
 - Visiting a node yields a **reward** (profit).
@@ -501,7 +501,7 @@ def get_reward(self, dataset, pi):
     return collected - cost
 ```
 
-#### CWCVRP (`problems/wcvrp/`)
+#### CWCVRP (`envs/wcvrp.py`)
 
 **Capacitated Waste Collection VRP** extends VRPP with:
 - **Temporal Dynamics**: Bin fill levels increase over time.
@@ -1234,8 +1234,8 @@ python main.py test_sim --policies my_heuristic --size 20 --days 31
 
 **Step 1: Define Problem Class**
 ```python
-# logic/src/problems/my_problem/problem.py
-from logic.src.problems.base_problem import BaseProblem
+# logic/src/envs/my_problem.py
+from logic.src.envs.base import RL4COEnvBase
 
 class MyProblem(BaseProblem):
     NAME = 'my_problem'
@@ -1256,8 +1256,8 @@ class MyProblem(BaseProblem):
 
 **Step 2: Add State Definitions**
 ```python
-# logic/src/problems/my_problem/state_my_problem.py
-from logic.src.problems.base_state import BaseState
+# logic/src/envs/my_problem.py (continued)
+# States are now embedded in the environment class
 
 class StateMyProblem(BaseState):
     def __init__(self, input):

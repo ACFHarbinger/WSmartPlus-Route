@@ -573,18 +573,18 @@ This section maintains a registry of intelligent agents, orchestration component
 | **Revenue** | `selection_revenue.py` | Collect if profit > cost. |
 | **MeansStdDev** | `selection_means_std.py` | Statistical overflow prediction. |
 
-### 10.6 Problem Environments (`logic/src/tasks/`)
+### 10.6 Problem Environments (`logic/src/envs/`)
 
 | Problem | Directory | Description |
 |---------|-----------|-------------|
-| **VRPP** | `tasks/vrpp/` | Vehicle Routing Problem with Profits. Nodes have rewards; maximize Profit - Cost. |
-| **CVRPP** | `tasks/vrpp/` | Capacitated VRPP with vehicle capacity constraints. |
-| **WCVRP** | `tasks/wcvrp/` | Waste Collection VRP. Bin levels accumulate over time. |
-| **CWCVRP** | `tasks/wcvrp/` | Capacitated WCVRP. Standard WSmart+ environment. |
-| **SDWCVRP** | `tasks/wcvrp/` | Stochastic Demand WCVRP. Uncertain waste generation. |
-| **SCWCVRP** | `tasks/swcvrp/` | Selective Capacitated WCVRP. Collect only when profitable. |
+| **VRPP** | `envs/vrpp.py` | Vehicle Routing Problem with Profits. Nodes have rewards; maximize Profit - Cost. |
+| **CVRPP** | `envs/vrpp.py` | Capacitated VRPP with vehicle capacity constraints. |
+| **WCVRP** | `envs/wcvrp.py` | Waste Collection VRP. Bin levels accumulate over time. |
+| **CWCVRP** | `envs/wcvrp.py` | Capacitated WCVRP. Standard WSmart+ environment. |
+| **SDWCVRP** | `envs/wcvrp.py` | Stochastic Demand WCVRP. Uncertain waste generation. |
+| **SCWCVRP** | `envs/swcvrp.py` | Selective Capacitated WCVRP. Collect only when profitable. |
 
-**Base Class**: `BaseProblem` in `tasks/base.py`
+**Base Class**: `RL4COEnvBase` in `envs/base.py`
 
 ### 10.7 Simulator Engine (`logic/src/pipeline/simulations/`)
 
@@ -886,7 +886,7 @@ probs = F.softmax(logits, dim=-1)  # Can select invalid nodes
 | CLI parsers | `logic/src/cli/` |
 | Neural models | `logic/src/models/` |
 | Classical policies | `logic/src/policies/` |
-| Problem definitions | `logic/src/tasks/` |
+| Problem definitions | `logic/src/envs/` |
 | Simulator engine | `logic/src/pipeline/simulations/` |
 | GUI main window | `gui/src/windows/main_window.py` |
 | Configuration | `assets/configs/` |

@@ -206,11 +206,17 @@ class AttentionDecoder(nn.Module):
                 if len(unfinished) == 0:
                     break
                 unfinished = unfinished[:, 0]
+                # Shrink threshold: Only shrink when at least 16 samples remain unfinished.
+                # This avoids overhead of shrinking for very small batches while still
+                # providing memory savings for larger batch processing.
                 if 16 <= len(unfinished) <= state.ids.size(0) - self.shrink_size:
                     state = state[unfinished]
                     fixed = fixed[unfinished]
 
-            mask_val = -math.inf if expert_pi is None else -50.0  # Use soft masking for expert evaluations
+            # Mask value: Use -inf for hard masking (training/greedy decoding).
+            # Use -50.0 for soft masking during expert policy evaluation to allow
+            # gradient flow through invalid actions while still strongly discouraging them.
+            mask_val = -math.inf if expert_pi is None else -50.0
             log_p, step_mask = self._get_log_p(fixed, state, mask_val=mask_val)
 
             if mask is not None:

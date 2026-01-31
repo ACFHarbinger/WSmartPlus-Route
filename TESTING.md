@@ -21,6 +21,10 @@ This document provides a comprehensive guide to the WSmart-Route testing infrast
 10. [Debugging Failed Tests](#10-debugging-failed-tests)
 11. [Performance Testing](#11-performance-testing)
 12. [GUI Testing](#12-gui-testing)
+13. [Mutation Testing](#13-mutation-testing)
+14. [Advanced Performance Benchmarking](#14-advanced-performance-benchmarking)
+15. [Solver Contract Tests](#15-solver-contract-tests)
+16. [ELK Stack Logging](#16-elk-stack-logging)
 
 ---
 
@@ -510,7 +514,7 @@ omit = [
 | `logic/src/models/` | 70% | 85% |
 | `logic/src/policies/` | 60% | 80% |
 | `logic/src/pipeline/` | 60% | 75% |
-| `logic/src/problems/` | 70% | 85% |
+| `logic/src/envs/` | 70% | 85% |
 | `logic/src/utils/` | 50% | 70% |
 | `gui/src/` | 40% | 60% |
 
@@ -522,7 +526,7 @@ omit = [
    ```
 
 2. **Focus on critical paths**
-   - State transitions in `problems/`
+   - State transitions in `envs/`
    - Forward passes in `models/`
    - Core algorithms in `policies/`
 
@@ -796,8 +800,62 @@ def qapp():
     app = QApplication.instance()
     if app is None:
         app = QApplication([])
-    yield app
-    # Don't quit - let session cleanup handle it
+
+---
+
+## 13. Mutation Testing
+
+Mutation testing identifies gaps in the test suite by injecting small bugs (mutations) into the source code and checking if existing tests fail.
+
+- **Tool**: `mutmut`
+- **Configuration**: `mutmut_config.py` (filters core logic in `logic/src/`)
+- **Commands**:
+  - `just mutation-test`: Run mutation tests.
+  - `just mutation-report`: View detailed results.
+
+---
+
+## 14. Advanced Performance Benchmarking
+
+A formalized suite to track solver latency, throughput, and solution quality, separate from unit-level performance tests.
+
+- **Scripts**: `logic/benchmark/run_all.py` (centralized entry point)
+  - Individual benchmarks: `baseline_benchmarks.py`, `neural_benchmarks.py`, `benchmark_policies.py`, etc.
+- **Command**: `just benchmark`
+
+---
+
+## 15. Solver Contract Tests
+
+Ensures parity and robustness across different optimization engines.
+
+- **Location**: `logic/test/integration/test_solver_contracts.py`
+- **Features**:
+  - **Parity checks**: Ensures Gurobi and Hexaly produce similar results formatted identically.
+  - **Interface validation**: Validates input/output schemas of solver functions.
+  - **Edge cases**: Tests stability with empty instances and invalid IDs.
+
+---
+
+## 16. ELK Stack Logging
+
+Structured logging infrastructure for visualizing test metrics and benchmarking results.
+
+- **Infrastructure**: Docker Compose in `docker/elk/`.
+- **Structured Logs**: `logic/src/utils/structured_logging.py` provides JSON formatting for Logstash.
+- **Usage**:
+  ```python
+  from logic.src.utils.structured_logging import log_test_metric
+  log_test_metric("inference_latency", 12.5)
+  ```
+- **Kibana**: Dashboard template available at `docker/elk/kibana_dashboard.json`.
+
+To start the ELK stack:
+```bash
+cd docker/elk
+docker-compose up -d
+```
+The dashboard will be available at `http://localhost:5601`.
 
 @pytest.fixture
 def main_window(qapp):

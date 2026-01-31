@@ -333,21 +333,27 @@ class AttentionModel(nn.Module):
         Forward pass of the Attention Model.
 
         Args:
-            input: The input data containing problem state.
-            cost_weights: Weights for different cost components. Defaults to None.
-            return_pi: Whether to return the action probabilities/sequence. Defaults to False.
+            input: Problem state dictionary with the following keys:
+                - 'loc' (Tensor[batch, n_nodes, 2]): Node coordinates (normalized 0-1).
+                - 'demand'/'prize' (Tensor[batch, n_nodes]): Node demand or prize values.
+                - 'depot' (Tensor[batch, 2]): Depot coordinates.
+                - 'dist' (Tensor[batch, n_nodes, n_nodes], optional): Distance matrix.
+                - 'edges' (Tensor[2, n_edges], optional): Edge index for graph convolution.
+                - 'waste' (Tensor[batch, n_nodes], optional): Fill levels for WC problems.
+            cost_weights: Tensor[num_metrics] - Weights for cost components. Defaults to None.
+            return_pi: Whether to return the action sequence. Defaults to False.
             pad: Whether to pad the solution sequence. Defaults to False.
-            mask: Mask for valid actions. Defaults to None.
-            expert_pi: Expert policy for KL divergence. Defaults to None.
-            **kwargs: Arbitrary keyword arguments.
+            mask: Tensor[batch, n_nodes] - Custom mask for valid actions. Defaults to None.
+            expert_pi: Tensor[batch, seq_len] - Expert policy for imitation learning.
+            **kwargs: Additional keyword arguments.
 
         Returns:
-            tuple:
-                - cost (torch.Tensor): Total cost/reward [batch_size].
-                - log_likelihood (torch.Tensor): Log likelihood of the action sequence [batch_size].
-                - cost_dict (dict): Breakdown of different cost components.
-                - pi (torch.Tensor, optional): The action sequence (node indices) [batch_size, seq_len].
-                - entropy (torch.Tensor, optional): Policy entropy [batch_size].
+            Tuple containing:
+                - cost (Tensor[batch]): Weighted total cost/reward for each instance.
+                - log_likelihood (Tensor[batch]): Log-prob of action sequence.
+                - cost_dict (Dict[str, Tensor]): Breakdown with keys 'length', 'waste', 'overflows'.
+                - pi (Tensor[batch, seq_len], optional): Node visit sequence.
+                - entropy (Tensor[batch], optional): Policy entropy.
         """
         edges = input.get("edges", None)
         dist_matrix = input.get("dist", None)  # Using 'dist' key consistent with original

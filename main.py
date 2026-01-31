@@ -258,6 +258,22 @@ def main(args):
 
 
 if __name__ == "__main__":
+    # ========================================================================
+    # Dual Dispatch System
+    # ========================================================================
+    # This application uses TWO command routing systems for historical reasons:
+    #
+    # 1. HYDRA_COMMANDS (below): Modern commands routed through Hydra/Lightning.
+    #    Examples: train, eval, test_sim, gen_data
+    #    These bypass parse_params() and go directly to unified_main().
+    #
+    # 2. Legacy CLI (parse_params): Traditional argparse-based routing.
+    #    Examples: gui, test_suite, file_system
+    #    These use the original argument parser and main() function.
+    #
+    # The sys.argv manipulation below (lines 296-304) converts user commands
+    # into Hydra-compatible overrides (e.g., 'eval' -> 'task=eval').
+    # ========================================================================
     HYDRA_COMMANDS = [
         "train",
         "train_hydra",
@@ -284,14 +300,6 @@ if __name__ == "__main__":
 
         # Bypass legacy parsing and delegate to Hydra/Lightning pipeline
         from logic.src.pipeline.features.train import main as unified_main
-
-        # Remove the command from argv as Hydra expects overrides
-        # But we need to keep argv[0] (script name)
-        # Actually, Hydra expects config overrides.
-        # If we run `python main.py eval`, sys.argv is ['main.py', 'eval']
-        # We want `python main.py task=eval` conceptually for Hydra.
-        # But `unified_main` is decorated with @hydra.main which parses sys.argv.
-        # So we need to modify sys.argv to remove 'eval' and add 'task=eval'.
 
         if command in ["eval", "test_sim", "gen_data"]:
             sys.argv.append(f"task={command}")

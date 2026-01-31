@@ -25,6 +25,12 @@ class SymNCO(POMO):
     - Multi-start decoding
     - Shared baseline across starts AND augmentations
     - Consistency losses
+
+    Reference:
+        Kim, M., Park, J., Kim, J., & Park, J. (2022).
+        Sym-NCO: Leveraging Symmetricity for Neural Combinatorial Optimization.
+        NeurIPS 2022. arXiv:2205.13209
+        https://arxiv.org/abs/2205.13209
     """
 
     def __init__(
