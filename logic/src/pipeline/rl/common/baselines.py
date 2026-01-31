@@ -12,6 +12,9 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.pipeline.rl.utils import safe_td_copy
+from logic.src.utils.logging.pylogger import get_pylogger
+
+logger = get_pylogger(__name__)
 
 
 class Baseline(nn.Module, ABC):
@@ -190,95 +193,91 @@ class RolloutBaseline(Baseline):
 
     def _rollout(self, policy: nn.Module, td_or_dataset: Any, env: Optional[Any] = None) -> torch.Tensor:
         """Run greedy rollout on a batch or dataset."""
+        from torch.utils.data import Dataset
+
+        if isinstance(td_or_dataset, Dataset):
+            return self._rollout_dataset(policy, td_or_dataset, env)
+        return self._rollout_batch(policy, td_or_dataset, env)
+
+    def _rollout_dataset(self, policy: nn.Module, dataset: Any, env: Optional[Any] = None) -> torch.Tensor:
+        """Run greedy rollout on a complete dataset."""
         if env is None:
             raise ValueError("Environment (env) is required for RolloutBaseline evaluation")
 
-        from torch.utils.data import DataLoader, Dataset
+        from torch.utils.data import DataLoader
 
         from logic.src.data.datasets import tensordict_collate_fn
+        from logic.src.utils.functions.rl import ensure_tensordict
 
-        if isinstance(td_or_dataset, Dataset):
-            # Determine strict batch size from environment
-            batch_size = 64  # Default
-            if hasattr(env, "batch_size") and len(env.batch_size) > 0:
-                batch_size = int(env.batch_size[0])
+        # Determine strict batch size from environment
+        batch_size = 64  # Default
+        if hasattr(env, "batch_size") and len(env.batch_size) > 0:
+            batch_size = int(env.batch_size[0])
 
-            loader = DataLoader(
-                td_or_dataset,
-                batch_size=batch_size,
-                collate_fn=tensordict_collate_fn,
-                num_workers=0,
-            )
-            rewards = []
-            policy.eval()
-            with torch.no_grad():
-                for batch in loader:
-                    # Get device from policy
-                    device = next(policy.parameters()).device
+        loader = DataLoader(
+            dataset,
+            batch_size=batch_size,
+            collate_fn=tensordict_collate_fn,
+            num_workers=0,
+        )
+        rewards = []
+        policy.eval()
+        with torch.no_grad():
+            for batch in loader:
+                # Get device from policy
+                device = next(policy.parameters()).device
+                td_data = ensure_tensordict(batch, device)
 
-                    # Reset environment for the batch
-                    # if it's a dict-like, we only want the data part for reset
-                    if isinstance(batch, (dict, TensorDict)) and "data" in list(batch.keys()):
-                        td_data = batch["data"]
-                    else:
-                        td_data = batch
+                try:
+                    if hasattr(env, "reset"):
+                        td_data = env.reset(td_data)
+                except (OSError, ValueError, KeyError) as e:
+                    logger.warning(f"Environment reset failed: {e}")
+                    raise e
 
-                    if isinstance(td_data, dict):
-                        td_data = TensorDict(td_data, batch_size=[len(next(iter(td_data.values())))])
+                # Padding logic for last batch
+                real_size = td_data.batch_size[0]
+                if real_size != batch_size:
+                    pad_size = batch_size - real_size
+                    # Repeat the first element to pad safely
+                    padding = td_data[0].expand(pad_size)
+                    padding_safe = safe_td_copy(padding)
+                    td_data = torch.cat([td_data, padding_safe], 0)
 
-                    # Move to device after converting to TensorDict
-                    td_data = td_data.to(device)
+                if hasattr(policy, "set_decode_type"):
+                    policy.set_decode_type("greedy")
+                    res = policy(td_data)
+                    out = {"reward": res[0]} if isinstance(res, tuple) else res
+                else:
+                    out = policy(td_data, env, decode_type="greedy")
 
-                    try:
-                        if hasattr(env, "reset"):
-                            td_data = env.reset(td_data)
-                        td_data = td_data.to(device)  # Ensure on policy device after reset
-                    except Exception as e:
-                        raise e
-                    # Padding logic for last batch
-                    real_size = td_data.batch_size[0]
-                    if real_size != batch_size:
-                        pad_size = batch_size - real_size
-                        # Repeat the first element to pad safely
-                        padding = td_data[0].expand(pad_size)
-                        padding_safe = safe_td_copy(padding)
-                        td_data = torch.cat([td_data, padding_safe], 0)
+                # Unpad rewards
+                if real_size != batch_size:
+                    out["reward"] = out["reward"][:real_size]
 
-                    if hasattr(policy, "set_decode_type"):
-                        policy.set_decode_type("greedy")
-                        # Some old models might return (cost, ll, dict, pi, entropy)
-                        res = policy(td_data)
-                        if isinstance(res, tuple):
-                            out = {"reward": res[0]}
-                        else:
-                            out = res
-                    else:
-                        out = policy(td_data, env, decode_type="greedy")
+                rewards.append(out["reward"].cpu())
 
-                    # Unpad rewards
-                    if real_size != batch_size:
-                        out["reward"] = out["reward"][:real_size]
+        if len(rewards) == 0:
+            return torch.tensor([], device="cpu")
+        return torch.cat(rewards)
 
-                    rewards.append(out["reward"].cpu())
-            if len(rewards) == 0:
-                return torch.tensor([], device="cpu")
-            return torch.cat(rewards)
+    def _rollout_batch(self, policy: nn.Module, td: Any, env: Optional[Any] = None) -> torch.Tensor:
+        """Run greedy rollout on a single batch."""
+        import copy
 
-        else:
-            import copy
+        from logic.src.utils.functions.rl import ensure_tensordict
 
-            td_copy = copy.deepcopy(td_or_dataset)
+        # Note: deepcopy can be expensive, but ensure_tensordict helps standardize
+        device = next(policy.parameters()).device
+        td_data = ensure_tensordict(td, device)
+        td_copy = copy.deepcopy(td_data)
 
-        # Actually run the rollout on the batch
         policy.eval()
         with torch.no_grad():
             if hasattr(policy, "set_decode_type"):
                 policy.set_decode_type("greedy")
                 res = policy(td_copy)
-                if isinstance(res, tuple):
-                    out = {"reward": res[0]}
-                else:
-                    out = res
+                out = {"reward": res[0]} if isinstance(res, tuple) else res
             else:
                 if env is None:
                     raise ValueError("Environment (env) is required for RolloutBaseline evaluation")
@@ -327,16 +326,9 @@ class RolloutBaseline(Baseline):
             # Note: This is computationally expensive if done every step
             # Ideally use wrap_dataset/unwrap_batch flow
             with torch.no_grad():
-                # We expect td to be already unwrapped or we unwrap it here
-                if isinstance(td, (dict, TensorDict)) and "data" in list(td.keys()):
-                    td = td["data"]
+                from logic.src.utils.functions.rl import ensure_tensordict
 
-                if isinstance(td, dict):
-                    td = TensorDict(td, batch_size=[len(next(iter(td.values())))])
-
-                # Check for "done" key to avoid re-resetting if already in loop
-                # but _rollout calls env.reset so we are safe.
-                # Actually, let's just call _rollout
+                td = ensure_tensordict(td, next(self.baseline_policy.parameters()).device)
                 return self._rollout(self.baseline_policy, td, env)
 
         return torch.zeros_like(reward)
@@ -491,13 +483,9 @@ class CriticBaseline(Baseline):
         if self.critic is None:
             return torch.zeros_like(reward)
 
-        # Unwrap td if needed
-        if isinstance(td, (dict, TensorDict)) and "data" in list(td.keys()):
-            td = td["data"]
+        from logic.src.utils.functions.rl import ensure_tensordict
 
-        if isinstance(td, dict):
-            td = TensorDict(td, batch_size=[len(next(iter(td.values())))])
-
+        td = ensure_tensordict(td, next(self.critic.parameters()).device)
         return self.critic(td).squeeze(-1)
 
     def get_learnable_parameters(self) -> list:

@@ -6,6 +6,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from logic.src.utils.logging.pylogger import get_pylogger
+
+logger = get_pylogger(__name__)
+
 
 class GATLSTManager(nn.Module):
     """
@@ -58,14 +62,29 @@ class GATLSTManager(nn.Module):
             try:
                 val = None
                 if hasattr(shared_encoder, "embed_dim"):
-                    val = shared_encoder.embed_dim
-                elif hasattr(shared_encoder, "layers"):
-                    val = shared_encoder.layers[0].att.module.embed_dim
+                    val = getattr(shared_encoder, "embed_dim")
+                elif hasattr(shared_encoder, "layers") and len(getattr(shared_encoder, "layers")) > 0:
+                    # Attempt to find embed_dim in deep layers
+                    first_layer = getattr(shared_encoder, "layers")[0]
+                    # Check for TransformerEncoderLayer style
+                    if (
+                        hasattr(first_layer, "att")
+                        and hasattr(first_layer.att, "module")
+                        and hasattr(first_layer.att.module, "embed_dim")
+                    ):
+                        val = first_layer.att.module.embed_dim
+                    # Check for standard GRU/LSTM/Linear style
+                    elif hasattr(first_layer, "embedding_dim"):
+                        val = first_layer.embedding_dim
 
                 if isinstance(val, int):
                     hidden_dim = val
-            except Exception:
-                pass
+                else:
+                    logger.debug(f"Could not infer embed_dim from shared_encoder: {shared_encoder}")
+            except (AttributeError, IndexError, TypeError) as e:
+                logger.warning(
+                    f"Error inferring embed_dim from shared_encoder: {e}. Using default hidden_dim={hidden_dim}"
+                )
 
         self.hidden_dim = hidden_dim
         self.input_dim_dynamic = input_dim_dynamic
@@ -241,21 +260,6 @@ class GATLSTManager(nn.Module):
     ):
         """
         Select actions (gate and mask) based on the current state.
-
-        Args:
-            static (torch.Tensor): Static features (Batch, N, 2).
-            dynamic (torch.Tensor): Dynamic features (Batch, N, History).
-            global_features (torch.Tensor, optional): Global features. Defaults to None.
-            deterministic (bool, optional): Whether to act deterministically. Defaults to False.
-            threshold (float, optional): Probability threshold for gate=1 (Route) when
-                deterministic. Defaults to 0.5.
-            mask_threshold (float, optional): Probability threshold for mask=1 (Unmask) when
-                deterministic. Defaults to 0.5.
-            target_mask (torch.Tensor, optional): Expert target for mask auxiliary loss.
-                Defaults to None.
-
-        Returns:
-            tuple: (mask_action, gate_action, value)
         """
         mask_logits, gate_logits, value = self.forward(static, dynamic, global_features)
 
@@ -265,7 +269,6 @@ class GATLSTManager(nn.Module):
 
         if deterministic:
             if threshold < 0:
-                # Force Gate Open
                 gate_action = torch.ones_like(gate_probs[..., 1]).long()
             else:
                 gate_action = (gate_probs[..., 1] > threshold).long()
@@ -274,10 +277,11 @@ class GATLSTManager(nn.Module):
 
         # 2. Mask Decision (Which nodes to mask/unmask)
         mask_probs = F.softmax(mask_logits, dim=-1)
+        mask_dist = torch.distributions.Categorical(mask_probs)
+
         if deterministic:
             mask_action = (mask_probs[..., 1] > mask_threshold).long()
         else:
-            mask_dist = torch.distributions.Categorical(mask_probs)
             mask_action = mask_dist.sample()  # (Batch, N)
 
         # Store for PPO
@@ -287,7 +291,7 @@ class GATLSTManager(nn.Module):
 
             self.states_static.append(static.detach().cpu())
             self.states_dynamic.append(dynamic.detach().cpu())
-            self.states_global.append(global_features.detach().cpu())
+            self.states_global.append(global_features.detach().cpu() if global_features is not None else None)
             self.actions_gate.append(gate_action.detach().cpu())
             self.actions_mask.append(mask_action.detach().cpu())
             self.log_probs_gate.append(log_prob_gate.detach().cpu())
@@ -298,7 +302,7 @@ class GATLSTManager(nn.Module):
             if target_mask is not None:
                 self.target_masks.append(target_mask.detach().cpu())
             else:
-                # Fallback to current waste > 0.9
-                self.target_masks.append((dynamic[:, :, -1] > 0.9).float().detach().cpu())
+                # Fallback based on waste level
+                self.target_masks.append((dynamic[:, :, -1] > self.critical_threshold).float().detach().cpu())
 
         return mask_action, gate_action, value

@@ -3,7 +3,6 @@ Unified Training and Hyperparameter Optimization entry point using PyTorch Light
 """
 
 import os
-from collections.abc import MutableMapping
 from typing import Any, Dict, Tuple, Union, cast
 
 import hydra
@@ -11,7 +10,7 @@ import optuna
 import pytorch_lightning as pl
 import torch
 from hydra.core.config_store import ConfigStore
-from omegaconf import OmegaConf
+from omegaconf import DictConfig, ListConfig, OmegaConf
 from pytorch_lightning import seed_everything
 
 from logic.src.callbacks import SpeedMonitor
@@ -176,59 +175,56 @@ def create_model(cfg: Config) -> pl.LightningModule:
     common_kwargs["aggregation_graph"] = cfg.model.aggregation_graph
     common_kwargs["hidden_dim"] = cfg.model.hidden_dim
 
-    # Specific remapping if needed
-    common_kwargs["optimizer"] = cfg.optim.optimizer
-    common_kwargs["optimizer_kwargs"] = {
-        "lr": cfg.optim.lr,
-        "weight_decay": cfg.optim.weight_decay,
-    }
-    common_kwargs["lr_scheduler"] = cfg.optim.lr_scheduler
-
     # SANITIZATION: Ensure all values are primitives to satisfy YAML serialization
     # Recursively convert DictConfig/ListConfig/integers/floats/strings
-    from omegaconf import DictConfig, ListConfig
-
-    def deep_sanitize(obj):
+    def deep_sanitize(obj: Any) -> Any:
         """
-        Recursively convert OmegaConf objects to primitive types (dict/list).
-
-        Args:
-            obj: The configuration object (DictConfig, ListConfig, or other).
-
-        Returns:
-            The sanitized object (dict, list, or primitive).
+        Recursively convert OmegaConf objects and other types to primitive types.
         """
-        if isinstance(obj, (dict, MutableMapping, DictConfig)):
-            # Force conversion to dict if it's OmegaConf
-            if isinstance(obj, DictConfig):
-                obj = OmegaConf.to_container(obj, resolve=True)
-            return {k: deep_sanitize(v) for k, v in obj.items()}
-        elif isinstance(obj, (list, tuple, ListConfig)):
-            # Force conversion to list if it's OmegaConf
-            if isinstance(obj, ListConfig):
-                obj = OmegaConf.to_container(obj, resolve=True)
+        if isinstance(obj, (DictConfig, ListConfig)):
+            obj = OmegaConf.to_container(obj, resolve=True)
+
+        if isinstance(obj, dict):
+            return {str(k): deep_sanitize(v) for k, v in obj.items()}
+        elif isinstance(obj, (list, tuple)):
             return [deep_sanitize(v) for v in obj]
         elif isinstance(obj, (int, float, str, bool, type(None))):
             return obj
-        # Fallback for objects that might be convertible to str
         return str(obj)
 
     # Sanitize common_kwargs before adding complex objects
     common_kwargs = cast(Dict[str, Any], deep_sanitize(common_kwargs))
+
+    # Flatten nested algorithm specific configs back into common_kwargs for backward compatibility
+    # with algorithm constructors that expect flat keys (like ppo_epochs, eps_clip, etc.)
+    # Note: We prefix them if needed or just merge them.
+    # For now, let's merge the active algorithm's config.
+    algo_name = cfg.rl.algorithm
+    if algo_name in common_kwargs and isinstance(common_kwargs[algo_name], dict):
+        algo_specific = common_kwargs[algo_name]
+        # Map modular names back to legacy names if needed, or just merge
+        # PPO: epochs -> ppo_epochs, eps_clip -> eps_clip (already same)
+        if algo_name == "ppo":
+            common_kwargs["ppo_epochs"] = algo_specific.get("epochs", 10)
+        elif algo_name == "sapo":
+            common_kwargs["tau_pos"] = algo_specific.get("tau_pos", 0.1)
+            common_kwargs["tau_neg"] = algo_specific.get("tau_neg", 1.0)
+        # Merge all algorithm specific keys for general use
+        common_kwargs.update(algo_specific)
 
     # Inject complex objects AFTER sanitization to avoid string conversion
     common_kwargs["env"] = env
     common_kwargs["policy"] = policy
 
     # Clean up common_kwargs to avoid passing unexpected args to LightningModule
-    # some algorithm specific args might be in cfg.rl but not in common_kwargs base
     for key in ["lr_critic", "lr_critic_value"]:
         common_kwargs.pop(key, None)
 
-    if cfg.rl.algorithm == "ppo":
+    # 4. Define Algorithm Registry and Creation Helpers
+    def _create_critic_helper(policy, cfg: Config) -> Any:
         from logic.src.models.policies.critic import create_critic_from_actor
 
-        critic = create_critic_from_actor(
+        return create_critic_from_actor(
             policy,
             env_name=cfg.env.name,
             embed_dim=cfg.model.embed_dim,
@@ -236,86 +232,51 @@ def create_model(cfg: Config) -> pl.LightningModule:
             n_layers=cfg.model.num_encoder_layers,
             n_heads=cfg.model.num_heads,
         )
-        model: pl.LightningModule = PPO(
-            critic=critic,
-            **common_kwargs,
-        )
-    elif cfg.rl.algorithm == "sapo":
-        from logic.src.models.policies.critic import create_critic_from_actor
 
-        critic = create_critic_from_actor(
-            policy,
-            env_name=cfg.env.name,
-            embed_dim=cfg.model.embed_dim,
-            hidden_dim=cfg.model.hidden_dim,
-            n_layers=cfg.model.num_encoder_layers,
-            n_heads=cfg.model.num_heads,
-        )
-        model = SAPO(
-            critic=critic,
-            **common_kwargs,
-        )
-    elif cfg.rl.algorithm == "gspo":
-        from logic.src.models.policies.critic import create_critic_from_actor
+    # Simplified Model Creation via Registry
+    algorithm = cfg.rl.algorithm
+    if algorithm in ["ppo", "sapo", "gspo", "dr_grpo"]:
+        critic = _create_critic_helper(policy, cfg)
+        algo_cls = {"ppo": PPO, "sapo": SAPO, "gspo": GSPO, "dr_grpo": DRGRPO}[algorithm]
+        model: pl.LightningModule = algo_cls(critic=critic, **common_kwargs)
 
-        critic = create_critic_from_actor(
-            policy,
-            env_name=cfg.env.name,
-            embed_dim=cfg.model.embed_dim,
-            hidden_dim=cfg.model.hidden_dim,
-            n_layers=cfg.model.num_encoder_layers,
-            n_heads=cfg.model.num_heads,
-        )
-        model = GSPO(
-            critic=critic,
-            **common_kwargs,
-        )
-    elif cfg.rl.algorithm == "dr_grpo":
-        from logic.src.models.policies.critic import create_critic_from_actor
-
-        critic = create_critic_from_actor(
-            policy,
-            env_name=cfg.env.name,
-            embed_dim=cfg.model.embed_dim,
-            hidden_dim=cfg.model.hidden_dim,
-            n_layers=cfg.model.num_encoder_layers,
-            n_heads=cfg.model.num_heads,
-        )
-        model = DRGRPO(
-            critic=critic,
-            **common_kwargs,
-        )
-    elif cfg.rl.algorithm == "gdpo":
+    elif algorithm == "gdpo":
         model = GDPO(
-            gdpo_objective_keys=cfg.rl.gdpo_objective_keys,
-            gdpo_objective_weights=cfg.rl.gdpo_objective_weights,
-            gdpo_conditional_key=cfg.rl.gdpo_conditional_key,
-            gdpo_renormalize=cfg.rl.gdpo_renormalize,
+            gdpo_objective_keys=cfg.rl.gdpo.objective_keys,
+            gdpo_objective_weights=cfg.rl.gdpo.objective_weights,
+            gdpo_conditional_key=cfg.rl.gdpo.conditional_key,
+            gdpo_renormalize=cfg.rl.gdpo.renormalize,
             **common_kwargs,
         )
-    elif cfg.rl.algorithm == "pomo":
+    elif algorithm == "pomo":
         model = POMO(
-            num_augment=cfg.rl.num_augment,
-            augment_fn=cfg.rl.augment_fn,
-            num_starts=cfg.rl.num_starts,
+            num_augment=cfg.rl.pomo.num_augment,
+            augment_fn=cfg.rl.pomo.augment_fn,
+            num_starts=cfg.rl.pomo.num_starts,
             **common_kwargs,
         )
-    elif cfg.rl.algorithm == "symnco":
+    elif algorithm == "symnco":
         model = SymNCO(
-            alpha=cfg.rl.symnco_alpha,
-            beta=cfg.rl.symnco_beta,
-            num_augment=cfg.rl.num_augment,
-            augment_fn=cfg.rl.augment_fn,
-            num_starts=cfg.rl.num_starts,
+            alpha=cfg.rl.symnco.alpha,
+            beta=cfg.rl.symnco.beta,
+            num_augment=cfg.rl.symnco.alpha
+            if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "num_augment")
+            else cfg.rl.pomo.num_augment,
+            augment_fn=cfg.rl.symnco.beta
+            if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "augment_fn")
+            else cfg.rl.pomo.augment_fn,
+            num_starts=cfg.rl.symnco.beta
+            if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "num_starts")
+            else cfg.rl.pomo.num_starts,
             **common_kwargs,
         )
-    elif cfg.rl.algorithm == "hrl":
+    elif algorithm == "hrl":
         from logic.src.models.gat_lstm_manager import GATLSTManager
 
         manager = GATLSTManager(device=cfg.device, hidden_dim=cfg.meta_rl.meta_hidden_dim)
         model = HRLModule(manager=manager, worker=policy, env=env, lr=cfg.meta_rl.meta_lr)
-    elif cfg.rl.algorithm in ["imitation", "adaptive_imitation"]:
-        # Helper to load expert policy with custom config
+    elif algorithm in ["imitation", "adaptive_imitation"]:
+
         def get_expert_policy(expert_name: str, env_name: str, cfg: Config) -> Any:
             expert_map = {
                 "hgs": VectorizedHGS,
@@ -342,7 +303,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
                     if custom_params:
                         expert_kwargs.update(custom_params)
                         logger.info(f"Loaded {expert_name} configuration from {config_path}")
-                except Exception as e:
+                except (OSError, ValueError, KeyError) as e:
                     logger.warning(f"Failed to load {expert_name} config from {config_path}: {e}")
 
             # Specific legacy overrides if manual cfg.rl fields are present
@@ -354,10 +315,10 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
             return expert_cls(**expert_kwargs)
 
-        expert_name = getattr(cfg.rl, "imitation_mode", "hgs")
+        expert_name = cfg.rl.imitation.mode
         expert_policy = get_expert_policy(expert_name, cfg.env.name, cfg)
 
-        if cfg.rl.algorithm == "imitation":
+        if algorithm == "imitation":
             from logic.src.pipeline.rl.core.imitation import ImitationLearning
 
             model = ImitationLearning(expert_policy=expert_policy, expert_name=expert_name, **common_kwargs)
@@ -366,9 +327,9 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
             model = AdaptiveImitation(
                 expert_policy=expert_policy,
-                il_weight=getattr(cfg.rl, "il_weight", 1.0),
-                il_decay=getattr(cfg.rl, "il_decay", 0.95),
-                patience=getattr(cfg.rl, "patience", 5),
+                il_weight=cfg.rl.adaptive_imitation.il_weight,
+                il_decay=cfg.rl.adaptive_imitation.il_decay,
+                patience=cfg.rl.adaptive_imitation.patience,
                 **common_kwargs,
             )
     else:
@@ -551,8 +512,6 @@ def main(cfg: Config) -> float:
         else:
             return run_training(cfg)
     elif cfg.task == "eval":
-        from omegaconf import OmegaConf
-
         from logic.src.pipeline.features.eval import run_evaluate_model, validate_eval_args
 
         # Convert Hydra config to dict
@@ -562,8 +521,6 @@ def main(cfg: Config) -> float:
         run_evaluate_model(args)
         return 0.0
     elif cfg.task == "test_sim":
-        from omegaconf import OmegaConf
-
         from logic.src.pipeline.features.test import run_wsr_simulator_test, validate_test_sim_args
 
         # Convert Hydra config to dict
@@ -573,8 +530,6 @@ def main(cfg: Config) -> float:
         run_wsr_simulator_test(args)
         return 0.0
     elif cfg.task == "gen_data":
-        from omegaconf import OmegaConf
-
         from logic.src.data.generate_data import generate_datasets, validate_gen_data_args
 
         # Convert Hydra config to dict

@@ -160,8 +160,10 @@ class WSTrainer(pl.Trainer):
                 name=experiment_name,
                 log_model=False,
             )
-        except Exception:
-            # Fall back to TensorBoard if WandB not available
+        except (ImportError, Exception) as e:
+            # Fall back to TensorBoard if WandB not available or network fails
             from pytorch_lightning.loggers import TensorBoardLogger
 
+            # We don't use logger.warning here because the logger might not be fully setup
+            print(f"WandB initialization failed, falling back to TensorBoard: {e}")
             return TensorBoardLogger(logs_dir or "logs", name="")

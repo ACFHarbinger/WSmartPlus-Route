@@ -22,8 +22,6 @@ from logic.src.pipeline.rl.core.gspo import GSPO
 from logic.src.pipeline.rl.core.imitation import ImitationLearning
 from logic.src.pipeline.rl.core.pomo import POMO
 from logic.src.pipeline.rl.core.ppo import PPO
-from logic.src.pipeline.rl.core.ppo_nstep import PPOStep
-from logic.src.pipeline.rl.core.ppo_stepwise import PPOStepwise
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
 from logic.src.pipeline.rl.core.sapo import SAPO
 from logic.src.pipeline.rl.core.symnco import SymNCO
@@ -43,8 +41,6 @@ __all__ = [
     "BASELINE_REGISTRY",
     "REINFORCE",
     "PPO",
-    "PPOStep",
-    "PPOStepwise",
     "A2C",
     "SAPO",
     "GSPO",

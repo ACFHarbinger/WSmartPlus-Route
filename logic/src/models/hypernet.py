@@ -6,6 +6,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from logic.src.utils.functions.problem import is_vrpp_problem, is_wc_problem
+
 from .modules import ActivationFunction, Normalization
 
 
@@ -41,8 +43,8 @@ class Hypernetwork(nn.Module):
         """
         super(Hypernetwork, self).__init__()
         self.problem = problem
-        self.is_wc = problem.NAME == "wcvrp" or problem.NAME == "cwcvrp" or problem.NAME == "sdwcvrp"
-        self.is_vrpp = problem.NAME == "vrpp" or problem.NAME == "cvrpp"
+        self.is_wc = is_wc_problem(problem)
+        self.is_vrpp = is_vrpp_problem(problem)
         if self.is_vrpp or self.is_wc:
             cost_dim = 3 * 2
         else:
