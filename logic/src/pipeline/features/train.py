@@ -24,8 +24,8 @@ from logic.src.models.policies import (
     SymNCOPolicy,
     TemporalAMPolicy,
 )
-from logic.src.models.policies.classical.alns import ALNSPolicy
-from logic.src.models.policies.classical.hgs import HGSPolicy
+from logic.src.models.policies.classical.alns import VectorizedALNS
+from logic.src.models.policies.classical.hgs import VectorizedHGS
 from logic.src.models.policies.classical.hybrid import NeuralHeuristicHybrid
 from logic.src.models.policies.classical.random_local_search import (
     RandomLocalSearchPolicy,
@@ -70,8 +70,8 @@ def create_model(cfg: Config) -> pl.LightningModule:
         "temporal": TemporalAMPolicy,
         "pointer": PointerNetworkPolicy,
         "symnco": SymNCOPolicy,
-        "alns": ALNSPolicy,
-        "hgs": HGSPolicy,
+        "alns": VectorizedALNS,
+        "hgs": VectorizedHGS,
         "hybrid": NeuralHeuristicHybrid,
     }
 
@@ -96,7 +96,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
     policy_kwargs.pop("name", None)
     if cfg.model.name == "hybrid":
         neural = AttentionModelPolicy(**policy_kwargs)
-        heuristic = ALNSPolicy(env_name=cfg.env.name, max_iterations=500)
+        heuristic = VectorizedALNS(env_name=cfg.env.name, max_iterations=500)
         policy = NeuralHeuristicHybrid(neural, heuristic)
     else:
         # Some policies like ALNSPolicy/HGSPolicy might take more specific args
@@ -318,8 +318,8 @@ def create_model(cfg: Config) -> pl.LightningModule:
         # Helper to load expert policy with custom config
         def get_expert_policy(expert_name: str, env_name: str, cfg: Config) -> Any:
             expert_map = {
-                "hgs": HGSPolicy,
-                "alns": ALNSPolicy,
+                "hgs": VectorizedHGS,
+                "alns": VectorizedALNS,
                 "random_ls": RandomLocalSearchPolicy,
                 "2opt": RandomLocalSearchPolicy,
             }

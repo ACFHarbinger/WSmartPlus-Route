@@ -10,10 +10,10 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
 
-from .hybrid_genetic_search import VectorizedHGS
+from .hybrid_genetic_search import VectorizedHGS as VectorizedHGSEngine
 
 
-class HGSPolicy(ConstructivePolicy):
+class VectorizedHGS(ConstructivePolicy):
     """
     HGS-based Policy wrapper using vectorized GPU-accelerated implementation.
 
@@ -90,7 +90,7 @@ class HGSPolicy(ConstructivePolicy):
             initial_solutions[b] = torch.randperm(num_nodes - 1, device=device) + 1
 
         # Initialize vectorized HGS solver
-        solver = VectorizedHGS(
+        solver = VectorizedHGSEngine(
             dist_matrix=dist_matrix,
             demands=demands,
             vehicle_capacity=capacity,

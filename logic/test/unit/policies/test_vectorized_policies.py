@@ -4,7 +4,9 @@ Unit tests for vectorized policy implementations (Local Search, HGS, Split).
 
 import pytest
 import torch
-from logic.src.models.policies.classical.alns import VectorizedALNS
+from logic.src.models.policies.classical.adaptive_large_neighborhood_search import (
+    VectorizedALNS,
+)
 from logic.src.models.policies.classical.hybrid_genetic_search import (
     VectorizedHGS,
     VectorizedPopulation,
@@ -227,7 +229,7 @@ class TestVectorizedPolicies:
     @pytest.mark.unit
     def test_alns_policy_forward(self):
         """Test the ALNSPolicy wrapper forward pass."""
-        from logic.src.models.policies.classical.alns import ALNSPolicy
+        from logic.src.models.policies.classical.alns import VectorizedALNS as ALNSPolicy
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
         batch_size = 2
@@ -237,6 +239,7 @@ class TestVectorizedPolicies:
             {
                 "locs": torch.rand(batch_size, num_nodes, 2, device=device),
                 "demand": torch.rand(batch_size, num_nodes, device=device) * 0.2,
+                "depot": torch.zeros(batch_size, 2, device=device),
                 "capacity": torch.ones(batch_size, device=device),
             },
             batch_size=[batch_size],

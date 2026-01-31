@@ -8,12 +8,12 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from logic.src.models.policies.classical.hgs import HGSPolicy
+from logic.src.models.policies.classical.hgs import VectorizedHGS
 from logic.src.policies.hgs_alns_solver import HGSALNSSolver
 from logic.src.policies.hgs_aux.types import HGSParams
 
 
-class HGSALNSPolicy(HGSPolicy, BaseModel):
+class HGSALNSPolicy(VectorizedHGS, BaseModel):
     """
     HGS-based Policy wrapper that uses ALNS for education phase.
 
@@ -38,7 +38,7 @@ class HGSALNSPolicy(HGSPolicy, BaseModel):
         BaseModel.__init__(self, **data)
 
         # Initialize HGSPolicy (nn.Module) using data from fields
-        HGSPolicy.__init__(
+        VectorizedHGS.__init__(
             self,
             env_name=self.env_name,
             time_limit=self.time_limit,
