@@ -38,11 +38,11 @@ import numpy as np
 from gurobipy import GRB, quicksum
 from numpy.typing import NDArray
 
-from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
+from .adapters import PolicyRegistry
+from .base_routing_policy import BaseRoutingPolicy
 
-from .adapters import IPolicy, PolicyRegistry
 
-
+# Retaining the complex static solver functions outside the class
 def run_vrpp_optimizer(
     bins: NDArray[np.float64],
     distance_matrix: List[List[float]],
@@ -60,43 +60,6 @@ def run_vrpp_optimizer(
 ):
     """
     Solve VRPP using either Gurobi or Hexaly optimizer.
-
-    Unified interface for solving the Vehicle Routing Problem with Profits.
-    Routes are constructed to maximize profit while respecting capacity and
-    enforcing collection of critical (must-go) bins.
-
-    Args:
-        bins (NDArray[np.float64]): Current bin fill levels (0-100%)
-        distance_matrix (List[List[float]]): Distance matrix (N+1 x N+1) with depot at 0
-        param (float): Std deviation multiplier for must-go prediction (unused here,
-            must_go list is pre-computed)
-        media (NDArray[np.float64]): Mean accumulation rates (unused here)
-        desviopadrao (NDArray[np.float64]): Std deviation of rates (unused here)
-        values (Dict[str, float]): Problem parameters:
-            - Q: Vehicle capacity
-            - R: Revenue per kg of waste
-            - B: Bin density (kg/m³)
-            - C: Travel cost per distance unit
-            - V: Bin volume (m³)
-            - Omega: Penalty per vehicle used
-            - delta: Tolerance for must-go violations
-            - psi: Minimum fill threshold
-        binsids (List[int]): List of bin IDs (0-indexed, includes depot at 0)
-        must_go (List[int]): Bin IDs that must be collected (0-indexed)
-        env (Optional[gp.Env]): Gurobi environment (Gurobi only)
-        number_vehicles (int): Number of vehicles. If 0, automatic fleet sizing. Default: 1
-        time_limit (int): Solver time limit in seconds. Default: 60
-        optimizer (str): Solver backend: 'gurobi' or 'hexaly'. Default: 'gurobi'
-        max_iter_no_improv (int): Early stopping iterations (Hexaly only). Default: 10
-
-    Returns:
-        Tuple[List[int], float, float]: Routes, profit, and cost
-            - routes: Flattened tour [0, bin1, bin2, ..., 0]
-            - profit: Total profit (revenue - cost - vehicle penalty)
-            - cost: Total travel cost
-
-    Raises:
-        ValueError: If optimizer is not 'gurobi' or 'hexaly'
     """
     if optimizer == "gurobi":
         return _run_gurobi_optimizer(
@@ -144,25 +107,6 @@ def _run_gurobi_optimizer(
 ):
     """
     Solve the Vehicle Routing Problem with Profits using Gurobi Optimizer.
-
-    Implements a 2-index flow formulation with MTZ subtour elimination
-    equivalent and capacity constraints.
-
-    Args:
-        bins (NDArray[np.float64]): Bin fill levels.
-        distance_matrix (List[List[float]]): Distance matrix.
-        env (Optional[gp.Env]): Gurobi environment.
-        param (float): Prediction parameter.
-        media (NDArray[np.float64]): Mean rates.
-        desviopadrao (NDArray[np.float64]): Std dev of rates.
-        values (Dict[str, float]): Problem parameters.
-        binsids (List[int]): Bin identifier mapping.
-        must_go (List[int]): Must-collect bin indicators.
-        number_vehicles (int): Max vehicles to use.
-        time_limit (int): Solver time limit.
-
-    Returns:
-        Tuple[List[int], float, float]: (Route, profit, cost).
     """
     Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
     Q, R, B, C, V = values["Q"], values["R"], values["B"], values["C"], values["V"]
@@ -175,9 +119,6 @@ def _run_gurobi_optimizer(
     nodes_real = [i for i in nodes if i != idx_deposito]
     S_dict = {i: pesos_reais[i] for i in nodes}
 
-    # MUST GO passed as argument
-    # must_go = []
-    # binsids passed as argument
     criticos = [bin_id in must_go for bin_id in binsids]
     criticos_dict = {i: criticos[i] for i in nodes}
 
@@ -186,64 +127,49 @@ def _run_gurobi_optimizer(
     mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
     mdl.Params.LogToConsole = 0
 
-    x = mdl.addVars(
-        pares_viaveis, vtype=GRB.BINARY, name="x"
-    )  # diz se a gente usa ou não a estrada que vai do ponto i até o ponto j
-    y = mdl.addVars(
-        pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="y"
-    )  # quanto de resíduo (kg) a gente está carregando nesse trecho entre i e j
-    f = mdl.addVars(
-        pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="f"
-    )  # pra evitar que o modelo crie "ciclos pequenos" fora do caminho principal (subtours).
+    x = mdl.addVars(pares_viaveis, vtype=GRB.BINARY, name="x")
+    y = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="y")
+    f = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="f")
     g = mdl.addVars(nodes, vtype=GRB.BINARY, name="g")
     k_var = mdl.addVar(lb=0, vtype=GRB.INTEGER, name="k_var")
     for i, j in pares_viaveis:
-        mdl.addConstr(y[i, j] <= Q * x[i, j])  # limita que o trecho não tenha a capaciade maxima do caminhão
-        mdl.addConstr(f[i, j] <= len(nodes) * x[i, j])  # evita subtours
+        mdl.addConstr(y[i, j] <= Q * x[i, j])
+        mdl.addConstr(f[i, j] <= len(nodes) * x[i, j])
 
-    # Garante que o fluxo líquido em cada nó é igual ao resíduo gerado somente se o contentor for coletado
     for i in nodes_real:
         mdl.addConstr(quicksum(y[i, j] - y[j, i] for j in nodes if (i, j) in y or (j, i) in y) == S_dict[i] * g[i])
 
-    # Teste de fixar o valor da quantidade de caminhões
     if number_vehicles == 0:
         number_vehicles = len(binsids)
 
     MAX_TRUCKS = number_vehicles
     mdl.addConstr(k_var <= MAX_TRUCKS)
 
-    # Relaciona k_var com o número de rotas que partem e voltam do depósito.
     mdl.addConstr(k_var == quicksum(x[idx_deposito, j] for j in nodes_real if (idx_deposito, j) in x))
     mdl.addConstr(quicksum(x[idx_deposito, j] for j in nodes_real if (idx_deposito, j) in x) == k_var)
     mdl.addConstr(quicksum(x[j, idx_deposito] for j in nodes_real if (j, idx_deposito) in x) == k_var)
 
-    # Se um contentor não for coletado (g[j]==0), não pode haver rota conectando-o ao depósito.
     for j in nodes_real:
         if (idx_deposito, j) in x:
             mdl.addConstr(x[idx_deposito, j] <= g[j])
         if (j, idx_deposito) in x:
             mdl.addConstr(x[j, idx_deposito] <= g[j])
 
-    # Garante que pelo menos um número mínimo de contentores críticos seja visitado (ajustável por delta)
     mdl.addConstr(
         quicksum(g[i] for i in nodes_real if criticos_dict[i])
         >= len([i for i in nodes_real if criticos_dict[i]]) - len(nodes_real) * delta
     )
 
     for i in nodes_real:
-        # Esses contentores devem ser coletados.
         if criticos_dict[i] or enchimentos[i] >= psi * 100:
             mdl.addConstr(g[i] == 1)
-        # g[i] é forçado a ser 0 (não coleta).
         if enchimentos[i] < 10 and not criticos[i]:
             g[i].UB = 0
 
-    # Se um contentor for visitado (g[j]==1), deve ter exatamente uma entrada e uma saída.
     for j in nodes_real:
         mdl.addConstr(quicksum(x[i, j] for i in nodes if (i, j) in x) == g[j])
         mdl.addConstr(quicksum(x[j, k] for k in nodes if (j, k) in x) == g[j])
 
-    # Assegura conectividade entre os pontos e impede a criação de ciclos menores isolados (subtours).
     mdl.addConstr(quicksum(f[0, j] for j in nodes_real if (0, j) in f) == quicksum(g[j] for j in nodes_real))
     for j in nodes_real:
         mdl.addConstr(
@@ -261,9 +187,9 @@ def _run_gurobi_optimizer(
     mdl.Params.Heuristics = 0.5
     mdl.Params.Threads = 0
     mdl.Params.Cuts = 3
-    mdl.Params.CliqueCuts = 2  # força clique cuts
-    mdl.Params.CoverCuts = 2  # força cuts de conjuntos
-    mdl.Params.FlowCoverCuts = 2  # força cortes para fluxos
+    mdl.Params.CliqueCuts = 2
+    mdl.Params.CoverCuts = 2
+    mdl.Params.FlowCoverCuts = 2
     mdl.Params.GUBCoverCuts = 2
     mdl.Params.Presolve = 1
     mdl.Params.NodefileStart = 0.5
@@ -437,13 +363,6 @@ def _run_hexaly_optimizer(
         no_improv_iter = [0]
 
         def callback(opt, type):
-            """
-            Callback function for checking early stopping criteria.
-
-            Args:
-                opt: The Hexaly optimizer instance.
-                type: The callback type (e.g., TIME_TICKED).
-            """
             if opt.solution.status == hx.HxSolutionStatus.INFEASIBLE:
                 return
             if type == hx.HxCallbackType.TIME_TICKED:
@@ -487,17 +406,35 @@ def _run_hexaly_optimizer(
 
 # --- AGNOSTIC POLICY ADAPTER ---
 @PolicyRegistry.register("vrpp")
-class VRPPPolicy(IPolicy):
+class VRPPPolicy(BaseRoutingPolicy):
     """
     Agnostic VRPP Policy adapter.
     Delegates to run_vrpp_optimizer.
     """
 
+    def _get_config_key(self) -> str:
+        """Return config key for VRPP."""
+        return "vrpp"
+
+    def _run_solver(
+        self,
+        sub_dist_matrix: np.ndarray,
+        sub_demands: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float]:
+        """Not used - VRPP requires specialized execute()."""
+        return [[]], 0.0
+
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """Execute the VRPP policy."""
         must_go = kwargs.get("must_go", [])
-        if not must_go:
-            return [0, 0], 0.0, None
+        early_result = self._validate_must_go(must_go)
+        if early_result is not None:
+            return early_result
 
         policy_name = kwargs.get("policy", "gurobi_vrpp")
         bins = kwargs["bins"]
@@ -509,13 +446,17 @@ class VRPPPolicy(IPolicy):
         config = kwargs.get("config", {})
 
         optimizer = "hexaly" if "hexaly" in policy_name else "gurobi"
-        time_limit = config.get("time_limit", 60)
 
-        # Configuration & Parameters
+        # Use base class to load params
+        capacity, revenue, cost_unit, _ = self._load_area_params(area, waste_type, config)
+        values = {"Q": capacity, "R": revenue, "C": cost_unit, "B": 0.0, "V": 1.0}
+
+        from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
+
         Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
         values = {"Q": Q, "R": R, "B": B, "C": C, "V": V}
 
-        # Extract VRPP config (handle nested optimizer key and list format)
+        # Extracted config handling
         vrpp_cfg = config.get("vrpp", {})
         if optimizer in vrpp_cfg:
             opt_cfg = vrpp_cfg[optimizer]
@@ -528,7 +469,6 @@ class VRPPPolicy(IPolicy):
         else:
             values.update(vrpp_cfg)
 
-        # Defaults
         values.setdefault("Omega", 0.1)
         values.setdefault("delta", 0.0)
         values.setdefault("psi", 1.0)

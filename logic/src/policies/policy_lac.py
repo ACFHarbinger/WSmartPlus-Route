@@ -1,50 +1,76 @@
 """
 LAC Policy Adapter (Look-ahead Algorithm for Collection).
-"""
-from typing import Any, List, Tuple
 
-from .adapters import IPolicy, PolicyRegistry
+Uses look-ahead optimization for route planning.
+"""
+
+from typing import Any, Dict, List, Tuple
+
+import numpy as np
+
+from .adapters import PolicyRegistry
+from .base_routing_policy import BaseRoutingPolicy
 from .look_ahead_aux.routes import create_points
 from .look_ahead_aux.solutions import find_solutions
+from .single_vehicle import get_route_cost
 
 
 @PolicyRegistry.register("lac")
-class LACPolicy(IPolicy):
+class LACPolicy(BaseRoutingPolicy):
     """
     LAC policy class.
+
+    Uses look-ahead optimization with simulated annealing for route construction.
     """
+
+    def _get_config_key(self) -> str:
+        """Return config key for LAC."""
+        return "lac"
+
+    def _run_solver(
+        self,
+        sub_dist_matrix: np.ndarray,
+        sub_demands: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float]:
+        """Not used - LAC requires specialized execute()."""
+        return [[]], 0.0
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
         Execute the LAC policy.
+
+        Uses specialized look-ahead solution finding.
         """
         must_go = kwargs.get("must_go", [])
-        if not must_go:
-            return [0, 0], 0.0, None
+        early_result = self._validate_must_go(must_go)
+        if early_result is not None:
+            return early_result
 
         bins = kwargs["bins"]
         distance_matrix = kwargs["distance_matrix"]
         coords = kwargs["coords"]
         new_data = kwargs["new_data"]  # Expecting the dataframe
-        area = kwargs["area"]
-        waste_type = kwargs["waste_type"]
+        area = kwargs.get("area", "Rio Maior")
+        waste_type = kwargs.get("waste_type", "plastic")
         config = kwargs.get("config", {})
         lac_config = config.get("lac", {})
 
-        from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
+        # Load area parameters
+        Q, R, B, C = self._load_area_params(area, waste_type, config)
+        V = lac_config.get("V", 1.0)
 
-        Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
         values = {"Q": Q, "R": R, "B": B, "C": C, "V": V, "shift_duration": 390, "perc_bins_can_overflow": 0}
         values.update(lac_config)
 
-        # must_go bins are 0-based, find_solutions expects?
-        # Original code: must_go_bins = [b + 1 for b in must_go]
-        # Checking find_solutions in look_ahead.py usage
+        # must_go bins are 0-based, find_solutions expects 1-based
         must_go_1 = [b + 1 for b in must_go]
 
         points = create_points(new_data, coords)
-        # find_solutions expects data normalized?
-        # new_data.loc[1:, "Stock"] = (bins.c/100).astype("float32")
 
         combination = lac_config.get("combination", [500, 75, 0.95, 0, 0.095, 0, 0])
 
@@ -64,7 +90,6 @@ class LACPolicy(IPolicy):
             return [0, 0], 0.0, None
 
         tour = res[0] if res else [0, 0]
+        cost = get_route_cost(distance_matrix, tour)
 
-        from .single_vehicle import get_route_cost
-
-        return tour, get_route_cost(distance_matrix, tour), None
+        return tour, cost, None
