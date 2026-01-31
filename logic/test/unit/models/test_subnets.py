@@ -158,7 +158,7 @@ class TestPointerDecoder:
         embed_dim = 16
         hidden_dim = 16
         model = PointerDecoder(
-            embedding_dim=embed_dim,
+            embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             tanh_exploration=10,
             use_tanh=True,
@@ -226,7 +226,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "vrpp"
-        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem)
+        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem)
         assert isinstance(model, nn.Module)
 
     def test_precompute(self):
@@ -235,7 +235,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "vrpp"
-        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem, n_heads=2)
+        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem, n_heads=2)
 
         batch, nodes, dim = 2, 5, 16
         embeddings = torch.randn(batch, nodes, dim)
@@ -250,7 +250,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "vrpp"
-        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem)
+        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem)
 
         probs = torch.tensor([[0.1, 0.8, 0.1], [0.3, 0.3, 0.4]])
         mask = torch.tensor([[0, 0, 0], [0, 0, 0]], dtype=torch.bool)
@@ -271,7 +271,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "vrpp"
-        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem, n_heads=2)
+        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem, n_heads=2)
 
         # [B, steps, nodes, D]
         v = torch.randn(2, 1, 5, 16)
@@ -285,7 +285,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "vrpp"
-        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem)
+        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem)
         # set is_vrpp manual if needed, but constructor does it
         assert model.is_vrpp
 
@@ -305,7 +305,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "cwcvrp"
-        model = AttentionDecoder(embedding_dim=16, hidden_dim=16, problem=problem)
+        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem)
         assert model.is_wc
 
         batch, nodes, dim = 2, 5, 16

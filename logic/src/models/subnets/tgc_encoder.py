@@ -13,7 +13,7 @@ from ..modules import (
 )
 
 
-class FeedForwardSubLayer(nn.Module):
+class TGCFeedForwardSubLayer(nn.Module):
     """
     Feed-Forward Sub-Layer with activation.
     """
@@ -30,8 +30,8 @@ class FeedForwardSubLayer(nn.Module):
         dist_range,
         bias=True,
     ):
-        """Initializes the FeedForwardSubLayer."""
-        super(FeedForwardSubLayer, self).__init__()
+        """Initializes the TGCFeedForwardSubLayer."""
+        super(TGCFeedForwardSubLayer, self).__init__()
         self.sub_layers = (
             nn.Sequential(
                 FeedForward(embed_dim, feed_forward_hidden, bias=bias),
@@ -54,7 +54,7 @@ class FeedForwardSubLayer(nn.Module):
         return self.sub_layers(h)
 
 
-class MultiHeadAttentionLayer(nn.Module):
+class TGCMultiHeadAttentionLayer(nn.Module):
     """
     Multi-Head Attention Layer with Normalization and Feed-Forward.
     """
@@ -78,8 +78,8 @@ class MultiHeadAttentionLayer(nn.Module):
         n_params,
         uniform_range,
     ):
-        """Initializes the MultiHeadAttentionLayer."""
-        super(MultiHeadAttentionLayer, self).__init__()
+        """Initializes the TGCMultiHeadAttentionLayer."""
+        super(TGCMultiHeadAttentionLayer, self).__init__()
         self.att = SkipConnection(MultiHeadAttention(n_heads, input_dim=embed_dim, embed_dim=embed_dim))
         self.norm1 = Normalization(
             embed_dim,
@@ -92,7 +92,7 @@ class MultiHeadAttentionLayer(nn.Module):
             lr_k,
         )
         self.ff = SkipConnection(
-            FeedForwardSubLayer(
+            TGCFeedForwardSubLayer(
                 embed_dim,
                 feed_forward_hidden,
                 activation,
@@ -264,7 +264,7 @@ class TransGraphConvEncoder(nn.Module):
         """
         super(TransGraphConvEncoder, self).__init__()
         layers = [
-            MultiHeadAttentionLayer(
+            TGCMultiHeadAttentionLayer(
                 n_heads,
                 embed_dim,
                 feed_forward_hidden,
@@ -302,7 +302,7 @@ class TransGraphConvEncoder(nn.Module):
                 n_params,
                 uniform_range,
             )
-            for _ in range(n_sublayers)
+            for _ in range(n_sublayers or 0)
         ]
         self.layers = nn.ModuleList(layers)
         self.dropout = nn.Dropout(dropout_rate)
