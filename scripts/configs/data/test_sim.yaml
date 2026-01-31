@@ -1,21 +1,29 @@
-# Paths and Data Specs
-data_dist: "gamma1"
-stats_path: ""
-sym_key: "skey"
-env_file: "vars.env"
-gp_lic_file: "gurobi.lic"
-hex_dat_file: "hexaly.dat.enc"
-google_api_file: "google.lic.enc"
+# @package _global_
 
-config_paths:
-  hgs: "policy_hgs.yaml"
-  alns: "policy_alns.yaml"
-  sans: "policy_sans.yaml"
-  bcp: "policy_bcp.yaml"
-  vrpp: "policy_vrpp.yaml"
-  cvrp: "policy_cvrp.yaml"
+# This file seems to be a mixed bag of simulation params, env params, and config paths.
+# It likely corresponds to overrides for the 'test_sim' task when using 'data=test_sim'?
+# Or maybe it was a legacy way to load test settings.
+# Mapping to sim and env config groups.
 
-edge_thresh: 1.0
-edge_method: "knn"
-vertex_method: "mmn"
-dist_method: "gmaps"
+sim:
+  data_distribution: "gamma1" # data_dist
+  env_file: "vars.env"
+  gplic_file: "gurobi.lic"
+  hexlic_file: "hexaly.dat.enc"
+  gapik_file: "google.lic.enc"
+  symkey_name: "skey"
+
+  # Config Paths for Policies (Manual dictionary in SimConfig.config_path)
+  config_path:
+    hgs: "policy_hgs.yaml"
+    alns: "policy_alns.yaml"
+    sans: "policy_sans.yaml"
+    bcp: "policy_bcp.yaml"
+    vrpp: "policy_vrpp.yaml"
+    cvrp: "policy_cvrp.yaml"
+
+env:
+  edge_threshold: 1.0       # edge_thresh
+  edge_method: "knn"
+  vertex_method: "mmn"
+  distance_method: "gmaps"  # dist_method

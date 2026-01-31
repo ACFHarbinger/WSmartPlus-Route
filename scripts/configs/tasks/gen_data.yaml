@@ -1,13 +1,14 @@
+# @package _global_
+
 # General
 verbose: true
 seed: 42
 start: 0
-n_epochs: 100
 
-# Problem Definition
-problem: "wcvrp"
+# Data Configuration
+data:
+  n_epochs: 100
+  problem: "wcvrp"
 
-# Generation Flags
-generate_dataset: 0
-generate_val_dataset: 0
-generate_test_dataset: 1
+# Note: 'dataset_type' must be provided via CLI (e.g. dataset_type=train)
+# as it is required by generate_data.py but not set here.

@@ -9,7 +9,7 @@ This module consolidates tests for:
 
 from unittest.mock import patch
 
-import logic.src.policies.look_ahead_aux.solution_initialization as solutions
+from logic.src.policies.look_ahead_aux import solution_initialization, simulated_annealing
 import numpy as np
 import pandas as pd
 import pytest
@@ -283,20 +283,20 @@ class TestLookAheadSolutions:
 
     def test_find_initial_solution(self, sample_data, bins_coord_df, dist_matrix):
         """Test initial solution finding."""
-        res = solutions.find_initial_solution(sample_data, bins_coord_df, dist_matrix, 6, 2000.0, 0.5, 20.0)
+        res = solution_initialization.find_initial_solution(sample_data, bins_coord_df, dist_matrix, 6, 2000.0, 0.5, 20.0)
         assert isinstance(res, list)
 
     def test_compute_initial_solution(self, sample_data, bins_coord_dict, dist_matrix):
         """Test initial solution computation."""
         id_to_index = {i: i for i in range(7)}
-        res = solutions.compute_initial_solution(sample_data, bins_coord_dict, dist_matrix, 2000.0, id_to_index)
+        res = solution_initialization.compute_initial_solution(sample_data, bins_coord_dict, dist_matrix, 2000.0, id_to_index)
         assert isinstance(res, list)
 
     def test_simulated_annealing_smoke(self, sample_data, bins_coord_dict, dist_matrix):
         """Test simulated annealing optimization."""
         routes = [[1, 2, 3], [4, 5, 6]]
         id_to_index = {i: i for i in range(7)}
-        res = solutions.improved_simulated_annealing(
+        res = simulated_annealing.improved_simulated_annealing(
             routes,
             dist_matrix,
             time_limit=0.1,

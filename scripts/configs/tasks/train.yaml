@@ -1,51 +1,56 @@
+# @package _global_
+
 # General Configuration
 verbose: true
 seed: 42
 start: 0
-epochs: 100
-problem: "cwcvrp"
-data_problem: "wcvrp"
 
+# Environment
+env:
+  name: "cwcvrp"
 
-# RL / Optimization
-rl_algo: "reinforce"
-optim: "rmsprop"
-lr_model: 0.0001
-lr_scheduler: "lambda"
-lr_decay: 1.0
-bl: "exponential"
-pomo_size: 0
-max_norm: 1.0
-exp_beta: 0.8
-bl_alpha: 0.05
-acc_steps: 1
-gamma: 1.0
+# Training Settings
+train:
+  n_epochs: 100
+  batch_size: 128
+  eval_batch_size: 128
+  log_step: 10
+  logs_dir: "logs"
+  model_weights_path: "model_weights"
+  persistent_workers: true
+  pin_memory: true
+  reload_dataloaders_every_n_epochs: 0
 
-# Imitation Learning / HGS
-imitation_w: 1.0
-imitation_decay: 0.91
-imitation_decay_step: 1
-stop_thresh: 0.1
-reheat_pat: 3
-reheat_thresh: 0.05
-imitation_mode: "hgs"
-two_opt_max_iter: 100
-hgs_config_path: "assets/configs/lookahead_hgs.yaml"
+# Optimizer Settings
+optim:
+  optimizer: "rmsprop"
+  lr: 0.0001
+  lr_decay: 1.0
+  lr_scheduler: "lambda"
 
-# Training Loop
-b_size: 128
-val_b_size: 128
-log_step: 10
-viz_step: 100
-n_workers: 4
-persistent_workers: true
-pin_memory: true
-reload_dataloaders_every_n_epochs: 0
-logs_dir: "logs"
-model_weights_path: "model_weights"
-wb_mode: "disabled"
+# RL / Algorithm Settings
+rl:
+  algorithm: "reinforce"
+  baseline: "exponential"
+  bl_alpha: 0.05
+  exp_beta: 0.8
+  max_grad_norm: 1.0
+  gamma: 1.0
 
-# Models to Train
-model_names: ["am"]
-model_encoders: ["gat"]
-horizon: [0, 0, 0, 0, 3]
+  # Imitation / Transfer parameters (if algorithm=imitation)
+  imitation_mode: "hgs"
+  imitation_weight: 1.0
+  imitation_decay: 0.91
+  imitation_threshold: 0.1  # stop_thresh
+  imitation_decay_step: 1
+  reannealing_patience: 3
+  reannealing_threshold: 0.05
+
+# Model Settings
+model:
+  name: "am"
+  encoder_type: "gat"
+  policy_config: "assets/configs/lookahead_hgs.yaml"
+
+# Global flags
+wandb_mode: "disabled"

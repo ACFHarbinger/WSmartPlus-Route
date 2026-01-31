@@ -3,6 +3,10 @@ import math
 import random
 import time
 
+from logic.src.constants.optimization import (
+    MAX_CAPACITY_PERCENT,
+    PENALTY_MUST_GO_MISSED,
+)
 from logic.src.policies.look_ahead_aux.computations import compute_total_cost
 from logic.src.policies.look_ahead_aux.routes import uncross_arcs_in_sans_routes
 from logic.src.policies.look_ahead_aux.sans_opt import (
@@ -124,7 +128,7 @@ def improved_simulated_annealing(
         for b in route0:
             if b == 0:
                 continue
-            bin_kg = stocks.get(b, 0) * V * density / 100.0
+            bin_kg = stocks.get(b, 0) * V * density / MAX_CAPACITY_PERCENT
 
             if current_load + bin_kg <= vehicle_capacity:
                 current_load += bin_kg
@@ -138,7 +142,7 @@ def improved_simulated_annealing(
 
     # Must-Go Penalty: Force all must_go_bins into the valid trunk of Route 0
     missed_must_go = len(must_go_bins) - len(collected_must_go) if must_go_bins else 0
-    penalty_must_go = missed_must_go * 10000.0  # Huge penalty
+    penalty_must_go = missed_must_go * PENALTY_MUST_GO_MISSED
 
     current_profit = current_revenue - current_cost - penalty_must_go
 

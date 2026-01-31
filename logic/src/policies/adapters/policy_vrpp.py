@@ -38,6 +38,12 @@ import numpy as np
 from gurobipy import GRB, quicksum
 from numpy.typing import NDArray
 
+from logic.src.constants.optimization import (
+    HEURISTICS_RATIO,
+    MIP_GAP,
+    NODEFILE_START_GB,
+)
+
 from ..base_routing_policy import BaseRoutingPolicy
 from .factory import PolicyRegistry
 
@@ -184,7 +190,7 @@ def _run_gurobi_optimizer(
     )
 
     mdl.Params.MIPFocus = 1
-    mdl.Params.Heuristics = 0.5
+    mdl.Params.Heuristics = HEURISTICS_RATIO
     mdl.Params.Threads = 0
     mdl.Params.Cuts = 3
     mdl.Params.CliqueCuts = 2
@@ -192,8 +198,8 @@ def _run_gurobi_optimizer(
     mdl.Params.FlowCoverCuts = 2
     mdl.Params.GUBCoverCuts = 2
     mdl.Params.Presolve = 1
-    mdl.Params.NodefileStart = 0.5
-    mdl.setParam("MIPGap", 0.01)
+    mdl.Params.NodefileStart = NODEFILE_START_GB
+    mdl.setParam("MIPGap", MIP_GAP)
     mdl.Params.TimeLimit = time_limit
 
     contentores_coletados = []
