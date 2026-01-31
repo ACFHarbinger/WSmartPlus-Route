@@ -17,6 +17,7 @@ src.policies.alns_aux
 src.policies.look_ahead_aux
 src.policies.hgs_aux
 src.policies.selection
+src.policies.adapters
 ```
 
 ## Submodules
@@ -25,27 +26,17 @@ src.policies.selection
 :titlesonly:
 :maxdepth: 1
 
-src.policies.policy_alns
 src.policies.hgs_alns_solver
-src.policies.policy_sans
-src.policies.policy_lac
+src.policies.base_routing_policy
 src.policies.branch_cut_and_price
 src.policies.multi_vehicle
-src.policies.policy_hgs
 src.policies.must_go_selection
 src.policies.lin_kernighan
 src.policies.hybrid_genetic_search
-src.policies.adapters
-src.policies.policy_tsp
 src.policies.neural_agent
 src.policies.adaptive_large_neighborhood_search
-src.policies.policy_cvrp
-src.policies.policy_hgs_alns
-src.policies.policy_vrpp
 src.policies.single_vehicle
 src.policies.post_processing
-src.policies.policy_lkh
-src.policies.policy_bcp
 ```
 
 ## Package Contents

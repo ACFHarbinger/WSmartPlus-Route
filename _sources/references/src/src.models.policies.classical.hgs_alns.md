@@ -26,7 +26,7 @@
 `````{py:class} HGSALNSPolicy(**data: typing.Any)
 :canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy
 
-Bases: {py:obj}`logic.src.models.policies.classical.hgs.HGSPolicy`, {py:obj}`pydantic.BaseModel`
+Bases: {py:obj}`logic.src.models.policies.classical.hgs.VectorizedHGS`, {py:obj}`pydantic.BaseModel`
 
 ```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy
 ```

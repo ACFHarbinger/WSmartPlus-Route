@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.policies.policy_alns &#8212; WSmart-Route  documentation</title>
+    <title>src.policies.look_ahead_aux.solution_initialization &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.policy_alns';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.look_ahead_aux.solution_initialization';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.hgs_alns_solver" href="src.policies.hgs_alns_solver.html" />
-    <link rel="prev" title="src.policies.selection.selection_lookahead" href="src.policies.selection.selection_lookahead.html" />
+    <link rel="next" title="src.policies.look_ahead_aux.update" href="src.policies.look_ahead_aux.update.html" />
+    <link rel="prev" title="src.policies.look_ahead_aux.simulated_annealing" href="src.policies.look_ahead_aux.simulated_annealing.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -175,30 +175,21 @@
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns_solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_sans.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_sans</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_lac.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_lac</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.base_routing_policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base_routing_policy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_hgs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_hgs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.must_go_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.must_go_selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_cvrp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_hgs_alns</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_vrpp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.post_processing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_lkh.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_lkh</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.policy_bcp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_bcp</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -256,10 +247,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.policies</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
@@ -350,7 +343,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.policies.policy_alns.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.policies.look_ahead_aux.solution_initialization.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -434,7 +427,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.policies.policy_alns</h1>
+    <h1>src.policies.look_ahead_aux.solution_initialization</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -445,12 +438,10 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.policy_alns.ALNSPolicy"><code class="docutils literal notranslate"><span class="pre">ALNSPolicy</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.policy_alns.ALNSPolicy.execute"><code class="docutils literal notranslate"><span class="pre">ALNSPolicy.execute()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.look_ahead_aux.solution_initialization.find_initial_solution"><code class="docutils literal notranslate"><span class="pre">find_initial_solution()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.look_ahead_aux.solution_initialization.compute_initial_solution"><code class="docutils literal notranslate"><span class="pre">compute_initial_solution()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -466,19 +457,21 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.policy_alns">
-<span id="src-policies-policy-alns"></span><h1><a class="reference internal" href="#module-src.policies.policy_alns" title="src.policies.policy_alns"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.policy_alns</span></code></a><a class="headerlink" href="#module-src.policies.policy_alns" title="Link to this heading">#</a></h1>
-<p>ALNS Policy Adapter.</p>
-<p>Adapts the Adaptive Large Neighborhood Search (ALNS) logic to the agnostic interface.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.look_ahead_aux.solution_initialization">
+<span id="src-policies-look-ahead-aux-solution-initialization"></span><h1><a class="reference internal" href="#module-src.policies.look_ahead_aux.solution_initialization" title="src.policies.look_ahead_aux.solution_initialization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux.solution_initialization</span></code></a><a class="headerlink" href="#module-src.policies.look_ahead_aux.solution_initialization" title="Link to this heading">#</a></h1>
+<p>Initialization strategies for vehicle routing solutions.
+Extracts constructive heuristics from the legacy solutions module.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.policy_alns.ALNSPolicy" title="src.policies.policy_alns.ALNSPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALNSPolicy</span></code></a></p></td>
-<td><p>ALNS policy class.
-Visits pre-selected ‘must_go’ bins.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.look_ahead_aux.solution_initialization.find_initial_solution" title="src.policies.look_ahead_aux.solution_initialization.find_initial_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_initial_solution</span></code></a></p></td>
+<td><p>Construct a feasible initial solution for the routing problem.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.look_ahead_aux.solution_initialization.compute_initial_solution" title="src.policies.look_ahead_aux.solution_initialization.compute_initial_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_initial_solution</span></code></a></p></td>
+<td><p>Simplified initial solution builder for SANS policy.</p></td>
 </tr>
 </tbody>
 </table>
@@ -486,18 +479,35 @@ Visits pre-selected ‘must_go’ bins.</p></td>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.policies.policy_alns.ALNSPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.policy_alns.</span></span><span class="sig-name descname"><span class="pre">ALNSPolicy</span></span><a class="headerlink" href="#src.policies.policy_alns.ALNSPolicy" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="src.policies.adapters.html#src.policies.adapters.IPolicy" title="src.policies.adapters.IPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.adapters.IPolicy</span></code></a></p>
-<p>ALNS policy class.
-Visits pre-selected ‘must_go’ bins.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.policy_alns.ALNSPolicy.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.policy_alns.ALNSPolicy.execute" title="Link to this definition">#</a></dt>
-<dd><p>Execute the ALNS policy.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.look_ahead_aux.solution_initialization.find_initial_solution">
+<span class="sig-prename descclassname"><span class="pre">src.policies.look_ahead_aux.solution_initialization.</span></span><span class="sig-name descname"><span class="pre">find_initial_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins_coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.look_ahead_aux.solution_initialization.find_initial_solution" title="Link to this definition">#</a></dt>
+<dd><p>Construct a feasible initial solution for the routing problem.</p>
+<p>Processes overflow predictions and builds routes using a construction heuristic.</p>
+<p>Args:
+data (pd.DataFrame): Bin weights and metadata.
+bins_coordinates (List): Lat/Lon pairs.
+distance_matrix (np.ndarray): Shortest path distances.
+number_of_bins (int): Scale of the problem.
+vehicle_capacity (float): Max tanker capacity.
+E (float): Bin volume.
+B (float): Bin density.</p>
+<p>Returns:
+Tuple: (routes, removed_bins, bins_cannot_removed, points).</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.look_ahead_aux.solution_initialization.compute_initial_solution">
+<span class="sig-prename descclassname"><span class="pre">src.policies.look_ahead_aux.solution_initialization.</span></span><span class="sig-name descname"><span class="pre">compute_initial_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins_coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_to_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.look_ahead_aux.solution_initialization.compute_initial_solution" title="Link to this definition">#</a></dt>
+<dd><p>Simplified initial solution builder for SANS policy.</p>
+<p>Args:
+data (pd.DataFrame): Bin metadata.
+bins_coordinates (List): Coordinates.
+distance_matrix (np.ndarray): Distances.
+vehicle_capacity (float): Tanker capacity.
+id_to_index (Dict): Mapping.</p>
+<p>Returns:
+Tuple: (initial_routes, removed_bins).</p>
 </dd></dl>
 
 </section>
@@ -516,20 +526,20 @@ Visits pre-selected ‘must_go’ bins.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.selection.selection_lookahead.html"
+       href="src.policies.look_ahead_aux.simulated_annealing.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_lookahead</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux.simulated_annealing</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.hgs_alns_solver.html"
+       href="src.policies.look_ahead_aux.update.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux.update</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -550,12 +560,10 @@ Visits pre-selected ‘must_go’ bins.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.policy_alns.ALNSPolicy"><code class="docutils literal notranslate"><span class="pre">ALNSPolicy</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.policy_alns.ALNSPolicy.execute"><code class="docutils literal notranslate"><span class="pre">ALNSPolicy.execute()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.look_ahead_aux.solution_initialization.find_initial_solution"><code class="docutils literal notranslate"><span class="pre">find_initial_solution()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.look_ahead_aux.solution_initialization.compute_initial_solution"><code class="docutils literal notranslate"><span class="pre">compute_initial_solution()</span></code></a></li>
 </ul>
 </li>
 </ul>

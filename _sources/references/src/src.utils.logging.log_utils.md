@@ -31,10 +31,6 @@
   - ```{autodoc2-docstring} src.utils.logging.log_utils.get_loss_stats
     :summary:
     ```
-* - {py:obj}`log_training <src.utils.logging.log_utils.log_training>`
-  - ```{autodoc2-docstring} src.utils.logging.log_utils.log_training
-    :summary:
-    ```
 * - {py:obj}`_sort_log <src.utils.logging.log_utils._sort_log>`
   - ```{autodoc2-docstring} src.utils.logging.log_utils._sort_log
     :summary:
@@ -65,10 +61,6 @@
     ```
 * - {py:obj}`load_log_dict <src.utils.logging.log_utils.load_log_dict>`
   - ```{autodoc2-docstring} src.utils.logging.log_utils.load_log_dict
-    :summary:
-    ```
-* - {py:obj}`log_plot <src.utils.logging.log_utils.log_plot>`
-  - ```{autodoc2-docstring} src.utils.logging.log_utils.log_plot
     :summary:
     ```
 * - {py:obj}`output_stats <src.utils.logging.log_utils.output_stats>`
@@ -120,13 +112,6 @@
 :canonical: src.utils.logging.log_utils.get_loss_stats
 
 ```{autodoc2-docstring} src.utils.logging.log_utils.get_loss_stats
-```
-````
-
-````{py:function} log_training(loss_keys: typing.List[str], table_df: pandas.DataFrame, opts: typing.Dict[str, typing.Any]) -> None
-:canonical: src.utils.logging.log_utils.log_training
-
-```{autodoc2-docstring} src.utils.logging.log_utils.log_training
 ```
 ````
 
@@ -183,13 +168,6 @@
 :canonical: src.utils.logging.log_utils.load_log_dict
 
 ```{autodoc2-docstring} src.utils.logging.log_utils.load_log_dict
-```
-````
-
-````{py:function} log_plot(visualize: bool = False, **kwargs: typing.Any) -> None
-:canonical: src.utils.logging.log_utils.log_plot
-
-```{autodoc2-docstring} src.utils.logging.log_utils.log_plot
 ```
 ````
 

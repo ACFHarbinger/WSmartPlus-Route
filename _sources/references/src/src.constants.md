@@ -13,10 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
+src.constants.optimization
 src.constants.paths
 src.constants.simulation
 src.constants.stats
 src.constants.user_interface
+src.constants.policies
 src.constants.testing
 src.constants.waste
 src.constants.hpo

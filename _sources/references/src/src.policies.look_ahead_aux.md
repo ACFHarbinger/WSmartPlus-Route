@@ -14,11 +14,13 @@
 :maxdepth: 1
 
 src.policies.look_ahead_aux.move
-src.policies.look_ahead_aux.solutions
 src.policies.look_ahead_aux.select
 src.policies.look_ahead_aux.computations
 src.policies.look_ahead_aux.swap
+src.policies.look_ahead_aux.simulated_annealing
+src.policies.look_ahead_aux.solution_initialization
 src.policies.look_ahead_aux.update
+src.policies.look_ahead_aux.route_search
 src.policies.look_ahead_aux.check
 src.policies.look_ahead_aux.search
 src.policies.look_ahead_aux.sans_opt
