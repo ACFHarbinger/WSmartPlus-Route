@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} TemporalAttentionModel(embedding_dim, hidden_dim, problem, component_factory, n_encode_layers=2, n_encode_sublayers=None, n_decode_layers=None, dropout_rate=0.1, aggregation='sum', aggregation_graph='mean', tanh_clipping=10.0, mask_inner=True, mask_logits=True, mask_graph=False, normalization='batch', norm_learn_affine=True, norm_track_stats=False, norm_eps_alpha=1e-05, norm_momentum_beta=0.1, lrnorm_k=1.0, gnorm_groups=3, activation_function='gelu', af_param=1.0, af_threshold=6.0, af_replacement_value=6.0, af_num_params=3, af_uniform_range=[0.125, 1 / 3], n_heads=8, checkpoint_encoder=False, shrink_size=None, temporal_horizon=5, predictor_layers=2)
+`````{py:class} TemporalAttentionModel(embed_dim, hidden_dim, problem, component_factory, n_encode_layers=2, n_encode_sublayers=None, n_decode_layers=None, dropout_rate=0.1, aggregation='sum', aggregation_graph='mean', tanh_clipping=10.0, mask_inner=True, mask_logits=True, mask_graph=False, normalization='batch', norm_learn_affine=True, norm_track_stats=False, norm_eps_alpha=1e-05, norm_momentum_beta=0.1, lrnorm_k=1.0, gnorm_groups=3, activation_function='gelu', af_param=1.0, af_threshold=6.0, af_replacement_value=6.0, af_num_params=3, af_uniform_range=[0.125, 1 / 3], n_heads=8, checkpoint_encoder=False, shrink_size=None, temporal_horizon=5, predictor_layers=2)
 :canonical: src.models.temporal_am.TemporalAttentionModel
 
 Bases: {py:obj}`src.models.AttentionModel`

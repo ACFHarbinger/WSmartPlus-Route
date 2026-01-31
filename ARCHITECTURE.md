@@ -1373,7 +1373,7 @@ class TrainConfigs:
     # Model
     model: str = 'am'
     encoder: str = 'gat'
-    embedding_dim: int = 128
+    embed_dim: int = 128
     hidden_dim: int = 512
     n_encode_layers: int = 3
 

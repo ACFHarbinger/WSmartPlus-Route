@@ -120,7 +120,7 @@ if %TRAIN_AM% equ 0 (
     python main.py hp_optim --problem "%PROBLEM%" --model am --encoder gat --hop_epochs %H_EPOCHS% --waste_type "%WTYPE%" ^
     --data_distribution "%DATA_DIST%" --n_epochs %EPOCHS% --vertex_method "%VERTEX_M%" --eta %ETA% --mutpb %MUTPB% ^
     --batch_size %B_SIZE% --epoch_size %N_DATA% --val_size %N_VAL_DATA% --temporal_horizon %HORIZON_0% ^
-    --train_time --train_dataset "%DATASET%" --normalization "%NORM%" --embedding_dim %EMBED_DIM% --cxpb %CXPB% ^
+    --train_time --train_dataset "%DATASET%" --normalization "%NORM%" --embed_dim %EMBED_DIM% --cxpb %CXPB% ^
     --area "%AREA%" --activation "%ACTIVATION%" --n_encode_layers %N_ENC_L% --optimizer "%OPTIM%" --hidden_dim %HIDDEN_DIM% ^
     --graph_size %SIZE% --no_tensorboard --range %RANGE% --fevals %FEVALS% --metric "%METRIC%" --n_pop %N_POP% ^
     --focus_size %F_SIZE% --eval_focus_size %VAL_F_SIZE% --focus_graph "%FOCUS_GRAPH%" --exp_beta %EXP_BETA% ^
@@ -149,7 +149,7 @@ if %TRAIN_AMGC% equ 0 (
     python main.py hp_optim --problem "%PROBLEM%" --model am --encoder gac --hop_epochs %H_EPOCHS% --waste_type "%WTYPE%" ^
     --data_distribution "%DATA_DIST%" --n_epochs %EPOCHS% --vertex_method "%VERTEX_M%" --mutpb %MUTPB% --cxpb %CXPB% ^
     --batch_size %B_SIZE% --epoch_size %N_DATA% --val_size %N_VAL_DATA% --n_pop %N_POP% --edge_method "%EDGE_M%" --eta %ETA% ^
-    --train_dataset "%DATASET%" --normalization "%NORM%" --embedding_dim %EMBED_DIM% --edge_threshold %EDGE_T% --area "%AREA%" ^
+    --train_dataset "%DATASET%" --normalization "%NORM%" --embed_dim %EMBED_DIM% --edge_threshold %EDGE_T% --area "%AREA%" ^
     --train_time --activation "%ACTIVATION%" --n_encode_layers %N_ENC_L% --optimizer "%OPTIM%" --hidden_dim %HIDDEN_DIM% ^
     --no_tensorboard --graph_size %SIZE% --range %RANGE% --fevals %FEVALS% --metric "%METRIC%" --aggregation "%AGG%" ^
     --focus_size %F_SIZE% --eval_focus_size %VAL_F_SIZE% --focus_graph "%FOCUS_GRAPH%" --temporal_horizon %HORIZON_1% ^
@@ -178,7 +178,7 @@ if %TRAIN_TRANSGCN% equ 0 (
     python main.py hp_optim --problem "%PROBLEM%" --model am --encoder tgc --hop_epochs %H_EPOCHS% --waste_type "%WTYPE%" ^
     --data_distribution "%DATA_DIST%" --n_epochs %EPOCHS% --vertex_method "%VERTEX_M%" --eta %ETA% --mutpb %MUTPB% ^
     --batch_size %B_SIZE% --epoch_size %N_DATA% --val_size %N_VAL_DATA% --n_pop %N_POP% --area "%AREA%" ^
-    --train_time --train_dataset "%DATASET%" --normalization "%NORM%" --embedding_dim %EMBED_DIM% --aggregation "%AGG%" ^
+    --train_time --train_dataset "%DATASET%" --normalization "%NORM%" --embed_dim %EMBED_DIM% --aggregation "%AGG%" ^
     --activation "%ACTIVATION%" --n_encode_layers %N_ENC_L% --optimizer "%OPTIM%" --hidden_dim %HIDDEN_DIM% ^
     --graph_size %SIZE% --no_tensorboard --range %RANGE% --fevals %FEVALS% --metric "%METRIC%" --cxpb %CXPB% ^
     --focus_size %F_SIZE% --eval_focus_size %VAL_F_SIZE% --focus_graph "%FOCUS_GRAPH%" --temporal_horizon %HORIZON_2% ^
@@ -208,7 +208,7 @@ if %TRAIN_DDAM% equ 0 (
     python main.py hp_optim --problem "%PROBLEM%" --model ddam --encoder gat --hop_epochs %H_EPOCHS% --waste_type "%WTYPE%" ^
     --data_distribution "%DATA_DIST%" --n_epochs %EPOCHS% --vertex_method "%VERTEX_M%" --eta %ETA% --mutpb %MUTPB% ^
     --batch_size %B_SIZE% --epoch_size %N_DATA% --val_size %N_VAL_DATA% --n_pop %N_POP% --temporal_horizon %HORIZON_3% ^
-    --train_time --train_dataset "%DATASET%" --normalization "%NORM%" --embedding_dim %EMBED_DIM% --cxpb %CXPB% ^
+    --train_time --train_dataset "%DATASET%" --normalization "%NORM%" --embed_dim %EMBED_DIM% --cxpb %CXPB% ^
     --activation "%ACTIVATION%" --n_encode_layers %N_ENC_L% --optimizer "%OPTIM%" --hidden_dim %HIDDEN_DIM% --exp_beta %EXP_BETA% ^
     --graph_size %SIZE% --no_tensorboard --range %RANGE% --fevals %FEVALS% --metric "%METRIC%" --area "%AREA%" ^
     --focus_size %F_SIZE% --eval_focus_size %VAL_F_SIZE% --focus_graph "%FOCUS_GRAPH%" --n_decode_layers %N_DEC_L% ^
@@ -237,7 +237,7 @@ if %TRAIN_TAM% equ 0 (
     python main.py hp_optim --problem "%PROBLEM%" --model tam --encoder gat --hop_epochs %H_EPOCHS% --waste_type "%WTYPE%" ^
     --metric "%METRIC%" --data_distribution "%DATA_DIST%" --n_epochs %EPOCHS% --vertex_method "%VERTEX_M%" --mutpb %MUTPB% ^
     --batch_size %B_SIZE% --epoch_size %N_DATA% --val_size %N_VAL_DATA% --n_pop %N_POP% --temporal_horizon %HORIZON_4% ^
-    --area "%AREA%" --train_time --train_dataset "%DATASET%" --normalization "%NORM%" --embedding_dim %EMBED_DIM% --cxpb %CXPB% ^
+    --area "%AREA%" --train_time --train_dataset "%DATASET%" --normalization "%NORM%" --embed_dim %EMBED_DIM% --cxpb %CXPB% ^
     --activation "%ACTIVATION%" --n_encode_layers %N_ENC_L% --optimizer "%OPTIM%" --hidden_dim %HIDDEN_DIM% --exp_beta %EXP_BETA% ^
     --graph_size %SIZE% --no_tensorboard --range %RANGE% --fevals %FEVALS% --temporal_horizon %HORIZON_4% ^
     --focus_size %F_SIZE% --eval_focus_size %VAL_F_SIZE% --focus_graph "%FOCUS_GRAPH%" --n_predict_layers %N_PRED_L% --eta %ETA% ^

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} EfficientGraphConvolution(in_channels: int, out_channels: int, aggrs: typing.Iterable[str] = ('symnorm', ), num_heads: int = 8, num_bases: int = 4, cached: bool = False, add_self_loops: bool = True, bias: bool = True, sigmoid: bool = False, **kwargs)
+`````{py:class} EfficientGraphConvolution(in_channels: int, out_channels: int, aggrs: typing.Iterable[str] = ('symnorm', ), n_heads: int = 8, num_bases: int = 4, cached: bool = False, add_self_loops: bool = True, bias: bool = True, sigmoid: bool = False, **kwargs)
 :canonical: src.models.modules.efficient_graph_convolution.EfficientGraphConvolution
 
 Bases: {py:obj}`torch_geometric.nn.MessagePassing`

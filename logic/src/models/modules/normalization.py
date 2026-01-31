@@ -111,13 +111,25 @@ class Normalization(nn.Module):
         """
         if isinstance(self.normalizer, nn.BatchNorm1d):
             return self.normalizer(input.view(-1, input.size(-1))).view(*input.size())
-        elif isinstance(self.normalizer, nn.InstanceNorm1d):
-            return self.normalizer(input.permute(0, 2, 1)).permute(0, 2, 1)
+        elif isinstance(self.normalizer, (nn.InstanceNorm1d, nn.GroupNorm)):
+            # Normalize over embedding dimension (last)
+            # We need to move the last dimension to the C position (index 1)
+            # and potentially flatten intermediate dimensions if normalizer is 1D
+            orig_shape = input.shape
+            dims = input.dim()
+            if dims > 3:
+                # view as (B, N1*N2*..., D)
+                curr = input.view(orig_shape[0], -1, orig_shape[-1])
+                # permute to (B, D, N_total)
+                curr = curr.permute(0, 2, 1)
+                curr = self.normalizer(curr)
+                # permute back and reshape
+                return curr.permute(0, 2, 1).view(*orig_shape)
+            elif dims == 3:
+                return self.normalizer(input.permute(0, 2, 1)).permute(0, 2, 1)
+            else:
+                return self.normalizer(input)
         elif isinstance(self.normalizer, nn.LayerNorm):
             return self.normalizer(input)
-        elif isinstance(self.normalizer, nn.GroupNorm):
-            # GroupNorm expects (N, C, *)
-            # Input is (B, N, C) -> Permute to (B, C, N)
-            return self.normalizer(input.permute(0, 2, 1)).permute(0, 2, 1)
         else:
             return self.normalizer(input)

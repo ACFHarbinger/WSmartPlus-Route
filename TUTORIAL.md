@@ -162,7 +162,7 @@ The **Attention Model (AM)** is the flagship neural architecture for constructiv
 **Architecture Overview:**
 ```python
 class AttentionModel(nn.Module):
-    def __init__(self, problem, embedding_dim=128, n_encode_layers=3, ...):
+    def __init__(self, problem, embed_dim=128, n_encode_layers=3, ...):
         # 1. Context Embedder: Encodes problem-specific information
         self.embedder = ContextEmbedder(problem)
 
@@ -170,13 +170,13 @@ class AttentionModel(nn.Module):
         self.encoder = GraphAttentionEncoder(
             n_heads=8,
             n_layers=n_encode_layers,
-            node_dim=embedding_dim
+            node_dim=embed_dim
         )
 
         # 3. Decoder: Selects next node autoregressively
         self.decoder = AttentionDecoder(
             n_heads=8,
-            embedding_dim=embedding_dim
+            embed_dim=embed_dim
         )
 ```
 
@@ -195,7 +195,7 @@ from logic.src.problems.vrpp import VRPP
 problem = VRPP.NAME
 model = AttentionModel(
     problem=problem,
-    embedding_dim=128,
+    embed_dim=128,
     n_encode_layers=3,
     n_heads=8
 )
@@ -256,7 +256,7 @@ Implements **Meta-Learning** to generalize across different problem distribution
 from logic.src.models.meta_rnn import MetaRNN
 
 meta_model = MetaRNN(
-    embedding_dim=128,
+    embed_dim=128,
     hidden_dim=256,
     n_tasks=10
 )
@@ -321,7 +321,7 @@ from logic.src.models.modules.distance_graph_convolution import DistanceAwareGC
 
 # Scale attention by physical distance
 encoder = DistanceAwareGC(
-    embedding_dim=128,
+    embed_dim=128,
     distance_scaling='exponential'  # or 'inverse', 'learned'
 )
 ```
@@ -741,7 +741,7 @@ from logic.src.pipeline.rl.hpo import DifferentialEvolutionHyperband
 
 search_space = {
     'lr_model': (1e-5, 1e-3, 'log'),
-    'embedding_dim': [64, 128, 256],
+    'embed_dim': [64, 128, 256],
     'n_encode_layers': [2, 3, 4, 5],
     'batch_size': [256, 512, 1024],
 }
@@ -1135,11 +1135,11 @@ import torch.nn as nn
 class MyModel(nn.Module):
     NAME = 'mymodel'
 
-    def __init__(self, problem, embedding_dim=128, **kwargs):
+    def __init__(self, problem, embed_dim=128, **kwargs):
         super().__init__()
         self.embedder = ContextEmbedder(problem)
-        self.encoder = MyCustomEncoder(embedding_dim)
-        self.decoder = MyCustomDecoder(embedding_dim)
+        self.encoder = MyCustomEncoder(embed_dim)
+        self.decoder = MyCustomDecoder(embed_dim)
 
     def forward(self, input, return_pi=False):
         embeddings = self.embedder(input)
@@ -1294,10 +1294,10 @@ PROBLEM_REGISTRY = {
 import torch.nn as nn
 
 class MyEncoder(nn.Module):
-    def __init__(self, embedding_dim, n_layers, n_heads, **kwargs):
+    def __init__(self, embed_dim, n_layers, n_heads, **kwargs):
         super().__init__()
         self.layers = nn.ModuleList([
-            MyEncoderLayer(embedding_dim, n_heads)
+            MyEncoderLayer(embed_dim, n_heads)
             for _ in range(n_layers)
         ])
 
@@ -1323,9 +1323,9 @@ ENCODER_REGISTRY = {
 ```python
 # logic/src/models/subnets/my_decoder.py
 class MyDecoder(nn.Module):
-    def __init__(self, embedding_dim, n_heads):
+    def __init__(self, embed_dim, n_heads):
         super().__init__()
-        self.attention = MultiHeadAttention(embedding_dim, n_heads)
+        self.attention = MultiHeadAttention(embed_dim, n_heads)
 
     def forward(self, context, nodes, mask):
         # Compute attention scores
@@ -1429,7 +1429,7 @@ from logic.src.models.my_model import MyModel
 class TestMyModel:
     @pytest.fixture
     def model(self):
-        return MyModel(problem='vrpp', embedding_dim=128)
+        return MyModel(problem='vrpp', embed_dim=128)
 
     @pytest.fixture
     def sample_input(self):

@@ -27,7 +27,7 @@
 
 ### API
 
-`````{py:class} Hypernetwork(problem, n_days=365, embedding_dim=16, hidden_dim=64, normalization='layer', activation='relu', learn_affine=True, bias=True)
+`````{py:class} Hypernetwork(problem, n_days=365, embed_dim=16, hidden_dim=64, normalization='layer', activation='relu', learn_affine=True, bias=True)
 :canonical: src.models.hypernet.Hypernetwork
 
 Bases: {py:obj}`torch.nn.Module`

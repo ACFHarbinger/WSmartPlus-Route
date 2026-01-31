@@ -1,6 +1,10 @@
 """
 POMO (Policy Optimization with Multiple Optima) implementation.
-Based on Kwon et al. (2020) and Adapted from RL4CO.
+
+Reference:
+    Kwon, Y. D., Choo, J., Kim, B., Yoon, I., Gwon, Y., & Min, S. (2020).
+    POMO: Policy Optimization with Multiple Optima for Neural Combinatorial Optimization.
+    Advances in Neural Information Processing Systems, 33, 21188-21198.
 """
 
 from __future__ import annotations

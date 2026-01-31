@@ -168,7 +168,7 @@ class TestGenerateData:
         """Tests that a single, simple problem is generated using the Builder."""
 
         gen_data_opts["problem"] = problem
-        gen_data_opts["graph_sizes"] = [50]
+        gen_data_opts["num_locs"] = [50]
         gen_data_opts["data_distributions"] = ["gamma1"]
 
         mock_save = mocker.patch("logic.src.data.generate_data.save_td_dataset")
@@ -215,7 +215,7 @@ class TestGenerateData:
         """Tests problems that iterate over multiple data distributions."""
 
         gen_data_opts["problem"] = problem
-        gen_data_opts["graph_sizes"] = [10]
+        gen_data_opts["num_locs"] = [10]
         gen_data_opts["data_distributions"] = ["all"]
 
         mocker.patch("logic.src.data.generate_data.save_td_dataset")
@@ -236,7 +236,7 @@ class TestGenerateData:
 
         gen_data_opts["problem"] = "vrpp"
         gen_data_opts["data_distributions"] = ["gamma1"]
-        gen_data_opts["graph_sizes"] = [10, 20]
+        gen_data_opts["num_locs"] = [10, 20]
         gen_data_opts["focus_graphs"] = [
             "dummy1",
             "dummy2",
@@ -248,18 +248,18 @@ class TestGenerateData:
         generate_datasets(gen_data_opts)
 
         # Assert build called correct number of times
-        assert mock_builder.build_td.call_count == len(gen_data_opts["graph_sizes"])
+        assert mock_builder.build_td.call_count == len(gen_data_opts["num_locs"])
 
         # Check sizes
         called_sizes = [call.args[0] for call in mock_builder.set_problem_size.call_args_list]
-        assert called_sizes == gen_data_opts["graph_sizes"]
+        assert called_sizes == gen_data_opts["num_locs"]
 
     @pytest.mark.unit
     def test_wsr_generation(self, gen_data_opts, mock_builder, mocker):
         """Tests the special case for WSR simulator data generation."""
 
         gen_data_opts["dataset_type"] = "test_simulator"
-        gen_data_opts["graph_sizes"] = [5]
+        gen_data_opts["num_locs"] = [5]
         gen_data_opts["data_distributions"] = ["gamma1"]
         gen_data_opts["n_epochs"] = 7
         gen_data_opts["problem"] = "wcvrp"
@@ -280,7 +280,7 @@ class TestGenerateData:
         """Tests that an unknown problem name raises a KeyError."""
 
         gen_data_opts["problem"] = "unknown_problem"
-        gen_data_opts["graph_sizes"] = [10]
+        gen_data_opts["num_locs"] = [10]
 
         with pytest.raises(KeyError, match="unknown_problem"):
             generate_datasets(gen_data_opts)

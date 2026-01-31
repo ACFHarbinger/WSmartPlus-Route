@@ -184,7 +184,7 @@ class TestLoadModel:
             "problem": "vrpp",
             "model": "am",
             "encoder": "gat",
-            "embedding_dim": 128,
+            "embed_dim": 128,
             "hidden_dim": 512,
             "n_encode_layers": 3,
             "n_encode_sublayers": 1,
@@ -237,7 +237,7 @@ class TestLoadModel:
 class TestLogUtils:
     """Class for log_utils tests."""
 
-    @patch("logic.src.utils.logging.log_utils.wandb")
+    @patch("logic.src.utils.logging.modules.metrics.wandb")
     def test_log_epoch(self, mock_wandb):
         """Test log_epoch with mocked wandb."""
         opts = {"train_time": False, "wandb_mode": "online"}
@@ -266,34 +266,37 @@ class TestLogUtils:
             log_training(loss_keys, table_df, opts)
         assert mock_wandb.log.called
 
-    @patch("logic.src.utils.logging.log_utils.os.path.exists")
-    @patch("logic.src.utils.logging.log_utils.read_json")
+    @patch("logic.src.utils.logging.modules.storage.os.path.isfile")
+    @patch("logic.src.utils.logging.modules.storage.read_json")
     @patch("builtins.open", new_callable=MagicMock)
-    def test_log_to_json(self, mock_open, mock_read, mock_exists):
+    @patch("json.dump")
+    def test_log_to_json(self, mock_dump, mock_open, mock_read, mock_isfile):
         """Test log_to_json with mock file."""
-        mock_exists.return_value = True
+        mock_isfile.return_value = True
         mock_read.return_value = {"runs": []}
         mock_open.return_value.__enter__.return_value = MagicMock()
         with (
-            patch("json.dump") as mock_dump,
-            patch("logic.src.utils.logging.log_utils._sort_log"),
+            patch("logic.src.utils.logging.modules.storage._sort_log"),
         ):
-            res = log_to_json("path.json", ["val"], {"key": [1]}, sort_log=True)
+            res = log_to_json("path.json", ["val"], {"key": [1]}, sort_log_flag=True)
             assert res is not None
             assert mock_dump.called
 
-    @patch("logic.src.utils.logging.log_utils.os.path.exists")
+    @patch("logic.src.utils.logging.modules.storage.os.path.isfile")
+    @patch("logic.src.utils.logging.modules.storage.read_json")
     @patch("builtins.open", new_callable=MagicMock)
-    def test_log_to_json2(self, mock_open, mock_exists):
+    @patch("json.dump")
+    def test_log_to_json2(self, mock_dump, mock_open, mock_read, mock_isfile):
         """Test log_to_json2 (thread-safe version) with mock file."""
-        mock_exists.return_value = False
+        mock_isfile.return_value = False
+        mock_read.return_value = []
         mock_open.return_value.__enter__.return_value = MagicMock()
-        with patch("json.load", return_value=[]), patch("json.dump") as mock_dump:
+        with patch("json.load", return_value=[]):
             res = log_to_json2("path.json", ["val"], {"key": [2]})
             assert res is not None
             assert mock_dump.called
 
-    @patch("logic.src.utils.logging.log_utils.wandb")
+    @patch("logic.src.utils.logging.modules.metrics.wandb")
     def test_log_values(self, mock_wandb):
         """Test log_values function."""
         cost = torch.tensor([10.0])
@@ -321,16 +324,21 @@ class TestLogUtils:
         assert mock_wandb.log.called
         assert tb_logger.add_scalar.called
 
-    @patch("glob.glob")
-    @patch("logic.src.utils.logging.log_utils.read_json")
+    @patch("logic.src.utils.logging.modules.analysis.os.path.isfile")
+    @patch("logic.src.utils.logging.modules.analysis.read_json")
     @patch("builtins.open", new_callable=MagicMock)
     @patch("json.dump")
-    def test_output_stats(self, mock_dump, mock_open_file, mock_read, mock_glob):
+    def test_output_stats(self, mock_dump, mock_open_file, mock_read, mock_isfile):
         """Test output_stats function."""
-        mock_glob.return_value = ["dir/log.json"]
-        mock_read.return_value = [
-            {"policy1": {"cost": 10.0}},
-            {"policy1": {"cost": 20.0}},
+        mock_isfile.return_value = True
+        # Call 1: mean_dit, Call 2: std_dit, Call 3: data
+        mock_read.side_effect = [
+            {},  # mean_dit
+            {},  # std_dit
+            [
+                {"policy1": {"cost": 10.0}},
+                {"policy1": {"cost": 20.0}},
+            ],  # data
         ]
         mock_open_file.return_value.__enter__.return_value = MagicMock()
         mean, std = output_stats("home", 1, 50, "out", "area", 2, ["policy1"], ["cost"], print_output=False)
@@ -338,8 +346,8 @@ class TestLogUtils:
         assert isinstance(std, dict)
         assert mock_dump.called
 
-    @patch("logic.src.utils.logging.log_utils.read_json")
-    def test_aggregate_stats(self, mock_read):
+    @patch("logic.src.utils.logging.modules.analysis.read_json")
+    def test_runs_per_policy(self, mock_read):
         """Test runs_per_policy function."""
         mock_read.return_value = [{"policy1": "res"}, {}]
         res = runs_per_policy("home", 1, [50], "out", "area", [100], ["policy1"], print_output=True)

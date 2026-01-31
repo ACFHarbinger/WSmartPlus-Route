@@ -1,5 +1,10 @@
 """
 REINFORCE algorithm implementation.
+
+Reference:
+    Williams, R. J. (1992).
+    Simple statistical gradient-following algorithms for connectionist reinforcement learning.
+    Machine learning, 8(3-4), 229-256.
 """
 
 from typing import TYPE_CHECKING, Optional

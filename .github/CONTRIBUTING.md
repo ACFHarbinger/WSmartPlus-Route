@@ -466,7 +466,7 @@ class TestMyModel:
     @pytest.fixture
     def model(self):
         """Create a model instance for testing."""
-        return MyModel(problem='vrpp', embedding_dim=64)
+        return MyModel(problem='vrpp', embed_dim=64)
 
     @pytest.fixture
     def sample_batch(self):
@@ -634,20 +634,20 @@ class MyEncoder(nn.Module):
     My custom encoder implementation.
 
     Args:
-        embedding_dim: Dimension of node embeddings.
+        embed_dim: Dimension of node embeddings.
         n_layers: Number of encoder layers.
         n_heads: Number of attention heads.
     """
 
     def __init__(
         self,
-        embedding_dim: int = 128,
+        embed_dim: int = 128,
         n_layers: int = 3,
         n_heads: int = 8
     ):
         super().__init__()
         self.layers = nn.ModuleList([
-            MyEncoderLayer(embedding_dim, n_heads)
+            MyEncoderLayer(embed_dim, n_heads)
             for _ in range(n_layers)
         ])
 
@@ -693,7 +693,7 @@ parser.add_argument(
 class TestMyEncoder:
     @pytest.fixture
     def encoder(self):
-        return MyEncoder(embedding_dim=64, n_layers=2)
+        return MyEncoder(embed_dim=64, n_layers=2)
 
     def test_forward_shape(self, encoder):
         x = torch.rand(4, 20, 64)

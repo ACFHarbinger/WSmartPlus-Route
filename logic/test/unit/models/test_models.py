@@ -409,7 +409,7 @@ class TestMoEModel:
         problem = CVRPP()
 
         model = MoEAttentionModel(
-            embedding_dim=16,
+            embed_dim=16,
             hidden_dim=32,
             problem=problem,
             n_encode_layers=1,
@@ -439,7 +439,7 @@ class TestMoEModel:
         """Test MoETemporalAttentionModel initialization."""
         problem = CVRPP()
         model = MoETemporalAttentionModel(
-            embedding_dim=16,
+            embed_dim=16,
             hidden_dim=32,
             problem=problem,
             n_encode_layers=1,

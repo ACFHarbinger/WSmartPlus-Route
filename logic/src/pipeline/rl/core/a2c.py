@@ -98,7 +98,7 @@ class A2C(RL4COLitModule):
             critic = CriticNetwork(
                 problem=DummyProblem(env.name if hasattr(env, "name") else "vrpp"),
                 component_factory=AttentionComponentFactory(),
-                embedding_dim=getattr(policy, "embed_dim", 128),
+                embed_dim=getattr(policy, "embed_dim", 128),
                 hidden_dim=256,
                 n_layers=3,
                 n_sublayers=1,

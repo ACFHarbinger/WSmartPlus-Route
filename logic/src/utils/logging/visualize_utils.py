@@ -120,7 +120,7 @@ def load_model_instance(model_path, device, size=100, problem_name="wcvrp"):
     # Ideally should load args from checkpoint or args.json
     problem = load_problem(problem_name)
     model = AttentionModel(
-        embedding_dim=128,
+        embed_dim=128,
         hidden_dim=512,
         problem=problem,
         encoder_class=GraphAttentionEncoder,

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} PointerNetwork(embedding_dim, hidden_dim, problem, n_encode_layers=None, tanh_clipping=10.0, mask_inner=True, mask_logits=True, normalization=None, **kwargs)
+`````{py:class} PointerNetwork(embed_dim, hidden_dim, problem, n_encode_layers=None, tanh_clipping=10.0, mask_inner=True, mask_logits=True, normalization=None, **kwargs)
 :canonical: src.models.pointer_network.PointerNetwork
 
 Bases: {py:obj}`torch.nn.Module`

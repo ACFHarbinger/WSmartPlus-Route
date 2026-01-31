@@ -26,7 +26,7 @@ class TestAttentionModelStructure:
         mock_problem.NAME = "wcvrp"
 
         model = AttentionModel(
-            embedding_dim=128, hidden_dim=64, problem=mock_problem, component_factory=mock_factory, n_encode_layers=2
+            embed_dim=128, hidden_dim=64, problem=mock_problem, component_factory=mock_factory, n_encode_layers=2
         )
 
         # Verify Context Embedder Strategy
@@ -40,14 +40,14 @@ class TestAttentionModelStructure:
         """Test initialization for VRPP context."""
         mock_problem.NAME = "vrpp"
 
-        model = AttentionModel(embedding_dim=128, hidden_dim=64, problem=mock_problem, component_factory=mock_factory)
+        model = AttentionModel(embed_dim=128, hidden_dim=64, problem=mock_problem, component_factory=mock_factory)
 
         assert model.is_vrpp
         assert not model.is_wc
 
     def test_forward_pass_structure(self, mock_problem, mock_factory):
         """Test basic forward pass flow (mocked)."""
-        model = AttentionModel(embedding_dim=128, hidden_dim=64, problem=mock_problem, component_factory=mock_factory)
+        model = AttentionModel(embed_dim=128, hidden_dim=64, problem=mock_problem, component_factory=mock_factory)
 
         # Mock embedder output
         # embedder(node_embeddings, edges, ...) -> embeddings

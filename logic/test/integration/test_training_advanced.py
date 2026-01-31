@@ -39,7 +39,7 @@ def test_dr_grpo_training_loop(clean_logs):
 
     factory = AttentionComponentFactory()
     critic = CriticNetwork(
-        problem=env, component_factory=factory, embedding_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
+        problem=env, component_factory=factory, embed_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
     )
 
     # DR-GRPO configuration
@@ -81,7 +81,7 @@ def test_gdpo_training_loop(clean_logs):
 
     factory = AttentionComponentFactory()
     critic = CriticNetwork(
-        problem=env, component_factory=factory, embedding_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
+        problem=env, component_factory=factory, embed_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
     )
 
     # GDPO configuration with objective keys

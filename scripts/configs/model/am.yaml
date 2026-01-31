@@ -4,10 +4,10 @@ model:
   name: "am"
   embed_dim: 128
   hidden_dim: 512
-  num_encoder_layers: 3    # n_enc_l
-  num_encoder_sublayers: 1 # n_enc_sl
-  num_predictor_layers: 2  # n_pred_l
-  num_decoder_layers: 2    # n_dec_l
+  n_encode_layers: 3       # n_enc_l
+  n_encoder_sublayers: 1 # n_enc_sl
+  n_predictor_layers: 2  # n_pred_l
+  n_decode_layers: 2       # n_dec_l
   n_heads: 8
   encoder_type: "gat"
 
