@@ -144,98 +144,103 @@ class SimulationContext:
         self.pol_name = ""
         self.pol_engine = None
         self.pol_threshold = None
+        self._parse_policy_string()
+        self._continue_init(variables_dict, pol_id)
 
-        if "vrpp" in self.pol_strip:
-            self.pol_name = "vrpp"
-            if "gurobi" in self.pol_strip:
-                self.pol_engine = "gurobi"
-            elif "hexaly" in self.pol_strip:
-                self.pol_engine = "hexaly"
+    def _parse_policy_string(self) -> None:
+        """
+        Parse policy string to extract name, engine, and threshold.
 
-            # Parse threshold (e.g. vrpp_1.0)
-            try:
-                parts = self.pol_strip.split("vrpp")
-                if len(parts) > 1:
-                    threshold_part = parts[1].strip("_")
-                    # If it has more parts (like policy_vrpp_0.5_something), take first
-                    sub_parts = threshold_part.split("_")
-                    if sub_parts[0]:
+        Uses a lookup table approach for maintainability.
+        """
+        # Policies with engine options
+        ENGINE_POLICIES = {
+            "vrpp": ["gurobi", "hexaly"],
+        }
+
+        # Policies that parse threshold from string
+        THRESHOLD_POLICIES = ["vrpp", "sans", "hgs", "alns", "bcp"]
+
+        # Policies with special config chars (e.g., lac_a_1.0, lac_b_2.0)
+        CONFIG_CHAR_POLICIES = {"lac": ["a", "b"]}
+
+        # Simple name mappings (no threshold parsing)
+        SIMPLE_POLICIES = {
+            ("am", "ddam", "transgcn"): "neural",
+            ("last_minute",): "last_minute",
+            ("regular",): "regular",
+            ("bcp",): "bcp",
+            ("lkh",): "lkh",
+            ("tsp",): "tsp",
+            ("cvrp",): "cvrp",
+        }
+
+        # Check engine policies first
+        for pol_key, engines in ENGINE_POLICIES.items():
+            if pol_key in self.pol_strip:
+                self.pol_name = pol_key
+                for eng in engines:
+                    if eng in self.pol_strip:
+                        self.pol_engine = eng
+                        break
+                self._extract_threshold(pol_key)
+                return
+
+        # Check policies with config chars (lac)
+        for pol_key, chars in CONFIG_CHAR_POLICIES.items():
+            if pol_key in self.pol_strip:
+                self.pol_name = pol_key
+                self._extract_threshold_with_config_char(pol_key, chars)
+                return
+
+        # Check threshold policies
+        for pol_key in THRESHOLD_POLICIES:
+            if pol_key in self.pol_strip:
+                self.pol_name = pol_key
+                self._extract_threshold(pol_key)
+                return
+
+        # Check simple policies
+        for keywords, name in SIMPLE_POLICIES.items():
+            if any(kw in self.pol_strip for kw in keywords):
+                self.pol_name = name
+                return
+
+        # Fallback
+        self.pol_name = self.pol_strip
+
+    def _extract_threshold(self, policy_key: str) -> None:
+        """Extract numeric threshold from policy string after the policy key."""
+        try:
+            parts = self.pol_strip.split(policy_key)
+            if len(parts) > 1:
+                threshold_part = parts[1].strip("_")
+                sub_parts = threshold_part.split("_")
+                if sub_parts[0]:
+                    self.pol_threshold = float(sub_parts[0])
+        except (ValueError, IndexError):
+            pass
+
+    def _extract_threshold_with_config_char(self, policy_key: str, config_chars: List[str]) -> None:
+        """Extract threshold from policy string that may have config chars."""
+        try:
+            parts = self.pol_strip.split(policy_key)
+            if len(parts) > 1:
+                threshold_part = parts[1].strip("_")
+                sub_parts = threshold_part.split("_")
+                # If first subpart is config char, threshold is second
+                if sub_parts[0] in config_chars and len(sub_parts) > 1:
+                    self.pol_threshold = float(sub_parts[1])
+                elif sub_parts[0]:
+                    try:
                         self.pol_threshold = float(sub_parts[0])
-            except (ValueError, IndexError):
-                pass
+                    except ValueError:
+                        pass
+        except (ValueError, IndexError):
+            pass
 
-        elif "sans" in self.pol_strip:
-            self.pol_name = "sans"
-            try:
-                parts = self.pol_strip.split("sans")
-                if len(parts) > 1:
-                    threshold_part = parts[1].strip("_")
-                    sub_parts = threshold_part.split("_")
-                    if sub_parts[0]:
-                        self.pol_threshold = float(sub_parts[0])
-            except (ValueError, IndexError):
-                pass
-
-        elif "lac" in self.pol_strip:
-            self.pol_name = "lac"
-            try:
-                parts = self.pol_strip.split("lac")
-                if len(parts) > 1:
-                    # Pattern lac_a_1.0 or lac_1.0
-                    threshold_part = parts[1].strip("_")
-                    sub_parts = threshold_part.split("_")
-                    # If first subpart is config char (a, b), threshold is second
-                    if sub_parts[0] in ["a", "b"] and len(sub_parts) > 1:
-                        self.pol_threshold = float(sub_parts[1])
-                    elif sub_parts[0]:
-                        try:
-                            self.pol_threshold = float(sub_parts[0])
-                        except ValueError:
-                            pass
-            except (ValueError, IndexError):
-                pass
-
-        elif "hgs" in self.pol_strip:
-            self.pol_name = "hgs"
-            try:
-                parts = self.pol_strip.split("hgs")
-                if len(parts) > 1:
-                    threshold_part = parts[1].strip("_")
-                    sub_parts = threshold_part.split("_")
-                    if sub_parts[0]:
-                        self.pol_threshold = float(sub_parts[0])
-            except (ValueError, IndexError):
-                pass
-
-        elif "alns" in self.pol_strip:
-            self.pol_name = "alns"
-            try:
-                parts = self.pol_strip.split("alns")
-                if len(parts) > 1:
-                    threshold_part = parts[1].strip("_")
-                    sub_parts = threshold_part.split("_")
-                    if sub_parts[0]:
-                        self.pol_threshold = float(sub_parts[0])
-            except (ValueError, IndexError):
-                pass
-
-        elif "am" in self.pol_strip or "ddam" in self.pol_strip or "transgcn" in self.pol_strip:
-            self.pol_name = "neural"
-        elif "last_minute" in self.pol_strip:
-            self.pol_name = "last_minute"
-        elif "regular" in self.pol_strip:
-            self.pol_name = "regular"
-        elif "bcp" in self.pol_strip:
-            self.pol_name = "bcp"
-        elif "lkh" in self.pol_strip:
-            self.pol_name = "lkh"
-        elif "tsp" in self.pol_strip:
-            self.pol_name = "tsp"
-        elif "cvrp" in self.pol_strip:
-            self.pol_name = "cvrp"
-        else:
-            self.pol_name = self.pol_strip
-
+    def _continue_init(self, variables_dict: Dict[str, Any], pol_id: int) -> None:
+        """Continue __init__ after policy parsing (helper to avoid deep nesting)."""
         # Runtime Data
         self.start_day: int = 1
         self.checkpoint: Optional[SimulationCheckpoint] = None

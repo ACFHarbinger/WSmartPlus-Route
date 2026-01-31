@@ -7,7 +7,15 @@ all state variables for a single simulation day.
 
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
-from typing import Any, Dict, List, Optional, Tuple
+from multiprocessing.synchronize import Lock
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
+import pandas as pd
+import torch
+
+if TYPE_CHECKING:
+    from logic.src.pipeline.simulations.bins import Bins
 
 
 @dataclass
@@ -74,29 +82,29 @@ class SimulationDayContext(Mapping):
     full_policy: str = ""
     policy: str = ""
     policy_name: str = ""
-    bins: Any = None
-    new_data: Any = None
-    coords: Any = None
-    distance_matrix: Any = None
-    distpath_tup: Tuple = (None, None, None, None)
-    distancesC: Any = None
-    paths_between_states: Any = None
-    dm_tensor: Any = None
+    bins: Optional["Bins"] = None
+    new_data: Optional[pd.DataFrame] = None
+    coords: Optional[pd.DataFrame] = None
+    distance_matrix: Optional[Union[np.ndarray, List[List[float]]]] = None
+    distpath_tup: Tuple[Any, ...] = (None, None, None, None)
+    distancesC: Optional[np.ndarray] = None
+    paths_between_states: Optional[Dict[Tuple[int, int], List[int]]] = None
+    dm_tensor: Optional[torch.Tensor] = None
     run_tsp: bool = False
     sample_id: int = 0
     overflows: int = 0
     day: int = 0
-    model_env: Any = None
-    model_ls: Tuple = (None,)
+    model_env: Any = None  # Keep Any for complex env object
+    model_ls: Tuple[Any, ...] = (None,)
     n_vehicles: int = 1
     area: str = ""
     realtime_log_path: Optional[str] = None
     waste_type: str = ""
     current_collection_day: int = 0
-    cached: Any = None
-    device: Any = None
-    lock: Any = None
-    hrl_manager: Any = None
+    cached: Optional[List[int]] = None
+    device: Optional[torch.device] = None
+    lock: Optional[Lock] = None
+    hrl_manager: Any = None  # Keep Any for complex HRL manager
     gate_prob_threshold: float = 0.5
     mask_prob_threshold: float = 0.5
     two_opt_max_iter: int = 0
@@ -108,18 +116,18 @@ class SimulationDayContext(Mapping):
     threshold: Optional[float] = None
 
     # Optional/Mutable Fields (defaults to None or reasonable zero)
-    daily_log: Optional[Dict] = None
-    output_dict: Optional[Dict] = None
+    daily_log: Optional[Dict[str, Any]] = None
+    output_dict: Optional[Dict[str, Any]] = None
     tour: Optional[List[int]] = None
     cost: float = 0.0
     profit: float = 0.0
-    collected: Any = None
+    collected: Optional[np.ndarray] = None
     total_collected: float = 0.0
     ncol: int = 0
     new_overflows: int = 0
     sum_lost: float = 0.0
-    fill: Any = None
-    total_fill: Any = None
+    fill: Optional[np.ndarray] = None
+    total_fill: Optional[np.ndarray] = None
     extra_output: Any = None
     must_go: Optional[List[int]] = None
 
