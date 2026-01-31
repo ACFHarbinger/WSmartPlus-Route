@@ -54,14 +54,15 @@ def _flatten_config(cfg: Any) -> dict:
                 merged.update(item)
         return merged
 
-    # Handle dict which might contain lists to be flattened (e.g. {'custom': [...]})
+    # Handle dict which might contain lists to be flattened (e.g. {'custom': [...], 'ortools': [...]})
     if isinstance(curr, dict):
         flat = {**curr}
-        # If there's a 'custom' list, pull its fields up (this is how Hydra represents params)
-        if "custom" in flat and isinstance(flat["custom"], list):
-            for item in flat["custom"]:
-                if isinstance(item, dict):
-                    flat.update(item)
+        # Iterate over all keys and flatten if value is a list of dicts
+        for k, v in list(flat.items()):
+            if isinstance(v, list):
+                for item in v:
+                    if isinstance(item, dict):
+                        flat.update(item)
         return flat
 
     return {}
