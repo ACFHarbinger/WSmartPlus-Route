@@ -11,7 +11,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint
 
-from logic.src.constants.models import NODE_DIM
+from logic.src.constants.models import (
+    FEED_FORWARD_EXPANSION,
+    NODE_DIM,
+    NORM_EPSILON,
+    TANH_CLIPPING,
+)
 from logic.src.models.context_embedder import (
     ContextEmbedder,
     VRPPContextEmbedder,
@@ -44,14 +49,14 @@ class AttentionModel(nn.Module):
         dropout_rate: float = 0.1,
         aggregation: str = "sum",
         aggregation_graph: str = "avg",
-        tanh_clipping: float = 10.0,
+        tanh_clipping: float = TANH_CLIPPING,
         mask_inner: bool = True,
         mask_logits: bool = True,
         mask_graph: bool = False,
         normalization: str = "batch",
         norm_learn_affine: bool = True,
         norm_track_stats: bool = False,
-        norm_eps_alpha: float = 1e-05,
+        norm_eps_alpha: float = NORM_EPSILON,
         norm_momentum_beta: float = 0.1,
         lrnorm_k: float = 1.0,
         gnorm_groups: int = 3,
@@ -71,7 +76,7 @@ class AttentionModel(nn.Module):
         entropy_weight: float = 0.0,
         predictor_layers: Optional[int] = None,
         connection_type: str = "residual",
-        hyper_expansion: int = 4,
+        hyper_expansion: int = FEED_FORWARD_EXPANSION,
     ) -> None:
         """
         Initialize the Attention Model.
