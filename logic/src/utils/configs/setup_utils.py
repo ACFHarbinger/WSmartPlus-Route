@@ -309,7 +309,7 @@ def setup_model_and_baseline(
     assert model_cls is not None, "Unknown model: {}".format(opts["model"])
 
     model: nn.Module = model_cls(
-        opts["embedding_dim"],
+        opts["embed_dim"],
         opts["hidden_dim"],
         problem,
         factory,
@@ -362,7 +362,7 @@ def setup_model_and_baseline(
                 CriticNetwork(
                     problem,
                     factory,
-                    opts["embedding_dim"],
+                    opts["embed_dim"],
                     opts["hidden_dim"],
                     opts["n_encode_layers"],
                     opts["n_other_layers"],

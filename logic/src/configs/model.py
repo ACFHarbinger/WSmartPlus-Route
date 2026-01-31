@@ -13,8 +13,8 @@ class ModelConfig:
         name: Name of the model architecture (e.g., 'am', 'deep_decoder').
         embed_dim: Embedding dimension.
         hidden_dim: Hidden dimension.
-        num_encoder_layers: Number of encoder layers.
-        num_decoder_layers: Number of decoder layers.
+        n_encoder_layers: Number of encoder layers.
+        n_decoder_layers: Number of decoder layers.
         n_heads: Number of attention heads.
         encoder_type: Type of encoder ('gat', 'gcn', etc.).
     """
@@ -22,8 +22,8 @@ class ModelConfig:
     name: str = "am"
     embed_dim: int = 128
     hidden_dim: int = 512
-    num_encoder_layers: int = 3
-    num_decoder_layers: int = 3
+    n_encode_layers: int = 3
+    n_decode_layers: int = 3
     n_heads: int = 8
     encoder_type: str = "gat"
     # NEW FIELDS:
@@ -38,8 +38,8 @@ class ModelConfig:
     spatial_bias: bool = False
     connection_type: str = "residual"
     # Hyper-parameters for specialized layers
-    num_encoder_sublayers: Optional[int] = None
-    num_predictor_layers: Optional[int] = None
+    n_encoder_sublayers: Optional[int] = None
+    n_predictor_layers: Optional[int] = None
     learn_affine: bool = True
     track_stats: bool = False
     epsilon_alpha: float = 1e-5

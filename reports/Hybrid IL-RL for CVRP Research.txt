@@ -182,25 +182,25 @@ import torch.nn.functional as F
 from torch.distributions import Categorical
 
 class AttentionModel(nn.Module):
-   def __init__(self, embedding_dim=128, n_heads=8, n_layers=3):
+   def __init__(self, embed_dim=128, n_heads=8, n_layers=3):
        super(AttentionModel, self).__init__()
-       self.embedding_dim = embedding_dim
+       self.embed_dim = embed_dim
 
        # 1. Initial Embedding
        # Depots and Customers have different input features (coords + demand)
-       self.init_embed_depot = nn.Linear(2, embedding_dim)
-       self.init_embed_cust = nn.Linear(3, embedding_dim) # x, y, demand
+       self.init_embed_depot = nn.Linear(2, embed_dim)
+       self.init_embed_cust = nn.Linear(3, embed_dim) # x, y, demand
 
        # 2. Encoder (Transformer)
        encoder_layer = nn.TransformerEncoderLayer(
-           d_model=embedding_dim, nhead=n_heads, dim_feedforward=512
+           d_model=embed_dim, nhead=n_heads, dim_feedforward=512
        )
        self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
 
        # 3. Decoder (Pointer Network with Context)
-       self.project_fixed_context = nn.Linear(embedding_dim, embedding_dim)
-       self.project_step_context = nn.Linear(2 * embedding_dim + 1, embedding_dim)
-       self.project_out = nn.Linear(embedding_dim, embedding_dim)
+       self.project_fixed_context = nn.Linear(embed_dim, embed_dim)
+       self.project_step_context = nn.Linear(2 * embed_dim + 1, embed_dim)
+       self.project_out = nn.Linear(embed_dim, embed_dim)
 
    def forward(self, input_data, decode_type="sampling"):
        """

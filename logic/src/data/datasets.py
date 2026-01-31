@@ -2,7 +2,7 @@
 Dataset classes for WSmart-Route.
 """
 
-from typing import Sized, Union, cast
+from typing import Any, Sized, Union, cast
 
 import tensordict
 import torch
@@ -11,7 +11,7 @@ from tensordict.tensordict import TensorDict
 from torch.utils.data import Dataset
 
 # Version check for tensordict
-if version.parse(tensordict.__version__) <= version.parse("0.4.0"):
+if version.parse(str(tensordict.__version__)) <= version.parse("0.4.0"):
     td_kwargs = {"_run_checks": False}
 else:
     td_kwargs = {}
@@ -40,17 +40,17 @@ class TensorDictDataset(Dataset):
         """
         return self.data.batch_size[0]
 
-    def __getitem__(self, idx):
+    def __getitem__(self, index):
         """
         Retrieve a sample by index.
 
         Args:
-            idx: Index of the sample.
+            index: Index of the sample.
 
         Returns:
             TensorDict: The sample at the specified index.
         """
-        return self.data[idx]
+        return self.data[index]
 
     @staticmethod
     def load(path: str):
@@ -99,20 +99,20 @@ class FastTdDataset(Dataset):
         """
         return self.data_len
 
-    def __getitems__(self, idx):
+    def __getitems__(self, index):
         """
         Retrieve samples by indices (batch getter).
 
         Args:
-            idx: Indices of the samples.
+            index: Indices of the samples.
 
         Returns:
             TensorDict: The samples at the specified indices.
         """
-        return self.data[idx]
+        return self.data[index]
 
     @staticmethod
-    def collate_fn(batch: Union[dict, TensorDict]):
+    def collate_fn(batch: Any) -> Any:
         """
         Collate function that passes batch through unchanged.
 
@@ -165,7 +165,7 @@ class TensorDictDatasetFastGeneration(Dataset):
         )
 
     @staticmethod
-    def collate_fn(batch: Union[dict, TensorDict]):
+    def collate_fn(batch: Any) -> Any:
         """
         Collate function that passes batch through unchanged.
 
@@ -203,12 +203,12 @@ class GeneratorDataset(Dataset):
         """
         return self.size
 
-    def __getitem__(self, idx: int) -> TensorDict:
+    def __getitem__(self, index: int) -> TensorDict:
         """
         Generate a sample on-the-fly.
 
         Args:
-            idx: Index of the sample (not used, provided for API compatibility).
+            index: Index of the sample (not used, provided for API compatibility).
 
         Returns:
             TensorDict: A freshly generated sample.
@@ -238,19 +238,19 @@ class ExtraKeyDataset(Dataset):
                 v
             ), f"Length mismatch for key {k}: {len(cast(Sized, dataset))} vs {len(v)}"
 
-    def __getitem__(self, idx: int) -> dict:
+    def __getitem__(self, index: int) -> dict:
         """
         Retrieve a sample with extra keys.
 
         Args:
-            idx: Index of the sample.
+            index: Index of the sample.
 
         Returns:
             dict: Dictionary with 'data' and extra keys.
         """
-        item = {"data": self.dataset[idx]}
+        item = {"data": self.dataset[index]}
         for k, v in self.extra.items():
-            item[k] = v[idx]
+            item[k] = v[index]
         return item
 
     def __len__(self) -> int:
@@ -281,17 +281,17 @@ class BaselineDataset(Dataset):
         self.baseline = baseline
         assert len(cast(Sized, self.dataset)) == len(self.baseline)
 
-    def __getitem__(self, item: int) -> dict:
+    def __getitem__(self, index: int) -> dict:
         """
         Retrieve a sample with its associated baseline value.
 
         Args:
-            item: Index of the sample.
+            index: Index of the sample.
 
         Returns:
             dict: Dictionary with 'data' and 'baseline' keys.
         """
-        return {"data": self.dataset[item], "baseline": self.baseline[item]}
+        return {"data": self.dataset[index], "baseline": self.baseline[index]}
 
     def __len__(self) -> int:
         """
@@ -320,4 +320,4 @@ def tensordict_collate_fn(
             return res.to_dict()
         return res
 
-    return torch.stack(batch)  # type: ignore[arg-type]
+    return cast(Union[dict, TensorDict], torch.stack(batch))  # type: ignore[arg-type]

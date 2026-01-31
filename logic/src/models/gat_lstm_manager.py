@@ -80,8 +80,8 @@ class GATLSTManager(nn.Module):
                     ):
                         val = first_layer.att.module.embed_dim
                     # Check for standard GRU/LSTM/Linear style
-                    elif hasattr(first_layer, "embedding_dim"):
-                        val = first_layer.embedding_dim
+                    elif hasattr(first_layer, "embed_dim"):
+                        val = first_layer.embed_dim
 
                 if isinstance(val, int):
                     hidden_dim = val

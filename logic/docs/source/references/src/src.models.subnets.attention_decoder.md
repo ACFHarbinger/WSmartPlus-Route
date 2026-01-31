@@ -98,7 +98,7 @@
 
 `````
 
-`````{py:class} AttentionDecoder(embedding_dim: int, hidden_dim: int, problem: typing.Any, n_heads: int = 8, tanh_clipping: float = 10.0, mask_inner: bool = True, mask_logits: bool = True, mask_graph: bool = False, shrink_size: typing.Optional[int] = None, pomo_size: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, decode_type: typing.Optional[str] = None, **kwargs)
+`````{py:class} AttentionDecoder(embed_dim: int, hidden_dim: int, problem: typing.Any, n_heads: int = 8, tanh_clipping: float = 10.0, mask_inner: bool = True, mask_logits: bool = True, mask_graph: bool = False, shrink_size: typing.Optional[int] = None, pomo_size: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, decode_type: typing.Optional[str] = None, **kwargs)
 :canonical: src.models.subnets.attention_decoder.AttentionDecoder
 
 Bases: {py:obj}`torch.nn.Module`

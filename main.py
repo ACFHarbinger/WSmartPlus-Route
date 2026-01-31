@@ -25,9 +25,14 @@ import sys
 import traceback
 import warnings
 
+import hydra
 import logic.src.constants as udef
 from gui.src.app import launch_results_window, run_app_gui
+
+# Register configuration
+from hydra.core.config_store import ConfigStore
 from logic.src.cli import parse_params
+from logic.src.configs import Config
 from logic.src.data.generate_data import generate_datasets
 from logic.src.file_system import (
     delete_file_system_entries,
@@ -43,6 +48,9 @@ warnings.filterwarnings(
     category=FutureWarning,
     message="jax.tree_util.register_keypaths is deprecated",
 )
+
+cs = ConfigStore.instance()
+cs.store(name="config", node=Config)
 
 
 def run_test_suite(opts):
@@ -257,7 +265,7 @@ def main(args):
         sys.exit(exit_code)
 
 
-if __name__ == "__main__":
+def main_dispatch():
     # ========================================================================
     # Dual Dispatch System
     # ========================================================================
@@ -291,7 +299,6 @@ if __name__ == "__main__":
         command = sys.argv[1]
 
         # Inject task override if needed, handling the case where it might already be specified
-        task_override = f"task={command}" if command in ["eval", "test_sim", "gen_data", "train"] else None
 
         # For legacy train commands like 'train_hydra', default to 'task=train' (already default in config)
         if command in ["train_hydra", "train_lightning", "mrl_train", "hp_optim", "hp_optim_hydra"]:
@@ -299,7 +306,7 @@ if __name__ == "__main__":
             pass
 
         # Bypass legacy parsing and delegate to Hydra/Lightning pipeline
-        from logic.src.pipeline.features.train import main as unified_main
+        pass
 
         if command in ["eval", "test_sim", "gen_data"]:
             sys.argv.append(f"task={command}")
@@ -310,6 +317,54 @@ if __name__ == "__main__":
         else:  # For other commands like "train", "train_hydra", etc.
             sys.argv.pop(1)  # Remove the command
 
-        unified_main()
+        hydra_entry_point()
     else:
         main(parse_params())
+
+
+@hydra.main(version_base=None, config_path="scripts/configs", config_name="config")
+def hydra_entry_point(cfg: Config) -> float:
+    """Unified entry point."""
+    if cfg.task == "train":
+        from logic.src.pipeline.features.train import run_hpo, run_training
+
+        if cfg.hpo.n_trials > 0:
+            return run_hpo(cfg)
+        else:
+            return run_training(cfg)
+    elif cfg.task == "eval":
+        from logic.src.pipeline.features.eval import run_evaluate_model, validate_eval_args
+        from omegaconf import OmegaConf
+
+        # Convert Hydra config to dict
+        eval_args = OmegaConf.to_container(cfg.eval, resolve=True)
+        # Validate and run
+        args = validate_eval_args(eval_args)
+        run_evaluate_model(args)
+        return 0.0
+    elif cfg.task == "test_sim":
+        from logic.src.pipeline.features.test import run_wsr_simulator_test, validate_test_sim_args
+        from omegaconf import OmegaConf
+
+        # Convert Hydra config to dict
+        sim_args = OmegaConf.to_container(cfg.sim, resolve=True)
+        # Validate and run
+        args = validate_test_sim_args(sim_args)
+        run_wsr_simulator_test(args)
+        return 0.0
+    elif cfg.task == "gen_data":
+        from logic.src.data.generate_data import generate_datasets, validate_gen_data_args
+        from omegaconf import OmegaConf
+
+        # Convert Hydra config to dict
+        data_args = OmegaConf.to_container(cfg.data, resolve=True)
+        # Validate and run
+        args = validate_gen_data_args(data_args)
+        generate_datasets(args)
+        return 0.0
+    else:
+        raise ValueError(f"Unknown task: {cfg.task}")
+
+
+if __name__ == "__main__":
+    main_dispatch()

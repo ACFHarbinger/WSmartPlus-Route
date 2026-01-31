@@ -337,7 +337,7 @@ python main.py train_lightning [OVERRIDES]
 
 # Model options
 model=am                     # Model type (default: am)
-model.embedding_dim=128      # Embedding dimension
+model.embed_dim=128      # Embedding dimension
 model.hidden_dim=512         # Hidden dimension
 model.n_encode_layers=3      # Encoder layers
 
@@ -404,7 +404,7 @@ python main.py gen_data [TYPE] [OPTIONS]
 model:
   name: am
   encoder: gat
-  embedding_dim: 128
+  embed_dim: 128
   hidden_dim: 512
   n_encode_layers: 3
   n_heads: 8

@@ -78,7 +78,7 @@ class TestEfficientGraphConvolution:
         """Verifies initialization and forward pass."""
         feat = 16
         out_feat = 16
-        model = EfficientGraphConvolution(feat, out_feat, num_heads=2, num_bases=2)
+        model = EfficientGraphConvolution(feat, out_feat, n_heads=2, num_bases=2)
 
         batch = 2
         nodes = 4

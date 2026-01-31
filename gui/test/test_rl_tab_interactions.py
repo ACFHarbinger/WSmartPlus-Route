@@ -94,9 +94,9 @@ class TestRLTabInteractions:
                 assert params["normalization"] == expected_key
 
         # Check basic spinbox
-        model_tab.widgets["embedding_dim"].setValue(256)
+        model_tab.widgets["embed_dim"].setValue(256)
         params = model_tab.get_params()
-        assert params["embedding_dim"] == 256
+        assert params["embed_dim"] == 256
 
     def test_browse_path_logic(self, training_tab):
         """Test the file browser logic patching QFileDialog."""

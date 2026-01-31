@@ -1,5 +1,10 @@
 """
 PPO algorithm implementation.
+
+Reference:
+    Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017).
+    Proximal policy optimization algorithms.
+    arXiv preprint arXiv:1707.06347.
 """
 
 from __future__ import annotations
@@ -156,6 +161,12 @@ class PPO(RL4COLitModule):
 
         dataset = FastTdDataset(td)
         dataloader = DataLoader(dataset, batch_size=mbs, shuffle=True, collate_fn=FastTdDataset.collate_fn)
+
+        # Initialize metrics for logging
+        loss = torch.tensor(0.0, device=td.device)
+        actor_loss = torch.tensor(0.0, device=td.device)
+        critic_loss = torch.tensor(0.0, device=td.device)
+        advantage = torch.tensor(0.0, device=td.device)
 
         for _ in range(self.ppo_epochs):
             for sub_td in dataloader:

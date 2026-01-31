@@ -65,7 +65,7 @@ def am_setup(mocker):
             return m_dec
 
     model = AttentionModel(
-        embedding_dim=128,
+        embed_dim=128,
         hidden_dim=128,
         problem=mock_problem,
         component_factory=MockFactory(),
@@ -85,7 +85,7 @@ def gat_lstm_setup():
         hidden_dim=32,
         lstm_hidden=16,
         num_layers_gat=1,
-        num_heads=4,
+        n_heads=4,
         dropout=0.1,
         device="cpu",
     )
@@ -147,7 +147,7 @@ def tam_setup(mocker):
             return m_dec
 
     model = TemporalAttentionModel(
-        embedding_dim=128,
+        embed_dim=128,
         hidden_dim=128,
         problem=mock_problem,
         component_factory=MockTAMFactory(),
