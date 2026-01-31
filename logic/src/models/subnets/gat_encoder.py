@@ -12,7 +12,7 @@ from ..modules import ActivationFunction, FeedForward, MultiHeadAttention, Norma
 from ..modules.connections import get_connection_module
 
 
-class FeedForwardSubLayer(nn.Module):
+class GATFeedForwardSubLayer(nn.Module):
     """
     Sub-layer containing a Feed-Forward Network and activation.
     """
@@ -29,8 +29,8 @@ class FeedForwardSubLayer(nn.Module):
         dist_range: List[float],
         bias: bool = True,
     ) -> None:
-        """Initializes the FeedForwardSubLayer."""
-        super(FeedForwardSubLayer, self).__init__()
+        """Initializes the GATFeedForwardSubLayer."""
+        super(GATFeedForwardSubLayer, self).__init__()
         self.sub_layers = (
             nn.Sequential(
                 FeedForward(embed_dim, feed_forward_hidden, bias=bias),
@@ -57,7 +57,7 @@ class FeedForwardSubLayer(nn.Module):
         return self.sub_layers(h)
 
 
-class MultiHeadAttentionLayer(nn.Module):
+class GATMultiHeadAttentionLayer(nn.Module):
     """
     Single layer of the Graph Attention Encoder.
     Uses connections factory for potential hyper-connections.
@@ -84,8 +84,8 @@ class MultiHeadAttentionLayer(nn.Module):
         connection_type: str = "skip",
         expansion_rate: int = 4,
     ) -> None:
-        """Initializes the MultiHeadAttentionLayer."""
-        super(MultiHeadAttentionLayer, self).__init__()
+        """Initializes the GATMultiHeadAttentionLayer."""
+        super(GATMultiHeadAttentionLayer, self).__init__()
 
         self.att = get_connection_module(
             module=MultiHeadAttention(n_heads, input_dim=embed_dim, embed_dim=embed_dim),
@@ -106,7 +106,7 @@ class MultiHeadAttentionLayer(nn.Module):
         )
 
         self.ff = get_connection_module(
-            module=FeedForwardSubLayer(
+            module=GATFeedForwardSubLayer(
                 embed_dim,
                 feed_forward_hidden,
                 activation,
@@ -237,7 +237,7 @@ class GraphAttentionEncoder(nn.Module):
 
         self.layers = nn.ModuleList(
             [
-                MultiHeadAttentionLayer(
+                GATMultiHeadAttentionLayer(
                     n_heads,
                     embed_dim,
                     feed_forward_hidden,

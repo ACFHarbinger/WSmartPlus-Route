@@ -134,13 +134,17 @@ class RL4COLitModule(pl.LightningModule, ABC):
                 from omegaconf import OmegaConf
 
                 OmegaConf.save(config=self.cfg, f=config_path)
-            except (OSError, ImportError, Exception) as e:
+            except (OSError, ImportError, TypeError, ValueError) as e:
                 logger.warning(f"Could not save config.yaml: {e}")
 
     def _init_baseline(self):
         """Initialize baseline for advantage estimation."""
         from logic.src.pipeline.rl.common.baselines import WarmupBaseline, get_baseline
 
+        if self.baseline_type is None:
+            # Default to rollout if None, or raise error?
+            # get_baseline likely expects string.
+            self.baseline_type = "rollout"
         baseline = get_baseline(self.baseline_type, self.policy, **self.hparams)
 
         # Handle warmup
