@@ -25,13 +25,14 @@ def mock_params():
         "waste_type": "plastic",
         "area": "test_area",
         "n_vehicles": 2,
-        "coords": MagicMock()
+        "coords": MagicMock(),
+        "must_go": [1, 2, 3, 4, 5],
     }
 
 def test_tsp_policy(mock_params):
-    with patch("logic.src.policies.policy_tsp.load_area_and_waste_type_params") as mock_load, \
-         patch("logic.src.policies.policy_tsp.find_route") as mock_find, \
-         patch("logic.src.policies.policy_tsp.get_multi_tour") as mock_get_multi:
+    with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_load, \
+         patch("logic.src.policies.adapters.policy_tsp.find_route") as mock_find, \
+         patch("logic.src.policies.adapters.policy_tsp.get_multi_tour") as mock_get_multi:
 
         # Mock load: cap, rev, dens, exp, vol
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
@@ -44,7 +45,9 @@ def test_tsp_policy(mock_params):
         # Assume it just returns the tour if valid
         mock_get_multi.return_value = [0, 1, 2, 3, 4, 5, 0]
 
-        policy = PolicyRegistry.get("tsp")()
+        cls = PolicyRegistry.get("tsp")
+        assert cls is not None
+        policy = cls()
         assert isinstance(policy, TSPPolicy)
 
         tour, cost, extra = policy.execute(policy="tsp", **mock_params)
@@ -59,15 +62,17 @@ def test_tsp_policy(mock_params):
         assert args[1] == [1, 2, 3, 4, 5]
 
 def test_cvrp_policy(mock_params):
-    with patch("logic.src.policies.policy_cvrp.load_area_and_waste_type_params") as mock_load, \
-         patch("logic.src.policies.policy_cvrp.find_routes") as mock_find:
+    with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_load, \
+         patch("logic.src.policies.adapters.policy_cvrp.find_routes") as mock_find:
 
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
 
         # Mock find_routes (CVRP)
         mock_find.return_value = [0, 1, 2, 0, 3, 4, 5, 0] # 2 routes
 
-        policy = PolicyRegistry.get("cvrp")()
+        cls = PolicyRegistry.get("cvrp")
+        assert cls is not None
+        policy = cls()
         assert isinstance(policy, CVRPPolicy)
 
         tour, cost, extra = policy.execute(policy="cvrp", **mock_params)

@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
+from ...constants.optimization import DEFAULT_COMBINATION, DEFAULT_SHIFT_DURATION, DEFAULT_TIME_LIMIT, DEFAULT_V_VALUE
 from ..base_routing_policy import BaseRoutingPolicy
 from ..look_ahead_aux.route_search import find_solutions
 from ..look_ahead_aux.routes import create_points
@@ -62,9 +63,17 @@ class LACPolicy(BaseRoutingPolicy):
 
         # Load area parameters
         Q, R, B, C = self._load_area_params(area, waste_type, config)
-        V = lac_config.get("V", 1.0)
+        V = lac_config.get("V", DEFAULT_V_VALUE)
 
-        values = {"Q": Q, "R": R, "B": B, "C": C, "V": V, "shift_duration": 390, "perc_bins_can_overflow": 0}
+        values = {
+            "Q": Q,
+            "R": R,
+            "B": B,
+            "C": C,
+            "V": V,
+            "shift_duration": DEFAULT_SHIFT_DURATION,
+            "perc_bins_can_overflow": 0,
+        }
         values.update(lac_config)
 
         # must_go bins are 0-based, find_solutions expects 1-based
@@ -72,7 +81,7 @@ class LACPolicy(BaseRoutingPolicy):
 
         points = create_points(new_data, coords)
 
-        combination = lac_config.get("combination", [500, 75, 0.95, 0, 0.095, 0, 0])
+        combination = lac_config.get("combination", DEFAULT_COMBINATION)
 
         try:
             res, _, _ = find_solutions(
@@ -84,7 +93,7 @@ class LACPolicy(BaseRoutingPolicy):
                 values,
                 bins.n,
                 points,
-                time_limit=lac_config.get("time_limit", 600),
+                time_limit=lac_config.get("time_limit", DEFAULT_TIME_LIMIT),
             )
         except Exception:
             return [0, 0], 0.0, None

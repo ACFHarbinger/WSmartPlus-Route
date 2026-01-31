@@ -9,10 +9,12 @@ planning cycles.
 
 import numpy as np
 
+from logic.src.constants.optimization import MAX_CAPACITY_PERCENT
+
 
 def should_bin_be_collected(current_fill_level, accumulation_rate):
     """
-    Check if a bin's fill level will exceed 100% by the next day.
+    Check if a bin's fill level will exceed MAX_CAPACITY_PERCENT% by the next day.
 
     Args:
         current_fill_level (float): Current percentage full.
@@ -21,7 +23,7 @@ def should_bin_be_collected(current_fill_level, accumulation_rate):
     Returns:
         bool: True if overflow is predicted, None otherwise.
     """
-    if current_fill_level + accumulation_rate >= 100:
+    if current_fill_level + accumulation_rate >= MAX_CAPACITY_PERCENT:
         return True
 
 
@@ -53,7 +55,7 @@ def add_bins_to_collect(
             continue
         else:
             for j in range(current_collection_day + 1, next_collection_day):
-                if current_fill_levels[i] + j * accumulation_rates[i] >= 100:
+                if current_fill_levels[i] + j * accumulation_rates[i] >= MAX_CAPACITY_PERCENT:
                     must_go_bins.append(i)
                     break
     return must_go_bins
@@ -111,7 +113,7 @@ def calculate_next_collection_days(must_go_bins, current_fill_levels, accumulati
     temporary_fill_levels = current_fill_levels.copy()
     for i in must_go_bins:
         current_day = 0
-        while temporary_fill_levels[i] < 100:
+        while temporary_fill_levels[i] < MAX_CAPACITY_PERCENT:
             temporary_fill_levels[i] = temporary_fill_levels[i] + accumulation_rates[i]
             current_day = current_day + 1
         next_collection_days[i] = current_day  # assuming collection happens at the beginning of the day

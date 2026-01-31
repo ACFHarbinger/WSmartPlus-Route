@@ -364,6 +364,7 @@ def run_wsr_simulator_test(opts):
             suffix_str = ""
             variant_name = None
             cfg_path = None
+            variants = [("", "", None)]
 
             try:
                 # Strip 'policy_' if present for cleaner lookup, though file usually match

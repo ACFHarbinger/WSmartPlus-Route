@@ -518,6 +518,8 @@ def compute_in_batches(
         return f(*args)
 
     # Run all batches
+    # We iterate through the input tensors in chunks of size `calc_batch_size`
+    # and apply the function `f` to each chunk.
     all_res = [f(*(arg[i * calc_batch_size : (i + 1) * calc_batch_size] for arg in args)) for i in range(n_batches)]
 
     # Allow for functions that return None
@@ -631,8 +633,8 @@ def sample_many(
 
     max_length = max(pi.size(-1) for pi in pis)
 
-    # (batch_size * batch_rep, iter_rep, max_length) => (batch_size, batch_rep * iter_rep, max_length)
-    # (batch_size * batch_rep, iter_rep, max_length) => (batch_size, batch_rep * iter_rep, max_length)
+    # Reshape and pad policies to match the maximum sequence length across all samples
+    # Structure: (batch_size * batch_rep, iter_rep, max_length) => (batch_size, batch_rep * iter_rep, max_length)
     pis_cat = torch.cat([F.pad(pi, (0, max_length - pi.size(-1))) for pi in pis], 1)
     costs_cat = torch.cat(costs, 1)
 

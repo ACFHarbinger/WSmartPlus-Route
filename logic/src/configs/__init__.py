@@ -60,6 +60,8 @@ class Config:
     output_dir: str = "assets/model_weights"
     log_dir: str = "logs"
     run_name: Optional[str] = None
+    verbose: bool = True
+    start: int = 0
 
 
 __all__ = [

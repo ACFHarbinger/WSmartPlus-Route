@@ -2,20 +2,25 @@ defaults:
   - _self_
   - tasks: train
   - envs: cwcvrp
-  - models: am
+  - model: am
   - data: train_data
+
 
 # General Configuration
 seed: 42
 verbose: true
+task: "train"
 start: 0
-epochs: 100
-n_workers: 4
-persistent_workers: true
-pin_memory: true
-reload_dataloaders_every_n_epochs: 0
-log_step: 10
-viz_step: 100
-logs_dir: "logs"
-model_weights_path: "model_weights"
-wb_mode: "disabled"
+device: "cuda"
+
+# Config Schema Defaults (Moved from flat keys)
+# These will be overridden by tasks/train.yaml or other task configs.
+train:
+  logs_dir: "logs"
+  model_weights_path: "model_weights"
+  log_step: 10
+
+# Root Config Fields
+log_dir: "logs"
+output_dir: "assets/model_weights"
+wandb_mode: "disabled"

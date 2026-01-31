@@ -8,6 +8,13 @@ schedule imbalance, and shift duration).
 """
 
 
+from logic.src.constants.optimization import (
+    COLLECTION_TIME_MINUTES,
+    MAX_CAPACITY_PERCENT,
+    VEHICLE_SPEED_KMH,
+)
+
+
 # Functions for computations
 # Computation of profit - Objective function result
 # function to compute waste total revenue
@@ -71,8 +78,8 @@ def compute_route_time(routes_list, distance_route_vector):
     Estimate total duration of each route (collection time + travel time).
 
     Assumes:
-    - 3 minutes per bin collection.
-    - 40 km/h average vehicle speed.
+    - COLLECTION_TIME_MINUTES minutes per bin collection.
+    - VEHICLE_SPEED_KMH km/h average vehicle speed.
 
     Args:
         routes_list (List[List[int]]): Current routing solution.
@@ -83,7 +90,9 @@ def compute_route_time(routes_list, distance_route_vector):
     """
     route_time_vector = []
     for route_n, i in enumerate(routes_list):
-        route_time = (len(i) - 2) * 3 + ((distance_route_vector[route_n] / 40) * 60)
+        route_time = (len(i) - 2) * COLLECTION_TIME_MINUTES + (
+            (distance_route_vector[route_n] / VEHICLE_SPEED_KMH) * 60
+        )
         route_time_vector.append(route_time)
     return route_time_vector
 
@@ -311,7 +320,8 @@ def compute_total_profit(routes, distance_matrix, id_to_index, data, R, V, densi
     for route in routes:
         if len(route) <= 2:
             continue
-        total_kg += (sum(stocks.get(b, 0) for b in route if b != 0) / 100) * V * (density)
+        # Calculate profit
+        total_kg += (sum(stocks.get(b, 0) for b in route if b != 0) / MAX_CAPACITY_PERCENT) * V * (density)
         for i in range(len(route) - 1):
             a, b = route[i], route[i + 1]
             total_km += distance_matrix[id_to_index[a], id_to_index[b]]
