@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+from loguru import logger
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
@@ -169,17 +170,19 @@ def eval_dataset(
     avg_kg = np.mean([r["kg"] for r in results])
     avg_over = np.mean([r["overflows"] for r in results])
 
-    print("Average cost: {} +- {}".format(avg_cost, std_cost))
-    print("Average KM: {}, Average KG: {}, Average Overflows: {}".format(avg_km, avg_kg, avg_over))
+    logger.info("Average cost: {} +- {}".format(avg_cost, std_cost))
+    logger.info("Average KM: {}, Average KG: {}, Average Overflows: {}".format(avg_km, avg_kg, avg_over))
 
     costs: List[float] = [float(r["cost"]) for r in results]
     tours: List[Optional[List[int]]] = [r["seq"] for r in results]
     durations: List[float] = [float(r["duration"]) for r in results]
-    print(
+    logger.info(
         "Average serial duration: {} +- {}".format(np.mean(durations), 2 * np.std(durations) / np.sqrt(len(durations)))
     )
-    print("Average parallel duration: {}".format(np.mean(durations) / parallelism))
-    print("Calculated total duration: {}".format(datetime.timedelta(seconds=int(np.sum(durations) / parallelism))))
+    logger.info("Average parallel duration: {}".format(np.mean(durations) / parallelism))
+    logger.info(
+        "Calculated total duration: {}".format(datetime.timedelta(seconds=int(np.sum(durations) / parallelism)))
+    )
 
     dataset_basename, ext = os.path.splitext(os.path.split(dataset_path)[-1])
     model_name = "_".join(os.path.normpath(os.path.splitext(opts["model"])[0]).split(os.sep)[-2:])

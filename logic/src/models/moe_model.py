@@ -14,7 +14,7 @@ class MoEAttentionModel(AttentionModel):
 
     def __init__(
         self,
-        embedding_dim,
+        embed_dim,
         hidden_dim,
         problem,
         n_encode_layers=2,
@@ -35,7 +35,7 @@ class MoEAttentionModel(AttentionModel):
         component_factory = MoEComponentFactory(num_experts=num_experts, k=k, noisy_gating=noisy_gating)
 
         super(MoEAttentionModel, self).__init__(
-            embedding_dim=embedding_dim,
+            embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             problem=problem,
             component_factory=component_factory,
@@ -56,7 +56,7 @@ class MoETemporalAttentionModel(TemporalAttentionModel):
 
     def __init__(
         self,
-        embedding_dim,
+        embed_dim,
         hidden_dim,
         problem,
         n_encode_layers=2,
@@ -77,7 +77,7 @@ class MoETemporalAttentionModel(TemporalAttentionModel):
         component_factory = MoEComponentFactory(num_experts=num_experts, k=k, noisy_gating=noisy_gating)
 
         super(MoETemporalAttentionModel, self).__init__(
-            embedding_dim=embedding_dim,
+            embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             problem=problem,
             component_factory=component_factory,  # Inject custom factory

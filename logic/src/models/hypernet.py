@@ -21,7 +21,7 @@ class Hypernetwork(nn.Module):
         self,
         problem,
         n_days=365,
-        embedding_dim=16,
+        embed_dim=16,
         hidden_dim=64,
         normalization="layer",
         activation="relu",
@@ -34,7 +34,7 @@ class Hypernetwork(nn.Module):
         Args:
             problem (object): The problem instance wrapper.
             n_days (int, optional): Number of days in the year. Defaults to 365.
-            embedding_dim (int, optional): Dimension of time embedding. Defaults to 16.
+            embed_dim (int, optional): Dimension of time embedding. Defaults to 16.
             hidden_dim (int, optional): Dimension of hidden layers. Defaults to 64.
             normalization (str, optional): Normalization type. Defaults to 'layer'.
             activation (str, optional): Activation function. Defaults to 'relu'.
@@ -51,10 +51,10 @@ class Hypernetwork(nn.Module):
             cost_dim = 1 * 2
 
         self.n_days = n_days
-        self.time_embedding = nn.Embedding(n_days, embedding_dim)  # Day of year embedding
+        self.time_embedding = nn.Embedding(n_days, embed_dim)  # Day of year embedding
 
         # Combined input: metrics + time embedding
-        combined_dim = cost_dim + embedding_dim
+        combined_dim = cost_dim + embed_dim
 
         self.layers = nn.Sequential(
             nn.Linear(combined_dim, hidden_dim, bias=bias),

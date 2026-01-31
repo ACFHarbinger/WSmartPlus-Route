@@ -18,7 +18,7 @@ class DataConfig:
         sigma: Variance of Gaussian noise.
         data_distributions: Distributions to generate for problems.
         dataset_size: Size of the dataset.
-        graph_sizes: Sizes of problem instances.
+        num_locs: Sizes of problem instances.
         penalty_factor: Penalty factor for problems.
         overwrite: Set true to overwrite.
         seed: Random seed.
@@ -40,7 +40,7 @@ class DataConfig:
     sigma: Any = 0.6
     data_distributions: List[str] = field(default_factory=lambda: ["all"])
     dataset_size: int = 128_000
-    graph_sizes: List[int] = field(default_factory=lambda: [20, 50, 100])
+    num_locs: List[int] = field(default_factory=lambda: [20, 50, 100])
     penalty_factor: float = 3.0
     overwrite: bool = False
     seed: int = 42

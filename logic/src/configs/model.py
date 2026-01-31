@@ -15,7 +15,7 @@ class ModelConfig:
         hidden_dim: Hidden dimension.
         num_encoder_layers: Number of encoder layers.
         num_decoder_layers: Number of decoder layers.
-        num_heads: Number of attention heads.
+        n_heads: Number of attention heads.
         encoder_type: Type of encoder ('gat', 'gcn', etc.).
     """
 
@@ -24,7 +24,7 @@ class ModelConfig:
     hidden_dim: int = 512
     num_encoder_layers: int = 3
     num_decoder_layers: int = 3
-    num_heads: int = 8
+    n_heads: int = 8
     encoder_type: str = "gat"
     # NEW FIELDS:
     temporal_horizon: int = 0

@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 
 import pytorch_lightning as pl
+from loguru import logger
 from pytorch_lightning.callbacks import (
     Callback,
     ModelCheckpoint,
@@ -164,6 +165,6 @@ class WSTrainer(pl.Trainer):
             # Fall back to TensorBoard if WandB not available or network fails
             from pytorch_lightning.loggers import TensorBoardLogger
 
-            # We don't use logger.warning here because the logger might not be fully setup
-            print(f"WandB initialization failed, falling back to TensorBoard: {e}")
+            # We don't use pl.logger here because it might not be fully setup, but loguru is safe
+            logger.warning(f"WandB initialization failed, falling back to TensorBoard: {e}")
             return TensorBoardLogger(logs_dir or "logs", name="")

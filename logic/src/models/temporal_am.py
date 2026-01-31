@@ -21,7 +21,7 @@ class TemporalAttentionModel(AttentionModel):
 
     def __init__(
         self,
-        embedding_dim: int,
+        embed_dim: int,
         hidden_dim: int,
         problem: Any,
         component_factory: NeuralComponentFactory,
@@ -62,7 +62,7 @@ class TemporalAttentionModel(AttentionModel):
         # for the context embedder initially because we handle temporal features separately
         # in _get_initial_embeddings.
         self._init_parameters(
-            embedding_dim=embedding_dim,
+            embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             problem=problem,
             n_heads=n_heads,
@@ -116,14 +116,14 @@ class TemporalAttentionModel(AttentionModel):
             dropout=dropout_rate,
         )
 
-        self.temporal_embed = nn.Linear(1, embedding_dim)
+        self.temporal_embed = nn.Linear(1, embed_dim)
         if self.is_wc or self.is_vrpp:
             self.predict_future = True
         else:
             self.predict_future = False
 
         self.combine_embeddings = nn.Sequential(
-            nn.Linear(embedding_dim * 2, embedding_dim),
+            nn.Linear(embed_dim * 2, embed_dim),
             ActivationFunction(
                 activation_function,
                 af_param,
@@ -132,7 +132,7 @@ class TemporalAttentionModel(AttentionModel):
                 af_num_params,
                 cast(Tuple[float, float], tuple(af_uniform_range)) if af_uniform_range else None,
             ),
-            nn.Linear(embedding_dim, embedding_dim),
+            nn.Linear(embed_dim, embed_dim),
         )
 
     def _get_initial_embeddings(self, input):

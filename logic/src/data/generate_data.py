@@ -28,7 +28,7 @@ def generate_datasets(opts):
 
     Args:
         opts (dict): A dictionary containing configuration parameters for data generation.
-                     Expected keys include 'seed', 'problem', 'dataset_type', 'graph_sizes',
+                     Expected keys include 'seed', 'problem', 'dataset_type', 'num_locs',
                      'waste_type', 'area', 'vertex_method', 'dataset_size', etc.
 
     Raises:
@@ -73,7 +73,7 @@ def generate_datasets(opts):
 
         try:
             for dist in distributions or [None]:
-                for size, graph in zip(opts["graph_sizes"], opts["focus_graphs"]):
+                for size, graph in zip(opts["num_locs"], opts["focus_graphs"]):
                     if graph is not None and not os.path.isfile(graph):
                         sim_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator")
                         if os.path.isfile(os.path.join(sim_dir, graph)):
@@ -268,7 +268,7 @@ def validate_gen_data_args(args: Dict[str, Any]) -> Dict[str, Any]:
             (isinstance(args.get("problem"), str) and args.get("problem") != "all")
             or (isinstance(args.get("problem"), list) and len(args["problem"]) == 1)
         )
-        and len(args.get("graph_sizes", [])) == 1
+        and len(args.get("num_locs", [])) == 1
     ), "Can only specify filename when generating a single dataset"
 
     if args["problem"] in ["all", "swcvrp"]:
@@ -279,11 +279,11 @@ def validate_gen_data_args(args: Dict[str, Any]) -> Dict[str, Any]:
     assert (
         "focus_graphs" not in args
         or args["focus_graphs"] is None
-        or len(args["focus_graphs"]) == len(args.get("graph_sizes", []))
+        or len(args["focus_graphs"]) == len(args.get("num_locs", []))
     )
 
     if "focus_graphs" not in args or args["focus_graphs"] is None:
-        args["focus_graphs"] = [None] * len(args.get("graph_sizes", []))
+        args["focus_graphs"] = [None] * len(args.get("num_locs", []))
     else:
         args["area"] = re.sub(r"[^a-zA-Z]", "", args.get("area", "").lower())
         assert args["area"] in MAP_DEPOTS.keys(), "Unknown area {}, available areas: {}".format(

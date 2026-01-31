@@ -1,7 +1,7 @@
 """Tests for log_utils.py."""
 
 import numpy as np
-from logic.src.utils.logging.log_utils import _convert_numpy, _sort_log
+from logic.src.utils.logging.modules.storage import _convert_numpy, _sort_log
 
 
 def test_convert_numpy():
