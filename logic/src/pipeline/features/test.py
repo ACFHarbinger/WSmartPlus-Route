@@ -24,6 +24,7 @@ from typing import Any, Dict
 
 import numpy as np
 import torch
+from loguru import logger
 from tqdm import tqdm
 
 import logic.src.constants as udef
@@ -80,9 +81,9 @@ def simulator_testing(opts, data_size, device):
         sample_idx_ls = [list(val) for val in sample_idx_dict.values()]
         task_count = sum(len(sample_idx) for sample_idx in sample_idx_ls)
         if task_count < sum([opts["n_samples"]] * len(opts["policies"])):
-            print("Simulations left to run:")
+            logger.info("Simulations left to run:")
             for key, val in sample_idx_dict.items():
-                print("- {}: {}".format(key, len(val)))
+                logger.info("- {}: {}".format(key, len(val)))
     else:
         sample_idx_ls = [list(val) for val in sample_idx_dict.values()]
         task_count = sum([opts["n_samples"]] * len(opts["policies"]))

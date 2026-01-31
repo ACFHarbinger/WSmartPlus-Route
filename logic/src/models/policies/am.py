@@ -51,7 +51,7 @@ class AttentionModelPolicy(ConstructivePolicy):
         )
 
         self.decoder = AttentionDecoder(
-            embedding_dim=embed_dim,
+            embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             problem=DummyProblem(env_name),
             n_heads=n_heads,

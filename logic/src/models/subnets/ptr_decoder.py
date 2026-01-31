@@ -65,7 +65,7 @@ class PointerDecoder(nn.Module):
 
     def __init__(
         self,
-        embedding_dim,
+        embed_dim,
         hidden_dim,
         tanh_exploration,
         use_tanh,
@@ -77,7 +77,7 @@ class PointerDecoder(nn.Module):
         Initializes the PointerDecoder.
 
         Args:
-            embedding_dim: Embedding dimension.
+            embed_dim: Embedding dimension.
             hidden_dim: Hidden dimension.
             tanh_exploration: Tanh exploration constant.
             use_tanh: Whether to use tanh.
@@ -87,7 +87,7 @@ class PointerDecoder(nn.Module):
         """
         super(PointerDecoder, self).__init__()
 
-        self.embedding_dim = embedding_dim
+        self.embed_dim = embed_dim
         self.hidden_dim = hidden_dim
         self.n_glimpses = n_glimpses
         self.mask_glimpses = mask_glimpses
@@ -96,7 +96,7 @@ class PointerDecoder(nn.Module):
         self.tanh_exploration = tanh_exploration
         self.decode_type = None  # Needs to be set explicitly before use
 
-        self.lstm = nn.LSTMCell(embedding_dim, hidden_dim)
+        self.lstm = nn.LSTMCell(embed_dim, hidden_dim)
         self.pointer = PointerAttention(hidden_dim, use_tanh=use_tanh, C=tanh_exploration)
         self.glimpse = PointerAttention(hidden_dim, use_tanh=False)
         self.sm = nn.Softmax(dim=1)
@@ -158,8 +158,8 @@ class PointerDecoder(nn.Module):
         Forward pass.
 
         Args:
-            decoder_input: The initial input to the decoder [batch_size x embedding_dim].
-            embedded_inputs: [sourceL x batch_size x embedding_dim]
+            decoder_input: The initial input to the decoder [batch_size x embed_dim].
+            embedded_inputs: [sourceL x batch_size x embed_dim]
             hidden: The prev hidden state [batch_size x hidden_dim].
             context: Encoder outputs [sourceL x batch_size x hidden_dim].
             eval_tours: (Optional) tours to evaluate against.
