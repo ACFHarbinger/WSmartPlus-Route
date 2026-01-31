@@ -22,7 +22,7 @@
     "vertex_method": "mmn",
     "model": "am",
     "encoder": "gat",
-    "embedding_dim": 128,
+    "embed_dim": 128,
     "hidden_dim": 512,
     "n_encode_layers": 3,
     "n_encode_sublayers": null,

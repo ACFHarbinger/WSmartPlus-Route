@@ -24,7 +24,7 @@ def temp_eval_setup(tmp_path):
         "data_distribution": "const",
         "model": "am",
         "encoder": "gat",
-        "embedding_dim": 16,  # Small dim for speed
+        "embed_dim": 16,  # Small dim for speed
         "hidden_dim": 16,
         "n_encode_layers": 2,
         "n_heads": 2,
@@ -60,7 +60,7 @@ def temp_eval_setup(tmp_path):
     # Better to instantiate to ensure shapes are correct.
     component_factory = AttentionComponentFactory()
     model = AttentionModel(
-        embedding_dim=16,
+        embed_dim=16,
         hidden_dim=16,
         problem=problem,
         component_factory=component_factory,

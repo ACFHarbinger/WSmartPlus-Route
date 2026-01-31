@@ -5,7 +5,6 @@ Unified Training and Hyperparameter Optimization entry point using PyTorch Light
 import os
 from typing import Any, Dict, Tuple, Union, cast
 
-import hydra
 import optuna
 import pytorch_lightning as pl
 import torch
@@ -58,12 +57,12 @@ def _remap_legacy_keys(common_kwargs: Dict[str, Any], cfg: Config) -> None:
     common_kwargs["problem"] = cfg.env.name
     common_kwargs["model"] = cfg.model.name
     common_kwargs["encoder"] = cfg.model.encoder_type
-    common_kwargs["embedding_dim"] = cfg.model.embed_dim
-    common_kwargs["n_encode_layers"] = cfg.model.num_encoder_layers
-    common_kwargs["n_encode_sublayers"] = cfg.model.num_encoder_sublayers
-    common_kwargs["n_decode_layers"] = cfg.model.num_decoder_layers
+    common_kwargs["embed_dim"] = cfg.model.embed_dim
+    common_kwargs["n_encode_layers"] = cfg.model.n_encode_layers
+    common_kwargs["n_encode_sublayers"] = cfg.model.n_encoder_sublayers
+    common_kwargs["n_decode_layers"] = cfg.model.n_decode_layers
     common_kwargs["n_heads"] = cfg.model.n_heads
-    common_kwargs["n_predict_layers"] = cfg.model.num_predictor_layers
+    common_kwargs["n_predict_layers"] = cfg.model.n_predictor_layers
     common_kwargs["learn_affine"] = cfg.model.learn_affine
     common_kwargs["track_stats"] = cfg.model.track_stats
     common_kwargs["epsilon_alpha"] = cfg.model.epsilon_alpha
@@ -106,12 +105,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
     policy_cls = policy_map[cfg.model.name]
     policy_kwargs = vars(cfg.model).copy()
     policy_kwargs["env_name"] = cfg.env.name
-
-    # Mapping for backward compatibility with existing policy classes
-    if "num_encoder_layers" in policy_kwargs:
-        policy_kwargs["n_encode_layers"] = policy_kwargs.pop("num_encoder_layers")
-    if "num_decoder_layers" in policy_kwargs:
-        policy_kwargs["n_decode_layers"] = policy_kwargs.pop("num_decoder_layers")
 
     # Remove fields not used in policy __init__ if needed, or rely on **kwargs
     for key in ["lr_critic", "lr_critic_value"]:
@@ -233,7 +226,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
             env_name=cfg.env.name,
             embed_dim=cfg.model.embed_dim,
             hidden_dim=cfg.model.hidden_dim,
-            n_layers=cfg.model.num_encoder_layers,
+            n_layers=cfg.model.n_encode_layers,
             n_heads=cfg.model.n_heads,
         )
 
@@ -292,7 +285,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
                 raise ValueError(f"Unknown expert: {expert_name}")
 
             expert_cls = expert_map[expert_name]
-            expert_kwargs = {"env_name": env_name}
+            expert_kwargs: Dict[str, Any] = {"env_name": env_name}
 
             # Strategy: Load from model.policy_config OR default path
             config_path = getattr(cfg.model, "policy_config", None)
@@ -313,9 +306,9 @@ def create_model(cfg: Config) -> pl.LightningModule:
             # Specific legacy overrides if manual cfg.rl fields are present
             if expert_name in ["random_ls", "2opt"]:
                 if "n_iterations" not in expert_kwargs:
-                    expert_kwargs["n_iterations"] = getattr(cfg.rl, "random_ls_iterations", 100)
+                    expert_kwargs["n_iterations"] = int(getattr(cfg.rl.imitation, "random_ls_iterations", 100))
                 if "op_probs" not in expert_kwargs:
-                    expert_kwargs["op_probs"] = getattr(cfg.rl, "random_ls_op_probs", None)
+                    expert_kwargs["op_probs"] = getattr(cfg.rl.imitation, "random_ls_op_probs", None)
 
             return expert_cls(**expert_kwargs)
 
@@ -505,46 +498,3 @@ def run_training(cfg: Config) -> float:
         model.save_weights(cfg.train.final_model_path)
 
     return trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()
-
-
-@hydra.main(version_base=None, config_path="../../../../scripts/configs", config_name="config")
-def main(cfg: Config) -> float:
-    """Unified entry point."""
-    if cfg.task == "train":
-        if cfg.hpo.n_trials > 0:
-            return run_hpo(cfg)
-        else:
-            return run_training(cfg)
-    elif cfg.task == "eval":
-        from logic.src.pipeline.features.eval import run_evaluate_model, validate_eval_args
-
-        # Convert Hydra config to dict
-        eval_args = OmegaConf.to_container(cfg.eval, resolve=True)
-        # Validate and run
-        args = validate_eval_args(eval_args)
-        run_evaluate_model(args)
-        return 0.0
-    elif cfg.task == "test_sim":
-        from logic.src.pipeline.features.test import run_wsr_simulator_test, validate_test_sim_args
-
-        # Convert Hydra config to dict
-        sim_args = OmegaConf.to_container(cfg.sim, resolve=True)
-        # Validate and run
-        args = validate_test_sim_args(sim_args)
-        run_wsr_simulator_test(args)
-        return 0.0
-    elif cfg.task == "gen_data":
-        from logic.src.data.generate_data import generate_datasets, validate_gen_data_args
-
-        # Convert Hydra config to dict
-        data_args = OmegaConf.to_container(cfg.data, resolve=True)
-        # Validate and run
-        args = validate_gen_data_args(data_args)
-        generate_datasets(args)
-        return 0.0
-    else:
-        raise ValueError(f"Unknown task: {cfg.task}")
-
-
-if __name__ == "__main__":
-    main()

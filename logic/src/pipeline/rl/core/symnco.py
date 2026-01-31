@@ -1,6 +1,10 @@
 """
 SymNCO algorithm implementation.
-Based on Kim et al. (2022) and Adapted from RL4CO.
+
+Reference:
+    Kim, M., Park, J., & Park, J. (2022).
+    Sym-NCO: Leveraging Symmetricity for Neural Combinatorial Optimization.
+    Advances in Neural Information Processing Systems, 35, 1936-1949.
 """
 
 from __future__ import annotations
@@ -11,7 +15,6 @@ from tensordict import TensorDict
 from logic.src.pipeline.rl.core.pomo import POMO
 from logic.src.utils.tasks.losses import (
     invariance_loss,
-    problem_symmetricity_loss,
     solution_symmetricity_loss,
 )
 
@@ -87,13 +90,16 @@ class SymNCO(POMO):
         # reward: [batch, n_aug, n_start]
         reward = out["reward"].view(bs, n_aug, n_start)
 
+        # Initialize metrics for logging
+        loss_ps = torch.tensor(0.0, device=reward.device)
+        loss_ss = torch.tensor(0.0, device=reward.device)
+        loss_inv = torch.tensor(0.0, device=reward.device)
+
         if phase == "train":
             # log_likelihood: [batch, n_aug, n_start]
             ll = out["log_likelihood"].view(bs, n_aug, n_start)
 
             # 1. Problem symmetricity loss (consistency across augmentations)
-            # Baseline is mean across augmentations for each start
-            loss_ps = problem_symmetricity_loss(reward, ll, dim=1)
 
             # 2. Solution symmetricity loss (consistency across starts)
             # Baseline is mean across starts for each augmentation

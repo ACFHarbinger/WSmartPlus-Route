@@ -187,11 +187,11 @@ class ALNSSolver:
         for route in routes:
             if not route:
                 continue
-            d = self.dist_matrix[0][route[0]]
+            dist = self.dist_matrix[0][route[0]]
             for i in range(len(route) - 1):
-                d += self.dist_matrix[route[i]][route[i + 1]]
-            d += self.dist_matrix[route[-1]][0]
-            total_dist += d
+                dist += self.dist_matrix[route[i]][route[i + 1]]
+            dist += self.dist_matrix[route[-1]][0]
+            total_dist += dist
         return total_dist * self.C
 
     def build_initial_solution(self) -> List[List[int]]:
@@ -207,15 +207,15 @@ class ALNSSolver:
         curr_route = []
         load = 0.0
         for node in nodes:
-            d = self.demands.get(node, 0)
-            if load + d <= self.capacity:
+            demand = self.demands.get(node, 0)
+            if load + demand <= self.capacity:
                 curr_route.append(node)
-                load += d
+                load += demand
             else:
                 if curr_route:
                     routes.append(curr_route)
                 curr_route = [node]
-                load = d
+                load = demand
         if curr_route:
             routes.append(curr_route)
         return routes

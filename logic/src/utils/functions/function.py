@@ -269,13 +269,13 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
                 "problem": cfg.env.name,
                 "encoder": cfg.model.encoder_type,
                 "model": cfg.model.name,
-                "embedding_dim": cfg.model.embed_dim,
+                "embed_dim": cfg.model.embed_dim,
                 "hidden_dim": cfg.model.hidden_dim,
-                "n_heads": cfg.model.num_heads,
-                "n_encode_layers": cfg.model.num_encoder_layers,
-                "n_encode_sublayers": cfg.model.num_encoder_sublayers,
-                "n_decode_layers": cfg.model.num_decoder_layers,
-                "n_predict_layers": cfg.model.num_predictor_layers,
+                "n_heads": cfg.model.n_heads,
+                "n_encode_layers": cfg.model.n_encoder_layers,
+                "n_encode_sublayers": cfg.model.n_encoder_sublayers,
+                "n_decode_layers": cfg.model.n_decoder_layers,
+                "n_predict_layers": cfg.model.n_predictor_layers,
                 "normalization": cfg.model.normalization,
                 "activation": cfg.model.activation,
                 "dropout": cfg.model.dropout,
@@ -308,12 +308,12 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
             # Maybe it's a flat DictConfig or Lightning hparams
             args = cast(Dict[str, Any], OmegaConf.to_container(cfg, resolve=True))
             # Apply some basic remapping if needed
-            if "embed_dim" in args and "embedding_dim" not in args:
-                args["embedding_dim"] = args["embed_dim"]
+            if "embed_dim" in args and "embed_dim" not in args:
+                args["embed_dim"] = args["embed_dim"]
             if "num_encoder_layers" in args and "n_encode_layers" not in args:
                 args["n_encode_layers"] = args["num_encoder_layers"]
-            if "num_heads" in args and "n_heads" not in args:
-                args["n_heads"] = args["num_heads"]
+            if "n_heads" in args and "n_heads" not in args:
+                args["n_heads"] = args["n_heads"]
     elif os.path.exists(args_json_path):
         args = load_args(args_json_path)
     else:
@@ -349,7 +349,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     }.get(args.get("model", "am"), None)
     assert model_class is not None, "Unknown model: {}".format(model_class)
     model = model_class(
-        args["embedding_dim"],
+        args["embed_dim"],
         args["hidden_dim"],
         problem,
         component_factory,

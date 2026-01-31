@@ -25,7 +25,7 @@ def train_opts(tmp_path):
         "log_dir": "logs",
         "save_dir": str(tmp_path / "checkpoints"),
         "final_dir": str(tmp_path / "final"),
-        "embedding_dim": 16,
+        "embed_dim": 16,
         "hidden_dim": 16,
         "n_encode_layers": 1,
         "optimizer": "adam",

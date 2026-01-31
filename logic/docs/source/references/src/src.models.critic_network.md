@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} CriticNetwork(problem, component_factory, embedding_dim, hidden_dim, n_layers, n_sublayers, encoder_normalization='batch', activation='gelu', n_heads=8, aggregation_graph='avg', dropout_rate=0.0, temporal_horizon=0)
+`````{py:class} CriticNetwork(problem, component_factory, embed_dim, hidden_dim, n_layers, n_sublayers, encoder_normalization='batch', activation='gelu', n_heads=8, aggregation_graph='avg', dropout_rate=0.0, temporal_horizon=0)
 :canonical: src.models.critic_network.CriticNetwork
 
 Bases: {py:obj}`torch.nn.Module`

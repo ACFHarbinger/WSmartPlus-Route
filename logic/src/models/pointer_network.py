@@ -21,7 +21,7 @@ class PointerNetwork(nn.Module):
 
     def __init__(
         self,
-        embedding_dim,
+        embed_dim,
         hidden_dim,
         problem,
         n_encode_layers=None,
@@ -35,7 +35,7 @@ class PointerNetwork(nn.Module):
         Initialize the Pointer Network.
 
         Args:
-            embedding_dim (int): Dimension of the embedding vectors.
+            embed_dim (int): Dimension of the embedding vectors.
             hidden_dim (int): Dimension of the hidden layers.
             problem (object): The problem instance wrapper.
             n_encode_layers (int, optional): Number of encoder layers. Defaults to None.
@@ -48,9 +48,9 @@ class PointerNetwork(nn.Module):
         super(PointerNetwork, self).__init__()
         self.problem = problem
         self.input_dim = 2
-        self.encoder = PointerEncoder(embedding_dim, hidden_dim)
+        self.encoder = PointerEncoder(embed_dim, hidden_dim)
         self.decoder = PointerDecoder(
-            embedding_dim,
+            embed_dim,
             hidden_dim,
             tanh_exploration=tanh_clipping,
             use_tanh=tanh_clipping > 0,
@@ -60,11 +60,11 @@ class PointerNetwork(nn.Module):
         )
 
         # Trainable initial hidden states
-        std = 1.0 / math.sqrt(embedding_dim)
-        self.decoder_in_0 = nn.Parameter(torch.FloatTensor(embedding_dim))
+        std = 1.0 / math.sqrt(embed_dim)
+        self.decoder_in_0 = nn.Parameter(torch.FloatTensor(embed_dim))
         self.decoder_in_0.data.uniform_(-std, std)
 
-        self.embedding = nn.Parameter(torch.FloatTensor(self.input_dim, embedding_dim))
+        self.embedding = nn.Parameter(torch.FloatTensor(self.input_dim, embed_dim))
         self.embedding.data.uniform_(-std, std)
 
     def set_decode_type(self, decode_type):

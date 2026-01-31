@@ -328,7 +328,7 @@ class RolloutBaseline(Baseline):
             with torch.no_grad():
                 from logic.src.utils.functions.rl import ensure_tensordict
 
-                td = ensure_tensordict(td, next(self.baseline_policy.parameters()).device)
+                td = ensure_tensordict(td, next(iter(self.baseline_policy.parameters())).device)
                 return self._rollout(self.baseline_policy, td, env)
 
         return torch.zeros_like(reward)
@@ -485,7 +485,7 @@ class CriticBaseline(Baseline):
 
         from logic.src.utils.functions.rl import ensure_tensordict
 
-        td = ensure_tensordict(td, next(self.critic.parameters()).device)
+        td = ensure_tensordict(td, next(iter(self.critic.parameters())).device)
         return self.critic(td).squeeze(-1)
 
     def get_learnable_parameters(self) -> list:
@@ -494,9 +494,10 @@ class CriticBaseline(Baseline):
 
     def state_dict(self, *args, **kwargs):
         """Compatibility state_dict."""
+        sd = super().state_dict(*args, **kwargs)
         if self.critic is not None:
-            return {"critic": self.critic.state_dict()}
-        return {}
+            sd["critic"] = self.critic.state_dict()
+        return sd
 
 
 class POMOBaseline(Baseline):

@@ -31,7 +31,7 @@ class PointerNetworkPolicy(ConstructivePolicy):
         from logic.src.models.policies.utils import DummyProblem
 
         self.model = PointerNetwork(
-            embedding_dim=embed_dim,
+            embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             problem=DummyProblem(env_name),
             **kwargs,

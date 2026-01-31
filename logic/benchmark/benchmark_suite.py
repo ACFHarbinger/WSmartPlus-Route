@@ -14,7 +14,7 @@ from logic.src.policies.policy_vrpp import run_vrpp_optimizer
 def get_dummy_model(device="cpu"):
     factory = AttentionComponentFactory()
     model = AttentionModel(
-        embedding_dim=128,
+        embed_dim=128,
         hidden_dim=128,
         problem=VRPP,
         component_factory=factory,

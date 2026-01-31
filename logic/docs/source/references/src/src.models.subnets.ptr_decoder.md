@@ -51,7 +51,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 `````
 
-`````{py:class} PointerDecoder(embedding_dim, hidden_dim, tanh_exploration, use_tanh, n_glimpses=1, mask_glimpses=True, mask_logits=True)
+`````{py:class} PointerDecoder(embed_dim, hidden_dim, tanh_exploration, use_tanh, n_glimpses=1, mask_glimpses=True, mask_logits=True)
 :canonical: src.models.subnets.ptr_decoder.PointerDecoder
 
 Bases: {py:obj}`torch.nn.Module`

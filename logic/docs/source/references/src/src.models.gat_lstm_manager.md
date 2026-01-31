@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GATLSTManager(input_dim_static=2, input_dim_dynamic=10, global_input_dim=2, critical_threshold=0.9, batch_size=1024, hidden_dim=128, lstm_hidden=64, num_layers_gat=3, num_heads=8, dropout=0.1, device='cuda', shared_encoder=None)
+`````{py:class} GATLSTManager(input_dim_static=2, input_dim_dynamic=10, global_input_dim=2, critical_threshold=0.9, batch_size=1024, hidden_dim=128, lstm_hidden=64, num_layers_gat=3, n_heads=8, dropout=0.1, device='cuda', shared_encoder=None)
 :canonical: src.models.gat_lstm_manager.GATLSTManager
 
 Bases: {py:obj}`torch.nn.Module`

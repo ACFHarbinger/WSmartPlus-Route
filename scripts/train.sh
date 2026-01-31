@@ -157,7 +157,7 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             model.spatial_bias=true \
             optim.optimizer="'$OPTIM'" \
             model.hidden_dim="$HIDDEN_DIM" \
-            model.num_heads="$N_HEADS" \
+            model.n_heads="$N_HEADS" \
             model.dropout="$DROPOUT" \
             env.waste_type="'$WTYPE'" \
             env.focus_size="$F_SIZE" \

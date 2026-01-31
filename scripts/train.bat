@@ -130,7 +130,7 @@ for %%D in (%DATA_DISTS%) do (
         --data_distribution "%%D" --graph_size %SIZE% --n_epochs %EPOCHS% --seed %SEED% ^
         --train_time --vertex_method "%VERTEX_M%" --epoch_start %START% --max_grad_norm %MAX_NORM% ^
         --val_size %N_VAL_DATA% --w_length %W_LEN% --w_waste %W_WASTE% --w_overflows %W_OVER% ^
-        --embedding_dim %EMBED_DIM% --activation "%ACTI_F%" --accumulation_steps %ACC_STEPS% ^
+        --embed_dim %EMBED_DIM% --activation "%ACTI_F%" --accumulation_steps %ACC_STEPS% ^
         --focus_graph "%F_GRAPH%" --normalization "%NORM%" --train_dataset "!CURRENT_DATASET!" ^
         --optimizer "%OPTIM%" --hidden_dim %HIDDEN_DIM% --n_heads %N_HEADS% --dropout %DROPOUT% ^
         --waste_type "%WTYPE%" --focus_size %F_SIZE% --n_encode_layers %N_ENC_L% --lr_model %LR_MODEL% ^
@@ -162,7 +162,7 @@ for %%D in (%DATA_DISTS%) do (
         --data_distribution "%%D" --graph_size %SIZE% --n_epochs %EPOCHS% --seed %SEED% ^
         --train_time --vertex_method "%VERTEX_M%" --epoch_start %START% --max_grad_norm %MAX_NORM% ^
         --val_size %N_VAL_DATA% --w_length %W_LEN% --w_waste %W_WASTE% --w_overflows %W_OVER% ^
-        --embedding_dim %EMBED_DIM% --activation "%ACTI_F%" --accumulation_steps %ACC_STEPS% ^
+        --embed_dim %EMBED_DIM% --activation "%ACTI_F%" --accumulation_steps %ACC_STEPS% ^
         --focus_graph "%F_GRAPH%" --normalization "%NORM%" --train_dataset "!CURRENT_DATASET!" ^
         --optimizer "%OPTIM%" --hidden_dim %HIDDEN_DIM% --n_heads %N_HEADS% --dropout %DROPOUT% ^
         --waste_type "%WTYPE%" --focus_size %F_SIZE% --n_encode_layers %N_ENC_L% --lr_model %LR_MODEL% ^
@@ -194,7 +194,7 @@ for %%D in (%DATA_DISTS%) do (
         --data_distribution "%%D" --graph_size %SIZE% --n_epochs %EPOCHS% ^
         --train_time --vertex_method "%VERTEX_M%" --epoch_start %START% --max_grad_norm %MAX_NORM% ^
         --val_size %N_VAL_DATA% --w_length %W_LEN% --w_waste %W_WASTE% --w_overflows %W_OVER% ^
-        --embedding_dim %EMBED_DIM% --activation "%ACTI_F%" --accumulation_steps %ACC_STEPS% ^
+        --embed_dim %EMBED_DIM% --activation "%ACTI_F%" --accumulation_steps %ACC_STEPS% ^
         --focus_graph "%F_GRAPH%" --normalization "%NORM%" --train_dataset "!CURRENT_DATASET!" ^
         --optimizer "%OPTIM%" --hidden_dim %HIDDEN_DIM% --n_heads %N_HEADS% --dropout %DROPOUT% ^
         --waste_type "%WTYPE%" --focus_size %F_SIZE% --n_encode_layers %N_ENC_L% --lr_model %LR_MODEL% ^
@@ -226,7 +226,7 @@ for %%D in (%DATA_DISTS%) do (
         --data_distribution "%%D" --graph_size %SIZE% --n_epochs %EPOCHS% --seed %SEED% ^
         --train_time --vertex_method "%VERTEX_M%" --epoch_start %START% --max_grad_norm %MAX_NORM% ^
         --val_size %N_VAL_DATA% --w_length %W_LEN% --w_waste %W_WASTE% --w_overflows %W_OVER% ^
-        --embedding_dim %EMBED_DIM% --activation "%ACTI_F%" --accumulation_steps %ACC_STEPS% ^
+        --embed_dim %EMBED_DIM% --activation "%ACTI_F%" --accumulation_steps %ACC_STEPS% ^
         --focus_graph "%F_GRAPH%" --normalization "%NORM%" --train_dataset "!CURRENT_DATASET!" --area "%AREA%" ^
         --optimizer "%OPTIM%" --hidden_dim %HIDDEN_DIM% --n_heads %N_HEADS% --dropout %DROPOUT% ^
         --waste_type "%WTYPE%" --focus_size %F_SIZE% --n_encode_layers %N_ENC_L% --lr_model %LR_MODEL% ^
@@ -258,7 +258,7 @@ for %%D in (%DATA_DISTS%) do (
         --data_distribution "%%D" --graph_size %SIZE% --n_epochs %EPOCHS% --seed %SEED% ^
         --train_time --vertex_method "%VERTEX_M%" --epoch_start %START% --max_grad_norm %MAX_NORM% ^
         --val_size %N_VAL_DATA% --w_length %W_LEN% --w_waste %W_WASTE% --w_overflows %W_OVER% ^
-        --embedding_dim %EMBED_DIM% --activation "%ACTI_F%" --accumulation_steps %ACC_STEPS% ^
+        --embed_dim %EMBED_DIM% --activation "%ACTI_F%" --accumulation_steps %ACC_STEPS% ^
         --focus_graph "%F_GRAPH%" --normalization "%NORM%" --train_dataset "!CURRENT_DATASET!" --area "%AREA%" ^
         --optimizer "%OPTIM%" --hidden_dim %HIDDEN_DIM% --n_heads %N_HEADS% --dropout %DROPOUT% ^
         --waste_type "%WTYPE%" --focus_size %F_SIZE% --n_encode_layers %N_ENC_L% --lr_model %LR_MODEL% ^

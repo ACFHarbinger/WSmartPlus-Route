@@ -172,7 +172,7 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             rl.max_grad_norm="$MAX_NORM" \
             train.accumulation_steps="$ACC_STEPS" \
             seed="$SEED" \
-            model.num_heads="$N_HEADS" \
+            model.n_heads="$N_HEADS" \
             env.cost_weight="$W_LEN" \
             env.collection_reward="$W_WASTE" \
             env.overflow_penalty="$W_OVER" \

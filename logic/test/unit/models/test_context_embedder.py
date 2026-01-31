@@ -6,7 +6,7 @@ class TestContextEmbedder:
     def test_wc_embedder_shapes(self):
         """Test Waste Collection embedder output shapes."""
         embed_dim = 128
-        model = WCContextEmbedder(embedding_dim=embed_dim, node_dim=3, temporal_horizon=2)
+        model = WCContextEmbedder(embed_dim=embed_dim, node_dim=3, temporal_horizon=2)
 
         # Batch=2, Graph=10
         input_data = {
@@ -29,7 +29,7 @@ class TestContextEmbedder:
     def test_vrpp_embedder_shapes(self):
         """Test VRPP embedder output shapes."""
         embed_dim = 64
-        model = VRPPContextEmbedder(embedding_dim=embed_dim, node_dim=3, temporal_horizon=0)
+        model = VRPPContextEmbedder(embed_dim=embed_dim, node_dim=3, temporal_horizon=0)
 
         input_data = {
             "loc": torch.rand(1, 5, 2),  # Test 'loc' vs 'locs' key fallback
@@ -48,7 +48,7 @@ class TestContextEmbedder:
 
     def test_wc_key_fallback(self):
         """Test fallback key logic for Waste."""
-        model = WCContextEmbedder(embedding_dim=16)
+        model = WCContextEmbedder(embed_dim=16)
 
         # No 'waste' or 'demand', but 'noisy_waste'
         input_data = {"locs": torch.rand(1, 5, 2), "depot": torch.rand(1, 2), "noisy_waste": torch.rand(1, 5)}

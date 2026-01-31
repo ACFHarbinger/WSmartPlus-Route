@@ -104,8 +104,8 @@ The single biggest comprehension barrier in this codebase. The same concept uses
 
 | Concept | Convention A | Count | Convention B | Count | Files Using Both |
 |---------|-------------|-------|-------------|-------|------------------|
-| Embedding dimension | `embed_dim` | 193 (28 files) | `embedding_dim` | 81 (13 files) | `attention_decoder.py`, `attention_model.py`, `critic_network.py`, `deep_decoder_am.py`, `gat_lstm_manager.py` |
-| Number of heads | `n_heads` | 80 (17 files) | `num_heads` | 15 (2 files) | -- |
+| Embedding dimension | `embed_dim` | 193 (28 files) | `embed_dim` | 81 (13 files) | `attention_decoder.py`, `attention_model.py`, `critic_network.py`, `deep_decoder_am.py`, `gat_lstm_manager.py` |
+| Number of heads | `n_heads` | 80 (17 files) | `n_heads` | 15 (2 files) | -- |
 | Graph size | `graph_size` | mixed | `num_loc` | mixed | `n_nodes` also used |
 
 **Why this is critical**: [train.py:111-116](logic/src/pipeline/features/train.py#L111-L116) explicitly remaps between the two conventions:
@@ -113,11 +113,11 @@ The single biggest comprehension barrier in this codebase. The same concept uses
 ```python
 if "num_encoder_layers" in policy_kwargs:
     policy_kwargs["n_encode_layers"] = policy_kwargs.pop("num_encoder_layers")
-if "num_heads" in policy_kwargs:
-    policy_kwargs["n_heads"] = policy_kwargs.pop("num_heads")
+if "n_heads" in policy_kwargs:
+    policy_kwargs["n_heads"] = policy_kwargs.pop("n_heads")
 ```
 
-The config layer uses `num_heads`, the model layer uses `n_heads`. A developer tracing a parameter from config to model must know about this implicit translation. Five files use *both* `embed_dim` and `embedding_dim` in the same file, meaning the parameter gets renamed at the boundary between the encoder layer and the top-level model.
+The config layer uses `n_heads`, the model layer uses `n_heads`. A developer tracing a parameter from config to model must know about this implicit translation. Five files use *both* `embed_dim` and `embed_dim` in the same file, meaning the parameter gets renamed at the boundary between the encoder layer and the top-level model.
 
 ### 3.2 HIGH: Stale Documentation / Code Drift
 
@@ -262,7 +262,7 @@ These issues from the previous analysis remain:
 
 | # | Task | Impact | Effort | Files |
 |---|------|--------|--------|-------|
-| 6 | Standardize on `embed_dim` (dominant convention, 193 vs 81 occurrences) across all model files | HIGH | MEDIUM | 13 files using `embedding_dim` |
+| 6 | Standardize on `embed_dim` (dominant convention, 193 vs 81 occurrences) across all model files | HIGH | MEDIUM | 13 files using `embed_dim` |
 | 7 | Standardize on `n_heads` (dominant, 80 vs 15) -- update `gat_lstm_manager.py` and `efficient_graph_convolution.py` | MEDIUM | LOW | 2 files |
 | 8 | Prefix duplicate sub-layer classes with encoder name (e.g., `GATFeedForwardSubLayer`) | MEDIUM | LOW | 3 encoder files |
 | 9 | Remove legacy remapping in `train.py:111-116` once config uses standard names | MEDIUM | MEDIUM | `train.py`, config files |
@@ -305,7 +305,7 @@ These issues from the previous analysis remain:
 | **Module Export Clarity** | 8/10 | Clean `__all__` in key modules; `logic/src/__init__.py` minimal |
 | **Import Organization** | 8/10 | Consistent stdlib -> third-party -> local grouping; no circular imports |
 | **Codebase Hygiene** | 9/10 | Only 3 TODOs; no FIXME/HACK markers |
-| **Naming Consistency** | 4.5/10 | `embed_dim` vs `embedding_dim` (274 total), `n_heads` vs `num_heads`, `graph_size` vs `num_loc` vs `n_nodes`; explicit remapping in `train.py` |
+| **Naming Consistency** | 4.5/10 | `embed_dim` vs `embed_dim` (274 total), `n_heads` vs `n_heads`, `graph_size` vs `num_loc` vs `n_nodes`; explicit remapping in `train.py` |
 | **Documentation-Code Alignment** | 5/10 | CLAUDE.md references `tasks/` 10 times; empty `tasks/` directory misleads |
 | **Logging Consistency** | 4/10 | 3 competing systems; 191 raw `print()` calls vs 17 proper logger calls |
 | **Error Handling Consistency** | 5.5/10 | Simulation pipeline improved; training pipeline and models still inconsistent |
@@ -319,7 +319,7 @@ These issues from the previous analysis remain:
 |-----------|:---:|---|---|
 | Simulation Pipeline | 8.5/10 | Action I/O contracts, state machine, lookup tables | `checkpoints.py` logging |
 | Training Pipeline | 7/10 | Template Method hierarchy, baseline registry | Naming inconsistency at config->model boundary |
-| Neural Models | 6.5/10 | Factory pattern, clean inheritance | `embed_dim`/`embedding_dim` split, missing shape docs |
+| Neural Models | 6.5/10 | Factory pattern, clean inheritance | `embed_dim`/`embed_dim` split, missing shape docs |
 | GUI Layer | 8/10 | Mediator pattern, tab isolation | -- |
 | Configuration | 7.5/10 | Dataclass composition, algorithm sub-configs | Dict/Hydra/dataclass triple pattern |
 | Documentation | 8/10 | Volume and coverage | `tasks/` -> `envs/` drift |

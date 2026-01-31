@@ -13,9 +13,9 @@ def test_critic_network_init():
     component_factory = MagicMock()
 
     model = CriticNetwork(
-        problem=problem, component_factory=component_factory, embedding_dim=16, hidden_dim=16, n_layers=1, n_sublayers=1
+        problem=problem, component_factory=component_factory, embed_dim=16, hidden_dim=16, n_layers=1, n_sublayers=1
     )
-    assert model.embedding_dim == 16
+    assert model.embed_dim == 16
     assert not model.is_wc
     assert model.is_vrpp
 
@@ -31,7 +31,7 @@ def test_critic_network_forward():
     component_factory.create_encoder.return_value = mock_encoder
 
     model = CriticNetwork(
-        problem=problem, component_factory=component_factory, embedding_dim=16, hidden_dim=16, n_layers=1, n_sublayers=1
+        problem=problem, component_factory=component_factory, embed_dim=16, hidden_dim=16, n_layers=1, n_sublayers=1
     )
 
     # Mock inputs

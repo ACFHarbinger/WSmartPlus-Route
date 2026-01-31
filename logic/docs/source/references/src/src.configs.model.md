@@ -84,13 +84,13 @@
 
 ````
 
-````{py:attribute} num_heads
-:canonical: src.configs.model.ModelConfig.num_heads
+````{py:attribute} n_heads
+:canonical: src.configs.model.ModelConfig.n_heads
 :type: int
 :value: >
    8
 
-```{autodoc2-docstring} src.configs.model.ModelConfig.num_heads
+```{autodoc2-docstring} src.configs.model.ModelConfig.n_heads
 ```
 
 ````

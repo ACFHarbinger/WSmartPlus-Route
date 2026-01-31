@@ -351,7 +351,7 @@ class TestAttentionModel:
         """Create model instance for testing."""
         return AttentionModel(
             problem="vrpp",
-            embedding_dim=128,
+            embed_dim=128,
             n_encode_layers=3
         )
 

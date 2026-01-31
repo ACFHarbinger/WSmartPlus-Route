@@ -49,10 +49,10 @@ class RLModelTab(BaseReinforcementLearningTab):
         layout.addRow(QLabel("Encoder:"), self.widgets["encoder"])
 
         # Embedding dim
-        self.widgets["embedding_dim"] = QSpinBox()
-        self.widgets["embedding_dim"].setRange(1, 1024)
-        self.widgets["embedding_dim"].setValue(128)
-        layout.addRow(QLabel("Embedding Dimension:"), self.widgets["embedding_dim"])
+        self.widgets["embed_dim"] = QSpinBox()
+        self.widgets["embed_dim"].setRange(1, 1024)
+        self.widgets["embed_dim"].setValue(128)
+        layout.addRow(QLabel("Embedding Dimension:"), self.widgets["embed_dim"])
 
         # Hidden dim
         self.widgets["hidden_dim"] = QSpinBox()
