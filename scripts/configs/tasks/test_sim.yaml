@@ -1,18 +1,22 @@
 # General
 verbose: true
-n_cores: 22
-
-# Simulation Settings
 seed: 42
-n_days: 31
-size: 100
-n_samples: 10
-checkpoints: 30
-real_time_log: 1
+cpu_cores: 0
 
-# Policy Parameters
-policies: ["alns", "bcp"]
-n_vehicles: 0
-problem: "cwcvrp"
-gate_prob_threshold: 0.1
-mask_prob_threshold: 0.1
+# Simulation Configuration (matches SimConfig)
+sim:
+  days: 31
+  size: 50
+  n_samples: 10
+  checkpoint_days: 0
+  cpd: 5
+  real_time_log: false
+  policies: ["alns", "bcp"]
+  n_vehicles: 1
+  problem: "cwcvrp"
+  gate_prob_threshold: 0.1
+  mask_prob_threshold: 0.1
+  area: "riomaior"
+  waste_type: "plastic"
+  output_dir: "output"
+  checkpoint_dir: "checkpoints"

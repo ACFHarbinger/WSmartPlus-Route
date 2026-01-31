@@ -1,8 +1,12 @@
-# Data Configuration for Meta-RL
-n_data: 1280
-n_val_data: 0
-f_size: 1280
-val_f_size: 0
-data_dists: ["gamma1"]
-size: 100
-dm_method: "gmaps"
+# @package _global_
+
+data:
+  dataset_size: 1280       # n_data
+  data_distributions: ["gamma1"] # data_dists
+  graph_sizes: [100]       # size
+
+env:
+  distance_method: "gmaps" # dm_method
+
+train:
+  val_data_size: 0         # n_val_data

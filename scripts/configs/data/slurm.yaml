@@ -1,3 +1,6 @@
-# Data Configuration for Slurm
-dd_train: "unif"
-dd_test: "gamma1"
+# @package _global_
+
+data:
+  data_distributions: ["unif", "gamma1"] # dd_train, dd_test (merged for now as list)
+
+# Note: slurm.yaml in data dir seems to define distributions used during slurm jobs

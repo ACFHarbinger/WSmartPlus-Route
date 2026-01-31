@@ -1,21 +1,18 @@
-# Data Specs
-data_dir: "datasets"
-sim_data_dir: "daily_waste"
-d_type: "train_time"
-d_type_sim: "test_simulator"
+# @package _global_
 
-# Dataset Names
-dataset_name: "time"
-test_dataset_name: "wsr"
+data:
+  dataset_size: 1280       # n_data
+  data_distributions: ["gamma1"] # data_dists
 
-# Dataset Sizes
-n_data: 1280
-n_val_data: 128
-n_test_data: 1
-data_dists: ["gamma1"]
-sizes: [20, 50, 100, 170]
+  # Dataset specifics
+  dataset_type: "train_time" # d_type
 
-# Focus Graph Specs
-focus_size: 1280
-val_focus_size: 128
-test_focus_size: 1
+  # Generation flags (NOTE: These map to unused legacy args in generate_data.py but keeping for record)
+  filename: "time"         # dataset_name
+
+  # Focus graphs
+  focus_size: 1280
+
+# Training specific overrides often found in old gen_data
+train:
+  val_data_size: 128       # n_val_data

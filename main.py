@@ -282,13 +282,6 @@ if __name__ == "__main__":
             # These might have specific handling needs or default to train task
             pass
 
-        if command == "eval":
-            sys.argv.append("task=eval")
-        elif command == "test_sim":
-            sys.argv.append("task=test_sim")
-        elif command == "gen_data":
-            sys.argv.append("task=gen_data")
-
         # Bypass legacy parsing and delegate to Hydra/Lightning pipeline
         from logic.src.pipeline.features.train import main as unified_main
 

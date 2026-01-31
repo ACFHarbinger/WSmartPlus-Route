@@ -1,15 +1,16 @@
-# Environment / Problem
-problem: "cwcvrp"
-data_problem: "wcvrp"
-size: 100
-area: "riomaior"
-wtype: "plastic"
-dist_m: "gmaps"
-vertex_m: "mmn"
-edge_t: 1.0
-edge_m: "knn"
+# @package _global_
 
-# Rewards / Costs
-w_len: 10.0
-w_over: 10.0
-w_waste: 10.0
+env:
+  name: "cwcvrp"
+  num_loc: 100
+  area: "riomaior"
+  waste_type: "plastic"
+  distance_method: "gmaps"
+  vertex_method: "mmn"
+  edge_threshold: 1.0
+  edge_method: "knn"
+
+  # Rewards / Costs
+  cost_weight: 10.0      # w_len
+  overflow_penalty: 10.0 # w_over
+  collection_reward: 10.0 # w_waste

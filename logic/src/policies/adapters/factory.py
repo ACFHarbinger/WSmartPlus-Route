@@ -7,6 +7,7 @@ interface for executing diverse routing policies within the simulator.
 Now also includes the IPolicy interface and PolicyRegistry.
 """
 
+import warnings
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
@@ -115,6 +116,12 @@ class PolicyFactory:
         # Fallback for complex names or un-registered policies (backward compatibility)
         if name == "regular" or "regular" in name:
             # Fallback to TSP for legacy regular execution (selection happens in Action)
+            start_msg = "Using 'regular' as policy name is deprecated. "
+            warnings.warn(
+                start_msg + "Please use 'tsp' or specific policy instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             from logic.src.policies.adapters.policy_tsp import TSPPolicy
 
             return TSPPolicy()
@@ -140,6 +147,12 @@ class PolicyFactory:
                 from logic.src.policies.adapters.policy_cvrp import CVRPPolicy
                 from logic.src.policies.adapters.policy_tsp import TSPPolicy
 
+                warnings.warn(
+                    f"Implicit policy resolution for '{name}' is deprecated. Please register policy explicitly.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+
                 n_vehicles = kwargs.get("n_vehicles", 1)
                 return TSPPolicy() if n_vehicles == 1 else CVRPPolicy()
 
@@ -156,43 +169,43 @@ def __getattr__(name: str) -> Any:
 
         return NeuralPolicy
     elif name == "VRPPPolicyAdapter":
-        from logic.src.policies.policy_vrpp import VRPPPolicy
+        from logic.src.policies.adapters.policy_vrpp import VRPPPolicy
 
         return VRPPPolicy
     elif name == "TSPPolicy":
-        from logic.src.policies.policy_tsp import TSPPolicy
+        from logic.src.policies.adapters.policy_tsp import TSPPolicy
 
         return TSPPolicy
     elif name == "CVRPPolicy":
-        from logic.src.policies.policy_cvrp import CVRPPolicy
+        from logic.src.policies.adapters.policy_cvrp import CVRPPolicy
 
         return CVRPPolicy
     elif name == "ALNSPolicy":
-        from logic.src.policies.policy_alns import ALNSPolicy
+        from logic.src.policies.adapters.policy_alns import ALNSPolicy
 
         return ALNSPolicy
     elif name == "BCPPolicy":
-        from logic.src.policies.policy_bcp import BCPPolicy
+        from logic.src.policies.adapters.policy_bcp import BCPPolicy
 
         return BCPPolicy
     elif name == "HGSPolicy":
-        from logic.src.policies.policy_hgs import HGSPolicy
+        from logic.src.policies.adapters.policy_hgs import HGSPolicy
 
         return HGSPolicy
     elif name == "HGSALNSPolicy":
-        from logic.src.policies.policy_hgs_alns import HGSALNSPolicy
+        from logic.src.policies.adapters.policy_hgs_alns import HGSALNSPolicy
 
         return HGSALNSPolicy
     elif name == "LKHPolicy":
-        from logic.src.policies.policy_lkh import LKHPolicy
+        from logic.src.policies.adapters.policy_lkh import LKHPolicy
 
         return LKHPolicy
     elif name == "SANSPolicy":
-        from logic.src.policies.policy_sans import SANSPolicy
+        from logic.src.policies.adapters.policy_sans import SANSPolicy
 
         return SANSPolicy
     elif name == "LACPolicy":
-        from logic.src.policies.policy_lac import LACPolicy
+        from logic.src.policies.adapters.policy_lac import LACPolicy
 
         return LACPolicy
     elif name == "PolicyAdapter":

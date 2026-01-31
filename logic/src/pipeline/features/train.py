@@ -332,7 +332,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
             # Strategy: Load from model.policy_config OR default path
             config_path = getattr(cfg.model, "policy_config", None)
             if config_path is None:
-                default_path = f"scripts/configs/models/{expert_name}.yaml"
+                default_path = f"scripts/configs/model/{expert_name}.yaml"
                 if os.path.exists(default_path):
                     config_path = default_path
 
@@ -542,7 +542,7 @@ def run_training(cfg: Config) -> float:
     return trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()
 
 
-@hydra.main(version_base=None, config_name="config")
+@hydra.main(version_base=None, config_path="../../../../scripts/configs", config_name="config")
 def main(cfg: Config) -> float:
     """Unified entry point."""
     if cfg.task == "train":

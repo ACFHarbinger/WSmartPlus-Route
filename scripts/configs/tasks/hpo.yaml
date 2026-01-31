@@ -1,47 +1,55 @@
+# @package _global_
+
 # General
 verbose: true
 seed: 42
 start: 0
-epochs: 7
-problem: "wcvrp"
 
-# HPO Specifics
-eta: 5
-n_pop: 20
-fevals: 25
-metric: "both"
-hpo_method: "dehbo"
-range: [0.0, 2.0]
-max_tres: 40
-h_epochs: 3
-mutpb: 0.3
-cxpb: 0.5
+# Environment Override
+env:
+  name: "wcvrp"
+  num_loc: 20
+  area: "riomaior"
+  waste_type: "plastic"
+  edge_threshold: 0.3
+  edge_method: "knn"
+  vertex_method: "mmn"
 
-# Environment Overrides for HPO
-size: 20
-area: "riomaior"
-wtype: "plastic"
-edge_t: 0.3
-edge_m: "knn"
-vertex_m: "mmn"
+# HPO Configuration
+hpo:
+  method: "dehbo"
+  metric: "both"
+  n_trials: 25 # fevals
+  n_epochs_per_trial: 7 # epochs
+  fevals: 25
+  hop_range: [0.0, 2.0]
+
+  # DE/GA Parameters (HPOConfig fields)
+  eta: 5.0
+  n_pop: 20
+  mutpb: 0.3
+  cxpb: 0.5
+  max_tres: 40
+  # h_epochs maps to n_gen or something? Leaving out if ambiguous or mapping to closest if found.
 
 # Optimization Overrides
-optim: "rmsprop"
-lr_model: 0.0001
-lr_cv: 0.0001
-lr_scheduler: "lambda"
-lr_decay: 1.0
-b_size: 256
+optim:
+  optimizer: "rmsprop"
+  lr: 0.0001
+  lr_decay: 1.0
+  lr_scheduler: "lambda"
 
-# RL Baseline
-bl: "exponential"
-max_norm: 1.0
-exp_beta: 0.8
-bl_alpha: 0.05
-acc_steps: 1
+# RL / Baseline
+rl:
+  baseline: "exponential"
+  bl_alpha: 0.05
+  exp_beta: 0.8
+  max_grad_norm: 1.0
 
-# Model Selection
-model_names: ["am"]
-model_encoders: ["gat"]
-horizon: [0, 0, 0, 0, 3]
-wb_mode: "disabled"
+# Training
+train:
+  batch_size: 256
+  accumulation_steps: 1
+
+# Flags
+wandb_mode: "disabled"

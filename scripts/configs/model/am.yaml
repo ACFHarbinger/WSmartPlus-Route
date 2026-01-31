@@ -1,0 +1,25 @@
+# @package _global_
+
+model:
+  name: "am"
+  embed_dim: 128
+  hidden_dim: 512
+  num_encoder_layers: 3    # n_enc_l
+  num_encoder_sublayers: 1 # n_enc_sl
+  num_predictor_layers: 2  # n_pred_l
+  num_decoder_layers: 2    # n_dec_l
+  num_heads: 8
+  encoder_type: "gat"
+
+  # Advanced Parameters
+  normalization: "instance" # norm
+  activation: "gelu"        # acti_f
+  dropout: 0.1
+
+  # Aggregation
+  aggregation_node: "sum"   # agg
+  aggregation_graph: "avg"  # agg_g
+
+  # Connections
+  connection_type: "static_hyper" # connection
+  hyper_expansion: 4        # hyper_lanes
