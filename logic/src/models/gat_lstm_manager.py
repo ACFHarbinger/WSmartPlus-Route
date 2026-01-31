@@ -36,7 +36,7 @@ class GATLSTManager(nn.Module):
         hidden_dim=128,
         lstm_hidden=64,
         num_layers_gat=3,
-        num_heads=8,
+        n_heads=8,
         dropout=0.1,
         device="cuda",
         shared_encoder=None,
@@ -53,7 +53,7 @@ class GATLSTManager(nn.Module):
             hidden_dim (int, optional): Hidden dimension size. Defaults to 128.
             lstm_hidden (int, optional): LSTM hidden dimension. Defaults to 64.
             num_layers_gat (int, optional): Number of GAT layers. Defaults to 3.
-            num_heads (int, optional): Number of attention heads. Defaults to 8.
+            n_heads (int, optional): Number of attention heads. Defaults to 8.
             dropout (float, optional): Dropout rate. Defaults to 0.1.
             device (str, optional): Computation device. Defaults to 'cuda'.
             shared_encoder (nn.Module, optional): Shared encoder instance. Defaults to None.
@@ -112,7 +112,7 @@ class GATLSTManager(nn.Module):
         else:
             encoder_layer = nn.TransformerEncoderLayer(
                 d_model=hidden_dim,
-                nhead=num_heads,
+                nhead=n_heads,
                 dim_feedforward=hidden_dim * FEED_FORWARD_EXPANSION,
                 dropout=dropout,
                 batch_first=True,

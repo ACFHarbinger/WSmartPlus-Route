@@ -55,7 +55,7 @@ class AttentionDecoder(nn.Module):
 
     def __init__(
         self,
-        embedding_dim: int,
+        embed_dim: int,
         hidden_dim: int,
         problem: Any,
         n_heads: int = 8,
@@ -72,7 +72,7 @@ class AttentionDecoder(nn.Module):
     ) -> None:
         """
         Args:
-            embedding_dim: Dimension of input embeddings.
+            embed_dim: Dimension of input embeddings.
             hidden_dim: Dimension of hidden layers.
             problem: The problem instance (defines environment and constraints).
             n_heads: Number of attention heads.
@@ -88,7 +88,7 @@ class AttentionDecoder(nn.Module):
         """
         super(AttentionDecoder, self).__init__()
 
-        self.embedding_dim = embedding_dim
+        self.embed_dim = embed_dim
         self.hidden_dim = hidden_dim
         self.n_heads = n_heads
 
@@ -109,19 +109,19 @@ class AttentionDecoder(nn.Module):
         self.decode_type = decode_type
 
         # These layers were in AttentionModel
-        self.project_node_embeddings = nn.Linear(embedding_dim, 3 * embedding_dim, bias=False)
-        self.project_fixed_context = nn.Linear(embedding_dim, embedding_dim, bias=False)
-        self.project_step_context = nn.Linear(embedding_dim + (2 if self.is_wc else 1), embedding_dim, bias=False)
+        self.project_node_embeddings = nn.Linear(embed_dim, 3 * embed_dim, bias=False)
+        self.project_fixed_context = nn.Linear(embed_dim, embed_dim, bias=False)
+        self.project_step_context = nn.Linear(embed_dim + (2 if self.is_wc else 1), embed_dim, bias=False)
 
         if self.allow_partial:
-            self.project_node_step = nn.Linear(1, 3 * embedding_dim, bias=False)
+            self.project_node_step = nn.Linear(1, 3 * embed_dim, bias=False)
 
-        self.project_out = nn.Linear(embedding_dim, embedding_dim, bias=False)
+        self.project_out = nn.Linear(embed_dim, embed_dim, bias=False)
         self.temp: float = 1.0
 
     def set_step_context_dim(self, dim: int) -> None:
         """Sets the dimension of the step context projection."""
-        self.project_step_context = nn.Linear(dim, self.embedding_dim, bias=False)
+        self.project_step_context = nn.Linear(dim, self.embed_dim, bias=False)
 
     def set_decode_type(self, decode_type: str, temp: Optional[float] = None) -> None:
         """Sets the decoding type and temperature."""
@@ -171,7 +171,7 @@ class AttentionDecoder(nn.Module):
         Args:
             nodes (Union[torch.Tensor, dict]): Initial node features or dictionary.
             edges (torch.Tensor, optional): Edge information/adj matrix.
-            embeddings (torch.Tensor): Encoded node embeddings [batch_size, num_nodes, embedding_dim].
+            embeddings (torch.Tensor): Encoded node embeddings [batch_size, num_nodes, embed_dim].
             cost_weights (torch.Tensor, optional): Adaptive cost weights [batch_size, num_costs].
             dist_matrix (torch.Tensor, optional): Distance matrix [batch_size, num_nodes, num_nodes].
             profit_vars (torch.Tensor, optional): Profit variables for VRPP.

@@ -53,7 +53,7 @@ class DeepDecoderAttentionModel(AttentionModel):
 
     def __init__(
         self,
-        embedding_dim: int,
+        embed_dim: int,
         hidden_dim: int,
         problem: Any,
         component_factory: NeuralComponentFactory,
@@ -97,7 +97,7 @@ class DeepDecoderAttentionModel(AttentionModel):
         """
         super(AttentionModel, self).__init__()
         self._init_parameters(
-            embedding_dim=embedding_dim,
+            embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             problem=problem,
             n_heads=n_heads,
@@ -144,7 +144,7 @@ class DeepDecoderAttentionModel(AttentionModel):
         self.n_decode_layers = n_decode_layers
         self.decoder = GraphAttentionDecoder(
             n_heads=self.n_heads,
-            embed_dim=self.embedding_dim,
+            embed_dim=self.embed_dim,
             n_layers=self.n_decode_layers,
             feed_forward_hidden=self.hidden_dim,
             normalization=normalization,
@@ -162,7 +162,7 @@ class DeepDecoderAttentionModel(AttentionModel):
             uniform_range=af_uniform_range,
             dropout_rate=dropout_rate,
         )
-        self.project_node_embeddings = nn.Linear(embedding_dim, embedding_dim, bias=False)
+        self.project_node_embeddings = nn.Linear(self.embed_dim, self.embed_dim, bias=False)
 
     def _precompute(self, embeddings, num_steps=1):
         """

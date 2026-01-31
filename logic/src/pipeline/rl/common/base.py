@@ -348,7 +348,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
                     # Log generation
                     if self.local_rank == 0:
-                        print(f"Regenerated training dataset for epoch {self.current_epoch + 1}")
+                        logger.info(f"Regenerated training dataset for epoch {self.current_epoch + 1}")
 
     def configure_optimizers(self):
         """Configure optimizer and optional scheduler."""
@@ -406,7 +406,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
                 gen = gen.to("cpu")
 
             if self.local_rank == 0:
-                print(f"Pre-generating training dataset ({self.train_data_size} instances) on CPU...")
+                logger.info(f"Pre-generating training dataset ({self.train_data_size} instances) on CPU...")
 
             assert gen is not None
             data = gen(batch_size=self.train_data_size)
@@ -419,7 +419,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
                 self.val_dataset: Dataset = TensorDictDataset.load(self.val_dataset_path)
             else:
                 if self.local_rank == 0:
-                    print(f"Pre-generating validation dataset ({self.val_data_size} instances) on CPU...")
+                    logger.info(f"Pre-generating validation dataset ({self.val_data_size} instances) on CPU...")
                 val_data = cast(Any, gen)(batch_size=self.val_data_size)
                 self.val_dataset = TensorDictDataset(val_data)
                 assert self.val_dataset is not None

@@ -20,7 +20,7 @@ class CriticNetwork(nn.Module):
         self,
         problem,
         component_factory,
-        embedding_dim,
+        embed_dim,
         hidden_dim,
         n_layers,
         n_sublayers,
@@ -37,7 +37,7 @@ class CriticNetwork(nn.Module):
         Args:
             problem (object): The problem instance wrapper.
             component_factory (NeuralComponentFactory): Factory to create sub-components.
-            embedding_dim (int): Dimension of the embedding vectors.
+            embed_dim (int): Dimension of the embedding vectors.
             hidden_dim (int): Dimension of the hidden layers.
             n_layers (int): Number of encoder layers.
             n_sublayers (int): Number of sub-layers in encoder.
@@ -50,7 +50,7 @@ class CriticNetwork(nn.Module):
         """
         super(CriticNetwork, self).__init__()
         self.hidden_dim = hidden_dim
-        self.embedding_dim = embedding_dim
+        self.embed_dim = embed_dim
         self.aggregation_graph = aggregation_graph
 
         self.is_wc = problem.NAME == "wcvrp" or problem.NAME == "cwcvrp" or problem.NAME == "sdwcvrp"
@@ -62,17 +62,13 @@ class CriticNetwork(nn.Module):
         node_dim = 3  # x, y, demand / prize / waste -- vrpp has waste, wc has waste.
 
         if self.is_wc:
-            self.context_embedder = WCContextEmbedder(
-                embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
-            )
+            self.context_embedder = WCContextEmbedder(embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)
         else:
-            self.context_embedder = VRPPContextEmbedder(
-                embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
-            )
+            self.context_embedder = VRPPContextEmbedder(embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)
 
         self.encoder = component_factory.create_encoder(
             n_heads=n_heads,
-            embed_dim=embedding_dim,
+            embed_dim=embed_dim,
             n_layers=n_layers,
             n_sublayers=n_sublayers,
             normalization=encoder_normalization,
@@ -82,7 +78,7 @@ class CriticNetwork(nn.Module):
         )
 
         self.value_head = nn.Sequential(
-            nn.Linear(embedding_dim, hidden_dim),
+            nn.Linear(embed_dim, hidden_dim),
             ActivationFunction(activation),
             nn.Linear(hidden_dim, 1),
         )

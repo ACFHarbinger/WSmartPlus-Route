@@ -39,7 +39,7 @@ class AttentionModel(nn.Module):
 
     def __init__(
         self,
-        embedding_dim: int,
+        embed_dim: int,
         hidden_dim: int,
         problem: Any,
         component_factory: NeuralComponentFactory,
@@ -82,7 +82,7 @@ class AttentionModel(nn.Module):
         Initialize the Attention Model.
 
         Args:
-            embedding_dim: Dimension of the embedding vectors.
+            embed_dim: Dimension of the embedding vectors.
             hidden_dim: Dimension of the hidden layers.
             problem: The problem instance wrapper (e.g., CVRRP, WCVRP).
             component_factory: Factory to create sub-components.
@@ -123,7 +123,7 @@ class AttentionModel(nn.Module):
         """
         super(AttentionModel, self).__init__()
         self._init_parameters(
-            embedding_dim=embedding_dim,
+            embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             problem=problem,
             n_heads=n_heads,
@@ -169,7 +169,7 @@ class AttentionModel(nn.Module):
 
     def _init_parameters(
         self,
-        embedding_dim: int,
+        embed_dim: int,
         hidden_dim: int,
         problem: Any,
         n_heads: int,
@@ -180,7 +180,7 @@ class AttentionModel(nn.Module):
         tanh_clipping: float,
     ) -> None:
         """Initialize basic model parameters."""
-        self.embedding_dim = embedding_dim
+        self.embed_dim = embed_dim
         self.hidden_dim = hidden_dim
         self.problem = problem
         self.n_heads = n_heads
@@ -200,11 +200,11 @@ class AttentionModel(nn.Module):
         node_dim = NODE_DIM  # Coordinate (2) + Demand/Value (1)
         if self.is_wc:
             self.context_embedder: ContextEmbedder = WCContextEmbedder(
-                self.embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
+                self.embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
             )
         else:
             self.context_embedder = VRPPContextEmbedder(
-                self.embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
+                self.embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
             )
         return self.context_embedder.step_context_dim
 
@@ -247,7 +247,7 @@ class AttentionModel(nn.Module):
 
         encoder_kwargs = {
             "n_heads": self.n_heads,
-            "embed_dim": self.embedding_dim,
+            "embed_dim": self.embed_dim,
             "n_layers": n_encode_layers,
             "n_sublayers": n_encode_sublayers,
             "feed_forward_hidden": self.hidden_dim,
@@ -273,7 +273,7 @@ class AttentionModel(nn.Module):
         self.embedder = component_factory.create_encoder(**encoder_kwargs)
 
         self.decoder = component_factory.create_decoder(
-            embedding_dim=self.embedding_dim,
+            embed_dim=self.embed_dim,
             hidden_dim=self.hidden_dim,
             problem=self.problem,
             n_heads=self.n_heads,

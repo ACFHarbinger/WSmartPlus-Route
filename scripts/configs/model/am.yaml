@@ -8,7 +8,7 @@ model:
   num_encoder_sublayers: 1 # n_enc_sl
   num_predictor_layers: 2  # n_pred_l
   num_decoder_layers: 2    # n_dec_l
-  num_heads: 8
+  n_heads: 8
   encoder_type: "gat"
 
   # Advanced Parameters

@@ -30,7 +30,7 @@ class EfficientGraphConvolution(MessagePassing):
         in_channels: int,
         out_channels: int,
         aggrs: Iterable[str] = ("symnorm",),
-        num_heads: int = 8,
+        n_heads: int = 8,
         num_bases: int = 4,
         cached: bool = False,
         add_self_loops: bool = True,
@@ -43,7 +43,7 @@ class EfficientGraphConvolution(MessagePassing):
             in_channels: Dimension of input features.
             out_channels: Dimension of output features.
             aggrs: Iterable of aggregator names to use (e.g., "sum", "mean", "symnorm").
-            num_heads: Number of attention heads.
+            n_heads: Number of attention heads.
             num_bases: Number of basis functions for the weight matrix.
             cached: If set to `True`, the layer will cache the computation of
                 :obj:`edge_index` and :obj:`symnorm_weight` on first execution,
@@ -54,7 +54,7 @@ class EfficientGraphConvolution(MessagePassing):
             sigmoid: If set to `True`, applies a sigmoid activation to the weighting coefficients.
         """
         super(EfficientGraphConvolution, self).__init__(node_dim=1, **kwargs)
-        if out_channels % num_heads != 0:
+        if out_channels % n_heads != 0:
             raise ValueError("out_channels must be divisible by the number of heads")
 
         for a in aggrs:
@@ -63,15 +63,15 @@ class EfficientGraphConvolution(MessagePassing):
 
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.num_heads = num_heads
+        self.n_heads = n_heads
         self.num_bases = num_bases
         self.cached = cached
         self.add_self_loops = add_self_loops
         self.aggregators = tuple(aggrs)  # Convert to tuple for mypy compatibility
         self.sigmoid = sigmoid
 
-        self.bases_weight = Parameter(torch.Tensor(in_channels, (out_channels // num_heads) * num_bases))
-        self.comb_weight = Linear(in_channels, num_heads * num_bases * len(self.aggregators))
+        self.bases_weight = Parameter(torch.Tensor(in_channels, (out_channels // n_heads) * num_bases))
+        self.comb_weight = Linear(in_channels, n_heads * num_bases * len(self.aggregators))
 
         if bias:
             self.bias = Parameter(torch.Tensor(out_channels))
@@ -153,9 +153,9 @@ class EfficientGraphConvolution(MessagePassing):
         batch_size = x.size(0)
         num_nodes = x.size(1)
 
-        # [num_nodes, (out_channels // num_heads) * num_bases]
+        # [num_nodes, (out_channels // n_heads) * num_bases]
         bases = torch.matmul(x, self.bases_weight)
-        # [num_nodes, num_heads * num_bases * num_aggrs]
+        # [num_nodes, n_heads * num_bases * num_aggrs]
         weightings = self.comb_weight(x)
         if self.sigmoid:
             weightings = torch.sigmoid_(weightings)
@@ -163,24 +163,24 @@ class EfficientGraphConvolution(MessagePassing):
         if symnorm_weight is not None:
             symnorm_weight = symnorm_weight.view(-1, 1)
 
-        # [num_nodes, num_aggregators, (out_channels // num_heads) * num_bases]
+        # [num_nodes, num_aggregators, (out_channels // n_heads) * num_bases]
         # propagate_type: (x: Tensor, symnorm_weight: OptTensor)
         aggregated = self.propagate(edge_index, x=bases, symnorm_weight=symnorm_weight, size=None)
 
         weightings = weightings.view(
             batch_size,
             num_nodes,
-            self.num_heads,
+            self.n_heads,
             self.num_bases * len(self.aggregators),
         )
         aggregated = aggregated.view(
             batch_size,
             num_nodes,
             len(self.aggregators) * self.num_bases,
-            self.out_channels // self.num_heads,
+            self.out_channels // self.n_heads,
         )
 
-        # [num_nodes, num_heads, out_channels // num_heads]
+        # [num_nodes, n_heads, out_channels // n_heads]
         out = torch.matmul(weightings, aggregated)
         out = out.view(batch_size, num_nodes, self.out_channels)
         if self.bias is not None:

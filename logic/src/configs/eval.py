@@ -29,7 +29,7 @@ class EvalConfig:
         max_calc_batch_size: Size for subbatches.
         results_dir: Name of evaluation results directory.
         multiprocessing: Use multiprocessing to parallelize over multiple GPUs.
-        graph_size: The size of the problem graph.
+        num_loc: The size of the problem graph.
         area: County area of the bins locations.
         waste_type: Type of waste bins selected for the optimization problem.
         focus_graph: Path to the file with the coordinates of the graph to focus on.
@@ -66,7 +66,7 @@ class EvalConfig:
     max_calc_batch_size: int = 12_800
     results_dir: str = "results"
     multiprocessing: bool = False
-    graph_size: int = 50
+    num_loc: int = 50
     area: str = "riomaior"
     waste_type: str = "plastic"
     focus_graph: Optional[str] = None

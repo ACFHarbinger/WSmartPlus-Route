@@ -62,7 +62,7 @@ def _remap_legacy_keys(common_kwargs: Dict[str, Any], cfg: Config) -> None:
     common_kwargs["n_encode_layers"] = cfg.model.num_encoder_layers
     common_kwargs["n_encode_sublayers"] = cfg.model.num_encoder_sublayers
     common_kwargs["n_decode_layers"] = cfg.model.num_decoder_layers
-    common_kwargs["n_heads"] = cfg.model.num_heads
+    common_kwargs["n_heads"] = cfg.model.n_heads
     common_kwargs["n_predict_layers"] = cfg.model.num_predictor_layers
     common_kwargs["learn_affine"] = cfg.model.learn_affine
     common_kwargs["track_stats"] = cfg.model.track_stats
@@ -112,8 +112,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
         policy_kwargs["n_encode_layers"] = policy_kwargs.pop("num_encoder_layers")
     if "num_decoder_layers" in policy_kwargs:
         policy_kwargs["n_decode_layers"] = policy_kwargs.pop("num_decoder_layers")
-    if "num_heads" in policy_kwargs:
-        policy_kwargs["n_heads"] = policy_kwargs.pop("num_heads")
 
     # Remove fields not used in policy __init__ if needed, or rely on **kwargs
     for key in ["lr_critic", "lr_critic_value"]:
@@ -236,7 +234,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
             embed_dim=cfg.model.embed_dim,
             hidden_dim=cfg.model.hidden_dim,
             n_layers=cfg.model.num_encoder_layers,
-            n_heads=cfg.model.num_heads,
+            n_heads=cfg.model.n_heads,
         )
 
     # Simplified Model Creation via Registry
