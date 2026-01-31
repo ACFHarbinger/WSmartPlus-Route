@@ -1,69 +1,52 @@
 """
 BCP Policy Adapter.
+
+Adapts the Branch-Cut-and-Price (BCP) logic to the agnostic interface.
 """
-from typing import Any, List, Tuple
+
+from typing import Any, Dict, List, Set, Tuple
 
 import numpy as np
 
-from .adapters import IPolicy, PolicyRegistry
+from .adapters import PolicyRegistry
+from .base_routing_policy import BaseRoutingPolicy
 from .branch_cut_and_price import run_bcp
-from .single_vehicle import get_route_cost
 
 
 @PolicyRegistry.register("bcp")
-class BCPPolicy(IPolicy):
+class BCPPolicy(BaseRoutingPolicy):
     """
     Branch-Cut-and-Price policy class.
-    Visits pre-selected 'must_go' bins.
+
+    Visits pre-selected 'must_go' bins using exact or heuristic BCP solvers.
     """
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def _get_config_key(self) -> str:
+        """Return config key for BCP."""
+        return "bcp"
+
+    def _run_solver(
+        self,
+        sub_dist_matrix: np.ndarray,
+        sub_demands: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float]:
         """
-        Execute the BCP policy.
+        Run BCP solver.
+
+        All nodes in sub_demands are treated as must-go for the solver.
+
+        Returns:
+            Tuple of (routes, solver_cost)
         """
-        must_go = kwargs.get("must_go", [])
-        if not must_go:
-            return [0, 0], 0.0, None
+        # All subset nodes are must-go (matching HGS strategy)
+        must_go_subset: Set[int] = set(sub_demands.keys())
 
-        bins = kwargs["bins"]
-        distance_matrix = kwargs["distance_matrix"]
-        config = kwargs.get("config", {})
-        bcp_config = config.get("bcp", {})
-        area = kwargs.get("area", "Rio Maior")
-        waste_type = kwargs.get("waste_type", "plastic")
-
-        # Load Area Parameters
-        from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
-
-        Q, R, _, C, _ = load_area_and_waste_type_params(area, waste_type)
-
-        # Override with config if present
-        capacity = bcp_config.get("capacity", Q)
-        revenue = bcp_config.get("revenue", R)
-        cost_unit = bcp_config.get("cost_unit", C)
-
-        values = {"Q": capacity, "R": revenue, "C": cost_unit}
-        values.update(bcp_config)
-
-        # Prepare Data for BCP
-        # must_go contains 1-based IDs. We visit ALL these bins (matching HGS strategy).
-        subset_indices = [0] + list(must_go)
-        dist_matrix_np = np.array(distance_matrix)
-        sub_dist_matrix = dist_matrix_np[np.ix_(subset_indices, subset_indices)]
-
-        # Build local demands and mark all as must-go for the solver
-        sub_demands = {}
-        # Solver expects nodes 1..M for the subset
-        must_go_subset = set()
-        for i, global_idx in enumerate(must_go, 1):
-            fill = bins.c[global_idx - 1]
-            sub_demands[i] = float(fill)
-            must_go_subset.add(i)
-
-        # 2. Run BCP Solver
-        # Note: run_bcp handles OR-Tools/Gurobi/VRPy
-        # We pass the subset and treat all as must-go (PC-CVRP with high penalty)
-        best_routes, solver_cost = run_bcp(
+        routes, solver_cost = run_bcp(
             sub_dist_matrix,
             sub_demands,
             capacity,
@@ -73,16 +56,4 @@ class BCPPolicy(IPolicy):
             must_go_indices=must_go_subset,
             env=kwargs.get("model_env"),
         )
-
-        # 3. Map back to global IDs
-        tour = [0]
-        if best_routes:
-            for route in best_routes:
-                for node_idx in route:
-                    tour.append(subset_indices[node_idx])
-                tour.append(0)
-
-        if len(tour) == 1:
-            tour = [0, 0]
-
-        return tour, get_route_cost(distance_matrix, tour), None
+        return routes, solver_cost

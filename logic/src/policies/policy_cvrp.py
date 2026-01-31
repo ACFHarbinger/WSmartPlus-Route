@@ -5,55 +5,83 @@ Implements a multi-vehicle routing policy (CVRP) that visits a specific set of b
 Agnostic to how the targets were selected.
 """
 
-from typing import Any, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
-
-from .adapters import IPolicy, PolicyRegistry
+from .adapters import PolicyRegistry
+from .base_routing_policy import BaseRoutingPolicy
 from .multi_vehicle import find_routes
-from .single_vehicle import get_route_cost
 
 
 @PolicyRegistry.register("cvrp")
-class CVRPPolicy(IPolicy):
+class CVRPPolicy(BaseRoutingPolicy):
     """
     Capacitated Vehicle Routing Policy (CVRP).
+
     Visits provided 'must_go' bins using multiple vehicles.
     """
 
+    def _get_config_key(self) -> str:
+        """Return config key for CVRP."""
+        return "cvrp"
+
+    def _run_solver(
+        self,
+        sub_dist_matrix: np.ndarray,
+        sub_demands: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float]:
+        """
+        Run CVRP solver.
+
+        Note: CVRP uses global indices directly, not the subset mapping.
+        """
+        # Not used - we override execute() for CVRP
+        return [[]], 0.0
+
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
-        Execute the CVRP policy.
+        Execute CVRP policy.
+
+        Overrides base execute because CVRP uses different solver interface
+        and works with global indices directly.
         """
+        must_go = kwargs.get("must_go", [])
+        early_result = self._validate_must_go(must_go)
+        if early_result is not None:
+            return early_result
+
         bins = kwargs["bins"]
-        distancesC = kwargs["distancesC"]
-        waste_type = kwargs["waste_type"]
-        area = kwargs["area"]
+        area = kwargs.get("area", "Rio Maior")
+        waste_type = kwargs.get("waste_type", "plastic")
         n_vehicles = kwargs.get("n_vehicles", 1)
         cached = kwargs.get("cached")
         coords = kwargs.get("coords")
-        must_go = kwargs.get("must_go", [])
+        config = kwargs.get("config", {})
+        distancesC = kwargs.get("distancesC")
+        distance_matrix = kwargs.get("distance_matrix", distancesC)
 
-        to_collect = must_go if must_go else list(range(1, bins.n + 1))
+        to_collect = list(must_go) if must_go else list(range(1, bins.n + 1))
 
-        if not to_collect:
-            return [0, 0], 0.0, None
+        # Load capacity
+        capacity, _, _, _ = self._load_area_params(area, waste_type, config)
 
-        max_capacity, _, _, _, _ = load_area_and_waste_type_params(area, waste_type)
-
+        # Use cached route if available and no specific must_go
         if cached is not None and len(cached) > 1 and not must_go:
             tour = cached
         else:
-            tour = find_routes(distancesC, bins.c, max_capacity, np.array(to_collect), n_vehicles, coords)
+            tour = find_routes(distancesC, bins.c, capacity, np.array(to_collect), n_vehicles, coords)
 
-        distance_matrix = kwargs.get("distance_matrix", distancesC)
-        cost = get_route_cost(distance_matrix, tour)
-
+        # Ensure list format
         if hasattr(tour, "tolist"):
             tour = tour.tolist()
         elif not isinstance(tour, list):
             tour = list(tour)
 
+        cost = self._compute_cost(distance_matrix, tour)
         return tour, cost, tour

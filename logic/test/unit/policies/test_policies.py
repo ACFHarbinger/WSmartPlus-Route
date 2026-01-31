@@ -14,7 +14,7 @@ from logic.src.policies.adapters import PolicyRegistry
 from logic.src.policies.hybrid_genetic_search import run_hgs
 from logic.src.policies.multi_vehicle import find_routes, find_routes_ortools
 from logic.src.policies.policy_vrpp import run_vrpp_optimizer
-from logic.src.policies.policy_alns import run_alns, run_alns_ortools, run_alns_package, ALNSPolicy
+from logic.src.policies.policy_alns import run_alns, ALNSPolicy
 from logic.src.policies.policy_bcp import run_bcp, BCPPolicy
 from logic.src.policies.policy_hgs import HGSPolicy
 from logic.src.policies.policy_lkh import LKHPolicy
@@ -161,13 +161,7 @@ class TestAdvancedSolverEngines:
         )
         assert isinstance(routes, list)
 
-    @pytest.mark.unit
-    def test_alns_variants(self, mocker, mock_vrpp_inputs):
-        """Tests that ALNS dispatches correctly to variants."""
-        mocker.patch("logic.src.policies.policy_alns.run_alns", return_value=([], 0, 0))
-        mocker.patch("logic.src.policies.policy_alns.run_alns_package", return_value=([], 0, 0))
-        mocker.patch("logic.src.policies.policy_alns.run_alns_ortools", return_value=([], 0, 0))
-        pass
+
 
     @pytest.mark.unit
     def test_bcp_variant_gurobi(self, mocker):
