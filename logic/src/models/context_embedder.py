@@ -7,6 +7,13 @@ from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
 
+from logic.src.constants.models import (
+    DEPOT_DIM,
+    NODE_DIM,
+    VRPP_STEP_CONTEXT_OFFSET,
+    WC_STEP_CONTEXT_OFFSET,
+)
+
 
 class ContextEmbedder(nn.Module, ABC):
     """
@@ -29,8 +36,8 @@ class ContextEmbedder(nn.Module, ABC):
         self.temporal_horizon = temporal_horizon
 
         # Common layers or definitions can go here or in concrete classes
-        # Depot embedding is usually just x,y (2 dims)
-        self.init_embed_depot = nn.Linear(2, embedding_dim)
+        # Depot embedding is usually just x,y (DEPOT_DIM)
+        self.init_embed_depot = nn.Linear(DEPOT_DIM, embedding_dim)
 
         # Node embedding input dimension depends on features
         # We'll let subclasses define the exact input dimension or layer
@@ -66,7 +73,7 @@ class WCContextEmbedder(ContextEmbedder):
     Context Embedder for Waste Collection (WC) problems.
     """
 
-    def __init__(self, embedding_dim, node_dim=3, temporal_horizon=0):
+    def __init__(self, embedding_dim, node_dim=NODE_DIM, temporal_horizon=0):
         """
         Initialize the WCContextEmbedder.
 
@@ -112,8 +119,8 @@ class WCContextEmbedder(ContextEmbedder):
         # nodes['loc']: [batch, graph_size, 2]
         # nodes[feat]: [batch, graph_size]
 
-        locs_key = "locs" if "locs" in input.keys() else "loc"
-        node_features = torch.cat((input[locs_key], *(input[feat][:, :, None] for feat in features)), -1)
+        locs_key = "locs" if "locs" in nodes.keys() else "loc"
+        node_features = torch.cat((nodes[locs_key], *(nodes[feat][:, :, None] for feat in features)), -1)
 
         # Embed depot and nodes
         return torch.cat(
@@ -132,8 +139,8 @@ class WCContextEmbedder(ContextEmbedder):
         Returns:
             int: Step context dimension (embedding_dim + 2).
         """
-        # WC uses embedding_dim + 2 (usually related to capacity/remaining length/etc)
-        return self.embedding_dim + 2
+        # WC uses embedding_dim + WC_STEP_CONTEXT_OFFSET
+        return self.embedding_dim + WC_STEP_CONTEXT_OFFSET
 
 
 class VRPPContextEmbedder(ContextEmbedder):
@@ -141,7 +148,7 @@ class VRPPContextEmbedder(ContextEmbedder):
     Context Embedder for VRP with Profits (VRPP) families (vrpp, cvrpp).
     """
 
-    def __init__(self, embedding_dim, node_dim=3, temporal_horizon=0):
+    def __init__(self, embedding_dim, node_dim=NODE_DIM, temporal_horizon=0):
         """
         Initialize the VRPPContextEmbedder.
 
@@ -190,8 +197,8 @@ class VRPPContextEmbedder(ContextEmbedder):
         else:
             features = (waste_key,)
 
-        locs_key = "locs" if "locs" in input.keys() else "loc"
-        node_features = torch.cat((input[locs_key], *(input[feat][:, :, None] for feat in features)), -1)
+        locs_key = "locs" if "locs" in nodes.keys() else "loc"
+        node_features = torch.cat((nodes[locs_key], *(nodes[feat][:, :, None] for feat in features)), -1)
 
         return torch.cat(
             (
@@ -209,5 +216,5 @@ class VRPPContextEmbedder(ContextEmbedder):
         Returns:
             int: Step context dimension (embedding_dim + 1).
         """
-        # VRPP uses embedding_dim + 1
-        return self.embedding_dim + 1
+        # VRPP uses embedding_dim + VRPP_STEP_CONTEXT_OFFSET
+        return self.embedding_dim + VRPP_STEP_CONTEXT_OFFSET

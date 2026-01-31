@@ -1,16 +1,15 @@
 """
-Logging systems for terminal, file, and GUI communication.
-This module acts as a facade, delegating to specialized sub-modules.
+Logging module for simulation and training.
 """
-from .modules.analysis import (
+from .analysis import (
     final_simulation_summary,
     load_log_dict,
     output_stats,
     runs_per_policy,
 )
-from .modules.gui import send_daily_output_to_gui, send_final_output_to_gui
-from .modules.metrics import get_loss_stats, log_epoch, log_values
-from .modules.storage import (
+from .gui import send_daily_output_to_gui, send_final_output_to_gui
+from .metrics import get_loss_stats, log_epoch, log_values
+from .storage import (
     log_to_json,
     log_to_json2,
     log_to_pickle,

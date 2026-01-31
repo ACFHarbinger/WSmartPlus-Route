@@ -6,6 +6,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from logic.src.constants.models import DEFAULT_TEMPORAL_HORIZON, STATIC_DIM
+from logic.src.constants.waste import CRITICAL_FILL_THRESHOLD
 from logic.src.utils.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
@@ -22,10 +24,10 @@ class GATLSTManager(nn.Module):
 
     def __init__(
         self,
-        input_dim_static=2,  # x, y
-        input_dim_dynamic=10,  # waste history length
+        input_dim_static=STATIC_DIM,  # x, y
+        input_dim_dynamic=DEFAULT_TEMPORAL_HORIZON,  # waste history length
         global_input_dim=2,  # avg_waste, max_waste (Only current)
-        critical_threshold=0.9,
+        critical_threshold=CRITICAL_FILL_THRESHOLD,
         batch_size=1024,
         hidden_dim=128,
         lstm_hidden=64,
