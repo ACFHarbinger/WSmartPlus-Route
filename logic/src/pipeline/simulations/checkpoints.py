@@ -39,6 +39,8 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Callable, Dict
 
+from loguru import logger
+
 from logic.src.constants import ROOT_DIR
 
 
@@ -157,10 +159,10 @@ class SimulationCheckpoint:
                     ):
                         return checkpoint_data["state"], checkpoint_data.get("day", 0)
                     else:
-                        print(f"Checkpoint mismatch: expected {self.policy}_{self.sample_id}")
+                        logger.warning(f"Checkpoint mismatch: expected {self.policy}_{self.sample_id}")
                 except Exception as e:
-                    print(f"Error loading checkpoint {checkpoint_file}: {e}")
-        print("Warning: no valid checkpoint found")
+                    logger.error(f"Error loading checkpoint {checkpoint_file}: {e}")
+        logger.warning("No valid checkpoint found")
         return None, 0
 
     def find_last_checkpoint_day(self):
@@ -205,7 +207,7 @@ class SimulationCheckpoint:
                     os.remove(os.path.join(self.checkpoint_dir, filename))
                     removed_count += 1
                 except Exception as e:
-                    print(f"Error removing {filename}: {e}")
+                    logger.error(f"Error removing {filename}: {e}")
         return removed_count
 
     def delete_checkpoint_day(self, day):
@@ -223,7 +225,7 @@ class SimulationCheckpoint:
             os.remove(os.path.join(self.checkpoint_dir, checkpoint_file))
             return True
         except Exception as e:
-            print(f"Error removing {checkpoint_file}: {e}")
+            logger.error(f"Error removing {checkpoint_file}: {e}")
             return False
 
 
@@ -346,7 +348,7 @@ class CheckpointHook:
         execution_time = time.process_time() - self.tic if self.tic else 0
         day = self.get_current_day()
         policy, sample_id = self.checkpoint.get_simulation_info().values()
-        print(f"Crash in {policy} #{sample_id} at day {day}: {error}")
+        logger.error(f"Crash in {policy} #{sample_id} at day {day}: {error}")
 
         traceback.print_exc()
         if self.checkpoint and self.state_getter:
@@ -354,7 +356,7 @@ class CheckpointHook:
                 state_snapshot = self.state_getter()
                 self.checkpoint.save_state(state_snapshot, self.day)
             except Exception as save_error:
-                print(f"Failed to save emergency checkpoint: {save_error}")
+                logger.error(f"Failed to save emergency checkpoint: {save_error}")
 
         # Return error information instead of raising exception
         error_result = {

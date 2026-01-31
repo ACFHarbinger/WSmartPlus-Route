@@ -21,6 +21,11 @@ class PPO(RL4COLitModule):
     Implements PPO for constructive routing problems.
     Uses a Critic network as a value baseline and performs multiple epochs
     of optimization per batch of rollouts.
+
+    Reference:
+        Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017).
+        Proximal Policy Optimization Algorithms. arXiv:1707.06347
+        https://arxiv.org/abs/1707.06347
     """
 
     def __init__(

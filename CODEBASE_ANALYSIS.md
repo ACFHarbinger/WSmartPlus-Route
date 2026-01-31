@@ -2,452 +2,336 @@
 
 > **Scope**: 345 Python files, ~53,600 lines (logic) + GUI layer
 > **Date**: January 2026 (Updated: January 31, 2026)
-> **Focus**: Full codebase with emphasis on Training Pipeline, Simulation Pipeline status review
+> **Focus**: Overall human comprehension of the entire codebase
 
 ---
 
-## Part 1: Strengths
+## Part 1: What Helps a Developer Understand This Codebase (Strengths)
 
-### 1.1 Exemplary Design Pattern Usage
+### 1.1 Exceptional Onboarding Documentation (11,000+ Lines)
 
-The codebase demonstrates professional-grade pattern adoption across both simulation and training pipelines:
+The repository has a multi-layered documentation suite that few projects match:
 
-- **Command Pattern** ([actions.py](logic/src/pipeline/simulations/actions.py)): Six discrete action classes (`FillAction`, `MustGoSelectionAction`, `PolicyExecutionAction`, `PostProcessAction`, `CollectAction`, `LogAction`) each encapsulate a single simulation step. The pipeline in [day.py:162-172](logic/src/pipeline/simulations/day.py#L162-L172) reads as a literal description of the process: Fill -> Select -> Route -> Refine -> Collect -> Log.
-
-- **State Pattern** ([states.py](logic/src/pipeline/simulations/states.py)): The `InitializingState -> RunningState -> FinishingState` lifecycle is self-documenting. The `SimulationContext.run()` method is a textbook state machine loop.
-
-- **Registry + Factory** ([adapters.py](logic/src/policies/adapters.py)): The `@PolicyRegistry.register("name")` decorator pattern makes it trivially easy to discover available policies. `PolicyFactory.get_adapter()` provides a single entry point with well-organized lazy imports.
-
-- **Template Method** ([base.py](logic/src/pipeline/rl/common/base.py)): `RL4COLitModule` defines the training loop skeleton with `calculate_loss()` as the extension point. 13+ algorithms cleanly override only the methods they need (e.g., SAPO overrides only `calculate_actor_loss()`).
-
-- **Inheritance Hierarchy for RL Algorithms**: Clean chain of REINFORCE -> POMO -> SymNCO allows ~95% code reuse across algorithm variants. PPO -> SAPO/GSPO/DR-GRPO similarly achieves high reuse with minimal override surfaces.
-
-- **Strategy Pattern** ([baselines.py](logic/src/pipeline/rl/common/baselines.py), [meta/registry.py](logic/src/pipeline/rl/meta/registry.py)): Baselines and meta-learning strategies are swappable via registry. `BASELINE_REGISTRY` maps names to classes, and `get_baseline()` provides a clean factory function.
-
-- **Mediator Pattern** ([mediator.py](gui/src/core/mediator.py)): Clean GUI communication hub preventing tight coupling between tabs and windows.
-
-- **Abstract Factory** ([model_factory.py](logic/src/models/model_factory.py)): `NeuralComponentFactory` with 6 concrete implementations cleanly separates encoder/decoder instantiation per architecture variant.
-
-### 1.2 Strong Documentation Discipline
-
-- **Module-level docstrings**: Nearly all files have comprehensive module docstrings explaining purpose, architecture, and class listings (e.g., [actions.py:1-21](logic/src/pipeline/simulations/actions.py#L1-L21), [states.py:1-30](logic/src/pipeline/simulations/states.py#L1-L30)).
-- **Context Input/Output contracts**: Each action class documents exactly what it reads from and writes to the shared context (e.g., `FillAction` at [line 98-117](logic/src/pipeline/simulations/actions.py#L98-L117)). This is exceptional for a dynamically-typed context dictionary.
-- **Type hints**: ~90%+ coverage on public functions with proper use of `Optional`, `Tuple`, `Dict`, and `TYPE_CHECKING` imports.
-- **Mathematical notation**: Standard ML conventions (`Q, K, V`, `B, N`) used consistently in attention mechanisms and graph convolution modules.
-- **Algorithm references**: Code references original papers and methods (e.g., Welford's algorithm, Xavier initialization, Kim et al. 2022 for SymNCO, Kwon et al. 2020 for POMO).
-
-### 1.3 Clean Architectural Boundaries
-
-- **Logic/GUI separation**: The GUI layer imports from Logic but never the reverse.
-- **`SimulationDayContext` dataclass** ([context.py](logic/src/pipeline/simulations/context.py)): Properly typed fields replacing previous `Any` overuse, with backward compatibility via `Mapping` interface.
-- **Constants module** ([logic/src/constants/](logic/src/constants/)): Domain constants centralized by concern (`models.py`, `simulation.py`, `waste.py`, `policies.py`), including the new `ENGINE_POLICIES`, `THRESHOLD_POLICIES`, `CONFIG_CHAR_POLICIES`, and `SIMPLE_POLICIES` lookup tables.
-- **Structured Configuration** ([logic/src/configs/](logic/src/configs/)): Root `Config` dataclass cleanly composes 11 sub-configs (`EnvConfig`, `ModelConfig`, `TrainConfig`, `OptimConfig`, `RLConfig`, `MetaRLConfig`, `HPOConfig`, etc.).
-
-### 1.4 Training Pipeline Architecture Quality
-
-- **13+ RL algorithm variants** spanning policy gradient (REINFORCE, POMO, SymNCO, GDPO), actor-critic (PPO, A2C, SAPO, GSPO, DR-GRPO), imitation learning, adaptive imitation, and hierarchical RL - all sharing a common base module.
-- **7 baseline implementations** (NoBaseline, Exponential, Rollout with T-test, Critic, Warmup, POMO) with a clean registry.
-- **Meta-learning framework** with pluggable strategies (RNN, TD-learning, HyperNetwork, Contextual Bandits, Multi-Objective Pareto).
-- **Custom Lightning Trainer** ([trainer.py](logic/src/pipeline/rl/common/trainer.py)): RL-specific optimizations (JIT profiling disable, matmul precision, auto-DDP).
-- **Hydra-based configuration** with `deep_sanitize()` for safe serialization of OmegaConf objects.
-
-### 1.5 Comprehensive CLAUDE.md/AGENTS.md
-
-The 700+ line [CLAUDE.md](CLAUDE.md) is an unusually thorough developer reference covering architecture, CLI commands, coding standards, severity protocols, and known constraints. This significantly aids both human and AI contributors.
-
----
-
-## Part 2: Simulation Pipeline - Previous Improvements Status
-
-### 2.1 [RESOLVED] Policy Layer Code Duplication
-
-**Previous Status**: CRITICAL
-**Current Status**: FULLY RESOLVED
-
-A `BaseRoutingPolicy` class has been extracted to [base_routing_policy.py](logic/src/policies/base_routing_policy.py) (243 lines) with:
-- `_validate_must_go()` - common empty-check short-circuit
-- `_create_subset_problem()` - common distance matrix subsetting
-- `_map_tour_to_global()` - common index mapping
-- `_load_area_params()` - common parameter loading via `data_utils`
-- `execute()` - Template Method orchestrating the workflow
-
-All 10 policy adapters now inherit from `BaseRoutingPolicy` and are located in [logic/src/policies/adapters/](logic/src/policies/adapters/). Individual adapters are 40-60 lines each, containing only their unique solver logic.
-
-### 2.2 [RESOLVED] SimulationContext Policy Parsing
-
-**Previous Status**: HIGH
-**Current Status**: FULLY RESOLVED
-
-The 95-line parsing chain has been replaced with a modular 3-method approach in [states.py:150-218](logic/src/pipeline/simulations/states.py#L150-L218):
-- `_parse_policy_string()` - Uses lookup tables from `logic.src.constants` (`ENGINE_POLICIES`, `CONFIG_CHAR_POLICIES`, `THRESHOLD_POLICIES`, `SIMPLE_POLICIES`)
-- `_extract_threshold()` - Numeric threshold extraction
-- `_extract_threshold_with_config_char()` - Config char handling
-
-### 2.3 [RESOLVED] Overuse of `Any` Type in Context Objects
-
-**Previous Status**: MEDIUM
-**Current Status**: MOSTLY RESOLVED
-
-[context.py](logic/src/pipeline/simulations/context.py) now has proper types for most fields:
-- `bins: Optional["Bins"]`, `coords: Optional[pd.DataFrame]`, `distance_matrix: Optional[Union[np.ndarray, List[List[float]]]]`, `device: Optional[torch.device]`, `lock: Optional[Lock]`
-
-Two intentional `Any` fields remain: `model_env` (complex polymorphic environment object) and `hrl_manager` (HRL manager), both with inline comments justifying the choice.
-
-### 2.4 [IMPROVED] Broad Exception Handling (Simulation Pipeline)
-
-**Previous Status**: HIGH
-**Current Status**: MOSTLY RESOLVED
-
-Exception handling in the simulation pipeline is now specific:
-- [actions.py](logic/src/pipeline/simulations/actions.py): Uses `except (OSError, ValueError) as e:` for config loading, `logger.warning()` instead of `print()`. One remaining broad `except Exception:` in post-processing (acceptable for non-critical refinement).
-- [states.py](logic/src/pipeline/simulations/states.py): Uses `except (OSError, ValueError):` for config loads.
-
-### 2.5 [RESOLVED] Policy-to-Simulator Upward Dependency
-
-**Previous Status**: MEDIUM
-**Current Status**: FULLY RESOLVED
-
-`load_area_and_waste_type_params()` now lives in [logic/src/utils/data/data_utils.py:274](logic/src/utils/data/data_utils.py#L274). Policy adapters and states.py import from this canonical location. The old `loader.py` maintains a backward-compatible wrapper.
-
-### 2.6 [PARTIALLY RESOLVED] Large Files Needing Decomposition
-
-**Status**: `solutions.py` RESOLVED; others NOT YET ADDRESSED
-
-`solutions.py` (1,518 lines) has been split into 3 focused modules in [logic/src/policies/look_ahead_aux/](logic/src/policies/look_ahead_aux/):
-- [route_search.py](logic/src/policies/look_ahead_aux/route_search.py): Main routing search orchestration (`find_solutions()` entry point)
-- [simulated_annealing.py](logic/src/policies/look_ahead_aux/simulated_annealing.py): SA algorithm with adaptive parameters (`improved_simulated_annealing()`)
-- [solution_initialization.py](logic/src/policies/look_ahead_aux/solution_initialization.py): Constructive heuristics for initial feasible solutions (`find_initial_solution()`)
-
-The following files remain large:
-
-| File | Lines | Issue |
-|------|-------|-------|
-| `container.py` | ~905 | Monolithic data container |
-| `log_utils.py` | ~904 | Logging + visualization mixed |
-| `local_search.py` | ~838 | 8+ distinct operators in one file |
-
-### 2.7 [IMPROVED] Dual Import Path Structure
-
-**Previous Status**: UNCHANGED
-**Current Status**: NAMING COLLISION RESOLVED
-
-Both hierarchies still exist, which is architecturally intentional:
-- `logic/src/policies/adapters/` - Simulation-facing policy adapters (using `BaseRoutingPolicy`)
-- `logic/src/models/policies/classical/` - Lightning/RL4CO-facing policy wrappers (used by RL training)
-
-The previous naming collision has been resolved by renaming the Lightning-facing wrappers:
-- `ALNSPolicy` → `VectorizedALNS` ([alns.py](logic/src/models/policies/classical/alns.py), 145 lines) — wraps `VectorizedALNSEngine`
-- `HGSPolicy` → `VectorizedHGS` ([hgs.py](logic/src/models/policies/classical/hgs.py), 169 lines) — wraps `VectorizedHGSEngine`
-
-The "Vectorized" prefix clearly distinguishes the GPU-accelerated RL training wrappers (which inherit from `ConstructivePolicy`) from the simulation-facing adapters (which inherit from `BaseRoutingPolicy`).
-
----
-
-## Part 3: Training Pipeline Weaknesses (NEW)
-
-### 3.1 HIGH: Algorithm Selection via if-elif Chain (train.py:228-375)
-
-**Impact on human understanding**: Adding a new RL algorithm requires modifying a 150-line if-elif chain in `create_model()`, duplicating critic creation code, and understanding implicit parameter passing.
-
-The `create_model()` function in [train.py](logic/src/pipeline/features/train.py) contains:
-
-```python
-if cfg.rl.algorithm == "ppo":
-    critic = create_critic_from_actor(policy, ...)
-    model = PPO(critic=critic, **common_kwargs)
-elif cfg.rl.algorithm == "sapo":
-    critic = create_critic_from_actor(policy, ...)  # Same 6 lines repeated
-    model = SAPO(critic=critic, **common_kwargs)
-elif cfg.rl.algorithm == "gspo":
-    critic = create_critic_from_actor(policy, ...)  # Same 6 lines repeated again
-    model = GSPO(critic=critic, **common_kwargs)
-elif cfg.rl.algorithm == "dr_grpo":
-    critic = create_critic_from_actor(policy, ...)  # Same 6 lines repeated yet again
-    model = DRGRPO(critic=critic, **common_kwargs)
-# ... 9 more branches
-```
-
-The critic creation block (`create_critic_from_actor(policy, env_name=..., embed_dim=..., hidden_dim=..., n_layers=..., n_heads=...)`) is copied verbatim 4 times.
-
-**Improvement**: Use an algorithm registry pattern (similar to `BASELINE_REGISTRY` in baselines.py):
-
-```python
-ALGORITHM_REGISTRY = {
-    "reinforce": {"class": REINFORCE, "needs_critic": False},
-    "ppo": {"class": PPO, "needs_critic": True},
-    "sapo": {"class": SAPO, "needs_critic": True},
-    # ...
-}
-```
-
-### 3.2 HIGH: Legacy Key Remapping Duplication (train.py:155-185)
-
-**Impact on human understanding**: Two separate blocks remap config keys to legacy names for simulation compatibility. Lines 155-177 remap model/env keys, then lines 180-185 re-set `optimizer` and `optimizer_kwargs` that were already set at lines 137-142.
-
-```python
-# Lines 137-142: Set optimizer
-common_kwargs["optimizer"] = cfg.optim.optimizer
-common_kwargs["optimizer_kwargs"] = {"lr": cfg.optim.lr, ...}
-
-# ... 40 lines later, lines 180-185: Set SAME keys again
-common_kwargs["optimizer"] = cfg.optim.optimizer  # Duplicate!
-common_kwargs["optimizer_kwargs"] = {"lr": cfg.optim.lr, ...}  # Duplicate!
-```
-
-**Improvement**: Consolidate remapping into a single `_remap_legacy_keys(cfg)` function and remove the duplicate assignments.
-
-### 3.3 HIGH: RolloutBaseline Complexity (baselines.py:191-290)
-
-**Impact on human understanding**: The `_rollout()` method is 98 lines with multiple code paths for Dataset vs TensorDict input, padding logic for last batches, deep copy overhead, and two different policy calling conventions (`set_decode_type` vs `decode_type` kwarg).
-
-```python
-def _rollout(self, policy, td_or_dataset, env=None):
-    if isinstance(td_or_dataset, Dataset):
-        # 75 lines: DataLoader path with batch padding
-        ...
-    else:
-        td_copy = copy.deepcopy(td_or_dataset)  # Expensive!
-    # 15 lines: Direct rollout path
-```
-
-**Improvement**: Split into `_rollout_dataset()` and `_rollout_batch()`. Document the performance cost of `deepcopy`.
-
-### 3.4 MEDIUM: Broad Exception Handling in Training Pipeline
-
-Silent or overly broad exception handling persists in the training pipeline:
-
-| File | Location | Pattern | Risk |
-|------|----------|---------|------|
-| [base.py:130](logic/src/pipeline/rl/common/base.py#L130) | `save_weights()` | `except Exception as e: print(...)` | Silent save failure |
-| [base.py:140](logic/src/pipeline/rl/common/base.py#L140) | `save_weights()` | `except Exception as e: print(...)` | Config save failure |
-| [trainer.py:163](logic/src/pipeline/rl/common/trainer.py#L163) | `_create_default_logger()` | `except Exception:` | Silent WandB fallback |
-| [train.py:345](logic/src/pipeline/features/train.py#L345) | `get_expert_policy()` | `except Exception as e: logger.warning(...)` | Expert config failure |
-
-**Improvement**: Replace `print()` with `logger.warning()`, use specific exception types (`ImportError` for WandB, `OSError` for file operations).
-
-### 3.5 MEDIUM: TensorDict/dict Conversion Duplication (base.py)
-
-The same TensorDict-to-dict conversion logic is repeated in `shared_step()` (lines 209-221), `training_step()` (lines 284-288), and across baseline methods:
-
-```python
-if isinstance(batch, (dict, TensorDict)):
-    if "data" in batch.keys():
-        td_data = batch["data"]
-        if not isinstance(td_data, TensorDict):
-            td_data = TensorDict(td_data, batch_size=[len(next(iter(td_data.values())))])
-        td = self.env.reset(td_data.to(self.device))
-    else:
-        td_batch = TensorDict(batch, batch_size=[len(next(iter(batch.values())))])
-        td = self.env.reset(td_batch.to(self.device))
-```
-
-This pattern appears 5+ times across `base.py`, `baselines.py`, and algorithm files.
-
-**Improvement**: Extract to a utility function `ensure_tensordict(batch, device) -> TensorDict`.
-
-### 3.6 MEDIUM: Placeholder Implementations (ppo_stepwise.py, ppo_nstep.py)
-
-Two algorithm files contain placeholder implementations that simply delegate to the parent class:
-
-- [ppo_stepwise.py](logic/src/pipeline/rl/core/ppo_stepwise.py) (59 lines): `calculate_loss()` returns `super().calculate_loss()` with a comment "Placeholder for stepwise implementation"
-- [ppo_nstep.py](logic/src/pipeline/rl/core/ppo_nstep.py) (64 lines): Same pattern with "Placeholder for N-step implementation"
-
-**Impact**: These files suggest unfinished features and confuse developers who expect them to work differently from base PPO.
-
-**Improvement**: Either implement the algorithms or remove the files and document them as future work.
-
-### 3.7 MEDIUM: RLConfig Monolith (configs/rl.py)
-
-The `RLConfig` dataclass has 35+ fields spanning all algorithm variants (PPO, SAPO, DR-GRPO, POMO, SymNCO, GDPO, Imitation), many of which are only relevant to a single algorithm:
-
-```python
-@dataclass
-class RLConfig:
-    # PPO specific
-    ppo_epochs: int = 10
-    eps_clip: float = 0.2
-    # SAPO specific
-    sapo_tau_pos: float = 0.1
-    sapo_tau_neg: float = 1.0
-    # DR-GRPO specific
-    dr_grpo_group_size: int = 8
-    # SymNCO specific
-    symnco_alpha: float = 0.2
-    # GDPO specific
-    gdpo_objective_keys: List[str] = ...
-    # ... 20+ more algorithm-specific fields
-```
-
-**Improvement**: Use algorithm-specific sub-configs or a discriminated union pattern.
-
-### 3.8 LOW: GSPO Incomplete Implementation
-
-[gspo.py](logic/src/pipeline/rl/core/gspo.py) documents the need for sequence-level normalization but implements the standard ratio instead:
-
-```python
-def calculate_ratio(self, new_log_p, old_log_p):
-    return torch.exp(new_log_p - old_log_p.detach())
-    # To truly implement GSPO here, we'd want:
-    # return torch.exp((new_log_p - old_log_p.detach()) / seq_len)
-```
-
-**Improvement**: Either implement the full algorithm or document the deviation from the paper.
-
----
-
-## Part 4: Neural Model Architecture Weaknesses (NEW)
-
-### 4.1 HIGH: Duplicate Docstrings in Hypernetwork
-
-[hypernet.py](logic/src/models/hypernet.py) contains duplicate docstrings for both `HypernetworkOptimizer` class and its `update_buffer()` method:
-
-```python
-class HypernetworkOptimizer:
-    """Manages the hypernetwork training and integration..."""
-    """Manages the hypernetwork training and integration..."""  # DUPLICATE
-
-def update_buffer(self, ...):
-    """Add experience to buffer."""
-    """Add experience to buffer"""  # DUPLICATE with different formatting
-```
-
-### 4.2 HIGH: Silent Exception Handling in GATLSTManager
-
-[gat_lstm_manager.py](logic/src/models/gat_lstm_manager.py) silently swallows all exceptions during shared encoder initialization:
-
-```python
-def __init__(self, shared_encoder=None):
-    if shared_encoder is not None:
-        try:
-            val = shared_encoder.embed_dim
-        except Exception:
-            pass  # Completely silent failure
-```
-
-### 4.3 MEDIUM: AM Variant Initialization Duplication
-
-The three attention model variants (`AttentionModel`, `DeepDecoderAttentionModel`, `TemporalAttentionModel`) share ~40% identical initialization code (encoder setup, context embedder creation). `DeepDecoderAttentionModel` inherits from `AttentionModel` but lacks `pomo_size` and `temporal_horizon` handling, leading to potential inconsistency.
-
-### 4.4 MEDIUM: Repeated Problem Type Detection
-
-The pattern `self.is_wc = problem.NAME in ["wcvrp", "cwcvrp", ...]` appears 5+ times across `AttentionModel`, `CriticNetwork`, `GAT/GACEncoder`, and `Hypernet`. This should be a utility function.
-
-### 4.5 MEDIUM: Missing Tensor Shape Documentation
-
-Key forward methods lack shape comments for intermediate tensors:
-- `AttentionModel.forward()`: POMO expansion logic (lines 268-296) undocumented
-- `AttentionDecoder._precompute()`: No output shape documentation
-- `TemporalAttentionModel._get_initial_embeddings()`: Shape changes undocumented
-
-Good counterexamples exist: `MultiHeadAttention.forward()`, `GATLSTManager.forward()`, and `MoE.dispatch()` all have clear shape comments.
-
-### 4.6 LOW: Magic Numbers in Neural Models
-
-| Location | Value | Purpose |
+| Document | Lines | Purpose |
 |----------|-------|---------|
-| `gat_lstm_manager.py:24` | `0.9` | Critical waste threshold |
-| `gat_lstm_manager.py:91` | `4` | Feedforward expansion factor |
-| `context_embedder.py:135` | `3` | Assumed node dimensionality (x,y,demand) |
-| `attention_model.py:51` | `1e-5` | Epsilon for numerical stability |
-| Multiple files | `10.0` | Tanh clipping value |
+| [README.md](README.md) | 547 | Project overview with documentation hub table |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | 1,572 | System design, data flow, component interactions |
+| [CLAUDE.md](CLAUDE.md) / [AGENTS.md](AGENTS.md) | 916 | Comprehensive component registry for AI and human contributors |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | 852 | Environment setup, CLI reference |
+| [TESTING.md](TESTING.md) | 873 | Test suite organization, fixtures, coverage |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 1,083 | Diagnostic guide, common errors |
+| [TUTORIAL.md](TUTORIAL.md) | 1,706 | Deep dives, code examples, algorithms |
 
-### 4.7 LOW: Missing Input Validation in AttentionModel
+Cross-linking is present: `README.md` has a hub table linking to all docs. A developer can go from zero to productive following `README -> ARCHITECTURE -> DEVELOPMENT`.
 
-[attention_model.py](logic/src/models/attention_model.py) line 148 checks `isinstance(component_factory, NeuralComponentFactory)` but takes no action (passes silently) on failure.
+### 1.2 Design Patterns as Self-Documentation
+
+The codebase uses design patterns not just for engineering quality but as *comprehension tools*:
+
+- **Command Pattern** ([actions.py](logic/src/pipeline/simulations/actions.py)): The [day.py:162-172](logic/src/pipeline/simulations/day.py#L162-L172) pipeline reads as a literal description: Fill -> Select -> Route -> Refine -> Collect -> Log. A new developer understands the simulation flow by reading 10 lines.
+
+- **State Pattern** ([states.py](logic/src/pipeline/simulations/states.py)): `InitializingState -> RunningState -> FinishingState` is self-documenting. No need to trace control flow.
+
+- **Template Method** ([base.py](logic/src/pipeline/rl/common/base.py)): `RL4COLitModule.calculate_loss()` tells you exactly where to look when understanding any RL algorithm. 13+ algorithms override only the methods they need -- you can understand SAPO by reading 54 lines, not 482.
+
+- **Registry + Factory**: Both `ENV_REGISTRY` ([envs/__init__.py](logic/src/envs/__init__.py)) and `BASELINE_REGISTRY` ([baselines.py](logic/src/pipeline/rl/common/baselines.py)) make discoverability trivial -- you can see all available options in one dict literal.
+
+- **Abstract Factory** ([model_factory.py](logic/src/models/model_factory.py)): 6 concrete factories cleanly separate encoder/decoder instantiation per architecture.
+
+### 1.3 Strong Type Hint Coverage (~95%+ on Public APIs)
+
+Public functions across all major subsystems have full type hints:
+- `create_model(cfg: Config) -> pl.LightningModule` in [train.py:81](logic/src/pipeline/features/train.py#L81)
+- `AttentionModel.forward(input: Dict[str, Any], ...) -> Tuple[Tensor, Tensor, Dict[str, Tensor], ...]` in [attention_model.py](logic/src/models/attention_model.py)
+- `get_env(name: str, **kwargs) -> RL4COEnvBase` in [envs/__init__.py](logic/src/envs/__init__.py)
+- Modern syntax used: `int | float` in [ppo.py:34](logic/src/pipeline/rl/core/ppo.py#L34), `TYPE_CHECKING` blocks for circular import avoidance.
+
+This enables IDE auto-completion and makes parameter contracts visible without reading docstrings.
+
+### 1.4 Clean `__init__.py` Exports
+
+44 `__init__.py` files (802 lines total) with `__all__` lists in key modules:
+- [envs/__init__.py](logic/src/envs/__init__.py): Full registry + factory + `__all__`
+- [pipeline/rl/__init__.py](logic/src/pipeline/rl/__init__.py): All 10 RL algorithms exported
+- [models/policies/__init__.py](logic/src/models/policies/__init__.py): 8 policy classes exported
+- [configs/__init__.py](logic/src/configs/__init__.py): Root `Config` dataclass with 11 sub-configs and `__all__`
+
+### 1.5 Extremely Clean Codebase Hygiene
+
+Only **3 TODO comments** across the entire `logic/` codebase -- all low-priority (`ptr_decoder.py`, `visualize_utils.py`). No FIXME, HACK, or XXX markers. This indicates a mature codebase without unfinished scaffolding that would confuse a reader.
+
+### 1.6 Context Input/Output Contracts in Simulation
+
+Each action class in [actions.py](logic/src/pipeline/simulations/actions.py) documents exactly what it reads from and writes to the shared context dictionary (e.g., `FillAction` at [line 98-117](logic/src/pipeline/simulations/actions.py#L98-L117)). This is exceptional for a dynamically-typed context dictionary.
+
+### 1.7 Algorithm Inheritance as Documentation
+
+The RL algorithm inheritance chain acts as a reading guide:
+- `REINFORCE -> POMO -> SymNCO`: Read base first, each child adds ~50 lines
+- `PPO -> SAPO / GSPO / DR-GRPO`: Each child overrides one method, making the algorithmic delta obvious
 
 ---
 
-## Part 5: Improvement Plan (Updated & Prioritized)
+## Part 2: Previously Identified Issues - Status
 
-### Phase 1: Training Pipeline Cleanup (High Impact)
+### 2.1 Simulation Pipeline Improvements (Previous Round)
 
-| # | Task | Impact | Files | Status |
-|---|------|--------|-------|--------|
-| 1 | Replace algorithm if-elif chain with registry pattern | High | `train.py` | NEW |
-| 2 | Extract critic creation into shared helper | High | `train.py` | NEW |
-| 3 | Remove duplicate optimizer key assignments | Medium | `train.py` | NEW |
-| 4 | Extract TensorDict conversion to utility function | Medium | `base.py`, `baselines.py` | NEW |
-| 5 | Replace broad exceptions with specific types in training pipeline | Medium | 4 files | NEW |
+| Issue | Previous | Current | Status |
+|-------|----------|---------|--------|
+| Policy layer code duplication | CRITICAL | [BaseRoutingPolicy](logic/src/policies/base_routing_policy.py) extracted | RESOLVED |
+| Policy parsing 95-line chain | HIGH | Lookup tables in [states.py](logic/src/pipeline/simulations/states.py) | RESOLVED |
+| `Any` overuse in Context | MEDIUM | Proper types in [context.py](logic/src/pipeline/simulations/context.py) | MOSTLY RESOLVED |
+| Broad exception handling (sim) | HIGH | Specific exception types | MOSTLY RESOLVED |
+| Policy-to-simulator dependency | MEDIUM | `load_area_params` in [data_utils.py](logic/src/utils/data/data_utils.py) | RESOLVED |
+| `solutions.py` 1,518 lines | MEDIUM | Split into [route_search.py](logic/src/policies/look_ahead_aux/route_search.py), [simulated_annealing.py](logic/src/policies/look_ahead_aux/simulated_annealing.py), [solution_initialization.py](logic/src/policies/look_ahead_aux/solution_initialization.py) | RESOLVED |
+| Policy naming collision | MEDIUM | `ALNSPolicy` -> [VectorizedALNS](logic/src/models/policies/classical/alns.py), `HGSPolicy` -> [VectorizedHGS](logic/src/models/policies/classical/hgs.py) | RESOLVED |
 
-### Phase 2: Training Pipeline Structure
+### 2.2 Training Pipeline Improvements (Previous Round)
 
-| # | Task | Impact | Files | Status |
-|---|------|--------|-------|--------|
-| 6 | Refactor `RolloutBaseline._rollout()` into separate methods | Medium | `baselines.py` | NEW |
-| 7 | Split `RLConfig` into algorithm-specific sub-configs | Medium | `configs/rl.py` | NEW |
-| 8 | Implement or remove placeholder algorithms (PPOStepwise, PPONstep) | Low | `ppo_stepwise.py`, `ppo_nstep.py` | NEW |
-| 9 | Complete GSPO sequence-level normalization or document deviation | Low | `gspo.py` | NEW |
-
-### Phase 3: Neural Model Quality
-
-| # | Task | Impact | Files | Status |
-|---|------|--------|-------|--------|
-| 10 | Fix duplicate docstrings in `hypernet.py` | Low | `hypernet.py` | NEW |
-| 11 | Fix silent exception in `GATLSTManager.__init__()` | Medium | `gat_lstm_manager.py` | NEW |
-| 12 | Add tensor shape documentation to AM forward methods | Medium | `attention_model.py`, subnets | NEW |
-| 13 | Extract problem type detection to utility function | Low | 5+ model files | NEW |
-
-### Phase 4: Remaining Simulation Pipeline
-
-| # | Task | Impact | Files | Status |
-|---|------|--------|-------|--------|
-| 14 | Split `solutions.py` (1,518 lines) into 3 modules | Medium | `solutions.py` | RESOLVED |
-| 15 | Split `log_utils.py` (904 lines) into logging + visualization | Low | `log_utils.py` | UNCHANGED |
-| 16 | Disambiguate policy naming between `policies/` and `models/policies/` | Medium | Multiple | RESOLVED |
-| 17 | Standardize config loading documentation | Low | `config_loader.py` | UNCHANGED |
+| Issue | Previous | Current | Status |
+|-------|----------|---------|--------|
+| `RLConfig` monolith (35+ flat fields) | MEDIUM | Split into 8 algorithm-specific sub-configs ([rl.py](logic/src/configs/rl.py): `PPOConfig`, `SAPOConfig`, `GRPOConfig`, `POMOConfig`, `SymNCOConfig`, `ImitationConfig`, `GDPOConfig`, `AdaptiveImitationConfig`) | RESOLVED |
+| Algorithm if-elif chain in `train.py` | HIGH | Policy map added for model selection ([train.py:92-101](logic/src/pipeline/features/train.py#L92-L101)), but algorithm if-elif remains for RL module creation | PARTIALLY RESOLVED |
+| Critic creation duplication | HIGH | Still repeated for PPO, SAPO, GSPO, DR-GRPO | UNCHANGED |
 
 ---
 
-## Part 6: Overall Assessment (Updated)
+## Part 3: Human Comprehension Barriers
 
-### Simulation Pipeline
+### 3.1 CRITICAL: Parameter Naming Inconsistency Across Module Boundaries
 
-| Dimension | Previous | Current | Delta | Notes |
-|-----------|----------|---------|-------|-------|
-| Code Duplication | 4/10 | 8/10 | +4 | `BaseRoutingPolicy` extraction resolved |
-| Error Handling | 5/10 | 7.5/10 | +2.5 | Specific exceptions in most places |
-| Type Safety | 6/10 | 8.5/10 | +2.5 | `SimulationDayContext` properly typed |
-| Policy Parsing | 4/10 | 9/10 | +5 | Lookup table approach is maintainable |
-| Dependency Structure | 6/10 | 8/10 | +2 | `load_area_params` properly located |
+The single biggest comprehension barrier in this codebase. The same concept uses different names depending on which file you are reading:
 
-### Training Pipeline (New)
+| Concept | Convention A | Count | Convention B | Count | Files Using Both |
+|---------|-------------|-------|-------------|-------|------------------|
+| Embedding dimension | `embed_dim` | 193 (28 files) | `embedding_dim` | 81 (13 files) | `attention_decoder.py`, `attention_model.py`, `critic_network.py`, `deep_decoder_am.py`, `gat_lstm_manager.py` |
+| Number of heads | `n_heads` | 80 (17 files) | `num_heads` | 15 (2 files) | -- |
+| Graph size | `graph_size` | mixed | `num_loc` | mixed | `n_nodes` also used |
 
-| Dimension | Score | Notes |
-|-----------|-------|-------|
-| Design Patterns | 9/10 | Template Method, Registry, Strategy all well-used |
-| Algorithm Diversity | 9/10 | 13+ algorithms, 7 baselines, 5 meta-strategies |
-| Documentation | 7/10 | Good docstrings but methods lack shape/contract detail |
-| Code Duplication | 5/10 | Critic creation x4, TensorDict conversion x5, legacy remapping x2 |
-| Error Handling | 6/10 | `print()` instead of `logger`, broad exceptions in save paths |
-| Configuration | 7/10 | Clean Hydra/dataclass structure but monolithic `RLConfig` |
-| Extensibility | 6/10 | if-elif chain makes adding algorithms error-prone |
-| Completeness | 7/10 | Two placeholder algorithms, one incomplete implementation |
+**Why this is critical**: [train.py:111-116](logic/src/pipeline/features/train.py#L111-L116) explicitly remaps between the two conventions:
 
-### Neural Model Architecture (New)
+```python
+if "num_encoder_layers" in policy_kwargs:
+    policy_kwargs["n_encode_layers"] = policy_kwargs.pop("num_encoder_layers")
+if "num_heads" in policy_kwargs:
+    policy_kwargs["n_heads"] = policy_kwargs.pop("num_heads")
+```
 
-| Dimension | Score | Notes |
-|-----------|-------|-------|
-| Design Patterns | 8/10 | Clean Factory, good inheritance hierarchy |
-| Documentation | 7/10 | Good module docs but missing tensor shapes in key methods |
-| Type Hints | 8/10 | 85%+ coverage on public methods |
-| Error Handling | 6/10 | Silent exceptions, weak assertions without messages |
-| Code Duplication | 6/10 | Problem type detection repeated, AM init ~40% shared |
-| Naming Conventions | 7.5/10 | `embedding_dim` vs `embed_dim` inconsistency |
+The config layer uses `num_heads`, the model layer uses `n_heads`. A developer tracing a parameter from config to model must know about this implicit translation. Five files use *both* `embed_dim` and `embedding_dim` in the same file, meaning the parameter gets renamed at the boundary between the encoder layer and the top-level model.
 
-### Combined Scores
+### 3.2 HIGH: Stale Documentation / Code Drift
 
-| Dimension | Score | Notes |
-|-----------|-------|-------|
-| Design Patterns | 9/10 | Exemplary across all subsystems |
-| Documentation | 7.5/10 | Strong module docs; training pipeline and model shapes need work |
-| Type Safety | 8/10 | Simulation pipeline excellent; training uses `Any` in hot paths |
-| Naming Conventions | 8/10 | Clear and descriptive; minor inconsistencies in models |
-| Code Duplication | 6.5/10 | Simulation resolved; training pipeline has new duplication |
-| Error Handling | 6.5/10 | Simulation improved; training pipeline needs attention |
-| Module Organization | 8/10 | Clean boundaries; dual import paths now properly disambiguated |
-| File Size Management | 7.5/10 | `solutions.py` split resolved; 3 files >750 lines remain |
-| Configuration | 7/10 | Hydra structure good; `RLConfig` monolith needs splitting |
-| Extensibility | 7/10 | Baselines/meta easily extensible; algorithm selection is not |
-| **Overall** | **7.7/10** | **+0.4 from initial; simulation improvements continue to land** |
+CLAUDE.md references `logic/src/tasks/` **10 times** (Section 10.6, Appendix A.1), but this directory has been migrated to `logic/src/envs/`. A developer reading CLAUDE.md will look for:
 
-The codebase has measurably improved since the initial analysis. The simulation pipeline improvements (BaseRoutingPolicy extraction, policy parsing refactor, type annotations, exception specificity, dependency correction, `solutions.py` decomposition, `VectorizedALNS`/`VectorizedHGS` rename) are all well-executed. The training pipeline introduces new architectural strengths (Template Method pattern, algorithm diversity, Lightning integration) but also new weaknesses (if-elif algorithm selection, code duplication in model creation, monolithic RLConfig). The neural model layer has a solid foundation with room for documentation polish and error handling improvement.
+| CLAUDE.md Says | Reality |
+|----------------|---------|
+| `tasks/vrpp/` | Does not exist. `envs/vrpp.py` instead |
+| `tasks/wcvrp/` | Does not exist. `envs/wcvrp.py` instead |
+| `tasks/swcvrp/` | Does not exist. `envs/swcvrp.py` instead |
+| `BaseProblem` in `tasks/base.py` | `RL4COEnvBase` in `envs/base.py` |
+| Section 10.6 header: `Problem Environments (logic/src/tasks/)` | Should be `logic/src/envs/` |
+| Appendix A.1: `Problem definitions -> logic/src/tasks/` | Should be `logic/src/envs/` |
+
+The empty `logic/src/tasks/` directory still exists on disk (with empty subdirectories `vrpp/`, `wcvrp/`, `swcvrp/`), creating a false trail for anyone navigating the filesystem.
+
+### 3.3 HIGH: Three Competing Logging Approaches
+
+| Approach | Library | Files Using | Occurrences |
+|----------|---------|------------|-------------|
+| Proper logger | `logging` via `get_pylogger()` | 5 files (`train.py`, `base.py`, `baselines.py`, `transforms.py`, `gat_lstm_manager.py`) | ~17 |
+| Proper logger | `loguru` | 2 files (`states.py`, `actions.py`) | ~10 |
+| Raw print | `print()` | 30+ files | **191** |
+
+The training pipeline (`train.py`) uses standard `logging`. The simulation pipeline (`states.py`, `actions.py`) uses `loguru`. Everything else uses `print()`. Key files with no logging at all:
+
+| File | Issue |
+|------|-------|
+| [checkpoints.py](logic/src/pipeline/simulations/checkpoints.py) | 6 `print()` calls for checkpoint errors -- lost when stdout is redirected |
+| [eval.py](logic/src/pipeline/features/eval.py) | 8+ `print()` calls, no logger import |
+| [test.py](logic/src/pipeline/features/test.py) | 15+ `print()` calls despite importing logging infrastructure |
+
+A developer trying to debug an issue cannot reliably grep logs because output is split across three systems. In production, `print()` output may be discarded while logger output is preserved.
+
+### 3.4 HIGH: No Directory-Level Navigation Aids
+
+No subdirectory in `logic/src/` has a README explaining its purpose. A developer must rely on:
+1. Module-level docstrings in `__init__.py` (present in most, absent in `logic/src/__init__.py`)
+2. The root-level CLAUDE.md (which has stale `tasks/` references)
+
+Concrete impact: a new developer seeing `logic/src/policies/` and `logic/src/models/policies/` has no in-directory explanation of why both exist:
+- `policies/adapters/` = Simulation-facing adapters inheriting from `BaseRoutingPolicy`
+- `models/policies/classical/` = RL training wrappers inheriting from `ConstructivePolicy`
+
+This distinction is architecturally intentional and well-designed, but undiscoverable without reading CLAUDE.md or tracing imports.
+
+### 3.5 MEDIUM: Duplicate Sub-Layer Class Names Across Encoders
+
+Identically-named classes exist in different encoder files:
+
+| Class Name | Appears In |
+|------------|-----------|
+| `FeedForwardSubLayer` | [gat_encoder.py:15](logic/src/models/subnets/gat_encoder.py#L15), [tgc_encoder.py:16](logic/src/models/subnets/tgc_encoder.py#L16) |
+| `MultiHeadAttentionLayer` | [gat_encoder.py:60](logic/src/models/subnets/gat_encoder.py#L60), [tgc_encoder.py:57](logic/src/models/subnets/tgc_encoder.py#L57), [ggac_encoder.py:56](logic/src/models/subnets/ggac_encoder.py#L56) |
+
+These are different classes with different implementations but identical names. A developer reading an import like `from .gat_encoder import MultiHeadAttentionLayer` must carefully check *which file* it comes from.
+
+### 3.6 MEDIUM: Cognitive Load Hotspots
+
+Functions that require holding too many concepts in working memory simultaneously:
+
+| Location | Lines | Concepts to Track | Key Issue |
+|----------|-------|-------------------|-----------|
+| [attention_decoder.py:157-260](logic/src/models/subnets/attention_decoder.py#L157-L260) `_inner()` | 103 | Loop termination, shrink-size, POMO expansion, mask dimensions, state mutations | Magic numbers `16` (line 209) and `-50.0` (line 213) without explanation |
+| [adaptive_large_neighborhood_search.py:98-150](logic/src/policies/adaptive_large_neighborhood_search.py#L98-L150) | 52 | 5 loop-local variables, operator selection, weight adaptation, SA accept/reject | Variable `d` reused for distance, accumulated distance, and demand in same scope |
+| [base.py:174-258](logic/src/pipeline/rl/common/base.py#L174-L258) `shared_step()` | 84 | Tensor device movement, baseline unwrapping, conditional logging, `out` dict mutation | Implicit contract for what baseline returns |
+
+### 3.7 MEDIUM: Inconsistent Error Handling Across Subsystems
+
+Each subsystem handles errors differently:
+
+| Subsystem | Exception Types | Reporting | Pattern |
+|-----------|----------------|-----------|---------|
+| `train.py` | Specific (`ValueError`, `OSError`) | `logger.error()` | Consistent |
+| `eval.py` | Generic (`Exception`) | `print(file=sys.stderr)` | Inconsistent |
+| `test.py` | Mixed specific/generic | `print()` + `logger` mixed | Inconsistent |
+| `states.py` | Specific + custom (`CheckpointError`) | `loguru` logger | Consistent |
+| `checkpoints.py` | Generic | `print()` only | No logging |
+| Models | Minimal / silent | None | Silent failures possible |
+
+The simulation pipeline improved significantly (see Part 2), but the training pipeline and model layer still use broad `except Exception:` with `print()` in critical paths like [base.py:130-140](logic/src/pipeline/rl/common/base.py#L130-L140) (weight saving).
+
+### 3.8 MEDIUM: Weak Data Contracts at Model Boundaries
+
+Neural model `forward()` methods accept `Dict[str, Any]` without documenting required keys or tensor shapes:
+
+```python
+# attention_model.py forward() -- input is Dict[str, Any]
+# What keys are required? loc? demand? depot? edges? dist?
+# What shapes? [batch, nodes, 2]? [batch, nodes]?
+edges = input.get("edges", None)     # Optional? Required?
+dist_matrix = input.get("dist", None)  # What if missing?
+```
+
+Contrast with the simulation layer's [day.py:36-68](logic/src/pipeline/simulations/day.py#L36-L68) which documents value ranges (`waste: Current bin fill levels (0-100%)`), types, and shapes. The simulation pipeline's context contracts (documented I/O in action classes) are the gold standard the model layer should follow.
+
+### 3.9 MEDIUM: Dual Dispatch System Without Explanation
+
+`main.py` uses two different command routing systems without an inline comment explaining why:
+
+1. **Legacy CLI** (via `parse_params()`): Handles `gui`, `test_suite`, `file_system`
+2. **Hydra** (via `unified_main()`): Handles `train`, `eval`, `test_sim`, `gen_data`
+
+Lines [261-305](main.py#L261-L305) manipulate `sys.argv` to convert between the two systems. A new developer hits this code and must figure out why some commands skip `parse_params()` entirely.
+
+### 3.10 LOW: Missing Paper References in Algorithm Docstrings
+
+Most RL algorithm docstrings explain *what* but not *why* or *from where*:
+
+| File | Has Reference | Missing |
+|------|:---:|:---:|
+| [a2c.py](logic/src/pipeline/rl/core/a2c.py) | "Reference: RL4CO" | -- |
+| [ppo.py](logic/src/pipeline/rl/core/ppo.py) | -- | PPO (Schulman et al., 2017) |
+| [reinforce.py](logic/src/pipeline/rl/core/reinforce.py) | -- | REINFORCE (Williams, 1992) |
+| [pomo.py](logic/src/pipeline/rl/core/pomo.py) | -- | Kwon et al. 2020 (mentioned in CLAUDE.md but not in code) |
+| [symnco.py](logic/src/pipeline/rl/core/symnco.py) | -- | Kim et al. 2022 (mentioned in CLAUDE.md but not in code) |
+
+### 3.11 LOW: Remaining Training Pipeline Duplication
+
+These issues from the previous analysis remain:
+
+- **Critic creation duplicated 4x** in [train.py](logic/src/pipeline/features/train.py) for PPO, SAPO, GSPO, DR-GRPO -- identical `create_critic_from_actor()` calls
+- **TensorDict conversion** repeated 5+ times across `base.py`, `baselines.py`, and algorithm files
+- **Placeholder implementations** (`ppo_stepwise.py`, `ppo_nstep.py`) delegate to parent unchanged
+- **GSPO incomplete** -- documents need for sequence-level normalization but uses standard ratio
+
+---
+
+## Part 4: Improvement Plan (Ordered by Comprehension Impact)
+
+### Phase 1: Eliminate Comprehension Traps (High Impact, Low Effort)
+
+| # | Task | Impact | Effort | Files |
+|---|------|--------|--------|-------|
+| 1 | Delete empty `logic/src/tasks/` directory and update CLAUDE.md to reference `envs/` | HIGH | LOW | `CLAUDE.md`, filesystem |
+| 2 | Add inline comment in `main.py:260` explaining dual dispatch system | HIGH | LOW | `main.py` |
+| 3 | Add brief README.md to `logic/src/policies/` and `logic/src/models/policies/` explaining their distinct roles | HIGH | LOW | 2 new files |
+| 4 | Document magic numbers in `attention_decoder.py` (16, -50.0) | MEDIUM | LOW | `attention_decoder.py` |
+| 5 | Rename `d` variable reuse in ALNS solver to `dist_to_start`, `route_dist`, `node_demand` | MEDIUM | LOW | `adaptive_large_neighborhood_search.py` |
+
+### Phase 2: Naming Standardization (High Impact, Medium Effort)
+
+| # | Task | Impact | Effort | Files |
+|---|------|--------|--------|-------|
+| 6 | Standardize on `embed_dim` (dominant convention, 193 vs 81 occurrences) across all model files | HIGH | MEDIUM | 13 files using `embedding_dim` |
+| 7 | Standardize on `n_heads` (dominant, 80 vs 15) -- update `gat_lstm_manager.py` and `efficient_graph_convolution.py` | MEDIUM | LOW | 2 files |
+| 8 | Prefix duplicate sub-layer classes with encoder name (e.g., `GATFeedForwardSubLayer`) | MEDIUM | LOW | 3 encoder files |
+| 9 | Remove legacy remapping in `train.py:111-116` once config uses standard names | MEDIUM | MEDIUM | `train.py`, config files |
+
+### Phase 3: Logging & Error Handling Unification (High Impact, Medium Effort)
+
+| # | Task | Impact | Effort | Files |
+|---|------|--------|--------|-------|
+| 10 | Choose one logging library (recommend `loguru` for simpler API) and replace `print()` in `checkpoints.py`, `eval.py`, `test.py` | HIGH | MEDIUM | 3 files |
+| 11 | Replace broad `except Exception: print()` in `base.py:130-140` with specific exceptions and `logger.warning()` | MEDIUM | LOW | `base.py` |
+| 12 | Add `TypedDict` or shape comments for model `forward()` input contracts | MEDIUM | MEDIUM | `attention_model.py`, subnets |
+
+### Phase 4: Training Pipeline Cleanup (Medium Impact)
+
+| # | Task | Impact | Effort | Files |
+|---|------|--------|--------|-------|
+| 13 | Extract critic creation into shared helper to eliminate 4x duplication | MEDIUM | LOW | `train.py` |
+| 14 | Extract TensorDict conversion to `ensure_tensordict()` utility | MEDIUM | LOW | `base.py`, `baselines.py` |
+| 15 | Add paper references to algorithm docstrings | LOW | LOW | 5 RL algorithm files |
+| 16 | Implement or remove placeholder algorithms (`ppo_stepwise.py`, `ppo_nstep.py`) | LOW | LOW | 2 files |
+
+### Phase 5: Remaining Large Files
+
+| # | Task | Impact | Effort | Files |
+|---|------|--------|--------|-------|
+| 17 | Split `log_utils.py` (904 lines) into logging + visualization | LOW | MEDIUM | `log_utils.py` |
+| 18 | Decompose `local_search.py` (838 lines) into operator-specific files | LOW | MEDIUM | `local_search.py` |
+
+---
+
+## Part 5: Human Comprehension Assessment
+
+### By Comprehension Dimension
+
+| Dimension | Score | Evidence |
+|-----------|-------|----------|
+| **Onboarding Documentation** | 9/10 | 11K+ lines, clear hierarchy, cross-linked hub table |
+| **Design Patterns as Guides** | 9/10 | Command, State, Template Method, Registry -- all aid understanding |
+| **Type Safety / IDE Support** | 8.5/10 | ~95%+ public API coverage; modern syntax; `TYPE_CHECKING` used correctly |
+| **Module Export Clarity** | 8/10 | Clean `__all__` in key modules; `logic/src/__init__.py` minimal |
+| **Import Organization** | 8/10 | Consistent stdlib -> third-party -> local grouping; no circular imports |
+| **Codebase Hygiene** | 9/10 | Only 3 TODOs; no FIXME/HACK markers |
+| **Naming Consistency** | 4.5/10 | `embed_dim` vs `embedding_dim` (274 total), `n_heads` vs `num_heads`, `graph_size` vs `num_loc` vs `n_nodes`; explicit remapping in `train.py` |
+| **Documentation-Code Alignment** | 5/10 | CLAUDE.md references `tasks/` 10 times; empty `tasks/` directory misleads |
+| **Logging Consistency** | 4/10 | 3 competing systems; 191 raw `print()` calls vs 17 proper logger calls |
+| **Error Handling Consistency** | 5.5/10 | Simulation pipeline improved; training pipeline and models still inconsistent |
+| **Data Contracts** | 6/10 | Simulation excellent (action I/O docs); models weak (`Dict[str, Any]` without schema) |
+| **Navigational Aids** | 5.5/10 | No directory READMEs; dual dispatch undocumented; dual policy directories unexplained |
+| **Cognitive Load** | 7/10 | Most files <200 lines; 3 hotspots >80 lines with complex state |
+
+### By Subsystem
+
+| Subsystem | Comprehension Score | Strongest Aspect | Weakest Aspect |
+|-----------|:---:|---|---|
+| Simulation Pipeline | 8.5/10 | Action I/O contracts, state machine, lookup tables | `checkpoints.py` logging |
+| Training Pipeline | 7/10 | Template Method hierarchy, baseline registry | Naming inconsistency at config->model boundary |
+| Neural Models | 6.5/10 | Factory pattern, clean inheritance | `embed_dim`/`embedding_dim` split, missing shape docs |
+| GUI Layer | 8/10 | Mediator pattern, tab isolation | -- |
+| Configuration | 7.5/10 | Dataclass composition, algorithm sub-configs | Dict/Hydra/dataclass triple pattern |
+| Documentation | 8/10 | Volume and coverage | `tasks/` -> `envs/` drift |
+
+### Overall
+
+| Metric | Score |
+|--------|-------|
+| **Can a new developer find things?** | 7/10 |
+| **Can they understand what they find?** | 8/10 |
+| **Can they trust what they read?** | 6.5/10 |
+| **Can they contribute without breaking things?** | 7.5/10 |
+| **Overall Human Comprehension** | **7.3/10** |
+
+The codebase has exceptional *structural* quality -- design patterns, type hints, documentation volume. The comprehension barriers are primarily *consistency* issues: naming conventions that shift across module boundaries, logging approaches that fragment across subsystems, and documentation that has not caught up with code migrations. These are fixable with disciplined cleanup rather than architectural changes. The highest-impact improvement would be standardizing parameter names (Phase 2), which removes the single largest source of cognitive friction for anyone reading across module boundaries.
