@@ -109,10 +109,6 @@ class HypernetworkOptimizer:
     Manages the hypernetwork training and integration with the main RL training loop.
     """
 
-    """
-    Manages the hypernetwork training and integration with the main RL training loop.
-    """
-
     def __init__(
         self,
         cost_weight_keys,
@@ -163,7 +159,6 @@ class HypernetworkOptimizer:
             weights (torch.Tensor): Applied weights.
             performance (float): Resulting performance value.
         """
-        """Add experience to buffer"""
         self.buffer.append(
             {
                 "metrics": metrics,
@@ -189,7 +184,6 @@ class HypernetworkOptimizer:
         Args:
             epochs (int, optional): Number of training epochs. Defaults to 10.
         """
-        """Train hypernetwork on buffered experiences"""
         if len(self.buffer) < 10:  # Need minimum samples to train
             return
 

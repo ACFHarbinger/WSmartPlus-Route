@@ -109,8 +109,7 @@ class TestSimulationDataMapper:
         device = torch.device("cpu")
         configs = {"problem": "vrpp", "model": "tam", "graph_size": 2, "temporal_horizon": 5}
 
-        # Mock load_area_and_waste_type_params
-        with patch("logic.src.pipeline.simulations.processor.load_area_and_waste_type_params") as mock_load:
+        with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_load:
             # ret: CAPACITY, REVENUE, DENSITY, COST, VOLUME
             mock_load.return_value = (1000, 1.0, 0.5, 1.0, 100)
 
@@ -143,7 +142,7 @@ class TestSimulationDataMapper:
         device = torch.device("cpu")
 
         with patch(
-            "logic.src.pipeline.simulations.processor.load_area_and_waste_type_params", return_value=(100, 1, 1, 1, 1)
+            "logic.src.utils.data.data_utils.load_area_and_waste_type_params", return_value=(100, 1, 1, 1, 1)
         ):
             # KNN edges
             with patch("logic.src.pipeline.simulations.processor.get_adj_knn", return_value=np.ones((1, 1))):
