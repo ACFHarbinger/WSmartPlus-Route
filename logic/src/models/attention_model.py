@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.utils.checkpoint
 
 from logic.src.models.context_embedder import (
     ContextEmbedder,
@@ -246,7 +247,12 @@ class AttentionModel(nn.Module):
             **kwargs: Arbitrary keyword arguments.
 
         Returns:
-            tuple: (cost, log_likelihood, cost_dict, pi, entropy)
+            tuple:
+                - cost (torch.Tensor): Total cost/reward [batch_size].
+                - log_likelihood (torch.Tensor): Log likelihood of the action sequence [batch_size].
+                - cost_dict (dict): Breakdown of different cost components.
+                - pi (torch.Tensor, optional): The action sequence (node indices) [batch_size, seq_len].
+                - entropy (torch.Tensor, optional): Policy entropy [batch_size].
         """
         edges = input.get("edges", None)
         dist_matrix = input.get("dist", None)  # Using 'dist' key consistent with original
@@ -371,7 +377,8 @@ class AttentionModel(nn.Module):
             edges: Edge information for the graph.
 
         Returns:
-            A cached lookup object containing precomputed decoder state.
+            CachedLookup: A cached lookup object containing precomputed decoder state.
+                Contains glimpse_key, glimpse_val, logit_key, etc.
         """
         embeddings: torch.Tensor = self.embedder(self.context_embedder.init_node_embeddings(input), edges)
         return CachedLookup(self.decoder._precompute(embeddings))  # type: ignore
@@ -395,7 +402,9 @@ class AttentionModel(nn.Module):
             max_calc_batch_size: Maximum batch size for calculation. Defaults to 4096.
 
         Returns:
-            tuple: (log_p, mask)
+            tuple:
+                - log_p (torch.Tensor): Log probabilities of expansions [beam_size, num_expansions].
+                - mask (torch.Tensor): Action mask [beam_size, num_expansions].
         """
         return self.decoder.propose_expansions(beam, fixed, expand_size, normalize, max_calc_batch_size)  # type: ignore
 
