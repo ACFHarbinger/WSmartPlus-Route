@@ -102,6 +102,12 @@ class TestBaselines:
     def test_critic_baseline(self, mocker):
         """Test CriticBaseline integration."""
         mock_critic = mocker.MagicMock(spec=nn.Module)
+
+        # Add mock parameter with device to avoid ensure_tensordict failure
+        mock_param = mocker.MagicMock()
+        mock_param.device = torch.device('cpu')
+        mock_critic.parameters.return_value = iter([mock_param])
+
         mock_critic.side_effect = lambda x: x["reward_pred"].unsqueeze(-1)
 
         bl = CriticBaseline(critic=mock_critic)

@@ -3,19 +3,21 @@ This module contains the Deep Decoder Attention Model architecture.
 """
 
 import math
-import typing
+from typing import Any, List, NamedTuple, Optional
 
 import torch
 import torch.nn as nn
+
+from logic.src.models.model_factory import NeuralComponentFactory
 
 from . import AttentionModel
 from .subnets import GraphAttentionDecoder
 
 
-class DeepAttentionModelFixed(typing.NamedTuple):
+class DeepAttentionModelFixed(NamedTuple):
     """
-    Context for AttentionModel decoder that is fixed during decoding so can be precomputed/cached
-    This class allows for efficient indexing of multiple Tensors at once
+    Context for AttentionModel decoder that is fixed during decoding so can be precomputed/cached.
+    This class allows for efficient indexing of multiple Tensors at once.
     """
 
     node_embeddings: torch.Tensor
@@ -51,128 +53,114 @@ class DeepDecoderAttentionModel(AttentionModel):
 
     def __init__(
         self,
-        embedding_dim,
-        hidden_dim,
-        problem,
-        encoder_class,
-        n_encode_layers=2,
-        n_encode_sublayers=None,
-        n_decode_layers=2,
-        dropout_rate=0.1,
-        aggregation="sum",
-        aggregation_graph="avg",
-        tanh_clipping=10.0,
-        mask_inner=True,
-        mask_logits=True,
-        mask_graph=False,
-        normalization="batch",
-        norm_learn_affine=True,
-        norm_track_stats=False,
-        norm_eps_alpha=1e-05,
-        norm_momentum_beta=0.1,
-        lrnorm_k=1.0,
-        gnorm_groups=3,
-        activation_function="gelu",
-        af_param=1.0,
-        af_threshold=6.0,
-        af_replacement_value=6.0,
-        af_num_params=3,
-        af_uniform_range=[0.125, 1 / 3],
-        n_heads=8,
-        checkpoint_encoder=False,
-        shrink_size=None,
-        temporal_horizon=0,
-        predictor_layers=None,
-    ):
+        embedding_dim: int,
+        hidden_dim: int,
+        problem: Any,
+        component_factory: NeuralComponentFactory,
+        n_encode_layers: int = 2,
+        n_encode_sublayers: Optional[int] = None,
+        n_decode_layers: int = 2,
+        dropout_rate: float = 0.1,
+        aggregation: str = "sum",
+        aggregation_graph: str = "avg",
+        tanh_clipping: float = 10.0,
+        mask_inner: bool = True,
+        mask_logits: bool = True,
+        mask_graph: bool = False,
+        normalization: str = "batch",
+        norm_learn_affine: bool = True,
+        norm_track_stats: bool = False,
+        norm_eps_alpha: float = 1e-05,
+        norm_momentum_beta: float = 0.1,
+        lrnorm_k: float = 1.0,
+        gnorm_groups: int = 3,
+        activation_function: str = "gelu",
+        af_param: float = 1.0,
+        af_threshold: float = 6.0,
+        af_replacement_value: float = 6.0,
+        af_num_params: int = 3,
+        af_uniform_range: List[float] = [0.125, 1 / 3],
+        n_heads: int = 8,
+        checkpoint_encoder: bool = False,
+        shrink_size: Optional[int] = None,
+        pomo_size: int = 0,
+        temporal_horizon: int = 0,
+        spatial_bias: bool = False,
+        spatial_bias_scale: float = 1.0,
+        entropy_weight: float = 0.0,
+        predictor_layers: Optional[int] = None,
+        connection_type: str = "residual",
+        hyper_expansion: int = 4,
+    ) -> None:
         """
         Initialize the Deep Decoder Attention Model.
-
-        Args:
-            embedding_dim (int): Dimension of the embedding vectors.
-            hidden_dim (int): Dimension of the hidden layers.
-            problem (object): The problem instance wrapper.
-            encoder_class (object): The class for the encoder.
-            n_encode_layers (int, optional): Number of encoder layers. Defaults to 2.
-            n_encode_sublayers (int, optional): Number of sub-layers int encoder. Defaults to None.
-            n_decode_layers (int, optional): Number of decoder layers. Defaults to 2.
-            dropout_rate (float, optional): Dropout rate. Defaults to 0.1.
-            aggregation (str, optional): Aggregation method. Defaults to "sum".
-            aggregation_graph (str, optional): Graph aggregation method. Defaults to "avg".
-            tanh_clipping (float, optional): Tanh clipping value. Defaults to 10.0.
-            mask_inner (bool, optional): Whether to mask inner attention. Defaults to True.
-            mask_logits (bool, optional): Whether to mask logits. Defaults to True.
-            mask_graph (bool, optional): Whether to mask graph attention. Defaults to False.
-            normalization (str, optional): Normalization type. Defaults to 'batch'.
-            norm_learn_affine (bool, optional): Learn affine parameters. Defaults to True.
-            norm_track_stats (bool, optional): Track running stats. Defaults to False.
-            norm_eps_alpha (float, optional): Epsilon/Alpha for norm. Defaults to 1e-05.
-            norm_momentum_beta (float, optional): Momentum/Beta for norm. Defaults to 0.1.
-            lrnorm_k (float, optional): K parameter for Local Response Norm. Defaults to 1.0.
-            gnorm_groups (int, optional): Groups for Group Norm. Defaults to 3.
-            activation_function (str, optional): Activation function name. Defaults to 'gelu'.
-            af_param (float, optional): Parameter for activation function. Defaults to 1.0.
-            af_threshold (float, optional): Threshold for activation function. Defaults to 6.0.
-            af_replacement_value (float, optional): Replacement value for activation function. Defaults to 6.0.
-            af_num_params (int, optional): Number of parameters for activation function. Defaults to 3.
-            af_uniform_range (list, optional): Uniform range for activation params. Defaults to [0.125, 1/3].
-            n_heads (int, optional): Number of attention heads. Defaults to 8.
-            checkpoint_encoder (bool, optional): Whether to checkpoint encoder. Defaults to False.
-            shrink_size (int, optional): Shrink size. Defaults to None.
-            temporal_horizon (int, optional): Temporal horizon. Defaults to 0.
-            predictor_layers (int, optional): Number of layers in predictor. Defaults to None.
         """
-        super(DeepDecoderAttentionModel, self).__init__(
-            embedding_dim,
-            hidden_dim,
-            problem,
-            encoder_class,
-            n_encode_layers,
-            n_encode_sublayers,
-            dropout_rate,
-            aggregation,
-            aggregation_graph,
-            tanh_clipping,
-            mask_inner,
-            mask_logits,
-            mask_graph,
-            normalization,
-            norm_learn_affine,
-            norm_track_stats,
-            norm_eps_alpha,
-            norm_momentum_beta,
-            lrnorm_k,
-            gnorm_groups,
-            activation_function,
-            af_param,
-            af_threshold,
-            af_replacement_value,
-            af_num_params,
-            af_uniform_range,
-            n_heads,
-            checkpoint_encoder,
-            shrink_size,
-            temporal_horizon,
+        super(AttentionModel, self).__init__()
+        self._init_parameters(
+            embedding_dim=embedding_dim,
+            hidden_dim=hidden_dim,
+            problem=problem,
+            n_heads=n_heads,
+            pomo_size=pomo_size,
+            checkpoint_encoder=checkpoint_encoder,
+            aggregation_graph=aggregation_graph,
+            temporal_horizon=temporal_horizon,
+            tanh_clipping=tanh_clipping,
         )
+
+        step_context_dim = self._init_context_embedder(temporal_horizon)
+
+        self._init_components(
+            component_factory=component_factory,
+            step_context_dim=step_context_dim,
+            n_encode_layers=n_encode_layers,
+            n_encode_sublayers=n_encode_sublayers,
+            dropout_rate=dropout_rate,
+            normalization=normalization,
+            norm_eps_alpha=norm_eps_alpha,
+            norm_learn_affine=norm_learn_affine,
+            norm_track_stats=norm_track_stats,
+            norm_momentum_beta=norm_momentum_beta,
+            lrnorm_k=lrnorm_k,
+            gnorm_groups=gnorm_groups,
+            activation_function=activation_function,
+            af_param=af_param,
+            af_threshold=af_threshold,
+            af_replacement_value=af_replacement_value,
+            af_num_params=af_num_params,
+            af_uniform_range=af_uniform_range,
+            aggregation=aggregation,
+            connection_type=connection_type,
+            hyper_expansion=hyper_expansion,
+            tanh_clipping=tanh_clipping,
+            mask_inner=mask_inner,
+            mask_logits=mask_logits,
+            mask_graph=mask_graph,
+            shrink_size=shrink_size,
+            spatial_bias=spatial_bias,
+            spatial_bias_scale=spatial_bias_scale,
+        )
+        self.n_decode_layers = n_decode_layers
         self.n_decode_layers = n_decode_layers
         self.decoder = GraphAttentionDecoder(
             n_heads=self.n_heads,
             embed_dim=self.embedding_dim,
             n_layers=self.n_decode_layers,
             feed_forward_hidden=self.hidden_dim,
-            normalization=self.normalization,
-            epsilon_alpha=self.epsilon_alpha,
-            learn_affine=self.learn_affine,
-            track_stats=self.track_stats,
-            momentum_beta=self.momentum_beta,
-            locresp_k=self.locresp_k,
-            n_groups=self.n_groups,
-            activation=self.activation,
-            af_param=self.af_param,
-            threshold=self.threshold,
-            replacement_value=self.replacement_value,
-            n_params=self.n_params,
-            uniform_range=self.uniform_range,
-            dropout_rate=self.dropout_rate,
+            normalization=normalization,
+            epsilon_alpha=norm_eps_alpha,
+            learn_affine=norm_learn_affine,
+            track_stats=norm_track_stats,
+            momentum_beta=norm_momentum_beta,
+            locresp_k=lrnorm_k,
+            n_groups=gnorm_groups,
+            activation=activation_function,
+            af_param=af_param,
+            threshold=af_threshold,
+            replacement_value=af_replacement_value,
+            n_params=af_num_params,
+            uniform_range=af_uniform_range,
+            dropout_rate=dropout_rate,
         )
         self.project_node_embeddings = nn.Linear(embedding_dim, embedding_dim, bias=False)
 

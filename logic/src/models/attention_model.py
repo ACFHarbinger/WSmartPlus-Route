@@ -11,6 +11,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint
 
+from logic.src.constants.models import NODE_DIM
 from logic.src.models.context_embedder import (
     ContextEmbedder,
     VRPPContextEmbedder,
@@ -19,6 +20,7 @@ from logic.src.models.context_embedder import (
 from logic.src.models.model_factory import NeuralComponentFactory
 from logic.src.utils.functions.beam_search import CachedLookup
 from logic.src.utils.functions.function import sample_many
+from logic.src.utils.functions.problem import is_vrpp_problem, is_wc_problem
 
 
 class AttentionModel(nn.Module):
@@ -115,39 +117,128 @@ class AttentionModel(nn.Module):
             hyper_expansion: Expansion factor for hypernetworks. Defaults to 4.
         """
         super(AttentionModel, self).__init__()
-        self.n_heads = n_heads
+        self._init_parameters(
+            embedding_dim=embedding_dim,
+            hidden_dim=hidden_dim,
+            problem=problem,
+            n_heads=n_heads,
+            pomo_size=pomo_size,
+            checkpoint_encoder=checkpoint_encoder,
+            aggregation_graph=aggregation_graph,
+            temporal_horizon=temporal_horizon,
+            tanh_clipping=tanh_clipping,
+        )
+
+        step_context_dim = self._init_context_embedder(temporal_horizon)
+
+        self._init_components(
+            component_factory=component_factory,
+            step_context_dim=step_context_dim,
+            n_encode_layers=n_encode_layers,
+            n_encode_sublayers=n_encode_sublayers,
+            dropout_rate=dropout_rate,
+            normalization=normalization,
+            norm_eps_alpha=norm_eps_alpha,
+            norm_learn_affine=norm_learn_affine,
+            norm_track_stats=norm_track_stats,
+            norm_momentum_beta=norm_momentum_beta,
+            lrnorm_k=lrnorm_k,
+            gnorm_groups=gnorm_groups,
+            activation_function=activation_function,
+            af_param=af_param,
+            af_threshold=af_threshold,
+            af_replacement_value=af_replacement_value,
+            af_num_params=af_num_params,
+            af_uniform_range=af_uniform_range,
+            aggregation=aggregation,
+            connection_type=connection_type,
+            hyper_expansion=hyper_expansion,
+            tanh_clipping=tanh_clipping,
+            mask_inner=mask_inner,
+            mask_logits=mask_logits,
+            mask_graph=mask_graph,
+            shrink_size=shrink_size,
+            spatial_bias=spatial_bias,
+            spatial_bias_scale=spatial_bias_scale,
+        )
+
+    def _init_parameters(
+        self,
+        embedding_dim: int,
+        hidden_dim: int,
+        problem: Any,
+        n_heads: int,
+        pomo_size: int,
+        checkpoint_encoder: bool,
+        aggregation_graph: str,
+        temporal_horizon: int,
+        tanh_clipping: float,
+    ) -> None:
+        """Initialize basic model parameters."""
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
-
         self.problem = problem
+        self.n_heads = n_heads
         self.pomo_size = pomo_size
         self.checkpoint_encoder = checkpoint_encoder
         self.aggregation_graph = aggregation_graph
         self.temporal_horizon = temporal_horizon
+        self.tanh_clipping = tanh_clipping
+        self.temp = 1.0  # Default temperature
 
-        # Initialize Context Embedder Strategy
-        self.is_wc = (
-            problem.NAME == "wcvrp"
-            or problem.NAME == "cwcvrp"
-            or problem.NAME == "sdwcvrp"
-            or problem.NAME == "scwcvrp"
-        )
-        self.is_vrpp = problem.NAME == "vrpp" or problem.NAME == "cvrpp"
-        node_dim = 3
+        # Problem type detection
+        self.is_wc = is_wc_problem(problem)
+        self.is_vrpp = is_vrpp_problem(problem)
+
+    def _init_context_embedder(self, temporal_horizon: int) -> int:
+        """Initialize the context embedder strategy."""
+        node_dim = NODE_DIM  # Coordinate (2) + Demand/Value (1)
         if self.is_wc:
             self.context_embedder: ContextEmbedder = WCContextEmbedder(
-                embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
+                self.embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
             )
         else:
             self.context_embedder = VRPPContextEmbedder(
-                embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
+                self.embedding_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
             )
+        return self.context_embedder.step_context_dim
 
-        step_context_dim = self.context_embedder.step_context_dim
-
-        # Use Factory to create components
+    def _init_components(
+        self,
+        component_factory: NeuralComponentFactory,
+        step_context_dim: int,
+        n_encode_layers: int,
+        n_encode_sublayers: Optional[int],
+        dropout_rate: float,
+        normalization: str,
+        norm_eps_alpha: float,
+        norm_learn_affine: bool,
+        norm_track_stats: bool,
+        norm_momentum_beta: float,
+        lrnorm_k: float,
+        gnorm_groups: int,
+        activation_function: str,
+        af_param: float,
+        af_threshold: float,
+        af_replacement_value: float,
+        af_num_params: int,
+        af_uniform_range: List[float],
+        aggregation: str,
+        connection_type: str,
+        hyper_expansion: int,
+        tanh_clipping: float,
+        mask_inner: bool,
+        mask_logits: bool,
+        mask_graph: bool,
+        shrink_size: Optional[int],
+        spatial_bias: bool,
+        spatial_bias_scale: float,
+    ) -> None:
+        """Initialize encoder and decoder components using the factory."""
         if not isinstance(component_factory, NeuralComponentFactory):
-            pass
+            raise ValueError(
+                f"component_factory must be an instance of NeuralComponentFactory, got {type(component_factory)}"
+            )
 
         encoder_kwargs = {
             "n_heads": self.n_heads,
@@ -179,19 +270,18 @@ class AttentionModel(nn.Module):
         self.decoder = component_factory.create_decoder(
             embedding_dim=self.embedding_dim,
             hidden_dim=self.hidden_dim,
-            problem=problem,
+            problem=self.problem,
             n_heads=self.n_heads,
             tanh_clipping=tanh_clipping,
             mask_inner=mask_inner,
             mask_logits=mask_logits,
             mask_graph=mask_graph,
             shrink_size=shrink_size,
-            pomo_size=pomo_size,
+            pomo_size=self.pomo_size,
             spatial_bias=spatial_bias,
             spatial_bias_scale=spatial_bias_scale,
         )
 
-        # Configure decoder step context
         if hasattr(self.decoder, "set_step_context_dim"):
             self.decoder.set_step_context_dim(step_context_dim)
 
