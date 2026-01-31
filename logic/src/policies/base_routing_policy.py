@@ -77,7 +77,7 @@ class BaseRoutingPolicy(IPolicy):
         Returns:
             Tuple of (capacity, revenue, cost_unit, merged_values_dict)
         """
-        from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
+        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 
         config_key = self._get_config_key()
         policy_config = config.get(config_key, {})

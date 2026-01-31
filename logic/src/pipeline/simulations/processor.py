@@ -44,7 +44,9 @@ from logic.src.utils.functions.graph_utils import (
     get_edge_idx_dist,
 )
 
-from .loader import load_area_and_waste_type_params, load_depot, load_simulator_data
+from .loader import load_depot, load_simulator_data
+
+# from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 from .network import (
     apply_edges,
     compute_distance_matrix,
@@ -407,6 +409,8 @@ class SimulationDataMapper:
             edges = edges.unsqueeze(0).to(device, dtype=dtype)
         else:
             edges = None
+
+        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 
         (
             VEHICLE_CAPACITY,

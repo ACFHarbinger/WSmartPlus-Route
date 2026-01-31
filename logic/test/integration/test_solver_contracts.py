@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from logic.src.policies.hybrid_genetic_search import run_hgs
 from logic.src.policies.multi_vehicle import find_routes, find_routes_ortools
-from logic.src.policies.policy_vrpp import run_vrpp_optimizer
+from logic.src.policies.adapters.policy_vrpp import run_vrpp_optimizer
 
 
 @pytest.fixture

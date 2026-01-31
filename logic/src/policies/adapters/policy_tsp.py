@@ -9,9 +9,9 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-from .adapters import PolicyRegistry
-from .base_routing_policy import BaseRoutingPolicy
-from .single_vehicle import find_route, get_multi_tour
+from ..base_routing_policy import BaseRoutingPolicy
+from ..single_vehicle import find_route, get_multi_tour
+from .factory import PolicyRegistry
 
 
 @PolicyRegistry.register("tsp")
