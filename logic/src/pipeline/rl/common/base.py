@@ -15,6 +15,9 @@ from torch.utils.data import DataLoader
 from logic.src.data.datasets import tensordict_collate_fn
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.utils.logging.pylogger import get_pylogger
+
+logger = get_pylogger(__name__)
 
 
 class RL4COLitModule(pl.LightningModule, ABC):
@@ -118,17 +121,11 @@ class RL4COLitModule(pl.LightningModule, ABC):
         # Convert hparams to a serializable dict
         # Filter out non-serializable objects (env, policy) if they were not ignored
         hparams_dict = {}
-        for k, v in self.hparams.items():
-            if isinstance(v, (int, float, str, bool, list, dict)) or v is None:
-                hparams_dict[k] = v
-            elif hasattr(v, "__str__"):
-                hparams_dict[k] = str(v)
-
         try:
             with open(args_path, "w") as f:
                 json.dump(hparams_dict, f, indent=4)
-        except Exception as e:
-            print(f"Warning: Could not save sidecar args.json: {e}")
+        except (OSError, TypeError, ValueError) as e:
+            logger.warning(f"Could not save sidecar args.json: {e}")
 
         # Save full Hydra config if available
         if hasattr(self, "cfg") and self.cfg is not None:
@@ -137,8 +134,8 @@ class RL4COLitModule(pl.LightningModule, ABC):
                 from omegaconf import OmegaConf
 
                 OmegaConf.save(config=self.cfg, f=config_path)
-            except Exception as e:
-                print(f"Warning: Could not save config.yaml: {e}")
+            except (OSError, ImportError, Exception) as e:
+                logger.warning(f"Could not save config.yaml: {e}")
 
     def _init_baseline(self):
         """Initialize baseline for advantage estimation."""
@@ -205,20 +202,10 @@ class RL4COLitModule(pl.LightningModule, ABC):
         self._current_baseline_val = baseline_val
 
         # env.reset expects data on the environment's device.
-        # Ensure batch is a TensorDict (converting from dict if necessary).
-        if isinstance(batch, (dict, TensorDict)):
-            if "data" in batch.keys():
-                # Handling BaselineDataset wrapped output
-                td_data = batch["data"]
-                if not isinstance(td_data, TensorDict):
-                    td_data = TensorDict(td_data, batch_size=[len(next(iter(td_data.values())))])
-                td = self.env.reset(td_data.to(self.device))
-            else:
-                # Direct dict from TensorDict.to_dict() collation
-                td_batch = TensorDict(batch, batch_size=[len(next(iter(batch.values())))])
-                td = self.env.reset(td_batch.to(self.device))
-        else:
-            td = self.env.reset(batch.to(self.device))
+        from logic.src.utils.functions.rl import ensure_tensordict
+
+        td = ensure_tensordict(batch, self.device)
+        td = self.env.reset(td)
 
         # Run policy
         out = self.policy(

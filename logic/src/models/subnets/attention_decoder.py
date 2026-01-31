@@ -165,6 +165,24 @@ class AttentionDecoder(nn.Module):
         mask: Optional[torch.Tensor] = None,
         expert_pi: Optional[torch.Tensor] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Internal implementation of the constructive decoding loop.
+
+        Args:
+            nodes (Union[torch.Tensor, dict]): Initial node features or dictionary.
+            edges (torch.Tensor, optional): Edge information/adj matrix.
+            embeddings (torch.Tensor): Encoded node embeddings [batch_size, num_nodes, embedding_dim].
+            cost_weights (torch.Tensor, optional): Adaptive cost weights [batch_size, num_costs].
+            dist_matrix (torch.Tensor, optional): Distance matrix [batch_size, num_nodes, num_nodes].
+            profit_vars (torch.Tensor, optional): Profit variables for VRPP.
+            mask (torch.Tensor, optional): External constraint mask [batch_size, num_nodes].
+            expert_pi (torch.Tensor, optional): Expert actions for Teacher Forcing [batch_size, seq_len].
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]:
+                - log_p (torch.Tensor): Log probabilities of sequence [batch_size, seq_len, num_nodes].
+                - actions (torch.Tensor): Selected action indices [batch_size, seq_len].
+        """
         outputs = []
         sequences = []
         state = self.problem.make_state(

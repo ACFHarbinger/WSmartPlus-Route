@@ -44,8 +44,8 @@ class ContextEmbedder(nn.Module, ABC):
         Args:
             input (dict): Input data dictionary.
 
-        Raises:
-            NotImplementedError: Must be implemented by subclasses.
+        Returns:
+            torch.Tensor: Initial node embeddings [batch_size, num_nodes + 1, embedding_dim].
         """
         raise NotImplementedError()
 
@@ -112,8 +112,8 @@ class WCContextEmbedder(ContextEmbedder):
         # nodes['loc']: [batch, graph_size, 2]
         # nodes[feat]: [batch, graph_size]
 
-        locs_key = "locs" if "locs" in nodes.keys() else "loc"
-        node_features = torch.cat((nodes[locs_key], *(nodes[feat][:, :, None] for feat in features)), -1)
+        locs_key = "locs" if "locs" in input.keys() else "loc"
+        node_features = torch.cat((input[locs_key], *(input[feat][:, :, None] for feat in features)), -1)
 
         # Embed depot and nodes
         return torch.cat(
@@ -190,8 +190,8 @@ class VRPPContextEmbedder(ContextEmbedder):
         else:
             features = (waste_key,)
 
-        locs_key = "locs" if "locs" in nodes.keys() else "loc"
-        node_features = torch.cat((nodes[locs_key], *(nodes[feat][:, :, None] for feat in features)), -1)
+        locs_key = "locs" if "locs" in input.keys() else "loc"
+        node_features = torch.cat((input[locs_key], *(input[feat][:, :, None] for feat in features)), -1)
 
         return torch.cat(
             (
