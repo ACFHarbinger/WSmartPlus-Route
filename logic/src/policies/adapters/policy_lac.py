@@ -8,11 +8,11 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-from .adapters import PolicyRegistry
-from .base_routing_policy import BaseRoutingPolicy
-from .look_ahead_aux.routes import create_points
-from .look_ahead_aux.solutions import find_solutions
-from .single_vehicle import get_route_cost
+from ..base_routing_policy import BaseRoutingPolicy
+from ..look_ahead_aux.route_search import find_solutions
+from ..look_ahead_aux.routes import create_points
+from ..single_vehicle import get_route_cost
+from .factory import PolicyRegistry
 
 
 @PolicyRegistry.register("lac")

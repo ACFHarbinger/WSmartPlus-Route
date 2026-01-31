@@ -38,8 +38,8 @@ import numpy as np
 from gurobipy import GRB, quicksum
 from numpy.typing import NDArray
 
-from .adapters import PolicyRegistry
-from .base_routing_policy import BaseRoutingPolicy
+from ..base_routing_policy import BaseRoutingPolicy
+from .factory import PolicyRegistry
 
 
 # Retaining the complex static solver functions outside the class
@@ -451,7 +451,7 @@ class VRPPPolicy(BaseRoutingPolicy):
         capacity, revenue, cost_unit, _ = self._load_area_params(area, waste_type, config)
         values = {"Q": capacity, "R": revenue, "C": cost_unit, "B": 0.0, "V": 1.0}
 
-        from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
+        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 
         Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
         values = {"Q": Q, "R": R, "B": B, "C": C, "V": V}

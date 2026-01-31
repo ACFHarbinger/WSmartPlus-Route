@@ -23,6 +23,8 @@ Classes:
 from abc import ABC, abstractmethod
 from typing import Any
 
+from loguru import logger
+
 from logic.src.constants import ROOT_DIR
 from logic.src.pipeline.simulations.day import get_daily_results
 from logic.src.policies.adapters import PolicyFactory
@@ -438,8 +440,8 @@ class PostProcessAction(SimulationAction):
                             pp_name = k
                             if isinstance(v, dict):
                                 pp_params.update(v)
-                    except Exception as e:
-                        print(f"Error loading post_processing config {item}: {e}")
+                    except (OSError, ValueError) as e:
+                        logger.warning(f"Error loading post_processing config {item}: {e}")
                         continue
                 else:
                     pp_name = item
@@ -466,7 +468,7 @@ class PostProcessAction(SimulationAction):
                         context["cost"] = new_cost
 
                 except Exception as e:
-                    print(f"Post-processing {pp_name} skipped due to error: {e}")
+                    logger.warning(f"Post-processing {pp_name} skipped due to error: {e}")
 
 
 class CollectAction(SimulationAction):

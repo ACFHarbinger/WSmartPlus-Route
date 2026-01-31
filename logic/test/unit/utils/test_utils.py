@@ -42,11 +42,12 @@ from logic.src.utils.logging.log_utils import (
     log_epoch,
     log_to_json,
     log_to_json2,
-    log_training,
+
     log_values,
     output_stats,
     runs_per_policy,
 )
+from logic.src.utils.logging.log_visualization import log_training
 
 # Imports from project
 from logic.src.utils.validation.debug_utils import watch
@@ -246,8 +247,8 @@ class TestLogUtils:
         log_epoch(x_tup, loss_keys, epoch_loss, opts)
         assert mock_wandb.log.called
 
-    @patch("logic.src.utils.logging.log_utils.wandb")
-    @patch("logic.src.utils.logging.log_utils.plt")
+    @patch("logic.src.utils.logging.log_visualization.wandb")
+    @patch("logic.src.utils.logging.log_visualization.plt")
     def test_log_training(self, mock_plt, mock_wandb):
         """Test log_training with mocked components."""
         opts = {

@@ -13,11 +13,11 @@ from logic.src.policies import single_vehicle
 from logic.src.policies.adapters import PolicyRegistry
 from logic.src.policies.hybrid_genetic_search import run_hgs
 from logic.src.policies.multi_vehicle import find_routes, find_routes_ortools
-from logic.src.policies.policy_vrpp import run_vrpp_optimizer
-from logic.src.policies.policy_alns import run_alns, ALNSPolicy
-from logic.src.policies.policy_bcp import run_bcp, BCPPolicy
-from logic.src.policies.policy_hgs import HGSPolicy
-from logic.src.policies.policy_lkh import LKHPolicy
+from logic.src.policies.adapters.policy_vrpp import run_vrpp_optimizer
+from logic.src.policies.adapters.policy_alns import run_alns, ALNSPolicy
+from logic.src.policies.adapters.policy_bcp import run_bcp, BCPPolicy
+from logic.src.policies.adapters.policy_hgs import HGSPolicy
+from logic.src.policies.adapters.policy_lkh import LKHPolicy
 from logic.src.policies.lin_kernighan import solve_lk
 
 
@@ -59,14 +59,14 @@ class TestPolicyAdapters:
 
     @pytest.fixture(autouse=True)
     def mock_loader(self):
-        with patch("logic.src.pipeline.simulations.loader.load_area_and_waste_type_params") as mock_load:
+        with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_load:
             # Q, R, _, C, _
             mock_load.return_value = (100.0, 1.0, None, 1.0, None)
             yield mock_load
 
     @pytest.mark.unit
     def test_alns_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.policy_alns.run_alns") as mock_run:
+        with patch("logic.src.policies.adapters.policy_alns.run_alns") as mock_run:
             mock_run.return_value = ([[1]], 10.0, 5.0)
             policy = PolicyRegistry.get("alns")()
             assert isinstance(policy, ALNSPolicy)
@@ -76,7 +76,7 @@ class TestPolicyAdapters:
 
     @pytest.mark.unit
     def test_bcp_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.policy_bcp.run_bcp") as mock_run:
+        with patch("logic.src.policies.adapters.policy_bcp.run_bcp") as mock_run:
             mock_run.return_value = ([[1]], 10.0)
             policy = PolicyRegistry.get("bcp")()
             assert isinstance(policy, BCPPolicy)
@@ -86,7 +86,7 @@ class TestPolicyAdapters:
 
     @pytest.mark.unit
     def test_hgs_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.policy_hgs.run_hgs") as mock_run:
+        with patch("logic.src.policies.adapters.policy_hgs.run_hgs") as mock_run:
             mock_run.return_value = ([[1]], 10.0, 5.0)
             policy = PolicyRegistry.get("hgs")()
             assert isinstance(policy, HGSPolicy)
@@ -96,7 +96,7 @@ class TestPolicyAdapters:
 
     @pytest.mark.unit
     def test_lkh_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.policy_lkh.solve_lk") as mock_run:
+        with patch("logic.src.policies.adapters.policy_lkh.solve_lk") as mock_run:
             mock_run.return_value = ([0, 1, 0], 5.0)
             policy = PolicyRegistry.get("lkh")()
             assert isinstance(policy, LKHPolicy)

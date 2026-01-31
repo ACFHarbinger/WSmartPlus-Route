@@ -3,8 +3,8 @@ import pytest
 from unittest.mock import MagicMock, patch
 import numpy as np
 from logic.src.policies.adapters import PolicyRegistry
-from logic.src.policies.policy_tsp import TSPPolicy
-from logic.src.policies.policy_cvrp import CVRPPolicy
+from logic.src.policies.adapters.policy_tsp import TSPPolicy
+from logic.src.policies.adapters.policy_cvrp import CVRPPolicy
 
 class MockBins:
     def __init__(self, n=5):
