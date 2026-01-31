@@ -6,7 +6,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from logic.src.constants.models import DEFAULT_TEMPORAL_HORIZON, STATIC_DIM
+from logic.src.constants.models import (
+    DEFAULT_TEMPORAL_HORIZON,
+    FEED_FORWARD_EXPANSION,
+    STATIC_DIM,
+)
 from logic.src.constants.waste import CRITICAL_FILL_THRESHOLD
 from logic.src.utils.logging.pylogger import get_pylogger
 
@@ -109,7 +113,7 @@ class GATLSTManager(nn.Module):
             encoder_layer = nn.TransformerEncoderLayer(
                 d_model=hidden_dim,
                 nhead=num_heads,
-                dim_feedforward=hidden_dim * 4,
+                dim_feedforward=hidden_dim * FEED_FORWARD_EXPANSION,
                 dropout=dropout,
                 batch_first=True,
             )

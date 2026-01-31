@@ -19,3 +19,8 @@ VRPP_STEP_CONTEXT_OFFSET: int = 1
 
 # Temporal defaults
 DEFAULT_TEMPORAL_HORIZON: int = 10
+
+# Architecture Constants
+TANH_CLIPPING: float = 10.0
+NORM_EPSILON: float = 1e-5
+FEED_FORWARD_EXPANSION: int = 4

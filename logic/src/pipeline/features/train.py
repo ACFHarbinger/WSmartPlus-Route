@@ -52,6 +52,32 @@ cs = ConfigStore.instance()
 cs.store(name="config", node=Config)
 
 
+def _remap_legacy_keys(common_kwargs: Dict[str, Any], cfg: Config) -> None:
+    """Remap config keys to legacy names for simulation compatibility."""
+    # The simulation's load_model expects legacy key names
+    common_kwargs["problem"] = cfg.env.name
+    common_kwargs["model"] = cfg.model.name
+    common_kwargs["encoder"] = cfg.model.encoder_type
+    common_kwargs["embedding_dim"] = cfg.model.embed_dim
+    common_kwargs["n_encode_layers"] = cfg.model.num_encoder_layers
+    common_kwargs["n_encode_sublayers"] = cfg.model.num_encoder_sublayers
+    common_kwargs["n_decode_layers"] = cfg.model.num_decoder_layers
+    common_kwargs["n_heads"] = cfg.model.num_heads
+    common_kwargs["n_predict_layers"] = cfg.model.num_predictor_layers
+    common_kwargs["learn_affine"] = cfg.model.learn_affine
+    common_kwargs["track_stats"] = cfg.model.track_stats
+    common_kwargs["epsilon_alpha"] = cfg.model.epsilon_alpha
+    common_kwargs["momentum_beta"] = cfg.model.momentum_beta
+    common_kwargs["af_param"] = cfg.model.activation_param
+    common_kwargs["af_threshold"] = cfg.model.activation_threshold
+    common_kwargs["af_replacement"] = cfg.model.activation_replacement
+    common_kwargs["af_nparams"] = cfg.model.activation_num_parameters
+    common_kwargs["af_urange"] = cfg.model.activation_uniform_range
+    common_kwargs["aggregation"] = cfg.model.aggregation_node
+    common_kwargs["aggregation_graph"] = cfg.model.aggregation_graph
+    common_kwargs["hidden_dim"] = cfg.model.hidden_dim
+
+
 def create_model(cfg: Config) -> pl.LightningModule:
     """Helper to create the RL model based on config."""
     # 1. Initialize Environment
@@ -152,28 +178,8 @@ def create_model(cfg: Config) -> pl.LightningModule:
     common_kwargs["baseline"] = cfg.rl.baseline
 
     # REMAPPING FOR SIMULATION COMPATIBILITY (args.json)
-    # The simulation's load_model expects legacy key names
-    common_kwargs["problem"] = cfg.env.name
-    common_kwargs["model"] = cfg.model.name
-    common_kwargs["encoder"] = cfg.model.encoder_type
-    common_kwargs["embedding_dim"] = cfg.model.embed_dim
-    common_kwargs["n_encode_layers"] = cfg.model.num_encoder_layers
-    common_kwargs["n_encode_sublayers"] = cfg.model.num_encoder_sublayers
-    common_kwargs["n_decode_layers"] = cfg.model.num_decoder_layers
-    common_kwargs["n_heads"] = cfg.model.num_heads
-    common_kwargs["n_predict_layers"] = cfg.model.num_predictor_layers
-    common_kwargs["learn_affine"] = cfg.model.learn_affine
-    common_kwargs["track_stats"] = cfg.model.track_stats
-    common_kwargs["epsilon_alpha"] = cfg.model.epsilon_alpha
-    common_kwargs["momentum_beta"] = cfg.model.momentum_beta
-    common_kwargs["af_param"] = cfg.model.activation_param
-    common_kwargs["af_threshold"] = cfg.model.activation_threshold
-    common_kwargs["af_replacement"] = cfg.model.activation_replacement
-    common_kwargs["af_nparams"] = cfg.model.activation_num_parameters
-    common_kwargs["af_urange"] = cfg.model.activation_uniform_range
-    common_kwargs["aggregation"] = cfg.model.aggregation_node
-    common_kwargs["aggregation_graph"] = cfg.model.aggregation_graph
-    common_kwargs["hidden_dim"] = cfg.model.hidden_dim
+    # REMAPPING FOR SIMULATION COMPATIBILITY (args.json)
+    _remap_legacy_keys(common_kwargs, cfg)
 
     # SANITIZATION: Ensure all values are primitives to satisfy YAML serialization
     # Recursively convert DictConfig/ListConfig/integers/floats/strings
