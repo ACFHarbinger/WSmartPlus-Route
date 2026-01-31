@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -443,11 +442,11 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.cs"><code class="docutils literal notranslate"><span class="pre">cs</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train._remap_legacy_keys"><code class="docutils literal notranslate"><span class="pre">_remap_legacy_keys()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.create_model"><code class="docutils literal notranslate"><span class="pre">create_model()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.objective"><code class="docutils literal notranslate"><span class="pre">objective()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.run_hpo"><code class="docutils literal notranslate"><span class="pre">run_hpo()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.run_training"><code class="docutils literal notranslate"><span class="pre">run_training()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -472,20 +471,20 @@ document.write(`
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.create_model" title="src.pipeline.features.train.create_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_model</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train._remap_legacy_keys" title="src.pipeline.features.train._remap_legacy_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_remap_legacy_keys</span></code></a></p></td>
+<td><p>Remap config keys to legacy names for simulation compatibility.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.create_model" title="src.pipeline.features.train.create_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_model</span></code></a></p></td>
 <td><p>Helper to create the RL model based on config.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.objective" title="src.pipeline.features.train.objective"><code class="xref py py-obj docutils literal notranslate"><span class="pre">objective</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.objective" title="src.pipeline.features.train.objective"><code class="xref py py-obj docutils literal notranslate"><span class="pre">objective</span></code></a></p></td>
 <td><p>Optuna objective function for HPO.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.run_hpo" title="src.pipeline.features.train.run_hpo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_hpo</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.run_hpo" title="src.pipeline.features.train.run_hpo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_hpo</span></code></a></p></td>
 <td><p>Run Hyperparameter Optimization.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.run_training" title="src.pipeline.features.train.run_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_training</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.run_training" title="src.pipeline.features.train.run_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_training</span></code></a></p></td>
 <td><p>Run single model training.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.main" title="src.pipeline.features.train.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td><p>Unified entry point.</p></td>
 </tr>
 </tbody>
 </table>
@@ -520,6 +519,12 @@ document.write(`
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.train._remap_legacy_keys">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.</span></span><span class="sig-name descname"><span class="pre">_remap_legacy_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">common_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.train._remap_legacy_keys" title="Link to this definition">#</a></dt>
+<dd><p>Remap config keys to legacy names for simulation compatibility.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.train.create_model">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.</span></span><span class="sig-name descname"><span class="pre">create_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pytorch_lightning.LightningModule</span></span></span><a class="headerlink" href="#src.pipeline.features.train.create_model" title="Link to this definition">#</a></dt>
 <dd><p>Helper to create the RL model based on config.</p>
@@ -541,12 +546,6 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.features.train.run_training">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.</span></span><span class="sig-name descname"><span class="pre">run_training</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.pipeline.features.train.run_training" title="Link to this definition">#</a></dt>
 <dd><p>Run single model training.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.features.train.main">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.pipeline.features.train.main" title="Link to this definition">#</a></dt>
-<dd><p>Unified entry point.</p>
 </dd></dl>
 
 </section>
@@ -604,11 +603,11 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.cs"><code class="docutils literal notranslate"><span class="pre">cs</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train._remap_legacy_keys"><code class="docutils literal notranslate"><span class="pre">_remap_legacy_keys()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.create_model"><code class="docutils literal notranslate"><span class="pre">create_model()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.objective"><code class="docutils literal notranslate"><span class="pre">objective()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.run_hpo"><code class="docutils literal notranslate"><span class="pre">run_hpo()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.run_training"><code class="docutils literal notranslate"><span class="pre">run_training()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
 </ul>

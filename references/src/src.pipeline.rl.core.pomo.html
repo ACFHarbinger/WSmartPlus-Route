@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -461,8 +460,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.core.pomo">
 <span id="src-pipeline-rl-core-pomo"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.core.pomo" title="src.pipeline.rl.core.pomo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.pomo</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.core.pomo" title="Link to this heading">#</a></h1>
-<p>POMO (Policy Optimization with Multiple Optima) implementation.
-Based on Kwon et al. (2020) and Adapted from RL4CO.</p>
+<p>POMO (Policy Optimization with Multiple Optima) implementation.</p>
+<p>Reference:
+Kwon, Y. D., Choo, J., Kim, B., Yoon, I., Gwon, Y., &amp; Min, S. (2020).
+POMO: Policy Optimization with Multiple Optima for Neural Combinatorial Optimization.
+Advances in Neural Information Processing Systems, 33, 21188-21198.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -489,6 +491,11 @@ Based on Kwon et al. (2020) and Adapted from RL4CO.</p>
 <li><p>Multi-start decoding</p></li>
 <li><p>Shared baseline across starts</p></li>
 </ul>
+<p>Reference:
+Kwon, Y. D., Choo, J., Kim, B., Yoon, I., Gwon, Y., &amp; Min, S. (2020).
+POMO: Policy Optimization with Multiple Optima for Reinforcement Learning.
+NeurIPS 2020. arXiv:2010.16011
+https://arxiv.org/abs/2010.16011</p>
 <p class="rubric">Initialization</p>
 <p>Initialize POMO module.</p>
 <p>Args:

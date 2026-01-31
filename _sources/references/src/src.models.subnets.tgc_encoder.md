@@ -15,12 +15,12 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`FeedForwardSubLayer <src.models.subnets.tgc_encoder.FeedForwardSubLayer>`
-  - ```{autodoc2-docstring} src.models.subnets.tgc_encoder.FeedForwardSubLayer
+* - {py:obj}`TGCFeedForwardSubLayer <src.models.subnets.tgc_encoder.TGCFeedForwardSubLayer>`
+  - ```{autodoc2-docstring} src.models.subnets.tgc_encoder.TGCFeedForwardSubLayer
     :summary:
     ```
-* - {py:obj}`MultiHeadAttentionLayer <src.models.subnets.tgc_encoder.MultiHeadAttentionLayer>`
-  - ```{autodoc2-docstring} src.models.subnets.tgc_encoder.MultiHeadAttentionLayer
+* - {py:obj}`TGCMultiHeadAttentionLayer <src.models.subnets.tgc_encoder.TGCMultiHeadAttentionLayer>`
+  - ```{autodoc2-docstring} src.models.subnets.tgc_encoder.TGCMultiHeadAttentionLayer
     :summary:
     ```
 * - {py:obj}`FFConvSubLayer <src.models.subnets.tgc_encoder.FFConvSubLayer>`
@@ -39,48 +39,48 @@
 
 ### API
 
-`````{py:class} FeedForwardSubLayer(embed_dim, feed_forward_hidden, activation, af_param, threshold, replacement_value, n_params, dist_range, bias=True)
-:canonical: src.models.subnets.tgc_encoder.FeedForwardSubLayer
+`````{py:class} TGCFeedForwardSubLayer(embed_dim, feed_forward_hidden, activation, af_param, threshold, replacement_value, n_params, dist_range, bias=True)
+:canonical: src.models.subnets.tgc_encoder.TGCFeedForwardSubLayer
 
 Bases: {py:obj}`torch.nn.Module`
 
-```{autodoc2-docstring} src.models.subnets.tgc_encoder.FeedForwardSubLayer
+```{autodoc2-docstring} src.models.subnets.tgc_encoder.TGCFeedForwardSubLayer
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.models.subnets.tgc_encoder.FeedForwardSubLayer.__init__
+```{autodoc2-docstring} src.models.subnets.tgc_encoder.TGCFeedForwardSubLayer.__init__
 ```
 
 ````{py:method} forward(h, mask=None)
-:canonical: src.models.subnets.tgc_encoder.FeedForwardSubLayer.forward
+:canonical: src.models.subnets.tgc_encoder.TGCFeedForwardSubLayer.forward
 
-```{autodoc2-docstring} src.models.subnets.tgc_encoder.FeedForwardSubLayer.forward
+```{autodoc2-docstring} src.models.subnets.tgc_encoder.TGCFeedForwardSubLayer.forward
 ```
 
 ````
 
 `````
 
-`````{py:class} MultiHeadAttentionLayer(n_heads, embed_dim, feed_forward_hidden, normalization, epsilon_alpha, learn_affine, track_stats, mbeta, lr_k, n_groups, activation, af_param, threshold, replacement_value, n_params, uniform_range)
-:canonical: src.models.subnets.tgc_encoder.MultiHeadAttentionLayer
+`````{py:class} TGCMultiHeadAttentionLayer(n_heads, embed_dim, feed_forward_hidden, normalization, epsilon_alpha, learn_affine, track_stats, mbeta, lr_k, n_groups, activation, af_param, threshold, replacement_value, n_params, uniform_range)
+:canonical: src.models.subnets.tgc_encoder.TGCMultiHeadAttentionLayer
 
 Bases: {py:obj}`torch.nn.Module`
 
-```{autodoc2-docstring} src.models.subnets.tgc_encoder.MultiHeadAttentionLayer
+```{autodoc2-docstring} src.models.subnets.tgc_encoder.TGCMultiHeadAttentionLayer
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.models.subnets.tgc_encoder.MultiHeadAttentionLayer.__init__
+```{autodoc2-docstring} src.models.subnets.tgc_encoder.TGCMultiHeadAttentionLayer.__init__
 ```
 
 ````{py:method} forward(h, mask=None)
-:canonical: src.models.subnets.tgc_encoder.MultiHeadAttentionLayer.forward
+:canonical: src.models.subnets.tgc_encoder.TGCMultiHeadAttentionLayer.forward
 
-```{autodoc2-docstring} src.models.subnets.tgc_encoder.MultiHeadAttentionLayer.forward
+```{autodoc2-docstring} src.models.subnets.tgc_encoder.TGCMultiHeadAttentionLayer.forward
 ```
 
 ````

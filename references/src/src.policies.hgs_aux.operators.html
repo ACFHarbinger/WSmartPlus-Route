@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.pipeline.rl.core.ppo_nstep &#8212; WSmart-Route  documentation</title>
+    <title>src.policies.hgs_aux.operators &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.pipeline.rl.core.ppo_nstep';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.hgs_aux.operators';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.pipeline.rl.core.symnco" href="src.pipeline.rl.core.symnco.html" />
-    <link rel="prev" title="src.pipeline.rl.core.sapo" href="src.pipeline.rl.core.sapo.html" />
+    <link rel="next" title="src.policies.hgs_aux.operators.move_operators" href="src.policies.hgs_aux.operators.move_operators.html" />
+    <link rel="prev" title="src.policies.hgs_aux" href="src.policies.hgs_aux.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -173,10 +173,10 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns_solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></a></li>
@@ -235,14 +235,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
 </ul>
 </details></li>
@@ -343,7 +342,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.pipeline.rl.core.ppo_nstep.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.policies.hgs_aux.operators.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -427,7 +426,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.pipeline.rl.core.ppo_nstep</h1>
+    <h1>src.policies.hgs_aux.operators</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -437,15 +436,11 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.core.ppo_nstep.PPOStep"><code class="docutils literal notranslate"><span class="pre">PPOStep</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.core.ppo_nstep.PPOStep.calculate_loss"><code class="docutils literal notranslate"><span class="pre">PPOStep.calculate_loss()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.core.ppo_nstep.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.operators.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -461,27 +456,25 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.core.ppo_nstep">
-<span id="src-pipeline-rl-core-ppo-nstep"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.core.ppo_nstep" title="src.pipeline.rl.core.ppo_nstep"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.ppo_nstep</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.core.ppo_nstep" title="Link to this heading">#</a></h1>
-<p>N-step Proximal Policy Optimization (PPO).</p>
-<section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.rl.core.ppo_nstep.PPOStep" title="src.pipeline.rl.core.ppo_nstep.PPOStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PPOStep</span></code></a></p></td>
-<td><p>N-step PPO algorithm.</p></td>
-</tr>
-</tbody>
-</table>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.hgs_aux.operators">
+<span id="src-policies-hgs-aux-operators"></span><h1><a class="reference internal" href="#module-src.policies.hgs_aux.operators" title="src.policies.hgs_aux.operators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.operators</span></code></a><a class="headerlink" href="#module-src.policies.hgs_aux.operators" title="Link to this heading">#</a></h1>
+<p>HGS Local Search operators package.</p>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.hgs_aux.operators.move_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.operators.move_operators</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.hgs_aux.operators.route_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.operators.route_operators</span></code></a></li>
+</ul>
 </div>
 </section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
 <section id="data">
 <h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.rl.core.ppo_nstep.__all__" title="src.pipeline.rl.core.ppo_nstep.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.hgs_aux.operators.__all__" title="src.policies.hgs_aux.operators.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -490,33 +483,10 @@ document.write(`
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.pipeline.rl.core.ppo_nstep.PPOStep">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.core.ppo_nstep.</span></span><span class="sig-name descname"><span class="pre">PPOStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.99</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.ppo_nstep.PPOStep" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.pipeline.rl.core.ppo.PPO</span></code></p>
-<p>N-step PPO algorithm.</p>
-<p>Performs PPO updates using N-step returns for better credit assignment.</p>
-<p class="rubric">Initialization</p>
-<p>Initialize N-step PPO.</p>
-<p>Args:
-env: RL environment.
-policy: Actor network.
-critic: Critic network.
-n_steps: Number of lookahead steps.
-gamma: Discount factor.
-**kwargs: Passed to PPO super class.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.rl.core.ppo_nstep.PPOStep.calculate_loss">
-<span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.ppo_nstep.PPOStep.calculate_loss" title="Link to this definition">#</a></dt>
-<dd><p>Calculate N-step PPO loss.</p>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="py data">
-<dt class="sig sig-object py" id="src.pipeline.rl.core.ppo_nstep.__all__">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.core.ppo_nstep.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.pipeline.rl.core.ppo_nstep.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘PPOStep’]</p>
+<dt class="sig sig-object py" id="src.policies.hgs_aux.operators.__all__">
+<span class="sig-prename descclassname"><span class="pre">src.policies.hgs_aux.operators.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.hgs_aux.operators.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘move_relocate’, ‘move_swap’, ‘move_2opt_intra’, ‘move_2opt_star’, ‘move_3opt_intra’, ‘move_swap_st…</p>
 </dd></dl>
 
 </section>
@@ -535,20 +505,20 @@ gamma: Discount factor.
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.pipeline.rl.core.sapo.html"
+       href="src.policies.hgs_aux.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.sapo</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.pipeline.rl.core.symnco.html"
+       href="src.policies.hgs_aux.operators.move_operators.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.symnco</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.operators.move_operators</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -568,15 +538,11 @@ gamma: Discount factor.
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.core.ppo_nstep.PPOStep"><code class="docutils literal notranslate"><span class="pre">PPOStep</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.core.ppo_nstep.PPOStep.calculate_loss"><code class="docutils literal notranslate"><span class="pre">PPOStep.calculate_loss()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.core.ppo_nstep.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.operators.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>

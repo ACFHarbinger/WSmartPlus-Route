@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -439,7 +438,9 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager"><code class="docutils literal notranslate"><span class="pre">GATLSTManager</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.clear_memory"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.clear_memory()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.feature_processing"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.feature_processing()</span></code></a></li>
@@ -482,11 +483,28 @@ Outputs:
 </table>
 </div>
 </section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.gat_lstm_manager.logger" title="src.models.gat_lstm_manager.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.models.gat_lstm_manager.logger">
+<span class="sig-prename descclassname"><span class="pre">src.models.gat_lstm_manager.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#src.models.gat_lstm_manager.logger" title="Link to this definition">#</a></dt>
+<dd><p>‘get_pylogger(…)’</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.gat_lstm_manager.GATLSTManager">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.gat_lstm_manager.</span></span><span class="sig-name descname"><span class="pre">GATLSTManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim_static</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dim_dynamic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_input_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers_gat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_encoder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.gat_lstm_manager.GATLSTManager" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.gat_lstm_manager.</span></span><span class="sig-name descname"><span class="pre">GATLSTManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim_static</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">STATIC_DIM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dim_dynamic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">DEFAULT_TEMPORAL_HORIZON</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_input_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CRITICAL_FILL_THRESHOLD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers_gat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_encoder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.gat_lstm_manager.GATLSTManager" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Hierarchical Manager Agent for PCVRP.
 Uses LSTM to encode temporal waste patterns and GAT (Transformer) to encode spatial structure.
@@ -504,7 +522,7 @@ batch_size (int, optional): Batch size. Defaults to 1024.
 hidden_dim (int, optional): Hidden dimension size. Defaults to 128.
 lstm_hidden (int, optional): LSTM hidden dimension. Defaults to 64.
 num_layers_gat (int, optional): Number of GAT layers. Defaults to 3.
-num_heads (int, optional): Number of attention heads. Defaults to 8.
+n_heads (int, optional): Number of attention heads. Defaults to 8.
 dropout (float, optional): Dropout rate. Defaults to 0.1.
 device (str, optional): Computation device. Defaults to ‘cuda’.
 shared_encoder (nn.Module, optional): Shared encoder instance. Defaults to None.</p>
@@ -546,19 +564,6 @@ tuple: (mask_logits, gate_logits, value)
 <dt class="sig sig-object py" id="src.models.gat_lstm_manager.GATLSTManager.select_action">
 <span class="sig-name descname"><span class="pre">select_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">static</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.gat_lstm_manager.GATLSTManager.select_action" title="Link to this definition">#</a></dt>
 <dd><p>Select actions (gate and mask) based on the current state.</p>
-<p>Args:
-static (torch.Tensor): Static features (Batch, N, 2).
-dynamic (torch.Tensor): Dynamic features (Batch, N, History).
-global_features (torch.Tensor, optional): Global features. Defaults to None.
-deterministic (bool, optional): Whether to act deterministically. Defaults to False.
-threshold (float, optional): Probability threshold for gate=1 (Route) when
-deterministic. Defaults to 0.5.
-mask_threshold (float, optional): Probability threshold for mask=1 (Unmask) when
-deterministic. Defaults to 0.5.
-target_mask (torch.Tensor, optional): Expert target for mask auxiliary loss.
-Defaults to None.</p>
-<p>Returns:
-tuple: (mask_action, gate_action, value)</p>
 </dd></dl>
 
 </dd></dl>
@@ -614,7 +619,9 @@ tuple: (mask_action, gate_action, value)</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager"><code class="docutils literal notranslate"><span class="pre">GATLSTManager</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.clear_memory"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.clear_memory()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.feature_processing"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.feature_processing()</span></code></a></li>

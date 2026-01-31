@@ -27,7 +27,7 @@
 
 ### API
 
-````{py:class} MoEAttentionModel(embedding_dim, hidden_dim, problem, n_encode_layers=2, n_encode_sublayers=None, n_decode_layers=None, dropout_rate=0.1, normalization='batch', n_heads=8, num_experts=4, k=2, noisy_gating=True, **kwargs)
+````{py:class} MoEAttentionModel(embed_dim, hidden_dim, problem, n_encode_layers=2, n_encode_sublayers=None, n_decode_layers=None, dropout_rate=0.1, normalization='batch', n_heads=8, num_experts=4, k=2, noisy_gating=True, **kwargs)
 :canonical: src.models.moe_model.MoEAttentionModel
 
 Bases: {py:obj}`src.models.attention_model.AttentionModel`
@@ -43,7 +43,7 @@ Bases: {py:obj}`src.models.attention_model.AttentionModel`
 
 ````
 
-````{py:class} MoETemporalAttentionModel(embedding_dim, hidden_dim, problem, n_encode_layers=2, n_encode_sublayers=None, n_decode_layers=None, dropout_rate=0.1, normalization='batch', n_heads=8, num_experts=4, k=2, noisy_gating=True, **kwargs)
+````{py:class} MoETemporalAttentionModel(embed_dim, hidden_dim, problem, n_encode_layers=2, n_encode_sublayers=None, n_decode_layers=None, dropout_rate=0.1, normalization='batch', n_heads=8, num_experts=4, k=2, noisy_gating=True, **kwargs)
 :canonical: src.models.moe_model.MoETemporalAttentionModel
 
 Bases: {py:obj}`src.models.temporal_am.TemporalAttentionModel`

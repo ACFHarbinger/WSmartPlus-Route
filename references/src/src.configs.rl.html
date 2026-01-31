@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -440,44 +439,77 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.PPOConfig"><code class="docutils literal notranslate"><span class="pre">PPOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.PPOConfig.epochs"><code class="docutils literal notranslate"><span class="pre">PPOConfig.epochs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.PPOConfig.eps_clip"><code class="docutils literal notranslate"><span class="pre">PPOConfig.eps_clip</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.PPOConfig.value_loss_weight"><code class="docutils literal notranslate"><span class="pre">PPOConfig.value_loss_weight</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.PPOConfig.mini_batch_size"><code class="docutils literal notranslate"><span class="pre">PPOConfig.mini_batch_size</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SAPOConfig"><code class="docutils literal notranslate"><span class="pre">SAPOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SAPOConfig.tau_pos"><code class="docutils literal notranslate"><span class="pre">SAPOConfig.tau_pos</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SAPOConfig.tau_neg"><code class="docutils literal notranslate"><span class="pre">SAPOConfig.tau_neg</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GRPOConfig"><code class="docutils literal notranslate"><span class="pre">GRPOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GRPOConfig.group_size"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.group_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GRPOConfig.epsilon"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.epsilon</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GRPOConfig.epochs"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.epochs</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.POMOConfig"><code class="docutils literal notranslate"><span class="pre">POMOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.POMOConfig.num_augment"><code class="docutils literal notranslate"><span class="pre">POMOConfig.num_augment</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.POMOConfig.num_starts"><code class="docutils literal notranslate"><span class="pre">POMOConfig.num_starts</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.POMOConfig.augment_fn"><code class="docutils literal notranslate"><span class="pre">POMOConfig.augment_fn</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SymNCOConfig"><code class="docutils literal notranslate"><span class="pre">SymNCOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SymNCOConfig.alpha"><code class="docutils literal notranslate"><span class="pre">SymNCOConfig.alpha</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SymNCOConfig.beta"><code class="docutils literal notranslate"><span class="pre">SymNCOConfig.beta</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig"><code class="docutils literal notranslate"><span class="pre">ImitationConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.mode"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.mode</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.weight"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.weight</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.decay"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.decay</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.threshold"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.decay_step"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.decay_step</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.reannealing_threshold"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.reannealing_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.reannealing_patience"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.reannealing_patience</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.random_ls_iterations"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.random_ls_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.random_ls_op_probs"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.random_ls_op_probs</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig"><code class="docutils literal notranslate"><span class="pre">GDPOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig.objective_keys"><code class="docutils literal notranslate"><span class="pre">GDPOConfig.objective_keys</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig.objective_weights"><code class="docutils literal notranslate"><span class="pre">GDPOConfig.objective_weights</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig.conditional_key"><code class="docutils literal notranslate"><span class="pre">GDPOConfig.conditional_key</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig.renormalize"><code class="docutils literal notranslate"><span class="pre">GDPOConfig.renormalize</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.il_weight"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.il_weight</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.il_decay"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.il_decay</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.patience"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.patience</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig"><code class="docutils literal notranslate"><span class="pre">RLConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.algorithm"><code class="docutils literal notranslate"><span class="pre">RLConfig.algorithm</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.baseline"><code class="docutils literal notranslate"><span class="pre">RLConfig.baseline</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.bl_warmup_epochs"><code class="docutils literal notranslate"><span class="pre">RLConfig.bl_warmup_epochs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.entropy_weight"><code class="docutils literal notranslate"><span class="pre">RLConfig.entropy_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.max_grad_norm"><code class="docutils literal notranslate"><span class="pre">RLConfig.max_grad_norm</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.ppo_epochs"><code class="docutils literal notranslate"><span class="pre">RLConfig.ppo_epochs</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.eps_clip"><code class="docutils literal notranslate"><span class="pre">RLConfig.eps_clip</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.value_loss_weight"><code class="docutils literal notranslate"><span class="pre">RLConfig.value_loss_weight</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.mini_batch_size"><code class="docutils literal notranslate"><span class="pre">RLConfig.mini_batch_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.sapo_tau_pos"><code class="docutils literal notranslate"><span class="pre">RLConfig.sapo_tau_pos</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.sapo_tau_neg"><code class="docutils literal notranslate"><span class="pre">RLConfig.sapo_tau_neg</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.dr_grpo_group_size"><code class="docutils literal notranslate"><span class="pre">RLConfig.dr_grpo_group_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.dr_grpo_epsilon"><code class="docutils literal notranslate"><span class="pre">RLConfig.dr_grpo_epsilon</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.num_augment"><code class="docutils literal notranslate"><span class="pre">RLConfig.num_augment</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.num_starts"><code class="docutils literal notranslate"><span class="pre">RLConfig.num_starts</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.augment_fn"><code class="docutils literal notranslate"><span class="pre">RLConfig.augment_fn</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.symnco_alpha"><code class="docutils literal notranslate"><span class="pre">RLConfig.symnco_alpha</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.symnco_beta"><code class="docutils literal notranslate"><span class="pre">RLConfig.symnco_beta</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation_mode"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation_mode</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation_weight"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation_weight</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation_decay"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation_decay</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation_threshold"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation_threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.reannealing_threshold"><code class="docutils literal notranslate"><span class="pre">RLConfig.reannealing_threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.reannealing_patience"><code class="docutils literal notranslate"><span class="pre">RLConfig.reannealing_patience</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.random_ls_iterations"><code class="docutils literal notranslate"><span class="pre">RLConfig.random_ls_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.random_ls_op_probs"><code class="docutils literal notranslate"><span class="pre">RLConfig.random_ls_op_probs</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo_objective_keys"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo_objective_keys</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo_objective_weights"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo_objective_weights</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo_conditional_key"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo_conditional_key</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo_renormalize"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo_renormalize</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gamma"><code class="docutils literal notranslate"><span class="pre">RLConfig.gamma</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gspo_epsilon"><code class="docutils literal notranslate"><span class="pre">RLConfig.gspo_epsilon</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gspo_epochs"><code class="docutils literal notranslate"><span class="pre">RLConfig.gspo_epochs</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.dr_grpo_epochs"><code class="docutils literal notranslate"><span class="pre">RLConfig.dr_grpo_epochs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.exp_beta"><code class="docutils literal notranslate"><span class="pre">RLConfig.exp_beta</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.bl_alpha"><code class="docutils literal notranslate"><span class="pre">RLConfig.bl_alpha</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation_decay_step"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation_decay_step</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.ppo"><code class="docutils literal notranslate"><span class="pre">RLConfig.ppo</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.sapo"><code class="docutils literal notranslate"><span class="pre">RLConfig.sapo</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.grpo"><code class="docutils literal notranslate"><span class="pre">RLConfig.grpo</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.pomo"><code class="docutils literal notranslate"><span class="pre">RLConfig.pomo</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.symnco"><code class="docutils literal notranslate"><span class="pre">RLConfig.symnco</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.adaptive_imitation"><code class="docutils literal notranslate"><span class="pre">RLConfig.adaptive_imitation</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -504,6 +536,30 @@ document.write(`
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.rl.PPOConfig" title="src.configs.rl.PPOConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PPOConfig</span></code></a></p></td>
+<td><p>PPO specific configuration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.configs.rl.SAPOConfig" title="src.configs.rl.SAPOConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SAPOConfig</span></code></a></p></td>
+<td><p>SAPO specific configuration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.rl.GRPOConfig" title="src.configs.rl.GRPOConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GRPOConfig</span></code></a></p></td>
+<td><p>GRPO specific configuration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.configs.rl.POMOConfig" title="src.configs.rl.POMOConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POMOConfig</span></code></a></p></td>
+<td><p>POMO specific configuration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.rl.SymNCOConfig" title="src.configs.rl.SymNCOConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SymNCOConfig</span></code></a></p></td>
+<td><p>SymNCO specific configuration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.configs.rl.ImitationConfig" title="src.configs.rl.ImitationConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImitationConfig</span></code></a></p></td>
+<td><p>Imitation specific configuration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.rl.GDPOConfig" title="src.configs.rl.GDPOConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GDPOConfig</span></code></a></p></td>
+<td><p>GDPO specific configuration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.configs.rl.AdaptiveImitationConfig" title="src.configs.rl.AdaptiveImitationConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AdaptiveImitationConfig</span></code></a></p></td>
+<td><p>Adaptive Imitation Learning specific configuration.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.rl.RLConfig" title="src.configs.rl.RLConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RLConfig</span></code></a></p></td>
 <td><p>RL algorithm configuration.</p></td>
 </tr>
@@ -513,6 +569,234 @@ document.write(`
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.rl.PPOConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.</span></span><span class="sig-name descname"><span class="pre">PPOConfig</span></span><a class="headerlink" href="#src.configs.rl.PPOConfig" title="Link to this definition">#</a></dt>
+<dd><p>PPO specific configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.PPOConfig.epochs">
+<span class="sig-name descname"><span class="pre">epochs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.PPOConfig.epochs" title="Link to this definition">#</a></dt>
+<dd><p>10</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.PPOConfig.eps_clip">
+<span class="sig-name descname"><span class="pre">eps_clip</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.PPOConfig.eps_clip" title="Link to this definition">#</a></dt>
+<dd><p>0.2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.PPOConfig.value_loss_weight">
+<span class="sig-name descname"><span class="pre">value_loss_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.PPOConfig.value_loss_weight" title="Link to this definition">#</a></dt>
+<dd><p>0.5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.PPOConfig.mini_batch_size">
+<span class="sig-name descname"><span class="pre">mini_batch_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.PPOConfig.mini_batch_size" title="Link to this definition">#</a></dt>
+<dd><p>0.25</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.rl.SAPOConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.</span></span><span class="sig-name descname"><span class="pre">SAPOConfig</span></span><a class="headerlink" href="#src.configs.rl.SAPOConfig" title="Link to this definition">#</a></dt>
+<dd><p>SAPO specific configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.SAPOConfig.tau_pos">
+<span class="sig-name descname"><span class="pre">tau_pos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.SAPOConfig.tau_pos" title="Link to this definition">#</a></dt>
+<dd><p>0.1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.SAPOConfig.tau_neg">
+<span class="sig-name descname"><span class="pre">tau_neg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.SAPOConfig.tau_neg" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.rl.GRPOConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.</span></span><span class="sig-name descname"><span class="pre">GRPOConfig</span></span><a class="headerlink" href="#src.configs.rl.GRPOConfig" title="Link to this definition">#</a></dt>
+<dd><p>GRPO specific configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.GRPOConfig.group_size">
+<span class="sig-name descname"><span class="pre">group_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.GRPOConfig.group_size" title="Link to this definition">#</a></dt>
+<dd><p>8</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.GRPOConfig.epsilon">
+<span class="sig-name descname"><span class="pre">epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.GRPOConfig.epsilon" title="Link to this definition">#</a></dt>
+<dd><p>0.2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.GRPOConfig.epochs">
+<span class="sig-name descname"><span class="pre">epochs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.GRPOConfig.epochs" title="Link to this definition">#</a></dt>
+<dd><p>3</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.rl.POMOConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.</span></span><span class="sig-name descname"><span class="pre">POMOConfig</span></span><a class="headerlink" href="#src.configs.rl.POMOConfig" title="Link to this definition">#</a></dt>
+<dd><p>POMO specific configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.POMOConfig.num_augment">
+<span class="sig-name descname"><span class="pre">num_augment</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.POMOConfig.num_augment" title="Link to this definition">#</a></dt>
+<dd><p>1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.POMOConfig.num_starts">
+<span class="sig-name descname"><span class="pre">num_starts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.POMOConfig.num_starts" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.POMOConfig.augment_fn">
+<span class="sig-name descname"><span class="pre">augment_fn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.rl.POMOConfig.augment_fn" title="Link to this definition">#</a></dt>
+<dd><p>‘dihedral8’</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.rl.SymNCOConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.</span></span><span class="sig-name descname"><span class="pre">SymNCOConfig</span></span><a class="headerlink" href="#src.configs.rl.SymNCOConfig" title="Link to this definition">#</a></dt>
+<dd><p>SymNCO specific configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.SymNCOConfig.alpha">
+<span class="sig-name descname"><span class="pre">alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.SymNCOConfig.alpha" title="Link to this definition">#</a></dt>
+<dd><p>0.2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.SymNCOConfig.beta">
+<span class="sig-name descname"><span class="pre">beta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.SymNCOConfig.beta" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.</span></span><span class="sig-name descname"><span class="pre">ImitationConfig</span></span><a class="headerlink" href="#src.configs.rl.ImitationConfig" title="Link to this definition">#</a></dt>
+<dd><p>Imitation specific configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.mode">
+<span class="sig-name descname"><span class="pre">mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.mode" title="Link to this definition">#</a></dt>
+<dd><p>‘hgs’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.weight">
+<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.weight" title="Link to this definition">#</a></dt>
+<dd><p>0.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.decay">
+<span class="sig-name descname"><span class="pre">decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.decay" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.threshold" title="Link to this definition">#</a></dt>
+<dd><p>0.05</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.decay_step">
+<span class="sig-name descname"><span class="pre">decay_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.decay_step" title="Link to this definition">#</a></dt>
+<dd><p>1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.reannealing_threshold">
+<span class="sig-name descname"><span class="pre">reannealing_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.reannealing_threshold" title="Link to this definition">#</a></dt>
+<dd><p>0.05</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.reannealing_patience">
+<span class="sig-name descname"><span class="pre">reannealing_patience</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.reannealing_patience" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.random_ls_iterations">
+<span class="sig-name descname"><span class="pre">random_ls_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.random_ls_iterations" title="Link to this definition">#</a></dt>
+<dd><p>100</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.random_ls_op_probs">
+<span class="sig-name descname"><span class="pre">random_ls_op_probs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.random_ls_op_probs" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.rl.GDPOConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.</span></span><span class="sig-name descname"><span class="pre">GDPOConfig</span></span><a class="headerlink" href="#src.configs.rl.GDPOConfig" title="Link to this definition">#</a></dt>
+<dd><p>GDPO specific configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.GDPOConfig.objective_keys">
+<span class="sig-name descname"><span class="pre">objective_keys</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.GDPOConfig.objective_keys" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.GDPOConfig.objective_weights">
+<span class="sig-name descname"><span class="pre">objective_weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.GDPOConfig.objective_weights" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.GDPOConfig.conditional_key">
+<span class="sig-name descname"><span class="pre">conditional_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.GDPOConfig.conditional_key" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.GDPOConfig.renormalize">
+<span class="sig-name descname"><span class="pre">renormalize</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.rl.GDPOConfig.renormalize" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.rl.AdaptiveImitationConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.</span></span><span class="sig-name descname"><span class="pre">AdaptiveImitationConfig</span></span><a class="headerlink" href="#src.configs.rl.AdaptiveImitationConfig" title="Link to this definition">#</a></dt>
+<dd><p>Adaptive Imitation Learning specific configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.AdaptiveImitationConfig.il_weight">
+<span class="sig-name descname"><span class="pre">il_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.AdaptiveImitationConfig.il_weight" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.AdaptiveImitationConfig.il_decay">
+<span class="sig-name descname"><span class="pre">il_decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.AdaptiveImitationConfig.il_decay" title="Link to this definition">#</a></dt>
+<dd><p>0.95</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.AdaptiveImitationConfig.patience">
+<span class="sig-name descname"><span class="pre">patience</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.AdaptiveImitationConfig.patience" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.configs.rl.RLConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.</span></span><span class="sig-name descname"><span class="pre">RLConfig</span></span><a class="headerlink" href="#src.configs.rl.RLConfig" title="Link to this definition">#</a></dt>
@@ -553,177 +837,9 @@ max_grad_norm: Maximum gradient norm for clipping.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.ppo_epochs">
-<span class="sig-name descname"><span class="pre">ppo_epochs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.ppo_epochs" title="Link to this definition">#</a></dt>
-<dd><p>10</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.eps_clip">
-<span class="sig-name descname"><span class="pre">eps_clip</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.eps_clip" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.value_loss_weight">
-<span class="sig-name descname"><span class="pre">value_loss_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.value_loss_weight" title="Link to this definition">#</a></dt>
-<dd><p>0.5</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.mini_batch_size">
-<span class="sig-name descname"><span class="pre">mini_batch_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.mini_batch_size" title="Link to this definition">#</a></dt>
-<dd><p>0.25</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.sapo_tau_pos">
-<span class="sig-name descname"><span class="pre">sapo_tau_pos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.sapo_tau_pos" title="Link to this definition">#</a></dt>
-<dd><p>0.1</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.sapo_tau_neg">
-<span class="sig-name descname"><span class="pre">sapo_tau_neg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.sapo_tau_neg" title="Link to this definition">#</a></dt>
-<dd><p>1.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.dr_grpo_group_size">
-<span class="sig-name descname"><span class="pre">dr_grpo_group_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.dr_grpo_group_size" title="Link to this definition">#</a></dt>
-<dd><p>8</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.dr_grpo_epsilon">
-<span class="sig-name descname"><span class="pre">dr_grpo_epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.dr_grpo_epsilon" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.num_augment">
-<span class="sig-name descname"><span class="pre">num_augment</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.num_augment" title="Link to this definition">#</a></dt>
-<dd><p>1</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.num_starts">
-<span class="sig-name descname"><span class="pre">num_starts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.RLConfig.num_starts" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.augment_fn">
-<span class="sig-name descname"><span class="pre">augment_fn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.augment_fn" title="Link to this definition">#</a></dt>
-<dd><p>‘dihedral8’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.symnco_alpha">
-<span class="sig-name descname"><span class="pre">symnco_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.symnco_alpha" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.symnco_beta">
-<span class="sig-name descname"><span class="pre">symnco_beta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.symnco_beta" title="Link to this definition">#</a></dt>
-<dd><p>1.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.imitation_mode">
-<span class="sig-name descname"><span class="pre">imitation_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.imitation_mode" title="Link to this definition">#</a></dt>
-<dd><p>‘hgs’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.imitation_weight">
-<span class="sig-name descname"><span class="pre">imitation_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.imitation_weight" title="Link to this definition">#</a></dt>
-<dd><p>0.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.imitation_decay">
-<span class="sig-name descname"><span class="pre">imitation_decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.imitation_decay" title="Link to this definition">#</a></dt>
-<dd><p>1.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.imitation_threshold">
-<span class="sig-name descname"><span class="pre">imitation_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.imitation_threshold" title="Link to this definition">#</a></dt>
-<dd><p>0.05</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.reannealing_threshold">
-<span class="sig-name descname"><span class="pre">reannealing_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.reannealing_threshold" title="Link to this definition">#</a></dt>
-<dd><p>0.05</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.reannealing_patience">
-<span class="sig-name descname"><span class="pre">reannealing_patience</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.reannealing_patience" title="Link to this definition">#</a></dt>
-<dd><p>5</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.random_ls_iterations">
-<span class="sig-name descname"><span class="pre">random_ls_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.random_ls_iterations" title="Link to this definition">#</a></dt>
-<dd><p>100</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.random_ls_op_probs">
-<span class="sig-name descname"><span class="pre">random_ls_op_probs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.RLConfig.random_ls_op_probs" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.gdpo_objective_keys">
-<span class="sig-name descname"><span class="pre">gdpo_objective_keys</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.RLConfig.gdpo_objective_keys" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.gdpo_objective_weights">
-<span class="sig-name descname"><span class="pre">gdpo_objective_weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.RLConfig.gdpo_objective_weights" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.gdpo_conditional_key">
-<span class="sig-name descname"><span class="pre">gdpo_conditional_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.RLConfig.gdpo_conditional_key" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.gdpo_renormalize">
-<span class="sig-name descname"><span class="pre">gdpo_renormalize</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.gdpo_renormalize" title="Link to this definition">#</a></dt>
-<dd><p>True</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.rl.RLConfig.gamma">
 <span class="sig-name descname"><span class="pre">gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.gamma" title="Link to this definition">#</a></dt>
 <dd><p>0.99</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.gspo_epsilon">
-<span class="sig-name descname"><span class="pre">gspo_epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.gspo_epsilon" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.gspo_epochs">
-<span class="sig-name descname"><span class="pre">gspo_epochs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.gspo_epochs" title="Link to this definition">#</a></dt>
-<dd><p>3</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.dr_grpo_epochs">
-<span class="sig-name descname"><span class="pre">dr_grpo_epochs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.dr_grpo_epochs" title="Link to this definition">#</a></dt>
-<dd><p>3</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -739,9 +855,51 @@ max_grad_norm: Maximum gradient norm for clipping.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.imitation_decay_step">
-<span class="sig-name descname"><span class="pre">imitation_decay_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.imitation_decay_step" title="Link to this definition">#</a></dt>
-<dd><p>1</p>
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.ppo">
+<span class="sig-name descname"><span class="pre">ppo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.rl.PPOConfig" title="src.configs.rl.PPOConfig"><span class="pre">src.configs.rl.PPOConfig</span></a></em><a class="headerlink" href="#src.configs.rl.RLConfig.ppo" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.sapo">
+<span class="sig-name descname"><span class="pre">sapo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.rl.SAPOConfig" title="src.configs.rl.SAPOConfig"><span class="pre">src.configs.rl.SAPOConfig</span></a></em><a class="headerlink" href="#src.configs.rl.RLConfig.sapo" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.grpo">
+<span class="sig-name descname"><span class="pre">grpo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.rl.GRPOConfig" title="src.configs.rl.GRPOConfig"><span class="pre">src.configs.rl.GRPOConfig</span></a></em><a class="headerlink" href="#src.configs.rl.RLConfig.grpo" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.pomo">
+<span class="sig-name descname"><span class="pre">pomo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.rl.POMOConfig" title="src.configs.rl.POMOConfig"><span class="pre">src.configs.rl.POMOConfig</span></a></em><a class="headerlink" href="#src.configs.rl.RLConfig.pomo" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.symnco">
+<span class="sig-name descname"><span class="pre">symnco</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.rl.SymNCOConfig" title="src.configs.rl.SymNCOConfig"><span class="pre">src.configs.rl.SymNCOConfig</span></a></em><a class="headerlink" href="#src.configs.rl.RLConfig.symnco" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.imitation">
+<span class="sig-name descname"><span class="pre">imitation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.rl.ImitationConfig" title="src.configs.rl.ImitationConfig"><span class="pre">src.configs.rl.ImitationConfig</span></a></em><a class="headerlink" href="#src.configs.rl.RLConfig.imitation" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.gdpo">
+<span class="sig-name descname"><span class="pre">gdpo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.rl.GDPOConfig" title="src.configs.rl.GDPOConfig"><span class="pre">src.configs.rl.GDPOConfig</span></a></em><a class="headerlink" href="#src.configs.rl.RLConfig.gdpo" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.adaptive_imitation">
+<span class="sig-name descname"><span class="pre">adaptive_imitation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.rl.AdaptiveImitationConfig" title="src.configs.rl.AdaptiveImitationConfig"><span class="pre">src.configs.rl.AdaptiveImitationConfig</span></a></em><a class="headerlink" href="#src.configs.rl.RLConfig.adaptive_imitation" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
 </dd></dl>
 
 </dd></dl>
@@ -798,44 +956,77 @@ max_grad_norm: Maximum gradient norm for clipping.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.PPOConfig"><code class="docutils literal notranslate"><span class="pre">PPOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.PPOConfig.epochs"><code class="docutils literal notranslate"><span class="pre">PPOConfig.epochs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.PPOConfig.eps_clip"><code class="docutils literal notranslate"><span class="pre">PPOConfig.eps_clip</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.PPOConfig.value_loss_weight"><code class="docutils literal notranslate"><span class="pre">PPOConfig.value_loss_weight</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.PPOConfig.mini_batch_size"><code class="docutils literal notranslate"><span class="pre">PPOConfig.mini_batch_size</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SAPOConfig"><code class="docutils literal notranslate"><span class="pre">SAPOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SAPOConfig.tau_pos"><code class="docutils literal notranslate"><span class="pre">SAPOConfig.tau_pos</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SAPOConfig.tau_neg"><code class="docutils literal notranslate"><span class="pre">SAPOConfig.tau_neg</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GRPOConfig"><code class="docutils literal notranslate"><span class="pre">GRPOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GRPOConfig.group_size"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.group_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GRPOConfig.epsilon"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.epsilon</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GRPOConfig.epochs"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.epochs</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.POMOConfig"><code class="docutils literal notranslate"><span class="pre">POMOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.POMOConfig.num_augment"><code class="docutils literal notranslate"><span class="pre">POMOConfig.num_augment</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.POMOConfig.num_starts"><code class="docutils literal notranslate"><span class="pre">POMOConfig.num_starts</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.POMOConfig.augment_fn"><code class="docutils literal notranslate"><span class="pre">POMOConfig.augment_fn</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SymNCOConfig"><code class="docutils literal notranslate"><span class="pre">SymNCOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SymNCOConfig.alpha"><code class="docutils literal notranslate"><span class="pre">SymNCOConfig.alpha</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.SymNCOConfig.beta"><code class="docutils literal notranslate"><span class="pre">SymNCOConfig.beta</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig"><code class="docutils literal notranslate"><span class="pre">ImitationConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.mode"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.mode</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.weight"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.weight</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.decay"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.decay</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.threshold"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.decay_step"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.decay_step</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.reannealing_threshold"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.reannealing_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.reannealing_patience"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.reannealing_patience</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.random_ls_iterations"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.random_ls_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.random_ls_op_probs"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.random_ls_op_probs</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig"><code class="docutils literal notranslate"><span class="pre">GDPOConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig.objective_keys"><code class="docutils literal notranslate"><span class="pre">GDPOConfig.objective_keys</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig.objective_weights"><code class="docutils literal notranslate"><span class="pre">GDPOConfig.objective_weights</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig.conditional_key"><code class="docutils literal notranslate"><span class="pre">GDPOConfig.conditional_key</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig.renormalize"><code class="docutils literal notranslate"><span class="pre">GDPOConfig.renormalize</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.il_weight"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.il_weight</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.il_decay"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.il_decay</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.patience"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.patience</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig"><code class="docutils literal notranslate"><span class="pre">RLConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.algorithm"><code class="docutils literal notranslate"><span class="pre">RLConfig.algorithm</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.baseline"><code class="docutils literal notranslate"><span class="pre">RLConfig.baseline</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.bl_warmup_epochs"><code class="docutils literal notranslate"><span class="pre">RLConfig.bl_warmup_epochs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.entropy_weight"><code class="docutils literal notranslate"><span class="pre">RLConfig.entropy_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.max_grad_norm"><code class="docutils literal notranslate"><span class="pre">RLConfig.max_grad_norm</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.ppo_epochs"><code class="docutils literal notranslate"><span class="pre">RLConfig.ppo_epochs</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.eps_clip"><code class="docutils literal notranslate"><span class="pre">RLConfig.eps_clip</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.value_loss_weight"><code class="docutils literal notranslate"><span class="pre">RLConfig.value_loss_weight</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.mini_batch_size"><code class="docutils literal notranslate"><span class="pre">RLConfig.mini_batch_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.sapo_tau_pos"><code class="docutils literal notranslate"><span class="pre">RLConfig.sapo_tau_pos</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.sapo_tau_neg"><code class="docutils literal notranslate"><span class="pre">RLConfig.sapo_tau_neg</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.dr_grpo_group_size"><code class="docutils literal notranslate"><span class="pre">RLConfig.dr_grpo_group_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.dr_grpo_epsilon"><code class="docutils literal notranslate"><span class="pre">RLConfig.dr_grpo_epsilon</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.num_augment"><code class="docutils literal notranslate"><span class="pre">RLConfig.num_augment</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.num_starts"><code class="docutils literal notranslate"><span class="pre">RLConfig.num_starts</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.augment_fn"><code class="docutils literal notranslate"><span class="pre">RLConfig.augment_fn</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.symnco_alpha"><code class="docutils literal notranslate"><span class="pre">RLConfig.symnco_alpha</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.symnco_beta"><code class="docutils literal notranslate"><span class="pre">RLConfig.symnco_beta</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation_mode"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation_mode</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation_weight"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation_weight</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation_decay"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation_decay</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation_threshold"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation_threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.reannealing_threshold"><code class="docutils literal notranslate"><span class="pre">RLConfig.reannealing_threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.reannealing_patience"><code class="docutils literal notranslate"><span class="pre">RLConfig.reannealing_patience</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.random_ls_iterations"><code class="docutils literal notranslate"><span class="pre">RLConfig.random_ls_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.random_ls_op_probs"><code class="docutils literal notranslate"><span class="pre">RLConfig.random_ls_op_probs</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo_objective_keys"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo_objective_keys</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo_objective_weights"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo_objective_weights</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo_conditional_key"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo_conditional_key</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo_renormalize"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo_renormalize</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gamma"><code class="docutils literal notranslate"><span class="pre">RLConfig.gamma</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gspo_epsilon"><code class="docutils literal notranslate"><span class="pre">RLConfig.gspo_epsilon</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gspo_epochs"><code class="docutils literal notranslate"><span class="pre">RLConfig.gspo_epochs</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.dr_grpo_epochs"><code class="docutils literal notranslate"><span class="pre">RLConfig.dr_grpo_epochs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.exp_beta"><code class="docutils literal notranslate"><span class="pre">RLConfig.exp_beta</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.bl_alpha"><code class="docutils literal notranslate"><span class="pre">RLConfig.bl_alpha</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation_decay_step"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation_decay_step</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.ppo"><code class="docutils literal notranslate"><span class="pre">RLConfig.ppo</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.sapo"><code class="docutils literal notranslate"><span class="pre">RLConfig.sapo</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.grpo"><code class="docutils literal notranslate"><span class="pre">RLConfig.grpo</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.pomo"><code class="docutils literal notranslate"><span class="pre">RLConfig.pomo</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.symnco"><code class="docutils literal notranslate"><span class="pre">RLConfig.symnco</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.adaptive_imitation"><code class="docutils literal notranslate"><span class="pre">RLConfig.adaptive_imitation</span></code></a></li>
 </ul>
 </li>
 </ul>

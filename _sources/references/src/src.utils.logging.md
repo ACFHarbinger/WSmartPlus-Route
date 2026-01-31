@@ -7,6 +7,15 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.utils.logging.modules
+```
+
 ## Submodules
 
 ```{toctree}

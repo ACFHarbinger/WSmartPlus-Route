@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -497,14 +496,14 @@ Responsible for initializing node embeddings and determining step context dimens
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.context_embedder.ContextEmbedder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.context_embedder.</span></span><span class="sig-name descname"><span class="pre">ContextEmbedder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.context_embedder.ContextEmbedder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.context_embedder.</span></span><span class="sig-name descname"><span class="pre">ContextEmbedder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.context_embedder.ContextEmbedder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract base class for problem-specific context embeddings.
 Responsible for initializing node embeddings and determining step context dimensions.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the ContextEmbedder.</p>
 <p>Args:
-embedding_dim (int): Dimension of the embedding.
+embed_dim (int): Dimension of the embedding.
 node_dim (int): Dimension of node features.
 temporal_horizon (int): Temporal horizon for features.</p>
 <dl class="py method">
@@ -513,8 +512,8 @@ temporal_horizon (int): Temporal horizon for features.</p>
 <dd><p>Initialize node embeddings from input data.</p>
 <p>Args:
 input (dict): Input data dictionary.</p>
-<p>Raises:
-NotImplementedError: Must be implemented by subclasses.</p>
+<p>Returns:
+torch.Tensor: Initial node embeddings [batch_size, num_nodes + 1, embed_dim].</p>
 </dd></dl>
 
 <dl class="py property">
@@ -529,13 +528,13 @@ NotImplementedError: Must be implemented by subclasses.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.context_embedder.WCContextEmbedder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.context_embedder.</span></span><span class="sig-name descname"><span class="pre">WCContextEmbedder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.context_embedder.WCContextEmbedder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.context_embedder.</span></span><span class="sig-name descname"><span class="pre">WCContextEmbedder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NODE_DIM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.context_embedder.WCContextEmbedder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.models.context_embedder.ContextEmbedder" title="src.models.context_embedder.ContextEmbedder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.context_embedder.ContextEmbedder</span></code></a></p>
 <p>Context Embedder for Waste Collection (WC) problems.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the WCContextEmbedder.</p>
 <p>Args:
-embedding_dim (int): Dimension of the embedding.
+embed_dim (int): Dimension of the embedding.
 node_dim (int, optional): Dimension of node features. Defaults to 3.
 temporal_horizon (int, optional): Temporal horizon for features. Defaults to 0.</p>
 <dl class="py method">
@@ -554,20 +553,20 @@ torch.Tensor: Combined embeddings for depot and nodes.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">step_context_dim</span></span><a class="headerlink" href="#src.models.context_embedder.WCContextEmbedder.step_context_dim" title="Link to this definition">#</a></dt>
 <dd><p>Get the dimension of the step context for WC.</p>
 <p>Returns:
-int: Step context dimension (embedding_dim + 2).</p>
+int: Step context dimension (embed_dim + 2).</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.context_embedder.VRPPContextEmbedder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.context_embedder.</span></span><span class="sig-name descname"><span class="pre">VRPPContextEmbedder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.context_embedder.VRPPContextEmbedder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.context_embedder.</span></span><span class="sig-name descname"><span class="pre">VRPPContextEmbedder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NODE_DIM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.context_embedder.VRPPContextEmbedder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.models.context_embedder.ContextEmbedder" title="src.models.context_embedder.ContextEmbedder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.context_embedder.ContextEmbedder</span></code></a></p>
 <p>Context Embedder for VRP with Profits (VRPP) families (vrpp, cvrpp).</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the VRPPContextEmbedder.</p>
 <p>Args:
-embedding_dim (int): Dimension of the embedding.
+embed_dim (int): Dimension of the embedding.
 node_dim (int, optional): Dimension of node features. Defaults to 3.
 temporal_horizon (int, optional): Temporal horizon for features. Defaults to 0.</p>
 <dl class="py method">
@@ -586,7 +585,7 @@ torch.Tensor: Combined embeddings for depot and nodes.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">step_context_dim</span></span><a class="headerlink" href="#src.models.context_embedder.VRPPContextEmbedder.step_context_dim" title="Link to this definition">#</a></dt>
 <dd><p>Get the dimension of the step context for VRPP.</p>
 <p>Returns:
-int: Step context dimension (embedding_dim + 1).</p>
+int: Step context dimension (embed_dim + 1).</p>
 </dd></dl>
 
 </dd></dl>

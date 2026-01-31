@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -463,6 +462,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.core.reinforce">
 <span id="src-pipeline-rl-core-reinforce"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.core.reinforce" title="src.pipeline.rl.core.reinforce"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.reinforce</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.core.reinforce" title="Link to this heading">#</a></h1>
 <p>REINFORCE algorithm implementation.</p>
+<p>Reference:
+Williams, R. J. (1992).
+Simple statistical gradient-following algorithms for connectionist reinforcement learning.
+Machine learning, 8(3-4), 229-256.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -484,6 +487,11 @@ document.write(`
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.pipeline.rl.common.base.RL4COLitModule</span></code></p>
 <p>REINFORCE with baseline.</p>
 <p>Standard policy gradient algorithm with configurable baselines.</p>
+<p>Reference:
+Williams, R. J. (1992).
+Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning.
+Machine Learning, 8(3-4), 229-256.
+https://doi.org/10.1007/BF00992696</p>
 <p class="rubric">Initialization</p>
 <p>Initialize REINFORCE module.</p>
 <p>Args:

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} AttentionModel(embedding_dim: int, hidden_dim: int, problem: typing.Any, component_factory: logic.src.models.model_factory.NeuralComponentFactory, n_encode_layers: int = 2, n_encode_sublayers: typing.Optional[int] = None, n_decode_layers: typing.Optional[int] = None, dropout_rate: float = 0.1, aggregation: str = 'sum', aggregation_graph: str = 'avg', tanh_clipping: float = 10.0, mask_inner: bool = True, mask_logits: bool = True, mask_graph: bool = False, normalization: str = 'batch', norm_learn_affine: bool = True, norm_track_stats: bool = False, norm_eps_alpha: float = 1e-05, norm_momentum_beta: float = 0.1, lrnorm_k: float = 1.0, gnorm_groups: int = 3, activation_function: str = 'gelu', af_param: float = 1.0, af_threshold: float = 6.0, af_replacement_value: float = 6.0, af_num_params: int = 3, af_uniform_range: typing.List[float] = [0.125, 1 / 3], n_heads: int = 8, checkpoint_encoder: bool = False, shrink_size: typing.Optional[int] = None, pomo_size: int = 0, temporal_horizon: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, entropy_weight: float = 0.0, predictor_layers: typing.Optional[int] = None, connection_type: str = 'residual', hyper_expansion: int = 4)
+`````{py:class} AttentionModel(embed_dim: int, hidden_dim: int, problem: typing.Any, component_factory: logic.src.models.model_factory.NeuralComponentFactory, n_encode_layers: int = 2, n_encode_sublayers: typing.Optional[int] = None, n_decode_layers: typing.Optional[int] = None, dropout_rate: float = 0.1, aggregation: str = 'sum', aggregation_graph: str = 'avg', tanh_clipping: float = TANH_CLIPPING, mask_inner: bool = True, mask_logits: bool = True, mask_graph: bool = False, normalization: str = 'batch', norm_learn_affine: bool = True, norm_track_stats: bool = False, norm_eps_alpha: float = NORM_EPSILON, norm_momentum_beta: float = 0.1, lrnorm_k: float = 1.0, gnorm_groups: int = 3, activation_function: str = 'gelu', af_param: float = 1.0, af_threshold: float = 6.0, af_replacement_value: float = 6.0, af_num_params: int = 3, af_uniform_range: typing.List[float] = [0.125, 1 / 3], n_heads: int = 8, checkpoint_encoder: bool = False, shrink_size: typing.Optional[int] = None, pomo_size: int = 0, temporal_horizon: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, entropy_weight: float = 0.0, predictor_layers: typing.Optional[int] = None, connection_type: str = 'residual', hyper_expansion: int = FEED_FORWARD_EXPANSION)
 :canonical: src.models.attention_model.AttentionModel
 
 Bases: {py:obj}`torch.nn.Module`
@@ -36,6 +36,30 @@ Bases: {py:obj}`torch.nn.Module`
 
 ```{autodoc2-docstring} src.models.attention_model.AttentionModel.__init__
 ```
+
+````{py:method} _init_parameters(embed_dim: int, hidden_dim: int, problem: typing.Any, n_heads: int, pomo_size: int, checkpoint_encoder: bool, aggregation_graph: str, temporal_horizon: int, tanh_clipping: float) -> None
+:canonical: src.models.attention_model.AttentionModel._init_parameters
+
+```{autodoc2-docstring} src.models.attention_model.AttentionModel._init_parameters
+```
+
+````
+
+````{py:method} _init_context_embedder(temporal_horizon: int) -> int
+:canonical: src.models.attention_model.AttentionModel._init_context_embedder
+
+```{autodoc2-docstring} src.models.attention_model.AttentionModel._init_context_embedder
+```
+
+````
+
+````{py:method} _init_components(component_factory: logic.src.models.model_factory.NeuralComponentFactory, step_context_dim: int, n_encode_layers: int, n_encode_sublayers: typing.Optional[int], dropout_rate: float, normalization: str, norm_eps_alpha: float, norm_learn_affine: bool, norm_track_stats: bool, norm_momentum_beta: float, lrnorm_k: float, gnorm_groups: int, activation_function: str, af_param: float, af_threshold: float, af_replacement_value: float, af_num_params: int, af_uniform_range: typing.List[float], aggregation: str, connection_type: str, hyper_expansion: int, tanh_clipping: float, mask_inner: bool, mask_logits: bool, mask_graph: bool, shrink_size: typing.Optional[int], spatial_bias: bool, spatial_bias_scale: float) -> None
+:canonical: src.models.attention_model.AttentionModel._init_components
+
+```{autodoc2-docstring} src.models.attention_model.AttentionModel._init_components
+```
+
+````
 
 ````{py:method} set_decode_type(decode_type: str, temp: typing.Optional[float] = None) -> None
 :canonical: src.models.attention_model.AttentionModel.set_decode_type

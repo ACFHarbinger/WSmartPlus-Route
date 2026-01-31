@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -514,13 +513,13 @@ Projected reference and logits.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.ptr_decoder.PointerDecoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.ptr_decoder.</span></span><span class="sig-name descname"><span class="pre">PointerDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_exploration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_tanh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_glimpses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_glimpses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_logits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.ptr_decoder.PointerDecoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.ptr_decoder.</span></span><span class="sig-name descname"><span class="pre">PointerDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_exploration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_tanh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_glimpses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_glimpses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_logits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.ptr_decoder.PointerDecoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Standard Pointer Network Decoder.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the PointerDecoder.</p>
 <p>Args:
-embedding_dim: Embedding dimension.
+embed_dim: Embedding dimension.
 hidden_dim: Hidden dimension.
 tanh_exploration: Tanh exploration constant.
 use_tanh: Whether to use tanh.
@@ -550,8 +549,8 @@ mask_logits: Whether to mask logits.</p>
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decoder_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedded_inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_tours</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.ptr_decoder.PointerDecoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass.</p>
 <p>Args:
-decoder_input: The initial input to the decoder [batch_size x embedding_dim].
-embedded_inputs: [sourceL x batch_size x embedding_dim]
+decoder_input: The initial input to the decoder [batch_size x embed_dim].
+embedded_inputs: [sourceL x batch_size x embed_dim]
 hidden: The prev hidden state [batch_size x hidden_dim].
 context: Encoder outputs [sourceL x batch_size x hidden_dim].
 eval_tours: (Optional) tours to evaluate against.</p>

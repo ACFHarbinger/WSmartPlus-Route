@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.pipeline.rl.core.gspo" href="src.pipeline.rl.core.gspo.html" />
-    <link rel="prev" title="src.pipeline.rl.core.ppo_nstep" href="src.pipeline.rl.core.ppo_nstep.html" />
+    <link rel="prev" title="src.pipeline.rl.core.sapo" href="src.pipeline.rl.core.sapo.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -461,8 +460,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.core.symnco">
 <span id="src-pipeline-rl-core-symnco"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.core.symnco" title="src.pipeline.rl.core.symnco"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.symnco</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.core.symnco" title="Link to this heading">#</a></h1>
-<p>SymNCO algorithm implementation.
-Based on Kim et al. (2022) and Adapted from RL4CO.</p>
+<p>SymNCO algorithm implementation.</p>
+<p>Reference:
+Kim, M., Park, J., &amp; Park, J. (2022).
+Sym-NCO: Leveraging Symmetricity for Neural Combinatorial Optimization.
+Advances in Neural Information Processing Systems, 35, 1936-1949.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -490,6 +492,11 @@ Based on Kim et al. (2022) and Adapted from RL4CO.</p>
 <li><p>Shared baseline across starts AND augmentations</p></li>
 <li><p>Consistency losses</p></li>
 </ul>
+<p>Reference:
+Kim, M., Park, J., Kim, J., &amp; Park, J. (2022).
+Sym-NCO: Leveraging Symmetricity for Neural Combinatorial Optimization.
+NeurIPS 2022. arXiv:2205.13209
+https://arxiv.org/abs/2205.13209</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SymNCO module.</p>
 <p>Args:
@@ -520,12 +527,12 @@ beta: Weight for solution symmetricity loss.
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.pipeline.rl.core.ppo_nstep.html"
+       href="src.pipeline.rl.core.sapo.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.ppo_nstep</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.sapo</span></code></p>
       </div>
     </a>
     <a class="right-next"

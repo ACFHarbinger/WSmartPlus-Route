@@ -23,6 +23,10 @@
   - ```{autodoc2-docstring} src.constants.waste.WASTE_TYPES
     :summary:
     ```
+* - {py:obj}`CRITICAL_FILL_THRESHOLD <src.constants.waste.CRITICAL_FILL_THRESHOLD>`
+  - ```{autodoc2-docstring} src.constants.waste.CRITICAL_FILL_THRESHOLD
+    :summary:
+    ```
 ````
 
 ### API
@@ -45,6 +49,17 @@
    None
 
 ```{autodoc2-docstring} src.constants.waste.WASTE_TYPES
+```
+
+````
+
+````{py:data} CRITICAL_FILL_THRESHOLD
+:canonical: src.constants.waste.CRITICAL_FILL_THRESHOLD
+:type: float
+:value: >
+   0.9
+
+```{autodoc2-docstring} src.constants.waste.CRITICAL_FILL_THRESHOLD
 ```
 
 ````

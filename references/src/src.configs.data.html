@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -449,7 +448,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.sigma"><code class="docutils literal notranslate"><span class="pre">DataConfig.sigma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.data_distributions"><code class="docutils literal notranslate"><span class="pre">DataConfig.data_distributions</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.dataset_size"><code class="docutils literal notranslate"><span class="pre">DataConfig.dataset_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.graph_sizes"><code class="docutils literal notranslate"><span class="pre">DataConfig.graph_sizes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.num_locs"><code class="docutils literal notranslate"><span class="pre">DataConfig.num_locs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.penalty_factor"><code class="docutils literal notranslate"><span class="pre">DataConfig.penalty_factor</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.overwrite"><code class="docutils literal notranslate"><span class="pre">DataConfig.overwrite</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.seed"><code class="docutils literal notranslate"><span class="pre">DataConfig.seed</span></code></a></li>
@@ -509,7 +508,7 @@ mu: Mean of Gaussian noise (implies Gaussian noise generation if set).
 sigma: Variance of Gaussian noise.
 data_distributions: Distributions to generate for problems.
 dataset_size: Size of the dataset.
-graph_sizes: Sizes of problem instances.
+num_locs: Sizes of problem instances.
 penalty_factor: Penalty factor for problems.
 overwrite: Set true to overwrite.
 seed: Random seed.
@@ -570,8 +569,8 @@ vertex_method: Method to transform vertex coordinates.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.data.DataConfig.graph_sizes">
-<span class="sig-name descname"><span class="pre">graph_sizes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.data.DataConfig.graph_sizes" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.data.DataConfig.num_locs">
+<span class="sig-name descname"><span class="pre">num_locs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.data.DataConfig.num_locs" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
 </dd></dl>
 
@@ -704,7 +703,7 @@ vertex_method: Method to transform vertex coordinates.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.sigma"><code class="docutils literal notranslate"><span class="pre">DataConfig.sigma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.data_distributions"><code class="docutils literal notranslate"><span class="pre">DataConfig.data_distributions</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.dataset_size"><code class="docutils literal notranslate"><span class="pre">DataConfig.dataset_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.graph_sizes"><code class="docutils literal notranslate"><span class="pre">DataConfig.graph_sizes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.num_locs"><code class="docutils literal notranslate"><span class="pre">DataConfig.num_locs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.penalty_factor"><code class="docutils literal notranslate"><span class="pre">DataConfig.penalty_factor</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.overwrite"><code class="docutils literal notranslate"><span class="pre">DataConfig.overwrite</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.data.DataConfig.seed"><code class="docutils literal notranslate"><span class="pre">DataConfig.seed</span></code></a></li>

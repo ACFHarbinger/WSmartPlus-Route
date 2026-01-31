@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.data.datasets';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.data.fast_datasets" href="src.data.fast_datasets.html" />
+    <link rel="next" title="src.data.generate_data" href="src.data.generate_data.html" />
     <link rel="prev" title="src.data.builders" href="src.data.builders.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -554,10 +553,10 @@ int: Number of samples.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.TensorDictDataset.__getitem__">
-<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.datasets.TensorDictDataset.__getitem__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.datasets.TensorDictDataset.__getitem__" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve a sample by index.</p>
 <p>Args:
-idx: Index of the sample.</p>
+index: Index of the sample.</p>
 <p>Returns:
 TensorDict: The sample at the specified index.</p>
 </dd></dl>
@@ -601,17 +600,17 @@ int: Number of samples.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.FastTdDataset.__getitems__">
-<span class="sig-name descname"><span class="pre">__getitems__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.datasets.FastTdDataset.__getitems__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__getitems__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.datasets.FastTdDataset.__getitems__" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve samples by indices (batch getter).</p>
 <p>Args:
-idx: Indices of the samples.</p>
+index: Indices of the samples.</p>
 <p>Returns:
 TensorDict: The samples at the specified indices.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.FastTdDataset.collate_fn">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collate_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tensordict.tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.datasets.FastTdDataset.collate_fn" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collate_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.data.datasets.FastTdDataset.collate_fn" title="Link to this definition">#</a></dt>
 <dd><p>Collate function that passes batch through unchanged.</p>
 <p>Args:
 batch: A batch of data.</p>
@@ -650,7 +649,7 @@ TensorDict: A new TensorDict with the selected samples.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.TensorDictDatasetFastGeneration.collate_fn">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collate_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tensordict.tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.datasets.TensorDictDatasetFastGeneration.collate_fn" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collate_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.data.datasets.TensorDictDatasetFastGeneration.collate_fn" title="Link to this definition">#</a></dt>
 <dd><p>Collate function that passes batch through unchanged.</p>
 <p>Args:
 batch: A batch of data.</p>
@@ -680,10 +679,10 @@ int: Number of samples.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.GeneratorDataset.__getitem__">
-<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.data.datasets.GeneratorDataset.__getitem__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.data.datasets.GeneratorDataset.__getitem__" title="Link to this definition">#</a></dt>
 <dd><p>Generate a sample on-the-fly.</p>
 <p>Args:
-idx: Index of the sample (not used, provided for API compatibility).</p>
+index: Index of the sample (not used, provided for API compatibility).</p>
 <p>Returns:
 TensorDict: A freshly generated sample.</p>
 </dd></dl>
@@ -702,10 +701,10 @@ dataset: The underlying dataset.
 extra: Dictionary of extra tensors to include (e.g., {‘baseline’: …}).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.ExtraKeyDataset.__getitem__">
-<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.data.datasets.ExtraKeyDataset.__getitem__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.data.datasets.ExtraKeyDataset.__getitem__" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve a sample with extra keys.</p>
 <p>Args:
-idx: Index of the sample.</p>
+index: Index of the sample.</p>
 <p>Returns:
 dict: Dictionary with ‘data’ and extra keys.</p>
 </dd></dl>
@@ -732,10 +731,10 @@ dataset: The underlying dataset.
 baseline: Tensor of precomputed baseline values.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.BaselineDataset.__getitem__">
-<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.data.datasets.BaselineDataset.__getitem__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.data.datasets.BaselineDataset.__getitem__" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve a sample with its associated baseline value.</p>
 <p>Args:
-item: Index of the sample.</p>
+index: Index of the sample.</p>
 <p>Returns:
 dict: Dictionary with ‘data’ and ‘baseline’ keys.</p>
 </dd></dl>
@@ -781,11 +780,11 @@ int: Number of samples.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.data.fast_datasets.html"
+       href="src.data.generate_data.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

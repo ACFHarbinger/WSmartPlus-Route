@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -439,41 +438,10 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG"><code class="docutils literal notranslate"><span class="pre">TAG</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.LOW_MEASURES"><code class="docutils literal notranslate"><span class="pre">TAG.LOW_MEASURES</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.INSIDE_BOX"><code class="docutils literal notranslate"><span class="pre">TAG.INSIDE_BOX</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.OK"><code class="docutils literal notranslate"><span class="pre">TAG.OK</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.WARN"><code class="docutils literal notranslate"><span class="pre">TAG.WARN</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.LOCAL_WARN"><code class="docutils literal notranslate"><span class="pre">TAG.LOCAL_WARN</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><code class="docutils literal notranslate"><span class="pre">Container</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.__del__"><code class="docutils literal notranslate"><span class="pre">Container.__del__()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_keys"><code class="docutils literal notranslate"><span class="pre">Container.get_keys()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_vars"><code class="docutils literal notranslate"><span class="pre">Container.get_vars()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_collection_quantities"><code class="docutils literal notranslate"><span class="pre">Container.get_collection_quantities()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_scan_linear_spline"><code class="docutils literal notranslate"><span class="pre">Container.get_scan_linear_spline()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_monotonic_mean_rate_error_splines"><code class="docutils literal notranslate"><span class="pre">Container.get_monotonic_mean_rate_error_splines()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_monotonic_mean_rate"><code class="docutils literal notranslate"><span class="pre">Container.get_monotonic_mean_rate()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_crude_rate"><code class="docutils literal notranslate"><span class="pre">Container.get_crude_rate()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_tag"><code class="docutils literal notranslate"><span class="pre">Container.get_tag()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_collections_std"><code class="docutils literal notranslate"><span class="pre">Container.get_collections_std()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.set_tag"><code class="docutils literal notranslate"><span class="pre">Container.set_tag()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.mark_collections"><code class="docutils literal notranslate"><span class="pre">Container.mark_collections()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_spearman"><code class="docutils literal notranslate"><span class="pre">Container.calc_spearman()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_avg_dist_metric"><code class="docutils literal notranslate"><span class="pre">Container.calc_avg_dist_metric()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_max_min_mean"><code class="docutils literal notranslate"><span class="pre">Container.calc_max_min_mean()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.adjust_collections"><code class="docutils literal notranslate"><span class="pre">Container.adjust_collections()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.adjust_one_collection"><code class="docutils literal notranslate"><span class="pre">Container.adjust_one_collection()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.place_collections"><code class="docutils literal notranslate"><span class="pre">Container.place_collections()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.place_one_collection"><code class="docutils literal notranslate"><span class="pre">Container.place_one_collection()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.clean_box"><code class="docutils literal notranslate"><span class="pre">Container.clean_box()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_fill"><code class="docutils literal notranslate"><span class="pre">Container.plot_fill()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_max_min"><code class="docutils literal notranslate"><span class="pre">Container.plot_max_min()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_collection_metrics"><code class="docutils literal notranslate"><span class="pre">Container.plot_collection_metrics()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><code class="docutils literal notranslate"><span class="pre">Container</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -491,19 +459,28 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container">
 <span id="src-pipeline-simulations-wsmart-bin-analysis-deliverables-container"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container" title="Link to this heading">#</a></h1>
-<p>Container management module for wsmart_bin_analysis.</p>
+<p>Container management module for wsmart_bin_analysis.
+This module acts as a facade, using mixins to organize functionality.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TAG</span></code></a></p></td>
-<td><p>Enum representing the quality/status tag of a container’s data series.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Container</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Container</span></code></a></p></td>
 <td><p>Overall object to deal with container data. It supports manipulation operations over the container,
 managing the fill levels and collection events.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.__all__" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -512,335 +489,18 @@ managing the fill levels and collection events.</p></td>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.</span></span><span class="sig-name descname"><span class="pre">TAG</span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>Enum representing the quality/status tag of a container’s data series.</p>
-<p>Attributes:
-LOW_MEASURES: Insufficient data points.
-INSIDE_BOX: Data falls consistently within expected bounds.
-OK: Data is good.
-WARN: Data has inconsistencies.
-LOCAL_WARN: Localized inconsistency detected.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.LOW_MEASURES">
-<span class="sig-name descname"><span class="pre">LOW_MEASURES</span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.LOW_MEASURES" title="Link to this definition">#</a></dt>
-<dd><p>0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.INSIDE_BOX">
-<span class="sig-name descname"><span class="pre">INSIDE_BOX</span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.INSIDE_BOX" title="Link to this definition">#</a></dt>
-<dd><p>1</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.OK">
-<span class="sig-name descname"><span class="pre">OK</span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.OK" title="Link to this definition">#</a></dt>
-<dd><p>2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.WARN">
-<span class="sig-name descname"><span class="pre">WARN</span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.WARN" title="Link to this definition">#</a></dt>
-<dd><p>3</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.LOCAL_WARN">
-<span class="sig-name descname"><span class="pre">LOCAL_WARN</span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.LOCAL_WARN" title="Link to this definition">#</a></dt>
-<dd><p>4</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.</span></span><span class="sig-name descname"><span class="pre">Container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">my_rec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="Link to this definition">#</a></dt>
-<dd><p>Overall object to deal with container data. It supports manipulation operations over the container,
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.</span></span><span class="sig-name descname"><span class="pre">Container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">my_rec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.core.DataMixin</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.analysis_utils.AnalysisMixin</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.processing_utils.ProcessingMixin</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.plotting_utils.VisualizationMixin</span></code></p>
+<p>Overall object to deal with container data. It supports manipulation operations over the container,
 managing the fill levels and collection events.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the Container object.</p>
-<p>Args:
-my_df (pd.DataFrame): Dataframe containing fill level measurements.
-my_rec (pd.DataFrame): Dataframe containing collection events.
-info (pd.DataFrame): Dataframe containing static container information (metadata).</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.__del__">
-<span class="sig-name descname"><span class="pre">__del__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.__del__" title="Link to this definition">#</a></dt>
-<dd><p>Usually Python does the grbase collection for you. But if using a jupyter notebook, calling
-save does note clear space, because jupyter notebooks keep all objects “alive”</p>
-<p>Call del Container to clenaup the pace occupied</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_keys">
-<span class="sig-name descname"><span class="pre">get_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_keys" title="Link to this definition">#</a></dt>
-<dd><p>Get the keys in the internal variables of the class</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_vars">
-<span class="sig-name descname"><span class="pre">get_vars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_vars" title="Link to this definition">#</a></dt>
-<dd><p>Generic getter for internal vars of bin</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_collection_quantities">
-<span class="sig-name descname"><span class="pre">get_collection_quantities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_collection_quantities" title="Link to this definition">#</a></dt>
-<dd><p>Generic getter for internal vars of bi</p>
-<h2 class="rubric" id="returns">Returns</h2>
-<p>avg_dist:np.ndarray
-numpy array with 100 - average distance information for each collection event
-spearman:np.ndarray
-numpy array with spearman coeficieet information for each collection event scaled by 100</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_scan_linear_spline">
-<span class="sig-name descname"><span class="pre">get_scan_linear_spline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DatetimeIndex</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_scan_linear_spline" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the cumulative garbage of a bin, returing it has daily values. The difference between values
-that have a collection in the mideele is set to zero before getiing the cumulative garbege.</p>
-<h2 class="rubric" id="parameters">Parameters</h2>
-<p>interval:str,
-frequency string indicator. For daily values set to ‘1D’. For another frequencies check
-https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_monotonic_mean_rate_error_splines">
-<span class="sig-name descname"><span class="pre">get_monotonic_mean_rate_error_splines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_monotonic_mean_rate_error_splines" title="Link to this definition">#</a></dt>
-<dd><p>NOT WORKING!!!!</p>
-<p>Get the upper and lower splines for the monotocnic aproximation. The error is calculated to be the max error
-Possible in each iteration, e.g the lower bound is the next day minimum aproximation minus todays max and reversely
-for the upper bound. If plotting the splines, be aware that ther errors bars will drif off because this funtion
-returns the cumulative differences. when applyig the diff operator one can get a grasp of the local empirical error.</p>
-<h2 class="rubric" id="id1">Parameters</h2>
-<p>interval:str,
-frequency string indicator. For daily values set to ‘1D’. For another frequencies check
-https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_monotonic_mean_rate">
-<span class="sig-name descname"><span class="pre">get_monotonic_mean_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_monotonic_mean_rate" title="Link to this definition">#</a></dt>
-<dd><p>Get the mean monotic rate (difference between the mean between max and min monotonic approximations).
-The rates are the average difference between consecutive periods in the spline of the cumulative differenes between the bins.
-This is similar to make an average of the rate asross the time period. The rates should be unterstood has
-rate per frequency period. The differce between values of that have a collection marked in between are set to zero.</p>
-<h2 class="rubric" id="id2">Parameters</h2>
-<p>freq:str,
-frequency string indicator. For daily values set to ‘1D’. For another frequencies check
-https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_crude_rate">
-<span class="sig-name descname"><span class="pre">get_crude_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_crude_rate" title="Link to this definition">#</a></dt>
-<dd><p>Get the crude rate (difference between consecutive values) rate of a container
-The rates are the average difference between consecutive periods in the spline of the cumulative differenes between the bins.
-This is similar to make an average of the rate asross the time period. The rates should be unterstood has
-rate per frequency period. The differce between values of that have a collection marked in between are set to zero.”</p>
-<p>freq:str,
-frequency string indicator. For daily values set to ‘1D’. For another frequencies check
-https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliasess</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_tag">
-<span class="sig-name descname"><span class="pre">get_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mv_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG</span></a></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_tag" title="Link to this definition">#</a></dt>
-<dd><p>Counts the number of times that the moving average of the spearman coeficinet changes from
-False to True or otherwise. Also tags according to the the number of datapoints present in the
-Series.</p>
-<h2 class="rubric" id="id3">Parameters</h2>
-<p>window:int
-window to compute the rigth moving average of spearman correlations
-mv_thresh: int
-threshold to for a the moving avaraege to be consigered good or bad
-min_days: int
-minimum number of days to consider a container to have a sufficient number of measures
-use: str
-weather to use averege distance or spearman for tagging. Can be “spear” or “avg_dist”</p>
-<h2 class="rubric" id="id4">Returns</h2>
-<p>tag: TAG
-tag of the containers quality information</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_collections_std">
-<span class="sig-name descname"><span class="pre">get_collections_std</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_collections_std" title="Link to this definition">#</a></dt>
-<dd><p>Get the variance between the distance between collections in days</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.set_tag">
-<span class="sig-name descname"><span class="pre">set_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.set_tag" title="Link to this definition">#</a></dt>
-<dd><p>Set the containers tag mannually</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.mark_collections">
-<span class="sig-name descname"><span class="pre">mark_collections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.mark_collections" title="Link to this definition">#</a></dt>
-<dd><p>Marks the collection in both dataframes. Creates a mask if fill information marking
-the first fill reading after each collection. Also saves the index pointers for each collection
-allowing to subset the readings dataframe for each period in between adjacent colletions.
-The fatest way make transformations by event is to use the collection mask calculated in cidx.
-It points to the integer line index of teh collectiton in self.recs</p>
-<p>Fundamental pre-processing tool for algorithms and plotting to work.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_spearman">
-<span class="sig-name descname"><span class="pre">calc_spearman</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_spearman" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the 100 x the Spearman correlation between the datapoints within each collection event.
-100 mean monotonic incresing -100 is monotonic decreasing and 0 is not monotonic at all</p>
-<h2 class="rubric" id="id5">Parameters</h2>
-<p>start/end: int, Optional
-Start numeric index of the colletciton to be considered.
-Allows to (re)compute metrics for a given subset of collection events.
-Default is the whole series.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_avg_dist_metric">
-<span class="sig-name descname"><span class="pre">calc_avg_dist_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_avg_dist_metric" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the avarage distance between max and min approximations between two collections.
-This value is calculated 100-avg_dist for coherence with spearman correlation</p>
-<p>The quantities are saved in the recs dataframe because this a quantitiy relating
-a period between collections.</p>
-<h2 class="rubric" id="id6">Parameters</h2>
-<p>start/end: int, Optional
-Start numeric index of the colletciton to be considered.
-Allows to (re)compute metrics for a given subset of collection events.
-Default is the whole series.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_max_min_mean">
-<span class="sig-name descname"><span class="pre">calc_max_min_mean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_max_min_mean" title="Link to this definition">#</a></dt>
-<dd><p>Given the fill values of a series, calculates the max and min monotonic
-aproximations.</p>
-<p>The max can be viewed as transversing the series from left
-to rigth and seting the next value to the value of previous one if it is lower.
-The min is equivelent but makign a swipe from rigth to left, changing
-if the next value is bigger.</p>
-<p>As these to Series are monotonic, their average
-is monotonic too.</p>
-<p>Allows to choose of subset of colletions. Optimized
-for vectorized operations</p>
-<h2 class="rubric" id="id7">Parameters</h2>
-<p>start/end: int, Optional
-Start numeric index of the colletciton to be considered.
-Allows to (re)compute metrics for a given subset of collection events.
-Default is the whole series.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.adjust_collections">
-<span class="sig-name descname"><span class="pre">adjust_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_trash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.adjust_collections" title="Link to this definition">#</a></dt>
-<dd><p>Orchestrator of the collections adjustement. Touches each event only once to guarantee
-stopping. Iterates until either touching each event or no event has an Avg_Dist
-lower then the threshold. Haldles all the index changes when deleating adjusting collections.</p>
-<p>Goes from left to rigth</p>
-<h2 class="rubric" id="id8">Parameters</h2>
-<p>dist_thresh:int
-theshold for avg_dist to look at the surrounding collections
-c_trash:int,
-minimum collected thrash to count a collection. Must be &gt;= 0
-max_fill:int
-maximum fill value to count has the first value after a collection. If the fill value
-is bigger than this, then the collection is discarded.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.adjust_one_collection">
-<span class="sig-name descname"><span class="pre">adjust_one_collection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_trash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.adjust_one_collection" title="Link to this definition">#</a></dt>
-<dd><p>Adjust a single collection event based on fill data.</p>
-<h2 class="rubric" id="id9">Parameters</h2>
-<p>idx:int,
-Index of the colletion to be adjusted
-c_trash:int,
-minimum collected thrash to count a collection
-max_fill:int
-maximum fill value to count has the first value after a collection</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.place_collections">
-<span class="sig-name descname"><span class="pre">place_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_trash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spear_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.place_collections" title="Link to this definition">#</a></dt>
-<dd><p>Orchestrator of the collections placement. Touches each event only once to guarantee
-stopping. Interates from left to rigth only once touching in event that have an Avg_Dist
-and Spearman below/above the thresholds. Haldles all the index changes when introducing adjusting
-collections.</p>
-<h2 class="rubric" id="id10">Parameters</h2>
-<p>dist_thresh:int
-theshold for avg_dist to look at the surrounding collections
-c_trash:int,
-minimum collected thrash to count a collection
-max_fill:int
-maximum fill value to count has the first value after a collection
-spear_thresh:int, optional
-threshol for spearman to look at the surrounding collections</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.place_one_collection">
-<span class="sig-name descname"><span class="pre">place_one_collection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_trash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.place_one_collection" title="Link to this definition">#</a></dt>
-<dd><p>Insert a collection event if criteria are met.</p>
-<h2 class="rubric" id="id11">Parameters</h2>
-<p>idx:int,
-Index of the colletion to be adjusted
-c_trash:int,
-minimum collected thrash to count a collection
-max_fill:int
-maximum fill value to count has the first value after a collection</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.clean_box">
-<span class="sig-name descname"><span class="pre">clean_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mv_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.clean_box" title="Link to this definition">#</a></dt>
-<dd><p>Filter out collection events that fall below a certain moving average threshold.</p>
-<p>Args:
-window (int): Moving average window size.
-mv_thresh (int): Threshold for the moving average.
-use (str): Metric to use (‘spear’ or ‘avg_dist’).</p>
-<p>Raises:
-AssertionError: If <code class="docutils literal notranslate"><span class="pre">use</span></code> is not a valid key.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_fill">
-<span class="sig-name descname"><span class="pre">plot_fill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(9,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_fill" title="Link to this definition">#</a></dt>
-<dd><p>Plots the fill level of the bins with associated collections</p>
-<h2 class="rubric" id="id12">Parameters</h2>
-<p>fig_size: tuple of integers
-alias for plt.figure(figsize=fig_size)
-end/start_date: string with format %d/%m/%Y.
-Period to be analysed. First day is inclusive staring at 00:01 last day is exclusive.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_max_min">
-<span class="sig-name descname"><span class="pre">plot_max_min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(9,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_max_min" title="Link to this definition">#</a></dt>
-<dd><p>Plots tha raw data with max, min monotonic aproximations as well as their mean</p>
-<h2 class="rubric" id="id13">Parameters</h2>
-<p>fig_size: tuple of integers
-alias for plt.figure(figsize=fig_size)
-end/start_date: string with format %d/%m/%Y.
-Period to be analysed. First day is inclusive staring at 00:01 last day is exclusive.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_collection_metrics">
-<span class="sig-name descname"><span class="pre">plot_collection_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(9,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_collection_metrics" title="Link to this definition">#</a></dt>
-<dd><p>Plots the metrics for each collection period between colletions</p>
-<h2 class="rubric" id="id14">Parameters</h2>
-<p>fig_size: tuple of integers
-alias for plt.figure(figsize=fig_size)
-end/start_date: string with format %d/%m/%Y.
-Period to be analysed. First day is inclusive staring at 00:01 last day is exclusive.</p>
-</dd></dl>
-
+<dl class="py data">
+<dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.__all__">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘Container’, ‘TAG’]</p>
 </dd></dl>
 
 </section>
@@ -894,41 +554,10 @@ Period to be analysed. First day is inclusive staring at 00:01 last day is exclu
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG"><code class="docutils literal notranslate"><span class="pre">TAG</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.LOW_MEASURES"><code class="docutils literal notranslate"><span class="pre">TAG.LOW_MEASURES</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.INSIDE_BOX"><code class="docutils literal notranslate"><span class="pre">TAG.INSIDE_BOX</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.OK"><code class="docutils literal notranslate"><span class="pre">TAG.OK</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.WARN"><code class="docutils literal notranslate"><span class="pre">TAG.WARN</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG.LOCAL_WARN"><code class="docutils literal notranslate"><span class="pre">TAG.LOCAL_WARN</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><code class="docutils literal notranslate"><span class="pre">Container</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.__del__"><code class="docutils literal notranslate"><span class="pre">Container.__del__()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_keys"><code class="docutils literal notranslate"><span class="pre">Container.get_keys()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_vars"><code class="docutils literal notranslate"><span class="pre">Container.get_vars()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_collection_quantities"><code class="docutils literal notranslate"><span class="pre">Container.get_collection_quantities()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_scan_linear_spline"><code class="docutils literal notranslate"><span class="pre">Container.get_scan_linear_spline()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_monotonic_mean_rate_error_splines"><code class="docutils literal notranslate"><span class="pre">Container.get_monotonic_mean_rate_error_splines()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_monotonic_mean_rate"><code class="docutils literal notranslate"><span class="pre">Container.get_monotonic_mean_rate()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_crude_rate"><code class="docutils literal notranslate"><span class="pre">Container.get_crude_rate()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_tag"><code class="docutils literal notranslate"><span class="pre">Container.get_tag()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.get_collections_std"><code class="docutils literal notranslate"><span class="pre">Container.get_collections_std()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.set_tag"><code class="docutils literal notranslate"><span class="pre">Container.set_tag()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.mark_collections"><code class="docutils literal notranslate"><span class="pre">Container.mark_collections()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_spearman"><code class="docutils literal notranslate"><span class="pre">Container.calc_spearman()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_avg_dist_metric"><code class="docutils literal notranslate"><span class="pre">Container.calc_avg_dist_metric()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.calc_max_min_mean"><code class="docutils literal notranslate"><span class="pre">Container.calc_max_min_mean()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.adjust_collections"><code class="docutils literal notranslate"><span class="pre">Container.adjust_collections()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.adjust_one_collection"><code class="docutils literal notranslate"><span class="pre">Container.adjust_one_collection()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.place_collections"><code class="docutils literal notranslate"><span class="pre">Container.place_collections()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.place_one_collection"><code class="docutils literal notranslate"><span class="pre">Container.place_one_collection()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.clean_box"><code class="docutils literal notranslate"><span class="pre">Container.clean_box()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_fill"><code class="docutils literal notranslate"><span class="pre">Container.plot_fill()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_max_min"><code class="docutils literal notranslate"><span class="pre">Container.plot_max_min()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container.plot_collection_metrics"><code class="docutils literal notranslate"><span class="pre">Container.plot_collection_metrics()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><code class="docutils literal notranslate"><span class="pre">Container</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.pipeline" href="src.pipeline.html" />
-    <link rel="prev" title="src.data.fast_datasets" href="src.data.fast_datasets.html" />
+    <link rel="prev" title="src.data.datasets" href="src.data.datasets.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -486,7 +485,7 @@ and their variants (VRPP, WCVRP) with configurable parameters.</p>
 <dd><p>Generates VRP datasets based on the provided configuration options.</p>
 <p>Args:
 opts (dict): A dictionary containing configuration parameters for data generation.
-Expected keys include ‘seed’, ‘problem’, ‘dataset_type’, ‘graph_sizes’,
+Expected keys include ‘seed’, ‘problem’, ‘dataset_type’, ‘num_locs’,
 ‘waste_type’, ‘area’, ‘vertex_method’, ‘dataset_size’, etc.</p>
 <p>Raises:
 Exception: If directory creation fails or data generation encounters an error.</p>
@@ -522,12 +521,12 @@ AssertionError: If incompatible arguments are provided (e.g., mu/sigma length mi
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.data.fast_datasets.html"
+       href="src.data.datasets.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></p>
       </div>
     </a>
     <a class="right-next"

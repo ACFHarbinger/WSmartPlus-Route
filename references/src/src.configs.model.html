@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -444,9 +443,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.name"><code class="docutils literal notranslate"><span class="pre">ModelConfig.name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.embed_dim"><code class="docutils literal notranslate"><span class="pre">ModelConfig.embed_dim</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.hidden_dim"><code class="docutils literal notranslate"><span class="pre">ModelConfig.hidden_dim</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.num_encoder_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.num_encoder_layers</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.num_decoder_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.num_decoder_layers</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.num_heads"><code class="docutils literal notranslate"><span class="pre">ModelConfig.num_heads</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.n_encode_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.n_encode_layers</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.n_decode_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.n_decode_layers</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.n_heads"><code class="docutils literal notranslate"><span class="pre">ModelConfig.n_heads</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.encoder_type"><code class="docutils literal notranslate"><span class="pre">ModelConfig.encoder_type</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.temporal_horizon"><code class="docutils literal notranslate"><span class="pre">ModelConfig.temporal_horizon</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.tanh_clipping"><code class="docutils literal notranslate"><span class="pre">ModelConfig.tanh_clipping</span></code></a></li>
@@ -458,8 +457,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.mask_graph"><code class="docutils literal notranslate"><span class="pre">ModelConfig.mask_graph</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.spatial_bias"><code class="docutils literal notranslate"><span class="pre">ModelConfig.spatial_bias</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.connection_type"><code class="docutils literal notranslate"><span class="pre">ModelConfig.connection_type</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.num_encoder_sublayers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.num_encoder_sublayers</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.num_predictor_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.num_predictor_layers</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.n_encoder_sublayers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.n_encoder_sublayers</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.n_predictor_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.n_predictor_layers</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.learn_affine"><code class="docutils literal notranslate"><span class="pre">ModelConfig.learn_affine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.track_stats"><code class="docutils literal notranslate"><span class="pre">ModelConfig.track_stats</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.epsilon_alpha"><code class="docutils literal notranslate"><span class="pre">ModelConfig.epsilon_alpha</span></code></a></li>
@@ -519,9 +518,9 @@ document.write(`
 name: Name of the model architecture (e.g., ‘am’, ‘deep_decoder’).
 embed_dim: Embedding dimension.
 hidden_dim: Hidden dimension.
-num_encoder_layers: Number of encoder layers.
-num_decoder_layers: Number of decoder layers.
-num_heads: Number of attention heads.
+n_encoder_layers: Number of encoder layers.
+n_decoder_layers: Number of decoder layers.
+n_heads: Number of attention heads.
 encoder_type: Type of encoder (‘gat’, ‘gcn’, etc.).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.model.ModelConfig.name">
@@ -542,20 +541,20 @@ encoder_type: Type of encoder (‘gat’, ‘gcn’, etc.).</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.model.ModelConfig.num_encoder_layers">
-<span class="sig-name descname"><span class="pre">num_encoder_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.model.ModelConfig.num_encoder_layers" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.model.ModelConfig.n_encode_layers">
+<span class="sig-name descname"><span class="pre">n_encode_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.model.ModelConfig.n_encode_layers" title="Link to this definition">#</a></dt>
 <dd><p>3</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.model.ModelConfig.num_decoder_layers">
-<span class="sig-name descname"><span class="pre">num_decoder_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.model.ModelConfig.num_decoder_layers" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.model.ModelConfig.n_decode_layers">
+<span class="sig-name descname"><span class="pre">n_decode_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.model.ModelConfig.n_decode_layers" title="Link to this definition">#</a></dt>
 <dd><p>3</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.model.ModelConfig.num_heads">
-<span class="sig-name descname"><span class="pre">num_heads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.model.ModelConfig.num_heads" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.model.ModelConfig.n_heads">
+<span class="sig-name descname"><span class="pre">n_heads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.model.ModelConfig.n_heads" title="Link to this definition">#</a></dt>
 <dd><p>8</p>
 </dd></dl>
 
@@ -626,14 +625,14 @@ encoder_type: Type of encoder (‘gat’, ‘gcn’, etc.).</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.model.ModelConfig.num_encoder_sublayers">
-<span class="sig-name descname"><span class="pre">num_encoder_sublayers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.model.ModelConfig.num_encoder_sublayers" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.model.ModelConfig.n_encoder_sublayers">
+<span class="sig-name descname"><span class="pre">n_encoder_sublayers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.model.ModelConfig.n_encoder_sublayers" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.model.ModelConfig.num_predictor_layers">
-<span class="sig-name descname"><span class="pre">num_predictor_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.model.ModelConfig.num_predictor_layers" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.model.ModelConfig.n_predictor_layers">
+<span class="sig-name descname"><span class="pre">n_predictor_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.model.ModelConfig.n_predictor_layers" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
 </dd></dl>
 
@@ -791,9 +790,9 @@ encoder_type: Type of encoder (‘gat’, ‘gcn’, etc.).</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.name"><code class="docutils literal notranslate"><span class="pre">ModelConfig.name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.embed_dim"><code class="docutils literal notranslate"><span class="pre">ModelConfig.embed_dim</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.hidden_dim"><code class="docutils literal notranslate"><span class="pre">ModelConfig.hidden_dim</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.num_encoder_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.num_encoder_layers</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.num_decoder_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.num_decoder_layers</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.num_heads"><code class="docutils literal notranslate"><span class="pre">ModelConfig.num_heads</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.n_encode_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.n_encode_layers</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.n_decode_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.n_decode_layers</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.n_heads"><code class="docutils literal notranslate"><span class="pre">ModelConfig.n_heads</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.encoder_type"><code class="docutils literal notranslate"><span class="pre">ModelConfig.encoder_type</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.temporal_horizon"><code class="docutils literal notranslate"><span class="pre">ModelConfig.temporal_horizon</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.tanh_clipping"><code class="docutils literal notranslate"><span class="pre">ModelConfig.tanh_clipping</span></code></a></li>
@@ -805,8 +804,8 @@ encoder_type: Type of encoder (‘gat’, ‘gcn’, etc.).</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.mask_graph"><code class="docutils literal notranslate"><span class="pre">ModelConfig.mask_graph</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.spatial_bias"><code class="docutils literal notranslate"><span class="pre">ModelConfig.spatial_bias</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.connection_type"><code class="docutils literal notranslate"><span class="pre">ModelConfig.connection_type</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.num_encoder_sublayers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.num_encoder_sublayers</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.num_predictor_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.num_predictor_layers</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.n_encoder_sublayers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.n_encoder_sublayers</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.n_predictor_layers"><code class="docutils literal notranslate"><span class="pre">ModelConfig.n_predictor_layers</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.learn_affine"><code class="docutils literal notranslate"><span class="pre">ModelConfig.learn_affine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.track_stats"><code class="docutils literal notranslate"><span class="pre">ModelConfig.track_stats</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.model.ModelConfig.epsilon_alpha"><code class="docutils literal notranslate"><span class="pre">ModelConfig.epsilon_alpha</span></code></a></li>

@@ -13,11 +13,13 @@
 :titlesonly:
 :maxdepth: 1
 
+src.utils.functions.rl
 src.utils.functions.beam_search
 src.utils.functions.decoding
 src.utils.functions.function
 src.utils.functions.graph_utils
 src.utils.functions.boolmask
 src.utils.functions.lexsort
+src.utils.functions.problem
 src.utils.functions.monkey_patch
 ```

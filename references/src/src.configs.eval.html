@@ -235,7 +235,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.fast_datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.fast_datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
@@ -460,7 +459,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.max_calc_batch_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.max_calc_batch_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.results_dir"><code class="docutils literal notranslate"><span class="pre">EvalConfig.results_dir</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.multiprocessing"><code class="docutils literal notranslate"><span class="pre">EvalConfig.multiprocessing</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.graph_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.graph_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.num_loc"><code class="docutils literal notranslate"><span class="pre">EvalConfig.num_loc</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.area"><code class="docutils literal notranslate"><span class="pre">EvalConfig.area</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.waste_type"><code class="docutils literal notranslate"><span class="pre">EvalConfig.waste_type</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">EvalConfig.focus_graph</span></code></a></li>
@@ -535,7 +534,7 @@ compress_mask: Compress mask into long.
 max_calc_batch_size: Size for subbatches.
 results_dir: Name of evaluation results directory.
 multiprocessing: Use multiprocessing to parallelize over multiple GPUs.
-graph_size: The size of the problem graph.
+num_loc: The size of the problem graph.
 area: County area of the bins locations.
 waste_type: Type of waste bins selected for the optimization problem.
 focus_graph: Path to the file with the coordinates of the graph to focus on.
@@ -666,8 +665,8 @@ load_path: Path to load model parameters and optimizer state from.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.graph_size">
-<span class="sig-name descname"><span class="pre">graph_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.graph_size" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.eval.EvalConfig.num_loc">
+<span class="sig-name descname"><span class="pre">num_loc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.eval.EvalConfig.num_loc" title="Link to this definition">#</a></dt>
 <dd><p>50</p>
 </dd></dl>
 
@@ -835,7 +834,7 @@ load_path: Path to load model parameters and optimizer state from.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.max_calc_batch_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.max_calc_batch_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.results_dir"><code class="docutils literal notranslate"><span class="pre">EvalConfig.results_dir</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.multiprocessing"><code class="docutils literal notranslate"><span class="pre">EvalConfig.multiprocessing</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.graph_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.graph_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.num_loc"><code class="docutils literal notranslate"><span class="pre">EvalConfig.num_loc</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.area"><code class="docutils literal notranslate"><span class="pre">EvalConfig.area</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.waste_type"><code class="docutils literal notranslate"><span class="pre">EvalConfig.waste_type</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.eval.EvalConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">EvalConfig.focus_graph</span></code></a></li>
