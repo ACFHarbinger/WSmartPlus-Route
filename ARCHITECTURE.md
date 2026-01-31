@@ -765,10 +765,10 @@ WSmart-Route/
 │   │   │   ├── alns_aux/         # ALNS operators
 │   │   │   ├── look_ahead_aux/   # Look-ahead helpers
 │   │   │   └── hgs_aux/          # HGS components
-│   │   ├── tasks/                # Problem definitions
-│   │   │   ├── vrpp/             # VRPP problems
-│   │   │   ├── wcvrp/            # WCVRP problems
-│   │   │   └── swcvrp/           # SWCVRP problems
+│   │   ├── envs/                # Problem environments
+│   │   │   ├── vrpp.py           # VRPP environment
+│   │   │   ├── wcvrp.py          # WCVRP environment
+│   │   │   └── swcvrp.py         # SWCVRP environment
 │   │   ├── pipeline/             # Orchestration
 │   │   │   ├── simulations/      # Simulator engine
 │   │   │   ├── rl/                       # RL algorithms (Lightning-based, ACTIVE)

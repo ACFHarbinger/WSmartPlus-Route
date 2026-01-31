@@ -18,6 +18,12 @@ class REINFORCE(RL4COLitModule):
     REINFORCE with baseline.
 
     Standard policy gradient algorithm with configurable baselines.
+
+    Reference:
+        Williams, R. J. (1992).
+        Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning.
+        Machine Learning, 8(3-4), 229-256.
+        https://doi.org/10.1007/BF00992696
     """
 
     def __init__(

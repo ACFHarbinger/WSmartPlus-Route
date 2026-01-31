@@ -162,7 +162,7 @@ WSmart-Route/
 │   │   ├── cli/           # Command-line interface
 │   │   ├── models/        # Neural network models
 │   │   ├── policies/      # Classical optimization algorithms
-│   │   ├── tasks/         # Problem definitions
+│   │   ├── envs/          # Problem environments
 │   │   ├── pipeline/      # Orchestration (rl, features, simulations)
 │   │   ├── data/          # Data generation
 │   │   └── utils/         # Utilities

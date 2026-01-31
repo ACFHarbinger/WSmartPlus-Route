@@ -499,7 +499,7 @@ WSmart-Route/
 │   ├── src/
 │   │   ├── models/          # Neural architectures
 │   │   ├── policies/        # Classical solvers
-│   │   ├── problems/        # Environment physics
+│   │   ├── envs/            # Problem environments
 │   │   ├── pipeline/        # Training/evaluation/simulation
 │   │   └── utils/           # Shared utilities
 │   └── test/                # Test suite

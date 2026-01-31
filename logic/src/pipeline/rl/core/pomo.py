@@ -21,6 +21,12 @@ class POMO(REINFORCE):
     - Data Augmentation (Dihedral/Symmetric)
     - Multi-start decoding
     - Shared baseline across starts
+
+    Reference:
+        Kwon, Y. D., Choo, J., Kim, B., Yoon, I., Gwon, Y., & Min, S. (2020).
+        POMO: Policy Optimization with Multiple Optima for Reinforcement Learning.
+        NeurIPS 2020. arXiv:2010.16011
+        https://arxiv.org/abs/2010.16011
     """
 
     def __init__(
