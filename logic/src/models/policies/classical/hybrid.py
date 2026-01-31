@@ -11,8 +11,8 @@ from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
-from logic.src.models.policies.classical.alns import ALNSPolicy
-from logic.src.models.policies.classical.hgs import HGSPolicy
+from logic.src.models.policies.classical.alns import VectorizedALNS
+from logic.src.models.policies.classical.hgs import VectorizedHGS
 
 
 class NeuralHeuristicHybrid(ConstructivePolicy):
@@ -23,7 +23,7 @@ class NeuralHeuristicHybrid(ConstructivePolicy):
     def __init__(
         self,
         neural_policy: ConstructivePolicy,
-        heuristic_policy: Union[ALNSPolicy, HGSPolicy],
+        heuristic_policy: Union[VectorizedALNS, VectorizedHGS],
         **kwargs,
     ):
         """Initialize NeuralHeuristicHybrid."""
