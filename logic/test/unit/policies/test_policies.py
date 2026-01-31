@@ -57,6 +57,13 @@ class TestPolicyAdapters:
     Unit tests for standardized policy adapters and registry integration.
     """
 
+    @pytest.fixture(autouse=True)
+    def mock_loader(self):
+        with patch("logic.src.pipeline.simulations.loader.load_area_and_waste_type_params") as mock_load:
+            # Q, R, _, C, _
+            mock_load.return_value = (100.0, 1.0, None, 1.0, None)
+            yield mock_load
+
     @pytest.mark.unit
     def test_alns_adapter(self, mock_policy_data):
         with patch("logic.src.policies.policy_alns.run_alns") as mock_run:

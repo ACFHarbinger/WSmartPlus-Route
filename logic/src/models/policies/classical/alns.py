@@ -10,10 +10,10 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
 
-from .adaptive_large_neighborhood_search import VectorizedALNS
+from .adaptive_large_neighborhood_search import VectorizedALNS as VectorizedALNSEngine
 
 
-class ALNSPolicy(ConstructivePolicy):
+class VectorizedALNS(ConstructivePolicy):
     """
     ALNS-based Policy wrapper using vectorized GPU-accelerated implementation.
     """
@@ -89,7 +89,7 @@ class ALNSPolicy(ConstructivePolicy):
                 [torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)]
             )
 
-        solver = VectorizedALNS(
+        solver = VectorizedALNSEngine(
             dist_matrix=dist_matrix,
             demands=demands,
             vehicle_capacity=capacity,

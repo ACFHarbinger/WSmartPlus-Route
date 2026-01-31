@@ -40,7 +40,16 @@ import torch
 from loguru import logger
 from tqdm import tqdm
 
-from logic.src.constants import DAY_METRICS, ROOT_DIR, SIM_METRICS, TQDM_COLOURS
+from logic.src.constants import (
+    CONFIG_CHAR_POLICIES,
+    DAY_METRICS,
+    ENGINE_POLICIES,
+    ROOT_DIR,
+    SIM_METRICS,
+    SIMPLE_POLICIES,
+    THRESHOLD_POLICIES,
+    TQDM_COLOURS,
+)
 from logic.src.utils.configs.config_loader import load_config
 from logic.src.utils.configs.setup_utils import setup_env, setup_hrl_manager, setup_model
 from logic.src.utils.logging.log_utils import (
@@ -153,28 +162,6 @@ class SimulationContext:
 
         Uses a lookup table approach for maintainability.
         """
-        # Policies with engine options
-        ENGINE_POLICIES = {
-            "vrpp": ["gurobi", "hexaly"],
-        }
-
-        # Policies that parse threshold from string
-        THRESHOLD_POLICIES = ["vrpp", "sans", "hgs", "alns", "bcp"]
-
-        # Policies with special config chars (e.g., lac_a_1.0, lac_b_2.0)
-        CONFIG_CHAR_POLICIES = {"lac": ["a", "b"]}
-
-        # Simple name mappings (no threshold parsing)
-        SIMPLE_POLICIES = {
-            ("am", "ddam", "transgcn"): "neural",
-            ("last_minute",): "last_minute",
-            ("regular",): "regular",
-            ("bcp",): "bcp",
-            ("lkh",): "lkh",
-            ("tsp",): "tsp",
-            ("cvrp",): "cvrp",
-        }
-
         # Check engine policies first
         for pol_key, engines in ENGINE_POLICIES.items():
             if pol_key in self.pol_strip:
