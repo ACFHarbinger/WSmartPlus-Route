@@ -482,6 +482,42 @@ def make_day_context():
             "config": {},
         }
         defaults.update(kwargs)
-        return SimulationDayContext(**defaults)
+        return SimulationDayContext(**defaults)  # type: ignore
 
     return _make
+
+
+@pytest.fixture
+def mock_bins_params_loader(mocker):
+    """
+    Mock config loader for Bins to avoid file system reads.
+    Returns: vehicle_capacity, revenue, density, expenses, bin_volume
+    """
+    return mocker.patch(
+        "logic.src.pipeline.simulations.bins.load_area_and_waste_type_params",
+        return_value=(None, 1.0, 10.0, 0.5, 1000.0)
+    )
+
+
+@pytest.fixture
+def bins_stats(tmp_path, mock_bins_params_loader):
+    """Create a Bins instance for stats testing."""
+    return Bins(
+        n=2,
+        data_dir=str(tmp_path),
+        sample_dist="gamma",
+        area="test_area",
+        waste_type="test_type",
+    )
+
+
+@pytest.fixture
+def bins(tmp_path, mock_bins_params_loader):
+    """Standard Bins fixture for general testing."""
+    return Bins(
+        n=10,
+        data_dir=str(tmp_path),
+        sample_dist="gamma",
+        noise_mean=0.0,
+        noise_variance=1.0  # Enable noise
+    )
