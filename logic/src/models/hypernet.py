@@ -6,8 +6,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from logic.src.utils.functions.problem import is_vrpp_problem, is_wc_problem
-
 from .modules import ActivationFunction, Normalization
 
 
@@ -19,7 +17,8 @@ class Hypernetwork(nn.Module):
 
     def __init__(
         self,
-        problem,
+        input_dim,
+        output_dim,
         n_days=365,
         embed_dim=16,
         hidden_dim=64,
@@ -32,7 +31,8 @@ class Hypernetwork(nn.Module):
         Initialize the Hypernetwork.
 
         Args:
-            problem (object): The problem instance wrapper.
+            input_dim (int): Dimension of input metrics.
+            output_dim (int): Dimension of output weights.
             n_days (int, optional): Number of days in the year. Defaults to 365.
             embed_dim (int, optional): Dimension of time embedding. Defaults to 16.
             hidden_dim (int, optional): Dimension of hidden layers. Defaults to 64.
@@ -42,19 +42,13 @@ class Hypernetwork(nn.Module):
             bias (bool, optional): Whether to use bias in linear layers. Defaults to True.
         """
         super(Hypernetwork, self).__init__()
-        self.problem = problem
-        self.is_wc = is_wc_problem(problem)
-        self.is_vrpp = is_vrpp_problem(problem)
-        if self.is_vrpp or self.is_wc:
-            cost_dim = 3 * 2
-        else:
-            cost_dim = 1 * 2
-
+        self.input_dim = input_dim
+        self.output_dim = output_dim
         self.n_days = n_days
-        self.time_embedding = nn.Embedding(n_days, embed_dim)  # Day of year embedding
+        self.time_embedding = nn.Embedding(n_days, embed_dim)
 
         # Combined input: metrics + time embedding
-        combined_dim = cost_dim + embed_dim
+        combined_dim = input_dim + embed_dim
 
         self.layers = nn.Sequential(
             nn.Linear(combined_dim, hidden_dim, bias=bias),
@@ -63,7 +57,7 @@ class Hypernetwork(nn.Module):
             nn.Linear(hidden_dim, hidden_dim, bias=bias),
             Normalization(hidden_dim, normalization, learn_affine),
             ActivationFunction(activation),
-            nn.Linear(hidden_dim, cost_dim, bias=bias),
+            nn.Linear(hidden_dim, output_dim, bias=bias),
         )
 
         # Output activation to ensure positive weights
@@ -137,8 +131,11 @@ class HypernetworkOptimizer:
         self.constraint_value = constraint_value
         self.device = device
 
+        self.n_days = 365
         # Create hypernetwork
-        self.hypernetwork = Hypernetwork(problem=problem, hidden_dim=64).to(device)
+        self.hypernetwork = Hypernetwork(
+            input_dim=self.input_dim, output_dim=self.output_dim, n_days=self.n_days, hidden_dim=64
+        ).to(device)
 
         # Create optimizer for hypernetwork
         self.optimizer = torch.optim.Adam(self.hypernetwork.parameters(), lr=lr)

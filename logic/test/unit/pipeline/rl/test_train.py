@@ -60,6 +60,55 @@ class TestTrainingOrchestration:
         mock_create.assert_called_once_with(cfg)
         mock_trainer.fit.assert_called_once_with(mock_model)
 
+    @pytest.mark.unit
+    def test_create_model_complex_algos(self):
+        """Test creation of models for various algorithms (SAPO, SymNCO, POMO)."""
+        from omegaconf import OmegaConf
+        for algo in ["sapo", "symnco", "pomo"]:
+            cfg = Config()
+            # Convert to DictConfig to allow overriding with mocks if needed,
+            # or just use plain objects.
+            cfg_dict = OmegaConf.to_container(OmegaConf.create(cfg), resolve=True)
+            cfg_dict["rl"]["algorithm"] = algo
+            cfg_dict["model"]["name"] = "am"
+
+            # Setup specific sub-configs if needed
+            if algo == "symnco":
+                cfg_dict["rl"]["symnco"] = {"alpha": 0.2, "beta": 1.0}
+            if algo == "pomo":
+                cfg_dict["rl"]["pomo"] = {
+                    "num_augment": 8,
+                    "augment_fn": "dihedral8",
+                    "num_starts": 50
+                }
+
+            # Create a DictConfig from the modified dict
+            cfg = OmegaConf.create(cfg_dict)
+
+            with patch("logic.src.pipeline.features.train.get_env"), \
+                 patch("logic.src.pipeline.features.train.AttentionModelPolicy"), \
+                 patch("logic.src.models.policies.critic.create_critic_from_actor"):
+
+                model = create_model(cfg)
+                assert model is not None
+                assert model.__class__.__name__.lower() == algo
+
+    @pytest.mark.unit
+    def test_run_hpo_optuna(self):
+        """Verify run_hpo calls OptunaHPO runner."""
+        cfg = Config()
+        cfg.hpo.method = "tpe"
+
+        with patch("logic.src.pipeline.rl.hpo.OptunaHPO") as mock_optuna_cls:
+            mock_runner = mock_optuna_cls.return_value
+            mock_runner.run.return_value = 0.75
+
+            from logic.src.pipeline.features.train import run_hpo
+            reward = run_hpo(cfg)
+
+            assert reward == 0.75
+            mock_optuna_cls.assert_called_once()
+
 
 class TestWSTrainer:
     """Tests for the custom WSTrainer class."""
