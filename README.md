@@ -21,6 +21,13 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
 [![PySide6](https://img.shields.io/badge/PySide6-Qt-41CD52?logo=qt&logoColor=white)](https://doc.qt.io/qtforpython-6/)
 [![uv](https://img.shields.io/badge/managed%20by-uv-261230.svg)](https://github.com/astral-sh/uv)
+[![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](https://www.kernel.org/)
+[![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com/)
+[![Kubuntu](https://img.shields.io/badge/Kubuntu-0079C1?logo=kubuntu&logoColor=white)](https://kubuntu.org/)
+[![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windows&logoColor=white)](https://www.microsoft.com/windows)
+[![Intel](https://img.shields.io/badge/Intel-Hardware-0071C5?logo=intel&logoColor=white)](https://www.intel.com/)
+[![AMD](https://img.shields.io/badge/AMD-Ryzen/EPYC-ED1C24?logo=amd&logoColor=white)](https://www.amd.com/)
+[![Apple Silicon](https://img.shields.io/badge/Apple_Silicon-M1/M2/M3-000000?logo=apple&logoColor=white)](https://www.apple.com/apple-silicon/)
 [![CUDA RTX 4080](https://img.shields.io/badge/CUDA-RTX_4080-76B900?logo=nvidia&logoColor=white)](https://developer.nvidia.com/cuda-toolkit)
 [![CUDA RTX 3090ti](https://img.shields.io/badge/CUDA-RTX_3090ti-76B900?logo=nvidia&logoColor=white)](https://developer.nvidia.com/cuda-toolkit)
 [![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
@@ -64,15 +71,15 @@
 
 Our comprehensive documentation covers every aspect of the WSmart+ Route system:
 
-| Document | Description | Target Audience |
-|:---------|:------------|:----------------|
-| **[AGENTS.md](AGENTS.md)** | Complete registry of neural models, classical policies, and environment physics. The AI assistant guide for understanding the codebase. | Researchers, ML Engineers, AI Assistants |
-| **[ARCHITECTURE.md](ARCHITECTURE.md)** | High-level system design, data flow diagrams, design patterns, and module boundaries. | Architects, Senior Developers |
-| **[CONTRIBUTING.md](CONTRIBUTING.md)** | Code style, Git workflow, PR process, and development guidelines. | Contributors |
-| **[DEVELOPMENT.md](DEVELOPMENT.md)** | Environment setup, CLI reference, development workflows, and debugging guides. | Developers |
-| **[TESTING.md](TESTING.md)** | Test suite organization, fixtures, coverage requirements, and best practices. | QA Engineers, Developers |
-| **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** | Common issues, diagnostic steps, error reference, and quick fixes. | Everyone |
-| **[TUTORIAL.md](TUTORIAL.md)** | Deep dives into algorithms, code examples, and implementation guides. | Developers, Researchers |
+| Document                                     | Description                                                                                                                             | Target Audience                          |
+| :------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------- |
+| **[AGENTS.md](AGENTS.md)**                   | Complete registry of neural models, classical policies, and environment physics. The AI assistant guide for understanding the codebase. | Researchers, ML Engineers, AI Assistants |
+| **[ARCHITECTURE.md](ARCHITECTURE.md)**       | High-level system design, data flow diagrams, design patterns, and module boundaries.                                                   | Architects, Senior Developers            |
+| **[CONTRIBUTING.md](CONTRIBUTING.md)**       | Code style, Git workflow, PR process, and development guidelines.                                                                       | Contributors                             |
+| **[DEVELOPMENT.md](DEVELOPMENT.md)**         | Environment setup, CLI reference, development workflows, and debugging guides.                                                          | Developers                               |
+| **[TESTING.md](TESTING.md)**                 | Test suite organization, fixtures, coverage requirements, and best practices.                                                           | QA Engineers, Developers                 |
+| **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** | Common issues, diagnostic steps, error reference, and quick fixes.                                                                      | Everyone                                 |
+| **[TUTORIAL.md](TUTORIAL.md)**               | Deep dives into algorithms, code examples, and implementation guides.                                                                   | Developers, Researchers                  |
 
 ---
 
@@ -84,12 +91,12 @@ The project bridges **Deep Reinforcement Learning (DRL)** with **Operations Rese
 
 ### Mission
 
-| Goal | Description |
-|------|-------------|
-| **Research Platform** | Benchmark neural routing agents against classical OR solvers |
-| **Real-World Application** | Optimize waste collection routes for municipalities |
-| **Simulation Environment** | Test policies on realistic multi-day scenarios |
-| **User-Friendly Interface** | PySide6 GUI for training, evaluation, and visualization |
+| Goal                        | Description                                                  |
+| --------------------------- | ------------------------------------------------------------ |
+| **Research Platform**       | Benchmark neural routing agents against classical OR solvers |
+| **Real-World Application**  | Optimize waste collection routes for municipalities          |
+| **Simulation Environment**  | Test policies on realistic multi-day scenarios               |
+| **User-Friendly Interface** | PySide6 GUI for training, evaluation, and visualization      |
 
 ### Why WSmart+ Route?
 
@@ -105,42 +112,42 @@ The project bridges **Deep Reinforcement Learning (DRL)** with **Operations Rese
 
 ### Neural Intelligence
 
-| Capability | Description |
-|------------|-------------|
+| Capability                 | Description                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------ |
 | **Attention-Based Models** | Transformer architectures (AM, TransGCN, DeepDecoder) for constructive routing |
-| **Graph Neural Networks** | GAT, GCN, GGAC encoders for spatial relationship modeling |
-| **Hierarchical RL** | Manager-Worker architecture with GAT-LSTM for temporal decision-making |
-| **Meta-Learning** | MetaRNN for generalization across different problem distributions |
-| **Policy Gradients** | REINFORCE, PPO, POMO with multiple baseline strategies |
+| **Graph Neural Networks**  | GAT, GCN, GGAC encoders for spatial relationship modeling                      |
+| **Hierarchical RL**        | Manager-Worker architecture with GAT-LSTM for temporal decision-making         |
+| **Meta-Learning**          | MetaRNN for generalization across different problem distributions              |
+| **Policy Gradients**       | REINFORCE, PPO, POMO with multiple baseline strategies                         |
 
 ### Optimization Solvers
 
-| Solver | Type | Description |
-|--------|------|-------------|
-| **Gurobi** | Exact | Branch-Cut-and-Price for optimal solutions |
-| **Hexaly** | Hybrid | High-performance local search optimization |
-| **ALNS** | Metaheuristic | Adaptive Large Neighborhood Search |
-| **HGS** | Genetic | Hybrid Genetic Search with local search |
-| **OR-Tools** | Constraint | Google's constraint programming solver |
+| Solver       | Type          | Description                                |
+| ------------ | ------------- | ------------------------------------------ |
+| **Gurobi**   | Exact         | Branch-Cut-and-Price for optimal solutions |
+| **Hexaly**   | Hybrid        | High-performance local search optimization |
+| **ALNS**     | Metaheuristic | Adaptive Large Neighborhood Search         |
+| **HGS**      | Genetic       | Hybrid Genetic Search with local search    |
+| **OR-Tools** | Constraint    | Google's constraint programming solver     |
 
 ### Simulation Engine
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-Day Scenarios** | Test policies over extended time horizons (31-365 days) |
-| **Stochastic Fill Rates** | Gamma and empirical distributions for bin level modeling |
-| **Real Road Networks** | OpenStreetMap integration for realistic distance matrices |
-| **Parallel Execution** | Multi-core simulation with checkpointing support |
-| **Overflow Tracking** | Monitor and penalize bin overflows |
+| Feature                   | Description                                               |
+| ------------------------- | --------------------------------------------------------- |
+| **Multi-Day Scenarios**   | Test policies over extended time horizons (31-365 days)   |
+| **Stochastic Fill Rates** | Gamma and empirical distributions for bin level modeling  |
+| **Real Road Networks**    | OpenStreetMap integration for realistic distance matrices |
+| **Parallel Execution**    | Multi-core simulation with checkpointing support          |
+| **Overflow Tracking**     | Monitor and penalize bin overflows                        |
 
 ### User Interface
 
-| Component | Description |
-|-----------|-------------|
-| **PySide6 GUI** | Modern Qt-based desktop application |
-| **Training Dashboard** | Real-time loss curves and validation metrics |
-| **Simulation Viewer** | Interactive route visualization with Folium maps |
-| **Analysis Tools** | Comparative policy evaluation and statistics |
+| Component              | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| **PySide6 GUI**        | Modern Qt-based desktop application              |
+| **Training Dashboard** | Real-time loss curves and validation metrics     |
+| **Simulation Viewer**  | Interactive route visualization with Folium maps |
+| **Analysis Tools**     | Comparative policy evaluation and statistics     |
 
 ---
 
@@ -178,13 +185,13 @@ python -c "import torch; print(f'PyTorch: {torch.__version__}, CUDA: {torch.cuda
 
 ### System Requirements
 
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| Python | 3.9 | 3.11 |
-| RAM | 16GB | 32GB |
-| GPU | 8GB VRAM | 16GB+ VRAM |
-| CUDA | 11.8 | 12.x |
-| Disk | 10GB | 50GB |
+| Component | Minimum  | Recommended |
+| --------- | -------- | ----------- |
+| Python    | 3.9      | 3.11        |
+| RAM       | 16GB     | 32GB        |
+| GPU       | 8GB VRAM | 16GB+ VRAM  |
+| CUDA      | 11.8     | 12.x        |
+| Disk      | 10GB     | 50GB        |
 
 ---
 
@@ -194,39 +201,39 @@ We provide a comprehensive library of neural architectures and classical policie
 
 ### Neural Models
 
-| Model | Architecture | Use Case |
-|-------|--------------|----------|
-| **AttentionModel (AM)** | Transformer (Encoder-Decoder) | General-purpose constructive routing |
-| **GATLSTManager** | GAT + LSTM | High-level temporal gating for HRL |
-| **TemporalAM** | Transformer | Time-dependent attention mechanism |
-| **MetaRNN** | RNN/LSTM | Meta-learning for distribution generalization |
-| **DeepDecoderAM** | Deep Transformer | Enhanced decoder for large instances |
-| **PointerNetwork** | RNN + Attention | Traditional pointer mechanism baseline |
-| **TransGCN** | Transformer + GCN | Hybrid spatial-sequential encoding |
+| Model                   | Architecture                  | Use Case                                      |
+| ----------------------- | ----------------------------- | --------------------------------------------- |
+| **AttentionModel (AM)** | Transformer (Encoder-Decoder) | General-purpose constructive routing          |
+| **GATLSTManager**       | GAT + LSTM                    | High-level temporal gating for HRL            |
+| **TemporalAM**          | Transformer                   | Time-dependent attention mechanism            |
+| **MetaRNN**             | RNN/LSTM                      | Meta-learning for distribution generalization |
+| **DeepDecoderAM**       | Deep Transformer              | Enhanced decoder for large instances          |
+| **PointerNetwork**      | RNN + Attention               | Traditional pointer mechanism baseline        |
+| **TransGCN**            | Transformer + GCN             | Hybrid spatial-sequential encoding            |
 
 ### Graph Encoders
 
-| Encoder | Type | Description |
-|---------|------|-------------|
-| **GATEncoder** | Graph Attention | Multi-head attention for node embeddings |
-| **GCNEncoder** | Graph Convolution | Standard GCN with aggregation |
-| **GGACEncoder** | Gated Graph | Edge-node interaction with gating |
-| **TGCEncoder** | Transformer-GCN | Hybrid spatial encoding |
-| **GACEncoder** | Graph Attention Conv | Edge-aware attention mechanism |
-| **MLPEncoder** | MLP | Non-graph baseline encoder |
+| Encoder         | Type                 | Description                              |
+| --------------- | -------------------- | ---------------------------------------- |
+| **GATEncoder**  | Graph Attention      | Multi-head attention for node embeddings |
+| **GCNEncoder**  | Graph Convolution    | Standard GCN with aggregation            |
+| **GGACEncoder** | Gated Graph          | Edge-node interaction with gating        |
+| **TGCEncoder**  | Transformer-GCN      | Hybrid spatial encoding                  |
+| **GACEncoder**  | Graph Attention Conv | Edge-aware attention mechanism           |
+| **MLPEncoder**  | MLP                  | Non-graph baseline encoder               |
 
 ### Classical Policies
 
-| Policy | Type | Description |
-|--------|------|-------------|
-| **LookAhead** | Rolling Horizon | N-day planning with sub-optimization |
-| **ALNS** | Metaheuristic | Destroy-repair operators with adaptive weights |
-| **BCP** | Exact | Branch-Cut-and-Price via Gurobi/OR-Tools |
-| **HGS** | Genetic | Evolutionary operators with local search |
-| **Regular** | Baseline | Fixed-schedule periodic collection |
-| **LastMinute** | Reactive | Threshold-triggered collection |
-| **Gurobi** | Exact | Direct Gurobi MIP solver |
-| **Hexaly** | Hybrid | Hexaly local search optimizer |
+| Policy         | Type            | Description                                    |
+| -------------- | --------------- | ---------------------------------------------- |
+| **LookAhead**  | Rolling Horizon | N-day planning with sub-optimization           |
+| **ALNS**       | Metaheuristic   | Destroy-repair operators with adaptive weights |
+| **BCP**        | Exact           | Branch-Cut-and-Price via Gurobi/OR-Tools       |
+| **HGS**        | Genetic         | Evolutionary operators with local search       |
+| **Regular**    | Baseline        | Fixed-schedule periodic collection             |
+| **LastMinute** | Reactive        | Threshold-triggered collection                 |
+| **Gurobi**     | Exact           | Direct Gurobi MIP solver                       |
+| **Hexaly**     | Hybrid          | Hexaly local search optimizer                  |
 
 ---
 
@@ -414,17 +421,17 @@ python main.py mrl_train --model meta_rnn --problem vrpp --graph_size 20 --n_tas
 
 ## CLI Reference
 
-| Command | Description |
-|---------|-------------|
-| `train` | Train neural models |
-| `eval` | Evaluate trained models |
-| `test_sim` | Run simulation tests |
-| `generate_data` | Generate datasets |
-| `hp_optim` | Hyperparameter optimization |
-| `mrl_train` | Meta-reinforcement learning |
-| `gui` | Launch graphical interface |
-| `test_suite` | Run test suite |
-| `tui` | Text user interface |
+| Command         | Description                 |
+| --------------- | --------------------------- |
+| `train`         | Train neural models         |
+| `eval`          | Evaluate trained models     |
+| `test_sim`      | Run simulation tests        |
+| `generate_data` | Generate datasets           |
+| `hp_optim`      | Hyperparameter optimization |
+| `mrl_train`     | Meta-reinforcement learning |
+| `gui`           | Launch graphical interface  |
+| `test_suite`    | Run test suite              |
+| `tui`           | Text user interface         |
 
 Use `python main.py <command> --help` for detailed options.
 
@@ -432,13 +439,13 @@ Use `python main.py <command> --help` for detailed options.
 
 ## Scripts
 
-| Script | Description |
-|--------|-------------|
-| [gen_data.sh](scripts/gen_data.sh) | Generate datasets for training, validation, or testing |
-| [train.sh](scripts/train.sh) | Train Deep Learning models |
-| [hyperparam_optim.sh](scripts/hyperparam_optim.sh) | Hyperparameter optimization |
-| [test_sim.sh](scripts/test_sim.sh) | Test policies on the simulator |
-| [slurm.sh](scripts/slurm.sh) | Run on Slurm cluster |
+| Script                                             | Description                                            |
+| -------------------------------------------------- | ------------------------------------------------------ |
+| [gen_data.sh](scripts/gen_data.sh)                 | Generate datasets for training, validation, or testing |
+| [train.sh](scripts/train.sh)                       | Train Deep Learning models                             |
+| [hyperparam_optim.sh](scripts/hyperparam_optim.sh) | Hyperparameter optimization                            |
+| [test_sim.sh](scripts/test_sim.sh)                 | Test policies on the simulator                         |
+| [slurm.sh](scripts/slurm.sh)                       | Run on Slurm cluster                                   |
 
 Windows equivalents available as `.bat` files.
 
