@@ -16,6 +16,8 @@ Implemented Operators:
 
 import torch
 
+from logic.src.constants.optimization import IMPROVEMENT_EPSILON
+
 
 def vectorized_two_opt(tours, distance_matrix, max_iterations=200):
     """
@@ -103,7 +105,7 @@ def vectorized_two_opt(tours, distance_matrix, max_iterations=200):
         best_gain, best_idx = torch.max(gains, dim=1)
 
         # Determine which instances actually improved
-        improved = best_gain > 1e-5
+        improved = best_gain > IMPROVEMENT_EPSILON
         if not improved.any():
             break
 
@@ -224,7 +226,7 @@ def vectorized_swap(tours, dist_matrix, max_iterations=200):
         gain = d_curr - d_new
 
         # Apply improvement
-        improved = (gain > 0.001) & mask
+        improved = (gain > IMPROVEMENT_EPSILON) & mask
 
         if improved.any():
             # Apply swap
@@ -351,9 +353,9 @@ def vectorized_relocate(tours, dist_matrix, max_iterations=200):
 
         gain = -(d_remove + d_insert)  # Gain = -Delta
 
-        improved = (gain > 0.001) & mask
+        improved = (gain > IMPROVEMENT_EPSILON) & mask
 
-        improved = (gain > 0.001) & mask
+        improved = (gain > IMPROVEMENT_EPSILON) & mask
 
         if improved.any():
             # Apply relocate using a vectorized index map
@@ -461,7 +463,7 @@ def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200):
         d_new = dist_matrix[batch_indices, u, v_next] + dist_matrix[batch_indices, v, u_next]
 
         gain = d_curr - d_new
-        improved = (gain > 0.001) & mask
+        improved = (gain > IMPROVEMENT_EPSILON) & mask
 
         if improved.any():
             # Apply tail swap using a vectorized index map
@@ -651,7 +653,7 @@ def vectorized_swap_star(tours, dist_matrix, max_iterations=100):
         )
 
         total_gain = rem_gain_i + rem_gain_j - best_ins_u_val - best_ins_v_val
-        improved = (total_gain > 0.001) & mask
+        improved = (total_gain > IMPROVEMENT_EPSILON) & mask
 
         if improved.any():
             # Apply Swap* moves using a vectorized priority-based indexing
@@ -774,7 +776,7 @@ def vectorized_three_opt(tours, dist_matrix, max_iterations=100):
         all_gains = torch.cat([gain4, gain5, gain6, gain7], dim=1)  # (B, 4)
         best_gain, best_case = torch.max(all_gains, dim=1)  # (B,), (B,)
 
-        improved = (best_gain > 0.001) & mask.squeeze(1)
+        improved = (best_gain > IMPROVEMENT_EPSILON) & mask.squeeze(1)
         if improved.any():
             # Apply 3-opt improvements using vectorized index maps
             seq_b = torch.arange(max_len, device=device).view(1, max_len).expand(B, max_len)

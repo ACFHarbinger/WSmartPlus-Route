@@ -1,5 +1,20 @@
 """
-Core Attention Model for constructive routing.
+Core Attention Model for constructive vehicle routing.
+
+This module implements the main encoder-decoder architecture used across all VRP variants
+(VRPP, CWCVRP, SDWCVRP). The model encodes a problem graph using configurable graph
+neural networks and autoregressively decodes a solution using multi-head attention.
+
+Architecture:
+    ContextEmbedder -> Encoder (GATEncoder/TGCEncoder/...) -> Decoder (AttentionDecoder)
+
+The model supports POMO (multiple start nodes), spatial bias, entropy regularization,
+and both greedy and sampling-based decoding. It serves as the base class for
+TemporalAttentionModel and DeepDecoderAttentionModel.
+
+Reference:
+    Kool, W., van Hoof, H., & Welling, M. (2019). Attention, Learn to Solve Routing
+    Problems! In ICLR 2019. https://arxiv.org/abs/1803.08475
 """
 
 from __future__ import annotations

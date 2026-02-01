@@ -1,6 +1,7 @@
 """
 Env Config module.
 """
+
 from dataclasses import dataclass
 from typing import Optional
 
@@ -11,7 +12,7 @@ class EnvConfig:
 
     Attributes:
         name: Name of the environment (e.g., 'vrpp', 'wcvrp').
-        num_loc: Number of locations (including depot).
+        num_loc: Number of locations (excluding depot).
         min_loc: Minimum coordinate value.
         max_loc: Maximum coordinate value.
         capacity: Vehicle capacity (optional).

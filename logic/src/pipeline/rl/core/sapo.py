@@ -1,5 +1,10 @@
 """
 Soft Adaptive Policy Optimization (SAPO) algorithm.
+
+Reference:
+    Gao, C., Zheng, C., et al. (2025). Soft Adaptive Policy Optimization.
+    arXiv preprint arXiv:2511.20347.
+    https://arxiv.org/abs/2511.20347
 """
 
 from __future__ import annotations
@@ -17,6 +22,10 @@ class SAPO(PPO):
     - Uses soft gates instead of hard clipping: f(r) = (4/tau) * sigmoid(tau * (r-1))
     - tau_pos for positive advantages (more aggressive updates)
     - tau_neg for negative advantages (more conservative updates)
+
+    Reference:
+        Gao, C., Zheng, C., et al. (2025). Soft Adaptive Policy Optimization.
+        arXiv:2511.20347. https://arxiv.org/abs/2511.20347
     """
 
     def __init__(

@@ -1,5 +1,10 @@
 """
 Group Sequence Policy Optimization (GSPO) algorithm.
+
+Reference:
+    Zheng, C., Liu, S., Li, M., et al. (2025). Group Sequence Policy Optimization.
+    arXiv preprint arXiv:2507.18071.
+    https://arxiv.org/abs/2507.18071
 """
 
 from __future__ import annotations
@@ -17,6 +22,10 @@ class GSPO(PPO):
     - Group-based advantage normalization (handled by PPO base if batch is a group)
     - Sequence-level importance ratio: r = exp((log π_new - log π_old) / |sequence|)
     - Clipped surrogate objective same as PPO
+
+    Reference:
+        Zheng, C., Liu, S., Li, M., et al. (2025). Group Sequence Policy Optimization.
+        arXiv:2507.18071. https://arxiv.org/abs/2507.18071
     """
 
     def calculate_ratio(self, new_log_p: torch.Tensor, old_log_p: torch.Tensor) -> torch.Tensor:
