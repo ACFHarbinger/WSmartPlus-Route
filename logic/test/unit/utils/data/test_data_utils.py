@@ -1,6 +1,7 @@
 """Unit tests for data utility functions (data_utils.py)."""
 
 import pytest
+import numpy as np
 import tempfile
 import os
 import pickle
@@ -68,33 +69,34 @@ class TestCollateFn:
     def test_filters_none_values(self):
         batch = [{"a": 1}, None, {"a": 2}]
         result = collate_fn(batch)
-        assert len(result) == 2
-        assert result == [{"a": 1}, {"a": 2}]
+        assert "a" in result
+        assert result["a"].shape == (2,)
+        assert torch.equal(result["a"], torch.tensor([1, 2]))
 
     def test_empty_batch(self):
         result = collate_fn([None, None])
-        assert result == []
+        assert result == {}
 
 
 class TestGenerateWastePrize:
     def test_empty_distribution(self):
         result = generate_waste_prize(10, "empty", (MagicMock(), MagicMock()))
-        assert result.shape == (1, 10)
-        assert torch.all(result == 0)
+        assert result.shape == (10,)
+        assert np.all(result == 0)
 
     def test_const_distribution(self):
         result = generate_waste_prize(10, "const", (MagicMock(), MagicMock()))
-        assert result.shape == (1, 10)
-        assert torch.all(result == 1)
+        assert result.shape == (10,)
+        assert np.all(result == 1)
 
     def test_uniform_distribution(self):
         result = generate_waste_prize(10, "unif", (MagicMock(), MagicMock()), dataset_size=5)
         assert result.shape == (5, 10)
-        assert torch.all((result >= 0) & (result <= 1))
+        assert np.all((result >= 0) & (result <= 1))
 
     def test_gamma_distribution(self):
         result = generate_waste_prize(10, "gamma1", (MagicMock(), MagicMock()))
-        assert result.shape == (1, 10)
+        assert result.shape == (10,)
 
 
 class TestLoadAreaAndWasteTypeParams:

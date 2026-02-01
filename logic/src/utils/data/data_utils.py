@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
+import torch.utils.data
 from tensordict import TensorDict
 
 from logic.src.pipeline.simulations.loader import load_depot, load_simulator_data
@@ -111,7 +112,7 @@ def collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
     Returns:
         Collated batch.
     """
-    batch = [{key: val for key, val in sample.items() if val is not None} for sample in batch]
+    batch = [{key: val for key, val in sample.items() if val is not None} for sample in batch if sample is not None]
 
     # Empty lists can break collate
     if len(batch) == 0:
