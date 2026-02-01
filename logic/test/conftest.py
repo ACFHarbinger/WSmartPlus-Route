@@ -36,6 +36,7 @@ pytest_plugins = [
     "logic.test.fixtures.io_fixtures",
     "logic.test.fixtures.policy_aux_fixtures",
     "logic.test.fixtures.vectorized_policy_fixtures",
+    "logic.test.fixtures.security_fixtures",
 ]
 
 
