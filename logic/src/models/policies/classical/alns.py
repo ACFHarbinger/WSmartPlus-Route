@@ -7,6 +7,7 @@ from __future__ import annotations
 import torch
 from tensordict import TensorDict
 
+from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
 
@@ -69,7 +70,7 @@ class VectorizedALNS(ConstructivePolicy):
         demands = torch.cat([torch.zeros(batch_size, 1, device=device), demands_at_nodes], dim=1)
 
         # Extract capacity
-        capacity = td.get("capacity", torch.ones(batch_size, device=device) * 100.0)
+        capacity = td.get("capacity", torch.ones(batch_size, device=device) * VEHICLE_CAPACITY)
         if capacity.dim() == 0:
             capacity = capacity.expand(batch_size)
 

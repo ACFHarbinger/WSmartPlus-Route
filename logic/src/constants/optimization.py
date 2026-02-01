@@ -1,6 +1,9 @@
 """
-Constants for look_ahead_aux module.
+Constants for optimization algorithms and look_ahead_aux module.
 """
+
+# Local Search Improvement Threshold
+IMPROVEMENT_EPSILON: float = 1e-3  # Minimum gain to accept a move in local search operators
 
 # Collection Parameters
 COLLECTION_TIME_MINUTES = 3.0  # Time to collect one bin

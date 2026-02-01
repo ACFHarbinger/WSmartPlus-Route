@@ -1,5 +1,17 @@
 """
-This module contains the Deep Decoder Attention Model architecture.
+Deep Decoder Attention Model with Graph Attention decoding.
+
+Extends the base AttentionModel by replacing the standard single-layer attention
+decoder with a multi-layer GraphAttentionDecoder. This deeper decoder enables
+richer node-to-node interaction during solution construction, improving solution
+quality for complex routing instances at the cost of additional computation.
+
+Architecture:
+    Standard Encoder -> GraphAttentionDecoder (N layers of GAT + FFN)
+
+The deep decoder uses the same encoding as AttentionModel but processes the
+decoder queries through multiple graph attention layers before producing
+action logits.
 """
 
 import math
