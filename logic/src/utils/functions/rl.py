@@ -27,14 +27,20 @@ def ensure_tensordict(batch: Union[Dict[str, Any], TensorDict], device: Optional
             if not isinstance(td_data, TensorDict):
                 # Infer batch size from first value
                 first_val = next(iter(td_data.values()))
-                batch_size = [len(first_val)] if hasattr(first_val, "__len__") else []
+                if hasattr(first_val, "ndim") and first_val.ndim == 0:
+                    batch_size = []
+                else:
+                    batch_size = [len(first_val)] if hasattr(first_val, "__len__") else []
                 td_data = TensorDict(td_data, batch_size=batch_size)
             td = td_data
         else:
             # Direct dict or TensorDict
             if not isinstance(batch, TensorDict):
                 first_val = next(iter(batch.values()))
-                batch_size = [len(first_val)] if hasattr(first_val, "__len__") else []
+                if hasattr(first_val, "ndim") and first_val.ndim == 0:
+                    batch_size = []
+                else:
+                    batch_size = [len(first_val)] if hasattr(first_val, "__len__") else []
                 td = TensorDict(batch, batch_size=batch_size)
             else:
                 td = batch
