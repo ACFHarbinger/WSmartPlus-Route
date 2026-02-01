@@ -9,9 +9,6 @@ from logic.src.pipeline.simulations.bins import Bins
 class TestBinsStats:
     """Tests for statistical tracking (Welford's algorithm) in Bins."""
 
-class TestBinsStats:
-    """Tests for statistical tracking (Welford's algorithm) in Bins."""
-
     def test_welford_algorithm(self, bins_stats):
         """
         Verify that Bins correctly maintains running mean and std dev
