@@ -101,12 +101,12 @@ class BatchBeam(typing.NamedTuple):
     but rather (sum_i beam_size_i, ...), i.e. flattened. This makes some operations a bit cumbersome.
     """
 
-    score: torch.Tensor  # Current heuristic score of each entry in beam (used to select most promising)
-    state: None  # To track the state
+    score: torch.Tensor  # Current heuristic score of each entry in beam
+    state: typing.Any  # To track the state
     parent: torch.Tensor
     action: torch.Tensor
     batch_size: int  # Can be used for optimizations if batch_size = 1
-    device: None  # Track on which device
+    device: typing.Any  # Track on which device
 
     # Indicates for each row to which batch it belongs (0, 0, 0, 1, 1, 2, ...), managed by state
     @property
@@ -280,13 +280,10 @@ class CachedLookup(object):
         ), "CachedLookup does not support slicing, you can slice the result of an index operation instead"
 
         if torch.is_tensor(key):  # If tensor, idx all tensors by this tensor:
-            if self.key is None:
-                self.key = key
-                self.current = self.orig[key]
-            elif len(key) != len(self.key) or (key != self.key).any():
+            if self.key is None or len(key) != len(self.key) or not torch.equal(key, self.key):
                 self.key = key
                 self.current = self.orig[key]
 
             return self.current
 
-        return super(CachedLookup, self).__getitem__(key)
+        return self.orig[key]
