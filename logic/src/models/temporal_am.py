@@ -1,5 +1,16 @@
 """
-This module contains the Temporal Attention Model implementation.
+Temporal Attention Model for multi-day waste collection routing.
+
+Extends the base AttentionModel with a GRU-based fill level predictor that uses
+historical waste data to anticipate future bin fill levels. This enables proactive
+collection decisions in stochastic demand scenarios (SDWCVRP, CWCVRP).
+
+Architecture:
+    Base AttentionModel + GatedRecurrentFillPredictor -> TemporalEmbedding -> CombineLayer
+
+The temporal features are fused with static node embeddings before encoding,
+allowing the attention mechanism to consider predicted future fill levels
+when constructing routes.
 """
 
 from typing import Any, List, Optional, Tuple, cast

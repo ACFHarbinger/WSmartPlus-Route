@@ -29,7 +29,7 @@ class SimulationDayContext(Mapping):
     dictionary-like access methods (`__getitem__`, `get`).
 
     Attributes:
-        graph_size: Size of the graph (number of nodes).
+        graph_size: Total nodes in the problem graph, **including** the depot (= num_loc + 1).
         full_policy: Full string identifier of the policy (e.g., 'policy_regular3_gamma1').
         policy: Parsed policy name.
         policy_name: Name of the policy.
@@ -78,7 +78,7 @@ class SimulationDayContext(Mapping):
     """
 
     # Required/Core Fields
-    graph_size: int = 0
+    graph_size: int = 0  # Total nodes including depot (= num_loc + 1)
     full_policy: str = ""
     policy: str = ""
     policy_name: str = ""

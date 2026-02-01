@@ -1,6 +1,7 @@
 """
 Eval Config module.
 """
+
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -29,7 +30,7 @@ class EvalConfig:
         max_calc_batch_size: Size for subbatches.
         results_dir: Name of evaluation results directory.
         multiprocessing: Use multiprocessing to parallelize over multiple GPUs.
-        num_loc: The size of the problem graph.
+        num_loc: The number of customer locations (excluding depot).
         area: County area of the bins locations.
         waste_type: Type of waste bins selected for the optimization problem.
         focus_graph: Path to the file with the coordinates of the graph to focus on.

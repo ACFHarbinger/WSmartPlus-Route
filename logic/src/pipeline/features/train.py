@@ -217,7 +217,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
     for key in ["lr_critic", "lr_critic_value"]:
         common_kwargs.pop(key, None)
 
-    # 4. Define Algorithm Registry and Creation Helpers
+    # 4. Algorithm Factory Functions
     def _create_critic_helper(policy, cfg: Config) -> Any:
         from logic.src.models.policies.critic import create_critic_from_actor
 
@@ -230,134 +230,148 @@ def create_model(cfg: Config) -> pl.LightningModule:
             n_heads=cfg.model.n_heads,
         )
 
+    def _create_ppo_family(algo_name: str, cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+        """Create PPO/SAPO/GSPO/DR-GRPO models (all require a critic network)."""
+        critic = _create_critic_helper(policy, cfg)
+        cls_map = {"ppo": PPO, "sapo": SAPO, "gspo": GSPO, "dr_grpo": DRGRPO}
+        return cls_map[algo_name](critic=critic, **kw)
+
+    def _create_gdpo(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+        """Create GDPO model with multi-objective config."""
+        return GDPO(
+            gdpo_objective_keys=cfg.rl.gdpo.objective_keys,
+            gdpo_objective_weights=cfg.rl.gdpo.objective_weights,
+            gdpo_conditional_key=cfg.rl.gdpo.conditional_key,
+            gdpo_renormalize=cfg.rl.gdpo.renormalize,
+            **kw,
+        )
+
+    def _create_pomo(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+        """Create POMO model with augmentation parameters."""
+        explicit = {
+            "num_augment": cfg.rl.pomo.num_augment,
+            "augment_fn": cfg.rl.pomo.augment_fn,
+            "num_starts": cfg.rl.pomo.num_starts,
+        }
+        for k in explicit:
+            kw.pop(k, None)
+        return POMO(**explicit, **kw)
+
+    def _create_symnco(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+        """Create SymNCO model with symmetry-aware augmentation parameters."""
+        explicit = {
+            "alpha": cfg.rl.symnco.alpha,
+            "beta": cfg.rl.symnco.beta,
+            "num_augment": (
+                cfg.rl.symnco.num_augment
+                if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "num_augment")
+                else cfg.rl.pomo.num_augment
+            ),
+            "augment_fn": (
+                cfg.rl.symnco.augment_fn
+                if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "augment_fn")
+                else cfg.rl.pomo.augment_fn
+            ),
+            "num_starts": (
+                cfg.rl.symnco.num_starts
+                if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "num_starts")
+                else cfg.rl.pomo.num_starts
+            ),
+        }
+        for k in explicit:
+            kw.pop(k, None)
+        return SymNCO(**explicit, **kw)
+
+    def _create_hrl(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+        """Create HRL (Hierarchical RL) model with manager-worker architecture."""
+        from logic.src.models.gat_lstm_manager import GATLSTManager
+
+        manager = GATLSTManager(device=cfg.device, hidden_dim=cfg.meta_rl.meta_hidden_dim)
+        return HRLModule(manager=manager, worker=policy, env=env, lr=cfg.meta_rl.meta_lr)
+
+    def _get_expert_policy(expert_name: str, env_name: str, cfg: Config) -> Any:
+        """Load an expert policy for imitation learning."""
+        expert_map = {
+            "hgs": VectorizedHGS,
+            "alns": VectorizedALNS,
+            "random_ls": RandomLocalSearchPolicy,
+            "2opt": RandomLocalSearchPolicy,
+        }
+        if expert_name not in expert_map:
+            raise ValueError(f"Unknown expert: {expert_name}")
+
+        expert_cls = expert_map[expert_name]
+        expert_kwargs: Dict[str, Any] = {"env_name": env_name}
+
+        config_path = getattr(cfg.model, "policy_config", None)
+        if config_path is None:
+            default_path = f"scripts/configs/model/{expert_name}.yaml"
+            if os.path.exists(default_path):
+                config_path = default_path
+
+        if config_path and os.path.exists(config_path):
+            try:
+                custom_params = load_yaml_config(config_path)
+                if custom_params:
+                    expert_kwargs.update(custom_params)
+                    logger.info(f"Loaded {expert_name} configuration from {config_path}")
+            except (OSError, ValueError, KeyError) as e:
+                logger.warning(f"Failed to load {expert_name} config from {config_path}: {e}")
+
+        if expert_name in ["random_ls", "2opt"]:
+            if "n_iterations" not in expert_kwargs:
+                expert_kwargs["n_iterations"] = int(getattr(cfg.rl.imitation, "random_ls_iterations", 100))
+            if "op_probs" not in expert_kwargs:
+                expert_kwargs["op_probs"] = getattr(cfg.rl.imitation, "random_ls_op_probs", None)
+
+        return expert_cls(**expert_kwargs)
+
+    def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+        """Create Imitation Learning model with expert policy."""
+        from logic.src.pipeline.rl.core.imitation import ImitationLearning
+
+        expert_policy = _get_expert_policy(cfg.rl.imitation.mode, cfg.env.name, cfg)
+        return ImitationLearning(expert_policy=expert_policy, expert_name=cfg.rl.imitation.mode, **kw)
+
+    def _create_adaptive_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+        """Create Adaptive Imitation model (IL-to-RL transition)."""
+        from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
+
+        expert_policy = _get_expert_policy(cfg.rl.imitation.mode, cfg.env.name, cfg)
+        return AdaptiveImitation(
+            expert_policy=expert_policy,
+            il_weight=cfg.rl.adaptive_imitation.il_weight,
+            il_decay=cfg.rl.adaptive_imitation.il_decay,
+            patience=cfg.rl.adaptive_imitation.patience,
+            **kw,
+        )
+
+    # 5. Algorithm Dispatch Registry
+    _ALGO_REGISTRY: Dict[str, Any] = {
+        "ppo": lambda c, p, e, kw: _create_ppo_family("ppo", c, p, e, kw),
+        "sapo": lambda c, p, e, kw: _create_ppo_family("sapo", c, p, e, kw),
+        "gspo": lambda c, p, e, kw: _create_ppo_family("gspo", c, p, e, kw),
+        "dr_grpo": lambda c, p, e, kw: _create_ppo_family("dr_grpo", c, p, e, kw),
+        "gdpo": _create_gdpo,
+        "pomo": _create_pomo,
+        "symnco": _create_symnco,
+        "hrl": _create_hrl,
+        "imitation": _create_imitation,
+        "adaptive_imitation": _create_adaptive_imitation,
+        "reinforce": lambda c, p, e, kw: REINFORCE(**kw),
+    }
+
     # Remove algorithm-specific arguments from common_kwargs to avoid duplicates when passed explicitly
     algorithm = cfg.rl.algorithm
     if algorithm in common_kwargs:
         common_kwargs.pop(algorithm)
 
-    # Simplified Model Creation via Registry
-    if algorithm in ["ppo", "sapo", "gspo", "dr_grpo"]:
-        critic = _create_critic_helper(policy, cfg)
-        algo_cls = {"ppo": PPO, "sapo": SAPO, "gspo": GSPO, "dr_grpo": DRGRPO}[algorithm]
-        model: pl.LightningModule = algo_cls(critic=critic, **common_kwargs)
-
-    elif algorithm == "gdpo":
-        model = GDPO(
-            gdpo_objective_keys=cfg.rl.gdpo.objective_keys,
-            gdpo_objective_weights=cfg.rl.gdpo.objective_weights,
-            gdpo_conditional_key=cfg.rl.gdpo.conditional_key,
-            gdpo_renormalize=cfg.rl.gdpo.renormalize,
-            **common_kwargs,
-        )
-    elif algorithm == "pomo":
-        num_augment = cfg.rl.pomo.num_augment
-        augment_fn = cfg.rl.pomo.augment_fn
-        num_starts = cfg.rl.pomo.num_starts
-
-        for k in ["num_augment", "augment_fn", "num_starts"]:
-            common_kwargs.pop(k, None)
-
-        model = POMO(
-            num_augment=num_augment,
-            augment_fn=augment_fn,
-            num_starts=num_starts,
-            **common_kwargs,
-        )
-    elif algorithm == "symnco":
-        # Extract explicit args to avoid passing them twice through **common_kwargs
-        alpha = cfg.rl.symnco.alpha
-        beta = cfg.rl.symnco.beta
-        num_augment = (
-            cfg.rl.symnco.num_augment
-            if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "num_augment")
-            else cfg.rl.pomo.num_augment
-        )
-        augment_fn = (
-            cfg.rl.symnco.augment_fn
-            if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "augment_fn")
-            else cfg.rl.pomo.augment_fn
-        )
-        num_starts = (
-            cfg.rl.symnco.num_starts
-            if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "num_starts")
-            else cfg.rl.pomo.num_starts
-        )
-
-        # Clean common_kwargs of these explicit params if they were flattened into it
-        for k in ["alpha", "beta", "num_augment", "augment_fn", "num_starts"]:
-            common_kwargs.pop(k, None)
-
-        model = SymNCO(
-            alpha=alpha,
-            beta=beta,
-            num_augment=num_augment,
-            augment_fn=augment_fn,
-            num_starts=num_starts,
-            **common_kwargs,
-        )
-    elif algorithm == "hrl":
-        from logic.src.models.gat_lstm_manager import GATLSTManager
-
-        manager = GATLSTManager(device=cfg.device, hidden_dim=cfg.meta_rl.meta_hidden_dim)
-        model = HRLModule(manager=manager, worker=policy, env=env, lr=cfg.meta_rl.meta_lr)
-    elif algorithm in ["imitation", "adaptive_imitation"]:
-
-        def get_expert_policy(expert_name: str, env_name: str, cfg: Config) -> Any:
-            expert_map = {
-                "hgs": VectorizedHGS,
-                "alns": VectorizedALNS,
-                "random_ls": RandomLocalSearchPolicy,
-                "2opt": RandomLocalSearchPolicy,
-            }
-            if expert_name not in expert_map:
-                raise ValueError(f"Unknown expert: {expert_name}")
-
-            expert_cls = expert_map[expert_name]
-            expert_kwargs: Dict[str, Any] = {"env_name": env_name}
-
-            # Strategy: Load from model.policy_config OR default path
-            config_path = getattr(cfg.model, "policy_config", None)
-            if config_path is None:
-                default_path = f"scripts/configs/model/{expert_name}.yaml"
-                if os.path.exists(default_path):
-                    config_path = default_path
-
-            if config_path and os.path.exists(config_path):
-                try:
-                    custom_params = load_yaml_config(config_path)
-                    if custom_params:
-                        expert_kwargs.update(custom_params)
-                        logger.info(f"Loaded {expert_name} configuration from {config_path}")
-                except (OSError, ValueError, KeyError) as e:
-                    logger.warning(f"Failed to load {expert_name} config from {config_path}: {e}")
-
-            # Specific legacy overrides if manual cfg.rl fields are present
-            if expert_name in ["random_ls", "2opt"]:
-                if "n_iterations" not in expert_kwargs:
-                    expert_kwargs["n_iterations"] = int(getattr(cfg.rl.imitation, "random_ls_iterations", 100))
-                if "op_probs" not in expert_kwargs:
-                    expert_kwargs["op_probs"] = getattr(cfg.rl.imitation, "random_ls_op_probs", None)
-
-            return expert_cls(**expert_kwargs)
-
-        expert_name = cfg.rl.imitation.mode
-        expert_policy = get_expert_policy(expert_name, cfg.env.name, cfg)
-
-        if algorithm == "imitation":
-            from logic.src.pipeline.rl.core.imitation import ImitationLearning
-
-            model = ImitationLearning(expert_policy=expert_policy, expert_name=expert_name, **common_kwargs)
-        else:  # adaptive_imitation
-            from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
-
-            model = AdaptiveImitation(
-                expert_policy=expert_policy,
-                il_weight=cfg.rl.adaptive_imitation.il_weight,
-                il_decay=cfg.rl.adaptive_imitation.il_decay,
-                patience=cfg.rl.adaptive_imitation.patience,
-                **common_kwargs,
-            )
+    # Dispatch to the appropriate factory
+    factory = _ALGO_REGISTRY.get(algorithm)
+    if factory is not None:
+        model: pl.LightningModule = factory(cfg, policy, env, common_kwargs)
     else:
+        # Default to REINFORCE for unknown algorithms
         model = REINFORCE(**common_kwargs)
 
     if getattr(cfg.meta_rl, "use_meta", False):
@@ -420,12 +434,14 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
     try:
         trainer.fit(model)
         return trainer.callback_metrics.get("val/reward", torch.tensor(float("-inf"))).item()
+    except (KeyboardInterrupt, SystemExit):
+        raise
     except optuna.exceptions.TrialPruned:
         raise
-    except Exception as e:
+    except (RuntimeError, ValueError, TypeError, OSError) as e:
         import traceback
 
-        logger.error(f"Trial failed: {e}")
+        logger.error(f"Trial failed ({type(e).__name__}): {e}")
         logger.error(traceback.format_exc())
         return float("-inf")
 

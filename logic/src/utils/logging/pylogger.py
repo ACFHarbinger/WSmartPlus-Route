@@ -4,13 +4,26 @@ Adapter from rl4co/utils/pylogger.py.
 """
 
 import logging
+from typing import Optional
 
 from lightning.fabric.utilities.rank_zero import rank_zero_only
 
+from logic.src.utils.logging.structured_logging import get_structured_logger as _get_structured
 
-def get_pylogger(name=__name__) -> logging.Logger:
-    """Initializes multi-GPU-friendly python command line logger."""
-    logger = logging.getLogger(name)
+
+def get_pylogger(name=__name__, log_file: Optional[str] = None) -> logging.Logger:
+    """
+    Initializes multi-GPU-friendly python command line logger.
+
+    Args:
+        name: Logger name.
+        log_file: Optional path to log file. If provided, enables structured JSON logging.
+    """
+    # If log_file is provided, use structured logger setup first
+    if log_file:
+        logger = _get_structured(name=name, log_file=log_file)
+    else:
+        logger = logging.getLogger(name)
 
     # this ensures all logging levels get marked with the rank zero decorator
     # otherwise logs would get multiplied for each GPU process in multi-GPU setup
