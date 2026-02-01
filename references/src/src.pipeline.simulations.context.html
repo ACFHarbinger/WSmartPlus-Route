@@ -545,7 +545,7 @@ between <code class="docutils literal notranslate"><span class="pre">run_day</sp
 access to simulation variables while maintaining backward compatibility via
 dictionary-like access methods (<code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>, <code class="docutils literal notranslate"><span class="pre">get</span></code>).</p>
 <p>Attributes:
-graph_size: Size of the graph (number of nodes).
+graph_size: Total nodes in the problem graph, <strong>including</strong> the depot (= num_loc + 1).
 full_policy: Full string identifier of the policy (e.g., ‘policy_regular3_gamma1’).
 policy: Parsed policy name.
 policy_name: Name of the policy.

@@ -470,7 +470,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.deep_decoder_am">
 <span id="src-models-deep-decoder-am"></span><h1><a class="reference internal" href="#module-src.models.deep_decoder_am" title="src.models.deep_decoder_am"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deep_decoder_am</span></code></a><a class="headerlink" href="#module-src.models.deep_decoder_am" title="Link to this heading">#</a></h1>
-<p>This module contains the Deep Decoder Attention Model architecture.</p>
+<p>Deep Decoder Attention Model with Graph Attention decoding.</p>
+<p>Extends the base AttentionModel by replacing the standard single-layer attention
+decoder with a multi-layer GraphAttentionDecoder. This deeper decoder enables
+richer node-to-node interaction during solution construction, improving solution
+quality for complex routing instances at the cost of additional computation.</p>
+<p>Architecture:
+Standard Encoder -&gt; GraphAttentionDecoder (N layers of GAT + FFN)</p>
+<p>The deep decoder uses the same encoding as AttentionModel but processes the
+decoder queries through multiple graph attention layers before producing
+action logits.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

@@ -463,7 +463,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.temporal_am">
 <span id="src-models-temporal-am"></span><h1><a class="reference internal" href="#module-src.models.temporal_am" title="src.models.temporal_am"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.temporal_am</span></code></a><a class="headerlink" href="#module-src.models.temporal_am" title="Link to this heading">#</a></h1>
-<p>This module contains the Temporal Attention Model implementation.</p>
+<p>Temporal Attention Model for multi-day waste collection routing.</p>
+<p>Extends the base AttentionModel with a GRU-based fill level predictor that uses
+historical waste data to anticipate future bin fill levels. This enables proactive
+collection decisions in stochastic demand scenarios (SDWCVRP, CWCVRP).</p>
+<p>Architecture:
+Base AttentionModel + GatedRecurrentFillPredictor -&gt; TemporalEmbedding -&gt; CombineLayer</p>
+<p>The temporal features are fused with static node embeddings before encoding,
+allowing the attention mechanism to consider predicted future fill levels
+when constructing routes.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

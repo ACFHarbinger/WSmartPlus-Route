@@ -37,3 +37,29 @@ src.models.meta_rnn
 src.models.critic_network
 src.models.deep_decoder_am
 ```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.models.__all__>`
+  - ```{autodoc2-docstring} src.models.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.models.__all__
+:value: >
+   ['AttentionModel', 'DeepDecoderAttentionModel', 'TemporalAttentionModel', 'CriticNetwork', 'GATLSTMa...
+
+```{autodoc2-docstring} src.models.__all__
+```
+
+````

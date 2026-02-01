@@ -469,7 +469,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.attention_model">
 <span id="src-models-attention-model"></span><h1><a class="reference internal" href="#module-src.models.attention_model" title="src.models.attention_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.attention_model</span></code></a><a class="headerlink" href="#module-src.models.attention_model" title="Link to this heading">#</a></h1>
-<p>Core Attention Model for constructive routing.</p>
+<p>Core Attention Model for constructive vehicle routing.</p>
+<p>This module implements the main encoder-decoder architecture used across all VRP variants
+(VRPP, CWCVRP, SDWCVRP). The model encodes a problem graph using configurable graph
+neural networks and autoregressively decodes a solution using multi-head attention.</p>
+<p>Architecture:
+ContextEmbedder -&gt; Encoder (GATEncoder/TGCEncoder/…) -&gt; Decoder (AttentionDecoder)</p>
+<p>The model supports POMO (multiple start nodes), spatial bias, entropy regularization,
+and both greedy and sampling-based decoding. It serves as the base class for
+TemporalAttentionModel and DeepDecoderAttentionModel.</p>
+<p>Reference:
+Kool, W., van Hoof, H., &amp; Welling, M. (2019). Attention, Learn to Solve Routing
+Problems! In ICLR 2019. https://arxiv.org/abs/1803.08475</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

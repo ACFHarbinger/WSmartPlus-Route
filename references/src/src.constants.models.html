@@ -436,6 +436,7 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-size-naming-conventions">Problem Size Naming Conventions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -468,6 +469,30 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.constants.models">
 <span id="src-constants-models"></span><h1><a class="reference internal" href="#module-src.constants.models" title="src.constants.models"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a><a class="headerlink" href="#module-src.constants.models" title="Link to this heading">#</a></h1>
+<section id="problem-size-naming-conventions">
+<h2>Problem Size Naming Conventions<a class="headerlink" href="#problem-size-naming-conventions" title="Link to this heading">#</a></h2>
+<p>Three variable names describe “number of nodes” across the codebase.
+Each carries distinct semantics — do NOT rename one to another:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>num_loc     Customer locations, **excluding** the depot.
+            Used in: configs (EnvConfig), generators, environments, CLI.
+            Example: ``num_loc = 50`` → 50 customers.
+
+graph_size  Total nodes in the tensor representation, **including** the depot.
+            Used in: model forward passes (local variable unpacked from tensor shape),
+            encoder/decoder comments, simulation context.
+            Relationship: ``graph_size = num_loc + 1`` for VRP problems.
+
+n_nodes     Customer nodes inside classical solvers, **excluding** the depot.
+            Used in: HGS, ALNS, BCP (local/instance variables).
+            Typically computed as ``len(dist_matrix) - 1``.
+</pre></div>
+</div>
+<p>Propagation flow:
+Config (num_loc) → Generator (num_loc) → Environment (num_loc)
+→ Model tensors (graph_size = num_loc + 1)
+→ Classical policies (n_nodes = num_loc)
+→ Simulator context (graph_size)</p>
+</section>
 <p>Model configuration constants.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -638,6 +663,7 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-size-naming-conventions">Problem Size Naming Conventions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

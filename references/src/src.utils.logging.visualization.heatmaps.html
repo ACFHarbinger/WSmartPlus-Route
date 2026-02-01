@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.utils &#8212; WSmart-Route  documentation</title>
+    <title>src.utils.logging.visualization.heatmaps &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.utils';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.utils.logging.visualization.heatmaps';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.utils.tasks" href="src.utils.tasks.html" />
-    <link rel="prev" title="src.models.deep_decoder_am" href="src.models.deep_decoder_am.html" />
+    <link rel="next" title="src.utils.logging.visualization.landscape" href="src.utils.logging.visualization.landscape.html" />
+    <link rel="prev" title="src.utils.logging.visualization.embeddings" href="src.utils.logging.visualization.embeddings.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -210,13 +210,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.models.deep_decoder_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deep_decoder_am</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 current active has-children"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.utils.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
@@ -342,7 +342,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.utils.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.utils.logging.visualization.heatmaps.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -426,7 +426,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.utils</h1>
+    <h1>src.utils.logging.visualization.heatmaps</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -436,8 +436,15 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.visualization.heatmaps.plot_attention_heatmaps"><code class="docutils literal notranslate"><span class="pre">plot_attention_heatmaps()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.visualization.heatmaps.plot_logit_lens"><code class="docutils literal notranslate"><span class="pre">plot_logit_lens()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -449,99 +456,54 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils">
-<span id="src-utils"></span><h1><a class="reference internal" href="#module-src.utils" title="src.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><a class="headerlink" href="#module-src.utils" title="Link to this heading">#</a></h1>
-<p>Utilities package for WSmart+ Route logic.</p>
-<p>Contains helper modules for:</p>
-<ul class="simple">
-<li><p>Argument parsing and configuration loading.</p></li>
-<li><p>Input/Output and logging.</p></li>
-<li><p>Mathematical operations and graph utilities.</p></li>
-<li><p>Data processing and visualization.</p></li>
-<li><p>Environment and model setup.</p></li>
-</ul>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.tasks.losses.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks.losses</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.tasks.task_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks.task_utils</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.io.files.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.files</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.io.processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.processing</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.io.preview.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.preview</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.io.locking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.locking</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.io.splitting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.splitting</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.security.crypto_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security.crypto_utils</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.data.data_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data.data_utils</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.functions.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.rl</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.functions.beam_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.beam_search</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.functions.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.decoding</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.functions.function.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.function</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.functions.graph_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.graph_utils</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.functions.boolmask.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.boolmask</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.functions.lexsort.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.lexsort</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.functions.problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.problem</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.functions.monkey_patch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.monkey_patch</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.logging.visualization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.visualization</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.utils.logging.visualization.embeddings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.visualization.embeddings</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.utils.logging.visualization.heatmaps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.visualization.heatmaps</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.utils.logging.visualization.landscape.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.visualization.landscape</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.utils.logging.visualization.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.visualization.helpers</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.logging.modules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.modules</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.utils.logging.modules.metrics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.modules.metrics</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.utils.logging.modules.storage.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.modules.storage</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.utils.logging.modules.analysis.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.modules.analysis</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.utils.logging.modules.gui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.modules.gui</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.logging.plot_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.plot_utils</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.logging.visualize_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.visualize_utils</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.logging.log_visualization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.log_visualization</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.logging.log_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.log_utils</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.logging.logger_writer.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.logger_writer</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.logging.pylogger.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.pylogger</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.logging.structured_logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.structured_logging</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.validation.check_docstrings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation.check_docstrings</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.validation.debug_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation.debug_utils</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.configs.setup_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs.setup_utils</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.configs.config_loader.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs.config_loader</span></code></a></li>
-</ul>
-</li>
-</ul>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.logging.visualization.heatmaps">
+<span id="src-utils-logging-visualization-heatmaps"></span><h1><a class="reference internal" href="#module-src.utils.logging.visualization.heatmaps" title="src.utils.logging.visualization.heatmaps"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.visualization.heatmaps</span></code></a><a class="headerlink" href="#module-src.utils.logging.visualization.heatmaps" title="Link to this heading">#</a></h1>
+<p>Heatmap visualization tools.</p>
+<p>Functions for plotting attention weights and logit lens analysis.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.logging.visualization.heatmaps.plot_attention_heatmaps" title="src.utils.logging.visualization.heatmaps.plot_attention_heatmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_attention_heatmaps</span></code></a></p></td>
+<td><p>Plots heatmaps of attention weights (Query, Key, Value) for all layers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.logging.visualization.heatmaps.plot_logit_lens" title="src.utils.logging.visualization.heatmaps.plot_logit_lens"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_logit_lens</span></code></a></p></td>
+<td><p>Implements the ‘Logit Lens’ technique for Attention Models.
+Project intermediate encoder layer outputs through the decoder’s
+attention mechanism to see what the ‘best’ node is at each layer.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.add_docstrings_batch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.add_docstrings_batch</span></code></a></li>
-</ul>
-</div>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.logging.visualization.heatmaps.plot_attention_heatmaps">
+<span class="sig-prename descclassname"><span class="pre">src.utils.logging.visualization.heatmaps.</span></span><span class="sig-name descname"><span class="pre">plot_attention_heatmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.logging.visualization.heatmaps.plot_attention_heatmaps" title="Link to this definition">#</a></dt>
+<dd><p>Plots heatmaps of attention weights (Query, Key, Value) for all layers.</p>
+<p>Args:
+model (nn.Module): The model.
+output_dir (str): Directory to save images.
+epoch (int, optional): Current epoch. Defaults to 0.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.logging.visualization.heatmaps.plot_logit_lens">
+<span class="sig-prename descclassname"><span class="pre">src.utils.logging.visualization.heatmaps.</span></span><span class="sig-name descname"><span class="pre">plot_logit_lens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.logging.visualization.heatmaps.plot_logit_lens" title="Link to this definition">#</a></dt>
+<dd><p>Implements the ‘Logit Lens’ technique for Attention Models.
+Project intermediate encoder layer outputs through the decoder’s
+attention mechanism to see what the ‘best’ node is at each layer.</p>
+<p>Args:
+model (nn.Module): The Attention Model.
+x_batch (dict): Input batch.
+output_file (str): Filename to save the heatmap.
+epoch (int): Current epoch.</p>
+</dd></dl>
+
+</section>
 </section>
 </section>
 
@@ -557,20 +519,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.models.deep_decoder_am.html"
+       href="src.utils.logging.visualization.embeddings.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deep_decoder_am</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.visualization.embeddings</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.utils.tasks.html"
+       href="src.utils.logging.visualization.landscape.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.visualization.landscape</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -590,8 +552,15 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.visualization.heatmaps.plot_attention_heatmaps"><code class="docutils literal notranslate"><span class="pre">plot_attention_heatmaps()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.visualization.heatmaps.plot_logit_lens"><code class="docutils literal notranslate"><span class="pre">plot_logit_lens()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

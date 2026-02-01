@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`IMPROVEMENT_EPSILON <src.constants.optimization.IMPROVEMENT_EPSILON>`
+  - ```{autodoc2-docstring} src.constants.optimization.IMPROVEMENT_EPSILON
+    :summary:
+    ```
 * - {py:obj}`COLLECTION_TIME_MINUTES <src.constants.optimization.COLLECTION_TIME_MINUTES>`
   - ```{autodoc2-docstring} src.constants.optimization.COLLECTION_TIME_MINUTES
     :summary:
@@ -62,6 +66,17 @@
 ````
 
 ### API
+
+````{py:data} IMPROVEMENT_EPSILON
+:canonical: src.constants.optimization.IMPROVEMENT_EPSILON
+:type: float
+:value: >
+   0.001
+
+```{autodoc2-docstring} src.constants.optimization.IMPROVEMENT_EPSILON
+```
+
+````
 
 ````{py:data} COLLECTION_TIME_MINUTES
 :canonical: src.constants.optimization.COLLECTION_TIME_MINUTES
