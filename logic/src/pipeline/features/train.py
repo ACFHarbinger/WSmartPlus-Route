@@ -230,8 +230,12 @@ def create_model(cfg: Config) -> pl.LightningModule:
             n_heads=cfg.model.n_heads,
         )
 
-    # Simplified Model Creation via Registry
+    # Remove algorithm-specific arguments from common_kwargs to avoid duplicates when passed explicitly
     algorithm = cfg.rl.algorithm
+    if algorithm in common_kwargs:
+        common_kwargs.pop(algorithm)
+
+    # Simplified Model Creation via Registry
     if algorithm in ["ppo", "sapo", "gspo", "dr_grpo"]:
         critic = _create_critic_helper(policy, cfg)
         algo_cls = {"ppo": PPO, "sapo": SAPO, "gspo": GSPO, "dr_grpo": DRGRPO}[algorithm]
@@ -246,25 +250,49 @@ def create_model(cfg: Config) -> pl.LightningModule:
             **common_kwargs,
         )
     elif algorithm == "pomo":
+        num_augment = cfg.rl.pomo.num_augment
+        augment_fn = cfg.rl.pomo.augment_fn
+        num_starts = cfg.rl.pomo.num_starts
+
+        for k in ["num_augment", "augment_fn", "num_starts"]:
+            common_kwargs.pop(k, None)
+
         model = POMO(
-            num_augment=cfg.rl.pomo.num_augment,
-            augment_fn=cfg.rl.pomo.augment_fn,
-            num_starts=cfg.rl.pomo.num_starts,
+            num_augment=num_augment,
+            augment_fn=augment_fn,
+            num_starts=num_starts,
             **common_kwargs,
         )
     elif algorithm == "symnco":
-        model = SymNCO(
-            alpha=cfg.rl.symnco.alpha,
-            beta=cfg.rl.symnco.beta,
-            num_augment=cfg.rl.symnco.alpha
+        # Extract explicit args to avoid passing them twice through **common_kwargs
+        alpha = cfg.rl.symnco.alpha
+        beta = cfg.rl.symnco.beta
+        num_augment = (
+            cfg.rl.symnco.num_augment
             if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "num_augment")
-            else cfg.rl.pomo.num_augment,
-            augment_fn=cfg.rl.symnco.beta
+            else cfg.rl.pomo.num_augment
+        )
+        augment_fn = (
+            cfg.rl.symnco.augment_fn
             if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "augment_fn")
-            else cfg.rl.pomo.augment_fn,
-            num_starts=cfg.rl.symnco.beta
+            else cfg.rl.pomo.augment_fn
+        )
+        num_starts = (
+            cfg.rl.symnco.num_starts
             if hasattr(cfg.rl, "symnco") and hasattr(cfg.rl.symnco, "num_starts")
-            else cfg.rl.pomo.num_starts,
+            else cfg.rl.pomo.num_starts
+        )
+
+        # Clean common_kwargs of these explicit params if they were flattened into it
+        for k in ["alpha", "beta", "num_augment", "augment_fn", "num_starts"]:
+            common_kwargs.pop(k, None)
+
+        model = SymNCO(
+            alpha=alpha,
+            beta=beta,
+            num_augment=num_augment,
+            augment_fn=augment_fn,
+            num_starts=num_starts,
             **common_kwargs,
         )
     elif algorithm == "hrl":
