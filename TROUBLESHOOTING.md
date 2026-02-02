@@ -1,5 +1,15 @@
 # WSmart+ Route Field Repair Manual: Troubleshooting Guide
 
+[![Python](https://img.shields.io/badge/Python-3.9+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2.2-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![uv](https://img.shields.io/badge/managed%20by-uv-261230.svg)](https://github.com/astral-sh/uv)
+[![Gurobi](https://img.shields.io/badge/Gurobi-11.0-ED1C24?logo=gurobi&logoColor=white)](https://www.gurobi.com/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
+[![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
+[![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
+[![CI](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
+
 > **Version**: 2.0 (Comprehensive Edition)
 > **Philosophy**: Diagnosis > Guesswork
 > This document maps "Symptoms" to "Root Causes" and "Cures" for WSmart+ Route.
@@ -47,6 +57,7 @@ uv run ruff check .
 ```
 
 **Expected Output:**
+
 ```text
 [✓] Python: 3.9.x or higher
 [✓] PyTorch: 2.2.2
@@ -57,23 +68,23 @@ uv run ruff check .
 
 ### Quick Fix Commands
 
-| Issue | Quick Fix |
-|-------|-----------|
-| UV not found | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
-| Python venv missing | `uv sync` |
-| GUI not launching | `python main.py gui` |
-| Tests failing | `python main.py test_suite --verbose` |
-| CUDA not detected | `nvidia-smi` to verify driver, then reinstall PyTorch |
+| Issue               | Quick Fix                                             |
+| ------------------- | ----------------------------------------------------- |
+| UV not found        | `curl -LsSf https://astral.sh/uv/install.sh \| sh`    |
+| Python venv missing | `uv sync`                                             |
+| GUI not launching   | `python main.py gui`                                  |
+| Tests failing       | `python main.py test_suite --verbose`                 |
+| CUDA not detected   | `nvidia-smi` to verify driver, then reinstall PyTorch |
 
 ### System Requirements Checklist
 
 | Requirement | Minimum | Recommended |
-|-------------|---------|-------------|
-| Python | 3.9 | 3.11 |
-| RAM | 16GB | 32GB |
-| GPU VRAM | 8GB | 16GB+ |
-| Disk Space | 10GB | 50GB |
-| CUDA | 11.8 | 12.x |
+| ----------- | ------- | ----------- |
+| Python      | 3.9     | 3.11        |
+| RAM         | 16GB    | 32GB        |
+| GPU VRAM    | 8GB     | 16GB+       |
+| Disk Space  | 10GB    | 50GB        |
+| CUDA        | 11.8    | 12.x        |
 
 ---
 
@@ -82,109 +93,124 @@ uv run ruff check .
 ### 2.1 UV / Python
 
 #### Symptom: `ModuleNotFoundError: No module named 'torch'`
-*   **Cause**: Virtual environment not activated or packages not installed.
-*   **Fix**:
-    ```bash
-    source .venv/bin/activate
-    uv sync
-    ```
+
+- **Cause**: Virtual environment not activated or packages not installed.
+- **Fix**:
+  ```bash
+  source .venv/bin/activate
+  uv sync
+  ```
 
 #### Symptom: `RuntimeError: PyTorch not compiled with CUDA enabled`
-*   **Cause**: CPU-only version of PyTorch installed.
-*   **Fix**:
-    ```bash
-    uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118 --force-reinstall
-    ```
+
+- **Cause**: CPU-only version of PyTorch installed.
+- **Fix**:
+  ```bash
+  uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118 --force-reinstall
+  ```
 
 #### Symptom: `ImportError: libcudnn.so.8: cannot open shared object file`
-*   **Cause**: CUDA libraries not in PATH.
-*   **Fix**:
-    ```bash
-    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-    # Add to ~/.bashrc for persistence
-    echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
-    ```
+
+- **Cause**: CUDA libraries not in PATH.
+- **Fix**:
+  ```bash
+  export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+  # Add to ~/.bashrc for persistence
+  echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+  ```
 
 #### Symptom: `TypeError: 'NoneType' object is not subscriptable` during config loading
-*   **Cause**: Configuration file missing or malformed.
-*   **Fix**:
-    *   Check that `assets/configs/config.yaml` exists.
-    *   Validate YAML syntax: `python -c "import yaml; yaml.safe_load(open('assets/configs/config.yaml'))"`
+
+- **Cause**: Configuration file missing or malformed.
+- **Fix**:
+  - Check that `assets/configs/config.yaml` exists.
+  - Validate YAML syntax: `python -c "import yaml; yaml.safe_load(open('assets/configs/config.yaml'))"`
 
 #### Symptom: `uv: command not found`
-*   **Cause**: UV not installed or not in PATH.
-*   **Fix**:
-    ```bash
-    # Install UV
-    curl -LsSf https://astral.sh/uv/install.sh | sh
 
-    # Add to PATH (if not automatic)
-    export PATH="$HOME/.cargo/bin:$PATH"
-    ```
+- **Cause**: UV not installed or not in PATH.
+- **Fix**:
+
+  ```bash
+  # Install UV
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+
+  # Add to PATH (if not automatic)
+  export PATH="$HOME/.cargo/bin:$PATH"
+  ```
 
 #### Symptom: `error: externally-managed-environment`
-*   **Cause**: System Python is protected (common on Ubuntu 24.04+).
-*   **Fix**: Always use UV or a virtual environment:
-    ```bash
-    uv sync  # Creates and manages .venv automatically
-    ```
+
+- **Cause**: System Python is protected (common on Ubuntu 24.04+).
+- **Fix**: Always use UV or a virtual environment:
+  ```bash
+  uv sync  # Creates and manages .venv automatically
+  ```
 
 ### 2.2 CUDA / GPU
 
 #### Symptom: `CUDA out of memory`
-*   **Cause**: Batch size too large for available GPU memory.
-*   **Fix**:
-    ```bash
-    # Reduce batch size in training
-    python main.py train_lightning train.batch_size=64
 
-    # Or clear CUDA cache
-    python -c "import torch; torch.cuda.empty_cache()"
-    ```
+- **Cause**: Batch size too large for available GPU memory.
+- **Fix**:
+
+  ```bash
+  # Reduce batch size in training
+  python main.py train_lightning train.batch_size=64
+
+  # Or clear CUDA cache
+  python -c "import torch; torch.cuda.empty_cache()"
+  ```
 
 #### Symptom: `RuntimeError: CUDA error: device-side assert triggered`
-*   **Cause**: NaN in computation or invalid tensor operation.
-*   **Fix**:
-    ```bash
-    # Enable anomaly detection
-    CUDA_LAUNCH_BLOCKING=1 python main.py train_lightning +debug=true
-    ```
+
+- **Cause**: NaN in computation or invalid tensor operation.
+- **Fix**:
+  ```bash
+  # Enable anomaly detection
+  CUDA_LAUNCH_BLOCKING=1 python main.py train_lightning +debug=true
+  ```
 
 #### Symptom: `CUDA driver version is insufficient for CUDA runtime version`
-*   **Cause**: NVIDIA driver too old for installed CUDA toolkit.
-*   **Fix**:
-    ```bash
-    # Check current driver
-    nvidia-smi
 
-    # Update driver (Ubuntu)
-    sudo apt update
-    sudo ubuntu-drivers autoinstall
-    sudo reboot
-    ```
+- **Cause**: NVIDIA driver too old for installed CUDA toolkit.
+- **Fix**:
+
+  ```bash
+  # Check current driver
+  nvidia-smi
+
+  # Update driver (Ubuntu)
+  sudo apt update
+  sudo ubuntu-drivers autoinstall
+  sudo reboot
+  ```
 
 #### Symptom: `RuntimeError: CUDA error: no kernel image is available for execution on the device`
-*   **Cause**: PyTorch compiled for different GPU architecture.
-*   **Fix**: Reinstall PyTorch with correct CUDA version for your GPU.
+
+- **Cause**: PyTorch compiled for different GPU architecture.
+- **Fix**: Reinstall PyTorch with correct CUDA version for your GPU.
 
 ### 2.3 Conda Environment
 
 #### Symptom: `CondaValueError: The target prefix is the base prefix`
-*   **Cause**: Trying to install in base environment.
-*   **Fix**:
-    ```bash
-    conda deactivate
-    conda env create --file env/environment.yml -y --name wsr
-    conda activate wsr
-    ```
+
+- **Cause**: Trying to install in base environment.
+- **Fix**:
+  ```bash
+  conda deactivate
+  conda env create --file env/environment.yml -y --name wsr
+  conda activate wsr
+  ```
 
 #### Symptom: Conda and UV conflict
-*   **Cause**: Both environments active simultaneously.
-*   **Fix**:
-    ```bash
-    conda deactivate
-    source .venv/bin/activate
-    ```
+
+- **Cause**: Both environments active simultaneously.
+- **Fix**:
+  ```bash
+  conda deactivate
+  source .venv/bin/activate
+  ```
 
 ---
 
@@ -193,45 +219,50 @@ uv run ruff check .
 ### 3.1 Dependency Issues
 
 #### Symptom: `error: failed to parse Cargo.toml` (if using Rust components)
-*   **Cause**: Corrupted or missing dependencies.
-*   **Fix**:
-    ```bash
-    # Clean and rebuild
-    cargo clean
-    cargo build --release
-    ```
+
+- **Cause**: Corrupted or missing dependencies.
+- **Fix**:
+  ```bash
+  # Clean and rebuild
+  cargo clean
+  cargo build --release
+  ```
 
 #### Symptom: `pip install` fails with `PEP 517` error
-*   **Cause**: Virtual environment corrupted.
-*   **Fix**:
-    ```bash
-    deactivate
-    rm -rf .venv
-    uv sync
-    source .venv/bin/activate
-    ```
+
+- **Cause**: Virtual environment corrupted.
+- **Fix**:
+  ```bash
+  deactivate
+  rm -rf .venv
+  uv sync
+  source .venv/bin/activate
+  ```
 
 #### Symptom: `Could not build wheels for scipy`
-*   **Cause**: Missing system dependencies for scientific packages.
-*   **Fix** (Ubuntu/Debian):
-    ```bash
-    sudo apt-get install gfortran libopenblas-dev liblapack-dev
-    ```
+
+- **Cause**: Missing system dependencies for scientific packages.
+- **Fix** (Ubuntu/Debian):
+  ```bash
+  sudo apt-get install gfortran libopenblas-dev liblapack-dev
+  ```
 
 ### 3.2 PyInstaller Build Failures
 
 #### Symptom: `FileNotFoundError` during PyInstaller build
-*   **Cause**: Missing data files or incorrect paths in `build.spec`.
-*   **Fix**:
-    *   Verify all paths in `build.spec` are correct.
-    *   Ensure `--add-data` includes all necessary assets.
+
+- **Cause**: Missing data files or incorrect paths in `build.spec`.
+- **Fix**:
+  - Verify all paths in `build.spec` are correct.
+  - Ensure `--add-data` includes all necessary assets.
 
 #### Symptom: Built executable crashes immediately
-*   **Cause**: Hidden imports not specified.
-*   **Fix**: Add missing imports to `build.spec`:
-    ```python
-    hiddenimports=['torch', 'PySide6.QtCore', 'PySide6.QtWidgets', ...]
-    ```
+
+- **Cause**: Hidden imports not specified.
+- **Fix**: Add missing imports to `build.spec`:
+  ```python
+  hiddenimports=['torch', 'PySide6.QtCore', 'PySide6.QtWidgets', ...]
+  ```
 
 ---
 
@@ -240,32 +271,37 @@ uv run ruff check .
 ### 4.1 Python Exceptions
 
 #### Symptom: `KeyError: 'model'` during training
-*   **Diagnosis**: Missing key in configuration or opts dictionary.
-*   **Fix**: Check that all required arguments are provided:
-    ```bash
-    python main.py train_lightning env.num_loc=50 model=am env.name=vrpp
-    ```
+
+- **Diagnosis**: Missing key in configuration or opts dictionary.
+- **Fix**: Check that all required arguments are provided:
+  ```bash
+  python main.py train_lightning env.num_loc=50 model=am env.name=vrpp
+  ```
 
 #### Symptom: `AttributeError: 'str' object has no attribute 'generator'`
-*   **Cause**: The environment object (`env`) was converted to a string during HParam sanitization before `model.setup()` could use it.
-*   **Fix**: Ensure `env` is injected into `common_kwargs` *after* the `deep_sanitize` call in `logic/src/pipeline/features/train.py`.
+
+- **Cause**: The environment object (`env`) was converted to a string during HParam sanitization before `model.setup()` could use it.
+- **Fix**: Ensure `env` is injected into `common_kwargs` _after_ the `deep_sanitize` call in `logic/src/pipeline/features/train.py`.
 
 #### Symptom: `TypeError: calculate_loss() got an unexpected keyword argument 'env'`
-*   **Cause**: The `calculate_loss` method signature in `AdaptiveImitation` (or other RL modules) does not match the base class `RL4COLitModule`.
-*   **Fix**: Update the method signature to accept `env: any = None`.
+
+- **Cause**: The `calculate_loss` method signature in `AdaptiveImitation` (or other RL modules) does not match the base class `RL4COLitModule`.
+- **Fix**: Update the method signature to accept `env: any = None`.
 
 #### Symptom: `RuntimeError: mat1 and mat2 shapes cannot be multiplied`
-*   **Cause**: Tensor dimension mismatch in neural network.
-*   **Fix**:
-    *   Check model architecture configuration.
-    *   Verify input dimensions match expected values.
-    *   Enable debug mode: `python main.py train_lightning +debug=true`
+
+- **Cause**: Tensor dimension mismatch in neural network.
+- **Fix**:
+  - Check model architecture configuration.
+  - Verify input dimensions match expected values.
+  - Enable debug mode: `python main.py train_lightning +debug=true`
 
 #### Symptom: `IndexError: index out of range in self`
-*   **Cause**: Accessing tensor element beyond its size.
-*   **Fix**:
-    *   Check graph_size matches data.
-    *   Verify batch indexing logic.
+
+- **Cause**: Accessing tensor element beyond its size.
+- **Fix**:
+  - Check graph_size matches data.
+  - Verify batch indexing logic.
 
 ### 4.2 Segmentation Faults
 
@@ -276,6 +312,7 @@ uv run ruff check .
 **Action**: Check stack trace and recent changes to C extensions.
 
 **Debugging Steps**:
+
 ```bash
 # Enable core dumps
 ulimit -c unlimited
@@ -289,11 +326,13 @@ gdb python -ex "run main.py train" -ex "bt"
 **Symptom**: Process freezes without error message.
 
 **Causes**:
+
 1. Deadlock in multiprocessing
 2. Infinite loop in algorithm
 3. Waiting for unavailable resource
 
 **Fix**:
+
 ```bash
 # Find process ID
 ps aux | grep python
@@ -314,24 +353,26 @@ kill -9 <PID>
 **Diagnosis Checklist**:
 
 1.  **Check Learning Rate**: Too high or too low?
-    *   *Fix*: Try adjusting: `optim.lr=1e-4`
+    - _Fix_: Try adjusting: `optim.lr=1e-4`
 2.  **Check Normalization**: Are inputs normalized?
-    *   *Fix*: Ensure batch normalization is enabled in model config.
+    - _Fix_: Ensure batch normalization is enabled in model config.
 3.  **Check Rewards**: Is the reward signal meaningful?
-    *   *Fix*: Print rewards during training to verify non-zero values.
+    - _Fix_: Print rewards during training to verify non-zero values.
 4.  **Check Gradient Flow**: Are gradients vanishing?
-    *   *Fix*: Enable gradient logging: `train.log_step=10`
+    - _Fix_: Enable gradient logging: `train.log_step=10`
 
 ### 5.2 Training Diverges (NaN Loss)
 
 **Symptom**: Loss suddenly becomes `NaN` or `inf`.
 
 **Causes**:
+
 1.  Learning rate too high.
 2.  Division by zero in custom loss.
 3.  Numerical instability in attention mechanism.
 
 **Fixes**:
+
 1.  Reduce learning rate by 10x.
 2.  Add epsilon to denominators: `x / (y + 1e-8)`.
 3.  Use gradient clipping: `rl.max_grad_norm=1.0`
@@ -346,11 +387,13 @@ kill -9 <PID>
 **Symptom**: `nvidia-smi` shows low GPU usage during training.
 
 **Causes**:
+
 1.  CPU is the bottleneck (data loading).
 2.  Batch size too small.
 3.  Model too small for GPU.
 
 **Fixes**:
+
 ```bash
 # Increase batch size
 python main.py train_lightning train.batch_size=512
@@ -367,6 +410,7 @@ python main.py train_lightning model.hidden_dim=256
 **Symptom**: Training cost decreases but validation cost increases.
 
 **Fixes**:
+
 1.  Add dropout: `model.dropout=0.1`
 2.  Use data augmentation.
 3.  Reduce model capacity: `model.num_encoder_layers=2`
@@ -377,6 +421,7 @@ python main.py train_lightning model.hidden_dim=256
 **Symptom**: Each epoch takes hours.
 
 **Diagnostic**:
+
 ```bash
 # Profile training
 python -m cProfile -o profile.stats main.py train_lightning train.n_epochs=1
@@ -384,6 +429,7 @@ python -c "import pstats; p = pstats.Stats('profile.stats'); p.sort_stats('cumti
 ```
 
 **Fixes**:
+
 1. Enable mixed precision: `train.enable_scaler=true`
 2. Reduce graph size for debugging
 3. Use smaller validation set
@@ -394,11 +440,13 @@ python -c "import pstats; p = pstats.Stats('profile.stats'); p.sort_stats('cumti
 **Symptom**: Rollout baseline stays constant.
 
 **Causes**:
+
 1. Baseline update frequency too low
 2. Greedy policy not improving
 3. Baseline model diverged
 
 **Fixes**:
+
 ```bash
 # Increase baseline update frequency
 python main.py train_lightning rl.baseline=rollout
@@ -416,11 +464,13 @@ python main.py train --baseline exponential
 **Symptom**: Policy achieves 100% collection with zero cost.
 
 **Causes**:
+
 1.  Incorrect reward calculation.
 2.  Missing capacity constraints.
 3.  Fill rate parameters too low.
 
 **Diagnosis**:
+
 ```bash
 # Check simulation logs
 cat assets/output/<experiment>/log_mean.json
@@ -434,10 +484,12 @@ python -c "from logic.src.pipeline.simulator.loader import load_simulator_data; 
 **Symptom**: Simulation stuck on specific day or policy.
 
 **Causes**:
+
 1.  Infinite loop in heuristic policy.
 2.  Deadlock in parallel execution.
 
 **Fixes**:
+
 ```bash
 # Run with single core for debugging
 python main.py test_sim --cpu_cores 1 --days 1
@@ -453,6 +505,7 @@ python main.py test_sim --verbose
 **Cause**: Corrupted distance matrix file.
 
 **Fix**:
+
 ```bash
 # Regenerate distance matrix
 python -c "from logic.src.pipeline.simulator.network import compute_distance_matrix; compute_distance_matrix('riomaior', force_recompute=True)"
@@ -463,11 +516,13 @@ python -c "from logic.src.pipeline.simulator.network import compute_distance_mat
 **Symptom**: Policy execution returns no nodes visited.
 
 **Causes**:
+
 1. All nodes masked (infeasible)
 2. Policy threshold too high
 3. Vehicle capacity exhausted immediately
 
 **Diagnosis**:
+
 ```python
 # Check mask state
 print(f"Masked nodes: {mask.sum()}/{mask.shape[-1]}")
@@ -481,6 +536,7 @@ print(f"Vehicle capacity: {state.remaining_capacity}")
 **Cause**: Random seeds not fixed.
 
 **Fix**:
+
 ```bash
 python main.py test_sim --seed 42 --np_seed 42 --torch_seed 42
 ```
@@ -492,6 +548,7 @@ python main.py test_sim --seed 42 --np_seed 42 --torch_seed 42
 ### 7.1 Slow Training (>1 hour per epoch)
 
 **Action**: Profile the code.
+
 ```python
 import torch.profiler
 
@@ -505,13 +562,15 @@ print(prof.key_averages().table(sort_by="cuda_time_total"))
 ```
 
 **Common Bottlenecks**:
-*   **Data Loading**: Use `--num_workers 4`
-*   **Graph Construction**: Cache edge indices
-*   **Attention Computation**: Use Flash Attention
+
+- **Data Loading**: Use `--num_workers 4`
+- **Graph Construction**: Cache edge indices
+- **Attention Computation**: Use Flash Attention
 
 ### 7.2 Slow Simulation (<100 days/hour)
 
 **Checklist**:
+
 1.  Is parallel execution enabled? Use `--cpu_cores -1` for all cores.
 2.  Are policies compiled? Check for JIT compilation opportunities.
 3.  Is logging slowing things down? Reduce `--log_step` frequency.
@@ -521,6 +580,7 @@ print(prof.key_averages().table(sort_by="cuda_time_total"))
 **Symptom**: Memory usage grows continuously over time.
 
 **Diagnosis**:
+
 ```bash
 # Python memory profiling
 pip install memory-profiler
@@ -528,6 +588,7 @@ python -m memory_profiler main.py train_lightning
 ```
 
 **Common Causes**:
+
 1.  Not clearing CUDA cache: Add `torch.cuda.empty_cache()` after each epoch.
 2.  Storing all episode data: Use bounded replay buffers.
 3.  Matplotlib figures not closed: `plt.close('all')`
@@ -538,6 +599,7 @@ python -m memory_profiler main.py train_lightning
 **Symptom**: High disk usage, slow data loading.
 
 **Fixes**:
+
 1. Move data to SSD
 2. Use memory-mapped files
 3. Pre-load datasets into RAM:
@@ -554,11 +616,13 @@ python -m memory_profiler main.py train_lightning
 **Symptom**: `AssertionError` during loading or training.
 
 **Causes**:
+
 1.  Seed mismatch.
 2.  Data distribution parameter error.
 3.  File corruption.
 
 **Fixes**:
+
 ```bash
 # Regenerate with explicit parameters
 python main.py generate_data val --problem vrpp --graph_sizes 50 --seed 1234 --data_distribution gamma1
@@ -572,6 +636,7 @@ python -c "import pickle; data=pickle.load(open('data/vrpp/vrpp50_val_seed1234.p
 **Symptom**: `OSError: [Errno 28] No space left on device`
 
 **Fix**:
+
 ```bash
 # Check disk usage
 df -h
@@ -588,6 +653,7 @@ rm -rf data/*/virtual_*
 **Symptom**: DataLoader is the bottleneck.
 
 **Fixes**:
+
 ```python
 # Increase workers
 DataLoader(dataset, num_workers=8, pin_memory=True, persistent_workers=True)
@@ -610,11 +676,13 @@ DataLoader(dataset, num_workers=8, pin_memory=True, persistent_workers=True)
 **Symptom**: `ImportError: PySide6.QtCore not found` or blank window.
 
 **Causes**:
+
 1.  PySide6 not installed.
 2.  Qt dependencies missing (Linux).
 3.  Display server issue (WSL/SSH).
 
 **Fixes**:
+
 ```bash
 # Install PySide6
 uv pip install PySide6
@@ -639,10 +707,12 @@ echo $DISPLAY  # Should output :0 or similar
 **Symptom**: Empty plot areas in analysis tab.
 
 **Causes**:
+
 1.  Data format mismatch.
 2.  Matplotlib backend issue.
 
 **Fixes**:
+
 ```python
 # Set backend explicitly
 import matplotlib
@@ -655,6 +725,7 @@ import matplotlib.pyplot as plt
 **Symptom**: Segfault or black screen on launch.
 
 **Fix**: Add Qt platform workarounds:
+
 ```bash
 QT_QPA_PLATFORM=xcb python main.py gui
 # Or
@@ -666,6 +737,7 @@ python main.py gui --use-angle=vulkan --disable-gpu-sandbox
 **Symptom**: GUI elements too small or blurry on high-DPI displays.
 
 **Fix**:
+
 ```bash
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
 python main.py gui
@@ -680,6 +752,7 @@ python main.py gui
 **Symptom**: `GurobiError: No Gurobi license found`
 
 **Fix**:
+
 ```bash
 # Verify license file
 ls $GUROBI_HOME/gurobi.lic
@@ -696,11 +769,13 @@ grbgetkey <your-license-key>
 **Symptom**: Optimization doesn't finish within reasonable time.
 
 **Causes**:
+
 1.  Problem size too large.
 2.  No time limit set.
 3.  MIP gap tolerance too tight.
 
 **Fixes**:
+
 ```python
 # Set time limit
 opts['gurobi_time_limit'] = 300  # 5 minutes
@@ -717,6 +792,7 @@ opts['gurobi_verbose'] = True
 **Symptom**: `ModuleNotFoundError: No module named 'localsolver'`
 
 **Fix**:
+
 ```bash
 # Install Hexaly Python API
 pip install hexaly
@@ -730,6 +806,7 @@ hexaly info
 **Symptom**: `ImportError: cannot import name 'pywrapcp'`
 
 **Fix**:
+
 ```bash
 uv pip install ortools --force-reinstall
 python -c "from ortools.constraint_solver import pywrapcp; print('OK')"
@@ -744,11 +821,13 @@ python -c "from ortools.constraint_solver import pywrapcp; print('OK')"
 **Symptom**: Attention visualization shows uniform or zero weights.
 
 **Causes**:
+
 1. Masking applied incorrectly
 2. Softmax overflow/underflow
 3. Temperature scaling too extreme
 
 **Fixes**:
+
 ```python
 # Check mask values
 print(f"Mask True count: {mask.sum()}")
@@ -762,10 +841,12 @@ scores = scores / temperature
 **Symptom**: All node embeddings identical after encoding.
 
 **Causes**:
+
 1. Mean pooling collapsing information
 2. Over-smoothing in deep GNN
 
 **Fixes**:
+
 1. Reduce encoder layers: `model.num_encoder_layers=2`
 2. Add skip connections
 3. Use different aggregation
@@ -775,11 +856,13 @@ scores = scores / temperature
 **Symptom**: Model repeatedly selects same node or depot.
 
 **Causes**:
+
 1. Greedy decoding getting stuck
 2. Mask not updated properly
 3. Context embedding not changing
 
 **Fix**: Check state update logic:
+
 ```python
 # Verify visited mask updates
 assert state.visited[selected_node] == True
@@ -790,6 +873,7 @@ assert state.visited[selected_node] == True
 **Symptom**: Gradients become extremely large, training unstable.
 
 **Fixes**:
+
 ```bash
 # Enable gradient clipping
 python main.py train_lightning rl.max_grad_norm=1.0
@@ -807,15 +891,18 @@ python main.py train_lightning train.enable_scaler=true
 **Symptom**: ALNS solution quality stagnates early.
 
 ### 12.2 HGS crashes with `TypeError: 'int' object is not iterable`
-*   **Cause**: Vectorized HGS solver returning a single integer or flat list for a route, instead of a list of routes, which the parsing loop doesn't expect.
-*   **Fix**: Update `logic/src/models/policies/classical/hgs.py` to check `isinstance(routes[0], int)` and wrap single routes in a list.
+
+- **Cause**: Vectorized HGS solver returning a single integer or flat list for a route, instead of a list of routes, which the parsing loop doesn't expect.
+- **Fix**: Update `logic/src/models/policies/classical/hgs.py` to check `isinstance(routes[0], int)` and wrap single routes in a list.
 
 **Causes**:
+
 1. Temperature cooling too fast
 2. Destroy fraction too small
 3. Not enough iterations
 
 **Fixes**:
+
 ```python
 # Adjust ALNS parameters
 alns_config = {
@@ -830,6 +917,7 @@ alns_config = {
 **Symptom**: BCP runs out of memory on large instances.
 
 **Fixes**:
+
 1. Set node limit: `--bcp_node_limit 10000`
 2. Set column limit: `--bcp_column_limit 50000`
 3. Use heuristic instead for large instances
@@ -839,10 +927,12 @@ alns_config = {
 **Symptom**: All solutions in population become identical.
 
 **Causes**:
+
 1. Diversity penalty too low
 2. Selection pressure too high
 
 **Fixes**:
+
 ```python
 # Increase diversity
 hgs_config['min_population_diversity'] = 0.1
@@ -853,11 +943,13 @@ hgs_config['min_population_diversity'] = 0.1
 **Symptom**: Trained model performs worse than random baseline.
 
 **Causes**:
+
 1. Model not actually trained (checkpoint issue)
 2. Wrong problem type specified
 3. Data distribution mismatch
 
 **Diagnosis**:
+
 ```bash
 # Verify model loaded
 python -c "import torch; m = torch.load('model.pt'); print(m.keys())"
@@ -875,6 +967,7 @@ python main.py eval --decode_strategy greedy
 **Symptom**: `FileNotFoundError` when resuming training.
 
 **Fix**:
+
 ```bash
 # List available checkpoints
 ls -la assets/model_weights/vrpp_20/
@@ -890,6 +983,7 @@ python main.py train --load_path assets/model_weights/vrpp_20/am/epoch-99.pt
 **Cause**: Model architecture changed since checkpoint was saved.
 
 **Fix**: Load with `strict=False` or retrain:
+
 ```python
 model.load_state_dict(checkpoint['model_state_dict'], strict=False)
 ```
@@ -901,6 +995,7 @@ model.load_state_dict(checkpoint['model_state_dict'], strict=False)
 **Cause**: Different optimizer or parameters.
 
 **Fix**: Reset optimizer when resuming:
+
 ```bash
 python main.py train --load_path model.pt --reset_optimizer
 ```
@@ -910,6 +1005,7 @@ python main.py train --load_path model.pt --reset_optimizer
 **Symptom**: `RuntimeError: Attempting to deserialize object on CUDA device`
 
 **Fix**:
+
 ```python
 # Load to CPU first
 checkpoint = torch.load('model.pt', map_location='cpu')
@@ -921,22 +1017,22 @@ model = model.to(device)
 
 ## 14. Common Error Messages Reference
 
-| Error Message | Likely Cause | Quick Fix |
-|---------------|--------------|-----------|
-| `ModuleNotFoundError: No module named 'logic'` | Virtual environment issue | `source .venv/bin/activate; uv sync` |
-| `CUDA out of memory` | Batch size too large | Reduce `--batch_size` |
-| `AssertionError: Invalid graph size` | Config mismatch | Check `--graph_size` matches data |
-| `FileNotFoundError: model not found` | Wrong model path | Verify path with `ls assets/model_weights/` |
-| `ValueError: Cannot perform reduction on dimension 0` | Empty batch | Check dataloader and batch size |
-| `RuntimeError: Expected all tensors to be on the same device` | Device mismatch | Ensure all tensors on same device (CPU/CUDA) |
-| `OSError: [Errno 28] No space left on device` | Disk full | Free up disk space, clean temp files |
-| `TimeoutError` | Network or computation timeout | Increase timeout, check connectivity |
-| `RuntimeError: cuDNN error: CUDNN_STATUS_NOT_INITIALIZED` | CUDA/cuDNN version mismatch | Reinstall PyTorch for your CUDA version |
-| `AttributeError: module 'torch' has no attribute 'compiler'` | PyTorch version too old | Upgrade PyTorch: `uv pip install torch --upgrade` |
-| `GurobiError: Model too large for size-limited license` | Academic license limits | Use smaller instances or get full license |
-| `RecursionError: maximum recursion depth exceeded` | Infinite recursion in policy | Check termination conditions |
-| `PicklingError: Can't pickle local object` | Lambda or local function in multiprocessing | Use module-level functions |
-| `BrokenPipeError` | Child process died | Check worker error logs |
+| Error Message                                                 | Likely Cause                                | Quick Fix                                         |
+| ------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------- |
+| `ModuleNotFoundError: No module named 'logic'`                | Virtual environment issue                   | `source .venv/bin/activate; uv sync`              |
+| `CUDA out of memory`                                          | Batch size too large                        | Reduce `--batch_size`                             |
+| `AssertionError: Invalid graph size`                          | Config mismatch                             | Check `--graph_size` matches data                 |
+| `FileNotFoundError: model not found`                          | Wrong model path                            | Verify path with `ls assets/model_weights/`       |
+| `ValueError: Cannot perform reduction on dimension 0`         | Empty batch                                 | Check dataloader and batch size                   |
+| `RuntimeError: Expected all tensors to be on the same device` | Device mismatch                             | Ensure all tensors on same device (CPU/CUDA)      |
+| `OSError: [Errno 28] No space left on device`                 | Disk full                                   | Free up disk space, clean temp files              |
+| `TimeoutError`                                                | Network or computation timeout              | Increase timeout, check connectivity              |
+| `RuntimeError: cuDNN error: CUDNN_STATUS_NOT_INITIALIZED`     | CUDA/cuDNN version mismatch                 | Reinstall PyTorch for your CUDA version           |
+| `AttributeError: module 'torch' has no attribute 'compiler'`  | PyTorch version too old                     | Upgrade PyTorch: `uv pip install torch --upgrade` |
+| `GurobiError: Model too large for size-limited license`       | Academic license limits                     | Use smaller instances or get full license         |
+| `RecursionError: maximum recursion depth exceeded`            | Infinite recursion in policy                | Check termination conditions                      |
+| `PicklingError: Can't pickle local object`                    | Lambda or local function in multiprocessing | Use module-level functions                        |
+| `BrokenPipeError`                                             | Child process died                          | Check worker error logs                           |
 
 ---
 
@@ -1020,8 +1116,9 @@ When opening an issue, provide the **"Crash Tuple"**:
 
 ### Issue Template
 
-```markdown
+````markdown
 ## Environment
+
 - OS: Ubuntu 24.04
 - Python: 3.9.x
 - PyTorch: 2.2.2
@@ -1029,24 +1126,29 @@ When opening an issue, provide the **"Crash Tuple"**:
 - Commit: abc1234
 
 ## Steps to Reproduce
+
 1. Run `uv sync`
 2. Run `python main.py train --model am --graph_size 50`
 3. Observe error after 5 epochs
 
 ## Expected Behavior
+
 Training should complete all 10 epochs successfully.
 
 ## Actual Behavior
+
 Training crashes with the following error:
-```error message here```
+`error message here`
 
 ## Full Stack Trace
-```paste here```
+
+`paste here`
 
 ## Additional Context
+
 - This worked on commit xyz789
 - Only happens with graph_size 50, works fine with 20
-```
+````
 
 ### Diagnostic Information Script
 

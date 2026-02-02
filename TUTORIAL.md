@@ -1,5 +1,15 @@
 # WSmart+ Route: The Definitive Developer Encyclopedia & Technical Tutorial
 
+[![Python](https://img.shields.io/badge/Python-3.9+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2.2-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![uv](https://img.shields.io/badge/managed%20by-uv-261230.svg)](https://github.com/astral-sh/uv)
+[![Gurobi](https://img.shields.io/badge/Gurobi-11.0-ED1C24?logo=gurobi&logoColor=white)](https://www.gurobi.com/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
+[![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
+[![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
+[![CI](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
+
 > **Version**: 3.0 (The "Comprehensive" Edition)
 > **Target Audience**: Core Engineers, Researchers, ML Scientists
 
@@ -14,47 +24,47 @@ WSmart+ Route is a masterclass in bridging Deep Reinforcement Learning with Oper
 1.  [The WSmart+ Route Philosophy](#1-the-wsmart-route-philosophy)
 2.  [High-Level Architecture & Communication](#2-high-level-architecture--communication)
 3.  [Logic Layer: The Intelligence Core (`logic/src/`)](#3-logic-layer-the-intelligence-core-logicsrc)
-    -   [3.1 Neural Models](#31-neural-models-logicsrcmodels)
-    -   [3.2 Graph Encoders & Decoders](#32-graph-encoders--decoders-logicsrcmodelssubnets)
-    -   [3.3 Classical Policies](#33-classical-policies-logicsrcpolicies)
-    -   [3.4 Problem Environments](#34-problem-environments-logicsrcproblems)
-    -   [3.5 The Simulator Engine](#35-the-simulator-engine-logicsrcpipelinesimulator)
-    -   [3.6 Reinforcement Learning Pipeline](#36-reinforcement-learning-pipeline-logicsrcpipelinerl)
+    - [3.1 Neural Models](#31-neural-models-logicsrcmodels)
+    - [3.2 Graph Encoders & Decoders](#32-graph-encoders--decoders-logicsrcmodelssubnets)
+    - [3.3 Classical Policies](#33-classical-policies-logicsrcpolicies)
+    - [3.4 Problem Environments](#34-problem-environments-logicsrcproblems)
+    - [3.5 The Simulator Engine](#35-the-simulator-engine-logicsrcpipelinesimulator)
+    - [3.6 Reinforcement Learning Pipeline](#36-reinforcement-learning-pipeline-logicsrcpipelinerl)
 4.  [GUI Layer: The Command Center (`gui/src/`)](#4-gui-layer-the-command-center-guisrc)
-    -   [4.1 PySide6 Architecture](#41-pyside6-architecture)
-    -   [4.2 Background Workers](#42-background-workers)
-    -   [4.3 Real-Time Visualization](#43-real-time-visualization)
+    - [4.1 PySide6 Architecture](#41-pyside6-architecture)
+    - [4.2 Background Workers](#42-background-workers)
+    - [4.3 Real-Time Visualization](#43-real-time-visualization)
 5.  [Algorithm Deep Dives](#5-algorithm-deep-dives)
-    -   [5.1 Attention Mechanism for Routing](#51-attention-mechanism-for-routing)
-    -   [5.2 REINFORCE with Baselines](#52-reinforce-with-baselines)
-    -   [5.3 Adaptive Large Neighborhood Search (ALNS)](#53-adaptive-large-neighborhood-search-alns)
-    -   [5.4 Branch-Cut-and-Price](#54-branch-cut-and-price)
-    -   [5.5 Hybrid Genetic Search (HGS)](#55-hybrid-genetic-search-hgs)
-    -   [5.6 Hierarchical Reinforcement Learning](#56-hierarchical-reinforcement-learning)
+    - [5.1 Attention Mechanism for Routing](#51-attention-mechanism-for-routing)
+    - [5.2 REINFORCE with Baselines](#52-reinforce-with-baselines)
+    - [5.3 Adaptive Large Neighborhood Search (ALNS)](#53-adaptive-large-neighborhood-search-alns)
+    - [5.4 Branch-Cut-and-Price](#54-branch-cut-and-price)
+    - [5.5 Hybrid Genetic Search (HGS)](#55-hybrid-genetic-search-hgs)
+    - [5.6 Hierarchical Reinforcement Learning](#56-hierarchical-reinforcement-learning)
 6.  [Development Life Cycle](#6-development-life-cycle)
-    -   [6.1 Setup & Environment](#61-setup--environment)
-    -   [6.2 Training Your First Model](#62-training-your-first-model)
-    -   [6.3 Running Simulations](#63-running-simulations)
-    -   [6.4 Using the GUI](#64-using-the-gui)
-    -   [6.5 Hyperparameter Optimization](#65-hyperparameter-optimization)
-    -   [6.6 Meta-Reinforcement Learning](#66-meta-reinforcement-learning)
+    - [6.1 Setup & Environment](#61-setup--environment)
+    - [6.2 Training Your First Model](#62-training-your-first-model)
+    - [6.3 Running Simulations](#63-running-simulations)
+    - [6.4 Using the GUI](#64-using-the-gui)
+    - [6.5 Hyperparameter Optimization](#65-hyperparameter-optimization)
+    - [6.6 Meta-Reinforcement Learning](#66-meta-reinforcement-learning)
 7.  [Extending WSmart+ Route](#7-extending-wsmart-route)
-    -   [7.1 Adding a New Neural Architecture](#71-adding-a-new-neural-architecture)
-    -   [7.2 Adding a New Classical Policy](#72-adding-a-new-classical-policy)
-    -   [7.3 Adding a New Problem Variant](#73-adding-a-new-problem-variant)
-    -   [7.4 Adding a New Encoder](#74-adding-a-new-encoder)
-    -   [7.5 Adding a New Decoder](#75-adding-a-new-decoder)
-    -   [7.6 Adding a New RL Algorithm](#76-adding-a-new-rl-algorithm)
+    - [7.1 Adding a New Neural Architecture](#71-adding-a-new-neural-architecture)
+    - [7.2 Adding a New Classical Policy](#72-adding-a-new-classical-policy)
+    - [7.3 Adding a New Problem Variant](#73-adding-a-new-problem-variant)
+    - [7.4 Adding a New Encoder](#74-adding-a-new-encoder)
+    - [7.5 Adding a New Decoder](#75-adding-a-new-decoder)
+    - [7.6 Adding a New RL Algorithm](#76-adding-a-new-rl-algorithm)
 8.  [Testing & Quality Assurance](#8-testing--quality-assurance)
-    -   [8.1 Test Suite Overview](#81-test-suite-overview)
-    -   [8.2 Writing New Tests](#82-writing-new-tests)
-    -   [8.3 Coverage Requirements](#83-coverage-requirements)
+    - [8.1 Test Suite Overview](#81-test-suite-overview)
+    - [8.2 Writing New Tests](#82-writing-new-tests)
+    - [8.3 Coverage Requirements](#83-coverage-requirements)
 9.  [Advanced Topics](#9-advanced-topics)
-    -   [9.1 Multi-GPU Training](#91-multi-gpu-training)
-    -   [9.2 Custom Baselines](#92-custom-baselines)
-    -   [9.3 Distance Matrix Computation](#93-distance-matrix-computation)
-    -   [9.4 Checkpoint Management](#94-checkpoint-management)
-    -   [9.5 Logging and Monitoring](#95-logging-and-monitoring)
+    - [9.1 Multi-GPU Training](#91-multi-gpu-training)
+    - [9.2 Custom Baselines](#92-custom-baselines)
+    - [9.3 Distance Matrix Computation](#93-distance-matrix-computation)
+    - [9.4 Checkpoint Management](#94-checkpoint-management)
+    - [9.5 Logging and Monitoring](#95-logging-and-monitoring)
 10. [Exhaustive Code Reference](#10-exhaustive-code-reference)
 11. [Glossary of Terms](#11-glossary-of-terms)
 12. [Frequently Asked Questions](#12-frequently-asked-questions)
@@ -74,6 +84,7 @@ Deep Learning models, particularly attention-based architectures, can learn to c
 ### 1.2 Benchmarking Ecosystem
 
 To validate neural approaches, we need rigorous comparisons. WSmart+ Route provides:
+
 1.  **Exact Solvers**: Gurobi and Hexaly for optimal baselines.
 2.  **Classical Heuristics**: ALNS, HGS, and look-ahead policies.
 3.  **Neural Models**: Attention Models, Graph Neural Networks, and Meta-Learning architectures.
@@ -83,6 +94,7 @@ To validate neural approaches, we need rigorous comparisons. WSmart+ Route provi
 The `test_sim` pipeline simulates multi-day waste collection scenarios with stochastic bin fill rates, capacity constraints, and realistic road networks. This allows policies to be tested under conditions that mirror actual municipal operations.
 
 **Why Simulation Matters**: Unlike static benchmarks, real-world waste collection involves:
+
 - **Temporal Dynamics**: Bin fill levels change daily
 - **Stochastic Fill Rates**: Different bins fill at different rates
 - **Overflow Penalties**: Letting bins overflow has environmental costs
@@ -160,6 +172,7 @@ The `logic/src/` directory contains all the algorithmic intelligence—neural mo
 The **Attention Model (AM)** is the flagship neural architecture for constructive routing. It builds solutions step-by-step by selecting the next node to visit based on learned attention weights.
 
 **Architecture Overview:**
+
 ```python
 class AttentionModel(nn.Module):
     def __init__(self, problem, embed_dim=128, n_encode_layers=3, ...):
@@ -181,12 +194,14 @@ class AttentionModel(nn.Module):
 ```
 
 **Forward Pass Lifecycle:**
+
 1.  **Embedding**: Nodes (bins) are embedded based on their features (location, demand, fill level).
 2.  **Encoding**: Multi-head attention aggregates neighborhood information across all nodes.
 3.  **Decoding**: At each step, the decoder computes attention scores over feasible nodes, samples or greedily selects the next node.
 4.  **Masking**: Invalid moves (over-capacity, already visited) are masked with `-inf` before softmax.
 
 **Usage Example:**
+
 ```python
 from logic.src.models.attention_model import AttentionModel
 from logic.src.problems.vrpp import VRPP
@@ -211,14 +226,16 @@ tours, log_probs = model(batch, return_pi=True)
 
 #### GATLSTManager (`models/gat_lstm_manager.py`)
 
-The **GAT-LSTM Manager** is a high-level agent for Hierarchical Reinforcement Learning (HRL). It decides *when* to trigger a collection route based on temporal patterns.
+The **GAT-LSTM Manager** is a high-level agent for Hierarchical Reinforcement Learning (HRL). It decides _when_ to trigger a collection route based on temporal patterns.
 
 **Components:**
+
 - **GAT Encoder**: Processes spatial bin distribution.
 - **LSTM**: Captures temporal dependencies (bin fill history over days).
 - **Gating Probability**: Outputs a probability of triggering collection at current timestep.
 
 **Usage in HRL:**
+
 ```python
 from logic.src.models.gat_lstm_manager import GATLSTManager
 
@@ -238,6 +255,7 @@ gate_prob = manager(bin_history)  # Probability of triggering collection
 A variant of the Attention Model designed to handle time-dependent features directly within the attention mechanism.
 
 **Key Differences:**
+
 - Incorporates day-of-week embeddings
 - Uses temporal positional encodings
 - Can process sequences of problem states
@@ -247,6 +265,7 @@ A variant of the Attention Model designed to handle time-dependent features dire
 Implements **Meta-Learning** to generalize across different problem distributions (e.g., different cities, waste types).
 
 **Training Procedure:**
+
 1.  Sample a task (e.g., Rio Maior with plastic waste).
 2.  Adapt model on support set (few-shot learning).
 3.  Evaluate on query set.
@@ -272,6 +291,7 @@ for task in task_distribution:
 #### DeepDecoderAM (`models/deep_decoder_am.py`)
 
 An enhanced version of the Attention Model with a deeper decoder architecture:
+
 - Multiple decoder layers instead of single-layer attention
 - Improved long-range dependency modeling
 - Better performance on larger problem instances
@@ -279,6 +299,7 @@ An enhanced version of the Attention Model with a deeper decoder architecture:
 #### PointerNetwork (`models/pointer_network.py`)
 
 The classic Pointer Network architecture for comparison:
+
 - RNN encoder instead of Transformer
 - Attention-based pointing mechanism
 - Useful baseline for ablation studies
@@ -287,17 +308,18 @@ The classic Pointer Network architecture for comparison:
 
 #### Encoders
 
-| Encoder | File | Description |
-|---------|------|-------------|
-| **GATEncoder** | `gat_encoder.py` | Multi-head Graph Attention |
-| **GACEncoder** | `gac_encoder.py` | Graph Attention Convolution with edge features |
-| **TGCEncoder** | `tgc_encoder.py` | Transformer-style Graph Convolution |
-| **GGACEncoder** | `ggac_encoder.py` | Gated Graph Attention Convolution |
-| **GCNEncoder** | `gcn_encoder.py` | Standard Graph Convolutional Network |
-| **MLPEncoder** | `mlp_encoder.py` | Simple MLP (no graph structure) |
-| **PointerEncoder** | `ptr_encoder.py` | RNN-based encoder for Pointer Networks |
+| Encoder            | File              | Description                                    |
+| ------------------ | ----------------- | ---------------------------------------------- |
+| **GATEncoder**     | `gat_encoder.py`  | Multi-head Graph Attention                     |
+| **GACEncoder**     | `gac_encoder.py`  | Graph Attention Convolution with edge features |
+| **TGCEncoder**     | `tgc_encoder.py`  | Transformer-style Graph Convolution            |
+| **GGACEncoder**    | `ggac_encoder.py` | Gated Graph Attention Convolution              |
+| **GCNEncoder**     | `gcn_encoder.py`  | Standard Graph Convolutional Network           |
+| **MLPEncoder**     | `mlp_encoder.py`  | Simple MLP (no graph structure)                |
+| **PointerEncoder** | `ptr_encoder.py`  | RNN-based encoder for Pointer Networks         |
 
 **GATEncoder Example:**
+
 ```python
 from logic.src.models.subnets.gat_encoder import GATEncoder
 
@@ -316,6 +338,7 @@ class GATEncoder(nn.Module):
 ```
 
 **Distance-Aware Encoding:**
+
 ```python
 from logic.src.models.modules.distance_graph_convolution import DistanceAwareGC
 
@@ -328,13 +351,14 @@ encoder = DistanceAwareGC(
 
 #### Decoders
 
-| Decoder | File | Description |
-|---------|------|-------------|
+| Decoder              | File                   | Description                      |
+| -------------------- | ---------------------- | -------------------------------- |
 | **AttentionDecoder** | `attention_decoder.py` | Standard attention-based decoder |
-| **GATDecoder** | `gat_decoder.py` | Graph attention decoder |
-| **PointerDecoder** | `ptr_decoder.py` | RNN pointing mechanism |
+| **GATDecoder**       | `gat_decoder.py`       | Graph attention decoder          |
+| **PointerDecoder**   | `ptr_decoder.py`       | RNN pointing mechanism           |
 
 **AttentionDecoder Example:**
+
 ```python
 def forward(self, state, encoder_output, mask):
     # Compute compatibility scores
@@ -360,6 +384,7 @@ def forward(self, state, encoder_output, mask):
 **Adaptive Large Neighborhood Search** is a metaheuristic that iteratively destroys and repairs solutions.
 
 **Algorithm:**
+
 1.  **Destroy**: Remove a subset of customers from the current solution.
     - Random removal
     - Worst removal (highest cost customers)
@@ -371,6 +396,7 @@ def forward(self, state, encoder_output, mask):
 4.  **Adaptation**: Adjust destroy/repair operator weights based on success rates.
 
 **Configuration:**
+
 ```python
 alns_config = {
     'destroy_operators': ['random', 'worst', 'related'],
@@ -388,6 +414,7 @@ alns_config = {
 **Branch-Cut-and-Price** is an exact method for solving the VRPP optimally.
 
 **Components:**
+
 - **Column Generation**: Iteratively generates promising routes.
 - **Branch-and-Bound**: Explores solution tree to find optimal integer solution.
 - **Cutting Planes**: Strengthens LP relaxation with valid inequalities.
@@ -412,6 +439,7 @@ solution = bcp.solve(instance)
 **Hybrid Genetic Search** combines evolutionary algorithms with local search.
 
 **Key Features:**
+
 - **Population Management**: Maintains diverse population of solutions.
 - **Crossover**: OX (Order Crossover) to create offspring.
 - **Local Search**: 2-opt, relocate, and swap operators.
@@ -472,11 +500,13 @@ policy = LastMinute(threshold=0.9)  # Trigger at 90% full
 #### VRPP (`envs/vrpp.py`)
 
 **Vehicle Routing Problem with Profits** models scenarios where:
+
 - Visiting a node yields a **reward** (profit).
 - Not all nodes need to be visited.
 - Objective: Maximize $ \text{Profit} - \text{Cost} $.
 
 **State Representation:**
+
 ```python
 class StateVRPP:
     coords: Tensor      # (batch, nodes, 2)
@@ -489,6 +519,7 @@ class StateVRPP:
 ```
 
 **Reward Calculation:**
+
 ```python
 def get_reward(self, dataset, pi):
     # Total prize collected
@@ -504,11 +535,13 @@ def get_reward(self, dataset, pi):
 #### CWCVRP (`envs/wcvrp.py`)
 
 **Capacitated Waste Collection VRP** extends VRPP with:
+
 - **Temporal Dynamics**: Bin fill levels increase over time.
 - **Multi-Day Scenarios**: Decisions affect future days.
 - **Capacity Constraints**: Vehicle capacity limits.
 
 **State Transitions:**
+
 ```python
 def step(self, action):
     # Execute collection action
@@ -529,14 +562,14 @@ def step(self, action):
 
 **Problem Variants:**
 
-| Variant | Description |
-|---------|-------------|
-| VRPP | Vehicle Routing Problem with Profits |
-| CVRPP | Capacitated VRPP |
-| WCVRP | Waste Collection VRP |
-| CWCVRP | Capacitated Waste Collection VRP |
+| Variant | Description                             |
+| ------- | --------------------------------------- |
+| VRPP    | Vehicle Routing Problem with Profits    |
+| CVRPP   | Capacitated VRPP                        |
+| WCVRP   | Waste Collection VRP                    |
+| CWCVRP  | Capacitated Waste Collection VRP        |
 | SDWCVRP | Stochastic-Dynamic Waste Collection VRP |
-| SCWCVRP | Selective CWCVRP |
+| SCWCVRP | Selective CWCVRP                        |
 
 ### 3.5 The Simulator Engine (`logic/src/pipeline/simulator/`)
 
@@ -576,6 +609,7 @@ class Simulation:
 Manages the population of waste bins:
 
 **Fill Rate Models:**
+
 - **Gamma Distribution**: $ X \sim \Gamma(\alpha, \beta) $
 - **Empirical Distribution**: Sampled from historical data
 - **Deterministic**: Fixed fill rates for testing
@@ -602,6 +636,7 @@ class Bins:
 Handles distance matrices and routing networks:
 
 **Distance Computation:**
+
 - **OpenStreetMap**: Real road network distances via `osmnx`
 - **Euclidean**: Straight-line approximation for testing
 - **Google Maps**: API-based realistic travel times
@@ -673,6 +708,7 @@ The RL pipeline uses PyTorch Lightning for scalable training and easy experiment
 Implements policy gradient algorithms using PyTorch Lightning:
 
 **REINFORCE Algorithm:**
+
 ```python
 from logic.src.pipeline.rl.core import REINFORCE
 from logic.src.pipeline.rl.core.baselines import RolloutBaseline
@@ -690,18 +726,19 @@ loss = rl.compute_loss(batch, model)
 
 **Available RL Algorithms:**
 
-| Algorithm | File | Description |
-|-----------|------|-------------|
-| REINFORCE | `rl/core/reinforce.py` | Vanilla policy gradient |
-| PPO | `rl/core/ppo.py` | Proximal Policy Optimization |
-| SAPO | `rl/core/sapo.py` | Self-Adaptive Policy Optimization |
-| GSPO | `rl/core/gspo.py` | Generalized Self-Play Optimization |
-| DR-GRPO | `rl/core/dr_grpo.py` | Distributional Robust GRPO |
-| POMO | `rl/core/pomo.py` | Policy Optimization with Multiple Optima |
-| SymNCO | `rl/core/symnco.py` | Symmetry-aware NCO |
-| Imitation | `rl/core/imitation.py` | Imitation Learning |
+| Algorithm | File                   | Description                              |
+| --------- | ---------------------- | ---------------------------------------- |
+| REINFORCE | `rl/core/reinforce.py` | Vanilla policy gradient                  |
+| PPO       | `rl/core/ppo.py`       | Proximal Policy Optimization             |
+| SAPO      | `rl/core/sapo.py`      | Self-Adaptive Policy Optimization        |
+| GSPO      | `rl/core/gspo.py`      | Generalized Self-Play Optimization       |
+| DR-GRPO   | `rl/core/dr_grpo.py`   | Distributional Robust GRPO               |
+| POMO      | `rl/core/pomo.py`      | Policy Optimization with Multiple Optima |
+| SymNCO    | `rl/core/symnco.py`    | Symmetry-aware NCO                       |
+| Imitation | `rl/core/imitation.py` | Imitation Learning                       |
 
 **Baseline Options:**
+
 - **Rollout**: Greedy evaluation of current policy
 - **Exponential**: Moving average of past costs
 - **Critic**: Trained value network
@@ -731,6 +768,7 @@ metrics = compute_validation_metrics(model, val_dataset, problem)
 **Differential Evolution Hyperband** for automated hyperparameter tuning:
 
 **Algorithm:**
+
 1.  Initialize population of configurations.
 2.  Allocate resources via Successive Halving.
 3.  Evolve population using Differential Evolution mutation.
@@ -764,11 +802,13 @@ The GUI provides visual tools for training, evaluation, and analysis.
 ### 4.1 PySide6 Architecture
 
 **MainWindow (`windows/main_window.py`):**
+
 - Central container with tabbed interface
 - Menu bar for file operations, help
 - Status bar for real-time feedback
 
 **Tab Structure:**
+
 - **Training Tab**: Configure and launch training runs
 - **Evaluation Tab**: Test trained models
 - **Simulator Tab**: Run multi-day simulations
@@ -824,11 +864,13 @@ class DataLoaderWorker(QThread):
 ### 4.3 Real-Time Visualization
 
 **Matplotlib Integration:**
+
 - Embedded canvases using `FigureCanvasQTAgg`
 - Interactive plots with navigation toolbar
 - Real-time updates via worker signals
 
 **Folium Maps:**
+
 - HTML export of route visualizations
 - Interactive markers for bins and depots
 - Color-coded routes by policy
@@ -843,14 +885,15 @@ The core insight: routing decisions depend on **context** (current state) and **
 
 **Mathematical Formulation:**
 
-1.  **Query**: Current state embedding $ q = W_q \cdot h_{state} $
-2.  **Keys**: Node embeddings $ K = W_k \cdot H_{nodes} $
+1.  **Query**: Current state embedding $ q = W*q \cdot h*{state} $
+2.  **Keys**: Node embeddings $ K = W*k \cdot H*{nodes} $
 3.  **Compatibility**: $ u_i = \frac{q \cdot k_i}{\sqrt{d_k}} $
 4.  **Masking**: $ u_i := -\infty $ if node $i$ is infeasible
 5.  **Probabilities**: $ p_i = \frac{\exp(u_i)}{\sum_j \exp(u_j)} $
 6.  **Selection**: Sample $ a \sim \text{Categorical}(p) $ or $ a = \arg\max_i p_i $ (greedy)
 
 **Why It Works:**
+
 - Attention learns to prioritize nodes based on distance, demand, and reward.
 - Multi-head attention captures diverse decision criteria (e.g., minimize distance vs. maximize profit).
 - The autoregressive nature allows learning sequential dependencies.
@@ -858,23 +901,24 @@ The core insight: routing decisions depend on **context** (current state) and **
 ### 5.2 REINFORCE with Baselines
 
 **Vanilla REINFORCE:**
-$$ \nabla_\theta J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta} \left[ R(\tau) \cdot \nabla_\theta \log \pi_\theta(\tau) \right] $$
+$$ \nabla*\theta J(\theta) = \mathbb{E}*{\tau \sim \pi*\theta} \left[ R(\tau) \cdot \nabla*\theta \log \pi\_\theta(\tau) \right] $$
 
 **Problem**: High variance in gradient estimates.
 
 **Solution**: Subtract a baseline $ b $:
-$$ \nabla_\theta J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta} \left[ (R(\tau) - b) \cdot \nabla_\theta \log \pi_\theta(\tau) \right] $$
+$$ \nabla*\theta J(\theta) = \mathbb{E}*{\tau \sim \pi*\theta} \left[ (R(\tau) - b) \cdot \nabla*\theta \log \pi\_\theta(\tau) \right] $$
 
 **Baseline Options in WSmart+ Route:**
 
-1.  **Exponential Baseline**: $ b = 0.9 \cdot b_{prev} + 0.1 \cdot R(\tau) $
-2.  **Critic Network**: $ b = V_\phi(s) $ learned via MSE loss
-3.  **Rollout Baseline**: $ b = R(\tau_{greedy}) $ from greedy policy
+1.  **Exponential Baseline**: $ b = 0.9 \cdot b\_{prev} + 0.1 \cdot R(\tau) $
+2.  **Critic Network**: $ b = V\_\phi(s) $ learned via MSE loss
+3.  **Rollout Baseline**: $ b = R(\tau\_{greedy}) $ from greedy policy
 4.  **POMO**: Generate multiple solutions per instance, use best as baseline
 
 ### 5.3 Adaptive Large Neighborhood Search (ALNS)
 
 **Pseudo-code:**
+
 ```
 Initialize solution S_current
 Initialize operator weights w_destroy, w_repair
@@ -906,6 +950,7 @@ return S_best
 ```
 
 **Key Parameters:**
+
 - `destroy_fraction`: Percentage of customers to remove (default: 0.3)
 - `temperature`: Initial temperature for simulated annealing
 - `cooling_rate`: Temperature decay (default: 0.99)
@@ -913,11 +958,13 @@ return S_best
 ### 5.4 Branch-Cut-and-Price
 
 **Overview**: Exact method that combines:
+
 - **Branch-and-Bound**: Tree search over solution space
 - **Column Generation**: Efficiently generates promising routes
 - **Cutting Planes**: Adds constraints to tighten LP relaxation
 
 **Workflow:**
+
 1.  **Master Problem**: Select subset of routes to cover all customers
 2.  **Pricing Problem**: Find new routes with negative reduced cost
 3.  **Branch**: If solution is fractional, branch on fractional variable
@@ -956,7 +1003,7 @@ return S_best
 
 1. **Manager (High-Level)**:
    - Observes temporal bin states
-   - Decides *when* to trigger collection
+   - Decides _when_ to trigger collection
    - Trained with REINFORCE
 
 2. **Worker (Low-Level)**:
@@ -965,6 +1012,7 @@ return S_best
    - Trained separately or jointly
 
 **Communication:**
+
 ```python
 # Manager observes state
 gate_prob = manager(temporal_state)
@@ -983,6 +1031,7 @@ if trigger:
 ### 6.1 Setup & Environment
 
 **Quick Start:**
+
 ```bash
 # Clone repository
 git clone https://github.com/ACFHarbinger/WSmart-Route.git
@@ -999,6 +1048,7 @@ python main.py test_suite --module test_models
 ### 6.2 Training Your First Model
 
 **Step 1: Generate Data**
+
 ```bash
 # Generate training data (on-the-fly)
 # Or pre-generate validation/test data
@@ -1007,6 +1057,7 @@ python main.py generate_data test --problem vrpp --graph_sizes 20 --seed 1234 --
 ```
 
 **Step 2: Train Model**
+
 ```bash
 python main.py train_lightning model=am env.name=vrpp env.num_loc=50 \
   --n_epochs 100 \
@@ -1017,6 +1068,7 @@ python main.py train_lightning model=am env.name=vrpp env.num_loc=50 \
 ```
 
 **Step 3: Monitor Training**
+
 ```bash
 # Watch logs
 tail -f outputs/vrpp_20_*/log.txt
@@ -1027,6 +1079,7 @@ python main.py train --wandb
 ```
 
 **Step 4: Evaluate Model**
+
 ```bash
 python main.py eval \
   data/vrpp/vrpp20_test_seed1234.pkl \
@@ -1037,6 +1090,7 @@ python main.py eval \
 ### 6.3 Running Simulations
 
 **Basic Simulation:**
+
 ```bash
 python main.py test_sim \
   --policies regular last_minute gurobi \
@@ -1048,6 +1102,7 @@ python main.py test_sim \
 ```
 
 **With Neural Model:**
+
 ```bash
 python main.py test_sim \
   --policies am \
@@ -1059,6 +1114,7 @@ python main.py test_sim \
 ```
 
 **Multi-Sample Testing:**
+
 ```bash
 python main.py test_sim \
   --policies gurobi alns am \
@@ -1077,6 +1133,7 @@ python main.py gui
 ```
 
 **Workflow:**
+
 1.  **Training Tab**: Configure model, problem, and hyperparameters → Click "Start Training"
 2.  **Analysis Tab**: Load training logs, view convergence curves
 3.  **Simulator Tab**: Set policies, days, area → Click "Run Simulation"
@@ -1085,6 +1142,7 @@ python main.py gui
 ### 6.5 Hyperparameter Optimization
 
 **Random Search:**
+
 ```bash
 python main.py hp_optim \
   --model am \
@@ -1096,6 +1154,7 @@ python main.py hp_optim \
 ```
 
 **DEHB (Differential Evolution Hyperband):**
+
 ```bash
 python main.py hp_optim \
   --model am \
@@ -1110,6 +1169,7 @@ python main.py hp_optim \
 ### 6.6 Meta-Reinforcement Learning
 
 **Training MetaRNN:**
+
 ```bash
 python main.py mrl_train \
   --model meta_rnn \
@@ -1128,6 +1188,7 @@ python main.py mrl_train \
 ### 7.1 Adding a New Neural Architecture
 
 **Step 1: Create Model File**
+
 ```python
 # logic/src/models/my_model.py
 import torch.nn as nn
@@ -1152,6 +1213,7 @@ class MyModel(nn.Module):
 ```
 
 **Step 2: Register in Factory**
+
 ```python
 # logic/src/models/model_factory.py
 from logic.src.models.my_model import MyModel
@@ -1167,12 +1229,14 @@ def get_model(name, problem, opts):
 ```
 
 **Step 3: Add CLI Support**
+
 ```python
 # logic/src/utils/parsers/train_parser.py
 parser.add_argument('--model', choices=['am', 'transgcn', 'mymodel', ...])
 ```
 
 **Step 4: Write Tests**
+
 ```python
 # logic/test/test_models.py
 class TestMyModel:
@@ -1186,6 +1250,7 @@ class TestMyModel:
 ### 7.2 Adding a New Classical Policy
 
 **Step 1: Create Policy File**
+
 ```python
 # logic/src/policies/my_policy.py
 def policy_my_heuristic(state, opts):
@@ -1208,6 +1273,7 @@ def policy_my_heuristic(state, opts):
 ```
 
 **Step 2: Register Policy**
+
 ```python
 # logic/src/policies/__init__.py
 from .my_policy import policy_my_heuristic
@@ -1216,6 +1282,7 @@ __all__ = [..., 'policy_my_heuristic']
 ```
 
 **Step 3: Add to Policy Registry**
+
 ```python
 # logic/src/utils/definitions.py
 POLICY_REGISTRY = {
@@ -1226,6 +1293,7 @@ POLICY_REGISTRY = {
 ```
 
 **Step 4: Use in Simulation**
+
 ```bash
 python main.py test_sim --policies my_heuristic --size 20 --days 31
 ```
@@ -1233,6 +1301,7 @@ python main.py test_sim --policies my_heuristic --size 20 --days 31
 ### 7.3 Adding a New Problem Variant
 
 **Step 1: Define Problem Class**
+
 ```python
 # logic/src/envs/my_problem.py
 from logic.src.envs.base import RL4COEnvBase
@@ -1255,6 +1324,7 @@ class MyProblem(BaseProblem):
 ```
 
 **Step 2: Add State Definitions**
+
 ```python
 # logic/src/envs/my_problem.py (continued)
 # States are now embedded in the environment class
@@ -1275,6 +1345,7 @@ class StateMyProblem(BaseState):
 ```
 
 **Step 3: Register Problem**
+
 ```python
 # logic/src/utils/setup_utils.py
 from logic.src.problems.my_problem import MyProblem
@@ -1289,6 +1360,7 @@ PROBLEM_REGISTRY = {
 ### 7.4 Adding a New Encoder
 
 **Step 1: Create Encoder**
+
 ```python
 # logic/src/models/subnets/my_encoder.py
 import torch.nn as nn
@@ -1308,6 +1380,7 @@ class MyEncoder(nn.Module):
 ```
 
 **Step 2: Register Encoder**
+
 ```python
 # logic/src/models/model_factory.py
 ENCODER_REGISTRY = {
@@ -1320,6 +1393,7 @@ ENCODER_REGISTRY = {
 ### 7.5 Adding a New Decoder
 
 **Step 1: Create Decoder**
+
 ```python
 # logic/src/models/subnets/my_decoder.py
 class MyDecoder(nn.Module):
@@ -1343,6 +1417,7 @@ class MyDecoder(nn.Module):
 ### 7.6 Adding a New RL Algorithm
 
 **Step 1: Create Algorithm (Lightning-based)**
+
 ```python
 # logic/src/pipeline/rl/core/my_algorithm.py
 from logic.src.pipeline.rl.core.base import RL4COLitModule
@@ -1378,6 +1453,7 @@ class MyRLAlgorithm(RL4COLitModule):
 ```
 
 **Step 2: Register in Registry**
+
 ```python
 # logic/src/pipeline/rl/core/__init__.py
 from logic.src.pipeline.rl.core.my_algorithm import MyRLAlgorithm
@@ -1392,6 +1468,7 @@ RL_ALGORITHM_REGISTRY['my_algorithm'] = MyRLAlgorithm
 ### 8.1 Test Suite Overview
 
 **Directory Structure:**
+
 ```
 logic/test/
 ├── test_models.py          # Neural architecture tests
@@ -1403,6 +1480,7 @@ logic/test/
 ```
 
 **Running Tests:**
+
 ```bash
 # All tests
 python main.py test_suite
@@ -1420,6 +1498,7 @@ pytest --cov=logic/src logic/test/
 ### 8.2 Writing New Tests
 
 **Example Test:**
+
 ```python
 # logic/test/test_my_feature.py
 import pytest
@@ -1457,12 +1536,12 @@ class TestMyModel:
 
 ### 8.3 Coverage Requirements
 
-| Component | Minimum | Target |
-|-----------|---------|--------|
-| Overall | 60% | 80% |
-| `models/` | 70% | 85% |
-| `policies/` | 60% | 80% |
-| `pipeline/` | 60% | 75% |
+| Component   | Minimum | Target |
+| ----------- | ------- | ------ |
+| Overall     | 60%     | 80%    |
+| `models/`   | 70%     | 85%    |
+| `policies/` | 60%     | 80%    |
+| `pipeline/` | 60%     | 75%    |
 
 ---
 
@@ -1479,6 +1558,7 @@ CUDA_VISIBLE_DEVICES=0,2 python main.py train --model am
 ```
 
 **DataParallel in Code:**
+
 ```python
 if torch.cuda.device_count() > 1:
     model = nn.DataParallel(model)
@@ -1487,6 +1567,7 @@ if torch.cuda.device_count() > 1:
 ### 9.2 Custom Baselines
 
 **Creating a Custom Baseline:**
+
 ```python
 # logic/src/pipeline/rl/core/my_baseline.py
 from logic.src.pipeline.rl.core.baselines import Baseline
@@ -1522,6 +1603,7 @@ class MyBaseline(Baseline):
 ### 9.3 Distance Matrix Computation
 
 **Pre-compute for Real-World Instances:**
+
 ```python
 from logic.src.pipeline.simulator.network import Network
 
@@ -1536,6 +1618,7 @@ dist_matrix = network.load_distance_matrix()
 ### 9.4 Checkpoint Management
 
 **Save Checkpoints:**
+
 ```python
 checkpoint = {
     'epoch': epoch,
@@ -1548,6 +1631,7 @@ torch.save(checkpoint, f'checkpoint-epoch-{epoch}.pt')
 ```
 
 **Resume from Checkpoint:**
+
 ```bash
 python main.py train --load_path checkpoint-epoch-50.pt --epoch_start 51
 ```
@@ -1555,6 +1639,7 @@ python main.py train --load_path checkpoint-epoch-50.pt --epoch_start 51
 ### 9.5 Logging and Monitoring
 
 **WandB Integration:**
+
 ```python
 import wandb
 
@@ -1572,6 +1657,7 @@ wandb.watch(model)
 ```
 
 **TensorBoard:**
+
 ```python
 from torch.utils.tensorboard import SummaryWriter
 
@@ -1586,48 +1672,48 @@ writer.add_scalar('Cost/validation', val_cost, epoch)
 
 ### High-Level File Index
 
-| Category | Key Files | Description |
-|----------|-----------|-------------|
-| **Neural Models** | `attention_model.py`, `gat_lstm_manager.py`, `meta_rnn.py` | Core neural architectures |
-| **Encoders** | `gat_encoder.py`, `gcn_encoder.py`, `tgc_encoder.py` | Graph encoding layers |
-| **Trainer** | `pipeline/train_lightning.py` | Central entry for `train`, `meta_train`, `hpo`. Manages device selection, data loading, epoch loops via Lightning. |
-| **Policies** | `alns.py`, `bcp.py`, `hgs.py`, `look_ahead.py` | Classical solvers |
-| **Problems** | `vrpp/`, `wcvrp/` | Environment definitions |
-| **Simulator** | `simulation.py`, `bins.py`, `network.py` | Physics engine |
-| **RL Pipeline** | `reinforce.py`, `epoch.py`, `trainers.py` | Training loops |
-| **HPO** | `dehb.py`, `hpo.py` | Hyperparameter optimization |
-| **GUI** | `main_window.py`, `chart_worker.py` | User interface |
+| Category          | Key Files                                                  | Description                                                                                                        |
+| ----------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Neural Models** | `attention_model.py`, `gat_lstm_manager.py`, `meta_rnn.py` | Core neural architectures                                                                                          |
+| **Encoders**      | `gat_encoder.py`, `gcn_encoder.py`, `tgc_encoder.py`       | Graph encoding layers                                                                                              |
+| **Trainer**       | `pipeline/train_lightning.py`                              | Central entry for `train`, `meta_train`, `hpo`. Manages device selection, data loading, epoch loops via Lightning. |
+| **Policies**      | `alns.py`, `bcp.py`, `hgs.py`, `look_ahead.py`             | Classical solvers                                                                                                  |
+| **Problems**      | `vrpp/`, `wcvrp/`                                          | Environment definitions                                                                                            |
+| **Simulator**     | `simulation.py`, `bins.py`, `network.py`                   | Physics engine                                                                                                     |
+| **RL Pipeline**   | `reinforce.py`, `epoch.py`, `trainers.py`                  | Training loops                                                                                                     |
+| **HPO**           | `dehb.py`, `hpo.py`                                        | Hyperparameter optimization                                                                                        |
+| **GUI**           | `main_window.py`, `chart_worker.py`                        | User interface                                                                                                     |
 
 ---
 
 ## 11. Glossary of Terms
 
-| Term | Definition |
-|------|------------|
-| **ALNS** | Adaptive Large Neighborhood Search (Metaheuristic) |
-| **AM** | Attention Model |
-| **BCP** | Branch-Cut-and-Price (Exact method) |
-| **Baseline** | Reference value to reduce policy gradient variance |
-| **CWC VRP** | Capacitated Waste Collection VRP |
-| **Decoder** | Neural component that selects next node |
-| **DEHB** | Differential Evolution Hyperband |
-| **Encoder** | Neural component that processes node features |
-| **GAT** | Graph Attention Network |
-| **GCN** | Graph Convolutional Network |
-| **HGS** | Hybrid Genetic Search |
-| **HRL** | Hierarchical Reinforcement Learning |
-| **LSTM** | Long Short-Term Memory (Recurrent network) |
-| **Manager** | High-level agent in HRL (decides when to act) |
-| **Masking** | Preventing invalid actions in decoder |
-| **Meta-Learning** | Learning to learn across task distributions |
-| **POMO** | Policy Optimization with Multiple Optima |
-| **PPO** | Proximal Policy Optimization |
-| **REINFORCE** | Policy gradient RL algorithm |
-| **Rollout** | Greedy evaluation of policy for baseline |
-| **TSP** | Traveling Salesman Problem |
-| **VRP** | Vehicle Routing Problem |
-| **VRPP** | Vehicle Routing Problem with Profits |
-| **Worker** | Low-level agent in HRL (solves routing) |
+| Term              | Definition                                         |
+| ----------------- | -------------------------------------------------- |
+| **ALNS**          | Adaptive Large Neighborhood Search (Metaheuristic) |
+| **AM**            | Attention Model                                    |
+| **BCP**           | Branch-Cut-and-Price (Exact method)                |
+| **Baseline**      | Reference value to reduce policy gradient variance |
+| **CWC VRP**       | Capacitated Waste Collection VRP                   |
+| **Decoder**       | Neural component that selects next node            |
+| **DEHB**          | Differential Evolution Hyperband                   |
+| **Encoder**       | Neural component that processes node features      |
+| **GAT**           | Graph Attention Network                            |
+| **GCN**           | Graph Convolutional Network                        |
+| **HGS**           | Hybrid Genetic Search                              |
+| **HRL**           | Hierarchical Reinforcement Learning                |
+| **LSTM**          | Long Short-Term Memory (Recurrent network)         |
+| **Manager**       | High-level agent in HRL (decides when to act)      |
+| **Masking**       | Preventing invalid actions in decoder              |
+| **Meta-Learning** | Learning to learn across task distributions        |
+| **POMO**          | Policy Optimization with Multiple Optima           |
+| **PPO**           | Proximal Policy Optimization                       |
+| **REINFORCE**     | Policy gradient RL algorithm                       |
+| **Rollout**       | Greedy evaluation of policy for baseline           |
+| **TSP**           | Traveling Salesman Problem                         |
+| **VRP**           | Vehicle Routing Problem                            |
+| **VRPP**          | Vehicle Routing Problem with Profits               |
+| **Worker**        | Low-level agent in HRL (solves routing)            |
 
 ---
 
@@ -1637,6 +1723,7 @@ writer.add_scalar('Cost/validation', val_cost, epoch)
 
 **Q: My model isn't learning. What should I check?**
 A: Check these in order:
+
 1. Learning rate (try 1e-4 to 1e-3)
 2. Batch size (try 256-1024)
 3. Baseline type (try 'rollout')
@@ -1644,6 +1731,7 @@ A: Check these in order:
 
 **Q: How do I know when training has converged?**
 A: Monitor validation cost. Training is likely converged when:
+
 - Validation cost plateaus for 10+ epochs
 - Training loss stabilizes
 - Greedy vs. sampling gap is small
@@ -1655,12 +1743,14 @@ A: Always use GPU for training if available. For small inference tasks, CPU is o
 
 **Q: How do I compare multiple policies fairly?**
 A: Use the same random seed, same number of samples, and same problem instances:
+
 ```bash
 python main.py test_sim --policies am alns gurobi --seed 42 --n_samples 10
 ```
 
 **Q: Why are my simulation results different each run?**
 A: Set explicit random seeds:
+
 ```bash
 python main.py test_sim --seed 42 --np_seed 42 --torch_seed 42
 ```
@@ -1669,6 +1759,7 @@ python main.py test_sim --seed 42 --np_seed 42 --torch_seed 42
 
 **Q: Which model should I use for my problem?**
 A:
+
 - Small instances (< 50 nodes): AttentionModel with GATEncoder
 - Large instances (> 100 nodes): TransGCN or DeepDecoderAM
 - Temporal problems: GATLSTManager + AttentionModel (HRL)
@@ -1676,6 +1767,7 @@ A:
 
 **Q: How do I export a trained model for deployment?**
 A:
+
 ```python
 # Save model
 torch.save(model.state_dict(), 'model.pt')
@@ -1690,12 +1782,14 @@ model.eval()
 
 **Q: I get CUDA out of memory errors.**
 A: Reduce batch size or graph size. Clear cache between runs:
+
 ```python
 torch.cuda.empty_cache()
 ```
 
 **Q: My GUI won't launch.**
 A: Check PySide6 installation:
+
 ```bash
 uv pip install PySide6
 python -c "from PySide6.QtWidgets import QApplication; print('OK')"

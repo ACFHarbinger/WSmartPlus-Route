@@ -1,5 +1,15 @@
 # WSmart+ Route Testing Guide
 
+[![Python](https://img.shields.io/badge/Python-3.9+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2.2-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![uv](https://img.shields.io/badge/managed%20by-uv-261230.svg)](https://github.com/astral-sh/uv)
+[![Gurobi](https://img.shields.io/badge/Gurobi-11.0-ED1C24?logo=gurobi&logoColor=white)](https://www.gurobi.com/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
+[![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
+[![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
+[![CI](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
+
 > **Version**: 2.0 (Comprehensive Edition)
 > **Target Audience**: Developers, QA Engineers, Contributors
 
@@ -31,6 +41,7 @@ This document provides a comprehensive guide to the WSmart-Route testing infrast
 ## 1. Overview
 
 WSmart-Route utilizes `pytest` as the primary testing framework with comprehensive support for:
+
 - **Unit Tests**: Isolated component testing
 - **Integration Tests**: Cross-module interaction testing
 - **Simulation Tests**: End-to-end policy evaluation
@@ -38,11 +49,11 @@ WSmart-Route utilizes `pytest` as the primary testing framework with comprehensi
 
 ### Coverage Requirements
 
-| Metric | Minimum | Target |
-|--------|---------|--------|
-| Overall Coverage | 60% | 80% |
-| Critical Paths | 80% | 95% |
-| New Code | 80% | 90% |
+| Metric           | Minimum | Target |
+| ---------------- | ------- | ------ |
+| Overall Coverage | 60%     | 80%    |
+| Critical Paths   | 80%     | 95%    |
+| New Code         | 80%     | 90%    |
 
 ---
 
@@ -109,12 +120,12 @@ WSmart-Route/
 
 ### Test File Naming Conventions
 
-| Pattern | Description |
-|---------|-------------|
-| `test_*.py` | Standard test modules |
+| Pattern     | Description              |
+| ----------- | ------------------------ |
+| `test_*.py` | Standard test modules    |
 | `*_test.py` | Alternative test modules |
-| `test_*` | Test function prefix |
-| `Test*` | Test class prefix |
+| `test_*`    | Test function prefix     |
+| `Test*`     | Test class prefix        |
 
 ---
 
@@ -197,39 +208,39 @@ uv run pytest -n 4
 
 Tests are categorized using pytest markers for selective execution:
 
-| Marker | Description | Usage |
-|--------|-------------|-------|
-| `@pytest.mark.slow` | Long-running tests | Exclude with `-m "not slow"` |
-| `@pytest.mark.fast` | Quick tests | Select with `-m "fast"` |
-| `@pytest.mark.unit` | Isolated unit tests | Select with `-m "unit"` |
-| `@pytest.mark.integration` | Cross-module tests | Select with `-m "integration"` |
-| `@pytest.mark.validation` | Input validation tests | Select with `-m "validation"` |
-| `@pytest.mark.edge_case` | Edge case coverage | Select with `-m "edge_case"` |
-| `@pytest.mark.parametrize` | Parametrized tests | Select with `-m "parametrize"` |
+| Marker                     | Description            | Usage                          |
+| -------------------------- | ---------------------- | ------------------------------ |
+| `@pytest.mark.slow`        | Long-running tests     | Exclude with `-m "not slow"`   |
+| `@pytest.mark.fast`        | Quick tests            | Select with `-m "fast"`        |
+| `@pytest.mark.unit`        | Isolated unit tests    | Select with `-m "unit"`        |
+| `@pytest.mark.integration` | Cross-module tests     | Select with `-m "integration"` |
+| `@pytest.mark.validation`  | Input validation tests | Select with `-m "validation"`  |
+| `@pytest.mark.edge_case`   | Edge case coverage     | Select with `-m "edge_case"`   |
+| `@pytest.mark.parametrize` | Parametrized tests     | Select with `-m "parametrize"` |
 
 ### Command-Specific Markers
 
-| Marker | Description |
-|--------|-------------|
-| `@pytest.mark.train` | Training pipeline tests |
-| `@pytest.mark.mrl_train` | Meta-RL training tests |
-| `@pytest.mark.hp_optim` | Hyperparameter optimization tests |
-| `@pytest.mark.eval` | Evaluation command tests |
-| `@pytest.mark.test_sim` | Simulator tests |
-| `@pytest.mark.gen_data` | Data generation tests |
-| `@pytest.mark.file_system` | File system operation tests |
-| `@pytest.mark.gui` | GUI-related tests |
-| `@pytest.mark.model` | Model functionality tests |
-| `@pytest.mark.data` | Data processing tests |
-| `@pytest.mark.arg_parser` | Argument parser tests |
+| Marker                     | Description                       |
+| -------------------------- | --------------------------------- |
+| `@pytest.mark.train`       | Training pipeline tests           |
+| `@pytest.mark.mrl_train`   | Meta-RL training tests            |
+| `@pytest.mark.hp_optim`    | Hyperparameter optimization tests |
+| `@pytest.mark.eval`        | Evaluation command tests          |
+| `@pytest.mark.test_sim`    | Simulator tests                   |
+| `@pytest.mark.gen_data`    | Data generation tests             |
+| `@pytest.mark.file_system` | File system operation tests       |
+| `@pytest.mark.gui`         | GUI-related tests                 |
+| `@pytest.mark.model`       | Model functionality tests         |
+| `@pytest.mark.data`        | Data processing tests             |
+| `@pytest.mark.arg_parser`  | Argument parser tests             |
 
 ### Special Markers
 
-| Marker | Description |
-|--------|-------------|
-| `@pytest.mark.skip` | Skip unconditionally |
+| Marker                           | Description               |
+| -------------------------------- | ------------------------- |
+| `@pytest.mark.skip`              | Skip unconditionally      |
 | `@pytest.mark.skipif(condition)` | Skip if condition is true |
-| `@pytest.mark.xfail` | Expected to fail |
+| `@pytest.mark.xfail`             | Expected to fail          |
 
 ### Using Markers
 
@@ -276,18 +287,18 @@ pytest_plugins = [
 
 Available to all tests:
 
-| Fixture | Scope | Description |
-|---------|-------|-------------|
-| `mock_torch_device` | function | CPU torch device |
-| `temp_output_dir` | function | Temporary output directory |
-| `temp_data_dir` | function | Temporary data directory |
-| `temp_log_dir` | function | Temporary log directory |
-| `temp_model_dir` | function | Temporary model directory |
-| `mock_sys_argv` | function | Mock sys.argv for CLI tests |
-| `mock_environment` | function | Mock environment variables |
+| Fixture                  | Scope    | Description                 |
+| ------------------------ | -------- | --------------------------- |
+| `mock_torch_device`      | function | CPU torch device            |
+| `temp_output_dir`        | function | Temporary output directory  |
+| `temp_data_dir`          | function | Temporary data directory    |
+| `temp_log_dir`           | function | Temporary log directory     |
+| `temp_model_dir`         | function | Temporary model directory   |
+| `mock_sys_argv`          | function | Mock sys.argv for CLI tests |
+| `mock_environment`       | function | Mock environment variables  |
 | `setup_test_environment` | function | Auto-setup test environment |
-| `disable_wandb` | function | Disable W&B logging |
-| `cleanup_test_root` | session | Cleanup after session |
+| `disable_wandb`          | function | Disable W&B logging         |
+| `cleanup_test_root`      | session  | Cleanup after session       |
 
 ### Using Fixtures
 
@@ -412,16 +423,17 @@ class TestAttentionModel:
 
 ### Naming Conventions
 
-| Convention | Example | Description |
-|------------|---------|-------------|
-| Test class | `TestAttentionModel` | PascalCase with `Test` prefix |
-| Test method | `test_forward_pass` | snake_case with `test_` prefix |
-| Fixture | `sample_input` | Descriptive snake_case |
-| Helper | `_create_batch` | Private underscore prefix |
+| Convention  | Example              | Description                    |
+| ----------- | -------------------- | ------------------------------ |
+| Test class  | `TestAttentionModel` | PascalCase with `Test` prefix  |
+| Test method | `test_forward_pass`  | snake*case with `test*` prefix |
+| Fixture     | `sample_input`       | Descriptive snake_case         |
+| Helper      | `_create_batch`      | Private underscore prefix      |
 
 ### Best Practices
 
 1. **One assertion per test (when practical)**
+
    ```python
    def test_output_is_tensor(self, model, sample_input):
        output = model(sample_input)
@@ -433,6 +445,7 @@ class TestAttentionModel:
    ```
 
 2. **Use parametrize for variations**
+
    ```python
    @pytest.mark.parametrize("graph_size,expected", [
        (20, True),
@@ -447,6 +460,7 @@ class TestAttentionModel:
    ```
 
 3. **Test edge cases explicitly**
+
    ```python
    @pytest.mark.edge_case
    def test_empty_input_raises(self, model):
@@ -509,18 +523,19 @@ omit = [
 
 ### Coverage Targets
 
-| Component | Minimum | Target |
-|-----------|---------|--------|
-| `logic/src/models/` | 70% | 85% |
-| `logic/src/policies/` | 60% | 80% |
-| `logic/src/pipeline/` | 60% | 75% |
-| `logic/src/envs/` | 70% | 85% |
-| `logic/src/utils/` | 50% | 70% |
-| `gui/src/` | 40% | 60% |
+| Component             | Minimum | Target |
+| --------------------- | ------- | ------ |
+| `logic/src/models/`   | 70%     | 85%    |
+| `logic/src/policies/` | 60%     | 80%    |
+| `logic/src/pipeline/` | 60%     | 75%    |
+| `logic/src/envs/`     | 70%     | 85%    |
+| `logic/src/utils/`    | 50%     | 70%    |
+| `gui/src/`            | 40%     | 60%    |
 
 ### Improving Coverage
 
 1. **Identify uncovered code**
+
    ```bash
    uv run pytest --cov --cov-report=term-missing logic/src/models/
    ```
@@ -545,6 +560,7 @@ omit = [
 ### GitHub Actions Workflow
 
 Tests run automatically on:
+
 - Every push to `main`
 - Every pull request to `main`
 
@@ -559,7 +575,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: "3.9"
       - name: Install uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
       - name: Install dependencies
@@ -588,11 +604,13 @@ pre-commit run --all-files
 ### CI Best Practices
 
 1. **Run fast tests first**
+
    ```bash
    uv run pytest -m "fast" && uv run pytest -m "not fast"
    ```
 
 2. **Cache dependencies**
+
    ```yaml
    - uses: actions/cache@v3
      with:
@@ -702,13 +720,13 @@ def test_complex_logic(self):
 
 ### Common Failure Patterns
 
-| Symptom | Likely Cause | Solution |
-|---------|--------------|----------|
-| `ModuleNotFoundError` | Virtual env not activated | `source .venv/bin/activate` |
-| `CUDA error` | GPU memory exhausted | Use `mock_torch_device` fixture |
-| `FileNotFoundError` | Missing test data | Generate or create fixture |
-| `AssertionError` | Test logic error | Review assertion conditions |
-| Random failures | Non-determinism | Set random seeds |
+| Symptom               | Likely Cause              | Solution                        |
+| --------------------- | ------------------------- | ------------------------------- |
+| `ModuleNotFoundError` | Virtual env not activated | `source .venv/bin/activate`     |
+| `CUDA error`          | GPU memory exhausted      | Use `mock_torch_device` fixture |
+| `FileNotFoundError`   | Missing test data         | Generate or create fixture      |
+| `AssertionError`      | Test logic error          | Review assertion conditions     |
+| Random failures       | Non-determinism           | Set random seeds                |
 
 ### Setting Random Seeds
 
@@ -790,7 +808,7 @@ def test_no_memory_leak(self, model, sample_input):
 
 GUI tests require special handling due to Qt event loop:
 
-```python
+````python
 import pytest
 from PySide6.QtWidgets import QApplication
 
@@ -847,24 +865,28 @@ Structured logging infrastructure for visualizing test metrics and benchmarking 
   ```python
   from logic.src.utils.structured_logging import log_test_metric
   log_test_metric("inference_latency", 12.5)
-  ```
+````
+
 - **Kibana**: Dashboard template available at `docker/elk/kibana_dashboard.json`.
 
 To start the ELK stack:
+
 ```bash
 cd docker/elk
 docker-compose up -d
 ```
+
 The dashboard will be available at `http://localhost:5601`.
 
 @pytest.fixture
 def main_window(qapp):
-    """Create main window for testing."""
-    from gui.src.windows.main_window import MainWindow
-    window = MainWindow()
-    yield window
-    window.close()
-```
+"""Create main window for testing."""
+from gui.src.windows.main_window import MainWindow
+window = MainWindow()
+yield window
+window.close()
+
+````
 
 ### Testing UI Components
 
@@ -886,7 +908,7 @@ class TestMainWindow:
         button = main_window.train_button
         with qtbot.waitSignal(main_window.training_started, timeout=1000):
             qtbot.mouseClick(button, Qt.LeftButton)
-```
+````
 
 ### Running GUI Tests
 
@@ -904,27 +926,27 @@ QT_QPA_PLATFORM=offscreen uv run pytest gui/test/
 
 ### Common Commands
 
-| Command | Description |
-|---------|-------------|
-| `uv run pytest` | Run all tests |
-| `uv run pytest -v` | Verbose output |
-| `uv run pytest --cov` | With coverage |
-| `uv run pytest -m "unit"` | Run unit tests only |
-| `uv run pytest -m "not slow"` | Skip slow tests |
-| `uv run pytest -k "attention"` | Match pattern |
-| `uv run pytest -x` | Stop on first failure |
-| `uv run pytest --pdb` | Debug on failure |
-| `uv run pytest -n auto` | Parallel execution |
+| Command                        | Description           |
+| ------------------------------ | --------------------- |
+| `uv run pytest`                | Run all tests         |
+| `uv run pytest -v`             | Verbose output        |
+| `uv run pytest --cov`          | With coverage         |
+| `uv run pytest -m "unit"`      | Run unit tests only   |
+| `uv run pytest -m "not slow"`  | Skip slow tests       |
+| `uv run pytest -k "attention"` | Match pattern         |
+| `uv run pytest -x`             | Stop on first failure |
+| `uv run pytest --pdb`          | Debug on failure      |
+| `uv run pytest -n auto`        | Parallel execution    |
 
 ### Test CLI Commands
 
-| Command | Description |
-|---------|-------------|
-| `python main.py test_suite` | Run all tests |
+| Command                                          | Description     |
+| ------------------------------------------------ | --------------- |
+| `python main.py test_suite`                      | Run all tests   |
 | `python main.py test_suite --module test_models` | Specific module |
-| `python main.py test_suite --class TestAM` | Specific class |
-| `python main.py test_suite --test test_forward` | Specific test |
-| `python main.py test_suite --markers "fast"` | By marker |
+| `python main.py test_suite --class TestAM`       | Specific class  |
+| `python main.py test_suite --test test_forward`  | Specific test   |
+| `python main.py test_suite --markers "fast"`     | By marker       |
 
 ---
 
