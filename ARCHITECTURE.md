@@ -1,5 +1,15 @@
 # WSmart-Route Architecture
 
+[![Python](https://img.shields.io/badge/Python-3.9+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2.2-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![uv](https://img.shields.io/badge/managed%20by-uv-261230.svg)](https://github.com/astral-sh/uv)
+[![Gurobi](https://img.shields.io/badge/Gurobi-11.0-ED1C24?logo=gurobi&logoColor=white)](https://www.gurobi.com/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
+[![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
+[![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
+[![CI](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
+
 > **Version**: 4.0
 > **Last Updated**: January 22, 2026 (Lightning Migration Complete)
 > **Purpose**: Comprehensive system design documentation for WSmart+ Route
@@ -34,14 +44,14 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 
 ### 1.1 Core Capabilities
 
-| Capability | Description |
-|------------|-------------|
-| **Simulation** | Event-driven simulator for waste collection logistics over temporal horizons (1-365 days) |
-| **Neural Optimization** | Attention-based models for constructive routing (AM, TAM, DDAM) |
-| **Classical Optimization** | Suite of solvers: exact (BCP), metaheuristics (ALNS, HGS), heuristics |
-| **Hierarchical RL** | Manager-Worker architecture for multi-level decision making |
-| **Interactive GUI** | PySide6 application for visualization and control |
-| **CLI/TUI** | Modular command-line interface with interactive terminal UI |
+| Capability                 | Description                                                                               |
+| -------------------------- | ----------------------------------------------------------------------------------------- |
+| **Simulation**             | Event-driven simulator for waste collection logistics over temporal horizons (1-365 days) |
+| **Neural Optimization**    | Attention-based models for constructive routing (AM, TAM, DDAM)                           |
+| **Classical Optimization** | Suite of solvers: exact (BCP), metaheuristics (ALNS, HGS), heuristics                     |
+| **Hierarchical RL**        | Manager-Worker architecture for multi-level decision making                               |
+| **Interactive GUI**        | PySide6 application for visualization and control                                         |
+| **CLI/TUI**                | Modular command-line interface with interactive terminal UI                               |
 
 ### 1.2 Architecture Principles
 
@@ -96,63 +106,63 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 
 ### 2.1 Runtime Environment
 
-| Component | Specification | Notes |
-|-----------|---------------|-------|
-| **Python** | 3.9+ | Managed via `uv` package manager |
-| **Package Manager** | uv | Fast, reliable dependency resolution |
-| **Build System** | pyproject.toml | PEP 517/518 compliant |
+| Component           | Specification  | Notes                                |
+| ------------------- | -------------- | ------------------------------------ |
+| **Python**          | 3.9+           | Managed via `uv` package manager     |
+| **Package Manager** | uv             | Fast, reliable dependency resolution |
+| **Build System**    | pyproject.toml | PEP 517/518 compliant                |
 
 ### 2.2 Deep Learning Stack
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| **PyTorch** | 2.2.2 | Core deep learning framework |
-| **PyTorch Geometric** | 2.3.1 | Graph neural network layers |
-| **torch-scatter** | 2.1.2+ | Sparse tensor operations |
-| **TensorBoard** | 2.20.0 | Training visualization |
-| **Weights & Biases** | 0.21.1 | Experiment tracking |
+| Library               | Version | Purpose                      |
+| --------------------- | ------- | ---------------------------- |
+| **PyTorch**           | 2.2.2   | Core deep learning framework |
+| **PyTorch Geometric** | 2.3.1   | Graph neural network layers  |
+| **torch-scatter**     | 2.1.2+  | Sparse tensor operations     |
+| **TensorBoard**       | 2.20.0  | Training visualization       |
+| **Weights & Biases**  | 0.21.1  | Experiment tracking          |
 
 ### 2.3 Optimization Solvers
 
-| Solver | Version | Type | Use Case |
-|--------|---------|------|----------|
-| **Gurobi** | 11.0.3 | Exact (MIP) | Optimal solutions for small instances |
-| **Hexaly** | 14.0+ | Hybrid | High-performance local search |
-| **OR-Tools** | 9.4 | Hybrid | Google's optimization toolkit |
-| **PyVRP** | 0.9.1+ | Metaheuristic | HGS-based VRP solver |
-| **ALNS** | 7.0+ | Metaheuristic | Adaptive neighborhood search |
-| **fast-tsp** | 0.1.4 | Heuristic | Quick TSP solutions |
+| Solver       | Version | Type          | Use Case                              |
+| ------------ | ------- | ------------- | ------------------------------------- |
+| **Gurobi**   | 11.0.3  | Exact (MIP)   | Optimal solutions for small instances |
+| **Hexaly**   | 14.0+   | Hybrid        | High-performance local search         |
+| **OR-Tools** | 9.4     | Hybrid        | Google's optimization toolkit         |
+| **PyVRP**    | 0.9.1+  | Metaheuristic | HGS-based VRP solver                  |
+| **ALNS**     | 7.0+    | Metaheuristic | Adaptive neighborhood search          |
+| **fast-tsp** | 0.1.4   | Heuristic     | Quick TSP solutions                   |
 
 ### 2.4 Data Engineering
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| **Pandas** | 2.1.4 | Data manipulation |
-| **NumPy** | 1.26.4 | Numerical computing |
-| **SciPy** | 1.13.1 | Scientific algorithms |
-| **NetworkX** | 3.2.1 | Graph algorithms |
-| **GeoPandas** | 1.0.1 | Geographic data |
-| **Shapely** | 2.0.7 | Geometric operations |
+| Library       | Version | Purpose               |
+| ------------- | ------- | --------------------- |
+| **Pandas**    | 2.1.4   | Data manipulation     |
+| **NumPy**     | 1.26.4  | Numerical computing   |
+| **SciPy**     | 1.13.1  | Scientific algorithms |
+| **NetworkX**  | 3.2.1   | Graph algorithms      |
+| **GeoPandas** | 1.0.1   | Geographic data       |
+| **Shapely**   | 2.0.7   | Geometric operations  |
 
 ### 2.5 GUI & Visualization
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| **PySide6** | 6.9.0 | Qt for Python (GUI framework) |
-| **Matplotlib** | 3.9.4 | Static plotting |
-| **Plotly** | 6.3.0 | Interactive charts |
-| **Folium** | 0.20.0 | Map visualization |
-| **Seaborn** | 0.13.2 | Statistical plots |
+| Library        | Version | Purpose                       |
+| -------------- | ------- | ----------------------------- |
+| **PySide6**    | 6.9.0   | Qt for Python (GUI framework) |
+| **Matplotlib** | 3.9.4   | Static plotting               |
+| **Plotly**     | 6.3.0   | Interactive charts            |
+| **Folium**     | 0.20.0  | Map visualization             |
+| **Seaborn**    | 0.13.2  | Statistical plots             |
 
 ### 2.6 CLI & Utilities
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| **hydra-core** | 1.3.2 | Configuration management |
-| **rich** | 14.1.0 | Rich terminal output |
-| **prompt-toolkit** | - | Interactive TUI |
-| **loguru** | 0.7.3 | Logging framework |
-| **PyYAML** | 6.0.2 | Configuration files |
+| Library            | Version | Purpose                  |
+| ------------------ | ------- | ------------------------ |
+| **hydra-core**     | 1.3.2   | Configuration management |
+| **rich**           | 14.1.0  | Rich terminal output     |
+| **prompt-toolkit** | -       | Interactive TUI          |
+| **loguru**         | 0.7.3   | Logging framework        |
+| **PyYAML**         | 6.0.2   | Configuration files      |
 
 ---
 
@@ -412,15 +422,15 @@ gui/src/
 
 ### 4.1 Pattern Overview
 
-| Pattern | Location | Purpose |
-|---------|----------|---------|
-| **Factory** | `model_factory.py`, `adapters.py` | Centralized object creation |
-| **Strategy** | `policies/*` | Interchangeable algorithms |
-| **State** | `simulations/states.py` | Simulation lifecycle management |
-| **Command** | `simulations/actions.py` | Encapsulated simulation steps |
-| **Mediator** | `gui/core/mediator.py` | Decoupled component communication |
-| **Observer** | `checkpoints.py` (hooks) | State persistence triggers |
-| **Template Method** | `trainers.py` | Training loop skeleton |
+| Pattern             | Location                          | Purpose                           |
+| ------------------- | --------------------------------- | --------------------------------- |
+| **Factory**         | `model_factory.py`, `adapters.py` | Centralized object creation       |
+| **Strategy**        | `policies/*`                      | Interchangeable algorithms        |
+| **State**           | `simulations/states.py`           | Simulation lifecycle management   |
+| **Command**         | `simulations/actions.py`          | Encapsulated simulation steps     |
+| **Mediator**        | `gui/core/mediator.py`            | Decoupled component communication |
+| **Observer**        | `checkpoints.py` (hooks)          | State persistence triggers        |
+| **Template Method** | `trainers.py`                     | Training loop skeleton            |
 
 ### 4.2 Factory Pattern
 
@@ -906,14 +916,14 @@ Decoder (per step):
 
 ### 8.2 Encoder Types
 
-| Encoder | Architecture | Use Case |
-|---------|--------------|----------|
-| **GATEncoder** | Multi-head Graph Attention | Default; best for variable graphs |
-| **GACEncoder** | GAT + Edge Features | When edge features matter |
-| **TGCEncoder** | Transformer-style GCN | Capturing long-range dependencies |
-| **GGACEncoder** | Gated GAT | Complex node-edge interactions |
-| **GCNEncoder** | Standard GCN | Faster; fixed topology |
-| **MLPEncoder** | Pure MLP | No graph structure |
+| Encoder         | Architecture               | Use Case                          |
+| --------------- | -------------------------- | --------------------------------- |
+| **GATEncoder**  | Multi-head Graph Attention | Default; best for variable graphs |
+| **GACEncoder**  | GAT + Edge Features        | When edge features matter         |
+| **TGCEncoder**  | Transformer-style GCN      | Capturing long-range dependencies |
+| **GGACEncoder** | Gated GAT                  | Complex node-edge interactions    |
+| **GCNEncoder**  | Standard GCN               | Faster; fixed topology            |
+| **MLPEncoder**  | Pure MLP                   | No graph structure                |
 
 ### 8.3 Hierarchical RL (Manager-Worker)
 
@@ -1015,13 +1025,13 @@ class ALNSSolver:
 
 ### 9.3 Policy Selection Matrix
 
-| Instance Size | Speed Priority | Quality Priority | Recommended |
-|---------------|----------------|------------------|-------------|
-| < 50 nodes | - | ★★★ | Gurobi (exact) |
-| < 100 nodes | ★★ | ★★★ | HGS |
-| < 200 nodes | ★★★ | ★★ | ALNS |
-| > 200 nodes | ★★★ | ★★ | Neural (AM) |
-| Any (multi-day) | ★★ | ★★★ | Look-Ahead + Gurobi |
+| Instance Size   | Speed Priority | Quality Priority | Recommended         |
+| --------------- | -------------- | ---------------- | ------------------- |
+| < 50 nodes      | -              | ★★★              | Gurobi (exact)      |
+| < 100 nodes     | ★★             | ★★★              | HGS                 |
+| < 200 nodes     | ★★★            | ★★               | ALNS                |
+| > 200 nodes     | ★★★            | ★★               | Neural (AM)         |
+| Any (multi-day) | ★★             | ★★★              | Look-Ahead + Gurobi |
 
 ---
 
@@ -1065,13 +1075,13 @@ def train_batch(self, batch):
 
 ### 10.2 Baseline Strategies
 
-| Baseline | Description | Variance Reduction | Computational Cost |
-|----------|-------------|-------------------|-------------------|
-| **None** | Raw reward | None | None |
-| **Exponential** | Moving average | Low | Low |
-| **Critic** | Learned V(s) | Medium | Medium |
-| **Rollout** | Greedy eval | High | High |
-| **POMO** | Multi-start best | Very High | Very High |
+| Baseline        | Description      | Variance Reduction | Computational Cost |
+| --------------- | ---------------- | ------------------ | ------------------ |
+| **None**        | Raw reward       | None               | None               |
+| **Exponential** | Moving average   | Low                | Low                |
+| **Critic**      | Learned V(s)     | Medium             | Medium             |
+| **Rollout**     | Greedy eval      | High               | High               |
+| **POMO**        | Multi-start best | Very High          | Very High          |
 
 ### 10.3 Training Loop
 
@@ -1170,7 +1180,7 @@ class Bins:
 
 ### 11.3 Distance Matrix Computation
 
-```python
+````python
 # network.py
 class Network:
     def compute_distance_matrix(self, method='osm'):
@@ -1229,7 +1239,8 @@ class PostProcessAction(SimulationAction):
              tour = processor.process(tour)
 
         context["tour"] = tour
-```
+````
+
 ```
 
 ---
@@ -1239,52 +1250,56 @@ class PostProcessAction(SimulationAction):
 ### 12.1 Application Structure
 
 ```
+
 ┌─────────────────────────────────────────────────────────────────────┐
-│                        MainWindow (QMainWindow)                     │
+│ MainWindow (QMainWindow) │
 ├──────────────────────────┬──────────────────────────────────────────┤
-│      Menu Bar            │                                          │
-│  ┌────┬────┬────┬────┐   │                                          │
-│  │File│Edit│View│Help│   │                                          │
-│  └────┴────┴────┴────┘   │                                          │
+│ Menu Bar │ │
+│ ┌────┬────┬────┬────┐ │ │
+│ │File│Edit│View│Help│ │ │
+│ └────┴────┴────┴────┘ │ │
 ├──────────────────────────┼──────────────────────────────────────────┤
-│                          │                                          │
-│   Navigation Sidebar     │          Central Tab Widget              │
-│   ┌──────────────────┐   │   ┌──────────────────────────────────┐   │
-│   │ 🎓 Training      │   │   │  [Training] [Eval] [Sim] [Data]  │   │
-│   │ 📊 Evaluation    │   │   ├──────────────────────────────────┤   │
-│   │ 🧪 Simulation    │   │   │                                  │   │
-│   │ 📁 Data Gen      │   │   │      Active Tab Content          │   │
-│   │ 📈 Analysis      │   │   │                                  │   │
-│   │ ⚙️ Settings      │   │   │                                  │   │
-│   └──────────────────┘   │   │                                  │   │
-│                          │   │                                  │   │
-│                          │   └──────────────────────────────────┘   │
+│ │ │
+│ Navigation Sidebar │ Central Tab Widget │
+│ ┌──────────────────┐ │ ┌──────────────────────────────────┐ │
+│ │ 🎓 Training │ │ │ [Training] [Eval] [Sim] [Data] │ │
+│ │ 📊 Evaluation │ │ ├──────────────────────────────────┤ │
+│ │ 🧪 Simulation │ │ │ │ │
+│ │ 📁 Data Gen │ │ │ Active Tab Content │ │
+│ │ 📈 Analysis │ │ │ │ │
+│ │ ⚙️ Settings │ │ │ │ │
+│ └──────────────────┘ │ │ │ │
+│ │ │ │ │
+│ │ └──────────────────────────────────┘ │
 ├──────────────────────────┴──────────────────────────────────────────┤
-│                        Status Bar                                   │
-│  [Ready] [GPU: RTX 4080] [Memory: 4.2GB/12GB] [Progress: ████░ 80%] │
+│ Status Bar │
+│ [Ready] [GPU: RTX 4080] [Memory: 4.2GB/12GB] [Progress: ████░ 80%] │
 └─────────────────────────────────────────────────────────────────────┘
+
 ```
 
 ### 12.2 Signal Flow
 
 ```
-┌─────────────────┐           ┌─────────────────┐           ┌─────────────────┐
-│   Training Tab  │           │    UIMediator   │           │   MainWindow    │
-│                 │           │                 │           │                 │
-│  [Start Button] │─signal──▶│  notify()       │─update──▶│ Command Preview │
-│  [Parameters]   │─signal──▶│  (routing)      │─update──▶│ Status Bar      │
-│                 │           │                 │           │                 │
-└────────┬────────┘           └────────┬────────┘           └─────────────────┘
-         │                             │
-         │                             │ notify
-         │                             ▼
-         │                   ┌─────────────────┐
-         │                   │   Analysis Tab  │
-         │                   │                 │
-         └───data ready────▶│ enable_plotting │
-                             │                 │
-                             └─────────────────┘
-```
+
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│ Training Tab │ │ UIMediator │ │ MainWindow │
+│ │ │ │ │ │
+│ [Start Button] │─signal──▶│ notify() │─update──▶│ Command Preview │
+│ [Parameters] │─signal──▶│ (routing) │─update──▶│ Status Bar │
+│ │ │ │ │ │
+└────────┬────────┘ └────────┬────────┘ └─────────────────┘
+│ │
+│ │ notify
+│ ▼
+│ ┌─────────────────┐
+│ │ Analysis Tab │
+│ │ │
+└───data ready────▶│ enable_plotting │
+│ │
+└─────────────────┘
+
+````
 
 ### 12.3 Background Worker Pattern
 
@@ -1323,7 +1338,7 @@ class TrainingTab(QWidget):
 
     def update_chart(self, data):
         self.plot_widget.update(data)
-```
+````
 
 ---
 
@@ -1355,14 +1370,14 @@ class TrainingTab(QWidget):
 
 ### 13.2 Key Configuration Files
 
-| File | Purpose |
-|------|---------|
-| `pyproject.toml` | Project metadata, dependencies |
-| `assets/configs/train.yaml` | Training defaults |
-| `assets/configs/sim.yaml` | Simulation defaults |
-| `assets/configs/areas/*.yaml` | Area-specific settings |
-| `scripts/configs/policies/*.{yaml,xml}` | Detailed Policy Configurations |
-| `.env` | Environment secrets (git-ignored) |
+| File                                    | Purpose                           |
+| --------------------------------------- | --------------------------------- |
+| `pyproject.toml`                        | Project metadata, dependencies    |
+| `assets/configs/train.yaml`             | Training defaults                 |
+| `assets/configs/sim.yaml`               | Simulation defaults               |
+| `assets/configs/areas/*.yaml`           | Area-specific settings            |
+| `scripts/configs/policies/*.{yaml,xml}` | Detailed Policy Configurations    |
+| `.env`                                  | Environment secrets (git-ignored) |
 
 ### 13.3 Configuration Dataclass
 
@@ -1403,12 +1418,12 @@ class TrainConfigs:
 
 ### 14.1 Deployment Options
 
-| Method | Use Case | Requirements |
-|--------|----------|--------------|
-| **Local (uv)** | Development, research | Python 3.9+, CUDA |
-| **Docker** | Reproducible deployment | Docker engine |
-| **HPC (Slurm)** | Large-scale experiments | Slurm cluster |
-| **Desktop (PyInstaller)** | End-user distribution | None |
+| Method                    | Use Case                | Requirements      |
+| ------------------------- | ----------------------- | ----------------- |
+| **Local (uv)**            | Development, research   | Python 3.9+, CUDA |
+| **Docker**                | Reproducible deployment | Docker engine     |
+| **HPC (Slurm)**           | Large-scale experiments | Slurm cluster     |
+| **Desktop (PyInstaller)** | End-user distribution   | None              |
 
 ### 14.2 Slurm Deployment
 
@@ -1472,12 +1487,12 @@ jobs:
 
 ### 15.1 GPU Memory Optimization
 
-| Strategy | Implementation |
-|----------|----------------|
-| **Gradient Checkpointing** | `torch.utils.checkpoint` for encoder layers |
-| **Mixed Precision** | `torch.cuda.amp.autocast()` for FP16 training |
-| **Batch Size Tuning** | Auto-detect based on available VRAM |
-| **Memory Profiling** | `torch.cuda.memory_stats()` monitoring |
+| Strategy                   | Implementation                                |
+| -------------------------- | --------------------------------------------- |
+| **Gradient Checkpointing** | `torch.utils.checkpoint` for encoder layers   |
+| **Mixed Precision**        | `torch.cuda.amp.autocast()` for FP16 training |
+| **Batch Size Tuning**      | Auto-detect based on available VRAM           |
+| **Memory Profiling**       | `torch.cuda.memory_stats()` monitoring        |
 
 ### 15.2 Parallel Execution
 
@@ -1501,12 +1516,12 @@ def run_parallel_simulation(configs, n_workers=-1):
 
 ### 15.3 Caching Strategies
 
-| Cache Type | Location | Purpose |
-|------------|----------|---------|
-| **Distance Matrices** | `data/distance_matrices/` | Avoid recomputation |
-| **Compiled Models** | `torch.jit` | Faster inference |
-| **Dataset Preprocessing** | `.pkl` files | Skip loading overhead |
-| **HPO Results** | `assets/output/hpo/` | Resume interrupted runs |
+| Cache Type                | Location                  | Purpose                 |
+| ------------------------- | ------------------------- | ----------------------- |
+| **Distance Matrices**     | `data/distance_matrices/` | Avoid recomputation     |
+| **Compiled Models**       | `torch.jit`               | Faster inference        |
+| **Dataset Preprocessing** | `.pkl` files              | Skip loading overhead   |
+| **HPO Results**           | `assets/output/hpo/`      | Resume interrupted runs |
 
 ### 15.4 Profiling Tools
 
@@ -1530,11 +1545,13 @@ python -m memory_profiler main.py train_lightning
 **Decision**: Maintain strict separation between `logic/` and `gui/` layers.
 
 **Rationale**:
+
 - Enables headless operation for HPC clusters
 - Facilitates testing of logic without GUI dependencies
 - Allows future alternative interfaces (web, mobile)
 
 **Consequences**:
+
 - GUI must communicate via defined interfaces only
 - Logic cannot import any GUI module
 - Shared utilities must be in `logic/src/utils/`
@@ -1544,11 +1561,13 @@ python -m memory_profiler main.py train_lightning
 **Decision**: Use factory methods for instantiating models and policies.
 
 **Rationale**:
+
 - Centralized creation logic
 - Easy addition of new implementations
 - Consistent configuration handling
 
 **Consequences**:
+
 - All models must be registered in `model_factory.py`
 - All policies must be registered in `adapters.py`
 - CLI/GUI can reference by string name
@@ -1558,11 +1577,13 @@ python -m memory_profiler main.py train_lightning
 **Decision**: Implement simulator lifecycle using State pattern.
 
 **Rationale**:
+
 - Clear state transitions
 - Supports checkpointing and resume
 - Isolates phase-specific logic
 
 **Consequences**:
+
 - Each state is a separate class
 - State transitions are explicit
 - Context holds shared state

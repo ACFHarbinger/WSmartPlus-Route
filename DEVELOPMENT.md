@@ -1,5 +1,15 @@
 # Development Guide
 
+[![Python](https://img.shields.io/badge/Python-3.9+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2.2-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![uv](https://img.shields.io/badge/managed%20by-uv-261230.svg)](https://github.com/astral-sh/uv)
+[![Gurobi](https://img.shields.io/badge/Gurobi-11.0-ED1C24?logo=gurobi&logoColor=white)](https://www.gurobi.com/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
+[![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
+[![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
+[![CI](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
+
 > **Version**: 2.0
 > **Last Updated**: January 2026
 > **Purpose**: Comprehensive development setup and workflow documentation
@@ -27,13 +37,13 @@ This guide provides everything you need to set up a development environment for 
 
 ### 1.1 System Requirements
 
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| **OS** | Ubuntu 20.04+ / Windows 10+ / macOS 12+ | Ubuntu 22.04+ |
-| **Python** | 3.9 | 3.11 |
-| **RAM** | 16 GB | 32 GB |
-| **GPU VRAM** | 8 GB | 12+ GB |
-| **Storage** | 20 GB | 50 GB SSD |
+| Component    | Minimum                                 | Recommended   |
+| ------------ | --------------------------------------- | ------------- |
+| **OS**       | Ubuntu 20.04+ / Windows 10+ / macOS 12+ | Ubuntu 22.04+ |
+| **Python**   | 3.9                                     | 3.11          |
+| **RAM**      | 16 GB                                   | 32 GB         |
+| **GPU VRAM** | 8 GB                                    | 12+ GB        |
+| **Storage**  | 20 GB                                   | 50 GB SSD     |
 
 ### 1.2 Required Software
 
@@ -55,12 +65,12 @@ brew install git curl python@3.11
 
 ### 1.3 Optional Software
 
-| Software | Purpose |
-|----------|---------|
-| **CUDA Toolkit 11.8+** | GPU acceleration |
-| **Gurobi 11.0+** | Exact optimization solver |
-| **Hexaly 14.0+** | High-performance solver |
-| **Docker** | Containerized deployment |
+| Software               | Purpose                   |
+| ---------------------- | ------------------------- |
+| **CUDA Toolkit 11.8+** | GPU acceleration          |
+| **Gurobi 11.0+**       | Exact optimization solver |
+| **Hexaly 14.0+**       | High-performance solver   |
+| **Docker**             | Containerized deployment  |
 
 ---
 
@@ -185,13 +195,13 @@ WSmart-Route/
 
 ### 3.2 Key Files
 
-| File | Purpose |
-|------|---------|
-| `main.py` | Application entry point |
-| `pyproject.toml` | Project metadata, dependencies, tool configs |
-| `.pre-commit-config.yaml` | Pre-commit hook configuration |
-| `Makefile` | Build and automation targets |
-| `CLAUDE.md` | AI assistant instructions (symlink to AGENTS.md) |
+| File                      | Purpose                                          |
+| ------------------------- | ------------------------------------------------ |
+| `main.py`                 | Application entry point                          |
+| `pyproject.toml`          | Project metadata, dependencies, tool configs     |
+| `.pre-commit-config.yaml` | Pre-commit hook configuration                    |
+| `Makefile`                | Build and automation targets                     |
+| `CLAUDE.md`               | AI assistant instructions (symlink to AGENTS.md) |
 
 ---
 
@@ -300,16 +310,16 @@ uv run pytest -m "gpu"
 
 If you have `just` installed, use these commands:
 
-| Command | Description |
-|---------|-------------|
-| `just check-docs` | Verify all modules have docstrings |
-| `just test` | Run the full test suite |
-| `just test-unit` | Run unit tests only (faster) |
-| `just lint` | Run code linting (Ruff) |
-| `just format` | Format code (Black/Ruff) |
-| `just build-docs` | Build Sphinx documentation |
-| `just run-train` | Run the training pipeline (Hydra + Lightning) |
-| `just run-sim` | Run the simulation pipeline |
+| Command           | Description                                   |
+| ----------------- | --------------------------------------------- |
+| `just check-docs` | Verify all modules have docstrings            |
+| `just test`       | Run the full test suite                       |
+| `just test-unit`  | Run unit tests only (faster)                  |
+| `just lint`       | Run code linting (Ruff)                       |
+| `just format`     | Format code (Black/Ruff)                      |
+| `just build-docs` | Build Sphinx documentation                    |
+| `just run-train`  | Run the training pipeline (Hydra + Lightning) |
+| `just run-sim`    | Run the simulation pipeline                   |
 
 ---
 
@@ -317,18 +327,18 @@ If you have `just` installed, use these commands:
 
 ### 5.1 Main Commands
 
-| Command | Description |
-|---------|-------------|
-| `train` | Train a neural model |
-| `mrl_train` | Meta-RL training |
-| `hp_optim` | Hyperparameter optimization |
-| `eval` | Evaluate a trained model |
-| `test_sim` | Run simulation tests |
-| `gen_data` | Generate datasets |
-| `gui` | Launch graphical interface |
-| `tui` | Launch terminal UI |
-| `test_suite` | Run test suite |
-| `file_system` | File operations |
+| Command       | Description                 |
+| ------------- | --------------------------- |
+| `train`       | Train a neural model        |
+| `mrl_train`   | Meta-RL training            |
+| `hp_optim`    | Hyperparameter optimization |
+| `eval`        | Evaluate a trained model    |
+| `test_sim`    | Run simulation tests        |
+| `gen_data`    | Generate datasets           |
+| `gui`         | Launch graphical interface  |
+| `tui`         | Launch terminal UI          |
+| `test_suite`  | Run test suite              |
+| `file_system` | File operations             |
 
 ### 5.2 Training Command
 
@@ -447,22 +457,22 @@ export QT_LOGGING_RULES="*.debug=false"
 
 ### 6.4 Using Configs
 
-```bash
+````bash
 # Start with default experiment config
 python main.py train_lightning experiment=base
 
 ```bash
 # Override specific options
 python main.py train_lightning experiment=base train.batch_size=128 model.hidden_dim=256
-```
+````
 
 ### 6.5 Policy & Selection Configuration
 
 Policies and selection strategies use a mix of YAML and XML configurations located in `scripts/configs/policies/`.
 
-- **YAML (*.yaml)**: Defines classical or neural policy adaptors (e.g., `policy_alns.yaml`).
+- **YAML (\*.yaml)**: Defines classical or neural policy adaptors (e.g., `policy_alns.yaml`).
   - Can reference sub-components like Selection Strategies via XML pointers.
-- **XML (*.xml)**: Defines specific selection strategy behaviors (e.g., `mg_lookahead_days7.xml`).
+- **XML (\*.xml)**: Defines specific selection strategy behaviors (e.g., `mg_lookahead_days7.xml`).
   - Used for modular composition of strategies.
 
 **Example Usage:**
@@ -626,23 +636,23 @@ watch -n 1 nvidia-smi
 ```json
 // .vscode/settings.json
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
-    "python.analysis.typeCheckingMode": "basic",
-    "python.analysis.autoImportCompletions": true,
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": "explicit"
-    },
-    "[python]": {
-        "editor.defaultFormatter": "charliermarsh.ruff"
-    },
-    "ruff.lint.args": ["--config=pyproject.toml"],
-    "files.exclude": {
-        "**/__pycache__": true,
-        "**/.pytest_cache": true,
-        "**/.mypy_cache": true,
-        "**/*.egg-info": true
-    }
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "ruff.lint.args": ["--config=pyproject.toml"],
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true,
+    "**/*.egg-info": true
+  }
 }
 ```
 
@@ -651,34 +661,39 @@ watch -n 1 nvidia-smi
 ```json
 // .vscode/launch.json
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Train Model",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/main.py",
-            "args": ["train_lightning", "model=am", "env.num_loc=20", "train.n_epochs=2"],
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
-        {
-            "name": "Run Tests",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/main.py",
-            "args": ["test_suite", "--module", "test_models"],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Launch GUI",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/main.py",
-            "args": ["gui"],
-            "console": "integratedTerminal"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Train Model",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "args": [
+        "train_lightning",
+        "model=am",
+        "env.num_loc=20",
+        "train.n_epochs=2"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Run Tests",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "args": ["test_suite", "--module", "test_models"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Launch GUI",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "args": ["gui"],
+      "console": "integratedTerminal"
+    }
+  ]
 }
 ```
 
@@ -709,6 +724,7 @@ python -m ipykernel install --user --name=wsmart-route
 ### 10.1 Adding a New Model
 
 1. Create model file:
+
    ```python
    # logic/src/models/my_model.py
    import torch.nn as nn
@@ -721,6 +737,7 @@ python -m ipykernel install --user --name=wsmart-route
    ```
 
 2. Register in factory:
+
    ```python
    # logic/src/models/model_factory.py
    from .my_model import MyModel
@@ -729,6 +746,7 @@ python -m ipykernel install --user --name=wsmart-route
    ```
 
 3. Add CLI argument:
+
    ```python
    # logic/src/configs/model/my_model.yaml
    # Define default parameters for Hydra
@@ -745,6 +763,7 @@ python -m ipykernel install --user --name=wsmart-route
 ### 10.2 Adding a New Policy
 
 1. Create policy file:
+
    ```python
    # logic/src/policies/my_policy.py
    from .adapters import Policy
@@ -835,13 +854,13 @@ python main.py gui
 
 ### Important Files
 
-| File | Purpose |
-|------|---------|
-| `main.py` | Entry point |
-| `logic/src/cli/registry.py` | Command dispatcher |
-| `logic/src/models/model_factory.py` | Model creation |
-| `logic/src/policies/adapters.py` | Policy creation |
-| `pyproject.toml` | Project config |
+| File                                | Purpose            |
+| ----------------------------------- | ------------------ |
+| `main.py`                           | Entry point        |
+| `logic/src/cli/registry.py`         | Command dispatcher |
+| `logic/src/models/model_factory.py` | Model creation     |
+| `logic/src/policies/adapters.py`    | Policy creation    |
+| `pyproject.toml`                    | Project config     |
 
 ### Troubleshooting
 

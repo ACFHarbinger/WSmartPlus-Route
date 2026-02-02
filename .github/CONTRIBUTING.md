@@ -1,5 +1,15 @@
 # Contributing to WSmart-Route
 
+[![Python](https://img.shields.io/badge/Python-3.9+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2.2-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![uv](https://img.shields.io/badge/managed%20by-uv-261230.svg)](https://github.com/astral-sh/uv)
+[![Gurobi](https://img.shields.io/badge/Gurobi-11.0-ED1C24?logo=gurobi&logoColor=white)](https://www.gurobi.com/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
+[![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
+[![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
+[![CI](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
+
 > **Version**: 2.0
 > **Last Updated**: January 2026
 
@@ -105,21 +115,23 @@ pre-commit run --all-files
 #### VS Code
 
 Recommended extensions:
+
 - Python (Microsoft)
 - Pylance
 - Ruff
 - Git Lens
 
 Recommended settings (`.vscode/settings.json`):
+
 ```json
 {
-    "python.defaultInterpreterPath": ".venv/bin/python",
-    "python.analysis.typeCheckingMode": "basic",
-    "editor.formatOnSave": true,
-    "[python]": {
-        "editor.defaultFormatter": "charliermarsh.ruff"
-    },
-    "ruff.lint.args": ["--config=pyproject.toml"]
+  "python.defaultInterpreterPath": ".venv/bin/python",
+  "python.analysis.typeCheckingMode": "basic",
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "ruff.lint.args": ["--config=pyproject.toml"]
 }
 ```
 
@@ -137,12 +149,12 @@ Recommended settings (`.vscode/settings.json`):
 
 We follow [PEP 8](https://pep8.org/) with the following specifics:
 
-| Rule | Specification |
-|------|---------------|
-| Line length | 120 characters |
-| Indentation | 4 spaces (no tabs) |
-| Quotes | Double quotes for strings |
-| Imports | Sorted with `isort` (via Ruff) |
+| Rule        | Specification                  |
+| ----------- | ------------------------------ |
+| Line length | 120 characters                 |
+| Indentation | 4 spaces (no tabs)             |
+| Quotes      | Double quotes for strings      |
+| Imports     | Sorted with `isort` (via Ruff) |
 
 ### 3.2 Linting and Formatting
 
@@ -249,14 +261,14 @@ def solve_vrpp(
 
 ### 3.6 Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Classes | PascalCase | `AttentionModel`, `GATEncoder` |
-| Functions | snake_case | `compute_route_cost`, `get_device` |
-| Variables | snake_case | `batch_size`, `learning_rate` |
-| Constants | UPPER_SNAKE_CASE | `MAX_WASTE`, `DEFAULT_CAPACITY` |
-| Private | Leading underscore | `_internal_method`, `_cache` |
-| Protected | Single underscore | `_validate_input` |
+| Type      | Convention         | Example                            |
+| --------- | ------------------ | ---------------------------------- |
+| Classes   | PascalCase         | `AttentionModel`, `GATEncoder`     |
+| Functions | snake_case         | `compute_route_cost`, `get_device` |
+| Variables | snake_case         | `batch_size`, `learning_rate`      |
+| Constants | UPPER_SNAKE_CASE   | `MAX_WASTE`, `DEFAULT_CAPACITY`    |
+| Private   | Leading underscore | `_internal_method`, `_cache`       |
+| Protected | Single underscore  | `_validate_input`                  |
 
 ---
 
@@ -268,17 +280,18 @@ def solve_vrpp(
 <type>/<short-description>
 ```
 
-| Type | Purpose |
-|------|---------|
-| `feature/` | New features |
-| `fix/` | Bug fixes |
-| `docs/` | Documentation changes |
-| `refactor/` | Code refactoring |
-| `test/` | Test additions/changes |
-| `ci/` | CI/CD changes |
-| `perf/` | Performance improvements |
+| Type        | Purpose                  |
+| ----------- | ------------------------ |
+| `feature/`  | New features             |
+| `fix/`      | Bug fixes                |
+| `docs/`     | Documentation changes    |
+| `refactor/` | Code refactoring         |
+| `test/`     | Test additions/changes   |
+| `ci/`       | CI/CD changes            |
+| `perf/`     | Performance improvements |
 
 Examples:
+
 ```
 feature/add-pomo-baseline
 fix/cuda-memory-leak
@@ -299,6 +312,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -310,6 +324,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `chore`: Maintenance
 
 **Examples:**
+
 ```
 feat(models): add POMO baseline support
 
@@ -350,11 +365,13 @@ git push --force-with-lease origin your-branch
 ### 5.1 Before Opening a PR
 
 1. **Ensure tests pass**:
+
    ```bash
    python main.py test_suite
    ```
 
 2. **Check code style**:
+
    ```bash
    uv run ruff check .
    uv run ruff format --check .
@@ -370,9 +387,11 @@ When opening a PR, include:
 
 ```markdown
 ## Description
+
 Brief description of the changes.
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change fixing an issue)
 - [ ] New feature (non-breaking change adding functionality)
 - [ ] Breaking change (fix or feature causing existing functionality to change)
@@ -381,23 +400,29 @@ Brief description of the changes.
 - [ ] Refactoring (no functional changes)
 
 ## Related Issues
+
 Closes #<issue_number>
 
 ## Changes Made
+
 - Change 1
 - Change 2
 - Change 3
 
 ## Testing
+
 Describe the tests you ran:
+
 - [ ] Unit tests pass
 - [ ] Integration tests pass
 - [ ] Manual testing performed
 
 ## Screenshots (if applicable)
+
 Add screenshots for UI changes.
 
 ## Checklist
+
 - [ ] My code follows the project's style guidelines
 - [ ] I have performed a self-review
 - [ ] I have commented my code where necessary
@@ -409,13 +434,13 @@ Add screenshots for UI changes.
 
 ### 5.3 PR Size Guidelines
 
-| Size | Lines Changed | Description |
-|------|---------------|-------------|
-| XS | < 50 | Typo fixes, small tweaks |
-| S | 50-200 | Single feature, bug fix |
-| M | 200-500 | Larger feature, refactoring |
-| L | 500-1000 | Major feature |
-| XL | > 1000 | Split into smaller PRs |
+| Size | Lines Changed | Description                 |
+| ---- | ------------- | --------------------------- |
+| XS   | < 50          | Typo fixes, small tweaks    |
+| S    | 50-200        | Single feature, bug fix     |
+| M    | 200-500       | Larger feature, refactoring |
+| L    | 500-1000      | Major feature               |
+| XL   | > 1000        | Split into smaller PRs      |
 
 **Prefer smaller PRs** - they're easier to review and less likely to introduce bugs.
 
@@ -513,13 +538,13 @@ class TestMyModel:
 
 ### 6.4 Test Markers
 
-| Marker | Usage |
-|--------|-------|
-| `@pytest.mark.slow` | Long-running tests |
-| `@pytest.mark.fast` | Quick unit tests |
-| `@pytest.mark.integration` | Integration tests |
-| `@pytest.mark.gpu` | Tests requiring CUDA |
-| `@pytest.mark.train` | Training pipeline tests |
+| Marker                     | Usage                   |
+| -------------------------- | ----------------------- |
+| `@pytest.mark.slow`        | Long-running tests      |
+| `@pytest.mark.fast`        | Quick unit tests        |
+| `@pytest.mark.integration` | Integration tests       |
+| `@pytest.mark.gpu`         | Tests requiring CUDA    |
+| `@pytest.mark.train`       | Training pipeline tests |
 
 ---
 
@@ -536,17 +561,18 @@ Every public module, class, and function must have:
 
 ### 7.2 Markdown Files
 
-| File | Purpose |
-|------|---------|
-| `README.md` | Project overview, quickstart |
-| `ARCHITECTURE.md` | System design |
-| `CONTRIBUTING.md` | Contribution guidelines |
-| `TUTORIAL.md` | Detailed tutorials |
-| `TROUBLESHOOTING.md` | Common issues |
+| File                 | Purpose                      |
+| -------------------- | ---------------------------- |
+| `README.md`          | Project overview, quickstart |
+| `ARCHITECTURE.md`    | System design                |
+| `CONTRIBUTING.md`    | Contribution guidelines      |
+| `TUTORIAL.md`        | Detailed tutorials           |
+| `TROUBLESHOOTING.md` | Common issues                |
 
 ### 7.3 Updating Documentation
 
 When your PR changes:
+
 - **API**: Update docstrings and relevant `.md` files
 - **CLI**: Update help text and usage examples
 - **Architecture**: Update `ARCHITECTURE.md`
@@ -566,6 +592,7 @@ GUI Layer (gui/) ──depends on──▶ Logic Layer (logic/)
 ```
 
 **Rules:**
+
 - `logic/` must NEVER import from `gui/`
 - `gui/` communicates via defined interfaces
 - Shared utilities go in `logic/src/utils/`
@@ -573,18 +600,21 @@ GUI Layer (gui/) ──depends on──▶ Logic Layer (logic/)
 ### 8.2 Adding New Components
 
 #### New Model
+
 1. Create `logic/src/models/my_model.py`
 2. Register in `logic/src/models/model_factory.py`
 3. Add configuration in `assets/configs/train.yaml` or relevant Hydra config
 4. Write tests in `logic/test/test_models.py`
 
 #### New Policy
+
 1. Create `logic/src/policies/my_policy.py`
 2. Implement the `Policy` interface
 3. Register in `logic/src/policies/adapters.py`
 4. Write tests in `logic/test/test_policies.py`
 
 #### New Problem
+
 1. Create `logic/src/tasks/my_problem/problem_my.py`
 2. Implement `BaseProblem` interface
 3. Register in `logic/src/utils/setup_utils.py`
@@ -593,6 +623,7 @@ GUI Layer (gui/) ──depends on──▶ Logic Layer (logic/)
 ### 8.3 Design Patterns
 
 Follow established patterns:
+
 - **Factory**: For model/policy instantiation
 - **Strategy**: For interchangeable algorithms
 - **State**: For simulation lifecycle
@@ -713,6 +744,7 @@ class TestMyEncoder:
 ### 10.1 Bug Reports
 
 Include:
+
 - **Environment**: OS, Python version, PyTorch version, CUDA version
 - **Steps to reproduce**: Minimal code to reproduce
 - **Expected behavior**: What should happen
@@ -720,8 +752,10 @@ Include:
 - **Stack trace**: Full error message
 
 **Template:**
+
 ```markdown
 ## Environment
+
 - OS: Ubuntu 24.04
 - Python: 3.9.18
 - PyTorch: 2.2.2
@@ -729,21 +763,26 @@ Include:
 - Commit: abc1234
 
 ## Steps to Reproduce
+
 1. Run `uv sync`
 2. Run `python main.py train_lightning model=am env.num_loc=50`
 3. Wait for epoch 5
 
 ## Expected Behavior
+
 Training should complete successfully.
 
 ## Actual Behavior
+
 Training crashes with CUDA OOM error.
 
 ## Stack Trace
 ```
+
 Traceback (most recent call last):
-  ...
+...
 torch.cuda.OutOfMemoryError: CUDA out of memory.
+
 ```
 
 ## Additional Context
@@ -754,6 +793,7 @@ torch.cuda.OutOfMemoryError: CUDA out of memory.
 ### 10.2 Feature Requests
 
 Include:
+
 - **Problem**: What problem does this solve?
 - **Solution**: Your proposed solution
 - **Alternatives**: Other solutions considered
@@ -808,6 +848,7 @@ We are committed to providing a welcoming and inclusive environment. Please:
 ### 12.3 Recognition
 
 All contributors are recognized:
+
 - In the CHANGELOG for their contributions
 - In release notes for significant contributions
 - Through GitHub's contributor insights
