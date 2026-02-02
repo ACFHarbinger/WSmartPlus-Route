@@ -32,8 +32,8 @@
 [![CUDA RTX 3090ti](https://img.shields.io/badge/CUDA-RTX_3090ti-76B900?logo=nvidia&logoColor=white)](https://developer.nvidia.com/cuda-toolkit)
 [![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
 [![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
-[![Coverage](https://img.shields.io/badge/coverage-54.14%25-green.svg)](https://coverage.readthedocs.io/)
-[![Test](https://github.com/acfharbinger/nglab/actions/workflows/ci.yml/badge.svg)](https://github.com/acfharbinger/nglab/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
+[![Test](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
 
 </br>
 

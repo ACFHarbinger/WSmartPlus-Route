@@ -1,5 +1,15 @@
 # WSmart-Route Implementation Plan
 
+[![Python](https://img.shields.io/badge/Python-3.9+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2.2-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![uv](https://img.shields.io/badge/managed%20by-uv-261230.svg)](https://github.com/astral-sh/uv)
+[![Gurobi](https://img.shields.io/badge/Gurobi-11.0-ED1C24?logo=gurobi&logoColor=white)](https://www.gurobi.com/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
+[![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
+[![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
+[![CI](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
+
 > **Version**: 2.0
 > **Date**: 2026-01-24
 > **Status**: In Progress
@@ -10,6 +20,7 @@
 ## Overview
 
 This document tracks ALL implementation work across 7 phases. Items are marked as:
+
 - ✅ Completed
 - 🚧 In Progress
 - 📋 Pending
@@ -78,6 +89,7 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 ---
 
 ### 1.6 Policy Integration ✅
+
 **File**: `logic/src/models/policies/base.py`
 
 - [x] Update `_select_action` to use `DecodingStrategy`
@@ -127,13 +139,13 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 - [x] Property-based tests (hypothesis)
 - [ ] Mutation testing (mutmut)
 - [/] Performance benchmarks
-    - [ ] Formalize `benchmark_ls.py` into automated suite
-    - [ ] Add latency/throughput tracking for neural decoders
+  - [ ] Formalize `benchmark_ls.py` into automated suite
+  - [ ] Add latency/throughput tracking for neural decoders
 - [/] Contract tests for solver integrations
-    - [ ] `run_vrpp_optimizer` (Gurobi/Hexaly) interface validation
-    - [ ] `find_routes` (OR-Tools/PyVRP) consistency tests
-    - [ ] Multi-engine parity verification for common instances
-    - [ ] Edge case stability (N=0, N=1, exact capacity)
+  - [ ] `run_vrpp_optimizer` (Gurobi/Hexaly) interface validation
+  - [ ] `find_routes` (OR-Tools/PyVRP) consistency tests
+  - [ ] Multi-engine parity verification for common instances
+  - [ ] Edge case stability (N=0, N=1, exact capacity)
 
 ---
 
@@ -232,15 +244,15 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 ## Timeline Summary
 
-| Phase | Duration | Focus | Status |
-|-------|----------|-------|--------|
-| Phase 1 | Week 1-2 | RL Pipeline | 🚧 In Progress |
-| Phase 2 | Week 3-4 | Testing | 📋 Pending |
-| Phase 3 | Month 2 | Documentation | 📋 Pending |
-| Phase 4 | Month 2-3 | Type Safety | 📋 Pending |
-| Phase 5 | Month 3 | Architecture | 📋 Pending |
-| Phase 6 | Month 3 | Dependencies | 📋 Pending |
-| Phase 7 | Month 4 | Tooling | 📋 Pending |
+| Phase   | Duration  | Focus         | Status         |
+| ------- | --------- | ------------- | -------------- |
+| Phase 1 | Week 1-2  | RL Pipeline   | 🚧 In Progress |
+| Phase 2 | Week 3-4  | Testing       | 📋 Pending     |
+| Phase 3 | Month 2   | Documentation | 📋 Pending     |
+| Phase 4 | Month 2-3 | Type Safety   | 📋 Pending     |
+| Phase 5 | Month 3   | Architecture  | 📋 Pending     |
+| Phase 6 | Month 3   | Dependencies  | 📋 Pending     |
+| Phase 7 | Month 4   | Tooling       | 📋 Pending     |
 
 **Estimated Total**: 4 months
 
@@ -249,6 +261,7 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 ## Progress Log
 
 ### 2026-01-24
+
 - ✅ Created `decoding.py` with full strategy pattern
 - ✅ Created `reward_scaler.py` with Welford's algorithm
 - ✅ Updated `trainer.py` with RL4CO optimizations
