@@ -6,7 +6,11 @@ from gui.src.tabs.meta_rl_train import MetaRLTrainParserTab
 class TestMetaRLInteractions:
     @pytest.fixture
     def meta_tab(self, qapp):
-        return MetaRLTrainParserTab()
+        tab = MetaRLTrainParserTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     def test_get_params_basics(self, meta_tab):
         """Test basic inputs and simple spinboxes."""

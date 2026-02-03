@@ -8,7 +8,11 @@ from gui.src.tabs.file_system.fs_update import FileSystemUpdateTab
 class TestFileSystemInteractions:
     @pytest.fixture
     def fs_tab(self, qapp):
-        return FileSystemUpdateTab()
+        tab = FileSystemUpdateTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     def test_inplace_update_toggle(self, fs_tab):
         """Test Inplace Update header toggle."""

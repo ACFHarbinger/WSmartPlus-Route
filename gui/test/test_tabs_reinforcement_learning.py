@@ -15,15 +15,21 @@ def test_rl_training_tab(qapp):
     # Trigger toggle
     tab._toggle_load_model_optim()
     assert tab.is_load_visible
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_rl_model_tab(qapp):
     tab = RLModelTab()
     assert hasattr(tab, "get_params")
     assert isinstance(tab.get_params(), dict)
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_rl_data_tab(qapp):
     tab = RLDataTab()
     assert hasattr(tab, "get_params")
     assert isinstance(tab.get_params(), dict)
+    tab.deleteLater()
+    qapp.processEvents()

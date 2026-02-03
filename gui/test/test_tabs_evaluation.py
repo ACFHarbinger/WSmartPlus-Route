@@ -8,6 +8,8 @@ def test_eval_problem_tab(qapp):
     assert hasattr(tab, "get_params")
     params = tab.get_params()
     assert isinstance(params, dict)
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_eval_io_tab(qapp):
@@ -15,3 +17,5 @@ def test_eval_io_tab(qapp):
     assert hasattr(tab, "get_params")
     params = tab.get_params()
     assert isinstance(params, dict)
+    tab.deleteLater()
+    qapp.processEvents()
