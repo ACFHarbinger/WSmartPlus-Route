@@ -17,30 +17,22 @@ Key Functions:
 """
 
 import io
-import multiprocessing as mp
-import os
 import pprint
-import signal
 import sys
 import traceback
 import warnings
+from typing import Any, cast
 
 import hydra
-import logic.src.constants as udef
-from gui.src.app import launch_results_window, run_app_gui
-
-# Register configuration
+from gui.src.app import run_app_gui
 from hydra.core.config_store import ConfigStore
 from logic.src.cli import parse_params
 from logic.src.configs import Config
-from logic.src.data.generate_data import generate_datasets
 from logic.src.file_system import (
     delete_file_system_entries,
     perform_cryptographic_operations,
     update_file_system_entries,
 )
-from logic.src.pipeline.features.eval import run_evaluate_model
-from logic.src.pipeline.features.test import run_wsr_simulator_test
 from logic.test import PyTestRunner
 
 warnings.filterwarnings(
@@ -131,9 +123,8 @@ def pretty_print_args(comm, opts, inner_comm=None):
     """
     try:
         # Capture the pprint output
-        printer = pprint.PrettyPrinter(width=1, indent=1, sort_dicts=False)
         buffer = io.StringIO()
-        printer._stream = buffer  # Redirect PrettyPrinter's internal stream
+        printer = pprint.PrettyPrinter(width=1, indent=1, sort_dicts=False, stream=buffer)
         printer.pprint(opts)
         output = buffer.getvalue()
 
@@ -153,7 +144,7 @@ def pretty_print_args(comm, opts, inner_comm=None):
         raise Exception(f"failed to pretty print arguments due to {repr(e)}")
 
 
-def main(args):
+def main(args) -> None:
     """
     Main dispatch function for the application.
 
@@ -169,7 +160,7 @@ def main(args):
         Exits with code 0 on success, 1 on error.
     """
     comm, opts = args
-
+    inner_comm = None
     exit_code = 0
     try:
         if isinstance(comm, tuple) and len(comm) > 1:
@@ -184,72 +175,12 @@ def main(args):
                 assert inner_comm == "cryptography"
                 perform_cryptographic_operations(opts)
         else:
-            inner_comm = None
             pretty_print_args(comm, opts, inner_comm)
             if comm == "gui":
                 exit_code = run_app_gui(opts)
-            elif comm == "test_suite":
-                run_test_suite(opts)
             else:
-                if comm == "gen_data":
-                    generate_datasets(opts)
-                elif comm == "eval":
-                    run_evaluate_model(opts)
-                elif comm == "test_sim":
-                    if opts["real_time_log"]:
-                        mp.set_start_method("spawn", force=True)
-                        simulation_process = mp.Process(target=run_wsr_simulator_test, args=(opts,))
-                        log_path = os.path.join(
-                            udef.ROOT_DIR,
-                            "assets",
-                            opts["output_dir"],
-                            str(opts["days"]) + "_days",
-                            str(opts["area"]) + "_" + str(opts["size"]),
-                            f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl",
-                        )
-                        simulation_process.start()
-
-                        # Define the handler function that terminates the subprocess
-                        def handle_interrupt(signum, frame):
-                            """
-                            Handle SIGINT (Ctrl+C) during real-time simulation.
-
-                            Terminates the simulation subprocess and forces a clean exit
-                            to prevent zombie processes or hung UIs.
-
-                            Args:
-                                signum (int): The signal number.
-                                frame (frame): The current stack frame.
-                            """
-                            print("\nCtrl+C received. Terminating simulation process...")
-                            if simulation_process.is_alive():
-                                simulation_process.terminate()
-                                simulation_process.join()
-                            # Force the GUI application to quit gracefully
-                            sys.exit(0)
-
-                        # Register the handler only for this scope
-                        original_sigint_handler = signal.getsignal(signal.SIGINT)
-                        signal.signal(signal.SIGINT, handle_interrupt)
-
-                        try:
-                            # 3. Blocking GUI call
-                            exit_code = launch_results_window(opts["policies"], log_path)
-
-                        except SystemExit as e:
-                            # Catch the sys.exit(0) from the handler, if triggered.
-                            exit_code = e.code
-
-                        finally:
-                            # 4. Restore original handler and clean up the process
-                            signal.signal(signal.SIGINT, original_sigint_handler)
-
-                            if simulation_process.is_alive():
-                                print("GUI closed. Terminating lingering simulation process.")
-                                simulation_process.terminate()
-                                simulation_process.join()
-                    else:
-                        run_wsr_simulator_test(opts)
+                assert comm == "test_suite"
+                run_test_suite(opts)
     except Exception as e:
         traceback.print_exc(file=sys.stderr)
         print("\n" + str(e))
@@ -265,7 +196,7 @@ def main(args):
         sys.exit(exit_code)
 
 
-def main_dispatch():
+def main_dispatch() -> None:
     # ========================================================================
     # Dual Dispatch System
     # ========================================================================
@@ -294,16 +225,9 @@ def main_dispatch():
     if len(sys.argv) > 1 and sys.argv[1] in HYDRA_COMMANDS:
         # Map command to task override
         command = sys.argv[1]
-
-        # Inject task override if needed, handling the case where it might already be specified
-
-        # For legacy train commands like 'train_hydra', default to 'task=train' (already default in config)
-        if command in ["train_hydra", "mrl_train", "hp_optim"]:
+        if command in ["train", "mrl_train", "hp_optim"]:
             # These might have specific handling needs or default to train task
             pass
-
-        # Bypass legacy parsing and delegate to Hydra/Lightning pipeline
-        pass
 
         if command in ["eval", "test_sim", "gen_data"]:
             sys.argv.append(f"task={command}")
@@ -336,7 +260,7 @@ def hydra_entry_point(cfg: Config) -> float:
         # Convert Hydra config to dict
         eval_args = OmegaConf.to_container(cfg.eval, resolve=True)
         # Validate and run
-        args = validate_eval_args(eval_args)
+        args = validate_eval_args(cast(dict[str, Any], eval_args))
         run_evaluate_model(args)
         return 0.0
     elif cfg.task == "test_sim":
@@ -346,7 +270,7 @@ def hydra_entry_point(cfg: Config) -> float:
         # Convert Hydra config to dict
         sim_args = OmegaConf.to_container(cfg.sim, resolve=True)
         # Validate and run
-        args = validate_test_sim_args(sim_args)
+        args = validate_test_sim_args(cast(dict[str, Any], sim_args))
         run_wsr_simulator_test(args)
         return 0.0
     elif cfg.task == "gen_data":
@@ -356,7 +280,7 @@ def hydra_entry_point(cfg: Config) -> float:
         # Convert Hydra config to dict
         data_args = OmegaConf.to_container(cfg.data, resolve=True)
         # Validate and run
-        args = validate_gen_data_args(data_args)
+        args = validate_gen_data_args(cast(dict[str, Any], data_args))
         generate_datasets(args)
         return 0.0
     else:
