@@ -12,7 +12,7 @@ sim:
   n_samples: 10
   checkpoint_days: 0
   real_time_log: false
-  policies: ["alns", "bcp"]
+  policies: ["alns", "bcp", "cvrp", "hgs", "lkh", "sans", "tsp", "vrpp"] # ['alns', 'bcp', 'cvrp', 'hgs', 'lkh', 'sans', 'tsp', 'vrpp']
   n_vehicles: 1
   problem: "cwcvrp"
   gate_prob_threshold: 0.1

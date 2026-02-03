@@ -1,0 +1,7 @@
+lkh:
+  custom:
+    - check_capacity: true
+    - max_iterations: 100
+    - engine: "custom"
+    - must_go: ["mg_lookahead_days7.xml"]
+    - post_processing: []
