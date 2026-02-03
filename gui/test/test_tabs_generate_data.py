@@ -7,15 +7,21 @@ def test_gd_problem_tab(qapp):
     tab = GenDataProblemTab()
     assert hasattr(tab, "get_params")
     assert isinstance(tab.get_params(), dict)
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_gd_general_tab(qapp):
     tab = GenDataGeneralTab()
     assert hasattr(tab, "get_params")
     assert isinstance(tab.get_params(), dict)
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_gd_advanced_tab(qapp):
     tab = GenDataAdvancedTab()
     assert hasattr(tab, "get_params")
     assert isinstance(tab.get_params(), dict)
+    tab.deleteLater()
+    qapp.processEvents()

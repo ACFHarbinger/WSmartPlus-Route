@@ -62,8 +62,9 @@ def qapp():
     if app is None:
         app = QApplication(sys.argv)
     yield app
-    # Process pending events like deleteLater()
-    app.processEvents()
+    # Process all pending events like deleteLater() and thread finishes
+    for _ in range(10):  # Multiple passes for nested events
+        app.processEvents()
 
 
 @pytest.fixture
@@ -75,3 +76,4 @@ def results_window(qapp):
     yield win
     win.close()
     win.deleteLater()
+    qapp.processEvents()

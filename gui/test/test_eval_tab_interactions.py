@@ -7,11 +7,19 @@ from gui.src.tabs.evaluation.eval_problem import EvalProblemTab
 class TestEvalTabInteractions:
     @pytest.fixture
     def problem_tab(self, qapp):
-        return EvalProblemTab()
+        tab = EvalProblemTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     @pytest.fixture
     def decoding_tab(self, qapp):
-        return EvalDecodingTab()
+        tab = EvalDecodingTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     def test_problem_tab_toggle_focus(self, problem_tab):
         """Test the expand/collapse logic for Focus Graph section."""

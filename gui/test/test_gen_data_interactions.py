@@ -9,7 +9,11 @@ from gui.src.tabs.generate_data.gd_problem import GenDataProblemTab
 class TestGenDataInteractions:
     @pytest.fixture
     def gd_tab(self, qapp):
-        return GenDataProblemTab()
+        tab = GenDataProblemTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     def test_initial_state(self, gd_tab):
         """Test initial state of GenDataProblemTab."""

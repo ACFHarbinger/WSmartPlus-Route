@@ -37,7 +37,10 @@ class MockMainWindow:
 @pytest.fixture
 def mediator(qapp):
     mw = MockMainWindow()
-    return UIMediator(mw)
+    m = UIMediator(mw)
+    yield m
+    m.deleteLater()
+    qapp.processEvents()
 
 
 def test_register_tab_and_update(mediator):

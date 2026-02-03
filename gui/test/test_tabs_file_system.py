@@ -7,13 +7,19 @@ def test_fs_update_tab(qapp):
     tab = FileSystemUpdateTab()
     # Usually these tabs are simple forms or buttons
     assert tab is not None
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_fs_delete_tab(qapp):
     tab = FileSystemDeleteTab()
     assert tab is not None
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_fs_crypto_tab(qapp):
     tab = FileSystemCryptographyTab()
     assert tab is not None
+    tab.deleteLater()
+    qapp.processEvents()

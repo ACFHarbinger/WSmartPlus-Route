@@ -8,11 +8,19 @@ from gui.src.tabs.test_simulator.ts_settings import TestSimSettingsTab
 class TestSimTabInteractions:
     @pytest.fixture
     def settings_tab(self, qapp):
-        return TestSimSettingsTab()
+        tab = TestSimSettingsTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     @pytest.fixture
     def policy_params_tab(self, qapp):
-        return TestSimPolicyParamsTab()
+        tab = TestSimPolicyParamsTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     def test_settings_tab_policy_selection(self, settings_tab):
         """Test policy selection mechanics (buttons + logic)."""

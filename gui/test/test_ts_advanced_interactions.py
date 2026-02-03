@@ -8,7 +8,11 @@ from gui.src.tabs.test_simulator.ts_advanced import TestSimAdvancedTab
 class TestSimAdvancedInteractions:
     @pytest.fixture
     def adv_tab(self, qapp):
-        return TestSimAdvancedTab()
+        tab = TestSimAdvancedTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     def test_key_files_toggle(self, adv_tab):
         """Test Key/License Files section toggle."""

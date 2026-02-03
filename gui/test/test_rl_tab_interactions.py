@@ -9,11 +9,19 @@ from gui.src.tabs.reinforcement_learning.rl_training import RLTrainingTab
 class TestRLTabInteractions:
     @pytest.fixture
     def training_tab(self, qapp):
-        return RLTrainingTab()
+        tab = RLTrainingTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     @pytest.fixture
     def model_tab(self, qapp):
-        return RLModelTab()
+        tab = RLModelTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     def test_training_tab_toggle_transparency(self, training_tab):
         """Test the expand/collapse logic for Load Model section."""

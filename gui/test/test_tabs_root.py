@@ -10,12 +10,16 @@ def test_hyperparam_optim_tab(qapp):
     params = tab.get_params()
     assert "hpo_method" in params
     assert "timeout" in params
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_meta_rl_train_tab(qapp):
     tab = MetaRLTrainParserTab()
     assert hasattr(tab, "get_params")
     assert isinstance(tab.get_params(), dict)
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_scripts_tab(qapp):
@@ -23,8 +27,12 @@ def test_scripts_tab(qapp):
     # Check if this tab has params or just actions
     # Usually it's a runner, but let's check init
     assert tab is not None
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_test_suite_tab(qapp):
     tab = TestSuiteTab()
     assert tab is not None
+    tab.deleteLater()
+    qapp.processEvents()

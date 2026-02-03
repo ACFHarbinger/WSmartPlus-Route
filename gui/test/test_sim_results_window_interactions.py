@@ -14,7 +14,10 @@ class TestSimResultsWindowInteractions:
             "gui.src.windows.ts_results_window.ChartWorker"
         ), patch("PySide6.QtCore.QThread.start"):
             window = SimulationResultsWindow(policy_names=["p1"])
-            return window
+            yield window
+            window.close()
+            window.deleteLater()
+            qapp.processEvents()
 
     def test_initialization(self, results_window):
         """Test initial state."""

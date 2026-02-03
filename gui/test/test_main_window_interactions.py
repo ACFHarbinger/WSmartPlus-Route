@@ -14,6 +14,7 @@ class TestMainWindowInteractions:
             win = MainWindow(test_only=True)
             yield win
             win.close()
+            win.deleteLater()
             # Ensure pending events (like cleanup) are processed
             qapp.processEvents()
 
@@ -87,15 +88,16 @@ class TestMainWindowInteractions:
         """Test that closing the window triggers shutdown on child tabs."""
         from PySide6.QtGui import QCloseEvent
 
-        # Mock analysis tabs to verify shutdown calls
-        mock_input = MagicMock()
-        mock_output = MagicMock()
+        # Properly mock shutdown on EXISTING tabs to avoid orphaning/leaking real threads
+        orig_input = main_window.analysis_tabs_map["Input Analysis"]
+        orig_output = main_window.analysis_tabs_map["Output Analysis"]
 
-        main_window.analysis_tabs_map = {"Input Analysis": mock_input, "Output Analysis": mock_output}
+        with patch.object(orig_input, "shutdown") as mock_input_shutdown, patch.object(
+            orig_output, "shutdown"
+        ) as mock_output_shutdown:
+            # Trigger close event with a real event object
+            event = QCloseEvent()
+            main_window.closeEvent(event)
 
-        # Trigger close event with a real event object
-        event = QCloseEvent()
-        main_window.closeEvent(event)
-
-        assert mock_input.shutdown.called
-        assert mock_output.shutdown.called
+            assert mock_input_shutdown.called
+            assert mock_output_shutdown.called

@@ -142,12 +142,12 @@ class OutputAnalysisTab(QWidget):
         msg = QMessageBox(self)
         msg.setWindowTitle("Plotting Options")
         msg.setText("You have existing data loaded. Do you want to clear all previously merged data after plotting?")
-        msg.setIcon(QMessageBox.Question)
+        msg.setIcon(QMessageBox.Icon.Question)
 
         # Define the buttons
-        plot_only_btn = msg.addButton("Plot Current Data", QMessageBox.AcceptRole)
-        clear_and_plot_btn = msg.addButton("Plot and Clear Data", QMessageBox.DestructiveRole)
-        _ = msg.addButton(QMessageBox.Cancel)
+        plot_only_btn = msg.addButton("Plot Current Data", QMessageBox.ButtonRole.AcceptRole)
+        clear_and_plot_btn = msg.addButton("Plot and Clear Data", QMessageBox.ButtonRole.DestructiveRole)
+        _ = msg.addButton(QMessageBox.StandardButton.Cancel)
 
         msg.exec()
 
@@ -212,7 +212,9 @@ class OutputAnalysisTab(QWidget):
         ea = EventAccumulator(fpath)
         ea.Reload()
 
-        tags = ea.Tags()["scalars"]
+        all_tags = ea.Tags()
+        tags_list = all_tags.get("scalars", [])
+        tags = list(tags_list) if isinstance(tags_list, list) else []
         if not tags:
             return {}
 
@@ -470,6 +472,8 @@ class OutputAnalysisTab(QWidget):
             return
 
         def filter_data(key, indices):
+            if self.json_data is None:
+                return []
             full_list = self.json_data.get(key, [])
             return [full_list[i] for i in indices]
 
@@ -600,3 +604,6 @@ class OutputAnalysisTab(QWidget):
             if win is not None:
                 win.close()
         self.sim_windows = []
+        if self.tb_process:
+            self.tb_process.terminate()
+            self.tb_process = None
