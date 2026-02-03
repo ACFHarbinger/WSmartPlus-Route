@@ -76,7 +76,7 @@ if [ "$VERBOSE" = false ]; then
 fi
 
 # Execute Meta-RL training
-uv run python main.py train_lightning \
+uv run python main.py train \
     "experiment=meta_rl" \
     "env.name='${PROBLEM}'" \
     "env.num_loc=${SIZE}" \

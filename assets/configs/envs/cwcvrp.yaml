@@ -11,6 +11,6 @@ env:
   edge_method: "knn"
 
   # Rewards / Costs
-  cost_weight: 10.0      # w_len
+  cost_weight: 10.0 # w_len
   overflow_penalty: 10.0 # w_over
   collection_reward: 10.0 # w_waste

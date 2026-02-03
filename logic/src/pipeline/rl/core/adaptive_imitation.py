@@ -173,3 +173,4 @@ class AdaptiveImitation(REINFORCE):
             else:
                 # Decay
                 self.current_il_weight *= self.il_decay
+                print(f"\n[AdaptiveImitation] IL weight decayed to {self.current_il_weight}")

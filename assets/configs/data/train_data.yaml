@@ -1,10 +1,11 @@
 # @package _global_
 
 data:
-  dataset_size: 1280       # n_data / f_size
-  data_distributions: ["gamma1"] # data_dists
-
-  # Validation settings (mapped to TrainConfig params if this config is used for training setup)
-  # process might expect these in `train` group if they control training loop validation
-train:
-  val_data_size: 128       # n_val_data
+  dataset_size: 1280 # train_data_size
+  val_size: 128 # val_data_size
+  data_distributions: ["gamma1"]
+  min_loc: 0.0
+  max_loc: 1.0
+  min_fill: 0.0
+  max_fill: 1.0
+  fill_distribution: "uniform"

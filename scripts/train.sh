@@ -85,7 +85,7 @@ if [ "$VERBOSE" = false ]; then
 fi
 
 # Execute with config values from YAML
-uv run python main.py train_lightning \
+uv run python main.py train \
     "env.name='${PROBLEM}'" \
     "env.num_loc=${SIZE}" \
     "env.area='${AREA}'" \
@@ -94,6 +94,7 @@ uv run python main.py train_lightning \
     "train.n_epochs=${EPOCHS}" \
     "train.batch_size=${B_SIZE}" \
     "seed=${SEED}" \
+    "hpo.n_trials=0" \
     "${CLI_OVERRIDES[@]}" \
     "$@"
 

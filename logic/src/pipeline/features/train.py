@@ -83,6 +83,23 @@ def create_model(cfg: Config) -> pl.LightningModule:
     # If cfg.env is a dataclass, we can access attributes directly
     env_name = cfg.env.name
     env_kwargs = {k: v for k, v in vars(cfg.env).items() if k != "name"}
+
+    # Centralize data-related params from cfg.data
+    data_params = [
+        "min_loc",
+        "max_loc",
+        "data_distribution",
+        "min_fill",
+        "max_fill",
+        "fill_distribution",
+        "num_loc",
+    ]
+    for param in data_params:
+        if hasattr(cfg.data, param):
+            env_kwargs[param] = getattr(cfg.data, param)
+        elif param == "num_loc" and hasattr(cfg.env, "num_loc"):
+            env_kwargs[param] = cfg.env.num_loc
+
     env_kwargs["device"] = cfg.device  # Pass device to environment
     env_kwargs["batch_size"] = cfg.train.batch_size  # Match training batch size
     env = get_env(env_name, **env_kwargs)
@@ -146,6 +163,9 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
     # We must remove 'name' as it's used in get_baseline and might conflict if passed in kwargs
     common_kwargs.pop("name", None)
+
+    common_kwargs["train_data_size"] = cfg.data.dataset_size
+    common_kwargs["val_data_size"] = cfg.data.val_size
 
     # Specific remapping if needed
     common_kwargs["env"] = env
@@ -352,9 +372,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
         expert_policy = _get_expert_policy(cfg.rl.imitation.mode, cfg.env.name, cfg)
         return AdaptiveImitation(
             expert_policy=expert_policy,
-            il_weight=cfg.rl.adaptive_imitation.il_weight,
-            il_decay=cfg.rl.adaptive_imitation.il_decay,
-            patience=cfg.rl.adaptive_imitation.patience,
             **kw,
         )
 
