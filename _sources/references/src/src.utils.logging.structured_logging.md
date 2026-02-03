@@ -64,6 +64,9 @@ Bases: {py:obj}`logging.Formatter`
 ````{py:method} format(record)
 :canonical: src.utils.logging.structured_logging.JsonFormatter.format
 
+```{autodoc2-docstring} src.utils.logging.structured_logging.JsonFormatter.format
+```
+
 ````
 
 `````
@@ -84,6 +87,9 @@ Bases: {py:obj}`logging.Handler`
 
 ````{py:method} emit(record)
 :canonical: src.utils.logging.structured_logging.LogstashTcpHandler.emit
+
+```{autodoc2-docstring} src.utils.logging.structured_logging.LogstashTcpHandler.emit
+```
 
 ````
 

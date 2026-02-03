@@ -467,6 +467,9 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.logging.logger_writer">
 <span id="src-utils-logging-logger-writer"></span><h1><a class="reference internal" href="#module-src.utils.logging.logger_writer" title="src.utils.logging.logger_writer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging.logger_writer</span></code></a><a class="headerlink" href="#module-src.utils.logging.logger_writer" title="Link to this heading">#</a></h1>
+<p>Logger redirection to file for simulation output.</p>
+<p>Provides LoggerWriter to tee stdout/stderr to both terminal and file,
+filtering tqdm progress bars from file output.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -498,30 +501,40 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.logging.logger_writer.</span></span><span class="sig-name descname"><span class="pre">LoggerWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">terminal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">echo_to_terminal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.logging.logger_writer.LoggerWriter" title="Link to this definition">#</a></dt>
 <dd><p>Fake file-like stream object that redirects writes to both terminal and file.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the logger writer.</p>
+<p>Args:
+terminal: Original terminal stream (stdout or stderr).
+filename: Path to the log file.
+echo_to_terminal: If True, also write to terminal.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.logging.logger_writer.LoggerWriter.write">
 <span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.logging.logger_writer.LoggerWriter.write" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Write message to terminal and/or log file, filtering tqdm output.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.logging.logger_writer.LoggerWriter.flush">
 <span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.logging.logger_writer.LoggerWriter.flush" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Flush both terminal and log file buffers.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.logging.logger_writer.LoggerWriter.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.logging.logger_writer.LoggerWriter.close" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Close the log file handle.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.logging.logger_writer.LoggerWriter.isatty">
 <span class="sig-name descname"><span class="pre">isatty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.logging.logger_writer.LoggerWriter.isatty" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return whether the terminal is a TTY.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.logging.logger_writer.LoggerWriter.fileno">
 <span class="sig-name descname"><span class="pre">fileno</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.logging.logger_writer.LoggerWriter.fileno" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the file descriptor number of the terminal.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.logging.logger_writer.LoggerWriter.__getattr__">

@@ -466,10 +466,10 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.hgs_aux.operators.move_operators.move_relocate" title="src.policies.hgs_aux.operators.move_operators.move_relocate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_relocate</span></code></a></p></td>
-<td></td>
+<td><p>Relocate operator: move node u to a position after node v.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.hgs_aux.operators.move_operators.move_swap" title="src.policies.hgs_aux.operators.move_operators.move_swap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_swap</span></code></a></p></td>
-<td></td>
+<td><p>Swap operator: exchange positions of nodes u and v.</p></td>
 </tr>
 </tbody>
 </table>
@@ -480,12 +480,40 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.hgs_aux.operators.move_operators.move_relocate">
 <span class="sig-prename descclassname"><span class="pre">src.policies.hgs_aux.operators.move_operators.</span></span><span class="sig-name descname"><span class="pre">move_relocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.operators.move_operators.move_relocate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Relocate operator: move node u to a position after node v.</p>
+<p>Removes node u from route r_u and inserts it immediately after node v
+in route r_v. Can be inter-route or intra-route. Only applies the move
+if it improves total cost by a threshold margin.</p>
+<p>Args:
+ls: LocalSearch instance containing routes and distance matrix.
+u: Node to relocate.
+v: Node after which u will be inserted.
+r_u: Index of the route containing u.
+p_u: Position of u in route r_u.
+r_v: Index of the route containing v (target route).
+p_v: Position of v in route r_v.</p>
+<p>Returns:
+bool: True if the relocation was applied (improving), False otherwise.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.hgs_aux.operators.move_operators.move_swap">
 <span class="sig-prename descclassname"><span class="pre">src.policies.hgs_aux.operators.move_operators.</span></span><span class="sig-name descname"><span class="pre">move_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.operators.move_operators.move_swap" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Swap operator: exchange positions of nodes u and v.</p>
+<p>Swaps node u (in route r_u) with node v (in route r_v). Can be
+inter-route or intra-route swap. Only applies the move if it
+improves total cost by a threshold margin.</p>
+<p>Args:
+ls: LocalSearch instance containing routes and distance matrix.
+u: First node to swap.
+v: Second node to swap.
+r_u: Index of the route containing u.
+p_u: Position of u in route r_u.
+r_v: Index of the route containing v.
+p_v: Position of v in route r_v.</p>
+<p>Returns:
+bool: True if the swap was applied (improving), False otherwise.</p>
+</dd></dl>
 
 </section>
 </section>

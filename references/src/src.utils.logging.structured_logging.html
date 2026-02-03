@@ -525,7 +525,8 @@ Added the <code class="docutils literal notranslate"><span class="pre">style</sp
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.logging.structured_logging.JsonFormatter.format">
 <span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.logging.structured_logging.JsonFormatter.format" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Format a log record as a JSON string.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -535,12 +536,15 @@ Added the <code class="docutils literal notranslate"><span class="pre">style</sp
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logging.Handler</span></code></p>
 <p>Handler that sends JSON logs over TCP to Logstash.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the instance - basically setting the formatter to None
-and the filter list to empty.</p>
+<p>Initialize the TCP handler for Logstash.</p>
+<p>Args:
+host: Logstash server hostname.
+port: Logstash server port.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.logging.structured_logging.LogstashTcpHandler.emit">
 <span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.logging.structured_logging.LogstashTcpHandler.emit" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Emit a log record by sending it to Logstash over TCP.</p>
+</dd></dl>
 
 </dd></dl>
 
