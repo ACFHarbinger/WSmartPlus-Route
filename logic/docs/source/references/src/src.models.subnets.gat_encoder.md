@@ -15,12 +15,12 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`FeedForwardSubLayer <src.models.subnets.gat_encoder.FeedForwardSubLayer>`
-  - ```{autodoc2-docstring} src.models.subnets.gat_encoder.FeedForwardSubLayer
+* - {py:obj}`GATFeedForwardSubLayer <src.models.subnets.gat_encoder.GATFeedForwardSubLayer>`
+  - ```{autodoc2-docstring} src.models.subnets.gat_encoder.GATFeedForwardSubLayer
     :summary:
     ```
-* - {py:obj}`MultiHeadAttentionLayer <src.models.subnets.gat_encoder.MultiHeadAttentionLayer>`
-  - ```{autodoc2-docstring} src.models.subnets.gat_encoder.MultiHeadAttentionLayer
+* - {py:obj}`GATMultiHeadAttentionLayer <src.models.subnets.gat_encoder.GATMultiHeadAttentionLayer>`
+  - ```{autodoc2-docstring} src.models.subnets.gat_encoder.GATMultiHeadAttentionLayer
     :summary:
     ```
 * - {py:obj}`GraphAttentionEncoder <src.models.subnets.gat_encoder.GraphAttentionEncoder>`
@@ -31,48 +31,48 @@
 
 ### API
 
-`````{py:class} FeedForwardSubLayer(embed_dim: int, feed_forward_hidden: int, activation: str, af_param: float, threshold: float, replacement_value: float, n_params: int, dist_range: typing.List[float], bias: bool = True)
-:canonical: src.models.subnets.gat_encoder.FeedForwardSubLayer
+`````{py:class} GATFeedForwardSubLayer(embed_dim: int, feed_forward_hidden: int, activation: str, af_param: float, threshold: float, replacement_value: float, n_params: int, dist_range: typing.List[float], bias: bool = True)
+:canonical: src.models.subnets.gat_encoder.GATFeedForwardSubLayer
 
 Bases: {py:obj}`torch.nn.Module`
 
-```{autodoc2-docstring} src.models.subnets.gat_encoder.FeedForwardSubLayer
+```{autodoc2-docstring} src.models.subnets.gat_encoder.GATFeedForwardSubLayer
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.models.subnets.gat_encoder.FeedForwardSubLayer.__init__
+```{autodoc2-docstring} src.models.subnets.gat_encoder.GATFeedForwardSubLayer.__init__
 ```
 
 ````{py:method} forward(h: torch.Tensor, mask: typing.Optional[torch.Tensor] = None) -> torch.Tensor
-:canonical: src.models.subnets.gat_encoder.FeedForwardSubLayer.forward
+:canonical: src.models.subnets.gat_encoder.GATFeedForwardSubLayer.forward
 
-```{autodoc2-docstring} src.models.subnets.gat_encoder.FeedForwardSubLayer.forward
+```{autodoc2-docstring} src.models.subnets.gat_encoder.GATFeedForwardSubLayer.forward
 ```
 
 ````
 
 `````
 
-`````{py:class} MultiHeadAttentionLayer(n_heads: int, embed_dim: int, feed_forward_hidden: int, normalization: str, epsilon_alpha: float, learn_affine: bool, track_stats: bool, mbeta: float, lr_k: float, n_groups: int, activation: str, af_param: float, threshold: float, replacement_value: float, n_params: int, uniform_range: typing.List[float], connection_type: str = 'skip', expansion_rate: int = 4)
-:canonical: src.models.subnets.gat_encoder.MultiHeadAttentionLayer
+`````{py:class} GATMultiHeadAttentionLayer(n_heads: int, embed_dim: int, feed_forward_hidden: int, normalization: str, epsilon_alpha: float, learn_affine: bool, track_stats: bool, mbeta: float, lr_k: float, n_groups: int, activation: str, af_param: float, threshold: float, replacement_value: float, n_params: int, uniform_range: typing.List[float], connection_type: str = 'skip', expansion_rate: int = 4)
+:canonical: src.models.subnets.gat_encoder.GATMultiHeadAttentionLayer
 
 Bases: {py:obj}`torch.nn.Module`
 
-```{autodoc2-docstring} src.models.subnets.gat_encoder.MultiHeadAttentionLayer
+```{autodoc2-docstring} src.models.subnets.gat_encoder.GATMultiHeadAttentionLayer
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.models.subnets.gat_encoder.MultiHeadAttentionLayer.__init__
+```{autodoc2-docstring} src.models.subnets.gat_encoder.GATMultiHeadAttentionLayer.__init__
 ```
 
 ````{py:method} forward(h: torch.Tensor, mask: typing.Optional[torch.Tensor] = None) -> torch.Tensor
-:canonical: src.models.subnets.gat_encoder.MultiHeadAttentionLayer.forward
+:canonical: src.models.subnets.gat_encoder.GATMultiHeadAttentionLayer.forward
 
-```{autodoc2-docstring} src.models.subnets.gat_encoder.MultiHeadAttentionLayer.forward
+```{autodoc2-docstring} src.models.subnets.gat_encoder.GATMultiHeadAttentionLayer.forward
 ```
 
 ````

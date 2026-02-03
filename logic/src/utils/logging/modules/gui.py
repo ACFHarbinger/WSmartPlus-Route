@@ -1,6 +1,7 @@
 """
 GUI communication for simulation logs and daily stats.
 """
+
 import json
 import threading
 from typing import Any, Dict, List, Optional, Sequence, Union
@@ -24,6 +25,7 @@ def send_daily_output_to_gui(
     coordinates: Union[pd.DataFrame, List[Any]],
     lock: Optional[threading.Lock] = None,
 ) -> None:
+    """Write daily simulation output to a log file for GUI consumption."""
     full_payload = {k: v for k, v in daily_log.items() if k in udef.DAY_METRICS[:-1]}
     route_coords = []
     coords_lookup = None
@@ -90,6 +92,7 @@ def send_final_output_to_gui(
     log_path: str,
     lock: Optional[threading.Lock] = None,
 ) -> None:
+    """Write final simulation summary to a log file for GUI consumption."""
     lgsd = (
         {k: [[0] * len(v) if isinstance(v, (tuple, list)) else 0 for v in pol_data] for k, pol_data in log.items()}
         if log_std is None

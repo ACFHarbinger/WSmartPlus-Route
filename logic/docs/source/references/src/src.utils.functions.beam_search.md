@@ -97,7 +97,7 @@ Bases: {py:obj}`typing.NamedTuple`
 
 ````{py:attribute} state
 :canonical: src.utils.functions.beam_search.BatchBeam.state
-:type: None
+:type: typing.Any
 :value: >
    None
 
@@ -141,7 +141,7 @@ Bases: {py:obj}`typing.NamedTuple`
 
 ````{py:attribute} device
 :canonical: src.utils.functions.beam_search.BatchBeam.device
-:type: None
+:type: typing.Any
 :value: >
    None
 

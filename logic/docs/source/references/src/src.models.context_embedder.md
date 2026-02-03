@@ -65,7 +65,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 `````
 
-`````{py:class} WCContextEmbedder(embed_dim, node_dim=3, temporal_horizon=0)
+`````{py:class} WCContextEmbedder(embed_dim, node_dim=NODE_DIM, temporal_horizon=0)
 :canonical: src.models.context_embedder.WCContextEmbedder
 
 Bases: {py:obj}`src.models.context_embedder.ContextEmbedder`
@@ -97,7 +97,7 @@ Bases: {py:obj}`src.models.context_embedder.ContextEmbedder`
 
 `````
 
-`````{py:class} VRPPContextEmbedder(embed_dim, node_dim=3, temporal_horizon=0)
+`````{py:class} VRPPContextEmbedder(embed_dim, node_dim=NODE_DIM, temporal_horizon=0)
 :canonical: src.models.context_embedder.VRPPContextEmbedder
 
 Bases: {py:obj}`src.models.context_embedder.ContextEmbedder`

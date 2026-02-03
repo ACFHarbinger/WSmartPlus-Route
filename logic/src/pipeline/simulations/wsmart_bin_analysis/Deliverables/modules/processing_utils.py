@@ -1,6 +1,7 @@
 """
 Processing utilities for Container collection events.
 """
+
 from datetime import timedelta
 
 import numpy as np
@@ -8,7 +9,10 @@ import pandas as pd
 
 
 class ProcessingMixin:
+    """Mixin providing collection event processing methods for Container."""
+
     def mark_collections(self):
+        """Mark collection events in the fill DataFrame and update records."""
         pos = self.df.index.searchsorted(self.recs.index.to_numpy(), side="left")
         self.recs["End_Pointer"] = pos
         self.recs.drop_duplicates(subset="End_Pointer", keep="first", inplace=True)
@@ -28,6 +32,7 @@ class ProcessingMixin:
         self.df.loc[idx:, "Cidx"] = cidx
 
     def adjust_collections(self, dist_thresh: int, c_trash: int, max_fill: int):
+        """Iteratively adjust collection timestamps based on distance threshold."""
         mask = self.recs["Avg_Dist"] < dist_thresh
         ac_mask = mask.copy(deep=True)
         while mask.any():
@@ -44,6 +49,7 @@ class ProcessingMixin:
             ac_mask |= mask
 
     def adjust_one_collection(self, idx: int, c_trash: int, max_fill: int) -> int:
+        """Adjust a single collection event or remove it if invalid."""
         base_idx, end_idx = self.recs["End_Pointer"].iat[idx] + 1, self.recs["End_Pointer"].iat[idx + 2] - 1
         data = self.df["Fill"].iloc[base_idx:end_idx].diff().copy(deep=True)
         data.loc[self.df["Fill"].iloc[base_idx:end_idx] >= max_fill] = np.NAN
@@ -94,6 +100,7 @@ class ProcessingMixin:
             return 1
 
     def place_collections(self, dist_thresh: int, c_trash: int, max_fill: int, spear_thresh=None):
+        """Place new collection events where significant fill drops are detected."""
         mask = (
             (self.recs["Avg_Dist"] < dist_thresh) & (self.recs["Spearman"] < spear_thresh)
             if spear_thresh
@@ -114,6 +121,7 @@ class ProcessingMixin:
             )
 
     def place_one_collection(self, idx: int, c_trash: int, max_fill: int) -> int:
+        """Attempt to place a new collection event within a segment."""
         base_idx, end_idx = self.recs["End_Pointer"].iat[idx] + 1, self.recs["End_Pointer"].iat[idx + 1] - 1
         data = self.df["Fill"].iloc[base_idx:end_idx].diff().copy(deep=True)
         data.loc[self.df["Fill"].iloc[base_idx:end_idx] >= max_fill] = np.NAN
@@ -143,6 +151,7 @@ class ProcessingMixin:
         return 0
 
     def clean_box(self, window: int, mv_thresh: int, use: str):
+        """Remove low-quality collection events below the threshold."""
         mv = self.recs["Spearman" if use == "spear" else "Avg_Dist"].rolling(window, center=True).mean().ffill().bfill()
         self.recs = self.recs[~(mv < mv_thresh)]
         self.df = self.df.loc[self.df.index[self.recs["End_Pointer"].iloc[0]] :, :]

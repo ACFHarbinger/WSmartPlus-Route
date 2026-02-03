@@ -1,6 +1,7 @@
 """
 Analysis utilities for Container fill level data.
 """
+
 import warnings
 from typing import Optional
 
@@ -12,7 +13,10 @@ from .core import TAG
 
 
 class AnalysisMixin:
+    """Mixin providing analysis methods for Container fill level data."""
+
     def get_collection_quantities(self) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+        """Return average distance and Spearman correlation arrays for collections."""
         try:
             avgd = self.recs["Avg_Dist"].copy(deep=True).dropna().to_numpy()
         except Exception:
@@ -24,6 +28,7 @@ class AnalysisMixin:
         return avgd, spear
 
     def get_scan_linear_spline(self, key, interval) -> tuple[pd.DatetimeIndex, np.ndarray]:
+        """Compute a linear spline interpolation of cumulative fill rate."""
         assert key in ["Mean", "Fill"]
         date_range = pd.date_range(
             start=self.recs.index[0].round("D"),
@@ -42,18 +47,21 @@ class AnalysisMixin:
         return date_range, spline
 
     def get_monotonic_mean_rate(self, freq) -> pd.DataFrame:
+        """Compute monotonic mean fill rate at the given frequency."""
         data_range, spline = self.get_scan_linear_spline("Mean", freq)
         df = pd.Series(data=np.diff(spline), index=data_range[:-1], name="Rate")
         df.index.name = "Date"
         return df.to_frame()
 
     def get_crude_rate(self, freq) -> pd.Series:
+        """Compute crude fill rate at the given frequency."""
         data_range, spline = self.get_scan_linear_spline("Fill", freq)
         s = pd.Series(data=np.diff(spline), index=data_range[:-1], name="Rate")
         s.index.name = "Date"
         return s
 
     def get_tag(self, window: int, mv_thresh: int, min_days: int, use: str) -> TAG:
+        """Compute and return a quality tag based on collection metrics."""
         KEYS = ["spear", "avg_dist"]
         if len(self.df) == 0:
             return TAG.LOW_MEASURES
@@ -83,9 +91,11 @@ class AnalysisMixin:
         return self.tag
 
     def get_collections_std(self):
+        """Compute standard deviation of collection intervals."""
         return np.sqrt(self.recs.index.to_series().diff().dropna().dt.total_seconds().std() / 7464960000)
 
     def calc_spearman(self, start_idx: int = 0, end_idx: int = -1):
+        """Calculate Spearman correlation for fill levels between collections."""
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=ConstantInputWarning)
             groupDF = self.df[
@@ -97,6 +107,7 @@ class AnalysisMixin:
             self.recs.loc[self.recs.index[start_idx] : self.recs.index[end_idx - 1], "Spearman"] = res.to_numpy()
 
     def calc_avg_dist_metric(self, start_idx: int = 0, end_idx: int = -1):
+        """Calculate average distance metric for fill levels between collections."""
         groupDF = self.df[
             self.df.index[self.recs["End_Pointer"].iloc[start_idx]] : self.df.index[
                 self.recs["End_Pointer"].iloc[end_idx] - 1
@@ -108,7 +119,10 @@ class AnalysisMixin:
         self.recs.loc[self.recs.index[start_idx] : self.recs.index[end_idx - 1], "Avg_Dist"] = res
 
     def calc_max_min_mean(self, start_idx: int = 0, end_idx: int = -1):
+        """Compute max, min, and mean fill levels between collections."""
+
         def loop(vec: np.ndarray, mask: np.ndarray, mode="max") -> tuple[np.ndarray, bool]:
+            """Propagate max or min values through the fill vector."""
             if mode == "max":
                 shf = np.roll(vec, 1)
                 shf[0] = 0

@@ -7,6 +7,15 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.policies.hgs_aux.operators
+```
+
 ## Submodules
 
 ```{toctree}

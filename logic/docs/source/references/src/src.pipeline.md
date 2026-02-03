@@ -15,5 +15,6 @@
 
 src.pipeline.features
 src.pipeline.rl
+src.pipeline.ui
 src.pipeline.simulations
 ```

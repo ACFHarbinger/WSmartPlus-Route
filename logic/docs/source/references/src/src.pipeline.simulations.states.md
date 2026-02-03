@@ -51,6 +51,38 @@
 ```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.__init__
 ```
 
+````{py:method} _parse_policy_string() -> None
+:canonical: src.pipeline.simulations.states.SimulationContext._parse_policy_string
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext._parse_policy_string
+```
+
+````
+
+````{py:method} _extract_threshold(policy_key: str) -> None
+:canonical: src.pipeline.simulations.states.SimulationContext._extract_threshold
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext._extract_threshold
+```
+
+````
+
+````{py:method} _extract_threshold_with_config_char(policy_key: str, config_chars: typing.List[str]) -> None
+:canonical: src.pipeline.simulations.states.SimulationContext._extract_threshold_with_config_char
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext._extract_threshold_with_config_char
+```
+
+````
+
+````{py:method} _continue_init(variables_dict: typing.Dict[str, typing.Any], pol_id: int) -> None
+:canonical: src.pipeline.simulations.states.SimulationContext._continue_init
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext._continue_init
+```
+
+````
+
 ````{py:method} transition_to(state: typing.Optional[src.pipeline.simulations.states.SimState]) -> None
 :canonical: src.pipeline.simulations.states.SimulationContext.transition_to
 

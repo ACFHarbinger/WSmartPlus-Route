@@ -238,13 +238,13 @@
 
 ````
 
-````{py:attribute} graph_size
-:canonical: src.configs.eval.EvalConfig.graph_size
+````{py:attribute} num_loc
+:canonical: src.configs.eval.EvalConfig.num_loc
 :type: int
 :value: >
    50
 
-```{autodoc2-docstring} src.configs.eval.EvalConfig.graph_size
+```{autodoc2-docstring} src.configs.eval.EvalConfig.num_loc
 ```
 
 ````

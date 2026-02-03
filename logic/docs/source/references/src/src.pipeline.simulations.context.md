@@ -74,7 +74,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} bins
 :canonical: src.pipeline.simulations.context.SimulationDayContext.bins
-:type: typing.Any
+:type: typing.Optional[logic.src.pipeline.simulations.bins.Bins]
 :value: >
    None
 
@@ -85,7 +85,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} new_data
 :canonical: src.pipeline.simulations.context.SimulationDayContext.new_data
-:type: typing.Any
+:type: typing.Optional[pandas.DataFrame]
 :value: >
    None
 
@@ -96,7 +96,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} coords
 :canonical: src.pipeline.simulations.context.SimulationDayContext.coords
-:type: typing.Any
+:type: typing.Optional[pandas.DataFrame]
 :value: >
    None
 
@@ -107,7 +107,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} distance_matrix
 :canonical: src.pipeline.simulations.context.SimulationDayContext.distance_matrix
-:type: typing.Any
+:type: typing.Optional[typing.Union[numpy.ndarray, typing.List[typing.List[float]]]]
 :value: >
    None
 
@@ -118,7 +118,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} distpath_tup
 :canonical: src.pipeline.simulations.context.SimulationDayContext.distpath_tup
-:type: typing.Tuple
+:type: typing.Tuple[typing.Any, ...]
 :value: >
    (None, None, None, None)
 
@@ -129,7 +129,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} distancesC
 :canonical: src.pipeline.simulations.context.SimulationDayContext.distancesC
-:type: typing.Any
+:type: typing.Optional[numpy.ndarray]
 :value: >
    None
 
@@ -140,7 +140,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} paths_between_states
 :canonical: src.pipeline.simulations.context.SimulationDayContext.paths_between_states
-:type: typing.Any
+:type: typing.Optional[typing.Dict[typing.Tuple[int, int], typing.List[int]]]
 :value: >
    None
 
@@ -151,7 +151,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} dm_tensor
 :canonical: src.pipeline.simulations.context.SimulationDayContext.dm_tensor
-:type: typing.Any
+:type: typing.Optional[torch.Tensor]
 :value: >
    None
 
@@ -217,7 +217,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} model_ls
 :canonical: src.pipeline.simulations.context.SimulationDayContext.model_ls
-:type: typing.Tuple
+:type: typing.Tuple[typing.Any, ...]
 :value: >
    (None,)
 
@@ -281,7 +281,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} cached
 :canonical: src.pipeline.simulations.context.SimulationDayContext.cached
-:type: typing.Any
+:type: typing.Optional[typing.List[int]]
 :value: >
    None
 
@@ -292,7 +292,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} device
 :canonical: src.pipeline.simulations.context.SimulationDayContext.device
-:type: typing.Any
+:type: typing.Optional[torch.device]
 :value: >
    None
 
@@ -303,7 +303,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} lock
 :canonical: src.pipeline.simulations.context.SimulationDayContext.lock
-:type: typing.Any
+:type: typing.Optional[multiprocessing.synchronize.Lock]
 :value: >
    None
 
@@ -424,7 +424,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} daily_log
 :canonical: src.pipeline.simulations.context.SimulationDayContext.daily_log
-:type: typing.Optional[typing.Dict]
+:type: typing.Optional[typing.Dict[str, typing.Any]]
 :value: >
    None
 
@@ -435,7 +435,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} output_dict
 :canonical: src.pipeline.simulations.context.SimulationDayContext.output_dict
-:type: typing.Optional[typing.Dict]
+:type: typing.Optional[typing.Dict[str, typing.Any]]
 :value: >
    None
 
@@ -479,7 +479,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} collected
 :canonical: src.pipeline.simulations.context.SimulationDayContext.collected
-:type: typing.Any
+:type: typing.Optional[numpy.ndarray]
 :value: >
    None
 
@@ -534,7 +534,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} fill
 :canonical: src.pipeline.simulations.context.SimulationDayContext.fill
-:type: typing.Any
+:type: typing.Optional[numpy.ndarray]
 :value: >
    None
 
@@ -545,7 +545,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````{py:attribute} total_fill
 :canonical: src.pipeline.simulations.context.SimulationDayContext.total_fill
-:type: typing.Any
+:type: typing.Optional[numpy.ndarray]
 :value: >
    None
 

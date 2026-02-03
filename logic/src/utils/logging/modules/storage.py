@@ -1,6 +1,7 @@
 """
 Persistent storage utilities (JSON, Pickle) and system logging.
 """
+
 import datetime
 import json
 import os
@@ -75,6 +76,7 @@ def log_to_json(
     sample_id: Optional[int] = None,
     lock: Optional[threading.Lock] = None,
 ) -> Union[Dict[str, Any], List[Any]]:
+    """Write or update a JSON log file with new policy results."""
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return [] if sample_id is not None else {}
@@ -135,6 +137,7 @@ def log_to_json2(
     sample_id: Optional[int] = None,
     lock: Optional[threading.Lock] = None,
 ) -> Union[Dict[str, Any], List[Any]]:
+    """Write or update a JSON log file (variant with different error handling)."""
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return [] if sample_id is not None else {}
@@ -189,6 +192,7 @@ def log_to_pickle(
     lock: Optional[threading.Lock] = None,
     dw_func: Optional[Callable[[str], None]] = None,
 ) -> None:
+    """Serialize a log object to a pickle file."""
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return
@@ -210,6 +214,7 @@ def update_log(
     sort_log_flag: bool = True,
     lock: Optional[threading.Lock] = None,
 ) -> Union[Dict[str, Any], List[Any]]:
+    """Update existing log entries with new policy outputs."""
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return {}

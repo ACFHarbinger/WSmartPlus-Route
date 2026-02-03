@@ -346,6 +346,7 @@ class VectorizedALNS:
 
         # Initial TSP costs (dist_matrix[prev, curr])
         def get_tsp_costs(tours):
+            """Compute total TSP distance for each tour in the batch."""
             padded = torch.zeros(B, N + 2, dtype=torch.long, device=device)
             padded[:, 1:-1] = tours
             shifted = torch.roll(padded, shifts=-1, dims=1)

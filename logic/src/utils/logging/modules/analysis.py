@@ -1,6 +1,7 @@
 """
 Analysis utilities for simulation logs.
 """
+
 import json
 import os
 import statistics
@@ -21,6 +22,7 @@ def load_log_dict(
     show_incomplete: bool = False,
     lock: Optional[threading.Lock] = None,
 ) -> Dict[str, str]:
+    """Load log file paths from directories keyed by graph size."""
     logs: Dict[str, str] = {}
     for path, ns in zip(dir_paths, nsamples):
         gsize = int(os.path.basename(path).split("_")[1])
@@ -32,7 +34,7 @@ def load_log_dict(
                 counter.update(run.keys())
             for key, val in dict(counter).items():
                 if ns - val > 0:
-                    print(f"graph {gsize} incomplete runs: - {key} - {ns-val}")
+                    print(f"graph {gsize} incomplete runs: - {key} - {ns - val}")
     return logs
 
 
@@ -46,6 +48,7 @@ def output_stats(
     print_output: bool = False,
     lock: Optional[threading.Lock] = None,
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """Compute mean and std statistics for policies and write to JSON."""
     mean_filename = os.path.join(dir_path, f"log_mean_{nsamples}N.json")
     std_filename = os.path.join(dir_path, f"log_std_{nsamples}N.json")
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
@@ -91,6 +94,7 @@ def runs_per_policy(
     print_output: bool = False,
     lock: Optional[threading.Lock] = None,
 ) -> List[Dict[str, List[int]]]:
+    """Count runs per policy from full log files."""
     runs_ls = []
     for path, ns in zip(dir_paths, nsamples):
         dit = {pol: [] for pol in policies}
@@ -109,6 +113,7 @@ def runs_per_policy(
 
 
 def final_simulation_summary(log: Dict[str, Any], policy: str, n_samples: int) -> None:
+    """Log a final summary of simulation statistics for a policy."""
     if policy not in log:
         logger.warning(f"Policy {policy} not found in log for summary.")
         return

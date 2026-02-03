@@ -1,0 +1,42 @@
+# {py:mod}`src.utils.logging.modules.gui`
+
+```{py:module} src.utils.logging.modules.gui
+```
+
+```{autodoc2-docstring} src.utils.logging.modules.gui
+:allowtitles:
+```
+
+## Module Contents
+
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`send_daily_output_to_gui <src.utils.logging.modules.gui.send_daily_output_to_gui>`
+  - ```{autodoc2-docstring} src.utils.logging.modules.gui.send_daily_output_to_gui
+    :summary:
+    ```
+* - {py:obj}`send_final_output_to_gui <src.utils.logging.modules.gui.send_final_output_to_gui>`
+  - ```{autodoc2-docstring} src.utils.logging.modules.gui.send_final_output_to_gui
+    :summary:
+    ```
+````
+
+### API
+
+````{py:function} send_daily_output_to_gui(daily_log: typing.Dict[str, typing.Any], policy: str, sample_idx: int, day: int, bins_c: typing.Sequence[float], collected: typing.Sequence[float], bins_c_after: typing.Sequence[float], log_path: str, tour: typing.Sequence[int], coordinates: typing.Union[pandas.DataFrame, typing.List[typing.Any]], lock: typing.Optional[threading.Lock] = None) -> None
+:canonical: src.utils.logging.modules.gui.send_daily_output_to_gui
+
+```{autodoc2-docstring} src.utils.logging.modules.gui.send_daily_output_to_gui
+```
+````
+
+````{py:function} send_final_output_to_gui(log: typing.Dict[str, typing.Any], log_std: typing.Optional[typing.Dict[str, typing.Any]], n_samples: int, policies: typing.List[str], log_path: str, lock: typing.Optional[threading.Lock] = None) -> None
+:canonical: src.utils.logging.modules.gui.send_final_output_to_gui
+
+```{autodoc2-docstring} src.utils.logging.modules.gui.send_final_output_to_gui
+```
+````

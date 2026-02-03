@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`_remap_legacy_keys <src.pipeline.features.train._remap_legacy_keys>`
+  - ```{autodoc2-docstring} src.pipeline.features.train._remap_legacy_keys
+    :summary:
+    ```
 * - {py:obj}`create_model <src.pipeline.features.train.create_model>`
   - ```{autodoc2-docstring} src.pipeline.features.train.create_model
     :summary:
@@ -29,10 +33,6 @@
     ```
 * - {py:obj}`run_training <src.pipeline.features.train.run_training>`
   - ```{autodoc2-docstring} src.pipeline.features.train.run_training
-    :summary:
-    ```
-* - {py:obj}`main <src.pipeline.features.train.main>`
-  - ```{autodoc2-docstring} src.pipeline.features.train.main
     :summary:
     ```
 ````
@@ -75,6 +75,13 @@
 
 ````
 
+````{py:function} _remap_legacy_keys(common_kwargs: typing.Dict[str, typing.Any], cfg: logic.src.configs.Config) -> None
+:canonical: src.pipeline.features.train._remap_legacy_keys
+
+```{autodoc2-docstring} src.pipeline.features.train._remap_legacy_keys
+```
+````
+
 ````{py:function} create_model(cfg: logic.src.configs.Config) -> pytorch_lightning.LightningModule
 :canonical: src.pipeline.features.train.create_model
 
@@ -100,12 +107,5 @@
 :canonical: src.pipeline.features.train.run_training
 
 ```{autodoc2-docstring} src.pipeline.features.train.run_training
-```
-````
-
-````{py:function} main(cfg: logic.src.configs.Config) -> float
-:canonical: src.pipeline.features.train.main
-
-```{autodoc2-docstring} src.pipeline.features.train.main
 ```
 ````

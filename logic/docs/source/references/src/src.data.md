@@ -16,6 +16,5 @@
 src.data.datasets
 src.data.generate_data
 src.data.builders
-src.data.fast_datasets
 src.data.transforms
 ```
