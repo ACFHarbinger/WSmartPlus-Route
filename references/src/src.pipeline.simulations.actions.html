@@ -514,7 +514,8 @@ LogAction: Records daily metrics and outputs results</p>
 <td><p>Abstract base class for simulation day actions.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.FillAction" title="src.pipeline.simulations.actions.FillAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FillAction</span></code></a></p></td>
-<td><p>Executes daily bin filling simulation.</p></td>
+<td><p>Executes daily bin filling simulation.
+…</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.MustGoSelectionAction" title="src.pipeline.simulations.actions.MustGoSelectionAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MustGoSelectionAction</span></code></a></p></td>
 <td><p>Identifies which bins are targets for collection based on various strategies.</p></td>
@@ -565,7 +566,7 @@ a shared context dictionary and modifies it in-place with its outputs.</p>
 actions within a single simulation day.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.SimulationAction.execute">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.SimulationAction.execute" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.SimulationAction.execute" title="Link to this definition">#</a></dt>
 <dd><p>Executes the action and updates the context in-place.</p>
 <p>Args:
 context: Shared dictionary containing simulation state, inputs,
@@ -581,25 +582,11 @@ None. All outputs are written to the context dictionary.</p>
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.FillAction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">FillAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.FillAction" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.pipeline.simulations.actions.SimulationAction" title="src.pipeline.simulations.actions.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.SimulationAction</span></code></a></p>
-<p>Executes daily bin filling simulation.</p>
-<p>Determines how much waste is added to each bin during the current day.
-Supports two filling modes:</p>
-<ul class="simple">
-<li><p>Stochastic: Samples from statistical distributions (Gamma or Empirical)</p></li>
-<li><p>Deterministic: Loads pre-recorded waste data from files</p></li>
-</ul>
-<p>Context Inputs:
-bins: Bins object managing bin state
-day: Current simulation day (int)</p>
-<p>Context Outputs:
-new_overflows: Number of bins that overflowed today (int)
-fill: Array of waste added to each bin today (np.ndarray)
-total_fill: Array of current bin levels after filling (np.ndarray)
-sum_lost: Total kg of waste lost due to overflows (float)
-overflows: Cumulative overflow count (updated if exists)</p>
+<p>Executes daily bin filling simulation.
+…</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.FillAction.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.FillAction.execute" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.FillAction.execute" title="Link to this definition">#</a></dt>
 <dd><p>Execute daily bin filling.</p>
 </dd></dl>
 

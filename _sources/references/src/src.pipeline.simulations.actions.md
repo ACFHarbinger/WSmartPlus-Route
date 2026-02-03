@@ -74,7 +74,7 @@ Bases: {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.pipeline.simulations.actions.SimulationAction
 ```
 
-````{py:method} execute(context: typing.Any) -> None
+````{py:method} execute(context: typing.Dict[str, typing.Any]) -> None
 :canonical: src.pipeline.simulations.actions.SimulationAction.execute
 :abstractmethod:
 
@@ -93,7 +93,7 @@ Bases: {py:obj}`src.pipeline.simulations.actions.SimulationAction`
 ```{autodoc2-docstring} src.pipeline.simulations.actions.FillAction
 ```
 
-````{py:method} execute(context: typing.Any) -> None
+````{py:method} execute(context: typing.Dict[str, typing.Any]) -> None
 :canonical: src.pipeline.simulations.actions.FillAction.execute
 
 ```{autodoc2-docstring} src.pipeline.simulations.actions.FillAction.execute

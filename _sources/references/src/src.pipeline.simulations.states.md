@@ -51,6 +51,148 @@
 ```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.__init__
 ```
 
+````{py:attribute} lock
+:canonical: src.pipeline.simulations.states.SimulationContext.lock
+:type: typing.Optional[threading.Lock]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.lock
+```
+
+````
+
+````{py:attribute} counter
+:canonical: src.pipeline.simulations.states.SimulationContext.counter
+:type: typing.Optional[typing.Any]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.counter
+```
+
+````
+
+````{py:attribute} overall_progress
+:canonical: src.pipeline.simulations.states.SimulationContext.overall_progress
+:type: typing.Optional[typing.Any]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.overall_progress
+```
+
+````
+
+````{py:attribute} pbar
+:canonical: src.pipeline.simulations.states.SimulationContext.pbar
+:type: typing.Optional[typing.Any]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.pbar
+```
+
+````
+
+````{py:attribute} log_path
+:canonical: src.pipeline.simulations.states.SimulationContext.log_path
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.log_path
+```
+
+````
+
+````{py:attribute} exec_time
+:canonical: src.pipeline.simulations.states.SimulationContext.exec_time
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.exec_time
+```
+
+````
+
+````{py:attribute} start_time
+:canonical: src.pipeline.simulations.states.SimulationContext.start_time
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.start_time
+```
+
+````
+
+````{py:attribute} end_time
+:canonical: src.pipeline.simulations.states.SimulationContext.end_time
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.end_time
+```
+
+````
+
+````{py:attribute} pol_name
+:canonical: src.pipeline.simulations.states.SimulationContext.pol_name
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.pol_name
+```
+
+````
+
+````{py:attribute} pol_engine
+:canonical: src.pipeline.simulations.states.SimulationContext.pol_engine
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.pol_engine
+```
+
+````
+
+````{py:attribute} pol_threshold
+:canonical: src.pipeline.simulations.states.SimulationContext.pol_threshold
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.pol_threshold
+```
+
+````
+
+````{py:attribute} pol_id
+:canonical: src.pipeline.simulations.states.SimulationContext.pol_id
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.pol_id
+```
+
+````
+
+````{py:attribute} pol_strip
+:canonical: src.pipeline.simulations.states.SimulationContext.pol_strip
+:type: str
+:value: <Multiline-String>
+
+```{autodoc2-docstring} src.pipeline.simulations.states.SimulationContext.pol_strip
+```
+
+````
+
 ````{py:method} _parse_policy_string() -> None
 :canonical: src.pipeline.simulations.states.SimulationContext._parse_policy_string
 

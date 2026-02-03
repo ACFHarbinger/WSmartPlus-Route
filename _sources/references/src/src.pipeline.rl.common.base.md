@@ -100,7 +100,7 @@ Bases: {py:obj}`pytorch_lightning.LightningModule`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} validation_step(batch: tensordict.TensorDict, batch_idx: int) -> dict
+````{py:method} validation_step(batch: typing.Any, batch_idx: int) -> dict
 :canonical: src.pipeline.rl.common.base.RL4COLitModule.validation_step
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.RL4COLitModule.validation_step
@@ -108,7 +108,7 @@ Bases: {py:obj}`pytorch_lightning.LightningModule`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} test_step(batch: tensordict.TensorDict, batch_idx: int) -> dict
+````{py:method} test_step(batch: typing.Any, batch_idx: int) -> dict
 :canonical: src.pipeline.rl.common.base.RL4COLitModule.test_step
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.RL4COLitModule.test_step
@@ -132,7 +132,7 @@ Bases: {py:obj}`pytorch_lightning.LightningModule`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} configure_optimizers()
+````{py:method} configure_optimizers() -> typing.Any
 :canonical: src.pipeline.rl.common.base.RL4COLitModule.configure_optimizers
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.RL4COLitModule.configure_optimizers
