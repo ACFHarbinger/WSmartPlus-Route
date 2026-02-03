@@ -96,7 +96,7 @@ class AnalysisMixin:
             self.tag = TAG.WARN
         return self.tag
 
-    def get_collections_std(self):
+    def get_collections_std(self) -> int:
         """Compute standard deviation of collection intervals."""
         series: pd.Series = cast(pd.Series, self.recs.index.to_series().diff().dropna())
         return np.sqrt(series.dt.total_seconds().std() / 7464960000)
