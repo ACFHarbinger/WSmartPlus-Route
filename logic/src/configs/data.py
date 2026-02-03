@@ -1,6 +1,7 @@
 """
 Data Config module.
 """
+
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
@@ -40,6 +41,7 @@ class DataConfig:
     sigma: Any = 0.6
     data_distributions: List[str] = field(default_factory=lambda: ["all"])
     dataset_size: int = 128_000
+    val_size: int = 1280
     num_locs: List[int] = field(default_factory=lambda: [20, 50, 100])
     penalty_factor: float = 3.0
     overwrite: bool = False
@@ -52,3 +54,10 @@ class DataConfig:
     focus_graphs: Optional[List[str]] = None
     focus_size: int = 0
     vertex_method: str = "mmn"
+    # Environment generation params
+    min_loc: float = 0.0
+    max_loc: float = 1.0
+    data_distribution: Optional[str] = None
+    min_fill: float = 0.0
+    max_fill: float = 1.0
+    fill_distribution: str = "uniform"
