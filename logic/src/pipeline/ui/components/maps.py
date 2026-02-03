@@ -5,7 +5,7 @@ Folium map renderers for simulation visualization.
 Provides interactive map components for routes and bin states.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import folium
 import pandas as pd
@@ -214,13 +214,13 @@ def create_simulation_map(
         strategy_label = "Haversine"
 
         if dist_strategy == "gdsc":
-            strategy_calc = GeodesicStrategy()
+            strategy_calc = cast(Optional[GeodesicStrategy], GeodesicStrategy())
             strategy_label = "Geodesic"
         elif dist_strategy == "ogd":
-            strategy_calc = EuclideanStrategy()
+            strategy_calc = cast(Optional[GeodesicStrategy], EuclideanStrategy())
             strategy_label = "Euclidean"
         elif dist_strategy == "hsd":
-            strategy_calc = HaversineStrategy()
+            strategy_calc = cast(Optional[GeodesicStrategy], HaversineStrategy())
             strategy_label = "Haversine"
         elif dist_strategy == "gmaps":
             strategy_label = "Google Maps"
@@ -270,7 +270,7 @@ def create_simulation_map(
                 color=route_color,
                 weight=3,
                 opacity=0.8,
-                tooltip=f"Leg {i+1}: {dist_km:.2f} km ({dist_source})",
+                tooltip=f"Leg {i + 1}: {dist_km:.2f} km ({dist_source})",
             ).add_to(m)
 
     return m

@@ -20,7 +20,7 @@ Functions:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -169,6 +169,6 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
     ]
 
     for command in commands:
-        command.execute(context)
+        command.execute(cast(Dict[str, Any], context))
 
     return context

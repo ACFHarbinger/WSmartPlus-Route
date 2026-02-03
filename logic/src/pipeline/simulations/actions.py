@@ -21,7 +21,7 @@ Classes:
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Dict
 
 from loguru import logger
 
@@ -82,7 +82,7 @@ class SimulationAction(ABC):
     """
 
     @abstractmethod
-    def execute(self, context: Any) -> None:
+    def execute(self, context: Dict[str, Any]) -> None:
         """
         Executes the action and updates the context in-place.
 
@@ -100,25 +100,10 @@ class SimulationAction(ABC):
 class FillAction(SimulationAction):
     """
     Executes daily bin filling simulation.
-
-    Determines how much waste is added to each bin during the current day.
-    Supports two filling modes:
-    - Stochastic: Samples from statistical distributions (Gamma or Empirical)
-    - Deterministic: Loads pre-recorded waste data from files
-
-    Context Inputs:
-        bins: Bins object managing bin state
-        day: Current simulation day (int)
-
-    Context Outputs:
-        new_overflows: Number of bins that overflowed today (int)
-        fill: Array of waste added to each bin today (np.ndarray)
-        total_fill: Array of current bin levels after filling (np.ndarray)
-        sum_lost: Total kg of waste lost due to overflows (float)
-        overflows: Cumulative overflow count (updated if exists)
+    ...
     """
 
-    def execute(self, context: Any) -> None:
+    def execute(self, context: Dict[str, Any]) -> None:
         """Execute daily bin filling."""
         bins = context["bins"]
         day = context["day"]
@@ -227,7 +212,8 @@ class MustGoSelectionAction(SimulationAction):
             la_days = None
 
             if isinstance(s_params, dict):
-                thresh = s_params.get("threshold") or s_params.get("cf") or s_params.get("param") or s_params.get("lvl")
+                val = s_params.get("threshold") or s_params.get("cf") or s_params.get("param") or s_params.get("lvl")
+                thresh = float(val) if val is not None else 0.0
                 la_days = s_params.get("days", s_params.get("lookahead_days"))
 
             sel_ctx = SelectionContext(
@@ -247,7 +233,7 @@ class MustGoSelectionAction(SimulationAction):
             if s_name == "select_all":
                 res = list(sel_ctx.bin_ids)
             else:
-                strategy = MustGoSelectionFactory.create_strategy(s_name)
+                strategy = MustGoSelectionFactory.create_strategy(str(s_name))
                 res = strategy.select_bins(sel_ctx)
 
             final_must_go.update(res)

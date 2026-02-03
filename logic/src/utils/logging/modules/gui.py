@@ -34,12 +34,12 @@ def send_daily_output_to_gui(
         coords_lookup.columns = [str(c).upper().strip() for c in coords_lookup.columns]
 
     for idx in tour:
-        point_data = {"id": str(idx), "type": "bin"}
+        point_data: Dict[str, Any] = {"id": str(idx), "type": "bin"}
         if idx == 0:
             point_data["type"] = "depot"
             point_data["popup"] = "Depot"
         if coords_lookup is not None:
-            lookup_idx = idx
+            lookup_idx: Union[int, str] = idx
             if lookup_idx not in coords_lookup.index:
                 if str(idx) in coords_lookup.index:
                     lookup_idx = str(idx)
