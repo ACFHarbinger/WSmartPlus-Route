@@ -1,5 +1,11 @@
 name: Sync to Public Repo
 on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Why are you running this?"
+        required: false
+        default: "Manual trigger"
   push:
     branches:
       - main
@@ -14,7 +20,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.PUBLIC_REPO_TOKEN }}
-          fetch-depth: 0  # Essential to get full history for a successful push
+          fetch-depth: 0 # Essential to get full history for a successful push
 
       - name: Push to Public
         env:
