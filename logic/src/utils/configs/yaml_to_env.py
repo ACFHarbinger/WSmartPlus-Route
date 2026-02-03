@@ -1,6 +1,7 @@
 """
 Utilities to convert YAML configuration files to environment variables.
 """
+
 import os
 import sys
 
@@ -24,12 +25,12 @@ def to_bash_value(value):
         entries = []
         for k, v in value.items():
             entries.append(f'["{str(k)}"]="{str(v)}"')
-        return f'({" ".join(entries)})'
+        return f"({' '.join(entries)})"
     elif isinstance(value, list):
         # Convert list to bash array: ("item1" "item2")
         # Quote each item to handle spaces
         items = [f'"{str(v)}"' for v in value]
-        return f'({" ".join(items)})'
+        return f"({' '.join(items)})"
     elif isinstance(value, (int, float)):
         return str(value)
     else:
@@ -90,6 +91,16 @@ def load_config(config_path):
     return final_merged
 
 
+def deep_merge(target, source):
+    """Deeply merge source dictionary into target dictionary."""
+    for key, value in source.items():
+        if isinstance(value, dict) and key in target and isinstance(target[key], dict):
+            deep_merge(target[key], value)
+        else:
+            target[key] = value
+    return target
+
+
 def main():
     """Main entry point to convert YAML files to environment variables."""
     if len(sys.argv) < 2:
@@ -100,8 +111,19 @@ def main():
 
     for config_path in sys.argv[1:]:
         config = load_config(config_path)
-        final_config.update(config)
+        deep_merge(final_config, config)
 
+    def flatten_dict(d, parent_key="", sep="_"):
+        items = []
+        for k, v in d.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            if isinstance(v, dict):
+                items.extend(flatten_dict(v, new_key, sep=sep).items())
+            else:
+                items.append((new_key, v))
+        return dict(items)
+
+    # Export top-level keys as before
     for key, value in final_config.items():
         bash_var_name = key.upper()
         bash_value = to_bash_value(value)
@@ -109,6 +131,18 @@ def main():
             # Associative arrays must be declared with -A
             print(f"declare -A {bash_var_name}={bash_value}")
         else:
+            print(f"export {bash_var_name}={bash_value}")
+
+    # Export flattened keys for nested structures
+    flattened_config = flatten_dict(final_config)
+    for key, value in flattened_config.items():
+        # Avoid re-exporting top-level keys already handled
+        if "_" not in key:
+            continue
+        bash_var_name = key.upper()
+        bash_value = to_bash_value(value)
+        # We don't export nested dicts as flattened variables here, only leaves
+        if not isinstance(value, dict):
             print(f"export {bash_var_name}={bash_value}")
 
 
