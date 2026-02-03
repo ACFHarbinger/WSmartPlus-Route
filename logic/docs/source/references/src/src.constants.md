@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
+src.constants.policies
 src.constants.stats
 src.constants.hpo
 src.constants.simulation
@@ -22,4 +23,5 @@ src.constants.waste
 src.constants.system
 src.constants.paths
 src.constants.testing
+src.constants.optimization
 ```

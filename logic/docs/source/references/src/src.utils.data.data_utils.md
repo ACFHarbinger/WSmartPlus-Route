@@ -51,6 +51,10 @@
   - ```{autodoc2-docstring} src.utils.data.data_utils.generate_waste_prize
     :summary:
     ```
+* - {py:obj}`load_area_and_waste_type_params <src.utils.data.data_utils.load_area_and_waste_type_params>`
+  - ```{autodoc2-docstring} src.utils.data.data_utils.load_area_and_waste_type_params
+    :summary:
+    ```
 ````
 
 ### API
@@ -115,5 +119,12 @@
 :canonical: src.utils.data.data_utils.generate_waste_prize
 
 ```{autodoc2-docstring} src.utils.data.data_utils.generate_waste_prize
+```
+````
+
+````{py:function} load_area_and_waste_type_params(area: str, waste_type: str) -> typing.Tuple[float, float, float, float, float]
+:canonical: src.utils.data.data_utils.load_area_and_waste_type_params
+
+```{autodoc2-docstring} src.utils.data.data_utils.load_area_and_waste_type_params
 ```
 ````

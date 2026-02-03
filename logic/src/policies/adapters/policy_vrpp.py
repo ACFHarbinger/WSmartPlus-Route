@@ -369,6 +369,7 @@ def _run_hexaly_optimizer(
         no_improv_iter = [0]
 
         def callback(opt, type):
+            """Callback for early stopping based on convergence detection."""
             if opt.solution.status == hx.HxSolutionStatus.INFEASIBLE:
                 return
             if type == hx.HxCallbackType.TIME_TICKED:

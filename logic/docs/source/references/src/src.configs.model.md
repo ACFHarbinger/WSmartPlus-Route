@@ -62,24 +62,24 @@
 
 ````
 
-````{py:attribute} num_encoder_layers
-:canonical: src.configs.model.ModelConfig.num_encoder_layers
+````{py:attribute} n_encode_layers
+:canonical: src.configs.model.ModelConfig.n_encode_layers
 :type: int
 :value: >
    3
 
-```{autodoc2-docstring} src.configs.model.ModelConfig.num_encoder_layers
+```{autodoc2-docstring} src.configs.model.ModelConfig.n_encode_layers
 ```
 
 ````
 
-````{py:attribute} num_decoder_layers
-:canonical: src.configs.model.ModelConfig.num_decoder_layers
+````{py:attribute} n_decode_layers
+:canonical: src.configs.model.ModelConfig.n_decode_layers
 :type: int
 :value: >
    3
 
-```{autodoc2-docstring} src.configs.model.ModelConfig.num_decoder_layers
+```{autodoc2-docstring} src.configs.model.ModelConfig.n_decode_layers
 ```
 
 ````
@@ -216,24 +216,24 @@
 
 ````
 
-````{py:attribute} num_encoder_sublayers
-:canonical: src.configs.model.ModelConfig.num_encoder_sublayers
+````{py:attribute} n_encoder_sublayers
+:canonical: src.configs.model.ModelConfig.n_encoder_sublayers
 :type: typing.Optional[int]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.model.ModelConfig.num_encoder_sublayers
+```{autodoc2-docstring} src.configs.model.ModelConfig.n_encoder_sublayers
 ```
 
 ````
 
-````{py:attribute} num_predictor_layers
-:canonical: src.configs.model.ModelConfig.num_predictor_layers
+````{py:attribute} n_predictor_layers
+:canonical: src.configs.model.ModelConfig.n_predictor_layers
 :type: typing.Optional[int]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.model.ModelConfig.num_predictor_layers
+```{autodoc2-docstring} src.configs.model.ModelConfig.n_predictor_layers
 ```
 
 ````
@@ -399,6 +399,17 @@
    4
 
 ```{autodoc2-docstring} src.configs.model.ModelConfig.hyper_expansion
+```
+
+````
+
+````{py:attribute} policy_config
+:canonical: src.configs.model.ModelConfig.policy_config
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.model.ModelConfig.policy_config
 ```
 
 ````

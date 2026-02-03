@@ -1,3 +1,9 @@
+"""Logger redirection to file for simulation output.
+
+Provides LoggerWriter to tee stdout/stderr to both terminal and file,
+filtering tqdm progress bars from file output.
+"""
+
 import os
 import sys
 from datetime import datetime
@@ -11,11 +17,19 @@ class LoggerWriter:
     """
 
     def __init__(self, terminal, filename, echo_to_terminal=True):
+        """Initialize the logger writer.
+
+        Args:
+            terminal: Original terminal stream (stdout or stderr).
+            filename: Path to the log file.
+            echo_to_terminal: If True, also write to terminal.
+        """
         self.terminal = terminal
         self.log = open(filename, "a", encoding="utf-8")
         self.echo_to_terminal = echo_to_terminal
 
     def write(self, message):
+        """Write message to terminal and/or log file, filtering tqdm output."""
         if self.echo_to_terminal:
             self.terminal.write(message)
 
@@ -26,17 +40,21 @@ class LoggerWriter:
             self.log.flush()  # Ensure it writes immediately
 
     def flush(self):
+        """Flush both terminal and log file buffers."""
         if self.echo_to_terminal:
             self.terminal.flush()
         self.log.flush()
 
     def close(self):
+        """Close the log file handle."""
         self.log.close()
 
     def isatty(self):
+        """Return whether the terminal is a TTY."""
         return getattr(self.terminal, "isatty", lambda: False)()
 
     def fileno(self):
+        """Return the file descriptor number of the terminal."""
         return getattr(self.terminal, "fileno", lambda: -1)()
 
     def __getattr__(self, name):

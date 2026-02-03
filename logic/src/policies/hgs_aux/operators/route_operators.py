@@ -1,10 +1,29 @@
 """
 Route-based local search operators for HGS.
 """
+
 import random
 
 
 def move_swap_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+    """SWAP* inter-route operator: swap nodes u and v between different routes.
+
+    Removes u from route r_u and v from route r_v, then reinserts each node
+    into the other route at the best position. Only applies the move if it
+    improves the total cost by a threshold margin.
+
+    Args:
+        ls: LocalSearch instance containing routes and distance matrix.
+        u: Node to remove from route r_u.
+        v: Node to remove from route r_v.
+        r_u: Index of the route containing u.
+        p_u: Position of u in route r_u.
+        r_v: Index of the route containing v.
+        p_v: Position of v in route r_v.
+
+    Returns:
+        bool: True if the swap was applied (improving), False otherwise.
+    """
     dem_u = ls.demands.get(u, 0)
     dem_v = ls.demands.get(v, 0)
 
@@ -64,6 +83,23 @@ def move_swap_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -
 
 
 def move_2opt_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+    """2-opt* inter-route operator: exchange tails between two routes.
+
+    Cuts route r_u after node u and route r_v after node v, then swaps
+    the tail segments. Only applies the move if it improves total cost.
+
+    Args:
+        ls: LocalSearch instance containing routes and distance matrix.
+        u: Cut point node in route r_u.
+        v: Cut point node in route r_v.
+        r_u: Index of first route.
+        p_u: Position of u in route r_u.
+        r_v: Index of second route.
+        p_v: Position of v in route r_v.
+
+    Returns:
+        bool: True if the exchange was applied (improving), False otherwise.
+    """
     route_u = ls.routes[r_u]
     route_v = ls.routes[r_v]
 
@@ -94,6 +130,23 @@ def move_2opt_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -
 
 
 def move_2opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+    """2-opt intra-route operator: reverse a segment within a route.
+
+    Reverses the segment between positions p_u+1 and p_v (inclusive)
+    in route r_u. Only applies the move if it reduces total cost.
+
+    Args:
+        ls: LocalSearch instance containing routes and distance matrix.
+        u: Start node of the segment (edge u->next_u broken).
+        v: End node of the segment (edge v->next_v broken).
+        r_u: Index of the route (must equal r_v for intra-route).
+        p_u: Position of u in the route.
+        r_v: Index of the route (unused but required for signature).
+        p_v: Position of v in the route.
+
+    Returns:
+        bool: True if the reversal was applied (improving), False otherwise.
+    """
     if p_u >= p_v:
         return False
     if p_u + 1 == p_v:
@@ -114,6 +167,23 @@ def move_2opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) 
 
 
 def move_3opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+    """3-opt intra-route operator: reconnect three segments within a route.
+
+    Randomly selects a third cut point and evaluates all 3-opt reconnection
+    patterns. Applies the best improving move if found.
+
+    Args:
+        ls: LocalSearch instance containing routes and distance matrix.
+        u: First cut point node.
+        v: Second cut point node.
+        r_u: Index of the route.
+        p_u: Position of u in the route.
+        r_v: Index of the route (unused but required for signature).
+        p_v: Position of v in the route.
+
+    Returns:
+        bool: True if a 3-opt move was applied (improving), False otherwise.
+    """
     route = ls.routes[r_u]
     if len(route) < 4:
         return False

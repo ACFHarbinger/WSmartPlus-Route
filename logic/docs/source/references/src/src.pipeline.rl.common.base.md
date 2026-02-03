@@ -21,7 +21,29 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`logger <src.pipeline.rl.common.base.logger>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.base.logger
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} logger
+:canonical: src.pipeline.rl.common.base.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.logger
+```
+
+````
 
 `````{py:class} RL4COLitModule(env: logic.src.envs.base.RL4COEnvBase, policy: logic.src.models.policies.base.ConstructivePolicy, baseline: typing.Optional[str] = 'rollout', optimizer: str = 'adam', optimizer_kwargs: typing.Optional[dict] = None, lr_scheduler: typing.Optional[str] = None, lr_scheduler_kwargs: typing.Optional[dict] = None, train_data_size: int = 100000, val_data_size: int = 10000, val_dataset_path: typing.Optional[str] = None, batch_size: int = 256, num_workers: int = 4, persistent_workers: bool = True, pin_memory: bool = False, **kwargs)
 :canonical: src.pipeline.rl.common.base.RL4COLitModule

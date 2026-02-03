@@ -165,20 +165,9 @@
 :canonical: src.configs.sim.SimConfig.log_file
 :type: str
 :value: >
-   'logs/simulation.log'
+   None
 
 ```{autodoc2-docstring} src.configs.sim.SimConfig.log_file
-```
-
-````
-
-````{py:attribute} cpd
-:canonical: src.configs.sim.SimConfig.cpd
-:type: int
-:value: >
-   5
-
-```{autodoc2-docstring} src.configs.sim.SimConfig.cpd
 ```
 
 ````

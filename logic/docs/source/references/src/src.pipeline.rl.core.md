@@ -24,8 +24,6 @@ src.pipeline.rl.core.pomo
 src.pipeline.rl.core.symnco
 src.pipeline.rl.core.a2c
 src.pipeline.rl.core.dr_grpo
-src.pipeline.rl.core.ppo_stepwise
-src.pipeline.rl.core.ppo_nstep
 ```
 
 ## Package Contents

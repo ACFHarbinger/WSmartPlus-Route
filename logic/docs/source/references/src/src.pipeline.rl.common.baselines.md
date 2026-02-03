@@ -63,6 +63,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`logger <src.pipeline.rl.common.baselines.logger>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.baselines.logger
+    :summary:
+    ```
 * - {py:obj}`BASELINE_REGISTRY <src.pipeline.rl.common.baselines.BASELINE_REGISTRY>`
   - ```{autodoc2-docstring} src.pipeline.rl.common.baselines.BASELINE_REGISTRY
     :summary:
@@ -70,6 +74,16 @@
 ````
 
 ### API
+
+````{py:data} logger
+:canonical: src.pipeline.rl.common.baselines.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.logger
+```
+
+````
 
 `````{py:class} Baseline()
 :canonical: src.pipeline.rl.common.baselines.Baseline
@@ -218,6 +232,22 @@ Bases: {py:obj}`src.pipeline.rl.common.baselines.Baseline`
 :canonical: src.pipeline.rl.common.baselines.RolloutBaseline._rollout
 
 ```{autodoc2-docstring} src.pipeline.rl.common.baselines.RolloutBaseline._rollout
+```
+
+````
+
+````{py:method} _rollout_dataset(policy: torch.nn.Module, dataset: typing.Any, env: typing.Optional[typing.Any] = None) -> torch.Tensor
+:canonical: src.pipeline.rl.common.baselines.RolloutBaseline._rollout_dataset
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.RolloutBaseline._rollout_dataset
+```
+
+````
+
+````{py:method} _rollout_batch(policy: torch.nn.Module, td: typing.Any, env: typing.Optional[typing.Any] = None) -> torch.Tensor
+:canonical: src.pipeline.rl.common.baselines.RolloutBaseline._rollout_batch
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.RolloutBaseline._rollout_batch
 ```
 
 ````

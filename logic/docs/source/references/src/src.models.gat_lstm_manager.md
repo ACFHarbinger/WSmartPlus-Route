@@ -21,9 +21,31 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`logger <src.models.gat_lstm_manager.logger>`
+  - ```{autodoc2-docstring} src.models.gat_lstm_manager.logger
+    :summary:
+    ```
+````
+
 ### API
 
-`````{py:class} GATLSTManager(input_dim_static=2, input_dim_dynamic=10, global_input_dim=2, critical_threshold=0.9, batch_size=1024, hidden_dim=128, lstm_hidden=64, num_layers_gat=3, n_heads=8, dropout=0.1, device='cuda', shared_encoder=None)
+````{py:data} logger
+:canonical: src.models.gat_lstm_manager.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.models.gat_lstm_manager.logger
+```
+
+````
+
+`````{py:class} GATLSTManager(input_dim_static=STATIC_DIM, input_dim_dynamic=DEFAULT_TEMPORAL_HORIZON, global_input_dim=2, critical_threshold=CRITICAL_FILL_THRESHOLD, batch_size=1024, hidden_dim=128, lstm_hidden=64, num_layers_gat=3, n_heads=8, dropout=0.1, device='cuda', shared_encoder=None)
 :canonical: src.models.gat_lstm_manager.GATLSTManager
 
 Bases: {py:obj}`torch.nn.Module`

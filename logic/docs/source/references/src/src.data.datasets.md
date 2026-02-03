@@ -77,7 +77,7 @@ Bases: {py:obj}`torch.utils.data.Dataset`
 
 ````
 
-````{py:method} __getitem__(idx)
+````{py:method} __getitem__(index)
 :canonical: src.data.datasets.TensorDictDataset.__getitem__
 
 ```{autodoc2-docstring} src.data.datasets.TensorDictDataset.__getitem__
@@ -126,7 +126,7 @@ Bases: {py:obj}`torch.utils.data.Dataset`
 
 ````
 
-````{py:method} __getitems__(idx)
+````{py:method} __getitems__(index)
 :canonical: src.data.datasets.FastTdDataset.__getitems__
 
 ```{autodoc2-docstring} src.data.datasets.FastTdDataset.__getitems__
@@ -134,7 +134,7 @@ Bases: {py:obj}`torch.utils.data.Dataset`
 
 ````
 
-````{py:method} collate_fn(batch: typing.Union[dict, tensordict.tensordict.TensorDict])
+````{py:method} collate_fn(batch: typing.Any) -> typing.Any
 :canonical: src.data.datasets.FastTdDataset.collate_fn
 :staticmethod:
 
@@ -175,7 +175,7 @@ Bases: {py:obj}`torch.utils.data.Dataset`
 
 ````
 
-````{py:method} collate_fn(batch: typing.Union[dict, tensordict.tensordict.TensorDict])
+````{py:method} collate_fn(batch: typing.Any) -> typing.Any
 :canonical: src.data.datasets.TensorDictDatasetFastGeneration.collate_fn
 :staticmethod:
 
@@ -208,7 +208,7 @@ Bases: {py:obj}`torch.utils.data.Dataset`
 
 ````
 
-````{py:method} __getitem__(idx: int) -> tensordict.tensordict.TensorDict
+````{py:method} __getitem__(index: int) -> tensordict.tensordict.TensorDict
 :canonical: src.data.datasets.GeneratorDataset.__getitem__
 
 ```{autodoc2-docstring} src.data.datasets.GeneratorDataset.__getitem__
@@ -232,7 +232,7 @@ Bases: {py:obj}`torch.utils.data.Dataset`
 ```{autodoc2-docstring} src.data.datasets.ExtraKeyDataset.__init__
 ```
 
-````{py:method} __getitem__(idx: int) -> dict
+````{py:method} __getitem__(index: int) -> dict
 :canonical: src.data.datasets.ExtraKeyDataset.__getitem__
 
 ```{autodoc2-docstring} src.data.datasets.ExtraKeyDataset.__getitem__
@@ -264,7 +264,7 @@ Bases: {py:obj}`torch.utils.data.Dataset`
 ```{autodoc2-docstring} src.data.datasets.BaselineDataset.__init__
 ```
 
-````{py:method} __getitem__(item: int) -> dict
+````{py:method} __getitem__(index: int) -> dict
 :canonical: src.data.datasets.BaselineDataset.__getitem__
 
 ```{autodoc2-docstring} src.data.datasets.BaselineDataset.__getitem__

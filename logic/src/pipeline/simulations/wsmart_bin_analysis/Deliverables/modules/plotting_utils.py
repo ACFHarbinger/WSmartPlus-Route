@@ -1,6 +1,7 @@
 """
 Plotting utilities for Container fill level and metrics.
 """
+
 from datetime import datetime
 from typing import Any, cast
 
@@ -10,7 +11,10 @@ from matplotlib.lines import Line2D
 
 
 class VisualizationMixin:
+    """Mixin providing plotting methods for Container fill level visualization."""
+
     def plot_fill(self, start_date: datetime, end_date: datetime, fig_size: tuple = (9, 6)):
+        """Plot fill levels over time with collection markers."""
         start_date = pd.to_datetime(start_date, format="%d-%m-%Y", errors="raise")
         end_date = pd.to_datetime(end_date, format="%d-%m-%Y", errors="raise")
         filtered_df = self.df[cast(Any, start_date) : cast(Any, end_date)]
@@ -37,6 +41,7 @@ class VisualizationMixin:
         plt.show()
 
     def plot_max_min(self, start_date: datetime, end_date: datetime, fig_size: tuple = (9, 6)):
+        """Plot max, min, and mean fill levels over time."""
         start_date = pd.to_datetime(start_date, format="%d-%m-%Y", errors="raise")
         end_date = pd.to_datetime(end_date, format="%d-%m-%Y", errors="raise")
         filtered_df = self.df[cast(Any, start_date) : cast(Any, end_date)]
@@ -56,6 +61,7 @@ class VisualizationMixin:
         plt.show()
 
     def plot_collection_metrics(self, start_date: datetime, end_date: datetime, fig_size: tuple = (9, 6)):
+        """Plot Spearman and average distance metrics for collections."""
         start_date = pd.to_datetime(start_date, format="%d-%m-%Y", errors="raise")
         end_date = pd.to_datetime(end_date, format="%d-%m-%Y", errors="raise")
         filtered_recs = self.recs[cast(Any, start_date) : cast(Any, end_date)]
