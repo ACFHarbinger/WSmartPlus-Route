@@ -71,7 +71,7 @@ if [ "$VERBOSE" = false ]; then
 fi
 
 # Execute HPO
-uv run python main.py train_lightning \
+uv run python main.py train \
     "+experiment=hpo" \
     "env.name='${PROBLEM}'" \
     "env.num_loc=${SIZE}" \
