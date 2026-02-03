@@ -174,7 +174,7 @@ if [[ -n "$DM_PATH" ]]; then
     CMD_ARGS+=("sim.dm_filepath='$DM_PATH'")
 fi
 add_arg "sim.days" "$N_DAYS"
-add_arg "sim.cpd" "$CHECKPOINTS"
+add_arg "sim.checkpoint_days" "$CHECKPOINTS"
 add_arg "sim.gate_prob_threshold" "$GATE_PROB_THRESHOLD"
 add_arg "sim.mask_prob_threshold" "$MASK_PROB_THRESHOLD"
 add_arg "sim.log_level" "${LOG_LEVEL:-WARNING}"
