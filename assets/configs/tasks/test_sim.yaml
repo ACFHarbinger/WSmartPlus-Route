@@ -9,7 +9,6 @@ sim:
   size: 50
   n_samples: 10
   checkpoint_days: 0
-  cpd: 5
   real_time_log: false
   policies: ["alns", "bcp"]
   n_vehicles: 1
