@@ -105,14 +105,15 @@ class TSPPolicy(BaseRoutingPolicy):
         distance_matrix = kwargs.get("distance_matrix", distancesC)
 
         # Load capacity
-        capacity, _, _, _ = self._load_area_params(area, waste_type, config)
+        capacity, _, _, values = self._load_area_params(area, waste_type, config)
 
         # Use cached route if available and no specific must_go
         if cached is not None and len(cached) > 1 and not must_go:
             tour = cached
         else:
             to_collect = list(must_go) if must_go else list(range(1, bins.n + 1))
-            tour = find_route(distancesC, to_collect)
+            time_limit = values.get("time_limit", 2.0)
+            tour = find_route(distancesC, to_collect, time_limit=time_limit)
             tour = get_multi_tour(tour, bins.c, capacity, distancesC)
 
         # Ensure list format
