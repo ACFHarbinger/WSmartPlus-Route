@@ -55,15 +55,35 @@ class LKHPolicy(BaseRoutingPolicy):
         area = kwargs.get("area", "Rio Maior")
         waste_type = kwargs.get("waste_type", "plastic")
         config = kwargs.get("config", {})
-        lkh_config = config.get("lkh", {})
 
-        # Load capacity
+        # Load area parameters (capacity, revenue, etc.)
         capacity, _, _, _ = self._load_area_params(area, waste_type, config)
 
+        # Handle nested configuration
+        lkh_cfg = config.get("lkh", {})
+        engine = "custom"
+
+        values = {"check_capacity": True, "max_iterations": 100}
+        if engine in lkh_cfg:
+            opt_cfg = lkh_cfg[engine]
+            if isinstance(opt_cfg, list):
+                for item in opt_cfg:
+                    if isinstance(item, dict):
+                        values.update(item)
+            elif isinstance(opt_cfg, dict):
+                values.update(opt_cfg)
+        else:
+            values.update(lkh_cfg)
+
+        max_iterations = values.get("max_iterations", 100)
+        check_capacity = values.get("check_capacity", True)
+
         # Map to local subset
+        # subset_indices[0] = depot (0), subset_indices[1..M] = must_go bins
         map_local_to_global = {0: 0}
         for idx, i in enumerate(must_go):
-            map_local_to_global[idx + 1] = i + 1
+            # i is already a 1-based bin ID
+            map_local_to_global[idx + 1] = i
 
         n_nodes = len(must_go) + 1
         sub_matrix = np.zeros((n_nodes, n_nodes))
@@ -71,15 +91,21 @@ class LKHPolicy(BaseRoutingPolicy):
 
         for r in range(n_nodes):
             orig_node_idx = map_local_to_global[r]
+            # orig_node_idx is 1-based ID for bins, 0 for depot
             local_waste[r] = bins.c[orig_node_idx - 1] if r > 0 else 0
             for c in range(n_nodes):
                 sub_matrix[r, c] = distance_matrix[map_local_to_global[r]][map_local_to_global[c]]
 
-        lk_tour_local, _ = solve_lk(sub_matrix, waste=local_waste, capacity=capacity)
+        lk_tour_local, _ = solve_lk(
+            sub_matrix,
+            waste=local_waste,
+            capacity=capacity,
+            max_iterations=max_iterations,
+        )
         lk_tour_global = [map_local_to_global[i] for i in lk_tour_local]
 
-        # Final capacity check
-        if lkh_config.get("check_capacity", True):
+        # Final capacity check/splitting
+        if check_capacity:
             lk_tour_global = get_multi_tour(lk_tour_global, bins.c, capacity, distance_matrix)
 
         cost = get_route_cost(distance_matrix, lk_tour_global)
