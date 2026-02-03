@@ -1,5 +1,7 @@
 cvrp:
   ortools:
     - cache: false
-    - must_go: ["mg_regular_lvl3.xml", "mg_regular_lvl4.xml", "mg_regular_lvl5.xml"]
+    - must_go:
+        ["mg_regular_lvl3.xml", "mg_regular_lvl4.xml", "mg_regular_lvl5.xml"]
+    - time_limit: 60
     - post_processing: []

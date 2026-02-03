@@ -62,8 +62,15 @@ class SANSPolicy(BaseRoutingPolicy):
         sans_config = config.get("sans", {})
 
         # Load area parameters
-        Q, R, B, C = self._load_area_params(area, waste_type, config)
-        V = sans_config.get("V", 1.0)  # Volume from config if available
+        Q, R, C, values = self._load_area_params(area, waste_type, config)
+
+        # Load B and V defaults which are not returned by base
+        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
+
+        _, _, B_def, _, V_def = load_area_and_waste_type_params(area, waste_type)
+
+        B = values.get("B", B_def)
+        V = values.get("V", V_def)
 
         # Prepare data for SANS logic
         data = pd.DataFrame(
@@ -101,7 +108,7 @@ class SANSPolicy(BaseRoutingPolicy):
         optimized_routes, best_profit, last_distance, _, _ = improved_simulated_annealing(
             [current_route],
             distance_matrix,
-            sans_config.get("time_limit", 60),
+            values.get("time_limit", 60),
             id_to_index,
             data,
             Q,

@@ -2,4 +2,5 @@ tsp:
   fast_tsp:
     - cache: true
     - must_go: ["mg_last_minute_cf70.xml"]
+    - time_limit: 60
     - post_processing: []

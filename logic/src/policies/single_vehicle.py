@@ -25,7 +25,7 @@ import numpy as np
 import torch
 
 
-def find_route(C, to_collect):
+def find_route(C, to_collect, time_limit=2.0):
     """
     Solve TSP for a subset of nodes using the fast_tsp library.
 
@@ -41,7 +41,7 @@ def find_route(C, to_collect):
     """
     to_collect_tmp = [0] + list(to_collect)
     tmpC = C[to_collect_tmp, :][:, to_collect_tmp]
-    tour = fast_tsp.find_tour(tmpC)
+    tour = fast_tsp.find_tour(tmpC, duration_seconds=time_limit)
     zero_index = tour.index(0)
     tour = tour[zero_index:] + tour[:zero_index]
     # cost = fast_tsp.compute_cost(tour, tmpC)
