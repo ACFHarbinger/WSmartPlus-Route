@@ -34,6 +34,7 @@ from logic.src.file_system import (
     update_file_system_entries,
 )
 from logic.test import PyTestRunner
+from omegaconf import OmegaConf
 
 warnings.filterwarnings(
     "ignore",
@@ -144,6 +145,15 @@ def pretty_print_args(comm, opts, inner_comm=None):
         raise Exception(f"failed to pretty print arguments due to {repr(e)}")
 
 
+def pretty_print_hydra_config(cfg: Config) -> None:
+    """Pretty print the Hydra configuration in YAML format."""
+    print("\n" + "=" * 80)
+    print("HYDRA CONFIGURATION".center(80))
+    print("=" * 80)
+    print(OmegaConf.to_yaml(cfg, resolve=True))
+    print("=" * 80 + "\n")
+
+
 def main(args) -> None:
     """
     Main dispatch function for the application.
@@ -246,6 +256,9 @@ def main_dispatch() -> None:
 @hydra.main(version_base=None, config_path="assets/configs", config_name="config")
 def hydra_entry_point(cfg: Config) -> float:
     """Unified entry point."""
+    if cfg.verbose:
+        pretty_print_hydra_config(cfg)
+
     if cfg.task == "train":
         from logic.src.pipeline.features.train import run_hpo, run_training
 
@@ -255,7 +268,6 @@ def hydra_entry_point(cfg: Config) -> float:
             return run_training(cfg)
     elif cfg.task == "eval":
         from logic.src.pipeline.features.eval import run_evaluate_model, validate_eval_args
-        from omegaconf import OmegaConf
 
         # Convert Hydra config to dict
         eval_args = OmegaConf.to_container(cfg.eval, resolve=True)
@@ -265,7 +277,6 @@ def hydra_entry_point(cfg: Config) -> float:
         return 0.0
     elif cfg.task == "test_sim":
         from logic.src.pipeline.features.test import run_wsr_simulator_test, validate_test_sim_args
-        from omegaconf import OmegaConf
 
         # Convert Hydra config to dict
         sim_args = OmegaConf.to_container(cfg.sim, resolve=True)
@@ -275,7 +286,6 @@ def hydra_entry_point(cfg: Config) -> float:
         return 0.0
     elif cfg.task == "gen_data":
         from logic.src.data.generate_data import generate_datasets, validate_gen_data_args
-        from omegaconf import OmegaConf
 
         # Convert Hydra config to dict
         data_args = OmegaConf.to_container(cfg.data, resolve=True)

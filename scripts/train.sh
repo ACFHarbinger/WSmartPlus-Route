@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# ==============================================================================
+# TRAINING SCRIPT (Config-File-Only Approach)
+# ==============================================================================
+# This script invokes main.py train_lightning with config values from YAML.
+# All configuration is defined in:
+#   - assets/configs/tasks/train.yaml
+#   - assets/configs/data/train_data.yaml
+#   - assets/configs/envs/${PROBLEM}.yaml
+#   - assets/configs/models/${MODEL}.yaml
+# ==============================================================================
+
+set -e
+
 # Handle memory fragmentation
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
@@ -15,199 +28,80 @@ NC='\033[0m' # No Color
 # Default to verbose mode
 VERBOSE=true
 
-# Load Task Config first to get general settings and PROBLEM definition
+# Configuration files
 TASK_CONFIG="assets/configs/tasks/train.yaml"
 DATA_CONFIG="assets/configs/data/train_data.yaml"
-eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
 
-# Now load the specific environment config based on the problem defined in the task
-if [ -z "$PROBLEM" ]; then
-    echo "Error: PROBLEM variable not found in $TASK_CONFIG"
-    exit 1
-fi
+# Load Task Config first
+eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
 
-ENV_CONFIG="assets/configs/envs/${PROBLEM}.yaml"
-if [ ! -f "$ENV_CONFIG" ]; then
-    echo "Error: Environment config $ENV_CONFIG not found."
-    exit 1
-fi
-
-# Reload with Env config included
-eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG")
-
-# Handle --quiet if it appears after other arguments
-for arg in "$@"; do
-    if [[ "$arg" == "--quiet" ]]; then
-        VERBOSE=false
+# Load environment config based on problem
+if [ -n "$PROBLEM" ]; then
+    ENV_CONFIG="assets/configs/envs/${PROBLEM}.yaml"
+    if [ -f "$ENV_CONFIG" ]; then
+        eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
     fi
+fi
+
+# Parse CLI overrides
+CLI_OVERRIDES=()
+while getopts "qm:e:s:n:" flag; do
+    case "${flag}" in
+        q) VERBOSE=false;;
+        m) MODEL_NAME="${OPTARG}";;
+        e) EPOCHS="${OPTARG}";;
+        s) SIZE="${OPTARG}";;
+        n) N_DATA="${OPTARG}";;
+        \?) echo -e "${RED}Invalid option: -${OPTARG}${NC}" >&2; exit 1;;
+    esac
 done
+shift $((OPTIND-1))
+
+# Use loaded or default values
+PROBLEM="${ENV_NAME:-${PROBLEM:-cwcvrp}}"
+AREA="${AREA:-riomaior}"
+SIZE="${ENV_NUM_LOC:-${SIZE:-50}}"
+EPOCHS="${TRAIN_N_EPOCHS:-${EPOCHS:-100}}"
+B_SIZE="${TRAIN_BATCH_SIZE:-128}"
+SEED="${SEED:-42}"
+MODEL="${MODEL_NAME:-am}"
+ENCODER="${MODEL_ENCODER_TYPE:-gat}"
+
+echo -e "${BLUE}╔══════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║       TRAINING MODULE (Hydra-based)      ║${NC}"
+echo -e "${BLUE}╚══════════════════════════════════════════╝${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Problem:    ${MAGENTA}${PROBLEM}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Graph Size: ${MAGENTA}${SIZE}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Area:       ${MAGENTA}${AREA}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Epochs:     ${MAGENTA}${EPOCHS}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Model:      ${MAGENTA}${MODEL}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Encoder:    ${MAGENTA}${ENCODER}${NC}"
+echo ""
 
 # If not verbose, redirect all output to /dev/null
 if [ "$VERBOSE" = false ]; then
-    exec 3>&1 4>&2  # Save original stdout (fd1) to fd3, stderr (fd2) to fd4
+    exec 3>&1 4>&2
     exec >/dev/null 2>&1
 fi
 
+# Execute with config values from YAML
+uv run python main.py train_lightning \
+    "env.name='${PROBLEM}'" \
+    "env.num_loc=${SIZE}" \
+    "env.area='${AREA}'" \
+    "model.name='${MODEL}'" \
+    "model.encoder_type='${ENCODER}'" \
+    "train.n_epochs=${EPOCHS}" \
+    "train.batch_size=${B_SIZE}" \
+    "seed=${SEED}" \
+    "${CLI_OVERRIDES[@]}" \
+    "$@"
 
-# Derived Variables
-# (Variables that depend on yaml config values or complex logic)
-TOTAL_EPOCHS=$(($START + $EPOCHS))
-DATASET_NAME="time${TOTAL_EPOCHS}"
-VAL_DATASET_NAME="${DATASET_NAME}_val"
-
-DATASETS=()
-VAL_DATASETS=()
-# DATA_DISTS loaded from YAML as array
-for dist in "${DATA_DISTS[@]}"; do
-    DATASETS+=("data/datasets/${DATA_PROBLEM}/${DATA_PROBLEM}${SIZE}_${dist}_${DATASET_NAME}_seed${SEED}.pkl")
-done
-
-echo -e "${BLUE}Starting training script (Hydra-based)...${NC}"
-echo -e "${CYAN}---------------------------------------${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Problem:    ${MAGENTA}$PROBLEM${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Graph size: ${MAGENTA}$SIZE${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Area:       ${MAGENTA}$AREA${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Epochs:     ${MAGENTA}$EPOCHS${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Device:     ${MAGENTA}CUDA Accelerator${NC}"
-echo -e "${CYAN}---------------------------------------${NC}"
-echo ""
-
-for dist_idx in "${!DATA_DISTS[@]}"; do
-    DATA_DIST="${DATA_DISTS[dist_idx]}"
-    TRAIN_DATASET="${DATASETS[dist_idx]}"
-
-    echo -e "${BLUE}[PROCESS]${NC} Data distribution: ${YELLOW}${DATA_DIST}${NC}"
-
-    for m_idx in "${!MODEL_NAMES[@]}"; do
-        M_NAME="${MODEL_NAMES[m_idx]}"
-        E_NAME="${MODEL_ENCODERS[m_idx]}"
-        H_VAL="${HORIZON[m_idx]}"
-
-        # DYNAMICALLY LOAD MODEL CONFIG HERE
-        # We reload everything to ensure model-specific params override correctly
-        # Order: Task -> Env -> Model
-        MODEL_CONFIG="assets/configs/models/${M_NAME}.yaml"
-
-        if [ -f "$MODEL_CONFIG" ]; then
-            eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG" "$MODEL_CONFIG")
-        else
-            echo "Warning: Model config $MODEL_CONFIG not found, using defaults loaded earlier."
-        fi
-
-        FINAL_MODEL_PATH="assets/${MODEL_WEIGHTS_PATH}/${PROBLEM}${SIZE}_${AREA}_${WTYPE}/${DATA_DIST}/${M_NAME}${E_NAME}${H_VAL}/epoch-$((TOTAL_EPOCHS-1)).pt"
-
-        echo ""
-        echo -e "${BLUE}===== [TRAIN] ${M_NAME} model with ${E_NAME} encoder =====${NC}"
-
-        # Determine actual Hydra parameters based on model type
-        ACTUAL_MODEL_NAME="$M_NAME"
-        ACTUAL_ENCODER_TYPE="$E_NAME"
-        EXTRA_ARGS=""
-
-        case "$M_NAME" in
-            "amgc")
-                ACTUAL_MODEL_NAME="am"
-                ACTUAL_ENCODER_TYPE="ggac"
-                ;;
-            "transgcn")
-                ACTUAL_MODEL_NAME="am"
-                ACTUAL_ENCODER_TYPE="tgc"
-                EXTRA_ARGS="model.num_encoder_sublayers=${N_ENC_SL}"
-                ;;
-            "ddam")
-                ACTUAL_MODEL_NAME="ddam"
-                ACTUAL_ENCODER_TYPE="gat"
-                EXTRA_ARGS="model.num_decoder_layers=${N_DEC_L}"
-                ;;
-            "tam")
-                ACTUAL_MODEL_NAME="tam"
-                ACTUAL_ENCODER_TYPE="gat"
-                EXTRA_ARGS="model.num_predictor_layers=${N_PRED_L}"
-                ;;
-        esac
-
-        if [ "$VERBOSE" = false ]; then
-            exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
-            exec 3>&- 4>&-  # Close the temporary file descriptors
-        fi
-
-        uv run python main.py train_lightning \
-            env.name="'$PROBLEM'" \
-            model.name="'$ACTUAL_MODEL_NAME'" \
-            model.encoder_type="'$ACTUAL_ENCODER_TYPE'" \
-            train.train_data_size="$N_DATA" \
-            env.data_distribution="'${DATA_DIST}'" \
-            env.num_loc="$SIZE" \
-            train.n_epochs="$EPOCHS" \
-            seed="$SEED" \
-            train.train_time=true \
-            env.vertex_method="'$VERTEX_M'" \
-            train.epoch_start="$START" \
-            rl.max_grad_norm="$MAX_NORM" \
-            train.val_data_size="$N_VAL_DATA" \
-            env.cost_weight="$W_LEN" \
-            env.collection_reward="$W_WASTE" \
-            env.overflow_penalty="$W_OVER" \
-            model.embed_dim="$EMBED_DIM" \
-            model.activation="'$ACTI_F'" \
-            train.accumulation_steps="$ACC_STEPS" \
-            env.focus_graph="'$F_GRAPH'" \
-            model.normalization="'$NORM'" \
-            train.val_dataset="'${TRAIN_DATASET}'" \
-            model.spatial_bias=true \
-            optim.optimizer="'$OPTIM'" \
-            model.hidden_dim="$HIDDEN_DIM" \
-            model.n_heads="$N_HEADS" \
-            model.dropout="$DROPOUT" \
-            env.waste_type="'$WTYPE'" \
-            env.focus_size="$F_SIZE" \
-            model.num_encoder_layers="$N_ENC_L" \
-            optim.lr="$LR_MODEL" \
-            env.eval_focus_size="$VAL_F_SIZE" \
-            env.distance_method="'$DIST_M'" \
-            model.hyper_expansion="$HYPER_LANES" \
-            env.edge_threshold="$EDGE_T" \
-            env.edge_method="'$EDGE_M'" \
-            train.eval_batch_size="$VAL_B_SIZE" \
-            rl.imitation_threshold="$STOP_THRESH" \
-            model.temporal_horizon="${H_VAL}" \
-            optim.lr_scheduler="'$LR_SCHEDULER'" \
-            optim.lr_decay="$LR_DECAY" \
-            train.batch_size="$B_SIZE" \
-            rl.bl_alpha="$BL_ALPHA" \
-            env.area="'$AREA'" \
-            model.aggregation_node="'$AGG'" \
-            model.aggregation_graph="'$AGG_G'" \
-            env.dm_filepath="'$DM_PATH'" \
-            rl.imitation_mode="'$IMITATION_MODE'" \
-            wandb_mode="'$WB_MODE'" \
-            train.log_step="$LOG_STEP" \
-            rl.exp_beta="$EXP_BETA" \
-            rl.imitation_weight="$IMITATION_W" \
-            rl.imitation_decay="$IMITATION_DECAY" \
-            model.connection_type="'$CONNECTION'" \
-            rl.imitation_decay_step="$IMITATION_DECAY_STEP" \
-            rl.random_ls_iterations="$TWO_OPT_MAX_ITER" \
-            rl.gamma="$GAMMA" \
-            rl.reannealing_patience="$REHEAT_PAT" \
-            rl.reannealing_threshold="$REHEAT_THRESH" \
-            rl.algorithm="'$RL_ALGO'" \
-            rl.baseline="'$BL'" \
-            train.num_workers="$N_WORKERS" \
-            train.persistent_workers="$PERSISTENT_WORKERS" \
-            train.pin_memory="$PIN_MEMORY" \
-            train.logs_dir="'$LOGS_DIR'" \
-            train.reload_dataloaders_every_n_epochs="$RELOAD_DATALOADERS_EVERY_N_EPOCHS" \
-            train.model_weights_path="'$MODEL_WEIGHTS_PATH'" \
-            train.final_model_path="'$FINAL_MODEL_PATH'" \
-            hpo.n_trials=0 \
-            $EXTRA_ARGS;
-
-        if [ "$VERBOSE" = false ]; then
-            exec >/dev/null 2>&1
-        fi
-    done
-done
+# Restore output
+if [ "$VERBOSE" = false ]; then
+    exec 1>&3 2>&4
+    exec 3>&- 4>&-
+fi
 
 echo ""
-echo -e "${GREEN}✓ [DONE] Training completed for all configurations${NC}"
+echo -e "${GREEN}✓ [DONE] Training completed.${NC}"
