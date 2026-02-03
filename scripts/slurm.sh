@@ -43,15 +43,15 @@ conda activate /users5/vlabist/afonsofernandes/anaconda3/envs/wsr
 # To execute this slurm script: sbatch slurm.sh
 
 # Load Task Config first to get general settings and PROBLEM definition
-TASK_CONFIG="scripts/configs/tasks/slurm.yaml"
-DATA_CONFIG="scripts/configs/data/slurm.yaml"
-eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
+TASK_CONFIG="assets/configs/tasks/slurm.yaml"
+DATA_CONFIG="assets/configs/data/slurm.yaml"
+eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
 
 # Now load the specific environment config based on the problem defined in the task
 if [ -n "$PROBLEM" ]; then
-    ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+    ENV_CONFIG="assets/configs/envs/${PROBLEM}.yaml"
     if [ -f "$ENV_CONFIG" ]; then
-        eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$TASK_CONFIG")
+        eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$TASK_CONFIG")
     fi
 fi
 

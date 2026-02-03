@@ -1,6 +1,0 @@
-<config>
-  <classical_local_search>
-    <operator>2opt</operator>
-    <post_process_iterations>1000</post_process_iterations>
-  </classical_local_search>
-</config>

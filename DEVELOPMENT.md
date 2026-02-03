@@ -468,7 +468,7 @@ python main.py train_lightning experiment=base train.batch_size=128 model.hidden
 
 ### 6.5 Policy & Selection Configuration
 
-Policies and selection strategies use a mix of YAML and XML configurations located in `scripts/configs/policies/`.
+Policies and selection strategies use a mix of YAML and XML configurations located in `assets/configs/policies/`.
 
 - **YAML (\*.yaml)**: Defines classical or neural policy adaptors (e.g., `policy_alns.yaml`).
   - Can reference sub-components like Selection Strategies via XML pointers.

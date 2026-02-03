@@ -1,5 +1,0 @@
-bcp:
-  ortools:
-    - engine: "ortools"
-    - must_go: ["mg_lookahead_days7.xml"]
-    - post_processing: []

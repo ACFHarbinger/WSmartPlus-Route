@@ -16,9 +16,9 @@ NC='\033[0m' # No Color
 VERBOSE=true
 
 # Load Task Config first to get general settings and PROBLEM definition
-TASK_CONFIG="scripts/configs/tasks/train.yaml"
-DATA_CONFIG="scripts/configs/data/train_data.yaml"
-eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
+TASK_CONFIG="assets/configs/tasks/train.yaml"
+DATA_CONFIG="assets/configs/data/train_data.yaml"
+eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
 
 # Now load the specific environment config based on the problem defined in the task
 if [ -z "$PROBLEM" ]; then
@@ -26,14 +26,14 @@ if [ -z "$PROBLEM" ]; then
     exit 1
 fi
 
-ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+ENV_CONFIG="assets/configs/envs/${PROBLEM}.yaml"
 if [ ! -f "$ENV_CONFIG" ]; then
     echo "Error: Environment config $ENV_CONFIG not found."
     exit 1
 fi
 
 # Reload with Env config included
-eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG")
+eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG")
 
 # Handle --quiet if it appears after other arguments
 for arg in "$@"; do
@@ -86,12 +86,12 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
         # DYNAMICALLY LOAD MODEL CONFIG HERE
         # We reload everything to ensure model-specific params override correctly
         # Order: Task -> Env -> Model
-        MODEL_CONFIG="scripts/configs/models/${M_NAME}.yaml"
+        MODEL_CONFIG="assets/configs/models/${M_NAME}.yaml"
 
         if [ -f "$MODEL_CONFIG" ]; then
-             eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG" "$MODEL_CONFIG")
+            eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG" "$MODEL_CONFIG")
         else
-             echo "Warning: Model config $MODEL_CONFIG not found, using defaults loaded earlier."
+            echo "Warning: Model config $MODEL_CONFIG not found, using defaults loaded earlier."
         fi
 
         FINAL_MODEL_PATH="assets/${MODEL_WEIGHTS_PATH}/${PROBLEM}${SIZE}_${AREA}_${WTYPE}/${DATA_DIST}/${M_NAME}${E_NAME}${H_VAL}/epoch-$((TOTAL_EPOCHS-1)).pt"

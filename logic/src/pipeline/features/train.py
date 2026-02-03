@@ -305,7 +305,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
         config_path = getattr(cfg.model, "policy_config", None)
         if config_path is None:
-            default_path = f"scripts/configs/model/{expert_name}.yaml"
+            default_path = f"assets/configs/model/{expert_name}.yaml"
             if os.path.exists(default_path):
                 config_path = default_path
 

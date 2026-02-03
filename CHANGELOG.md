@@ -30,8 +30,8 @@ Introduced a modular **Selection Strategy** system for the Simulator, allowing f
   - `RegularSelection`: Periodic schedule enforcement.
   - `MeansAndStdDevSelection`: Statistical overflow prediction.
 - **Configuration System**:
-  - `scripts/configs/policies/`: Modular XML/YAML policy configs.
-  - `scripts/utils/yaml_to_env.py`: Utility for environment variable conversion.
+  - `assets/configs/policies/`: Modular XML/YAML policy configs.
+  - `logic/src/utils/configs/yaml_to_env.py`: Utility for environment variable conversion.
 - **Decoding Strategies** (`logic/src/utils/functions/decoding.py`):
   - Unified `Greedy`, `Sampling`, `BeamSearch`, and `Evaluate` strategies.
 
