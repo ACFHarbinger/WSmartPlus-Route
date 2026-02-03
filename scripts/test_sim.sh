@@ -18,9 +18,17 @@ if [ -n "$PROBLEM" ]; then
 fi
 
 # MAP ENVIRONMENT VARIABLES TO SCRIPT VARIABLES
-if [ -n "$SIZE" ]; then N_BINS="$SIZE"; fi
-if [ -n "$WTYPE" ]; then WTYPE="$WTYPE"; fi
-if [ -n "$AREA" ]; then AREA="$AREA"; fi
+if [ -n "$SIM_SIZE" ]; then N_BINS="$SIM_SIZE"; elif [ -n "$SIZE" ]; then N_BINS="$SIZE"; fi
+if [ -n "$SIM_WASTE_TYPE" ]; then WTYPE="$SIM_WASTE_TYPE"; elif [ -n "$WTYPE" ]; then WTYPE="$WTYPE"; fi
+if [ -n "$SIM_AREA" ]; then AREA="$SIM_AREA"; elif [ -n "$AREA" ]; then AREA="$AREA"; fi
+if [ -n "$SIM_PROBLEM" ]; then PROBLEM="$SIM_PROBLEM"; elif [ -n "$PROBLEM" ]; then PROBLEM="$PROBLEM"; fi
+if [ -n "$SIM_DAYS" ]; then N_DAYS="$SIM_DAYS"; elif [ -n "$DAYS" ]; then N_DAYS="$DAYS"; fi
+if [ -n "$SIM_N_SAMPLES" ]; then N_SAMPLES="$SIM_N_SAMPLES"; elif [ -n "$N_SAMPLES" ]; then N_SAMPLES="$N_SAMPLES"; fi
+if [ -n "$SIM_DATA_DISTRIBUTION" ]; then DATA_DIST="$SIM_DATA_DISTRIBUTION"; elif [ -n "$DATA_DISTRIBUTION" ]; then DATA_DIST="$DATA_DISTRIBUTION"; fi
+if [ -n "$SIM_POLICIES" ]; then POLICIES=("${SIM_POLICIES[@]}"); fi
+if [ -n "$SIM_GATE_PROB_THRESHOLD" ]; then GATE_PROB_THRESHOLD="$SIM_GATE_PROB_THRESHOLD"; fi
+if [ -n "$SIM_MASK_PROB_THRESHOLD" ]; then MASK_PROB_THRESHOLD="$SIM_MASK_PROB_THRESHOLD"; fi
+if [ -n "$SIM_CHECKPOINT_DAYS" ]; then CHECKPOINTS="$SIM_CHECKPOINT_DAYS"; fi
 if [ -n "$EDGE_T" ]; then EDGE_THRESH="$EDGE_T"; fi
 if [ -n "$EDGE_M" ]; then EDGE_METHOD="$EDGE_M"; fi
 if [ -n "$DIST_M" ]; then DIST_METHOD="$DIST_M"; fi

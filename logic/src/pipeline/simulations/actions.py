@@ -182,7 +182,7 @@ class MustGoSelectionAction(SimulationAction):
             for item in config_must_go:
                 if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
                     # Load config file (e.g. mg_lookahead_days7.xml)
-                    fpath = os.path.join(ROOT_DIR, "scripts", "configs", "policies", item)
+                    fpath = os.path.join(ROOT_DIR, "assets", "configs", "policies", item)
                     cfg = load_config(fpath)
                     # Extract strategy name and params
                     # Flatten if root is 'config'
@@ -430,7 +430,7 @@ class PostProcessAction(SimulationAction):
 
                 if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
                     # Load config
-                    fpath = os.path.join(ROOT_DIR, "scripts", "configs", "policies", item)
+                    fpath = os.path.join(ROOT_DIR, "assets", "configs", "policies", item)
                     try:
                         cfg = load_config(fpath)
                         if "config" in cfg and len(cfg) == 1:

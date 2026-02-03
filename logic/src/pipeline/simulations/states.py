@@ -362,7 +362,7 @@ class InitializingState(SimState):
         # Explicitly load policy_neural.yaml only if running neural policies
         should_load_neural = any(x in ctx.pol_strip for x in ["am", "ptr", "transgcn", "neural", "ddam"])
 
-        neural_cfg_path = os.path.join(ROOT_DIR, "scripts", "configs", "policies", "policy_neural.yaml")
+        neural_cfg_path = os.path.join(ROOT_DIR, "assets", "configs", "policies", "policy_neural.yaml")
         if should_load_neural and os.path.exists(neural_cfg_path):
             try:
                 neural_cfg = load_config(neural_cfg_path)
