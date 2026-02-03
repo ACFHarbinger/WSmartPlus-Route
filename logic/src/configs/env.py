@@ -39,3 +39,8 @@ class EnvConfig:
     vertex_method: str = "mmn"
     edge_threshold: float = 0.0
     edge_method: Optional[str] = None
+    # Data distribution and generation
+    data_distribution: Optional[str] = None
+    min_fill: float = 0.0
+    max_fill: float = 1.0
+    fill_distribution: str = "uniform"
