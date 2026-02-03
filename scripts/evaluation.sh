@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Default to verbose mode
-VERBOSE=true
+# ==============================================================================
+# EVALUATION SCRIPT (Config-File-Only Approach)
+# ==============================================================================
+# This script invokes main.py eval with config values loaded from YAML.
+# Configuration is defined in:
+#   - assets/configs/tasks/evaluation.yaml
+#   - assets/configs/data/eval_data.yaml
+# ==============================================================================
 
-# Handle --quiet if it appears after other arguments
-for arg in "$@"; do
-    if [[ "$arg" == "--quiet" ]]; then
-        VERBOSE=false
-    fi
-done
-
+set -e
 
 # Colors for output
 RED='\033[0;31m'
@@ -20,53 +20,28 @@ MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# If not verbose, redirect all output to /dev/null
-if [ "$VERBOSE" = false ]; then
-    exec 3>&1 4>&2  # Save original stdout (fd1) to fd3, stderr (fd2) to fd4
-    exec >/dev/null 2>&1
-fi
+# Default to verbose mode
+VERBOSE=true
 
-# ==============================================================================
-
-# ==============================================================================
-# DEFAULT CONFIGURATION
-# Load default values from YAML
-# ==============================================================================
-
-# Load Task Config first to get general settings and PROBLEM definition
-CONFIG_FILE="assets/configs/tasks/evaluation.yaml"
+# Configuration files
+TASK_CONFIG="assets/configs/tasks/evaluation.yaml"
 DATA_CONFIG="assets/configs/data/eval_data.yaml"
-eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$CONFIG_FILE" "$DATA_CONFIG")
 
-# Now load the specific environment config based on the problem defined in the task
+# Load config
+eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
+
+# Load environment config based on problem
 if [ -n "$PROBLEM" ]; then
     ENV_CONFIG="assets/configs/envs/${PROBLEM}.yaml"
     if [ -f "$ENV_CONFIG" ]; then
-        eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$CONFIG_FILE" "$DATA_CONFIG" "$ENV_CONFIG")
+        eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
     fi
 fi
 
-# MAP ENVIRONMENT VARIABLES TO SCRIPT VARIABLES
-# The environment config (e.g. cwcvrp.yaml) exports variables like SIZE, WTYPE, etc.
-# The evaluation script expects GRAPH_SIZE, WASTE_TYPE, etc.
-if [ -n "$SIZE" ]; then GRAPH_SIZE="$SIZE"; fi
-if [ -n "$AREA" ]; then AREA="$AREA"; fi # Redundant but safe
-if [ -n "$WTYPE" ]; then WASTE_TYPE="$WTYPE"; fi
-if [ -n "$EDGE_T" ]; then EDGE_THRESHOLD="$EDGE_T"; fi
-if [ -n "$EDGE_M" ]; then EDGE_METHOD="$EDGE_M"; fi
-if [ -n "$DIST_M" ]; then DISTANCE_METHOD="$DIST_M"; fi
-if [ -n "$VERTEX_M" ]; then VERTEX_METHOD="$VERTEX_M"; fi
-
-
-# ==============================================================================
-# COMMAND LINE ARGUMENT PARSING
-# Allows overriding defaults using flags
-# ==============================================================================
-
-# Parse options: m=model, D=datasets, O=output, f=overwrite, c=no_cuda, w=width
-while getopts "m:D:O:fw:nC:p" flag
-do
+# Parse CLI overrides
+while getopts "qm:D:O:fw:C:np" flag; do
     case "${flag}" in
+        q) VERBOSE=false;;
         m) MODEL_PATH=${OPTARG};;
         D) DATASETS=(${OPTARG});;
         O) OUTPUT_FILE=${OPTARG};;
@@ -75,99 +50,59 @@ do
         C) DECODE_STRATEGY=${OPTARG};;
         n) NO_CUDA_FLAG="--no_cuda";;
         p) NO_PROGRESS_BAR_FLAG="--no_progress_bar";;
-        \?) echo "Invalid option: -${OPTARG}" >&2; exit 1;;
+        \?) echo -e "${RED}Invalid option: -${OPTARG}${NC}" >&2; exit 1;;
     esac
 done
-
-# Shift off the options (if any) to allow positional arguments later, though none are expected
 shift $((OPTIND-1))
 
+# Use loaded or default values
+DECODE_TYPE="${DECODE_TYPE:-greedy}"
+DECODE_STRATEGY="${DECODE_STRATEGY:-greedy}"
+VAL_SIZE="${VAL_SIZE:-10000}"
+GRAPH_SIZE="${SIZE:-50}"
+AREA="${AREA:-riomaior}"
 
-# ==============================================================================
-# CONSTRUCT COMMAND
-# Build the final Python evaluation command
-# ==============================================================================
-
-# Ensure WIDTH is joined into a space-separated string for the command
-WIDTH_ARGS="${WIDTH[@]}"
-DATASET_ARGS="${DATASETS[@]}"
-
-# Conditional arguments
-if [[ -n "$OUTPUT_FILE" ]]; then
-    OUTPUT_ARG="-o $OUTPUT_FILE"
-fi
-
-# Multi-word string argument construction (optional flags are added as separate arguments)
-PYTHON_CMD=(
-    uv run python main.py eval
-    --model "$MODEL_PATH"
-    --datasets ${DATASET_ARGS}
-    $OVERWRITE_FLAG
-    $OUTPUT_ARG
-    --val_size "$VAL_SIZE"
-    --offset "$OFFSET"
-    --eval_batch_size "$EVAL_BATCH_SIZE"
-    --decode_type "$DECODE_TYPE"
-    --width ${WIDTH_ARGS}
-    --decode_strategy "$DECODE_STRATEGY"
-    --softmax_temperature "$SOFTMAX_TEMPERATURE"
-    $NO_CUDA_FLAG
-    $NO_PROGRESS_BAR_FLAG
-    $COMPRESS_MASK_FLAG # Disabled by default, set as a flag manually if needed
-    --max_calc_batch_size "$MAX_CALC_BATCH_SIZE"
-    --results_dir "$RESULTS_DIR"
-    $MULTIPROCESSING_FLAG # Disabled by default, set as a flag manually if needed
-    --graph_size "$GRAPH_SIZE"
-    --area "$AREA"
-    --waste_type "$WASTE_TYPE"
-    --focus_size "$FOCUS_SIZE"
-    --edge_threshold "$EDGE_THRESHOLD"
-    --edge_method "$EDGE_METHOD"
-    --distance_method "$DISTANCE_METHOD"
-    --vertex_method "$VERTEX_METHOD"
-)
-
-# Add focus_graph only if it is explicitly set
-if [[ -n "$FOCUS_GRAPH" ]]; then
-    PYTHON_CMD+=(--focus_graph "$FOCUS_GRAPH")
-fi
-
-
-# ==============================================================================
-# EXECUTION
-# ==============================================================================
-
+# Display configuration
 echo -e "${BLUE}╔══════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║       ALGORITHM EVALUATION MODULE        ║${NC}"
+echo -e "${BLUE}║       EVALUATION MODULE                  ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════╝${NC}"
-echo -e "${CYAN}[PARAM]${NC} Model:            ${MAGENTA}$MODEL_PATH${NC}"
-echo -e "${CYAN}[PARAM]${NC} Datasets:         ${MAGENTA}${DATASET_ARGS}${NC}"
-echo -e "${CYAN}[PARAM]${NC} Decode Strategy:  ${MAGENTA}$DECODE_STRATEGY${NC}"
-echo -e "${CYAN}[PARAM]${NC} Width:            ${MAGENTA}${WIDTH_ARGS}${NC}"
-echo -e "${CYAN}[PARAM]${NC} Output File:      ${MAGENTA}${OUTPUT_FILE:-None}${NC}"
-echo ""
+echo -e "${CYAN}[PARAM]${NC} Model:            ${MAGENTA}${MODEL_PATH:-default}${NC}"
+echo -e "${CYAN}[PARAM]${NC} Datasets:         ${MAGENTA}${DATASETS[*]:-default}${NC}"
+echo -e "${CYAN}[PARAM]${NC} Decode Strategy:  ${MAGENTA}${DECODE_STRATEGY}${NC}"
 echo ""
 
-# Execute the command
+# If not verbose, redirect all output to /dev/null
 if [ "$VERBOSE" = false ]; then
-    exec 1>&3 2>&4  # Restore stdout from fd3, stderr from fd4
-    exec 3>&- 4>&-  # Close the temporary file descriptors
-fi
-"${PYTHON_CMD[@]}"
-if [ "$VERBOSE" = false ]; then
+    exec 3>&1 4>&2
     exec >/dev/null 2>&1
 fi
 
-# Check exit status
-if [ $? -eq 0 ]; then
-    echo ""
-    echo "=========================================="
-    echo "Evaluation completed successfully."
-    echo "=========================================="
-else
-    echo ""
-    echo "=========================================="
-    echo "ERROR: Evaluation failed." >&2
-    echo "=========================================="
-    exit 1
+# Build command array
+PYTHON_CMD=(
+    uv run python main.py eval
+    --val_size "$VAL_SIZE"
+    --decode_type "$DECODE_TYPE"
+    --decode_strategy "$DECODE_STRATEGY"
+    --graph_size "$GRAPH_SIZE"
+    --area "$AREA"
+    $NO_CUDA_FLAG
+    $NO_PROGRESS_BAR_FLAG
+    $OVERWRITE_FLAG
+)
+
+# Add optional args
+[ -n "$MODEL_PATH" ] && PYTHON_CMD+=(--model "$MODEL_PATH")
+[ ${#DATASETS[@]} -gt 0 ] && PYTHON_CMD+=(--datasets "${DATASETS[@]}")
+[ -n "$OUTPUT_FILE" ] && PYTHON_CMD+=(-o "$OUTPUT_FILE")
+[ ${#WIDTH[@]} -gt 0 ] && PYTHON_CMD+=(--width "${WIDTH[@]}")
+
+"${PYTHON_CMD[@]}" "$@"
+
+# Restore output
+if [ "$VERBOSE" = false ]; then
+    exec 1>&3 2>&4
+    exec 3>&- 4>&-
 fi
+
+echo ""
+echo -e "${GREEN}✓ [DONE] Evaluation completed.${NC}"
