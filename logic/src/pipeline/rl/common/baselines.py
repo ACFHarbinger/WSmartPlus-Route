@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 from tensordict import TensorDict
 
-from logic.src.pipeline.rl.utils import safe_td_copy
+from logic.src.utils.data.rl_utils import safe_td_copy
 from logic.src.utils.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)

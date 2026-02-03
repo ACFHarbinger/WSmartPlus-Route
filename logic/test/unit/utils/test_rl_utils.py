@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import torch
-from logic.src.pipeline.rl.common.utils import get_lightning_device, get_optimizer, get_scheduler
+from logic.src.utils.tasks.training_utils import get_lightning_device, get_optimizer, get_scheduler
 
 
 def test_get_optimizer():
