@@ -27,24 +27,24 @@ fi
 
 
 # Load Task Config first to get general settings and PROBLEM definition
-TASK_CONFIG="scripts/configs/tasks/hpo.yaml"
-DATA_CONFIG="scripts/configs/data/hpo.yaml"
-eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
+TASK_CONFIG="assets/configs/tasks/hpo.yaml"
+DATA_CONFIG="assets/configs/data/hpo.yaml"
+eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
 
 # Now load the specific environment config based on the problem defined in the task
 if [ -n "$PROBLEM" ]; then
-    ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+    ENV_CONFIG="assets/configs/envs/${PROBLEM}.yaml"
     if [ -f "$ENV_CONFIG" ]; then
         # Load Task + Data + Env (Task overrides Env values for HPO)
-        eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$TASK_CONFIG")
+        eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$TASK_CONFIG")
     fi
 fi
 
 # Load Model Config (for initial shell variables)
 MODEL_NAME_0="${MODEL_NAMES[0]}"
-MODEL_CONFIG="scripts/configs/models/${MODEL_NAME_0}.yaml"
+MODEL_CONFIG="assets/configs/models/${MODEL_NAME_0}.yaml"
 if [ -f "$MODEL_CONFIG" ]; then
-    eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
+    eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
 fi
 
 # MAP ENVIRONMENT VARIABLES TO SCRIPT VARIABLES
@@ -116,9 +116,9 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
                 ;;
         esac
 
-        MODEL_CONFIG="scripts/configs/models/${M_NAME}.yaml"
+        MODEL_CONFIG="assets/configs/models/${M_NAME}.yaml"
         if [ -f "$MODEL_CONFIG" ]; then
-             eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
+            eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
         fi
 
         if [ "$VERBOSE" = false ]; then
@@ -179,11 +179,6 @@ for dist_idx in "${!DATA_DISTS[@]}"; do
             train.epoch_start="$START" \
             wandb_mode="'$WB_MODE'" \
             $EXTRA_ARGS;
-
-        MODEL_CONFIG="scripts/configs/models/${M_NAME}.yaml"
-        if [ -f "$MODEL_CONFIG" ]; then
-             eval $(uv run python scripts/utils/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$MODEL_CONFIG" "$TASK_CONFIG")
-        fi
 
         if [ "$VERBOSE" = false ]; then
             exec >/dev/null 2>&1

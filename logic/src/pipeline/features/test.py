@@ -358,7 +358,7 @@ def run_wsr_simulator_test(opts):
         for tmp_pol in tmp_pols:
             # Attempt to load policy config to get must_go/post_processing for naming
             # e.g. tmp_pol might be "policy_hgs"
-            # Config file: scripts/configs/policies/{tmp_pol}.yaml
+            # Config file: assets/configs/policies/{tmp_pol}.yaml
 
             # Default parts
             prefix_str = ""
@@ -370,12 +370,12 @@ def run_wsr_simulator_test(opts):
             try:
                 # Strip 'policy_' if present for cleaner lookup, though file usually match
                 # Actually valid policies in opts usually match filename basename without ext
-                cfg_path = os.path.join(udef.ROOT_DIR, "scripts", "configs", "policies", f"{tmp_pol}.yaml")
+                cfg_path = os.path.join(udef.ROOT_DIR, "assets", "configs", "policies", f"{tmp_pol}.yaml")
                 if not os.path.exists(cfg_path):
                     # Try adding policy_ prefix if missing
                     if not tmp_pol.startswith("policy_"):
                         cfg_path = os.path.join(
-                            udef.ROOT_DIR, "scripts", "configs", "policies", f"policy_{tmp_pol}.yaml"
+                            udef.ROOT_DIR, "assets", "configs", "policies", f"policy_{tmp_pol}.yaml"
                         )
 
                 if os.path.exists(cfg_path):
