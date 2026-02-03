@@ -280,6 +280,28 @@ src.configs.rl
 
 ````
 
+````{py:attribute} verbose
+:canonical: src.configs.Config.verbose
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.Config.verbose
+```
+
+````
+
+````{py:attribute} start
+:canonical: src.configs.Config.start
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.configs.Config.start
+```
+
+````
+
 `````
 
 ````{py:data} __all__

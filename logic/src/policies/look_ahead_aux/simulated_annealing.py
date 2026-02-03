@@ -1,3 +1,12 @@
+"""
+Simulated Annealing Optimization for Vehicle Routing.
+
+This module implements a multi-neighborhood Simulated Annealing algorithm
+for refining routing solutions. It supports various move operators including
+2-opt, relocate, swap, cross-exchange, and or-opt moves to explore the
+solution space and escape local optima through probabilistic acceptance.
+"""
+
 import copy
 import math
 import random

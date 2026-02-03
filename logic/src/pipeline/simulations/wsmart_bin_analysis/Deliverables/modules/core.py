@@ -1,6 +1,7 @@
 """
 Core components for Container management and TAG enum.
 """
+
 from enum import Enum
 from typing import Optional
 
@@ -8,6 +9,8 @@ import pandas as pd
 
 
 class TAG(Enum):
+    """Quality tags indicating container data reliability level."""
+
     LOW_MEASURES = 0
     INSIDE_BOX = 1
     OK = 2
@@ -16,7 +19,10 @@ class TAG(Enum):
 
 
 class DataMixin:
+    """Mixin providing core data storage for Container objects."""
+
     def __init__(self, my_df: pd.DataFrame, my_rec: pd.DataFrame, info: pd.DataFrame):
+        """Initialize the data mixin with fill data, records, and info."""
         self.df: pd.DataFrame
         self.info: pd.DataFrame
         self.recs: pd.DataFrame
@@ -31,6 +37,7 @@ class DataMixin:
         self.recs.drop(["ID"], axis=1, inplace=True, errors="ignore")
 
     def __del__(self):
+        """Clean up instance attributes to free memory."""
         if hasattr(self, "df"):
             del self.df
         if hasattr(self, "info"):
@@ -41,6 +48,7 @@ class DataMixin:
             del self.id
 
     def get_keys(self):
+        """Return dictionary keys for fill data, records, and info."""
         return {
             "FILL": list(self.df.keys()),
             "RECS": list(self.recs.keys()),
@@ -48,6 +56,7 @@ class DataMixin:
         }
 
     def get_vars(self) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        """Return the fill DataFrame, records DataFrame, and info."""
         return self.df, self.recs, self.info
 
     def set_tag(self, tag: TAG):

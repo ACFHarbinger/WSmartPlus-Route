@@ -114,6 +114,7 @@ def main():
         deep_merge(final_config, config)
 
     def flatten_dict(d, parent_key="", sep="_"):
+        """Flatten a nested dictionary into single-level keys with separators."""
         items = []
         for k, v in d.items():
             new_key = f"{parent_key}{sep}{k}" if parent_key else k

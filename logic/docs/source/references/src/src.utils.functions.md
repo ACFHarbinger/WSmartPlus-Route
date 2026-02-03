@@ -16,8 +16,10 @@
 src.utils.functions.monkey_patch
 src.utils.functions.graph_utils
 src.utils.functions.beam_search
+src.utils.functions.problem
 src.utils.functions.function
 src.utils.functions.boolmask
 src.utils.functions.decoding
 src.utils.functions.lexsort
+src.utils.functions.rl
 ```

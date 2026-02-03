@@ -117,13 +117,13 @@
 
 ````
 
-````{py:attribute} graph_sizes
-:canonical: src.configs.data.DataConfig.graph_sizes
+````{py:attribute} num_locs
+:canonical: src.configs.data.DataConfig.num_locs
 :type: typing.List[int]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.data.DataConfig.graph_sizes
+```{autodoc2-docstring} src.configs.data.DataConfig.num_locs
 ```
 
 ````

@@ -4,6 +4,24 @@ Move-based local search operators for HGS.
 
 
 def move_relocate(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+    """Relocate operator: move node u to a position after node v.
+
+    Removes node u from route r_u and inserts it immediately after node v
+    in route r_v. Can be inter-route or intra-route. Only applies the move
+    if it improves total cost by a threshold margin.
+
+    Args:
+        ls: LocalSearch instance containing routes and distance matrix.
+        u: Node to relocate.
+        v: Node after which u will be inserted.
+        r_u: Index of the route containing u.
+        p_u: Position of u in route r_u.
+        r_v: Index of the route containing v (target route).
+        p_v: Position of v in route r_v.
+
+    Returns:
+        bool: True if the relocation was applied (improving), False otherwise.
+    """
     if r_u == r_v and (p_u == p_v + 1):
         return False
     dem_u = ls.demands.get(u, 0)
@@ -33,6 +51,24 @@ def move_relocate(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) ->
 
 
 def move_swap(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+    """Swap operator: exchange positions of nodes u and v.
+
+    Swaps node u (in route r_u) with node v (in route r_v). Can be
+    inter-route or intra-route swap. Only applies the move if it
+    improves total cost by a threshold margin.
+
+    Args:
+        ls: LocalSearch instance containing routes and distance matrix.
+        u: First node to swap.
+        v: Second node to swap.
+        r_u: Index of the route containing u.
+        p_u: Position of u in route r_u.
+        r_v: Index of the route containing v.
+        p_v: Position of v in route r_v.
+
+    Returns:
+        bool: True if the swap was applied (improving), False otherwise.
+    """
     if r_u == r_v and abs(p_u - p_v) <= 1:
         return False
 

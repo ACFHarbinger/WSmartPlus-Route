@@ -15,32 +15,32 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`HGSPolicy <src.models.policies.classical.hgs.HGSPolicy>`
-  - ```{autodoc2-docstring} src.models.policies.classical.hgs.HGSPolicy
+* - {py:obj}`VectorizedHGS <src.models.policies.classical.hgs.VectorizedHGS>`
+  - ```{autodoc2-docstring} src.models.policies.classical.hgs.VectorizedHGS
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} HGSPolicy(env_name: str, time_limit: float = 5.0, population_size: int = 50, n_generations: int = 50, elite_size: int = 5, max_vehicles: int = 0, **kwargs)
-:canonical: src.models.policies.classical.hgs.HGSPolicy
+`````{py:class} VectorizedHGS(env_name: str, time_limit: float = 5.0, population_size: int = 50, n_generations: int = 50, elite_size: int = 5, max_vehicles: int = 0, **kwargs)
+:canonical: src.models.policies.classical.hgs.VectorizedHGS
 
 Bases: {py:obj}`logic.src.models.policies.base.ConstructivePolicy`
 
-```{autodoc2-docstring} src.models.policies.classical.hgs.HGSPolicy
+```{autodoc2-docstring} src.models.policies.classical.hgs.VectorizedHGS
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.models.policies.classical.hgs.HGSPolicy.__init__
+```{autodoc2-docstring} src.models.policies.classical.hgs.VectorizedHGS.__init__
 ```
 
 ````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, decode_type: str = 'greedy', num_starts: int = 1, **kwargs) -> dict
-:canonical: src.models.policies.classical.hgs.HGSPolicy.forward
+:canonical: src.models.policies.classical.hgs.VectorizedHGS.forward
 
-```{autodoc2-docstring} src.models.policies.classical.hgs.HGSPolicy.forward
+```{autodoc2-docstring} src.models.policies.classical.hgs.VectorizedHGS.forward
 ```
 
 ````

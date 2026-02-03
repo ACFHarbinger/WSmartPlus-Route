@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} get_pylogger(name=__name__) -> logging.Logger
+````{py:function} get_pylogger(name=__name__, log_file: typing.Optional[str] = None) -> logging.Logger
 :canonical: src.utils.logging.pylogger.get_pylogger
 
 ```{autodoc2-docstring} src.utils.logging.pylogger.get_pylogger
