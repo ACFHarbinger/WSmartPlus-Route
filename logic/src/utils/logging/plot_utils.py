@@ -277,14 +277,15 @@ def discrete_cmap(N, base_cmap=None):
     Returns:
         Colormap: Discretized colormap.
     """
-    # Note that if base_cmap is a string or None, you can simply do
-    #    return plt.cm.get_cmap(base_cmap, N)
-    # The following works for string, None, or a colormap instance:
+    from matplotlib import colormaps
     from matplotlib.colors import LinearSegmentedColormap
 
-    base = plt.cm.get_cmap(base_cmap)
+    # Use the more modern and robust colormaps registry
+    if base_cmap is None:
+        base_cmap = "viridis"
+    base = colormaps.get_cmap(base_cmap)
     color_list = base(np.linspace(0, 1, N))
-    cmap_name = base.name + str(N)
+    cmap_name = f"{getattr(base, 'name', 'custom')}_{N}"
     return LinearSegmentedColormap.from_list(cmap_name, color_list, N)
 
 
