@@ -255,7 +255,12 @@ def create_model(cfg: Config) -> pl.LightningModule:
         }
         for k in explicit:
             kw.pop(k, None)
-        return POMO(**explicit, **kw)
+        return POMO(
+            num_augment=int(cast(Any, explicit["num_augment"])),
+            augment_fn=explicit["augment_fn"],  # type: ignore
+            num_starts=int(cast(Any, explicit["num_starts"])) if explicit["num_starts"] is not None else None,
+            **kw,
+        )
 
     def _create_symnco(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
         """Create SymNCO model with symmetry-aware augmentation parameters."""
@@ -280,7 +285,14 @@ def create_model(cfg: Config) -> pl.LightningModule:
         }
         for k in explicit:
             kw.pop(k, None)
-        return SymNCO(**explicit, **kw)
+        return SymNCO(
+            alpha=float(cast(Any, explicit["alpha"])) if explicit["alpha"] is not None else 1.0,
+            beta=float(cast(Any, explicit["beta"])) if explicit["beta"] is not None else 1.0,
+            num_augment=int(cast(Any, explicit["num_augment"])),
+            augment_fn=explicit["augment_fn"],  # type: ignore
+            num_starts=int(cast(Any, explicit["num_starts"])) if explicit["num_starts"] is not None else None,
+            **kw,
+        )
 
     def _create_hrl(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
         """Create HRL (Hierarchical RL) model with manager-worker architecture."""
@@ -475,10 +487,13 @@ def run_hpo(cfg: Config) -> float:
                 parts = k.split(".")
                 obj = temp_cfg
                 for part in parts[:-1]:
-                    obj = getattr(obj, part)
+                    if obj is not None:
+                        obj = getattr(obj, part)
                 setattr(obj, parts[-1], v)
 
-            model = create_model(temp_cfg)
+            from omegaconf import DictConfig
+
+            model = create_model(cast(DictConfig, temp_cfg))
             trainer = WSTrainer(
                 max_epochs=int(fidelity),
                 enable_progress_bar=False,

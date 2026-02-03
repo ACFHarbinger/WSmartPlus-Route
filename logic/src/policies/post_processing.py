@@ -112,7 +112,7 @@ class FastTSPPostProcessor(IPostProcessor):
 
         # Split tour into sub-tours (trips)
         trips = []
-        current_trip = []
+        current_trip: List[int] = []
         for node in tour:
             if node == 0:
                 if current_trip:

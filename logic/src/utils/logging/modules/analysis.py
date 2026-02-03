@@ -29,7 +29,7 @@ def load_log_dict(
         logs[f"{gsize}"] = os.path.join(path, f"log_mean_{ns}N.json")
         if show_incomplete and ns > 1:
             log_full = cast(List[Dict[str, Any]], read_json(os.path.join(path, f"log_full_{ns}N.json"), lock))
-            counter = Counter()
+            counter: Counter[str] = Counter()
             for run in log_full:
                 counter.update(run.keys())
             for key, val in dict(counter).items():
@@ -97,7 +97,7 @@ def runs_per_policy(
     """Count runs per policy from full log files."""
     runs_ls = []
     for path, ns in zip(dir_paths, nsamples):
-        dit = {pol: [] for pol in policies}
+        dit: Dict[str, List[int]] = {pol: [] for pol in policies}
         data = cast(List[Dict[str, Any]], read_json(os.path.join(path, f"log_full_{ns}N.json"), lock))
         for id, run_data in enumerate(data):
             for key in dit:

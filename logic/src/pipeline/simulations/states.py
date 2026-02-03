@@ -30,9 +30,11 @@ Classes:
 """
 
 import os
+import threading
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple
+from multiprocessing.synchronize import Lock
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import numpy as np
 import pandas as pd
@@ -98,6 +100,21 @@ class SimulationContext:
         current_state: Active state object
         result: Final result dictionary (populated on completion)
     """
+
+    lock: Optional[threading.Lock]
+    counter: Optional[Any]
+    overall_progress: Optional[Any]
+    pbar: Optional[Any]
+    log_path: Optional[str] = None
+    exec_time: Optional[float] = None
+    start_time: Optional[float] = None
+    end_time: Optional[float] = None
+
+    pol_name: Optional[str] = None
+    pol_engine: Optional[str] = None
+    pol_threshold: Optional[float] = None
+    pol_id: int = 0
+    pol_strip: str = ""
 
     def __init__(
         self,
@@ -605,7 +622,7 @@ class RunningState(SimState):
                         graph_size=opts["size"],
                         full_policy=ctx.policy,
                         policy=ctx.pol_strip,
-                        policy_name=ctx.pol_name,
+                        policy_name=ctx.pol_name or "",
                         engine=ctx.pol_engine,
                         threshold=ctx.pol_threshold,
                         bins=ctx.bins,
@@ -629,7 +646,7 @@ class RunningState(SimState):
                         current_collection_day=ctx.current_collection_day,
                         cached=ctx.cached,
                         device=ctx.device,
-                        lock=ctx.lock,
+                        lock=cast(Optional[Lock], ctx.lock),
                         hrl_manager=ctx.hrl_manager,
                         gate_prob_threshold=opts["gate_prob_threshold"],
                         mask_prob_threshold=opts["mask_prob_threshold"],

@@ -60,14 +60,18 @@ class TSPPolicy(BaseRoutingPolicy):
         # Find TSP route
         tour = find_route(dist_matrix, to_collect)
 
+        # Ensure bins is not None
+        if bins is None:
+            return [[]], 0.0
+
         # Split by capacity
         tour = get_multi_tour(tour, bins.c, capacity, dist_matrix)
 
         # Convert tour to route format expected by base class
         # Tour is [0, a, b, ..., 0] format, we return as list of routes
-        routes = []
+        routes: List[List[int]] = []
         if tour and len(tour) > 2:
-            current_route = []
+            current_route: List[int] = []
             for node in tour:
                 if node == 0:
                     if current_route:
