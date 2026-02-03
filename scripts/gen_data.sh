@@ -27,15 +27,15 @@ if [ "$VERBOSE" = false ]; then
 fi
 
 # Load Task Config first to get general settings and PROBLEM definition
-TASK_CONFIG="scripts/configs/tasks/gen_data.yaml"
-DATA_CONFIG="scripts/configs/data/gen_data.yaml"
-eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
+TASK_CONFIG="assets/configs/tasks/gen_data.yaml"
+DATA_CONFIG="assets/configs/data/gen_data.yaml"
+eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG")
 
 # Now load the specific environment config based on the problem defined in the task
 if [ -n "$PROBLEM" ]; then
-    ENV_CONFIG="scripts/configs/envs/${PROBLEM}.yaml"
+    ENV_CONFIG="assets/configs/envs/${PROBLEM}.yaml"
     if [ -f "$ENV_CONFIG" ]; then
-        eval $(uv run python scripts/utils/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG")
+        eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG")
     fi
 fi
 

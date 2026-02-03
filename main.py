@@ -284,11 +284,8 @@ def main_dispatch():
     # ========================================================================
     HYDRA_COMMANDS = [
         "train",
-        "train_hydra",
-        "train_lightning",
         "mrl_train",
         "hp_optim",
-        "hp_optim_hydra",
         "eval",
         "test_sim",
         "gen_data",
@@ -301,7 +298,7 @@ def main_dispatch():
         # Inject task override if needed, handling the case where it might already be specified
 
         # For legacy train commands like 'train_hydra', default to 'task=train' (already default in config)
-        if command in ["train_hydra", "train_lightning", "mrl_train", "hp_optim", "hp_optim_hydra"]:
+        if command in ["train_hydra", "mrl_train", "hp_optim"]:
             # These might have specific handling needs or default to train task
             pass
 
@@ -322,7 +319,7 @@ def main_dispatch():
         main(parse_params())
 
 
-@hydra.main(version_base=None, config_path="scripts/configs", config_name="config")
+@hydra.main(version_base=None, config_path="assets/configs", config_name="config")
 def hydra_entry_point(cfg: Config) -> float:
     """Unified entry point."""
     if cfg.task == "train":

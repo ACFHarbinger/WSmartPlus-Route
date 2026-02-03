@@ -1370,14 +1370,14 @@ class TrainingTab(QWidget):
 
 ### 13.2 Key Configuration Files
 
-| File                                    | Purpose                           |
-| --------------------------------------- | --------------------------------- |
-| `pyproject.toml`                        | Project metadata, dependencies    |
-| `assets/configs/train.yaml`             | Training defaults                 |
-| `assets/configs/sim.yaml`               | Simulation defaults               |
-| `assets/configs/areas/*.yaml`           | Area-specific settings            |
-| `scripts/configs/policies/*.{yaml,xml}` | Detailed Policy Configurations    |
-| `.env`                                  | Environment secrets (git-ignored) |
+| File                                   | Purpose                           |
+| -------------------------------------- | --------------------------------- |
+| `pyproject.toml`                       | Project metadata, dependencies    |
+| `assets/configs/train.yaml`            | Training defaults                 |
+| `assets/configs/sim.yaml`              | Simulation defaults               |
+| `assets/configs/areas/*.yaml`          | Area-specific settings            |
+| `assets/configs/policies/*.{yaml,xml}` | Detailed Policy Configurations    |
+| `.env`                                 | Environment secrets (git-ignored) |
 
 ### 13.3 Configuration Dataclass
 
