@@ -172,17 +172,6 @@
 
 ````
 
-````{py:attribute} cpd
-:canonical: src.configs.sim.SimConfig.cpd
-:type: int
-:value: >
-   5
-
-```{autodoc2-docstring} src.configs.sim.SimConfig.cpd
-```
-
-````
-
 ````{py:attribute} n_samples
 :canonical: src.configs.sim.SimConfig.n_samples
 :type: int

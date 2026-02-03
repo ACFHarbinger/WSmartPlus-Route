@@ -1887,8 +1887,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.td_learning.html#src.pipeline.rl.meta.td_learning.CostWeightManager">CostWeightManager (class in src.pipeline.rl.meta.td_learning)</a>
 </li>
-      <li><a href="references/src/src.configs.sim.html#src.configs.sim.SimConfig.cpd">cpd (src.configs.sim.SimConfig attribute)</a>
-</li>
       <li><a href="references/src/src.utils.functions.beam_search.html#src.utils.functions.beam_search.BatchBeam.cpu">cpu() (src.utils.functions.beam_search.BatchBeam method)</a>
 </li>
       <li><a href="references/src/src.configs.hpo.html#src.configs.hpo.HPOConfig.cpu_cores">cpu_cores (src.configs.hpo.HPOConfig attribute)</a>
@@ -2086,6 +2084,8 @@ document.write(`
       <li><a href="references/src/src.utils.security.crypto_utils.html#src.utils.security.crypto_utils.decrypt_file_data">decrypt_file_data() (in module src.utils.security.crypto_utils)</a>
 </li>
       <li><a href="references/src/src.utils.security.crypto_utils.html#src.utils.security.crypto_utils.decrypt_zip">decrypt_zip() (in module src.utils.security.crypto_utils)</a>
+</li>
+      <li><a href="references/src/src.utils.configs.yaml_to_env.html#src.utils.configs.yaml_to_env.deep_merge">deep_merge() (in module src.utils.configs.yaml_to_env)</a>
 </li>
       <li><a href="references/src/src.models.deep_decoder_am.html#src.models.deep_decoder_am.DeepAttentionModelFixed">DeepAttentionModelFixed (class in src.models.deep_decoder_am)</a>
 
@@ -3270,7 +3270,11 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.load_cache">load_cache() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor method)</a>
 </li>
       <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_config">load_config() (in module src.utils.configs.config_loader)</a>
+
+      <ul>
+        <li><a href="references/src/src.utils.configs.yaml_to_env.html#src.utils.configs.yaml_to_env.load_config">(in module src.utils.configs.yaml_to_env)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.load_container_structured">load_container_structured() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load)</a>
 </li>
       <li><a href="references/src/src.utils.functions.function.html#src.utils.functions.function.load_data">load_data() (in module src.utils.functions.function)</a>
@@ -3451,6 +3455,8 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.utils.add_docstrings_batch.html#src.utils.add_docstrings_batch.main">(in module src.utils.add_docstrings_batch)</a>
+</li>
+        <li><a href="references/src/src.utils.configs.yaml_to_env.html#src.utils.configs.yaml_to_env.main">(in module src.utils.configs.yaml_to_env)</a>
 </li>
         <li><a href="references/src/src.utils.logging.visualization.html#src.utils.logging.visualization.main">(in module src.utils.logging.visualization)</a>
 </li>
@@ -4104,6 +4110,8 @@ document.write(`
         <li><a href="references/src/src.utils.configs.config_loader.html#module-src.utils.configs.config_loader">src.utils.configs.config_loader</a>
 </li>
         <li><a href="references/src/src.utils.configs.setup_utils.html#module-src.utils.configs.setup_utils">src.utils.configs.setup_utils</a>
+</li>
+        <li><a href="references/src/src.utils.configs.yaml_to_env.html#module-src.utils.configs.yaml_to_env">src.utils.configs.yaml_to_env</a>
 </li>
         <li><a href="references/src/src.utils.data.html#module-src.utils.data">src.utils.data</a>
 </li>
@@ -6211,8 +6219,6 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.core.html#module-src.pipeline.rl.core">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.rl.core.a2c
 
@@ -6220,6 +6226,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.core.a2c.html#module-src.pipeline.rl.core.a2c">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.rl.core.adaptive_imitation
 
@@ -7131,6 +7139,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.utils.configs.yaml_to_env
+
+      <ul>
+        <li><a href="references/src/src.utils.configs.yaml_to_env.html#module-src.utils.configs.yaml_to_env">module</a>
+</li>
+      </ul></li>
+      <li>
     src.utils.data
 
       <ul>
@@ -7659,10 +7674,10 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.meta.module.html#src.pipeline.rl.meta.module.MetaRLModule.test_step">(src.pipeline.rl.meta.module.MetaRLModule method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.test_save_load.html#src.pipeline.simulations.wsmart_bin_analysis.test.test_save_load.TestSaveLoad.test_verify_names">test_verify_names() (src.pipeline.simulations.wsmart_bin_analysis.test.test_save_load.TestSaveLoad method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.test_container.html#src.pipeline.simulations.wsmart_bin_analysis.test.test_container.TestContainer">TestContainer (class in src.pipeline.simulations.wsmart_bin_analysis.test.test_container)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.test_extract.html#src.pipeline.simulations.wsmart_bin_analysis.test.test_extract.TestExtract">TestExtract (class in src.pipeline.simulations.wsmart_bin_analysis.test.test_extract)</a>
@@ -7705,6 +7720,8 @@ document.write(`
         <li><a href="references/src/src.utils.functions.beam_search.html#src.utils.functions.beam_search.BatchBeam.to">(src.utils.functions.beam_search.BatchBeam method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.utils.configs.yaml_to_env.html#src.utils.configs.yaml_to_env.to_bash_value">to_bash_value() (in module src.utils.configs.yaml_to_env)</a>
+</li>
       <li><a href="references/src/src.configs.decoding.html#src.configs.decoding.DecodingConfig.top_k">top_k (src.configs.decoding.DecodingConfig attribute)</a>
 </li>
       <li><a href="references/src/src.utils.functions.decoding.html#src.utils.functions.decoding.top_k_filter">top_k_filter() (in module src.utils.functions.decoding)</a>
