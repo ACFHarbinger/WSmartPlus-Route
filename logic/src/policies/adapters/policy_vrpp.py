@@ -310,8 +310,7 @@ def _run_hexaly_optimizer(
 
         total_profit_int = 0
         total_dist_int = 0
-        vehicles_used_expr = 0
-
+        vehicles_used_expr = model.create_constant(0)
         for k in range(number_vehicles):
             route = routes[k]
             count = model.count(route)

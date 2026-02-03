@@ -7,7 +7,11 @@ from gui.src.tabs.hyperparam_optim import HyperParamOptimParserTab
 class TestHPOInteractions:
     @pytest.fixture
     def hpo_tab(self, qapp):
-        return HyperParamOptimParserTab()
+        tab = HyperParamOptimParserTab()
+        yield tab
+        tab.close()
+        tab.deleteLater()
+        qapp.processEvents()
 
     def test_timeout_toggle(self, hpo_tab):
         """Test Timeout section toggle."""

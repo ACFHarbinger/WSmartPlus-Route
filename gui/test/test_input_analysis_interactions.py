@@ -21,6 +21,9 @@ class TestInputAnalysisInteractions:
             if tab.worker_thread.isRunning():
                 tab.worker_thread.quit()
                 tab.worker_thread.wait()
+            tab.close()
+            tab.deleteLater()
+            qapp.processEvents()
 
     def test_handle_successful_load(self, input_tab):
         """Test that loading data populates the slice selector and dataframes."""
