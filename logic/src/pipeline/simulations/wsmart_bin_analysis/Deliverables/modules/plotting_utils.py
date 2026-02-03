@@ -13,6 +13,10 @@ from matplotlib.lines import Line2D
 class VisualizationMixin:
     """Mixin providing plotting methods for Container fill level visualization."""
 
+    df: pd.DataFrame
+    recs: pd.DataFrame
+    info: pd.DataFrame
+
     def plot_fill(self, start_date: datetime, end_date: datetime, fig_size: tuple = (9, 6)):
         """Plot fill levels over time with collection markers."""
         start_date = pd.to_datetime(start_date, format="%d-%m-%Y", errors="raise")

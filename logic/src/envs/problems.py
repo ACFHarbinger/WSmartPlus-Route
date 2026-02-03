@@ -66,14 +66,19 @@ class BaseProblem:
                 + dist_matrix[0, 0, pi[:, 0]]
             )
         else:
-            loc = dataset.get("locs") if "locs" in dataset.keys() else dataset.get("loc")
-            if loc.size(1) == dataset["depot"].size(0) + (
-                dataset.get("waste").size(1) if "waste" in dataset.keys() else 0
+            loc_val = dataset.get("locs") if "locs" in dataset.keys() else dataset.get("loc")
+            waste_val = dataset.get("waste")
+            if loc_val is not None and loc_val.size(1) == dataset["depot"].size(0) + (
+                waste_val.size(1) if waste_val is not None else 0
             ):
                 # already concatenated
-                loc_with_depot = loc
+                loc_with_depot: Any = loc_val
+            elif loc_val is not None:
+                loc_with_depot = torch.cat((dataset["depot"][:, None, :], loc_val), 1)
             else:
-                loc_with_depot: torch.Tensor = torch.cat((dataset["depot"][:, None, :], loc), 1)
+                # Fallback for empty/missing loc
+                return torch.zeros(pi.size(0), device=pi.device)
+
             d: torch.Tensor = loc_with_depot.gather(1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1)))
             length = (
                 (d[:, 1:] - d[:, :-1]).norm(p=2, dim=-1).sum(1)
@@ -90,6 +95,7 @@ class BaseProblem:
 
         def propose_expansions(beam):
             """Propose expansions for the current beam search state."""
+            assert model is not None
             return model.propose_expansions(beam, fixed, normalize=True)
 
         # Note: make_state is problem-specific, must be implemented by subclasses

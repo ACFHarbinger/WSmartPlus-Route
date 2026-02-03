@@ -106,13 +106,13 @@ class SymNCO(POMO):
             loss_ss = solution_symmetricity_loss(reward, ll, dim=-1)
 
             # 3. Invariance loss (invariant representation across augmentations)
-            loss_inv: float | torch.Tensor
+            loss_inv_val: float | torch.Tensor
             if "proj_embeddings" in out:
-                loss_inv = invariance_loss(out["proj_embeddings"], n_aug)
+                loss_inv_val = invariance_loss(out["proj_embeddings"], n_aug)
             else:
-                loss_inv = 0.0
+                loss_inv_val = 0.0
 
-            loss = loss_ps + self.beta * loss_ss + self.alpha * loss_inv
+            loss = loss_ps + self.beta * loss_ss + self.alpha * loss_inv_val
 
             if self.entropy_weight > 0 and "entropy" in out:
                 loss = loss - self.entropy_weight * out["entropy"].mean()

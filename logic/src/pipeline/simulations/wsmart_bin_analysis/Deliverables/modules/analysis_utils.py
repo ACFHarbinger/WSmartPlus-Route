@@ -3,7 +3,7 @@ Analysis utilities for Container fill level data.
 """
 
 import warnings
-from typing import Optional
+from typing import Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -14,6 +14,10 @@ from .core import TAG
 
 class AnalysisMixin:
     """Mixin providing analysis methods for Container fill level data."""
+
+    df: pd.DataFrame
+    recs: pd.DataFrame
+    tag: Optional[TAG]
 
     def get_collection_quantities(self) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
         """Return average distance and Spearman correlation arrays for collections."""
@@ -30,8 +34,9 @@ class AnalysisMixin:
     def get_scan_linear_spline(self, key, interval) -> tuple[pd.DatetimeIndex, np.ndarray]:
         """Compute a linear spline interpolation of cumulative fill rate."""
         assert key in ["Mean", "Fill"]
+        recs_index = cast(pd.DatetimeIndex, self.recs.index)
         date_range = pd.date_range(
-            start=self.recs.index[0].round("D"),
+            start=recs_index[0].round("D"),
             end=self.df.index[-1].round("D"),
             freq=interval,
         )
@@ -63,9 +68,10 @@ class AnalysisMixin:
     def get_tag(self, window: int, mv_thresh: int, min_days: int, use: str) -> TAG:
         """Compute and return a quality tag based on collection metrics."""
         KEYS = ["spear", "avg_dist"]
+        recs_index = cast(pd.DatetimeIndex, self.recs.index)
         if len(self.df) == 0:
             return TAG.LOW_MEASURES
-        if len(self.recs) // len(self.df) >= 1 or (self.recs.index[-1] - self.recs.index[0]).days < min_days:
+        if len(self.recs) // len(self.df) >= 1 or (recs_index[-1] - recs_index[0]).days < min_days:
             return TAG.LOW_MEASURES
         if self.tag == TAG.LOCAL_WARN:
             return TAG.LOCAL_WARN
@@ -92,7 +98,8 @@ class AnalysisMixin:
 
     def get_collections_std(self):
         """Compute standard deviation of collection intervals."""
-        return np.sqrt(self.recs.index.to_series().diff().dropna().dt.total_seconds().std() / 7464960000)
+        series: pd.Series = cast(pd.Series, self.recs.index.to_series().diff().dropna())
+        return np.sqrt(series.dt.total_seconds().std() / 7464960000)
 
     def calc_spearman(self, start_idx: int = 0, end_idx: int = -1):
         """Calculate Spearman correlation for fill levels between collections."""

@@ -3,6 +3,7 @@ Processing utilities for Container collection events.
 """
 
 from datetime import timedelta
+from typing import List
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,19 @@ import pandas as pd
 
 class ProcessingMixin:
     """Mixin providing collection event processing methods for Container."""
+
+    df: pd.DataFrame
+    recs: pd.DataFrame
+    id: int
+
+    def calc_max_min_mean(self, start_idx: int = 0, end_idx: int = -1):
+        ...
+
+    def calc_avg_dist_metric(self, start_idx: int = 0, end_idx: int = -1):
+        ...
+
+    def calc_spearman(self, start_idx: int = 0, end_idx: int = -1):
+        ...
 
     def mark_collections(self):
         """Mark collection events in the fill DataFrame and update records."""
@@ -36,7 +50,7 @@ class ProcessingMixin:
         mask = self.recs["Avg_Dist"] < dist_thresh
         ac_mask = mask.copy(deep=True)
         while mask.any():
-            deleted_indexes = []
+            deleted_indexes: List[int] = []
             for index in np.where(mask)[0]:
                 idx = index - len(deleted_indexes)
                 if index >= len(self.recs) - 2 or idx == 0:
