@@ -5,7 +5,6 @@ This package contains training utilities and common components
 like epoch preparation, dataset regeneration, and training hooks.
 """
 
-
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 from logic.src.pipeline.rl.common.baselines import (
     BASELINE_REGISTRY,
@@ -20,7 +19,6 @@ from logic.src.pipeline.rl.common.baselines import (
 )
 from logic.src.pipeline.rl.common.reward_scaler import BatchRewardScaler, RewardScaler
 from logic.src.pipeline.rl.common.trainer import WSTrainer
-from logic.src.pipeline.rl.common.utils import get_lightning_device, get_optimizer, get_scheduler
 
 __all__ = [
     "RL4COLitModule",
@@ -36,7 +34,4 @@ __all__ = [
     "WSTrainer",
     "RewardScaler",
     "BatchRewardScaler",
-    "get_optimizer",
-    "get_scheduler",
-    "get_lightning_device",
 ]
