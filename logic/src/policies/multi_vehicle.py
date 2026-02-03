@@ -24,7 +24,16 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from pyvrp.stop import MaxRuntime
 
 
-def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0):
+def find_routes(
+    dist_mat,
+    demands,
+    max_caps,
+    to_collect,
+    n_vehicles,
+    coords=None,
+    depot=0,
+    time_limit=2.0,
+):
     """
     Solve multi-vehicle VRP using PyVRP.
 
@@ -85,7 +94,7 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
 
     # Solve
     # Seed is optional but good for determinism.
-    res = pyvrp.solve(data, stop=MaxRuntime(2.0), seed=42)
+    res = pyvrp.solve(data, stop=MaxRuntime(time_limit), seed=42)
 
     tour_flat = []
 
@@ -112,7 +121,16 @@ def find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None
     return tour_flat
 
 
-def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0):
+def find_routes_ortools(
+    dist_mat,
+    demands,
+    max_caps,
+    to_collect,
+    n_vehicles,
+    coords=None,
+    depot=0,
+    time_limit=2,
+):
     """
     Solve multi-vehicle VRP using Google OR-Tools.
 
@@ -180,7 +198,7 @@ def find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coo
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     search_parameters.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
     search_parameters.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
-    search_parameters.time_limit.FromSeconds(2)
+    search_parameters.time_limit.FromSeconds(int(time_limit))
 
     solution = routing.SolveWithParameters(search_parameters)
 

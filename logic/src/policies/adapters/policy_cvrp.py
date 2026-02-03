@@ -69,14 +69,22 @@ class CVRPPolicy(BaseRoutingPolicy):
         to_collect = list(must_go) if must_go else list(range(1, bins.n + 1))
 
         # Load capacity
-        capacity, _, _, _ = self._load_area_params(area, waste_type, config)
+        capacity, _, _, values = self._load_area_params(area, waste_type, config)
 
         # Use cached route if available and no specific must_go
         if cached is not None and len(cached) > 1 and not must_go:
             tour = cached
         else:
-            tour = find_routes(distancesC, bins.c, capacity, np.array(to_collect), n_vehicles, coords)
-
+            time_limit = values.get("time_limit", 2.0)
+            tour = find_routes(
+                distancesC,
+                bins.c,
+                capacity,
+                np.array(to_collect),
+                n_vehicles,
+                coords,
+                time_limit=time_limit,
+            )
         # Ensure list format
         if hasattr(tour, "tolist"):
             tour = tour.tolist()
