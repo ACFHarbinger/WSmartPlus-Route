@@ -1,6 +1,7 @@
 """
 Train Config module.
 """
+
 from dataclasses import dataclass
 from typing import Optional
 
@@ -16,6 +17,8 @@ class TrainConfig:
         val_data_size: Number of validation samples.
         val_dataset: Path to pre-generated validation dataset.
         num_workers: Number of data loading workers.
+        data_distribution: Distribution for on-the-fly data generation.
+        load_dataset: If True, loads pre-generated training dataset from path pattern.
     """
 
     n_epochs: int = 100
@@ -23,7 +26,10 @@ class TrainConfig:
     train_data_size: int = 100000
     val_data_size: int = 10000
     val_dataset: Optional[str] = None
-    num_workers: int = 0
+    train_dataset: Optional[str] = None
+    load_dataset: Optional[str] = None
+    num_workers: int = 4
+    data_distribution: Optional[str] = None
     precision: str = "16-mixed"  # "16-mixed", "bf16-mixed", "32-true"
     # NEW FIELDS:
     train_time: bool = False

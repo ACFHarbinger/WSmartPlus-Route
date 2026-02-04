@@ -59,16 +59,8 @@ class ImitationLearning(RL4COLitModule):
         """
         # 1. Generate Expert Solutions
         with torch.no_grad():
-            if self.expert_name == "hgs":
-                # Assuming expert_policy is an HGSPolicy instance or wrapper
-                expert_out = self.expert_policy(td, self.env)
-                expert_actions = expert_out["actions"]  # [batch, seq_len]
-            elif self.expert_name in ["local_search", "random_ls"]:
-                # Assuming expert_policy is an instance of RandomLocalSearchPolicy
-                expert_out = self.expert_policy(td, self.env)
-                expert_actions = expert_out["actions"]
-            else:
-                raise ValueError(f"Unknown expert: {self.expert_name}")
+            expert_out = self.expert_policy(td, self.env)
+            expert_actions = expert_out["actions"]
 
         # 2. Re-evaluate Policy to force expert actions (teacher forcing)?
         # Constructive policies in RL4CO output log_probs for the TAKEN actions.

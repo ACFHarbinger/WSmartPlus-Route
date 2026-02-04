@@ -58,24 +58,32 @@ done
 shift $((OPTIND-1))
 
 # Use loaded or default values
+DATA_PROBLEM="${DATA_PROBLEM:-wcvrp}"
 PROBLEM="${ENV_NAME:-${PROBLEM:-cwcvrp}}"
+DATA_DISTRIBUTION="${DATA_DISTRIBUTION:-gamma1}"
 AREA="${AREA:-riomaior}"
+WASTE_TYPE="${WASTE_TYPE:-plastic}"
 SIZE="${ENV_NUM_LOC:-${SIZE:-50}}"
 EPOCHS="${TRAIN_N_EPOCHS:-${EPOCHS:-100}}"
 B_SIZE="${TRAIN_BATCH_SIZE:-128}"
 SEED="${SEED:-42}"
 MODEL="${MODEL_NAME:-am}"
 ENCODER="${MODEL_ENCODER_TYPE:-gat}"
+TEMPORAL_HORIZON="${MODEL_TEMPORAL_HORIZON:-0}"
+LOAD_DATASET_PATH="assets/datasets/${DATA_PROBLEM}${SIZE}_${DATA_DISTRIBUTION}_${TRAIN_LOAD_DATASET}${EPOCHS}_seed${SEED}.td"
+FINAL_MODEL_PATH="assets/model_weights/${PROBLEM}${SIZE}_${AREA}_${WASTE_TYPE}/${DATA_DISTRIBUTION}/${MODEL}${ENCODER}${TEMPORAL_HORIZON}/epoch-${EPOCHS-1}.pt"
 
 echo -e "${BLUE}╔══════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║       TRAINING MODULE (Hydra-based)      ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════╝${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Problem:    ${MAGENTA}${PROBLEM}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Graph Size: ${MAGENTA}${SIZE}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Area:       ${MAGENTA}${AREA}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Epochs:     ${MAGENTA}${EPOCHS}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Model:      ${MAGENTA}${MODEL}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Encoder:    ${MAGENTA}${ENCODER}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Problem:              ${MAGENTA}${PROBLEM}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Data Distribution:    ${MAGENTA}${DATA_DISTRIBUTION}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Graph Size:           ${MAGENTA}${SIZE}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Area:                 ${MAGENTA}${AREA}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Epochs:               ${MAGENTA}${EPOCHS}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Model:                ${MAGENTA}${MODEL}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Encoder:              ${MAGENTA}${ENCODER}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Temporal Horizon:     ${MAGENTA}${TEMPORAL_HORIZON}${NC}"
 echo ""
 
 # If not verbose, redirect all output to /dev/null
@@ -93,6 +101,9 @@ uv run python main.py train \
     "model.encoder_type='${ENCODER}'" \
     "train.n_epochs=${EPOCHS}" \
     "train.batch_size=${B_SIZE}" \
+    "train.final_model_path='${FINAL_MODEL_PATH}'" \
+    "train.data_distribution='${DATA_DISTRIBUTION}'" \
+    "train.load_dataset='${LOAD_DATASET_PATH}'" \
     "seed=${SEED}" \
     "hpo.n_trials=0" \
     "${CLI_OVERRIDES[@]}" \

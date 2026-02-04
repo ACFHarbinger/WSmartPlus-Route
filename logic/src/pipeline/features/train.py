@@ -83,6 +83,13 @@ def create_model(cfg: Config) -> pl.LightningModule:
     # If cfg.env is a dataclass, we can access attributes directly
     env_name = cfg.env.name
     env_kwargs = {k: v for k, v in vars(cfg.env).items() if k != "name"}
+    # Override distribution if specified in train config
+    if getattr(cfg.train, "data_distribution", None) is not None:
+        env_kwargs["data_distribution"] = cfg.train.data_distribution
+    elif "data_distribution" not in env_kwargs or env_kwargs["data_distribution"] is None:
+        # Default to uniform if not specified anywhere
+        env_kwargs["data_distribution"] = "unif"
+
     env_kwargs["device"] = cfg.device  # Pass device to environment
     env_kwargs["batch_size"] = cfg.train.batch_size  # Match training batch size
     env = get_env(env_name, **env_kwargs)
@@ -135,6 +142,17 @@ def create_model(cfg: Config) -> pl.LightningModule:
             Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.train)), resolve=True)
         )
     common_kwargs.update(train_params)
+
+    # 3.1 Dataset Path Construction and Mapping
+    if getattr(cfg.train, "load_dataset", None) is not None:
+        common_kwargs["train_dataset_path"] = cfg.train.load_dataset
+        logger.info(f"Automated train_dataset_path: {cfg.train.load_dataset}")
+    elif getattr(cfg.train, "train_dataset", None) is not None:
+        common_kwargs["train_dataset_path"] = cfg.train.train_dataset
+
+    # Map val_dataset to val_dataset_path for RL4COLitModule
+    if "val_dataset" in common_kwargs:
+        common_kwargs["val_dataset_path"] = common_kwargs.pop("val_dataset")
 
     if isinstance(cfg.model, dict):
         model_params = cfg.model.copy()
@@ -352,9 +370,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
         expert_policy = _get_expert_policy(cfg.rl.imitation.mode, cfg.env.name, cfg)
         return AdaptiveImitation(
             expert_policy=expert_policy,
-            il_weight=cfg.rl.adaptive_imitation.il_weight,
-            il_decay=cfg.rl.adaptive_imitation.il_decay,
-            patience=cfg.rl.adaptive_imitation.patience,
             **kw,
         )
 

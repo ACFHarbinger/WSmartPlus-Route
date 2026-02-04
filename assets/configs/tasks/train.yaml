@@ -11,6 +11,11 @@ env:
 
 # Training Settings
 train:
+  train_data_size: 128_0
+  train_time: true
+  eval_time_days: 1
+  data_distribution: "gamma1"
+  load_dataset: "time"
   n_epochs: 100
   batch_size: 128
   eval_batch_size: 128
@@ -46,7 +51,7 @@ rl:
     mode: "hgs"
     weight: 1.0
     decay: 0.91
-    threshold: 0.1  # stop_thresh
+    threshold: 0.1 # stop_thresh
     decay_step: 1
     reannealing_patience: 3
     reannealing_threshold: 0.05
