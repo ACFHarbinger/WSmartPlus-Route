@@ -3,8 +3,7 @@ defaults:
   - tasks: train
   - envs: cwcvrp
   - model: am
-  - data: train_data
-
+  # - data: train_data
 
 # General Configuration
 seed: 42

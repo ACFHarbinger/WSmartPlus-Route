@@ -1,3 +1,5 @@
+# @package _global_
+
 # General Slurm Settings
 number_of_cores: 32
 command: "train"
@@ -19,3 +21,7 @@ ns: 100 # Num Samples
 lvl: []
 cf: []
 nv: 1 # Num Vehicles
+
+# Data Configuration
+data:
+  data_distributions: ["unif", "gamma1"]

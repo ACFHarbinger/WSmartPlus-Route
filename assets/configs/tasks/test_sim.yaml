@@ -8,11 +8,11 @@ cpu_cores: 0
 # Simulation Configuration (matches SimConfig)
 sim:
   days: 31
-  size: 170
+  size: 50
   n_samples: 10
   checkpoint_days: 0
   real_time_log: false
-  policies: ["alns", "bcp", "cvrp", "hgs", "lkh", "sans", "tsp", "vrpp"] # ['alns', 'bcp', 'cvrp', 'hgs', 'lkh', 'sans', 'tsp', 'vrpp']
+  policies: ["neural"] # ['alns', 'bcp', 'cvrp', 'hgs', 'lkh', 'sans', 'tsp', 'vrpp']
   n_vehicles: 1
   problem: "cwcvrp"
   gate_prob_threshold: 0.1
@@ -21,3 +21,6 @@ sim:
   waste_type: "plastic"
   output_dir: "output"
   checkpoint_dir: "checkpoints"
+
+  # Data Configuration (can be list for batch testing)
+  data_distribution: ["unif", "gamma1"]

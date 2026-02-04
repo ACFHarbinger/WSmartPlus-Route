@@ -27,8 +27,8 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import pandas
-import scipy.stats as stats
 import torch
+from scipy import stats
 
 from logic.src.pipeline.simulations.loader import load_area_and_waste_type_params
 

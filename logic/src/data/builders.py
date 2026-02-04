@@ -214,7 +214,7 @@ class VRPInstanceBuilder:
 
         # Handle noise for stochastic variants
         if self._problem_name == "swcvrp":
-            real_waste = torch.tensor(fill_values, dtype=torch.float32, device=device)
+            real_waste = torch.tensor(fill_vals, dtype=torch.float32, device=device)
             noise = torch.randn_like(real_waste) * np.sqrt(self._noise_variance) + self._noise_mean
             noisy_waste = torch.clamp(real_waste + noise, 0, MAX_WASTE)
 
@@ -232,7 +232,7 @@ class VRPInstanceBuilder:
                 "waste": noisy_waste,
             }
         else:
-            waste = torch.tensor(fill_values, dtype=torch.float32, device=device)
+            waste = torch.tensor(fill_vals, dtype=torch.float32, device=device)
             if self._num_days == 1:
                 waste = waste.squeeze(1)
 
@@ -258,7 +258,8 @@ class VRPInstanceBuilder:
     def _prepare_coordinates(self):
         """Internal helper to prepare depot and location coordinates."""
         if self._focus_graph is not None:
-            assert self._focus_size > 0, "Focus size must be positive when using focus graph"
+            if self._focus_size <= 0:
+                self._focus_size = self._dataset_size
             depot, loc, mm_arr, idx = load_focus_coords(
                 self._problem_size,
                 self._method,

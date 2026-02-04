@@ -7,11 +7,12 @@ start: 0
 
 # Environment
 env:
-  name: "cwcvrp"
+  name: "vrpp"
 
 # Training Settings
 train:
-  train_data_size: 128_0
+  train_data_size: 1280
+  val_data_size: 128
   train_time: true
   eval_time_days: 7
   data_distribution: "gamma1"
@@ -26,6 +27,11 @@ train:
   pin_memory: true
   reload_dataloaders_every_n_epochs: 0
 
+# Data Configuration
+data:
+  dataset_size: 1280
+  data_distributions: ["gamma1"]
+
 # Optimizer Settings
 optim:
   optimizer: "rmsprop"
@@ -35,7 +41,7 @@ optim:
 
 # RL / Algorithm Settings
 rl:
-  algorithm: "adaptive_imitation"
+  algorithm: "reinforce"
   baseline: "exponential"
   bl_alpha: 0.05
   exp_beta: 0.8
