@@ -4,6 +4,7 @@ PyTorch Lightning base module for RL training.
 
 from __future__ import annotations
 
+import os
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Union, cast
 
@@ -63,6 +64,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
             train_data_size: Number of training samples to generate per epoch.
             val_data_size: Number of validation samples.
             val_dataset_path: Optional path to a pre-saved validation dataset.
+            train_dataset_path: Optional path to a pre-saved training dataset.
             batch_size: Batch size for training and validation.
             num_workers: Number of workers for data loading.
             **kwargs: Additional keyword arguments.
@@ -79,6 +81,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         self.train_data_size = train_data_size
         self.val_data_size = val_data_size
         self.val_dataset_path = val_dataset_path
+        self.train_dataset_path = kwargs.get("train_dataset_path")
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.persistent_workers = persistent_workers
@@ -419,8 +422,16 @@ class RL4COLitModule(pl.LightningModule, ABC):
                 logger.info(f"Pre-generating training dataset ({self.train_data_size} instances) on CPU...")
 
             assert gen is not None
-            data = gen(batch_size=self.train_data_size)
-            self.train_dataset = TensorDictDataset(data)
+            if self.train_dataset_path is not None and os.path.exists(self.train_dataset_path):
+                if self.local_rank == 0:
+                    logger.info(f"Loading training dataset from {self.train_dataset_path}")
+                from logic.src.data.datasets import TensorDictDataset
+
+                self.train_dataset = TensorDictDataset.load(self.train_dataset_path)
+            else:
+                data = gen(batch_size=self.train_data_size)
+                self.train_dataset = TensorDictDataset(data)
+
             assert self.train_dataset is not None
             if self.val_dataset_path is not None:
                 # Load validation dataset from file (legacy parity)
@@ -443,9 +454,6 @@ class RL4COLitModule(pl.LightningModule, ABC):
         Returns:
             DataLoader: DataLoader for training data.
         """
-        # print("DEBUG: Creating train_dataloader")
-        # Ensure we don't use workers if dataset is on CPU (to avoid copy overhead or fork issues)
-        # But TensorDictDataset is efficient.
         return DataLoader(
             cast(Any, self.train_dataset),
             batch_size=self.batch_size,

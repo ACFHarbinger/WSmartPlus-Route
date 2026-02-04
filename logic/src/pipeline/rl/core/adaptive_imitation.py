@@ -147,13 +147,6 @@ class AdaptiveImitation(REINFORCE):
         """
         super().on_train_epoch_end()
 
-        # Get validation reward
-        # Note: validation happens *before* this hook in some Lightning versions or *after*?
-        # Usually checking callback_metrics is safe for 'on_train_epoch_end' if val happens in between.
-        # But standard Lightning flow: Train Epoch -> Val Epoch.
-        # So at end of train epoch, we might be looking at *previous* val epoch?
-        # Or we rely on the fact that we check progress.
-
         current_reward = self.trainer.callback_metrics.get("val/reward")
 
         if current_reward is not None:

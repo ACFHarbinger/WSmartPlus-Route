@@ -4,22 +4,23 @@ model:
   name: "am"
   embed_dim: 128
   hidden_dim: 512
-  n_encode_layers: 3       # n_enc_l
+  n_encode_layers: 3 # n_enc_l
   n_encoder_sublayers: 1 # n_enc_sl
-  n_predictor_layers: 2  # n_pred_l
-  n_decode_layers: 2       # n_dec_l
+  n_predictor_layers: 2 # n_pred_l
+  n_decode_layers: 2 # n_dec_l
   n_heads: 8
   encoder_type: "gat"
 
   # Advanced Parameters
+  temporal_horizon: 0
   normalization: "instance" # norm
-  activation: "gelu"        # acti_f
+  activation: "gelu" # acti_f
   dropout: 0.1
 
   # Aggregation
-  aggregation_node: "sum"   # agg
-  aggregation_graph: "avg"  # agg_g
+  aggregation_node: "sum" # agg
+  aggregation_graph: "avg" # agg_g
 
   # Connections
   connection_type: "static_hyper" # connection
-  hyper_expansion: 4        # hyper_lanes
+  hyper_expansion: 4 # hyper_lanes

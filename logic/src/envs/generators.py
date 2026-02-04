@@ -10,8 +10,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Optional, Union
 
+import numpy as np
 import torch
 from tensordict import TensorDict
+
+from logic.src.utils.data.data_utils import generate_waste_prize
 
 
 class Generator(ABC):
@@ -48,6 +51,7 @@ class Generator(ABC):
         self.max_loc = max_loc
         self.loc_distribution = loc_distribution
         self.device = torch.device(device)
+        self.bins = kwargs.get("bins")
         self._kwargs = kwargs
 
     @property
@@ -279,10 +283,10 @@ class VRPPGenerator(Generator):
 
         self.min_waste = min_waste
         self.max_waste = max_waste
-        self.waste_distribution = waste_distribution
+        self.waste_distribution = kwargs.get("data_distribution", waste_distribution)
         self.min_prize = min_prize
         self.max_prize = max_prize
-        self.prize_distribution = prize_distribution
+        self.prize_distribution = kwargs.get("data_distribution", prize_distribution)
         self.capacity = capacity if capacity is not None else 1.0
         self.max_length = max_length
         self.depot_type = depot_type
@@ -338,39 +342,32 @@ class VRPPGenerator(Generator):
 
     def _generate_waste(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate waste/demand values."""
-        if self.waste_distribution == "uniform":
-            return (
-                torch.rand(*batch_size, self.num_loc, device=self.device) * (self.max_waste - self.min_waste)
-                + self.min_waste
-            )
-        elif self.waste_distribution == "gamma":
-            # Gamma distribution for more realistic waste patterns
-            alpha = self._kwargs.get("waste_alpha", 2.0)
-            beta = self._kwargs.get("waste_beta", 0.3)
-            waste = torch.distributions.Gamma(alpha, 1 / beta).sample(torch.Size((*batch_size, self.num_loc)))
-            waste = waste.to(self.device)
-            return torch.clamp(waste, self.min_waste, self.max_waste)
-        else:
-            raise ValueError(f"Unknown waste distribution: {self.waste_distribution}")
+        # Use common utility for consistency
+        bs = batch_size[0] if batch_size else 1
+        coords = (self._generate_depot(batch_size), self._generate_locations(batch_size))
+        waste = generate_waste_prize(self.num_loc, self.waste_distribution, coords, bs, bins=self.bins)
+        if isinstance(waste, np.ndarray):
+            waste = torch.from_numpy(waste).float()
+        return waste.to(self.device).view(*batch_size, self.num_loc)
 
     def _generate_prize(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate prize values."""
-        if self.prize_distribution == "uniform":
-            return (
-                torch.rand(*batch_size, self.num_loc, device=self.device) * (self.max_prize - self.min_prize)
-                + self.min_prize
-            )
-        elif self.prize_distribution == "distance_correlated":
-            # Prize correlated with distance from depot
-            # (further locations have higher prizes as incentive)
+        if self.prize_distribution == "distance_correlated":
+            # Distance correlation still handled locally for now
             depot = self._generate_depot(batch_size)
             locs = self._generate_locations(batch_size)
             distances = torch.norm(locs - depot.unsqueeze(-2), dim=-1)
             max_dist = distances.max(dim=-1, keepdim=True).values
             normalized_dist = distances / (max_dist + 1e-8)
             return normalized_dist * (self.max_prize - self.min_prize) + self.min_prize
-        else:
-            raise ValueError(f"Unknown prize distribution: {self.prize_distribution}")
+
+        # Otherwise use common utility
+        bs = batch_size[0] if batch_size else 1
+        coords = (self._generate_depot(batch_size), self._generate_locations(batch_size))
+        prize = generate_waste_prize(self.num_loc, self.prize_distribution, coords, bs, bins=self.bins)
+        if isinstance(prize, np.ndarray):
+            prize = torch.from_numpy(prize).float()
+        return prize.to(self.device).view(*batch_size, self.num_loc)
 
 
 class WCVRPGenerator(Generator):
@@ -421,7 +418,7 @@ class WCVRPGenerator(Generator):
 
         self.min_fill = min_fill
         self.max_fill = max_fill
-        self.fill_distribution = fill_distribution
+        self.fill_distribution = kwargs.get("data_distribution", fill_distribution)
         self.capacity = capacity if capacity is not None else 100.0
         self.cost_km = cost_km
         self.revenue_kg = revenue_kg
@@ -468,20 +465,13 @@ class WCVRPGenerator(Generator):
 
     def _generate_fill_levels(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate bin fill levels."""
-        if self.fill_distribution == "uniform":
-            return (
-                torch.rand(*batch_size, self.num_loc, device=self.device) * (self.max_fill - self.min_fill)
-                + self.min_fill
-            )
-        elif self.fill_distribution == "beta":
-            # Beta distribution for fill levels (tends toward 0 or 1)
-            alpha = self._kwargs.get("fill_alpha", 2.0)
-            beta = self._kwargs.get("fill_beta", 5.0)
-            fill = torch.distributions.Beta(alpha, beta).sample(torch.Size((*batch_size, self.num_loc)))
-            fill = fill.to(self.device)
-            return fill * (self.max_fill - self.min_fill) + self.min_fill
-        else:
-            raise ValueError(f"Unknown fill distribution: {self.fill_distribution}")
+        # Use common utility for consistency
+        bs = batch_size[0] if batch_size else 1
+        coords = (self._generate_depot(batch_size), self._generate_locations(batch_size))
+        fill = generate_waste_prize(self.num_loc, self.fill_distribution, coords, bs, bins=self.bins)
+        if isinstance(fill, np.ndarray):
+            fill = torch.from_numpy(fill).float()
+        return fill.to(self.device).view(*batch_size, self.num_loc)
 
 
 class SCWCVRPGenerator(WCVRPGenerator):
