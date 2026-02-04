@@ -103,6 +103,7 @@ class PolicyFactory:
         import logic.src.policies.adapters.policy_vrpp as policy_vrpp  # noqa
         import logic.src.policies.adapters.policy_aco as policy_aco  # noqa
         import logic.src.policies.adapters.policy_hyper_aco as policy_hyper_aco  # noqa
+        import logic.src.policies.adapters.policy_sisr as policy_sisr  # noqa
 
         # Normalize name
         if not isinstance(name, str):
@@ -128,7 +129,7 @@ class PolicyFactory:
 
             return TSPPolicy()
         elif name == "neural" or name[:2] == "am" or name[:4] == "ddam" or "transgcn" in name:
-            from logic.src.policies.neural_agent import NeuralPolicy
+            from logic.src.policies.adapters.policy_neural import NeuralPolicy
 
             return NeuralPolicy()
         elif "vrpp" in name:
@@ -167,7 +168,7 @@ def __getattr__(name: str) -> Any:
     Lazy loader for module-level attributes.
     """
     if name == "NeuralPolicyAdapter":
-        from logic.src.policies.neural_agent import NeuralPolicy
+        from logic.src.policies.adapters.policy_neural import NeuralPolicy
 
         return NeuralPolicy
     elif name == "VRPPPolicyAdapter":

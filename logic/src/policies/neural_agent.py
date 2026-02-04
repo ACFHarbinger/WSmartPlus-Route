@@ -20,21 +20,18 @@ The agent serves as an adapter between the problem-agnostic neural models
 and the domain-specific waste collection simulator.
 """
 
-from typing import Any, List, Tuple
-
 import numpy as np
 import torch
 
 from logic.src.models.policies.classical.local_search import (
     vectorized_two_opt,
 )
-from logic.src.policies.adapters import IPolicy, PolicyRegistry
 from logic.src.policies.single_vehicle import (
     find_route,
     get_multi_tour,
     get_route_cost,
 )
-from logic.src.utils.functions.function import add_attention_hooks, move_to
+from logic.src.utils.functions.function import add_attention_hooks
 
 
 class NeuralAgent:
@@ -354,35 +351,6 @@ class NeuralAgent:
             hook_data["weights"].clear()
             hook_data["masks"].clear()
 
-        # Ensure dist_matrix is expanded to batch size if present
-        # Note: model forward typically handles this, but explicit expansion helps with some operations
-        # However, model forward expects dist_matrix in input args or we rely on model doing it.
-        # The 'input' dict likely contains 'dist' if passed.
-        # But 'graph' arg passed dist_matrix separately.
-
-        # We need to make sure 'input' has 'dist' or 'edges' if model expects it.
-        # Original code used 'edges' from graph arg.
-
-        # Calling model forward
-        # AttentionModel forward signature: forward(self, input, cost_weights=None, return_pi=False,
-        # pad=False, mask=None, expert_pi=None, **kwargs)
-        # It expects 'edges' and 'dist' in 'input' dict OR we rely on model finding it.
-        # Looking at AM.forward:
-        # edges = input.get('edges', None)
-        # dist_matrix = input.get('dist', None)
-
-        # The 'input' passed to compute_simulator_day might NOT have edges/dist if they were passed
-        # separately in 'graph'. We should update 'input' or pass them?
-        # AM.forward uses `input.get` so we should ensure they are in input.
-
-        # Safe copy?
-        # input is a dict.
-
-        # Original code called `self._inner(input, edges, embeddings, ... dist_matrix=dist_matrix ...)`
-        # It didn't call forward.
-
-        # If we use `model.forward`, we must ensure input dict has what it needs.
-
         input_for_model = input.copy()  # Shallow copy
         if "edges" not in list(input_for_model.keys()) and edges is not None:
             input_for_model["edges"] = edges
@@ -492,58 +460,3 @@ class NeuralAgent:
             cost,
             {"attention_weights": attention_weights, "graph_masks": hook_data["masks"]},
         )
-
-
-@PolicyRegistry.register("neural")
-class NeuralPolicy(IPolicy):
-    """
-    Neural Policy wrapper.
-    Executes deep reinforcement learning models.
-    """
-
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
-        """
-        Execute the neural policy.
-        """
-        model_env = kwargs["model_env"]
-        model_ls = kwargs["model_ls"]
-        bins = kwargs["bins"]
-        device = kwargs["device"]
-        fill = kwargs["fill"]
-        dm_tensor = kwargs["dm_tensor"]
-        run_tsp = kwargs["run_tsp"]
-        hrl_manager = kwargs.get("hrl_manager")
-        gate_prob_threshold = kwargs.get("gate_prob_threshold", 0.5)
-        mask_prob_threshold = kwargs.get("mask_prob_threshold", 0.5)
-        two_opt_max_iter = kwargs.get("two_opt_max_iter", 0)
-
-        agent = NeuralAgent(model_env)
-        model_data, graph, profit_vars = model_ls
-
-        # Construct cost weights
-        cost_weights = {
-            "waste": kwargs.get("w_waste", 1.0),
-            "length": kwargs.get("w_length", 1.0),
-            "overflows": kwargs.get("w_overflows", 1.0),
-        }
-
-        # Data preparation
-        model_data["waste"] = torch.as_tensor(bins.c, dtype=torch.float32).unsqueeze(0)
-        if "fill_history" in model_data:
-            model_data["current_fill"] = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0)
-        daily_data = move_to(model_data, device)
-
-        tour, cost, output_dict = agent.compute_simulator_day(
-            daily_data,
-            graph,
-            dm_tensor,
-            profit_vars,
-            run_tsp,
-            hrl_manager=hrl_manager,
-            waste_history=bins.get_level_history(device=device),
-            threshold=gate_prob_threshold,
-            mask_threshold=mask_prob_threshold,
-            two_opt_max_iter=two_opt_max_iter,
-            cost_weights=cost_weights,
-        )
-        return tour, cost, output_dict
