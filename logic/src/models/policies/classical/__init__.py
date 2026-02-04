@@ -7,6 +7,8 @@ This module contains wrappers for classical optimization solvers
 This package contains vectorized implementations of routing operations
 for improved computational efficiency.
 """
-from .hgs_alns import HGSALNSPolicy
 
-__all__ = ["HGSALNSPolicy"]
+from .hgs_alns import HGSALNSPolicy
+from .iterated_local_search import IteratedLocalSearchPolicy
+
+__all__ = ["HGSALNSPolicy", "IteratedLocalSearchPolicy"]
