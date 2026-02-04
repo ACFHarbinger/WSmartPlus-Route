@@ -116,6 +116,8 @@ uv run python main.py test_sim \
     "sim.gate_prob_threshold=${GATE_THRESH}" \
     "sim.mask_prob_threshold=${MASK_THRESH}" \
     "sim.checkpoint_days=30" \
+    "sim.edge_threshold=1.0" \
+    "sim.edge_method='dist'" \
     "sim.log_level='WARNING'" \
     "${CLI_OVERRIDES[@]}" \
     "$@"

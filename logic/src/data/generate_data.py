@@ -97,7 +97,7 @@ def generate_datasets(opts):
                     builder = VRPInstanceBuilder()
                     builder.set_dataset_size(opts["dataset_size"]).set_problem_size(size).set_waste_type(
                         opts["waste_type"]
-                    ).set_distribution(dist).set_area(opts["area"]).set_focus_graph(
+                    ).set_distribution(dist or "empty").set_area(opts["area"]).set_focus_graph(
                         graph, opts["focus_size"]
                     ).set_method(opts["vertex_method"]).set_problem_name(problem)
 

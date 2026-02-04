@@ -182,7 +182,20 @@ def setup_model(
         decode_type: str,
         lock: threading.Lock,
     ) -> Tuple[nn.Module, Dict[str, Any]]:
-        model_path: str = os.path.join(general_path, model_name)
+        # Robust path handling: only join if model_name does not exist on its own
+        if os.path.isabs(model_name) or os.path.exists(model_name):
+            model_path = model_name
+        else:
+            model_path = os.path.join(general_path, model_name)
+
+        if not os.path.exists(model_path):
+            # Try joining with ROOT_DIR as fallback if it's a semi-absolute path like 'assets/...'
+            from logic.src.constants import ROOT_DIR
+
+            root_joined = os.path.join(ROOT_DIR, model_name)
+            if os.path.exists(root_joined):
+                model_path = root_joined
+
         with lock:
             model, configs = load_model(model_path)
 
@@ -193,7 +206,24 @@ def setup_model(
         return model, configs
 
     pol_strip: str = policy.rsplit("_", 1)[0]
-    return _load_model(general_path, model_paths[pol_strip], device, temperature, decode_type, lock)
+    model_name = model_paths.get(pol_strip)
+
+    if model_name is None:
+        # Robust lookup: Try to find a key in model_paths that is exactly matching or a subset of the policy string
+        # e.g. key 'amgat' should match 'means_std0.84_neural_amgat_gamma1'
+        # Sort keys by length (desc) to find the most specific match first
+        for key in sorted(model_paths.keys(), key=len, reverse=True):
+            if key in policy:
+                model_name = model_paths[key]
+                break
+
+    if model_name is None:
+        raise KeyError(
+            f"Could not find model path for policy '{policy}'. "
+            f"Available keys in model_paths: {list(model_paths.keys())}"
+        )
+
+    return _load_model(general_path, model_name, device, temperature, decode_type, lock)
 
 
 def setup_env(
