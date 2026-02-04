@@ -45,11 +45,25 @@ class HyperACOPolicy(BaseRoutingPolicy):
         nodes = list(sub_demands.keys())
         initial_routes = self._build_greedy_solution(nodes, sub_dist_matrix, sub_demands, capacity)
 
-        # Create solver
-        params = HyperACOParams(
-            time_limit=values.get("time_limit", 30.0),
-            max_iterations=values.get("max_iterations", 50),
-        )
+        # Create solver parameters
+        # Extract from values, using defaults from HyperACOParams dataclass
+        aco_kwargs = {
+            "n_ants": values.get("n_ants", 10),
+            "alpha": values.get("alpha", 1.0),
+            "beta": values.get("beta", 2.0),
+            "rho": values.get("rho", 0.1),
+            "tau_0": values.get("tau_0", 1.0),
+            "tau_min": values.get("tau_min", 0.01),
+            "tau_max": values.get("tau_max", 10.0),
+            "max_iterations": values.get("max_iterations", 50),
+            "time_limit": values.get("time_limit", 30.0),
+            "sequence_length": values.get("sequence_length", 5),
+            "q0": values.get("q0", 0.9),
+        }
+        if "operators" in values:
+            aco_kwargs["operators"] = values["operators"]
+
+        params = HyperACOParams(**aco_kwargs)
 
         solver = HyperHeuristicACO(
             dist_matrix=sub_dist_matrix,
