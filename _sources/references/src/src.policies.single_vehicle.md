@@ -47,7 +47,7 @@
 
 ### API
 
-````{py:function} find_route(C, to_collect)
+````{py:function} find_route(C, to_collect, time_limit=2.0)
 :canonical: src.policies.single_vehicle.find_route
 
 ```{autodoc2-docstring} src.policies.single_vehicle.find_route

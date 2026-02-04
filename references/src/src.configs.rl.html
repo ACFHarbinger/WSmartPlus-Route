@@ -243,6 +243,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -283,7 +284,6 @@
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.callbacks</span></code></a></li>
 </ul>
 </details></li>
 </ul>
@@ -470,14 +470,9 @@ document.write(`
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig"><code class="docutils literal notranslate"><span class="pre">ImitationConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.mode"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.mode</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.weight"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.weight</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.decay"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.decay</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.threshold"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.decay_step"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.decay_step</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.reannealing_threshold"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.reannealing_threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.reannealing_patience"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.reannealing_patience</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.random_ls_iterations"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.random_ls_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.random_ls_op_probs"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.random_ls_op_probs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.enabled"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.enabled</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig"><code class="docutils literal notranslate"><span class="pre">GDPOConfig</span></code></a><ul class="nav section-nav flex-column">
@@ -491,6 +486,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.il_weight"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.il_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.il_decay"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.il_decay</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.patience"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.patience</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.threshold"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.decay_step"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.decay_step</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.epsilon"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.epsilon</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig"><code class="docutils literal notranslate"><span class="pre">RLConfig</span></code></a><ul class="nav section-nav flex-column">
@@ -694,42 +692,6 @@ document.write(`
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.weight">
-<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.weight" title="Link to this definition">#</a></dt>
-<dd><p>0.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.decay">
-<span class="sig-name descname"><span class="pre">decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.decay" title="Link to this definition">#</a></dt>
-<dd><p>1.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.threshold">
-<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.threshold" title="Link to this definition">#</a></dt>
-<dd><p>0.05</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.decay_step">
-<span class="sig-name descname"><span class="pre">decay_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.decay_step" title="Link to this definition">#</a></dt>
-<dd><p>1</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.reannealing_threshold">
-<span class="sig-name descname"><span class="pre">reannealing_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.reannealing_threshold" title="Link to this definition">#</a></dt>
-<dd><p>0.05</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.reannealing_patience">
-<span class="sig-name descname"><span class="pre">reannealing_patience</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.reannealing_patience" title="Link to this definition">#</a></dt>
-<dd><p>5</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.random_ls_iterations">
 <span class="sig-name descname"><span class="pre">random_ls_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.random_ls_iterations" title="Link to this definition">#</a></dt>
 <dd><p>100</p>
@@ -739,6 +701,12 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.random_ls_op_probs">
 <span class="sig-name descname"><span class="pre">random_ls_op_probs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.random_ls_op_probs" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.ImitationConfig.enabled">
+<span class="sig-name descname"><span class="pre">enabled</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.rl.ImitationConfig.enabled" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
 </dd></dl>
@@ -793,6 +761,24 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.rl.AdaptiveImitationConfig.patience">
 <span class="sig-name descname"><span class="pre">patience</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.AdaptiveImitationConfig.patience" title="Link to this definition">#</a></dt>
 <dd><p>5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.AdaptiveImitationConfig.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.AdaptiveImitationConfig.threshold" title="Link to this definition">#</a></dt>
+<dd><p>0.05</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.AdaptiveImitationConfig.decay_step">
+<span class="sig-name descname"><span class="pre">decay_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.AdaptiveImitationConfig.decay_step" title="Link to this definition">#</a></dt>
+<dd><p>1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.AdaptiveImitationConfig.epsilon">
+<span class="sig-name descname"><span class="pre">epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.AdaptiveImitationConfig.epsilon" title="Link to this definition">#</a></dt>
+<dd><p>1e-05</p>
 </dd></dl>
 
 </dd></dl>
@@ -987,14 +973,9 @@ max_grad_norm: Maximum gradient norm for clipping.</p>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig"><code class="docutils literal notranslate"><span class="pre">ImitationConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.mode"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.mode</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.weight"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.weight</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.decay"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.decay</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.threshold"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.decay_step"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.decay_step</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.reannealing_threshold"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.reannealing_threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.reannealing_patience"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.reannealing_patience</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.random_ls_iterations"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.random_ls_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.random_ls_op_probs"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.random_ls_op_probs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.ImitationConfig.enabled"><code class="docutils literal notranslate"><span class="pre">ImitationConfig.enabled</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.GDPOConfig"><code class="docutils literal notranslate"><span class="pre">GDPOConfig</span></code></a><ul class="nav section-nav flex-column">
@@ -1008,6 +989,9 @@ max_grad_norm: Maximum gradient norm for clipping.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.il_weight"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.il_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.il_decay"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.il_decay</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.patience"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.patience</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.threshold"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.decay_step"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.decay_step</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.AdaptiveImitationConfig.epsilon"><code class="docutils literal notranslate"><span class="pre">AdaptiveImitationConfig.epsilon</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig"><code class="docutils literal notranslate"><span class="pre">RLConfig</span></code></a><ul class="nav section-nav flex-column">

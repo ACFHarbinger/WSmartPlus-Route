@@ -31,14 +31,14 @@
 
 ### API
 
-````{py:function} find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0)
+````{py:function} find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0, time_limit=2.0)
 :canonical: src.policies.multi_vehicle.find_routes
 
 ```{autodoc2-docstring} src.policies.multi_vehicle.find_routes
 ```
 ````
 
-````{py:function} find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0)
+````{py:function} find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0, time_limit=2)
 :canonical: src.policies.multi_vehicle.find_routes_ortools
 
 ```{autodoc2-docstring} src.policies.multi_vehicle.find_routes_ortools

@@ -266,72 +266,6 @@
 
 ````
 
-````{py:attribute} weight
-:canonical: src.configs.rl.ImitationConfig.weight
-:type: float
-:value: >
-   0.0
-
-```{autodoc2-docstring} src.configs.rl.ImitationConfig.weight
-```
-
-````
-
-````{py:attribute} decay
-:canonical: src.configs.rl.ImitationConfig.decay
-:type: float
-:value: >
-   1.0
-
-```{autodoc2-docstring} src.configs.rl.ImitationConfig.decay
-```
-
-````
-
-````{py:attribute} threshold
-:canonical: src.configs.rl.ImitationConfig.threshold
-:type: float
-:value: >
-   0.05
-
-```{autodoc2-docstring} src.configs.rl.ImitationConfig.threshold
-```
-
-````
-
-````{py:attribute} decay_step
-:canonical: src.configs.rl.ImitationConfig.decay_step
-:type: int
-:value: >
-   1
-
-```{autodoc2-docstring} src.configs.rl.ImitationConfig.decay_step
-```
-
-````
-
-````{py:attribute} reannealing_threshold
-:canonical: src.configs.rl.ImitationConfig.reannealing_threshold
-:type: float
-:value: >
-   0.05
-
-```{autodoc2-docstring} src.configs.rl.ImitationConfig.reannealing_threshold
-```
-
-````
-
-````{py:attribute} reannealing_patience
-:canonical: src.configs.rl.ImitationConfig.reannealing_patience
-:type: int
-:value: >
-   5
-
-```{autodoc2-docstring} src.configs.rl.ImitationConfig.reannealing_patience
-```
-
-````
-
 ````{py:attribute} random_ls_iterations
 :canonical: src.configs.rl.ImitationConfig.random_ls_iterations
 :type: int
@@ -350,6 +284,17 @@
    None
 
 ```{autodoc2-docstring} src.configs.rl.ImitationConfig.random_ls_op_probs
+```
+
+````
+
+````{py:attribute} enabled
+:canonical: src.configs.rl.ImitationConfig.enabled
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.rl.ImitationConfig.enabled
 ```
 
 ````
@@ -443,6 +388,39 @@
    5
 
 ```{autodoc2-docstring} src.configs.rl.AdaptiveImitationConfig.patience
+```
+
+````
+
+````{py:attribute} threshold
+:canonical: src.configs.rl.AdaptiveImitationConfig.threshold
+:type: float
+:value: >
+   0.05
+
+```{autodoc2-docstring} src.configs.rl.AdaptiveImitationConfig.threshold
+```
+
+````
+
+````{py:attribute} decay_step
+:canonical: src.configs.rl.AdaptiveImitationConfig.decay_step
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.configs.rl.AdaptiveImitationConfig.decay_step
+```
+
+````
+
+````{py:attribute} epsilon
+:canonical: src.configs.rl.AdaptiveImitationConfig.epsilon
+:type: float
+:value: >
+   1e-05
+
+```{autodoc2-docstring} src.configs.rl.AdaptiveImitationConfig.epsilon
 ```
 
 ````

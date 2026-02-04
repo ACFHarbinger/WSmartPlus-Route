@@ -31,5 +31,4 @@ src.configs
 :maxdepth: 1
 
 src.file_system
-src.callbacks
 ```

@@ -14,5 +14,6 @@
 :maxdepth: 1
 
 src.utils.tasks.losses
+src.utils.tasks.training_utils
 src.utils.tasks.task_utils
 ```

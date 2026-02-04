@@ -243,6 +243,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -283,7 +284,6 @@
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.callbacks</span></code></a></li>
 </ul>
 </details></li>
 </ul>
@@ -445,7 +445,10 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.train_data_size"><code class="docutils literal notranslate"><span class="pre">TrainConfig.train_data_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.val_data_size"><code class="docutils literal notranslate"><span class="pre">TrainConfig.val_data_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.val_dataset"><code class="docutils literal notranslate"><span class="pre">TrainConfig.val_dataset</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.train_dataset"><code class="docutils literal notranslate"><span class="pre">TrainConfig.train_dataset</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.load_dataset"><code class="docutils literal notranslate"><span class="pre">TrainConfig.load_dataset</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.num_workers"><code class="docutils literal notranslate"><span class="pre">TrainConfig.num_workers</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.data_distribution"><code class="docutils literal notranslate"><span class="pre">TrainConfig.data_distribution</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.precision"><code class="docutils literal notranslate"><span class="pre">TrainConfig.precision</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.train_time"><code class="docutils literal notranslate"><span class="pre">TrainConfig.train_time</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.eval_time_days"><code class="docutils literal notranslate"><span class="pre">TrainConfig.eval_time_days</span></code></a></li>
@@ -470,6 +473,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.persistent_workers"><code class="docutils literal notranslate"><span class="pre">TrainConfig.persistent_workers</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.pin_memory"><code class="docutils literal notranslate"><span class="pre">TrainConfig.pin_memory</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.reload_dataloaders_every_n_epochs"><code class="docutils literal notranslate"><span class="pre">TrainConfig.reload_dataloaders_every_n_epochs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.devices"><code class="docutils literal notranslate"><span class="pre">TrainConfig.devices</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.strategy"><code class="docutils literal notranslate"><span class="pre">TrainConfig.strategy</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -515,7 +520,9 @@ batch_size: Training batch size.
 train_data_size: Number of training samples per epoch.
 val_data_size: Number of validation samples.
 val_dataset: Path to pre-generated validation dataset.
-num_workers: Number of data loading workers.</p>
+num_workers: Number of data loading workers.
+data_distribution: Distribution for on-the-fly data generation.
+load_dataset: If True, loads pre-generated training dataset from path pattern.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.train.TrainConfig.n_epochs">
 <span class="sig-name descname"><span class="pre">n_epochs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.train.TrainConfig.n_epochs" title="Link to this definition">#</a></dt>
@@ -547,9 +554,27 @@ num_workers: Number of data loading workers.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.train.TrainConfig.train_dataset">
+<span class="sig-name descname"><span class="pre">train_dataset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.train.TrainConfig.train_dataset" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.train.TrainConfig.load_dataset">
+<span class="sig-name descname"><span class="pre">load_dataset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.train.TrainConfig.load_dataset" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.train.TrainConfig.num_workers">
 <span class="sig-name descname"><span class="pre">num_workers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.train.TrainConfig.num_workers" title="Link to this definition">#</a></dt>
-<dd><p>0</p>
+<dd><p>4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.train.TrainConfig.data_distribution">
+<span class="sig-name descname"><span class="pre">data_distribution</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.train.TrainConfig.data_distribution" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -696,6 +721,18 @@ num_workers: Number of data loading workers.</p>
 <dd><p>1</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.train.TrainConfig.devices">
+<span class="sig-name descname"><span class="pre">devices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.train.TrainConfig.devices" title="Link to this definition">#</a></dt>
+<dd><p>‘auto’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.train.TrainConfig.strategy">
+<span class="sig-name descname"><span class="pre">strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.train.TrainConfig.strategy" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -756,7 +793,10 @@ num_workers: Number of data loading workers.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.train_data_size"><code class="docutils literal notranslate"><span class="pre">TrainConfig.train_data_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.val_data_size"><code class="docutils literal notranslate"><span class="pre">TrainConfig.val_data_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.val_dataset"><code class="docutils literal notranslate"><span class="pre">TrainConfig.val_dataset</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.train_dataset"><code class="docutils literal notranslate"><span class="pre">TrainConfig.train_dataset</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.load_dataset"><code class="docutils literal notranslate"><span class="pre">TrainConfig.load_dataset</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.num_workers"><code class="docutils literal notranslate"><span class="pre">TrainConfig.num_workers</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.data_distribution"><code class="docutils literal notranslate"><span class="pre">TrainConfig.data_distribution</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.precision"><code class="docutils literal notranslate"><span class="pre">TrainConfig.precision</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.train_time"><code class="docutils literal notranslate"><span class="pre">TrainConfig.train_time</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.eval_time_days"><code class="docutils literal notranslate"><span class="pre">TrainConfig.eval_time_days</span></code></a></li>
@@ -781,6 +821,8 @@ num_workers: Number of data loading workers.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.persistent_workers"><code class="docutils literal notranslate"><span class="pre">TrainConfig.persistent_workers</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.pin_memory"><code class="docutils literal notranslate"><span class="pre">TrainConfig.pin_memory</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.reload_dataloaders_every_n_epochs"><code class="docutils literal notranslate"><span class="pre">TrainConfig.reload_dataloaders_every_n_epochs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.devices"><code class="docutils literal notranslate"><span class="pre">TrainConfig.devices</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.train.TrainConfig.strategy"><code class="docutils literal notranslate"><span class="pre">TrainConfig.strategy</span></code></a></li>
 </ul>
 </li>
 </ul>

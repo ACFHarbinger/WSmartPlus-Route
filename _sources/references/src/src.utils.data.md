@@ -14,4 +14,5 @@
 :maxdepth: 1
 
 src.utils.data.data_utils
+src.utils.data.rl_utils
 ```

@@ -607,6 +607,7 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -647,7 +648,6 @@ window.addEventListener("load", load);
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="references/src/src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="references/src/src.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.callbacks</span></code></a></li>
 </ul>
 </details></li>
 </ul>
@@ -1067,10 +1067,10 @@ document.write(`
         <li><a href="references/src/src.policies.base_routing_policy.html#src.policies.base_routing_policy.BaseRoutingPolicy._get_config_key">(src.policies.base_routing_policy.BaseRoutingPolicy method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.rl.meta.contextual_bandits.html#src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit._get_context_features">_get_context_features() (src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.FileSystemRepository._get_data_dir">_get_data_dir() (src.pipeline.simulations.loader.FileSystemRepository method)</a>
 </li>
       <li><a href="references/src/src.utils.data.data_utils.html#src.utils.data.data_utils._get_fill_gamma">_get_fill_gamma() (in module src.utils.data.data_utils)</a>
@@ -1279,6 +1279,8 @@ document.write(`
         <li><a href="references/src/src.policies.base_routing_policy.html#src.policies.base_routing_policy.BaseRoutingPolicy._run_solver">(src.policies.base_routing_policy.BaseRoutingPolicy method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.pipeline.rl.core.adaptive_imitation.html#src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation._sanitize_td">_sanitize_td() (src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation method)</a>
+</li>
       <li><a href="references/src/src.models.policies.base.html#src.models.policies.base.ConstructivePolicy._select_action">_select_action() (src.models.policies.base.ConstructivePolicy method)</a>
 </li>
       <li><a href="references/src/src.utils.functions.decoding.html#src.utils.functions.decoding.DecodingStrategy._select_best">_select_best() (src.utils.functions.decoding.DecodingStrategy method)</a>
@@ -1297,7 +1299,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.envs.base.html#src.envs.base.RL4COEnvBase._set_seed">_set_seed() (src.envs.base.RL4COEnvBase method)</a>
 </li>
-      <li><a href="references/src/src.callbacks.html#src.callbacks.SpeedMonitor._should_log">_should_log() (src.callbacks.SpeedMonitor static method)</a>
+      <li><a href="references/src/src.pipeline.callbacks.html#src.pipeline.callbacks.SpeedMonitor._should_log">_should_log() (src.pipeline.callbacks.SpeedMonitor static method)</a>
 </li>
       <li><a href="references/src/src.utils.logging.modules.storage.html#src.utils.logging.modules.storage._sort_log">_sort_log() (in module src.utils.logging.modules.storage)</a>
 </li>
@@ -2036,6 +2038,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.sim.html#src.configs.sim.SimConfig.data_distribution">(src.configs.sim.SimConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.data_distribution">(src.configs.train.TrainConfig attribute)</a>
+</li>
       </ul></li>
       <li><a href="references/src/src.configs.data.html#src.configs.data.DataConfig.data_distributions">data_distributions (src.configs.data.DataConfig attribute)</a>
 </li>
@@ -2059,9 +2063,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.sim.html#src.configs.sim.SimConfig.days">days (src.configs.sim.SimConfig attribute)</a>
 </li>
-      <li><a href="references/src/src.configs.rl.html#src.configs.rl.ImitationConfig.decay">decay (src.configs.rl.ImitationConfig attribute)</a>
-</li>
-      <li><a href="references/src/src.configs.rl.html#src.configs.rl.ImitationConfig.decay_step">decay_step (src.configs.rl.ImitationConfig attribute)</a>
+      <li><a href="references/src/src.configs.rl.html#src.configs.rl.AdaptiveImitationConfig.decay_step">decay_step (src.configs.rl.AdaptiveImitationConfig attribute)</a>
 </li>
       <li><a href="references/src/src.models.subnets.ptr_decoder.html#src.models.subnets.ptr_decoder.PointerDecoder.decode">decode() (src.models.subnets.ptr_decoder.PointerDecoder method)</a>
 </li>
@@ -2131,6 +2133,8 @@ document.write(`
         <li><a href="references/src/src.utils.functions.beam_search.html#src.utils.functions.beam_search.BatchBeam.device">(src.utils.functions.beam_search.BatchBeam attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.devices">devices (src.configs.train.TrainConfig attribute)</a>
+</li>
       <li><a href="references/src/src.pipeline.rl.hpo.dehb.html#src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband">DifferentialEvolutionHyperband (class in src.pipeline.rl.hpo.dehb)</a>
 </li>
       <li><a href="references/src/src.data.transforms.html#src.data.transforms.dihedral_8_augmentation">dihedral_8_augmentation() (in module src.data.transforms)</a>
@@ -2237,6 +2241,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.enable_scaler">enable_scaler (src.configs.train.TrainConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.configs.rl.html#src.configs.rl.ImitationConfig.enabled">enabled (src.configs.rl.ImitationConfig attribute)</a>
+</li>
       <li><a href="references/src/src.constants.models.html#src.constants.models.ENC_DEC_MODELS">ENC_DEC_MODELS (in module src.constants.models)</a>
 </li>
       <li><a href="references/src/src.utils.security.crypto_utils.html#src.utils.security.crypto_utils.encode_data">encode_data() (in module src.utils.security.crypto_utils)</a>
@@ -2295,14 +2301,18 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.configs.rl.html#src.configs.rl.PPOConfig.eps_clip">eps_clip (src.configs.rl.PPOConfig attribute)</a>
 </li>
-      <li><a href="references/src/src.configs.rl.html#src.configs.rl.GRPOConfig.epsilon">epsilon (src.configs.rl.GRPOConfig attribute)</a>
+      <li><a href="references/src/src.configs.rl.html#src.configs.rl.AdaptiveImitationConfig.epsilon">epsilon (src.configs.rl.AdaptiveImitationConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.html#src.configs.rl.GRPOConfig.epsilon">(src.configs.rl.GRPOConfig attribute)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.configs.model.html#src.configs.model.ModelConfig.epsilon_alpha">epsilon_alpha (src.configs.model.ModelConfig attribute)</a>
-</li>
-      <li><a href="references/src/src.cli.base_parser.html#src.cli.base_parser.ConfigsParser.error_message">error_message() (src.cli.base_parser.ConfigsParser method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.cli.base_parser.html#src.cli.base_parser.ConfigsParser.error_message">error_message() (src.cli.base_parser.ConfigsParser method)</a>
+</li>
       <li><a href="references/src/src.configs.hpo.html#src.configs.hpo.HPOConfig.eta">eta (src.configs.hpo.HPOConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.network.html#src.pipeline.simulations.network.EuclideanStrategy">EuclideanStrategy (class in src.pipeline.simulations.network)</a>
@@ -2863,7 +2873,7 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.pipeline.simulations.bins.html#src.pipeline.simulations.bins.Bins.get_level_history">get_level_history() (src.pipeline.simulations.bins.Bins method)</a>
 </li>
-      <li><a href="references/src/src.pipeline.rl.common.utils.html#src.pipeline.rl.common.utils.get_lightning_device">get_lightning_device() (in module src.pipeline.rl.common.utils)</a>
+      <li><a href="references/src/src.utils.tasks.training_utils.html#src.utils.tasks.training_utils.get_lightning_device">get_lightning_device() (in module src.utils.tasks.training_utils)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.get_logs_dir">get_logs_dir() (in module src.pipeline.ui.services.data_loader)</a>
 </li>
@@ -2895,7 +2905,7 @@ document.write(`
         <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.sample_gen.html#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_num_bins">(src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase method)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.pipeline.rl.common.utils.html#src.pipeline.rl.common.utils.get_optimizer">get_optimizer() (in module src.pipeline.rl.common.utils)</a>
+      <li><a href="references/src/src.utils.tasks.training_utils.html#src.utils.tasks.training_utils.get_optimizer">get_optimizer() (in module src.utils.tasks.training_utils)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.get_overall_sensors_statistics">get_overall_sensors_statistics() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform)</a>
 </li>
@@ -2929,7 +2939,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.single_vehicle.html#src.policies.single_vehicle.get_route_cost">get_route_cost() (in module src.policies.single_vehicle)</a>
 </li>
-      <li><a href="references/src/src.pipeline.rl.common.utils.html#src.pipeline.rl.common.utils.get_scheduler">get_scheduler() (in module src.pipeline.rl.common.utils)</a>
+      <li><a href="references/src/src.utils.tasks.training_utils.html#src.utils.tasks.training_utils.get_scheduler">get_scheduler() (in module src.utils.tasks.training_utils)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.checkpoints.html#src.pipeline.simulations.checkpoints.SimulationCheckpoint.get_simulation_info">get_simulation_info() (src.pipeline.simulations.checkpoints.SimulationCheckpoint method)</a>
 </li>
@@ -3291,6 +3301,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.sample_gen.html#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.load_data">(src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.load_dataset">load_dataset (src.configs.train.TrainConfig attribute)</a>
+</li>
       <li><a href="references/src/src.utils.data.data_utils.html#src.utils.data.data_utils.load_dataset">load_dataset() (in module src.utils.data.data_utils)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.loader.html#src.pipeline.simulations.loader.load_depot">load_depot() (in module src.pipeline.simulations.loader)</a>
@@ -3349,10 +3361,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_xml_config">load_xml_config() (in module src.utils.configs.config_loader)</a>
 </li>
-      <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_yaml_config">load_yaml_config() (in module src.utils.configs.config_loader)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_yaml_config">load_yaml_config() (in module src.utils.configs.config_loader)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.bins.html#src.pipeline.simulations.bins.Bins.loadFilling">loadFilling() (src.pipeline.simulations.bins.Bins method)</a>
 </li>
       <li><a href="references/src/src.configs.hpo.html#src.configs.hpo.HPOConfig.local_mode">local_mode (src.configs.hpo.HPOConfig attribute)</a>
@@ -3613,8 +3625,6 @@ document.write(`
       <ul>
         <li><a href="references/src/src.html#module-src">src</a>
 </li>
-        <li><a href="references/src/src.callbacks.html#module-src.callbacks">src.callbacks</a>
-</li>
         <li><a href="references/src/src.cli.html#module-src.cli">src.cli</a>
 </li>
         <li><a href="references/src/src.cli.base_parser.html#module-src.cli.base_parser">src.cli.base_parser</a>
@@ -3831,6 +3841,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.pipeline.html#module-src.pipeline">src.pipeline</a>
 </li>
+        <li><a href="references/src/src.pipeline.callbacks.html#module-src.pipeline.callbacks">src.pipeline.callbacks</a>
+</li>
         <li><a href="references/src/src.pipeline.features.html#module-src.pipeline.features">src.pipeline.features</a>
 </li>
         <li><a href="references/src/src.pipeline.features.eval.html#module-src.pipeline.features.eval">src.pipeline.features.eval</a>
@@ -3856,8 +3868,6 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.common.time_training.html#module-src.pipeline.rl.common.time_training">src.pipeline.rl.common.time_training</a>
 </li>
         <li><a href="references/src/src.pipeline.rl.common.trainer.html#module-src.pipeline.rl.common.trainer">src.pipeline.rl.common.trainer</a>
-</li>
-        <li><a href="references/src/src.pipeline.rl.common.utils.html#module-src.pipeline.rl.common.utils">src.pipeline.rl.common.utils</a>
 </li>
         <li><a href="references/src/src.pipeline.rl.core.html#module-src.pipeline.rl.core">src.pipeline.rl.core</a>
 </li>
@@ -3908,8 +3918,6 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.meta.weight_optimizer.html#module-src.pipeline.rl.meta.weight_optimizer">src.pipeline.rl.meta.weight_optimizer</a>
 </li>
         <li><a href="references/src/src.pipeline.rl.meta.weight_strategy.html#module-src.pipeline.rl.meta.weight_strategy">src.pipeline.rl.meta.weight_strategy</a>
-</li>
-        <li><a href="references/src/src.pipeline.rl.utils.html#module-src.pipeline.rl.utils">src.pipeline.rl.utils</a>
 </li>
         <li><a href="references/src/src.pipeline.simulations.html#module-src.pipeline.simulations">src.pipeline.simulations</a>
 </li>
@@ -4129,6 +4137,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.utils.data.data_utils.html#module-src.utils.data.data_utils">src.utils.data.data_utils</a>
 </li>
+        <li><a href="references/src/src.utils.data.rl_utils.html#module-src.utils.data.rl_utils">src.utils.data.rl_utils</a>
+</li>
         <li><a href="references/src/src.utils.functions.html#module-src.utils.functions">src.utils.functions</a>
 </li>
         <li><a href="references/src/src.utils.functions.beam_search.html#module-src.utils.functions.beam_search">src.utils.functions.beam_search</a>
@@ -4208,6 +4218,8 @@ document.write(`
         <li><a href="references/src/src.utils.tasks.losses.html#module-src.utils.tasks.losses">src.utils.tasks.losses</a>
 </li>
         <li><a href="references/src/src.utils.tasks.task_utils.html#module-src.utils.tasks.task_utils">src.utils.tasks.task_utils</a>
+</li>
+        <li><a href="references/src/src.utils.tasks.training_utils.html#module-src.utils.tasks.training_utils">src.utils.tasks.training_utils</a>
 </li>
         <li><a href="references/src/src.utils.validation.html#module-src.utils.validation">src.utils.validation</a>
 </li>
@@ -4514,13 +4526,13 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.checkpoints.html#src.pipeline.simulations.checkpoints.CheckpointHook.on_error">on_error() (src.pipeline.simulations.checkpoints.CheckpointHook method)</a>
 </li>
-      <li><a href="references/src/src.callbacks.html#src.callbacks.SpeedMonitor.on_test_epoch_start">on_test_epoch_start() (src.callbacks.SpeedMonitor method)</a>
+      <li><a href="references/src/src.pipeline.callbacks.html#src.pipeline.callbacks.SpeedMonitor.on_test_epoch_start">on_test_epoch_start() (src.pipeline.callbacks.SpeedMonitor method)</a>
 </li>
-      <li><a href="references/src/src.callbacks.html#src.callbacks.SpeedMonitor.on_train_batch_end">on_train_batch_end() (src.callbacks.SpeedMonitor method)</a>
+      <li><a href="references/src/src.pipeline.callbacks.html#src.pipeline.callbacks.SpeedMonitor.on_train_batch_end">on_train_batch_end() (src.pipeline.callbacks.SpeedMonitor method)</a>
 </li>
-      <li><a href="references/src/src.callbacks.html#src.callbacks.SpeedMonitor.on_train_batch_start">on_train_batch_start() (src.callbacks.SpeedMonitor method)</a>
+      <li><a href="references/src/src.pipeline.callbacks.html#src.pipeline.callbacks.SpeedMonitor.on_train_batch_start">on_train_batch_start() (src.pipeline.callbacks.SpeedMonitor method)</a>
 </li>
-      <li><a href="references/src/src.callbacks.html#src.callbacks.SpeedMonitor.on_train_epoch_end">on_train_epoch_end() (src.callbacks.SpeedMonitor method)</a>
+      <li><a href="references/src/src.pipeline.callbacks.html#src.pipeline.callbacks.SpeedMonitor.on_train_epoch_end">on_train_epoch_end() (src.pipeline.callbacks.SpeedMonitor method)</a>
 
       <ul>
         <li><a href="references/src/src.pipeline.rl.common.base.html#src.pipeline.rl.common.base.RL4COLitModule.on_train_epoch_end">(src.pipeline.rl.common.base.RL4COLitModule method)</a>
@@ -4528,15 +4540,15 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.core.adaptive_imitation.html#src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation.on_train_epoch_end">(src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation method)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.callbacks.html#src.callbacks.SpeedMonitor.on_train_epoch_start">on_train_epoch_start() (src.callbacks.SpeedMonitor method)</a>
+      <li><a href="references/src/src.pipeline.callbacks.html#src.pipeline.callbacks.SpeedMonitor.on_train_epoch_start">on_train_epoch_start() (src.pipeline.callbacks.SpeedMonitor method)</a>
 
       <ul>
         <li><a href="references/src/src.pipeline.rl.common.base.html#src.pipeline.rl.common.base.RL4COLitModule.on_train_epoch_start">(src.pipeline.rl.common.base.RL4COLitModule method)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.callbacks.html#src.callbacks.SpeedMonitor.on_train_start">on_train_start() (src.callbacks.SpeedMonitor method)</a>
+      <li><a href="references/src/src.pipeline.callbacks.html#src.pipeline.callbacks.SpeedMonitor.on_train_start">on_train_start() (src.pipeline.callbacks.SpeedMonitor method)</a>
 </li>
-      <li><a href="references/src/src.callbacks.html#src.callbacks.SpeedMonitor.on_validation_epoch_start">on_validation_epoch_start() (src.callbacks.SpeedMonitor method)</a>
+      <li><a href="references/src/src.pipeline.callbacks.html#src.pipeline.callbacks.SpeedMonitor.on_validation_epoch_start">on_validation_epoch_start() (src.pipeline.callbacks.SpeedMonitor method)</a>
 </li>
       <li><a href="references/src/src.constants.system.html#src.constants.system.OPERATION_MAP">OPERATION_MAP (in module src.constants.system)</a>
 </li>
@@ -4876,10 +4888,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.realtime_log_path">realtime_log_path (src.pipeline.simulations.context.SimulationDayContext attribute)</a>
 </li>
-      <li><a href="references/src/src.configs.rl.html#src.configs.rl.ImitationConfig.reannealing_patience">reannealing_patience (src.configs.rl.ImitationConfig attribute)</a>
-</li>
-      <li><a href="references/src/src.configs.rl.html#src.configs.rl.ImitationConfig.reannealing_threshold">reannealing_threshold (src.configs.rl.ImitationConfig attribute)</a>
-</li>
       <li><a href="references/src/src.policies.look_ahead_aux.routes.html#src.policies.look_ahead_aux.routes.rearrange_part_route">rearrange_part_route() (in module src.policies.look_ahead_aux.routes)</a>
 </li>
       <li><a href="references/src/src.utils.io.splitting.html#src.utils.io.splitting.reassemble_files">reassemble_files() (in module src.utils.io.splitting)</a>
@@ -5056,7 +5064,7 @@ document.write(`
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="references/src/src.pipeline.rl.utils.html#src.pipeline.rl.utils.safe_td_copy">safe_td_copy() (in module src.pipeline.rl.utils)</a>
+      <li><a href="references/src/src.utils.data.rl_utils.html#src.utils.data.rl_utils.safe_td_copy">safe_td_copy() (in module src.utils.data.rl_utils)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.GridBase.sample">sample() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.GridBase method)</a>
 
@@ -5362,7 +5370,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.model.html#src.configs.model.ModelConfig.spatial_bias_scale">spatial_bias_scale (src.configs.model.ModelConfig attribute)</a>
 </li>
-      <li><a href="references/src/src.callbacks.html#src.callbacks.SpeedMonitor">SpeedMonitor (class in src.callbacks)</a>
+      <li><a href="references/src/src.pipeline.callbacks.html#src.pipeline.callbacks.SpeedMonitor">SpeedMonitor (class in src.pipeline.callbacks)</a>
 </li>
       <li><a href="references/src/src.policies.hgs_aux.split.html#src.policies.hgs_aux.split.LinearSplit.split">split() (src.policies.hgs_aux.split.LinearSplit method)</a>
 </li>
@@ -5375,13 +5383,6 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.html#module-src">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.callbacks
-
-      <ul>
-        <li><a href="references/src/src.callbacks.html#module-src.callbacks">module</a>
 </li>
       </ul></li>
       <li>
@@ -6141,6 +6142,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.pipeline.callbacks
+
+      <ul>
+        <li><a href="references/src/src.pipeline.callbacks.html#module-src.pipeline.callbacks">module</a>
+</li>
+      </ul></li>
+      <li>
     src.pipeline.features
 
       <ul>
@@ -6232,13 +6240,6 @@ document.write(`
 </li>
       </ul></li>
       <li>
-    src.pipeline.rl.common.utils
-
-      <ul>
-        <li><a href="references/src/src.pipeline.rl.common.utils.html#module-src.pipeline.rl.common.utils">module</a>
-</li>
-      </ul></li>
-      <li>
     src.pipeline.rl.core
 
       <ul>
@@ -6252,8 +6253,6 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.core.a2c.html#module-src.pipeline.rl.core.a2c">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.rl.core.adaptive_imitation
 
@@ -6261,6 +6260,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.core.adaptive_imitation.html#module-src.pipeline.rl.core.adaptive_imitation">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.rl.core.dr_grpo
 
@@ -6413,13 +6414,6 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.pipeline.rl.meta.weight_strategy.html#module-src.pipeline.rl.meta.weight_strategy">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.pipeline.rl.utils
-
-      <ul>
-        <li><a href="references/src/src.pipeline.rl.utils.html#module-src.pipeline.rl.utils">module</a>
 </li>
       </ul></li>
       <li>
@@ -7186,6 +7180,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.utils.data.rl_utils
+
+      <ul>
+        <li><a href="references/src/src.utils.data.rl_utils.html#module-src.utils.data.rl_utils">module</a>
+</li>
+      </ul></li>
+      <li>
     src.utils.functions
 
       <ul>
@@ -7466,6 +7467,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.utils.tasks.training_utils
+
+      <ul>
+        <li><a href="references/src/src.utils.tasks.training_utils.html#module-src.utils.tasks.training_utils">module</a>
+</li>
+      </ul></li>
+      <li>
     src.utils.validation
 
       <ul>
@@ -7541,6 +7549,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.bins.html#src.pipeline.simulations.bins.Bins.stochasticFilling">stochasticFilling() (src.pipeline.simulations.bins.Bins method)</a>
 </li>
       <li><a href="references/src/src.cli.base_parser.html#src.cli.base_parser.StoreDictKeyPair">StoreDictKeyPair (class in src.cli.base_parser)</a>
+</li>
+      <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.strategy">strategy (src.configs.train.TrainConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.stream_log_file">stream_log_file() (in module src.pipeline.ui.services.log_parser)</a>
 </li>
@@ -7726,7 +7736,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.subnets.tgc_encoder.html#src.models.subnets.tgc_encoder.TGCMultiHeadAttentionLayer">TGCMultiHeadAttentionLayer (class in src.models.subnets.tgc_encoder)</a>
 </li>
-      <li><a href="references/src/src.configs.rl.html#src.configs.rl.ImitationConfig.threshold">threshold (src.configs.rl.ImitationConfig attribute)</a>
+      <li><a href="references/src/src.configs.rl.html#src.configs.rl.AdaptiveImitationConfig.threshold">threshold (src.configs.rl.AdaptiveImitationConfig attribute)</a>
 
       <ul>
         <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.threshold">(src.pipeline.simulations.context.SimulationDayContext attribute)</a>
@@ -7787,6 +7797,8 @@ document.write(`
       <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.train_data_size">train_data_size (src.configs.train.TrainConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.base.html#src.pipeline.rl.common.base.RL4COLitModule.train_dataloader">train_dataloader() (src.pipeline.rl.common.base.RL4COLitModule method)</a>
+</li>
+      <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.train_dataset">train_dataset (src.configs.train.TrainConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.train.html#src.configs.train.TrainConfig.train_time">train_time (src.configs.train.TrainConfig attribute)</a>
 </li>
@@ -8087,8 +8099,6 @@ document.write(`
       <li><a href="references/src/src.envs.generators.html#src.envs.generators.WCVRPGenerator">WCVRPGenerator (class in src.envs.generators)</a>
 </li>
       <li><a href="references/src/src.models.embeddings.wcvrp.html#src.models.embeddings.wcvrp.WCVRPInitEmbedding">WCVRPInitEmbedding (class in src.models.embeddings.wcvrp)</a>
-</li>
-      <li><a href="references/src/src.configs.rl.html#src.configs.rl.ImitationConfig.weight">weight (src.configs.rl.ImitationConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.optim.html#src.configs.optim.OptimConfig.weight_decay">weight_decay (src.configs.optim.OptimConfig attribute)</a>
 </li>

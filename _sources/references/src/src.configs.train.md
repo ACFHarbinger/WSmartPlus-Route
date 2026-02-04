@@ -84,13 +84,46 @@
 
 ````
 
+````{py:attribute} train_dataset
+:canonical: src.configs.train.TrainConfig.train_dataset
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.train.TrainConfig.train_dataset
+```
+
+````
+
+````{py:attribute} load_dataset
+:canonical: src.configs.train.TrainConfig.load_dataset
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.train.TrainConfig.load_dataset
+```
+
+````
+
 ````{py:attribute} num_workers
 :canonical: src.configs.train.TrainConfig.num_workers
 :type: int
 :value: >
-   0
+   4
 
 ```{autodoc2-docstring} src.configs.train.TrainConfig.num_workers
+```
+
+````
+
+````{py:attribute} data_distribution
+:canonical: src.configs.train.TrainConfig.data_distribution
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.train.TrainConfig.data_distribution
 ```
 
 ````
@@ -355,6 +388,28 @@
    1
 
 ```{autodoc2-docstring} src.configs.train.TrainConfig.reload_dataloaders_every_n_epochs
+```
+
+````
+
+````{py:attribute} devices
+:canonical: src.configs.train.TrainConfig.devices
+:type: typing.Union[int, str]
+:value: >
+   'auto'
+
+```{autodoc2-docstring} src.configs.train.TrainConfig.devices
+```
+
+````
+
+````{py:attribute} strategy
+:canonical: src.configs.train.TrainConfig.strategy
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.train.TrainConfig.strategy
 ```
 
 ````

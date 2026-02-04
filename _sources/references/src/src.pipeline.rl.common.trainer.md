@@ -37,7 +37,7 @@ Bases: {py:obj}`pytorch_lightning.Trainer`
 ```{autodoc2-docstring} src.pipeline.rl.common.trainer.WSTrainer.__init__
 ```
 
-````{py:method} _add_default_callbacks(callbacks: list[pytorch_lightning.callbacks.Callback], enable_progress_bar: bool, model_weights_path: typing.Optional[str] = None) -> list[pytorch_lightning.callbacks.Callback]
+````{py:method} _add_default_callbacks(callbacks: list[pytorch_lightning.callbacks.Callback], enable_progress_bar: bool, model_weights_path: typing.Optional[str] = None, logger: typing.Optional[typing.Union[pytorch_lightning.loggers.Logger, bool]] = None) -> list[pytorch_lightning.callbacks.Callback]
 :canonical: src.pipeline.rl.common.trainer.WSTrainer._add_default_callbacks
 
 ```{autodoc2-docstring} src.pipeline.rl.common.trainer.WSTrainer._add_default_callbacks

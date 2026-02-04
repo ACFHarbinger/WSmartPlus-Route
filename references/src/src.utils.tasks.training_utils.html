@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.callbacks &#8212; WSmart-Route  documentation</title>
+    <title>src.utils.tasks.training_utils &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,10 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.callbacks';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.utils.tasks.training_utils';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="prev" title="src.file_system" href="src.file_system.html" />
+    <link rel="next" title="src.utils.tasks.task_utils" href="src.utils.tasks.task_utils.html" />
+    <link rel="prev" title="src.utils.tasks.losses" href="src.utils.tasks.losses.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -209,8 +210,8 @@
 <li class="toctree-l4"><a class="reference internal" href="src.models.deep_decoder_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deep_decoder_am</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
@@ -242,6 +243,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -282,7 +284,6 @@
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.callbacks</span></code></a></li>
 </ul>
 </details></li>
 </ul>
@@ -341,7 +342,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.callbacks.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.utils.tasks.training_utils.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -425,7 +426,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.callbacks</h1>
+    <h1>src.utils.tasks.training_utils</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -436,19 +437,11 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_train_start"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_train_start()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_train_epoch_start"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_train_epoch_start()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_validation_epoch_start"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_validation_epoch_start()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_test_epoch_start"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_test_epoch_start()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_train_batch_start"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_train_batch_start()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_train_batch_end"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_train_batch_end()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_train_epoch_end"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_train_epoch_end()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor._should_log"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor._should_log()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.tasks.training_utils.get_optimizer"><code class="docutils literal notranslate"><span class="pre">get_optimizer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.tasks.training_utils.get_scheduler"><code class="docutils literal notranslate"><span class="pre">get_scheduler()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.tasks.training_utils.get_lightning_device"><code class="docutils literal notranslate"><span class="pre">get_lightning_device()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -464,19 +457,23 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.callbacks">
-<span id="src-callbacks"></span><h1><a class="reference internal" href="#module-src.callbacks" title="src.callbacks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.callbacks</span></code></a><a class="headerlink" href="#module-src.callbacks" title="Link to this heading">#</a></h1>
-<p>Lightning Callbacks for WSmart-Route.
-Adapted from rl4co/utils/callbacks/speed_monitor.py.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.tasks.training_utils">
+<span id="src-utils-tasks-training-utils"></span><h1><a class="reference internal" href="#module-src.utils.tasks.training_utils" title="src.utils.tasks.training_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks.training_utils</span></code></a><a class="headerlink" href="#module-src.utils.tasks.training_utils" title="Link to this heading">#</a></h1>
+<p>Common utilities for RL training.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.callbacks.SpeedMonitor" title="src.callbacks.SpeedMonitor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpeedMonitor</span></code></a></p></td>
-<td><p>Monitor the speed of each step and each epoch.
-Logs intra-step (forward/backward) and inter-step (data loading) times.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.tasks.training_utils.get_optimizer" title="src.utils.tasks.training_utils.get_optimizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_optimizer</span></code></a></p></td>
+<td><p>Get optimizer by name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.tasks.training_utils.get_scheduler" title="src.utils.tasks.training_utils.get_scheduler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_scheduler</span></code></a></p></td>
+<td><p>Get learning rate scheduler by name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.tasks.training_utils.get_lightning_device" title="src.utils.tasks.training_utils.get_lightning_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lightning_device</span></code></a></p></td>
+<td><p>Get the device from a PyTorch Lightning Trainer.</p></td>
 </tr>
 </tbody>
 </table>
@@ -484,66 +481,40 @@ Logs intra-step (forward/backward) and inter-step (data loading) times.</p></td>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.callbacks.SpeedMonitor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.callbacks.</span></span><span class="sig-name descname"><span class="pre">SpeedMonitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intra_step_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inter_step_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.callbacks.SpeedMonitor" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_lightning.callbacks.Callback</span></code></p>
-<p>Monitor the speed of each step and each epoch.
-Logs intra-step (forward/backward) and inter-step (data loading) times.</p>
-<p class="rubric">Initialization</p>
-<p>Initialize SpeedMonitor callback.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.tasks.training_utils.get_optimizer">
+<span class="sig-prename descclassname"><span class="pre">src.utils.tasks.training_utils.</span></span><span class="sig-name descname"><span class="pre">get_optimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.optim.Optimizer</span></span></span><a class="headerlink" href="#src.utils.tasks.training_utils.get_optimizer" title="Link to this definition">#</a></dt>
+<dd><p>Get optimizer by name.</p>
 <p>Args:
-intra_step_time: Whether to log forward/backward time.
-inter_step_time: Whether to log data loading time.
-epoch_time: Whether to log epoch duration.
-verbose: Whether to print timing info to console.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.callbacks.SpeedMonitor.on_train_start">
-<span class="sig-name descname"><span class="pre">on_train_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.callbacks.SpeedMonitor.on_train_start" title="Link to this definition">#</a></dt>
-<dd><p>Reset epoch time snapshot at training start.</p>
+name: Optimizer name (‘adam’, ‘adamw’, ‘sgd’, ‘rmsprop’).
+parameters: Model parameters to optimize.
+lr: Learning rate.
+weight_decay: Weight decay factor.
+**kwargs: Additional optimizer arguments.</p>
+<p>Returns:
+Initialized optimizer.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="src.callbacks.SpeedMonitor.on_train_epoch_start">
-<span class="sig-name descname"><span class="pre">on_train_epoch_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.callbacks.SpeedMonitor.on_train_epoch_start" title="Link to this definition">#</a></dt>
-<dd><p>Reset timing snapshots and capture epoch start time.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.tasks.training_utils.get_scheduler">
+<span class="sig-prename descclassname"><span class="pre">src.utils.tasks.training_utils.</span></span><span class="sig-name descname"><span class="pre">get_scheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.optim.Optimizer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.tasks.training_utils.get_scheduler" title="Link to this definition">#</a></dt>
+<dd><p>Get learning rate scheduler by name.</p>
+<p>Args:
+name: Scheduler name (‘cosine’, ‘step’, ‘exponential’, ‘plateau’, ‘lambda’, ‘none’).
+optimizer: Optimizer instance.
+**kwargs: Scheduler arguments.</p>
+<p>Returns:
+Initialized scheduler or None.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="src.callbacks.SpeedMonitor.on_validation_epoch_start">
-<span class="sig-name descname"><span class="pre">on_validation_epoch_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.callbacks.SpeedMonitor.on_validation_epoch_start" title="Link to this definition">#</a></dt>
-<dd><p>Reset inter-step time snapshot for validation.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.callbacks.SpeedMonitor.on_test_epoch_start">
-<span class="sig-name descname"><span class="pre">on_test_epoch_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.callbacks.SpeedMonitor.on_test_epoch_start" title="Link to this definition">#</a></dt>
-<dd><p>Reset inter-step time snapshot for testing.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.callbacks.SpeedMonitor.on_train_batch_start">
-<span class="sig-name descname"><span class="pre">on_train_batch_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">unused_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">unused_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.callbacks.SpeedMonitor.on_train_batch_start" title="Link to this definition">#</a></dt>
-<dd><p>Capture intra-step start time and log inter-step time.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.callbacks.SpeedMonitor.on_train_batch_end">
-<span class="sig-name descname"><span class="pre">on_train_batch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">unused_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">unused_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.callbacks.SpeedMonitor.on_train_batch_end" title="Link to this definition">#</a></dt>
-<dd><p>Capture inter-step start time and log intra-step time.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.callbacks.SpeedMonitor.on_train_epoch_end">
-<span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.callbacks.SpeedMonitor.on_train_epoch_end" title="Link to this definition">#</a></dt>
-<dd><p>Log epoch duration at end of training epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.callbacks.SpeedMonitor._should_log">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_should_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.callbacks.SpeedMonitor._should_log" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.tasks.training_utils.get_lightning_device">
+<span class="sig-prename descclassname"><span class="pre">src.utils.tasks.training_utils.</span></span><span class="sig-name descname"><span class="pre">get_lightning_device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.device</span></span></span><a class="headerlink" href="#src.utils.tasks.training_utils.get_lightning_device" title="Link to this definition">#</a></dt>
+<dd><p>Get the device from a PyTorch Lightning Trainer.</p>
+<p>Args:
+trainer: PL Trainer instance.</p>
+<p>Returns:
+torch.device: Determine device.</p>
 </dd></dl>
 
 </section>
@@ -562,13 +533,22 @@ verbose: Whether to print timing info to console.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.file_system.html"
+       href="src.utils.tasks.losses.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks.losses</span></code></p>
       </div>
+    </a>
+    <a class="right-next"
+       href="src.utils.tasks.task_utils.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks.task_utils</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
@@ -587,19 +567,11 @@ verbose: Whether to print timing info to console.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_train_start"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_train_start()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_train_epoch_start"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_train_epoch_start()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_validation_epoch_start"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_validation_epoch_start()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_test_epoch_start"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_test_epoch_start()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_train_batch_start"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_train_batch_start()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_train_batch_end"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_train_batch_end()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor.on_train_epoch_end"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor.on_train_epoch_end()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.callbacks.SpeedMonitor._should_log"><code class="docutils literal notranslate"><span class="pre">SpeedMonitor._should_log()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.tasks.training_utils.get_optimizer"><code class="docutils literal notranslate"><span class="pre">get_optimizer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.tasks.training_utils.get_scheduler"><code class="docutils literal notranslate"><span class="pre">get_scheduler()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.tasks.training_utils.get_lightning_device"><code class="docutils literal notranslate"><span class="pre">get_lightning_device()</span></code></a></li>
 </ul>
 </li>
 </ul>

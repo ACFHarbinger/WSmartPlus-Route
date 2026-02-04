@@ -14,7 +14,6 @@
 :maxdepth: 1
 
 src.pipeline.rl.common.epoch
-src.pipeline.rl.common.utils
 src.pipeline.rl.common.time_training
 src.pipeline.rl.common.baselines
 src.pipeline.rl.common.reward_scaler
