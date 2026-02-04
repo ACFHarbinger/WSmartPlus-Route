@@ -247,7 +247,7 @@ def generate_waste_prize(
         wp: Any = np.zeros(shape=(dataset_size, problem_size))
     elif distribution == "const":
         wp = np.ones(shape=(dataset_size, problem_size))
-    elif distribution == "unif":
+    elif distribution in ["unif", "uniform"]:
         wp = (1 + np.random.randint(0, 100, size=(dataset_size, problem_size))) / 100.0
     elif "gamma" in distribution:
         gamma_option = int(distribution[-1]) - 1
