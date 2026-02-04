@@ -41,7 +41,7 @@ optim:
 
 # RL / Algorithm Settings
 rl:
-  algorithm: "reinforce"
+  algorithm: "adaptive_imitation"
   baseline: "exponential"
   bl_alpha: 0.05
   exp_beta: 0.8
@@ -54,7 +54,7 @@ rl:
     eps_clip: 0.2
 
   imitation:
-    mode: "hgs"
+    mode: "hgs_alns"
 
   adaptive_imitation:
     il_weight: 1.0

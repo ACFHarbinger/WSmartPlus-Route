@@ -1,0 +1,17 @@
+aco:
+  custom:
+    - n_ants: 20
+    - k_sparse: 15
+    - alpha: 1.0
+    - beta: 2.0
+    - rho: 0.1
+    - q0: 0.9
+    - tau_min: 0.001
+    - tau_max: 10.0
+    - max_iterations: 100
+    - time_limit: 30.0
+    - local_search: true
+    - elitist_weight: 1.0
+    - engine: "custom"
+    - must_go: ["mg_lookahead_days7.xml"]
+    - post_processing: []

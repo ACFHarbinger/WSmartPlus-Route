@@ -1,0 +1,17 @@
+hyper_aco:
+  custom:
+    - n_ants: 10
+    - alpha: 1.0
+    - beta: 2.0
+    - rho: 0.1
+    - tau_0: 1.0
+    - tau_min: 0.01
+    - tau_max: 10.0
+    - max_iterations: 50
+    - time_limit: 30.0
+    - sequence_length: 5
+    - q0: 0.9
+    - operators: ["swap", "2opt_intra", "relocate", "swap_star", "perturb"]
+    - engine: "custom"
+    - must_go: ["mg_lookahead_days7.xml"]
+    - post_processing: []
