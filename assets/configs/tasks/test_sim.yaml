@@ -13,11 +13,9 @@ sim:
   checkpoint_days: 0
   real_time_log: false
   policies:
-    - hyper_aco
-    - aco
-    - sisr
+    - amgat0
   n_vehicles: 1
-  problem: "cwcvrp"
+  problem: "vrpp"
   gate_prob_threshold: 0.1
   mask_prob_threshold: 0.1
   area: "riomaior"

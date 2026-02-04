@@ -58,11 +58,8 @@ rl:
 
   adaptive_imitation:
     il_weight: 1.0
-    il_decay: 0.95
-    patience: 5
-    threshold: 0.1 # stop_thresh
-    decay_step: 1
-    epsilon: 1e-5
+    sigmoid_scale: 10.0
+    sigmoid_bias: 5.0
 
 # Model Settings
 model:
