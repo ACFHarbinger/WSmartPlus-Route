@@ -132,7 +132,7 @@ class TemporalAMPolicy(AttentionModelPolicy):
                 entropy = entropy + entropy_step
 
             td["action"] = action
-            td = env.step(td)["next"]
+            td = env.step(td)["next"].clone()
 
             log_likelihood = log_likelihood + log_p
             output_actions.append(action)

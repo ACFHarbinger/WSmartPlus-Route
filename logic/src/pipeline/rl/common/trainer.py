@@ -4,6 +4,7 @@ Custom PyTorch Lightning Trainer for WSmart-Route.
 
 from __future__ import annotations
 
+import os
 from typing import Any, Optional, Union
 
 import pytorch_lightning as pl
@@ -96,13 +97,13 @@ class WSTrainer(pl.Trainer):
         if strategy is None:
             strategy = "auto"
 
-        # Build callbacks
-        callbacks = callbacks or []
-        callbacks = self._add_default_callbacks(callbacks, enable_progress_bar, model_weights_path)
-
         # Build logger
         if logger is None:
             logger = self._create_default_logger(project_name, experiment_name, logs_dir)
+
+        # Build callbacks
+        callbacks = callbacks or []
+        callbacks = self._add_default_callbacks(callbacks, enable_progress_bar, model_weights_path, logger)
 
         super().__init__(
             max_epochs=max_epochs,
@@ -124,6 +125,7 @@ class WSTrainer(pl.Trainer):
         callbacks: list[Callback],
         enable_progress_bar: bool,
         model_weights_path: Optional[str] = None,
+        logger: Optional[Union[Logger, bool]] = None,
     ) -> list[Callback]:
         """Add default callbacks if not present."""
         callback_types = {type(c) for c in callbacks}
@@ -131,6 +133,15 @@ class WSTrainer(pl.Trainer):
         # Add checkpoint callback
         if ModelCheckpoint not in callback_types:
             dirpath = model_weights_path if model_weights_path else "checkpoints"
+
+            # Append version if available from logger
+            if dirpath and logger and hasattr(logger, "version"):
+                version = logger.version
+                if isinstance(version, int):
+                    version = f"version_{version}"
+                if isinstance(version, str):
+                    dirpath = os.path.join(dirpath, version)
+
             callbacks.append(
                 ModelCheckpoint(
                     dirpath=dirpath,

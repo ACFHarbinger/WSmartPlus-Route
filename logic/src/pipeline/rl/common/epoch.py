@@ -28,7 +28,7 @@ def prepare_epoch(
         if hasattr(baseline, "unwrap_dataset"):
             dataset = baseline.unwrap_dataset(dataset)
         # Wrap dataset with baseline values (e.g. RolloutBaseline)
-        return baseline.wrap_dataset(model, dataset, env)
+        return baseline.wrap_dataset(dataset, policy=model, env=env)
     return dataset
 
 
