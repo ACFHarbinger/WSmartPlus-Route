@@ -143,4 +143,5 @@ class VectorizedALNS(ConstructivePolicy):
             "reward": torch.stack(all_rewards),
             "actions": padded_actions,
             "log_likelihood": torch.zeros(batch_size, device=device),
+            "cost": costs,
         }

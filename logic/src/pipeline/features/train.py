@@ -12,7 +12,6 @@ from hydra.core.config_store import ConfigStore
 from omegaconf import DictConfig, ListConfig, OmegaConf
 from pytorch_lightning import seed_everything
 
-from logic.src.callbacks import SpeedMonitor
 from logic.src.configs import Config
 from logic.src.envs import get_env
 from logic.src.models.policies import (
@@ -28,6 +27,7 @@ from logic.src.models.policies.classical.hybrid import NeuralHeuristicHybrid
 from logic.src.models.policies.classical.random_local_search import (
     RandomLocalSearchPolicy,
 )
+from logic.src.pipeline.callbacks import SpeedMonitor
 from logic.src.pipeline.rl import (
     DRGRPO,
     GDPO,
@@ -554,7 +554,8 @@ def run_training(cfg: Config) -> float:
         project_name="wsmart-route",
         experiment_name=cfg.experiment_name,
         accelerator=cfg.device if cfg.device != "cuda" else "auto",
-        devices=1 if cfg.device == "cuda" else "auto",
+        devices=cfg.train.devices,
+        strategy=cfg.train.strategy,
         gradient_clip_val=(float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0),
         logger=CSVLogger(cfg.train.logs_dir or "logs", name=""),
         callbacks=[SpeedMonitor(epoch_time=True)],

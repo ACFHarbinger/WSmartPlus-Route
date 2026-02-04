@@ -175,4 +175,5 @@ class RandomLocalSearchPolicy(ConstructivePolicy):
             "reward": torch.stack(all_rewards),
             "actions": current_routes,
             "log_likelihood": torch.zeros(batch_size, device=device),
+            "cost": costs,
         }

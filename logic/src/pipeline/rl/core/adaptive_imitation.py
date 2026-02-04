@@ -31,6 +31,9 @@ class AdaptiveImitation(REINFORCE):
         il_weight: float = 1.0,
         il_decay: float = 0.95,
         patience: int = 5,
+        threshold: float = 0.05,
+        decay_step: int = 1,
+        epsilon: float = 1e-5,
         **kwargs,
     ):
         """
@@ -41,6 +44,8 @@ class AdaptiveImitation(REINFORCE):
             il_weight: Initial weight for imitation loss.
             il_decay: Decay factor for IL weight each epoch.
             patience: Epochs without improvement before resetting IL weight.
+            threshold: Threshold for reannealing.
+            decay_step: Number of epochs to decay IL weight.
             **kwargs: Arguments passed to REINFORCE.
         """
         # Exclude non-serializable objects from hyperparameters
@@ -91,11 +96,32 @@ class AdaptiveImitation(REINFORCE):
         self.initial_il_weight = il_weight
         self.il_decay = il_decay
         self.patience = patience
+        self.threshold = threshold
+        self.decay_step = decay_step
+        self.epsilon = epsilon
 
         # State tracking
         self.wait = 0
+        self.do_imitation = True
         self.best_reward = float("-inf")
         self.current_il_weight = il_weight
+
+    def _sanitize_td(self, td: TensorDict) -> TensorDict:
+        """
+        Sanitize TensorDict to remove potential recursive references or unnecessary nesting.
+
+        This constructs a new TensorDict containing only the leaf Tensors from the original,
+        breaking any reference cycles that might cause RecursionError during cloning or printing.
+        """
+        # Iterate over all keys in the TensorDict and keep only Tensors
+        # to ensure we break any nesting or recursive structures.
+        safe_data = {}
+        for key in td.keys():
+            val = td.get(key)
+            if isinstance(val, torch.Tensor):
+                safe_data[key] = val
+
+        return TensorDict(safe_data, batch_size=td.batch_size, device=td.device)
 
     def calculate_loss(
         self,
@@ -109,25 +135,33 @@ class AdaptiveImitation(REINFORCE):
         """
         # 1. RL Loss (REINFORCE)
         # Note: This computes advantage, baseline, etc.
-        rl_loss = super().calculate_loss(td, out, batch_idx)
+        rl_loss = super().calculate_loss(td, out, batch_idx, env=env)
 
         # 2. Imitation Loss (Cross Entropy)
         # Generate expert actions
         with torch.no_grad():
             expert_out = self.expert_policy(td, self.env)
             expert_actions = expert_out["actions"]
+            expert_reward = expert_out.get("reward", None)
 
-        # Teacher Forcing: Evaluate log likelihood of expert actions under current policy
-        # We need to clone td because policy/env might modify it or expert did?
-        # Ideally td passed to calculate_loss is fresh from reset in shared_step
-        # We use td directly to avoid RecursionError in cloning if td has cycles
-        td_il = td
+        # Conditional Imitation: Check if expert provides significant improvement
+        # We compare means to decide whether to run the expensive forward pass to save compute
+        current_reward = out.get("reward", None)
+        if expert_reward is not None and current_reward is not None:
+            if expert_reward.mean() <= current_reward.mean() + self.threshold:
+                self.do_imitation = False
+                print("\n[AdaptiveImitation] Stopping IL for this training run")
 
-        il_out = self.policy(td_il, self.env, actions=expert_actions)
-        log_likelihood = il_out["log_likelihood"]
+        if self.do_imitation:
+            td_il = self.env.reset(td)
 
-        # NLL Loss
-        il_loss = -log_likelihood.mean()
+            il_out = self.policy(td_il, self.env, actions=expert_actions)
+            log_likelihood = il_out["log_likelihood"]
+
+            # NLL Loss weighted by reward difference
+            il_loss = -(log_likelihood * (expert_reward - current_reward)).mean()
+        else:
+            il_loss = torch.tensor(0.0, device=self.device)
 
         # Combined Loss
         total_loss = rl_loss + self.current_il_weight * il_loss
@@ -136,6 +170,12 @@ class AdaptiveImitation(REINFORCE):
         self.log("train/rl_loss", rl_loss, on_step=False, on_epoch=True)
         self.log("train/il_loss", il_loss, on_step=False, on_epoch=True)
         self.log("train/il_weight", self.current_il_weight, on_step=False, on_epoch=True)
+
+        if expert_reward is not None:
+            self.log("train/expert_reward", expert_reward.mean(), on_step=False, on_epoch=True)
+        expert_cost = expert_out.get("cost", None)
+        if expert_cost is not None:
+            self.log("train/expert_cost", expert_cost.mean(), on_step=False, on_epoch=True)
 
         return total_loss
 
@@ -148,10 +188,9 @@ class AdaptiveImitation(REINFORCE):
         super().on_train_epoch_end()
 
         current_reward = self.trainer.callback_metrics.get("val/reward")
-
-        if current_reward is not None:
+        if current_reward is not None and self.do_imitation:
             # Check for improvement
-            if current_reward > self.best_reward + 1e-5:
+            if current_reward > self.best_reward + self.epsilonw:
                 self.best_reward = current_reward.item()
                 self.wait = 0
             else:
