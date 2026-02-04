@@ -4,7 +4,7 @@ HGS-ALNS Hybrid Policy for RL4CO.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -13,7 +13,7 @@ from logic.src.policies.hgs_alns_solver import HGSALNSSolver
 from logic.src.policies.hgs_aux.types import HGSParams
 
 
-class HGSALNSPolicy(VectorizedHGS, BaseModel):
+class VectorizedHGSALNS(VectorizedHGS, BaseModel):
     """
     HGS-based Policy wrapper that uses ALNS for education phase.
 
@@ -24,7 +24,7 @@ class HGSALNSPolicy(VectorizedHGS, BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     # Policy parameters as Pydantic fields
-    env_name: str = Field("vrpp", description="Name of the environment")
+    env_name: Optional[str] = Field("vrpp", description="Name of the environment")
     time_limit: float = Field(5.0, description="HGS search time limit in seconds")
     population_size: int = Field(50, description="Target population size")
     n_generations: int = Field(50, description="Number of HGS generations")

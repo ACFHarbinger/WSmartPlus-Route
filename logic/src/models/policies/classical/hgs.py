@@ -24,7 +24,7 @@ class VectorizedHGS(ConstructivePolicy):
 
     def __init__(
         self,
-        env_name: str,
+        env_name: str | None,
         time_limit: float = 5.0,
         population_size: int = 50,
         n_generations: int = 50,
@@ -129,14 +129,11 @@ class VectorizedHGS(ConstructivePolicy):
                     flat_actions.extend(route)
                 elif isinstance(route, torch.Tensor):
                     flat_actions.extend(route.tolist())
+                elif isinstance(route, int):
+                    flat_actions.append(route)
                 else:
-                    # Fallback or error if route is not iterable (e.g. int)
-                    # Ideally this shouldn't happen if we handled the single tour case
-                    try:
-                        flat_actions.extend(route)
-                    except TypeError:
-                        # If route is a single node (int), treat as length-1 route
-                        flat_actions.append(route)
+                    # Generic iterable fallback
+                    flat_actions.extend(list(route))
             flat_actions.append(0)  # Return to depot
 
             all_actions.append(torch.tensor(flat_actions, device=device, dtype=torch.long))

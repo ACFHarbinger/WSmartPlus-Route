@@ -8,7 +8,8 @@ This package contains vectorized implementations of routing operations
 for improved computational efficiency.
 """
 
-from .hgs_alns import HGSALNSPolicy
+from .ant_colony_system import VectorizedACOPolicy
+from .hgs_alns import VectorizedHGSALNS
 from .iterated_local_search import IteratedLocalSearchPolicy
 
-__all__ = ["HGSALNSPolicy", "IteratedLocalSearchPolicy"]
+__all__ = ["VectorizedHGSALNS", "IteratedLocalSearchPolicy", "VectorizedACOPolicy"]
