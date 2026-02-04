@@ -18,10 +18,10 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from .alns_aux.alns_package import run_alns_package
-from .alns_aux.destroy_operators import cluster_removal, random_removal, worst_removal
 from .alns_aux.ortools_wrapper import run_alns_ortools
 from .alns_aux.params import ALNSParams
-from .alns_aux.repair_operators import greedy_insertion, regret_2_insertion
+from .operators.destroy_operators import cluster_removal, random_removal, worst_removal
+from .operators.repair_operators import greedy_insertion, regret_2_insertion
 
 
 class ALNSSolver:

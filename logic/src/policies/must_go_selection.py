@@ -81,12 +81,12 @@ class MustGoSelectionFactory:
         # Lazy imports to avoid circular dependencies and kept strategies separated
         from .selection.selection_last_minute import LastMinuteSelection
         from .selection.selection_lookahead import LookaheadSelection
-        from .selection.selection_means_std import MeansAndStdDevSelection
         from .selection.selection_regular import RegularSelection
         from .selection.selection_revenue import RevenueThresholdSelection
+        from .selection.selection_service_level import ServiceLevelSelection
 
         default_map = {
-            "means_std": MeansAndStdDevSelection,
+            "service_level": ServiceLevelSelection,
             "regular": RegularSelection,
             "lookahead": LookaheadSelection,
             "last_minute": LastMinuteSelection,

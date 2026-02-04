@@ -30,16 +30,15 @@ VERBOSE=true
 
 # Configuration files
 TASK_CONFIG="assets/configs/tasks/train.yaml"
-DATA_CONFIG="assets/configs/data/train_data.yaml"
 
 # Load Task Config first
-eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
+eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
 
 # Load environment config based on problem
 if [ -n "$PROBLEM" ]; then
     ENV_CONFIG="assets/configs/envs/${PROBLEM}.yaml"
     if [ -f "$ENV_CONFIG" ]; then
-        eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" "$ENV_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
+        eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$ENV_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
     fi
 fi
 

@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 from logic.src.policies.selection.selection_last_minute import LastMinuteSelection
-from logic.src.policies.selection.selection_means_std import MeansAndStdDevSelection
+from logic.src.policies.selection.selection_service_level import ServiceLevelSelection
 from logic.src.policies.selection.selection_revenue import RevenueThresholdSelection
 from logic.src.policies.must_go_selection import SelectionContext
 
@@ -32,9 +32,9 @@ class TestLastMinuteSelection:
         # Bins > 40 are indices 1, 3, 4 -> IDs 2, 4, 5
         assert must_go == [2, 4, 5]
 
-class TestMeansAndStdDevSelection:
+class TestServiceLevelSelection:
     def test_select_bins_no_data(self, base_context):
-        strategy = MeansAndStdDevSelection()
+        strategy = ServiceLevelSelection()
         assert strategy.select_bins(base_context) == []
 
     def test_select_bins_with_data(self, base_context):
@@ -48,7 +48,7 @@ class TestMeansAndStdDevSelection:
         base_context.current_fill[3] = 94
         # Bin 4: 94 + 5 + 2*1 = 101 (Yes)
 
-        strategy = MeansAndStdDevSelection()
+        strategy = ServiceLevelSelection()
         must_go = strategy.select_bins(base_context)
         assert 2 in must_go
         assert 4 in must_go

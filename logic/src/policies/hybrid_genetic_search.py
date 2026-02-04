@@ -17,10 +17,10 @@ from typing import Dict, List, Tuple
 import numpy as np
 
 from .hgs_aux.evolution import evaluate, ordered_crossover, update_biased_fitness
-from .hgs_aux.local_search import LocalSearch
 from .hgs_aux.pyvrp_wrapper import solve_pyvrp
 from .hgs_aux.split import LinearSplit
 from .hgs_aux.types import HGSParams, Individual
+from .local_search import HGSLocalSearch
 
 
 class HGSSolver:
@@ -59,7 +59,7 @@ class HGSSolver:
         self.nodes = list(range(1, self.n_nodes + 1))
 
         self.split_manager = LinearSplit(dist_matrix, demands, capacity, R, C, params.max_vehicles)
-        self.ls = LocalSearch(dist_matrix, demands, capacity, R, C, params)
+        self.ls = HGSLocalSearch(dist_matrix, demands, capacity, R, C, params)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """

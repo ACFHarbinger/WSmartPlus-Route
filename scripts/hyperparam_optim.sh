@@ -25,16 +25,15 @@ VERBOSE=true
 
 # Configuration files
 TASK_CONFIG="assets/configs/tasks/hpo.yaml"
-DATA_CONFIG="assets/configs/data/hpo.yaml"
 
 # Load config
-eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
+eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
 
 # Load environment config based on problem
 if [ -n "$PROBLEM" ]; then
     ENV_CONFIG="assets/configs/envs/${PROBLEM}.yaml"
     if [ -f "$ENV_CONFIG" ]; then
-        eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$ENV_CONFIG" "$DATA_CONFIG" "$TASK_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
+        eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$ENV_CONFIG" "$TASK_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
     fi
 fi
 
