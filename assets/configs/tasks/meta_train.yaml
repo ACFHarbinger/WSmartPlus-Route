@@ -8,6 +8,7 @@ start: 0
 # Environment
 env:
   name: "cwcvrp"
+  distance_method: "gmaps"
 
 # Meta-RL Settings
 meta_rl:
@@ -36,13 +37,13 @@ meta_rl:
 # Optimization Overrides
 optim:
   optimizer: "rmsprop"
-  lr: 0.00005
+  lr: 0.000005
   lr_decay: 1.0
   lr_scheduler: "lambda"
 
 # RL Settings
 rl:
-  algorithm: "reinforce" # Base algorithm for HRL workers?
+  algorithm: "reinforce"
   baseline: "exponential"
   bl_alpha: 0.05
   exp_beta: 0.8
@@ -57,8 +58,15 @@ model:
 # Training
 train:
   batch_size: 256
+  val_data_size: 0
   eval_batch_size: 0
   log_step: 10
+
+# Data Configuration
+data:
+  dataset_size: 1280
+  data_distributions: ["gamma1"]
+  graph_sizes: [100]
 
 # Flags
 wandb_mode: "disabled"

@@ -505,9 +505,6 @@ class NeuralPolicy(IPolicy):
         """
         Execute the neural policy.
         """
-        must_go = kwargs.get("must_go", [])
-        if "must_go" in kwargs and not must_go:
-            return [0, 0], 0.0, None
         model_env = kwargs["model_env"]
         model_ls = kwargs["model_ls"]
         bins = kwargs["bins"]

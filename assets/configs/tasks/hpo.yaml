@@ -30,7 +30,6 @@ hpo:
   mutpb: 0.3
   cxpb: 0.5
   max_tres: 40
-  # h_epochs maps to n_gen or something? Leaving out if ambiguous or mapping to closest if found.
 
 # Optimization Overrides
 optim:
@@ -50,6 +49,12 @@ rl:
 train:
   batch_size: 256
   accumulation_steps: 1
+
+# Data Configuration
+data:
+  dataset_size: 128000
+  data_distributions: ["gamma1"]
+  filename: "hpo"
 
 # Flags
 wandb_mode: "disabled"

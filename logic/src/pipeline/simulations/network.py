@@ -474,7 +474,7 @@ def apply_edges(
 
     dist_matrix_edges = deepcopy(dist_matrix)
     if edge_thresh > 0 and edge_method == "dist":
-        adj_matrix = idx_to_adj(get_edge_idx_dist(dist_matrix_edges[1:, 1:], edge_thresh))
+        adj_matrix = idx_to_adj(get_edge_idx_dist(dist_matrix_edges[1:, 1:], edge_thresh, undirected=False))
     elif edge_thresh > 0 and edge_method == "knn":
         adj_matrix = get_adj_knn(dist_matrix_edges[1:, 1:], edge_thresh, negative=False)
     else:

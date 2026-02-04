@@ -591,10 +591,13 @@ class RunningState(SimState):
                     # If I have keys 'lookahead' and 'hgs' and policy is 'policy_look_ahead_hgs', merge both.
                     for key, cfg in (ctx.config or {}).items():
                         if key in ctx.policy:
-                            # Merge cfg into current_policy_config
-                            # Simple update for now (shallow merge of top keys)
-                            # Deep merge would be better but keeping it simple.
-                            current_policy_config.update(cfg)
+                            # Robust merge: handle lists of dicts (Hydra-style) and direct dicts
+                            if isinstance(cfg, list):
+                                for item in cfg:
+                                    if isinstance(item, dict):
+                                        current_policy_config.update(item)
+                            elif isinstance(cfg, dict):
+                                current_policy_config.update(cfg)
 
                     # Inject vehicle capacity for HGS if not present
                     # This corrects the efficiency issue where HGS defaults to 100 capacity

@@ -127,7 +127,7 @@ def get_edge_idx_dist(dist_matrix, num_edges, add_depot=True, undirected=True):
             # Add edges to and from the depot
             if add_depot:
                 adj_matrix = np.vstack((np.ones(size, dtype=int), adj_matrix))
-                adj_matrix = np.hstack((np.ones(size + 1, dtype=int), adj_matrix))
+                adj_matrix = np.hstack((np.ones(size + 1, dtype=int)[:, None], adj_matrix))
 
             np.fill_diagonal(adj_matrix, 0)
             return adj_to_idx(adj_matrix, negative=False)

@@ -8,7 +8,15 @@ start: 0
 # Data Configuration
 data:
   n_epochs: 100
-  problem: "wcvrp"
+  problem: "vrpp"
+  dataset_size: 1280
+  data_distributions: ["gamma1"]
+  num_locs: [20, 50, 100, 170]
+  dataset_type: "train_time"
+  filename: "time"
+  focus_size: 1280
+  data_dir: "datasets"
 
-# Note: 'dataset_type' must be provided via CLI (e.g. dataset_type=train)
-# as it is required by generate_data.py but not set here.
+# Training specific overrides often found in old gen_data
+train:
+  val_data_size: 128

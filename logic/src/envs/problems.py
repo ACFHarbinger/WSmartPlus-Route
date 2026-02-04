@@ -410,6 +410,8 @@ class WCVRP(BaseProblem):
         visited_mask.scatter_(1, pi, True)
 
         max_w = dataset.get("max_waste", torch.tensor(1.0, device=dataset["waste"].device))
+        if max_w.dim() == 1:
+            max_w = max_w.unsqueeze(-1)
         overflow_mask = waste_with_depot >= max_w
         overflows = torch.sum(overflow_mask[:, 1:] & ~visited_mask[:, 1:], dim=-1).float()
 
