@@ -23,6 +23,7 @@ from logic.src.models.policies import (
 )
 from logic.src.models.policies.classical.alns import VectorizedALNS
 from logic.src.models.policies.classical.hgs import VectorizedHGS
+from logic.src.models.policies.classical.hgs_alns import VectorizedHGSALNS
 from logic.src.models.policies.classical.hybrid import NeuralHeuristicHybrid
 from logic.src.models.policies.classical.random_local_search import (
     RandomLocalSearchPolicy,
@@ -103,6 +104,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
         "symnco": SymNCOPolicy,
         "alns": VectorizedALNS,
         "hgs": VectorizedHGS,
+        "hgs_alns": VectorizedHGSALNS,
         "hybrid": NeuralHeuristicHybrid,
     }
 
@@ -324,8 +326,8 @@ def create_model(cfg: Config) -> pl.LightningModule:
         expert_map = {
             "hgs": VectorizedHGS,
             "alns": VectorizedALNS,
+            "hgs_alns": VectorizedHGSALNS,
             "random_ls": RandomLocalSearchPolicy,
-            "2opt": RandomLocalSearchPolicy,
         }
         if expert_name not in expert_map:
             raise ValueError(f"Unknown expert: {expert_name}")
