@@ -584,13 +584,13 @@ This section maintains a registry of intelligent agents, orchestration component
 
 #### Selection Strategies (`logic/src/policies/selection/`)
 
-| Strategy        | File                       | Description                                      |
-| --------------- | -------------------------- | ------------------------------------------------ |
-| **Regular**     | `selection_regular.py`     | Fixed-frequency collection (e.g., every 3 days). |
-| **LastMinute**  | `selection_last_minute.py` | Collect when fill level exceeds threshold.       |
-| **LookAhead**   | `selection_lookahead.py`   | Collect if overflow predicted within N days.     |
-| **Revenue**     | `selection_revenue.py`     | Collect if profit > cost.                        |
-| **MeansStdDev** | `selection_means_std.py`   | Statistical overflow prediction.                 |
+| Strategy         | File                         | Description                                      |
+| ---------------- | ---------------------------- | ------------------------------------------------ |
+| **Regular**      | `selection_regular.py`       | Fixed-frequency collection (e.g., every 3 days). |
+| **LastMinute**   | `selection_last_minute.py`   | Collect when fill level exceeds threshold.       |
+| **LookAhead**    | `selection_lookahead.py`     | Collect if overflow predicted within N days.     |
+| **Revenue**      | `selection_revenue.py`       | Collect if profit > cost.                        |
+| **ServiceLevel** | `selection_service_level.py` | Statistical overflow prediction.                 |
 
 ### 10.6 Problem Environments (`logic/src/envs/`)
 

@@ -10,13 +10,11 @@ data:
   n_epochs: 100
   problem: "vrpp"
   dataset_size: 1280
+  val_size: 1280
+  test_size: 31
   data_distributions: ["gamma1"]
   num_locs: [20, 50, 100, 170]
   dataset_type: "train_time"
   filename: "time"
-  focus_size: 1280
-  data_dir: "datasets"
-
-# Training specific overrides often found in old gen_data
-train:
-  val_data_size: 128
+  focus_size: 31
+  data_dir: "daily_waste"

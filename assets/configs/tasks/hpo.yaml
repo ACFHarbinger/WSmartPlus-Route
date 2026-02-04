@@ -11,7 +11,7 @@ env:
   num_loc: 20
   area: "riomaior"
   waste_type: "plastic"
-  edge_threshold: 0.3
+  edge_threshold: 1.0
   edge_method: "knn"
   vertex_method: "mmn"
 
