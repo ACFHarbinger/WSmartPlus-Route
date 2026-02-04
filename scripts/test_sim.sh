@@ -27,10 +27,9 @@ VERBOSE=true
 
 # Configuration files
 TASK_CONFIG="assets/configs/tasks/test_sim.yaml"
-DATA_CONFIG="assets/configs/data/test_sim.yaml"
 
 # Load config values for both script display AND Python invocation
-eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" "$DATA_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
+eval $(uv run python logic/src/utils/configs/yaml_to_env.py "$TASK_CONFIG" 2>/dev/null | grep -v "declare -A") 2>/dev/null || true
 
 # Parse CLI overrides
 CLI_OVERRIDES=()
@@ -86,12 +85,13 @@ POLICIES_STR=$(format_policies)
 echo -e "${BLUE}╔══════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║       SIMULATION TEST MODULE             ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════╝${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Problem:      ${MAGENTA}${PROBLEM}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Area:         ${MAGENTA}${AREA}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Size:         ${MAGENTA}${SIZE}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Days:         ${MAGENTA}${DAYS}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Samples:      ${MAGENTA}${SAMPLES}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Policies:     ${MAGENTA}${POLICIES[@]}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Problem:             ${MAGENTA}${PROBLEM}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Area:                ${MAGENTA}${AREA}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Size:                ${MAGENTA}${SIZE}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Days:                ${MAGENTA}${DAYS}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Data Distribution:   ${MAGENTA}${DATA_DIST}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Samples:             ${MAGENTA}${SAMPLES}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Policies:            ${MAGENTA}${POLICIES[@]}${NC}"
 echo ""
 
 # If not verbose, redirect all output to /dev/null

@@ -12,7 +12,10 @@ sim:
   n_samples: 10
   checkpoint_days: 0
   real_time_log: false
-  policies: ["neural"] # ['alns', 'bcp', 'cvrp', 'hgs', 'lkh', 'sans', 'tsp', 'vrpp']
+  policies:
+    - hyper_aco
+    - aco
+    - alns
   n_vehicles: 1
   problem: "cwcvrp"
   gate_prob_threshold: 0.1
@@ -23,4 +26,4 @@ sim:
   checkpoint_dir: "checkpoints"
 
   # Data Configuration (can be list for batch testing)
-  data_distribution: ["unif", "gamma1"]
+  data_distribution: ["emp"]

@@ -4,6 +4,6 @@ vrpp:
     - delta: 0
     - psi: 1
     - engine: "gurobi"
-    - must_go: ["mg_lookahead_days7.xml", "mg_means_std0.84.xml"]
+    - must_go: ["mg_lookahead_days7.xml", "mg_service_level0.84.xml"]
     - time_limit: 600
     - post_processing: []

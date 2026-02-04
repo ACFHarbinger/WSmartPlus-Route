@@ -1,6 +1,7 @@
 """
 Mean and Standard Deviation based selection strategy module.
 """
+
 from typing import List
 
 import numpy as np
@@ -8,7 +9,7 @@ import numpy as np
 from ..must_go_selection import MustGoSelectionStrategy, SelectionContext
 
 
-class MeansAndStdDevSelection(MustGoSelectionStrategy):
+class ServiceLevelSelection(MustGoSelectionStrategy):
     """
     Statistical overflow prediction strategy.
     """

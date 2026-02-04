@@ -7,7 +7,6 @@ including TSP construction, local search optimization, and capacity management.
 Key Functions:
 --------------
 - find_route: Solve TSP using fast_tsp library
-- local_search_2opt: Improve tours with 2-opt local search
 - get_multi_tour: Split single tour into multiple depot trips (capacity aware)
 - get_route_cost: Calculate total tour distance
 - get_partial_tour: Remove bins to meet capacity constraints
@@ -52,73 +51,6 @@ def find_route(C, to_collect, time_limit=2.0):
         tour2.append(current_node)
     tour2.extend([next_node, 0])
     return tour2
-
-
-def local_search_2opt(tour, distance_matrix, max_iterations=200):
-    """
-    Improve tour using 2-opt local search (vectorized with NumPy).
-
-    Iteratively swaps edge pairs to reduce total tour distance. Uses vectorized
-    NumPy operations for performance. Stops when no improving move is found.
-
-    Args:
-        tour (array-like or torch.Tensor): Tour to improve (must start/end at depot)
-        distance_matrix (np.ndarray or torch.Tensor): Distance matrix
-        max_iterations (int): Maximum number of improvement rounds. Default: 200
-
-    Returns:
-        List[int]: Improved tour (same format as input)
-    """
-    if isinstance(tour, torch.Tensor):
-        tour = tour.cpu().numpy()
-    if torch.is_tensor(distance_matrix):
-        distance_matrix = distance_matrix.cpu().numpy()
-
-    best_tour = np.array(tour)
-    n = len(best_tour)
-    if n < 4:
-        return best_tour.tolist()
-
-    # Ensure it starts and ends at depot (0)
-    if best_tour[0] != 0 or best_tour[-1] != 0:
-        return best_tour.tolist()
-
-    for _ in range(max_iterations):
-        # i indices from 1 to n-3, j indices from i+1 to n-2
-        i = np.arange(1, n - 2)
-        j = np.arange(2, n - 1)
-
-        idx_i, idx_j = np.meshgrid(i, j, indexing="ij")
-        mask = idx_j > idx_i
-
-        if not np.any(mask):
-            break
-
-        I_vals = idx_i[mask]
-        J_vals = idx_j[mask]
-
-        # Tour nodes at relevant indices
-        t_prev_i = best_tour[I_vals - 1]
-        t_curr_i = best_tour[I_vals]
-        t_curr_j = best_tour[J_vals]
-        t_next_j = best_tour[J_vals + 1]
-
-        # Gain calculation: current_dist - new_dist
-        d_curr = distance_matrix[t_prev_i, t_curr_i] + distance_matrix[t_curr_j, t_next_j]
-        d_next = distance_matrix[t_prev_i, t_curr_j] + distance_matrix[t_curr_i, t_next_j]
-        gains = d_curr - d_next
-
-        best_idx = np.argmax(gains)
-        best_gain = gains[best_idx]
-        if best_gain > 1e-5:
-            # Apply the best edge swap found in this iteration
-            target_i = I_vals[best_idx]
-            target_j = J_vals[best_idx]
-            best_tour[target_i : target_j + 1] = best_tour[target_i : target_j + 1][::-1]
-        else:
-            break
-
-    return best_tour.tolist()
 
 
 def get_route_cost(distancesC, tour):

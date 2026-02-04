@@ -7,10 +7,12 @@ to improve individual solutions within the HGS population.
 
 import random
 import time
-from typing import Dict, List, Set, Tuple
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Set, Tuple
 
 import numpy as np
 
+from .hgs_aux.types import HGSParams, Individual
 from .operators import (
     move_2opt_intra,
     move_2opt_star,
@@ -19,12 +21,12 @@ from .operators import (
     move_swap,
     move_swap_star,
 )
-from .types import HGSParams, Individual
 
 
-class LocalSearch:
+class LocalSearch(ABC):
     """
-    Local Search module for HGS.
+    Abstract base class for Local Search algorithms.
+    Provides common infrastructure for neighbor lists and move operators.
     """
 
     def __init__(
@@ -34,19 +36,8 @@ class LocalSearch:
         capacity: float,
         R: float,
         C: float,
-        params: HGSParams,
+        params: Any,
     ):
-        """
-        Initialize the Local Search optimizer.
-
-        Args:
-            dist_matrix: NxN distance matrix.
-            demands: Dictionary of node demands.
-            capacity: Vehicle capacity.
-            R: Revenue multiplier.
-            C: Cost multiplier.
-            params: HGS configuration parameters.
-        """
         self.d = np.array(dist_matrix)
         self.demands = demands
         self.Q = capacity
@@ -54,6 +45,7 @@ class LocalSearch:
         self.C = C
         self.params = params
 
+        # Common initialization for neighbors (used by all LS)
         n_nodes = len(dist_matrix)
         self.neighbors = {}
         for i in range(1, n_nodes):
@@ -69,32 +61,31 @@ class LocalSearch:
 
         self.node_map: Dict[int, Tuple[int, int]] = {}
         self.route_loads: List[float] = []
+        self.routes: List[List[int]] = []
 
-    def optimize(self, individual: Individual) -> Individual:
+    @abstractmethod
+    def optimize(self, solution: Any) -> Any:
         """
-        Iteratively improve an individual using local search operators.
-
-        Args:
-            individual: The HGS individual to be optimized.
-
-        Returns:
-            Individual: The improved individual.
+        Optimize the given solution.
         """
-        if not individual.routes:
-            return individual
+        pass
 
-        self.routes = [r[:] for r in individual.routes]
+    def _optimize_internal(self):
+        """
+        Core local search loop. Assumes self.routes is populated.
+        """
         self.route_loads = [self._calc_load_fresh(r) for r in self.routes]
+
+        # Initialize node map
+        self.node_map.clear()
+        for ri, r in enumerate(self.routes):
+            for pi, node in enumerate(r):
+                self.node_map[node] = (ri, pi)
 
         improved = True
         limit = 500  # Safety cap
         it = 0
         t_start = time.time()
-
-        self.node_map.clear()
-        for ri, r in enumerate(self.routes):
-            for pi, node in enumerate(r):
-                self.node_map[node] = (ri, pi)
 
         while improved and it < limit:
             improved = False
@@ -109,13 +100,6 @@ class LocalSearch:
                 if self._process_node(u):
                     improved = True
                     break
-
-        individual.routes = self.routes
-        gt = []
-        for r in self.routes:
-            gt.extend(r)
-        individual.giant_tour = gt
-        return individual
 
     def _calc_load_fresh(self, r: List[int]) -> float:
         return sum(self.demands.get(x, 0) for x in r)
@@ -175,3 +159,64 @@ class LocalSearch:
 
     def _move_2opt_intra(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
         return move_2opt_intra(self, u, v, r_u, p_u, r_v, p_v)
+
+
+class HGSLocalSearch(LocalSearch):
+    """
+    Local Search module for HGS.
+    """
+
+    def __init__(
+        self,
+        dist_matrix: np.ndarray,
+        demands: Dict[int, float],
+        capacity: float,
+        R: float,
+        C: float,
+        params: HGSParams,
+    ):
+        super().__init__(dist_matrix, demands, capacity, R, C, params)
+
+    def optimize(self, solution: Individual) -> Individual:
+        """
+        Iteratively improve an individual using local search operators.
+        """
+        if not solution.routes:
+            return solution
+
+        self.routes = [r[:] for r in solution.routes]
+
+        # Run optimization
+        self._optimize_internal()
+
+        solution.routes = self.routes
+        gt = []
+        for r in self.routes:
+            gt.extend(r)
+        solution.giant_tour = gt
+        return solution
+
+
+class ACOLocalSearch(LocalSearch):
+    """
+    Local Search module for K-Sparse ACO.
+    Implements 2-opt local search refinement.
+    """
+
+    def optimize(self, solution: List[List[int]]) -> List[List[int]]:
+        """
+        Apply full set of local search operators to the solution.
+
+        Args:
+            solution: List of routes, where each route is a list of node indices.
+
+        Returns:
+            List of optimized routes.
+        """
+        # Create a deep copy of routes to modify
+        self.routes = [r[:] for r in solution]
+
+        # Run optimization
+        self._optimize_internal()
+
+        return self.routes

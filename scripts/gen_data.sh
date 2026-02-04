@@ -84,10 +84,11 @@ FOCUS_GRAPHS_STR=$(format_hydra_list "${FOCUS_GRAPHS[@]}")
 echo -e "${BLUE}╔══════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║       DATA GENERATION MODULE             ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════╝${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Problem:    ${MAGENTA}${PROBLEM}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Area:       ${MAGENTA}${AREA}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Sizes:      ${MAGENTA}${SIZES[*]}${NC}"
-echo -e "${CYAN}[CONFIG]${NC} Waste Type: ${MAGENTA}${WTYPE}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Problem:          ${MAGENTA}${PROBLEM}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Area:             ${MAGENTA}${AREA}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Sizes:            ${MAGENTA}${SIZES[*]}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Waste Type:       ${MAGENTA}${WTYPE}${NC}"
+echo -e "${CYAN}[CONFIG]${NC} Dataset Size:     ${MAGENTA}${N_DATA}${NC}"
 echo ""
 
 # If not verbose, redirect all output to /dev/null
@@ -96,11 +97,15 @@ if [ "$VERBOSE" = false ]; then
     exec >/dev/null 2>&1
 fi
 
+GENERATE_DATASET=1
+GENERATE_VAL_DATASET=1
+GENERATE_TEST_DATASET=0
+
 # Generate main dataset
 if [ "${GENERATE_DATASET:-0}" -eq 0 ]; then
     echo -e "${BLUE}Generating main dataset...${NC}"
     uv run python main.py gen_data \
-        "data.name=${DATASET_NAME:-train}" \
+        "data.name=${DATA_FILENAME:-train}" \
         "data.problem=$PROBLEM" \
         "data.overwrite=true" \
         "data.waste_type=$WTYPE" \
@@ -123,12 +128,12 @@ fi
 if [ "${GENERATE_VAL_DATASET:-0}" -eq 0 ]; then
     echo -e "${BLUE}Generating validation dataset...${NC}"
     uv run python main.py gen_data \
-        "data.name=${DATASET_NAME:-train}_val" \
+        "data.name=${DATA_FILENAME:-train}_val" \
         "data.problem=$PROBLEM" \
         "data.overwrite=true" \
         "data.waste_type=$WTYPE" \
         "data.num_locs=${SIZES_STR}" \
-        "data.dataset_size=${N_VAL_DATA:-1280}" \
+        "data.dataset_size=${DATA_VAL_SIZE:-1280}" \
         "data.dataset_type=train_time" \
         "data.n_epochs=${DATA_N_EPOCHS:-100}" \
         "data.epoch_start=${DATA_EPOCH_START:-${START:-0}}" \
@@ -146,7 +151,7 @@ fi
 if [ "${GENERATE_TEST_DATASET:-0}" -eq 0 ]; then
     echo -e "${BLUE}Generating test dataset...${NC}"
     uv run python main.py gen_data \
-        "data.name=${TEST_DATASET_NAME:-test}" \
+        "data.name=${DATA_FILENAME:-test}" \
         "data.problem=$PROBLEM" \
         "data.overwrite=true" \
         "data.area=$AREA" \
@@ -161,7 +166,7 @@ if [ "${GENERATE_TEST_DATASET:-0}" -eq 0 ]; then
         "data.data_dir=${SIM_DATA_DIR:-$DATA_DIR}" \
         "data.waste_type=$WTYPE" \
         "data.num_locs=${SIZES_STR}" \
-        "data.dataset_size=${N_TEST_DATA:-1280}" \
+        "data.dataset_size=${DATA_TEST_SIZE:-1280}" \
         "$@"
 fi
 
