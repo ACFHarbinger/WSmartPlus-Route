@@ -11,6 +11,18 @@
   "days": 30.8,
   "time": 590.7081602525
  },
+ "lookahead_days7_aco_custom_gamma1": {
+  "overflows": 3.3,
+  "kg": 37463.052899147515,
+  "ncol": 2653.8,
+  "kg_lost": 16.419554813812564,
+  "km": 4620.0108,
+  "kg/km": 8.10894347005477,
+  "cost": -32839.742099147516,
+  "profit": 17247.173177232406,
+  "days": 31,
+  "time": 1498.8531275077
+ },
  "lookahead_days7_alns_custom_gamma1": {
   "overflows": 3.3,
   "kg": 37463.052899147515,
@@ -47,6 +59,18 @@
   "days": 31,
   "time": 6718.476045273601
  },
+ "lookahead_days7_hyper_aco_custom_gamma1": {
+  "overflows": 3.3,
+  "kg": 37463.052899147515,
+  "ncol": 2653.8,
+  "kg_lost": 16.419554813812564,
+  "km": 4611.7853000000005,
+  "kg/km": 8.12339469863261,
+  "cost": -32847.967599147516,
+  "profit": 17255.398677232406,
+  "days": 31,
+  "time": 1504.553270356
+ },
  "lookahead_days7_sans_a_gamma1": {
   "overflows": 3.3,
   "kg": 37581.26154268245,
@@ -58,6 +82,18 @@
   "profit": 17410.833362463745,
   "days": 31,
   "time": 889.1719175196006
+ },
+ "lookahead_days7_sisr_custom_gamma1": {
+  "overflows": 3.3,
+  "kg": 37463.052899147515,
+  "ncol": 2653.8,
+  "kg_lost": 16.419554813812564,
+  "km": 4615.2403,
+  "kg/km": 8.11727878592129,
+  "cost": -32844.51259914752,
+  "profit": 17251.943677232408,
+  "days": 31,
+  "time": 819.8913567582
  },
  "regular_lvl3_cvrp_ortools_gamma1": {
   "overflows": 491.9,
