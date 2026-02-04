@@ -1,6 +1,7 @@
 """
 RL Config module.
 """
+
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
@@ -54,14 +55,9 @@ class ImitationConfig:
     """Imitation specific configuration."""
 
     mode: str = "hgs"  # hgs, alns, random_ls, 2opt
-    weight: float = 0.0
-    decay: float = 1.0
-    threshold: float = 0.05
-    decay_step: int = 1
-    reannealing_threshold: float = 0.05
-    reannealing_patience: int = 5
     random_ls_iterations: int = 100
     random_ls_op_probs: Optional[Dict[str, float]] = None
+    enabled: bool = False
 
 
 @dataclass
@@ -81,6 +77,9 @@ class AdaptiveImitationConfig:
     il_weight: float = 1.0
     il_decay: float = 0.95
     patience: int = 5
+    threshold: float = 0.05
+    decay_step: int = 1
+    epsilon: float = 1e-5
 
 
 @dataclass
@@ -112,7 +111,3 @@ class RLConfig:
     imitation: ImitationConfig = field(default_factory=ImitationConfig)
     gdpo: GDPOConfig = field(default_factory=GDPOConfig)
     adaptive_imitation: AdaptiveImitationConfig = field(default_factory=AdaptiveImitationConfig)
-
-    # Legay compatibility fields (mapping back for now if needed by older code)
-    # Note: These are not directly in the dataclass anymore to enforce modularity
-    # but we can add properties if absolutely necessary.

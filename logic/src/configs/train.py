@@ -3,7 +3,7 @@ Train Config module.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Union
 
 
 @dataclass
@@ -56,3 +56,5 @@ class TrainConfig:
     persistent_workers: bool = True
     pin_memory: bool = False
     reload_dataloaders_every_n_epochs: int = 1
+    devices: Union[int, str] = "auto"
+    strategy: Optional[str] = None

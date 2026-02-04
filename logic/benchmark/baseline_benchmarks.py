@@ -15,7 +15,7 @@ from logic.src.models.policies.classical.random_local_search import (
     RandomLocalSearchPolicy,
 )
 from logic.src.utils.logging.structured_logging import log_benchmark_metric
-from logic.src.policies.policy_vrpp import run_vrpp_optimizer
+from logic.src.policies.adapters.policy_vrpp import run_vrpp_optimizer
 from logic.src.policies.multi_vehicle import find_routes, find_routes_ortools
 
 
