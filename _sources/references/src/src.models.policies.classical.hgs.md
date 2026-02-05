@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedHGS(env_name: str, time_limit: float = 5.0, population_size: int = 50, n_generations: int = 50, elite_size: int = 5, max_vehicles: int = 0, **kwargs)
+`````{py:class} VectorizedHGS(env_name: str | None, time_limit: float = 5.0, population_size: int = 50, n_generations: int = 50, elite_size: int = 5, max_vehicles: int = 0, **kwargs)
 :canonical: src.models.policies.classical.hgs.VectorizedHGS
 
 Bases: {py:obj}`logic.src.models.policies.base.ConstructivePolicy`

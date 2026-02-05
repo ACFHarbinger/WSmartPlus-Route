@@ -7,6 +7,15 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.pipeline.rl.core.losses
+```
+
 ## Submodules
 
 ```{toctree}

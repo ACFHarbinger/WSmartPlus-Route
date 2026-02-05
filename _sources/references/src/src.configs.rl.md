@@ -299,6 +299,17 @@
 
 ````
 
+````{py:attribute} loss_fn
+:canonical: src.configs.rl.ImitationConfig.loss_fn
+:type: str
+:value: >
+   'nll'
+
+```{autodoc2-docstring} src.configs.rl.ImitationConfig.loss_fn
+```
+
+````
+
 `````
 
 `````{py:class} GDPOConfig

@@ -43,6 +43,10 @@
   - ```{autodoc2-docstring} src.policies.post_processing.PathPostProcessor
     :summary:
     ```
+* - {py:obj}`IteratedLocalSearchPostProcessor <src.policies.post_processing.IteratedLocalSearchPostProcessor>`
+  - ```{autodoc2-docstring} src.policies.post_processing.IteratedLocalSearchPostProcessor
+    :summary:
+    ```
 ````
 
 ### API
@@ -192,6 +196,30 @@ Bases: {py:obj}`src.policies.post_processing.IPostProcessor`
 :canonical: src.policies.post_processing.PathPostProcessor.process
 
 ```{autodoc2-docstring} src.policies.post_processing.PathPostProcessor.process
+```
+
+````
+
+`````
+
+`````{py:class} IteratedLocalSearchPostProcessor(ls_operator: typing.Union[str, typing.Dict[str, float]] = '2opt', perturbation_type: typing.Union[str, typing.Dict[str, float]] = 'double_bridge', n_restarts: int = 5, ls_iterations: int = 50, perturbation_strength: float = 0.2)
+:canonical: src.policies.post_processing.IteratedLocalSearchPostProcessor
+
+Bases: {py:obj}`src.policies.post_processing.IPostProcessor`
+
+```{autodoc2-docstring} src.policies.post_processing.IteratedLocalSearchPostProcessor
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.post_processing.IteratedLocalSearchPostProcessor.__init__
+```
+
+````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.List[int]
+:canonical: src.policies.post_processing.IteratedLocalSearchPostProcessor.process
+
+```{autodoc2-docstring} src.policies.post_processing.IteratedLocalSearchPostProcessor.process
 ```
 
 ````

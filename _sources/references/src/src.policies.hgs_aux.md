@@ -7,15 +7,6 @@
 :allowtitles:
 ```
 
-## Subpackages
-
-```{toctree}
-:titlesonly:
-:maxdepth: 3
-
-src.policies.hgs_aux.operators
-```
-
 ## Submodules
 
 ```{toctree}
@@ -26,5 +17,4 @@ src.policies.hgs_aux.split
 src.policies.hgs_aux.types
 src.policies.hgs_aux.pyvrp_wrapper
 src.policies.hgs_aux.evolution
-src.policies.hgs_aux.local_search
 ```

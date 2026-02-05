@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.alns_aux" href="src.policies.alns_aux.html" />
+    <link rel="next" title="src.policies.operators" href="src.policies.operators.html" />
     <link rel="prev" title="src" href="src.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -174,7 +174,9 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active has-children"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.aco_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.aco_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
@@ -183,6 +185,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base_routing_policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base_routing_policy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hyper_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_aco</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.must_go_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.must_go_selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
@@ -190,6 +193,9 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.k_sparse_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.k_sparse_aco</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -273,6 +279,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.decoding</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.eval.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.eval</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.must_go</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.train.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.train</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.env</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.optim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.optim</span></code></a></li>
@@ -442,8 +449,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.NeuralPolicyAdapter"><code class="docutils literal notranslate"><span class="pre">NeuralPolicyAdapter</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.VRPPPolicyAdapter"><code class="docutils literal notranslate"><span class="pre">VRPPPolicyAdapter</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.create_policy"><code class="docutils literal notranslate"><span class="pre">create_policy</span></code></a></li>
 </ul>
 </li>
@@ -469,12 +474,25 @@ used for solving the Waste Collection Vehicle Routing Problem.</p>
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.operators.exchange_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.exchange_operators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.operators.perturbation_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.perturbation_operators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.operators.move_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.move_operators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.operators.repair_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.repair_operators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.operators.route_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.route_operators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.operators.destroy_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.destroy_operators</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.alns_aux.ortools_wrapper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux.ortools_wrapper</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.alns_aux.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux.params</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.alns_aux.alns_package.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux.alns_package</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.policies.alns_aux.repair_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux.repair_operators</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.policies.alns_aux.destroy_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux.destroy_operators</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.aco_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.aco_aux</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.aco_aux.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.aco_aux.params</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.aco_aux.pheromones.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.aco_aux.pheromones</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.aco_aux.hyper_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.aco_aux.hyper_operators</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a><ul>
@@ -493,38 +511,37 @@ used for solving the Waste Collection Vehicle Routing Problem.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.policies.hgs_aux.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.operators</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.policies.hgs_aux.operators.move_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.operators.move_operators</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.policies.hgs_aux.operators.route_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.operators.route_operators</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.hgs_aux.split.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.split</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.hgs_aux.types.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.types</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.hgs_aux.pyvrp_wrapper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.pyvrp_wrapper</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.hgs_aux.evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.evolution</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.policies.hgs_aux.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.local_search</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.selection.selection_last_minute.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_last_minute</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.selection.vectorized.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.vectorized</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.selection.selection_service_level.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_service_level</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.selection.selection_revenue.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_revenue</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.policies.selection.selection_means_std.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_means_std</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.selection.selection_regular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_regular</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.selection.selection_lookahead.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_lookahead</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_alns</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_hyper_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_hyper_aco</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_sans.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_sans</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.factory</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_lac.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_lac</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_hgs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_hgs</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_neural.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_neural</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_tsp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_aco</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_cvrp</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_hgs_alns</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_vrpp</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_lkh.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_lkh</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_bcp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_bcp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.adapters.policy_sisr.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_sisr</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -538,6 +555,7 @@ used for solving the Waste Collection Vehicle Routing Problem.</p>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.base_routing_policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base_routing_policy</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.hyper_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_aco</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.must_go_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.must_go_selection</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
@@ -545,6 +563,9 @@ used for solving the Waste Collection Vehicle Routing Problem.</p>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.post_processing</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.k_sparse_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.k_sparse_aco</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 </ul>
 </div>
 </section>
@@ -555,12 +576,6 @@ used for solving the Waste Collection Vehicle Routing Problem.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.__all__" title="src.policies.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.NeuralPolicyAdapter" title="src.policies.NeuralPolicyAdapter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NeuralPolicyAdapter</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.VRPPPolicyAdapter" title="src.policies.VRPPPolicyAdapter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VRPPPolicyAdapter</span></code></a></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.create_policy" title="src.policies.create_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_policy</span></code></a></p></td>
@@ -575,19 +590,7 @@ used for solving the Waste Collection Vehicle Routing Problem.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.policies.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.policies.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘ALNSParams’, ‘PolicyFactory’, ‘create_points’, ‘create_policy’, ‘find_route’, ‘find_routes’, ‘find…</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.policies.NeuralPolicyAdapter">
-<span class="sig-prename descclassname"><span class="pre">src.policies.</span></span><span class="sig-name descname"><span class="pre">NeuralPolicyAdapter</span></span><a class="headerlink" href="#src.policies.NeuralPolicyAdapter" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.policies.VRPPPolicyAdapter">
-<span class="sig-prename descclassname"><span class="pre">src.policies.</span></span><span class="sig-name descname"><span class="pre">VRPPPolicyAdapter</span></span><a class="headerlink" href="#src.policies.VRPPPolicyAdapter" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
+<dd><p>[‘ACOParams’, ‘ALNSParams’, ‘PolicyFactory’, ‘NeuralAgent’, ‘create_points’, ‘create_policy’, ‘find_…</p>
 </dd></dl>
 
 <dl class="py data">
@@ -621,11 +624,11 @@ used for solving the Waste Collection Vehicle Routing Problem.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.alns_aux.html"
+       href="src.policies.operators.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -651,8 +654,6 @@ used for solving the Waste Collection Vehicle Routing Problem.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.NeuralPolicyAdapter"><code class="docutils literal notranslate"><span class="pre">NeuralPolicyAdapter</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.VRPPPolicyAdapter"><code class="docutils literal notranslate"><span class="pre">VRPPPolicyAdapter</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.create_policy"><code class="docutils literal notranslate"><span class="pre">create_policy</span></code></a></li>
 </ul>
 </li>

@@ -22,6 +22,8 @@ src.models.policies.classical.alns
 src.models.policies.classical.hgs
 src.models.policies.classical.local_search
 src.models.policies.classical.hgs_alns
+src.models.policies.classical.iterated_local_search
+src.models.policies.classical.ant_colony_system
 ```
 
 ## Package Contents
@@ -43,7 +45,7 @@ src.models.policies.classical.hgs_alns
 ````{py:data} __all__
 :canonical: src.models.policies.classical.__all__
 :value: >
-   ['HGSALNSPolicy']
+   ['VectorizedHGSALNS', 'IteratedLocalSearchPolicy', 'VectorizedACOPolicy']
 
 ```{autodoc2-docstring} src.models.policies.classical.__all__
 ```

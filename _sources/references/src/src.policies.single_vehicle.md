@@ -19,10 +19,6 @@
   - ```{autodoc2-docstring} src.policies.single_vehicle.find_route
     :summary:
     ```
-* - {py:obj}`local_search_2opt <src.policies.single_vehicle.local_search_2opt>`
-  - ```{autodoc2-docstring} src.policies.single_vehicle.local_search_2opt
-    :summary:
-    ```
 * - {py:obj}`get_route_cost <src.policies.single_vehicle.get_route_cost>`
   - ```{autodoc2-docstring} src.policies.single_vehicle.get_route_cost
     :summary:
@@ -51,13 +47,6 @@
 :canonical: src.policies.single_vehicle.find_route
 
 ```{autodoc2-docstring} src.policies.single_vehicle.find_route
-```
-````
-
-````{py:function} local_search_2opt(tour, distance_matrix, max_iterations=200)
-:canonical: src.policies.single_vehicle.local_search_2opt
-
-```{autodoc2-docstring} src.policies.single_vehicle.local_search_2opt
 ```
 ````
 

@@ -16,6 +16,7 @@
 src.configs.rl
 src.configs.decoding
 src.configs.eval
+src.configs.must_go
 src.configs.train
 src.configs.env
 src.configs.optim
@@ -166,6 +167,17 @@ src.configs.meta_rl
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.Config.data
+```
+
+````
+
+````{py:attribute} must_go
+:canonical: src.configs.Config.must_go
+:type: src.configs.must_go.MustGoConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.Config.must_go
 ```
 
 ````

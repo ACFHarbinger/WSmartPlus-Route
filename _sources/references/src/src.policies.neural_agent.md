@@ -19,10 +19,6 @@
   - ```{autodoc2-docstring} src.policies.neural_agent.NeuralAgent
     :summary:
     ```
-* - {py:obj}`NeuralPolicy <src.policies.neural_agent.NeuralPolicy>`
-  - ```{autodoc2-docstring} src.policies.neural_agent.NeuralPolicy
-    :summary:
-    ```
 ````
 
 ### API
@@ -47,28 +43,10 @@
 
 ````
 
-````{py:method} compute_simulator_day(input, graph, distC, profit_vars=None, run_tsp=False, hrl_manager=None, waste_history=None, threshold=0.5, mask_threshold=0.5, two_opt_max_iter=0, cost_weights=None)
+````{py:method} compute_simulator_day(input, graph, distC, profit_vars=None, run_tsp=False, hrl_manager=None, waste_history=None, threshold=0.5, mask_threshold=0.5, two_opt_max_iter=0, cost_weights=None, must_go=None)
 :canonical: src.policies.neural_agent.NeuralAgent.compute_simulator_day
 
 ```{autodoc2-docstring} src.policies.neural_agent.NeuralAgent.compute_simulator_day
-```
-
-````
-
-`````
-
-`````{py:class} NeuralPolicy
-:canonical: src.policies.neural_agent.NeuralPolicy
-
-Bases: {py:obj}`logic.src.policies.adapters.IPolicy`
-
-```{autodoc2-docstring} src.policies.neural_agent.NeuralPolicy
-```
-
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
-:canonical: src.policies.neural_agent.NeuralPolicy.execute
-
-```{autodoc2-docstring} src.policies.neural_agent.NeuralPolicy.execute
 ```
 
 ````

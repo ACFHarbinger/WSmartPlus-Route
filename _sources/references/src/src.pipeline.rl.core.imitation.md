@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ImitationLearning(expert_policy: typing.Any = None, expert_name: str = 'hgs', **kwargs)
+`````{py:class} ImitationLearning(expert_policy: typing.Any = None, expert_name: str = 'hgs', loss_fn: str = 'nll', **kwargs)
 :canonical: src.pipeline.rl.core.imitation.ImitationLearning
 
 Bases: {py:obj}`logic.src.pipeline.rl.common.base.RL4COLitModule`

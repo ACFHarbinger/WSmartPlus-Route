@@ -15,119 +15,40 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`HGSALNSPolicy <src.models.policies.classical.hgs_alns.HGSALNSPolicy>`
-  - ```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy
+* - {py:obj}`VectorizedHGSALNS <src.models.policies.classical.hgs_alns.VectorizedHGSALNS>`
+  - ```{autodoc2-docstring} src.models.policies.classical.hgs_alns.VectorizedHGSALNS
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} HGSALNSPolicy(**data: typing.Any)
-:canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy
+`````{py:class} VectorizedHGSALNS(env_name: str | None = 'vrpp', time_limit: float = 0.1, population_size: int = 20, n_generations: int = 15, elite_size: int = 2, max_vehicles: int = 0, alns_education_iterations: int = 5, **kwargs: typing.Any)
+:canonical: src.models.policies.classical.hgs_alns.VectorizedHGSALNS
 
-Bases: {py:obj}`logic.src.models.policies.classical.hgs.VectorizedHGS`, {py:obj}`pydantic.BaseModel`
+Bases: {py:obj}`logic.src.models.policies.classical.hgs.VectorizedHGS`
 
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy
+```{autodoc2-docstring} src.models.policies.classical.hgs_alns.VectorizedHGSALNS
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy.__init__
+```{autodoc2-docstring} src.models.policies.classical.hgs_alns.VectorizedHGSALNS.__init__
 ```
-
-````{py:attribute} model_config
-:canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy.model_config
-:value: >
-   'ConfigDict(...)'
-
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy.model_config
-```
-
-````
-
-````{py:attribute} env_name
-:canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy.env_name
-:type: str
-:value: >
-   'Field(...)'
-
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy.env_name
-```
-
-````
-
-````{py:attribute} time_limit
-:canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy.time_limit
-:type: float
-:value: >
-   'Field(...)'
-
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy.time_limit
-```
-
-````
-
-````{py:attribute} population_size
-:canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy.population_size
-:type: int
-:value: >
-   'Field(...)'
-
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy.population_size
-```
-
-````
-
-````{py:attribute} n_generations
-:canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy.n_generations
-:type: int
-:value: >
-   'Field(...)'
-
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy.n_generations
-```
-
-````
-
-````{py:attribute} elite_size
-:canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy.elite_size
-:type: int
-:value: >
-   'Field(...)'
-
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy.elite_size
-```
-
-````
-
-````{py:attribute} max_vehicles
-:canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy.max_vehicles
-:type: int
-:value: >
-   'Field(...)'
-
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy.max_vehicles
-```
-
-````
-
-````{py:attribute} alns_education_iterations
-:canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy.alns_education_iterations
-:type: int
-:value: >
-   'Field(...)'
-
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy.alns_education_iterations
-```
-
-````
 
 ````{py:method} solve(dist_matrix, demands, capacity, **kwargs)
-:canonical: src.models.policies.classical.hgs_alns.HGSALNSPolicy.solve
+:canonical: src.models.policies.classical.hgs_alns.VectorizedHGSALNS.solve
 
-```{autodoc2-docstring} src.models.policies.classical.hgs_alns.HGSALNSPolicy.solve
+```{autodoc2-docstring} src.models.policies.classical.hgs_alns.VectorizedHGSALNS.solve
+```
+
+````
+
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, decode_type: str = 'greedy', num_starts: int = 1, **kwargs) -> dict
+:canonical: src.models.policies.classical.hgs_alns.VectorizedHGSALNS.forward
+
+```{autodoc2-docstring} src.models.policies.classical.hgs_alns.VectorizedHGSALNS.forward
 ```
 
 ````

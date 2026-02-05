@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.policies.hgs_aux.local_search &#8212; WSmart-Route  documentation</title>
+    <title>src.pipeline.rl.core.losses.kl_divergence_loss &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.hgs_aux.local_search';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.pipeline.rl.core.losses.kl_divergence_loss';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.selection" href="src.policies.selection.html" />
-    <link rel="prev" title="src.policies.hgs_aux.evolution" href="src.policies.hgs_aux.evolution.html" />
+    <link rel="next" title="src.pipeline.rl.core.losses.weighted_nll_loss" href="src.pipeline.rl.core.losses.weighted_nll_loss.html" />
+    <link rel="prev" title="src.pipeline.rl.core.losses" href="src.pipeline.rl.core.losses.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -173,16 +173,19 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.aco_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.aco_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns_solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base_routing_policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base_routing_policy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hyper_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_aco</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.must_go_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.must_go_selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
@@ -190,6 +193,9 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.k_sparse_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.k_sparse_aco</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -238,10 +244,10 @@
 <li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
 </ul>
@@ -273,6 +279,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.decoding</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.eval.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.eval</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.must_go</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.train.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.train</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.env</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.optim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.optim</span></code></a></li>
@@ -342,7 +349,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.policies.hgs_aux.local_search.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.pipeline.rl.core.losses.kl_divergence_loss.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -426,7 +433,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.policies.hgs_aux.local_search</h1>
+    <h1>src.pipeline.rl.core.losses.kl_divergence_loss</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -437,22 +444,10 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch"><code class="docutils literal notranslate"><span class="pre">LocalSearch</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch.optimize"><code class="docutils literal notranslate"><span class="pre">LocalSearch.optimize()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._calc_load_fresh"><code class="docutils literal notranslate"><span class="pre">LocalSearch._calc_load_fresh()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._process_node"><code class="docutils literal notranslate"><span class="pre">LocalSearch._process_node()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._update_map"><code class="docutils literal notranslate"><span class="pre">LocalSearch._update_map()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._get_load_cached"><code class="docutils literal notranslate"><span class="pre">LocalSearch._get_load_cached()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_relocate"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_relocate()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_swap"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_swap()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_swap_star"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_swap_star()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_3opt_intra"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_3opt_intra()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_2opt_star"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_2opt_star()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_2opt_intra"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_2opt_intra()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.core.losses.kl_divergence_loss.kl_divergence_loss"><code class="docutils literal notranslate"><span class="pre">kl_divergence_loss()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.core.losses.kl_divergence_loss.reverse_kl_divergence_loss"><code class="docutils literal notranslate"><span class="pre">reverse_kl_divergence_loss()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -468,19 +463,20 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.hgs_aux.local_search">
-<span id="src-policies-hgs-aux-local-search"></span><h1><a class="reference internal" href="#module-src.policies.hgs_aux.local_search" title="src.policies.hgs_aux.local_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.local_search</span></code></a><a class="headerlink" href="#module-src.policies.hgs_aux.local_search" title="Link to this heading">#</a></h1>
-<p>Local Search heuristics for Hybrid Genetic Search (HGS).</p>
-<p>This module provides various local search operators (Relocate, Swap, 2-opt)
-to improve individual solutions within the HGS population.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.core.losses.kl_divergence_loss">
+<span id="src-pipeline-rl-core-losses-kl-divergence-loss"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.core.losses.kl_divergence_loss" title="src.pipeline.rl.core.losses.kl_divergence_loss"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.losses.kl_divergence_loss</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.core.losses.kl_divergence_loss" title="Link to this heading">#</a></h1>
+<p>KL Divergence loss for policy distillation.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.hgs_aux.local_search.LocalSearch" title="src.policies.hgs_aux.local_search.LocalSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LocalSearch</span></code></a></p></td>
-<td><p>Local Search module for HGS.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.rl.core.losses.kl_divergence_loss.kl_divergence_loss" title="src.pipeline.rl.core.losses.kl_divergence_loss.kl_divergence_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kl_divergence_loss</span></code></a></p></td>
+<td><p>Compute KL Divergence between policy and target distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.rl.core.losses.kl_divergence_loss.reverse_kl_divergence_loss" title="src.pipeline.rl.core.losses.kl_divergence_loss.reverse_kl_divergence_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reverse_kl_divergence_loss</span></code></a></p></td>
+<td><p>Compute Reverse KL Divergence (mode-seeking).</p></td>
 </tr>
 </tbody>
 </table>
@@ -488,79 +484,37 @@ to improve individual solutions within the HGS population.</p>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.hgs_aux.local_search.</span></span><span class="sig-name descname"><span class="pre">LocalSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.hgs_aux.types.html#src.policies.hgs_aux.types.HGSParams" title="src.policies.hgs_aux.types.HGSParams"><span class="pre">src.policies.hgs_aux.types.HGSParams</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch" title="Link to this definition">#</a></dt>
-<dd><p>Local Search module for HGS.</p>
-<p class="rubric">Initialization</p>
-<p>Initialize the Local Search optimizer.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.rl.core.losses.kl_divergence_loss.kl_divergence_loss">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.core.losses.kl_divergence_loss.</span></span><span class="sig-name descname"><span class="pre">kl_divergence_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_log_probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.losses.kl_divergence_loss.kl_divergence_loss" title="Link to this definition">#</a></dt>
+<dd><p>Compute KL Divergence between policy and target distribution.</p>
+<p>KL(target || policy) = sum(target * log(target / policy))
+= sum(target * (log_target - log_policy))</p>
+<p>This is useful for policy distillation where we want to match
+the full action distribution of an expert, not just the argmax action.</p>
 <p>Args:
-dist_matrix: NxN distance matrix.
-demands: Dictionary of node demands.
-capacity: Vehicle capacity.
-R: Revenue multiplier.
-C: Cost multiplier.
-params: HGS configuration parameters.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch.optimize">
-<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.hgs_aux.types.html#src.policies.hgs_aux.types.Individual" title="src.policies.hgs_aux.types.Individual"><span class="pre">src.policies.hgs_aux.types.Individual</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.hgs_aux.types.html#src.policies.hgs_aux.types.Individual" title="src.policies.hgs_aux.types.Individual"><span class="pre">src.policies.hgs_aux.types.Individual</span></a></span></span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch.optimize" title="Link to this definition">#</a></dt>
-<dd><p>Iteratively improve an individual using local search operators.</p>
-<p>Args:
-individual: The HGS individual to be optimized.</p>
+log_probs: Log probabilities from the policy, shape (batch_size, num_actions).
+target_log_probs: Log probabilities from the target, shape (batch_size, num_actions).
+reduction: Reduction method (‘mean’, ‘sum’, ‘none’, ‘batchmean’).</p>
 <p>Returns:
-Individual: The improved individual.</p>
+Scalar loss tensor (or per-sample if reduction=’none’).</p>
+<p>Example:
+&gt;&gt;&gt; kl = kl_divergence_loss(policy_logits.log_softmax(-1), expert_logits.log_softmax(-1))</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch._calc_load_fresh">
-<span class="sig-name descname"><span class="pre">_calc_load_fresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch._calc_load_fresh" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch._process_node">
-<span class="sig-name descname"><span class="pre">_process_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch._process_node" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch._update_map">
-<span class="sig-name descname"><span class="pre">_update_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">affected_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch._update_map" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch._get_load_cached">
-<span class="sig-name descname"><span class="pre">_get_load_cached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch._get_load_cached" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch._move_relocate">
-<span class="sig-name descname"><span class="pre">_move_relocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch._move_relocate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch._move_swap">
-<span class="sig-name descname"><span class="pre">_move_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch._move_swap" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch._move_swap_star">
-<span class="sig-name descname"><span class="pre">_move_swap_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch._move_swap_star" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch._move_3opt_intra">
-<span class="sig-name descname"><span class="pre">_move_3opt_intra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch._move_3opt_intra" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch._move_2opt_star">
-<span class="sig-name descname"><span class="pre">_move_2opt_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch._move_2opt_star" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.hgs_aux.local_search.LocalSearch._move_2opt_intra">
-<span class="sig-name descname"><span class="pre">_move_2opt_intra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.hgs_aux.local_search.LocalSearch._move_2opt_intra" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.rl.core.losses.kl_divergence_loss.reverse_kl_divergence_loss">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.core.losses.kl_divergence_loss.</span></span><span class="sig-name descname"><span class="pre">reverse_kl_divergence_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_log_probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.losses.kl_divergence_loss.reverse_kl_divergence_loss" title="Link to this definition">#</a></dt>
+<dd><p>Compute Reverse KL Divergence (mode-seeking).</p>
+<p>KL(policy || target) = sum(policy * log(policy / target))</p>
+<p>Reverse KL is mode-seeking and useful when we want the policy
+to concentrate on the modes of the target distribution.</p>
+<p>Args:
+log_probs: Log probabilities from the policy, shape (batch_size, num_actions).
+target_log_probs: Log probabilities from the target, shape (batch_size, num_actions).
+reduction: Reduction method (‘mean’, ‘sum’, ‘none’, ‘batchmean’).</p>
+<p>Returns:
+Scalar loss tensor.</p>
 </dd></dl>
 
 </section>
@@ -579,20 +533,20 @@ Individual: The improved individual.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.hgs_aux.evolution.html"
+       href="src.pipeline.rl.core.losses.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux.evolution</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.losses</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.selection.html"
+       href="src.pipeline.rl.core.losses.weighted_nll_loss.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.losses.weighted_nll_loss</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -613,22 +567,10 @@ Individual: The improved individual.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch"><code class="docutils literal notranslate"><span class="pre">LocalSearch</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch.optimize"><code class="docutils literal notranslate"><span class="pre">LocalSearch.optimize()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._calc_load_fresh"><code class="docutils literal notranslate"><span class="pre">LocalSearch._calc_load_fresh()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._process_node"><code class="docutils literal notranslate"><span class="pre">LocalSearch._process_node()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._update_map"><code class="docutils literal notranslate"><span class="pre">LocalSearch._update_map()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._get_load_cached"><code class="docutils literal notranslate"><span class="pre">LocalSearch._get_load_cached()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_relocate"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_relocate()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_swap"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_swap()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_swap_star"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_swap_star()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_3opt_intra"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_3opt_intra()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_2opt_star"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_2opt_star()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hgs_aux.local_search.LocalSearch._move_2opt_intra"><code class="docutils literal notranslate"><span class="pre">LocalSearch._move_2opt_intra()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.core.losses.kl_divergence_loss.kl_divergence_loss"><code class="docutils literal notranslate"><span class="pre">kl_divergence_loss()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.core.losses.kl_divergence_loss.reverse_kl_divergence_loss"><code class="docutils literal notranslate"><span class="pre">reverse_kl_divergence_loss()</span></code></a></li>
 </ul>
 </li>
 </ul>

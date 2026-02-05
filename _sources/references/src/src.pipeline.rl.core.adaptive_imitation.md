@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} AdaptiveImitation(expert_policy: typing.Any, il_weight: float = 1.0, il_decay: float = 0.95, patience: int = 5, threshold: float = 0.05, decay_step: int = 1, epsilon: float = 1e-05, **kwargs)
+`````{py:class} AdaptiveImitation(expert_policy: typing.Any, il_weight: float = 1.0, il_decay: float = 0.95, patience: int = 5, threshold: float = 0.05, decay_step: int = 1, epsilon: float = 1e-05, loss_fn: str = 'weighted_nll', **kwargs)
 :canonical: src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation
 
 Bases: {py:obj}`logic.src.pipeline.rl.core.reinforce.REINFORCE`

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.policies.selection.selection_means_std &#8212; WSmart-Route  documentation</title>
+    <title>src.policies.operators &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.selection.selection_means_std';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.operators';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.selection.selection_regular" href="src.policies.selection.selection_regular.html" />
-    <link rel="prev" title="src.policies.selection.selection_revenue" href="src.policies.selection.selection_revenue.html" />
+    <link rel="next" title="src.policies.operators.exchange_operators" href="src.policies.operators.exchange_operators.html" />
+    <link rel="prev" title="src.policies" href="src.policies.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -174,15 +174,18 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.aco_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.aco_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns_solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base_routing_policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base_routing_policy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hyper_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_aco</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.must_go_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.must_go_selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
@@ -190,6 +193,9 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.k_sparse_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.k_sparse_aco</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -273,6 +279,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.decoding</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.eval.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.eval</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.must_go</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.train.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.train</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.env</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.optim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.optim</span></code></a></li>
@@ -342,7 +349,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.policies.selection.selection_means_std.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.policies.operators.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -426,7 +433,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.policies.selection.selection_means_std</h1>
+    <h1>src.policies.operators</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -436,13 +443,11 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.selection_means_std.MeansAndStdDevSelection"><code class="docutils literal notranslate"><span class="pre">MeansAndStdDevSelection</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.selection_means_std.MeansAndStdDevSelection.select_bins"><code class="docutils literal notranslate"><span class="pre">MeansAndStdDevSelection.select_bins()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.operators.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -458,17 +463,39 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.selection.selection_means_std">
-<span id="src-policies-selection-selection-means-std"></span><h1><a class="reference internal" href="#module-src.policies.selection.selection_means_std" title="src.policies.selection.selection_means_std"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_means_std</span></code></a><a class="headerlink" href="#module-src.policies.selection.selection_means_std" title="Link to this heading">#</a></h1>
-<p>Mean and Standard Deviation based selection strategy module.</p>
-<section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.operators">
+<span id="src-policies-operators"></span><h1><a class="reference internal" href="#module-src.policies.operators" title="src.policies.operators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a><a class="headerlink" href="#module-src.policies.operators" title="Link to this heading">#</a></h1>
+<p>HGS Local Search operators package.</p>
+<p>This package provides a comprehensive suite of local search operators for VRP:</p>
+<ul class="simple">
+<li><p>Move operators: relocate, swap</p></li>
+<li><p>Route operators: 2-opt, 3-opt, 2-opt*, swap*</p></li>
+<li><p>Perturbation operators: perturb, kick</p></li>
+<li><p>Destroy operators: random, worst, cluster, shaw, string removal (SISR)</p></li>
+<li><p>Repair operators: greedy, regret-2, regret-k, blink insertion (SISR)</p></li>
+<li><p>Exchange operators: or-opt, cross-exchange, ejection chain, λ-interchange</p></li>
+</ul>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.operators.exchange_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.exchange_operators</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.operators.perturbation_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.perturbation_operators</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.operators.move_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.move_operators</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.operators.repair_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.repair_operators</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.operators.route_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.route_operators</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.operators.destroy_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.destroy_operators</span></code></a></li>
+</ul>
+</div>
+</section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.selection.selection_means_std.MeansAndStdDevSelection" title="src.policies.selection.selection_means_std.MeansAndStdDevSelection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MeansAndStdDevSelection</span></code></a></p></td>
-<td><p>Statistical overflow prediction strategy.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.operators.__all__" title="src.policies.operators.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -476,21 +503,10 @@ document.write(`
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.policies.selection.selection_means_std.MeansAndStdDevSelection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.selection.selection_means_std.</span></span><span class="sig-name descname"><span class="pre">MeansAndStdDevSelection</span></span><a class="headerlink" href="#src.policies.selection.selection_means_std.MeansAndStdDevSelection" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="src.policies.must_go_selection.html#src.policies.must_go_selection.MustGoSelectionStrategy" title="src.policies.must_go_selection.MustGoSelectionStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.must_go_selection.MustGoSelectionStrategy</span></code></a></p>
-<p>Statistical overflow prediction strategy.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.selection.selection_means_std.MeansAndStdDevSelection.select_bins">
-<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.must_go_selection.html#src.policies.must_go_selection.SelectionContext" title="src.policies.must_go_selection.SelectionContext"><span class="pre">src.policies.must_go_selection.SelectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection.selection_means_std.MeansAndStdDevSelection.select_bins" title="Link to this definition">#</a></dt>
-<dd><p>Select bins that are statistically likely to overflow.</p>
-<p>Args:
-context: Selection context containing fill levels, rates, and std devs.</p>
-<p>Returns:
-List[int]: List of bin IDs (1-based) predicted to overflow.</p>
-</dd></dl>
-
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.operators.__all__">
+<span class="sig-prename descclassname"><span class="pre">src.policies.operators.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.operators.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘move_relocate’, ‘move_swap’, ‘move_2opt_intra’, ‘move_2opt_star’, ‘move_3opt_intra’, ‘move_swap_st…</p>
 </dd></dl>
 
 </section>
@@ -509,20 +525,20 @@ List[int]: List of bin IDs (1-based) predicted to overflow.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.selection.selection_revenue.html"
+       href="src.policies.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_revenue</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.selection.selection_regular.html"
+       href="src.policies.operators.exchange_operators.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection.selection_regular</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators.exchange_operators</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -542,13 +558,11 @@ List[int]: List of bin IDs (1-based) predicted to overflow.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.selection_means_std.MeansAndStdDevSelection"><code class="docutils literal notranslate"><span class="pre">MeansAndStdDevSelection</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.selection_means_std.MeansAndStdDevSelection.select_bins"><code class="docutils literal notranslate"><span class="pre">MeansAndStdDevSelection.select_bins()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.operators.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>
