@@ -244,6 +244,18 @@ class BaseProblem:
         if "locs" not in td.keys() and "loc" in td.keys():
             td["locs"] = td["loc"]
 
+        # Handle must_go mask for selective routing
+        # must_go: (B, N) boolean tensor where True = must visit this bin
+        if "must_go" in td.keys() and "locs" in td.keys():
+            must_go = td["must_go"]
+            td_locs = td["locs"]
+            # Ensure must_go includes depot (should always be False for depot)
+            # If must_go has fewer nodes than locs, it was provided without depot
+            if must_go is not None and must_go.size(1) < td_locs.size(1):
+                # Prepend False for depot
+                depot_must_go = torch.zeros(td.batch_size[0], 1, dtype=torch.bool, device=td.device)
+                td["must_go"] = torch.cat([depot_must_go, must_go], dim=1)
+
         # Ensure capacity is present
         if "capacity" not in td.keys():
             # Try to get from profit_vars (simulation) or kwargs
