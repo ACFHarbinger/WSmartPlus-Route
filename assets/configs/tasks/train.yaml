@@ -55,11 +55,15 @@ rl:
 
   imitation:
     mode: "hgs_alns"
+    loss_fn: "nll"
 
   adaptive_imitation:
     il_weight: 1.0
-    sigmoid_scale: 10.0
-    sigmoid_bias: 5.0
+    il_decay: 0.95
+    patience: 5
+    threshold: 0.05
+    decay_step: 1
+    epsilon: 0.00001
 
 # Model Settings
 model:

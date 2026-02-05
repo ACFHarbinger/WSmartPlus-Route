@@ -8,7 +8,7 @@ cpu_cores: 0
 # Simulation Configuration (matches SimConfig)
 sim:
   days: 31
-  size: 100
+  size: 50
   n_samples: 10
   checkpoint_days: 0
   real_time_log: false
