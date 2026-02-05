@@ -58,6 +58,7 @@ class ImitationConfig:
     random_ls_iterations: int = 100
     random_ls_op_probs: Optional[Dict[str, float]] = None
     enabled: bool = False
+    loss_fn: str = "nll"
 
 
 @dataclass
