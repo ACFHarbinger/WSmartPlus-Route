@@ -79,6 +79,12 @@ class WCVRPEnv(RL4COEnvBase):
         td["total_collected"] = torch.zeros(*bs, device=device)
         td["collected_prize"] = td["total_collected"]  # Alias for compatibility
 
+        # Must-go mask: if not provided, default to None (no constraint)
+        # When present: True = bin must be visited, False = optional
+        # If all False, agent can stay at depot (no routing needed)
+        if "must_go" not in td.keys():
+            td["must_go"] = None
+
         # Initial overflows
         max_waste = td.get("max_waste", torch.tensor(1.0, device=device))
         demand = td["demand"]
@@ -128,7 +134,17 @@ class WCVRPEnv(RL4COEnvBase):
         return super(WCVRPEnv, self)._step(td)
 
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
-        """Mask based on capacity and visited status."""
+        """
+        Compute action mask based on capacity, visited status, and must-go constraints.
+
+        The must_go mask determines routing behavior:
+        - If must_go is None: Standard behavior (depot always valid)
+        - If must_go has True values: Must route to those bins; depot invalid until done
+        - If must_go is all False: No routing needed; depot is valid (stay)
+
+        Returns:
+            Tensor: Boolean mask (batch, num_nodes) where True = valid action.
+        """
         mask = ~td["visited"].clone()
 
         # Check capacity constraints
@@ -137,7 +153,27 @@ class WCVRPEnv(RL4COEnvBase):
         exceeds_capacity = demand > remaining_capacity
 
         mask = mask & ~exceeds_capacity
-        mask[:, 0] = True  # Can always go to depot
+
+        # Must-go routing logic
+        must_go = td.get("must_go", None)
+
+        if must_go is not None:
+            # must_go: (batch, num_nodes) boolean tensor
+            # True = must visit this bin, False = optional
+
+            # Pending must-go bins: must_go AND not yet visited AND within capacity
+            pending_must_go = must_go & mask
+
+            # Check if any must-go bins remain (excluding depot at index 0)
+            has_pending_must_go = pending_must_go[:, 1:].any(dim=1)
+
+            # Depot is valid only if no pending must-go bins remain
+            # If has_pending_must_go is True -> depot invalid (False)
+            # If has_pending_must_go is False -> depot valid (True)
+            mask[:, 0] = ~has_pending_must_go
+        else:
+            # No must-go constraint: depot always valid
+            mask[:, 0] = True
 
         return mask
 

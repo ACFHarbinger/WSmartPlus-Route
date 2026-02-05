@@ -224,12 +224,18 @@ class NeuralAgent:
         mask_threshold=0.5,
         two_opt_max_iter=0,
         cost_weights=None,
+        must_go=None,
     ):
         """
         Execute neural routing policy for a single simulation day.
 
         Main entry point for simulator integration. Generates a collection route
         for the current day using the trained neural model.
+
+        Must-Go Selection:
+        - If must_go is provided and all False: Returns [0] (no routing needed)
+        - If must_go has True values: Route must include those bins
+        - The environment's action mask enforces must_go constraints
 
         HRL Integration:
         - If hrl_manager provided: Manager decides whether to route (gate)
@@ -252,6 +258,8 @@ class NeuralAgent:
             threshold (float): Gating probability threshold. Default: 0.5
             mask_threshold (float): Masking probability threshold. Default: 0.5
             two_opt_max_iter (int): 2-opt iterations. 0 disables. Default: 0
+            must_go (torch.Tensor, optional): Boolean mask (N,) or (1, N) where True = must visit.
+                If all False, returns [0] immediately (no routing needed).
 
         Returns:
             Tuple[List[int], float, dict]: Route, cost, and attention data
@@ -261,6 +269,33 @@ class NeuralAgent:
         """
         edges, dist_matrix = graph
         hook_data = add_attention_hooks(self.model.embedder)
+
+        # Check must_go: if provided and empty (no bins to visit), skip routing
+        if must_go is not None:
+            # Ensure tensor format
+            if not isinstance(must_go, torch.Tensor):
+                must_go = torch.tensor(must_go, dtype=torch.bool)
+
+            # Handle shape: (N,) -> (1, N)
+            if must_go.dim() == 1:
+                must_go = must_go.unsqueeze(0)
+
+            # Check if any bins are marked as must-go (excluding depot at index 0)
+            has_must_go = must_go[:, 1:].any() if must_go.size(1) > 1 else must_go.any()
+
+            if not has_must_go:
+                # No bins to visit - return immediately
+                for handle in hook_data["handles"]:
+                    handle.remove()
+                return (
+                    [0],
+                    0,
+                    {
+                        "attention_weights": torch.tensor([]),
+                        "graph_masks": [],
+                        "must_go_empty": True,
+                    },
+                )
 
         mask = None
         dynamic_feat = None
@@ -356,6 +391,13 @@ class NeuralAgent:
             input_for_model["edges"] = edges
         if "dist" not in list(input_for_model.keys()) and dist_matrix is not None:
             input_for_model["dist"] = dist_matrix
+
+        # Add must_go mask to input for environment's action mask logic
+        if must_go is not None:
+            # Ensure proper shape (1, N) for batched processing
+            if must_go.dim() == 1:
+                must_go = must_go.unsqueeze(0)
+            input_for_model["must_go"] = must_go
 
         # Populate temporal features (fill1, fill2, ...) if model has temporal_horizon > 0
         horizon = getattr(self.model, "temporal_horizon", 0)

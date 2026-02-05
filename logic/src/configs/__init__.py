@@ -12,6 +12,7 @@ from .eval import EvalConfig
 from .hpo import HPOConfig
 from .meta_rl import MetaRLConfig
 from .model import ModelConfig
+from .must_go import MustGoConfig
 from .optim import OptimConfig
 from .rl import RLConfig
 from .sim import SimConfig
@@ -33,6 +34,7 @@ class Config:
         eval: Evaluation configuration.
         sim: Simulation configuration.
         data: Data generation configuration.
+        must_go: Must-go selection strategy configuration.
         seed: Random seed.
         device: Device to use ('cpu', 'cuda').
         experiment_name: Optional name for the experiment.
@@ -49,6 +51,7 @@ class Config:
     eval: EvalConfig = field(default_factory=EvalConfig)
     sim: SimConfig = field(default_factory=SimConfig)
     data: DataConfig = field(default_factory=DataConfig)
+    must_go: MustGoConfig = field(default_factory=MustGoConfig)
     seed: int = 42
     device: str = "cuda"
     experiment_name: Optional[str] = None
@@ -75,6 +78,7 @@ __all__ = [
     "EvalConfig",
     "SimConfig",
     "DataConfig",
+    "MustGoConfig",
     "Config",
     "DecodingConfig",
 ]

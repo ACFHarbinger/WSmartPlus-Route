@@ -237,6 +237,16 @@ def create_model(cfg: Config) -> pl.LightningModule:
     for key in ["lr_critic", "lr_critic_value"]:
         common_kwargs.pop(key, None)
 
+    # 3.5 Create must-go selector from config
+    must_go_selector = None
+    if hasattr(cfg, "must_go") and cfg.must_go is not None:
+        from logic.src.policies.selection import create_selector_from_config
+
+        must_go_selector = create_selector_from_config(cfg.must_go)
+        if must_go_selector is not None:
+            logger.info(f"Must-go selector created: {cfg.must_go.strategy}")
+    common_kwargs["must_go_selector"] = must_go_selector
+
     # 4. Algorithm Factory Functions
     def _create_critic_helper(policy, cfg: Config) -> Any:
         from logic.src.models.policies.critic import create_critic_from_actor

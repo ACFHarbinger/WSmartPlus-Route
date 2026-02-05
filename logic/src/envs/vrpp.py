@@ -74,6 +74,12 @@ class VRPPEnv(RL4COEnvBase):
         td["tour_length"] = torch.zeros(*bs, device=device)
         td["collected_prize"] = torch.zeros(*bs, device=device)
 
+        # Must-go mask: if not provided, default to None (no constraint)
+        # When present: True = bin must be visited, False = optional
+        # If all False, agent can stay at depot (no routing needed)
+        if "must_go" not in td.keys():
+            td["must_go"] = None
+
         return td
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
@@ -109,14 +115,44 @@ class VRPPEnv(RL4COEnvBase):
 
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
         """
-        Compute action mask for VRPP.
+        Compute action mask for VRPP with must-go constraints.
 
+        Standard behavior:
         - Can visit any unvisited node
         - Can return to depot at any time
         - Cannot visit already visited nodes (except depot)
+
+        Must-go behavior:
+        - If must_go is None: Standard behavior (depot always valid)
+        - If must_go has True values: Must route to those bins; depot invalid until done
+        - If must_go is all False: No routing needed; depot is valid (stay)
+
+        Returns:
+            Tensor: Boolean mask (batch, num_nodes) where True = valid action.
         """
         mask = ~td["visited"].clone()
-        mask[:, 0] = True  # Can always return to depot
+
+        # Must-go routing logic
+        must_go = td.get("must_go", None)
+
+        if must_go is not None:
+            # must_go: (batch, num_nodes) boolean tensor
+            # True = must visit this bin, False = optional
+
+            # Pending must-go bins: must_go AND not yet visited
+            pending_must_go = must_go & mask
+
+            # Check if any must-go bins remain (excluding depot at index 0)
+            has_pending_must_go = pending_must_go[:, 1:].any(dim=1)
+
+            # Depot is valid only if no pending must-go bins remain
+            # If has_pending_must_go is True -> depot invalid (False)
+            # If has_pending_must_go is False -> depot valid (True)
+            mask[:, 0] = ~has_pending_must_go
+        else:
+            # No must-go constraint: depot always valid
+            mask[:, 0] = True
+
         return mask
 
     def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
@@ -213,8 +249,14 @@ class CVRPPEnv(VRPPEnv):
         return super(VRPPEnv, self)._step(td)
 
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
-        """Mask nodes that would exceed capacity."""
-        mask = super()._get_action_mask(td)
+        """
+        Mask nodes that would exceed capacity, respecting must-go constraints.
+
+        Applies capacity constraints on top of base VRPP mask, then
+        re-applies must-go logic to determine depot validity.
+        """
+        # Get base mask (without must-go depot logic applied yet)
+        base_mask = ~td["visited"].clone()
 
         # Mask nodes whose demand exceeds remaining capacity
         # For VRPP-based envs, we might use 'prize' as demand for consistency
@@ -222,7 +264,22 @@ class CVRPPEnv(VRPPEnv):
         remaining = td["remaining_capacity"].unsqueeze(-1)
         exceeds_capacity = demand > remaining
 
-        mask = mask & ~exceeds_capacity
-        mask[:, 0] = True  # Can always return to depot
+        mask = base_mask & ~exceeds_capacity
+
+        # Must-go routing logic (same as parent but considering capacity)
+        must_go = td.get("must_go", None)
+
+        if must_go is not None:
+            # Pending must-go bins: must_go AND not yet visited AND within capacity
+            pending_must_go = must_go & mask
+
+            # Check if any must-go bins remain (excluding depot at index 0)
+            has_pending_must_go = pending_must_go[:, 1:].any(dim=1)
+
+            # Depot is valid only if no pending must-go bins remain
+            mask[:, 0] = ~has_pending_must_go
+        else:
+            # No must-go constraint: depot always valid
+            mask[:, 0] = True
 
         return mask

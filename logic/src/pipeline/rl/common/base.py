@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader
 from logic.src.data.datasets import tensordict_collate_fn
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.policies.selection import VectorizedSelector
 from logic.src.utils.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
@@ -48,6 +49,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         num_workers: int = 4,
         persistent_workers: bool = True,
         pin_memory: bool = False,
+        must_go_selector: Optional[VectorizedSelector] = None,
         **kwargs,
     ):
         """
@@ -67,15 +69,17 @@ class RL4COLitModule(pl.LightningModule, ABC):
             train_dataset_path: Optional path to a pre-saved training dataset.
             batch_size: Batch size for training and validation.
             num_workers: Number of workers for data loading.
+            must_go_selector: Optional vectorized selector for must-go bin selection.
             **kwargs: Additional keyword arguments.
         """
         super().__init__()
-        self.save_hyperparameters(ignore=["env", "policy"])
+        self.save_hyperparameters(ignore=["env", "policy", "must_go_selector"])
 
         self.env = env
         self.policy = policy
         self.baseline_type = baseline
         self.train_dataset: Optional[Any] = None
+        self.must_go_selector = must_go_selector
 
         # Data params
         self.train_data_size = train_data_size
@@ -159,6 +163,52 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
         self.baseline = baseline
 
+    def _apply_must_go_selection(self, td: TensorDict) -> TensorDict:
+        """
+        Apply must-go selection to determine which bins must be collected.
+
+        Args:
+            td: TensorDict with problem instance data.
+
+        Returns:
+            TensorDict with 'must_go' mask added.
+        """
+        if self.must_go_selector is None:
+            return td
+
+        # Get fill levels from the TensorDict
+        # WCVRP uses 'demand', VRPP uses 'prize' or 'demand'
+        fill_levels = None
+        for key in ["demand", "prize", "fill_level"]:
+            if key in td.keys():
+                fill_levels = td[key]
+                break
+
+        if fill_levels is None:
+            logger.warning("No fill levels found in TensorDict for must-go selection")
+            return td
+
+        # Ensure fill_levels is 2D (batch_size, num_nodes)
+        if fill_levels.dim() == 1:
+            fill_levels = fill_levels.unsqueeze(0)
+
+        # Get additional data for advanced selectors
+        selector_kwargs = {}
+        if "accumulation_rate" in td.keys():
+            selector_kwargs["accumulation_rates"] = td["accumulation_rate"]
+        if "std_deviation" in td.keys():
+            selector_kwargs["std_deviations"] = td["std_deviation"]
+        if "current_day" in td.keys():
+            selector_kwargs["current_day"] = td["current_day"]
+
+        # Apply selector to get must-go mask
+        must_go_mask = self.must_go_selector.select(fill_levels, **selector_kwargs)
+
+        # Store in TensorDict
+        td["must_go"] = must_go_mask
+
+        return td
+
     @abstractmethod
     def calculate_loss(
         self,
@@ -214,6 +264,11 @@ class RL4COLitModule(pl.LightningModule, ABC):
         from logic.src.utils.functions.rl import ensure_tensordict
 
         td = ensure_tensordict(batch, self.device)
+
+        # Apply must-go selector if configured
+        if self.must_go_selector is not None:
+            td = self._apply_must_go_selection(td)
+
         td = self.env.reset(td)
 
         # Run policy
