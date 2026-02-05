@@ -71,5 +71,24 @@ model:
   encoder_type: "gat"
   policy_config: "assets/configs/lookahead_hgs.yaml"
 
+# Must-Go Selection Strategy
+# Determines which bins must be collected during training
+must_go:
+  strategy: "lookahead"  # Options: last_minute, regular, lookahead, revenue, service_level, combined, null
+  # LastMinute parameters
+  threshold: 0.7  # Fill level threshold (0-1)
+  # Regular parameters
+  frequency: 3  # Collection frequency in days
+  # Lookahead parameters
+  lookahead_days: 1  # Days to look ahead for overflow prediction
+  # ServiceLevel parameters
+  confidence_factor: 1.0  # Standard deviations for statistical prediction
+  # Revenue parameters
+  revenue_kg: 1.0  # Revenue per kg
+  bin_capacity: 1.0  # Bin capacity
+  revenue_threshold: 0.0  # Minimum revenue threshold
+  # Common parameters
+  max_fill: 1.0  # Overflow threshold
+
 # Global flags
 wandb_mode: "disabled"

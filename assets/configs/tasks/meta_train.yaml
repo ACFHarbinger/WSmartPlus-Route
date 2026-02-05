@@ -68,5 +68,24 @@ data:
   data_distributions: ["gamma1"]
   graph_sizes: [100]
 
+# Must-Go Selection Strategy
+# Determines which bins must be collected during training
+must_go:
+  strategy: "service_level"  # Options: last_minute, regular, lookahead, revenue, service_level, combined, null
+  # LastMinute parameters
+  threshold: 0.7  # Fill level threshold (0-1)
+  # Regular parameters
+  frequency: 3  # Collection frequency in days
+  # Lookahead parameters
+  lookahead_days: 7  # Days to look ahead for overflow prediction
+  # ServiceLevel parameters
+  confidence_factor: 0.84  # Standard deviations for statistical prediction
+  # Revenue parameters
+  revenue_kg: 1.0  # Revenue per kg
+  bin_capacity: 1.0  # Bin capacity
+  revenue_threshold: 0.0  # Minimum revenue threshold
+  # Common parameters
+  max_fill: 1.0  # Overflow threshold
+
 # Flags
 wandb_mode: "disabled"
