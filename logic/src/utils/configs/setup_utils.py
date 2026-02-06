@@ -303,7 +303,6 @@ def setup_model_and_baseline(
         AttentionModel,
         CriticBaseline,
         CriticNetwork,
-        DeepDecoderAttentionModel,
         ExponentialBaseline,
         NoBaseline,
         POMOBaseline,
@@ -331,12 +330,16 @@ def setup_model_and_baseline(
 
     factory: Any = factory_cls()
 
-    model_cls: Optional[Type[nn.Module]] = {
-        "am": AttentionModel,
-        "tam": TemporalAttentionModel,
-        "ddam": DeepDecoderAttentionModel,
-    }.get(opts["model"], None)
-    assert model_cls is not None, "Unknown model: {}".format(opts["model"])
+    # Map model name to decoder_type for backward compatibility
+    decoder_type_map: Dict[str, str] = {
+        "am": "attention",
+        "tam": "attention",
+        "ddam": "deep",
+    }
+    decoder_type: str = decoder_type_map.get(opts["model"], "attention")
+
+    # Use TemporalAttentionModel only for 'tam', otherwise AttentionModel
+    model_cls: Type[nn.Module] = TemporalAttentionModel if opts["model"] == "tam" else AttentionModel
 
     model: nn.Module = model_cls(
         opts["embed_dim"],
@@ -375,6 +378,7 @@ def setup_model_and_baseline(
         spatial_bias_scale=opts.get("spatial_bias_scale", 1.0),
         entropy_weight=opts.get("entropy_weight", 0.0),
         predictor_layers=opts["n_predict_layers"],
+        decoder_type=decoder_type,
     ).to(opts["device"])
 
     if use_cuda and torch.cuda.device_count() > 1:

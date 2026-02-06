@@ -9,7 +9,7 @@ import torch
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.gat_lstm_manager import GATLSTManager
 from logic.src.models.model_factory import NeuralComponentFactory
-from logic.src.models.subnets.attention_decoder import AttentionDecoder
+from logic.src.models.subnets.glimpse_decoder import GlimpseDecoder
 from logic.src.models.temporal_am import TemporalAttentionModel
 
 
@@ -57,7 +57,7 @@ def am_setup(mocker):
 
         def create_decoder(self, **kwargs):
             """Create mock decoder."""
-            m_dec = mocker.MagicMock(spec=AttentionDecoder)
+            m_dec = mocker.MagicMock(spec=GlimpseDecoder)
             m_dec.forward.side_effect = lambda input, embeddings, *args, **kwargs: (
                 torch.zeros(1),
                 torch.zeros(1),
@@ -143,7 +143,7 @@ def tam_setup(mocker):
 
         def create_decoder(self, **kwargs):
             """Create mock decoder."""
-            m_dec = mocker.MagicMock(spec=AttentionDecoder)
+            m_dec = mocker.MagicMock(spec=GlimpseDecoder)
             return m_dec
 
     model = TemporalAttentionModel(

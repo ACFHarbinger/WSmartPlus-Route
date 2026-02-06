@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from logic.src.models.subnets.attention_decoder import AttentionDecoder
+from logic.src.models.subnets.glimpse_decoder import GlimpseDecoder
 from logic.src.models.subnets.gac_encoder import GraphAttConvEncoder
 from logic.src.models.subnets.gat_decoder import GraphAttentionDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
@@ -217,8 +217,8 @@ class TestTGCEncoder:
         assert output.shape == (batch, graph_size, embed_dim)
 
 
-class TestAttentionDecoder:
-    """Tests for AttentionDecoder."""
+class TestGlimpseDecoder:
+    """Tests for GlimpseDecoder."""
 
     def test_init(self):
         """Verifies initialization."""
@@ -226,7 +226,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "vrpp"
-        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem)
+        model = GlimpseDecoder(embed_dim=16, hidden_dim=16, problem=problem)
         assert isinstance(model, nn.Module)
 
     def test_precompute(self):
@@ -235,7 +235,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "vrpp"
-        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem, n_heads=2)
+        model = GlimpseDecoder(embed_dim=16, hidden_dim=16, problem=problem, n_heads=2)
 
         batch, nodes, dim = 2, 5, 16
         embeddings = torch.randn(batch, nodes, dim)
@@ -250,7 +250,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "vrpp"
-        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem)
+        model = GlimpseDecoder(embed_dim=16, hidden_dim=16, problem=problem)
 
         probs = torch.tensor([[0.1, 0.8, 0.1], [0.3, 0.3, 0.4]])
         mask = torch.tensor([[0, 0, 0], [0, 0, 0]], dtype=torch.bool)
@@ -271,7 +271,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "vrpp"
-        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem, n_heads=2)
+        model = GlimpseDecoder(embed_dim=16, hidden_dim=16, problem=problem, n_heads=2)
 
         # [B, steps, nodes, D]
         v = torch.randn(2, 1, 5, 16)
@@ -285,7 +285,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "vrpp"
-        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem)
+        model = GlimpseDecoder(embed_dim=16, hidden_dim=16, problem=problem)
         # set is_vrpp manual if needed, but constructor does it
         assert model.is_vrpp
 
@@ -305,7 +305,7 @@ class TestAttentionDecoder:
 
         problem = MagicMock()
         problem.NAME = "cwcvrp"
-        model = AttentionDecoder(embed_dim=16, hidden_dim=16, problem=problem)
+        model = GlimpseDecoder(embed_dim=16, hidden_dim=16, problem=problem)
         assert model.is_wc
 
         batch, nodes, dim = 2, 5, 16

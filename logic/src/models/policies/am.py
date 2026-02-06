@@ -17,8 +17,8 @@ from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.base import ConstructivePolicy
 from logic.src.models.policies.utils import DummyProblem, TensorDictStateWrapper
-from logic.src.models.subnets.attention_decoder import AttentionDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
+from logic.src.models.subnets.glimpse_decoder import GlimpseDecoder
 
 
 class AttentionModelPolicy(ConstructivePolicy):
@@ -50,7 +50,7 @@ class AttentionModelPolicy(ConstructivePolicy):
             **kwargs,
         )
 
-        self.decoder = AttentionDecoder(
+        self.decoder = GlimpseDecoder(
             embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             problem=DummyProblem(env_name),
