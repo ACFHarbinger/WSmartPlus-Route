@@ -2,8 +2,12 @@
 Hierarchical Reinforcement Learning (HRL) module.
 
 Implements a Manager-Worker architecture:
-- Manager: GATLSTManager (decides if/what to collect)
+- Manager: GATLSTManager (decides must-go bins and dispatch)
 - Worker: ConstructivePolicy (decides the route)
+
+The manager outputs:
+- must_go_action: Which bins must be collected (boolean mask)
+- gate_action: Whether to dispatch vehicles
 """
 from __future__ import annotations
 
@@ -43,14 +47,14 @@ class HRLModule(pl.LightningModule):
         Initialize HRLModule.
 
         Args:
-            manager: High-level GATLSTManager for dispatch decisions.
+            manager: High-level GATLSTManager for must-go selection and dispatch.
             worker: Low-level ConstructivePolicy for routing.
             env: RL environment.
             lr: Learning rate for manager optimizer.
             gamma: Discount factor for returns.
             clip_eps: PPO clipping parameter.
             ppo_epochs: Number of PPO optimization epochs.
-            lambda_mask_aux: Weight for auxiliary mask loss.
+            lambda_mask_aux: Weight for auxiliary must-go loss (BCE with target).
             entropy_coef: Entropy regularization coefficient.
             **kwargs: Additional keyword arguments.
         """
@@ -94,8 +98,8 @@ class HRLModule(pl.LightningModule):
         )
 
         # Manager Decision (Stores states/actions in manager memory)
-        # Note: deterministice=False by default in Select Action
-        mask_action, gate_action, manager_value = self.manager.select_action(
+        # must_go_action: (B, N) where 1 = must collect, 0 = optional
+        must_go_action, gate_action, manager_value = self.manager.select_action(
             static, dynamic, global_features, deterministic=False
         )
 
@@ -105,8 +109,12 @@ class HRLModule(pl.LightningModule):
 
         if len(dispatch_indices) > 0:
             td_worker = td[dispatch_indices]
-            # Apply manager's mask_action to td_worker['visited']
-            td_worker["visited"] = td_worker["visited"] | (mask_action[dispatch_indices] == 0)
+            # Apply manager's must_go selection to the TensorDict
+            # must_go = True means bin must be collected
+            must_go_mask = must_go_action[dispatch_indices].bool()
+            # Depot (index 0) should never be must_go
+            must_go_mask[:, 0] = False
+            td_worker["must_go"] = must_go_mask
             out_worker = self.worker(td_worker, self.env)
             total_reward[dispatch_indices] = out_worker["reward"]
 
@@ -115,7 +123,7 @@ class HRLModule(pl.LightningModule):
 
         # Log metrics
         self.log("train/manager_gate_rate", gate_action.float().mean())
-        self.log("train/manager_visit_rate", mask_action.float().mean())
+        self.log("train/manager_must_go_rate", must_go_action.float().mean())
         self.log("train/reward", total_reward.mean(), prog_bar=True)
 
         # --- 2. PPO Optimization Phase ---
@@ -141,12 +149,12 @@ class HRLModule(pl.LightningModule):
         old_states_static = torch.cat(self.manager.states_static)
         old_states_dynamic = torch.cat(self.manager.states_dynamic)
         old_states_global = torch.cat(self.manager.states_global)
-        old_mask_actions = torch.cat(self.manager.actions_mask)
+        old_must_go_actions = torch.cat(self.manager.actions_must_go)
         old_gate_actions = torch.cat(self.manager.actions_gate)
-        old_log_probs_mask = torch.cat(self.manager.log_probs_mask)
+        old_log_probs_must_go = torch.cat(self.manager.log_probs_must_go)
         old_log_probs_gate = torch.cat(self.manager.log_probs_gate)
         old_values = torch.cat(self.manager.values).squeeze(-1)
-        old_target_masks = torch.cat(self.manager.target_masks) if self.manager.target_masks else None
+        old_target_must_go = torch.cat(self.manager.target_must_go) if self.manager.target_must_go else None
 
         # Calculate Advantages
         advantages = returns - old_values
@@ -171,18 +179,18 @@ class HRLModule(pl.LightningModule):
             # Here we just use the full collected batch (since batch_size of Lightning is usually GPU-sized)
 
             # Forward pass for current policy
-            mask_logits, gate_logits, values = self.manager(old_states_static, old_states_dynamic, old_states_global)
+            must_go_logits, gate_logits, values = self.manager(old_states_static, old_states_dynamic, old_states_global)
             values = values.squeeze(-1)
 
             # New Log Probs
-            mask_dist = torch.distributions.Categorical(logits=mask_logits)
+            must_go_dist = torch.distributions.Categorical(logits=must_go_logits)
             gate_dist = torch.distributions.Categorical(logits=gate_logits)
 
-            new_log_probs_mask = mask_dist.log_prob(old_mask_actions).sum(dim=1)
+            new_log_probs_must_go = must_go_dist.log_prob(old_must_go_actions).sum(dim=1)
             new_log_probs_gate = gate_dist.log_prob(old_gate_actions)
 
-            new_log_probs = new_log_probs_mask + new_log_probs_gate
-            old_log_probs = old_log_probs_mask + old_log_probs_gate
+            new_log_probs = new_log_probs_must_go + new_log_probs_gate
+            old_log_probs = old_log_probs_must_go + old_log_probs_gate
 
             ratio = torch.exp(new_log_probs - old_log_probs)
 
@@ -192,16 +200,19 @@ class HRLModule(pl.LightningModule):
             actor_loss = -torch.min(surr1, surr2).mean()
 
             value_loss = F.mse_loss(values, returns)
-            entropy = mask_dist.entropy().mean() + gate_dist.entropy().mean()
+            entropy = must_go_dist.entropy().mean() + gate_dist.entropy().mean()
 
             loss = actor_loss + 0.5 * value_loss - self.entropy_coef * entropy
 
-            # Aux Loss (if target mask available)
-            if self.lambda_mask_aux > 0 and old_target_masks is not None:
-                logits_diff = mask_logits[:, :, 1] - mask_logits[:, :, 0]
+            # Aux Loss (if target must_go available - supervised signal)
+            if self.lambda_mask_aux > 0 and old_target_must_go is not None:
+                # Logits difference: P(must_go=1) - P(must_go=0)
+                logits_diff = must_go_logits[:, :, 1] - must_go_logits[:, :, 0]
                 pos_weight = torch.tensor([50.0], device=self.device)
-                loss_mask_aux = F.binary_cross_entropy_with_logits(logits_diff, old_target_masks, pos_weight=pos_weight)
-                loss += self.lambda_mask_aux * loss_mask_aux
+                loss_must_go_aux = F.binary_cross_entropy_with_logits(
+                    logits_diff, old_target_must_go, pos_weight=pos_weight
+                )
+                loss += self.lambda_mask_aux * loss_must_go_aux
 
             opt.zero_grad()
             self.manual_backward(loss)

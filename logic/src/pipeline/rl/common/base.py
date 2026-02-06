@@ -192,7 +192,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         if fill_levels.dim() == 1:
             fill_levels = fill_levels.unsqueeze(0)
 
-        # Get additional data for advanced selectors
+        # Get additional data for advanced selectors (lookahead, service_level)
         selector_kwargs = {}
         if "accumulation_rate" in td.keys():
             selector_kwargs["accumulation_rates"] = td["accumulation_rate"]
@@ -200,6 +200,18 @@ class RL4COLitModule(pl.LightningModule, ABC):
             selector_kwargs["std_deviations"] = td["std_deviation"]
         if "current_day" in td.keys():
             selector_kwargs["current_day"] = td["current_day"]
+
+        # Get data needed for ManagerSelector (neural network-based selection)
+        if "locs" in td.keys():
+            selector_kwargs["locs"] = td["locs"]
+        elif "loc" in td.keys():
+            selector_kwargs["locs"] = td["loc"]
+
+        # Waste history for temporal modeling
+        if "demand_history" in td.keys():
+            selector_kwargs["waste_history"] = td["demand_history"]
+        elif "waste_history" in td.keys():
+            selector_kwargs["waste_history"] = td["waste_history"]
 
         # Apply selector to get must-go mask
         must_go_mask = self.must_go_selector.select(fill_levels, **selector_kwargs)

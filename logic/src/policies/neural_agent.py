@@ -69,15 +69,16 @@ class NeuralAgent:
         Compute simulation step for a batch of problem instances.
 
         Used during training and batch evaluation. Optionally integrates with
-        HRL manager for gating (decide whether to route) and masking (which bins to visit).
+        HRL manager for gating (decide whether to dispatch) and must-go selection
+        (which bins must be collected).
 
         Args:
             input (dict): Batch of problem data with 'loc', 'waste', etc.
             dist_matrix (torch.Tensor): Distance matrix (B x N x N) or (N x N)
-            hrl_manager (optional): HRL manager network for gating decisions
+            hrl_manager (optional): HRL manager network for dispatch and must-go decisions
             waste_history (torch.Tensor, optional): Historical waste levels (B x N x T)
             threshold (float): Gating probability threshold. Default: 0.5
-            mask_threshold (float): Masking probability threshold. Default: 0.5
+            mask_threshold (float): Must-go selection probability threshold. Default: 0.5
 
         Returns:
             Tuple[torch.Tensor, dict, dict]: Costs, result metrics, and attention data
@@ -114,20 +115,22 @@ class NeuralAgent:
             )
 
             # Get Action (Deterministic)
-            mask_action, gate_action, _ = hrl_manager.select_action(
+            # must_go_action: 1 = must collect, 0 = optional
+            must_go_action, gate_action, _ = hrl_manager.select_action(
                 static_feat,
                 dynamic_feat,
                 global_features,
                 deterministic=True,
                 threshold=threshold,
-                mask_threshold=mask_threshold,
+                must_go_threshold=mask_threshold,
             )
 
-            # Construct Mask
-            # mask_action: 1=Visit, 0=Skip. AM Mask: True=Masked(Skip), False=Keep.
-            mask = mask_action == 0
+            # Construct model mask from must_go_action
+            # must_go_action: 1=must collect, 0=optional
+            # Model mask: True=masked(can skip), False=must visit
+            mask = must_go_action == 0
 
-            # Apply Gate: If Gate=0, Mask ALL
+            # Apply Gate: If Gate=0, Mask ALL (no routing)
             gate_mask = (gate_action == 0).unsqueeze(1).expand_as(mask)
             mask = mask | gate_mask
 
@@ -358,16 +361,18 @@ class NeuralAgent:
                 dim=1,
             )  # (B, 2)
 
-            mask_action, gate_action, _ = hrl_manager.select_action(
+            # Get must_go selection and gate decision
+            # must_go_action: 1 = must collect, 0 = optional
+            must_go_action, gate_action, _ = hrl_manager.select_action(
                 static_feat,
                 dynamic_feat,
                 global_features,
                 deterministic=True,
                 threshold=threshold,
-                mask_threshold=mask_threshold,
+                must_go_threshold=mask_threshold,
             )
 
-            # If Gate is closed (0), return empty immediately
+            # If Gate is closed (0), return empty immediately (no dispatch)
             if gate_action.item() == 0:
                 for handle in hook_data["handles"]:
                     handle.remove()
@@ -380,8 +385,9 @@ class NeuralAgent:
                     },
                 )
 
-            # Construct Mask
-            mask = mask_action == 0
+            # Construct model mask from must_go_action
+            # must_go_action: 1=must collect, 0=optional → mask: True=can skip
+            mask = must_go_action == 0
             # Clear hooks after manager decision as we only want worker's attention weights
             hook_data["weights"].clear()
             hook_data["masks"].clear()

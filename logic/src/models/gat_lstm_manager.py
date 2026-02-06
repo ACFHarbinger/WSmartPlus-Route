@@ -22,7 +22,7 @@ class GATLSTManager(nn.Module):
     Hierarchical Manager Agent for PCVRP.
     Uses LSTM to encode temporal waste patterns and GAT (Transformer) to encode spatial structure.
     Outputs:
-        1. Node Mask: Which nodes to visit today.
+        1. Must-Go Selection: Which bins must be collected today (must_go=True means mandatory).
         2. Route Gate: Whether to dispatch vehicles today.
     """
 
@@ -121,10 +121,11 @@ class GATLSTManager(nn.Module):
 
         # 4. Heads
 
-        # Node Mask Head (Actor 1)
-        # Output: (Batch, N, 2) -> Logits for [Skip, Visit]
+        # Must-Go Selection Head (Actor 1)
+        # Output: (Batch, N, 2) -> Logits for [Optional, MustGo]
+        # Index 0: bin is optional (can skip), Index 1: bin must be collected
         # Input: Hidden + Skip Connection (lstm_hidden)
-        self.mask_head = nn.Sequential(
+        self.must_go_head = nn.Sequential(
             nn.Linear(hidden_dim + lstm_hidden, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 2),
@@ -158,8 +159,8 @@ class GATLSTManager(nn.Module):
             # Assuming gate_head's last layer is a Linear layer
             self.gate_head[-1].bias.fill_(0)
 
-            # Revert to Neutral Bias
-            self.mask_head[-1].bias.fill_(0)
+            # Neutral bias for must_go_head
+            self.must_go_head[-1].bias.fill_(0)
 
     def clear_memory(self):
         """
@@ -168,13 +169,13 @@ class GATLSTManager(nn.Module):
         self.states_static = []
         self.states_dynamic = []
         self.states_global = []
-        self.actions_mask = []
+        self.actions_must_go = []  # Which bins must be collected
         self.actions_gate = []
-        self.log_probs_mask = []
+        self.log_probs_must_go = []
         self.log_probs_gate = []
         self.rewards = []
         self.values = []
-        self.target_masks = []  # New buffer for target masks
+        self.target_must_go = []  # Ground truth must-go for auxiliary loss
         self.dones = []
 
     def feature_processing(self, static, dynamic):
@@ -212,15 +213,17 @@ class GATLSTManager(nn.Module):
         Forward pass of the Manager Agent.
 
         Args:
-            static (torch.Tensor): Static features.
-            dynamic (torch.Tensor): Dynamic features.
+            static (torch.Tensor): Static features (Batch, N, 2) - coordinates.
+            dynamic (torch.Tensor): Dynamic features (Batch, N, History) - waste history.
             global_features (torch.Tensor): Global features (Batch, global_input_dim).
 
         Returns:
-            tuple: (mask_logits, gate_logits, value)
-                   - mask_logits: Logits for node masking.
-                   - gate_logits: Logits for route gating.
-                   - value: Estimated state value.
+            tuple: (must_go_logits, gate_logits, value)
+                   - must_go_logits: Logits for must-go selection (B, N, 2).
+                     Index 0 = optional, Index 1 = must collect.
+                   - gate_logits: Logits for route gating (B, 2).
+                     Index 0 = skip routing, Index 1 = dispatch vehicles.
+                   - value: Estimated state value (B, 1).
         """
         # Encode
         x, temporal_embed = self.feature_processing(static, dynamic)  # (B, N, H)
@@ -233,8 +236,9 @@ class GATLSTManager(nn.Module):
         # h_skip: (B, N, H + lstm_hidden)
         h_skip = torch.cat([h, temporal_embed], dim=-1)
 
-        # Node Mask Logits
-        mask_logits = self.mask_head(h_skip)  # (B, N, 2)
+        # Must-Go Selection Logits
+        # Outputs logits for [Optional, MustGo] per node
+        must_go_logits = self.must_go_head(h_skip)  # (B, N, 2)
 
         # Global Pooling for Gate/Critic
         # Combine Mean (for general load) and Max (for urgency/overflows)
@@ -252,7 +256,7 @@ class GATLSTManager(nn.Module):
         # Value
         value = self.critic(h_combined)  # (B, 1)
 
-        return mask_logits, gate_logits, value
+        return must_go_logits, gate_logits, value
 
     def select_action(
         self,
@@ -261,54 +265,103 @@ class GATLSTManager(nn.Module):
         global_features=None,
         deterministic=False,
         threshold=0.5,
-        mask_threshold=0.5,
-        target_mask=None,
+        must_go_threshold=0.5,
+        target_must_go=None,
     ):
         """
-        Select actions (gate and mask) based on the current state.
-        """
-        mask_logits, gate_logits, value = self.forward(static, dynamic, global_features)
+        Select actions (gate and must_go) based on the current state.
 
-        # 1. Gate Decision (0=Skip, 1=Route)
+        Args:
+            static (torch.Tensor): Static features (Batch, N, 2).
+            dynamic (torch.Tensor): Dynamic features (Batch, N, History).
+            global_features (torch.Tensor): Global features (Batch, G).
+            deterministic (bool): If True, use argmax instead of sampling.
+            threshold (float): Probability threshold for gate decision.
+            must_go_threshold (float): Probability threshold for must_go decision.
+            target_must_go (torch.Tensor, optional): Ground truth must_go for auxiliary loss.
+
+        Returns:
+            tuple: (must_go_action, gate_action, value)
+                   - must_go_action: (Batch, N) boolean tensor where True = must collect.
+                   - gate_action: (Batch,) long tensor where 1 = dispatch vehicles.
+                   - value: (Batch, 1) state value estimate.
+        """
+        must_go_logits, gate_logits, value = self.forward(static, dynamic, global_features)
+
+        # 1. Gate Decision (0=Skip routing, 1=Dispatch vehicles)
         gate_probs = F.softmax(gate_logits, dim=-1)
         gate_dist = torch.distributions.Categorical(gate_probs)
 
         if deterministic:
             if threshold < 0:
-                gate_action = torch.ones_like(gate_probs[..., 1]).long()
+                gate_action = torch.ones_like(gate_probs[:, 1]).long()
             else:
-                gate_action = (gate_probs[..., 1] > threshold).long()
+                gate_action = (gate_probs[:, 1] > threshold).long()
         else:
             gate_action = gate_dist.sample()
 
-        # 2. Mask Decision (Which nodes to mask/unmask)
-        mask_probs = F.softmax(mask_logits, dim=-1)
-        mask_dist = torch.distributions.Categorical(mask_probs)
+        # 2. Must-Go Selection (Which bins must be collected)
+        # Index 0 = optional, Index 1 = must collect
+        must_go_probs = F.softmax(must_go_logits, dim=-1)
+        must_go_dist = torch.distributions.Categorical(must_go_probs)
 
         if deterministic:
-            mask_action = (mask_probs[..., 1] > mask_threshold).long()
+            must_go_action = (must_go_probs[:, :, 1] > must_go_threshold).long()
         else:
-            mask_action = mask_dist.sample()  # (Batch, N)
+            must_go_action = must_go_dist.sample()  # (Batch, N)
 
         # Store for PPO
         if not deterministic:
-            log_prob_mask = mask_dist.log_prob(mask_action).sum(dim=1)
+            log_prob_must_go = must_go_dist.log_prob(must_go_action).sum(dim=1)
             log_prob_gate = gate_dist.log_prob(gate_action)
 
             self.states_static.append(static.detach().cpu())
             self.states_dynamic.append(dynamic.detach().cpu())
             self.states_global.append(global_features.detach().cpu() if global_features is not None else None)
             self.actions_gate.append(gate_action.detach().cpu())
-            self.actions_mask.append(mask_action.detach().cpu())
+            self.actions_must_go.append(must_go_action.detach().cpu())
             self.log_probs_gate.append(log_prob_gate.detach().cpu())
-            self.log_probs_mask.append(log_prob_mask.detach().cpu())
+            self.log_probs_must_go.append(log_prob_must_go.detach().cpu())
             self.values.append(value.detach().cpu())
 
-            # Store target mask for auxiliary loss
-            if target_mask is not None:
-                self.target_masks.append(target_mask.detach().cpu())
+            # Store target must_go for auxiliary loss
+            if target_must_go is not None:
+                self.target_must_go.append(target_must_go.detach().cpu())
             else:
-                # Fallback based on waste level
-                self.target_masks.append((dynamic[:, :, -1] > self.critical_threshold).float().detach().cpu())
+                # Fallback: bins with fill > critical_threshold should be collected
+                self.target_must_go.append((dynamic[:, :, -1] > self.critical_threshold).float().detach().cpu())
 
-        return mask_action, gate_action, value
+        return must_go_action, gate_action, value
+
+    def get_must_go_mask(
+        self,
+        static,
+        dynamic,
+        global_features=None,
+        threshold=0.5,
+    ):
+        """
+        Get the must_go boolean mask for environment integration.
+
+        This method provides the must_go mask in the format expected by
+        the WCVRP/VRPP environments for action masking.
+
+        Args:
+            static (torch.Tensor): Static features (Batch, N, 2).
+            dynamic (torch.Tensor): Dynamic features (Batch, N, History).
+            global_features (torch.Tensor): Global features (Batch, G).
+            threshold (float): Probability threshold for must_go decision.
+
+        Returns:
+            torch.Tensor: Boolean tensor (Batch, N) where True = must collect.
+        """
+        must_go_logits, _, _ = self.forward(static, dynamic, global_features)
+        must_go_probs = F.softmax(must_go_logits, dim=-1)
+
+        # must_go is True where P(must_go=1) > threshold
+        must_go = must_go_probs[:, :, 1] > threshold
+
+        # Depot (index 0) should never be a must_go target
+        must_go[:, 0] = False
+
+        return must_go

@@ -14,6 +14,7 @@ from .vectorized import (
     CombinedSelector,
     LastMinuteSelector,
     LookaheadSelector,
+    ManagerSelector,
     RegularSelector,
     RevenueSelector,
     ServiceLevelSelector,
@@ -31,6 +32,7 @@ __all__ = [
     "RevenueSelector",
     "ServiceLevelSelector",
     "CombinedSelector",
+    "ManagerSelector",
     "get_vectorized_selector",
     "create_selector_from_config",
 ]
