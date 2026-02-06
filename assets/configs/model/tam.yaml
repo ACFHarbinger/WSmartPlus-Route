@@ -1,0 +1,20 @@
+# @package _global_
+
+model:
+  name: "tam"
+  embed_dim: 128
+  hidden_dim: 512
+  n_encode_layers: 3
+  n_decode_layers: 2
+  n_heads: 8
+  encoder_type: "gat"
+
+  # Temporal AM specific
+  temporal_horizon: 7 # Look ahead window
+
+  # Standard params
+  normalization: "instance"
+  activation: "gelu"
+  dropout: 0.1
+  aggregation_node: "sum"
+  aggregation_graph: "avg"

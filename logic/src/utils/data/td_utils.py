@@ -1,5 +1,5 @@
 """
-Shared utilities for Policies.
+Shared utilities for Problems and Tensor Dicts.
 """
 
 from typing import Optional

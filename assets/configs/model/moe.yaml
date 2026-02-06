@@ -1,0 +1,25 @@
+# @package _global_
+
+model:
+  name: "moe"
+  embed_dim: 128
+  hidden_dim: 512
+  n_encode_layers: 3
+  n_encoder_sublayers: 1
+  n_predictor_layers: 2
+  n_decode_layers: 2
+  n_heads: 8
+  encoder_type: "gat"
+
+  # MoE Specific Parameters
+  num_experts: 4
+  k: 2
+  noisy_gating: true
+
+  # Standard Parameters
+  temporal_horizon: 0
+  normalization: "instance"
+  activation: "gelu"
+  dropout: 0.1
+  aggregation_node: "sum"
+  aggregation_graph: "avg"

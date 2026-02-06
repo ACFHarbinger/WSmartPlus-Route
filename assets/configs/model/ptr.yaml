@@ -1,0 +1,9 @@
+# @package _global_
+
+model:
+  name: "ptr"
+  embed_dim: 128
+  hidden_dim: 128
+  n_layers: 2 # RNN layers
+  dropout: 0.1
+  # Pointer Network specific params if any

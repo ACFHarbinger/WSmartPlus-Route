@@ -1,0 +1,23 @@
+# @package _global_
+
+model:
+  name: "symnco"
+  embed_dim: 128
+  hidden_dim: 512
+  n_encode_layers: 3
+  n_encoder_sublayers: 1
+  n_predictor_layers: 2
+  n_decode_layers: 2
+  n_heads: 8
+  encoder_type: "gat"
+
+  # SymNCO specific
+  use_projection_head: true
+
+  # Standard AM params
+  temporal_horizon: 0
+  normalization: "instance"
+  activation: "gelu"
+  dropout: 0.1
+  aggregation_node: "sum"
+  aggregation_graph: "avg"
