@@ -29,7 +29,6 @@ class MustGoConfig:
             - None: No must-go constraint (default behavior)
         threshold: Fill level threshold for last_minute/manager strategy (0-1).
         frequency: Collection frequency for regular strategy (days).
-        lookahead_days: Number of days to look ahead for lookahead strategy.
         confidence_factor: Standard deviations for service_level strategy.
         revenue_kg: Revenue per kg for revenue strategy.
         bin_capacity: Bin capacity for revenue calculation.
@@ -53,9 +52,6 @@ class MustGoConfig:
     # Regular parameters
     frequency: int = 3
 
-    # Lookahead parameters
-    lookahead_days: int = 1
-
     # ServiceLevel parameters
     confidence_factor: float = 1.0
 
@@ -69,6 +65,7 @@ class MustGoConfig:
 
     # Combined strategy configs (list of dicts with strategy configs)
     combined_strategies: Optional[list] = None
+    logic: str = "or"
 
     # Manager (neural network) parameters
     hidden_dim: int = 128

@@ -1,6 +1,7 @@
 """
 Lookahead selection strategy module.
 """
+
 from typing import List
 
 import numpy as np
@@ -10,70 +11,142 @@ from ..must_go_selection import MustGoSelectionStrategy, SelectionContext
 
 class LookaheadSelection(MustGoSelectionStrategy):
     """
-    Predictive selection strategy looking N days ahead.
+    Predictive selection strategy looking ahead to synchronize collections.
 
-    Selects bins that will overflow within the lookahead horizon.
+    Selects bins that will overflow before the next required visit to currently full bins.
     """
+
+    def _should_bin_be_collected(self, current_fill_level: float, accumulation_rate: float) -> bool:
+        """
+        Check if bin overflows today.
+        """
+        if current_fill_level + accumulation_rate >= 100:
+            return True
+        return False
+
+    def _update_fill_levels_after_first_collection(
+        self, bin_indices: List[int], must_go_bins: List[int], current_fill_levels: np.ndarray
+    ) -> np.ndarray:
+        """
+        Simulate collection for must_go_bins by setting fill levels to 0.
+        """
+        for i in bin_indices:
+            if i in must_go_bins:
+                current_fill_levels[i] = 0
+        return current_fill_levels
+
+    def _initialize_lists_bins(self, n_bins: int) -> List[int]:
+        """
+        Initialize list for next collection days.
+        """
+        return [0] * n_bins
+
+    def _calculate_next_collection_days(
+        self,
+        bin_indices: List[int],
+        must_go_bins: List[int],
+        current_fill_levels: np.ndarray,
+        accumulation_rates: np.ndarray,
+    ) -> List[int]:
+        """
+        Calculate when collected bins would overflow again.
+        """
+        next_collection_days = self._initialize_lists_bins(len(bin_indices))
+        # Work on a copy to avoid side effects
+        temporary_fill_levels = current_fill_levels.copy()
+        for i in must_go_bins:
+            current_day = 0
+            rate = accumulation_rates[i]
+            if rate <= 0:
+                continue
+
+            while temporary_fill_levels[i] < 100:
+                temporary_fill_levels[i] = temporary_fill_levels[i] + rate
+                current_day = current_day + 1
+
+            next_collection_days[i] = current_day  # assuming collection happens at the beginning of the day
+        return next_collection_days
+
+    def _get_next_collection_day(
+        self,
+        bin_indices: List[int],
+        must_go_bins: List[int],
+        current_fill_levels: np.ndarray,
+        accumulation_rates: np.ndarray,
+    ) -> int:
+        """
+        Find the earliest overflow day among the currently selected bins.
+        """
+        next_collection_days = self._calculate_next_collection_days(
+            bin_indices, must_go_bins, current_fill_levels, accumulation_rates
+        )
+        next_collection_days_array = np.array(next_collection_days)
+        # Find minimum non-zero day
+        non_zero_indices = np.nonzero(next_collection_days_array)
+        if len(non_zero_indices[0]) == 0:
+            return 0
+
+        next_collection_day = np.min(next_collection_days_array[non_zero_indices])
+        return int(next_collection_day)
+
+    def _add_bins_to_collect(
+        self,
+        bin_indices: List[int],
+        next_collection_day: int,
+        must_go_bins: List[int],
+        current_fill_levels: np.ndarray,
+        accumulation_rates: np.ndarray,
+    ) -> List[int]:
+        """
+        Add bins that would overflow before the next collection day.
+        """
+        # Assuming current_collection_day is 0 (relative start)
+        current_collection_day = 0
+        for i in bin_indices:
+            if i in must_go_bins:
+                continue
+            else:
+                for j in range(current_collection_day + 1, next_collection_day):
+                    if current_fill_levels[i] + j * accumulation_rates[i] >= 100:
+                        must_go_bins.append(i)
+                        break
+        return must_go_bins
 
     def select_bins(self, context: SelectionContext) -> List[int]:
         """
-        Select bins predicted to overflow within N days.
-
-        Args:
-            context: SelectionContext with fill levels, accumulation rates, and lookahead parameters.
-
-        Returns:
-            List[int]: List of bin IDs (1-based index).
+        Select bins based on lookahead logic.
         """
-        if context.lookahead_days is None and context.accumulation_rates is None:
-            return []
-
         if context.accumulation_rates is None:
             return []
 
-        # 1. Static Lookahead Logic (if days provided)
-        if context.lookahead_days is not None:
-            horizon = context.lookahead_days
-            # Vectorized check: which bins will overflow in 'horizon' days?
-            # Assuming monotonic increase: checking the furthest day is sufficient.
-            # current + horizon * rate >= 100
-            predicted_fill = context.current_fill + (horizon * context.accumulation_rates)
+        current_fill_levels = context.current_fill
+        accumulation_rates = context.accumulation_rates
+        n_bins = len(current_fill_levels)
+        bin_indices = list(range(n_bins))
 
-            # Find indices where fill >= 100
-            must_go_indices = np.where(predicted_fill >= 100)[0]
-
-            # Convert to 1-based IDs
-            return [int(idx) + 1 for idx in must_go_indices]
-
-        # 2. Dynamic Lookahead Logic (Legacy/Cluster behavior)
-        # First, identify bins that will overflow "soon" (e.g., tomorrow) to set a baseline cadence
         must_go_bins = []
-        for i in range(len(context.current_fill)):
-            if context.current_fill[i] + context.accumulation_rates[i] >= 100:
+        for i in bin_indices:
+            if self._should_bin_be_collected(current_fill_levels[i], accumulation_rates[i]):
                 must_go_bins.append(i)
 
-        if not must_go_bins:
-            return []
+        if must_go_bins:
+            # Create a copy for simulation
+            simulated_fill_levels = self._update_fill_levels_after_first_collection(
+                bin_indices, must_go_bins, current_fill_levels.copy()
+            )
 
-        # Determine dynamic horizon based on critical bins
-        next_coll_day = context.next_collection_day
-        if next_coll_day is None:
-            coll_days = []
-            for i in must_go_bins:
-                if context.accumulation_rates[i] > 0:
-                    days = int(np.ceil((100.0 - context.current_fill[i]) / context.accumulation_rates[i]))
-                    coll_days.append(max(1, days))  # Ensure at least 1 day
-            next_coll_day = int(np.min(coll_days)) if coll_days else 1
+            next_collection_day = self._get_next_collection_day(
+                bin_indices, must_go_bins, simulated_fill_levels, accumulation_rates
+            )
 
-        # Extend selection to others overflowing within this dynamic horizon
-        for i in range(len(context.current_fill)):
-            if i in must_go_bins:
-                continue
+            if next_collection_day > 0:
+                must_go_bins = self._add_bins_to_collect(
+                    bin_indices,
+                    next_collection_day,
+                    must_go_bins,
+                    current_fill_levels,  # Original fill levels
+                    accumulation_rates,
+                )
 
-            # Iterate from tomorrow up to horizon
-            for k in range(1, next_coll_day + 1):
-                if context.current_fill[i] + k * context.accumulation_rates[i] >= 100:
-                    must_go_bins.append(i)
-                    break
-
-        return [idx + 1 for idx in must_go_bins]
+        # Convert back to 1-based IDs
+        return [i + 1 for i in must_go_bins]

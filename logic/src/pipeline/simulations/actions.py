@@ -166,7 +166,7 @@ class MustGoSelectionAction(SimulationAction):
 
             for item in config_must_go:
                 if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
-                    # Load config file (e.g. mg_lookahead_days7.xml)
+                    # Load config file
                     fpath = os.path.join(ROOT_DIR, "assets", "configs", "policies", item)
                     cfg = load_config(fpath)
                     # Extract strategy name and params
@@ -209,12 +209,9 @@ class MustGoSelectionAction(SimulationAction):
             # Determine threshold/days from params if standard keys exist
             # This logic mimics the old parameter extraction but from dict
             thresh = 0.0
-            la_days = None
-
             if isinstance(s_params, dict):
                 val = s_params.get("threshold") or s_params.get("cf") or s_params.get("param") or s_params.get("lvl")
                 thresh = float(val) if val is not None else 0.0
-                la_days = s_params.get("days", s_params.get("lookahead_days"))
 
             sel_ctx = SelectionContext(
                 bin_ids=np.arange(0, n_bins, dtype="int32"),
@@ -227,13 +224,12 @@ class MustGoSelectionAction(SimulationAction):
                 distance_matrix=context.get("distance_matrix"),
                 paths_between_states=context.get("paths_between_states"),
                 vehicle_capacity=context.get("max_capacity", 100.0),
-                lookahead_days=int(la_days) if la_days is not None else None,
             )
 
             if s_name == "select_all":
                 res = list(sel_ctx.bin_ids)
             else:
-                strategy = MustGoSelectionFactory.create_strategy(str(s_name))
+                strategy = MustGoSelectionFactory.create_strategy(str(s_name), **s_params)
                 res = strategy.select_bins(sel_ctx)
 
             final_must_go.update(res)

@@ -10,7 +10,7 @@ Includes both:
 - Vectorized selectors (for training): Batched PyTorch tensor operations
 """
 
-from .vectorized import (
+from logic.src.models.policies.selection import (
     CombinedSelector,
     LastMinuteSelector,
     LookaheadSelector,
