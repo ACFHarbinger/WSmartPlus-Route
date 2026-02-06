@@ -1,7 +1,7 @@
 """
 Deep Decoder Policy for RL4CO.
 
-Adapts the DeepDecoderAM architecture to the RL4CO architecture.
+Adapts the DeepGATDecoder-based architecture to the RL4CO architecture.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.base import ConstructivePolicy
 from logic.src.models.policies.utils import TensorDictStateWrapper
-from logic.src.models.subnets.deep_decoder import DeepDecoder
+from logic.src.models.subnets.gat_decoder import DeepGATDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
 
 
@@ -51,7 +51,7 @@ class DeepDecoderPolicy(ConstructivePolicy):
             **kwargs,
         )
 
-        self.decoder = DeepDecoder(
+        self.decoder = DeepGATDecoder(
             embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             n_heads=n_heads,

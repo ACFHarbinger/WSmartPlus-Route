@@ -1,6 +1,7 @@
 """
 Model Config module.
 """
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -26,7 +27,7 @@ class ModelConfig:
     n_decode_layers: int = 3
     n_heads: int = 8
     encoder_type: str = "gat"
-    # NEW FIELDS:
+    decoder_type: str = "attention"
     temporal_horizon: int = 0
     tanh_clipping: float = 10.0
     normalization: str = "instance"

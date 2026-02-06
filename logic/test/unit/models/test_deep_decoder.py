@@ -1,20 +1,20 @@
-"""Tests for DeepDecoder."""
+"""Tests for DeepGATDecoder."""
 
 import torch
 import torch.nn as nn
-from logic.src.models.subnets.deep_decoder import DeepAttentionModelFixed, DeepDecoder
+from logic.src.models.subnets.gat_decoder import DeepAttentionModelFixed, DeepGATDecoder
 
 
 def test_deep_decoder_init():
-    """Verify initialization of DeepDecoder."""
-    model = DeepDecoder(embed_dim=16, hidden_dim=16, n_heads=2, n_layers=1)
+    """Verify initialization of DeepGATDecoder."""
+    model = DeepGATDecoder(embed_dim=16, hidden_dim=16, n_heads=2, n_layers=1)
     assert isinstance(model.decoder, nn.Module)
     assert model.embed_dim == 16
 
 
 def test_deep_decoder_precompute():
     """Verify precomputation with different aggregation strategies."""
-    model = DeepDecoder(embed_dim=16, hidden_dim=16, n_heads=2, n_layers=1, aggregation_graph="avg")
+    model = DeepGATDecoder(embed_dim=16, hidden_dim=16, n_heads=2, n_layers=1, aggregation_graph="avg")
 
     batch, nodes, dim = 2, 5, 16
     embeddings = torch.randn(batch, nodes, dim)
@@ -37,7 +37,7 @@ def test_deep_decoder_precompute():
 
 def test_deep_decoder_get_log_p():
     """Verify log probability computation."""
-    model = DeepDecoder(embed_dim=16, hidden_dim=16, n_heads=2, n_layers=1)
+    model = DeepGATDecoder(embed_dim=16, hidden_dim=16, n_heads=2, n_layers=1)
 
     batch, nodes, dim = 2, 5, 16
     embeddings = torch.randn(batch, nodes, dim)

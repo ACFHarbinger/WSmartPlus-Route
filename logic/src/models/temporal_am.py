@@ -64,6 +64,13 @@ class TemporalAttentionModel(AttentionModel):
         shrink_size: Optional[int] = None,
         temporal_horizon: int = 5,
         predictor_layers: int = 2,
+        pomo_size: int = 0,
+        spatial_bias: bool = False,
+        spatial_bias_scale: float = 1.0,
+        entropy_weight: float = 0.0,
+        connection_type: str = "residual",
+        hyper_expansion: int = 4,
+        decoder_type: str = "attention",
     ) -> None:
         """
         Initialize the Temporal Attention Model.
@@ -77,7 +84,7 @@ class TemporalAttentionModel(AttentionModel):
             hidden_dim=hidden_dim,
             problem=problem,
             n_heads=n_heads,
-            pomo_size=0,
+            pomo_size=pomo_size,
             checkpoint_encoder=checkpoint_encoder,
             aggregation_graph=aggregation_graph,
             temporal_horizon=0,
@@ -106,15 +113,16 @@ class TemporalAttentionModel(AttentionModel):
             af_num_params=af_num_params,
             af_uniform_range=af_uniform_range,
             aggregation=aggregation,
-            connection_type="residual",
-            hyper_expansion=4,
+            connection_type=connection_type,
+            hyper_expansion=hyper_expansion,
             tanh_clipping=tanh_clipping,
             mask_inner=mask_inner,
             mask_logits=mask_logits,
             mask_graph=mask_graph,
             shrink_size=shrink_size,
-            spatial_bias=False,
-            spatial_bias_scale=1.0,
+            spatial_bias=spatial_bias,
+            spatial_bias_scale=spatial_bias_scale,
+            decoder_type=decoder_type,
         )
         self.temporal_horizon = temporal_horizon
         from . import GatedRecurrentFillPredictor
