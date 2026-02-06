@@ -394,7 +394,7 @@ class SimulationResultsWindow(QWidget):
         titles = {
             "bin_state_c": "Fill Level (%)",
             "bin_state_collected": "Waste Collected (kg)",
-            "bins_state_c_after": "Fill Level After Collection (%)",
+            "bins_state_real_c_after": "Fill Level After Collection (%)",
         }
 
         for i, metric in enumerate(HEATMAP_METRICS):
@@ -404,10 +404,10 @@ class SimulationResultsWindow(QWidget):
 
             if day_data:
                 x_indices = np.arange(len(day_data))
-                color = "#e67e22" if metric in ["bin_state_c", "bins_state_c_after"] else "#2980b9"
+                color = "#e67e22" if metric in ["bin_state_c", "bins_state_real_c_after"] else "#2980b9"
                 ax.bar(x_indices, day_data, color=color, edgecolor="black")
 
-                if metric in ["bin_state_c", "bins_state_c_after"]:
+                if metric in ["bin_state_c", "bins_state_real_c_after"]:
                     ax.set_ylim(0, 105)
                     ax.axhline(y=100, color="red", linestyle="--", label="Overflow")
 
@@ -659,7 +659,7 @@ class SimulationResultsWindow(QWidget):
                 if not days:
                     continue
                 mat = np.array([metric_history[d] for d in days])
-                cmap = "hot" if metric in ["bin_state_c", "bins_state_c_after"] else "viridis"
+                cmap = "hot" if metric in ["bin_state_c", "bins_state_real_c_after"] else "viridis"
                 ax.imshow(mat, aspect="auto", cmap=cmap, origin="lower")
                 ax.set_title(metric)
                 ax.set_ylabel("Day")

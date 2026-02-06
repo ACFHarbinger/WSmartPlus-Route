@@ -89,8 +89,7 @@ def render_training_monitor() -> None:
 
     if not runs:
         st.warning(
-            "⚠️ No training runs found in `logs/`.\n\n"
-            "Start a training run with PyTorch Lightning to see metrics here."
+            "⚠️ No training runs found in `logs/`.\n\nStart a training run with PyTorch Lightning to see metrics here."
         )
         return
 
@@ -237,7 +236,7 @@ def render_simulation_visualizer() -> None:
 
     tour = display_entry.data.get("tour", [])
     bin_states = display_entry.data.get("bin_state_c", [])
-    bin_states_after = display_entry.data.get("bins_state_c_after", [])
+    bin_states_after = display_entry.data.get("bins_state_real_c_after", [])
 
     if not tour:
         st.warning("No tour data available for this entry.")
