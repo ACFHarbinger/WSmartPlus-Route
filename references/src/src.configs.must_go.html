@@ -457,6 +457,12 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.revenue_threshold"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.revenue_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.max_fill"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.max_fill</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.combined_strategies"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.combined_strategies</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.hidden_dim"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.hidden_dim</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.lstm_hidden"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.lstm_hidden</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.history_length"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.history_length</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.critical_threshold"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.critical_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.manager_weights"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.manager_weights</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.device"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.device</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.params"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.params</span></code></a></li>
 </ul>
 </li>
@@ -509,9 +515,10 @@ strategy: Name of the selection strategy. Options:
 - “lookahead”: Predictive (collect if overflow within N days)
 - “revenue”: Revenue-based (collect if revenue exceeds threshold)
 - “service_level”: Statistical overflow prediction
+- “manager”: Neural network-based selection (GATLSTManager)
 - “combined”: Combine multiple strategies with OR logic
 - None: No must-go constraint (default behavior)
-threshold: Fill level threshold for last_minute strategy (0-1).
+threshold: Fill level threshold for last_minute/manager strategy (0-1).
 frequency: Collection frequency for regular strategy (days).
 lookahead_days: Number of days to look ahead for lookahead strategy.
 confidence_factor: Standard deviations for service_level strategy.
@@ -520,6 +527,12 @@ bin_capacity: Bin capacity for revenue calculation.
 revenue_threshold: Minimum revenue threshold for revenue strategy.
 max_fill: Maximum fill level (overflow threshold).
 combined_strategies: List of strategy configs for combined selector.
+hidden_dim: Hidden dimension for manager network.
+lstm_hidden: LSTM hidden dimension for manager network.
+history_length: Temporal history length for manager network.
+critical_threshold: Critical fill threshold for manager network.
+manager_weights: Path to pre-trained manager weights.
+device: Device for manager computation (‘cpu’ or ‘cuda’).
 params: Additional strategy-specific parameters.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.must_go.MustGoConfig.strategy">
@@ -579,6 +592,42 @@ params: Additional strategy-specific parameters.</p>
 <dt class="sig sig-object py" id="src.configs.must_go.MustGoConfig.combined_strategies">
 <span class="sig-name descname"><span class="pre">combined_strategies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.must_go.MustGoConfig.combined_strategies" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.must_go.MustGoConfig.hidden_dim">
+<span class="sig-name descname"><span class="pre">hidden_dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.must_go.MustGoConfig.hidden_dim" title="Link to this definition">#</a></dt>
+<dd><p>128</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.must_go.MustGoConfig.lstm_hidden">
+<span class="sig-name descname"><span class="pre">lstm_hidden</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.must_go.MustGoConfig.lstm_hidden" title="Link to this definition">#</a></dt>
+<dd><p>64</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.must_go.MustGoConfig.history_length">
+<span class="sig-name descname"><span class="pre">history_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.must_go.MustGoConfig.history_length" title="Link to this definition">#</a></dt>
+<dd><p>10</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.must_go.MustGoConfig.critical_threshold">
+<span class="sig-name descname"><span class="pre">critical_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.must_go.MustGoConfig.critical_threshold" title="Link to this definition">#</a></dt>
+<dd><p>0.9</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.must_go.MustGoConfig.manager_weights">
+<span class="sig-name descname"><span class="pre">manager_weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.must_go.MustGoConfig.manager_weights" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.must_go.MustGoConfig.device">
+<span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.must_go.MustGoConfig.device" title="Link to this definition">#</a></dt>
+<dd><p>‘cuda’</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -652,6 +701,12 @@ params: Additional strategy-specific parameters.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.revenue_threshold"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.revenue_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.max_fill"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.max_fill</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.combined_strategies"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.combined_strategies</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.hidden_dim"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.hidden_dim</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.lstm_hidden"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.lstm_hidden</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.history_length"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.history_length</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.critical_threshold"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.critical_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.manager_weights"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.manager_weights</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.device"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.device</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.must_go.MustGoConfig.params"><code class="docutils literal notranslate"><span class="pre">MustGoConfig.params</span></code></a></li>
 </ul>
 </li>

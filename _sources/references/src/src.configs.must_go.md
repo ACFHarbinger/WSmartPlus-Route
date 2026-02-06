@@ -139,6 +139,72 @@
 
 ````
 
+````{py:attribute} hidden_dim
+:canonical: src.configs.must_go.MustGoConfig.hidden_dim
+:type: int
+:value: >
+   128
+
+```{autodoc2-docstring} src.configs.must_go.MustGoConfig.hidden_dim
+```
+
+````
+
+````{py:attribute} lstm_hidden
+:canonical: src.configs.must_go.MustGoConfig.lstm_hidden
+:type: int
+:value: >
+   64
+
+```{autodoc2-docstring} src.configs.must_go.MustGoConfig.lstm_hidden
+```
+
+````
+
+````{py:attribute} history_length
+:canonical: src.configs.must_go.MustGoConfig.history_length
+:type: int
+:value: >
+   10
+
+```{autodoc2-docstring} src.configs.must_go.MustGoConfig.history_length
+```
+
+````
+
+````{py:attribute} critical_threshold
+:canonical: src.configs.must_go.MustGoConfig.critical_threshold
+:type: float
+:value: >
+   0.9
+
+```{autodoc2-docstring} src.configs.must_go.MustGoConfig.critical_threshold
+```
+
+````
+
+````{py:attribute} manager_weights
+:canonical: src.configs.must_go.MustGoConfig.manager_weights
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.must_go.MustGoConfig.manager_weights
+```
+
+````
+
+````{py:attribute} device
+:canonical: src.configs.must_go.MustGoConfig.device
+:type: str
+:value: >
+   'cuda'
+
+```{autodoc2-docstring} src.configs.must_go.MustGoConfig.device
+```
+
+````
+
 ````{py:attribute} params
 :canonical: src.configs.must_go.MustGoConfig.params
 :type: typing.Dict[str, typing.Any]

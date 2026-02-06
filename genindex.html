@@ -2117,6 +2117,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.constants.waste.html#src.constants.waste.CRITICAL_FILL_THRESHOLD">CRITICAL_FILL_THRESHOLD (in module src.constants.waste)</a>
 </li>
+      <li><a href="references/src/src.configs.must_go.html#src.configs.must_go.MustGoConfig.critical_threshold">critical_threshold (src.configs.must_go.MustGoConfig attribute)</a>
+</li>
       <li><a href="references/src/src.pipeline.rl.common.baselines.html#src.pipeline.rl.common.baselines.CriticBaseline">CriticBaseline (class in src.pipeline.rl.common.baselines)</a>
 </li>
       <li><a href="references/src/src.models.critic_network.html#src.models.critic_network.CriticNetwork">CriticNetwork (class in src.models.critic_network)</a>
@@ -2257,10 +2259,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.constants.models.html#src.constants.models.DEFAULT_TEMPORAL_HORIZON">DEFAULT_TEMPORAL_HORIZON (in module src.constants.models)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.constants.optimization.html#src.constants.optimization.DEFAULT_TIME_LIMIT">DEFAULT_TIME_LIMIT (in module src.constants.optimization)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.constants.optimization.html#src.constants.optimization.DEFAULT_V_VALUE">DEFAULT_V_VALUE (in module src.constants.optimization)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.deleate_cache">deleate_cache() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor method)</a>
@@ -2276,6 +2278,8 @@ document.write(`
       <li><a href="references/src/src.configs.html#src.configs.Config.device">device (src.configs.Config attribute)</a>
 
       <ul>
+        <li><a href="references/src/src.configs.must_go.html#src.configs.must_go.MustGoConfig.device">(src.configs.must_go.MustGoConfig attribute)</a>
+</li>
         <li><a href="references/src/src.pipeline.simulations.context.html#src.pipeline.simulations.context.SimulationDayContext.device">(src.pipeline.simulations.context.SimulationDayContext attribute)</a>
 </li>
         <li><a href="references/src/src.utils.functions.beam_search.html#src.utils.functions.beam_search.BatchBeam.device">(src.utils.functions.beam_search.BatchBeam attribute)</a>
@@ -3053,6 +3057,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.single_vehicle.html#src.policies.single_vehicle.get_multi_tour">get_multi_tour() (in module src.policies.single_vehicle)</a>
 </li>
+      <li><a href="references/src/src.models.gat_lstm_manager.html#src.models.gat_lstm_manager.GATLSTManager.get_must_go_mask">get_must_go_mask() (src.models.gat_lstm_manager.GATLSTManager method)</a>
+</li>
       <li><a href="references/src/src.policies.look_ahead_aux.sans_opt.html#src.policies.look_ahead_aux.sans_opt.get_neighbors">get_neighbors() (in module src.policies.look_ahead_aux.sans_opt)</a>
 </li>
       <li><a href="references/src/src.policies.look_ahead_aux.update.html#src.policies.look_ahead_aux.update.get_next_collection_day">get_next_collection_day() (in module src.policies.look_ahead_aux.update)</a>
@@ -3228,6 +3234,12 @@ document.write(`
       <li><a href="references/src/src.policies.hybrid_genetic_search.html#src.policies.hybrid_genetic_search.HGSSolver">HGSSolver (class in src.policies.hybrid_genetic_search)</a>
 </li>
       <li><a href="references/src/src.configs.model.html#src.configs.model.ModelConfig.hidden_dim">hidden_dim (src.configs.model.ModelConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.must_go.html#src.configs.must_go.MustGoConfig.hidden_dim">(src.configs.must_go.MustGoConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.must_go.html#src.configs.must_go.MustGoConfig.history_length">history_length (src.configs.must_go.MustGoConfig attribute)</a>
 </li>
       <li><a href="references/src/src.constants.hpo.html#src.constants.hpo.HOP_KEYS">HOP_KEYS (in module src.constants.hpo)</a>
 </li>
@@ -3239,10 +3251,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.hrl_clip_eps">hrl_clip_eps (src.configs.meta_rl.MetaRLConfig attribute)</a>
 </li>
-      <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.hrl_entropy_coef">hrl_entropy_coef (src.configs.meta_rl.MetaRLConfig attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.hrl_entropy_coef">hrl_entropy_coef (src.configs.meta_rl.MetaRLConfig attribute)</a>
+</li>
       <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.hrl_epochs">hrl_epochs (src.configs.meta_rl.MetaRLConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.hrl_lambda_cost">hrl_lambda_cost (src.configs.meta_rl.MetaRLConfig attribute)</a>
@@ -3549,6 +3561,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.load_training_metrics">load_training_metrics() (in module src.pipeline.ui.services.data_loader)</a>
 </li>
+      <li><a href="references/src/src.policies.selection.vectorized.html#src.policies.selection.vectorized.ManagerSelector.load_weights">load_weights() (src.policies.selection.vectorized.ManagerSelector method)</a>
+</li>
       <li><a href="references/src/src.utils.configs.config_loader.html#src.utils.configs.config_loader.load_xml_config">load_xml_config() (in module src.utils.configs.config_loader)</a>
 </li>
   </ul></td>
@@ -3663,6 +3677,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.model.html#src.configs.model.ModelConfig.lrnorm_k">lrnorm_k (src.configs.model.ModelConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.configs.must_go.html#src.configs.must_go.MustGoConfig.lstm_hidden">lstm_hidden (src.configs.must_go.MustGoConfig attribute)</a>
+</li>
       <li><a href="references/src/src.configs.meta_rl.html#src.configs.meta_rl.MetaRLConfig.lstm_hidden_dim">lstm_hidden_dim (src.configs.meta_rl.MetaRLConfig attribute)</a>
 </li>
   </ul></td>
@@ -3686,6 +3702,10 @@ document.write(`
       <li><a href="references/src/src.utils.tasks.task_utils.html#src.utils.tasks.task_utils.make_instance_generic">make_instance_generic() (in module src.utils.tasks.task_utils)</a>
 </li>
       <li><a href="references/src/src.envs.problems.html#src.envs.problems.BaseProblem.make_state">make_state() (src.envs.problems.BaseProblem class method)</a>
+</li>
+      <li><a href="references/src/src.configs.must_go.html#src.configs.must_go.MustGoConfig.manager_weights">manager_weights (src.configs.must_go.MustGoConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.policies.selection.vectorized.html#src.policies.selection.vectorized.ManagerSelector">ManagerSelector (class in src.policies.selection.vectorized)</a>
 </li>
       <li><a href="references/src/src.constants.waste.html#src.constants.waste.MAP_DEPOTS">MAP_DEPOTS (in module src.constants.waste)</a>
 </li>
@@ -5452,6 +5472,8 @@ document.write(`
         <li><a href="references/src/src.policies.selection.vectorized.html#src.policies.selection.vectorized.LastMinuteSelector.select">(src.policies.selection.vectorized.LastMinuteSelector method)</a>
 </li>
         <li><a href="references/src/src.policies.selection.vectorized.html#src.policies.selection.vectorized.LookaheadSelector.select">(src.policies.selection.vectorized.LookaheadSelector method)</a>
+</li>
+        <li><a href="references/src/src.policies.selection.vectorized.html#src.policies.selection.vectorized.ManagerSelector.select">(src.policies.selection.vectorized.ManagerSelector method)</a>
 </li>
         <li><a href="references/src/src.policies.selection.vectorized.html#src.policies.selection.vectorized.RegularSelector.select">(src.policies.selection.vectorized.RegularSelector method)</a>
 </li>

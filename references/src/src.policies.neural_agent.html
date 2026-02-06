@@ -520,14 +520,15 @@ model: The neural routing model (e.g., AttentionModel).</p>
 <span class="sig-name descname"><span class="pre">compute_batch_sim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hrl_manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.neural_agent.NeuralAgent.compute_batch_sim" title="Link to this definition">#</a></dt>
 <dd><p>Compute simulation step for a batch of problem instances.</p>
 <p>Used during training and batch evaluation. Optionally integrates with
-HRL manager for gating (decide whether to route) and masking (which bins to visit).</p>
+HRL manager for gating (decide whether to dispatch) and must-go selection
+(which bins must be collected).</p>
 <p>Args:
 input (dict): Batch of problem data with ‘loc’, ‘waste’, etc.
 dist_matrix (torch.Tensor): Distance matrix (B x N x N) or (N x N)
-hrl_manager (optional): HRL manager network for gating decisions
+hrl_manager (optional): HRL manager network for dispatch and must-go decisions
 waste_history (torch.Tensor, optional): Historical waste levels (B x N x T)
 threshold (float): Gating probability threshold. Default: 0.5
-mask_threshold (float): Masking probability threshold. Default: 0.5</p>
+mask_threshold (float): Must-go selection probability threshold. Default: 0.5</p>
 <p>Returns:
 Tuple[torch.Tensor, dict, dict]: Costs, result metrics, and attention data
 - ucost: Unweighted costs tensor

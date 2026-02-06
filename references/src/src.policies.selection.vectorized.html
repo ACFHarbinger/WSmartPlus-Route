@@ -475,6 +475,11 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.CombinedSelector.select"><code class="docutils literal notranslate"><span class="pre">CombinedSelector.select()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.ManagerSelector"><code class="docutils literal notranslate"><span class="pre">ManagerSelector</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.ManagerSelector.select"><code class="docutils literal notranslate"><span class="pre">ManagerSelector.select()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.ManagerSelector.load_weights"><code class="docutils literal notranslate"><span class="pre">ManagerSelector.load_weights()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.create_selector_from_config"><code class="docutils literal notranslate"><span class="pre">create_selector_from_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.get_vectorized_selector"><code class="docutils literal notranslate"><span class="pre">get_vectorized_selector()</span></code></a></li>
 </ul>
@@ -526,6 +531,9 @@ allowing the model to learn when to route vs when to stay at depot.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.selection.vectorized.CombinedSelector" title="src.policies.selection.vectorized.CombinedSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombinedSelector</span></code></a></p></td>
 <td><p>Combines multiple selection strategies with logical OR.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.selection.vectorized.ManagerSelector" title="src.policies.selection.vectorized.ManagerSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagerSelector</span></code></a></p></td>
+<td><p>Neural network-based must-go selection using GATLSTManager.</p></td>
 </tr>
 </tbody>
 </table>
@@ -722,6 +730,45 @@ Tensor: Boolean mask (batch_size, num_nodes).</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.selection.vectorized.ManagerSelector">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.selection.vectorized.</span></span><span class="sig-name descname"><span class="pre">ManagerSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manager_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.selection.vectorized.ManagerSelector" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.policies.selection.vectorized.VectorizedSelector" title="src.policies.selection.vectorized.VectorizedSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.selection.vectorized.VectorizedSelector</span></code></a></p>
+<p>Neural network-based must-go selection using GATLSTManager.</p>
+<p>This selector wraps a trained HRL manager to make must-go decisions
+based on learned patterns from temporal waste data and spatial context.
+The manager learns to predict which bins require collection.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize ManagerSelector.</p>
+<p>Args:
+manager: Pre-instantiated GATLSTManager. If None, creates one from config.
+manager_config: Configuration dict for creating manager if not provided.
+threshold: Probability threshold for must_go decision.
+device: Device for computation (‘cpu’ or ‘cuda’).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.selection.vectorized.ManagerSelector.select">
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.policies.selection.vectorized.ManagerSelector.select" title="Link to this definition">#</a></dt>
+<dd><p>Select bins using the neural manager.</p>
+<p>The manager uses spatial (locations) and temporal (waste history) features
+to predict which bins must be collected.</p>
+<p>Args:
+fill_levels: Current fill levels (batch_size, num_nodes) in [0, 1].
+locs: Node locations (batch_size, num_nodes, 2). Required.
+waste_history: Historical waste levels (batch_size, num_nodes, history).
+If None, expands current fill levels as history.
+threshold: Optional override for probability threshold.</p>
+<p>Returns:
+Tensor: Boolean mask (batch_size, num_nodes) where True = must collect.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.selection.vectorized.ManagerSelector.load_weights">
+<span class="sig-name descname"><span class="pre">load_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.selection.vectorized.ManagerSelector.load_weights" title="Link to this definition">#</a></dt>
+<dd><p>Load manager weights from checkpoint.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.selection.vectorized.create_selector_from_config">
 <span class="sig-prename descclassname"><span class="pre">src.policies.selection.vectorized.</span></span><span class="sig-name descname"><span class="pre">create_selector_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.selection.vectorized.VectorizedSelector" title="src.policies.selection.vectorized.VectorizedSelector"><span class="pre">src.policies.selection.vectorized.VectorizedSelector</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection.vectorized.create_selector_from_config" title="Link to this definition">#</a></dt>
@@ -738,7 +785,13 @@ VectorizedSelector or None if no strategy specified.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.selection.vectorized.</span></span><span class="sig-name descname"><span class="pre">get_vectorized_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.selection.vectorized.VectorizedSelector" title="src.policies.selection.vectorized.VectorizedSelector"><span class="pre">src.policies.selection.vectorized.VectorizedSelector</span></a></span></span><a class="headerlink" href="#src.policies.selection.vectorized.get_vectorized_selector" title="Link to this definition">#</a></dt>
 <dd><p>Create a vectorized selector by name.</p>
 <p>Args:
-name: Selector name (‘last_minute’, ‘regular’, ‘lookahead’, ‘revenue’, ‘service_level’).
+name: Selector name. Options:
+- ‘last_minute’: Threshold-based reactive selection
+- ‘regular’: Periodic collection on scheduled days
+- ‘lookahead’: Predictive overflow-based selection
+- ‘revenue’: Revenue-based selection
+- ‘service_level’: Statistical overflow prediction
+- ‘manager’: Neural network-based selection (GATLSTManager)
 **kwargs: Parameters passed to the selector constructor.</p>
 <p>Returns:
 VectorizedSelector: The instantiated selector.</p>
@@ -825,6 +878,11 @@ ValueError: If the selector name is unknown.</p>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.CombinedSelector"><code class="docutils literal notranslate"><span class="pre">CombinedSelector</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.CombinedSelector.select"><code class="docutils literal notranslate"><span class="pre">CombinedSelector.select()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.ManagerSelector"><code class="docutils literal notranslate"><span class="pre">ManagerSelector</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.ManagerSelector.select"><code class="docutils literal notranslate"><span class="pre">ManagerSelector.select()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.ManagerSelector.load_weights"><code class="docutils literal notranslate"><span class="pre">ManagerSelector.load_weights()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection.vectorized.create_selector_from_config"><code class="docutils literal notranslate"><span class="pre">create_selector_from_config()</span></code></a></li>

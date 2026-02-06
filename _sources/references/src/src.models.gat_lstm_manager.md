@@ -83,10 +83,18 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} select_action(static, dynamic, global_features=None, deterministic=False, threshold=0.5, mask_threshold=0.5, target_mask=None)
+````{py:method} select_action(static, dynamic, global_features=None, deterministic=False, threshold=0.5, must_go_threshold=0.5, target_must_go=None)
 :canonical: src.models.gat_lstm_manager.GATLSTManager.select_action
 
 ```{autodoc2-docstring} src.models.gat_lstm_manager.GATLSTManager.select_action
+```
+
+````
+
+````{py:method} get_must_go_mask(static, dynamic, global_features=None, threshold=0.5)
+:canonical: src.models.gat_lstm_manager.GATLSTManager.get_must_go_mask
+
+```{autodoc2-docstring} src.models.gat_lstm_manager.GATLSTManager.get_must_go_mask
 ```
 
 ````

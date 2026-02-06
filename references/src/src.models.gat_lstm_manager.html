@@ -453,6 +453,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.feature_processing"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.feature_processing()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.forward"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.forward()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.select_action"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.select_action()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.get_must_go_mask"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.get_must_go_mask()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -483,7 +484,7 @@ document.write(`
 <td><p>Hierarchical Manager Agent for PCVRP.
 Uses LSTM to encode temporal waste patterns and GAT (Transformer) to encode spatial structure.
 Outputs:
-1. Node Mask: Which nodes to visit today.
+1. Must-Go Selection: Which bins must be collected today (must_go=True means mandatory).
 2. Route Gate: Whether to dispatch vehicles today.</p></td>
 </tr>
 </tbody>
@@ -516,7 +517,7 @@ Outputs:
 <p>Hierarchical Manager Agent for PCVRP.
 Uses LSTM to encode temporal waste patterns and GAT (Transformer) to encode spatial structure.
 Outputs:
-1. Node Mask: Which nodes to visit today.
+1. Must-Go Selection: Which bins must be collected today (must_go=True means mandatory).
 2. Route Gate: Whether to dispatch vehicles today.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the GATLSTManager.</p>
@@ -557,20 +558,50 @@ tuple: (x, temporal_embed)
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">static</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_features</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.gat_lstm_manager.GATLSTManager.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass of the Manager Agent.</p>
 <p>Args:
-static (torch.Tensor): Static features.
-dynamic (torch.Tensor): Dynamic features.
+static (torch.Tensor): Static features (Batch, N, 2) - coordinates.
+dynamic (torch.Tensor): Dynamic features (Batch, N, History) - waste history.
 global_features (torch.Tensor): Global features (Batch, global_input_dim).</p>
 <p>Returns:
-tuple: (mask_logits, gate_logits, value)
-- mask_logits: Logits for node masking.
-- gate_logits: Logits for route gating.
-- value: Estimated state value.</p>
+tuple: (must_go_logits, gate_logits, value)
+- must_go_logits: Logits for must-go selection (B, N, 2).
+Index 0 = optional, Index 1 = must collect.
+- gate_logits: Logits for route gating (B, 2).
+Index 0 = skip routing, Index 1 = dispatch vehicles.
+- value: Estimated state value (B, 1).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.gat_lstm_manager.GATLSTManager.select_action">
-<span class="sig-name descname"><span class="pre">select_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">static</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.gat_lstm_manager.GATLSTManager.select_action" title="Link to this definition">#</a></dt>
-<dd><p>Select actions (gate and mask) based on the current state.</p>
+<span class="sig-name descname"><span class="pre">select_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">static</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">must_go_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_must_go</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.gat_lstm_manager.GATLSTManager.select_action" title="Link to this definition">#</a></dt>
+<dd><p>Select actions (gate and must_go) based on the current state.</p>
+<p>Args:
+static (torch.Tensor): Static features (Batch, N, 2).
+dynamic (torch.Tensor): Dynamic features (Batch, N, History).
+global_features (torch.Tensor): Global features (Batch, G).
+deterministic (bool): If True, use argmax instead of sampling.
+threshold (float): Probability threshold for gate decision.
+must_go_threshold (float): Probability threshold for must_go decision.
+target_must_go (torch.Tensor, optional): Ground truth must_go for auxiliary loss.</p>
+<p>Returns:
+tuple: (must_go_action, gate_action, value)
+- must_go_action: (Batch, N) boolean tensor where True = must collect.
+- gate_action: (Batch,) long tensor where 1 = dispatch vehicles.
+- value: (Batch, 1) state value estimate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.gat_lstm_manager.GATLSTManager.get_must_go_mask">
+<span class="sig-name descname"><span class="pre">get_must_go_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">static</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.gat_lstm_manager.GATLSTManager.get_must_go_mask" title="Link to this definition">#</a></dt>
+<dd><p>Get the must_go boolean mask for environment integration.</p>
+<p>This method provides the must_go mask in the format expected by
+the WCVRP/VRPP environments for action masking.</p>
+<p>Args:
+static (torch.Tensor): Static features (Batch, N, 2).
+dynamic (torch.Tensor): Dynamic features (Batch, N, History).
+global_features (torch.Tensor): Global features (Batch, G).
+threshold (float): Probability threshold for must_go decision.</p>
+<p>Returns:
+torch.Tensor: Boolean tensor (Batch, N) where True = must collect.</p>
 </dd></dl>
 
 </dd></dl>
@@ -634,6 +665,7 @@ tuple: (mask_logits, gate_logits, value)
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.feature_processing"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.feature_processing()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.forward"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.forward()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.select_action"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.select_action()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.gat_lstm_manager.GATLSTManager.get_must_go_mask"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.get_must_go_mask()</span></code></a></li>
 </ul>
 </li>
 </ul>

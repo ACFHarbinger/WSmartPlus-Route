@@ -471,8 +471,13 @@ document.write(`
 <p>Hierarchical Reinforcement Learning (HRL) module.</p>
 <p>Implements a Manager-Worker architecture:</p>
 <ul class="simple">
-<li><p>Manager: GATLSTManager (decides if/what to collect)</p></li>
+<li><p>Manager: GATLSTManager (decides must-go bins and dispatch)</p></li>
 <li><p>Worker: ConstructivePolicy (decides the route)</p></li>
+</ul>
+<p>The manager outputs:</p>
+<ul class="simple">
+<li><p>must_go_action: Which bins must be collected (boolean mask)</p></li>
+<li><p>gate_action: Whether to dispatch vehicles</p></li>
 </ul>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -498,14 +503,14 @@ document.write(`
 <p class="rubric">Initialization</p>
 <p>Initialize HRLModule.</p>
 <p>Args:
-manager: High-level GATLSTManager for dispatch decisions.
+manager: High-level GATLSTManager for must-go selection and dispatch.
 worker: Low-level ConstructivePolicy for routing.
 env: RL environment.
 lr: Learning rate for manager optimizer.
 gamma: Discount factor for returns.
 clip_eps: PPO clipping parameter.
 ppo_epochs: Number of PPO optimization epochs.
-lambda_mask_aux: Weight for auxiliary mask loss.
+lambda_mask_aux: Weight for auxiliary must-go loss (BCE with target).
 entropy_coef: Entropy regularization coefficient.
 **kwargs: Additional keyword arguments.</p>
 <dl class="py method">
