@@ -75,7 +75,7 @@ model:
 # Determines which bins must be collected during training
 # Options: last_minute, regular, lookahead, revenue, service_level, manager, combined, null
 must_go:
-  strategy: "lookahead"
+  strategy: none
   # LastMinute/Manager threshold
   threshold: 0.7 # Fill level threshold (0-1) / must_go probability threshold for manager
   # Regular parameters
