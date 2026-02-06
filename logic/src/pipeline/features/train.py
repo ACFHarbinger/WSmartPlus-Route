@@ -17,6 +17,7 @@ from logic.src.envs import get_env
 from logic.src.models.policies import (
     AttentionModelPolicy,
     DeepDecoderPolicy,
+    MoEPolicy,
     PointerNetworkPolicy,
     SymNCOPolicy,
     TemporalAMPolicy,
@@ -98,6 +99,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
     # 2. Initialize Policy
     policy_map = {
         "am": AttentionModelPolicy,
+        "moe": MoEPolicy,
         "deep_decoder": DeepDecoderPolicy,
         "temporal": TemporalAMPolicy,
         "pointer": PointerNetworkPolicy,

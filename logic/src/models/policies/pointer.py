@@ -28,7 +28,7 @@ class PointerNetworkPolicy(ConstructivePolicy):
     ):
         """Initialize PointerNetworkPolicy."""
         super().__init__(env_name=env_name, embed_dim=embed_dim)
-        from logic.src.models.policies.utils import DummyProblem
+        from logic.src.utils.data.td_utils import DummyProblem
 
         self.model = PointerNetwork(
             embed_dim=embed_dim,
