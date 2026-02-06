@@ -6,5 +6,5 @@ hgs_alns:
     - mutation_rate: 0.2
     - alns_education_iterations: 50
     - engine: "hgs_alns"
-    - must_go: ["mg_lookahead_days7.xml"]
+    - must_go: ["mg_lookahead.xml"]
     - post_processing: []

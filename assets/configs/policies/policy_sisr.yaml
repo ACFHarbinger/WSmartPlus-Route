@@ -9,5 +9,5 @@ sisr:
     - blink_rate: 0.01
     - destroy_ratio: 0.2
     - engine: "custom"
-    - must_go: ["mg_lookahead_days7.xml"]
+    - must_go: ["mg_lookahead.xml"]
     - post_processing: []

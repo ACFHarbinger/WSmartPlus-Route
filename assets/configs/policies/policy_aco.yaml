@@ -13,5 +13,5 @@ aco:
     - local_search: true
     - elitist_weight: 1.0
     - engine: "custom"
-    - must_go: ["mg_lookahead_days7.xml"]
+    - must_go: ["mg_lookahead.xml"]
     - post_processing: []
