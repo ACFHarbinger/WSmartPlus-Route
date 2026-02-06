@@ -555,7 +555,7 @@ class LogAction(SimulationAction):
             context["day"],
             context["total_fill"],
             context["collected"],
-            context["bins"].c,
+            context["bins"].real_c,
             context["realtime_log_path"],
             tour,
             coords,

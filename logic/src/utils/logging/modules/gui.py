@@ -19,7 +19,7 @@ def send_daily_output_to_gui(
     day: int,
     bins_c: Sequence[float],
     collected: Sequence[float],
-    bins_c_after: Sequence[float],
+    bins_real_c_after: Sequence[float],
     log_path: str,
     tour: Sequence[int],
     coordinates: Union[pd.DataFrame, List[Any]],
@@ -66,7 +66,7 @@ def send_daily_output_to_gui(
         {
             "bin_state_c": list(bins_c),
             "bin_state_collected": list(collected),
-            "bins_state_c_after": list(bins_c_after),
+            "bins_state_real_c_after": list(bins_real_c_after),
         }
     )
     log_msg = f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}"

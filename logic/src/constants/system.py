@@ -1,10 +1,11 @@
 """
 System-wide constants and operation mappings.
 """
+
 from typing import Any, Callable, Dict, List, Optional
 
 # Multi-core processing settings
-CORE_LOCK_WAIT_TIME: int = 10
+CORE_LOCK_WAIT_TIME: int = 100
 LOCK_TIMEOUT: int = CORE_LOCK_WAIT_TIME
 
 
