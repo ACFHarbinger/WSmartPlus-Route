@@ -34,7 +34,6 @@ class SelectionContext:
     revenue_kg: float = 0.0
     bin_density: float = 0.0
     bin_volume: float = 0.0
-    lookahead_days: Optional[int] = None
 
 
 class MustGoSelectionStrategy(ABC):
@@ -74,11 +73,16 @@ class MustGoSelectionFactory:
     """Factory for creating Must Go selection strategies."""
 
     @staticmethod
-    def create_strategy(name: str) -> MustGoSelectionStrategy:
+    def create_strategy(name: str, **kwargs) -> MustGoSelectionStrategy:
         """
         Create a selection strategy by name.
+
+        Args:
+            name: Name of the strategy.
+            **kwargs: Arguments to pass to the strategy constructor.
         """
-        # Lazy imports to avoid circular dependencies and kept strategies separated
+        # Lazy imports to avoid circular dependencies and keep strategies separated
+        from .selection.selection_combined import CombinedSelection
         from .selection.selection_last_minute import LastMinuteSelection
         from .selection.selection_lookahead import LookaheadSelection
         from .selection.selection_regular import RegularSelection
@@ -92,16 +96,28 @@ class MustGoSelectionFactory:
             "last_minute": LastMinuteSelection,
             "revenue": RevenueThresholdSelection,
             "revenue_threshold": RevenueThresholdSelection,
+            "combined": CombinedSelection,
         }
 
         # Check explicit registry first
         cls = MustGoSelectionRegistry.get_strategy_class(name)
         if cls:
-            return cls()
+            # If strategy accepts kwargs, pass them.
+            # Ideally we should inspection, but let's try passing if kwargs exists.
+            # Most existing strategies don't take init args, but CombinedSelection does.
+            try:
+                return cls(**kwargs)
+            except TypeError:
+                # Fallback for strategies that don't accept args
+                return cls()
 
         # Check default map
         cls = default_map.get(name.lower())
         if cls:
-            return cls()
+            try:
+                return cls(**kwargs)
+            except TypeError:
+                # Fallback for strategies that don't accept args
+                return cls()
 
         raise ValueError(f"Unknown selection strategy: {name}")

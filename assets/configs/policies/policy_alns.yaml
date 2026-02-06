@@ -8,5 +8,5 @@ alns:
     - min_removal: 1
     - max_removal_pct: 0.3
     - engine: "custom"
-    - must_go: ["mg_lookahead_days7.xml"]
+    - must_go: ["mg_lookahead.xml"]
     - post_processing: []

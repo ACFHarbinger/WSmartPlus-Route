@@ -44,8 +44,8 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 
 ### 1.1 Core Capabilities
 
-| Capability                 | Description                                                                               |
-| -------------------------- | ----------------------------------------------------------------------------------------- |
+| Capability                       | Description                                                                               |
+| -------------------------------- | ----------------------------------------------------------------------------------------- |
 | **Simulation**             | Event-driven simulator for waste collection logistics over temporal horizons (1-365 days) |
 | **Neural Optimization**    | Attention-based models for constructive routing (AM, TAM, DDAM)                           |
 | **Classical Optimization** | Suite of solvers: exact (BCP), metaheuristics (ALNS, HGS), heuristics                     |
@@ -76,11 +76,11 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 │                          Logic Layer (logic/src/)                           │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
-│  │   Models    │  │  Policies   │  │   Tasks     │  │     Pipeline        │ │
+│  │   Models    │  │  Policies   │  │   Envs      │  │     Pipeline        │ │
 │  │  (Neural)   │  │ (Classical) │  │ (Problems)  │  │ (Train/Eval/Sim)    │ │
 │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘ │
 │         │                │                │                    │            │
-│         └────────────────┼────────────────┼────────────────────┘           │
+│         └────────────────┼────────────────┼────────────────────┘            │
 │                          ▼                ▼                                 │
 │                    ┌─────────────────────────────┐                          │
 │                    │     Simulator Engine        │                          │
@@ -106,16 +106,16 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 
 ### 2.1 Runtime Environment
 
-| Component           | Specification  | Notes                                |
-| ------------------- | -------------- | ------------------------------------ |
-| **Python**          | 3.9+           | Managed via `uv` package manager     |
+| Component                 | Specification  | Notes                                |
+| ------------------------- | -------------- | ------------------------------------ |
+| **Python**          | 3.9+           | Managed via `uv` package manager   |
 | **Package Manager** | uv             | Fast, reliable dependency resolution |
 | **Build System**    | pyproject.toml | PEP 517/518 compliant                |
 
 ### 2.2 Deep Learning Stack
 
-| Library               | Version | Purpose                      |
-| --------------------- | ------- | ---------------------------- |
+| Library                     | Version | Purpose                      |
+| --------------------------- | ------- | ---------------------------- |
 | **PyTorch**           | 2.2.2   | Core deep learning framework |
 | **PyTorch Geometric** | 2.3.1   | Graph neural network layers  |
 | **torch-scatter**     | 2.1.2+  | Sparse tensor operations     |
@@ -124,8 +124,8 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 
 ### 2.3 Optimization Solvers
 
-| Solver       | Version | Type          | Use Case                              |
-| ------------ | ------- | ------------- | ------------------------------------- |
+| Solver             | Version | Type          | Use Case                              |
+| ------------------ | ------- | ------------- | ------------------------------------- |
 | **Gurobi**   | 11.0.3  | Exact (MIP)   | Optimal solutions for small instances |
 | **Hexaly**   | 14.0+   | Hybrid        | High-performance local search         |
 | **OR-Tools** | 9.4     | Hybrid        | Google's optimization toolkit         |
@@ -135,8 +135,8 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 
 ### 2.4 Data Engineering
 
-| Library       | Version | Purpose               |
-| ------------- | ------- | --------------------- |
+| Library             | Version | Purpose               |
+| ------------------- | ------- | --------------------- |
 | **Pandas**    | 2.1.4   | Data manipulation     |
 | **NumPy**     | 1.26.4  | Numerical computing   |
 | **SciPy**     | 1.13.1  | Scientific algorithms |
@@ -146,8 +146,8 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 
 ### 2.5 GUI & Visualization
 
-| Library        | Version | Purpose                       |
-| -------------- | ------- | ----------------------------- |
+| Library              | Version | Purpose                       |
+| -------------------- | ------- | ----------------------------- |
 | **PySide6**    | 6.9.0   | Qt for Python (GUI framework) |
 | **Matplotlib** | 3.9.4   | Static plotting               |
 | **Plotly**     | 6.3.0   | Interactive charts            |
@@ -156,8 +156,8 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 
 ### 2.6 CLI & Utilities
 
-| Library            | Version | Purpose                  |
-| ------------------ | ------- | ------------------------ |
+| Library                  | Version | Purpose                  |
+| ------------------------ | ------- | ------------------------ |
 | **hydra-core**     | 1.3.2   | Configuration management |
 | **rich**           | 14.1.0  | Rich terminal output     |
 | **prompt-toolkit** | -       | Interactive TUI          |
@@ -422,15 +422,15 @@ gui/src/
 
 ### 4.1 Pattern Overview
 
-| Pattern             | Location                          | Purpose                           |
-| ------------------- | --------------------------------- | --------------------------------- |
+| Pattern                   | Location                              | Purpose                           |
+| ------------------------- | ------------------------------------- | --------------------------------- |
 | **Factory**         | `model_factory.py`, `adapters.py` | Centralized object creation       |
-| **Strategy**        | `policies/*`                      | Interchangeable algorithms        |
-| **State**           | `simulations/states.py`           | Simulation lifecycle management   |
-| **Command**         | `simulations/actions.py`          | Encapsulated simulation steps     |
-| **Mediator**        | `gui/core/mediator.py`            | Decoupled component communication |
-| **Observer**        | `checkpoints.py` (hooks)          | State persistence triggers        |
-| **Template Method** | `trainers.py`                     | Training loop skeleton            |
+| **Strategy**        | `policies/*`                        | Interchangeable algorithms        |
+| **State**           | `simulations/states.py`             | Simulation lifecycle management   |
+| **Command**         | `simulations/actions.py`            | Encapsulated simulation steps     |
+| **Mediator**        | `gui/core/mediator.py`              | Decoupled component communication |
+| **Observer**        | `checkpoints.py` (hooks)            | State persistence triggers        |
+| **Template Method** | `trainers.py`                       | Training loop skeleton            |
 
 ### 4.2 Factory Pattern
 
@@ -544,12 +544,12 @@ class UIMediator:
 ### 5.1 Training Pipeline Flow
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌─────────────────┐
-│ User Input  │───▶│ Hydra Config │───▶│ Config Object   │
-│ (CLI/GUI)   │     │ (yaml/overrides)│   │ (dataclass)     │
-└─────────────┘     └──────────────┘     └────────┬────────┘
-                                                  │
-                                                  ▼
+┌─────────────┐     ┌────────────────┐     ┌─────────────────┐
+│ User Input  │───▶│ Hydra Config   │───▶│ Config Object   │
+│ (CLI/GUI)   │     │ (yaml/override)│     │ (dataclass)     │
+└─────────────┘     └────────────────┘     └────────┬────────┘
+                                                    │
+                                                    ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                      Training Pipeline                      │
 ├─────────────────────────────────────────────────────────────┤
@@ -916,8 +916,8 @@ Decoder (per step):
 
 ### 8.2 Encoder Types
 
-| Encoder         | Architecture               | Use Case                          |
-| --------------- | -------------------------- | --------------------------------- |
+| Encoder               | Architecture               | Use Case                          |
+| --------------------- | -------------------------- | --------------------------------- |
 | **GATEncoder**  | Multi-head Graph Attention | Default; best for variable graphs |
 | **GACEncoder**  | GAT + Edge Features        | When edge features matter         |
 | **TGCEncoder**  | Transformer-style GCN      | Capturing long-range dependencies |
@@ -1027,11 +1027,11 @@ class ALNSSolver:
 
 | Instance Size   | Speed Priority | Quality Priority | Recommended         |
 | --------------- | -------------- | ---------------- | ------------------- |
-| < 50 nodes      | -              | ★★★              | Gurobi (exact)      |
-| < 100 nodes     | ★★             | ★★★              | HGS                 |
-| < 200 nodes     | ★★★            | ★★               | ALNS                |
-| > 200 nodes     | ★★★            | ★★               | Neural (AM)         |
-| Any (multi-day) | ★★             | ★★★              | Look-Ahead + Gurobi |
+| < 50 nodes      | -              | ★★★           | Gurobi (exact)      |
+| < 100 nodes     | ★★           | ★★★           | HGS                 |
+| < 200 nodes     | ★★★         | ★★             | ALNS                |
+| > 200 nodes     | ★★★         | ★★             | Neural (AM)         |
+| Any (multi-day) | ★★           | ★★★           | Look-Ahead + Gurobi |
 
 ---
 
@@ -1075,8 +1075,8 @@ def train_batch(self, batch):
 
 ### 10.2 Baseline Strategies
 
-| Baseline        | Description      | Variance Reduction | Computational Cost |
-| --------------- | ---------------- | ------------------ | ------------------ |
+| Baseline              | Description      | Variance Reduction | Computational Cost |
+| --------------------- | ---------------- | ------------------ | ------------------ |
 | **None**        | Raw reward       | None               | None               |
 | **Exponential** | Moving average   | Low                | Low                |
 | **Critic**      | Learned V(s)     | Medium             | Medium             |
@@ -1370,8 +1370,8 @@ class TrainingTab(QWidget):
 
 ### 13.2 Key Configuration Files
 
-| File                                   | Purpose                           |
-| -------------------------------------- | --------------------------------- |
+| File                                     | Purpose                           |
+| ---------------------------------------- | --------------------------------- |
 | `pyproject.toml`                       | Project metadata, dependencies    |
 | `assets/configs/train.yaml`            | Training defaults                 |
 | `assets/configs/sim.yaml`              | Simulation defaults               |
@@ -1418,8 +1418,8 @@ class TrainConfigs:
 
 ### 14.1 Deployment Options
 
-| Method                    | Use Case                | Requirements      |
-| ------------------------- | ----------------------- | ----------------- |
+| Method                          | Use Case                | Requirements      |
+| ------------------------------- | ----------------------- | ----------------- |
 | **Local (uv)**            | Development, research   | Python 3.9+, CUDA |
 | **Docker**                | Reproducible deployment | Docker engine     |
 | **HPC (Slurm)**           | Large-scale experiments | Slurm cluster     |
@@ -1487,11 +1487,11 @@ jobs:
 
 ### 15.1 GPU Memory Optimization
 
-| Strategy                   | Implementation                                |
-| -------------------------- | --------------------------------------------- |
+| Strategy                         | Implementation                                  |
+| -------------------------------- | ----------------------------------------------- |
 | **Gradient Checkpointing** | `torch.utils.checkpoint` for encoder layers   |
 | **Mixed Precision**        | `torch.cuda.amp.autocast()` for FP16 training |
-| **Batch Size Tuning**      | Auto-detect based on available VRAM           |
+| **Batch Size Tuning**      | Auto-detect based on available VRAM             |
 | **Memory Profiling**       | `torch.cuda.memory_stats()` monitoring        |
 
 ### 15.2 Parallel Execution
@@ -1516,8 +1516,8 @@ def run_parallel_simulation(configs, n_workers=-1):
 
 ### 15.3 Caching Strategies
 
-| Cache Type                | Location                  | Purpose                 |
-| ------------------------- | ------------------------- | ----------------------- |
+| Cache Type                      | Location                    | Purpose                 |
+| ------------------------------- | --------------------------- | ----------------------- |
 | **Distance Matrices**     | `data/distance_matrices/` | Avoid recomputation     |
 | **Compiled Models**       | `torch.jit`               | Faster inference        |
 | **Dataset Preprocessing** | `.pkl` files              | Skip loading overhead   |

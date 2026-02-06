@@ -6,5 +6,5 @@ sans:
     - T_init: 75
     - iterations_per_T: 5000
     - alpha: 0.95
-    - must_go: ["mg_lookahead_days7.xml"]
+    - must_go: ["mg_lookahead.xml"]
     - post_processing: []

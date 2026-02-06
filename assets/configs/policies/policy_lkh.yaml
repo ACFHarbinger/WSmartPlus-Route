@@ -3,5 +3,5 @@ lkh:
     - check_capacity: true
     - max_iterations: 100
     - engine: "custom"
-    - must_go: ["mg_lookahead_days7.xml"]
+    - must_go: ["mg_lookahead.xml"]
     - post_processing: []

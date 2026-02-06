@@ -77,26 +77,24 @@ model:
 must_go:
   strategy: "lookahead"
   # LastMinute/Manager threshold
-  threshold: 0.7  # Fill level threshold (0-1) / must_go probability threshold for manager
+  threshold: 0.7 # Fill level threshold (0-1) / must_go probability threshold for manager
   # Regular parameters
-  frequency: 3  # Collection frequency in days
-  # Lookahead parameters
-  lookahead_days: 1  # Days to look ahead for overflow prediction
+  frequency: 3 # Collection frequency in days
   # ServiceLevel parameters
-  confidence_factor: 1.0  # Standard deviations for statistical prediction
+  confidence_factor: 1.0 # Standard deviations for statistical prediction
   # Revenue parameters
-  revenue_kg: 1.0  # Revenue per kg
-  bin_capacity: 1.0  # Bin capacity
-  revenue_threshold: 0.0  # Minimum revenue threshold
+  revenue_kg: 1.0 # Revenue per kg
+  bin_capacity: 1.0 # Bin capacity
+  revenue_threshold: 0.0 # Minimum revenue threshold
   # Common parameters
-  max_fill: 1.0  # Overflow threshold
+  max_fill: 1.0 # Overflow threshold
   # Manager (neural network) parameters - used when strategy: "manager"
-  hidden_dim: 128  # Manager network hidden dimension
-  lstm_hidden: 64  # LSTM hidden dimension for temporal encoding
-  history_length: 10  # Number of timesteps in waste history
-  critical_threshold: 0.9  # Fill level considered critical
-  manager_weights: null  # Path to pre-trained manager weights (optional)
-  device: "cuda"  # Device for manager computation
+  hidden_dim: 128 # Manager network hidden dimension
+  lstm_hidden: 64 # LSTM hidden dimension for temporal encoding
+  history_length: 10 # Number of timesteps in waste history
+  critical_threshold: 0.9 # Fill level considered critical
+  manager_weights: null # Path to pre-trained manager weights (optional)
+  device: "cuda" # Device for manager computation
 
 # Global flags
 wandb_mode: "disabled"

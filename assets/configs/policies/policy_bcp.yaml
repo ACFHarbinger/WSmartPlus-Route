@@ -1,6 +1,6 @@
 bcp:
   ortools:
     - engine: "ortools"
-    - must_go: ["mg_lookahead_days7.xml"]
+    - must_go: ["mg_lookahead.xml"]
     - time_limit: 60
     - post_processing: []

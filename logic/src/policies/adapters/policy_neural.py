@@ -105,7 +105,7 @@ class NeuralPolicy(IPolicy):
         if selector_name is None:
             return None
 
-        from logic.src.policies.selection.vectorized import get_vectorized_selector
+        from logic.src.models.policies.selection import get_vectorized_selector
 
         selector_threshold = kwargs.get("selector_threshold", 0.7)
         current_day = kwargs.get("current_day", 1)

@@ -9,6 +9,7 @@ model:
   n_predictor_layers: 2 # n_pred_l
   n_decode_layers: 2 # n_dec_l
   n_heads: 8
+  spatial_bias: false
   encoder_type: "gat"
 
   # Advanced Parameters
@@ -22,5 +23,5 @@ model:
   aggregation_graph: "avg" # agg_g
 
   # Connections
-  connection_type: "static_hyper" # connection
+  connection_type: "residual" # connection
   hyper_expansion: 4 # hyper_lanes

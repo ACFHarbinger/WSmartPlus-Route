@@ -5,5 +5,5 @@ hgs:
     - elite_size: 10
     - mutation_rate: 0.2
     - engine: "custom"
-    - must_go: ["mg_lookahead_days7.xml"]
+    - must_go: ["mg_lookahead.xml"]
     - post_processing: []

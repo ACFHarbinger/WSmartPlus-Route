@@ -1,0 +1,5 @@
+<config>
+    <lookahead>
+        <current_collection_day>0</current_collection_day>
+    </lookahead>
+</config>
