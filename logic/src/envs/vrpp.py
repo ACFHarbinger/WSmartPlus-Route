@@ -73,13 +73,6 @@ class VRPPEnv(RL4COEnvBase):
         td["tour"] = torch.zeros(*bs, 0, dtype=torch.long, device=device)
         td["tour_length"] = torch.zeros(*bs, device=device)
         td["collected_prize"] = torch.zeros(*bs, device=device)
-
-        # Must-go mask: if not provided, default to None (no constraint)
-        # When present: True = bin must be visited, False = optional
-        # If all False, agent can stay at depot (no routing needed)
-        if "must_go" not in td.keys():
-            td["must_go"] = None
-
         return td
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
