@@ -73,10 +73,11 @@ model:
 
 # Must-Go Selection Strategy
 # Determines which bins must be collected during training
+# Options: last_minute, regular, lookahead, revenue, service_level, manager, combined, null
 must_go:
-  strategy: "lookahead"  # Options: last_minute, regular, lookahead, revenue, service_level, combined, null
-  # LastMinute parameters
-  threshold: 0.7  # Fill level threshold (0-1)
+  strategy: "lookahead"
+  # LastMinute/Manager threshold
+  threshold: 0.7  # Fill level threshold (0-1) / must_go probability threshold for manager
   # Regular parameters
   frequency: 3  # Collection frequency in days
   # Lookahead parameters
@@ -89,6 +90,13 @@ must_go:
   revenue_threshold: 0.0  # Minimum revenue threshold
   # Common parameters
   max_fill: 1.0  # Overflow threshold
+  # Manager (neural network) parameters - used when strategy: "manager"
+  hidden_dim: 128  # Manager network hidden dimension
+  lstm_hidden: 64  # LSTM hidden dimension for temporal encoding
+  history_length: 10  # Number of timesteps in waste history
+  critical_threshold: 0.9  # Fill level considered critical
+  manager_weights: null  # Path to pre-trained manager weights (optional)
+  device: "cuda"  # Device for manager computation
 
 # Global flags
 wandb_mode: "disabled"

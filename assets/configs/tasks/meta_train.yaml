@@ -31,7 +31,7 @@ meta_rl:
   hrl_lambda_overflow_min: 100.0
   hrl_lambda_overflow_max: 5000.0
   hrl_lambda_pruning: 0.5
-  hrl_lambda_mask_aux: 5.0
+  hrl_lambda_must_go_aux: 5.0  # Weight for auxiliary must-go loss (supervised signal)
   hrl_entropy_coef: 0.01
 
 # Optimization Overrides
@@ -69,9 +69,12 @@ data:
   graph_sizes: [100]
 
 # Must-Go Selection Strategy
-# Determines which bins must be collected during training
+# When meta_strategy=hrl, the HRL manager learns to select must-go bins.
+# Set strategy: null to let the manager control selection entirely.
+# Alternatively, set a strategy to provide supervision signal for auxiliary loss.
 must_go:
-  strategy: "service_level"  # Options: last_minute, regular, lookahead, revenue, service_level, combined, null
+  strategy: null  # HRL manager learns must-go selection; set to "service_level" for supervised target
+  # Parameters below are used if strategy is not null (for auxiliary supervision)
   # LastMinute parameters
   threshold: 0.7  # Fill level threshold (0-1)
   # Regular parameters
