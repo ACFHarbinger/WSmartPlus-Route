@@ -560,4 +560,5 @@ class LogAction(SimulationAction):
             tour,
             coords,
             context["lock"],
+            must_go=context.get("must_go"),
         )

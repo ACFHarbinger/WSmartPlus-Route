@@ -24,6 +24,7 @@ def send_daily_output_to_gui(
     tour: Sequence[int],
     coordinates: Union[pd.DataFrame, List[Any]],
     lock: Optional[threading.Lock] = None,
+    must_go: Optional[Sequence[int]] = None,
 ) -> None:
     """Write daily simulation output to a log file for GUI consumption."""
     full_payload = {k: v for k, v in daily_log.items() if k in udef.DAY_METRICS[:-1]}
@@ -69,6 +70,8 @@ def send_daily_output_to_gui(
             "bins_state_real_c_after": list(bins_real_c_after),
         }
     )
+    if must_go is not None:
+        full_payload.update({"must_go": list(must_go)})
     log_msg = f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}"
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
