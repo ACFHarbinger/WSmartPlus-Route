@@ -79,12 +79,6 @@ class WCVRPEnv(RL4COEnvBase):
         td["total_collected"] = torch.zeros(*bs, device=device)
         td["collected_prize"] = td["total_collected"]  # Alias for compatibility
 
-        # Must-go mask: if not provided, default to None (no constraint)
-        # When present: True = bin must be visited, False = optional
-        # If all False, agent can stay at depot (no routing needed)
-        if "must_go" not in td.keys():
-            td["must_go"] = None
-
         # Initial overflows
         max_waste = td.get("max_waste", torch.tensor(1.0, device=device))
         demand = td["demand"]

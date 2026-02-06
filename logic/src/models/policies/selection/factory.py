@@ -41,6 +41,9 @@ def create_selector_from_config(cfg) -> Optional[VectorizedSelector]:
 
     strategy = strategy.lower()
 
+    if strategy == "none":
+        return None
+
     # Extract parameters from config
     if hasattr(cfg, "__dict__"):
         params = {k: v for k, v in vars(cfg).items() if k != "strategy" and v is not None}
@@ -109,7 +112,7 @@ def create_selector_from_config(cfg) -> Optional[VectorizedSelector]:
 
     if strategy not in strategy_params:
         raise ValueError(
-            f"Unknown strategy: {strategy}. Available: {list(strategy_params.keys())} + ['manager', 'combined']"
+            f"Unknown strategy: {strategy}. Available: {list(strategy_params.keys()) + ['manager', 'combined']}"
         )
 
     return get_vectorized_selector(strategy, **strategy_params[strategy])
