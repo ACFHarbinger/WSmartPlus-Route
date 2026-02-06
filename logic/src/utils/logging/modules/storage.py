@@ -23,6 +23,20 @@ def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") 
     logger.remove()
     logger.add(sys.stderr, level=level)
     logger.add(log_path, rotation="10 MB", level=level)
+
+    # Suppress noisy modules that spam DEBUG logs
+    import logging
+
+    noisy_modules = [
+        "AttentionDecoder",
+        "NeuralAgent",
+        "NeuralPolicy",
+        "WCContextEmbedder",
+        "ContextEmbedder",
+    ]
+    for module_name in noisy_modules:
+        logging.getLogger(module_name).setLevel(logging.WARNING)
+
     return logger
 
 
