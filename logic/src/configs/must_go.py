@@ -24,9 +24,10 @@ class MustGoConfig:
             - "lookahead": Predictive (collect if overflow within N days)
             - "revenue": Revenue-based (collect if revenue exceeds threshold)
             - "service_level": Statistical overflow prediction
+            - "manager": Neural network-based selection (GATLSTManager)
             - "combined": Combine multiple strategies with OR logic
             - None: No must-go constraint (default behavior)
-        threshold: Fill level threshold for last_minute strategy (0-1).
+        threshold: Fill level threshold for last_minute/manager strategy (0-1).
         frequency: Collection frequency for regular strategy (days).
         lookahead_days: Number of days to look ahead for lookahead strategy.
         confidence_factor: Standard deviations for service_level strategy.
@@ -35,6 +36,12 @@ class MustGoConfig:
         revenue_threshold: Minimum revenue threshold for revenue strategy.
         max_fill: Maximum fill level (overflow threshold).
         combined_strategies: List of strategy configs for combined selector.
+        hidden_dim: Hidden dimension for manager network.
+        lstm_hidden: LSTM hidden dimension for manager network.
+        history_length: Temporal history length for manager network.
+        critical_threshold: Critical fill threshold for manager network.
+        manager_weights: Path to pre-trained manager weights.
+        device: Device for manager computation ('cpu' or 'cuda').
         params: Additional strategy-specific parameters.
     """
 
@@ -62,6 +69,14 @@ class MustGoConfig:
 
     # Combined strategy configs (list of dicts with strategy configs)
     combined_strategies: Optional[list] = None
+
+    # Manager (neural network) parameters
+    hidden_dim: int = 128
+    lstm_hidden: int = 64
+    history_length: int = 10
+    critical_threshold: float = 0.9
+    manager_weights: Optional[str] = None
+    device: str = "cuda"
 
     # Additional parameters
     params: Dict[str, Any] = field(default_factory=dict)
