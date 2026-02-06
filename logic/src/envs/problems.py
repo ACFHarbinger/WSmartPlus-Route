@@ -113,7 +113,7 @@ class BaseProblem:
         from tensordict import TensorDict
 
         from logic.src.envs import get_env
-        from logic.src.models.policies.utils import TensorDictStateWrapper
+        from logic.src.utils.data.td_utils import TensorDictStateWrapper
 
         env_name = cls.NAME
 

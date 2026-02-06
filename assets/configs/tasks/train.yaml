@@ -69,13 +69,13 @@ rl:
 model:
   name: "am"
   encoder_type: "gat"
-  policy_config: "assets/configs/lookahead_hgs.yaml"
+  policy_config: "assets/configs/policy_hgs.yaml"
 
 # Must-Go Selection Strategy
 # Determines which bins must be collected during training
 # Options: last_minute, regular, lookahead, revenue, service_level, manager, combined, null
 must_go:
-  strategy: none
+  strategy: "lookahead"
   # LastMinute/Manager threshold
   threshold: 0.7 # Fill level threshold (0-1) / must_go probability threshold for manager
   # Regular parameters

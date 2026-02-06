@@ -1,0 +1,9 @@
+# @package _global_
+
+env:
+  name: "vrpp"
+  num_loc: 50
+
+  # Reward Weights
+  prize_weight: 1.0 # Revenue per visited node
+  cost_weight: 1.0 # Cost per distance unit

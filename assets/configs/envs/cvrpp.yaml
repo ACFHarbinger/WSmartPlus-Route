@@ -1,0 +1,10 @@
+# @package _global_
+
+env:
+  name: "cvrpp"
+  num_loc: 50
+  capacity: 1.0 # Normalized capacity
+
+  # Reward Weights
+  prize_weight: 1.0
+  cost_weight: 1.0

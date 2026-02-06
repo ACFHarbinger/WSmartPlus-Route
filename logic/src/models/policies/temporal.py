@@ -11,8 +11,8 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.modules.activation_function import ActivationFunction
 from logic.src.models.policies.am import AttentionModelPolicy
-from logic.src.models.policies.utils import TensorDictStateWrapper
 from logic.src.models.subnets.grf_predictor import GatedRecurrentFillPredictor
+from logic.src.utils.data.td_utils import TensorDictStateWrapper
 
 
 class TemporalAMPolicy(AttentionModelPolicy):

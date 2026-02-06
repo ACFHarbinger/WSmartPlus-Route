@@ -1,0 +1,23 @@
+# @package _global_
+
+model:
+  name: "deep_decoder"
+  embed_dim: 128
+  hidden_dim: 512
+  n_encode_layers: 6 # Deeper encoder
+  n_encoder_sublayers: 1
+  n_predictor_layers: 2
+  n_decode_layers: 2
+  n_heads: 8
+  spatial_bias: false
+  encoder_type: "gat"
+
+  # Advanced Parameters
+  temporal_horizon: 0
+  normalization: "instance"
+  activation: "gelu"
+  dropout: 0.1
+
+  # Aggregation
+  aggregation_node: "sum"
+  aggregation_graph: "avg"

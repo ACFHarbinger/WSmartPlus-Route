@@ -93,7 +93,7 @@ class A2C(RL4COLitModule):
         if critic is None:
             from logic.src.models.critic_network import CriticNetwork
             from logic.src.models.model_factory import AttentionComponentFactory
-            from logic.src.models.policies.utils import DummyProblem
+            from logic.src.utils.data.td_utils import DummyProblem
 
             critic = CriticNetwork(
                 problem=DummyProblem(env.name if hasattr(env, "name") else "vrpp"),
