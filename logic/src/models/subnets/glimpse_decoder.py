@@ -45,12 +45,12 @@ class AttentionModelFixed:
         )
 
 
-class AttentionDecoder(nn.Module):
+class GlimpseDecoder(nn.Module):
     """
     Decoder based on Multi-Head Attention (MHA).
 
-    Decodes the problem embedding into a sequence of nodes (visits) using
-    an attention mechanism. Supports greedy decoding, sampling, and beam search.
+    Decodes the problem embedding into a sequence of nodes (visits) using a
+    glimpse attention mechanism. Supports greedy decoding, sampling, and beam search.
     """
 
     def __init__(
@@ -86,7 +86,7 @@ class AttentionDecoder(nn.Module):
             spatial_bias_scale: Scale factor for spatial bias.
             decode_type: Decoding strategy ('greedy', 'sampling').
         """
-        super(AttentionDecoder, self).__init__()
+        super(GlimpseDecoder, self).__init__()
 
         self.embed_dim = embed_dim
         self.hidden_dim = hidden_dim

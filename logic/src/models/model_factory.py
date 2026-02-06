@@ -9,13 +9,40 @@ from typing import Any
 
 import torch.nn as nn
 
-from logic.src.models.subnets.attention_decoder import AttentionDecoder
 from logic.src.models.subnets.gac_encoder import GraphAttConvEncoder
+from logic.src.models.subnets.gat_decoder import DeepGATDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
 from logic.src.models.subnets.gcn_encoder import GraphConvolutionEncoder
 from logic.src.models.subnets.ggac_encoder import GatedGraphAttConvEncoder
+from logic.src.models.subnets.glimpse_decoder import GlimpseDecoder
 from logic.src.models.subnets.mlp_encoder import MLPEncoder
+from logic.src.models.subnets.ptr_decoder import PointerDecoder
 from logic.src.models.subnets.tgc_encoder import TransGraphConvEncoder
+
+
+def _create_decoder_by_type(decoder_type: str, **kwargs: Any) -> nn.Module:
+    """
+    Create a decoder instance based on decoder_type.
+
+    Args:
+        decoder_type: Type of decoder ('attention', 'deep', 'pointer').
+        **kwargs: Arguments to pass to the decoder constructor.
+
+    Returns:
+        nn.Module: The decoder instance.
+
+    Raises:
+        ValueError: If decoder_type is not recognized.
+    """
+    decoder_type = decoder_type.lower()
+    if decoder_type == "attention":
+        return GlimpseDecoder(**kwargs)
+    elif decoder_type in ("deep", "gat", "graph_attention"):
+        return DeepGATDecoder(**kwargs)
+    elif decoder_type == "pointer":
+        return PointerDecoder(**kwargs)
+    else:
+        raise ValueError(f"Unknown decoder_type: {decoder_type}. Choose from 'attention', 'deep', 'pointer'.")
 
 
 class NeuralComponentFactory(ABC):
@@ -29,8 +56,8 @@ class NeuralComponentFactory(ABC):
         pass
 
     @abstractmethod
-    def create_decoder(self, **kwargs: Any) -> nn.Module:
-        """Create a decoder instance."""
+    def create_decoder(self, decoder_type: str = "attention", **kwargs: Any) -> nn.Module:
+        """Create a decoder instance based on decoder_type."""
         pass
 
 
@@ -41,9 +68,9 @@ class AttentionComponentFactory(NeuralComponentFactory):
         """Create Graph Attention Encoder."""
         return GraphAttentionEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs: Any) -> nn.Module:
-        """Create Attention Decoder."""
-        return AttentionDecoder(**kwargs)
+    def create_decoder(self, decoder_type: str = "attention", **kwargs: Any) -> nn.Module:
+        """Create decoder based on decoder_type."""
+        return _create_decoder_by_type(decoder_type, **kwargs)
 
 
 class GCNComponentFactory(NeuralComponentFactory):
@@ -53,9 +80,9 @@ class GCNComponentFactory(NeuralComponentFactory):
         """Create GCN Encoder."""
         return GraphConvolutionEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs: Any) -> nn.Module:
-        """Create Attention Decoder."""
-        return AttentionDecoder(**kwargs)
+    def create_decoder(self, decoder_type: str = "attention", **kwargs: Any) -> nn.Module:
+        """Create decoder based on decoder_type."""
+        return _create_decoder_by_type(decoder_type, **kwargs)
 
 
 class GACComponentFactory(NeuralComponentFactory):
@@ -65,9 +92,9 @@ class GACComponentFactory(NeuralComponentFactory):
         """Create Graph Attention Convolution Encoder."""
         return GraphAttConvEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs: Any) -> nn.Module:
-        """Create Attention Decoder."""
-        return AttentionDecoder(**kwargs)
+    def create_decoder(self, decoder_type: str = "attention", **kwargs: Any) -> nn.Module:
+        """Create decoder based on decoder_type."""
+        return _create_decoder_by_type(decoder_type, **kwargs)
 
 
 class TGCComponentFactory(NeuralComponentFactory):
@@ -77,9 +104,9 @@ class TGCComponentFactory(NeuralComponentFactory):
         """Create Transformer Graph Convolution Encoder."""
         return TransGraphConvEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs: Any) -> nn.Module:
-        """Create Attention Decoder."""
-        return AttentionDecoder(**kwargs)
+    def create_decoder(self, decoder_type: str = "attention", **kwargs: Any) -> nn.Module:
+        """Create decoder based on decoder_type."""
+        return _create_decoder_by_type(decoder_type, **kwargs)
 
 
 class GGACComponentFactory(NeuralComponentFactory):
@@ -89,9 +116,9 @@ class GGACComponentFactory(NeuralComponentFactory):
         """Create Gated Graph Attention Convolution Encoder."""
         return GatedGraphAttConvEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs: Any) -> nn.Module:
-        """Create Attention Decoder."""
-        return AttentionDecoder(**kwargs)
+    def create_decoder(self, decoder_type: str = "attention", **kwargs: Any) -> nn.Module:
+        """Create decoder based on decoder_type."""
+        return _create_decoder_by_type(decoder_type, **kwargs)
 
 
 class MLPComponentFactory(NeuralComponentFactory):
@@ -101,9 +128,9 @@ class MLPComponentFactory(NeuralComponentFactory):
         """Create MLP Encoder."""
         return MLPEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs: Any) -> nn.Module:
-        """Create Attention Decoder."""
-        return AttentionDecoder(**kwargs)
+    def create_decoder(self, decoder_type: str = "attention", **kwargs: Any) -> nn.Module:
+        """Create decoder based on decoder_type."""
+        return _create_decoder_by_type(decoder_type, **kwargs)
 
 
 class MoEComponentFactory(NeuralComponentFactory):
@@ -132,6 +159,6 @@ class MoEComponentFactory(NeuralComponentFactory):
         kwargs["noisy_gating"] = self.noisy_gating
         return MoEGraphAttentionEncoder(**kwargs)
 
-    def create_decoder(self, **kwargs: Any) -> nn.Module:
-        """Create Attention Decoder."""
-        return AttentionDecoder(**kwargs)
+    def create_decoder(self, decoder_type: str = "attention", **kwargs: Any) -> nn.Module:
+        """Create decoder based on decoder_type."""
+        return _create_decoder_by_type(decoder_type, **kwargs)

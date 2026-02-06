@@ -206,7 +206,6 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     """
     from logic.src.models import (
         AttentionModel,
-        DeepDecoderAttentionModel,
         TemporalAttentionModel,
     )
     from logic.src.models.model_factory import (
@@ -342,12 +341,16 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     factory_type = cast(Type[NeuralComponentFactory], factory_class)
     component_factory = factory_type()
 
-    model_class = {
-        "am": AttentionModel,
-        "tam": TemporalAttentionModel,
-        "ddam": DeepDecoderAttentionModel,
-    }.get(args.get("model", "am"), None)
-    assert model_class is not None, "Unknown model: {}".format(model_class)
+    # Map model name to decoder_type for backward compatibility
+    decoder_type_map = {
+        "am": "attention",
+        "tam": "attention",
+        "ddam": "deep",
+    }
+    decoder_type = decoder_type_map.get(args.get("model", "am"), "attention")
+
+    # Use TemporalAttentionModel only for 'tam', otherwise AttentionModel
+    model_class = TemporalAttentionModel if args.get("model") == "tam" else AttentionModel
     model = model_class(
         args["embed_dim"],
         args["hidden_dim"],
@@ -384,6 +387,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         spatial_bias_scale=args.get("spatial_bias_scale", 1.0),
         entropy_weight=args.get("entropy_weight", 0.0),
         predictor_layers=args.get("n_predict_layers", None),
+        decoder_type=decoder_type,
     )
 
     # Overwrite model parameters by parameters to load

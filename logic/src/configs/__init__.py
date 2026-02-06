@@ -56,7 +56,6 @@ class Config:
     device: str = "cuda"
     experiment_name: Optional[str] = None
     task: str = "train"
-    # NEW FIELDS:
     wandb_mode: str = "offline"
     no_tensorboard: bool = False
     no_progress_bar: bool = False

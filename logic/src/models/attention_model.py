@@ -9,8 +9,8 @@ Architecture:
     ContextEmbedder -> Encoder (GATEncoder/TGCEncoder/...) -> Decoder (AttentionDecoder)
 
 The model supports POMO (multiple start nodes), spatial bias, entropy regularization,
-and both greedy and sampling-based decoding. It serves as the base class for
-TemporalAttentionModel and DeepDecoderAttentionModel.
+and both greedy and sampling-based decoding. It serves as the base class for the
+TemporalAttentionModel and the MoEAttentionModel.
 
 Reference:
     Kool, W., van Hoof, H., & Welling, M. (2019). Attention, Learn to Solve Routing
@@ -92,6 +92,7 @@ class AttentionModel(nn.Module):
         predictor_layers: Optional[int] = None,
         connection_type: str = "residual",
         hyper_expansion: int = FEED_FORWARD_EXPANSION,
+        decoder_type: str = "attention",
     ) -> None:
         """
         Initialize the Attention Model.
@@ -180,6 +181,7 @@ class AttentionModel(nn.Module):
             shrink_size=shrink_size,
             spatial_bias=spatial_bias,
             spatial_bias_scale=spatial_bias_scale,
+            decoder_type=decoder_type,
         )
 
     def _init_parameters(
@@ -253,6 +255,7 @@ class AttentionModel(nn.Module):
         shrink_size: Optional[int],
         spatial_bias: bool,
         spatial_bias_scale: float,
+        decoder_type: str = "attention",
     ) -> None:
         """Initialize encoder and decoder components using the factory."""
         if not isinstance(component_factory, NeuralComponentFactory):
@@ -288,6 +291,7 @@ class AttentionModel(nn.Module):
         self.embedder = component_factory.create_encoder(**encoder_kwargs)
 
         self.decoder = component_factory.create_decoder(
+            decoder_type=decoder_type,
             embed_dim=self.embed_dim,
             hidden_dim=self.hidden_dim,
             problem=self.problem,

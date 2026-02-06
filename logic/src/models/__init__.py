@@ -26,7 +26,6 @@ from logic.src.pipeline.rl.common.baselines import (
 
 from .attention_model import AttentionModel as AttentionModel
 from .critic_network import CriticNetwork as CriticNetwork
-from .deep_decoder_am import DeepDecoderAttentionModel as DeepDecoderAttentionModel
 from .gat_lstm_manager import GATLSTManager as GATLSTManager
 from .hypernet import (
     Hypernetwork as Hypernetwork,
@@ -55,7 +54,6 @@ from .temporal_am import TemporalAttentionModel as TemporalAttentionModel
 __all__ = [
     # Core Models
     "AttentionModel",
-    "DeepDecoderAttentionModel",
     "TemporalAttentionModel",
     "CriticNetwork",
     "GATLSTManager",
