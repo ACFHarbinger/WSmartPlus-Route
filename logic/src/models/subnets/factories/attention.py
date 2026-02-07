@@ -6,7 +6,7 @@ from typing import Any
 
 import torch.nn as nn
 
-from logic.src.models.subnets.encoders.gat.encoder import GraphAttentionEncoder
+from logic.src.models.subnets.encoders.gat import GraphAttentionEncoder
 
 from .base import NeuralComponentFactory, _create_decoder_by_type
 

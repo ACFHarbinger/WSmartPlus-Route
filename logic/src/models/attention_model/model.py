@@ -13,7 +13,7 @@ from logic.src.constants.models import (
     NORM_EPSILON,
     TANH_CLIPPING,
 )
-from logic.src.models.model_factory import NeuralComponentFactory
+from logic.src.models.subnets.factories import NeuralComponentFactory
 from logic.src.utils.functions.problem import is_tsp_problem
 
 from .decoding import DecodingMixin

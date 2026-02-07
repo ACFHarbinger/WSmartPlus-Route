@@ -4,10 +4,11 @@ HGS-ALNS Hybrid Policy Adapter.
 Adapts the Hybrid HGS-ALNS solver to the common simulator policy interface.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.configs.policies import HGSALNSConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.hgs_alns_solver import HGSALNSSolver
 from logic.src.policies.hybrid_genetic_search.params import HGSParams
@@ -22,6 +23,14 @@ class HGSALNSPolicy(BaseRoutingPolicy):
 
     Uses ALNS for the intensive education phase of HGS.
     """
+
+    def __init__(self, config: Optional[HGSALNSConfig] = None):
+        """Initialize HGS-ALNS policy with optional config.
+
+        Args:
+            config: Optional HGSALNSConfig dataclass with solver parameters.
+        """
+        super().__init__(config)
 
     def _get_config_key(self) -> str:
         """Return config key for HGS-ALNS hybrid."""

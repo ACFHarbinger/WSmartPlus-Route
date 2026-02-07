@@ -4,18 +4,19 @@ SANS Policy Adapter (Simulated Annealing).
 Uses Simulated Annealing for route optimization.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
+from logic.src.configs.policies import SANSConfig
 from logic.src.pipeline.simulations.processor import convert_to_dict
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.simulated_annealing_neighborhood_search import (
+    improved_simulated_annealing,
+)
 from logic.src.policies.simulated_annealing_neighborhood_search.common.solution_initialization import (
     compute_initial_solution,
-)
-from logic.src.policies.simulated_annealing_neighborhood_search.heuristics.simulated_annealing import (
-    improved_simulated_annealing,
 )
 
 from .factory import PolicyRegistry
@@ -28,6 +29,14 @@ class SANSPolicy(BaseRoutingPolicy):
 
     Uses SA optimization with custom initialization and must-go enforcement.
     """
+
+    def __init__(self, config: Optional[SANSConfig] = None):
+        """Initialize SANS policy with optional config.
+
+        Args:
+            config: Optional SANSConfig dataclass with solver parameters.
+        """
+        super().__init__(config)
 
     def _get_config_key(self) -> str:
         """Return config key for SANS."""

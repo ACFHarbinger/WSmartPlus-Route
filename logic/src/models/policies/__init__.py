@@ -14,86 +14,57 @@ from typing import TYPE_CHECKING
 
 import torch.nn as nn
 
-from logic.src.models.policies.common import (
+from logic.src.models.common import (
     ConstructivePolicy,
     ImprovementPolicy,
 )
 
+from .ant_colony_system import VectorizedACOPolicy
+from .hgs_alns import VectorizedHGSALNS
+from .iterated_local_search import IteratedLocalSearchPolicy
+
 if TYPE_CHECKING:
-    from .am import AttentionModelPolicy
-    from .common import NonAutoregressivePolicy
-    from .dact_policy import DACTPolicy
-    from .deep_decoder import DeepDecoderPolicy
-    from .deepaco import DeepACOPolicy
-    from .gfacs import GFACSPolicy
-    from .glop import GLOPPolicy
-    from .mdam import MDAMPolicy
-    from .moe import MoEPolicy
-    from .n2s_policy import N2SPolicy
-    from .nargnn import NARGNNPolicy
-    from .neuopt_policy import NeuOptPolicy
-    from .pointer import PointerNetworkPolicy
-    from .polynet import PolyNetPolicy
-    from .symnco import SymNCOPolicy
-    from .temporal import TemporalAMPolicy
+    from logic.src.models.attention_model.deep_decoder_policy import DeepDecoderPolicy
+    from logic.src.models.attention_model.ham_policy import HAMPolicy
+    from logic.src.models.attention_model.policy import AttentionModelPolicy
+    from logic.src.models.attention_model.symnco_policy import SymNCOPolicy
+    from logic.src.models.common import NonAutoregressivePolicy
+    from logic.src.models.dact.policy import DACTPolicy
+    from logic.src.models.deepaco.policy import DeepACOPolicy
+    from logic.src.models.gfacs.policy import GFACSPolicy
+    from logic.src.models.glop.policy import GLOPPolicy
+    from logic.src.models.l2d.policy import L2DPolicy
+    from logic.src.models.mdam.policy import MDAMPolicy
+    from logic.src.models.moe.policy import MoEPolicy
+    from logic.src.models.n2s.policy import N2SPolicy
+    from logic.src.models.nargnn.policy import NARGNNPolicy
+    from logic.src.models.neuopt.policy import NeuOptPolicy
+    from logic.src.models.pointer_network.policy import PointerNetworkPolicy
+    from logic.src.models.polynet.policy import PolyNetPolicy
+    from logic.src.models.temporal_attention_model.policy import TemporalAMPolicy
 
-
-# Lazy-loading map: class name -> relative module path
-_POLICY_MAP = {
-    "AttentionModelPolicy": ".am",
-    "DeepDecoderPolicy": ".deep_decoder",
-    "DeepACOPolicy": ".deepaco",
-    "GFACSPolicy": ".gfacs",
-    "GLOPPolicy": ".glop",
-    "MDAMPolicy": ".mdam",
-    "MoEPolicy": ".moe",
-    "NARGNNPolicy": ".nargnn",
-    "N2SPolicy": ".n2s_policy",
-    "NeuOptPolicy": ".neuopt_policy",
-    "DACTPolicy": ".dact_policy",
-    "NonAutoregressivePolicy": ".common",
-    "PointerNetworkPolicy": ".pointer",
-    "PolyNetPolicy": ".polynet",
-    "SymNCOPolicy": ".symnco",
-    "TemporalAMPolicy": ".temporal",
-}
 
 # Short-name registry: CLI model name -> (module_path, class_name)
 # This enables ``get_policy("am")`` without importing everything eagerly.
 _POLICY_REGISTRY_SPEC = {
-    "am": (".am", "AttentionModelPolicy"),
-    "deep_decoder": (".deep_decoder", "DeepDecoderPolicy"),
-    "deepaco": (".deepaco", "DeepACOPolicy"),
-    "gfacs": (".gfacs", "GFACSPolicy"),
-    "glop": (".glop", "GLOPPolicy"),
-    "ham": (".ham", "HAMPolicy"),
-    "l2d": (".l2d_policy", "L2DPolicy"),
-    "mdam": (".mdam", "MDAMPolicy"),
-    "moe": (".moe", "MoEPolicy"),
-    "nargnn": (".nargnn", "NARGNNPolicy"),
-    "n2s": (".n2s_policy", "N2SPolicy"),
-    "neuopt": (".neuopt_policy", "NeuOptPolicy"),
-    "dact": (".dact_policy", "DACTPolicy"),
-    "pointer": (".pointer", "PointerNetworkPolicy"),
-    "polynet": (".polynet", "PolyNetPolicy"),
-    "symnco": (".symnco", "SymNCOPolicy"),
-    "temporal": (".temporal", "TemporalAMPolicy"),
+    "am": ("logic.src.models.attention_model.policy", "AttentionModelPolicy"),
+    "deep_decoder": ("logic.src.models.attention_model.deep_decoder_policy", "DeepDecoderPolicy"),
+    "deepaco": ("logic.src.models.deepaco.policy", "DeepACOPolicy"),
+    "gfacs": ("logic.src.models.gfacs.policy", "GFACSPolicy"),
+    "glop": ("logic.src.models.glop.policy", "GLOPPolicy"),
+    "ham": ("logic.src.models.attention_model.ham_policy", "HAMPolicy"),
+    "l2d": ("logic.src.models.l2d.policy", "L2DPolicy"),
+    "mdam": ("logic.src.models.mdam.policy", "MDAMPolicy"),
+    "moe": ("logic.src.models.moe.policy", "MoEPolicy"),
+    "nargnn": ("logic.src.models.nargnn.policy", "NARGNNPolicy"),
+    "n2s": ("logic.src.models.n2s.policy", "N2SPolicy"),
+    "neuopt": ("logic.src.models.neuopt.policy", "NeuOptPolicy"),
+    "dact": ("logic.src.models.dact.policy", "DACTPolicy"),
+    "pointer": ("logic.src.models.pointer_network.policy", "PointerNetworkPolicy"),
+    "polynet": ("logic.src.models.polynet.policy", "PolyNetPolicy"),
+    "symnco": ("logic.src.models.attention_model.symnco_policy", "SymNCOPolicy"),
+    "temporal": ("logic.src.models.temporal_attention_model.policy", "TemporalAMPolicy"),
 }
-
-
-def __getattr__(name):
-    if name in _POLICY_MAP:
-        import importlib
-
-        module_path = _POLICY_MAP[name]
-        module = importlib.import_module(module_path, __package__)
-        return getattr(module, name)
-
-    if name == "POLICY_REGISTRY":
-        # Lazily populate the full registry on first access
-        return {k: get_policy_class(k) for k in _POLICY_REGISTRY_SPEC}
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def get_policy_class(name: str) -> type:
@@ -114,7 +85,7 @@ def get_policy_class(name: str) -> type:
     if name not in _POLICY_REGISTRY_SPEC:
         raise ValueError(f"Unknown policy: {name!r}. Available: {sorted(_POLICY_REGISTRY_SPEC.keys())}")
     module_path, class_name = _POLICY_REGISTRY_SPEC[name]
-    module = importlib.import_module(module_path, __package__)
+    module = importlib.import_module(module_path)
     return getattr(module, class_name)
 
 
@@ -154,4 +125,7 @@ __all__ = [
     "NonAutoregressivePolicy",
     "get_policy_class",
     "get_policy",
+    "VectorizedHGSALNS",
+    "IteratedLocalSearchPolicy",
+    "VectorizedACOPolicy",
 ]

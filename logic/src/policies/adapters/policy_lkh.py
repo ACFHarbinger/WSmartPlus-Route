@@ -4,10 +4,11 @@ LKH Policy Adapter.
 Uses Lin-Kernighan heuristic for TSP optimization.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.configs.policies import LKHConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.lin_kernighan import solve_lk
 from logic.src.policies.single_vehicle import get_multi_tour, get_route_cost
@@ -22,6 +23,14 @@ class LKHPolicy(BaseRoutingPolicy):
 
     Uses LK-tour improvement for TSP with capacity-based splitting.
     """
+
+    def __init__(self, config: Optional[LKHConfig] = None):
+        """Initialize LKH policy with optional config.
+
+        Args:
+            config: Optional LKHConfig dataclass with solver parameters.
+        """
+        super().__init__(config)
 
     def _get_config_key(self) -> str:
         """Return config key for LKH."""

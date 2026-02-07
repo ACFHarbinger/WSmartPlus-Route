@@ -1,6 +1,6 @@
 import torch
 
-from ..base import BaseProblem
+from logic.src.envs.tasks.base import BaseProblem
 
 
 class WCVRP(BaseProblem):

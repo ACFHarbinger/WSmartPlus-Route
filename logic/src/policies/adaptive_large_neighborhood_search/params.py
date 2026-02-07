@@ -2,47 +2,54 @@
 Configuration parameters for the Adaptive Large Neighborhood Search (ALNS).
 """
 
+from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from logic.src.configs.policies import ALNSConfig
+
+
+@dataclass
 class ALNSParams:
     """
     Configuration parameters for the ALNS solver.
 
     Attributes:
-        time_limit (int): Maximum runtime in seconds. Default: 10
-        max_iterations (int): Maximum number of ALNS iterations. Default: 1000
-        start_temp (float): Initial temperature for simulated annealing. Default: 100
-        cooling_rate (float): Temperature decay factor per iteration. Default: 0.995
-        reaction_factor (float): Learning rate for operator weight updates (rho). Default: 0.1
-        min_removal (int): Minimum number of nodes to remove. Default: 1
-        max_removal_pct (float): Maximum percentage of nodes to remove. Default: 0.3
+        time_limit: Maximum runtime in seconds.
+        max_iterations: Maximum number of ALNS iterations.
+        start_temp: Initial temperature for simulated annealing.
+        cooling_rate: Temperature decay factor per iteration.
+        reaction_factor: Learning rate for operator weight updates (rho).
+        min_removal: Minimum number of nodes to remove.
+        max_removal_pct: Maximum percentage of nodes to remove.
     """
 
-    def __init__(
-        self,
-        time_limit: int = 10,
-        max_iterations: int = 1000,
-        start_temp: float = 100,
-        cooling_rate: float = 0.995,
-        reaction_factor: float = 0.1,
-        min_removal: int = 1,
-        max_removal_pct: float = 0.3,
-    ):
-        """
-        Initialize ALNS parameters.
+    time_limit: float = 60.0
+    max_iterations: int = 5000
+    start_temp: float = 100.0
+    cooling_rate: float = 0.995
+    reaction_factor: float = 0.1
+    min_removal: int = 1
+    max_removal_pct: float = 0.3
+
+    @classmethod
+    def from_config(cls, config: ALNSConfig) -> ALNSParams:
+        """Create ALNSParams from an ALNSConfig dataclass.
 
         Args:
-            time_limit (int): Max runtime in seconds.
-            max_iterations (int): Max iterations.
-            start_temp (float): Initial temperature.
-            cooling_rate (float): Cooling rate.
-            reaction_factor (float): Reaction factor.
-            min_removal (int): Min nodes to remove.
-            max_removal_pct (float): Max percentage of nodes to remove.
+            config: ALNSConfig dataclass with solver parameters.
+
+        Returns:
+            ALNSParams instance with values from config.
         """
-        self.time_limit = time_limit
-        self.max_iterations = max_iterations
-        self.start_temp = start_temp
-        self.cooling_rate = cooling_rate
-        self.reaction_factor = reaction_factor  # rho
-        self.min_removal = min_removal
-        self.max_removal_pct = max_removal_pct
+        return cls(
+            time_limit=config.time_limit,
+            max_iterations=config.max_iterations,
+            start_temp=config.start_temp,
+            cooling_rate=config.cooling_rate,
+            reaction_factor=config.reaction_factor,
+            min_removal=config.min_removal,
+            max_removal_pct=config.max_removal_pct,
+        )
