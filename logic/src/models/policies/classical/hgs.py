@@ -9,12 +9,12 @@ from tensordict import TensorDict
 
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 
 from .hybrid_genetic_search import VectorizedHGS as VectorizedHGSEngine
 
 
-class VectorizedHGS(ConstructivePolicy):
+class VectorizedHGS(AutoregressivePolicy):
     """
     HGS-based Policy wrapper using vectorized GPU-accelerated implementation.
 

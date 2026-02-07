@@ -12,7 +12,13 @@ from logic.src.models.embeddings.cvrpp import CVRPPInitEmbedding
 from logic.src.models.embeddings.vrpp import VRPPInitEmbedding
 from logic.src.models.embeddings.wcvrp import WCVRPInitEmbedding
 
-from .context_embedding import EnvContext, VRPPContext
+from .context_embedding import (
+    CVRPContext,
+    EnvContext,
+    SWCVRPContext,
+    VRPPContext,
+    WCVRPContext,
+)
 from .dynamic_embedding import DynamicEmbedding, StaticEmbedding
 
 # Embedding registry
@@ -22,12 +28,18 @@ INIT_EMBEDDING_REGISTRY = {
     "wcvrp": WCVRPInitEmbedding,
     "cwcvrp": WCVRPInitEmbedding,
     "sdwcvrp": WCVRPInitEmbedding,
+    "swcvrp": WCVRPInitEmbedding,
+    "scwcvrp": WCVRPInitEmbedding,
 }
 
 CONTEXT_EMBEDDING_REGISTRY = {
     "vrpp": VRPPContext,
-    "cvrpp": VRPPContext,  # Reuse VRPP for now
-    "wcvrp": VRPPContext,
+    "cvrpp": CVRPContext,
+    "wcvrp": WCVRPContext,
+    "cwcvrp": WCVRPContext,
+    "sdwcvrp": WCVRPContext,
+    "swcvrp": SWCVRPContext,
+    "scwcvrp": SWCVRPContext,
 }
 
 DYNAMIC_EMBEDDING_REGISTRY = {
@@ -58,6 +70,15 @@ __all__ = [
     "VRPPInitEmbedding",
     "CVRPPInitEmbedding",
     "WCVRPInitEmbedding",
+    "EnvContext",
+    "VRPPContext",
+    "CVRPContext",
+    "WCVRPContext",
+    "SWCVRPContext",
+    "DynamicEmbedding",
+    "StaticEmbedding",
     "INIT_EMBEDDING_REGISTRY",
+    "CONTEXT_EMBEDDING_REGISTRY",
+    "DYNAMIC_EMBEDDING_REGISTRY",
     "get_init_embedding",
 ]

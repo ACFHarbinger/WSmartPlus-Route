@@ -1,12 +1,14 @@
-from typing import Optional, Tuple
+from __future__ import annotations
+
+from typing import Any, Dict, Optional, Tuple
 
 import torch
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 from tensordict import TensorDict
 
 
-class VectorizedACOPolicy(ConstructivePolicy):
+class VectorizedACOPolicy(AutoregressivePolicy):
     """
     Vectorized Ant Colony Optimization (ACO) Policy.
 
@@ -50,7 +52,7 @@ class VectorizedACOPolicy(ConstructivePolicy):
         decode_type: str = "sampling",  # Unused
         num_starts: int = 1,
         **kwargs,
-    ) -> dict:
+    ) -> Dict[str, Any]:
         """
         Run vectorized ACO.
         """
@@ -100,7 +102,7 @@ class VectorizedACOPolicy(ConstructivePolicy):
 
         # Return result
         return {
-            "action": best_tours,
+            "actions": best_tours,
             "reward": -best_costs,
             "cost": best_costs,
         }

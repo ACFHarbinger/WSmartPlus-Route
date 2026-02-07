@@ -31,58 +31,67 @@ class MatNetDecoder(GlimpseDecoder):
             tanh_clipping=tanh_clipping,
             **kwargs,
         )
-        # MatNet context might need both row and col info
-        # Standard context is [batch, embed_dim]
-        # For MatNet, we might project both
-        self.project_row_context = nn.Linear(embed_dim, embed_dim, bias=False)
         self.project_col_context = nn.Linear(embed_dim, embed_dim, bias=False)
+        self.decode_type = "greedy"
+        self.temp = 1.0
 
-    def _precompute(self, row_embeddings: torch.Tensor, col_embeddings: torch.Tensor) -> Any:
+    def _precompute(self, embeddings: torch.Tensor, num_steps: int = 1) -> Any:
+        # Standard precompute logic
+        fixed = super()._precompute(embeddings, num_steps)
+        return fixed
+
+    def forward(
+        self,
+        input: Union[torch.Tensor, dict[str, torch.Tensor]],
+        embeddings: torch.Tensor,
+        cost_weights: Optional[torch.Tensor] = None,
+        dist_matrix: Optional[torch.Tensor] = None,
+        mask: Optional[torch.Tensor] = None,
+        expert_pi: Optional[torch.Tensor] = None,
+        **kwargs,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Precompute fixed elements.
-        Args:
-            row_embeddings: [batch, row_size, embed_dim]
-            col_embeddings: [batch, col_size, embed_dim]
+        Matrix-aware forward pass.
+        Expects 'col_embeddings' in kwargs.
         """
-        # For MatNet, we use row_embeddings as the primary node embeddings for the decoder
-        # (assuming we are picking rows/nodes)
-        fixed = super()._precompute(row_embeddings)
+        col_embeddings = kwargs.get("col_embeddings")
+        if col_embeddings is None:
+            col_embeddings = embeddings
+
+        state = self.problem.make_state(input, cost_weights=cost_weights)
+        fixed = super()._precompute(embeddings)
 
         # Add column information to fixed context
         col_avg = col_embeddings.mean(1)
         fixed.context_node_projected = fixed.context_node_projected + self.project_col_context(col_avg)[:, None, :]
 
-        return fixed
-
-    def forward(
-        self,
-        input_data: Union[torch.Tensor, dict[str, torch.Tensor]],
-        row_embeddings: torch.Tensor,
-        col_embeddings: torch.Tensor,
-        cost_weights: Optional[torch.Tensor] = None,
-        **kwargs,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Matrix-aware forward pass.
-        """
-        # We need to override _inner or provide a way to pass both row and col embeddings
-        # For now, we'll implement a simplified forward that sets up the state and fixed context
-
-        state = self.problem.make_state(input_data, cost_weights=cost_weights)
-        fixed = self._precompute(row_embeddings, col_embeddings)
-
-        # Use standard GlimpseDecoder loop for now
-        # Note: This might need more customization for FFSP (multi-stage)
         outputs = []
         sequences = []
 
-        i = 0
-        while not state.all_finished():
-            log_p, mask = self._get_log_p(fixed, state)
-            selected = self._select_node(log_p.exp()[:, 0, :], mask[:, 0, :])
+        while not state.all_finished().all():
+            get_log_p_out = self._get_log_p(fixed, state)
+            if not isinstance(get_log_p_out, tuple) or len(get_log_p_out) != 2:
+                # This should not happen unless _get_log_p is mocked or broken
+                log_p = get_log_p_out
+                mask_out = None
+            else:
+                log_p, mask_out = get_log_p_out
+
+            # Use mask_out if provided, otherwise generic mask
+            current_mask = mask_out if mask_out is not None else mask
+
+            # Select node
+            probs = log_p.exp()[:, 0, :]
+            m = current_mask[:, 0, :] if current_mask is not None else None
+            selected = self._select_node(probs, m)
+
             state = state.update(selected)
             outputs.append(log_p[:, 0, :])
             sequences.append(selected)
-            i += 1
+
+        if not outputs:
+            return torch.zeros(state.ids.size(0), 0, embeddings.size(-1), device=embeddings.device), torch.zeros(
+                state.ids.size(0), 0, dtype=torch.long, device=embeddings.device
+            )
 
         return torch.stack(outputs, 1), torch.stack(sequences, 1)

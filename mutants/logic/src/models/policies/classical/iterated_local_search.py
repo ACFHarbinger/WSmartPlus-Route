@@ -8,11 +8,11 @@ to escape local minima. Useful for imitation learning and as a strong baseline.
 from __future__ import annotations
 
 import random as py_random
-from typing import List, Union
+from typing import Any, Dict, List, Union
 
 import torch
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 from tensordict import TensorDict
 
 from .local_search import (
@@ -26,7 +26,7 @@ from .local_search import (
 from .split import vectorized_linear_split
 
 
-class IteratedLocalSearchPolicy(ConstructivePolicy):
+class IteratedLocalSearchPolicy(AutoregressivePolicy):
     """
     Iterated Local Search (ILS) expert policy.
 
@@ -59,7 +59,7 @@ class IteratedLocalSearchPolicy(ConstructivePolicy):
             n_restarts: Number of ILS restarts (perturbation cycles).
             ls_iterations: Iterations for local search within each phase.
             perturbation_strength: Fraction of tour to perturb (for shuffle/swap).
-            **kwargs: Additional arguments for ConstructivePolicy.
+            **kwargs: Additional arguments for AutoregressivePolicy.
         """
         super().__init__(env_name=env_name, **kwargs)
         self.ls_operator = ls_operator
@@ -176,7 +176,7 @@ class IteratedLocalSearchPolicy(ConstructivePolicy):
         decode_type: str = "greedy",  # Ignored
         num_starts: int = 1,
         **kwargs,
-    ) -> dict:
+    ) -> Dict[str, Any]:
         """
         Refine solutions using ILS.
         """

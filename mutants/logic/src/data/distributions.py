@@ -7,13 +7,21 @@ Implements various sampling distributions following rl4co patterns:
 - Gaussian_Mixture: Configurable GMM (Zhou et al. 2023)
 - Mix_Distribution: 33/33/33 mix of uniform/cluster/mixed
 - Mix_Multi_Distributions: 11 distribution variants batch-wise
+- Gamma: Gamma distribution sampling
+- Empirical: Sampling from an empirical dataset
 """
 
 from __future__ import annotations
 
-from typing import Tuple
+import os
+import pickle
+from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
 
+import numpy as np
 import torch
+
+if TYPE_CHECKING:
+    from logic.src.pipeline.simulations.bins import Bins
 
 
 class Cluster:
@@ -137,7 +145,7 @@ class Gaussian_Mixture:
 
         # Generate points for each mode
         for i in range(self.num_modes):
-            num = (nums == i).sum().item()  # Number of points in this mode
+            num = int((nums == i).sum().item())  # Number of points in this mode
             if num > 0:
                 center = torch.rand((1, 2)) * self.cdist
                 cov = torch.eye(2)  # Covariance matrix
@@ -192,6 +200,79 @@ class Gaussian_Mixture:
         return coords
 
 
+class Gamma:
+    """Gamma distribution."""
+
+    def __init__(self, alpha: Union[float, torch.Tensor] = 2.0, beta: Union[float, torch.Tensor] = 2.0):
+        self.alpha = alpha
+        self.beta = beta
+
+    def sample(self, size: Tuple[int, ...]) -> torch.Tensor:
+        """Sample from Gamma distribution.
+
+        Args:
+            size: Sampling shape (e.g., (batch_size, num_loc, components))
+        """
+        # torch.distributions.Gamma(concentration, rate)
+        alpha = self.alpha
+        beta = self.beta
+
+        # Simple case: scalars or tensors already matching broadcast rules
+        m = torch.distributions.Gamma(alpha, beta)
+        return m.sample(size)
+
+
+class Empirical:
+    """Sampling from an empirical dataset (e.g. file or Bins object)."""
+
+    def __init__(self, bins: Optional[Bins] = None, dataset_path: Optional[str] = None):
+        self.bins = bins
+        self.dataset = None
+        if bins is None and dataset_path is not None and os.path.exists(dataset_path):
+            with open(dataset_path, "rb") as f:
+                self.dataset = pickle.load(f)
+            # Ensure it's a tensor
+            if not isinstance(self.dataset, torch.Tensor):
+                try:
+                    if isinstance(self.dataset, np.ndarray):
+                        self.dataset = torch.from_numpy(self.dataset)
+                    elif isinstance(self.dataset, list):
+                        self.dataset = torch.tensor(self.dataset)
+                except Exception:
+                    pass
+
+    def sample(self, size: Tuple[int, ...]) -> torch.Tensor:
+        """Sample from empirical dataset.
+
+        Args:
+            size: Sampling shape. First dimension is assumed to be batch size if picking whole instances.
+        """
+        batch_size = size[0]
+
+        # Priority 1: Bins object
+        if self.bins is not None:
+            # Bins.stochasticFilling returns values in [0, 100]
+            # normalized by / 100.0 in data_utils
+            vals = self.bins.stochasticFilling(n_samples=batch_size, only_fill=True)
+            if isinstance(vals, np.ndarray):
+                vals = torch.from_numpy(vals).float()
+            return vals / 100.0
+
+        if self.dataset is None:
+            # Fallback to uniform if no dataset
+            return torch.rand(*size)
+
+        # Priority 2: dataset tensor [N, num_loc, components]
+        if isinstance(self.dataset, torch.Tensor):
+            # We sample 'batch_size' instances from the dataset
+            indices = torch.randint(0, len(self.dataset), (batch_size,))
+            out = self.dataset[indices]
+            return out
+
+        # Fallback
+        return torch.rand(*size)
+
+
 class Mix_Distribution:
     """33/33/33 mix of Uniform/Cluster/Mixed."""
 
@@ -207,13 +288,13 @@ class Mix_Distribution:
 
         # Mixed: p <= 0.33
         mask = p <= 0.33
-        n_mixed = mask.sum().item()
+        n_mixed = int(mask.sum().item())
         if n_mixed > 0:
             coords[mask] = self.Mixed.sample((n_mixed, num_loc, 2))
 
         # Cluster: 0.33 < p <= 0.66
         mask = (p > 0.33) & (p <= 0.66)
-        n_cluster = mask.sum().item()
+        n_cluster = int(mask.sum().item())
         if n_cluster > 0:
             coords[mask] = self.Cluster.sample((n_cluster, num_loc, 2))
 
@@ -224,24 +305,22 @@ class Mix_Multi_Distributions:
     """11 distribution variants sampled batch-wise."""
 
     def __init__(self):
-        self.distributions = [
-            (None, None),  # Uniform
+        self.distributions: list[tuple[Any, dict[str, Any]]] = [
+            (None, {}),  # Uniform
             (Cluster, {"n_cluster": 3}),  # Cluster (3)
             (Mixed, {"n_cluster_mix": 1}),  # Mixed (1)
             (Gaussian_Mixture, {"num_modes": 0, "cdist": 0}),  # Uniform (GMM style)
             (Gaussian_Mixture, {"num_modes": 1, "cdist": 1}),  # Gaussian (GMM style)
-            # Add more variations if needed to match 11,
-            # For now implementing the core logic structure
         ]
-        # Extending to 11 variants as per rl4co if detailed specs were here,
-        # but using placeholders for demonstrative logic as spec in plan was broad.
-        # Let's add the ones we have classes for to reach "multi".
+        # Extending to 11 variants
         self.distributions.extend(
             [
                 (Cluster, {"n_cluster": 4}),
                 (Cluster, {"n_cluster": 5}),
                 (Mixed, {"n_cluster_mix": 2}),
                 (Mixed, {"n_cluster_mix": 3}),
+                (Cluster, {"n_cluster": 6}),
+                (Mixed, {"n_cluster_mix": 4}),
             ]
         )
 
@@ -250,13 +329,12 @@ class Mix_Multi_Distributions:
         coords = torch.zeros(batch_size, num_loc, 2)
 
         # Assign each sample in batch to a random distribution type
-        # Ideally we'd vectorize this, but loop is safer for varied classes
         dist_indices = torch.randint(0, len(self.distributions), (batch_size,))
 
         # Group by distribution to batch calls
         for i, (cls, kwargs) in enumerate(self.distributions):
             mask = dist_indices == i
-            n_samples = mask.sum().item()
+            n_samples = int(mask.sum().item())
             if n_samples == 0:
                 continue
 
@@ -270,11 +348,13 @@ class Mix_Multi_Distributions:
 
 
 # Registry
-DISTRIBUTION_REGISTRY = {
+DISTRIBUTION_REGISTRY: dict[str, Callable[..., Any]] = {
     "uniform": lambda: None,  # Use default torch.rand
     "cluster": Cluster,
     "mixed": Mixed,
     "gaussian_mixture": Gaussian_Mixture,
+    "gamma": Gamma,
+    "empirical": Empirical,
     "mix_distribution": Mix_Distribution,
     "mix_multi": Mix_Multi_Distributions,
 }

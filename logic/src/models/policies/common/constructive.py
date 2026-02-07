@@ -9,9 +9,10 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
+from tensordict import TensorDict
+
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.utils.functions.decoding import get_decoding_strategy
-from tensordict import TensorDict
 
 
 class ConstructivePolicy(nn.Module, ABC):
@@ -93,35 +94,3 @@ class ConstructivePolicy(nn.Module, ABC):
             action, log_prob = result[:2]  # type: ignore[misc]
             entropy = result[2] if len(result) > 2 else torch.tensor(0.0)
         return action, log_prob, entropy
-
-
-class ImprovementPolicy(nn.Module, ABC):
-    """
-    Base class for improvement-based policies.
-
-    Improvement policies start with an initial solution and
-    iteratively improve it through local search operations.
-    """
-
-    def __init__(
-        self,
-        encoder: Optional[nn.Module] = None,
-        decoder: Optional[nn.Module] = None,
-        env_name: Optional[str] = None,
-        **kwargs,
-    ):
-        """Initialize ImprovementPolicy."""
-        super().__init__()
-        self.encoder = encoder
-        self.decoder = decoder
-        self.env_name = env_name
-
-    @abstractmethod
-    def forward(
-        self,
-        td: TensorDict,
-        env: RL4COEnvBase,
-        **kwargs,
-    ) -> dict:
-        """Execute improvement iterations."""
-        raise NotImplementedError

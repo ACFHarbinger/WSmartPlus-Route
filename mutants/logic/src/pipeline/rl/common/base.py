@@ -12,7 +12,7 @@ import pytorch_lightning as pl
 import torch
 from logic.src.data.datasets import tensordict_collate_fn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.common.constructive import ConstructivePolicy
 from logic.src.policies.selection import VectorizedSelector
 from logic.src.utils.logging.pylogger import get_pylogger
 from tensordict import TensorDict

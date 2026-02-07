@@ -16,7 +16,6 @@ import os
 import random
 import re
 import sys
-import time
 import traceback
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
@@ -24,13 +23,12 @@ import numpy as np
 import torch
 from logic.src.cli import ConfigsParser
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
-from logic.src.utils.configs.setup_utils import setup_cost_weights
+from logic.src.pipeline.eval.evaluate import evaluate_policy, get_automatic_batch_size
 from logic.src.utils.data.data_utils import save_dataset
-from logic.src.utils.functions.function import load_model, move_to
+from logic.src.utils.functions.function import load_model
 from loguru import logger
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
-from tqdm import tqdm
 
 if TYPE_CHECKING:
     pass
@@ -249,96 +247,92 @@ def _eval_dataset(
             temp=softmax_temp,
         )
 
-    dataloader = DataLoader(dataset, batch_size=opts["eval_batch_size"], pin_memory=True)
+    dataloader = DataLoader(dataset, batch_size=opts.get("eval_batch_size", 1024), pin_memory=True)
     results: List[Dict[str, Any]] = []
-    cost_weights = setup_cost_weights(opts)
-    for batch in tqdm(dataloader, disable=opts["no_progress_bar"]):
-        batch = move_to(batch, device)
-        start = time.time()
-        with torch.no_grad():
-            if opts["decode_strategy"] in ("sample", "greedy"):
-                if opts["decode_strategy"] == "greedy":
-                    assert width == 0, "Do not set width when using greedy"
-                    assert (
-                        opts["eval_batch_size"] <= opts["max_calc_batch_size"]
-                    ), "eval_batch_size should be smaller than calc batch size"
-                    batch_rep = 1
-                    iter_rep = 1
-                elif width * opts["eval_batch_size"] > opts["max_calc_batch_size"]:
-                    assert opts["eval_batch_size"] == 1
-                    assert width % opts["max_calc_batch_size"] == 0
-                    batch_rep = opts["max_calc_batch_size"]
-                    iter_rep = width // opts["max_calc_batch_size"]
-                else:
-                    batch_rep = width
-                    iter_rep = 1
-                assert batch_rep > 0
 
-                # This returns (batch_size, iter_rep shape)
-                sequences, costs = model.sample_many(  # type: ignore
-                    batch,
-                    cost_weights=cost_weights,
-                    batch_rep=batch_rep,
-                    iter_rep=iter_rep,
-                )
-                batch_size = len(costs)
-                ids = torch.arange(batch_size, dtype=torch.int64, device=costs.device)
+    # Determine method
+    method = opts.get("decode_strategy", "greedy")
+    if method == "bs":
+        # Note: bs is currently manual in inner loop, we should ideally implement BeamSearchEval
+        # For now, fallback to the old manual loop or implement a simple wrapper
+        pass
+    elif method == "sample":
+        method = "sampling"
+
+    # Automatic batch size tuning
+    eval_batch_size = opts.get("eval_batch_size", 1024)
+    if opts.get("auto_batch_size", False):
+        eval_batch_size = get_automatic_batch_size(
+            model,
+            model.problem,
+            dataloader,
+            method=method,
+            initial_batch_size=eval_batch_size,
+            samples=width,
+        )
+        opts["eval_batch_size"] = eval_batch_size
+        # Recreate dataloader with new batch size
+        dataloader = DataLoader(dataset, batch_size=eval_batch_size, pin_memory=True)
+
+    # Run evaluation using modular pipeline
+    eval_results = evaluate_policy(
+        model,
+        model.problem,
+        dataloader,
+        method=method,
+        return_results=True,
+        samples=width,
+        softmax_temperature=softmax_temp,
+        **opts,
+    )
+
+    costs_best = eval_results["rewards"]
+    sequences_best = eval_results["sequences"].cpu().numpy()
+    duration_per_batch = eval_results["duration"] / len(dataloader)
+
+    for i, (seq, cost) in enumerate(zip(sequences_best, costs_best)):
+        if seq is not None:
+            if model.problem.NAME in ("cvrpp", "cwcvrp", "sdwcvrp"):  # type: ignore
+                seq = np.trim_zeros(seq).tolist() + [0]  # Add depot
+            elif model.problem.NAME in ("vrpp", "wcvrp"):  # type: ignore
+                seq = np.trim_zeros(seq).tolist()  # We have the convention to exclude the depot
             else:
-                assert opts["decode_strategy"] == "bs"
+                seq = None
+                assert False, "Unknown problem: {}".format(model.problem.NAME)  # type: ignore
 
-                _, sequences, costs, ids, batch_size = model.beam_search(  # type: ignore
-                    batch,
-                    beam_size=width,
-                    cost_weights=cost_weights,
-                    compress_mask=opts["compress_mask"],
-                    max_calc_batch_size=opts["max_calc_batch_size"],
-                )
-        if sequences is None:
-            sequences_best: List[Optional[np.ndarray]] = [None] * batch_size
-            costs_best: List[float] = [float(math.inf)] * batch_size
+        if seq is not None:
+            # Recalculate components
+            seq_tensor = torch.tensor(seq, device=device).unsqueeze(0)
+            # Retrieve the original instance from the dataset
+            instance = dataset[i]
+            if isinstance(instance, (list, tuple)):
+                # If it's a tuple of tensors (dataset[i]), wrap in dict if needed
+                # But rl4co datasets usually return TensorDict
+                batch_i = {k: v.unsqueeze(0).to(device) for k, v in zip(["locs"], instance)}  # Simple fallback
+            else:
+                # Assuming TensorDict
+                batch_i = instance.unsqueeze(0).to(device)
+
+            # We don't need cost_weights here as we only want back the c_dict
+            _, c_dict, _ = model.problem.get_costs(batch_i, seq_tensor, None, batch_i.get("dist_matrix"))  # type: ignore
         else:
-            sequences_best, costs_best = get_best(
-                sequences.cpu().numpy(),
-                costs.cpu().numpy(),
-                ids.cpu().numpy() if ids is not None else None,
-                batch_size,
-            )
-        duration = time.time() - start
-        for i, (seq, cost) in enumerate(zip(sequences_best, costs_best)):
-            if seq is not None:
-                if model.problem.NAME in ("cvrpp", "cwcvrp", "sdwcvrp"):  # type: ignore
-                    seq = np.trim_zeros(seq).tolist() + [0]  # Add depot
-                elif model.problem.NAME in ("vrpp", "wcvrp"):  # type: ignore
-                    seq = np.trim_zeros(seq).tolist()  # We have the convention to exclude the depot
-                else:
-                    seq = None
-                    assert False, "Unknown problem: {}".format(model.problem.NAME)  # type: ignore
+            c_dict = {
+                "length": torch.tensor(0.0),
+                "waste": torch.tensor(0.0),
+                "overflows": torch.tensor(0.0),
+            }
 
-            if seq is not None:
-                # Recalculate components
-                seq_tensor = torch.tensor(seq, device=device).unsqueeze(0)
-                # Use a sub-batch of size 1 for get_costs
-                batch_i = {k: v[i : i + 1] for k, v in batch.items() if isinstance(v, torch.Tensor)}
-                # We don't need cost_weights here as we only want back the c_dict
-                _, c_dict, _ = model.problem.get_costs(batch_i, seq_tensor, None, batch_i.get("dist_matrix"))  # type: ignore
-            else:
-                c_dict = {
-                    "length": torch.tensor(0.0),
-                    "waste": torch.tensor(0.0),
-                    "overflows": torch.tensor(0.0),
-                }
-
-            # Note VRP only
-            results.append(
-                {
-                    "cost": cost,
-                    "seq": seq,
-                    "duration": duration,
-                    "km": c_dict["length"].item(),
-                    "kg": c_dict["waste"].item() * 100,  # Assuming waste is normalized 0-1
-                    "overflows": c_dict["overflows"].item(),
-                }
-            )
+        # Note VRP only
+        results.append(
+            {
+                "cost": float(cost),
+                "seq": seq,
+                "duration": duration_per_batch,
+                "km": c_dict["length"].item(),
+                "kg": c_dict["waste"].item() * 100,  # Assuming waste is normalized 0-1
+                "overflows": c_dict["overflows"].item(),
+            }
+        )
     return results
 
 
@@ -392,12 +386,16 @@ def run_evaluate_model(opts: Dict[str, Any]) -> None:
 if __name__ == "__main__":
     exit_code = 0
     parser = ConfigsParser(description="Evaluation Runner", formatter_class=argparse.RawTextHelpFormatter)
-    parser = ConfigsParser(description="Evaluation Runner", formatter_class=argparse.RawTextHelpFormatter)
     print("Please use 'python main.py eval ...' or Hydra CLI.", file=sys.stderr)
     sys.exit(1)
     try:
-        parsed_args = parser.parse_process_args(sys.argv[1:], "eval")
-        args = validate_eval_args(parsed_args)
+        parsed = parser.parse_process_args(sys.argv[1:], "eval")
+        # parsed can be (method, args) or just args depending on ConfigsParser version
+        if isinstance(parsed, tuple):
+            _, args = parsed
+        else:
+            args = parsed
+        args = validate_eval_args(args)
         run_evaluate_model(args)
     except (argparse.ArgumentError, AssertionError) as e:
         exit_code = 1

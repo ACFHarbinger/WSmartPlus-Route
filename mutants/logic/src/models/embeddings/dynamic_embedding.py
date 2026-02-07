@@ -13,28 +13,54 @@ import torch.nn as nn
 
 
 class StaticEmbedding(nn.Module):
-    """Static embedding: No dynamic updates (glimpse_key==glimpse_val==logit_key==0)."""
+    """Static embedding: No dynamic updates."""
 
     def __init__(self, *args, **kwargs):
         super().__init__()
 
     def forward(self, td: Any) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        return 0, 0, 0
+        return torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0)
 
 
 class DynamicEmbedding(nn.Module):
-    """Base class for dynamic embeddings."""
+    """
+    Dynamic embedding that updates key/values based on state.
+    Example: Projecting 'visited' mask or other dynamic node features.
+    """
 
-    def __init__(self, embed_dim: int):
+    def __init__(self, embed_dim: int, dynamic_node_dim: int = 1):
         super().__init__()
         self.embed_dim = embed_dim
-        self.projection = nn.Linear(embed_dim, 3 * embed_dim)
+
+        # Projection for dynamic node features (e.g., visited mask, remaining demand)
+        # We project to 3 * embed_dim to update gl_k, gl_v, logit_k
+        self.project_dynamic = nn.Linear(dynamic_node_dim, 3 * embed_dim, bias=False)
 
     def forward(self, td: Any) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Compute dynamic updates for glimpse K, V and logit K.
-        Returns tuple of 3 tensors or 0s.
+
+        Checks for 'visited' or 'dynamic_context' in td.
         """
-        # Example implementation (placeholder)
-        # subclasses should implement actual logic
-        return 0, 0, 0
+        # Default: check for 'visited' mask as a simple dynamic feature
+        # visited: [batch, num_loc]
+        dynamic_feat = None
+
+        if "dynamic_context" in td.keys():
+            # Explicit dynamic context provided by env
+            dynamic_feat = td["dynamic_context"]
+        elif "visited" in td.keys():
+            # Use visited mask as dynamic feature
+            # [batch, num_loc] -> [batch, num_loc, 1]
+            dynamic_feat = td["visited"].float().unsqueeze(-1)
+
+        if dynamic_feat is None:
+            return torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0)
+
+        # Project: [batch, num_loc, 3 * embed_dim]
+        out = self.project_dynamic(dynamic_feat)
+
+        # Split
+        glimpse_key_dyn, glimpse_val_dyn, logit_key_dyn = out.chunk(3, dim=-1)
+
+        return glimpse_key_dyn, glimpse_val_dyn, logit_key_dyn

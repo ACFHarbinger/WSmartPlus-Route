@@ -5,13 +5,13 @@ Performs iterative local search moves sampled from a set of operators based on p
 
 from __future__ import annotations
 
+from typing import Any, Dict
+
 import torch
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.base import ConstructivePolicy
-
-from .local_search import (
+from logic.src.models.policies.classical.local_search import (
     vectorized_relocate,
     vectorized_swap,
     vectorized_swap_star,
@@ -19,10 +19,11 @@ from .local_search import (
     vectorized_two_opt,
     vectorized_two_opt_star,
 )
-from .split import vectorized_linear_split
+from logic.src.models.policies.classical.split import vectorized_linear_split
+from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 
 
-class RandomLocalSearchPolicy(ConstructivePolicy):
+class RandomLocalSearchPolicy(AutoregressivePolicy):
     """
     Random Local Search expert policy.
 
@@ -85,7 +86,7 @@ class RandomLocalSearchPolicy(ConstructivePolicy):
         decode_type: str = "greedy",  # Ignored
         num_starts: int = 1,
         **kwargs,
-    ) -> dict:
+    ) -> Dict[str, Any]:
         """
         Refine solutions using stochastic local search.
         """

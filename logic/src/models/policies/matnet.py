@@ -1,18 +1,22 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
-import torch
-import torch.nn as nn
+from tensordict import TensorDict
 
+from logic.src.envs.base import RL4COEnvBase
+from logic.src.models.embeddings.matnet import MatNetInitEmbedding
+from logic.src.models.policies.common.autoregressive import (
+    AutoregressivePolicy,
+)
 from logic.src.models.subnets.matnet_decoder import MatNetDecoder
 from logic.src.models.subnets.matnet_encoder import MatNetEncoder
 
 
-class MatNetPolicy(nn.Module):
+class MatNetPolicy(AutoregressivePolicy):
     """
     MatNet Policy for matrix-based Combinatorial Optimization.
-    Unifies MatNetEncoder and MatNetDecoder.
+    Unifies MatNetEncoder and MatNetDecoder with proper initialization.
     """
 
     def __init__(
@@ -26,14 +30,11 @@ class MatNetPolicy(nn.Module):
         normalization: str = "instance",
         **kwargs,
     ):
-        super(MatNetPolicy, self).__init__()
+        super(MatNetPolicy, self).__init__(env_name=None)
         self.problem = problem
         self.embed_dim = embed_dim
 
-        # Initial projection of matrix rows and columns
-        # Assuming input is [batch, row_size, col_size]
-        self.row_init_proj = nn.Linear(1, embed_dim)
-        self.col_init_proj = nn.Linear(1, embed_dim)
+        self.init_embedding = MatNetInitEmbedding(embed_dim, normalization)
 
         self.encoder = MatNetEncoder(
             num_layers=num_layers,
@@ -53,49 +54,44 @@ class MatNetPolicy(nn.Module):
         )
 
     def set_decode_type(self, decode_type: str, temp: Optional[float] = None):
-        self.decoder.set_decode_type(decode_type, temp)
+        if hasattr(self.decoder, "set_decode_type"):
+            self.decoder.set_decode_type(decode_type, temp)
 
     def forward(
         self,
-        input_data: Dict[str, Any],
-        cost_weights: Optional[torch.Tensor] = None,
+        td: TensorDict,
+        env: Optional[RL4COEnvBase] = None,
+        decode_type: str = "sampling",
+        num_starts: int = 1,
         **kwargs,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Dict[str, Any]:
         """
         Policy forward pass.
         Args:
             input_data: Dict containing 'dist' or 'cost_matrix' of shape [batch, row_size, col_size]
         """
         # Get matrix (e.g. distance or cost matrix)
-        # In MatNet, we typically solve problems like ATSP or FFSP where cost is a matrix.
-        matrix = input_data.get("dist") or input_data.get("cost_matrix")
+        matrix = td.get("dist")
+        if matrix is None:
+            matrix = td.get("cost_matrix")
+
         if matrix is None:
             raise ValueError("MatNetPolicy requires a cost matrix in 'dist' or 'cost_matrix' key.")
 
         if matrix.dim() == 2:
             matrix = matrix.unsqueeze(0)
 
-        batch_size, row_size, col_size = matrix.size()
+        # Initial row and column embeddings from matrix stats
+        row_emb, col_emb = self.init_embedding(matrix)
 
-        # Initial row and column features (e.g., mean of rows/cols)
-        # MatNet actually projects the whole row/col if they have features.
-        # If it's just the matrix, we use means or individual elements.
-        # Baseline: row/col means
-        row_init = matrix.mean(dim=2, keepdim=True)  # [batch, row_size, 1]
-        col_init = matrix.mean(dim=1, keepdim=True).transpose(1, 2)  # [batch, col_size, 1]
-
-        row_emb = self.row_init_proj(row_init)
-        col_emb = self.col_init_proj(col_init)
-
-        # Encoding
-        row_emb, col_emb = self.encoder(row_emb, col_emb)
+        # Encoding using mixed-score attention
+        assert self.encoder is not None, "Encoder is not initialized"
+        row_emb, col_emb = self.encoder(row_emb, col_emb, matrix)
 
         # Decoding
-        log_p, actions = self.decoder(input_data, row_emb, col_emb, cost_weights=cost_weights, **kwargs)
+        # We pass row_emb as embeddings and col_emb via kwargs
+        assert self.decoder is not None, "Decoder is not initialized"
+        cost_weights = kwargs.get("cost_weights")
+        log_p, actions = self.decoder(td, row_emb, cost_weights=cost_weights, col_embeddings=col_emb, **kwargs)
 
-        # To match standard policy interface, we might need to return (cost, ll, ...)
-        # but the decoder currently returns (log_p, actions).
-        # Usually, the AttentionModel wrapper handles the cost calculation.
-        # We can return these directly for now or wrap it similarly.
-
-        return log_p, actions
+        return {"log_p": log_p, "actions": actions}

@@ -7,7 +7,7 @@ using TensorDict for state management.
 
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import torch
 from tensordict import TensorDict
@@ -15,13 +15,13 @@ from tensordict import TensorDict
 from logic.src.data.transforms import batchify
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
-from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
 from logic.src.models.subnets.glimpse_decoder import GlimpseDecoder
 from logic.src.utils.data.td_utils import DummyProblem, TensorDictStateWrapper
 
 
-class AttentionModelPolicy(ConstructivePolicy):
+class AttentionModelPolicy(AutoregressivePolicy):
     """
     RL4CO-style Policy using existing Attention Model components.
     """
@@ -66,7 +66,7 @@ class AttentionModelPolicy(ConstructivePolicy):
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
         **kwargs,
-    ) -> dict:
+    ) -> Dict[str, Any]:
         """
         Forward pass executing the constructive solution generation.
         """

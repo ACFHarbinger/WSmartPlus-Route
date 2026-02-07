@@ -6,19 +6,19 @@ Adapts the DeepGATDecoder-based architecture to the RL4CO architecture.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import torch
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
-from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 from logic.src.models.subnets.gat_decoder import DeepGATDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
 from logic.src.utils.data.td_utils import TensorDictStateWrapper
 from tensordict import TensorDict
 
 
-class DeepDecoderPolicy(ConstructivePolicy):
+class DeepDecoderPolicy(AutoregressivePolicy):
     """
     RL4CO-style Policy using Deep Decoder architecture.
     """
@@ -68,7 +68,7 @@ class DeepDecoderPolicy(ConstructivePolicy):
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
         **kwargs,
-    ) -> dict:
+    ) -> Dict[str, Any]:
         """
         Forward pass executing the constructive solution generation.
         """
