@@ -109,13 +109,16 @@ class GlimpseDecoder(nn.Module):
         outputs = []
         sequences = []
 
-        state = self.problem.make_state(nodes, edges, cost_weights, dist_matrix, profit_vars, **kwargs)
+        state = self.problem.make_state(nodes, edges, cost_weights, dist_matrix, profit_vars=profit_vars, **kwargs)
         fixed = self._precompute(embeddings)
+
+        # Allow overriding decode_type via kwargs (e.g. from AttentionModel.forward)
+        decode_type = kwargs.get("decode_type", self.decode_type)
 
         i = 0
         while not state.all_finished():
             log_p, mask = self._get_log_p(fixed, state, mask=mask)
-            selected = self._select_node(log_p.exp(), mask, decode_type=self.decode_type)
+            selected = self._select_node(log_p.exp(), mask, decode_type=decode_type)
 
             state = state.update(selected)
 
@@ -123,7 +126,21 @@ class GlimpseDecoder(nn.Module):
             sequences.append(selected)
             i += 1
 
-        return torch.stack(outputs, 1), torch.stack(sequences, 1)
+        # Stack outputs
+        _log_p = torch.stack(outputs, 1)
+        pi = torch.stack(sequences, 1)
+
+        # Calculate cost
+        cost = None
+        if hasattr(self.problem, "get_costs"):
+            out_cost = self.problem.get_costs(nodes, pi, None)
+            # Handle tuple return (cost, mask, etc.)
+            if isinstance(out_cost, tuple):
+                cost = out_cost[0]
+            else:
+                cost = out_cost
+
+        return _log_p, pi, cost
 
     def _select_node(self, probs: torch.Tensor, mask: Optional[torch.Tensor], decode_type: str = "greedy"):
         """Selection logic."""
@@ -131,11 +148,23 @@ class GlimpseDecoder(nn.Module):
 
         if decode_type == "greedy":
             _, selected = probs.max(1)
-            assert not mask.gather(1, selected.unsqueeze(-1)).any(), "Selected masked node"
+            if mask is not None:
+                # Handle potential 3D mask [B, 1, N] -> [B, N]
+                curr_mask = mask
+                if curr_mask.dim() == 3:
+                    curr_mask = curr_mask.squeeze(1)
+                assert not curr_mask.gather(1, selected.unsqueeze(-1)).any(), "Selected masked node"
         elif decode_type == "sampling":
             selected = torch.multinomial(probs, 1).squeeze(1)
-            while mask.gather(1, selected.unsqueeze(-1)).any():
-                selected = torch.multinomial(probs, 1).squeeze(1)
+
+            # Mask handling for sampling loop check
+            curr_mask = mask
+            if curr_mask is not None and curr_mask.dim() == 3:
+                curr_mask = curr_mask.squeeze(1)
+
+            if curr_mask is not None:
+                while curr_mask.gather(1, selected.unsqueeze(-1)).any():
+                    selected = torch.multinomial(probs, 1).squeeze(1)
         else:
             raise ValueError(f"Unknown decode type: {decode_type}")
 
@@ -180,7 +209,7 @@ class GlimpseDecoder(nn.Module):
             fixed.glimpse_key,
             fixed.glimpse_val,
             fixed.logit_key,
-            mask.unsqueeze(1) if mask is not None else None,
+            mask.unsqueeze(1) if mask is not None and mask.dim() == 2 else mask,
             self.n_heads,
             tanh_clipping=self.tanh_clipping,
             mask_val=mask_val,
@@ -194,6 +223,12 @@ class GlimpseDecoder(nn.Module):
         """Extract step context from state and project."""
         current_node = state.get_current_node()
         batch_size = embeddings.size(0)
+
+        # Ensure current_node is (batch, 1) or (batch)
+        if current_node.dim() > 1:
+            current_node = current_node.reshape(batch_size, -1)
+            # If it became (batch, 1), good. If (batch, N), typically N=1 here.
+            current_node = current_node[:, 0]  # Make it (batch,) for cleaner unsqueezing below
 
         # Simple context: [batch, embed]
         # AM typically uses [embeddings(current_node), embeddings(first_node), capacity_left]

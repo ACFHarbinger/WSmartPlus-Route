@@ -9,7 +9,7 @@ problem instances for the model.
 import torch
 from scipy.spatial.distance import pdist, squareform
 
-from logic.src.utils.functions.graph import (
+from logic.src.utils.graph import (
     adj_to_idx,
     get_adj_knn,
     get_edge_idx_dist,

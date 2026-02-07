@@ -12,7 +12,7 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.models.subnets.embeddings import get_init_embedding
-from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
+from logic.src.models.subnets.encoders.gat.encoder import GraphAttentionEncoder
 
 
 class CriticNetwork(nn.Module):

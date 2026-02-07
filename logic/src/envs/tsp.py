@@ -92,7 +92,7 @@ class TSPEnv(RL4COEnvBase):
         mask = ~td["visited"].clone()
 
         # If all nodes visited (except depot), depot is the only valid action
-        all_visited = td["visited"][..., 1:].all(dim=-1)
+        all_visited = td["visited"][:, 1:].all(dim=-1)
 
         # If not all visited, depot is invalid
         mask[~all_visited, 0] = False
@@ -200,7 +200,7 @@ class TSPkoptEnv(ImprovementEnvBase):
         locs = torch.cat([depot.unsqueeze(1), customers], dim=1)
 
         # Gather coordinates in tour order
-        d = locs.gather(1, solution[..., None].expand(*solution.size(), 2))
+        d = locs.gather(1, solution[:, None].expand(*solution.size(), 2))
 
         # Total distance: sum segments + closed loop
         length = (d[:, 1:] - d[:, :-1]).norm(p=2, dim=-1).sum(1) + (d[:, -1] - d[:, 0]).norm(p=2, dim=-1)

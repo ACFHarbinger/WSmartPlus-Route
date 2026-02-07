@@ -3,30 +3,30 @@
 from unittest.mock import MagicMock
 
 import torch
-from logic.src.models.modules.activation_function import ActivationFunction
-from logic.src.models.modules.distance_graph_convolution import (
+from logic.src.models.subnets.modules.activation_function import ActivationFunction
+from logic.src.models.subnets.modules.distance_graph_convolution import (
     DistanceAwareGraphConvolution,
 )
-from logic.src.models.modules.efficient_graph_convolution import (
+from logic.src.models.subnets.modules.efficient_graph_convolution import (
     EfficientGraphConvolution,
 )
-from logic.src.models.modules.feed_forward import FeedForward
-from logic.src.models.modules.gated_graph_convolution import GatedGraphConvolution
-from logic.src.models.modules.graph_convolution import GraphConvolution
-from logic.src.models.modules.multi_head_attention import MultiHeadAttention
-from logic.src.models.modules.cross_attention import (
+from logic.src.models.subnets.modules.feed_forward import FeedForward
+from logic.src.models.subnets.modules.gated_graph_convolution import GatedGraphConvolution
+from logic.src.models.subnets.modules.graph_convolution import GraphConvolution
+from logic.src.models.subnets.modules.multi_head_attention import MultiHeadAttention
+from logic.src.models.subnets.modules.cross_attention import (
     MultiHeadCrossAttention,
 )
-from logic.src.models.modules.normalization import Normalization
-from logic.src.models.modules.normalized_activation_function import (
+from logic.src.models.subnets.modules.normalization import Normalization
+from logic.src.models.subnets.modules.normalized_activation_function import (
     NormalizedActivationFunction,
 )
-from logic.src.models.modules.positional_embeddings import (
+from logic.src.models.subnets.modules.positional_embeddings import (
     AbsolutePositionalEmbedding,
     CyclicPositionalEmbedding,
     pos_init_embedding,
 )
-from logic.src.models.modules.skip_connection import SkipConnection
+from logic.src.models.subnets.modules.skip_connection import SkipConnection
 
 
 class TestActivationFunction:
@@ -182,12 +182,12 @@ class TestNormalization:
         Normalization(16, norm_name="group", n_groups=None)
         torch.randn(2, 16, 5)  # GroupNorm expects (N, C, L)
         # Normalization class handles view internally?
-        # logic/src/models/modules/normalization.py:
+        # logic.src.models.subnets.modules/normalization.py:
         # if instance/layer/batch...
         # 'group' is in dictionary but NOT in forward if/elif block!
         # Thus it falls to else: return input.
         # This confirms 'group' norm is effectively disabled in
-        # logic/src/models/modules/normalization.py forward method.
+        # logic.src.models.subnets.modules/normalization.py forward method.
         # I should fix Normalized forward method to include group norm?
         # Yes, if I want it to work.
         pass
@@ -216,7 +216,7 @@ class TestNormalizedActivationFunction:
         n_classes = 10
         NormalizedActivationFunction("adaptivelogsoftmax", dim=dim, n_classes=n_classes)
         # Forward of AdaptiveLogSoftmaxWithLoss expects (input, target).
-        # logic/src/models/modules/normalized_activation_function.py forward:
+        # logic.src.models.subnets.modules/normalized_activation_function.py forward:
         # return self.norm_activation(input).
         # Calls forward(input). Missing target.
         # Check source of nn.AdaptiveLogSoftmaxWithLoss.

@@ -2,16 +2,11 @@
 Mathematical and environment-related helper functions sub-package.
 """
 
-from .attention import add_attention_hooks
-from .factory import load_problem
-from .model import (
-    get_inner_model,
-    load_args,
-    load_data,
-    load_model,
-    parse_softmax_temperature,
-    torch_load_cpu,
-)
+# Re-exports from relocated packages for backward compatibility
+from ..hooks.attention import add_attention_hooks
+from ..model.loading import load_args, load_data, load_model, torch_load_cpu
+from ..model.problem_factory import load_problem
+from ..model.processing import get_inner_model, parse_softmax_temperature
 from .parallel import run_all_in_pool
 from .path import get_path_until_string
 from .sampling import sample_many
@@ -26,10 +21,10 @@ __all__ = [
     "load_args",
     "load_model",
     "parse_softmax_temperature",
+    "add_attention_hooks",
     "run_all_in_pool",
     "get_path_until_string",
     "compute_in_batches",
-    "add_attention_hooks",
     "do_batch_rep",
     "sample_many",
 ]

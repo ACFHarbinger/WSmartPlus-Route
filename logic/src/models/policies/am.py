@@ -17,7 +17,7 @@ from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.subnets.embeddings import get_init_embedding
-from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
+from logic.src.models.subnets.encoders.gat.encoder import GraphAttentionEncoder
 from logic.src.utils.data.td_utils import DummyProblem, TensorDictStateWrapper
 
 
@@ -107,8 +107,8 @@ class AttentionModelPolicy(AutoregressivePolicy):
             logits, mask = self.decoder._get_log_p(fixed, state_wrapper)
             # mask returned by _get_log_p is the INVALID mask (True=masked)
 
-            # AttentionDecoder returns (batch, n_heads, n_nodes). We take head 0.
-            logits = logits[:, 0, :]
+            # AttentionDecoder now returns (batch, n_nodes) already averaged over heads
+            # logits = logits[:, 0, :]
 
             # Invert mask for _select_action (expects True=VALID)
             if mask.dim() == 3:

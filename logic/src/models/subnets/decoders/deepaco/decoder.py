@@ -6,7 +6,7 @@ Uses pheromone-guided ant colony optimization to construct solutions.
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Tuple, Union
 
 import torch
 from tensordict import TensorDict
@@ -72,6 +72,7 @@ class ACODecoder(NonAutoregressiveDecoder):
         heatmap: torch.Tensor,
         env: RL4COEnvBase,
         num_starts: int = 1,
+        return_all: bool = False,
         **kwargs,
     ) -> Dict[str, torch.Tensor]:
         """
@@ -101,7 +102,36 @@ class ACODecoder(NonAutoregressiveDecoder):
         prob_matrix = (pheromone**self.alpha) * (heuristic**self.beta)
 
         # Run ants
-        best_tours, best_costs, log_probs = self._run_ants(prob_matrix, dist_matrix, td, env)
+        if return_all:
+            all_tours, all_costs, all_log_probs, best_tours, best_costs, _ = self._run_ants(
+                prob_matrix, dist_matrix, td, env, return_all=True
+            )
+
+            # Optional local search
+            out = {
+                "actions": all_tours,  # (batch, n_ants, n_nodes)
+                "reward": -all_costs,  # (batch, n_ants)
+                "log_likelihood": all_log_probs,  # (batch, n_ants)
+            }
+
+            if self.use_local_search:
+                # Apply LS to all ants
+                # Reshape for _two_opt: (B, A, N) -> (B*A, N)
+                b, a, n = all_tours.shape
+                flat_tours = all_tours.reshape(b * a, n)
+
+                # Expand dist_matrix: (B, N, N) -> (B*A, N, N)
+                flat_dist = dist_matrix.unsqueeze(1).repeat(1, a, 1, 1).reshape(b * a, n, n)
+
+                ls_tours, ls_costs = self._two_opt(flat_tours, flat_dist)
+
+                out["ls_actions"] = ls_tours.reshape(b, a, n)
+                out["ls_reward"] = -ls_costs.reshape(b, a)
+                out["ls_log_likelihood"] = all_log_probs  # Reuse log_likelihood as approx
+
+            return out
+
+        best_tours, best_costs, log_probs = self._run_ants(prob_matrix, dist_matrix, td, env, return_all=False)
 
         # Optional local search
         if self.use_local_search:
@@ -119,7 +149,11 @@ class ACODecoder(NonAutoregressiveDecoder):
         dist_matrix: torch.Tensor,
         td: TensorDict,
         env: RL4COEnvBase,
-    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        return_all: bool = False,
+    ) -> Union[
+        Tuple[torch.Tensor, torch.Tensor, torch.Tensor],
+        Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor],
+    ]:
         """
         Run ant colony to construct solutions.
 
@@ -139,15 +173,31 @@ class ACODecoder(NonAutoregressiveDecoder):
         best_costs = torch.full((batch_size,), float("inf"), device=device)
         total_log_probs = torch.zeros(batch_size, device=device)
 
+        if return_all:
+            all_tours_list = []
+            all_costs_list = []
+            all_log_probs_list = []
+
         for _ in range(self.n_ants):
             # Construct tour for each ant
             tours, costs, log_probs = self._construct_tour(prob_matrix, dist_matrix)
+
+            if return_all:
+                all_tours_list.append(tours)
+                all_costs_list.append(costs)
+                all_log_probs_list.append(log_probs)
 
             # Update best
             improved = costs < best_costs
             best_costs = torch.where(improved, costs, best_costs)
             best_tours = torch.where(improved.unsqueeze(-1), tours, best_tours)
             total_log_probs = total_log_probs + log_probs
+
+        if return_all:
+            all_tours = torch.stack(all_tours_list, dim=1)  # (batch, n_ants, n_nodes)
+            all_costs = torch.stack(all_costs_list, dim=1)  # (batch, n_ants)
+            all_log_probs = torch.stack(all_log_probs_list, dim=1)  # (batch, n_ants)
+            return all_tours, all_costs, all_log_probs, best_tours, best_costs, total_log_probs / self.n_ants
 
         return best_tours, best_costs, total_log_probs / self.n_ants
 

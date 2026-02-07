@@ -25,7 +25,6 @@ def one_to_many_logits(
     """
     batch_size, num_steps, embed_dim = query.size()
     key_size = embed_dim // n_heads
-
     # Compute heads: [batch_size, n_heads, num_steps, key_size]
     q_heads = query.view(batch_size, num_steps, n_heads, key_size).transpose(1, 2)
 

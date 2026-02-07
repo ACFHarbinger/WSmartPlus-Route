@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import torch
 
-from logic.src.utils.functions.function import sample_many
+from logic.src.utils.functions import sample_many
 
 
 class DecodingMixin:

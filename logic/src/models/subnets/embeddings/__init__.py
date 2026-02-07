@@ -18,6 +18,7 @@ from .context_embedder import (
     ContextEmbedder,
     CVRPContext,
     EnvContext,
+    GenericContextEmbedder,
     SWCVRPContext,
     VRPPContext,
     VRPPContextEmbedder,
@@ -106,4 +107,5 @@ __all__ = [
     "EDGE_EMBEDDING_REGISTRY",
     "get_init_embedding",
     "get_edge_embedding",
+    "GenericContextEmbedder",
 ]

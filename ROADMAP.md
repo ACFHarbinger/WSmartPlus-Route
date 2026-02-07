@@ -469,7 +469,7 @@ _Neural network building blocks that rl4co provides for its model zoo._
 
 - [x] Canonical `CriticNetwork` in `logic/src/models/policies/critic.py`
 - [x] `create_critic_from_actor()` factory utility
-- [x] Legacy `LegacyCriticNetwork` with deprecation warning in `logic/src/models/critic_network.py`
+- [x] Legacy `LegacyCriticNetwork` with deprecation warning in `logic.src.models.critic_network_network.py`
 - [x] Old import path re-exports new `CriticNetwork` for backward compatibility
 - [x] `A2C` updated to use `LegacyCriticNetwork` explicitly
 

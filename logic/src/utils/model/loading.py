@@ -7,26 +7,13 @@ from __future__ import annotations
 import json
 import os
 import re
-from typing import Any, Dict, Optional, Tuple, Type, Union, cast
+from typing import Any, Dict, Optional, Tuple, Type, cast
 
 import torch
 import torch.nn as nn
 from omegaconf import OmegaConf
 
-from .factory import load_problem
-
-
-def get_inner_model(model: nn.Module) -> nn.Module:
-    """
-    Returns the underlying model from a DataParallel wrapper if present.
-
-    Args:
-        model: The model (potentially wrapped).
-
-    Returns:
-        The inner model.
-    """
-    return model.module if isinstance(model, torch.nn.DataParallel) else model
+from .problem_factory import load_problem
 
 
 def torch_load_cpu(load_path: str) -> Any:
@@ -327,20 +314,3 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     print("  [*] Loaded model from {}".format(model_filename))
     model.eval()
     return model, args
-
-
-def parse_softmax_temperature(raw_temp: Union[str, float]) -> float:
-    """
-    Parses softmax temperature, supporting loading from a file (schedule) or a float.
-
-    Args:
-        raw_temp: The raw temperature argument.
-
-    Returns:
-        The parsed temperature.
-    """
-    import numpy as np
-
-    if isinstance(raw_temp, str) and os.path.isfile(raw_temp):
-        return np.loadtxt(raw_temp)[-1, 0]
-    return float(raw_temp)
