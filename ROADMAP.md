@@ -446,11 +446,11 @@ Learn K diverse solution strategies with Poppy loss from a single model.
 
 ---
 
-## Phase 10: Non-Autoregressive Models 📋
+## Phase 10: Non-Autoregressive Models ✅
 
 _Port the NAR paradigm (heatmap prediction + construction)._
 
-### 10.1 NAR Policy Base 📋
+### 10.1 NAR Policy Base ✅
 
 **Target**: `logic/src/models/policies/`
 
@@ -463,7 +463,7 @@ _Port the NAR paradigm (heatmap prediction + construction)._
 
 ---
 
-### 10.2 DeepACO (Deep Ant Colony Optimization) 📋
+### 10.2 DeepACO (Deep Ant Colony Optimization) ✅
 
 **Target**: `logic/src/models/deepaco/`
 
@@ -681,7 +681,7 @@ _Neural network building blocks that rl4co provides for its model zoo._
 | Phase 7  | Developer Tooling             | 📋 Pending     |
 | Phase 8  | Core Infrastructure Alignment | 📋 Pending     |
 | Phase 9  | Constructive AR Models        | 📋 Pending     |
-| Phase 10 | Non-Autoregressive Models     | 📋 Pending     |
+| Phase 10 | Non-Autoregressive Models     | ✅ Completed   |
 | Phase 11 | Improvement & Transductive    | 📋 Pending     |
 | Phase 12 | Additional NN Components      | 📋 Pending     |
 
@@ -712,6 +712,9 @@ Phases 3-7 (docs, types, architecture, deps, tooling) can proceed in parallel wi
 
 ### 2026-02-07
 
+- ✅ Fully completed Phase 10: Non-Autoregressive Models (DeepACO, GFACS, NARGNN)
+- ✅ Standardized NonAutoregressiveDecoder interface and policy attributes
+- ✅ Verified all NAR unit tests (13/13 passing)
 - ✅ Comprehensive rl4co v0.6.0 gap analysis completed
 - ✅ Roadmap extended with Phases 8-14 for rl4co parity
 - ✅ Fully completed Phase 8: Core Infrastructure Alignment (all 6 sub-phases)

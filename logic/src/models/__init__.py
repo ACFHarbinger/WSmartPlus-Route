@@ -26,14 +26,21 @@ from logic.src.pipeline.rl.common.baselines import (
 
 from .attention_model import AttentionModel as AttentionModel
 from .critic_network import CriticNetwork as CriticNetwork
+from .deepaco import DeepACO as DeepACO
 from .gat_lstm_manager import GATLSTManager as GATLSTManager
+from .gfacs import GFACS as GFACS
+from .glop import GLOP as GLOP
 from .hypernet import (
     Hypernetwork as Hypernetwork,
 )
 from .hypernet import (
     HypernetworkOptimizer as HypernetworkOptimizer,
 )
+from .matnet import MatNet as MatNet
+from .mdam import MDAM as MDAM
 from .meta_rnn import WeightAdjustmentRNN as WeightAdjustmentRNN
+from .nargnn import NARGNN as NARGNN
+from .polynet import PolyNet as PolyNet
 from .subnets import (
     GatedGraphAttConvEncoder as GatedGraphAttConvEncoder,
 )
@@ -60,6 +67,13 @@ __all__ = [
     "WeightAdjustmentRNN",
     "Hypernetwork",
     "HypernetworkOptimizer",
+    "MatNet",
+    "MDAM",
+    "PolyNet",
+    "GLOP",
+    "DeepACO",
+    "GFACS",
+    "NARGNN",
     # Encoders
     "GraphAttentionEncoder",
     "GraphAttConvEncoder",
