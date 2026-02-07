@@ -14,6 +14,7 @@ from logic.src.envs.generators import (
     get_generator,
 )
 from logic.src.envs.swcvrp import SCWCVRPEnv
+from logic.src.envs.tsp import TSPEnv, TSPkoptEnv
 from logic.src.envs.vrpp import CVRPPEnv, VRPPEnv
 from logic.src.envs.wcvrp import CWCVRPEnv, SDWCVRPEnv, WCVRPEnv
 
@@ -25,6 +26,8 @@ ENV_REGISTRY = {
     "cwcvrp": CWCVRPEnv,
     "sdwcvrp": SDWCVRPEnv,
     "scwcvrp": SCWCVRPEnv,
+    "tsp": TSPEnv,
+    "tsp_kopt": TSPkoptEnv,
 }
 
 
@@ -65,6 +68,8 @@ __all__ = [
     "CWCVRPEnv",
     "SDWCVRPEnv",
     "SCWCVRPEnv",
+    "TSPEnv",
+    "TSPkoptEnv",
     # Registry
     "ENV_REGISTRY",
     "get_env",

@@ -1,7 +1,8 @@
 """
-Neural Optimizer (NeuOpt) Policy.
+Neural Neighborhood Search (N2S) Policy.
 
-Guided iterative improvement for combinatorial optimization.
+A lightweight improvement model that uses neighborhood-constrained attention
+to predict local search moves.
 """
 
 from __future__ import annotations
@@ -23,71 +24,90 @@ if TYPE_CHECKING:
     from logic.src.envs.base import RL4COEnvBase
     from logic.src.models.modules import MultiHeadAttention, Normalization
 else:
+    from logic.src.envs.base import RL4COEnvBase
     from logic.src.models.modules import MultiHeadAttention, Normalization
 
 
-class NeuOptEncoder(ImprovementEncoder):
+class N2SEncoder(ImprovementEncoder):
     """
-    NeuOpt Encoder: Transformer-based state encoding.
+    N2S Encoder: A lightweight transformer with neighborhood masking.
+
+    Attends only to K-nearest neighbors to improve efficiency and focus
+    on local search moves.
     """
 
     def __init__(
         self,
         embed_dim: int = 128,
         num_heads: int = 8,
-        num_layers: int = 3,
+        k_neighbors: int = 20,
         **kwargs,
     ):
         super().__init__(embed_dim=embed_dim)
-        self.num_layers = num_layers
+        self.k_neighbors = k_neighbors
+        self.num_heads = num_heads
 
-        # Initial projection for coordinates
-        self.init_proj = nn.Linear(2, embed_dim)
-
-        # Transformer layers
-        self.layers = nn.ModuleList(
-            [
-                nn.ModuleDict(
-                    {
-                        "mha": MultiHeadAttention(num_heads, embed_dim, embed_dim),
-                        "norm1": Normalization(embed_dim, "layer"),
-                        "ff": nn.Sequential(
-                            nn.Linear(embed_dim, embed_dim * 4),
-                            nn.ReLU(),
-                            nn.Linear(embed_dim * 4, embed_dim),
-                        ),
-                        "norm2": Normalization(embed_dim, "layer"),
-                    }
-                )
-                for _ in range(num_layers)
-            ]
+        self.mha = MultiHeadAttention(num_heads, embed_dim, embed_dim)
+        self.norm = Normalization(embed_dim, "layer")
+        self.ff = nn.Sequential(
+            nn.Linear(embed_dim, embed_dim * 2),
+            nn.ReLU(),
+            nn.Linear(embed_dim * 2, embed_dim),
         )
+
+    def _get_neighborhood_mask(self, td: TensorDict) -> torch.Tensor:
+        """
+        Compute mask for K-nearest neighbors based on spatial distance.
+        """
+        # locs: [bs, n, 2]
+        depot = td["depot"].unsqueeze(1)
+        customers = td["locs"]
+        locs = torch.cat([depot, customers], dim=1)
+
+        # dist: [bs, n, n]
+        dist = torch.cdist(locs, locs)
+
+        # Get indices of K-nearest neighbors
+        # (self is always included in nearest)
+        _, topk_indices = dist.topk(self.k_neighbors + 1, largest=False, sorted=False)
+
+        # Create mask: True for excluded neighbors
+        bs, n, _ = dist.shape
+        mask = torch.ones(bs, n, n, device=dist.device, dtype=torch.bool)
+        mask.scatter_(2, topk_indices, False)
+
+        return mask
 
     def forward(self, td: TensorDict, **kwargs) -> torch.Tensor:
         """
-        Encode graph state.
+        Encode nodes with neighborhood-constrained attention.
         """
+        # Initial embedding (coords)
         depot = td["depot"].unsqueeze(1)
         customers = td["locs"]
         h = torch.cat([depot, customers], dim=1)  # [bs, n, 2]
 
+        # Linear projection if needed (h is [bs, n, 2], we want embed_dim)
+        # Assuming we have an init_embedding or simple linear
+        if not hasattr(self, "init_proj"):
+            self.init_proj = nn.Linear(2, self.embed_dim).to(h.device)
+
         h = self.init_proj(h)
 
-        for layer in self.layers:
-            # Multi-head attention
-            attn_out = layer["mha"](h)
-            h = layer["norm1"](h + attn_out)
+        # Neighborhood mask
+        mask = self._get_neighborhood_mask(td)
 
-            # Feed-forward
-            ff_out = layer["ff"](h)
-            h = layer["norm2"](h + ff_out)
+        # Transformer layer
+        attn_out = self.mha(h, mask=mask)
+        h = self.norm(h + attn_out)
+        h = h + self.ff(h)
 
         return h
 
 
-class NeuOptDecoder(ImprovementDecoder):
+class N2SDecoder(ImprovementDecoder):
     """
-    NeuOpt Decoder: Guided move selection.
+    N2S Decoder: Predicts moves within node neighborhoods.
     """
 
     def __init__(self, embed_dim: int = 128, **kwargs):
@@ -118,7 +138,7 @@ class NeuOptDecoder(ImprovementDecoder):
         # scores: [bs, n, n]
         scores = torch.matmul(q, k.transpose(1, 2)) * self.scale
 
-        # Mask invalid moves (diagonal)
+        # Mask invalid moves
         mask = torch.eye(n, device=h.device).bool().unsqueeze(0).expand(bs, -1, -1)
         scores.masked_fill_(mask, float("-inf"))
 
@@ -141,18 +161,18 @@ class NeuOptDecoder(ImprovementDecoder):
         return log_p, actions
 
 
-class NeuOptPolicy(ImprovementPolicy):
+class N2SPolicy(ImprovementPolicy):
     """
-    NeuOpt Policy: Iterative guided search.
+    N2S Policy: Iterative neighborhood search.
     """
 
     def __init__(
         self,
         embed_dim: int = 128,
         num_heads: int = 8,
-        num_layers: int = 3,
+        k_neighbors: int = 20,
         **kwargs,
     ):
         super().__init__(env_name="tsp_kopt", embed_dim=embed_dim)
-        self.encoder = NeuOptEncoder(embed_dim, num_heads, num_layers)
-        self.decoder = NeuOptDecoder(embed_dim)
+        self.encoder = N2SEncoder(embed_dim, num_heads, k_neighbors)
+        self.decoder = N2SDecoder(embed_dim)
