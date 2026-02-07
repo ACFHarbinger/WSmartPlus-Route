@@ -42,7 +42,7 @@ class ManagerSelector(VectorizedSelector):
             self.manager = manager
         else:
             # Lazy import to avoid circular dependencies
-            from logic.src.models.gat_lstm_manager import GATLSTManager
+            from logic.src.models.hrl_manager import GATLSTManager
 
             config = manager_config or {}
             self.manager = GATLSTManager(

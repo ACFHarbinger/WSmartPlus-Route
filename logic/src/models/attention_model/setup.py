@@ -8,12 +8,12 @@ from typing import Any, List, Optional
 
 import torch.nn as nn
 
-from logic.src.models.embeddings import (
+from logic.src.models.model_factory import NeuralComponentFactory
+from logic.src.models.subnets.embeddings import (
     ContextEmbedder,
     VRPPContextEmbedder,
     WCContextEmbedder,
 )
-from logic.src.models.model_factory import NeuralComponentFactory
 from logic.src.utils.functions.problem import is_vrpp_problem, is_wc_problem
 
 

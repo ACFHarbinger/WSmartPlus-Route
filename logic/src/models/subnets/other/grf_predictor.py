@@ -42,7 +42,7 @@ class GatedRecurrentFillPredictor(nn.Module):
             bidirectional: Whether GRU is bidirectional.
         """
         super(GatedRecurrentFillPredictor, self).__init__()
-        from logic.src.models.modules import ActivationFunction
+        from logic.src.models.subnets.modules import ActivationFunction
 
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers

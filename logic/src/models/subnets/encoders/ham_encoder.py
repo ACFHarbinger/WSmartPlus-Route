@@ -7,7 +7,7 @@ from typing import Tuple
 import torch
 import torch.nn as nn
 
-from logic.src.models.modules.ham_attention import HeterogeneousAttentionLayer
+from logic.src.models.subnets.modules.ham_attention import HeterogeneousAttentionLayer
 
 
 class HAMEncoder(nn.Module):

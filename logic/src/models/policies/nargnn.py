@@ -117,7 +117,7 @@ class NARGNNPolicy(NonAutoregressivePolicy):
             )
 
         if decoder is None:
-            from logic.src.models.subnets.decoders.nar_decoder import SimpleNARDecoder
+            from logic.src.models.subnets.decoders.nar import SimpleNARDecoder
 
             decoder = SimpleNARDecoder()
 

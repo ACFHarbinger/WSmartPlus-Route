@@ -158,7 +158,7 @@ class TestGATLSTManager:
 
     def test_shared_encoder(self, am_setup):
         """Verifies shared encoder initialization."""
-        from logic.src.models.gat_lstm_manager import GATLSTManager
+        from logic.src.models.hrl_manager import GATLSTManager
 
         worker_model = am_setup
         B, N = 1, 5

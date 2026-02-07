@@ -2,6 +2,6 @@
 MDAM Decoder facade.
 """
 
-from .base import PrecomputedCache as PrecomputedCache
-from .base import _decode_probs as _decode_probs
-from .model import MDAMDecoder as MDAMDecoder
+from .cache import PrecomputedCache as PrecomputedCache
+from .cache import _decode_probs as _decode_probs
+from .decoder import MDAMDecoder as MDAMDecoder

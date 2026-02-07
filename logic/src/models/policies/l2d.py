@@ -10,7 +10,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.models.policies.common.constructive import ConstructivePolicy
-from logic.src.models.subnets.decoders.l2d_decoder import L2DDecoder
+from logic.src.models.subnets.decoders.l2d import L2DDecoder
 from logic.src.models.subnets.encoders.l2d_encoder import L2DEncoder
 
 

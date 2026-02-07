@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 
 import torch
 
-from logic.src.models.hypernet import HypernetworkOptimizer
+from logic.src.models.hypernet.model import HyperNetworkOptimizer
 from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 
 
@@ -37,7 +37,7 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
         self.device = device
 
         # Initialize the underlying optimizer logic
-        self.optimizer = HypernetworkOptimizer(
+        self.optimizer = HyperNetworkOptimizer(
             cost_weight_keys=self.cost_weight_keys,
             constraint_value=constraint_value,
             device=device,

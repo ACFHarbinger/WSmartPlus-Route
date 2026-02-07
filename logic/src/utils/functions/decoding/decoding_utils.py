@@ -188,3 +188,97 @@ def modify_logits_for_top_p_filtering(logits: torch.Tensor, top_p: float) -> tor
         Filtered logits with others set to -inf
     """
     return top_p_filter(logits, top_p)
+
+
+def segment_topk_idx(x: torch.Tensor, k: int, ids: torch.Tensor) -> torch.Tensor:
+    """
+    Finds the topk per segment of data x given segment ids.
+
+    Args:
+        x: Data tensor to sort [N].
+        k: Number of top elements to select per segment.
+        ids: Segment identifiers [N] (must be sorted).
+
+    Returns:
+        Indices of the topk elements.
+    """
+    assert x.dim() == 1
+    assert ids.dim() == 1
+
+    from logic.src.utils.functions.lexsort import torch_lexsort
+
+    # Since we may have varying beam size per batch entry we cannot reshape to (batch_size, beam_size)
+    # And use default topk along dim -1, so we have to be creative
+    splits_ = torch.nonzero(ids[1:] - ids[:-1])
+
+    if len(splits_) == 0:  # Only one group
+        _, idx_topk = x.topk(min(k, x.size(0)))
+        return idx_topk
+
+    splits = torch.cat((ids.new_tensor([0]), splits_[:, 0] + 1))
+    # Make a new array in which we store for each id the offset (start) of the group
+    group_offsets = splits.new_zeros((int(splits.max()) + 1,))
+    group_offsets[ids[splits]] = splits
+    offsets = group_offsets[ids]
+
+    # We want topk so need to sort x descending so sort -x
+    idx_sorted = torch_lexsort((-(x if x.dtype != torch.uint8 else x.int()).detach(), ids))
+
+    # Filter first k per group
+    return idx_sorted[torch.arange(ids.size(0), out=ids.new()) < offsets + k]
+
+
+def backtrack(parents: list[torch.Tensor], actions: list[torch.Tensor]) -> torch.Tensor:
+    """
+    Reconstructs action sequences by backtracking through parents.
+
+    Args:
+        parents: List of parent indices for each step.
+        actions: List of actions taken at each step.
+
+    Returns:
+        Reconstructed sequences [batch_size, seq_len].
+    """
+    if not parents:
+        return torch.empty((0, 0))
+
+    # Now backtrack to find aligned action sequences in reversed order
+    cur_parent = parents[-1]
+    reversed_aligned_sequences = [actions[-1]]
+    for parent, sequence in reversed(list(zip(parents[:-1], actions[:-1]))):
+        reversed_aligned_sequences.append(sequence.gather(-1, cur_parent))
+        cur_parent = parent.gather(-1, cur_parent)
+
+    return torch.stack(list(reversed(reversed_aligned_sequences)), -1)
+
+
+class CachedLookup:
+    """
+    Helper class for cached data access in beam search.
+    """
+
+    def __init__(self, data=None, **kwargs):
+        """Initializes the lookup cache."""
+        self.orig = kwargs
+        self.data = data
+        self.key = None
+        self.current = None
+
+    def __getitem__(self, key):
+        """Retrieves data with caching."""
+        if torch.is_tensor(key):
+            if self.key is None or key.shape != self.key.shape or not torch.equal(key, self.key):
+                self.key = key
+                self.current = {k: v[key] for k, v in self.orig.items()}
+                if self.data is not None:
+                    self.current["_data"] = self.data[key]
+
+            if self.data is not None and not self.orig:
+                return self.current["_data"]
+            return self.current
+
+        if key in self.orig:
+            return self.orig[key]
+        if self.data is not None:
+            return self.data[key]
+        raise KeyError(key)

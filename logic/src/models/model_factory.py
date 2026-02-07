@@ -9,12 +9,12 @@ from typing import Any
 
 import torch.nn as nn
 
-from logic.src.models.subnets.decoders.deepaco_decoder import ACODecoder
-from logic.src.models.subnets.decoders.gat_decoder import DeepGATDecoder
+from logic.src.models.subnets.decoders.deepaco import ACODecoder
+from logic.src.models.subnets.decoders.gat import DeepGATDecoder
 from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.subnets.decoders.mdam import MDAMDecoder
-from logic.src.models.subnets.decoders.polynet_decoder import PolyNetDecoder
-from logic.src.models.subnets.decoders.ptr_decoder import PointerDecoder
+from logic.src.models.subnets.decoders.polynet import PolyNetDecoder
+from logic.src.models.subnets.decoders.ptr import PointerDecoder
 from logic.src.models.subnets.encoders.gac_encoder import GraphAttConvEncoder
 from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
 from logic.src.models.subnets.encoders.gcn_encoder import GraphConvolutionEncoder
