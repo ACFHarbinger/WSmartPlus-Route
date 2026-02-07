@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from logic.src.models.subnets.decoders.decoder import GlimpseDecoder
+from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.subnets.encoders.gac_encoder import GraphAttConvEncoder
 from logic.src.models.subnets.decoders.gat_decoder import GraphAttentionDecoder
 from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder

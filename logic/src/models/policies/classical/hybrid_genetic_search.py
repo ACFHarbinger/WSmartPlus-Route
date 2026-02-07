@@ -19,7 +19,7 @@ from logic.src.models.policies.classical.local_search import (
     vectorized_two_opt,
     vectorized_two_opt_star,
 )
-from logic.src.models.policies.classical.shared.split import vectorized_linear_split
+from logic.src.models.policies.classical.shared import vectorized_linear_split
 
 
 class VectorizedHGS:

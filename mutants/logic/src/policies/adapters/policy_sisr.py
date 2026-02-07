@@ -1,9 +1,9 @@
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
+from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.slack_induction_by_string_removal import SISRParams, SISRSolver
 
-from ..base_routing_policy import BaseRoutingPolicy
-from ..slack_induction_by_string_removal import SISRParams, SISRSolver
 from .factory import PolicyRegistry
 
 

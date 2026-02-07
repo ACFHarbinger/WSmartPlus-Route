@@ -1,0 +1,122 @@
+"""
+Neural critic-based baselines.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Optional
+
+import torch
+import torch.nn as nn
+from tensordict import TensorDict
+
+from .base import Baseline
+
+
+class CriticBaseline(Baseline):
+    """Learned critic baseline."""
+
+    def __init__(self, critic: Optional[nn.Module] = None, **kwargs):
+        """
+        Initialize CriticBaseline.
+
+        Args:
+            critic: Critic neural network module.
+        """
+        super().__init__()
+        self.critic = critic
+
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
+        """
+        Compute baseline value using learned critic.
+
+        Args:
+            td: TensorDict with environment state.
+            reward: Current batch rewards (used for shape if critic is None).
+            env: Environment (unused).
+
+        Returns:
+            torch.Tensor: Critic value predictions.
+        """
+        if self.critic is None:
+            return torch.zeros_like(reward)
+
+        from logic.src.utils.functions.rl import ensure_tensordict
+
+        td = ensure_tensordict(td, next(iter(self.critic.parameters())).device)
+        return self.critic(td).squeeze(-1)
+
+    def get_learnable_parameters(self) -> list:
+        """Get learnable parameters for the critic network."""
+        return list(self.critic.parameters()) if self.critic is not None else []
+
+    def state_dict(self, *args, **kwargs):
+        """Compatibility state_dict."""
+        sd = super().state_dict(*args, **kwargs)
+        if self.critic is not None:
+            sd["critic"] = self.critic.state_dict()
+        return sd
+
+
+class SharedBaseline(Baseline):
+    """
+    Shared baseline using a critic that shares the encoder with the actor.
+
+    Creates a critic network from the actor's encoder via weight sharing
+    (deepcopy). This enables the critic to leverage the same learned
+    representations while having its own value head.
+    """
+
+    def __init__(
+        self,
+        critic: Optional[nn.Module] = None,
+        **kwargs,
+    ):
+        """
+        Initialize SharedBaseline.
+
+        Args:
+            critic: Pre-built critic module. If None, must call setup() with a policy
+                    that has a ``create_critic_from_actor`` compatible encoder.
+            **kwargs: Additional arguments.
+        """
+        super().__init__()
+        self.critic = critic
+
+    def setup(self, policy: nn.Module):
+        """
+        Build the critic from the actor's encoder.
+
+        Args:
+            policy: Actor policy with an encoder attribute.
+        """
+        if self.critic is not None:
+            return  # Already built
+
+        from logic.src.models.policies.critic import create_critic_from_actor
+
+        self.critic = create_critic_from_actor(policy)
+
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
+        """
+        Compute baseline value using shared critic.
+
+        Args:
+            td: TensorDict with environment state.
+            reward: Current batch rewards (fallback shape).
+            env: Environment (unused).
+
+        Returns:
+            torch.Tensor: Critic value predictions.
+        """
+        if self.critic is None:
+            return torch.zeros_like(reward)
+
+        from logic.src.utils.functions.rl import ensure_tensordict
+
+        td = ensure_tensordict(td, next(iter(self.critic.parameters())).device)
+        return self.critic(td).squeeze(-1)
+
+    def get_learnable_parameters(self) -> list:
+        """Get learnable parameters for the shared critic."""
+        return list(self.critic.parameters()) if self.critic is not None else []

@@ -11,7 +11,7 @@ import gurobipy as gp
 from dotenv import dotenv_values
 
 import logic.src.constants as udef
-from logic.src.utils.security.crypto_utils import decrypt_file_data, load_key
+from logic.src.utils.security import decrypt_file_data, load_key
 
 
 def setup_cost_weights(opts: Dict[str, Any], def_val: float = 1.0) -> Dict[str, float]:

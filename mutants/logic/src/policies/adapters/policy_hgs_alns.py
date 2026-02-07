@@ -7,10 +7,10 @@ Adapts the Hybrid HGS-ALNS solver to the common simulator policy interface.
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
+from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.hgs_alns_solver import HGSALNSSolver
+from logic.src.policies.hgs_aux.types import HGSParams
 
-from ..base_routing_policy import BaseRoutingPolicy
-from ..hgs_alns_solver import HGSALNSSolver
-from ..hgs_aux.types import HGSParams
 from .factory import PolicyRegistry
 
 
