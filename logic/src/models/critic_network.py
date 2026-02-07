@@ -12,7 +12,7 @@ import warnings
 
 import torch.nn as nn
 
-from .context_embedder import VRPPContextEmbedder, WCContextEmbedder
+from .embeddings.context_embedder import VRPPContextEmbedder, WCContextEmbedder
 from .modules import ActivationFunction
 
 # Re-export the canonical CriticNetwork and factory
