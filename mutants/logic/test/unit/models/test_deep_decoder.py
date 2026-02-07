@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from logic.src.models.subnets.gat_decoder import DeepAttentionModelFixed, DeepGATDecoder
+from logic.src.models.subnets.decoders.gat_decoder import DeepAttentionModelFixed, DeepGATDecoder
 
 
 def test_deep_decoder_init():

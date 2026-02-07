@@ -8,8 +8,8 @@ from typing import Any, Dict, Optional
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.common.nonautoregressive import NonAutoregressivePolicy
-from logic.src.models.subnets.deepaco_decoder import ACODecoder
-from logic.src.models.subnets.deepaco_encoder import DeepACOEncoder
+from logic.src.models.subnets.decoders.deepaco_decoder import ACODecoder
+from logic.src.models.subnets.encoders.deepaco_encoder import DeepACOEncoder
 from tensordict import TensorDict
 
 

@@ -2,7 +2,7 @@
 
 import pytest
 import torch
-from logic.src.models.subnets.ggac_encoder import GatedGraphAttConvEncoder, AttentionGatedConvolutionLayer
+from logic.src.models.subnets.encoders.ggac_encoder import GatedGraphAttConvEncoder, AttentionGatedConvolutionLayer
 
 
 class TestGatedGraphAttConvEncoder:

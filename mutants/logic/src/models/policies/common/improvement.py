@@ -109,7 +109,9 @@ class ImprovementPolicy(nn.Module, ABC):
     def forward(
         self,
         td: TensorDict,
-        env: Optional[Union[str, RL4COEnvBase]] = None,
+        env: RL4COEnvBase,
+        decode_type: str = "greedy",
+        num_starts: int = 1,
         phase: str = "train",
         return_actions: bool = True,
         **kwargs,
@@ -120,6 +122,8 @@ class ImprovementPolicy(nn.Module, ABC):
         Args:
             td: TensorDict containing the environment state and current solution.
             env: Environment to use for decoding.
+            decode_type: Decoding strategy (greedy, sampling, etc.).
+            num_starts: Number of solution starts.
             phase: Phase of the algorithm (train, val, test).
             return_actions: Whether to return the actions.
 

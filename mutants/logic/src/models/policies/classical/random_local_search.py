@@ -18,11 +18,11 @@ from logic.src.models.policies.classical.local_search import (
     vectorized_two_opt_star,
 )
 from logic.src.models.policies.classical.split import vectorized_linear_split
-from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
+from logic.src.models.policies.common.improvement import ImprovementPolicy
 from tensordict import TensorDict
 
 
-class RandomLocalSearchPolicy(AutoregressivePolicy):
+class RandomLocalSearchPolicy(ImprovementPolicy):
     """
     Random Local Search expert policy.
 
@@ -84,6 +84,8 @@ class RandomLocalSearchPolicy(AutoregressivePolicy):
         env: RL4COEnvBase,
         decode_type: str = "greedy",  # Ignored
         num_starts: int = 1,
+        phase: str = "train",
+        return_actions: bool = True,
         **kwargs,
     ) -> Dict[str, Any]:
         """

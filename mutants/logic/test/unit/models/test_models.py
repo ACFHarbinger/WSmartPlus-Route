@@ -11,7 +11,7 @@ from logic.src.models.attention_model import AttentionModel
 from logic.src.models.modules.moe import MoE
 from logic.src.models.modules.moe_feed_forward import MoEFeedForward
 from logic.src.models.moe_model import MoEAttentionModel, MoETemporalAttentionModel
-from logic.src.models.subnets.moe_encoder import MoEGraphAttentionEncoder
+from logic.src.models.subnets.encoders.moe_encoder import MoEGraphAttentionEncoder
 from logic.src.pipeline.rl.common.baselines import (
     CriticBaseline as CriticBaseline,
 )

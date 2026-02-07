@@ -7,8 +7,8 @@ from logic.src.models.embeddings.matnet import MatNetInitEmbedding
 from logic.src.models.policies.common.autoregressive import (
     AutoregressivePolicy,
 )
-from logic.src.models.subnets.matnet_decoder import MatNetDecoder
-from logic.src.models.subnets.matnet_encoder import MatNetEncoder
+from logic.src.models.subnets.decoders.matnet_decoder import MatNetDecoder
+from logic.src.models.subnets.encoders.matnet_encoder import MatNetEncoder
 from tensordict import TensorDict
 
 
@@ -53,7 +53,7 @@ class MatNetPolicy(AutoregressivePolicy):
         )
 
     def set_decode_type(self, decode_type: str, temp: Optional[float] = None):
-        if hasattr(self.decoder, "set_decode_type"):
+        if self.decoder is not None and hasattr(self.decoder, "set_decode_type"):
             self.decoder.set_decode_type(decode_type, temp)
 
     def forward(

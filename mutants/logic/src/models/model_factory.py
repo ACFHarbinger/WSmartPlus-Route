@@ -8,15 +8,16 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import torch.nn as nn
-from logic.src.models.subnets.gac_encoder import GraphAttConvEncoder
-from logic.src.models.subnets.gat_decoder import DeepGATDecoder
-from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
-from logic.src.models.subnets.gcn_encoder import GraphConvolutionEncoder
-from logic.src.models.subnets.ggac_encoder import GatedGraphAttConvEncoder
-from logic.src.models.subnets.glimpse_decoder import GlimpseDecoder
-from logic.src.models.subnets.mlp_encoder import MLPEncoder
-from logic.src.models.subnets.ptr_decoder import PointerDecoder
-from logic.src.models.subnets.tgc_encoder import TransGraphConvEncoder
+from logic.src.models.subnets.decoders.gat_decoder import DeepGATDecoder
+from logic.src.models.subnets.decoders.glimpse_decoder import GlimpseDecoder
+from logic.src.models.subnets.decoders.ptr_decoder import PointerDecoder
+from logic.src.models.subnets.encoders.gac_encoder import GraphAttConvEncoder
+from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
+from logic.src.models.subnets.encoders.gcn_encoder import GraphConvolutionEncoder
+from logic.src.models.subnets.encoders.ggac_encoder import GatedGraphAttConvEncoder
+from logic.src.models.subnets.encoders.mlp_encoder import MLPEncoder
+from logic.src.models.subnets.encoders.moe_encoder import MoEGraphAttentionEncoder
+from logic.src.models.subnets.encoders.tgc_encoder import TransGraphConvEncoder
 
 
 def _create_decoder_by_type(decoder_type: str, **kwargs: Any) -> nn.Module:
@@ -150,7 +151,6 @@ class MoEComponentFactory(NeuralComponentFactory):
 
     def create_encoder(self, **kwargs: Any) -> nn.Module:
         """Create MoE Graph Attention Encoder."""
-        from logic.src.models.subnets.moe_encoder import MoEGraphAttentionEncoder
 
         # Inject MoE params
         kwargs["num_experts"] = self.num_experts
