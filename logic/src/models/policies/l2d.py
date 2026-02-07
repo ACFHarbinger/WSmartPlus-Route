@@ -1,3 +1,9 @@
+"""
+L2D (Learning to Dispatch) Policy for Job Shop Scheduling.
+
+Based on "Learning to Dispatch for Job Shop Scheduling via Deep Reinforcement Learning" (Zhang et al. 2020).
+"""
+
 from typing import Any, Optional
 
 import torch
@@ -29,6 +35,21 @@ class L2DPolicy(ConstructivePolicy):
         test_decode_type: str = "greedy",
         **kwargs,
     ):
+        """
+        Initialize L2DPolicy.
+
+        Args:
+            embed_dim: Embedding dimension.
+            num_encoder_layers: Number of GNN layers in encoder.
+            feedforward_hidden: Hidden dimension in GNN feedforward.
+            env_name: Environment name (default: "jssp").
+            temp: Temperature for sampling.
+            tanh_clipping: Tanh clipping value.
+            train_decode_type: Decode type during training.
+            val_decode_type: Decode type during validation.
+            test_decode_type: Decode type during testing.
+            **kwargs: Additional arguments for ConstructivePolicy.
+        """
         super().__init__(
             env_name=env_name,
             train_decode_type=train_decode_type,
@@ -47,6 +68,66 @@ class L2DPolicy(ConstructivePolicy):
         self.temp = temp
         self.tanh_clipping = tanh_clipping
 
+    def decoder(
+        self,
+        td: TensorDict,
+        embeddings: tuple[torch.Tensor, torch.Tensor],
+        env: Optional[Any] = None,
+        decode_type: str = "sampling",
+        return_pi: bool = False,
+        **kwargs,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Single step decoding.
+
+        Args:
+            td: TensorDict containing current state
+            embeddings: Tuple of (job_embeddings, full_embeddings) from encoder
+            env: Environment (not used in simple projection decoder but good for interface)
+            decode_type: "sampling" or "greedy"
+            return_pi: If True, returns log_p of all actions (for PPO)
+
+        Returns:
+            (log_p, action) if return_pi is False
+            (log_probs, action) if return_pi is True
+        """
+        job_embeddings, full_embeddings = embeddings
+
+        # Global context (mean of all ops) -> (B, D)
+        global_context = full_embeddings.mean(dim=1)
+
+        # Expand context -> (B, J, D)
+        ctx_expanded = global_context.unsqueeze(1).expand(-1, job_embeddings.size(1), -1)
+
+        # Combined -> (B, J, 2D)
+        combined = torch.cat([job_embeddings, ctx_expanded], dim=-1)
+
+        # Logits -> (B, J)
+        logits = self.proj_decoder(combined).squeeze(-1)
+
+        # Masking
+        mask = td["action_mask"]
+        logits.masked_fill_(~mask, float("-inf"))
+
+        # Clipping
+        logits = self.tanh_clipping * torch.tanh(logits)
+
+        # Probabilities
+        log_p = torch.log_softmax(logits / self.temp, dim=-1)
+        probs = log_p.exp()
+
+        # Select action
+        if decode_type == "greedy":
+            action = probs.argmax(dim=-1)
+        else:
+            action = torch.multinomial(probs, 1).squeeze(-1)
+
+        if return_pi:
+            return log_p, action
+        else:
+            selected_log_prob = log_p.gather(1, action.unsqueeze(-1)).squeeze(-1)
+            return selected_log_prob, action
+
     def forward(
         self,
         td: TensorDict,
@@ -56,7 +137,7 @@ class L2DPolicy(ConstructivePolicy):
         **kwargs,
     ) -> dict:
         """
-        Forward pass.
+        Forward pass (Autoregressive Rollout).
         """
         if env is None:
             raise ValueError("L2DPolicy requires 'env' to play out the episode.")
@@ -73,45 +154,10 @@ class L2DPolicy(ConstructivePolicy):
 
         while not td["done"].all():
             # Encode
-            # job_embeddings: (B, J, D)
-            # full_embeddings: (B, J*M, D) - useful for global context
-            job_embeddings, full_embeddings = self.encoder(td)
+            embeddings = self.encoder(td)
 
-            # Global context (mean of all ops or just next ops)
-            # Use mean of all ops
-            global_context = full_embeddings.mean(dim=1)  # (B, D)
-
-            # Expand context
-            # (B, 1, D) -> (B, J, D)
-            ctx_expanded = global_context.unsqueeze(1).expand(-1, job_embeddings.size(1), -1)
-
-            # Concatenate
-            combined = torch.cat([job_embeddings, ctx_expanded], dim=-1)  # (B, J, 2D)
-
-            # Compute logits
-            logits = self.proj_decoder(combined).squeeze(-1)  # (B, J)
-
-            # Masking
-            mask = td["action_mask"]  # (B, J)
-            logits.masked_fill_(~mask, float("-inf"))
-
-            # Clipping
-            logits = self.tanh_clipping * torch.tanh(logits)
-
-            # Probabilities
-            log_p = torch.log_softmax(logits / self.temp, dim=-1)
-            probs = log_p.exp()
-
-            # Select action
-            if decode_type == "greedy":
-                action = probs.argmax(dim=-1)
-            elif decode_type == "sampling":
-                action = torch.multinomial(probs, 1).squeeze(-1)
-            else:
-                action = probs.argmax(dim=-1)
-
-            # Log prob of selected
-            selected_log_prob = log_p.gather(1, action.unsqueeze(-1)).squeeze(-1)
+            # Decode
+            log_prob, action = self.decoder(td, embeddings, env, decode_type=decode_type)
 
             # Step
             td["action"] = action
@@ -119,7 +165,7 @@ class L2DPolicy(ConstructivePolicy):
 
             # Store
             actions.append(action)
-            log_probs.append(selected_log_prob)
+            log_probs.append(log_prob)
 
         # Stack
         out = {
@@ -131,3 +177,12 @@ class L2DPolicy(ConstructivePolicy):
         }
 
         return out
+
+
+class L2DPolicy4PPO(L2DPolicy):
+    """
+    L2DPolicy variant for PPO.
+    For now, it's identical to L2DPolicy as the base class supports step-wise decoding.
+    """
+
+    pass

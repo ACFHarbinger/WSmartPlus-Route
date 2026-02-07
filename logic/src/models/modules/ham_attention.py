@@ -1,3 +1,7 @@
+"""
+HAM Attention Module.
+"""
+
 from typing import Dict, List, Optional, Tuple
 
 import torch
@@ -29,6 +33,28 @@ class HeterogeneousAttentionLayer(nn.Module):
         feedforward_hidden: int = 512,
         normalization: str = "instance",
     ):
+        """
+        Initialize Heterogeneous Attention Layer.
+
+        Args:
+            node_types: List of node types.
+            edge_types: List of edge triples (src, rel, dst).
+            embed_dim: Embedding dimension.
+            num_heads: Number of attention heads.
+            feedforward_hidden: Hidden dimension.
+            normalization: Normalization type.
+        """
+        """
+        Initialize Heterogeneous Attention Layer.
+
+        Args:
+            node_types: List of node types.
+            edge_types: List of edge triples (src, rel, dst).
+            embed_dim: Embedding dimension.
+            num_heads: Number of attention heads.
+            feedforward_hidden: Hidden dimension.
+            normalization: Normalization type.
+        """
         super().__init__()
         self.node_types = node_types
         self.edge_types = edge_types

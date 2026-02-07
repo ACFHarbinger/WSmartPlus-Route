@@ -525,6 +525,100 @@ class POMOBaseline(Baseline):
         return reward.mean()
 
 
+class MeanBaseline(Baseline):
+    """
+    Simple batch-mean baseline.
+
+    Uses the mean reward of the current batch as the baseline value.
+    Zero computational overhead but limited variance reduction.
+    Useful as a simple default or for debugging.
+    """
+
+    def __init__(self, **kwargs):
+        """Initialize MeanBaseline."""
+        super().__init__()
+
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
+        """
+        Compute baseline as mean of current batch rewards.
+
+        Args:
+            td: TensorDict with environment state (unused).
+            reward: Current batch rewards.
+            env: Environment (unused).
+
+        Returns:
+            torch.Tensor: Mean reward expanded to match reward shape.
+        """
+        return (
+            reward.mean(dim=0, keepdim=True).expand_as(reward) if reward.dim() > 1 else reward.mean().expand_as(reward)
+        )
+
+
+class SharedBaseline(Baseline):
+    """
+    Shared baseline using a critic that shares the encoder with the actor.
+
+    Creates a critic network from the actor's encoder via weight sharing
+    (deepcopy). This enables the critic to leverage the same learned
+    representations while having its own value head.
+    """
+
+    def __init__(
+        self,
+        critic: Optional[nn.Module] = None,
+        **kwargs,
+    ):
+        """
+        Initialize SharedBaseline.
+
+        Args:
+            critic: Pre-built critic module. If None, must call setup() with a policy
+                    that has a ``create_critic_from_actor`` compatible encoder.
+            **kwargs: Additional arguments.
+        """
+        super().__init__()
+        self.critic = critic
+
+    def setup(self, policy: nn.Module):
+        """
+        Build the critic from the actor's encoder.
+
+        Args:
+            policy: Actor policy with an encoder attribute.
+        """
+        if self.critic is not None:
+            return  # Already built
+
+        from logic.src.models.policies.critic import create_critic_from_actor
+
+        self.critic = create_critic_from_actor(policy)
+
+    def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
+        """
+        Compute baseline value using shared critic.
+
+        Args:
+            td: TensorDict with environment state.
+            reward: Current batch rewards (fallback shape).
+            env: Environment (unused).
+
+        Returns:
+            torch.Tensor: Critic value predictions.
+        """
+        if self.critic is None:
+            return torch.zeros_like(reward)
+
+        from logic.src.utils.functions.rl import ensure_tensordict
+
+        td = ensure_tensordict(td, next(iter(self.critic.parameters())).device)
+        return self.critic(td).squeeze(-1)
+
+    def get_learnable_parameters(self) -> list:
+        """Get learnable parameters for the shared critic."""
+        return list(self.critic.parameters()) if self.critic is not None else []
+
+
 # Baseline registry
 BASELINE_REGISTRY = {
     "none": NoBaseline,
@@ -533,6 +627,8 @@ BASELINE_REGISTRY = {
     "critic": CriticBaseline,
     "warmup": WarmupBaseline,
     "pomo": POMOBaseline,
+    "mean": MeanBaseline,
+    "shared": SharedBaseline,
 }
 
 

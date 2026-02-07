@@ -1,3 +1,7 @@
+"""
+HAM Encoder.
+"""
+
 from typing import Tuple
 
 import torch
@@ -23,6 +27,16 @@ class HAMEncoder(nn.Module):
         feedforward_hidden: int = 512,
         normalization: str = "instance",
     ):
+        """
+        Initialize HAMEncoder.
+
+        Args:
+            embed_dim: Embedding dimension.
+            num_heads: Number of attention heads.
+            num_layers: Number of layers.
+            feedforward_hidden: Hidden dimension.
+            normalization: Normalization type.
+        """
         super().__init__()
         self.embed_dim = embed_dim
 

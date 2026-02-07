@@ -527,9 +527,9 @@ Scheduling-specific model for JSSP/FJSP dispatch decisions. Uses specialized enc
 - [x] `L2DEncoder` -- scheduling graph encoding using heterogeneous message passing
 - [x] `L2DDecoder` -- dispatch action decoder (integrated in Policy)
 - [x] `L2DPolicy` (REINFORCE)
-- [ ] `L2DPolicy4PPO` (StepwisePPO variant)
+- [x] `L2DPolicy4PPO` (StepwisePPO variant)
 - [x] `L2DModel` (REINFORCE wrapper)
-- [ ] `L2DPPOModel`
+- [x] `L2DPPOModel`
 - [x] Unit tests
 
 **rl4co reference**: `rl4co/models/zoo/l2d/` (`encoder.py`, `decoder.py`, `policy.py`, `model.py`)
@@ -630,9 +630,9 @@ Attention module files use inconsistent naming patterns:
 - `multi_head_attention_mdam.py` (MDAM-specific)
 - `polynet_attention.py` (PolyNet-specific)
 
-- [ ] Standardize naming convention: `{variant}_attention.py` for all attention modules
-- [ ] Update all imports across codebase
-- [ ] Ensure `__init__.py` re-exports are consistent
+- [x] Standardize naming convention: `{variant}_attention.py` for all attention modules
+- [x] Update all imports across codebase
+- [x] Ensure `__init__.py` re-exports are consistent
 
 ---
 
@@ -642,9 +642,9 @@ Attention module files use inconsistent naming patterns:
 
 Many `__init__.py` files lack proper module-level docstrings describing what the package contains, making the codebase harder to navigate for newcomers.
 
-- [ ] Add descriptive module docstrings to all `__init__.py` files in `logic/src/`
-- [ ] Add "What's in this package" summaries listing key classes and their purposes
-- [ ] Add cross-references to related packages (e.g., "See also: logic/src/models/subnets/ for encoder/decoder implementations")
+- [x] Add descriptive module docstrings to all `__init__.py` files in `logic/src/`
+- [x] Add "What's in this package" summaries listing key classes and their purposes
+- [x] Add cross-references to related packages (e.g., "See also: logic/src/models/subnets/ for encoder/decoder implementations")
 
 ---
 
@@ -654,10 +654,10 @@ Many `__init__.py` files lack proper module-level docstrings describing what the
 
 Create a clear reference showing which models work with which problem types, and which encoders/decoders are compatible.
 
-- [ ] Create `COMPATIBILITY.md` with model-problem support matrix
-- [ ] Document which encoders work with which decoders
-- [ ] Document which RL algorithms work with which policy types (constructive, improvement, transductive)
-- [ ] Include recommended configurations per problem type
+- [x] Create `COMPATIBILITY.md` with model-problem support matrix
+- [x] Document which encoders work with which decoders
+- [x] Document which RL algorithms work with which policy types (constructive, improvement, transductive)
+- [x] Include recommended configurations per problem type
 
 ---
 
@@ -679,8 +679,8 @@ Create a clear reference showing which models work with which problem types, and
 | Phase 10 | Non-Autoregressive Models        | ✅ Completed   |
 | Phase 11 | Improvement & Transductive       | ✅ Completed   |
 | Phase 12 | Additional NN Components         | ✅ Completed   |
-| Phase 13 | Remaining Model & Baseline Gaps  | 🚧 In Progress |
-| Phase 14 | Tensor Operations & Code Clarity | 🚧 In Progress |
+| Phase 13 | Remaining Model & Baseline Gaps  | ✅ Completed   |
+| Phase 14 | Tensor Operations & Code Clarity | ✅ Completed   |
 
 ### Remaining Work
 
@@ -711,6 +711,10 @@ Phases 3-7 (docs, types, architecture, deps, tooling) can proceed in parallel wi
 - ✅ Updated phase statuses: Phase 8 ✅, Phase 9 ✅, Phase 12 🚧
 - ✅ Fixed stale execution order diagram
 - ✅ Cleaned up duplicate NARGNNPolicy entries in Phase 10.4
+- ✅ Fully completed Phase 14: Unified Tensor Operations & Code Clarity
+  - Consistent file naming for modules
+  - Comprehensive module docstrings
+  - Compatibility matrix
 
 ### 2026-02-07 (v3.0)
 

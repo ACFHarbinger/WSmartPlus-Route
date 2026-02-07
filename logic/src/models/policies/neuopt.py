@@ -38,6 +38,15 @@ class NeuOptEncoder(ImprovementEncoder):
         num_layers: int = 3,
         **kwargs,
     ):
+        """
+        Initialize NeuOptEncoder.
+
+        Args:
+            embed_dim: Embedding dimension.
+            num_heads: Number of attention heads.
+            num_layers: Number of transformer layers.
+            **kwargs: Unused arguments.
+        """
         super().__init__(embed_dim=embed_dim)
         self.num_layers = num_layers
 

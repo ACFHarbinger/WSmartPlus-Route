@@ -70,10 +70,11 @@ class GFACSEncoder(NARGNNEncoder):
 
         # Z-network for log-partition function estimation
         # Used in Trajectory Balance (TB) loss
+        z_out_dim = kwargs.get("z_out_dim", 1)
         layers = []
         for _ in range(num_layers_Z_net - 1):
             layers.extend([nn.Linear(embed_dim, embed_dim), nn.ReLU()])
-        layers.append(nn.Linear(embed_dim, 1))
+        layers.append(nn.Linear(embed_dim, z_out_dim))
         self.Z_net = nn.Sequential(*layers)
 
     def forward(self, td: TensorDict) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:  # type: ignore[override]

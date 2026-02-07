@@ -16,6 +16,13 @@ class AbsolutePositionalEmbedding(nn.Module):
     """Sinusoidal positional embedding."""
 
     def __init__(self, embed_dim: int, max_len: int = 5000):
+        """
+        Initialize AbsolutePositionalEmbedding.
+
+        Args:
+            embed_dim: Embedding dimension.
+            max_len: Maximum sequence length.
+        """
         super().__init__()
         self.embed_dim = embed_dim
 
@@ -43,6 +50,13 @@ class CyclicPositionalEmbedding(nn.Module):
     """Cyclic positional encoding (Ma et al. 2021)."""
 
     def __init__(self, embed_dim: int, mean_pooling: bool = True):
+        """
+        Initialize CyclicPositionalEmbedding.
+
+        Args:
+            embed_dim: Embedding dimension.
+            mean_pooling: Whether to use mean pooling.
+        """
         super().__init__()
         self.embed_dim = embed_dim
         self.mean_pooling = mean_pooling

@@ -1,5 +1,27 @@
 """
-This package contains deep learning models for solving Vehicle Routing Problems.
+This package contains deep learning models for solving Vehicle Routing and Scheduling Problems.
+
+It includes a variety of neural architectures:
+
+Constructive Models (Autoregressive):
+-   `AttentionModel`: The standard Encoder-Decoder with Multi-Head Attention (Kool et al. 2019).
+-   `POMO`: Policy Optimization with Multiple Optima (Kwon et al. 2020) via `AttentionModel` configuration.
+-   `HeterogeneousAttentionModel` (HAM): For problems with multiple node types (PDP).
+-   `L2DModel`: Learning to Dispatch for Job Shop Scheduling (JSSP).
+-   `PtrNet`: Pointer Network (Vinyals et al. 2015).
+
+Iterative Improvement Models:
+-   `NeuOpt`: Neural Optimizer for VRP.
+-   `N2S`: Neural Neighborhood Search.
+-   `DACT`: Dual-Aspect Collaborative Transformer.
+-   `DeepACO`: Deep Ant Colony Optimization.
+
+Transductive / Matrix Models:
+-   `MatNet`: Matrix Encoding Networks (for ATsp/SDVRP).
+-   `EAS`: Efficient Active Search (Hottung et al. 2022).
+
+Baselines:
+-   `CriticNetwork`: Value function approximation for REINFORCE.
 """
 
 from logic.src.pipeline.rl.common.baselines import (
@@ -38,6 +60,7 @@ from .hypernet import (
     HypernetworkOptimizer as HypernetworkOptimizer,
 )
 from .l2d import L2DModel as L2DModel
+from .l2d import L2DPPOModel as L2DPPOModel
 from .matnet import MatNet as MatNet
 from .mdam import MDAM as MDAM
 from .meta_rnn import WeightAdjustmentRNN as WeightAdjustmentRNN

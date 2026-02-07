@@ -1,3 +1,7 @@
+"""
+MatNet Embedding.
+"""
+
 import torch
 import torch.nn as nn
 
@@ -10,6 +14,13 @@ class MatNetInitEmbedding(nn.Module):
     """
 
     def __init__(self, embed_dim: int, normalization: str = "instance"):
+        """
+        Initialize MatNetInitEmbedding.
+
+        Args:
+            embed_dim: Embedding dimension.
+            normalization: Normalization type.
+        """
         super().__init__()
         # We project: mean, min, (and potentially others like max or std)
         # Standard MatNet paper uses mean and min.

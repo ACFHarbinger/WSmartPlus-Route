@@ -8,15 +8,20 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import torch.nn as nn
+from logic.src.models.subnets.decoders.deepaco_decoder import ACODecoder
 from logic.src.models.subnets.decoders.gat_decoder import DeepGATDecoder
 from logic.src.models.subnets.decoders.glimpse_decoder import GlimpseDecoder
+from logic.src.models.subnets.decoders.mdam_decoder import MDAMDecoder
+from logic.src.models.subnets.decoders.polynet_decoder import PolyNetDecoder
 from logic.src.models.subnets.decoders.ptr_decoder import PointerDecoder
 from logic.src.models.subnets.encoders.gac_encoder import GraphAttConvEncoder
 from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
 from logic.src.models.subnets.encoders.gcn_encoder import GraphConvolutionEncoder
 from logic.src.models.subnets.encoders.ggac_encoder import GatedGraphAttConvEncoder
+from logic.src.models.subnets.encoders.mdam_encoder import MDAMGraphAttentionEncoder
 from logic.src.models.subnets.encoders.mlp_encoder import MLPEncoder
 from logic.src.models.subnets.encoders.moe_encoder import MoEGraphAttentionEncoder
+from logic.src.models.subnets.encoders.nargnn_encoder import NARGNNEncoder
 from logic.src.models.subnets.encoders.tgc_encoder import TransGraphConvEncoder
 
 
@@ -41,8 +46,16 @@ def _create_decoder_by_type(decoder_type: str, **kwargs: Any) -> nn.Module:
         return DeepGATDecoder(**kwargs)
     elif decoder_type == "pointer":
         return PointerDecoder(**kwargs)
+    elif decoder_type == "mdam":
+        return MDAMDecoder(**kwargs)
+    elif decoder_type == "polynet":
+        return PolyNetDecoder(**kwargs)
+    elif decoder_type == "aco":
+        return ACODecoder(**kwargs)
     else:
-        raise ValueError(f"Unknown decoder_type: {decoder_type}. Choose from 'attention', 'deep', 'pointer'.")
+        raise ValueError(
+            f"Unknown decoder_type: {decoder_type}. Choose from 'attention', 'deep', 'pointer', 'mdam', 'polynet', 'aco'."
+        )
 
 
 class NeuralComponentFactory(ABC):
@@ -159,5 +172,29 @@ class MoEComponentFactory(NeuralComponentFactory):
         return MoEGraphAttentionEncoder(**kwargs)
 
     def create_decoder(self, decoder_type: str = "attention", **kwargs: Any) -> nn.Module:
+        """Create decoder based on decoder_type."""
+        return _create_decoder_by_type(decoder_type, **kwargs)
+
+
+class NARComponentFactory(NeuralComponentFactory):
+    """Factory for Non-Autoregressive Models (DeepACO, GFACS, NARGNN)."""
+
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
+        """Create NARGNN Encoder."""
+        return NARGNNEncoder(**kwargs)
+
+    def create_decoder(self, decoder_type: str = "aco", **kwargs: Any) -> nn.Module:
+        """Create decoder based on decoder_type."""
+        return _create_decoder_by_type(decoder_type, **kwargs)
+
+
+class MDAMComponentFactory(NeuralComponentFactory):
+    """Factory for MDAM Models."""
+
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
+        """Create MDAM Graph Attention Encoder."""
+        return MDAMGraphAttentionEncoder(**kwargs)
+
+    def create_decoder(self, decoder_type: str = "mdam", **kwargs: Any) -> nn.Module:
         """Create decoder based on decoder_type."""
         return _create_decoder_by_type(decoder_type, **kwargs)

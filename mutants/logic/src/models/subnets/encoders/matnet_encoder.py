@@ -1,10 +1,14 @@
+"""
+MatNet Encoder.
+"""
+
 from __future__ import annotations
 
 from typing import Optional
 
 import torch
 import torch.nn as nn
-from logic.src.models.modules.multi_head_attention_matnet import MixedScoreMHA
+from logic.src.models.modules.matnet_attention import MixedScoreMHA
 from logic.src.models.modules.normalization import Normalization
 
 
@@ -22,6 +26,15 @@ class MatNetEncoderLayer(nn.Module):
         feed_forward_hidden: int = 512,
         normalization: str = "instance",
     ):
+        """
+        Initialize MatNetEncoderLayer.
+
+        Args:
+            embed_dim: Embedding dimension.
+            n_heads: Number of heads.
+            feed_forward_hidden: Hidden dimension.
+            normalization: Normalization type.
+        """
         super(MatNetEncoderLayer, self).__init__()
 
         self.mha = MixedScoreMHA(n_heads, embed_dim)
@@ -47,6 +60,8 @@ class MatNetEncoderLayer(nn.Module):
         self, row_emb: torch.Tensor, col_emb: torch.Tensor, matrix: torch.Tensor, mask: Optional[torch.Tensor] = None
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """
+        Forward pass.
+
         Args:
             row_emb: [batch, row_size, embed_dim]
             col_emb: [batch, col_size, embed_dim]
@@ -89,6 +104,16 @@ class MatNetEncoder(nn.Module):
         feed_forward_hidden: int = 512,
         normalization: str = "instance",
     ):
+        """
+        Initialize MatNetEncoder.
+
+        Args:
+            num_layers: Number of layers.
+            embed_dim: Embedding dimension.
+            n_heads: Number of heads.
+            feed_forward_hidden: Hidden dimension.
+            normalization: Normalization type.
+        """
         super(MatNetEncoder, self).__init__()
         self.layers = nn.ModuleList(
             [MatNetEncoderLayer(embed_dim, n_heads, feed_forward_hidden, normalization) for _ in range(num_layers)]
@@ -97,6 +122,15 @@ class MatNetEncoder(nn.Module):
     def forward(
         self, row_emb: torch.Tensor, col_emb: torch.Tensor, matrix: torch.Tensor, mask: Optional[torch.Tensor] = None
     ) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass.
+
+        Args:
+            row_emb: [batch, row_size, embed_dim]
+            col_emb: [batch, col_size, embed_dim]
+            matrix: [batch, row_size, col_size]
+            mask: [batch, row_size, col_size]
+        """
         for layer in self.layers:
             row_emb, col_emb = layer(row_emb, col_emb, matrix, mask)
         return row_emb, col_emb

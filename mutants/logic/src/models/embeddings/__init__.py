@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import torch.nn as nn
 from logic.src.models.embeddings.cvrpp import CVRPPInitEmbedding
+from logic.src.models.embeddings.pdp import PDPInitEmbedding
 from logic.src.models.embeddings.vrpp import VRPPInitEmbedding
 from logic.src.models.embeddings.wcvrp import WCVRPInitEmbedding
 
@@ -20,6 +21,15 @@ from .context_embedding import (
     WCVRPContext,
 )
 from .dynamic_embedding import DynamicEmbedding, StaticEmbedding
+from .edge_embedding import (
+    EDGE_EMBEDDING_REGISTRY,
+    CVRPEdgeEmbedding,
+    EdgeEmbedding,
+    NoEdgeEmbedding,
+    TSPEdgeEmbedding,
+    WCVRPEdgeEmbedding,
+    get_edge_embedding,
+)
 
 # Embedding registry
 INIT_EMBEDDING_REGISTRY = {
@@ -30,6 +40,7 @@ INIT_EMBEDDING_REGISTRY = {
     "sdwcvrp": WCVRPInitEmbedding,
     "swcvrp": WCVRPInitEmbedding,
     "scwcvrp": WCVRPInitEmbedding,
+    "pdp": PDPInitEmbedding,
 }
 
 CONTEXT_EMBEDDING_REGISTRY = {
@@ -77,8 +88,15 @@ __all__ = [
     "SWCVRPContext",
     "DynamicEmbedding",
     "StaticEmbedding",
+    "EdgeEmbedding",
+    "TSPEdgeEmbedding",
+    "CVRPEdgeEmbedding",
+    "WCVRPEdgeEmbedding",
+    "NoEdgeEmbedding",
     "INIT_EMBEDDING_REGISTRY",
     "CONTEXT_EMBEDDING_REGISTRY",
     "DYNAMIC_EMBEDDING_REGISTRY",
+    "EDGE_EMBEDDING_REGISTRY",
     "get_init_embedding",
+    "get_edge_embedding",
 ]
