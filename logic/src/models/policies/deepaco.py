@@ -4,14 +4,17 @@ DeepACO Policy: Combines encoder and decoder for end-to-end inference.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.common.nonautoregressive import NonAutoregressivePolicy
+from logic.src.models.policies.common.nonautoregressive import (
+    NonAutoregressiveEncoder,
+    NonAutoregressivePolicy,
+)
 from logic.src.models.subnets.decoders.deepaco import ACODecoder
-from logic.src.models.subnets.encoders.deepaco_encoder import DeepACOEncoder
+from logic.src.models.subnets.encoders.deepaco.encoder import DeepACOEncoder
 
 
 class DeepACOPolicy(NonAutoregressivePolicy):
@@ -24,7 +27,7 @@ class DeepACOPolicy(NonAutoregressivePolicy):
 
     def __init__(
         self,
-        encoder: Optional[DeepACOEncoder] = None,
+        encoder: Optional[NonAutoregressiveEncoder] = None,
         decoder: Optional[ACODecoder] = None,
         embed_dim: int = 128,
         num_encoder_layers: int = 3,
@@ -88,10 +91,12 @@ class DeepACOPolicy(NonAutoregressivePolicy):
         **kwargs,
     ) -> Dict[str, Any]:
         # Encode: predict heatmap
-        heatmap = self.encoder(td, **kwargs)
+        encoder = cast(NonAutoregressiveEncoder, self.encoder)
+        heatmap = encoder(td, **kwargs)
 
         # Decode: construct solution(s) from heatmap using ACO
-        out = self.decoder.construct(td, heatmap, env, num_starts=num_starts, **kwargs)
+        decoder = cast(ACODecoder, self.decoder)
+        out = decoder.construct(td, heatmap, env, num_starts=num_starts, **kwargs)
 
         out["heatmap"] = heatmap
         return out

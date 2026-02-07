@@ -3,7 +3,7 @@ import pytest
 import torch
 from logic.src.envs.jssp import JSSPEnv
 from logic.src.models.policies.l2d import L2DPolicy
-from logic.src.models.subnets.encoders.l2d_encoder import L2DEncoder
+from logic.src.models.subnets.encoders.l2d.encoder import L2DEncoder
 
 class TestL2D:
     @pytest.fixture

@@ -15,15 +15,15 @@ from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.subnets.decoders.mdam import MDAMDecoder
 from logic.src.models.subnets.decoders.polynet import PolyNetDecoder
 from logic.src.models.subnets.decoders.ptr import PointerDecoder
-from logic.src.models.subnets.encoders.gac_encoder import GraphAttConvEncoder
-from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
-from logic.src.models.subnets.encoders.gcn_encoder import GraphConvolutionEncoder
-from logic.src.models.subnets.encoders.ggac_encoder import GatedGraphAttConvEncoder
-from logic.src.models.subnets.encoders.mdam_encoder import MDAMGraphAttentionEncoder
-from logic.src.models.subnets.encoders.mlp_encoder import MLPEncoder
-from logic.src.models.subnets.encoders.moe_encoder import MoEGraphAttentionEncoder
-from logic.src.models.subnets.encoders.nargnn_encoder import NARGNNEncoder
-from logic.src.models.subnets.encoders.tgc_encoder import TransGraphConvEncoder
+from logic.src.models.subnets.encoders.gac.encoder import GraphAttConvEncoder
+from logic.src.models.subnets.encoders.gat.encoder import GraphAttentionEncoder
+from logic.src.models.subnets.encoders.gcn.encoder import GraphConvolutionEncoder
+from logic.src.models.subnets.encoders.ggac.encoder import GatedGraphAttConvEncoder
+from logic.src.models.subnets.encoders.mdam.encoder import MDAMGraphAttentionEncoder
+from logic.src.models.subnets.encoders.mlp.encoder import MLPEncoder
+from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
+from logic.src.models.subnets.encoders.nargnn import NARGNNEncoder
+from logic.src.models.subnets.encoders.tgc.encoder import TransGraphConvEncoder
 
 
 def _create_decoder_by_type(decoder_type: str, **kwargs: Any) -> nn.Module:
@@ -199,3 +199,20 @@ class MDAMComponentFactory(NeuralComponentFactory):
     def create_decoder(self, decoder_type: str = "mdam", **kwargs: Any) -> nn.Module:
         """Create decoder based on decoder_type."""
         return _create_decoder_by_type(decoder_type, **kwargs)
+
+
+class GFACSComponentFactory(NeuralComponentFactory):
+    """Factory for GFACS Models."""
+
+    def create_encoder(self, **kwargs: Any) -> nn.Module:
+        """Create GFACS Encoder."""
+        from logic.src.models.subnets.encoders.gfacs.encoder import GFACSEncoder
+
+        return GFACSEncoder(**kwargs)
+
+    def create_decoder(self, decoder_type: str = "aco", **kwargs: Any) -> nn.Module:
+        """Create ACO Decoder."""
+        # Reuse ACODecoder from DeepACO
+        from logic.src.models.subnets.decoders.deepaco import ACODecoder
+
+        return ACODecoder(**kwargs)

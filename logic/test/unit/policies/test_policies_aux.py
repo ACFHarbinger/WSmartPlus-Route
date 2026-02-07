@@ -16,8 +16,8 @@ import pytest
 
 # HGS and ALNS auxiliary imports
 from logic.src.policies.operators import destroy_operators, repair_operators
-from logic.src.policies.hgs_aux import evolution, types
-from logic.src.policies.hgs_aux import split as split_module
+from logic.src.policies.hybrid_genetic_search import evolution, types
+from logic.src.policies.hybrid_genetic_search import split as split_module
 from logic.src.policies import local_search
 
 # Look-ahead auxiliary imports

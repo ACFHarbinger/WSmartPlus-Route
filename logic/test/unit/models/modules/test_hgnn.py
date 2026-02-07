@@ -1,7 +1,7 @@
 
 import pytest
 import torch
-from logic.src.models.modules.hgnn import HetGNNLayer
+from logic.src.models.subnets.modules.hgnn import HetGNNLayer
 
 class TestHetGNN:
     @pytest.fixture

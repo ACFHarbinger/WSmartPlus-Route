@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.polynet import PolyNetPolicy
-from logic.src.utils.functions.decoding import unbatchify
+from logic.src.utils.decoding import unbatchify
 
 
 class PolyNet(nn.Module):

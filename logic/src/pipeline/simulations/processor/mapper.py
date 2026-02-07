@@ -10,7 +10,7 @@ import pandas as pd
 import torch
 
 from logic.src.constants import MAX_WASTE
-from logic.src.utils.functions.graph import (
+from logic.src.utils.graph import (
     adj_to_idx,
     get_adj_knn,
     get_edge_idx_dist,

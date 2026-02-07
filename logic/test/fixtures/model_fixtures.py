@@ -61,6 +61,7 @@ def am_setup(mocker):
             m_dec.forward.side_effect = lambda input, embeddings, *args, **kwargs: (
                 torch.zeros(1),
                 torch.zeros(1),
+                torch.zeros(1),
             )
             return m_dec
 
@@ -119,7 +120,7 @@ def tam_setup(mocker):
             """Mock forward pass."""
             return x
 
-    mocker.patch("logic.src.models.subnets.modules.activation_function.ActivationFunction", new=MockActivationFunction)
+    mocker.patch("logic.src.models.subnets.modules.ActivationFunction", new=MockActivationFunction)
 
     # Patch both to be safe
     mocker.patch("logic.src.models.subnets.other.grf_predictor.GatedRecurrentFillPredictor", autospec=False)
@@ -144,6 +145,12 @@ def tam_setup(mocker):
         def create_decoder(self, **kwargs):
             """Create mock decoder."""
             m_dec = mocker.MagicMock(spec=GlimpseDecoder)
+            # Return log_p, pi, cost (3 values)
+            m_dec.forward.side_effect = lambda input, embeddings, *args, **kwargs: (
+                torch.zeros(1),
+                torch.zeros(1),
+                torch.zeros(1),
+            )
             return m_dec
 
     model = TemporalAttentionModel(

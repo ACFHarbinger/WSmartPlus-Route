@@ -49,11 +49,13 @@ class ContextEmbedder(nn.Module, ABC):
         """Initialize node embeddings from input data."""
         raise NotImplementedError()
 
-    @property
     @abstractmethod
     def step_context_dim(self) -> int:
         """Get the dimension of the step context."""
         raise NotImplementedError()
+
+    def forward(self, input: dict[str, Any]) -> tuple[torch.Tensor, torch.Tensor | None]:
+        return self.init_node_embeddings(input), None
 
 
 class WCContextEmbedder(ContextEmbedder):
@@ -67,9 +69,10 @@ class WCContextEmbedder(ContextEmbedder):
 
     def init_node_embeddings(self, nodes: dict[str, Any], temporal_features: bool = True) -> torch.Tensor:
         waste_key = "waste"
-        if "waste" not in nodes:
+        keys = nodes.keys()
+        if "waste" not in keys:
             for k in ["demand", "noisy_waste", "real_waste"]:
-                if k in nodes:
+                if k in keys:
                     waste_key = k
                     break
 
@@ -105,22 +108,23 @@ class VRPPContextEmbedder(ContextEmbedder):
 
     def init_node_embeddings(self, nodes: dict[str, Any], temporal_features: bool = True) -> torch.Tensor:
         primary_key = None
+        keys = nodes.keys()
         for key in ["waste", "demand", "noisy_waste", "real_waste", "prize"]:
-            if key in nodes:
+            if key in keys:
                 primary_key = key
                 break
 
         if primary_key is None or self.node_dim == 2:
-            locs_key = "locs" if "locs" in nodes else "loc"
+            locs_key = "locs" if "locs" in keys else "loc"
             node_features = nodes[locs_key]
         else:
             primary_feature = nodes[primary_key][:, :, None]
-            locs_key = "locs" if "locs" in nodes else "loc"
+            locs_key = "locs" if "locs" in keys else "loc"
             if temporal_features:
                 feature_list = [primary_feature]
                 for day in range(1, self.temporal_horizon + 1):
                     feat = f"fill{day}"
-                    if feat in nodes:
+                    if feat in keys:
                         feature_list.append(nodes[feat][:, :, None])
                     else:
                         feature_list.append(torch.zeros_like(primary_feature))
@@ -223,3 +227,32 @@ class SWCVRPContext(WCVRPContext):
     """Context embedding for SWCVRP (Stochastic WCVRP)."""
 
     pass
+
+
+class GenericContextEmbedder(ContextEmbedder):
+    """
+    Generic context embedder for problems without specific implementations.
+    Embeds depot (2D) and nodes (node_dim) simply.
+    """
+
+    def __init__(self, embed_dim: int, node_dim: int = NODE_DIM, temporal_horizon: int = 0):
+        super().__init__(embed_dim, node_dim, temporal_horizon)
+        self.init_embed = nn.Linear(node_dim, embed_dim)
+        self.init_embed_depot = nn.Linear(2, embed_dim)
+
+    def init_node_embeddings(self, nodes: dict[str, Any]) -> torch.Tensor:
+        # Fallback to 'loc' or 'locs'
+        locs_key = "locs" if "locs" in nodes.keys() else "loc"
+        node_features = nodes[locs_key]
+
+        return torch.cat(
+            (
+                self.init_embed_depot(nodes["depot"])[:, None, :],
+                self.init_embed(node_features),
+            ),
+            1,
+        )
+
+    @property
+    def step_context_dim(self) -> int:
+        return self.embed_dim

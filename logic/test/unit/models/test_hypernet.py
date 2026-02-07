@@ -2,7 +2,7 @@
 
 import pytest
 import torch
-from logic.src.models.hypernet import Hypernetwork, HypernetworkOptimizer
+from logic.src.models.hypernet.model import HyperNetwork as Hypernetwork, HyperNetworkOptimizer as HypernetworkOptimizer
 
 
 class MockProblem:

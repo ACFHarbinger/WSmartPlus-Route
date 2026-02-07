@@ -15,8 +15,8 @@ from logic.src.constants.optimization import (
     DEFAULT_V_VALUE,
 )
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.look_ahead_aux.common.routes import create_points
-from logic.src.policies.look_ahead_aux.refinement.route_search import find_solutions
+from logic.src.policies.simulated_annealing_neighborhood_search.common.routes import create_points
+from logic.src.policies.simulated_annealing_neighborhood_search.refinement.route_search import find_solutions
 from logic.src.policies.single_vehicle import get_route_cost
 
 from .factory import PolicyRegistry

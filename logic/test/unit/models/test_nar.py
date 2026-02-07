@@ -11,8 +11,8 @@ from logic.src.models.policies.common.nonautoregressive import (
 )
 from logic.src.models.deepaco import DeepACO
 from logic.src.models.policies.deepaco import DeepACOPolicy
-from logic.src.models.subnets.decoders.deepaco_decoder import ACODecoder
-from logic.src.models.subnets.encoders.deepaco_encoder import DeepACOEncoder
+from logic.src.models.subnets.decoders.deepaco.decoder import ACODecoder
+from logic.src.models.subnets.encoders.deepaco.encoder import DeepACOEncoder
 
 
 class TestNonAutoregressiveBase:

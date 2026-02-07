@@ -5,6 +5,7 @@ Decoders package facade.
 from .deepaco import ACODecoder as ACODecoder
 from .gat import DeepGATDecoder as DeepGATDecoder
 from .gat import GraphAttentionDecoder as GraphAttentionDecoder
+from .glimpse.decoder import GlimpseDecoder as GlimpseDecoder
 from .l2d import L2DDecoder as L2DDecoder
 from .matnet import MatNetDecoder as MatNetDecoder
 from .mdam import MDAMDecoder as MDAMDecoder

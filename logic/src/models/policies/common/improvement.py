@@ -142,7 +142,7 @@ class ImprovementPolicy(nn.Module, ABC):
         td = env.reset(td)
 
         # Batch for multiple starts if requested
-        from logic.src.utils.functions.decoding import batchify, unbatchify
+        from logic.src.utils.decoding import batchify, unbatchify
 
         if num_starts > 1:
             td = batchify(td, num_starts)

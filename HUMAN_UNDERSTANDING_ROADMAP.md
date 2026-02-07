@@ -11,13 +11,13 @@
 
 An audit of the WSmart-Route codebase (532 Python files in `logic/src/`, 73 in `gui/src/`) identified the following human-understanding scores:
 
-| Dimension | Score | Key Finding |
-|-----------|-------|-------------|
-| **Documentation (docstrings)** | 7.5/10 | Logic layer excellent; GUI and env state methods lack coverage |
-| **Naming & Consistency** | 8.5/10 | Registries, imports, constants all uniform; minor abbreviation gaps |
-| **Code Complexity** | 7/10 | Clean architecture; encoder/decoder boilerplate duplication; deep nesting in test engine |
-| **Type Safety** | 8/10 | 95% return-type coverage; magic numbers and asserts need cleanup |
-| **Onboarding & Config** | 6.5/10 | Excellent README; config files lack inline docs; dual CLI confusing |
+| Dimension                      | Score  | Key Finding                                                                              |
+| ------------------------------ | ------ | ---------------------------------------------------------------------------------------- |
+| **Documentation (docstrings)** | 7.5/10 | Logic layer excellent; GUI and env state methods lack coverage                           |
+| **Naming & Consistency**       | 8.5/10 | Registries, imports, constants all uniform; minor abbreviation gaps                      |
+| **Code Complexity**            | 7/10   | Clean architecture; encoder/decoder boilerplate duplication; deep nesting in test engine |
+| **Type Safety**                | 8/10   | 95% return-type coverage; magic numbers and asserts need cleanup                         |
+| **Onboarding & Config**        | 6.5/10 | Excellent README; config files lack inline docs; dual CLI confusing                      |
 
 **Overall: 7.5/10** -- a strong foundation with focused improvement opportunities.
 
@@ -82,13 +82,14 @@ Config parameters currently have no explanation. A newcomer cannot tell what `em
 - [ ] `assets/configs/config.yaml` -- document the Hydra defaults composition
 
 Example of desired state:
+
 ```yaml
 model:
   name: "am"
-  embed_dim: 128          # Node embedding dimension. Powers of 2 recommended (64, 128, 256).
-  hidden_dim: 512         # Feed-forward hidden size. Typically 4x embed_dim.
-  n_encode_layers: 3      # Transformer encoder depth. More layers = slower but richer encoding.
-  normalization: "instance"  # Options: "batch", "layer", "instance", "group". Instance works best for VRP.
+  embed_dim: 128 # Node embedding dimension. Powers of 2 recommended (64, 128, 256).
+  hidden_dim: 512 # Feed-forward hidden size. Typically 4x embed_dim.
+  n_encode_layers: 3 # Transformer encoder depth. More layers = slower but richer encoding.
+  normalization: "instance" # Options: "batch", "layer", "instance", "group". Instance works best for VRP.
 ```
 
 ---
@@ -215,21 +216,6 @@ Currently reaches 7 levels of nesting in the multiprocessing orchestration loop.
 
 ---
 
-### H4.3 Split Oversized Utility Files
-
-**File**: `logic/src/policies/look_ahead_aux/select.py` (543 lines, 12 functions)
-
-This monolithic file contains unrelated operations grouped together.
-
-- [ ] Split into:
-  - `remove_ops.py` -- bin removal functions
-  - `insert_ops.py` -- bin insertion/addition functions
-  - `route_ops.py` -- route creation and modification
-- [ ] Update imports across codebase
-- [ ] Verify policy tests pass
-
----
-
 ## Phase H5: Type Safety & Magic Number Cleanup (Week 4-5)
 
 _Improve static analysis and reduce ambiguity._
@@ -324,31 +310,31 @@ _Help users pick the right model for their problem._
 
 ## Timeline Summary
 
-| Phase | Focus | Priority | Effort |
-|-------|-------|----------|--------|
-| H1 | Critical fixes (Python version, CLI docs, env docstrings) | CRITICAL | 1-2 days |
-| H2 | Config & onboarding docs (YAML comments, notebook index, Hydra guide) | HIGH | 3-5 days |
-| H3 | Docstring gap closure (GUI modules, functions, inline comments) | HIGH | 3-5 days |
-| H4 | Complexity reduction (base classes, nesting, file splits) | MEDIUM | 5-7 days |
-| H5 | Type safety & magic numbers (constants, asserts, type hints) | MEDIUM | 3-5 days |
-| H6 | Naming polish (glossary, variable standards, parameter grouping) | LOW | 2-3 days |
-| H7 | Compatibility matrix documentation | LOW | 1-2 days |
+| Phase | Focus                                                                 | Priority | Effort   |
+| ----- | --------------------------------------------------------------------- | -------- | -------- |
+| H1    | Critical fixes (Python version, CLI docs, env docstrings)             | CRITICAL | 1-2 days |
+| H2    | Config & onboarding docs (YAML comments, notebook index, Hydra guide) | HIGH     | 3-5 days |
+| H3    | Docstring gap closure (GUI modules, functions, inline comments)       | HIGH     | 3-5 days |
+| H4    | Complexity reduction (base classes, nesting, file splits)             | MEDIUM   | 5-7 days |
+| H5    | Type safety & magic numbers (constants, asserts, type hints)          | MEDIUM   | 3-5 days |
+| H6    | Naming polish (glossary, variable standards, parameter grouping)      | LOW      | 2-3 days |
+| H7    | Compatibility matrix documentation                                    | LOW      | 1-2 days |
 
 ---
 
 ## Metrics & Targets
 
-| Metric | Current | Target | How to Measure |
-|--------|---------|--------|----------------|
-| Module docstring coverage | 85% | 95% | `just check-docs` |
-| Function docstring coverage | 78% | 90% | `just check-docs` |
-| Type hint coverage (returns) | 95% | 98% | `mypy --strict` |
-| Type hint coverage (params) | 90% | 95% | `mypy --strict` |
-| Files > 500 LOC | 9 | ≤ 5 | `find -name "*.py" \| xargs wc -l \| awk '$1>500'` |
-| Max nesting depth | 7 | ≤ 4 | Manual audit / radon |
-| Magic numbers (undocumented) | 31 | ≤ 10 | grep audit |
-| Asserts without messages | 25 | 0 | `grep -r "assert " \| grep -v "#"` |
-| Config params without comments | ~80% | ≤ 20% | Manual audit of `assets/configs/` |
+| Metric                         | Current | Target | How to Measure                                     |
+| ------------------------------ | ------- | ------ | -------------------------------------------------- |
+| Module docstring coverage      | 85%     | 95%    | `just check-docs`                                  |
+| Function docstring coverage    | 78%     | 90%    | `just check-docs`                                  |
+| Type hint coverage (returns)   | 95%     | 98%    | `mypy --strict`                                    |
+| Type hint coverage (params)    | 90%     | 95%    | `mypy --strict`                                    |
+| Files > 500 LOC                | 9       | ≤ 5    | `find -name "*.py" \| xargs wc -l \| awk '$1>500'` |
+| Max nesting depth              | 7       | ≤ 4    | Manual audit / radon                               |
+| Magic numbers (undocumented)   | 31      | ≤ 10   | grep audit                                         |
+| Asserts without messages       | 25      | 0      | `grep -r "assert " \| grep -v "#"`                 |
+| Config params without comments | ~80%    | ≤ 20%  | Manual audit of `assets/configs/`                  |
 
 ---
 

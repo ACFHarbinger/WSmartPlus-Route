@@ -8,13 +8,15 @@ from typing import Any, List, Optional
 
 import torch.nn as nn
 
+from logic.src.constants.models import NODE_DIM
 from logic.src.models.model_factory import NeuralComponentFactory
 from logic.src.models.subnets.embeddings import (
     ContextEmbedder,
+    GenericContextEmbedder,
     VRPPContextEmbedder,
     WCContextEmbedder,
 )
-from logic.src.utils.functions.problem import is_vrpp_problem, is_wc_problem
+from logic.src.utils.functions.problem import is_tsp_problem, is_vrpp_problem, is_wc_problem
 
 
 class SetupMixin:
@@ -53,11 +55,24 @@ class SetupMixin:
     def _init_context_embedder(self, temporal_horizon: int):
         """Initialize the context embedder strategy."""
         if is_vrpp_problem(self.problem):
-            self.context_embedder = VRPPContextEmbedder(self.embed_dim, temporal_horizon > 0)
+            self.context_embedder = VRPPContextEmbedder(self.embed_dim, temporal_horizon=self.temporal_horizon)
         elif is_wc_problem(self.problem):
-            self.context_embedder = WCContextEmbedder(self.embed_dim, temporal_horizon > 0)
+            self.context_embedder = WCContextEmbedder(self.embed_dim, temporal_horizon=self.temporal_horizon)
         else:
-            self.context_embedder = ContextEmbedder(self.embed_dim, temporal_horizon > 0)
+            node_dim = 2 if is_tsp_problem(self.problem) else NODE_DIM
+            self.context_embedder = GenericContextEmbedder(
+                self.embed_dim,
+                node_dim=node_dim,
+                temporal_horizon=self.temporal_horizon,
+            )
+
+    @property
+    def is_vrpp(self):
+        return is_vrpp_problem(self.problem)
+
+    @property
+    def is_wc(self):
+        return is_wc_problem(self.problem)
 
     def _init_components(
         self,
@@ -126,6 +141,8 @@ class SetupMixin:
         # Decoder
         self.decoder = component_factory.create_decoder(
             embed_dim=self.embed_dim,
+            hidden_dim=self.hidden_dim,
+            problem=self.problem,
             n_layers=n_decode_layers,
             n_heads=self.n_heads,
             step_context_dim=step_context_dim,

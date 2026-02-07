@@ -19,6 +19,9 @@ import torch
 import torch.nn as nn
 
 from logic.src.models.attention_model import AttentionModel
+from logic.src.models.attention_model.decoding import DecodingMixin
+from logic.src.models.attention_model.forward import ForwardMixin
+from logic.src.models.attention_model.setup import SetupMixin
 from logic.src.models.model_factory import NeuralComponentFactory
 
 
@@ -74,7 +77,10 @@ class TemporalAttentionModel(AttentionModel):
         """
         Initialize the Temporal Attention Model.
         """
-        super(AttentionModel, self).__init__()
+        nn.Module.__init__(self)
+        SetupMixin.__init__(self)
+        ForwardMixin.__init__(self)
+        DecodingMixin.__init__(self)
         # Use common init helpers, but note that for TemporalAM we set temporal_horizon=0
         # for the context embedder initially because we handle temporal features separately
         # in _get_initial_embeddings.
@@ -90,14 +96,17 @@ class TemporalAttentionModel(AttentionModel):
             tanh_clipping=tanh_clipping,
         )
 
-        step_context_dim = self._init_context_embedder(temporal_horizon=0)
+        self._init_context_embedder(temporal_horizon=0)
+        step_context_dim = self.context_embedder.step_context_dim
 
         self._init_components(
             component_factory=component_factory,
             step_context_dim=step_context_dim,
             n_encode_layers=n_encode_layers,
             n_encode_sublayers=n_encode_sublayers,
+            n_decode_layers=n_decode_layers,
             dropout_rate=dropout_rate,
+            predictor_layers=predictor_layers,
             normalization=normalization,
             norm_eps_alpha=norm_eps_alpha,
             norm_learn_affine=norm_learn_affine,
@@ -183,7 +192,7 @@ class TemporalAttentionModel(AttentionModel):
 
         fill_embeddings = self.temporal_embed(predicted_fills)
         combined_embeddings = self.combine_embeddings(torch.cat((base_embeddings, fill_embeddings), dim=-1))
-        return combined_embeddings
+        return combined_embeddings, None
 
     def forward(
         self,

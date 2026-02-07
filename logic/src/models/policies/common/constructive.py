@@ -12,7 +12,7 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.utils.functions.decoding import get_decoding_strategy
+from logic.src.utils.decoding import get_decoding_strategy
 
 
 class ConstructivePolicy(nn.Module, ABC):

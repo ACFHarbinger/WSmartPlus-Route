@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from logic.src.pipeline.features.eval.evaluate import evaluate_policy, get_automatic_batch_size
 from logic.src.utils.data.data_utils import save_dataset
-from logic.src.utils.functions.function import load_model
+from logic.src.utils.functions import load_model
 
 mp = torch.multiprocessing.get_context("spawn")
 
