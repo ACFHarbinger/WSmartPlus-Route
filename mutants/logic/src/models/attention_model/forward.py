@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 
 import torch
 import torch.nn as nn
-from logic.src.utils.functions.beam_search import CachedLookup
+from logic.src.utils.decoding import CachedLookup
 from tensordict import TensorDict
 
 

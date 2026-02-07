@@ -288,7 +288,7 @@ def hydra_entry_point(cfg: Config) -> float:
         run_wsr_simulator_test(args)
         return 0.0
     elif cfg.task == "gen_data":
-        from logic.src.data.generate_data import generate_datasets, validate_gen_data_args
+        from logic.src.data.generators import generate_datasets, validate_gen_data_args
 
         # Convert Hydra config to dict
         data_args = OmegaConf.to_container(cfg.data, resolve=True)

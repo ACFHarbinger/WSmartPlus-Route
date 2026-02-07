@@ -1,5 +1,5 @@
 from logic.src.models.policies.am import AttentionModelPolicy
-from logic.src.models.subnets.encoders.ham_encoder import HAMEncoder
+from logic.src.models.subnets.encoders.ham.encoder import HAMEncoder
 
 
 class HAMPolicy(AttentionModelPolicy):

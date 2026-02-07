@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.model_factory import AttentionComponentFactory
-from logic.src.utils.functions.function import load_problem
+from logic.src.utils.functions import load_problem
 
 
 def get_batch(device, size=50, batch_size=32, temporal_horizon=0):

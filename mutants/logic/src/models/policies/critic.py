@@ -9,8 +9,8 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
-from logic.src.models.embeddings import get_init_embedding
-from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
+from logic.src.models.subnets.embeddings import get_init_embedding
+from logic.src.models.subnets.encoders.gat.encoder import GraphAttentionEncoder
 from tensordict import TensorDict
 
 

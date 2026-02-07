@@ -5,7 +5,7 @@ Extends AttentionModelPolicy with MoE Graph Attention Encoder.
 """
 
 from logic.src.models.policies.am import AttentionModelPolicy
-from logic.src.models.subnets.encoders.moe_encoder import MoEGraphAttentionEncoder
+from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
 
 
 class MoEPolicy(AttentionModelPolicy):

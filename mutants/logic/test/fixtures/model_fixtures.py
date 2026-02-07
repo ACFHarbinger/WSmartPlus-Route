@@ -7,10 +7,10 @@ from unittest.mock import MagicMock
 import pytest
 import torch
 from logic.src.models.attention_model import AttentionModel
-from logic.src.models.gat_lstm_manager import GATLSTManager
+from logic.src.models.hrl_manager import GATLSTManager
 from logic.src.models.model_factory import NeuralComponentFactory
 from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
-from logic.src.models.temporal_am import TemporalAttentionModel
+from logic.src.models.temporal_attention_model.model import TemporalAttentionModel
 
 
 @pytest.fixture
@@ -59,6 +59,7 @@ def am_setup(mocker):
             """Create mock decoder."""
             m_dec = mocker.MagicMock(spec=GlimpseDecoder)
             m_dec.forward.side_effect = lambda input, embeddings, *args, **kwargs: (
+                torch.zeros(1),
                 torch.zeros(1),
                 torch.zeros(1),
             )
@@ -119,11 +120,11 @@ def tam_setup(mocker):
             """Mock forward pass."""
             return x
 
-    mocker.patch("logic.src.models.modules.ActivationFunction", new=MockActivationFunction)
+    mocker.patch("logic.src.models.subnets.modules.ActivationFunction", new=MockActivationFunction)
 
     # Patch both to be safe
-    mocker.patch("logic.src.models.subnets.GatedRecurrentFillPredictor", autospec=False)
-    mock_grfp_cls = mocker.patch("logic.src.models.GatedRecurrentFillPredictor", autospec=False)
+    mocker.patch("logic.src.models.subnets.other.grf_predictor.GatedRecurrentFillPredictor", autospec=False)
+    mock_grfp_cls = mocker.patch("logic.src.models.subnets.other.grf_predictor.GatedRecurrentFillPredictor", autospec=False)
 
     mock_grfp = mock_grfp_cls.return_value
 
@@ -144,6 +145,12 @@ def tam_setup(mocker):
         def create_decoder(self, **kwargs):
             """Create mock decoder."""
             m_dec = mocker.MagicMock(spec=GlimpseDecoder)
+            # Return log_p, pi, cost (3 values)
+            m_dec.forward.side_effect = lambda input, embeddings, *args, **kwargs: (
+                torch.zeros(1),
+                torch.zeros(1),
+                torch.zeros(1),
+            )
             return m_dec
 
     model = TemporalAttentionModel(

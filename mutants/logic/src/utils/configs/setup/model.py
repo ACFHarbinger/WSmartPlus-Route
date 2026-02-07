@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 import torch
 import torch.nn as nn
 from logic.src.models import GATLSTManager
-from logic.src.utils.functions.function import (
+from logic.src.utils.functions import (
     get_inner_model,
     load_model,
     torch_load_cpu,

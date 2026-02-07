@@ -9,7 +9,7 @@ from typing import Any
 
 import pytorch_lightning as pl
 import torch
-from logic.src.models.meta_rnn import WeightAdjustmentRNN
+from logic.src.models.weight_adjustment_rnn import WeightAdjustmentRNN
 from logic.src.pipeline.rl.meta.hypernet_strategy import HyperNetworkStrategy
 from logic.src.pipeline.rl.meta.registry import get_meta_strategy
 from logic.src.pipeline.rl.meta.td_learning import CostWeightManager

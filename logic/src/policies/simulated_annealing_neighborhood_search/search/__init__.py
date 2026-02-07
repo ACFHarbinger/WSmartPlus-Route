@@ -1,5 +1,5 @@
 """
-Search sub-package export.
+Search sub-package export for Simulated Annealing Neighborhood Search (SANS).
 """
 
 from .deterministic import local_search_2, local_search_reversed

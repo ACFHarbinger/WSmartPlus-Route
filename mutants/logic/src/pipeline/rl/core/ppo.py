@@ -58,9 +58,9 @@ class PPO(RL4COLitModule):
         """
         super().__init__(**kwargs)
         self.critic = critic
-        self.ppo_epochs = ppo_epochs
-        self.eps_clip = eps_clip
-        self.value_loss_weight = value_loss_weight
+        self.ppo_epochs = int(ppo_epochs)
+        self.eps_clip = float(eps_clip)
+        self.value_loss_weight = float(value_loss_weight)
         self.entropy_weight = entropy_weight
         self.max_grad_norm = max_grad_norm
         self.mini_batch_size = mini_batch_size

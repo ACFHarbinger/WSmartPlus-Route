@@ -15,8 +15,8 @@ from logic.src.models.policies.common.nonautoregressive import (
     NonAutoregressiveEncoder,
     NonAutoregressivePolicy,
 )
-from logic.src.models.subnets.encoders.nargnn_encoder import NARGNNEncoder
-from logic.src.utils.functions.decoding import get_log_likelihood
+from logic.src.models.subnets.encoders.nargnn import NARGNNEncoder
+from logic.src.utils.decoding import get_log_likelihood
 from tensordict import TensorDict
 
 
@@ -116,7 +116,7 @@ class NARGNNPolicy(NonAutoregressivePolicy):
             )
 
         if decoder is None:
-            from logic.src.models.subnets.decoders.nar_decoder import SimpleNARDecoder
+            from logic.src.models.subnets.decoders.nar import SimpleNARDecoder
 
             decoder = SimpleNARDecoder()
 

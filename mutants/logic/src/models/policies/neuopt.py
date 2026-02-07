@@ -21,9 +21,9 @@ from .common.improvement import (
 
 if TYPE_CHECKING:
     from logic.src.envs.base import RL4COEnvBase
-    from logic.src.models.modules import MultiHeadAttention, Normalization
+    from logic.src.models.subnets.modules import MultiHeadAttention, Normalization
 else:
-    from logic.src.models.modules import MultiHeadAttention, Normalization
+    from logic.src.models.subnets.modules import MultiHeadAttention, Normalization
 
 
 class NeuOptEncoder(ImprovementEncoder):

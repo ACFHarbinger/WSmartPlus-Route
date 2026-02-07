@@ -4,7 +4,10 @@ Deterministic local search strategies.
 
 from copy import deepcopy
 
-from logic.src.policies.look_ahead_aux.common.computations import compute_profit, compute_real_profit
+from logic.src.policies.simulated_annealing_neighborhood_search.common.computations import (
+    compute_profit,
+    compute_real_profit,
+)
 
 
 def local_search_2(

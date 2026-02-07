@@ -10,9 +10,9 @@ from typing import Any, Callable, Dict, Literal, Optional
 
 import torch
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.modules.glop_adapter import get_adapter
 from logic.src.models.policies.common.nonautoregressive import NonAutoregressivePolicy
-from logic.src.utils.functions.decoding import batchify, unbatchify
+from logic.src.models.subnets.modules.glop_adapter import get_adapter
+from logic.src.utils.decoding import batchify, unbatchify
 from tensordict import TensorDict
 
 # Type for subproblem solvers

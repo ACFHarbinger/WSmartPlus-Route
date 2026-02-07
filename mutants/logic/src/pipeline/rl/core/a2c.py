@@ -90,7 +90,7 @@ class A2C(RL4COLitModule):
 
         # Critic network
         if critic is None:
-            from logic.src.models.critic_network_network import LegacyCriticNetwork
+            from logic.src.models.critic_network import LegacyCriticNetwork
             from logic.src.models.model_factory import AttentionComponentFactory
             from logic.src.utils.data.td_utils import DummyProblem
 

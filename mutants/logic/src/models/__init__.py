@@ -50,23 +50,29 @@ from .attention_model import AttentionModel as AttentionModel
 from .critic_network import CriticNetwork as CriticNetwork
 from .dact import DACT as DACT
 from .deepaco import DeepACO as DeepACO
-from .gat_lstm_manager import GATLSTManager as GATLSTManager
 from .gfacs import GFACS as GFACS
 from .glop import GLOP as GLOP
+from .hrl_manager import GATLSTManager as GATLSTManager
 from .hypernet import (
-    Hypernetwork as Hypernetwork,
+    HyperNetwork as HyperNetwork,
 )
 from .hypernet import (
-    HypernetworkOptimizer as HypernetworkOptimizer,
+    HyperNetworkOptimizer as HyperNetworkOptimizer,
 )
 from .l2d import L2DModel as L2DModel
 from .l2d import L2DPPOModel as L2DPPOModel
 from .matnet import MatNet as MatNet
 from .mdam import MDAM as MDAM
-from .meta_rnn import WeightAdjustmentRNN as WeightAdjustmentRNN
+from .moe import (
+    MoEAttentionModel as MoEAttentionModel,
+)
+from .moe import (
+    MoETemporalAttentionModel as MoETemporalAttentionModel,
+)
 from .n2s import N2S as N2S
 from .nargnn import NARGNN as NARGNN
 from .neuopt import NeuOpt as NeuOpt
+from .pointer_network import PointerNetwork as PointerNetwork
 from .policies.common.transductive import EAS as EAS
 from .policies.common.transductive import ActiveSearch as ActiveSearch
 from .policies.common.transductive import TransductiveModel as TransductiveModel
@@ -86,7 +92,8 @@ from .subnets import (
 from .subnets import (
     TransGraphConvEncoder as TransGraphConvEncoder,
 )
-from .temporal_am import TemporalAttentionModel as TemporalAttentionModel
+from .temporal_attention_model import TemporalAttentionModel as TemporalAttentionModel
+from .weight_adjustment_rnn import WeightAdjustmentRNN as WeightAdjustmentRNN
 
 __all__ = [
     # Core Models
@@ -95,8 +102,8 @@ __all__ = [
     "CriticNetwork",
     "GATLSTManager",
     "WeightAdjustmentRNN",
-    "Hypernetwork",
-    "HypernetworkOptimizer",
+    "HyperNetwork",
+    "HyperNetworkOptimizer",
     "MatNet",
     "MDAM",
     "PolyNet",
@@ -107,6 +114,11 @@ __all__ = [
     "DACT",
     "N2S",
     "NeuOpt",
+    "L2DModel",
+    "L2DPPOModel",
+    "MoEAttentionModel",
+    "MoETemporalAttentionModel",
+    "PointerNetwork",
     "TransductiveModel",
     "ActiveSearch",
     "EAS",

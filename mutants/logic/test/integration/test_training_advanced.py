@@ -3,7 +3,7 @@ import shutil
 
 import pytest
 from logic.src.envs.vrpp import VRPPEnv
-from logic.src.models.critic_network_network import CriticNetwork
+from logic.src.models.critic_network_network_network import CriticNetwork
 from logic.src.models.model_factory import AttentionComponentFactory
 from logic.src.models.policies.am import AttentionModelPolicy
 from logic.src.pipeline.rl.core.dr_grpo import DRGRPO
