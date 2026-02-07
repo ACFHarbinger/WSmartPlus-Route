@@ -91,11 +91,11 @@ class A2C(RL4COLitModule):
 
         # Critic network
         if critic is None:
-            from logic.src.models.critic_network import CriticNetwork
+            from logic.src.models.critic_network import LegacyCriticNetwork
             from logic.src.models.model_factory import AttentionComponentFactory
             from logic.src.utils.data.td_utils import DummyProblem
 
-            critic = CriticNetwork(
+            critic = LegacyCriticNetwork(
                 problem=DummyProblem(env.name if hasattr(env, "name") else "vrpp"),
                 component_factory=AttentionComponentFactory(),
                 embed_dim=getattr(policy, "embed_dim", 128),

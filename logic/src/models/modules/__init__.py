@@ -12,6 +12,9 @@ from .efficient_graph_convolution import (
 from .feed_forward import FeedForward as FeedForward
 from .gated_graph_convolution import GatedGraphConvolution as GatedGraphConvolution
 from .graph_convolution import GraphConvolution as GraphConvolution
+from .hgnn import HetGNNLayer as HetGNNLayer
+from .mpnn import MessagePassingLayer as MessagePassingLayer
+from .mpnn import MPNNEncoder as MPNNEncoder
 from .multi_head_attention import MultiHeadAttention as MultiHeadAttention
 from .multi_head_attention_mdam import (
     MultiHeadAttentionMDAM as MultiHeadAttentionMDAM,
@@ -23,5 +26,6 @@ from .multi_head_flash_attention import (
     MultiHeadFlashAttention as MultiHeadFlashAttention,
 )
 from .normalization import Normalization as Normalization
+from .pointer_attn_moe import PointerAttnMoE
 from .polynet_attention import PolyNetAttention as PolyNetAttention
 from .skip_connection import SkipConnection as SkipConnection
