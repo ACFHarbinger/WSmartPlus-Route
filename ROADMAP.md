@@ -10,16 +10,18 @@
 [![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
 [![CI](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
 
-> **Version**: 2.0
-> **Date**: 2026-01-24
+> **Version**: 3.0
+> **Date**: 2026-02-07
 > **Status**: In Progress
-> **Sources**: IMPROVEMENT_PLAN.md, REFACTORING_PLAN.md
+> **Sources**: IMPROVEMENT_PLAN.md, REFACTORING_PLAN.md, rl4co v0.6.0 gap analysis
 
 ---
 
 ## Overview
 
-This document tracks ALL implementation work across 7 phases. Items are marked as:
+This document tracks ALL implementation work for WSmart-Route, including the **rl4co parity roadmap**. The original phases (1-7) cover internal improvements. The new phases (8-14) address feature gaps identified against the [rl4co](https://github.com/ai4co/rl4co) library (v0.6.0).
+
+Items are marked as:
 
 - ✅ Completed
 - 🚧 In Progress
@@ -27,7 +29,42 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 ---
 
-## Phase 1: RL Pipeline Enhancements (Week 1-2)
+## Gap Analysis Summary: WSmart-Route vs rl4co
+
+### Areas Where WSmart-Route is AHEAD
+
+| Capability               | WSmart-Route                                                                                    | rl4co                                            |
+| ------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| **RL Algorithms**        | 11 (REINFORCE, PPO, A2C, SAPO, GSPO, GDPO, DR-GRPO, POMO, SymNCO, Imitation, AdaptiveImitation) | 5 (REINFORCE, PPO, StepwisePPO, n-step PPO, A2C) |
+| **Meta-Learning**        | MetaRNN, HyperNet, Contextual Bandits, Multi-Objective, TD-Learning, HRL                        | Reptile callback only                            |
+| **Classical Solvers**    | Gurobi, HGS, ALNS, PyVRP, OR-Tools, LK, BCP, ACO, SISR                                          | PyVRP, OR-Tools, LKH (MTVRP only)                |
+| **Selection Strategies** | Regular, LastMinute, LookAhead, Revenue, ServiceLevel                                           | None                                             |
+| **Multi-Day Simulation** | Full event-driven simulator with stochastic bins                                                | None                                             |
+| **Desktop GUI**          | Full PySide6 application with visualization                                                     | None                                             |
+| **HPO**                  | Optuna + DEHB                                                                                   | Hydra sweeps only                                |
+| **Loss Functions**       | NLL, Weighted NLL, KL Divergence, JS Divergence                                                 | Standard REINFORCE only                          |
+| **Graph Convolutions**   | Distance-aware, Gated, Efficient multi-head, 5 GCN variants                                     | Standard GCN + MPNN + GNN                        |
+
+### Areas Where rl4co is AHEAD (Parity Gaps)
+
+| Category                      | Gap                           | rl4co Components                                                                                                                       | Priority |
+| ----------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| **Environments**              | 18 missing problem types      | TSP, ATSP, CVRP, CVRPTW, SDVRP, SVRP, OP, PCTSP, SPCTSP, PDP, MTSP, MDCPDP, SHPP, MTVRP, FFSP, FJSP, JSSP, SMTWTP, DPP, MDPP, MCP, FLP | High     |
+| **Constructive AR Models**    | 6 missing                     | HAM, MDAM, MatNet, PolyNet, GLOP, L2D                                                                                                  | High     |
+| **Non-Autoregressive Models** | 3 missing                     | DeepACO, GFACS, NARGNNPolicy                                                                                                           | High     |
+| **Improvement Models**        | 3 missing (entire paradigm)   | DACT, N2S, NeuOpt                                                                                                                      | Medium   |
+| **Transductive Models**       | 3 missing (entire paradigm)   | ActiveSearch, EAS, EASEmb/EASLay                                                                                                       | Medium   |
+| **Flash Attention**           | Not integrated                | PyTorch SDPA + Flash Attention 2 + FLA                                                                                                 | High     |
+| **Data Augmentation**         | Missing dihedral-8, symmetric | Dihedral8, SymmetricAugmentation, StateAugmentation                                                                                    | Medium   |
+| **Structured Evaluation**     | Missing evaluation classes    | GreedyEval, SamplingEval, AugmentationEval, MultiStartEval                                                                             | Medium   |
+| **Environment Embeddings**    | Less modular                  | 17 init embeddings, context/dynamic/edge per problem                                                                                   | Medium   |
+| **Multi-Task VRP**            | Separate envs per problem     | MTVRPEnv (16 VRP variants unified)                                                                                                     | Low      |
+| **Distribution Utils**        | Missing diverse generators    | Cluster, Mixed, Gaussian Mixture distributions                                                                                         | Low      |
+| **Positional Embeddings**     | Not implemented               | Absolute, Cyclic positional embeddings                                                                                                 | Low      |
+
+---
+
+## Phase 1: RL Pipeline Enhancements ✅
 
 ### 1.1 Decoding Strategies Module ✅
 
@@ -114,7 +151,7 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 ---
 
-## Phase 2: Testing & Quality (Week 3-4)
+## Phase 2: Testing & Quality 🚧
 
 ### 2.1 E2E Tests ✅
 
@@ -138,26 +175,26 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 - [x] Property-based tests (hypothesis)
 - [ ] Mutation testing (mutmut)
-- [/] Performance benchmarks
-  - [ ] Formalize `benchmark_ls.py` into automated suite
-  - [ ] Add latency/throughput tracking for neural decoders
+- [x] Performance benchmarks
+  - [x] Formalize `benchmark_ls.py` into automated suite
+  - [x] Add latency/throughput tracking for neural decoders
 - [/] Contract tests for solver integrations
-  - [ ] `run_vrpp_optimizer` (Gurobi/Hexaly) interface validation
-  - [ ] `find_routes` (OR-Tools/PyVRP) consistency tests
-  - [ ] Multi-engine parity verification for common instances
-  - [ ] Edge case stability (N=0, N=1, exact capacity)
+  - [x] `run_vrpp_optimizer` (Gurobi/Hexaly) interface validation
+  - [x] `find_routes` (OR-Tools/PyVRP) consistency tests
+  - [x] Multi-engine parity verification for common instances
+  - [x] Edge case stability (N=0, N=1, exact capacity)
 
 ---
 
 ### 2.4 Coverage 📋
 
 - [ ] Coverage badge in README
-- [ ] Test coverage ≥ 70%
-- [ ] Mutation score ≥ 80%
+- [ ] Test coverage >= 70%
+- [ ] Mutation score >= 80%
 
 ---
 
-## Phase 3: Documentation (Month 2)
+## Phase 3: Documentation (Month 2) 📋
 
 ### 3.1 API Documentation 📋
 
@@ -179,7 +216,7 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 ---
 
-## Phase 4: Type Safety & Static Analysis (Month 2-3)
+## Phase 4: Type Safety & Static Analysis (Month 2-3) 📋
 
 ### 4.1 Type Hints 📋
 
@@ -192,7 +229,7 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 ---
 
-## Phase 5: Code Architecture (Month 3)
+## Phase 5: Code Architecture (Month 3) 📋
 
 ### 5.1 Refactoring Large Files 📋
 
@@ -210,7 +247,7 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 ---
 
-## Phase 6: Dependencies & Security (Month 3)
+## Phase 6: Dependencies & Security (Month 3) 📋
 
 ### 6.1 Dependency Management 📋
 
@@ -227,7 +264,7 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 ---
 
-## Phase 7: Developer Tooling (Month 4)
+## Phase 7: Developer Tooling (Month 4) 📋
 
 ### 7.1 Pre-commit & CI 📋
 
@@ -242,23 +279,474 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 
 ---
 
+---
+
+# rl4co Parity Roadmap
+
+The following phases (8-14) address the feature gaps between WSmart-Route and rl4co v0.6.0, organized by priority and dependency order.
+
+---
+
+## Phase 8: Core Infrastructure Alignment 📋
+
+_Foundation work that enables all subsequent model ports._
+
+### 8.1 Flash Attention Integration 📋
+
+**Target**: `logic/src/models/modules/`
+
+rl4co uses PyTorch's native `scaled_dot_product_attention` (SDPA) with Flash Attention 2 backend. WSmart-Route currently uses manual MHA.
+
+- [ ] Refactor `MultiHeadAttention` to use `torch.nn.functional.scaled_dot_product_attention`
+- [ ] Add Flash Attention 2 support via SDPA backend selection
+- [ ] Add Flash Linear Attention integration (optional, via `fla` library)
+- [ ] Ensure backward compatibility with existing attention implementations
+- [ ] Benchmark: verify speedup on RTX 3090 Ti / RTX 4080
+
+**rl4co reference**: `rl4co/models/nn/attention.py`, `rl4co/models/nn/flash_attention.py`
+
+---
+
+### 8.2 Modular Environment Embeddings 📋
+
+**Target**: `logic/src/models/embeddings/`
+
+rl4co uses a registry-based system with swappable init, context, dynamic, and edge embeddings per problem type. WSmart-Route has `ContextEmbedder` but it's less modular.
+
+- [ ] Create `InitEmbedding` base class with problem-specific subclasses
+- [ ] Create `ContextEmbedding` base class with per-problem decoder contexts
+- [ ] Create `DynamicEmbedding` base class for step-dependent updates
+- [ ] Create `EdgeEmbedding` base class for edge feature encoding
+- [ ] Create `env_init_embedding()` factory that dispatches by `env_name`
+- [ ] Register existing VRPP/WCVRP embeddings into the new system
+- [ ] Add embeddings for each new environment as they are implemented
+
+**rl4co reference**: `rl4co/models/nn/env_embeddings/` (init.py, context.py, dynamic.py, edge.py)
+
+---
+
+### 8.3 Data Augmentation Module 📋
+
+**Target**: `logic/src/data/transforms.py`
+
+- [ ] Implement `dihedral_8_augmentation` (8 rotations + reflections of coordinates)
+- [ ] Implement `symmetric_augmentation` (continuous random rotation + reflection)
+- [ ] Create `StateAugmentation` wrapper class for TensorDict-based augmentation
+- [ ] Integrate augmentation into evaluation pipeline (AugmentationEval)
+- [ ] Support configurable `feats` parameter for selecting which fields to augment
+
+**rl4co reference**: `rl4co/data/transforms.py`
+
+---
+
+### 8.4 Structured Evaluation Pipeline 📋
+
+**Target**: `logic/src/pipeline/features/eval.py`
+
+rl4co provides structured evaluation classes. WSmart-Route has evaluation but lacks the standardized wrappers.
+
+- [ ] Create `GreedyEval` class
+- [ ] Create `SamplingEval` class (with num_samples, temperature, top-p, top-k)
+- [ ] Create `AugmentationEval` class (N augmentations + greedy)
+- [ ] Create `MultiStartGreedyEval` class (POMO-style N starts)
+- [ ] Create `MultiStartGreedyAugmentEval` class (N starts x M augmentations)
+- [ ] Create unified `evaluate_policy()` function dispatching by method name
+- [ ] Add automatic batch size tuning (`get_automatic_batch_size()`)
+
+**rl4co reference**: `rl4co/tasks/eval.py`
+
+---
+
+### 8.5 Distribution Utilities for Data Generation 📋
+
+**Target**: `logic/src/data/` or `logic/src/envs/generators.py`
+
+- [ ] Implement `Cluster` distribution (Gaussian clusters, Solomon-style)
+- [ ] Implement `Mixed` distribution (50% uniform + 50% Gaussian)
+- [ ] Implement `Gaussian_Mixture` distribution (configurable modes/centers)
+- [ ] Integrate distribution selection into existing generators via config
+
+**rl4co reference**: `rl4co/envs/common/distribution_utils.py`
+
+---
+
+### 8.6 Positional Embeddings 📋
+
+**Target**: `logic/src/models/modules/`
+
+- [ ] Implement `PositionalEncoding` (standard sinusoidal)
+- [ ] Implement `AbsolutePositionalEmbedding` (for improvement models)
+- [ ] Implement `CyclicPositionalEmbedding` (for improvement models)
+
+**rl4co reference**: `rl4co/models/nn/ops.py`, `rl4co/models/nn/pos_embeddings.py`
+
+---
+
+## Phase 9: Constructive Autoregressive Models 📋
+
+_Port the remaining constructive autoregressive neural architectures._
+
+### 9.1 MatNet (Matrix Encoding Network) 📋
+
+**Target**: `logic/src/models/matnet/`
+
+Required for ATSP and FFSP. Uses matrix-based encoding instead of coordinate-based.
+
+- [ ] `MatNetEncoder` -- mixed-score attention with cross-product of row/column embeddings
+- [ ] `MatNetDecoder` -- autoregressive decoder with ATSP-specific masking
+- [ ] `MatNetFFSPDecoder` -- FFSP-specific multi-stage decoder
+- [ ] `MatNetPolicy` with environment-specific configurations
+- [ ] `MatNetInitEmbedding` for cost matrix initialization
+- [ ] Unit tests for ATSP and FFSP problem types
+
+**rl4co reference**: `rl4co/models/zoo/matnet/`
+
+---
+
+### 9.2 HAM (Heterogeneous Attention Model) 📋
+
+**Target**: `logic/src/models/ham/`
+
+For pickup-and-delivery problems with heterogeneous node types (pickup vs delivery).
+
+- [ ] `GraphHeterogeneousAttentionEncoder` -- cross-attention between node types
+- [ ] `HeterogeneousAttentionModelPolicy`
+- [ ] `HeterogeneousAttentionModel` (REINFORCE-based)
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/ham/`
+
+---
+
+### 9.3 MDAM (Multi-Decoder Attention Model) 📋
+
+**Target**: `logic/src/models/mdam/`
+
+Multiple decoders with inter-decoder KL divergence for solution diversity.
+
+- [ ] `MDAMGraphAttentionEncoder` -- shared encoder for all decoders
+- [ ] `MDAMDecoder` -- multi-head decoder with diversity loss
+- [ ] `MDAMPolicy` with KL divergence between decoder outputs
+- [ ] `MDAM` model class
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/mdam/`
+
+---
+
+### 9.4 PolyNet 📋
+
+**Target**: `logic/src/models/polynet/`
+
+Learn K diverse solution strategies with Poppy loss from a single model.
+
+- [ ] `PolyNetDecoder` -- multi-strategy decoder
+- [ ] `PolyNetPolicy` with strategy selection
+- [ ] `PolyNet` model (REINFORCE + Poppy loss)
+- [ ] Support for AM and MatNet encoder backends
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/polynet/`
+
+---
+
+### 9.5 GLOP (Global-Local Optimization Policy) 📋
+
+**Target**: `logic/src/models/glop/`
+
+- [ ] `GLOPPolicy` with global/local coordination
+- [ ] `GLOP` model
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/glop/`
+
+---
+
+### 9.6 L2D (Learning to Dispatch) 📋
+
+**Target**: `logic/src/models/l2d/`
+
+Scheduling-specific model for JSSP/FJSP dispatch decisions.
+
+- [ ] `L2DEncoder` -- scheduling-aware encoding
+- [ ] `L2DDecoder` -- dispatch action decoder
+- [ ] `L2DPolicy` and `L2DPolicy4PPO`
+- [ ] `L2DModel` (REINFORCE) and `L2DPPOModel` (StepwisePPO)
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/l2d/`
+
+**Dependency**: Phase 10.1 scheduling environments
+
+---
+
+## Phase 10: Non-Autoregressive Models 📋
+
+_Port the NAR paradigm (heatmap prediction + construction)._
+
+### 10.1 NAR Policy Base 📋
+
+**Target**: `logic/src/models/policies/`
+
+- [ ] `NonAutoregressiveEncoder` base class
+- [ ] `NonAutoregressiveDecoder` base class
+- [ ] `NonAutoregressivePolicy` base class with heatmap generation + solution construction
+- [ ] Integration with existing `DecodingStrategy`
+
+**rl4co reference**: `rl4co/models/common/constructive/nonautoregressive/`
+
+---
+
+### 10.2 DeepACO (Deep Ant Colony Optimization) 📋
+
+**Target**: `logic/src/models/deepaco/`
+
+Neural heatmap prediction + ant colony construction. This complements WSmart-Route's existing `k_sparse_aco.py` and `hyper_aco.py`.
+
+- [ ] `DeepACOPolicy` -- heatmap-guided ant colony
+- [ ] `DeepACO` model (REINFORCE + local search)
+- [ ] Integration with existing ACO utilities (`aco_aux/`)
+- [ ] Support for 2-opt local search post-processing
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/deepaco/`
+
+---
+
+### 10.3 GFACS (GFlowNet Ant Colony System) 📋
+
+**Target**: `logic/src/models/gfacs/`
+
+- [ ] `GFACSEncoder` -- GFlowNet-based heatmap encoder
+- [ ] `GFACSPolicy` with trajectory balance loss
+- [ ] `GFACS` model
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/gfacs/`
+
+---
+
+### 10.4 NARGNNPolicy 📋
+
+**Target**: `logic/src/models/nargnn/`
+
+Generic GNN-based non-autoregressive heatmap policy.
+
+- [ ] `NARGNNEncoder` -- GCN/GNN-based edge heatmap predictor
+- [ ] `NARGNNPolicy`
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/nargnn/`
+
+---
+
+## Phase 11: Improvement & Transductive Models 📋
+
+_Two entirely new paradigms that WSmart-Route currently lacks._
+
+### 11.1 Improvement Model Base 📋
+
+**Target**: `logic/src/models/policies/`, `logic/src/pipeline/rl/`
+
+- [ ] `ImprovementEncoder` base class (encodes current solution + problem)
+- [ ] `ImprovementPolicy` base class (selects improvement actions like 2-opt, or-opt)
+- [ ] `ImprovementEnvBase` environment base with solution state tracking
+- [ ] n-step PPO integration for step-level credit assignment
+
+**rl4co reference**: `rl4co/models/common/improvement/`
+
+---
+
+### 11.2 DACT (Dual Aspect Collaborative Transformer) 📋
+
+**Target**: `logic/src/models/dact/`
+
+Improvement model using 2-opt style moves with dual encoding.
+
+- [ ] `DACTEncoder` -- dual aspect encoding (node + position)
+- [ ] `DACTDecoder` -- 2-opt action selection
+- [ ] `DACTPolicy`
+- [ ] `DACT` model (n-step PPO)
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/dact/`
+
+**Dependency**: Phase 13.1, Phase 9.1 (TSPkoptEnv)
+
+---
+
+### 11.3 N2S (Neural Neighborhood Search) 📋
+
+**Target**: `logic/src/models/n2s/`
+
+- [ ] `N2SEncoder` -- neighborhood-aware encoding
+- [ ] `N2SDecoder` -- neighborhood search action decoder
+- [ ] `N2SPolicy`
+- [ ] `N2S` model (n-step PPO)
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/n2s/`
+
+---
+
+### 11.4 NeuOpt (Neural Optimizer) 📋
+
+**Target**: `logic/src/models/neuopt/`
+
+- [ ] `NeuOptDecoder` -- neural optimizer action decoder
+- [ ] `NeuOptPolicy`
+- [ ] `NeuOpt` model (n-step PPO)
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/neuopt/`
+
+---
+
+### 11.5 Transductive Model Base 📋
+
+**Target**: `logic/src/models/`
+
+Search-time models that fine-tune on test instances (no training distribution needed).
+
+- [ ] `TransductiveModel` base class
+- [ ] Per-instance gradient update loop
+- [ ] Support for selective parameter freezing
+
+**rl4co reference**: `rl4co/models/common/transductive/`
+
+---
+
+### 11.6 Active Search 📋
+
+**Target**: `logic/src/models/active_search/`
+
+Fine-tune entire policy on individual test instances (Bello et al. 2016).
+
+- [ ] `ActiveSearch` model with per-instance gradient updates
+- [ ] Configurable number of search iterations and learning rate
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/active_search/`
+
+---
+
+### 11.7 EAS (Efficient Active Search) 📋
+
+**Target**: `logic/src/models/eas/`
+
+Selective fine-tuning of embeddings or layers at test time (Hottung et al. 2022).
+
+- [ ] `EAS` model base
+- [ ] `EASEmb` -- embedding-only fine-tuning
+- [ ] `EASLay` -- additional layer fine-tuning
+- [ ] EAS decoder with learnable parameters
+- [ ] Unit tests
+
+**rl4co reference**: `rl4co/models/zoo/eas/`
+
+---
+
+## Phase 12: Additional NN Components & Graph Modules 📋
+
+_Neural network building blocks that rl4co provides for its model zoo._
+
+### 12.1 Message Passing Neural Network 📋
+
+**Target**: `logic/src/models/modules/`
+
+- [ ] `MessagePassingLayer` -- custom edge+node message passing (PyG-based)
+- [ ] MLP-based edge and node models within MPNN
+
+**rl4co reference**: `rl4co/models/nn/graph/mpnn.py`
+
+---
+
+### 12.2 Heterogeneous GNN 📋
+
+**Target**: `logic/src/models/modules/`
+
+Required for scheduling problems (FJSP/JSSP).
+
+- [ ] `HetGNNLayer` -- heterogeneous graph neural network for multi-type nodes
+- [ ] Support for machine-operation bipartite graphs
+
+**rl4co reference**: `rl4co/models/nn/graph/hgnn.py`
+
+---
+
+### 12.3 MoE Pointer Attention 📋
+
+**Target**: `logic/src/models/modules/`
+
+- [ ] `PointerAttnMoE` -- Mixture-of-Experts enhanced pointer attention
+- [ ] Integration with existing MoE modules (`moe.py`, `moe_feed_forward.py`)
+
+**rl4co reference**: `rl4co/models/nn/attention.py`
+
+---
+
+### 12.4 Critic Network Enhancements 📋
+
+**Target**: `logic/src/models/critic_network.py`
+
+- [ ] `CriticDecoder` -- dedicated critic decoder head
+- [ ] Support for customized encoder+decoder critic architecture
+- [ ] Integration with A2C and PPO critic baselines
+
+**rl4co reference**: `rl4co/models/rl/common/critic.py`
+
+---
+
+---
+
 ## Timeline Summary
 
-| Phase   | Duration  | Focus         | Status         |
-| ------- | --------- | ------------- | -------------- |
-| Phase 1 | Week 1-2  | RL Pipeline   | 🚧 In Progress |
-| Phase 2 | Week 3-4  | Testing       | 📋 Pending     |
-| Phase 3 | Month 2   | Documentation | 📋 Pending     |
-| Phase 4 | Month 2-3 | Type Safety   | 📋 Pending     |
-| Phase 5 | Month 3   | Architecture  | 📋 Pending     |
-| Phase 6 | Month 3   | Dependencies  | 📋 Pending     |
-| Phase 7 | Month 4   | Tooling       | 📋 Pending     |
+| Phase    | Focus                         | Status         |
+| -------- | ----------------------------- | -------------- |
+| Phase 1  | RL Pipeline Enhancements      | ✅ Completed   |
+| Phase 2  | Testing & Quality             | 🚧 In Progress |
+| Phase 3  | Documentation                 | 📋 Pending     |
+| Phase 4  | Type Safety & Static Analysis | 📋 Pending     |
+| Phase 5  | Code Architecture             | 📋 Pending     |
+| Phase 6  | Dependencies & Security       | 📋 Pending     |
+| Phase 7  | Developer Tooling             | 📋 Pending     |
+| Phase 8  | Core Infrastructure Alignment | 📋 Pending     |
+| Phase 9  | Constructive AR Models        | 📋 Pending     |
+| Phase 10 | Non-Autoregressive Models     | 📋 Pending     |
+| Phase 11 | Improvement & Transductive    | 📋 Pending     |
+| Phase 12 | Additional NN Components      | 📋 Pending     |
 
-**Estimated Total**: 4 months
+### Recommended Execution Order
+
+```
+Phase 2 (finish testing) ──> Phase 8 (infra alignment)
+                                  │
+                    ┌─────────────┼─────────────┐
+                    v             v             v
+              Phase 9       Phase 11      Phase 14
+          (routing envs)  (AR models)   (NN modules)
+                    │             │
+                    v             v
+              Phase 10      Phase 12
+          (non-routing)   (NAR models)
+                                  │
+                                  v
+                            Phase 13
+                      (improvement + transductive)
+```
+
+Phases 3-7 (docs, types, architecture, deps, tooling) can proceed in parallel with any of the parity phases.
 
 ---
 
 ## Progress Log
+
+### 2026-02-07
+
+- ✅ Comprehensive rl4co v0.6.0 gap analysis completed
+- ✅ Roadmap extended with Phases 8-14 for rl4co parity
+- ✅ Identified WSmart-Route advantages (RL algos, meta-learning, solvers, simulation, GUI)
+- ✅ Identified 7 parity phases covering environments, models, and infrastructure
 
 ### 2026-01-24
 
@@ -277,3 +765,6 @@ This document tracks ALL implementation work across 7 phases. Items are marked a
 - Backward compatible with existing `decode_type` parameter
 - New features are opt-in via kwargs
 - All baselines (RolloutBaseline, WarmupBaseline, POMOBaseline, etc.) were already complete
+- WSmart-Route's domain-specific features (WCVRP, simulation, selection strategies, GUI) are unique and should NOT be removed -- they are strengths beyond rl4co
+- rl4co environments and models should be adapted to WSmart-Route's architectural patterns (RL4COEnvBase, factory patterns, Hydra configs)
+- Each new environment/model should include: implementation, config files, generators, embeddings, unit tests
