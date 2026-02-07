@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.adaptive_large_neighborhood_search import run_alns
+from logic.src.policies.adaptive_large_neighborhood_search.alns import run_alns
 
 from .factory import PolicyRegistry
 

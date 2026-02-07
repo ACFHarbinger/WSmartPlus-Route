@@ -16,7 +16,7 @@ from logic.src.data.transforms import batchify
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
-from logic.src.models.subnets.decoders.glimpse_decoder import GlimpseDecoder
+from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
 from logic.src.utils.data.td_utils import DummyProblem, TensorDictStateWrapper
 

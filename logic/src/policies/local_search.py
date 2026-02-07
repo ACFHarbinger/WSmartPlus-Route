@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Set, Tuple
 
 import numpy as np
 
-from .hgs_aux.types import HGSParams, Individual
+from .hybrid_genetic_search.types import HGSParams, Individual
 from .operators import (
     move_2opt_intra,
     move_2opt_star,
