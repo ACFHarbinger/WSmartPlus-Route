@@ -21,6 +21,15 @@ from .context_embedding import (
     WCVRPContext,
 )
 from .dynamic_embedding import DynamicEmbedding, StaticEmbedding
+from .edge_embedding import (
+    EDGE_EMBEDDING_REGISTRY,
+    CVRPEdgeEmbedding,
+    EdgeEmbedding,
+    NoEdgeEmbedding,
+    TSPEdgeEmbedding,
+    WCVRPEdgeEmbedding,
+    get_edge_embedding,
+)
 
 # Embedding registry
 INIT_EMBEDDING_REGISTRY = {
@@ -78,8 +87,15 @@ __all__ = [
     "SWCVRPContext",
     "DynamicEmbedding",
     "StaticEmbedding",
+    "EdgeEmbedding",
+    "TSPEdgeEmbedding",
+    "CVRPEdgeEmbedding",
+    "WCVRPEdgeEmbedding",
+    "NoEdgeEmbedding",
     "INIT_EMBEDDING_REGISTRY",
     "CONTEXT_EMBEDDING_REGISTRY",
     "DYNAMIC_EMBEDDING_REGISTRY",
+    "EDGE_EMBEDDING_REGISTRY",
     "get_init_embedding",
+    "get_edge_embedding",
 ]
