@@ -23,7 +23,7 @@ import numpy as np
 import torch
 from logic.src.cli import ConfigsParser
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
-from logic.src.pipeline.eval.evaluate import evaluate_policy, get_automatic_batch_size
+from logic.src.pipeline.features.eval.evaluate import evaluate_policy, get_automatic_batch_size
 from logic.src.utils.data.data_utils import save_dataset
 from logic.src.utils.functions.function import load_model
 from loguru import logger

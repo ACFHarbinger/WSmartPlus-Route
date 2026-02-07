@@ -15,8 +15,8 @@ import torch
 import torch.utils.data
 from tensordict import TensorDict
 
-from logic.src.pipeline.simulations.loader import load_depot, load_simulator_data
 from logic.src.pipeline.simulations.processor import process_coordinates, process_data
+from logic.src.pipeline.simulations.repository import load_depot, load_simulator_data
 from logic.src.utils.functions.function import get_path_until_string
 
 

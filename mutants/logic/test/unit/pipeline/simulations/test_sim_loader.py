@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from unittest.mock import MagicMock, patch, mock_open
 
-from logic.src.pipeline.simulations.context import SimulationDayContext
+from logic.src.pipeline.simulations.day_context import SimulationDayContext
 from logic.src.pipeline.simulations.loader import (
     FileSystemRepository,
     load_indices,

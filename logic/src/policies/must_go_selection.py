@@ -9,7 +9,7 @@ swapped dynamically.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type, cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -112,12 +112,12 @@ class MustGoSelectionFactory:
                 return cls()
 
         # Check default map
-        cls = default_map.get(name.lower())
-        if cls:
+        cls_def = cast(Optional[Type[MustGoSelectionStrategy]], default_map.get(name.lower()))
+        if cls_def:
             try:
-                return cls(**kwargs)
+                return cls_def(**kwargs)
             except TypeError:
                 # Fallback for strategies that don't accept args
-                return cls()
+                return cls_def()
 
         raise ValueError(f"Unknown selection strategy: {name}")

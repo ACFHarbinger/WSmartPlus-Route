@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union, cast
 
 import pytorch_lightning as pl
 import torch
@@ -14,9 +14,11 @@ from tensordict import TensorDict
 from torch.utils.data import DataLoader
 
 from logic.src.data.datasets import tensordict_collate_fn
-from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.common.constructive import ConstructivePolicy
-from logic.src.policies.selection import VectorizedSelector
+from logic.src.interfaces.env import IEnv
+from logic.src.interfaces.policy import IPolicy
+
+if TYPE_CHECKING:
+    from logic.src.policies.selection import VectorizedSelector
 from logic.src.utils.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
@@ -35,8 +37,8 @@ class RL4COLitModule(pl.LightningModule, ABC):
 
     def __init__(
         self,
-        env: RL4COEnvBase,
-        policy: ConstructivePolicy,
+        env: IEnv,
+        policy: IPolicy,
         baseline: Optional[str] = "rollout",
         optimizer: str = "adam",
         optimizer_kwargs: Optional[dict] = None,
@@ -227,7 +229,7 @@ class RL4COLitModule(pl.LightningModule, ABC):
         td: TensorDict,
         out: dict,
         batch_idx: int,
-        env: Optional[RL4COEnvBase] = None,
+        env: Optional[IEnv] = None,
     ) -> torch.Tensor:
         """
         Compute RL loss.

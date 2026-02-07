@@ -12,9 +12,7 @@ import torch.nn as nn
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
 
-from logic.src.data.datasets import FastTdDataset
 from logic.src.pipeline.rl.common.base import RL4COLitModule
-from logic.src.utils.data.rl_utils import safe_td_copy
 
 
 class StepwisePPO(RL4COLitModule):
@@ -70,6 +68,9 @@ class StepwisePPO(RL4COLitModule):
 
     def training_step(self, batch: TensorDict, batch_idx: int):
         """Execute one StepwisePPO training step."""
+        from logic.src.data.datasets import FastTdDataset
+        from logic.src.utils.data.rl_utils import safe_td_copy
+
         env = self.env
         td = env.reset(batch)
 
@@ -93,13 +94,15 @@ class StepwisePPO(RL4COLitModule):
                 embeddings = self.policy.pre_step_encode(td)
             else:
                 # Fallback: assume constructive or improvement policy has encoder
+                assert self.policy.encoder is not None, "Policy must have an encoder"
                 embeddings = self.policy.encoder(td)
 
             # One step of decoding
+            assert self.policy.decoder is not None, "Policy must have a decoder"
             log_p, action = self.policy.decoder(td, embeddings, env, decode_type="sampling", return_pi=True)
 
             # Step environment
-            td.set("action", action)
+            td["action"] = action
             td_next = env.step(td)["next"]
 
             # Step reward: reduction in total cost or immediate reward
@@ -142,7 +145,9 @@ class StepwisePPO(RL4COLitModule):
 
                 # Re-evaluate logic (must match the step above)
                 # For simplicity, we assume we can run the one-step decoder
+                assert self.policy.encoder is not None
                 emb = self.policy.encoder(sub_td)
+                assert self.policy.decoder is not None
                 new_log_p, _ = self.policy.decoder(sub_td, emb, env, actions=sub_td["action"])
                 new_values = self.critic(sub_td).squeeze(-1)
 
@@ -204,11 +209,11 @@ class StepwisePPO(RL4COLitModule):
         data = torch.stack([e["td"] for e in experiences], dim=1)  # [B, T, ...]
 
         # Build flattened TensorDict
-        data.set("action", torch.stack([e["action"] for e in experiences], dim=1))
-        data.set("log_p", torch.stack([e["log_p"] for e in experiences], dim=1))
-        data.set("advantage", advantages)
-        data.set("return", returns)
-        data.set("reward", rewards)  # per-step reward for logging
+        data["action"] = torch.stack([e["action"] for e in experiences], dim=1)
+        data["log_p"] = torch.stack([e["log_p"] for e in experiences], dim=1)
+        data["advantage"] = advantages
+        data["return"] = returns
+        data["reward"] = rewards  # per-step reward for logging
 
         # Reshape to [B*T]
         return data.view(bs * T)
