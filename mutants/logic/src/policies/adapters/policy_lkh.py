@@ -7,10 +7,10 @@ Uses Lin-Kernighan heuristic for TSP optimization.
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
+from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.lin_kernighan import solve_lk
+from logic.src.policies.single_vehicle import get_multi_tour, get_route_cost
 
-from ..base_routing_policy import BaseRoutingPolicy
-from ..lin_kernighan import solve_lk
-from ..single_vehicle import get_multi_tour, get_route_cost
 from .factory import PolicyRegistry
 
 

@@ -2,7 +2,7 @@
 Combined selection strategy module.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, cast
 
 from ..must_go_selection import MustGoSelectionFactory, MustGoSelectionStrategy, SelectionContext
 
@@ -14,8 +14,8 @@ class CombinedSelection(MustGoSelectionStrategy):
 
     def __init__(
         self,
-        strategies: List[Dict[str, Any]] = None,
-        combined_strategies: List[Dict[str, Any]] = None,
+        strategies: Optional[List[Dict[str, Any]]] = None,
+        combined_strategies: Optional[List[Dict[str, Any]]] = None,
         logic: str = "or",
     ):
         """
@@ -94,5 +94,5 @@ class CombinedSelection(MustGoSelectionStrategy):
 
         # Add other mappings if needed
         if updates:
-            return replace(context, **updates)
+            return replace(context, **cast(Dict[str, Any], updates))
         return context

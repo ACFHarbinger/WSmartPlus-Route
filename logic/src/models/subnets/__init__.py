@@ -3,7 +3,7 @@ Sub-networks (Encoders, Decoders, Predictors) for the neural models.
 """
 
 from .decoders.gat_decoder import GraphAttentionDecoder as GraphAttentionDecoder
-from .decoders.mdam_decoder import MDAMDecoder as MDAMDecoder
+from .decoders.mdam import MDAMDecoder as MDAMDecoder
 from .decoders.polynet_decoder import PolyNetDecoder as PolyNetDecoder
 from .decoders.ptr_decoder import (
     PointerAttention as PointerAttention,

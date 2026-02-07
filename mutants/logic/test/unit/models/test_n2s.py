@@ -1,0 +1,47 @@
+"""
+Tests for N2S Model and Policy.
+"""
+
+import pytest
+import torch
+from tensordict import TensorDict
+
+from logic.src.envs.tsp import TSPkoptEnv
+from logic.src.models.n2s import N2S
+from logic.src.models.policies.n2s import N2SPolicy
+
+
+def test_n2s_policy_forward():
+    """Test N2SPolicy iterative loop with neighborhood mask."""
+    env = TSPkoptEnv(num_loc=20)
+    policy = N2SPolicy(embed_dim=128, k_neighbors=10)
+
+    td = env.reset(batch_size=[2])
+
+    # Run one step of policy
+    out = policy(td, env, decode_type="greedy", max_steps=3)
+
+    assert "actions" in out.keys()
+    assert out["actions"].shape == (2, 3, 2)  # batch, steps, 2 nodes
+
+    # Check that it moves
+    assert td["solution"].shape == (2, 21)
+
+
+def test_n2s_model():
+    """Test N2S model wrapper."""
+    env = TSPkoptEnv(num_loc=10)
+    model = N2S(env, embed_dim=64, k_neighbors=5)
+
+    td = env.reset(batch_size=[1])
+
+    # N2S wrapper should call policy.forward
+    out = model(td, env, max_steps=2)
+
+    assert "actions" in out.keys()
+    assert "reward" in out.keys()
+    assert out["reward"].shape == (1,)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

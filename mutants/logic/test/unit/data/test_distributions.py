@@ -8,7 +8,10 @@ from logic.src.data.distributions import (
     Gaussian_Mixture,
     Mix_Distribution,
     Mix_Multi_Distributions,
+    Gamma,
+    Empirical,
 )
+from unittest.mock import MagicMock
 
 
 class TestDistributions:
@@ -63,3 +66,55 @@ class TestDistributions:
         coords = dist.sample((batch, num_loc, 2))
         assert coords.shape == (batch, num_loc, 2)
         assert (coords >= 0).all() and (coords <= 1).all()
+
+    def test_gamma_distribution(self):
+        """Verify Gamma output shape."""
+        batch, num_loc, dim = 4, 10, 2
+        dist = Gamma(alpha=2.0, beta=2.0)
+        out = dist.sample((batch, num_loc, dim))
+        assert out.shape == (batch, num_loc, dim)
+
+    def test_empirical_fallback(self):
+        """Verify Empirical fallback to uniform."""
+        batch, num_loc, dim = 4, 10, 2
+        dist = Empirical(dataset_path=None)
+        out = dist.sample((batch, num_loc, dim))
+        assert out.shape == (batch, num_loc, dim)
+        assert (out >= 0).all() and (out <= 1).all()
+
+    def test_empirical_with_data(self):
+        """Verify Empirical with mock data."""
+        batch, num_loc, dim = 2, 5, 2
+        mock_data = torch.ones(10, 5, 2) * 0.5
+        dist = Empirical()
+        dist.dataset = mock_data
+
+        out = dist.sample((batch, 5, 2))
+        assert out.shape == (batch, 5, 2)
+        assert torch.allclose(out, torch.tensor(0.5))
+
+    def test_empirical_with_bins(self):
+        """Verify Empirical integration with Bins."""
+        import numpy as np
+        batch = 4
+        num_loc = 10
+        mock_bins = MagicMock()
+        # stochasticFilling returns np.ndarray in [0, 100]
+        mock_bins.stochasticFilling.return_value = np.random.uniform(0, 100, (batch, num_loc))
+
+        dist = Empirical(bins=mock_bins)
+        out = dist.sample((batch, num_loc, 1))
+
+        assert out.shape == (batch, num_loc)
+        assert (out >= 0).all() and (out <= 1).all()
+        mock_bins.stochasticFilling.assert_called_with(n_samples=batch, only_fill=True)
+
+    def test_gamma_vectorized(self):
+        """Verify vectorized Gamma parameters."""
+        batch, num_loc = 2, 5
+        alpha = torch.ones(num_loc) * 2.0
+        beta = torch.ones(num_loc) * 5.0
+        dist = Gamma(alpha=alpha, beta=beta)
+        # size matches batch, num_loc
+        out = dist.sample((batch, num_loc))
+        assert out.shape == (batch, num_loc)

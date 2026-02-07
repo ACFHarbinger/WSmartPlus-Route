@@ -10,7 +10,7 @@ import numpy as np
 
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.adapters.factory import PolicyRegistry
-from logic.src.policies.vrpp.interface import run_vrpp_optimizer
+from logic.src.policies.vehicle_routing_problem_with_profits.interface import run_vrpp_optimizer
 from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 
 
