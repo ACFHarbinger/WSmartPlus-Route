@@ -10,6 +10,7 @@ from __future__ import annotations
 import torch.nn as nn
 
 from logic.src.models.embeddings.cvrpp import CVRPPInitEmbedding
+from logic.src.models.embeddings.pdp import PDPInitEmbedding
 from logic.src.models.embeddings.vrpp import VRPPInitEmbedding
 from logic.src.models.embeddings.wcvrp import WCVRPInitEmbedding
 
@@ -40,6 +41,7 @@ INIT_EMBEDDING_REGISTRY = {
     "sdwcvrp": WCVRPInitEmbedding,
     "swcvrp": WCVRPInitEmbedding,
     "scwcvrp": WCVRPInitEmbedding,
+    "pdp": PDPInitEmbedding,
 }
 
 CONTEXT_EMBEDDING_REGISTRY = {

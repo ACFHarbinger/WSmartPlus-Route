@@ -13,6 +13,8 @@ from logic.src.envs.generators import (
     WCVRPGenerator,
     get_generator,
 )
+from logic.src.envs.jssp import JSSPEnv
+from logic.src.envs.pdp import PDPEnv
 from logic.src.envs.swcvrp import SCWCVRPEnv
 from logic.src.envs.tsp import TSPEnv, TSPkoptEnv
 from logic.src.envs.vrpp import CVRPPEnv, VRPPEnv
@@ -28,6 +30,8 @@ ENV_REGISTRY = {
     "scwcvrp": SCWCVRPEnv,
     "tsp": TSPEnv,
     "tsp_kopt": TSPkoptEnv,
+    "pdp": PDPEnv,
+    "jssp": JSSPEnv,
 }
 
 
@@ -70,6 +74,8 @@ __all__ = [
     "SCWCVRPEnv",
     "TSPEnv",
     "TSPkoptEnv",
+    "PDPEnv",
+    "JSSPEnv",
     # Registry
     "ENV_REGISTRY",
     "get_env",
