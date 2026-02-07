@@ -5,14 +5,15 @@ This module provides various local search operators (Relocate, Swap, 2-opt)
 to improve individual solutions within the HGS population.
 """
 
+from __future__ import annotations
+
 import random
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Set, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Set, Tuple
 
 import numpy as np
 
-from .hybrid_genetic_search.types import HGSParams, Individual
 from .operators import (
     move_2opt_intra,
     move_2opt_star,
@@ -21,6 +22,9 @@ from .operators import (
     move_swap,
     move_swap_star,
 )
+
+if TYPE_CHECKING:
+    from .hybrid_genetic_search.types import HGSParams, Individual
 
 
 class LocalSearch(ABC):
@@ -173,11 +177,11 @@ class HGSLocalSearch(LocalSearch):
         capacity: float,
         R: float,
         C: float,
-        params: HGSParams,
+        params: "HGSParams",
     ):
         super().__init__(dist_matrix, demands, capacity, R, C, params)
 
-    def optimize(self, solution: Individual) -> Individual:
+    def optimize(self, solution: "Individual") -> "Individual":
         """
         Iteratively improve an individual using local search operators.
         """

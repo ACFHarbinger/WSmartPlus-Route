@@ -10,7 +10,7 @@ import numpy as np
 
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.hgs_alns_solver import HGSALNSSolver
-from logic.src.policies.hgs_aux.types import HGSParams
+from logic.src.policies.hybrid_genetic_search.types import HGSParams
 
 from .factory import PolicyRegistry
 

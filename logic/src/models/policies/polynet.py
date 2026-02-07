@@ -15,7 +15,7 @@ from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 from logic.src.models.subnets.decoders.polynet import PolyNetDecoder
 from logic.src.models.subnets.embeddings import get_init_embedding
-from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
+from logic.src.models.subnets.encoders.gat.encoder import GraphAttentionEncoder
 
 
 class PolyNetPolicy(AutoregressivePolicy):

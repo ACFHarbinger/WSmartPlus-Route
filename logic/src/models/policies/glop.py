@@ -14,7 +14,7 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.common.nonautoregressive import NonAutoregressivePolicy
 from logic.src.models.subnets.modules.glop_adapter import get_adapter
-from logic.src.utils.functions.decoding import batchify, unbatchify
+from logic.src.utils.decoding import batchify, unbatchify
 
 # Type for subproblem solvers
 SubProblemSolverType = Callable[[torch.Tensor], torch.Tensor]

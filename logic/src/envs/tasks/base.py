@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 import torch
 from tensordict import TensorDict
 
-from logic.src.utils.functions.decoding import beam_search as beam_search_func
+from logic.src.utils.decoding import beam_search as beam_search_func
 
 
 class BaseProblem:

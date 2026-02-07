@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 from tensordict import TensorDict
 
-from logic.src.utils.functions.decoding import CachedLookup
+from logic.src.utils.decoding import CachedLookup
 
 
 class ForwardMixin:

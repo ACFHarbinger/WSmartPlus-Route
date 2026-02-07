@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 import torch
-from logic.src.models.critic_network import LegacyCriticNetwork
+from logic.src.models.critic_network_network import LegacyCriticNetwork
 
 
 def test_critic_network_init():

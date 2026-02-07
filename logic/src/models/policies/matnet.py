@@ -8,7 +8,7 @@ from logic.src.models.policies.common.autoregressive import (
 )
 from logic.src.models.subnets.decoders.matnet import MatNetDecoder
 from logic.src.models.subnets.embeddings.matnet import MatNetInitEmbedding
-from logic.src.models.subnets.encoders.matnet_encoder import MatNetEncoder
+from logic.src.models.subnets.encoders.matnet.encoder import MatNetEncoder
 
 
 class MatNetPolicy(AutoregressivePolicy):

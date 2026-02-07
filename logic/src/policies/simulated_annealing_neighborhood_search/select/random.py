@@ -4,7 +4,7 @@ Random selection strategies for bin management.
 
 from random import sample as rsample
 
-from logic.src.policies.look_ahead_aux.common.routes import organize_route
+from logic.src.policies.simulated_annealing_neighborhood_search.common.routes import organize_route
 
 
 # Function to remove one bin from one route (Drop one bin from one random chosen route)

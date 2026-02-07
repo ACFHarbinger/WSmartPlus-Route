@@ -1,7 +1,7 @@
 
 import pytest
 import torch
-from logic.src.models.modules.pointer_attn_moe import PointerAttnMoE
+from logic.src.models.subnets.modules.pointer_attn_moe import PointerAttnMoE
 
 class TestPointerAttnMoE:
     @pytest.fixture

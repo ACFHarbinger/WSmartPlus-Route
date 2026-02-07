@@ -2,18 +2,17 @@
 MDAM Multi-Path Decoder implementation.
 """
 
-import math
 from typing import Any, Optional, Tuple, Union, cast
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
 from logic.src.models.subnets.embeddings.dynamic_embedding import DynamicEmbedding
 
+from .attention import compute_mdam_logits
 from .cache import PrecomputedCache, _decode_probs
 
 
@@ -316,56 +315,21 @@ class MDAMDecoder(nn.Module):
         mask = td.get("action_mask", None)
 
         # Compute logits
-        logprobs, _ = self._compute_logits(glimpse_q, glimpse_k, glimpse_v, logit_k, mask, path_index)
-
-        return logprobs, mask
-
-    def _compute_logits(
-        self,
-        query: torch.Tensor,
-        glimpse_K: torch.Tensor,
-        glimpse_V: torch.Tensor,
-        logit_K: torch.Tensor,
-        mask: Optional[torch.Tensor],
-        path_index: int,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Compute attention-based logits."""
-        batch_size, num_steps, embed_dim = query.size()
-        key_size = embed_dim // self.num_heads
-
-        # Reshape query for multi-head
-        glimpse_Q = query.view(batch_size, num_steps, self.num_heads, 1, key_size).permute(2, 0, 1, 3, 4)
-
-        # Compute compatibility
-        compatibility = torch.matmul(glimpse_Q, glimpse_K.transpose(-2, -1)) / math.sqrt(key_size)
-
-        if self.mask_inner and mask is not None:
-            compatibility_mask = ~mask[None, :, None, None, :].expand_as(compatibility)
-            compatibility[compatibility_mask] = -math.inf
-
-        # Compute attention and aggregate
-        heads = torch.matmul(F.softmax(compatibility, dim=-1), glimpse_V)
-
-        # Project out
-        glimpse = self.project_out[path_index](
-            heads.permute(1, 2, 3, 0, 4).contiguous().view(-1, num_steps, 1, self.num_heads * key_size)
+        logprobs, _ = compute_mdam_logits(
+            glimpse_q,
+            glimpse_k,
+            glimpse_v,
+            logit_k,
+            mask,
+            path_index,
+            self.num_heads,
+            self.project_out[path_index],
+            self.tanh_clipping,
+            self.mask_inner,
+            self.mask_logits,
         )
 
-        # Compute final logits
-        logits = torch.matmul(glimpse, logit_K.transpose(-2, -1)).squeeze(-2) / math.sqrt(glimpse.size(-1))
-
-        # Apply tanh clipping
-        if self.tanh_clipping > 0:
-            logits = torch.tanh(logits) * self.tanh_clipping
-
-        # Apply mask
-        if self.mask_logits and mask is not None:
-            logits[~mask[:, None, :]] = -math.inf
-
-        # Convert to log probs
-        logprobs = F.log_softmax(logits, dim=-1)
-
-        return logprobs, glimpse.squeeze(-2)
+        return logprobs, mask
 
     def _get_log_likelihood(
         self,

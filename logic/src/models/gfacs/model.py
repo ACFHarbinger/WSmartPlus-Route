@@ -17,7 +17,7 @@ from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.gfacs import GFACSPolicy
-from logic.src.utils.functions.decoding import unbatchify
+from logic.src.utils.decoding import unbatchify
 
 
 class GFACS(nn.Module):

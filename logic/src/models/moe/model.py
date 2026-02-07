@@ -89,3 +89,17 @@ class MoETemporalAttentionModel(TemporalAttentionModel):
             n_heads=n_heads,
             **kwargs,
         )
+
+    def embed_and_transform(self, input, edges=None):
+        """
+        Embed and transform input.
+        Wraps parent method to handle potential 4D output from MoE encoder.
+        """
+        embeddings, _ = super().embed_and_transform(input, edges)
+
+        if embeddings.dim() == 4:
+            # [Batch, Graph, K/Heads, Dim] -> [Batch, Graph, Dim]
+            # Collapse the extra dimension (likely experts or heads)
+            embeddings = embeddings.mean(dim=2)
+
+        return embeddings, None

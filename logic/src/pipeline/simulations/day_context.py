@@ -18,7 +18,7 @@ import torch
 
 from logic.src.constants import DAY_METRICS
 from logic.src.pipeline.simulations.bins import Bins
-from logic.src.utils.functions.function import move_to
+from logic.src.utils.functions import move_to
 
 
 @dataclass
