@@ -1,19 +1,31 @@
 """
-This module contains the Critic Network implementation for RL baselines.
+Backward-compatibility shim for CriticNetwork.
+
+The canonical CriticNetwork implementation is now in
+``logic.src.models.policies.critic``. This module re-exports both
+the new (TensorDict-based) and legacy (problem/factory-based) versions.
+
+**New code should import from** ``logic.src.models.policies.critic``.
 """
+
+import warnings
 
 import torch.nn as nn
 
 from .context_embedder import VRPPContextEmbedder, WCContextEmbedder
 from .modules import ActivationFunction
 
+# Re-export the canonical CriticNetwork and factory
+from .policies.critic import CriticNetwork, create_critic_from_actor  # noqa: F401
 
-# Attention, Learn to Solve Routing Problems
-class CriticNetwork(nn.Module):
+
+class LegacyCriticNetwork(nn.Module):
     """
-    Critic Network for estimating the value of a problem state in Reinforcement Learning.
+    Legacy Critic Network using problem objects and component factories.
 
-    Used as a baseline to reduce variance in gradient estimation (e.g., in PPO/REINFORCE).
+    This is the original implementation kept for backward compatibility with
+    the legacy training pipeline. New code should use
+    ``logic.src.models.policies.critic.CriticNetwork`` instead.
     """
 
     def __init__(
@@ -31,35 +43,22 @@ class CriticNetwork(nn.Module):
         dropout_rate=0.0,
         temporal_horizon=0,
     ):
-        """
-        Initialize the Critic Network.
-
-        Args:
-            problem (object): The problem instance wrapper.
-            component_factory (NeuralComponentFactory): Factory to create sub-components.
-            embed_dim (int): Dimension of the embedding vectors.
-            hidden_dim (int): Dimension of the hidden layers.
-            n_layers (int): Number of encoder layers.
-            n_sublayers (int): Number of sub-layers in encoder.
-            encoder_normalization (str, optional): Normalization type for encoder. Defaults to 'batch'.
-            activation (str, optional): Activation function name. Defaults to 'gelu'.
-            n_heads (int, optional): Number of attention heads. Defaults to 8.
-            aggregation_graph (str, optional): Graph aggregation method ('avg', 'sum', 'max'). Defaults to "avg".
-            dropout_rate (float, optional): Dropout rate. Defaults to 0.0.
-            temporal_horizon (int, optional): Horizon for temporal features. Defaults to 0.
-        """
-        super(CriticNetwork, self).__init__()
+        super().__init__()
+        warnings.warn(
+            "LegacyCriticNetwork is deprecated. Use logic.src.models.policies.critic.CriticNetwork instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.hidden_dim = hidden_dim
         self.embed_dim = embed_dim
         self.aggregation_graph = aggregation_graph
 
-        self.is_wc = problem.NAME == "wcvrp" or problem.NAME == "cwcvrp" or problem.NAME == "sdwcvrp"
-        self.is_vrpp = problem.NAME == "vrpp" or problem.NAME == "cvrpp"
+        self.is_wc = problem.NAME in ("wcvrp", "cwcvrp", "sdwcvrp")
+        self.is_vrpp = problem.NAME in ("vrpp", "cvrpp")
 
-        assert self.is_wc or self.is_vrpp, "Unsupported problem: {}".format(problem.NAME)
+        assert self.is_wc or self.is_vrpp, f"Unsupported problem: {problem.NAME}"
 
-        # Problem specific context parameters
-        node_dim = 3  # x, y, demand / prize / waste -- vrpp has waste, wc has waste.
+        node_dim = 3
 
         if self.is_wc:
             self.context_embedder = WCContextEmbedder(embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)
@@ -87,15 +86,6 @@ class CriticNetwork(nn.Module):
         return self.context_embedder.init_node_embeddings(nodes)
 
     def forward(self, inputs):
-        """
-        Forward pass of the Critic Network.
-
-        Args:
-            inputs (dict): The input data dictionary containing problem state (nodes, edges, etc.).
-
-        Returns:
-            torch.Tensor: The estimated value of the current state.
-        """
         edges = inputs.get("edges", None)
         embeddings = self.encoder(self._init_embed(inputs), edges)
         if self.aggregation_graph == "avg":
@@ -103,8 +93,13 @@ class CriticNetwork(nn.Module):
         elif self.aggregation_graph == "sum":
             graph_embeddings = embeddings.sum(1)
         else:
-            assert self.aggregation_graph == "max", "Unsupported graph aggregation method: {}".format(
-                self.aggregation_graph
-            )
+            assert self.aggregation_graph == "max", f"Unsupported aggregation: {self.aggregation_graph}"
             graph_embeddings = embeddings.max(1)[0]
         return self.value_head(graph_embeddings)
+
+
+__all__ = [
+    "CriticNetwork",
+    "LegacyCriticNetwork",
+    "create_critic_from_actor",
+]
