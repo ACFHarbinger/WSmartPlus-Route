@@ -2,5 +2,5 @@
 PolyNet Decoder facade.
 """
 
-from .decoder import PolyNetDecoder as PolyNetDecoder
-from .decoder import PrecomputedCache as PrecomputedCache
+from .cache import PrecomputedCache as PrecomputedCache
+from .polynet_decoder import PolyNetDecoder as PolyNetDecoder

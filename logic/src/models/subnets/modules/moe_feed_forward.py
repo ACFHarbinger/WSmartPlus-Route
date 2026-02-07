@@ -6,7 +6,7 @@ import torch.nn as nn
 
 from .activation_function import ActivationFunction
 from .feed_forward import FeedForward
-from .moe import MoE
+from .moe_layer import MoE
 
 
 class MoEFeedForward(nn.Module):

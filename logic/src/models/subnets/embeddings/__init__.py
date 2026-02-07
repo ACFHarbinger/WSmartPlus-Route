@@ -14,9 +14,9 @@ from logic.src.models.subnets.embeddings.pdp import PDPInitEmbedding
 from logic.src.models.subnets.embeddings.vrpp import VRPPInitEmbedding
 from logic.src.models.subnets.embeddings.wcvrp import WCVRPInitEmbedding
 
-from .context_embedder import (
+from .context import (
     ContextEmbedder,
-    CVRPContext,
+    CVRPPContext,
     EnvContext,
     GenericContextEmbedder,
     SWCVRPContext,
@@ -25,16 +25,17 @@ from .context_embedder import (
     WCContextEmbedder,
     WCVRPContext,
 )
-from .dynamic_embedding import DynamicEmbedding, StaticEmbedding
-from .edge_embedding import (
+from .dynamic import DynamicEmbedding
+from .edges import (
     EDGE_EMBEDDING_REGISTRY,
-    CVRPEdgeEmbedding,
+    CVRPPEdgeEmbedding,
     EdgeEmbedding,
     NoEdgeEmbedding,
     TSPEdgeEmbedding,
     WCVRPEdgeEmbedding,
     get_edge_embedding,
 )
+from .static import StaticEmbedding
 
 # Embedding registry
 INIT_EMBEDDING_REGISTRY = {
@@ -50,7 +51,7 @@ INIT_EMBEDDING_REGISTRY = {
 
 CONTEXT_EMBEDDING_REGISTRY = {
     "vrpp": VRPPContext,
-    "cvrpp": CVRPContext,
+    "cvrpp": CVRPPContext,
     "wcvrp": WCVRPContext,
     "cwcvrp": WCVRPContext,
     "sdwcvrp": WCVRPContext,
@@ -88,7 +89,7 @@ __all__ = [
     "WCVRPInitEmbedding",
     "EnvContext",
     "VRPPContext",
-    "CVRPContext",
+    "CVRPPContext",
     "WCVRPContext",
     "SWCVRPContext",
     "ContextEmbedder",
@@ -98,7 +99,7 @@ __all__ = [
     "StaticEmbedding",
     "EdgeEmbedding",
     "TSPEdgeEmbedding",
-    "CVRPEdgeEmbedding",
+    "CVRPPEdgeEmbedding",
     "WCVRPEdgeEmbedding",
     "NoEdgeEmbedding",
     "INIT_EMBEDDING_REGISTRY",

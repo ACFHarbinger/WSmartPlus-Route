@@ -3,7 +3,7 @@
 import os
 import json
 import pytest
-from logic.src.utils.io.processing import (
+from logic.src.utils.io import (
     process_dict_of_dicts,
     process_list_of_dicts,
     process_dict_two_inputs,

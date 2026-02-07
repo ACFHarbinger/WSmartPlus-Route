@@ -2,7 +2,7 @@
 Centralized registry for the WSmart+ Route CLI parser.
 """
 
-from logic.src.cli.base_parser import ConfigsParser
+from logic.src.cli.base import ConfigsParser
 from logic.src.cli.benchmark_parser import add_benchmark_args
 from logic.src.cli.fs_parser import add_files_args
 from logic.src.cli.gui_parser import add_gui_args

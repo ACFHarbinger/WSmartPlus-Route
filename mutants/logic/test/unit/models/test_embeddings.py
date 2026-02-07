@@ -3,8 +3,9 @@
 import torch
 import pytest
 from tensordict import TensorDict
-from logic.src.models.subnets.embeddings.context_embedder import VRPPContext, CVRPContext, SWCVRPContext
-from logic.src.models.subnets.embeddings.dynamic_embedding import StaticEmbedding, DynamicEmbedding
+from logic.src.models.subnets.embeddings.context import VRPPContext, CVRPPContext, SWCVRPContext
+from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
+from logic.src.models.subnets.embeddings.static import StaticEmbedding
 
 
 class TestContextEmbedding:
@@ -31,7 +32,7 @@ class TestContextEmbedding:
         batch = 2
         nodes = 5
         embed_dim = 16
-        model = CVRPContext(embed_dim)
+        model = CVRPPContext(embed_dim)
 
         embeddings = torch.randn(batch, nodes, embed_dim)
         td = TensorDict({

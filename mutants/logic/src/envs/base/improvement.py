@@ -9,7 +9,7 @@ from abc import abstractmethod
 import torch
 from tensordict import TensorDict
 
-from .rl4co import RL4COEnvBase
+from .base import RL4COEnvBase
 
 
 class ImprovementEnvBase(RL4COEnvBase):

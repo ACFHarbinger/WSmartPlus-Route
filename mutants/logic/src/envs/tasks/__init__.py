@@ -10,8 +10,11 @@ from logic.src.constants.tasks import (
 )
 
 from .base import BaseProblem
+from .cwcvrp import CWCVRP
+from .scwcvrp import SCWCVRP
+from .sdwcvrp import SDWCVRP
 from .vrp import CVRPP, VRPP
-from .waste import CWCVRP, SCWCVRP, SDWCVRP, WCVRP
+from .wcvrp import WCVRP
 
 __all__ = [
     "BaseProblem",

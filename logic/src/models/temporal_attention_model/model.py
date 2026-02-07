@@ -22,7 +22,7 @@ from logic.src.models.attention_model import AttentionModel
 from logic.src.models.attention_model.decoding import DecodingMixin
 from logic.src.models.attention_model.forward import ForwardMixin
 from logic.src.models.attention_model.setup import SetupMixin
-from logic.src.models.model_factory import NeuralComponentFactory
+from logic.src.models.subnets.factories import NeuralComponentFactory
 
 
 class TemporalAttentionModel(AttentionModel):

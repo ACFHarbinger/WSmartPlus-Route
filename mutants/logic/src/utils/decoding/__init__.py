@@ -23,7 +23,9 @@ from .decoding_utils import (
     top_p_filter,
     unbatchify,
 )
-from .strategies import Evaluate, Greedy, Sampling
+from .evaluate import Evaluate
+from .greedy import Greedy
+from .sampling import Sampling
 
 DECODING_STRATEGY_REGISTRY = {
     "greedy": Greedy,

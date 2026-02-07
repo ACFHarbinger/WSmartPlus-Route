@@ -1,2 +1,2 @@
-from .model import L2DModel as L2DModel
-from .model import L2DPPOModel as L2DPPOModel
+from .l2d_model import L2DModel as L2DModel
+from .l2d_ppo_model import L2DPPOModel as L2DPPOModel

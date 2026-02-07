@@ -66,7 +66,7 @@ def sample_config_file(temp_data_dir):
 def mock_dependencies(mocker):
     """Mocks all external data generation and saving dependencies."""
     # Mock the save utility
-    mocker.patch("logic.src.data.generate_data.save_dataset", return_value=None)
+    mocker.patch("logic.src.data.generators.datasets.save_dataset", return_value=None)
 
 
 @pytest.fixture

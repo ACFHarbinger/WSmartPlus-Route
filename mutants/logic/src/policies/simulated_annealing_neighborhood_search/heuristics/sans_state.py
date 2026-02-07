@@ -6,7 +6,7 @@ from logic.src.constants.optimization import (
     MAX_CAPACITY_PERCENT,
     PENALTY_MUST_GO_MISSED,
 )
-from logic.src.policies.simulated_annealing_neighborhood_search.common.computations import (
+from logic.src.policies.simulated_annealing_neighborhood_search.common.distance import (
     compute_total_cost,
 )
 
