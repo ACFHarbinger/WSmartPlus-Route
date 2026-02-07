@@ -66,6 +66,8 @@ _POLICY_REGISTRY_SPEC = {
     "deepaco": (".deepaco", "DeepACOPolicy"),
     "gfacs": (".gfacs", "GFACSPolicy"),
     "glop": (".glop", "GLOPPolicy"),
+    "ham": (".ham", "HAMPolicy"),
+    "l2d": (".l2d", "L2DPolicy"),
     "mdam": (".mdam", "MDAMPolicy"),
     "moe": (".moe", "MoEPolicy"),
     "nargnn": (".nargnn", "NARGNNPolicy"),
