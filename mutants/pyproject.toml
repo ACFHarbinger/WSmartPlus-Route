@@ -515,4 +515,5 @@ output = "coverage.json"
 paths_to_mutate=["logic/src/utils/functions/boolmask.py"]
 tests_dir=["logic/test/unit/utils/"]
 dict_synonyms=["Struct", "NamedStruct"]
+also_copy=["logic/test/", "logic/src/"]
 debug=true

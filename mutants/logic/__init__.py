@@ -1,3 +1,0 @@
-"""
-WSmart-Route Logic Layer.
-"""
