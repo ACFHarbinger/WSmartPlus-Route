@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.hyper_aco import HyperACOParams, HyperHeuristicACO
+from logic.src.policies.ant_colony_optimization.hyper_aco import HyperACOParams, HyperHeuristicACO
 
 from .factory import PolicyRegistry
 

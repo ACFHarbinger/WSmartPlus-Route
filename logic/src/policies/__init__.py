@@ -15,8 +15,8 @@ from .adaptive_large_neighborhood_search import (
 from .branch_cut_and_price import run_bcp
 from .hybrid_genetic_search import run_hgs
 from .k_sparse_aco import ACOParams, run_aco
-from .look_ahead_aux.route_search import find_solutions
-from .look_ahead_aux.routes import create_points
+from .look_ahead_aux.common.routes import create_points
+from .look_ahead_aux.refinement.route_search import find_solutions
 from .multi_vehicle import find_routes, find_routes_ortools
 from .neural_agent import NeuralAgent
 from .single_vehicle import find_route, get_route_cost
