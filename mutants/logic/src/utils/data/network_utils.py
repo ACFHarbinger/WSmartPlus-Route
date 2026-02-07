@@ -7,7 +7,7 @@ from copy import deepcopy
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-from logic.src.utils.functions.graph_utils import (
+from logic.src.utils.graph import (
     get_adj_knn,
     get_edge_idx_dist,
     idx_to_adj,

@@ -22,7 +22,7 @@ MISSING_DOCSTRINGS = {
     "logic/src/models/policies/classical/hybrid.py": ["__init__"],
     "logic/src/models/policies/classical/alns.py": ["__init__"],
     "logic/src/models/policies/classical/hgs.py": ["__init__"],
-    "logic/src/models/embeddings/__init__.py": [
+    "logic.src.models.subnets.embeddings/__init__.py": [
         "__init__",
         "__init__",
         "forward",

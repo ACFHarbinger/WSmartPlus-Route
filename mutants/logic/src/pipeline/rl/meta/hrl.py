@@ -18,7 +18,7 @@ import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.gat_lstm_manager import GATLSTManager
+from logic.src.models.hrl_manager import GATLSTManager
 from logic.src.models.policies.common.constructive import ConstructivePolicy
 from tensordict import TensorDict
 
@@ -173,7 +173,7 @@ class HRLModule(pl.LightningModule):
         credit_weight = 1.0 + (b_overflow * 0.5)
         credit_weight = credit_weight / (credit_weight.mean() + 1e-8)
 
-        for _ in range(self.ppo_epochs):
+        for _ in range(int(self.ppo_epochs)):
             # Full batch processing or mini-batching?
             # manager_train.py used mini-batches. We'll use full batch if small enough, or simple batching.
             # Here we just use the full collected batch (since batch_size of Lightning is usually GPU-sized)

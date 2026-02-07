@@ -50,14 +50,17 @@ class TestAttentionModelStructure:
         model = AttentionModel(embed_dim=128, hidden_dim=64, problem=mock_problem, component_factory=mock_factory)
 
         # Mock embedder output
-        # embedder(node_embeddings, edges, ...) -> embeddings
-        model.embedder.return_value = torch.rand(1, 10, 128)
+        # context_embedder(input) -> (embeddings, init_context)
+        # We cannot replace the module itself with MagicMock because PyTorch enforces nn.Module type
+        # So we mock the forward method
+        model.context_embedder.forward = MagicMock(return_value=(torch.rand(1, 10, 128), None))
 
         # Mock decoder output
-        # decoder(input, embeddings, ...) -> (log_p, pi)
+        # decoder(input, embeddings, ...) -> (log_p, pi, cost)
         log_p = torch.rand(1, 10)
         pi = torch.randint(0, 10, (1, 10))
-        model.decoder.return_value = (log_p, pi)
+        # Return expected cost 10.0
+        model.decoder.return_value = (log_p, pi, torch.tensor([10.0]))
         # Mock calc_log_likelihood attached to decoder
         model.decoder._calc_log_likelihood.return_value = (torch.tensor(0.0), torch.tensor(0.0))
 
@@ -74,9 +77,13 @@ class TestAttentionModelStructure:
         }
 
         # Run forward
-        cost, ll, cost_dict, pi_out, entropy = model(dummy_input)
+        out = model(dummy_input)
+
+        cost = out["cost"]
+        # pi might be there or not depending on return_pi default, usually False in forward unless specified
+        # But we didn't specify return_pi=True in the call model(dummy_input)
 
         assert cost.item() == 10.0
-        assert mock_problem.get_costs.called
-        assert model.embedder.called
+        # assert mock_problem.get_costs.called  # AttentionModel delegates cost calc to decoder
+        assert model.context_embedder.forward.called
         assert model.decoder.called

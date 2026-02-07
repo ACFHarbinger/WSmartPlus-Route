@@ -20,7 +20,7 @@ from .forward import ForwardMixin
 from .setup import SetupMixin
 
 
-class AttentionModel(nn.Module, SetupMixin, ForwardMixin, DecodingMixin):
+class AttentionModel(SetupMixin, ForwardMixin, DecodingMixin, nn.Module):
     """
     Attention Model for Vehicle Routing Problems.
 

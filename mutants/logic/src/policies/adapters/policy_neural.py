@@ -3,7 +3,7 @@ from typing import Any, List, Optional, Tuple
 import torch
 from logic.src.policies.adapters import IPolicy, PolicyRegistry
 from logic.src.policies.neural_agent import NeuralAgent
-from logic.src.utils.functions.function import move_to
+from logic.src.utils.functions import move_to
 
 
 @PolicyRegistry.register("neural")

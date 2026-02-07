@@ -15,7 +15,6 @@ def compute_mdam_logits(
     glimpse_V: torch.Tensor,
     logit_K: torch.Tensor,
     mask: Optional[torch.Tensor],
-    path_index: int,
     num_heads: int,
     project_out: torch.nn.Module,
     tanh_clipping: float,

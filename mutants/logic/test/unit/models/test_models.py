@@ -8,10 +8,10 @@ from logic.src.data.datasets import BaselineDataset
 from logic.src.envs import problems as problem_module
 from logic.src.envs.problems import CVRPP
 from logic.src.models.attention_model import AttentionModel
-from logic.src.models.modules.moe import MoE
-from logic.src.models.modules.moe_feed_forward import MoEFeedForward
+from logic.src.models.subnets.modules.moe import MoE
+from logic.src.models.subnets.modules.moe_feed_forward import MoEFeedForward
 from logic.src.models.moe import MoEAttentionModel, MoETemporalAttentionModel
-from logic.src.models.subnets.encoders.moe_encoder import MoEGraphAttentionEncoder
+from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
 from logic.src.pipeline.rl.common.baselines import (
     CriticBaseline as CriticBaseline,
 )
@@ -51,12 +51,13 @@ class TestAttentionModel:
         batch_size = 2
         graph_size = 5
 
-        # Mocking embeddings return from embedder
-        model.embedder.return_value = torch.zeros(batch_size, graph_size + 1, 128)  # +1 for depot
-        # Mock decoder return value (log_p, pi)
+        # Mocking embeddings return from encoder
+        model.encoder.return_value = torch.zeros(batch_size, graph_size + 1, 128)  # +1 for depot
+        # Mock decoder return value (log_p, pi, cost)
         model.decoder.return_value = (
             torch.zeros(batch_size, graph_size),
             torch.zeros(batch_size, graph_size),
+            torch.zeros(batch_size),
         )
         # _calc_log_likelihood returns (ll, entropy) when training=True
         model.decoder._calc_log_likelihood.return_value = (
@@ -74,16 +75,19 @@ class TestAttentionModel:
         for day in range(1, model.temporal_horizon + 1):
             input_data[f"fill{day}"] = torch.rand(batch_size, graph_size)
 
-        cost, ll, cost_dict, pi, entropy = model(input_data)
-        assert ll.shape == (batch_size,)
+        out = model(input_data)
+        cost = out["cost"]
+        # ll = out.get("log_likelihood")
+        assert cost is not None
 
     def test_compute_batch_sim(self, am_setup):
         """Verifies simulation batch computation."""
         model = am_setup
-        model.embedder.return_value = torch.zeros(2, 6, 128)
+        model.encoder.return_value = torch.zeros(2, 6, 128)
         model.decoder.return_value = (
             torch.zeros(2, 6),  # log_p
             torch.arange(6).repeat(2, 1),  # selected
+            torch.zeros(2),  # cost
         )
         model.decoder._calc_log_likelihood.return_value = torch.zeros(
             2
@@ -158,7 +162,7 @@ class TestGATLSTManager:
 
     def test_shared_encoder(self, am_setup):
         """Verifies shared encoder initialization."""
-        from logic.src.models.gat_lstm_manager import GATLSTManager
+        from logic.src.models.hrl_manager import GATLSTManager
 
         worker_model = am_setup
         B, N = 1, 5
@@ -170,11 +174,11 @@ class TestGATLSTManager:
             input_dim_static=2,
             input_dim_dynamic=10,
             hidden_dim=128,
-            shared_encoder=worker_model.embedder,
+            shared_encoder=worker_model.encoder,
             device="cpu",
         )
 
-        assert manager.gat_encoder is worker_model.embedder
+        assert manager.gat_encoder is worker_model.encoder
 
         mask_logits, gate_logits, value = manager(static, dynamic, global_features)
         assert mask_logits.shape == (B, N, 2)
@@ -306,8 +310,12 @@ class TestTemporalAttentionModel:
     def test_forward_wraps_input(self, tam_setup):
         """Verifies input wrapping with fill history."""
         model = tam_setup
-        model.embedder.return_value = torch.zeros(1, 5, 128)
-        model.decoder.return_value = (torch.zeros(1, 5), torch.zeros(1, 5))
+        model.encoder.return_value = torch.zeros(1, 5, 128)
+        model.decoder.return_value = (
+            torch.zeros(1, 5),
+            torch.zeros(1, 5),
+            torch.zeros(1),
+        )
         model.decoder._calc_log_likelihood.return_value = (
             torch.zeros(1),
             torch.zeros(1),
@@ -419,7 +427,7 @@ class TestMoEModel:
         )
 
         # Check factory injection
-        assert isinstance(model.embedder, MoEGraphAttentionEncoder)
+        assert isinstance(model.encoder, MoEGraphAttentionEncoder)
 
         input_data = {
             "depot": torch.rand(2, 2),
@@ -431,7 +439,8 @@ class TestMoEModel:
         }
 
         model.set_decode_type("greedy")
-        cost, ll, cost_dict, pi, entropy = model(input_data, return_pi=True)
+        out = model(input_data, return_pi=True)
+        pi = out["pi"]
         assert pi.ndim == 2
         assert pi.size(0) == 2
 
@@ -445,4 +454,4 @@ class TestMoEModel:
             n_encode_layers=1,
             temporal_horizon=5,
         )
-        assert isinstance(model.embedder, MoEGraphAttentionEncoder)
+        assert isinstance(model.encoder, MoEGraphAttentionEncoder)

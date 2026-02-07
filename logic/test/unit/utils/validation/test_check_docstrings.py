@@ -1,6 +1,6 @@
 from unittest.mock import mock_open, patch
 
-from logic.src.utils.validation.check_docstrings import check_docstrings_recursive, check_path
+from logic.src.utils.docs.check_docstrings import check_docstrings_recursive, check_path
 
 
 class TestCheckDocstrings:

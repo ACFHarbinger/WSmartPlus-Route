@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 import torch
-from logic.src.utils.functions.beam_search import beam_search as beam_search_func
+from logic.src.utils.decoding import beam_search as beam_search_func
 from tensordict import TensorDict
 
 

@@ -14,7 +14,7 @@ from logic.src.policies.single_vehicle import (
     get_multi_tour,
     get_route_cost,
 )
-from logic.src.utils.functions.function import add_attention_hooks
+from logic.src.utils.functions import add_attention_hooks
 
 
 class SimulatorMixin:
@@ -79,7 +79,7 @@ class SimulatorMixin:
                 - output_dict: {'attention_weights', 'graph_masks'}
         """
         edges, dist_matrix = graph
-        hook_data = add_attention_hooks(self.model.embedder)
+        hook_data = add_attention_hooks(self.model.encoder)
 
         # Check must_go: if provided and empty (no bins to visit), skip routing
         if must_go is not None:
