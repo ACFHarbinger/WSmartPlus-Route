@@ -37,6 +37,7 @@ from .hypernet import (
 from .hypernet import (
     HypernetworkOptimizer as HypernetworkOptimizer,
 )
+from .l2d import L2DModel as L2DModel
 from .matnet import MatNet as MatNet
 from .mdam import MDAM as MDAM
 from .meta_rnn import WeightAdjustmentRNN as WeightAdjustmentRNN
