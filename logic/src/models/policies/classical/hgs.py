@@ -4,17 +4,19 @@ HGS Policy wrapper for RL4CO using vectorized implementation.
 
 from __future__ import annotations
 
+from typing import Any
+
 import torch
 from tensordict import TensorDict
 
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
+from logic.src.models.policies.common.improvement import ImprovementPolicy
 
 from .hybrid_genetic_search import VectorizedHGS as VectorizedHGSEngine
 
 
-class VectorizedHGS(AutoregressivePolicy):
+class VectorizedHGS(ImprovementPolicy):
     """
     HGS-based Policy wrapper using vectorized GPU-accelerated implementation.
 
@@ -44,10 +46,12 @@ class VectorizedHGS(AutoregressivePolicy):
         self,
         td: TensorDict,
         env: RL4COEnvBase,
-        decode_type: str = "greedy",
+        decode_type: str = "greedy",  # Ignored for HGS
         num_starts: int = 1,
+        phase: str = "train",
+        return_actions: bool = True,
         **kwargs,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """
         Solve instances in the batch using vectorized HGS.
 

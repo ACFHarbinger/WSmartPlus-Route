@@ -402,60 +402,45 @@ Required for ATSP and FFSP. Uses matrix-based encoding instead of coordinate-bas
 
 ---
 
-### 9.2 HAM (Heterogeneous Attention Model) 📋
-
-**Target**: `logic/src/models/ham/`
-
-For pickup-and-delivery problems with heterogeneous node types (pickup vs delivery).
-
-- [ ] `GraphHeterogeneousAttentionEncoder` -- cross-attention between node types
-- [ ] `HeterogeneousAttentionModelPolicy`
-- [ ] `HeterogeneousAttentionModel` (REINFORCE-based)
-- [ ] Unit tests
-
-**rl4co reference**: `rl4co/models/zoo/ham/`
-
----
-
-### 9.3 MDAM (Multi-Decoder Attention Model) 📋
+### 9.2 MDAM (Multi-Decoder Attention Model) 📋
 
 **Target**: `logic/src/models/mdam/`
 
 Multiple decoders with inter-decoder KL divergence for solution diversity.
 
-- [ ] `MDAMGraphAttentionEncoder` -- shared encoder for all decoders
-- [ ] `MDAMDecoder` -- multi-head decoder with diversity loss
-- [ ] `MDAMPolicy` with KL divergence between decoder outputs
-- [ ] `MDAM` model class
-- [ ] Unit tests
+- [x] `MDAMGraphAttentionEncoder` -- shared encoder for all decoders
+- [x] `MDAMDecoder` -- multi-head decoder with diversity loss
+- [x] `MDAMPolicy` with KL divergence between decoder outputs
+- [x] `MDAM` model class
+- [x] Unit tests
 
 **rl4co reference**: `rl4co/models/zoo/mdam/`
 
 ---
 
-### 9.4 PolyNet 📋
+### 9.3 PolyNet ✅
 
 **Target**: `logic/src/models/polynet/`
 
 Learn K diverse solution strategies with Poppy loss from a single model.
 
-- [ ] `PolyNetDecoder` -- multi-strategy decoder
-- [ ] `PolyNetPolicy` with strategy selection
-- [ ] `PolyNet` model (REINFORCE + Poppy loss)
-- [ ] Support for AM and MatNet encoder backends
-- [ ] Unit tests
+- [x] `PolyNetAttention` -- K-strategy binary conditioning
+- [x] `PolyNetDecoder` -- multi-strategy decoder
+- [x] `PolyNetPolicy` with strategy selection
+- [x] `PolyNet` model (REINFORCE + Poppy loss)
+- [x] Support for AM encoder backend
 
 **rl4co reference**: `rl4co/models/zoo/polynet/`
 
 ---
 
-### 9.5 GLOP (Global-Local Optimization Policy) 📋
+### 9.4 GLOP (Global-Local Optimization Policy) ✅
 
 **Target**: `logic/src/models/glop/`
 
-- [ ] `GLOPPolicy` with global/local coordination
-- [ ] `GLOP` model
-- [ ] Unit tests
+- [x] `SubproblemAdapter`, `TSPAdapter`, `VRPAdapter` -- partition adapters
+- [x] `GLOPPolicy` with global/local coordination
+- [x] `GLOP` model
 
 **rl4co reference**: `rl4co/models/zoo/glop/`
 
