@@ -5,10 +5,11 @@ Adapts the Hybrid Genetic Search (HGS) logic to the common policy interface.
 Now agnostic to bin selection.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.configs.policies import HGSConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.hybrid_genetic_search import run_hgs
 
@@ -22,6 +23,14 @@ class HGSPolicy(BaseRoutingPolicy):
 
     Visits pre-selected 'must_go' bins using evolutionary optimization.
     """
+
+    def __init__(self, config: Optional[HGSConfig] = None):
+        """Initialize HGS policy with optional config.
+
+        Args:
+            config: Optional HGSConfig dataclass with solver parameters.
+        """
+        super().__init__(config)
 
     def _get_config_key(self) -> str:
         """Return config key for HGS."""

@@ -6,7 +6,7 @@ from typing import Any
 
 import torch.nn as nn
 
-from logic.src.models.subnets.encoders.mlp.encoder import MLPEncoder
+from logic.src.models.subnets.encoders.mlp import MLPEncoder
 
 from .base import NeuralComponentFactory, _create_decoder_by_type
 

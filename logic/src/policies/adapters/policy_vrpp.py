@@ -4,10 +4,11 @@ VRPP Policy Wrapper.
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import numpy as np
 
+from logic.src.configs.policies import VRPPConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.adapters.factory import PolicyRegistry
 from logic.src.policies.vehicle_routing_problem_with_profits.interface import run_vrpp_optimizer
@@ -20,6 +21,14 @@ class VRPPPolicy(BaseRoutingPolicy):
     Agnostic VRPP Policy adapter.
     Delegates to run_vrpp_optimizer.
     """
+
+    def __init__(self, config: Optional[VRPPConfig] = None):
+        """Initialize VRPP policy with optional config.
+
+        Args:
+            config: Optional VRPPConfig dataclass with solver parameters.
+        """
+        super().__init__(config)
 
     def _get_config_key(self) -> str:
         return "vrpp"

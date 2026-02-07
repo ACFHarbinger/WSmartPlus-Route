@@ -1,7 +1,14 @@
-from typing import Any, Dict, List, Tuple
+"""
+SISR Policy Adapter.
+
+Adapts the Slack Induction by String Removal (SISR) logic to the common policy interface.
+"""
+
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.configs.policies import SISRConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.slack_induction_by_string_removal import SISRParams, SISRSolver
 
@@ -13,6 +20,14 @@ class SISRPolicy(BaseRoutingPolicy):
     """
     Policy adapter for the SISR metaheuristic.
     """
+
+    def __init__(self, config: Optional[SISRConfig] = None):
+        """Initialize SISR policy with optional config.
+
+        Args:
+            config: Optional SISRConfig dataclass with solver parameters.
+        """
+        super().__init__(config)
 
     def _get_config_key(self) -> str:
         return "sisr"

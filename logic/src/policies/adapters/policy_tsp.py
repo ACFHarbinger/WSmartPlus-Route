@@ -5,10 +5,11 @@ Implements a single-vehicle routing policy (TSP) that visits a specific set of b
 Agnostic to how the targets were selected.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.configs.policies import TSPConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.single_vehicle import find_route, get_multi_tour
 
@@ -23,6 +24,14 @@ class TSPPolicy(BaseRoutingPolicy):
     Visits provided 'must_go' bins using a single vehicle strategy with
     capacity-based tour splitting.
     """
+
+    def __init__(self, config: Optional[TSPConfig] = None):
+        """Initialize TSP policy with optional config.
+
+        Args:
+            config: Optional TSPConfig dataclass with solver parameters.
+        """
+        super().__init__(config)
 
     def _get_config_key(self) -> str:
         """Return config key for TSP."""
