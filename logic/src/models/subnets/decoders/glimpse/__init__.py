@@ -2,7 +2,7 @@
 Glimpse Decoder sub-package.
 """
 
-from .base import AttentionModelFixed
 from .decoder import GlimpseDecoder
+from .fixed import AttentionModelFixed
 
 __all__ = ["GlimpseDecoder", "AttentionModelFixed"]

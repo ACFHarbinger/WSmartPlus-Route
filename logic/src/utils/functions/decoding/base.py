@@ -10,7 +10,7 @@ from typing import Any, Optional, Tuple
 import torch
 from tensordict import TensorDict
 
-from .utils import (
+from .decoding_utils import (
     batchify,
     top_k_filter,
     top_p_filter,

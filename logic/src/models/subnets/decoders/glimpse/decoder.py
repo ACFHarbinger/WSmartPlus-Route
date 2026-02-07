@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 
 from .attention import make_heads, one_to_many_logits
-from .base import AttentionModelFixed
+from .fixed import AttentionModelFixed
 
 
 class GlimpseDecoder(nn.Module):
