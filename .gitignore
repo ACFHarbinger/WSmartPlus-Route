@@ -469,3 +469,4 @@ checkpoints/
 !assets/*.pkl
 #!**/fill_history/
 !**/fill_history/enchimentos*
+!logic/src/pipeline/simulations/checkpoints

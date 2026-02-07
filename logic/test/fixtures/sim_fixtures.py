@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 import torch
 from logic.src.pipeline.simulations.bins import Bins
-from logic.src.pipeline.simulations.context import SimulationDayContext
+from logic.src.pipeline.simulations.day_context import SimulationDayContext
 
 
 @pytest.fixture

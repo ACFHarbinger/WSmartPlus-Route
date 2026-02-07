@@ -12,11 +12,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from .adapters import IPolicy
+from logic.src.interfaces.adapter import IPolicyAdapter
+
 from .single_vehicle import get_route_cost
 
 
-class BaseRoutingPolicy(IPolicy):
+class BaseRoutingPolicy(IPolicyAdapter):
     """
     Base class for routing policies with common utilities.
 

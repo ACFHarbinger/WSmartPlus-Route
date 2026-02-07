@@ -8,28 +8,13 @@ Now also includes the IPolicy interface and PolicyRegistry.
 """
 
 import warnings
-from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type
-
+from typing import Any, Callable, Dict, List, Optional, Type
 
 # --- IPolicy Interface ---
-class IPolicy(ABC):
-    """
-    Interface for all routing policies.
-    """
+from logic.src.interfaces.adapter import IPolicyAdapter
 
-    @abstractmethod
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
-        """
-        Execute the policy to generate a route.
-
-        Args:
-            **kwargs: Context dictionary containing simulation state.
-
-        Returns:
-            Tuple[List[int], float, Any]: (tour, cost, additional_output)
-        """
-        pass
+# Alias for backward compatibility
+IPolicy = IPolicyAdapter
 
 
 # --- Policy Registry ---

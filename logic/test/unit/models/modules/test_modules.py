@@ -14,7 +14,7 @@ from logic.src.models.modules.feed_forward import FeedForward
 from logic.src.models.modules.gated_graph_convolution import GatedGraphConvolution
 from logic.src.models.modules.graph_convolution import GraphConvolution
 from logic.src.models.modules.multi_head_attention import MultiHeadAttention
-from logic.src.models.modules.multi_head_cross_attention import (
+from logic.src.models.modules.cross_attention import (
     MultiHeadCrossAttention,
 )
 from logic.src.models.modules.normalization import Normalization

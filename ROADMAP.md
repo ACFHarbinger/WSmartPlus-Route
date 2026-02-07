@@ -724,6 +724,7 @@ Phases 3-7 (docs, types, architecture, deps, tooling) can proceed in parallel wi
 - ✅ Fully completed Phase 11: Improvement & Transductive Models (DACT, N2S, NeuOpt, Active Search, EAS)
 - ✅ Consolidated Transductive models into `logic/src/models/policies/common/transductive.py`
 - ✅ Phase 12.1-12.2: MPNN, HetGNN completed
+- ✅ Phase 5.1: Vectorized ALNS Operators (Destroy, Repair, Move, Exchange) implemented in `logic/src/models/policies/classical/operators/`
 
 ### 2026-01-24
 

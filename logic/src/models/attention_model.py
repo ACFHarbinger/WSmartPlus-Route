@@ -32,7 +32,7 @@ from logic.src.constants.models import (
     NORM_EPSILON,
     TANH_CLIPPING,
 )
-from logic.src.models.context_embedder import (
+from logic.src.models.embeddings import (
     ContextEmbedder,
     VRPPContextEmbedder,
     WCContextEmbedder,
