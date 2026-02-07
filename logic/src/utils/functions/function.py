@@ -2,7 +2,6 @@
 Mathematical and environment-related helper functions (Facade).
 """
 
-from .attention import add_attention_hooks
 from .factory import load_problem
 from .model import (
     get_inner_model,
@@ -29,7 +28,6 @@ __all__ = [
     "run_all_in_pool",
     "get_path_until_string",
     "compute_in_batches",
-    "add_attention_hooks",
     "do_batch_rep",
     "sample_many",
 ]

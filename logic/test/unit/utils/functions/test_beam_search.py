@@ -5,8 +5,8 @@ import pytest
 import numpy as np
 from unittest.mock import MagicMock
 
-from logic.src.utils.functions import beam_search as beam_search_mod
-from logic.src.utils.functions.beam_search import (
+from logic.src.utils.functions import decoding as beam_search_mod
+from logic.src.utils.functions.decoding import (
     BatchBeam,
     segment_topk_idx,
     backtrack,

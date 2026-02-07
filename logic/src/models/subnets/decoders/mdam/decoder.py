@@ -11,8 +11,8 @@ import torch.nn.functional as F
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.embeddings import CONTEXT_EMBEDDING_REGISTRY
-from logic.src.models.embeddings.dynamic_embedding import DynamicEmbedding
+from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
+from logic.src.models.subnets.embeddings.dynamic_embedding import DynamicEmbedding
 
 from .cache import PrecomputedCache, _decode_probs
 

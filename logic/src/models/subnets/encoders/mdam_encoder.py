@@ -13,11 +13,11 @@ import torch
 import torch.nn as nn
 from tensordict import TensorDict
 
-from logic.src.models.modules.mdam_attention import MultiHeadAttentionMDAM
-from logic.src.models.modules.multi_head_attention import MultiHeadAttention
-from logic.src.models.modules.normalization import Normalization
-from logic.src.models.modules.skip_connection import SkipConnection
 from logic.src.models.policies.common.autoregressive import AutoregressiveEncoder
+from logic.src.models.subnets.modules.mdam_attention import MultiHeadAttentionMDAM
+from logic.src.models.subnets.modules.multi_head_attention import MultiHeadAttention
+from logic.src.models.subnets.modules.normalization import Normalization
+from logic.src.models.subnets.modules.skip_connection import SkipConnection
 
 
 class MultiHeadAttentionLayer(nn.Module):

@@ -3,11 +3,11 @@ from typing import Any, Dict, Optional
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.embeddings.matnet import MatNetInitEmbedding
 from logic.src.models.policies.common.autoregressive import (
     AutoregressivePolicy,
 )
-from logic.src.models.subnets.decoders.matnet_decoder import MatNetDecoder
+from logic.src.models.subnets.decoders.matnet import MatNetDecoder
+from logic.src.models.subnets.embeddings.matnet import MatNetInitEmbedding
 from logic.src.models.subnets.encoders.matnet_encoder import MatNetEncoder
 
 

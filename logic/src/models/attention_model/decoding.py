@@ -67,7 +67,7 @@ class DecodingMixin:
             Proposed expansions (indices and probabilities).
         """
         # Delegate to decoder's detailed proposal method if available
-        # logic/src/models/modules/decoder.py usually handles this
+        # logic.src.models.subnets.modules/decoder.py usually handles this
         return self.decoder.propose_expansions(beam, fixed, expand_size, normalize, max_calc_batch_size)
 
     def sample_many(

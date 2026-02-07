@@ -10,7 +10,7 @@ from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.common.nonautoregressive import NonAutoregressivePolicy
-from logic.src.models.subnets.decoders.deepaco_decoder import ACODecoder
+from logic.src.models.subnets.decoders.deepaco import ACODecoder
 from logic.src.models.subnets.encoders.deepaco_encoder import DeepACOEncoder
 
 
