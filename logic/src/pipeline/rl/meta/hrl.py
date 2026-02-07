@@ -9,6 +9,7 @@ The manager outputs:
 - must_go_action: Which bins must be collected (boolean mask)
 - gate_action: Whether to dispatch vehicles
 """
+
 from __future__ import annotations
 
 from typing import cast
@@ -20,7 +21,7 @@ from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.gat_lstm_manager import GATLSTManager
-from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.common.constructive import ConstructivePolicy
 
 
 class HRLModule(pl.LightningModule):

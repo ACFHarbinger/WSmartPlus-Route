@@ -2,17 +2,17 @@
 Pointer Network Policy Adapter.
 """
 
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import torch
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.pointer_network import PointerNetwork
-from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 
 
-class PointerNetworkPolicy(ConstructivePolicy):
+class PointerNetworkPolicy(AutoregressivePolicy):
     """
     Pointer Network Policy Adapter.
 
@@ -45,7 +45,7 @@ class PointerNetworkPolicy(ConstructivePolicy):
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
         **kwargs,
-    ) -> dict:
+    ) -> Dict[str, Any]:
         """
         Forward pass using Pointer Network subnets.
         """

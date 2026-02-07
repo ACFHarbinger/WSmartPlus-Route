@@ -7,13 +7,13 @@ from __future__ import annotations
 import torch
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 from tensordict import TensorDict
 
 from .adaptive_large_neighborhood_search import VectorizedALNS as VectorizedALNSEngine
 
 
-class VectorizedALNS(ConstructivePolicy):
+class VectorizedALNS(AutoregressivePolicy):
     """
     ALNS-based Policy wrapper using vectorized GPU-accelerated implementation.
     """
