@@ -396,12 +396,11 @@ def top_p_filter(logits: torch.Tensor, p: float) -> torch.Tensor:
     sorted_probs = F.softmax(sorted_logits, dim=-1)
     cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
 
-    # Remove tokens with cumulative probability above threshold
+    # Remove tokens with cumulative top_p above the threshold (token with 0 are kept)
     sorted_indices_to_remove = cumulative_probs > p
-
-    # Shift indices to the right to keep the first token that crosses the threshold
-    sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
-    sorted_indices_to_remove[..., 0] = False
+    # Shift the indices to the right to keep the first token above the threshold
+    sorted_indices_to_remove[:, 1:] = sorted_indices_to_remove[:, :-1].clone()
+    sorted_indices_to_remove[:, 0] = False
 
     # Scatter back to original ordering
     indices_to_remove = sorted_indices_to_remove.scatter(1, sorted_indices, sorted_indices_to_remove)
@@ -467,6 +466,74 @@ def gather_by_index(src: torch.Tensor, idx: torch.Tensor, dim: int = 1) -> torch
     return src.gather(dim, idx)
 
 
+def get_log_likelihood(
+    log_probs: torch.Tensor,
+    actions: Optional[torch.Tensor] = None,
+    mask: Optional[torch.Tensor] = None,
+    return_sum: bool = True,
+) -> torch.Tensor:
+    """
+    Get log likelihood of selected actions.
+
+    Args:
+        log_probs: Log probabilities [batch, seq_len, num_nodes] or [batch, num_nodes].
+        actions: Action indices [batch, seq_len] or [batch]. If None, assumes log_probs are already selected.
+        mask: Optional mask to select only certain actions [batch, seq_len].
+        return_sum: Whether to sum log probs (True) or return sequence (False).
+
+    Returns:
+        Log likelihood tensor. Shape [batch] if return_sum=True, else [batch, seq_len].
+    """
+    if actions is None:
+        # Assume log_probs are already the selected log probabilities
+        log_ll = log_probs
+    else:
+        # Gather log probs for selected actions
+        if log_probs.dim() == 3:
+            # [batch, seq_len, num_nodes] -> gather on last dim
+            log_ll = log_probs.gather(2, actions.unsqueeze(-1)).squeeze(-1)
+        else:
+            # [batch, num_nodes] -> gather on last dim
+            log_ll = log_probs.gather(1, actions.unsqueeze(-1)).squeeze(-1)
+
+    # Apply mask if provided
+    if mask is not None:
+        log_ll = log_ll * mask
+
+    # Return sum or sequence
+    if return_sum:
+        return log_ll.sum(dim=-1) if log_ll.dim() > 1 else log_ll
+    return log_ll
+
+
+def modify_logits_for_top_k_filtering(logits: torch.Tensor, top_k: int) -> torch.Tensor:
+    """
+    Filter logits to keep only top-k values. Alias for top_k_filter for rl4co compatibility.
+
+    Args:
+        logits: Logits tensor [batch, num_nodes]
+        top_k: Number of top values to keep
+
+    Returns:
+        Filtered logits with others set to -inf
+    """
+    return top_k_filter(logits, top_k)
+
+
+def modify_logits_for_top_p_filtering(logits: torch.Tensor, top_p: float) -> torch.Tensor:
+    """
+    Filter logits using nucleus (top-p) sampling. Alias for top_p_filter for rl4co compatibility.
+
+    Args:
+        logits: Logits tensor [batch, num_nodes]
+        top_p: Cumulative probability threshold
+
+    Returns:
+        Filtered logits with others set to -inf
+    """
+    return top_p_filter(logits, top_p)
+
+
 # ============================================================================
 # Strategy Registry
 # ============================================================================
@@ -496,7 +563,7 @@ def get_decoding_strategy(
     """
     name = name.lower()
     if name not in DECODING_STRATEGY_REGISTRY:
-        raise ValueError(f"Unknown decoding strategy: {name}. " f"Available: {list(DECODING_STRATEGY_REGISTRY.keys())}")
+        raise ValueError(f"Unknown decoding strategy: {name}. Available: {list(DECODING_STRATEGY_REGISTRY.keys())}")
     return DECODING_STRATEGY_REGISTRY[name](**kwargs)
 
 
@@ -507,6 +574,9 @@ __all__ = [
     "BeamSearch",
     "Evaluate",
     "get_decoding_strategy",
+    "get_log_likelihood",
+    "modify_logits_for_top_k_filtering",
+    "modify_logits_for_top_p_filtering",
     "top_k_filter",
     "top_p_filter",
     "batchify",

@@ -14,8 +14,8 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
-from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
-from logic.src.models.subnets.polynet_decoder import PolyNetDecoder
+from logic.src.models.subnets.decoders.polynet_decoder import PolyNetDecoder
+from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
 
 
 class PolyNetPolicy(AutoregressivePolicy):
@@ -91,8 +91,8 @@ class PolyNetPolicy(AutoregressivePolicy):
 
         super().__init__(
             env_name=env_name,
-            encoder=encoder,
-            decoder=decoder,
+            encoder=encoder,  # type: ignore[arg-type]
+            decoder=decoder,  # type: ignore[arg-type]
         )
 
         self.k = k
@@ -109,7 +109,7 @@ class PolyNetPolicy(AutoregressivePolicy):
         self.val_decode_type = val_decode_type
         self.test_decode_type = test_decode_type
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
@@ -135,7 +135,7 @@ class PolyNetPolicy(AutoregressivePolicy):
         embedding = self.init_embedding(td)
 
         # Encode
-        embeddings = self.encoder(embedding)
+        embeddings = self.encoder(embedding)  # type: ignore[attr-defined]
 
         # Determine decode type
         decode_type = kwargs.pop("decode_type", None)
@@ -143,7 +143,7 @@ class PolyNetPolicy(AutoregressivePolicy):
             decode_type = getattr(self, f"{phase}_decode_type")
 
         # Decode
-        log_likelihood, actions = self.decoder(
+        log_likelihood, actions = self.decoder(  # type: ignore[attr-defined]
             td,
             embeddings,
             env,
@@ -153,7 +153,7 @@ class PolyNetPolicy(AutoregressivePolicy):
         )
 
         # Calculate reward
-        reward = env.get_reward(td, actions)
+        reward = env.get_reward(td, actions)  # type: ignore[attr-defined]
 
         return {
             "reward": reward,

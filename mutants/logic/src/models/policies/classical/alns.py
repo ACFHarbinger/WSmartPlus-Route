@@ -4,16 +4,18 @@ ALNS Policy wrapper for RL4CO using vectorized implementation.
 
 from __future__ import annotations
 
+from typing import Any
+
 import torch
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
+from logic.src.models.policies.common.improvement import ImprovementPolicy
 from tensordict import TensorDict
 
 from .adaptive_large_neighborhood_search import VectorizedALNS as VectorizedALNSEngine
 
 
-class VectorizedALNS(AutoregressivePolicy):
+class VectorizedALNS(ImprovementPolicy):
     """
     ALNS-based Policy wrapper using vectorized GPU-accelerated implementation.
     """
@@ -38,8 +40,10 @@ class VectorizedALNS(AutoregressivePolicy):
         env: RL4COEnvBase,
         decode_type: str = "greedy",  # Ignored for ALNS
         num_starts: int = 1,
+        phase: str = "train",
+        return_actions: bool = True,
         **kwargs,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """
         Solve instances in the batch using vectorized ALNS.
         """
