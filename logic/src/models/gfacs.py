@@ -97,16 +97,20 @@ class GFACS(nn.Module):
     @property
     def alpha(self) -> float:
         """Linearly increasing alpha from alpha_min to alpha_max."""
+        if not hasattr(self, "trainer") or self.trainer is None or not hasattr(self.trainer, "max_epochs"):
+            return self.alpha_min
         return self.alpha_min + (self.alpha_max - self.alpha_min) * min(
-            self.current_epoch / (self.trainer.max_epochs - self.alpha_flat_epochs),  # type: ignore
+            self.current_epoch / (self.trainer.max_epochs - self.alpha_flat_epochs),
             1.0,
         )
 
     @property
     def beta(self) -> float:
         """Logarithmically increasing beta from beta_min to beta_max."""
+        if not hasattr(self, "trainer") or self.trainer is None or not hasattr(self.trainer, "max_epochs"):
+            return self.beta_min
         return self.beta_min + (self.beta_max - self.beta_min) * min(
-            math.log(self.current_epoch + 1) / math.log(self.trainer.max_epochs - self.beta_flat_epochs),  # type: ignore
+            math.log(self.current_epoch + 1) / math.log(self.trainer.max_epochs - self.beta_flat_epochs),
             1.0,
         )
 
@@ -184,7 +188,7 @@ class GFACS(nn.Module):
             n_multinode_routes = np.count_nonzero(_a3, axis=1) - n_nodes
             log_b_p = -scipy.special.gammaln(n_routes + 1) - n_multinode_routes * math.log(2)
             return unbatchify(torch.from_numpy(log_b_p).to(actions.device), n_ants)
-        elif self.env.name in ("op", "pctsp"):
+        elif self.env.name in ("op", "pctsp", "vrpp"):
             return torch.tensor(math.log(1 / 2))
         else:
             raise ValueError(f"Unknown environment: {self.env.name}")

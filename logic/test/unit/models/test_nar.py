@@ -4,12 +4,15 @@ import torch
 from tensordict import TensorDict
 from unittest.mock import MagicMock
 
-from logic.src.models.policies.nonautoregressive import (
-    NonAutoregressiveEncoder,
+from logic.src.models.policies.common.nonautoregressive import (
     NonAutoregressiveDecoder,
+    NonAutoregressiveEncoder,
     NonAutoregressivePolicy,
 )
-from logic.src.models.deepaco import DeepACOEncoder, ACODecoder, DeepACOPolicy, DeepACO
+from logic.src.models.deepaco import DeepACO
+from logic.src.models.policies.deepaco import DeepACOPolicy
+from logic.src.models.subnets.decoders.deepaco_decoder import ACODecoder
+from logic.src.models.subnets.encoders.deepaco_encoder import DeepACOEncoder
 
 
 class TestNonAutoregressiveBase:
@@ -85,7 +88,7 @@ class TestACODecoder:
 
         env = MagicMock()
 
-        out = self.decoder(td, heatmap, env)
+        out = self.decoder.construct(td, heatmap, env)
 
         assert "actions" in out
         assert "reward" in out
@@ -102,7 +105,7 @@ class TestACODecoder:
         heatmap = torch.log_softmax(torch.randn(self.batch_size, self.num_nodes, self.num_nodes), dim=-1)
         env = MagicMock()
 
-        out = decoder(td, heatmap, env)
+        out = decoder.construct(td, heatmap, env)
         assert out["actions"].shape == (self.batch_size, self.num_nodes)
 
 

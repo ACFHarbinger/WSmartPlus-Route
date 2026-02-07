@@ -14,6 +14,7 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.models.embeddings import get_init_embedding
+from logic.src.models.policies.common.nonautoregressive import NonAutoregressiveEncoder
 
 try:
     from torch_geometric.data import Batch, Data
@@ -217,7 +218,7 @@ class SimplifiedGNNEncoder(nn.Module):
         return x, edge_attr
 
 
-class NARGNNEncoder(nn.Module):
+class NARGNNEncoder(NonAutoregressiveEncoder):
     """
     Anisotropic Graph Neural Network encoder with edge-gating mechanism.
 
@@ -254,6 +255,7 @@ class NARGNNEncoder(nn.Module):
         agg_fn: str = "mean",
         linear_bias: bool = True,
         k_sparse: Optional[int] = None,
+        **kwargs,
     ) -> None:
         super().__init__()
         self.env_name = env_name
@@ -287,7 +289,7 @@ class NARGNNEncoder(nn.Module):
             else heatmap_generator
         )
 
-    def forward(self, td: TensorDict) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, td: TensorDict) -> Tuple[torch.Tensor, torch.Tensor]:  # type: ignore
         """
         Forward pass of the encoder.
 

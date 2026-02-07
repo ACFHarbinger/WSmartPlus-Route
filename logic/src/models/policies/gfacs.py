@@ -78,6 +78,20 @@ class GFACSPolicy(DeepACOPolicy):
             else (n_iterations if isinstance(n_iterations, int) else n_iterations.get("train", 1))
         )
 
+        self.n_ants = (
+            n_ants if isinstance(n_ants, dict) else {"train": n_ants_int, "val": n_ants_int, "test": n_ants_int}
+        )
+        self.n_iterations = (
+            n_iterations
+            if isinstance(n_iterations, dict)
+            else {"train": n_iterations_int, "val": n_iterations_int, "test": n_iterations_int}
+        )
+        self.decode_type = "sampling"
+        self.default_decoding_kwargs: Dict[str, Any] = {}
+        self.train_with_local_search = train_with_local_search
+        self.aco_class = aco_class
+        self.aco_kwargs = aco_kwargs or {}
+
         super().__init__(
             encoder=encoder,
             env_name=env_name,
@@ -146,20 +160,23 @@ class GFACSPolicy(DeepACOPolicy):
                 ls_logZ = None  # Initialize to avoid unbound error
 
             logprobs, actions, td, env = self.common_decoding(
-                self.decode_type, td_initial, env, heatmap, actions, **decoding_kwargs
+                decode_type=self.decode_type,
+                td=td_initial.clone(),
+                env=env,
+                heatmap=heatmap,
+                phase=phase,
+                num_starts=n_ants,
+                **decoding_kwargs,
             )
 
-            # Output dictionary construction
-            # Narrow env type to RL4COEnvBase (guaranteed by common_decoding)
-            assert isinstance(env, RL4COEnvBase), "env must be RL4COEnvBase after common_decoding"
             outdict = {
                 "logZ": logZ,
                 "reward": unbatchify(env.get_reward(td, actions), n_ants),
-                "log_likelihood": unbatchify(get_log_likelihood(logprobs, actions, td.get("mask", None), True), n_ants),
+                "log_likelihood": unbatchify(get_log_likelihood(logprobs, None, td.get("mask", None), True), n_ants),
             }
 
             if return_actions:
-                outdict["actions"] = actions
+                outdict["actions"] = unbatchify(actions, n_ants)
 
             # Local search
             if self.train_with_local_search:
@@ -168,20 +185,25 @@ class GFACSPolicy(DeepACOPolicy):
                 ls_decoding_kwargs = decoding_kwargs.copy()
                 ls_decoding_kwargs["top_k"] = 0  # This should be 0, otherwise logprobs can be -inf
                 ls_logprobs, ls_actions, td, env = self.common_decoding(
-                    "evaluate", td_initial, env, heatmap, ls_actions, **ls_decoding_kwargs
+                    decode_type="evaluate",
+                    td=td_initial.clone(),
+                    env=env,
+                    heatmap=heatmap,
+                    actions=ls_actions,
+                    **ls_decoding_kwargs,
                 )
                 outdict.update(
                     {
                         "ls_logZ": ls_logZ,
                         "ls_reward": unbatchify(ls_reward, n_ants),
                         "ls_log_likelihood": unbatchify(
-                            get_log_likelihood(ls_logprobs, ls_actions, td.get("mask", None), True),
+                            get_log_likelihood(ls_logprobs, None, td.get("mask", None), True),
                             n_ants,
                         ),
                     }
                 )
                 if return_actions:
-                    outdict["ls_actions"] = ls_actions
+                    outdict["ls_actions"] = unbatchify(ls_actions, n_ants)
 
             if return_hidden:
                 outdict["hidden"] = heatmap
