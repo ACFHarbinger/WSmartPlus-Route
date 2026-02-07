@@ -4,8 +4,8 @@ import torch
 from unittest.mock import MagicMock
 from torch.utils.data import DataLoader, TensorDataset
 
-from logic.src.pipeline.eval.evaluate import evaluate_policy
-from logic.src.pipeline.eval.evaluators import GreedyEval, SamplingEval, AugmentationEval
+from logic.src.pipeline.features.eval.evaluate import evaluate_policy
+from logic.src.pipeline.features.eval.evaluators import GreedyEval, SamplingEval, AugmentationEval
 
 
 class TestEvaluation:

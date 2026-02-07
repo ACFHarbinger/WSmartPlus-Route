@@ -1,19 +1,17 @@
 """
-Vectorized Hybrid Genetic Search (HGS) Policy.
-
-This module implements a vectorized version of the Hybrid Genetic Search algorithm for
-Vehicle Routing Problems (VRP), optimized for GPU execution using PyTorch.
-
-It includes:
-- `VectorizedPopulation`: Management of the genetic population.
-- `VectorizedHGS`: The main solver class.
+Vectorized HGS Algorithm.
 """
 
+from __future__ import annotations
+
 import time
+from typing import Any, Optional, Tuple
 
 import torch
 
-from .local_search import (
+from logic.src.models.policies.classical.hgs.crossover import vectorized_ordered_crossover
+from logic.src.models.policies.classical.hgs.population import VectorizedPopulation
+from logic.src.models.policies.classical.local_search import (
     vectorized_relocate,
     vectorized_swap,
     vectorized_swap_star,
@@ -21,312 +19,7 @@ from .local_search import (
     vectorized_two_opt,
     vectorized_two_opt_star,
 )
-from .split import (
-    vectorized_linear_split,
-)
-
-
-# -----------------------------
-# Vectorized Genetic Operators
-# -----------------------------
-def vectorized_ordered_crossover(parent1, parent2):
-    """
-    Vectorized Ordered Crossover (OX1) with shared cuts across batch.
-    Args:
-        parent1: (B, N)
-        parent2: (B, N)
-    Returns:
-        offspring: (B, N)
-    """
-    B, N = parent1.size()
-    device = parent1.device
-
-    # 1. Generate shared cut points
-    idx1, idx2 = torch.randint(0, N, (2,)).tolist()
-    start = min(idx1, idx2)
-    end = max(idx1, idx2)
-
-    if start == end:
-        end = min(start + 1, N)
-
-    num_seg = end - start
-    num_rem = N - num_seg
-
-    # 2. Extract segment from Parent 1
-    # segment: (B, num_seg)
-    segment = parent1[:, start:end]
-
-    # 3. Create Offspring container
-    offspring = torch.zeros_like(parent1)
-    # Copy segment
-    offspring[:, start:end] = segment
-
-    # 4. Fill remaining from Parent 2
-    # We need to take elements from P2 that are NOT in segment, maintaining order
-    # starting from 'end' index (wrapping around).
-
-    # Roll P2 so it starts at 'end'
-    # logical shift: indices [end, end+1, ..., N-1, 0, ..., end-1]
-    roll_idx = torch.arange(N, device=device)
-    roll_idx = (roll_idx + end) % N
-    p2_rolled = parent2[:, roll_idx]  # (B, N) sorted by fill order
-
-    # Identification of valid elements
-    # Since values are 1..N (or 0..N-1), we can use a mask.
-    # Naive check: (B, N, 1) == (B, 1, num_seg) -> any(dim=2)
-    # segment: (B, num_seg)
-    # p2_rolled: (B, N)
-
-    # Efficient exclusion check:
-    # (B, N, 1) == (B, 1, num_seg) -> (B, N, num_seg) -> sum/any -> (B, N) mask
-    # This uses B*N*num_seg memory. For N=100, B=128, this is ~1.2M elements (bool). Cheap.
-
-    exists_in_seg = (p2_rolled.unsqueeze(2) == segment.unsqueeze(1)).any(dim=2)  # (B, N)
-
-    # We want elements where ~exists_in_seg
-    # Handle each batch element separately to be robust to duplicates
-    fill_idx = torch.cat([torch.arange(end, N, device=device), torch.arange(0, start, device=device)])
-
-    for b in range(B):
-        valid_mask = ~exists_in_seg[b]
-        valid_vals_b = p2_rolled[b][valid_mask]
-
-        # Pad or truncate to match num_rem
-        if len(valid_vals_b) < num_rem:
-            # Pad with values from parent1 that aren't in segment
-            missing = num_rem - len(valid_vals_b)
-            # Use first missing values from parent1 outside segment
-            extra = parent1[b][
-                torch.cat(
-                    [
-                        torch.arange(0, start, device=device),
-                        torch.arange(end, N, device=device),
-                    ]
-                )
-            ][:missing]
-            valid_vals_b = torch.cat([valid_vals_b, extra])
-        elif len(valid_vals_b) > num_rem:
-            valid_vals_b = valid_vals_b[:num_rem]
-
-        offspring[b, fill_idx] = valid_vals_b
-
-    return offspring
-
-
-def calc_broken_pairs_distance(population):
-    """
-    Computes average Broken Pairs Distance for each individual in the population.
-    Distance(A, B) = 1 - (|Edges(A) inter Edges(B)| / N)
-
-    Args:
-        population: (B, P, N) tensor of giant tours.
-    Returns:
-        diversity: (B, P) diversity score (higher is better/more distant).
-    """
-    B, P, N = population.size()
-    device = population.device
-
-    # 1. Construct Edge Hashes
-    # Edges: (i, i+1) and (N-1, 0)
-    # Hash: min(u,v)*N + max(u,v) (assuming max node index < N? No, nodes are 1..N usually, or indices 0..N-1?)
-    # giant_tours usually contains indices.
-
-    # Create cyclic view
-    next_nodes = torch.roll(population, shifts=-1, dims=2)
-
-    # Sort u,v to be direction agnostic
-    u = torch.min(population, next_nodes)
-    v = torch.max(population, next_nodes)
-
-    # Hash (N_max is safely larger than N, e.g. N+1)
-    # Be careful if nodes are indices (0..N-1) or IDs (1..N).
-    # If 0..N-1, then max hash approx N^2.
-    hashes = u * (N + 100) + v  # (B, P, N)
-
-    # 2. Compute Pairwise Distances
-    # We want diversity[b, i] = mean_{j != i} (1 - intersection(i, j) / N)
-    # Doing full PxP on GPU might be heavy if P is large (e.g. 100).
-    # But for P=10-50, B=128, N=100:
-    # (B, P, 1, N) == (B, 1, P, N) -> (B, P, P, N) comparison
-    # Memory: 128 * 50 * 50 * 100 * 1 byte (bool) = 32 MB. Very Safe.
-
-    # Expand for broadcast
-    hashes.unsqueeze(2).unsqueeze(4)  # (B, P, 1, N, 1)
-    hashes.unsqueeze(1).unsqueeze(3)  # (B, 1, P, 1, N)
-
-    # Match matrix: matches[b, i, j, k, l]
-    intersections = torch.zeros((B, P, P), device=device)
-    for i in range(P):
-        target = hashes[:, i : i + 1, :]
-        matches = hashes.unsqueeze(3) == target.unsqueeze(2)
-        num_shared = matches.any(dim=3).sum(dim=2)  # (B, P)
-        intersections[:, i, :] = num_shared
-
-    # Distance = 1 - (intersection / N)
-    dists = 1.0 - (intersections.float() / N)
-
-    # Diversity of i = mean distance to others
-    diversity = dists.sum(dim=2) / max(1, P - 1)
-    return diversity
-
-
-class VectorizedPopulation:
-    """
-    Manages a population of solutions for the HGS algorithm.
-
-    Handles:
-    - Storage of solutions (giant tours), costs, and fitness metrics.
-    - Diversity calculation (Broken Pairs Distance).
-    - Biased fitness computation (ranking by cost and diversity).
-    - Survivor selection.
-
-    Args:
-        size (int): Maximum population size.
-        device: Torch device.
-        alpha_diversity (float): Weight for diversity in biased fitness calculation.
-    """
-
-    def __init__(self, size, device, alpha_diversity=0.5):
-        """
-        Initialize the population.
-
-        Args:
-            size (int): Max population size.
-            device: Computing device.
-            alpha_diversity (float): Diversity weight.
-        """
-        self.max_size = size
-        self.device = device
-        self.alpha_diversity = alpha_diversity
-        self.population = None  # (B, P, N)
-        self.costs = None  # (B, P)
-        self.biased_fitness = None  # (B, P)
-        self.diversity_scores = None  # (B, P)
-
-    def initialize(self, initial_pop, initial_costs):
-        """
-        Initializes the population with a set of starting solutions.
-
-        Args:
-            initial_pop (torch.Tensor): Initial solutions (giant tours). Shape (B, N) or (B, P0, N).
-            initial_costs (torch.Tensor): Costs of initial solutions. Shape (B,) or (B, P0).
-        """
-
-        if initial_pop.dim() == 2:
-            initial_pop = initial_pop.unsqueeze(1)  # (B, 1, N)
-
-        # Consistent costs shape (B, P0)
-        if initial_costs.dim() == 1:
-            initial_costs = initial_costs.unsqueeze(1)  # (B, 1)
-
-        self.population = initial_pop
-        self.costs = initial_costs
-        self.compute_biased_fitness()
-
-    def add_individuals(self, candidates, costs):
-        """
-        Merges new individuals into the population and selects survivors based on biased fitness.
-        Maintains the population size at or below `max_size`.
-
-        Args:
-            candidates (torch.Tensor): New solutions to add. Shape (B, C, N).
-            costs (torch.Tensor): Costs of new solutions. Shape (B, C).
-        """
-
-        if candidates.dim() == 2:
-            candidates = candidates.unsqueeze(1)
-            costs = costs.unsqueeze(1)
-
-        # 1. Concatenate
-        combined_pop = torch.cat([self.population, candidates], dim=1)  # (B, P+C, N)
-        combined_costs = torch.cat([self.costs, costs], dim=1)  # (B, P+C)
-
-        # 2. Update state temporarily
-        self.population = combined_pop
-        self.costs = combined_costs
-
-        # 3. Compute Fitness & Survivor Selection
-        self.compute_biased_fitness()
-
-        # Select best P based on biased fitness
-        # We want smallest biased_fitness (rank sum)
-
-        if self.population.size(1) > self.max_size:
-            # Sort by fitness (ascending, smaller is better)
-            _, indices = torch.sort(self.biased_fitness, dim=1)
-            survivors = indices[:, : self.max_size]  # (B, max_size)
-
-            # Gather survivors
-            B, _, N = self.population.size()
-
-            # Gather population
-            surv_expanded = survivors.unsqueeze(2).expand(-1, -1, N)
-            self.population = torch.gather(self.population, 1, surv_expanded)
-
-            # Gather costs
-            self.costs = torch.gather(self.costs, 1, survivors)
-
-            # Gather fitness
-            self.biased_fitness = torch.gather(self.biased_fitness, 1, survivors)
-
-            # Gather diversity (optional)
-            if self.diversity_scores is not None:
-                self.diversity_scores = torch.gather(self.diversity_scores, 1, survivors)
-
-    def compute_biased_fitness(self):
-        """
-        Computer Biased Fitness for all individuals in the population.
-        Biased Fitness = Rank(Cost) + alpha * Rank(Diversity).
-        Lower is better for both ranks (0 is best).
-        Updates `self.biased_fitness` and `self.diversity_scores`.
-        """
-
-        B, P, N = self.population.size()
-
-        # 1. Rank by Cost (Ascending: lower cost is better, Rank 0)
-        cost_indices = torch.argsort(self.costs, dim=1)
-        cost_ranks = torch.argsort(cost_indices, dim=1).float()
-
-        # 2. Diversity
-        # Calculate diversity (higher is better)
-        self.diversity_scores = calc_broken_pairs_distance(self.population)
-
-        # Rank by Diversity (Descending: higher diversity is better, Rank 0)
-        div_indices = torch.argsort(self.diversity_scores, dim=1, descending=True)
-        div_ranks = torch.argsort(div_indices, dim=1).float()
-
-        # 3. Combine
-        # Fitness = CostRank + alpha * DiversityRank
-        self.biased_fitness = cost_ranks + self.alpha_diversity * div_ranks
-
-    def get_parents(self, n_offspring=1):
-        """
-        Selects parents for crossover using binary tournament selection based on biased fitness.
-
-        Args:
-            n_offspring (int): Number of offspring to produce (pairs of parents).
-
-        Returns:
-            tuple: (parents1, parents2). Both valid tensors of shape (B, n_offspring, N).
-        """
-
-        B, P, N = self.population.size()
-
-        def tournament():
-            """Selects indices using binary tournament."""
-            idx_a = torch.randint(0, P, (B, n_offspring), device=self.device)
-            idx_b = torch.randint(0, P, (B, n_offspring), device=self.device)
-            fit_a = torch.gather(self.biased_fitness, 1, idx_a)
-            fit_b = torch.gather(self.biased_fitness, 1, idx_b)
-            return torch.where(fit_a < fit_b, idx_a, idx_b)
-
-        parent1_idx = tournament()
-        parent2_idx = tournament()
-
-        p1 = torch.gather(self.population, 1, parent1_idx.unsqueeze(2).expand(-1, -1, N))
-        p2 = torch.gather(self.population, 1, parent2_idx.unsqueeze(2).expand(-1, -1, N))
-
-        return p1, p2
+from logic.src.models.policies.classical.shared.split import vectorized_linear_split
 
 
 class VectorizedHGS:
@@ -343,7 +36,14 @@ class VectorizedHGS:
         device: Torch device.
     """
 
-    def __init__(self, dist_matrix, demands, vehicle_capacity, time_limit=1.0, device="cuda"):
+    def __init__(
+        self,
+        dist_matrix: torch.Tensor,
+        demands: torch.Tensor,
+        vehicle_capacity: Any,
+        time_limit: float = 1.0,
+        device: str = "cuda",
+    ):
         """
         Initialize the HGS solver.
         """
@@ -351,17 +51,17 @@ class VectorizedHGS:
         self.demands = demands
         self.vehicle_capacity = vehicle_capacity
         self.time_limit = time_limit
-        self.device = device
+        self.device = torch.device(device)
 
     def solve(
         self,
-        initial_solutions,
-        n_generations=50,
-        population_size=10,
-        elite_size=5,
-        time_limit=None,
-        max_vehicles=0,
-    ):
+        initial_solutions: torch.Tensor,
+        n_generations: int = 50,
+        population_size: int = 10,
+        elite_size: int = 5,
+        time_limit: Optional[float] = None,
+        max_vehicles: int = 0,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Runs the HGS algorithm starting from a set of initial solutions (Expert Imitation Mode).
 
@@ -434,6 +134,7 @@ class VectorizedHGS:
                 from_n = improved_routes[:, :-1]
                 to_n = improved_routes[:, 1:]
 
+                # Flexible distance matrix support (batch, non-batch, 2D, 3D)
                 if self.dist_matrix.dim() == 3 and self.dist_matrix.size(0) == B:
                     batch_ids = torch.arange(B, device=self.device).view(B, 1)
                     dists = self.dist_matrix[batch_ids, from_n, to_n]

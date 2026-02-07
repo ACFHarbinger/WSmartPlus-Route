@@ -2,6 +2,7 @@
 Vectorized local search operators for WSmart-Route.
 """
 
+from logic.src.models.policies.classical.operators.cluster_removal import vectorized_cluster_removal
 from logic.src.models.policies.classical.operators.cross_exchange import vectorized_cross_exchange
 from logic.src.models.policies.classical.operators.greedy_insertion import vectorized_greedy_insertion
 from logic.src.models.policies.classical.operators.random_removal import vectorized_random_removal
@@ -26,4 +27,5 @@ __all__ = [
     "vectorized_greedy_insertion",
     "vectorized_regret_k_insertion",
     "vectorized_cross_exchange",
+    "vectorized_cluster_removal",
 ]
