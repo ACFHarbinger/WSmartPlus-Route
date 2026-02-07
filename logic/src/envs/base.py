@@ -253,6 +253,65 @@ class RL4COEnvBase(EnvBase):
 
         return td_next
 
+    def make_state(
+        self,
+        nodes: TensorDict,
+        edges: Optional[torch.Tensor] = None,
+        cost_weights: Optional[torch.Tensor] = None,
+        dist_matrix: Optional[torch.Tensor] = None,
+        **kwargs: Any,
+    ) -> Any:
+        """
+        Create a state wrapper for the environment.
+        This provides the API expected by the constructive decoders.
+        """
+        from logic.src.utils.data.td_utils import TensorDictStateWrapper
+
+        # If nodes is not already initialized (missing 'current_node' etc), reset it
+        td = nodes
+        if "current_node" not in td.keys():
+            td = self._reset(td)
+
+        # Ensure dist is in td if provided
+        if dist_matrix is not None:
+            td["dist"] = dist_matrix
+
+        return TensorDictStateWrapper(td, self.name, self)
+
+    def get_costs(
+        self,
+        td: TensorDict,
+        pi: torch.Tensor,
+        cost_weights: Optional[torch.Tensor] = None,
+        dist_matrix: Optional[torch.Tensor] = None,
+    ) -> Any:
+        """
+        Compute costs for a sequence of actions.
+        This provides the API expected by the AttentionModel.
+        """
+        # For simplicity, we can use the reward function
+        # But get_costs usually returns (neg_reward, cost_dict, None)
+
+        # We need a robust implementation here.
+        # Usually, environments have a static get_costs or similar.
+        # For now, let's implement a general one using the internal reward function
+        # by iteratively stepping through the sequence.
+
+        # NOTE: This might be slow for training, but enough for verification and search.
+        # Subclasses can override it for vectorized performance.
+        # Reset and follow pi
+        curr_td = self.reset(td)
+        for i in range(pi.size(1)):
+            curr_td["action"] = pi[:, i]
+            curr_td = self.step(curr_td)["next"]
+
+        # The total reward is usually accumulated in curr_td["reward"] or can be calculated from scratch
+        # Most RL4CO envs return the final reward.
+        reward = self.get_reward(curr_td, pi)
+
+        # Return negative reward as cost (AttentionModel expects minimizing cost)
+        return -reward, {"total": -reward}, None
+
     def _step_instance(self, td: TensorDict) -> TensorDict:
         """
         Problem-specific state transition logic.

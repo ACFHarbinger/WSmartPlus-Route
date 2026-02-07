@@ -26,6 +26,7 @@ from logic.src.pipeline.rl.common.baselines import (
 
 from .attention_model import AttentionModel as AttentionModel
 from .critic_network import CriticNetwork as CriticNetwork
+from .dact import DACT as DACT
 from .deepaco import DeepACO as DeepACO
 from .gat_lstm_manager import GATLSTManager as GATLSTManager
 from .gfacs import GFACS as GFACS
@@ -39,7 +40,12 @@ from .hypernet import (
 from .matnet import MatNet as MatNet
 from .mdam import MDAM as MDAM
 from .meta_rnn import WeightAdjustmentRNN as WeightAdjustmentRNN
+from .n2s import N2S as N2S
 from .nargnn import NARGNN as NARGNN
+from .neuopt import NeuOpt as NeuOpt
+from .policies.common.transductive import EAS as EAS
+from .policies.common.transductive import ActiveSearch as ActiveSearch
+from .policies.common.transductive import TransductiveModel as TransductiveModel
 from .polynet import PolyNet as PolyNet
 from .subnets import (
     GatedGraphAttConvEncoder as GatedGraphAttConvEncoder,
@@ -74,6 +80,12 @@ __all__ = [
     "DeepACO",
     "GFACS",
     "NARGNN",
+    "DACT",
+    "N2S",
+    "NeuOpt",
+    "TransductiveModel",
+    "ActiveSearch",
+    "EAS",
     # Encoders
     "GraphAttentionEncoder",
     "GraphAttConvEncoder",

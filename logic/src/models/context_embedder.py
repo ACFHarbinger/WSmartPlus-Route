@@ -182,23 +182,31 @@ class VRPPContextEmbedder(ContextEmbedder):
         Returns:
             torch.Tensor: Combined embeddings for depot and nodes.
         """
-        waste_key = (
-            "waste"
-            if "waste" in list(nodes.keys())
-            else (
-                "demand"
-                if "demand" in list(nodes.keys())
-                else ("noisy_waste" if "noisy_waste" in list(nodes.keys()) else "real_waste")
-            )
-        )
-        # Logic identical to WC in original code, reused here
-        if temporal_features:
-            features = tuple([waste_key] + ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)])
-        else:
-            features = (waste_key,)
+        # Determine the primary feature key (waste, demand, prize, etc.)
+        primary_key = None
+        for key in ["waste", "demand", "noisy_waste", "real_waste", "prize"]:
+            if key in nodes.keys():
+                primary_key = key
+                break
 
-        locs_key = "locs" if "locs" in nodes.keys() else "loc"
-        node_features = torch.cat((nodes[locs_key], *(nodes[feat][:, :, None] for feat in features)), -1)
+        if primary_key is None or self.node_dim == 2:
+            # Fallback for simple TSP or problems with no extra node features
+            locs_key = "locs" if "locs" in nodes.keys() else "loc"
+            node_features = nodes[locs_key]
+        else:
+            primary_feature = nodes[primary_key][:, :, None]
+            if temporal_features:
+                features = ["fill{}".format(day) for day in range(1, self.temporal_horizon + 1)]
+                feature_list = [primary_feature]
+                for feat in features:
+                    if feat in nodes.keys():
+                        feature_list.append(nodes[feat][:, :, None])
+                    else:
+                        feature_list.append(torch.zeros_like(primary_feature))
+                node_features = torch.cat((nodes[locs_key], *feature_list), -1)
+            else:
+                locs_key = "locs" if "locs" in nodes.keys() else "loc"
+                node_features = torch.cat((nodes[locs_key], primary_feature), -1)
 
         return torch.cat(
             (
@@ -214,7 +222,10 @@ class VRPPContextEmbedder(ContextEmbedder):
         Get the dimension of the step context for VRPP.
 
         Returns:
-            int: Step context dimension (embed_dim + 1).
+            int: Step context dimension (embed_dim + 1 or embed_dim).
         """
+        # For TSP (node_dim=2), it's just embed_dim
+        if self.node_dim == 2:
+            return self.embed_dim
         # VRPP uses embed_dim + VRPP_STEP_CONTEXT_OFFSET
         return self.embed_dim + VRPP_STEP_CONTEXT_OFFSET
