@@ -23,7 +23,7 @@ from logic.src.models.policies.classical.operators import (
     vectorized_two_opt_star,
     vectorized_worst_removal,
 )
-from logic.src.models.policies.classical.shared.split import vectorized_linear_split
+from logic.src.models.policies.classical.shared import vectorized_linear_split
 
 
 class VectorizedALNS:

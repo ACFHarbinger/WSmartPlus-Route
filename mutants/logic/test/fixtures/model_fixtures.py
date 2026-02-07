@@ -9,7 +9,7 @@ import torch
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.gat_lstm_manager import GATLSTManager
 from logic.src.models.model_factory import NeuralComponentFactory
-from logic.src.models.subnets.decoders.decoder import GlimpseDecoder
+from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.temporal_am import TemporalAttentionModel
 
 

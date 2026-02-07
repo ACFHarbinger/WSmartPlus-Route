@@ -15,7 +15,7 @@ from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 
 if TYPE_CHECKING:
-    from logic.src.models.subnets.decoders.mdam_decoder import MDAMDecoder
+    from logic.src.models.subnets.decoders.mdam import MDAMDecoder
     from logic.src.models.subnets.encoders.mdam_encoder import MDAMGraphAttentionEncoder
 
 
@@ -64,7 +64,7 @@ class MDAMPolicy(AutoregressivePolicy):
             test_decode_type: Decoding type during testing.
             **decoder_kwargs: Additional decoder arguments.
         """
-        from logic.src.models.subnets.decoders.mdam_decoder import MDAMDecoder
+        from logic.src.models.subnets.decoders.mdam import MDAMDecoder
         from logic.src.models.subnets.encoders.mdam_encoder import MDAMGraphAttentionEncoder
 
         # Create encoder if not provided

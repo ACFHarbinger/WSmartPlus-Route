@@ -7,9 +7,9 @@ Adapts the K-Sparse Ant Colony Optimization solver to the common policy interfac
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
+from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.ant_colony_optimization.k_sparse_aco import run_aco
 
-from ..base_routing_policy import BaseRoutingPolicy
-from ..k_sparse_aco import run_aco
 from .factory import PolicyRegistry
 
 

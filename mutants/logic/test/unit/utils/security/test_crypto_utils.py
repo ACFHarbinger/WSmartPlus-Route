@@ -1,4 +1,4 @@
-"""Unit tests for crypto_utils.py."""
+"""Unit tests for security utils."""
 
 import base64
 import os
@@ -8,15 +8,18 @@ from unittest.mock import MagicMock, patch, mock_open
 import pytest
 from cryptography.fernet import Fernet
 
-from logic.src.utils.security import crypto_utils
+from logic.src.utils.security import (
+    generate_key, load_key, encrypt_file_data, decrypt_file_data,
+    encode_data, encrypt_directory, decrypt_directory
+)
 
 
 def test_generate_key(mock_crypto_dotenv):
     """Test key generation."""
-    with patch("logic.src.utils.security.crypto_utils.set_key") as mock_set:
-        with patch("logic.src.utils.security.crypto_utils.open", mock_open()) as m:
+    with patch("logic.src.utils.security.set_key") as mock_set:
+        with patch("logic.src.utils.security.open", mock_open()) as m:
             with patch("os.makedirs"):
-                key, salt = crypto_utils.generate_key(symkey_name="test_key")
+                key, salt = generate_key(symkey_name="test_key")
 
                 assert isinstance(key, bytes)
                 assert isinstance(salt, bytes)
@@ -26,9 +29,9 @@ def test_generate_key(mock_crypto_dotenv):
 
 def test_load_key_from_env(mock_crypto_env):
     """Test loading key from environment."""
-    with patch("logic.src.utils.security.crypto_utils.ROOT_DIR", "/tmp"):
-        with patch("logic.src.utils.security.crypto_utils.load_dotenv"):
-            key = crypto_utils.load_key()
+    with patch("logic.src.utils.security.ROOT_DIR", "/tmp"):
+        with patch("logic.src.utils.security.load_dotenv"):
+            key = load_key()
             assert isinstance(key, bytes)
             # Fernet key must be 32 base64-encoded bytes
             assert len(base64.urlsafe_b64decode(key)) == 32
@@ -39,21 +42,21 @@ def test_encryption_decryption_roundtrip():
     key = Fernet.generate_key()
     data = "Secret Message"
 
-    enc = crypto_utils.encrypt_file_data(key, data)
+    enc = encrypt_file_data(key, data)
     assert enc != data
 
-    dec = crypto_utils.decrypt_file_data(key, enc)
+    dec = decrypt_file_data(key, enc)
     assert dec == "Secret Message"
 
 
 def test_encode_data_types():
     """Test data encoding helper."""
-    assert crypto_utils.encode_data("string") == b"string"
-    assert len(crypto_utils.encode_data(12345)) > 0
-    assert len(crypto_utils.encode_data(3.14)) == 4
+    assert encode_data("string") == b"string"
+    assert len(encode_data(12345)) > 0
+    assert len(encode_data(3.14)) == 4
 
     test_dict = {"a": 1}
-    assert crypto_utils.encode_data(test_dict) == pickle.dumps(test_dict)
+    assert encode_data(test_dict) == pickle.dumps(test_dict)
 
 
 def test_encrypt_decrypt_file(tmp_path):
@@ -67,12 +70,12 @@ def test_encrypt_decrypt_file(tmp_path):
     dec_file = tmp_path / "restored.txt"
 
     # Encrypt
-    crypto_utils.encrypt_file_data(key, str(input_file), str(enc_file))
+    encrypt_file_data(key, str(input_file), str(enc_file))
     assert enc_file.exists()
     assert enc_file.read_bytes() != b"Hello World"
 
     # Decrypt
-    res = crypto_utils.decrypt_file_data(key, str(enc_file), str(dec_file))
+    res = decrypt_file_data(key, str(enc_file), str(dec_file))
     assert res == "Hello World"
     assert dec_file.read_text(encoding="utf-8") == "Hello World"
 
@@ -89,7 +92,7 @@ def test_encrypt_directory(tmp_path):
 
     out_dir = tmp_path / "encrypted"
 
-    crypto_utils.encrypt_directory(key, src_dir, out_dir)
+    encrypt_directory(key, src_dir, out_dir)
 
     assert (out_dir / "f1.txt.enc").exists()
     assert (out_dir / "sub" / "f2.txt.enc").exists()
@@ -109,7 +112,7 @@ def test_decrypt_directory(tmp_path):
     (enc_dir / "sub" / "f2.enc").write_bytes(fernet.encrypt(b"Content 2"))
 
     out_dir = tmp_path / "dec"
-    crypto_utils.decrypt_directory(key, enc_dir, out_dir)
+    decrypt_directory(key, enc_dir, out_dir)
 
     assert (out_dir / "f1").read_text() == "Content 1"
     assert (out_dir / "sub" / "f2").read_text() == "Content 2"

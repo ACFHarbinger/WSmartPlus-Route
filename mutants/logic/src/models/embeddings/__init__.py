@@ -13,11 +13,14 @@ from logic.src.models.embeddings.pdp import PDPInitEmbedding
 from logic.src.models.embeddings.vrpp import VRPPInitEmbedding
 from logic.src.models.embeddings.wcvrp import WCVRPInitEmbedding
 
-from .context_embedding import (
+from .context_embedder import (
+    ContextEmbedder,
     CVRPContext,
     EnvContext,
     SWCVRPContext,
     VRPPContext,
+    VRPPContextEmbedder,
+    WCContextEmbedder,
     WCVRPContext,
 )
 from .dynamic_embedding import DynamicEmbedding, StaticEmbedding
@@ -86,6 +89,9 @@ __all__ = [
     "CVRPContext",
     "WCVRPContext",
     "SWCVRPContext",
+    "ContextEmbedder",
+    "VRPPContextEmbedder",
+    "WCContextEmbedder",
     "DynamicEmbedding",
     "StaticEmbedding",
     "EdgeEmbedding",

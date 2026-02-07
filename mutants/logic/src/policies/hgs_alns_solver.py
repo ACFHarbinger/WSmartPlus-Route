@@ -11,11 +11,11 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
-from .adaptive_large_neighborhood_search import ALNSSolver
-from .alns_aux.params import ALNSParams
-from .hgs_aux.evolution import evaluate, ordered_crossover, update_biased_fitness
-from .hgs_aux.types import HGSParams, Individual
-from .hybrid_genetic_search import HGSSolver
+from .adaptive_large_neighborhood_search.alns import ALNSSolver
+from .adaptive_large_neighborhood_search.params import ALNSParams
+from .hybrid_genetic_search.evolution import evaluate, ordered_crossover, update_biased_fitness
+from .hybrid_genetic_search.hgs import HGSSolver
+from .hybrid_genetic_search.types import HGSParams, Individual
 
 
 class HGSALNSSolver(HGSSolver):

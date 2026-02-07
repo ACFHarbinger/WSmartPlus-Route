@@ -23,7 +23,7 @@ from .local_search import (
     vectorized_two_opt,
     vectorized_two_opt_star,
 )
-from .split import vectorized_linear_split
+from .shared.split import vectorized_linear_split
 
 
 class IteratedLocalSearchPolicy(ImprovementPolicy):

@@ -8,9 +8,9 @@ Agnostic to how the targets were selected.
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
+from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.multi_vehicle import find_routes
 
-from ..base_routing_policy import BaseRoutingPolicy
-from ..multi_vehicle import find_routes
 from .factory import PolicyRegistry
 
 

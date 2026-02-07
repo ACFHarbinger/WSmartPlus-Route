@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 import torch
-from logic.src.models.critic_network import CriticNetwork
+from logic.src.models.critic_network import LegacyCriticNetwork
 
 
 def test_critic_network_init():
@@ -12,7 +12,7 @@ def test_critic_network_init():
     problem.NAME = "vrpp"
     component_factory = MagicMock()
 
-    model = CriticNetwork(
+    model = LegacyCriticNetwork(
         problem=problem, component_factory=component_factory, embed_dim=16, hidden_dim=16, n_layers=1, n_sublayers=1
     )
     assert model.embed_dim == 16
@@ -30,7 +30,7 @@ def test_critic_network_forward():
     mock_encoder = MagicMock(return_value=torch.randn(2, 5, 16))
     component_factory.create_encoder.return_value = mock_encoder
 
-    model = CriticNetwork(
+    model = LegacyCriticNetwork(
         problem=problem, component_factory=component_factory, embed_dim=16, hidden_dim=16, n_layers=1, n_sublayers=1
     )
 

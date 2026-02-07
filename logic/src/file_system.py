@@ -32,7 +32,7 @@ from .utils.io.statistics import (
     process_file_statistics,
     process_pattern_files_statistics,
 )
-from .utils.security.crypto_utils import (
+from .utils.security import (
     decrypt_file_data,
     encrypt_file_data,
     generate_key,
