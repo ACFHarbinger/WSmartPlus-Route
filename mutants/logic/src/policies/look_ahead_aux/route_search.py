@@ -8,7 +8,6 @@ import time
 from copy import deepcopy
 
 import numpy as np
-
 from logic.src.policies.look_ahead_aux.check import check_bins_overflowing_feasibility, check_solution_admissibility
 from logic.src.policies.look_ahead_aux.computations import compute_profit, compute_real_profit
 from logic.src.policies.look_ahead_aux.routes import uncross_arcs_in_routes

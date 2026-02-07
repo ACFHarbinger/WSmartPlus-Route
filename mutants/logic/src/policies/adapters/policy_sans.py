@@ -8,7 +8,6 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
-
 from logic.src.pipeline.simulations.processor import convert_to_dict
 
 from ..base_routing_policy import BaseRoutingPolicy

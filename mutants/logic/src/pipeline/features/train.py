@@ -9,9 +9,6 @@ import optuna
 import pytorch_lightning as pl
 import torch
 from hydra.core.config_store import ConfigStore
-from omegaconf import DictConfig, ListConfig, OmegaConf
-from pytorch_lightning import seed_everything
-
 from logic.src.configs import Config
 from logic.src.envs import get_env
 from logic.src.models.policies import (
@@ -45,6 +42,8 @@ from logic.src.pipeline.rl import (
 from logic.src.pipeline.rl.common.trainer import WSTrainer
 from logic.src.utils.configs.config_loader import load_yaml_config
 from logic.src.utils.logging.pylogger import get_pylogger
+from omegaconf import DictConfig, ListConfig, OmegaConf
+from pytorch_lightning import seed_everything
 
 logger = get_pylogger(__name__)
 

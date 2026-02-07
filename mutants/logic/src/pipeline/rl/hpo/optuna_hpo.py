@@ -5,7 +5,6 @@ Optuna HPO Integration.
 from typing import Callable
 
 import optuna
-
 from logic.src.configs import Config
 
 

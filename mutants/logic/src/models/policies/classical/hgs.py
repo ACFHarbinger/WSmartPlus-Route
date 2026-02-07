@@ -5,11 +5,10 @@ HGS Policy wrapper for RL4CO using vectorized implementation.
 from __future__ import annotations
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
+from tensordict import TensorDict
 
 from .hybrid_genetic_search import VectorizedHGS as VectorizedHGSEngine
 

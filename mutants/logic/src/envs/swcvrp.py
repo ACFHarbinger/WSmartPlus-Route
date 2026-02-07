@@ -11,10 +11,9 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.envs.generators import SCWCVRPGenerator
 from logic.src.envs.wcvrp import WCVRPEnv
+from tensordict import TensorDict
 
 
 class SCWCVRPEnv(WCVRPEnv):

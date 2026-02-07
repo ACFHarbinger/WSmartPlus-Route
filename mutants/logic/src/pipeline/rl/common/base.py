@@ -10,14 +10,13 @@ from typing import Any, Dict, Optional, Union, cast
 
 import pytorch_lightning as pl
 import torch
-from tensordict import TensorDict
-from torch.utils.data import DataLoader
-
 from logic.src.data.datasets import tensordict_collate_fn
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
 from logic.src.policies.selection import VectorizedSelector
 from logic.src.utils.logging.pylogger import get_pylogger
+from tensordict import TensorDict
+from torch.utils.data import DataLoader
 
 logger = get_pylogger(__name__)
 
@@ -472,11 +471,10 @@ class RL4COLitModule(pl.LightningModule, ABC):
             stage: The stage ('fit', 'validate', 'test', or 'predict').
         """
         if stage == "fit":
-            from torch.utils.data import Dataset
-
             # If num_workers > 0, we should generate on CPU to avoid CUDA fork issues
             # and transfer to device in shared_step.
             from logic.src.data.datasets import TensorDictDataset
+            from torch.utils.data import Dataset
 
             # Pre-generate dataset on CPU for efficiency and VRAM saving
             # This avoids the overhead of generating 1 instance at a time in __getitem__

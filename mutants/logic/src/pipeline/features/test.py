@@ -22,12 +22,9 @@ from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
 from typing import Any, Dict
 
+import logic.src.constants as udef
 import numpy as np
 import torch
-from loguru import logger
-from tqdm import tqdm
-
-import logic.src.constants as udef
 from logic.src.cli import ConfigsParser
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 from logic.src.pipeline.simulations.loader import load_indices, load_simulator_data
@@ -43,6 +40,8 @@ from logic.src.utils.logging.log_utils import (
     send_final_output_to_gui,
 )
 from logic.src.utils.logging.logger_writer import setup_logger_redirection
+from loguru import logger
+from tqdm import tqdm
 
 
 def simulator_testing(opts, data_size, device):

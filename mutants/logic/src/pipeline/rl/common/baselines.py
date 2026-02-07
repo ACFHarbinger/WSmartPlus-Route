@@ -9,10 +9,9 @@ from typing import Any, Optional, Tuple
 
 import torch
 import torch.nn as nn
-from tensordict import TensorDict
-
 from logic.src.utils.data.rl_utils import safe_td_copy
 from logic.src.utils.logging.pylogger import get_pylogger
+from tensordict import TensorDict
 
 logger = get_pylogger(__name__)
 
@@ -204,10 +203,9 @@ class RolloutBaseline(Baseline):
         if env is None:
             raise ValueError("Environment (env) is required for RolloutBaseline evaluation")
 
-        from torch.utils.data import DataLoader
-
         from logic.src.data.datasets import tensordict_collate_fn
         from logic.src.utils.functions.rl import ensure_tensordict
+        from torch.utils.data import DataLoader
 
         # Determine strict batch size from environment
         batch_size = 64  # Default

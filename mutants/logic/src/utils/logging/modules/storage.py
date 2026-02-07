@@ -9,11 +9,10 @@ import pickle
 import threading
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 
-import numpy as np
-from loguru import logger
-
 import logic.src.constants as udef
+import numpy as np
 from logic.src.utils.io.files import read_json
+from loguru import logger
 
 
 def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") -> Any:

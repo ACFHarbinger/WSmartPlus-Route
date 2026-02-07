@@ -8,7 +8,6 @@ autoregressive neural implementations (like Attention Model).
 import typing
 
 import torch
-
 from logic.src.utils.functions.lexsort import torch_lexsort
 
 

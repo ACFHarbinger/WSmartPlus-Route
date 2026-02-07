@@ -1,97 +1,80 @@
-"""Tests for boolean mask utilities."""
 
-import pytest
 import torch
-from logic.src.utils.functions.boolmask import (
-    _mask_bool2byte,
-    _mask_byte2bool,
-    _pad_mask,
-    mask_bool2long,
-    mask_long2bool,
-    mask_long_scatter,
-)
+import pytest
+from logic.src.utils.functions import boolmask
 
+class TestBoolMask:
+    def test_pad_mask(self):
+        # Case 1: No padding needed (size divisible by 8)
+        mask = torch.ones(8, dtype=torch.uint8)
+        padded, d = boolmask._pad_mask(mask)
+        assert padded.size(-1) == 8
+        assert d == 1
+        assert (padded == mask).all()
 
-def test_pad_mask():
-    """Verify mask padding to multiples of 8."""
-    # Already divisible by 8
-    mask8 = torch.zeros(8, dtype=torch.uint8)
-    padded8, bytes8 = _pad_mask(mask8)
-    assert padded8.size(0) == 8
-    assert bytes8 == 1
+        # Case 2: Padding needed (size 5)
+        mask = torch.ones(5, dtype=torch.uint8)
+        padded, d = boolmask._pad_mask(mask)
+        assert padded.size(-1) == 8  # Next multiple of 8
+        assert d == 1
+        assert (padded[:5] == 1).all()
+        assert (padded[5:] == 0).all()
 
-    # Needs padding
-    mask10 = torch.zeros(10, dtype=torch.uint8)
-    padded16, bytes16 = _pad_mask(mask10)
-    assert padded16.size(0) == 16
-    assert bytes16 == 2
+    def test_bool2long_roundtrip(self):
+        # Create random boolean mask
+        torch.manual_seed(42)
+        size = 20
+        mask = torch.rand(size) > 0.5
 
-    # Empty
-    mask0 = torch.zeros(0, dtype=torch.uint8)
-    padded0, bytes0 = _pad_mask(mask0)
-    assert padded0.size(0) == 0
-    assert bytes0 == 0
+        # Convert to long
+        long_mask = boolmask.mask_bool2long(mask.to(torch.uint8))
 
+        # Convert back to bool
+        restored_mask = boolmask.mask_long2bool(long_mask, n=size)
 
-def test_bool_byte_conversion():
-    """Verify roundtrip between boolean and byte representations."""
-    mask = torch.tensor([1, 0, 1, 1, 0, 0, 1, 0, 1, 1], dtype=torch.uint8)
-    packed = _mask_bool2byte(mask)
-    # 10 bits -> 2 bytes (16 bits)
-    assert packed.shape == (2,)
+        assert (mask == restored_mask).all()
 
-    unpacked = _mask_byte2bool(packed, n=10)
-    assert unpacked.shape == (10,)
-    assert torch.equal(unpacked, mask.bool())
+    def test_long_scatter(self):
+        size = 128
+        # Use batch size 1
+        n_nodes = 100
+        bool_mask = torch.zeros(n_nodes, dtype=torch.uint8).unsqueeze(0) # (1, 100)
+        long_mask = boolmask.mask_bool2long(bool_mask) # (1, 2)
 
+        # Set index 5 and 70
+        idx1 = torch.tensor([5]) # (1,)
+        idx2 = torch.tensor([70]) # (1,)
 
-def test_bool_long_conversion():
-    """Verify roundtrip between boolean and long representations."""
-    # Test batching
-    mask = torch.randint(0, 2, (4, 15), dtype=torch.uint8)
-    long_mask = mask_bool2long(mask)
-    # 15 bits -> 2 bytes -> 1 long (long is 8 bytes, so 1 long is plenty for 15 bits)
-    # mask_byte2long pads to move to long
-    assert long_mask.dtype == torch.int64
+        # mask_long_scatter(mask, values)
+        # mask shape: (1, 2), values shape: (1,) -> batch dims match ()? No.
+        # mask.size()[:-1] is (1,). values.size() is (1,). Match.
 
-    recovered = mask_long2bool(long_mask, n=15)
-    assertRecovered = recovered.to(torch.uint8)
-    assert torch.equal(mask, assertRecovered)
+        new_mask = boolmask.mask_long_scatter(long_mask.clone(), idx1)
 
+        # Verify
+        restored = boolmask.mask_long2bool(new_mask, n=n_nodes)
+        assert restored[0, 5] == 1
+        assert restored.sum() == 1
 
-def test_mask_long_scatter():
-    """Verify scatter operations on long masks."""
-    batch = 4
-    num_longs = 2  # 128 bits
-    mask = torch.zeros(batch, num_longs, dtype=torch.int64)
+        # Update again
+        new_mask = boolmask.mask_long_scatter(new_mask, idx2)
+        restored = boolmask.mask_long2bool(new_mask, n=n_nodes)
+        assert restored[0, 5] == 1
+        assert restored[0, 70] == 1
+        assert restored.sum() == 2
 
-    # Set bit 10 in batch 0, bit 70 in batch 1
-    values = torch.tensor([10, 70, -1, 5], dtype=torch.int64)
+    def test_check_unset_assertion(self):
+        n_nodes = 10
+        bool_mask = torch.zeros(n_nodes, dtype=torch.uint8).unsqueeze(0)
+        long_mask = boolmask.mask_bool2long(bool_mask)
+        idx = torch.tensor([5])
 
-    # -1 should not set anything (per docstring "If values contains -1, nothing is set")
-    # Actually looking at code: values_ = values[..., None]. where = (values_ >= (rng * 64)) & (values_ < ((rng + 1) * 64))
-    # if values is -1, where will be 0 for all rng since rng >= 0.
+        new_mask = boolmask.mask_long_scatter(long_mask, idx)
 
-    updated = mask_long_scatter(mask, values, check_unset=True)
+        # Try setting it again with check_unset=True
+        with pytest.raises(AssertionError):
+            boolmask.mask_long_scatter(new_mask, idx, check_unset=True)
 
-    # Batch 0: bit 10 is set in first long
-    assert (updated[0, 0] & (1 << 10)) > 0
-    # Batch 1: bit 70 is set in second long (70 % 64 = 6)
-    assert (updated[1, 1] & (1 << 6)) > 0
-    # Batch 2: nothing set
-    assert updated[2].sum() == 0
-    # Batch 3: bit 5 set in first long
-    assert (updated[3, 0] & (1 << 5)) > 0
-
-
-def test_mask_long_scatter_check_unset():
-    """Verify check_unset logic."""
-    mask = torch.zeros(1, 1, dtype=torch.int64)
-    mask[0, 0] = 1 << 5
-
-    # Should fail if trying to set bit 5 again with check_unset=True
-    with pytest.raises(AssertionError):
-        mask_long_scatter(mask, torch.tensor([5], dtype=torch.int64), check_unset=True)
-
-    # Should work with check_unset=False
-    mask_long_scatter(mask, torch.tensor([5], dtype=torch.int64), check_unset=False)
+        # Should pass with check_unset=False
+        new_mask_2 = boolmask.mask_long_scatter(new_mask, idx, check_unset=False)
+        assert (new_mask == new_mask_2).all()

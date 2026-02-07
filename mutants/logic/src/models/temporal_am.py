@@ -17,7 +17,6 @@ from typing import Any, List, Optional, Tuple, cast
 
 import torch
 import torch.nn as nn
-
 from logic.src.models.model_factory import NeuralComponentFactory
 
 from . import AttentionModel

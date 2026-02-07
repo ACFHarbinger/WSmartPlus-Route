@@ -23,13 +23,12 @@ Classes:
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
-from loguru import logger
-
 from logic.src.constants import ROOT_DIR
 from logic.src.pipeline.simulations.day import get_daily_results
 from logic.src.policies.adapters import PolicyFactory
 from logic.src.utils.configs.config_loader import load_config
 from logic.src.utils.logging.log_utils import send_daily_output_to_gui
+from loguru import logger
 
 
 def _flatten_config(cfg: Any) -> dict:
@@ -149,7 +148,6 @@ class MustGoSelectionAction(SimulationAction):
         import os
 
         import numpy as np
-
         from logic.src.policies.must_go_selection import MustGoSelectionFactory, SelectionContext
 
         # 1. Gather all strategies to run

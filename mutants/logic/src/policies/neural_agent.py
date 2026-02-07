@@ -22,7 +22,6 @@ and the domain-specific waste collection simulator.
 
 import numpy as np
 import torch
-
 from logic.src.models.policies.classical.local_search import (
     vectorized_two_opt,
 )

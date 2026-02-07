@@ -6,10 +6,9 @@ import json
 import threading
 from typing import Any, Dict, List, Optional, Sequence, Union
 
+import logic.src.constants as udef
 import numpy as np
 import pandas as pd
-
-import logic.src.constants as udef
 
 
 def send_daily_output_to_gui(

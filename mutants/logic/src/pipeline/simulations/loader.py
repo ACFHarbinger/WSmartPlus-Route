@@ -27,9 +27,8 @@ import json
 import os
 from abc import ABC, abstractmethod
 
-import pandas as pd
-
 import logic.src.constants as udef
+import pandas as pd
 
 # from logic.src.utils.data.data_utils import load_area_and_waste_type_params as _load_area_params
 

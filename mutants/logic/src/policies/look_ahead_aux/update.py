@@ -8,7 +8,6 @@ planning cycles.
 """
 
 import numpy as np
-
 from logic.src.constants.optimization import MAX_CAPACITY_PERCENT
 
 

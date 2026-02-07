@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 import streamlit as st
-
 from logic.src.pipeline.ui.services.log_parser import (
     DayLogEntry,
     aggregate_metrics_by_day,
