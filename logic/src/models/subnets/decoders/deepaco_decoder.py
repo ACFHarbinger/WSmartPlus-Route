@@ -56,6 +56,21 @@ class ACODecoder(NonAutoregressiveDecoder):
         td: TensorDict,
         heatmap: torch.Tensor,
         env: RL4COEnvBase,
+        **kwargs,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Produce logits for the current step (for Trajectory Balance training).
+        """
+        current_node = td.get("current_node", torch.zeros(td.batch_size, dtype=torch.long, device=heatmap.device))
+        # heatmap: [batch, n, n]
+        logits = heatmap.gather(1, current_node.view(-1, 1, 1).expand(-1, 1, heatmap.size(-1))).squeeze(1)
+        return logits, td["mask"]
+
+    def construct(
+        self,
+        td: TensorDict,
+        heatmap: torch.Tensor,
+        env: RL4COEnvBase,
         num_starts: int = 1,
         **kwargs,
     ) -> Dict[str, torch.Tensor]:

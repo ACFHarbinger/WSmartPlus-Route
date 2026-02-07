@@ -24,6 +24,8 @@ class DeepACOPolicy(NonAutoregressivePolicy):
 
     def __init__(
         self,
+        encoder: Optional[DeepACOEncoder] = None,
+        decoder: Optional[ACODecoder] = None,
         embed_dim: int = 128,
         num_encoder_layers: int = 3,
         num_heads: int = 8,
@@ -36,35 +38,22 @@ class DeepACOPolicy(NonAutoregressivePolicy):
         env_name: Optional[str] = None,
         **kwargs,
     ):
-        """
-        Initialize DeepACOPolicy.
-
-        Args:
-            embed_dim: Embedding dimension for encoder.
-            num_encoder_layers: Number of GNN layers.
-            num_heads: Number of attention heads.
-            n_ants: Number of ants for ACO.
-            n_iterations: Number of ACO iterations.
-            alpha: Pheromone weight.
-            beta: Heuristic weight.
-            rho: Evaporation rate.
-            use_local_search: Whether to apply 2-opt.
-            env_name: Environment name.
-        """
-        encoder = DeepACOEncoder(
-            embed_dim=embed_dim,
-            num_layers=num_encoder_layers,
-            num_heads=num_heads,
-            **kwargs,
-        )
-        decoder = ACODecoder(
-            n_ants=n_ants,
-            n_iterations=n_iterations,
-            alpha=alpha,
-            beta=beta,
-            rho=rho,
-            use_local_search=use_local_search,
-        )
+        if encoder is None:
+            encoder = DeepACOEncoder(
+                embed_dim=embed_dim,
+                num_layers=num_encoder_layers,
+                num_heads=num_heads,
+                **kwargs,
+            )
+        if decoder is None:
+            decoder = ACODecoder(
+                n_ants=n_ants,
+                n_iterations=n_iterations,
+                alpha=alpha,
+                beta=beta,
+                rho=rho,
+                use_local_search=use_local_search,
+            )
         super().__init__(
             encoder=encoder,
             decoder=decoder,
@@ -80,15 +69,11 @@ class DeepACOPolicy(NonAutoregressivePolicy):
         num_starts: int = 1,
         **kwargs,
     ) -> Dict[str, Any]:
-        """
-        Forward pass: encode heatmap + ACO decode.
+        # Encode: predict heatmap
+        heatmap = self.encoder(td, **kwargs)
 
-        Args:
-            td: TensorDict with problem instance.
-            env: Environment.
-            num_starts: Number of ACO runs (default 1).
+        # Decode: construct solution(s) from heatmap using ACO
+        out = self.decoder.construct(td, heatmap, env, num_starts=num_starts, **kwargs)
 
-        Returns:
-            Dictionary with reward, actions, log_likelihood, heatmap.
-        """
-        return super().forward(td, env, num_starts=num_starts, **kwargs)
+        out["heatmap"] = heatmap
+        return out
