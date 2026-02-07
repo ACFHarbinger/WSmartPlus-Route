@@ -1,0 +1,46 @@
+from __future__ import annotations
+
+from typing import Any
+
+import torch
+import torch.nn as nn
+
+
+class EnvContext(nn.Module):
+    """Base class for environment context embeddings."""
+
+    def __init__(self, embed_dim: int, step_context_dim: int = 0, node_dim: int = 0):
+        super().__init__()
+        self.embed_dim = embed_dim
+        if step_context_dim > 0:
+            self.project_context = nn.Linear(step_context_dim, embed_dim)
+        else:
+            self.project_context = None
+
+    def forward(
+        self,
+        embeddings: torch.Tensor,
+        td: Any,
+    ) -> torch.Tensor:
+        """
+        Args:
+            embeddings: [batch_size, num_nodes, embed_dim]
+            td: TensorDict containing the current state
+        """
+        cur_node_embedding = self._cur_node_embedding(embeddings, td)
+        state_embedding = self._state_embedding(embeddings, td)
+
+        if self.project_context is not None:
+            return cur_node_embedding + self.project_context(state_embedding)
+
+        return cur_node_embedding + state_embedding
+
+    def _cur_node_embedding(self, embeddings: torch.Tensor, td: Any) -> torch.Tensor:
+        # Current node is usually the last visited node
+        cur_node = td["current_node"]
+        if cur_node.dim() == 1:
+            cur_node = cur_node[:, None]
+        return torch.gather(embeddings, 1, cur_node.expand(-1, embeddings.size(-1))[:, None, :]).squeeze(1)
+
+    def _state_embedding(self, embeddings: torch.Tensor, td: Any) -> torch.Tensor:
+        return torch.zeros(embeddings.size(0), self.embed_dim, device=embeddings.device)

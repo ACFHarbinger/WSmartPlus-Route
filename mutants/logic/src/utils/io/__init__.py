@@ -10,7 +10,7 @@ from .dict_processing import (
 )
 from .file_processing import process_file, process_pattern_files
 from .statistics import process_file_statistics, process_pattern_files_statistics
-from .values_processing import find_single_input_values, find_two_input_values
+from .value_processing import find_single_input_values, find_two_input_values
 
 __all__ = [
     "find_single_input_values",

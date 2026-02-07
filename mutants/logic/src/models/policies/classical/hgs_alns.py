@@ -10,7 +10,7 @@ import torch
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.classical.hgs import VectorizedHGS
 from logic.src.policies.hgs_alns_solver import HGSALNSSolver
-from logic.src.policies.hybrid_genetic_search.types import HGSParams
+from logic.src.policies.hybrid_genetic_search.individual import HGSParams
 from tensordict import TensorDict
 
 

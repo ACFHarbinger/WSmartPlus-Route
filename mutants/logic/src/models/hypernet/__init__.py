@@ -1,2 +1,2 @@
-from .model import HyperNetwork as HyperNetwork
-from .model import HyperNetworkOptimizer as HyperNetworkOptimizer
+from .hypernetwork import HyperNetwork as HyperNetwork
+from .optimizer import HyperNetworkOptimizer as HyperNetworkOptimizer

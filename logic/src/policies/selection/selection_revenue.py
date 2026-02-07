@@ -1,11 +1,13 @@
 """
 Revenue-based selection strategy module.
 """
+
 from typing import List
 
 import numpy as np
 
-from ..must_go_selection import MustGoSelectionStrategy, SelectionContext
+from .base.selection_context import SelectionContext
+from .base.selection_strategy import MustGoSelectionStrategy
 
 
 class RevenueThresholdSelection(MustGoSelectionStrategy):

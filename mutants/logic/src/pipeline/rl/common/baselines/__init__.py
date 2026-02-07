@@ -8,11 +8,14 @@ from typing import Optional
 
 import torch.nn as nn
 
-from .base import Baseline, MeanBaseline, NoBaseline
-from .critic import CriticBaseline, SharedBaseline
+from .base import Baseline
+from .critic import CriticBaseline
 from .exponential import ExponentialBaseline
+from .mean import MeanBaseline
+from .none import NoBaseline
 from .pomo import POMOBaseline
 from .rollout import RolloutBaseline
+from .shared_critic import SharedBaseline
 from .warmup import WarmupBaseline
 
 # Baseline registry

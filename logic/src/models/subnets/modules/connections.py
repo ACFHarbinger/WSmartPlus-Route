@@ -2,8 +2,9 @@
 
 import torch.nn as nn
 
-from .hyper_connection import DynamicHyperConnection, StaticHyperConnection
+from .dynamic_hyper_connection import DynamicHyperConnection
 from .skip_connection import SkipConnection
+from .static_hyper_connection import StaticHyperConnection
 
 
 class Connections(nn.Module):

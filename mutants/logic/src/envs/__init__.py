@@ -6,6 +6,8 @@ combinatorial optimization problems.
 """
 
 from logic.src.envs.base import ImprovementEnvBase, RL4COEnvBase
+from logic.src.envs.cvrpp import CVRPPEnv
+from logic.src.envs.cwcvrp import CWCVRPEnv
 from logic.src.envs.generators import (
     GENERATOR_REGISTRY,
     Generator,
@@ -15,10 +17,12 @@ from logic.src.envs.generators import (
 )
 from logic.src.envs.jssp import JSSPEnv
 from logic.src.envs.pdp import PDPEnv
+from logic.src.envs.sdwcvrp import SDWCVRPEnv
 from logic.src.envs.swcvrp import SCWCVRPEnv
-from logic.src.envs.tsp import TSPEnv, TSPkoptEnv
-from logic.src.envs.vrpp import CVRPPEnv, VRPPEnv
-from logic.src.envs.wcvrp import CWCVRPEnv, SDWCVRPEnv, WCVRPEnv
+from logic.src.envs.tsp import TSPEnv
+from logic.src.envs.tsp_kopt import TSPkoptEnv
+from logic.src.envs.vrpp import VRPPEnv
+from logic.src.envs.wcvrp import WCVRPEnv
 
 # Environment registry
 ENV_REGISTRY = {

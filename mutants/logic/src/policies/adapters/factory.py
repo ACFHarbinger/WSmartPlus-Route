@@ -8,60 +8,16 @@ Now also includes the IPolicy interface and PolicyRegistry.
 """
 
 import warnings
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any, Optional
 
 # --- IPolicy Interface ---
 from logic.src.interfaces.adapter import IPolicyAdapter
+from logic.src.policies.adapters.registry import PolicyRegistry
 
 # Alias for backward compatibility
 IPolicy = IPolicyAdapter
 
 
-# --- Policy Registry ---
-class PolicyRegistry:
-    """
-    Central registry for routing policies.
-    """
-
-    _registry: Dict[str, Type[IPolicy]] = {}
-
-    @classmethod
-    def register(cls, name: str) -> Callable:
-        """
-        Decorator to register a policy class.
-
-        Args:
-            name: Unique identifier for the policy.
-        """
-
-        def decorator(policy_cls: Type[IPolicy]) -> Type[IPolicy]:
-            """
-            Inner decorator function.
-
-            Args:
-                policy_cls: The policy implementation class.
-            """
-            cls._registry[name] = policy_cls
-            return policy_cls
-
-        return decorator
-
-    @classmethod
-    def get(cls, name: str) -> Optional[Type[IPolicy]]:
-        """
-        Retrieve a policy class by name.
-        """
-        return cls._registry.get(name)
-
-    @classmethod
-    def list_policies(cls) -> List[str]:
-        """
-        List all registered policies.
-        """
-        return list(cls._registry.keys())
-
-
-# --- Policy Factory ---
 class PolicyFactory:
     """
     Factory for creating policy adapters.
@@ -86,8 +42,8 @@ class PolicyFactory:
         import logic.src.policies.adapters.policy_sans as policy_sans  # noqa
         import logic.src.policies.adapters.policy_tsp as policy_tsp  # noqa
         import logic.src.policies.adapters.policy_vrpp as policy_vrpp  # noqa
-        import logic.src.policies.adapters.policy_aco as policy_aco  # noqa
-        import logic.src.policies.adapters.policy_hyper_aco as policy_hyper_aco  # noqa
+        import logic.src.policies.adapters.policy_ks_aco as policy_ks_aco  # noqa
+        import logic.src.policies.adapters.policy_hh_aco as policy_hh_aco  # noqa
         import logic.src.policies.adapters.policy_sisr as policy_sisr  # noqa
 
         # Normalize name

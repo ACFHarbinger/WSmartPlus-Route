@@ -7,6 +7,7 @@ from typing import Any, Dict, List, cast
 
 import numpy as np
 from logic.src.constants import ROOT_DIR
+from logic.src.policies import MustGoSelectionFactory, SelectionContext
 from logic.src.utils.configs.config_loader import load_config
 
 from .base import SimulationAction, _flatten_config
@@ -21,8 +22,6 @@ class MustGoSelectionAction(SimulationAction):
         """
         Identifies bins that MUST be collected on the current day.
         """
-        from logic.src.policies.must_go_selection import MustGoSelectionFactory, SelectionContext
-
         # 1. Gather all strategies to run
         strategies: List[Dict[str, Any]] = []
 

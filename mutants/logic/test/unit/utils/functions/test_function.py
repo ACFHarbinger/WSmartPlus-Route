@@ -4,7 +4,7 @@ import pytest
 import torch
 import torch.nn as nn
 from unittest.mock import MagicMock, patch
-from logic.src.utils.functions.function import (
+from logic.src.utils.functions import (
     get_inner_model,
     load_problem,
     torch_load_cpu,

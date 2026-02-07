@@ -13,7 +13,7 @@ from logic.src.policies.simulated_annealing_neighborhood_search.common.check imp
     check_bins_overflowing_feasibility,
     check_solution_admissibility,
 )
-from logic.src.policies.simulated_annealing_neighborhood_search.common.computations import compute_profit
+from logic.src.policies.simulated_annealing_neighborhood_search.common.objectives import compute_profit
 from logic.src.policies.simulated_annealing_neighborhood_search.search.random_search import local_search
 
 

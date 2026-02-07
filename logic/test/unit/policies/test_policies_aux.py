@@ -9,7 +9,12 @@ This module consolidates tests for:
 
 from unittest.mock import patch
 
-from logic.src.policies.look_ahead_aux import solution_initialization, simulated_annealing
+from logic.src.policies.simulated_annealing_neighborhood_search.common.solution_initialization import (
+    find_initial_solution, compute_initial_solution
+)
+from logic.src.policies.simulated_annealing_neighborhood_search.heuristics.sans import (
+    improved_simulated_annealing,
+)
 import numpy as np
 import pandas as pd
 import pytest
@@ -21,11 +26,11 @@ from logic.src.policies.hybrid_genetic_search import split as split_module
 from logic.src.policies import local_search
 
 # Look-ahead auxiliary imports
-from logic.src.policies.look_ahead_aux.check import (
+from logic.src.policies.simulated_annealing_neighborhood_search.common.check import (
     check_bins_overflowing_feasibility,
     check_solution_admissibility,
 )
-from logic.src.policies.look_ahead_aux.move import (
+from logic.src.policies.simulated_annealing_neighborhood_search.operators.move import (
     move_1_route,
     move_2_routes,
     move_n_2_routes_consecutive,
@@ -33,7 +38,7 @@ from logic.src.policies.look_ahead_aux.move import (
     move_n_route_consecutive,
     move_n_route_random,
 )
-from logic.src.policies.look_ahead_aux.select import (
+from logic.src.policies.simulated_annealing_neighborhood_search.select import (
     add_bin,
     add_n_bins_random,
     add_route_random,
@@ -41,7 +46,7 @@ from logic.src.policies.look_ahead_aux.select import (
     remove_bin,
     remove_n_bins_random,
 )
-from logic.src.policies.look_ahead_aux.swap import (
+from logic.src.policies.simulated_annealing_neighborhood_search.operators import (
     swap_1_route,
     swap_2_routes,
     swap_n_2_routes_consecutive,
@@ -284,20 +289,20 @@ class TestLookAheadSolutions:
 
     def test_find_initial_solution(self, sample_data, bins_coord_df, dist_matrix):
         """Test initial solution finding."""
-        res = solution_initialization.find_initial_solution(sample_data, bins_coord_df, dist_matrix, 6, 2000.0, 0.5, 20.0)
+        res = find_initial_solution(sample_data, bins_coord_df, dist_matrix, 6, 2000.0, 0.5, 20.0)
         assert isinstance(res, list)
 
     def test_compute_initial_solution(self, sample_data, bins_coord_dict, dist_matrix):
         """Test initial solution computation."""
         id_to_index = {i: i for i in range(7)}
-        res = solution_initialization.compute_initial_solution(sample_data, bins_coord_dict, dist_matrix, 2000.0, id_to_index)
+        res = compute_initial_solution(sample_data, bins_coord_dict, dist_matrix, 2000.0, id_to_index)
         assert isinstance(res, list)
 
     def test_simulated_annealing_smoke(self, sample_data, bins_coord_dict, dist_matrix):
         """Test simulated annealing optimization."""
         routes = [[1, 2, 3], [4, 5, 6]]
         id_to_index = {i: i for i in range(7)}
-        res = simulated_annealing.improved_simulated_annealing(
+        res = improved_simulated_annealing(
             routes,
             dist_matrix,
             time_limit=0.1,

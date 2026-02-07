@@ -10,9 +10,9 @@ from logic.src.models.policies.classical.adaptive_large_neighborhood_search impo
 from logic.src.models.policies.classical.hybrid_genetic_search import (
     VectorizedHGS,
     VectorizedPopulation,
-    calc_broken_pairs_distance,
     vectorized_ordered_crossover,
 )
+from logic.src.models.policies.classical.hgs.evaluation import calc_broken_pairs_distance
 from logic.src.models.policies.classical.local_search import (
     vectorized_relocate,
     vectorized_swap,

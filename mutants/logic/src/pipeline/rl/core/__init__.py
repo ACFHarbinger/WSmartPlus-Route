@@ -22,7 +22,8 @@ from logic.src.pipeline.rl.core.dr_grpo import DRGRPO
 from logic.src.pipeline.rl.core.gdpo import GDPO
 from logic.src.pipeline.rl.core.gspo import GSPO
 from logic.src.pipeline.rl.core.imitation import ImitationLearning
-from logic.src.pipeline.rl.core.mvmoe import MVMoE_AM, MVMoE_POMO
+from logic.src.pipeline.rl.core.mvmoe_am import MVMoE_AM
+from logic.src.pipeline.rl.core.mvmoe_pomo import MVMoE_POMO
 from logic.src.pipeline.rl.core.pomo import POMO
 from logic.src.pipeline.rl.core.ppo import PPO
 from logic.src.pipeline.rl.core.reinforce import REINFORCE

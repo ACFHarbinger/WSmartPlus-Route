@@ -25,6 +25,7 @@ Propagation flow:
         → Classical policies (n_nodes = num_loc)
         → Simulator context (graph_size)
 """
+
 from typing import List
 
 # Model configurations
@@ -48,3 +49,18 @@ DEFAULT_TEMPORAL_HORIZON: int = 10
 TANH_CLIPPING: float = 10.0
 NORM_EPSILON: float = 1e-5
 FEED_FORWARD_EXPANSION: int = 4
+
+DEFAULT_MOE_KWARGS = {
+    "encoder": {
+        "hidden_act": "ReLU",
+        "num_experts": 4,
+        "k": 2,
+        "noisy_gating": True,
+    },
+    "decoder": {
+        "light_version": True,
+        "num_experts": 4,
+        "k": 2,
+        "noisy_gating": True,
+    },
+}

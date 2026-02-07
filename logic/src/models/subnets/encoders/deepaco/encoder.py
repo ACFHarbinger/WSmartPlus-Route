@@ -13,7 +13,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from tensordict import TensorDict
 
-from logic.src.models.policies.common.nonautoregressive import NonAutoregressiveEncoder
+from logic.src.models.policies.common.nonautoregressive_encoder import NonAutoregressiveEncoder
 
 
 class DeepACOEncoder(NonAutoregressiveEncoder):

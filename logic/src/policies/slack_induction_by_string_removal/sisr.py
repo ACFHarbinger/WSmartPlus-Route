@@ -1,0 +1,20 @@
+from .sisr_params import SISRParams
+from .sisr_solver import SISRSolver
+
+
+def run_sisr(dist_matrix, demands, capacity, R, C, values, **kwargs):
+    """
+    Convenience entry point for SISR.
+    """
+    params = SISRParams(
+        time_limit=values.get("time_limit", 10.0),
+        max_iterations=values.get("max_iterations", 1000),
+        start_temp=values.get("start_temp", 100.0),
+        cooling_rate=values.get("cooling_rate", 0.995),
+        max_string_len=values.get("max_string_len", 10),
+        avg_string_len=values.get("avg_string_len", 3.0),
+        blink_rate=values.get("blink_rate", 0.01),
+        destroy_ratio=values.get("destroy_ratio", 0.2),
+    )
+    solver = SISRSolver(dist_matrix, demands, capacity, R, C, params)
+    return solver.solve()

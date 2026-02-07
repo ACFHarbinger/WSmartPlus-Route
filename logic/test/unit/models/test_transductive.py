@@ -11,7 +11,7 @@ from logic.src.envs.tsp import TSPEnv
 from logic.src.models.attention_model import AttentionModel
 from unittest.mock import MagicMock
 from logic.src.models.policies.common.transductive import ActiveSearch, EAS, EASEmb, EASLay
-from logic.src.models.model_factory import AttentionComponentFactory
+from logic.src.models.subnets.factories import AttentionComponentFactory
 
 
 class MockPolicy(nn.Module):

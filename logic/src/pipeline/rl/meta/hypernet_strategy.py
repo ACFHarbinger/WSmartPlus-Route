@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 
 import torch
 
-from logic.src.models.hypernet.model import HyperNetworkOptimizer
+from logic.src.models.hypernet.optimizer import HyperNetworkOptimizer
 from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 
 

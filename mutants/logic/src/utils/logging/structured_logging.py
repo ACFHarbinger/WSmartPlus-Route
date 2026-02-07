@@ -5,61 +5,12 @@ Provides handlers and formatters to output logs in JSON format,
 optionally sending them via TCP to Logstash.
 """
 
-import datetime
-import json
 import logging
-import socket
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-
-class JsonFormatter(logging.Formatter):
-    """Formatter that outputs JSON strings."""
-
-    def format(self, record):
-        """Format a log record as a JSON string."""
-        log_entry = {
-            "timestamp": datetime.datetime.fromtimestamp(record.created).isoformat(),
-            "level": record.levelname,
-            "message": record.getMessage(),
-            "module": record.module,
-            "funcName": record.funcName,
-            "line": record.lineno,
-        }
-
-        # Add extra fields if present
-        if hasattr(record, "extra_fields") and isinstance(record.extra_fields, dict):
-            log_entry.update(record.extra_fields)
-
-        return json.dumps(log_entry)
-
-
-class LogstashTcpHandler(logging.Handler):
-    """Handler that sends JSON logs over TCP to Logstash."""
-
-    def __init__(self, host: str = "localhost", port: int = 5000):
-        """Initialize the TCP handler for Logstash.
-
-        Args:
-            host: Logstash server hostname.
-            port: Logstash server port.
-        """
-        super().__init__()
-        self.host = host
-        self.port = port
-        self.formatter = JsonFormatter()
-
-    def emit(self, record):
-        """Emit a log record by sending it to Logstash over TCP."""
-        try:
-            msg = self.format(record) + "\n"
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.settimeout(1.0)
-                s.connect((self.host, self.port))
-                s.sendall(msg.encode("utf-8"))
-        except Exception:
-            # Silent failure to avoid breaking the application
-            pass
+from .json_formatter import JsonFormatter
+from .logstash_handler import LogstashTcpHandler
 
 
 def get_structured_logger(
