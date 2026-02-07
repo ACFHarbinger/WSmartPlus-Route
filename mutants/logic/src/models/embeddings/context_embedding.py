@@ -16,6 +16,14 @@ class EnvContext(nn.Module):
     """Base class for environment context embeddings."""
 
     def __init__(self, embed_dim: int, step_context_dim: int = 0, node_dim: int = 0):
+        """
+        Initialize EnvContext.
+
+        Args:
+            embed_dim: Embedding dimension.
+            step_context_dim: Dimension of step context.
+            node_dim: Dimension of node features.
+        """
         super().__init__()
         self.embed_dim = embed_dim
         self.step_context_dim = step_context_dim
@@ -67,6 +75,12 @@ class VRPPContext(EnvContext):
     """
 
     def __init__(self, embed_dim: int):
+        """
+        Initialize VRPPContext.
+
+        Args:
+            embed_dim: Embedding dimension.
+        """
         super().__init__(embed_dim, step_context_dim=1)
 
     def _state_embedding(self, embeddings: torch.Tensor, td: Any) -> torch.Tensor:

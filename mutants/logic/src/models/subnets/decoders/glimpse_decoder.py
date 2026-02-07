@@ -94,6 +94,7 @@ class GlimpseDecoder(nn.Module):
         self.problem = problem
         self.is_wc = problem.NAME in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]
         self.is_vrpp = problem.NAME == "vrpp" or problem.NAME == "cvrpp"
+        self.is_tsp = problem.NAME == "tsp"
         self.allow_partial = problem.NAME == "sdwcvrp"
 
         self.tanh_clipping = tanh_clipping
@@ -110,7 +111,14 @@ class GlimpseDecoder(nn.Module):
         # These layers were in AttentionModel
         self.project_node_embeddings = nn.Linear(embed_dim, 3 * embed_dim, bias=False)
         self.project_fixed_context = nn.Linear(embed_dim, embed_dim, bias=False)
-        self.project_step_context = nn.Linear(embed_dim + (2 if self.is_wc else 1), embed_dim, bias=False)
+        step_context_dim = embed_dim
+        if self.is_wc:
+            step_context_dim += 2
+        elif self.is_vrpp:
+            step_context_dim += 1
+        # for tsp, it remains embed_dim
+
+        self.project_step_context = nn.Linear(step_context_dim, embed_dim, bias=False)
 
         if self.allow_partial:
             self.project_node_step = nn.Linear(1, 3 * embed_dim, bias=False)
@@ -163,6 +171,7 @@ class GlimpseDecoder(nn.Module):
         profit_vars: Optional[torch.Tensor] = None,
         mask: Optional[torch.Tensor] = None,
         expert_pi: Optional[torch.Tensor] = None,
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Internal implementation of the constructive decoding loop.
@@ -184,6 +193,7 @@ class GlimpseDecoder(nn.Module):
         """
         outputs = []
         sequences = []
+        decode_type = kwargs.get("decode_type", self.decode_type)
         state = self.problem.make_state(
             nodes,
             edges,
@@ -240,7 +250,7 @@ class GlimpseDecoder(nn.Module):
             if expert_pi is not None:
                 selected = expert_pi[:, i]
             else:
-                selected = self._select_node(log_p.exp()[:, 0, :], step_mask[:, 0, :])
+                selected = self._select_node(log_p.exp()[:, 0, :], step_mask[:, 0, :], decode_type=decode_type)
 
                 if self.pomo_size > 0 and i == 0:
                     current_batch_size = selected.size(0)
@@ -264,10 +274,20 @@ class GlimpseDecoder(nn.Module):
 
         return torch.stack(outputs, 1), torch.stack(sequences, 1)
 
-    def _select_node(self, probs: torch.Tensor, mask: Optional[torch.Tensor]) -> torch.Tensor:
+    def _select_node(
+        self, probs: torch.Tensor, mask: Optional[torch.Tensor], decode_type: str = "greedy"
+    ) -> torch.Tensor:
         assert (probs == probs).all(), "Probs should not contain any nans"
 
-        if self.decode_type == "greedy":
+        if decode_type is None:
+            decode_type = self.decode_type
+
+        if decode_type is not None:
+            decode_type = decode_type.lower()
+        else:
+            decode_type = "greedy"  # Final fallback
+
+        if decode_type == "greedy":
             _, selected = probs.max(1)
             if mask is not None:
                 assert not mask.gather(
@@ -395,8 +415,23 @@ class GlimpseDecoder(nn.Module):
                 ),
                 -1,
             )
+        elif self.is_tsp:
+            return torch.gather(
+                embeddings,
+                1,
+                current_node.contiguous()
+                .view(batch_size, num_steps, 1)
+                .expand(batch_size, num_steps, embeddings.size(-1)),
+            ).view(batch_size, num_steps, embeddings.size(-1))
         else:
-            assert False, "Unsupported problem"
+            # Fallback for other problems: just use current node embeddings
+            return torch.gather(
+                embeddings,
+                1,
+                current_node.contiguous()
+                .view(batch_size, num_steps, 1)
+                .expand(batch_size, num_steps, embeddings.size(-1)),
+            ).view(batch_size, num_steps, embeddings.size(-1))
 
     def _get_attention_node_data(
         self, fixed: AttentionModelFixed, state: Any

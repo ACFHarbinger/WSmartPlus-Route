@@ -16,9 +16,11 @@ class StaticEmbedding(nn.Module):
     """Static embedding: No dynamic updates."""
 
     def __init__(self, *args, **kwargs):
+        """Initialize StaticEmbedding."""
         super().__init__()
 
     def forward(self, td: Any) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Return zero embeddings."""
         return torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0)
 
 
@@ -29,6 +31,13 @@ class DynamicEmbedding(nn.Module):
     """
 
     def __init__(self, embed_dim: int, dynamic_node_dim: int = 1):
+        """
+        Initialize DynamicEmbedding.
+
+        Args:
+            embed_dim: Embedding dimension.
+            dynamic_node_dim: Dimension of dynamic features.
+        """
         super().__init__()
         self.embed_dim = embed_dim
 
@@ -41,6 +50,12 @@ class DynamicEmbedding(nn.Module):
         Compute dynamic updates for glimpse K, V and logit K.
 
         Checks for 'visited' or 'dynamic_context' in td.
+
+        Args:
+            td: TensorDict.
+
+        Returns:
+            Tuple of (glimpse_key, glimpse_val, logit_key).
         """
         # Default: check for 'visited' mask as a simple dynamic feature
         # visited: [batch, num_loc]

@@ -1,3 +1,7 @@
+"""
+MatNet Attention Module.
+"""
+
 from __future__ import annotations
 
 import math
@@ -20,6 +24,14 @@ class MixedScoreMHA(nn.Module):
         embed_dim: int,
         key_dim: Optional[int] = None,
     ):
+        """
+        Initialize MixedScoreMHA.
+
+        Args:
+            n_heads: Number of heads.
+            embed_dim: Embedding dimension.
+            key_dim: Key dimension.
+        """
         super().__init__()
         if key_dim is None:
             key_dim = embed_dim // n_heads
@@ -48,6 +60,7 @@ class MixedScoreMHA(nn.Module):
         self.init_parameters()
 
     def init_parameters(self):
+        """Initialize parameters."""
         nn.init.xavier_uniform_(self.W_mat)
 
     def forward(
@@ -63,6 +76,7 @@ class MixedScoreMHA(nn.Module):
 
         # Projections and reshape to [batch, n_heads, size, key_dim]
         def project(linear, emb):
+            """Project and reshape."""
             out = linear(emb)
             return out.view(batch_size, -1, self.n_heads, self.key_dim).transpose(1, 2)
 
@@ -100,6 +114,7 @@ class MixedScoreMHA(nn.Module):
 
         # Reshape and project out
         def project_out(linear, heads):
+            """Project out."""
             # heads is [batch, n_heads, size, key_dim]
             out = heads.transpose(1, 2).reshape(batch_size, -1, self.n_heads * self.key_dim)
             return linear(out)

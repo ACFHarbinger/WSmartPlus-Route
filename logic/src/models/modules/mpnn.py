@@ -1,3 +1,9 @@
+"""
+Message Passing Neural Network (MPNN) Module.
+"""
+
+from __future__ import annotations
+
 from typing import Tuple
 
 import torch
@@ -34,6 +40,17 @@ class MessagePassingLayer(MessagePassing):
         norm: str = "batch",
         bias: bool = True,
     ):
+        """
+        Initialize MessagePassingLayer.
+
+        Args:
+            node_dim: Node dimension.
+            edge_dim: Edge dimension.
+            hidden_dim: Hidden dimension.
+            aggr: Aggregation scheme.
+            norm: Normalization type.
+            bias: Whether to use bias.
+        """
         if MessagePassing is object:
             raise ImportError("torch_geometric is required for MessagePassingLayer")
 
@@ -61,6 +78,17 @@ class MessagePassingLayer(MessagePassing):
     def forward(
         self, x: torch.Tensor, edge_index: torch.Tensor, edge_attr: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass.
+
+        Args:
+            x: Node features.
+            edge_index: Edge indices.
+            edge_attr: Edge features.
+
+        Returns:
+            Tuple of (node features, edge features).
+        """
         # propagate performs message passing:
         # 1. message() creates messages
         # 2. aggregate() aggregates messages
@@ -84,12 +112,33 @@ class MessagePassingLayer(MessagePassing):
         return out_nodes, edge_attr_updated
 
     def message(self, x_i: torch.Tensor, x_j: torch.Tensor, edge_attr: torch.Tensor) -> torch.Tensor:
+        """
+        Create messages.
+
+        Args:
+            x_i: Features of target nodes.
+            x_j: Features of source nodes.
+            edge_attr: Edge features.
+
+        Returns:
+            Messages.
+        """
         # Message function: In this MPNN variant, the message is just the updated edge feature
         # or processed edge feature.
         # Here we just pass the updated edge attribute as the message to be aggregated.
         return edge_attr
 
     def update(self, aggr_out: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
+        """
+        Update node features.
+
+        Args:
+            aggr_out: Aggregated messages.
+            x: Current node features.
+
+        Returns:
+            Updated node features.
+        """
         # Node update step: Combine aggregated messages with current node features
         node_input = torch.cat([x, aggr_out], dim=-1)
         return self.node_model(node_input)
@@ -109,6 +158,17 @@ class MPNNEncoder(nn.Module):
         aggr: str = "add",
         norm: str = "batch",
     ):
+        """
+        Initialize MPNNEncoder.
+
+        Args:
+            num_layers: Number of layers.
+            node_dim: Node feature dimension.
+            edge_dim: Edge feature dimension.
+            hidden_dim: Hidden dimension.
+            aggr: Aggregation scheme.
+            norm: Normalization type.
+        """
         super().__init__()
         self.layers = nn.ModuleList(
             [
@@ -141,6 +201,17 @@ class MPNNEncoder(nn.Module):
     def forward(
         self, x: torch.Tensor, edge_index: torch.Tensor, edge_attr: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass.
+
+        Args:
+            x: Node features.
+            edge_index: Edge indices.
+            edge_attr: Edge features.
+
+        Returns:
+            Tuple of (node features, edge features).
+        """
         x = self.input_proj(x)
         edge_attr = self.edge_proj(edge_attr)
 

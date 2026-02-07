@@ -63,6 +63,9 @@ class GFACSPolicy(DeepACOPolicy):
         k_sparse: Optional[int] = None,
         **encoder_kwargs,
     ) -> None:
+        """
+        Initialize GFACSPolicy.
+        """
         aco_kwargs = aco_kwargs or {}
 
         if encoder is None:

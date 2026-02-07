@@ -35,7 +35,7 @@ class NonAutoregressiveEncoder(nn.Module, ABC):
         self,
         td: TensorDict,
         **kwargs,
-    ) -> torch.Tensor:
+    ) -> torch.Tensor | tuple[torch.Tensor, ...]:
         """
         Compute heatmap logits for the problem instance.
 
@@ -68,22 +68,32 @@ class NonAutoregressiveDecoder(nn.Module, ABC):
         heatmap: torch.Tensor,
         env: RL4COEnvBase,
         **kwargs,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """
-        Construct solutions from heatmaps.
+        Produce logits and mask for the current step.
 
         Args:
-            td: TensorDict containing problem instance.
-            heatmap: Heatmap tensor from encoder.
-            env: Environment for solution validation.
+            td: TensorDict containing current state.
+            heatmap: Pre-computed heatmap from encoder.
+            env: Environment.
 
         Returns:
-            Dictionary containing:
-                - actions: Solution sequence [batch, seq_len]
-                - log_likelihood: Log probability of solutions [batch]
-                - reward: Reward/cost of solutions [batch]
+            Tuple of (logits, mask).
         """
         raise NotImplementedError
+
+    def construct(
+        self,
+        td: TensorDict,
+        heatmap: torch.Tensor,
+        env: RL4COEnvBase,
+        **kwargs,
+    ) -> Dict[str, torch.Tensor]:
+        """
+        Full construction of solutions from heatmaps.
+        Default implementation returns empty dict, subclasses should override.
+        """
+        return {}
 
 
 class NonAutoregressivePolicy(nn.Module, ABC):
@@ -133,7 +143,11 @@ class NonAutoregressivePolicy(nn.Module, ABC):
                 - heatmap: Predicted heatmap from encoder
         """
         # Encode: predict heatmap
-        heatmap = self.encoder(td, **kwargs) if self.encoder is not None else None
+        encoder_out = self.encoder(td, **kwargs) if self.encoder is not None else None
+        if isinstance(encoder_out, tuple):
+            heatmap = encoder_out[0]
+        else:
+            heatmap = encoder_out
 
         # Decode: construct solution(s) from heatmap
         if self.decoder is not None and heatmap is not None:
@@ -150,6 +164,84 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         self._decode_type = decode_type
         for k, v in kwargs.items():
             setattr(self, f"_{k}", v)
+
+    def common_decoding(
+        self,
+        decode_type: str,
+        td: TensorDict,
+        env: RL4COEnvBase,
+        heatmap: torch.Tensor,
+        actions: Optional[torch.Tensor] = None,
+        **decoding_kwargs,
+    ):
+        """
+        Common decoding logic for NAR models.
+
+        Args:
+            decode_type: Decoding strategy ('sampling', 'greedy', etc.)
+            td: Initial TensorDict
+            env: Environment
+            heatmap: Predicted heatmap from encoder
+            actions: Pre-specified actions for evaluation
+            **decoding_kwargs: Additional arguments for decoding
+
+        Returns:
+            Tuple of (logprobs, actions, td, env)
+        """
+        from logic.src.utils.functions.decoding import get_decoding_strategy
+
+        if actions is not None:
+            decode_type = "evaluate"
+            decoding_kwargs["actions"] = actions
+
+        strategy = get_decoding_strategy(decode_type, **decoding_kwargs)
+
+        # Pre-decoding hook
+        td, env, num_starts_hook = strategy.pre_decoder_hook(td, env)
+
+        # Determine num_starts
+        num_starts = decoding_kwargs.get("num_starts", decoding_kwargs.get("num_samples", num_starts_hook))
+        if num_starts is None:
+            num_starts = 1
+        num_starts = int(num_starts)
+
+        # Update heatmap and td to match num_starts if needed
+        if num_starts > 1:
+            from logic.src.utils.functions.decoding import batchify
+
+            if td.size(0) != heatmap.size(0) * num_starts:
+                # This might happen if pre_decoder_hook didn't batchify
+                if td.size(0) == heatmap.size(0):
+                    td = batchify(td, num_starts)
+
+            if heatmap.size(0) != td.size(0):
+                heatmap = batchify(heatmap, num_starts)
+
+        if self.decoder is None:
+            raise ValueError("common_decoding requires a decoder to be set")
+
+        # Main decoding loop
+        step = 0
+        actions_list = []
+        log_probs_list = []
+        while not td["done"].all():
+            # In NAR models, the decoder uses the pre-computed heatmap
+            logits, mask = self.decoder(td, heatmap, env)
+            action, log_prob, _ = strategy.step(logits, mask, td)
+
+            actions_list.append(action)
+            log_probs_list.append(log_prob)
+
+            td.set("action", action)
+            td.update(env.step(td)["next"])
+            step += 1
+
+        actions = torch.stack(actions_list, dim=1)
+        logprobs = torch.stack(log_probs_list, dim=1)
+
+        # Post-decoding hook
+        logprobs, actions, td, env = strategy.post_decoder_hook(td, env, logprobs, actions)
+        return logprobs, actions, td, env
 
     def eval(self):
         """Set model to evaluation mode."""

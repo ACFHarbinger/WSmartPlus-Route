@@ -6,15 +6,18 @@ Non-autoregressive GNN-based policy for combinatorial optimization.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import torch.nn as nn
+from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.common.nonautoregressive import (
     NonAutoregressiveDecoder,
     NonAutoregressiveEncoder,
     NonAutoregressivePolicy,
 )
 from logic.src.models.subnets.encoders.nargnn_encoder import NARGNNEncoder
+from logic.src.utils.functions.decoding import get_log_likelihood
+from tensordict import TensorDict
 
 
 class NARGNNPolicy(NonAutoregressivePolicy):
@@ -69,11 +72,33 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         act_fn: str = "silu",
         agg_fn: str = "mean",
         linear_bias: bool = True,
-        train_decode_type: str = "multistart_sampling",
-        val_decode_type: str = "multistart_greedy",
-        test_decode_type: str = "multistart_greedy",
+        train_decode_type: str = "sampling",
+        val_decode_type: str = "greedy",
+        test_decode_type: str = "greedy",
         **constructive_policy_kw,
     ) -> None:
+        """
+        Initialize NARGNNPolicy.
+
+        Args:
+           encoder: Encoder instance (optional).
+           decoder: Decoder instance (optional).
+           embed_dim: Embedding dimension.
+           env_name: Environment name.
+           init_embedding: Initial embedding module.
+           edge_embedding: Edge embedding module.
+           graph_network: Graph network module.
+           heatmap_generator: Heatmap generator module.
+           num_layers_heatmap_generator: Layers in heatmap generator.
+           num_layers_graph_encoder: Layers in graph encoder.
+           act_fn: Activation function.
+           agg_fn: Aggregation function.
+           linear_bias: Use bias in linear layers.
+           train_decode_type: Decode type for training.
+           val_decode_type: Decode type for validation.
+           test_decode_type: Decode type for testing.
+           **constructive_policy_kw: Args for NonAutoregressivePolicy.
+        """
         if encoder is None:
             # NARGNNEncoder doesn't inherit from NonAutoregressiveEncoder but has compatible interface
             encoder = NARGNNEncoder(  # type: ignore[assignment]
@@ -90,16 +115,66 @@ class NARGNNPolicy(NonAutoregressivePolicy):
                 linear_bias=linear_bias,
             )
 
-        # NARGNN doesn't use a separate decoder - solutions are constructed directly from heatmaps
-        # Decoder is None and handled by parent class NonAutoregressivePolicy
+        if decoder is None:
+            from logic.src.models.subnets.decoders.nar_decoder import SimpleNARDecoder
+
+            decoder = SimpleNARDecoder()
 
         # Pass to constructive policy
         super().__init__(
             encoder=encoder,
             decoder=decoder,
             env_name=env_name,
-            train_decode_type=train_decode_type,
-            val_decode_type=val_decode_type,
-            test_decode_type=test_decode_type,
             **constructive_policy_kw,
         )
+
+        self.train_decode_type = train_decode_type
+        self.val_decode_type = val_decode_type
+        self.test_decode_type = test_decode_type
+
+    def forward(
+        self,
+        td: TensorDict,
+        env: Optional[RL4COEnvBase] = None,
+        num_starts: int = 1,
+        phase: str = "test",
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """
+        Forward pass: encode heatmap + decode solution.
+        """
+        # Encode: predict heatmap
+        heatmap, node_embed = self.encoder(td)
+
+        # Decode type selection
+        decode_type = kwargs.get("decode_type")
+        if decode_type is None:
+            decode_type = getattr(self, f"{phase}_decode_type", "greedy")
+
+        # Instantiate environment if needed
+        if env is None:
+            from logic.src.envs import get_env
+
+            env = get_env(self.env_name)
+
+        # Use common_decoding
+        logprobs, actions, td, env = self.common_decoding(
+            decode_type=decode_type,
+            td=td,
+            env=env,
+            heatmap=heatmap,
+            num_starts=num_starts,
+            **kwargs,
+        )
+
+        # Constructed outputs
+        # Narrow env type to RL4COEnvBase (guaranteed by common_decoding)
+        # Post-decoding result preparation
+        out = {
+            "actions": actions,
+            "reward": env.get_reward(td, actions),
+            "log_likelihood": get_log_likelihood(logprobs, None, td.get("mask", None), True),
+            "heatmap": heatmap,
+            "node_embed": node_embed,
+        }
+        return out

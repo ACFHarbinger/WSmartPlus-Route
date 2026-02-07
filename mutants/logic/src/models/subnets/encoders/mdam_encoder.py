@@ -11,8 +11,8 @@ from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
+from logic.src.models.modules.mdam_attention import MultiHeadAttentionMDAM
 from logic.src.models.modules.multi_head_attention import MultiHeadAttention
-from logic.src.models.modules.multi_head_attention_mdam import MultiHeadAttentionMDAM
 from logic.src.models.modules.normalization import Normalization
 from logic.src.models.modules.skip_connection import SkipConnection
 from logic.src.models.policies.common.autoregressive import AutoregressiveEncoder

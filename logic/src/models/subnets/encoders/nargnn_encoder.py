@@ -43,6 +43,16 @@ class EdgeHeatmapGenerator(nn.Module):
         linear_bias: bool = True,
         undirected_graph: bool = True,
     ) -> None:
+        """
+        Initialize EdgeHeatmapGenerator.
+
+        Args:
+            embed_dim: Embedding dimension.
+            num_layers: Number of layers.
+            act_fn: Activation function.
+            linear_bias: Whether to use bias.
+            undirected_graph: Whether graph is undirected.
+        """
         super().__init__()
 
         self.linears = nn.ModuleList([nn.Linear(embed_dim, embed_dim, bias=linear_bias) for _ in range(num_layers - 1)])
@@ -98,6 +108,14 @@ class SimplifiedEdgeEmbedding(nn.Module):
     """Simplified edge embedding for NARGNN using distance matrix."""
 
     def __init__(self, embed_dim: int, k_sparse: Optional[int] = None, linear_bias: bool = True):
+        """
+        Initialize SimplifiedEdgeEmbedding.
+
+        Args:
+            embed_dim: Embedding dimension.
+            k_sparse: Number of neighbors.
+            linear_bias: Whether to use bias.
+        """
         super().__init__()
         assert Batch is not None, "torch_geometric required for NARGNN"
 
@@ -150,6 +168,14 @@ class GNNLayer(nn.Module):
     """Simplified GNN layer for NARGNN."""
 
     def __init__(self, embed_dim: int, act_fn: str = "silu", agg_fn: str = "mean"):
+        """
+        Initialize GNNLayer.
+
+        Args:
+            embed_dim: Embedding dimension.
+            act_fn: Activation function name.
+            agg_fn: Aggregation function name.
+        """
         super().__init__()
         assert BatchNorm is not None, "torch_geometric required"
 
@@ -203,6 +229,15 @@ class SimplifiedGNNEncoder(nn.Module):
     """Simplified GNN encoder for NARGNN."""
 
     def __init__(self, num_layers: int, embed_dim: int, act_fn: str = "silu", agg_fn: str = "mean"):
+        """
+        Initialize SimplifiedGNNEncoder.
+
+        Args:
+            num_layers: Number of layers.
+            embed_dim: Embedding dimension.
+            act_fn: Activation function name.
+            agg_fn: Aggregation function name.
+        """
         super().__init__()
         self.act_fn = getattr(nn.functional, act_fn)
         self.layers = nn.ModuleList([GNNLayer(embed_dim, act_fn, agg_fn) for _ in range(num_layers)])
@@ -257,6 +292,24 @@ class NARGNNEncoder(NonAutoregressiveEncoder):
         k_sparse: Optional[int] = None,
         **kwargs,
     ) -> None:
+        """
+        Initialize NARGNNEncoder.
+
+        Args:
+            embed_dim: Embedding dimension.
+            env_name: Environment name.
+            init_embedding: Initial embedding module.
+            edge_embedding: Edge embedding module.
+            graph_network: GNN module.
+            heatmap_generator: Heatmap generator module.
+            num_layers_heatmap_generator: Layers in heatmap gen.
+            num_layers_graph_encoder: Layers in GNN.
+            act_fn: Activation function.
+            agg_fn: Aggregation function.
+            linear_bias: Whether to use bias.
+            k_sparse: Sparsity k.
+            **kwargs: Additional args.
+        """
         super().__init__()
         self.env_name = env_name
 
