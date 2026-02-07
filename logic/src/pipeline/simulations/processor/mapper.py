@@ -10,7 +10,7 @@ import pandas as pd
 import torch
 
 from logic.src.constants import MAX_WASTE
-from logic.src.utils.functions.graph_utils import (
+from logic.src.utils.functions.graph import (
     adj_to_idx,
     get_adj_knn,
     get_edge_idx_dist,
@@ -93,9 +93,14 @@ class SimulationDataMapper:
         if indices is None:
             return df.copy()
         if "index" in df.columns or "ID" in df.columns:
-            df = df.iloc[indices]
-            return df.sort_values(by="ID").reset_index(drop=True).astype(self.get_df_types(df))
-        return df.iloc[:, indices]
+            sampled_df = df.iloc[indices]
+            if isinstance(sampled_df, pd.Series):
+                sampled_df = sampled_df.to_frame().T
+            return sampled_df.sort_values(by="ID").reset_index(drop=True).astype(self.get_df_types(sampled_df))
+        sampled_df = df.iloc[:, indices]
+        if isinstance(sampled_df, pd.Series):
+            sampled_df = sampled_df.to_frame().T
+        return sampled_df
 
     def process_raw_data(
         self,

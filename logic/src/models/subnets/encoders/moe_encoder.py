@@ -2,9 +2,9 @@
 
 import torch.nn as nn
 
-from logic.src.models.modules import MultiHeadAttention, Normalization
-from logic.src.models.modules.connections import get_connection_module
-from logic.src.models.modules.moe_feed_forward import MoEFeedForward
+from logic.src.models.subnets.modules import MultiHeadAttention, Normalization
+from logic.src.models.subnets.modules.connections import get_connection_module
+from logic.src.models.subnets.modules.moe_feed_forward import MoEFeedForward
 
 
 class MoEMultiHeadAttentionLayer(nn.Module):

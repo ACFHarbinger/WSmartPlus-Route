@@ -2,13 +2,13 @@
 Sub-networks (Encoders, Decoders, Predictors) for the neural models.
 """
 
-from .decoders.gat_decoder import GraphAttentionDecoder as GraphAttentionDecoder
+from .decoders.gat import GraphAttentionDecoder as GraphAttentionDecoder
 from .decoders.mdam import MDAMDecoder as MDAMDecoder
-from .decoders.polynet_decoder import PolyNetDecoder as PolyNetDecoder
-from .decoders.ptr_decoder import (
+from .decoders.polynet import PolyNetDecoder as PolyNetDecoder
+from .decoders.ptr import (
     PointerAttention as PointerAttention,
 )
-from .decoders.ptr_decoder import (
+from .decoders.ptr import (
     PointerDecoder as PointerDecoder,
 )
 from .encoders.gac_encoder import GraphAttConvEncoder as GraphAttConvEncoder

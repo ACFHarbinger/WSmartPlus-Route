@@ -3,7 +3,7 @@
 import torch
 import torch.nn as nn
 
-from logic.src.models.modules import (
+from logic.src.models.subnets.modules import (
     ActivationFunction,
     FeedForward,
     GatedGraphConvolution,
@@ -129,7 +129,7 @@ class AttentionGatedConvolutionLayer(nn.Module):
 
         # 2. Gated GCN
         # GatedGCN returns h_new, e_new. It does residual internally?
-        # Checked code: logic/src/models/modules/gated_graph_convolution.py
+        # Checked code: logic.src.models.subnets.modules/gated_graph_convolution.py
         # It has "Make residual connection" commented out line 94.
         # So we should validly add residual here for h.
         # But e is also updated.

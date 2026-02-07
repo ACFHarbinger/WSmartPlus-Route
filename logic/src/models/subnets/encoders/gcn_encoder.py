@@ -3,7 +3,7 @@
 import torch
 from torch import nn
 
-from logic.src.models.modules import GatedGraphConvolution
+from logic.src.models.subnets.modules import GatedGraphConvolution
 
 
 class GraphConvolutionEncoder(nn.Module):

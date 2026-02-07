@@ -12,9 +12,9 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
-from logic.src.models.subnets.decoders.gat_decoder import DeepGATDecoder
+from logic.src.models.subnets.decoders.gat import DeepGATDecoder
+from logic.src.models.subnets.embeddings import get_init_embedding
 from logic.src.models.subnets.encoders.gat_encoder import GraphAttentionEncoder
 from logic.src.utils.data.td_utils import TensorDictStateWrapper
 
