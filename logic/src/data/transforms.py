@@ -63,11 +63,16 @@ def symmetric_transform(x: torch.Tensor, y: torch.Tensor, phi: torch.Tensor, off
     return xy + offset
 
 
-def symmetric_augmentation(xy: torch.Tensor, num_augment: int = 8, first_augment: bool = False):
+def symmetric_augmentation(xy: torch.Tensor, num_augment: int = 8, first_augment: bool = False, **kwargs):
     """Augment xy data by `num_augment` times via symmetric transform."""
-    phi = torch.rand(xy.shape[0], device=xy.device) * 4 * math.pi
-    if not first_augment:
-        phi[: xy.shape[0] // num_augment] = 0.0
+    total_batch = xy.shape[0]
+    phi = torch.rand(total_batch, device=xy.device) * 4 * math.pi
+    if first_augment:
+        # Identity for the first augmentation of each sample
+        # Assuming batchify was used: [S0_A0, S0_A1, ..., S0_AN, S1_A0, ...]
+        idx = torch.arange(0, total_batch, num_augment, device=xy.device)
+        phi[idx] = 0.0
+
     x, y = xy[..., [0]], xy[..., [1]]
     return symmetric_transform(x, y, phi[:, None, None])
 
@@ -82,7 +87,7 @@ def min_max_normalize(x):
     Returns:
         torch.Tensor: Normalized tensor.
     """
-    return (x - x.min()) / (x.max() - x.min())
+    return (x - x.min()) / (x.max() - x.min() + 1e-8)
 
 
 def get_augment_function(augment_fn: Union[str, Callable]):
@@ -149,18 +154,25 @@ class StateAugmentation:
         Returns:
             TensorDict: Augmented TensorDict with num_augment copies.
         """
+        # (batch) -> (batch, num_augment) -> (batch * num_augment)
         td_aug = batchify(td, self.num_augment)
-        for feat in self.feats:
-            if not self.first_aug_identity:
-                init_aug_feat = td_aug[feat][list(td.size()), 0].clone()
+        batch_size = td.batch_size[0]
+        idx = torch.arange(0, batch_size * self.num_augment, self.num_augment, device=td.device)
 
+        for feat in self.feats:
+            init_aug_feat = None
+            if self.first_aug_identity:
+                init_aug_feat = td_aug[feat][idx].clone()
+
+            # Apply transformation
             aug_feat = self.augmentation(td_aug[feat], num_augment=self.num_augment)
 
             if self.normalize:
                 aug_feat = min_max_normalize(aug_feat)
 
-            if not self.first_aug_identity:
-                aug_feat[list(td.size()), 0] = init_aug_feat
+            if self.first_aug_identity and init_aug_feat is not None:
+                aug_feat[idx] = init_aug_feat
 
             td_aug[feat] = aug_feat
+
         return td_aug
