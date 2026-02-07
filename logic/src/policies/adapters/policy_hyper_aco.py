@@ -8,8 +8,9 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-from ..base_routing_policy import BaseRoutingPolicy
-from ..hyper_aco import HyperACOParams, HyperHeuristicACO
+from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.hyper_aco import HyperACOParams, HyperHeuristicACO
+
 from .factory import PolicyRegistry
 
 

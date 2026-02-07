@@ -3,7 +3,7 @@ Distance Calculation and Network Sparsification.
 """
 
 import os
-from typing import Any, Iterable, List, Optional, Union
+from typing import Any, Union
 
 import numpy as np
 import pandas as pd
