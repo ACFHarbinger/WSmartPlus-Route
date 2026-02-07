@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 import torch
 from logic.src.pipeline.features.eval.eval_base import EvalBase
-from logic.src.utils.functions.function import move_to
+from logic.src.utils.functions import move_to
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 

@@ -1,5 +1,5 @@
 """
-Select sub-package export.
+Select sub-package export for Simulated Annealing Neighborhood Search (SANS).
 """
 
 from .consecutive import (

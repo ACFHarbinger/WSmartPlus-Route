@@ -1,6 +1,6 @@
 # WSmart-Route Justfile
-
 # Default variables (can be overridden: just train problem=wcvrp)
+
 problem := "vrpp"
 model := "am"
 size := "50"
@@ -24,7 +24,7 @@ install:
 
 # Run model training (using new Lightning pipeline)
 train problem=problem model=model size=size epochs=epochs:
-    uv run python main.py train_lightning model.name={{model}} env.name={{problem}} env.num_loc={{size}} train.n_epochs={{epochs}}
+    uv run python main.py train_lightning model.name={{ model }} env.name={{ problem }} env.num_loc={{ size }} train.n_epochs={{ epochs }}
 
 # Run model evaluation
 eval:
@@ -32,11 +32,11 @@ eval:
 
 # Run simulator testing
 test-sim policies="regular gurobi alns" days=days:
-    uv run python main.py test_sim --policies {{policies}} --days {{days}}
+    uv run python main.py test_sim --policies {{ policies }} --days {{ days }}
 
 # Generate virtual graph data
 gen-data problem=problem size=size:
-    uv run python main.py generate_data virtual --problem {{problem}} --graph_sizes {{size}}
+    uv run python main.py generate_data virtual --problem {{ problem }} --graph_sizes {{ size }}
 
 # Launch the GUI
 gui:
@@ -45,6 +45,22 @@ gui:
 # Launch the dashboard
 dashboard:
     uv run streamlit run dashboard.py
+
+# Count lines of code and comments
+count-loc:
+    uv run python logic/src/utils/validation/count_loc.py logic/src
+
+# Tree view of lines of code and comments
+tree-loc:
+    uv run python logic/src/utils/validation/tree_loc.py logic/src
+
+# Check docstring coverage
+check-docs:
+    uv run python logic/src/utils/validation/check_docstrings.py logic/src
+
+# Check Google style docstrings
+check-google-docs:
+    uv run python logic/src/utils/docs/check_google_style.py logic/src
 
 # --- Advanced Testing & Benchmarks ---
 
@@ -106,15 +122,11 @@ test-gui:
 
 # Run tests with a specific marker
 test-marker marker=marker:
-    uv run pytest -m "{{marker}}"
+    uv run pytest -m "{{ marker }}"
 
 # Check code quality with ruff
 lint:
     uv run ruff check . --fix --exclude ".venv"
-
-# Check docstring coverage
-check-docs:
-    uv run python logic/src/utils/validation/check_docstrings.py logic/src
 
 build-docs:
     cd logic/docs && uv run make html
@@ -158,4 +170,4 @@ clean:
 
 # Generic run command
 run *args:
-    uv run python main.py {{args}}
+    uv run python main.py {{ args }}

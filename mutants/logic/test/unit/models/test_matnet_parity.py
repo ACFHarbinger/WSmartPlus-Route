@@ -3,10 +3,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 import torch
 
-from logic.src.models.embeddings.matnet import MatNetInitEmbedding
-from logic.src.models.modules.matnet_attention import MixedScoreMHA
+from logic.src.models.subnets.embeddings.matnet import MatNetInitEmbedding
+from logic.src.models.subnets.modules.matnet_attention import MixedScoreMHA
 from logic.src.models.policies.matnet import MatNetPolicy
-from logic.src.models.subnets.encoders.matnet_encoder import MatNetEncoder
+from logic.src.models.subnets.encoders.matnet.encoder import MatNetEncoder
 
 
 class TestMatNetParity:
@@ -36,7 +36,7 @@ class TestMatNetParity:
         assert c_out.shape == (2, 5, 128)
 
     def test_matnet_encoder_layer(self, matrix_input):
-        from logic.src.models.subnets.encoders.matnet_encoder import MatNetEncoderLayer
+        from logic.src.models.subnets.encoders.matnet.encoder import MatNetEncoderLayer
         embed_dim = 128
         row_emb = torch.rand(2, 5, 128)
         col_emb = torch.rand(2, 5, 128)

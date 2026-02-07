@@ -2,7 +2,7 @@
 
 import pytest
 import torch
-from logic.src.models.meta_rnn import WeightAdjustmentRNN
+from logic.src.models.weight_adjustment_rnn.model import WeightAdjustmentRNN
 
 
 class TestMetaRNN:

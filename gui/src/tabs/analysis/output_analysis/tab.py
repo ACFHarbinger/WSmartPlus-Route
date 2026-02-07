@@ -1,7 +1,3 @@
-"""
-Output Analysis Tab UI component.
-"""
-
 from __future__ import annotations
 
 import json
@@ -10,112 +6,51 @@ import subprocess
 import webbrowser
 from collections import defaultdict
 
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
-    QCheckBox,
-    QComboBox,
     QFileDialog,
-    QHBoxLayout,
-    QLabel,
     QMessageBox,
-    QPushButton,
-    QTabWidget,
-    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
 
+from .data.state import OutputDataState
 from .engine import (
     extract_num_bins_from_path,
     pivot_json_data,
     process_tensorboard_file,
 )
 from .plotting import generate_plot
+from .widgets.controls import OutputControlsWidget
+from .widgets.visualization import VisualizationWidget
 
 
 class OutputAnalysisTab(QWidget):
     def __init__(self):
         super().__init__()
-        self.json_data = None
-        self.sim_windows = []
-        self._all_loaded_json_paths = []
-        self.tb_process = None
+        self.state = OutputDataState()
 
         layout = QVBoxLayout(self)
 
         # Controls
-        control_layout = QHBoxLayout()
-        self.load_btn = QPushButton("Load Output File(s) (JSON/JSONL/TBL)")
-        self.load_btn.clicked.connect(self.load_files)
-        control_layout.addWidget(self.load_btn)
+        self.controls = OutputControlsWidget()
+        self.controls.load_btn.clicked.connect(self.load_files)
+        self.controls.plot_btn.clicked.connect(self.show_plot_dialog)
+        layout.addWidget(self.controls)
 
-        self.dist_combo = QComboBox()
-        self.dist_combo.setToolTip("Filter plots by data distribution (emp, gammaX, etc.)")
-        control_layout.addWidget(QLabel("Distribution:"))
-        control_layout.addWidget(self.dist_combo)
-
-        self.x_key_combo = QComboBox()
-        self.x_key_combo.setPlaceholderText("X-Axis")
-        control_layout.addWidget(QLabel("X:"))
-        control_layout.addWidget(self.x_key_combo)
-
-        self.y_key_combo = QComboBox()
-        self.y_key_combo.setPlaceholderText("Y-Axis")
-        control_layout.addWidget(QLabel("Y:"))
-        control_layout.addWidget(self.y_key_combo)
-
-        self.chart_type_combo = QComboBox()
-        self.chart_type_combo.addItems(["Line Chart", "Bar Chart", "Scatter Plot", "Area Chart"])
-        control_layout.addWidget(QLabel("Type:"))
-        control_layout.addWidget(self.chart_type_combo)
-
-        self.pareto_check = QCheckBox("Pareto Front")
-        self.pareto_check.setToolTip("Highlight non-dominated solutions (Min X, Min Y)")
-        control_layout.addWidget(self.pareto_check)
-
-        self.plot_btn = QPushButton("Plot Chart")
-        self.plot_btn.clicked.connect(self.show_plot_dialog)
-        self.plot_btn.setEnabled(False)
-        control_layout.addWidget(self.plot_btn)
-
-        control_layout.addStretch()
-        layout.addLayout(control_layout)
-
-        # Content
-        self.tabs = QTabWidget()
-        layout.addWidget(self.tabs)
-
-        self.text_view = QTextEdit()
-        self.text_view.setReadOnly(True)
-        self.tabs.addTab(self.text_view, "Merged Data Summary")
-
-        self.chart_widget = QWidget()
-        self.chart_layout = QVBoxLayout(self.chart_widget)
-        self.figure = Figure(figsize=(8, 6))
-        self.canvas = FigureCanvas(self.figure)
-        self.chart_layout.addWidget(self.canvas)
-        self.tabs.addTab(self.chart_widget, "Visualization")
+        # Visualization
+        self.visualization = VisualizationWidget()
+        layout.addWidget(self.visualization)
 
     def _clear_data_state_only(self):
         """Resets the data state and input controls, but keeps the current plot on the figure."""
-        self.json_data = None
-        self._all_loaded_json_paths = []
-        self.text_view.setText("Input data cleared. Load new files to continue.")
-        self.y_key_combo.clear()
-        self.x_key_combo.clear()
-        self.dist_combo.clear()
-        self.plot_btn.setEnabled(False)
+        self.state.clear()
 
-        for win in self.sim_windows:
-            if win is not None:
-                win.close()
-        self.sim_windows = []
-
-        if self.tb_process:
-            self.tb_process.terminate()
-            self.tb_process = None
+        self.visualization.text_view.setText("Input data cleared. Load new files to continue.")
+        self.controls.y_key_combo.clear()
+        self.controls.x_key_combo.clear()
+        self.controls.dist_combo.clear()
+        self.controls.plot_btn.setEnabled(False)
 
         QMessageBox.information(
             self,
@@ -126,12 +61,11 @@ class OutputAnalysisTab(QWidget):
     def clear_data(self):
         """Resets the entire state including the figure."""
         self._clear_data_state_only()
-        self.figure.clear()
-        self.canvas.draw()
+        self.visualization.clear()
 
     def show_plot_dialog(self):
         """Displays a dialog to ask the user if they want to clear merged data."""
-        if not self.json_data:
+        if not self.state.json_data:
             self.plot_json_key()
             return
 
@@ -154,14 +88,14 @@ class OutputAnalysisTab(QWidget):
 
     def _launch_tensorboard(self, logdir: str):
         """Launches TensorBoard in a subprocess and opens the browser."""
-        if self.tb_process:
-            self.tb_process.terminate()
-            self.tb_process = None
+        if self.state.tb_process:
+            self.state.tb_process.terminate()
+            self.state.tb_process = None
 
         try:
             port = 6006
             cmd = ["tensorboard", "--logdir", logdir, "--port", str(port)]
-            self.tb_process = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            self.state.tb_process = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             url = f"http://localhost:{port}"
             webbrowser.open(url)
             QMessageBox.information(
@@ -184,11 +118,12 @@ class OutputAnalysisTab(QWidget):
         tb_files = [f for f in file_paths if "tfevents" in f]
 
         for fpath in jsonl_files:
+            # Import strictly locally to avoid circular dependency if possible, though strict layering helps.
             from ...windows import SimulationResultsWindow
 
             win = SimulationResultsWindow(policy_names=["External_Log"], log_path=fpath)
             win.show()
-            self.sim_windows.append(win)
+            self.state.sim_windows.append(win)
 
         if tb_files:
             tb_logdir = os.path.dirname(tb_files[0])
@@ -196,16 +131,16 @@ class OutputAnalysisTab(QWidget):
 
         if not json_files and not tb_files:
             if jsonl_files:
-                self.text_view.setText(f"Opened {len(jsonl_files)} JSONL file(s) in external windows.")
+                self.visualization.text_view.setText(f"Opened {len(jsonl_files)} JSONL file(s) in external windows.")
             return
 
         try:
-            if self.json_data:
-                all_policy_names = self.json_data.pop("__Policy_Names__", [])
-                all_distributions = self.json_data.pop("__Distributions__", [])
-                all_file_ids = self.json_data.pop("__File_IDs__", [])
-                all_n_bins = self.json_data.pop("Num Bins", [])
-                merged_metrics = defaultdict(list, self.json_data)
+            if self.state.json_data:
+                all_policy_names = self.state.json_data.pop("__Policy_Names__", [])
+                all_distributions = self.state.json_data.pop("__Distributions__", [])
+                all_file_ids = self.state.json_data.pop("__File_IDs__", [])
+                all_n_bins = self.state.json_data.pop("Num Bins", [])
+                merged_metrics = defaultdict(list, self.state.json_data)
                 valid_keys_set = set(merged_metrics.keys())
             else:
                 merged_metrics = defaultdict(list)
@@ -217,10 +152,10 @@ class OutputAnalysisTab(QWidget):
 
             files_to_process = json_files + tb_files
             for fpath in files_to_process:
-                self._all_loaded_json_paths.append(fpath)
+                self.state.add_loaded_path(fpath)
 
             summary_text = "--- Loaded/Merged Files ---\n"
-            for fpath in sorted(list(set(self._all_loaded_json_paths))):
+            for fpath in self.state.get_loaded_paths():
                 summary_text += f"- {fpath}\n"
 
             for fpath in files_to_process:
@@ -258,11 +193,11 @@ class OutputAnalysisTab(QWidget):
                         merged_metrics[k].extend(v)
                         valid_keys_set.add(k)
 
-            self.json_data = dict(merged_metrics)
-            self.json_data["__Policy_Names__"] = all_policy_names
-            self.json_data["__Distributions__"] = all_distributions
-            self.json_data["__File_IDs__"] = all_file_ids
-            self.json_data["Num Bins"] = all_n_bins
+            self.state.json_data = dict(merged_metrics)
+            self.state.json_data["__Policy_Names__"] = all_policy_names
+            self.state.json_data["__Distributions__"] = all_distributions
+            self.state.json_data["__File_IDs__"] = all_file_ids
+            self.state.json_data["Num Bins"] = all_n_bins
 
             valid_keys_set.add("Num Bins")
             if "step" in valid_keys_set:
@@ -270,55 +205,49 @@ class OutputAnalysisTab(QWidget):
 
             final_keys = sorted(list(valid_keys_set))
 
-            self.y_key_combo.clear()
-            self.y_key_combo.addItems(final_keys)
+            self.controls.y_key_combo.clear()
+            self.controls.y_key_combo.addItems(final_keys)
 
-            self.x_key_combo.clear()
-            self.x_key_combo.addItem("Policy Names")
-            self.x_key_combo.addItems(final_keys)
+            self.controls.x_key_combo.clear()
+            self.controls.x_key_combo.addItem("Policy Names")
+            self.controls.x_key_combo.addItems(final_keys)
 
             if any("tfevents" in f for f in files_to_process) and "step" in final_keys:
-                index = self.x_key_combo.findText("step")
+                index = self.controls.x_key_combo.findText("step")
                 if index >= 0:
-                    self.x_key_combo.setCurrentIndex(index)
+                    self.controls.x_key_combo.setCurrentIndex(index)
 
-            self.dist_combo.clear()
-            self.dist_combo.addItem("All")
+            self.controls.dist_combo.clear()
+            self.controls.dist_combo.addItem("All")
             unique_dists_found = sorted(list(set(d for d in all_distributions if d != "unknown")))
             if unique_dists_found:
-                self.dist_combo.addItems(unique_dists_found)
+                self.controls.dist_combo.addItems(unique_dists_found)
 
-            self.plot_btn.setEnabled(len(final_keys) > 0)
+            self.controls.plot_btn.setEnabled(len(final_keys) > 0)
 
             summary_text += f"\nTotal Policies/Datapoints: {len(all_policy_names)}\n"
             summary_text += f"Available Metrics: {', '.join(final_keys)}"
-            self.text_view.setText(summary_text)
-            self.tabs.setCurrentIndex(0)
+            self.visualization.text_view.setText(summary_text)
+            self.visualization.setCurrentIndex(0)
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to process files: {e}")
 
     def plot_json_key(self):
-        if not self.json_data:
+        if not self.state.json_data:
             return
 
         generate_plot(
-            figure=self.figure,
-            json_data=self.json_data,
-            y_key=self.y_key_combo.currentText(),
-            x_selection=self.x_key_combo.currentText(),
-            chart_type=self.chart_type_combo.currentText(),
-            selected_dist=self.dist_combo.currentText(),
-            pareto_enabled=self.pareto_check.isChecked(),
+            figure=self.visualization.figure,
+            json_data=self.state.json_data,
+            y_key=self.controls.y_key_combo.currentText(),
+            x_selection=self.controls.x_key_combo.currentText(),
+            chart_type=self.controls.chart_type_combo.currentText(),
+            selected_dist=self.controls.dist_combo.currentText(),
+            pareto_enabled=self.controls.pareto_check.isChecked(),
         )
-        self.canvas.draw()
-        self.tabs.setCurrentIndex(1)
+        self.visualization.canvas.draw()
+        self.visualization.setCurrentIndex(1)
 
     def shutdown(self):
-        for win in self.sim_windows:
-            if win is not None:
-                win.close()
-        self.sim_windows = []
-        if self.tb_process:
-            self.tb_process.terminate()
-            self.tb_process = None
+        self.state.clear()

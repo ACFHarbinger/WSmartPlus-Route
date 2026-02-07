@@ -1,3 +1,3 @@
-"""
-Neural Agent Package.
-"""
+from .agent import NeuralAgent
+
+__all__ = ["NeuralAgent"]

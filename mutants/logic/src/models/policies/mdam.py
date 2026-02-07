@@ -9,13 +9,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
+from logic.src.models.subnets.embeddings import get_init_embedding
 from tensordict import TensorDict
 
 if TYPE_CHECKING:
-    from logic.src.models.subnets.decoders.mdam_decoder import MDAMDecoder
-    from logic.src.models.subnets.encoders.mdam_encoder import MDAMGraphAttentionEncoder
+    from logic.src.models.subnets.decoders.mdam import MDAMDecoder
+    from logic.src.models.subnets.encoders.mdam.encoder import MDAMGraphAttentionEncoder
 
 
 class MDAMPolicy(AutoregressivePolicy):
@@ -63,8 +63,8 @@ class MDAMPolicy(AutoregressivePolicy):
             test_decode_type: Decoding type during testing.
             **decoder_kwargs: Additional decoder arguments.
         """
-        from logic.src.models.subnets.decoders.mdam_decoder import MDAMDecoder
-        from logic.src.models.subnets.encoders.mdam_encoder import MDAMGraphAttentionEncoder
+        from logic.src.models.subnets.decoders.mdam import MDAMDecoder
+        from logic.src.models.subnets.encoders.mdam.encoder import MDAMGraphAttentionEncoder
 
         # Create encoder if not provided
         if encoder is None:

@@ -10,7 +10,7 @@ from typing import Optional
 import torch
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.utils.functions.decoding import get_decoding_strategy
+from logic.src.utils.decoding import get_decoding_strategy
 from tensordict import TensorDict
 
 

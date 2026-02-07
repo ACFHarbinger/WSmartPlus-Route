@@ -4,9 +4,9 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.models.policies.ham import HAMPolicy
-from logic.src.models.subnets.encoders.ham_encoder import HAMEncoder
-from logic.src.models.modules.ham_attention import HeterogeneousAttentionLayer
-from logic.src.models.embeddings.pdp import PDPInitEmbedding
+from logic.src.models.subnets.encoders.ham.encoder import HAMEncoder
+from logic.src.models.subnets.modules.ham_attention import HeterogeneousAttentionLayer
+from logic.src.models.subnets.embeddings.pdp import PDPInitEmbedding
 
 class TestHAM:
     @pytest.fixture

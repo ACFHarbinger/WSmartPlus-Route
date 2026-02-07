@@ -2,18 +2,17 @@
 MDAM Multi-Path Decoder implementation.
 """
 
-from typing import Any, Optional, Tuple, Union, cast
+from typing import Any, Tuple, Union, cast
 
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
 from logic.src.models.subnets.embeddings.dynamic_embedding import DynamicEmbedding
 
-from .attention import compute_mdam_logits
-from .cache import PrecomputedCache, _decode_probs
+from .cache import _decode_probs
+from .path import MDAMPath
 
 
 class MDAMDecoder(nn.Module):
@@ -82,28 +81,19 @@ class MDAMDecoder(nn.Module):
         self.W_placeholder.data.uniform_(-1, 1)
 
         # Path-specific modules
-        self.context = nn.ModuleList([self._get_context_embedding(env_name, embed_dim) for _ in range(num_paths)])
-
-        self.project_node_embeddings = nn.ModuleList(
-            [nn.Linear(embed_dim, 3 * embed_dim, bias=False) for _ in range(num_paths)]
+        self.paths = nn.ModuleList(
+            [
+                MDAMPath(
+                    embed_dim=embed_dim,
+                    env_name=env_name,
+                    num_heads=num_heads,
+                    tanh_clipping=tanh_clipping,
+                    mask_inner=mask_inner,
+                    mask_logits=mask_logits,
+                )
+                for _ in range(num_paths)
+            ]
         )
-
-        self.project_fixed_context = nn.ModuleList(
-            [nn.Linear(embed_dim, embed_dim, bias=False) for _ in range(num_paths)]
-        )
-
-        self.project_step_context = nn.ModuleList(
-            [nn.Linear(2 * embed_dim, embed_dim, bias=False) for _ in range(num_paths)]
-        )
-
-        self.project_out = nn.ModuleList([nn.Linear(embed_dim, embed_dim, bias=False) for _ in range(num_paths)])
-
-    def _get_context_embedding(self, env_name: str, embed_dim: int) -> nn.Module:
-        """Get environment-specific context embedding."""
-        if env_name in CONTEXT_EMBEDDING_REGISTRY:
-            return CONTEXT_EMBEDDING_REGISTRY[env_name](embed_dim=embed_dim)
-        # Fallback to simple context
-        return nn.Linear(embed_dim, embed_dim)
 
     def forward(
         self,
@@ -169,9 +159,13 @@ class MDAMDecoder(nn.Module):
             return torch.tensor(0.0, device=h.device)
 
         output_list = []
+        # We need dynamic embedding for the current step (step 0)
+        dynamic_embed = self.dynamic_embedding(td)
+
         for path_idx in range(self.num_paths):
-            fixed = self._precompute(h, path_index=path_idx)
-            logprobs, _ = self._get_logprobs(fixed, td, path_idx)
+            path = self.paths[path_idx]
+            fixed = path.precompute(h)
+            logprobs, _ = path.get_logprobs(fixed, td, dynamic_embed, path_idx)
 
             # Ensure numerical stability
             logprobs = torch.clamp(logprobs, min=-1e9)
@@ -208,7 +202,8 @@ class MDAMDecoder(nn.Module):
         outputs = []
         actions = []
 
-        fixed = self._precompute(h, path_index=path_idx)
+        path = self.paths[path_idx]
+        fixed = path.precompute(h)
         step = 0
 
         while not td["done"].all():
@@ -218,10 +213,11 @@ class MDAMDecoder(nn.Module):
                 if mask is not None and hasattr(encoder, "change"):
                     # Update embeddings with current mask
                     h, _ = encoder.change(attn, V, h_old, mask)
-                    fixed = self._precompute(h, path_index=path_idx)
+                    fixed = path.precompute(h)
 
             # Get logprobs and mask
-            logprobs, mask = self._get_logprobs(fixed, td, path_idx)
+            dynamic_embed = self.dynamic_embedding(td)
+            logprobs, mask = path.get_logprobs(fixed, td, dynamic_embed, path_idx)
 
             # Select action
             probs = torch.exp(logprobs[:, 0, :])
@@ -243,93 +239,6 @@ class MDAMDecoder(nn.Module):
         ll = self._get_log_likelihood(outputs, actions)
 
         return reward, ll, actions
-
-    def _precompute(
-        self,
-        h_embed: torch.Tensor,
-        num_steps: int = 1,
-        path_index: int = 0,
-    ) -> PrecomputedCache:
-        """Precompute fixed projections."""
-        graph_embed = h_embed.mean(dim=1)
-
-        # Fixed context projection
-        fixed_context = self.project_fixed_context[path_index](graph_embed)[:, None, :]
-
-        # Node embedding projections
-        projected = self.project_node_embeddings[path_index](h_embed[:, None, :, :])
-        glimpse_key, glimpse_val, logit_key = projected.chunk(3, dim=-1)
-
-        return PrecomputedCache(
-            node_embeddings=h_embed,
-            graph_context=fixed_context,
-            glimpse_key=self._make_heads(glimpse_key, num_steps),
-            glimpse_val=self._make_heads(glimpse_val, num_steps),
-            logit_key=logit_key.contiguous(),
-        )
-
-    def _make_heads(
-        self,
-        v: torch.Tensor,
-        num_steps: Optional[int] = None,
-    ) -> torch.Tensor:
-        """Reshape for multi-head attention."""
-        assert num_steps is None or v.size(1) == 1 or v.size(1) == num_steps
-        return (
-            v.contiguous()
-            .view(v.size(0), v.size(1), v.size(2), self.num_heads, -1)
-            .expand(
-                v.size(0),
-                v.size(1) if num_steps is None else num_steps,
-                v.size(2),
-                self.num_heads,
-                -1,
-            )
-            .permute(3, 0, 1, 2, 4)  # (n_heads, batch, num_steps, graph_size, head_dim)
-        )
-
-    def _get_logprobs(
-        self,
-        fixed: PrecomputedCache,
-        td: TensorDict,
-        path_index: int,
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
-        """Get log probabilities for next action."""
-        # Step context from current state
-        context_mod = self.context[path_index]
-        if hasattr(context_mod, "forward"):
-            step_context = context_mod(fixed.node_embeddings, td)
-        else:
-            step_context = context_mod(fixed.node_embeddings.mean(dim=1))
-
-        glimpse_q = fixed.graph_context + step_context.unsqueeze(1)
-
-        # Dynamic embedding contribution
-        glimpse_key_dyn, glimpse_val_dyn, logit_key_dyn = self.dynamic_embedding(td)
-
-        glimpse_k = fixed.glimpse_key + glimpse_key_dyn
-        glimpse_v = fixed.glimpse_val + glimpse_val_dyn
-        logit_k = fixed.logit_key + logit_key_dyn
-
-        # Get mask
-        mask = td.get("action_mask", None)
-
-        # Compute logits
-        logprobs, _ = compute_mdam_logits(
-            glimpse_q,
-            glimpse_k,
-            glimpse_v,
-            logit_k,
-            mask,
-            path_index,
-            self.num_heads,
-            self.project_out[path_index],
-            self.tanh_clipping,
-            self.mask_inner,
-            self.mask_logits,
-        )
-
-        return logprobs, mask
 
     def _get_log_likelihood(
         self,

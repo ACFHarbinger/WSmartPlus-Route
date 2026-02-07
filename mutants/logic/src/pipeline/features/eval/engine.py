@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from logic.src.pipeline.features.eval.evaluate import evaluate_policy, get_automatic_batch_size
 from logic.src.utils.data.data_utils import save_dataset
-from logic.src.utils.functions.function import load_model
+from logic.src.utils.functions import load_model
 from loguru import logger
 from torch import nn
 from torch.utils.data import DataLoader, Dataset

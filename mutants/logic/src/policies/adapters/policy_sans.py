@@ -10,8 +10,12 @@ import numpy as np
 import pandas as pd
 from logic.src.pipeline.simulations.processor import convert_to_dict
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.look_ahead_aux.common.solution_initialization import compute_initial_solution
-from logic.src.policies.look_ahead_aux.heuristics.simulated_annealing import improved_simulated_annealing
+from logic.src.policies.simulated_annealing_neighborhood_search.common.solution_initialization import (
+    compute_initial_solution,
+)
+from logic.src.policies.simulated_annealing_neighborhood_search.heuristics.simulated_annealing import (
+    improved_simulated_annealing,
+)
 
 from .factory import PolicyRegistry
 

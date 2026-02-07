@@ -5,7 +5,7 @@ Batch simulation logic for Neural Agent.
 from __future__ import annotations
 
 import torch
-from logic.src.utils.functions.function import add_attention_hooks
+from logic.src.utils.functions import add_attention_hooks
 
 
 class BatchMixin:
@@ -43,7 +43,7 @@ class BatchMixin:
                 - ret_dict: Dictionary with 'overflows', 'kg', 'waste', 'km'
                 - output_dict: Dictionary with 'attention_weights', 'graph_masks'
         """
-        hook_data = add_attention_hooks(self.model.embedder)
+        hook_data = add_attention_hooks(self.model.encoder)
 
         mask = None
         if hrl_manager is not None and waste_history is not None:
