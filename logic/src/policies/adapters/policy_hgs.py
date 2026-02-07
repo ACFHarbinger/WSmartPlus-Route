@@ -9,8 +9,9 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-from ..base_routing_policy import BaseRoutingPolicy
-from ..hybrid_genetic_search import run_hgs
+from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.hybrid_genetic_search import run_hgs
+
 from .factory import PolicyRegistry
 
 

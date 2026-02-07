@@ -737,6 +737,12 @@ Phases 3-7 (docs, types, architecture, deps, tooling) can proceed in parallel wi
 
 ---
 
+## Related Documents
+
+- **[HUMAN_UNDERSTANDING_ROADMAP.md](HUMAN_UNDERSTANDING_ROADMAP.md)** -- Targeted improvements for code readability, documentation coverage, naming consistency, and developer onboarding. Covers docstring gaps, config documentation, complexity reduction, type safety, and naming standards.
+
+---
+
 ## Notes
 
 - Decoding module based on RL4CO patterns

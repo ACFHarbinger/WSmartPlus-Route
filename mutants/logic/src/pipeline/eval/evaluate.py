@@ -4,7 +4,7 @@ Evaluation Dispatcher.
 
 from typing import Any, Dict
 
-from logic.src.pipeline.eval.evaluators import (
+from logic.src.pipeline.features.eval.evaluators import (
     AugmentationEval,
     GreedyEval,
     MultiStartAugmentEval,
