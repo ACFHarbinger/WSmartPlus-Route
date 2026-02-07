@@ -8,7 +8,6 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 import torch
-
 from logic.src.utils.functions.beam_search import beam_search as beam_search_func
 
 # Legacy constants for compatibility
@@ -110,10 +109,9 @@ class BaseProblem:
         Bridge to RL4CO environments.
         Initializes a TensorDict from the input and returns a state wrapper.
         """
-        from tensordict import TensorDict
-
         from logic.src.envs import get_env
         from logic.src.utils.data.td_utils import TensorDictStateWrapper
+        from tensordict import TensorDict
 
         env_name = cls.NAME
 

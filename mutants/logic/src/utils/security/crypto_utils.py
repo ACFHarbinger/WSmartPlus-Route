@@ -16,7 +16,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from dotenv import dotenv_values, load_dotenv, set_key
-
 from logic.src.constants import ROOT_DIR
 from logic.src.utils.io.files import extract_zip, zip_directory
 

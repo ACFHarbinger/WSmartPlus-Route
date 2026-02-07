@@ -9,10 +9,9 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.utils.functions.decoding import get_decoding_strategy
+from tensordict import TensorDict
 
 
 class ConstructivePolicy(nn.Module, ABC):

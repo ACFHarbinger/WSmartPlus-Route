@@ -10,10 +10,9 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.envs.generators import VRPPGenerator
+from tensordict import TensorDict
 
 
 class VRPPEnv(RL4COEnvBase):

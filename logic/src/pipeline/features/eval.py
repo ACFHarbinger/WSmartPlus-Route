@@ -393,7 +393,6 @@ def run_evaluate_model(opts: Dict[str, Any]) -> None:
 if __name__ == "__main__":
     exit_code = 0
     parser = ConfigsParser(description="Evaluation Runner", formatter_class=argparse.RawTextHelpFormatter)
-    parser = ConfigsParser(description="Evaluation Runner", formatter_class=argparse.RawTextHelpFormatter)
     print("Please use 'python main.py eval ...' or Hydra CLI.", file=sys.stderr)
     sys.exit(1)
     try:

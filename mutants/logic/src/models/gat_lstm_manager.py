@@ -5,7 +5,6 @@ This module contains the GAT-LSTM Manager agent implementation for Hierarchical 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from logic.src.constants.models import (
     DEFAULT_TEMPORAL_HORIZON,
     FEED_FORWARD_EXPANSION,

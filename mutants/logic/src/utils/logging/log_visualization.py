@@ -6,12 +6,11 @@ Separated from log_utils to isolate heavy plotting dependencies (matplotlib).
 import os
 from typing import Any, Dict, List
 
+import logic.src.constants as udef
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import wandb
-
-import logic.src.constants as udef
 
 
 def log_training(loss_keys: List[str], table_df: pd.DataFrame, opts: Dict[str, Any]) -> None:

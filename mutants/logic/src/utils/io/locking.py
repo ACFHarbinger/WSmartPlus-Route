@@ -4,9 +4,8 @@ Persistence utilities (locking, thread-safe I/O).
 
 import json
 
-import pandas as pd
-
 import logic.src.constants as udef
+import pandas as pd
 
 
 def read_output(json_path, policies, lock=None):

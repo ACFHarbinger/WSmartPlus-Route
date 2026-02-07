@@ -7,7 +7,6 @@ import logging
 from typing import Optional
 
 from lightning.fabric.utilities.rank_zero import rank_zero_only
-
 from logic.src.utils.logging.structured_logging import get_structured_logger as _get_structured
 
 

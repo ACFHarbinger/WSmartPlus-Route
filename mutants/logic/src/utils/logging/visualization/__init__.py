@@ -6,7 +6,6 @@ import argparse
 import os
 
 import torch
-
 from logic.src.utils.logging.visualization.embeddings import (
     log_weight_distributions,
     plot_weight_trajectories,

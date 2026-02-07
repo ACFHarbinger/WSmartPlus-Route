@@ -14,8 +14,6 @@ from typing import List
 
 import pandas as pd
 import streamlit as st
-from streamlit_folium import st_folium
-
 from logic.src.pipeline.ui.components.benchmark_charts import (
     create_benchmark_comparison_chart,
     create_latency_throughput_scatter,
@@ -50,6 +48,7 @@ from logic.src.pipeline.ui.services.log_parser import (
     get_unique_samples,
 )
 from logic.src.pipeline.ui.styles.styling import CUSTOM_CSS, create_kpi_row, get_page_config
+from streamlit_folium import st_folium
 
 
 def main() -> None:
@@ -246,7 +245,6 @@ def render_simulation_visualizer() -> None:
 
         import numpy as np
         import pandas as pd
-
         from logic.src.constants import ROOT_DIR
 
         dist_matrix = None

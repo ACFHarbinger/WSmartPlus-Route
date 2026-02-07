@@ -7,12 +7,11 @@ from __future__ import annotations
 
 from typing import Union
 
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
 from logic.src.models.policies.classical.alns import VectorizedALNS
 from logic.src.models.policies.classical.hgs import VectorizedHGS
+from tensordict import TensorDict
 
 
 class NeuralHeuristicHybrid(ConstructivePolicy):

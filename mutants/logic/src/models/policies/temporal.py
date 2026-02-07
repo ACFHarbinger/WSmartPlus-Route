@@ -6,13 +6,12 @@ from typing import Optional, Union
 
 import torch
 import torch.nn as nn
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.modules.activation_function import ActivationFunction
 from logic.src.models.policies.am import AttentionModelPolicy
 from logic.src.models.subnets.grf_predictor import GatedRecurrentFillPredictor
 from logic.src.utils.data.td_utils import TensorDictStateWrapper
+from tensordict import TensorDict
 
 
 class TemporalAMPolicy(AttentionModelPolicy):

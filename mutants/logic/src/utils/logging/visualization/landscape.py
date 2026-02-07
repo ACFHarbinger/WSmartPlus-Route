@@ -13,7 +13,6 @@ import torch
 matplotlib.use("Agg")
 import loss_landscapes
 import matplotlib.pyplot as plt
-
 from logic.src.models.policies.classical.local_search import vectorized_two_opt
 from logic.src.utils.logging.visualization.helpers import MyModelWrapper, get_batch
 

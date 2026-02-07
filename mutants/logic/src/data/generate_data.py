@@ -15,7 +15,6 @@ from typing import Any, Dict
 
 import numpy as np
 import torch
-
 from logic.src.cli.base_parser import ConfigsParser
 from logic.src.constants import MAP_DEPOTS, ROOT_DIR, WASTE_TYPES
 from logic.src.data.builders import VRPInstanceBuilder

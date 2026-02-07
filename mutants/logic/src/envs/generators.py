@@ -12,9 +12,8 @@ from typing import Any, Callable, Optional, Union
 
 import numpy as np
 import torch
-from tensordict import TensorDict
-
 from logic.src.utils.data.data_utils import generate_waste_prize
+from tensordict import TensorDict
 
 
 class Generator(ABC):

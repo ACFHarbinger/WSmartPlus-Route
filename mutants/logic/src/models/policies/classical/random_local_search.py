@@ -6,10 +6,9 @@ Performs iterative local search moves sampled from a set of operators based on p
 from __future__ import annotations
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
+from tensordict import TensorDict
 
 from .local_search import (
     vectorized_relocate,

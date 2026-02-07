@@ -36,7 +36,6 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 import numpy as np
 import pandas as pd
 import torch
-
 from logic.src.constants import EARTH_RADIUS, EARTH_WMP_RADIUS, MAX_WASTE
 from logic.src.utils.functions.graph_utils import (
     adj_to_idx,

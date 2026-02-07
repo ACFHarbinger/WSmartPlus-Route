@@ -36,13 +36,12 @@ import gurobipy as gp
 import hexaly.optimizer as hx
 import numpy as np
 from gurobipy import GRB, quicksum
-from numpy.typing import NDArray
-
 from logic.src.constants.optimization import (
     HEURISTICS_RATIO,
     MIP_GAP,
     NODEFILE_START_GB,
 )
+from numpy.typing import NDArray
 
 from ..base_routing_policy import BaseRoutingPolicy
 from .factory import PolicyRegistry

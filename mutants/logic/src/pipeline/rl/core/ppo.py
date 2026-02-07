@@ -13,10 +13,9 @@ from typing import Any
 
 import torch
 import torch.nn as nn
-from tensordict import TensorDict
-
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 from logic.src.utils.data.rl_utils import safe_td_copy
+from tensordict import TensorDict
 
 
 class PPO(RL4COLitModule):
@@ -132,10 +131,9 @@ class PPO(RL4COLitModule):
             self.critic(batch).squeeze(-1)  # (batch)
 
         # 2. PPO Optimization Loop
+        from logic.src.data.datasets import FastTdDataset
         from pytorch_lightning.core.optimizer import LightningOptimizer
         from torch.utils.data import DataLoader
-
-        from logic.src.data.datasets import FastTdDataset
 
         opt = self.optimizers()
 

@@ -9,12 +9,11 @@ import threading
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import gurobipy as gp
+import logic.src.constants as udef
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from dotenv import dotenv_values
-
-import logic.src.constants as udef
 from logic.src.models import GATLSTManager
 from logic.src.utils.functions.function import (
     get_inner_model,

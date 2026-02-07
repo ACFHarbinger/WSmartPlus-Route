@@ -8,10 +8,12 @@ before being processed by the encoder.
 from __future__ import annotations
 
 import torch.nn as nn
-
 from logic.src.models.embeddings.cvrpp import CVRPPInitEmbedding
 from logic.src.models.embeddings.vrpp import VRPPInitEmbedding
 from logic.src.models.embeddings.wcvrp import WCVRPInitEmbedding
+
+from .context_embedding import EnvContext, VRPPContext
+from .dynamic_embedding import DynamicEmbedding, StaticEmbedding
 
 # Embedding registry
 INIT_EMBEDDING_REGISTRY = {
@@ -20,6 +22,17 @@ INIT_EMBEDDING_REGISTRY = {
     "wcvrp": WCVRPInitEmbedding,
     "cwcvrp": WCVRPInitEmbedding,
     "sdwcvrp": WCVRPInitEmbedding,
+}
+
+CONTEXT_EMBEDDING_REGISTRY = {
+    "vrpp": VRPPContext,
+    "cvrpp": VRPPContext,  # Reuse VRPP for now
+    "wcvrp": VRPPContext,
+}
+
+DYNAMIC_EMBEDDING_REGISTRY = {
+    "static": StaticEmbedding,
+    "dynamic": DynamicEmbedding,
 }
 
 

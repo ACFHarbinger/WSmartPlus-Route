@@ -230,7 +230,11 @@
         "logic/test/unit/utils/validation/test_check_docstrings.py::TestCheckDocstrings::test_check_path_class_missing": 0.00019071099814027548,
         "logic/test/unit/utils/validation/test_check_docstrings.py::TestCheckDocstrings::test_check_path_syntax_error": 0.0001995930215343833,
         "logic/test/unit/utils/validation/test_check_docstrings.py::TestCheckDocstrings::test_check_path_ignore_non_py": 0.00017168396152555943,
-        "logic/test/unit/utils/validation/test_check_docstrings.py::TestCheckDocstrings::test_recursive": 0.001272219989914447
+        "logic/test/unit/utils/validation/test_check_docstrings.py::TestCheckDocstrings::test_recursive": 0.001272219989914447,
+        "logic/test/unit/utils/test_boolmask.py::TestBoolMask::test_bool2long_roundtrip": 0.0002531249774619937,
+        "logic/test/unit/utils/test_boolmask.py::TestBoolMask::test_check_unset_assertion": 0.00021701696095988154,
+        "logic/test/unit/utils/test_boolmask.py::TestBoolMask::test_pad_mask": 0.00021453399676829576,
+        "logic/test/unit/utils/test_boolmask.py::TestBoolMask::test_long_scatter": 0.0007614550413563848
     },
     "stats_time": 7.493239466
 }

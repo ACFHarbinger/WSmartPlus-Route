@@ -25,7 +25,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
 import numpy as np
 import pandas as pd
 import torch
-
 from logic.src.constants import DAY_METRICS
 from logic.src.utils.functions.function import move_to
 

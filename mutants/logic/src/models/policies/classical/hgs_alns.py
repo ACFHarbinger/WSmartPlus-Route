@@ -7,12 +7,11 @@ from __future__ import annotations
 from typing import Any
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.classical.hgs import VectorizedHGS
 from logic.src.policies.hgs_alns_solver import HGSALNSSolver
 from logic.src.policies.hgs_aux.types import HGSParams
+from tensordict import TensorDict
 
 
 class VectorizedHGSALNS(VectorizedHGS):

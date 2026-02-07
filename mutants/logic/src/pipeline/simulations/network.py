@@ -46,9 +46,6 @@ import osmnx as ox
 import pandas as pd
 from dotenv import dotenv_values
 from geopy.distance import geodesic
-from networkx import MultiDiGraph
-from tqdm import tqdm
-
 from logic.src.constants import EARTH_RADIUS, ROOT_DIR
 from logic.src.utils.functions.graph_utils import (
     get_adj_knn,
@@ -56,6 +53,8 @@ from logic.src.utils.functions.graph_utils import (
     idx_to_adj,
 )
 from logic.src.utils.security.crypto_utils import decrypt_file_data, load_key
+from networkx import MultiDiGraph
+from tqdm import tqdm
 
 
 class DistanceStrategy(ABC):

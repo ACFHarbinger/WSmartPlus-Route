@@ -8,7 +8,6 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import torch.nn as nn
-
 from logic.src.models.subnets.gac_encoder import GraphAttConvEncoder
 from logic.src.models.subnets.gat_decoder import DeepGATDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder

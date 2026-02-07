@@ -25,7 +25,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint
-
 from logic.src.constants.models import (
     FEED_FORWARD_EXPANSION,
     NODE_DIM,
