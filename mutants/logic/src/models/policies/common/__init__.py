@@ -2,23 +2,21 @@
 Common policy base classes and templates.
 """
 
-from logic.src.models.policies.common.autoregressive import (
-    AutoregressiveDecoder,
-    AutoregressiveEncoder,
-    AutoregressivePolicy,
-)
-from logic.src.models.policies.common.constructive import ConstructivePolicy
-from logic.src.models.policies.common.improvement import (
-    ImprovementDecoder,
-    ImprovementEncoder,
-    ImprovementPolicy,
-)
-from logic.src.models.policies.common.nonautoregressive import (
-    NonAutoregressiveDecoder,
-    NonAutoregressiveEncoder,
-    NonAutoregressivePolicy,
-)
-from logic.src.models.policies.common.transductive import TransductiveModel
+from .active_search import ActiveSearch
+from .autoregressive_decoder import AutoregressiveDecoder
+from .autoregressive_encoder import AutoregressiveEncoder
+from .autoregressive_policy import AutoregressivePolicy
+from .constructive import ConstructivePolicy
+from .eas import EAS
+from .eas_embeddings import EASEmb
+from .eas_layers import EASLay
+from .improvement_decoder import ImprovementDecoder
+from .improvement_encoder import ImprovementEncoder
+from .improvement_policy import ImprovementPolicy
+from .nonautoregressive_decoder import NonAutoregressiveDecoder
+from .nonautoregressive_encoder import NonAutoregressiveEncoder
+from .nonautoregressive_policy import NonAutoregressivePolicy
+from .transductive_base import TransductiveModel
 
 __all__ = [
     "AutoregressiveEncoder",
@@ -32,4 +30,8 @@ __all__ = [
     "ImprovementDecoder",
     "ImprovementPolicy",
     "TransductiveModel",
+    "ActiveSearch",
+    "EAS",
+    "EASEmb",
+    "EASLay",
 ]

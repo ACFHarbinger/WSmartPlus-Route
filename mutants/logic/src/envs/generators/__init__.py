@@ -7,8 +7,10 @@ from typing import Any
 from .base import Generator
 from .jssp import JSSPGenerator
 from .pdp import PDPGenerator
+from .scwcvrp import SCWCVRPGenerator
 from .tsp import TSPGenerator
-from .vrp import SCWCVRPGenerator, VRPPGenerator, WCVRPGenerator
+from .vrpp import VRPPGenerator
+from .wcvrp import WCVRPGenerator
 
 # Registry of available generators
 GENERATOR_REGISTRY: dict[str, type[Generator]] = {

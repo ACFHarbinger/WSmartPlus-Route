@@ -1,5 +1,5 @@
 import torch
-from logic.src.models.subnets.embeddings.context_embedder import VRPPContextEmbedder, WCContextEmbedder
+from logic.src.models.subnets.embeddings import VRPPContextEmbedder, WCContextEmbedder
 
 
 class TestContextEmbedder:

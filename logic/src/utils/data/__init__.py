@@ -2,6 +2,7 @@
 Data utilities module.
 """
 
+from .dummy_problem import DummyProblem
 from .generation import generate_waste_prize
 from .loader import (
     check_extension,
@@ -13,6 +14,7 @@ from .loader import (
     save_td_dataset,
 )
 from .parameters import load_area_and_waste_type_params
+from .td_state_wrapper import TensorDictStateWrapper
 
 __all__ = [
     "check_extension",
@@ -24,4 +26,6 @@ __all__ = [
     "load_focus_coords",
     "generate_waste_prize",
     "load_area_and_waste_type_params",
+    "TensorDictStateWrapper",
+    "DummyProblem",
 ]

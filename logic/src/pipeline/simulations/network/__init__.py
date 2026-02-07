@@ -11,11 +11,13 @@ import pandas as pd
 from logic.src.constants import EARTH_RADIUS, ROOT_DIR
 
 from .base import DistanceStrategy, IterativeDistanceStrategy
+from .euclidean import EuclideanStrategy
 from .file import FileStrategy
+from .geodesic import GeodesicStrategy
 from .geopandas import GeoPandasStrategy
 from .google import GoogleMapsStrategy
+from .haversine import HaversineStrategy
 from .osm import OSMStrategy
-from .simple import EuclideanStrategy, GeodesicStrategy, HaversineStrategy
 
 
 def haversine_distance(

@@ -62,6 +62,10 @@ check-docs:
 check-google-docs:
     uv run python logic/src/utils/docs/check_google_style.py logic/src
 
+# Check for multiple classes in one file
+check-multi-classes:
+    uv run python logic/src/utils/validation/check_multi_classes.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test
+
 # --- Advanced Testing & Benchmarks ---
 
 # Run mutation tests using mutmut

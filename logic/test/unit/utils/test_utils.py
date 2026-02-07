@@ -18,8 +18,9 @@ import pandas as pd
 import pytest
 import torch
 import torch.nn as nn
-from logic.src.utils.configs.setup_utils import setup_cost_weights, setup_env, setup_model
-from logic.src.utils.functions.function import (
+from logic.src.utils.configs.setup_env import setup_cost_weights, setup_env
+from logic.src.utils.configs.setup_worker import setup_model
+from logic.src.utils.functions import (
     add_attention_hooks,
     compute_in_batches,
     do_batch_rep,
@@ -33,7 +34,7 @@ from logic.src.utils.functions.function import (
     torch_load_cpu,
 )
 from logic.src.utils.functions.lexsort import _torch_lexsort_cuda, torch_lexsort
-from logic.src.utils.io.processing import (
+from logic.src.utils.io import (
     find_single_input_values,
     process_dict_of_dicts,
     process_list_of_dicts,

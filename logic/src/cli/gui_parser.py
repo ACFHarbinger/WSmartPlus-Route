@@ -2,7 +2,7 @@
 GUI related argument parsers.
 """
 
-from logic.src.cli.base_parser import LowercaseAction
+from logic.src.cli.base import LowercaseAction
 from logic.src.constants import APP_STYLES
 
 

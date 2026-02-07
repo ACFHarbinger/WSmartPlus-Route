@@ -4,7 +4,7 @@ File system related argument parsers.
 
 import argparse
 
-from logic.src.cli.base_parser import UpdateFunctionMapActionFactory
+from logic.src.cli.base import UpdateFunctionMapActionFactory
 from logic.src.constants import FS_COMMANDS
 
 

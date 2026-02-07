@@ -6,7 +6,7 @@ from typing import Dict, Type
 
 from logic.src.pipeline.rl.meta.contextual_bandits import WeightContextualBandit
 from logic.src.pipeline.rl.meta.hypernet_strategy import HyperNetworkStrategy
-from logic.src.pipeline.rl.meta.multi_objective import MORLWeightOptimizer
+from logic.src.pipeline.rl.meta.multi_objective.weight_optimizer import MORLWeightOptimizer
 from logic.src.pipeline.rl.meta.td_learning import CostWeightManager
 from logic.src.pipeline.rl.meta.weight_optimizer import RewardWeightOptimizer
 from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy

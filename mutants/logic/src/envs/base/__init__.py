@@ -2,7 +2,7 @@
 Base environment definitions.
 """
 
+from .base import RL4COEnvBase
 from .improvement import ImprovementEnvBase
-from .rl4co import RL4COEnvBase
 
 __all__ = ["RL4COEnvBase", "ImprovementEnvBase"]

@@ -4,7 +4,7 @@ Parser arguments for the Benchmark Suite.
 
 from typing import Any, Dict
 
-from logic.src.cli.base_parser import ConfigsParser
+from logic.src.cli.base import ConfigsParser
 
 
 def add_benchmark_args(parser: ConfigsParser) -> None:

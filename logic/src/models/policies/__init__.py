@@ -21,17 +21,17 @@ from logic.src.models.policies.common import (
 
 if TYPE_CHECKING:
     from .am import AttentionModelPolicy
-    from .common.nonautoregressive import NonAutoregressivePolicy
-    from .dact import DACTPolicy
+    from .common import NonAutoregressivePolicy
+    from .dact_policy import DACTPolicy
     from .deep_decoder import DeepDecoderPolicy
     from .deepaco import DeepACOPolicy
     from .gfacs import GFACSPolicy
     from .glop import GLOPPolicy
     from .mdam import MDAMPolicy
     from .moe import MoEPolicy
-    from .n2s import N2SPolicy
+    from .n2s_policy import N2SPolicy
     from .nargnn import NARGNNPolicy
-    from .neuopt import NeuOptPolicy
+    from .neuopt_policy import NeuOptPolicy
     from .pointer import PointerNetworkPolicy
     from .polynet import PolyNetPolicy
     from .symnco import SymNCOPolicy
@@ -48,10 +48,10 @@ _POLICY_MAP = {
     "MDAMPolicy": ".mdam",
     "MoEPolicy": ".moe",
     "NARGNNPolicy": ".nargnn",
-    "N2SPolicy": ".n2s",
-    "NeuOptPolicy": ".neuopt",
-    "DACTPolicy": ".dact",
-    "NonAutoregressivePolicy": ".common.nonautoregressive",
+    "N2SPolicy": ".n2s_policy",
+    "NeuOptPolicy": ".neuopt_policy",
+    "DACTPolicy": ".dact_policy",
+    "NonAutoregressivePolicy": ".common",
     "PointerNetworkPolicy": ".pointer",
     "PolyNetPolicy": ".polynet",
     "SymNCOPolicy": ".symnco",
@@ -67,13 +67,13 @@ _POLICY_REGISTRY_SPEC = {
     "gfacs": (".gfacs", "GFACSPolicy"),
     "glop": (".glop", "GLOPPolicy"),
     "ham": (".ham", "HAMPolicy"),
-    "l2d": (".l2d", "L2DPolicy"),
+    "l2d": (".l2d_policy", "L2DPolicy"),
     "mdam": (".mdam", "MDAMPolicy"),
     "moe": (".moe", "MoEPolicy"),
     "nargnn": (".nargnn", "NARGNNPolicy"),
-    "n2s": (".n2s", "N2SPolicy"),
-    "neuopt": (".neuopt", "NeuOptPolicy"),
-    "dact": (".dact", "DACTPolicy"),
+    "n2s": (".n2s_policy", "N2SPolicy"),
+    "neuopt": (".neuopt_policy", "NeuOptPolicy"),
+    "dact": (".dact_policy", "DACTPolicy"),
     "pointer": (".pointer", "PointerNetworkPolicy"),
     "polynet": (".polynet", "PolyNetPolicy"),
     "symnco": (".symnco", "SymNCOPolicy"),

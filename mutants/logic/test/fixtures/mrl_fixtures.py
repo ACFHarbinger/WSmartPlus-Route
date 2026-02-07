@@ -7,7 +7,7 @@ import torch
 from logic.src.pipeline.rl.meta.contextual_bandits import (
     WeightContextualBandit,
 )
-from logic.src.pipeline.rl.meta.multi_objective import (
+from logic.src.pipeline.rl.meta.multi_objective.weight_optimizer import (
     MORLWeightOptimizer,
 )
 from logic.src.pipeline.rl.meta.td_learning import (

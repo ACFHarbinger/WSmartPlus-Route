@@ -16,11 +16,12 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
-from ..local_search import HGSLocalSearch
+from ..local_search.local_search_hgs import HGSLocalSearch
 from .evolution import evaluate, ordered_crossover, update_biased_fitness
+from .individual import Individual
+from .params import HGSParams
 from .pyvrp_wrapper import solve_pyvrp
 from .split import LinearSplit
-from .types import HGSParams, Individual
 
 
 class HGSSolver:

@@ -11,11 +11,8 @@ from random import sample as rsample
 
 from shapely.geometry import LineString
 
-from .computations import (
-    compute_profit,
-    compute_real_profit,
-    compute_sans_route_cost,
-)
+from .distance import compute_sans_route_cost
+from .objectives import compute_profit, compute_real_profit
 
 
 def create_points(data, bins_coordinates):

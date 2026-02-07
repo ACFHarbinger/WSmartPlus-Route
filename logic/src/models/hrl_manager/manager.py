@@ -14,7 +14,10 @@ from logic.src.constants.models import (
 from logic.src.constants.waste import CRITICAL_FILL_THRESHOLD
 from logic.src.utils.logging.pylogger import get_pylogger
 
-from .layers import CriticHead, GateHead, MustGoHead, TemporalEncoder
+from .critic_head import CriticHead
+from .gate_head import GateHead
+from .must_go_head import MustGoHead
+from .temporal_encoder import TemporalEncoder
 
 logger = get_pylogger(__name__)
 

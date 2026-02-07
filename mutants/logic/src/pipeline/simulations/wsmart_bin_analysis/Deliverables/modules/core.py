@@ -1,21 +1,12 @@
 """
-Core components for Container management and TAG enum.
+Core components for Container management.
 """
 
-from enum import Enum
 from typing import Optional
 
 import pandas as pd
 
-
-class TAG(Enum):
-    """Quality tags indicating container data reliability level."""
-
-    LOW_MEASURES = 0
-    INSIDE_BOX = 1
-    OK = 2
-    WARN = 3
-    LOCAL_WARN = 4
+from ..enums.tag import TAG
 
 
 class DataMixin:

@@ -9,7 +9,7 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.subnets.embeddings.dynamic_embedding import DynamicEmbedding
+from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
 
 from .cache import _decode_probs
 from .path import MDAMPath

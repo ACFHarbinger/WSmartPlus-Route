@@ -5,7 +5,9 @@ from typing import TYPE_CHECKING
 
 from logic.src.constants import DAY_METRICS, ROOT_DIR
 from logic.src.utils.configs.config_loader import load_config
-from logic.src.utils.configs.setup_utils import setup_env, setup_hrl_manager, setup_model
+from logic.src.utils.configs.setup_env import setup_env
+from logic.src.utils.configs.setup_manager import setup_hrl_manager
+from logic.src.utils.configs.setup_worker import setup_model
 from logic.src.utils.logging.log_utils import setup_system_logger
 from loguru import logger
 

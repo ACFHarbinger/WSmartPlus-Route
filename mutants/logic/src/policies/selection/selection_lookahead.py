@@ -6,7 +6,7 @@ from typing import List
 
 import numpy as np
 
-from ..must_go_selection import MustGoSelectionStrategy, SelectionContext
+from .base.selection_strategy import MustGoSelectionStrategy, SelectionContext
 
 
 class LookaheadSelection(MustGoSelectionStrategy):

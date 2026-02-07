@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import torch
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.common.nonautoregressive import NonAutoregressiveDecoder
+from logic.src.models.policies.common.nonautoregressive_decoder import NonAutoregressiveDecoder
 from tensordict import TensorDict
 
 

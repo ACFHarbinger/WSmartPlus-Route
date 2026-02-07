@@ -48,7 +48,7 @@ class WCVRPEnv(RL4COEnvBase):
             collection_reward: Reward weight for waste collection.
             cost_weight: Weight for travel cost in reward.
             revenue_kg: Optional revenue per kg (overrides collection_reward).
-            cost_km: Optional cost per km (overrides cost_weight).
+            cost_km: Optional cost per kg (overrides cost_weight).
             device: Device for torch tensors ('cpu' or 'cuda').
             **kwargs: Additional keyword arguments.
         """
@@ -231,26 +231,3 @@ class WCVRPEnv(RL4COEnvBase):
             reward = reward.unsqueeze(0)
 
         return reward.view(td.batch_size)
-
-
-class CWCVRPEnv(WCVRPEnv):
-    """Capacitated WCVRP with strict capacity constraints."""
-
-    name: str = "cwcvrp"
-
-
-class SDWCVRPEnv(WCVRPEnv):
-    """Stochastic Demand WCVRP with uncertain fill rates."""
-
-    name: str = "sdwcvrp"
-
-    def _step(self, td: TensorDict) -> TensorDict:
-        """Step with stochastic demand simulation."""
-        td = super()._step(td)
-
-        # Simulate fill rate increase for unvisited bins
-        if "fill_rates" in td.keys():
-            fill_increase = td["fill_rates"] * (~td["visited"]).float()
-            td["demand"] = (td["demand"] + fill_increase).clamp(max=1.0)
-
-        return td
