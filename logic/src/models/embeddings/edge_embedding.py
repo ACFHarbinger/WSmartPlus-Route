@@ -207,6 +207,14 @@ class NoEdgeEmbedding(nn.Module):
     """
 
     def __init__(self, embed_dim: int, self_loop: bool = False, **kwargs):
+        """
+        Initialize NoEdgeEmbedding.
+
+        Args:
+            embed_dim: Embedding dimension.
+            self_loop: Whether to include self-loops.
+            **kwargs: Unused arguments.
+        """
         assert (
             Batch is not None
         ), "torch_geometric is required for NoEdgeEmbedding. Install via: pip install torch_geometric"
@@ -215,6 +223,16 @@ class NoEdgeEmbedding(nn.Module):
         self.self_loop = self_loop
 
     def forward(self, td, init_embeddings: torch.Tensor):
+        """
+        Generate dummy edge embeddings.
+
+        Args:
+           td: TensorDict.
+           init_embeddings: Node embeddings.
+
+        Returns:
+            Batch with dummy edge attributes.
+        """
         data_list = []
         n = init_embeddings.shape[1]
         device = init_embeddings.device

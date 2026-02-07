@@ -78,6 +78,28 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         test_decode_type: str = "greedy",
         **constructive_policy_kw,
     ) -> None:
+        """
+        Initialize NARGNNPolicy.
+
+        Args:
+           encoder: Encoder instance (optional).
+           decoder: Decoder instance (optional).
+           embed_dim: Embedding dimension.
+           env_name: Environment name.
+           init_embedding: Initial embedding module.
+           edge_embedding: Edge embedding module.
+           graph_network: Graph network module.
+           heatmap_generator: Heatmap generator module.
+           num_layers_heatmap_generator: Layers in heatmap generator.
+           num_layers_graph_encoder: Layers in graph encoder.
+           act_fn: Activation function.
+           agg_fn: Aggregation function.
+           linear_bias: Use bias in linear layers.
+           train_decode_type: Decode type for training.
+           val_decode_type: Decode type for validation.
+           test_decode_type: Decode type for testing.
+           **constructive_policy_kw: Args for NonAutoregressivePolicy.
+        """
         if encoder is None:
             # NARGNNEncoder doesn't inherit from NonAutoregressiveEncoder but has compatible interface
             encoder = NARGNNEncoder(  # type: ignore[assignment]

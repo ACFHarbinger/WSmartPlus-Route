@@ -1,3 +1,7 @@
+"""
+Heterogeneous Graph Neural Network Module.
+"""
+
 from typing import Dict, Tuple
 
 import torch
@@ -27,6 +31,16 @@ class HetGNNLayer(nn.Module):
         aggr: str = "sum",
         norm: str = "layer",
     ):
+        """
+        Initialize HetGNNLayer.
+
+        Args:
+            node_types: List of node types.
+            edge_types: List of edge triples.
+            hidden_dim: Hidden dimension.
+            aggr: Aggregation scheme.
+            norm: Normalization type.
+        """
         super().__init__()
 
         if HeteroConv is object:

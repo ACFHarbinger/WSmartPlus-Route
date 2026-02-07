@@ -434,17 +434,19 @@ def batchify(td: TensorDict, num_repeats: int) -> TensorDict:
         return new_td
 
 
-def unbatchify(td: TensorDict, num_repeats: int) -> TensorDict:
+def unbatchify(td: TensorDict | torch.Tensor, num_repeats: int) -> TensorDict | torch.Tensor:
     """
-    Reverse batchify: take first of each group.
-
+    Unbatchify a TensorDict/Tensor by extracting the original batch.
     Args:
-        td: TensorDict [batch * num_repeats, ...]
-        num_repeats: Number of repeats used
-
+        td: TensorDict/Tensor [batch * num_repeats, ...]
+        num_repeats: Number of repeats
     Returns:
-        TensorDict [batch, ...]
+        Unbatchified object. If Tensor, [batch, num_repeats, ...].
+        If TensorDict, [batch, ...] (takes first repeat).
     """
+    if isinstance(td, torch.Tensor):
+        return td.view(-1, num_repeats, *td.shape[1:])
+
     batch_size = td.batch_size[0] // num_repeats
     indices = torch.arange(0, batch_size * num_repeats, num_repeats, device=td.device)
     return td[indices]

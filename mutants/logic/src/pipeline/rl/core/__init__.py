@@ -8,9 +8,11 @@ from logic.src.pipeline.rl.common.baselines import (
     Baseline,
     CriticBaseline,
     ExponentialBaseline,
+    MeanBaseline,
     NoBaseline,
     POMOBaseline,
     RolloutBaseline,
+    SharedBaseline,
     WarmupBaseline,
     get_baseline,
 )
@@ -20,6 +22,7 @@ from logic.src.pipeline.rl.core.dr_grpo import DRGRPO
 from logic.src.pipeline.rl.core.gdpo import GDPO
 from logic.src.pipeline.rl.core.gspo import GSPO
 from logic.src.pipeline.rl.core.imitation import ImitationLearning
+from logic.src.pipeline.rl.core.mvmoe import MVMoE_AM, MVMoE_POMO
 from logic.src.pipeline.rl.core.pomo import POMO
 from logic.src.pipeline.rl.core.ppo import PPO
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
@@ -37,6 +40,8 @@ __all__ = [
     "CriticBaseline",
     "WarmupBaseline",
     "POMOBaseline",
+    "MeanBaseline",
+    "SharedBaseline",
     "get_baseline",
     "BASELINE_REGISTRY",
     "REINFORCE",
@@ -52,4 +57,6 @@ __all__ = [
     "HRLModule",
     "POMO",
     "SymNCO",
+    "MVMoE_POMO",
+    "MVMoE_AM",
 ]

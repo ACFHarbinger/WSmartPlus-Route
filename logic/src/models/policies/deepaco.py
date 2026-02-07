@@ -38,6 +38,24 @@ class DeepACOPolicy(NonAutoregressivePolicy):
         env_name: Optional[str] = None,
         **kwargs,
     ):
+        """
+        Initialize DeepACOPolicy.
+
+        Args:
+            encoder: DeepACOEncoder instance.
+            decoder: ACODecoder instance.
+            embed_dim: Embedding dimension.
+            num_encoder_layers: Number of GNN layers.
+            num_heads: Number of attention heads.
+            n_ants: Number of ants in ACO.
+            n_iterations: Number of ACO iterations.
+            alpha: Pheromone importance.
+            beta: Heuristic importance.
+            rho: Pheromone evaporation rate.
+            use_local_search: Whether to use local search in ACO.
+            env_name: Environment name.
+            **kwargs: Additional arguments.
+        """
         if encoder is None:
             encoder = DeepACOEncoder(
                 embed_dim=embed_dim,

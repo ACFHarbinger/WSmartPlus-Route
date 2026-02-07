@@ -1,3 +1,7 @@
+"""
+Pointer Attention Mixture of Experts Module.
+"""
+
 import math
 from typing import Optional
 
@@ -36,6 +40,18 @@ class PointerAttnMoE(nn.Module):
         mask_inner: bool = True,
         check_nan: bool = True,
     ):
+        """
+        Initialize PointerAttnMoE.
+
+        Args:
+            embed_dim: Embedding dimension.
+            num_heads: Number of heads.
+            num_experts: Number of experts.
+            k: Top-k experts.
+            noisy_gating: Noisy gating.
+            mask_inner: Mask inner attention.
+            check_nan: Check for NaNs.
+        """
         super().__init__()
         self.embed_dim = embed_dim
         self.check_nan = check_nan

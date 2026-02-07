@@ -110,6 +110,15 @@ class TSPAdapter(SubproblemAdapter):
         subprob_batch_size: int = 2000,
         **kwargs,
     ) -> None:
+        """
+        Initialize TSPAdapter.
+
+        Args:
+            td: TensorDict.
+            partition_actions: Partitions.
+            subprob_batch_size: Batch size.
+            **kwargs: Kwargs.
+        """
         super().__init__(td, partition_actions, subprob_batch_size)
 
         # Extract subproblems from partitions
@@ -195,6 +204,16 @@ class VRPAdapter(SubproblemAdapter):
         capacity: Optional[float] = None,
         **kwargs,
     ) -> None:
+        """
+        Initialize VRPAdapter.
+
+        Args:
+            td: TensorDict.
+            partition_actions: Partitions.
+            subprob_batch_size: Batch size.
+            capacity: Vehicle capacity.
+            **kwargs: Kwargs.
+        """
         super().__init__(td, partition_actions, subprob_batch_size)
 
         self.capacity = capacity or td.get("vehicle_capacity", torch.tensor(1.0)).item()
