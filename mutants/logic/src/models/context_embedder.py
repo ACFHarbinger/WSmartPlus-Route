@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 
 import torch
 import torch.nn as nn
-
 from logic.src.constants.models import (
     DEPOT_DIM,
     NODE_DIM,

@@ -10,8 +10,6 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.data.transforms import batchify
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
@@ -19,6 +17,7 @@ from logic.src.models.policies.base import ConstructivePolicy
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
 from logic.src.models.subnets.glimpse_decoder import GlimpseDecoder
 from logic.src.utils.data.td_utils import DummyProblem, TensorDictStateWrapper
+from tensordict import TensorDict
 
 
 class AttentionModelPolicy(ConstructivePolicy):

@@ -5,11 +5,10 @@ Pointer Network Policy Adapter.
 from typing import Optional
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.pointer_network import PointerNetwork
 from logic.src.models.policies.base import ConstructivePolicy
+from tensordict import TensorDict
 
 
 class PointerNetworkPolicy(ConstructivePolicy):

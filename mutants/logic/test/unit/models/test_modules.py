@@ -14,9 +14,17 @@ from logic.src.models.modules.feed_forward import FeedForward
 from logic.src.models.modules.gated_graph_convolution import GatedGraphConvolution
 from logic.src.models.modules.graph_convolution import GraphConvolution
 from logic.src.models.modules.multi_head_attention import MultiHeadAttention
+from logic.src.models.modules.multi_head_cross_attention import (
+    MultiHeadCrossAttention,
+)
 from logic.src.models.modules.normalization import Normalization
 from logic.src.models.modules.normalized_activation_function import (
     NormalizedActivationFunction,
+)
+from logic.src.models.modules.positional_embeddings import (
+    AbsolutePositionalEmbedding,
+    CyclicPositionalEmbedding,
+    pos_init_embedding,
 )
 from logic.src.models.modules.skip_connection import SkipConnection
 
@@ -233,3 +241,98 @@ class TestSkipConnection:
 
         inner.assert_called_with(input, arg1="foo")
         assert out.item() == 1.0
+
+
+class TestPositionalEmbeddings:
+    """Tests for Positional Embeddings."""
+
+    def test_absolute_pe_shape(self):
+        """Verify Absolute Positional Embedding output shape."""
+        batch = 2
+        seq_len = 10
+        dim = 16
+        model = AbsolutePositionalEmbedding(dim)
+        x = torch.randn(batch, seq_len, dim)
+        out = model(x)
+        assert out.shape == (batch, seq_len, dim)
+        # Check if PE is added (output should not be equal to input)
+        assert not torch.equal(out, x)
+
+    def test_cyclic_pe_shape(self):
+        """Verify Cyclic Positional Embedding output shape."""
+        batch = 2
+        seq_len = 10
+        dim = 16
+        model = CyclicPositionalEmbedding(dim)
+        x = torch.randn(batch, seq_len, dim)
+        positions = torch.rand(batch, seq_len)  # normalized positions [0, 1]
+        out = model(x, positions)
+        assert out.shape == (batch, seq_len, dim)
+        assert not torch.equal(out, x)
+
+    def test_factory_dispatch(self):
+        """Verify factory function returns correct classes."""
+        ape = pos_init_embedding("APE", 16)
+        assert isinstance(ape, AbsolutePositionalEmbedding)
+        cpe = pos_init_embedding("CPE", 16)
+        assert isinstance(cpe, CyclicPositionalEmbedding)
+
+
+class TestMultiHeadCrossAttention:
+    """Tests for MultiHeadCrossAttention."""
+
+    def test_forward_shape(self):
+        """Verify output shape."""
+        batch = 2
+        embed = 16
+        heads = 4
+        q_len = 5
+        kv_len = 10
+        model = MultiHeadCrossAttention(embed, heads)
+        q = torch.randn(batch, q_len, embed)
+        kv = torch.randn(batch, kv_len, embed)
+        out = model(q, kv)
+        assert out.shape == (batch, q_len, embed)
+
+    def test_forward_with_mask(self):
+        """Verify forward pass with mask."""
+        batch = 2
+        embed = 16
+        heads = 4
+        q_len = 5
+        kv_len = 10
+        model = MultiHeadCrossAttention(embed, heads)
+        q = torch.randn(batch, q_len, embed)
+        kv = torch.randn(batch, kv_len, embed)
+        # Mask True = invalid
+        mask = torch.zeros(batch, q_len, kv_len, dtype=torch.bool)
+        mask[:, :, 0] = True  # Mask first element
+        out = model(q, kv, mask)
+        assert out.shape == (batch, q_len, embed)
+
+    def test_manual_attention_match(self):
+        """Verify manual attention matches SDPA (roughly)."""
+        # Note: They won't be identical due to float precision and implementation details
+        # but should be close.
+        batch = 1
+        embed = 16
+        heads = 4
+        q_len = 5
+        kv_len = 10
+
+        model_sdpa = MultiHeadCrossAttention(embed, heads)
+        model_manual = MultiHeadCrossAttention(embed, heads, store_attn_weights=True)
+        # Copy weights
+        model_manual.load_state_dict(model_sdpa.state_dict())
+
+        q = torch.randn(batch, q_len, embed)
+        kv = torch.randn(batch, kv_len, embed)
+
+        model_sdpa.eval()
+        model_manual.eval()
+
+        with torch.no_grad():
+            out_sdpa = model_sdpa(q, kv)
+            out_manual = model_manual(q, kv)
+
+        assert torch.allclose(out_sdpa, out_manual, atol=1e-5)

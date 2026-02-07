@@ -39,9 +39,8 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Callable, Dict
 
-from loguru import logger
-
 from logic.src.constants import ROOT_DIR
+from loguru import logger
 
 
 class SimulationCheckpoint:

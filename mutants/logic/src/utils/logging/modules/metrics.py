@@ -3,10 +3,9 @@ Metrics logging for training (terminal, WandB, TensorBoard).
 """
 from typing import Any, Dict, List, Tuple
 
+import logic.src.constants as udef
 import torch
 import wandb
-
-import logic.src.constants as udef
 
 
 def log_values(

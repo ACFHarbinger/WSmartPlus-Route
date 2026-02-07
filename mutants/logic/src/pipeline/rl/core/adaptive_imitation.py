@@ -8,8 +8,6 @@ from __future__ import annotations
 from typing import Any
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.pipeline.rl.core.losses import (
     kl_divergence_loss,
     nll_loss,
@@ -17,6 +15,7 @@ from logic.src.pipeline.rl.core.losses import (
     weighted_nll_loss,
 )
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
+from tensordict import TensorDict
 
 
 class AdaptiveImitation(REINFORCE):

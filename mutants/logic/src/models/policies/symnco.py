@@ -6,9 +6,8 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
-from tensordict import TensorDict
-
 from logic.src.models.policies.am import AttentionModelPolicy
+from tensordict import TensorDict
 
 
 class SymNCOPolicy(AttentionModelPolicy):

@@ -22,16 +22,15 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
-from loguru import logger
-from torch import nn
-from torch.utils.data import DataLoader, Dataset
-from tqdm import tqdm
-
 from logic.src.cli import ConfigsParser
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 from logic.src.utils.configs.setup_utils import setup_cost_weights
 from logic.src.utils.data.data_utils import save_dataset
 from logic.src.utils.functions.function import load_model, move_to
+from loguru import logger
+from torch import nn
+from torch.utils.data import DataLoader, Dataset
+from tqdm import tqdm
 
 if TYPE_CHECKING:
     pass

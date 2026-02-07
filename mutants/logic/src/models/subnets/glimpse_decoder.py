@@ -8,7 +8,6 @@ from typing import Any, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
-
 from logic.src.utils.functions.function import compute_in_batches
 
 

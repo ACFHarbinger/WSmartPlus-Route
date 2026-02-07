@@ -15,7 +15,6 @@ Implemented Operators:
 """
 
 import torch
-
 from logic.src.constants.optimization import IMPROVEMENT_EPSILON
 
 

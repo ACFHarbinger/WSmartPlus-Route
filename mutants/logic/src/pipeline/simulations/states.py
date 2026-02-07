@@ -39,9 +39,6 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 import numpy as np
 import pandas as pd
 import torch
-from loguru import logger
-from tqdm import tqdm
-
 from logic.src.constants import (
     CONFIG_CHAR_POLICIES,
     DAY_METRICS,
@@ -59,6 +56,8 @@ from logic.src.utils.logging.log_utils import (
     log_to_json,
     setup_system_logger,
 )
+from loguru import logger
+from tqdm import tqdm
 
 from .bins import Bins
 from .checkpoints import CheckpointError, SimulationCheckpoint, checkpoint_manager

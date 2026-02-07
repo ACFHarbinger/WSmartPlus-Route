@@ -9,14 +9,13 @@ from __future__ import annotations
 from typing import Optional
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.base import ConstructivePolicy
 from logic.src.models.subnets.gat_decoder import DeepGATDecoder
 from logic.src.models.subnets.gat_encoder import GraphAttentionEncoder
 from logic.src.utils.data.td_utils import TensorDictStateWrapper
+from tensordict import TensorDict
 
 
 class DeepDecoderPolicy(ConstructivePolicy):

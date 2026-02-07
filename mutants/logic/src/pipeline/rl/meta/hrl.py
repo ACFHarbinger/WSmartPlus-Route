@@ -16,11 +16,10 @@ from typing import cast
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.gat_lstm_manager import GATLSTManager
 from logic.src.models.policies.base import ConstructivePolicy
+from tensordict import TensorDict
 
 
 class HRLModule(pl.LightningModule):

@@ -11,10 +11,9 @@ import random as py_random
 from typing import List, Union
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
+from tensordict import TensorDict
 
 from .local_search import (
     vectorized_relocate,

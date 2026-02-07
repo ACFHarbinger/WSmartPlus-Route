@@ -168,7 +168,6 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
             List[int]: The refined tour after applying the local search operator.
         """
         import torch
-
         from logic.src.models.policies.classical.local_search import (
             vectorized_relocate,
             vectorized_swap,
@@ -242,7 +241,6 @@ class RandomLocalSearchPostProcessor(IPostProcessor):
             List[int]: The refined tour.
         """
         import torch
-
         from logic.src.models.policies.classical.local_search import (
             vectorized_relocate,
             vectorized_swap,
@@ -461,7 +459,6 @@ class IteratedLocalSearchPostProcessor(IPostProcessor):
         import random
 
         import torch
-
         from logic.src.models.policies.classical.local_search import (
             vectorized_relocate,
             vectorized_swap,

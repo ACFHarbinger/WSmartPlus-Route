@@ -13,11 +13,10 @@ from typing import Any, Optional, cast
 
 import torch
 import torch.nn as nn
-from tensordict import TensorDict
-
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.policies.base import ConstructivePolicy
 from logic.src.pipeline.rl.common.base import RL4COLitModule
+from tensordict import TensorDict
 
 
 class A2C(RL4COLitModule):

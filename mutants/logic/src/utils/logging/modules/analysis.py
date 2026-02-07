@@ -9,10 +9,9 @@ import threading
 from collections import Counter
 from typing import Any, Dict, List, Optional, Tuple, cast
 
-from loguru import logger
-
 import logic.src.constants as udef
 from logic.src.utils.io.files import compose_dirpath, read_json
+from loguru import logger
 
 
 @compose_dirpath

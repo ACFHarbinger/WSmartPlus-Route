@@ -8,8 +8,6 @@ from __future__ import annotations
 from typing import Any
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 from logic.src.pipeline.rl.core.losses import (
     js_divergence_loss,
@@ -19,6 +17,7 @@ from logic.src.pipeline.rl.core.losses import (
     weighted_nll_loss,
 )
 from logic.src.utils.data.rl_utils import safe_td_copy
+from tensordict import TensorDict
 
 
 class ImitationLearning(RL4COLitModule):

@@ -6,9 +6,8 @@ import math
 from typing import Callable, List, Optional, Union
 
 import torch
-from tensordict import TensorDict
-
 from logic.src.utils.logging.pylogger import get_pylogger
+from tensordict import TensorDict
 
 log = get_pylogger(__name__)
 
