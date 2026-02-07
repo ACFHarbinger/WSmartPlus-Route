@@ -5,10 +5,11 @@ Implements a multi-vehicle routing policy (CVRP) that visits a specific set of b
 Agnostic to how the targets were selected.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.configs.policies import CVRPConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.multi_vehicle import find_routes
 
@@ -22,6 +23,14 @@ class CVRPPolicy(BaseRoutingPolicy):
 
     Visits provided 'must_go' bins using multiple vehicles.
     """
+
+    def __init__(self, config: Optional[CVRPConfig] = None):
+        """Initialize CVRP policy with optional config.
+
+        Args:
+            config: Optional CVRPConfig dataclass with solver parameters.
+        """
+        super().__init__(config)
 
     def _get_config_key(self) -> str:
         """Return config key for CVRP."""

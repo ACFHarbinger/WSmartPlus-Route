@@ -13,7 +13,7 @@ import warnings
 import torch.nn as nn
 
 # Re-export the canonical CriticNetwork and factory
-from logic.src.models.policies.critic import CriticNetwork, create_critic_from_actor  # noqa: F401
+from logic.src.models.critic_network.policy import CriticNetwork, create_critic_from_actor  # noqa: F401
 from logic.src.models.subnets.embeddings import VRPPContextEmbedder, WCContextEmbedder
 from logic.src.models.subnets.modules import ActivationFunction
 
