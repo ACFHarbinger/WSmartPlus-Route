@@ -26,6 +26,7 @@ from typing import Any, cast
 import hydra
 from gui.src.app import run_app_gui
 from hydra.core.config_store import ConfigStore
+from logic.benchmark.benchmark_suite import run_benchmarks
 from logic.src.cli import parse_params
 from logic.src.configs import Config
 from logic.src.file_system import (
@@ -188,6 +189,8 @@ def main(args) -> None:
             pretty_print_args(comm, opts, inner_comm)
             if comm == "gui":
                 exit_code = run_app_gui(opts)
+            elif comm == "benchmark":
+                run_benchmarks(opts)
             else:
                 assert comm == "test_suite"
                 run_test_suite(opts)
