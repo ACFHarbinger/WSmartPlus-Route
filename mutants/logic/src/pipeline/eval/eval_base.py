@@ -7,18 +7,20 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
+import torch
 from torch.utils.data import DataLoader
 
 
 class EvalBase(ABC):
     """Base class for evaluation strategies."""
 
-    def __init__(self, env: Any, progress: bool = True, **kwargs):
+    def __init__(self, env: Any, progress: bool = True, device: str | torch.device = "cpu", **kwargs):
         self.env = env
         self.progress = progress
+        self.device = device
 
     @abstractmethod
-    def __call__(self, policy: Any, data_loader: DataLoader, **kwargs) -> Dict[str, float]:
+    def __call__(self, policy: Any, data_loader: DataLoader, return_results: bool = False, **kwargs) -> Dict[str, Any]:
         """
         Evaluate policy on dataset.
 

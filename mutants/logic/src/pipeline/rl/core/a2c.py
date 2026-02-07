@@ -14,7 +14,7 @@ from typing import Any, Optional, cast
 import torch
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.base import ConstructivePolicy
+from logic.src.models.policies.common.constructive import ConstructivePolicy
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 from tensordict import TensorDict
 

@@ -5,23 +5,23 @@ Uses a neural model for construction and a heuristic for refinement.
 
 from __future__ import annotations
 
-from typing import Union
+from typing import Any, Dict, Union
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.base import ConstructivePolicy
 from logic.src.models.policies.classical.alns import VectorizedALNS
 from logic.src.models.policies.classical.hgs import VectorizedHGS
+from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
 from tensordict import TensorDict
 
 
-class NeuralHeuristicHybrid(ConstructivePolicy):
+class NeuralHeuristicHybrid(AutoregressivePolicy):
     """
     Hybrid policy combining neural construction and heuristic refinement.
     """
 
     def __init__(
         self,
-        neural_policy: ConstructivePolicy,
+        neural_policy: AutoregressivePolicy,
         heuristic_policy: Union[VectorizedALNS, VectorizedHGS],
         **kwargs,
     ):
@@ -37,7 +37,7 @@ class NeuralHeuristicHybrid(ConstructivePolicy):
         decode_type: str = "greedy",
         num_starts: int = 1,
         **kwargs,
-    ) -> dict:
+    ) -> Dict[str, Any]:
         """
         Solve instances using neural construction followed by heuristic refinement.
         """

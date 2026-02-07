@@ -45,22 +45,13 @@ class EnvContext(nn.Module):
 
     def _cur_node_embedding(self, embeddings: torch.Tensor, td: Any) -> torch.Tensor:
         """Get embedding of current node."""
-        # Default implementation: gather embedding of current node
-        # Assumes td has 'current_node' index
-        # [batch, 1]
         cur_node = td["current_node"]
-        # [batch, 1, embed_dim]
-        # Gather from embeddings [batch, num_loc, embed_dim]
-        # Need to handle case where current_node is not valid index (e.g. 0 at start if 0 is depot)
-
-        # rl4co uses gather_by_index
         batch_size = embeddings.size(0)
-        # Expand index: [batch, 1] -> [batch, 1, embed_dim]
-        # Use simple gather for now
-        # Note: current_node shape might be [batch] or [batch, 1]
+
         if cur_node.dim() == 1:
             cur_node = cur_node.unsqueeze(-1)
 
+        # [batch, 1, embed_dim]
         cur_node_model = torch.gather(embeddings, 1, cur_node.unsqueeze(-1).expand(batch_size, 1, self.embed_dim))
         return cur_node_model
 
@@ -70,27 +61,59 @@ class EnvContext(nn.Module):
 
 
 class VRPPContext(EnvContext):
-    """Context embedding for VRPP."""
+    """
+    Context embedding for VRPP.
+    Projects remaining capacity / current load.
+    """
 
     def __init__(self, embed_dim: int):
         super().__init__(embed_dim, step_context_dim=1)
-        # Context: remaining capacity (1 dim)
 
     def _state_embedding(self, embeddings: torch.Tensor, td: Any) -> torch.Tensor:
-        # VRPP state context typically includes remaining capacity
-        # capacity: [batch, 1] or [batch]
-        subcl = td.get("current_load", None)
-        if subcl is None:
-            # Try other key conventions? VRPP usually tracks load or capacity
-            # For now assume 'current_load' exists or 'used_capacity'
+        # Check standard keys for capacity/load using keys() safely
+        keys = td.keys()
+        if "remaining_capacity" in keys:
+            # Normalize? Usually assumes normalized env input or raw projection
+            # [batch, 1]
+            feat = td["remaining_capacity"]
+        elif "current_load" in keys:
+            feat = td["current_load"]
+        else:
+            # Fallback
             return torch.zeros(embeddings.size(0), 1, self.embed_dim, device=embeddings.device)
 
-        if subcl.dim() == 1:
-            subcl = subcl.unsqueeze(-1)
+        if feat.dim() == 1:
+            feat = feat.unsqueeze(-1)
 
-        out = self.project_context(subcl)
-        # out is [batch, embed_dim] (if input was [batch, 1])
-        # We need [batch, 1, embed_dim]
+        out = self.project_context(feat)
         if out.dim() == 2:
             out = out.unsqueeze(1)
         return out
+
+
+class CVRPContext(VRPPContext):
+    """
+    Context embedding for CVRP.
+    Same logic as VRPP (capacity context).
+    """
+
+    pass
+
+
+class WCVRPContext(VRPPContext):
+    """
+    Context embedding for WCVRP.
+    Same logic as VRPP (capacity context).
+    """
+
+    pass
+
+
+class SWCVRPContext(WCVRPContext):
+    """
+    Context embedding for SWCVRP (Stochastic WCVRP).
+    Currently shares WCVRP context (capacity-based).
+    Can be extended to include belief state / variance embeddings.
+    """
+
+    pass

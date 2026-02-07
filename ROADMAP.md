@@ -393,10 +393,10 @@ _Port the remaining constructive autoregressive neural architectures._
 
 Required for ATSP and FFSP. Uses matrix-based encoding instead of coordinate-based.
 
-- [ ] `MatNetEncoder` -- mixed-score attention with cross-product of row/column embeddings
-- [ ] `MatNetDecoder` -- autoregressive decoder with ATSP-specific masking
-- [ ] `MatNetPolicy` with environment-specific configurations
-- [ ] `MatNetInitEmbedding` for cost matrix initialization
+- [x] `MatNetEncoder` -- mixed-score attention with cross-product of row/column embeddings
+- [x] `MatNetDecoder` -- autoregressive decoder with matrix-context awareness
+- [x] `MatNetPolicy` with environment-specific configurations
+- [x] `MatNetInitEmbedding` for cost matrix initialization
 
 **rl4co reference**: `rl4co/models/zoo/matnet/`
 
@@ -469,10 +469,10 @@ _Port the NAR paradigm (heatmap prediction + construction)._
 
 **Target**: `logic/src/models/policies/`
 
-- [ ] `NonAutoregressiveEncoder` base class
-- [ ] `NonAutoregressiveDecoder` base class
-- [ ] `NonAutoregressivePolicy` base class with heatmap generation + solution construction
-- [ ] Integration with existing `DecodingStrategy`
+- [x] `NonAutoregressiveEncoder` base class
+- [x] `NonAutoregressiveDecoder` base class
+- [x] `NonAutoregressivePolicy` base class with heatmap generation + solution construction
+- [x] Integration with existing `DecodingStrategy`
 
 **rl4co reference**: `rl4co/models/common/constructive/nonautoregressive/`
 
@@ -484,11 +484,11 @@ _Port the NAR paradigm (heatmap prediction + construction)._
 
 Neural heatmap prediction + ant colony construction. This complements WSmart-Route's existing `k_sparse_aco.py` and `hyper_aco.py`.
 
-- [ ] `DeepACOPolicy` -- heatmap-guided ant colony
-- [ ] `DeepACO` model (REINFORCE + local search)
-- [ ] Integration with existing ACO utilities (`aco_aux/`)
-- [ ] Support for 2-opt local search post-processing
-- [ ] Unit tests
+- [x] `DeepACOPolicy` -- heatmap-guided ant colony
+- [x] `DeepACO` model (REINFORCE + local search)
+- [x] Integration with existing ACO utilities (`aco_aux/`)
+- [x] Support for 2-opt local search post-processing
+- [x] Unit tests
 
 **rl4co reference**: `rl4co/models/zoo/deepaco/`
 
@@ -729,6 +729,7 @@ Phases 3-7 (docs, types, architecture, deps, tooling) can proceed in parallel wi
 - ✅ Standardized `AugmentationEval` and `MultiStartEval` nomenclature
 - ✅ Verified all core components with comprehensive unit tests
 - ✅ Verified Phase 8 components with comprehensive unit tests
+- ✅ Phase 9.1: MatNet Architecture Refinement completed (InitEmbedding, MixedScoreMHA, Policy, Decoder)
 
 ### 2026-01-24
 
