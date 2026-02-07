@@ -479,24 +479,29 @@ Neural heatmap prediction + ant colony construction. This complements WSmart-Rou
 
 ---
 
-### 10.3 GFACS (GFlowNet Ant Colony System) 📋
+### 10.3 GFACS (GFlowNet Ant Colony System) ✅
 
 **Target**: `logic/src/models/gfacs/`
 
-- [ ] `GFACSEncoder` -- GFlowNet-based heatmap encoder
-- [ ] `GFACSPolicy` with trajectory balance loss
-- [ ] `GFACS` model
-- [ ] Unit tests
+- [x] `GFACSEncoder` -- GFlowNet-based heatmap encoder
+- [x] `GFACSPolicy` with trajectory balance loss
+- [x] `GFACS` model
+- [ ] Unit tests (infrastructure fixes needed)
 
 **rl4co reference**: `rl4co/models/zoo/gfacs/`
 
 ---
 
-### 10.4 NARGNNPolicy 📋
+### 10.4 NARGNNPolicy ✅
 
 **Target**: `logic/src/models/nargnn/`
 
 Generic GNN-based non-autoregressive heatmap policy.
+
+- [x] `NARGNNEncoder` -- GNN-based edge heatmap generator
+- [x] `EdgeHeatmapGenerator` -- MLP for edge embeddings
+- [x] `NARGNNPolicy` -- NAR policy wrapper
+- [ ] Unit tests (infrastructure fixes needed)
 
 - [ ] `NARGNNEncoder` -- GCN/GNN-based edge heatmap predictor
 - [ ] `NARGNNPolicy`

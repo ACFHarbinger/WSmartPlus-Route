@@ -13,8 +13,8 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.embeddings import get_init_embedding
 from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
-from logic.src.models.subnets.mdam_decoder import MDAMDecoder
-from logic.src.models.subnets.mdam_encoder import MDAMGraphAttentionEncoder
+from logic.src.models.subnets.decoders.mdam_decoder import MDAMDecoder
+from logic.src.models.subnets.encoders.mdam_encoder import MDAMGraphAttentionEncoder
 
 
 class MDAMPolicy(AutoregressivePolicy):
@@ -81,7 +81,8 @@ class MDAMPolicy(AutoregressivePolicy):
                 **decoder_kwargs,
             )
 
-        super().__init__(env_name=env_name, encoder=encoder, decoder=decoder)
+        # MDAMDecoder doesn't inherit from AutoregressiveDecoder, but has compatible interface
+        super().__init__(env_name=env_name, encoder=encoder, decoder=decoder)  # type: ignore[arg-type]
 
         self.embed_dim = embed_dim
         self.env_name = env_name
@@ -124,16 +125,16 @@ class MDAMPolicy(AutoregressivePolicy):
         # Initial embeddings
         embedding = self.init_embedding(td)
 
-        # Encode inputs
-        encoded_inputs, graph_embed, attn, V, h_old = self.encoder(td, x=embedding)
+        # Encode inputs (encoder is guaranteed to be MDAMGraphAttentionEncoder)
+        encoded_inputs, graph_embed, attn, V, h_old = self.encoder(td, x=embedding)  # type: ignore[misc]
 
         # Determine decode type based on phase
         # decode_type = decoder_kwargs.pop("decode_type", None) # Removed as decode_type is now a direct arg
         # if decode_type is None: # Removed as decode_type is now a direct arg
         #     decode_type = getattr(self, f"{phase}_decode_type") # Removed as decode_type is now a direct arg
 
-        # Decode via multi-path decoder
-        log_p, actions, reward, kl_divergence = self.decoder(
+        # Decode via multi-path decoder (decoder is guaranteed to be MDAMDecoder)
+        log_p, actions, reward, kl_divergence = self.decoder(  # type: ignore[misc]
             td,
             (encoded_inputs, graph_embed, attn, V, h_old),
             env,
