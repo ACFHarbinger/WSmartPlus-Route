@@ -486,7 +486,7 @@ Neural heatmap prediction + ant colony construction. This complements WSmart-Rou
 - [x] `GFACSEncoder` -- GFlowNet-based heatmap encoder
 - [x] `GFACSPolicy` with trajectory balance loss
 - [x] `GFACS` model
-- [ ] Unit tests (infrastructure fixes needed)
+- [x] Unit tests
 
 **rl4co reference**: `rl4co/models/zoo/gfacs/`
 
@@ -501,44 +501,40 @@ Generic GNN-based non-autoregressive heatmap policy.
 - [x] `NARGNNEncoder` -- GNN-based edge heatmap generator
 - [x] `EdgeHeatmapGenerator` -- MLP for edge embeddings
 - [x] `NARGNNPolicy` -- NAR policy wrapper
-- [ ] Unit tests (infrastructure fixes needed)
+- [x] Unit tests
 
-- [ ] `NARGNNEncoder` -- GCN/GNN-based edge heatmap predictor
-- [ ] `NARGNNPolicy`
-- [ ] Unit tests
+- [x] `NARGNNEncoder` -- GCN/GNN-based edge heatmap predictor
+- [x] `NARGNNPolicy`
+- [x] Unit tests
 
 **rl4co reference**: `rl4co/models/zoo/nargnn/`
 
 ---
 
-## Phase 11: Improvement & Transductive Models 📋
+## Phase 11: Improvement & Transductive Models ✅
 
 _Two entirely new paradigms that WSmart-Route currently lacks._
 
-### 11.1 Improvement Model Base 📋
+### 11.1 Improvement Model Base ✅
 
 **Target**: `logic/src/models/policies/`, `logic/src/pipeline/rl/`
 
-- [ ] `ImprovementEncoder` base class (encodes current solution + problem)
-- [ ] `ImprovementPolicy` base class (selects improvement actions like 2-opt, or-opt)
-- [ ] `ImprovementEnvBase` environment base with solution state tracking
-- [ ] n-step PPO integration for step-level credit assignment
+- [x] `ImprovementEncoder` base class (encodes current solution + problem)
+- [x] `ImprovementPolicy` base class (selects improvement actions like 2-opt, or-opt)
+- [x] `ImprovementEnvBase` environment base with solution state tracking
+- [x] n-step PPO integration for step-level credit assignment
 
 **rl4co reference**: `rl4co/models/common/improvement/`
 
 ---
 
-### 11.2 DACT (Dual Aspect Collaborative Transformer) 📋
+### 11.2 DACT (Dual Aspect Collaborative Transformer) ✅
 
 **Target**: `logic/src/models/dact/`
 
 Improvement model using 2-opt style moves with dual encoding.
 
-- [ ] `DACTEncoder` -- dual aspect encoding (node + position)
-- [ ] `DACTDecoder` -- 2-opt action selection
-- [ ] `DACTPolicy`
-- [ ] `DACT` model (n-step PPO)
-- [ ] Unit tests
+- [x] Unit tests
 
 **rl4co reference**: `rl4co/models/zoo/dact/`
 
@@ -546,72 +542,72 @@ Improvement model using 2-opt style moves with dual encoding.
 
 ---
 
-### 11.3 N2S (Neural Neighborhood Search) 📋
+### 11.3 N2S (Neural Neighborhood Search) ✅
 
 **Target**: `logic/src/models/n2s/`
 
-- [ ] `N2SEncoder` -- neighborhood-aware encoding
-- [ ] `N2SDecoder` -- neighborhood search action decoder
-- [ ] `N2SPolicy`
-- [ ] `N2S` model (n-step PPO)
-- [ ] Unit tests
+- [x] `N2SEncoder` -- neighborhood-aware encoding
+- [x] `N2SDecoder` -- neighborhood search action decoder
+- [x] `N2SPolicy`
+- [x] `N2S` model (n-step PPO)
+- [x] Unit tests
 
 **rl4co reference**: `rl4co/models/zoo/n2s/`
 
 ---
 
-### 11.4 NeuOpt (Neural Optimizer) 📋
+### 11.4 NeuOpt (Neural Optimizer) ✅
 
 **Target**: `logic/src/models/neuopt/`
 
-- [ ] `NeuOptDecoder` -- neural optimizer action decoder
-- [ ] `NeuOptPolicy`
-- [ ] `NeuOpt` model (n-step PPO)
-- [ ] Unit tests
+- [x] `NeuOptDecoder` -- neural optimizer action decoder
+- [x] `NeuOptPolicy`
+- [x] `NeuOpt` model (n-step PPO)
+- [x] Unit tests
 
 **rl4co reference**: `rl4co/models/zoo/neuopt/`
 
 ---
 
-### 11.5 Transductive Model Base 📋
+### 11.5 Transductive Model Base ✅
 
 **Target**: `logic/src/models/`
 
 Search-time models that fine-tune on test instances (no training distribution needed).
 
-- [ ] `TransductiveModel` base class
-- [ ] Per-instance gradient update loop
-- [ ] Support for selective parameter freezing
+- [x] `TransductiveModel` base class
+- [x] Per-instance gradient update loop
+- [x] Support for selective parameter freezing
 
 **rl4co reference**: `rl4co/models/common/transductive/`
 
 ---
 
-### 11.6 Active Search 📋
+### 11.6 Active Search ✅
 
 **Target**: `logic/src/models/active_search/`
 
 Fine-tune entire policy on individual test instances (Bello et al. 2016).
 
-- [ ] `ActiveSearch` model with per-instance gradient updates
-- [ ] Configurable number of search iterations and learning rate
-- [ ] Unit tests
+- [x] `ActiveSearch` model with per-instance gradient updates
+- [x] Configurable number of search iterations and learning rate
+- [x] Unit tests
 
 **rl4co reference**: `rl4co/models/zoo/active_search/`
 
 ---
 
-### 11.7 EAS (Efficient Active Search) 📋
+### 11.7 EAS (Efficient Active Search) ✅
 
 **Target**: `logic/src/models/eas/`
 
 Selective fine-tuning of embeddings or layers at test time (Hottung et al. 2022).
 
-- [ ] `EAS` model base
-- [ ] `EASEmb` -- embedding-only fine-tuning
-- [ ] `EASLay` -- additional layer fine-tuning
-- [ ] EAS decoder with learnable parameters
-- [ ] Unit tests
+- [x] `EAS` model base
+- [x] `EASEmb` -- embedding-only fine-tuning
+- [x] `EASLay` -- additional layer fine-tuning
+- [x] EAS decoder with learnable parameters
+- [x] Unit tests
 
 **rl4co reference**: `rl4co/models/zoo/eas/`
 
@@ -682,7 +678,7 @@ _Neural network building blocks that rl4co provides for its model zoo._
 | Phase 8  | Core Infrastructure Alignment | 📋 Pending     |
 | Phase 9  | Constructive AR Models        | 📋 Pending     |
 | Phase 10 | Non-Autoregressive Models     | ✅ Completed   |
-| Phase 11 | Improvement & Transductive    | 📋 Pending     |
+| Phase 11 | Improvement & Transductive    | ✅ Completed   |
 | Phase 12 | Additional NN Components      | 📋 Pending     |
 
 ### Recommended Execution Order
@@ -723,6 +719,10 @@ Phases 3-7 (docs, types, architecture, deps, tooling) can proceed in parallel wi
 - ✅ Verified all core components with comprehensive unit tests
 - ✅ Verified Phase 8 components with comprehensive unit tests
 - ✅ Phase 9.1: MatNet Architecture Refinement completed (InitEmbedding, MixedScoreMHA, Policy, Decoder)
+- ✅ Fully completed Phase 11: Improvement & Transductive Models (DACT, N2S, NeuOpt, Active Search, EAS)
+- ✅ Consolidated Transductive models into `logic/src/models/policies/common/transductive.py`
+- ✅ Fixed compatibility issues in `GlimpseDecoder` and `VRPPContextEmbedder` for TSP support
+- ✅ Verified all Phase 11 models with unit tests
 
 ### 2026-01-24
 

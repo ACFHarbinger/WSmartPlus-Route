@@ -40,7 +40,7 @@ from logic.src.models.context_embedder import (
 from logic.src.models.model_factory import NeuralComponentFactory
 from logic.src.utils.functions.beam_search import CachedLookup
 from logic.src.utils.functions.function import sample_many
-from logic.src.utils.functions.problem import is_vrpp_problem, is_wc_problem
+from logic.src.utils.functions.problem import is_tsp_problem, is_vrpp_problem, is_wc_problem
 
 
 class AttentionModel(nn.Module):
@@ -211,10 +211,14 @@ class AttentionModel(nn.Module):
         # Problem type detection
         self.is_wc = is_wc_problem(problem)
         self.is_vrpp = is_vrpp_problem(problem)
+        self.is_tsp = is_tsp_problem(problem)
 
     def _init_context_embedder(self, temporal_horizon: int) -> int:
         """Initialize the context embedder strategy."""
         node_dim = NODE_DIM  # Coordinate (2) + Demand/Value (1)
+        if self.is_tsp:
+            node_dim = 2
+
         if self.is_wc:
             self.context_embedder: ContextEmbedder = WCContextEmbedder(
                 self.embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
