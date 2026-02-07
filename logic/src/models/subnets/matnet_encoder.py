@@ -5,7 +5,7 @@ from typing import Optional
 import torch
 import torch.nn as nn
 
-from logic.src.models.modules.matnet_mha import MixedScoreMHA
+from logic.src.models.modules.multi_head_attention_matnet import MixedScoreMHA
 from logic.src.models.modules.normalization import Normalization
 
 

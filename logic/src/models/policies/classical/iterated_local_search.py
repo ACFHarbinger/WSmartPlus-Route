@@ -14,7 +14,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.common.autoregressive import AutoregressivePolicy
+from logic.src.models.policies.common.improvement import ImprovementPolicy
 
 from .local_search import (
     vectorized_relocate,
@@ -27,7 +27,7 @@ from .local_search import (
 from .split import vectorized_linear_split
 
 
-class IteratedLocalSearchPolicy(AutoregressivePolicy):
+class IteratedLocalSearchPolicy(ImprovementPolicy):
     """
     Iterated Local Search (ILS) expert policy.
 
@@ -176,6 +176,8 @@ class IteratedLocalSearchPolicy(AutoregressivePolicy):
         env: RL4COEnvBase,
         decode_type: str = "greedy",  # Ignored
         num_starts: int = 1,
+        phase: str = "train",
+        return_actions: bool = True,
         **kwargs,
     ) -> Dict[str, Any]:
         """
