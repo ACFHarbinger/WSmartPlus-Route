@@ -3,7 +3,7 @@ Train Config module.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Any, List, Optional, Union
 
 from ..envs.graph import GraphConfig
 from ..envs.objective import ObjectiveConfig
@@ -65,9 +65,10 @@ class TrainConfig:
     pin_memory: bool = False
     reload_dataloaders_every_n_epochs: int = 1
     devices: Union[int, str] = "auto"
-    training_strategy: Optional[str] = None
+    strategy: Optional[str] = "auto"
 
     graph: GraphConfig = field(default_factory=GraphConfig)
     reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
     decoding: DecodingConfig = field(default_factory=DecodingConfig)
     policy: NeuralConfig = field(default_factory=NeuralConfig)
+    callbacks: Optional[List[Any]] = None

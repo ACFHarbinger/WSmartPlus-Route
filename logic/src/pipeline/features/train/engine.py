@@ -2,7 +2,9 @@
 Training engine for WSmart-Route.
 """
 
+import hydra
 import torch
+from omegaconf import DictConfig
 from pytorch_lightning import seed_everything
 from pytorch_lightning.loggers import CSVLogger
 
@@ -22,6 +24,39 @@ def run_training(cfg: Config) -> float:
 
     model = create_model(cfg)
 
+    # Setup callbacks
+    callbacks = [SpeedMonitor(epoch_time=True)]
+    if cfg.train.callbacks:
+        for cb_cfg in cfg.train.callbacks:
+            if isinstance(cb_cfg, (dict, DictConfig)):
+                # Handle direct target dicts: {_target_: ...}
+                if "_target_" in cb_cfg:
+                    callbacks.append(hydra.utils.instantiate(cb_cfg))
+                # Handle named dicts: {name: {_target_: ...}}
+                else:
+                    for _, actual_cfg in cb_cfg.items():
+                        if isinstance(actual_cfg, (dict, DictConfig)) and "_target_" in actual_cfg:
+                            callbacks.append(hydra.utils.instantiate(actual_cfg))
+            else:
+                # Fallback for other types (e.g. if it's already an object or unhandled type)
+                try:
+                    callbacks.append(hydra.utils.instantiate(cb_cfg))
+                except Exception:
+                    pass
+
+    # DEBUG: Print callbacks
+    print(f"[Engine] Active callbacks: {[type(c).__name__ for c in callbacks]}")
+
+    # Link Progress Bar and Chart if both exist
+    # This is necessary because they are instantiated separately by Hydra
+    progress_bar = next((c for c in callbacks if c.__class__.__name__ == "CleanProgressBar"), None)
+    terminal_chart = next((c for c in callbacks if c.__class__.__name__ == "TerminalChartCallback"), None)
+
+    if progress_bar is not None and terminal_chart is not None:
+        # We know these are the correct types based on the class name check above
+        # avoiding circular imports for type checking here
+        progress_bar.set_chart_callback(terminal_chart)
+
     trainer = WSTrainer(
         max_epochs=cfg.train.n_epochs,
         project_name="wsmart-route",
@@ -31,12 +66,13 @@ def run_training(cfg: Config) -> float:
         strategy=cfg.train.strategy,
         gradient_clip_val=(float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0),
         logger=CSVLogger(cfg.train.logs_dir or "logs", name=""),
-        callbacks=[SpeedMonitor(epoch_time=True)],
+        callbacks=callbacks,
         precision=cfg.train.precision,
         log_every_n_steps=cfg.train.log_step,
         model_weights_path=cfg.train.model_weights_path,
         logs_dir=cfg.train.logs_dir,
         reload_dataloaders_every_n_epochs=cfg.train.reload_dataloaders_every_n_epochs,
+        enable_progress_bar=False,
     )
 
     trainer.fit(model)

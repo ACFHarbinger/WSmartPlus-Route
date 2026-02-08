@@ -105,14 +105,21 @@ class HGSALNSSolver(HGSSolver):
 
                     # Reconstruct giant tour from ALNS routes to maintain HGS consistency
                     new_gt = []
+                    visited_nodes = set()
                     for r in new_routes:
                         new_gt.extend(r)
+                        visited_nodes.update(r)
+
+                    unvisited = [n for n in self.nodes if n not in visited_nodes]
+                    new_gt.extend(unvisited)
                     child.giant_tour = new_gt
                 else:
                     # Fallback to standard local search if split failed to produce routes
                     child = self.ls.optimize(child)
+                    evaluate(child, self.split_manager)
+            else:
+                evaluate(child, self.split_manager)
 
-            evaluate(child, self.split_manager)
             population.append(child)
 
             # 4. Survivor Selection

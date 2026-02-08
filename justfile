@@ -1,11 +1,25 @@
 # WSmart-Route Justfile
+
+red := '\033[0;31m'
+green := '\033[0;32m'
+yellow := '\033[0;33m'
+blue := '\033[0;34m'
+purple := '\033[0;35m'
+cyan := '\033[0;36m'
+bold := '\033[1m'
+reset := '\033[0m'
+
 # Default variables (can be overridden: just train problem=wcvrp)
 
-problem := "vrpp"
+problem := "cvrpp"
 model := "am"
+encoder := "gat"
+decoder := "glimpse"
 size := "50"
 area := "riomaior"
 epochs := "100"
+batch_size := "64"
+temporal_horizon := "0"
 days := "31"
 seed := "42"
 marker := "fast"
@@ -21,10 +35,31 @@ install:
     uv pip install -r requirements.txt || uv pip install -e .
 
 # --- Primary Execution ---
+# --- Training Recipe ---
 
-# Run model training (using new Lightning pipeline)
-train problem=problem model=model size=size epochs=epochs:
-    uv run python main.py train_lightning model.name={{ model }} env.name={{ problem }} env.num_loc={{ size }} train.n_epochs={{ epochs }}
+# Usage: just train problem=tsp model=ptr size=100
+train problem=problem model=model size=size epochs=epochs encoder=encoder batch_size=batch_size:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🚀 STARTING HYDRA TRAINING SESSION"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Model:" "{{ model }} ({{ encoder }})"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Graph Size:" "{{ size }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Epochs:" "{{ epochs }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Batch Size:" "{{ batch_size }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+
+    export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" && \
+    uv run python main.py train \
+        envs={{ problem }} \
+        model={{ model }} \
+        model.encoder.type={{ encoder }} \
+        env.graph.num_loc={{ size }} \
+        env.graph.area={{ area }} \
+        hpo.n_trials=0 \
+        train.n_epochs={{ epochs }} \
+        train.batch_size={{ batch_size }}
 
 # Run model evaluation
 eval:

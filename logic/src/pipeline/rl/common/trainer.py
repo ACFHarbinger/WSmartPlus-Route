@@ -16,6 +16,10 @@ from pytorch_lightning.callbacks import (
 )
 from pytorch_lightning.loggers import Logger, WandbLogger
 
+from logic.src.pipeline.callbacks import (
+    TrainingDisplayCallback,
+)
+
 
 class WSTrainer(pl.Trainer):
     """
@@ -105,6 +109,13 @@ class WSTrainer(pl.Trainer):
         callbacks = callbacks or []
         callbacks = self._add_default_callbacks(callbacks, enable_progress_bar, model_weights_path, logger)
 
+        # Check if a custom progress bar callback exists
+        # If we have a custom progress bar, we must enable Lightning's progress bar system
+        # (Lightning will use the custom bar, not add its default)
+        # If we don't have one, use the user's preference
+        has_custom_progress_bar = any(isinstance(c, RichProgressBar) for c in callbacks)
+        lightning_enable_progress_bar = has_custom_progress_bar or enable_progress_bar
+
         super().__init__(
             max_epochs=max_epochs,
             accelerator=accelerator,
@@ -117,6 +128,7 @@ class WSTrainer(pl.Trainer):
             precision=precision,
             strategy=strategy,
             reload_dataloaders_every_n_epochs=reload_dataloaders_every_n_epochs,
+            enable_progress_bar=lightning_enable_progress_bar,
             **kwargs,
         )
 
@@ -153,9 +165,19 @@ class WSTrainer(pl.Trainer):
                 )
             )
 
-        # Add progress bar
-        if enable_progress_bar and RichProgressBar not in callback_types:
-            callbacks.append(RichProgressBar())
+        # Handle progress bar and chart callbacks
+        if enable_progress_bar:
+            # Find if TrainingDisplayCallback exist
+            display_callback = None
+
+            for callback in callbacks:
+                if isinstance(callback, TrainingDisplayCallback):
+                    display_callback = callback
+                    break
+
+            # If the new unified callback is not present, add it
+            if display_callback is None:
+                callbacks.append(TrainingDisplayCallback())
 
         return callbacks
 

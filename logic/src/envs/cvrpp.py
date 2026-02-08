@@ -109,6 +109,10 @@ class CVRPPEnv(VRPPEnv):
         must_go = td.get("must_go", None)
 
         if must_go is not None:
+            # Handle dimension mismatch (if must_go excludes depot)
+            if must_go.size(-1) == mask.size(-1) - 1:
+                must_go = torch.cat([torch.zeros_like(must_go[:, :1], dtype=torch.bool), must_go], dim=1)
+
             # Pending must-go bins: must_go AND not yet visited AND within capacity
             pending_must_go = must_go & mask
 

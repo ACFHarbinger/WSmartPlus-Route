@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Any
 
 import torch
+from joblib import Parallel, delayed, parallel_backend
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
@@ -63,7 +64,7 @@ class VectorizedHGSALNS(VectorizedHGS):
             demands_dict = demands
 
         params = HGSParams(
-            time_limit=int(self.time_limit),
+            time_limit=float(self.time_limit),
             population_size=self.population_size,
             elite_size=self.elite_size,
             max_vehicles=self.max_vehicles,
@@ -118,19 +119,22 @@ class VectorizedHGSALNS(VectorizedHGS):
         R = getattr(env, "waste_weight", 1.0)
         C = getattr(env, "cost_weight", 1.0)
 
-        from joblib import Parallel, delayed
-
         # Solve the batch in parallel
-        results: list[tuple[list[list[int]], float, float]] = Parallel(n_jobs=-1)(
-            delayed(self.solve)(
-                dist_matrix=dist_matrix[b],
-                demands=waste[b],
-                capacity=capacity[b].item() if isinstance(capacity, torch.Tensor) else capacity,
-                R=R,
-                C=C,
+        # Note: We must use 'multiprocessing' backend as requested, but limit concurrency
+        # to prevent UI freeze (Rich needs cycles) and system starvation.
+        # Spawning too many processes (n_jobs=-1) inside DataLoader workers causes deadlock/freeze.
+        n_jobs = min(8, batch_size)
+        with parallel_backend("multiprocessing"):
+            results: list[tuple[list[list[int]], float, float]] = Parallel(n_jobs=n_jobs)(
+                delayed(self.solve)(
+                    dist_matrix=dist_matrix[b],
+                    demands=waste[b],
+                    capacity=capacity[b].item() if isinstance(capacity, torch.Tensor) else capacity,
+                    R=R,
+                    C=C,
+                )
+                for b in range(batch_size)
             )
-            for b in range(batch_size)
-        )
 
         all_actions = []
         all_rewards = []
