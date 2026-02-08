@@ -150,6 +150,7 @@ class AttentionModelPolicy(AutoregressivePolicy):
             "log_likelihood": log_likelihood,
             "actions": actions_tensor,
             "entropy": entropy,
+            "td": td,
         }
 
         if kwargs.get("return_init_embeds", False):

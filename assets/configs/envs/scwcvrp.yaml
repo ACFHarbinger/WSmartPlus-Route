@@ -17,30 +17,31 @@
 # =============================================================================
 
 env:
-  name: "scwcvrp"  # Environment identifier
-  num_loc: 50  # Number of bins. Standard sizes: 20, 50, 100
-  area: "riomaior"  # Geographic area. Options: riomaior, manhattan, random
-  waste_type: "plastic"  # Waste category. Options: plastic, glass, paper, organic
+  name: "scwcvrp" # Environment identifier
+  num_loc: 50 # Number of bins. Standard sizes: 20, 50, 100
+  area: "riomaior" # Geographic area. Options: riomaior, manhattan, random
+  waste_type: "plastic" # Waste category. Options: plastic, glass, paper, organic
 
   # =============================================================================
   # Stochasticity Parameters
   # =============================================================================
-  stochastic: true  # Enable stochastic waste generation
-  variance: 0.1  # Fill rate variance (coefficient of variation).
-                 # 0.1 = 10% uncertainty, 0.2 = 20% uncertainty
+  stochastic: true # Enable stochastic waste generation
+  variance:
+    0.1 # Fill rate variance (coefficient of variation).
+    # 0.1 = 10% uncertainty, 0.2 = 20% uncertainty
 
   # =============================================================================
   # Graph Construction
   # =============================================================================
-  distance_method: "gmaps"  # Distance calculation. Options: gmaps, osm, euclidean, manhattan
-  vertex_method: "mmn"  # Vertex placement. Options: mmn (map-matched), grid, random
-  edge_threshold: 1.0  # Max edge distance for connectivity (km)
-  edge_method: "knn"  # Edge construction. Options: knn, radius, delaunay, complete
+  distance_method: "gmaps" # Distance calculation. Options: gmaps, osm, euclidean, manhattan
+  vertex_method: "mmn" # Vertex placement. Options: mmn (map-matched), grid, random
+  edge_threshold: 1.0 # Max edge distance for connectivity (km)
+  edge_method: "knn" # Edge construction. Options: knn, radius, delaunay, complete
 
   # =============================================================================
   # Objective Function Weights
   # =============================================================================
   # Selective collection: bins collected only if profitable or near overflow
-  cost_weight: 1.0  # Distance penalty weight
-  overflow_penalty: 10.0  # Overflow penalty weight (critical - prevents service failures)
-  collection_reward: 10.0  # Collection reward weight
+  cost_weight: 1.0 # Distance penalty weight
+  overflow_penalty: 10.0 # Overflow penalty weight (critical - prevents service failures)
+  waste_weight: 10.0 # Collection reward weight

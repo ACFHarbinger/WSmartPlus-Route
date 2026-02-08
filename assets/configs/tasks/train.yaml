@@ -23,7 +23,7 @@ start: 0 # Starting epoch (for resuming training)
 # Environment
 # =============================================================================
 env:
-  name: "vrpp" # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
+  name: "wcvrp" # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
 
 # =============================================================================
 # Training Settings
@@ -48,7 +48,7 @@ train:
 
   # DataLoader optimization
   persistent_workers: true # Keep workers alive between epochs (faster but more memory)
-  pin_memory: true # Pin memory for faster GPU transfer
+  pin_memory: false # Pin memory for faster GPU transfer
   reload_dataloaders_every_n_epochs: 0 # Reload data every N epochs (0 = never, for dynamic data)
 
 # =============================================================================

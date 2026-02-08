@@ -172,15 +172,18 @@ class GlimpseDecoder(nn.Module):
 
         # Calculate cost
         cost = None
+        final_td = None
         if hasattr(self.problem, "get_costs"):
             out_cost = self.problem.get_costs(nodes, pi, None)
-            # Handle tuple return (cost, mask, etc.)
+            # Handle tuple return (cost, mask, td)
             if isinstance(out_cost, tuple):
                 cost = out_cost[0]
+                if len(out_cost) > 2:
+                    final_td = out_cost[2]
             else:
                 cost = out_cost
 
-        return _log_p, pi, cost
+        return _log_p, pi, cost, final_td
 
     def _select_node(self, probs: torch.Tensor, mask: Optional[torch.Tensor], strategy: str = "greedy"):
         """Selection logic."""

@@ -32,7 +32,7 @@ class SCWCVRPEnv(WCVRPEnv):
         generator: Optional[SCWCVRPGenerator] = None,
         generator_params: Optional[dict] = None,
         overflow_penalty: float = 10.0,
-        collection_reward: float = 1.0,
+        waste_weight: float = 1.0,
         cost_weight: float = 1.0,
         device: Union[str, torch.device] = "cpu",
         **kwargs,
@@ -46,7 +46,7 @@ class SCWCVRPEnv(WCVRPEnv):
             generator=generator,
             generator_params=generator_params,
             overflow_penalty=overflow_penalty,
-            collection_reward=collection_reward,
+            waste_weight=waste_weight,
             cost_weight=cost_weight,
             device=device,
             **kwargs,
@@ -75,23 +75,6 @@ class SCWCVRPEnv(WCVRPEnv):
         real_waste_at_node = td["real_waste"].gather(1, action.unsqueeze(-1)).squeeze(-1)
 
         # Update real waste tracking (internal)
-        # We need to ensure we don't collect more than vehicle capacity
-        # WCVRPEnv base class already handles current_load and current_node update
-        # but it uses 'waste' (which is the noisy version here).
-        # However, for reward we want to know what was *actually* collected.
-
-        # We first call super to get the basic state updates
-        # In legacy logic:
-        # actual_collected = min(real_waste, remaining_capacity)
-        # current_node_wastes -= actual_collected
-
-        # In SCWCVRP, the agent thinks it collects 'waste' (noisy),
-        # but it actually collects based on capacity.
-
-        # In legacy logic:
-        # actual_collected = min(real_waste, remaining_capacity)
-        # current_node_wastes -= actual_collected
-
         remaining_cap = td["capacity"] - td["current_load"]
         actual_collected = torch.min(real_waste_at_node, remaining_cap)
         actual_collected = actual_collected * is_not_depot.float()
@@ -151,5 +134,5 @@ class SCWCVRPEnv(WCVRPEnv):
         td["reward_cost"] = -total_cost
         td["reward_overflow"] = -overflows
 
-        reward = self.collection_reward * collection - self.cost_weight * total_cost - self.overflow_penalty * overflows
+        reward = self.waste_weight * collection - self.cost_weight * total_cost - self.overflow_penalty * overflows
         return reward

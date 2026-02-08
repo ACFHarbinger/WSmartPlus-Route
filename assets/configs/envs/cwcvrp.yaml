@@ -65,7 +65,7 @@ env:
   # =============================================================================
   # Reward / Cost Weights (Objective Function)
   # =============================================================================
-  # Objective: maximize (collection_reward × kg) - (cost_weight × km) - (overflow_penalty × overflows)
+  # Objective: maximize (waste_weight × kg) - (cost_weight × km) - (overflow_penalty × overflows)
 
   reward:
     cost_weight:
@@ -76,6 +76,6 @@ env:
       10.0 # Weight for bin overflow penalty (w_over).
       # Higher = prioritize preventing overflows. Typical range: 10-50.
 
-    collection_reward:
+    waste_weight:
       10.0 # Weight for waste collection reward (w_waste).
       # Higher = prioritize collecting more waste. Typical range: 5-20.

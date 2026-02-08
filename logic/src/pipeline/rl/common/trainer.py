@@ -17,6 +17,7 @@ from pytorch_lightning.callbacks import (
 from pytorch_lightning.loggers import Logger, WandbLogger
 
 from logic.src.pipeline.callbacks import (
+    ModelSummaryCallback,
     TrainingDisplayCallback,
 )
 
@@ -129,6 +130,7 @@ class WSTrainer(pl.Trainer):
             strategy=strategy,
             reload_dataloaders_every_n_epochs=reload_dataloaders_every_n_epochs,
             enable_progress_bar=lightning_enable_progress_bar,
+            enable_model_summary=False,  # Use custom ModelSummaryCallback instead
             **kwargs,
         )
 
@@ -178,6 +180,10 @@ class WSTrainer(pl.Trainer):
             # If the new unified callback is not present, add it
             if display_callback is None:
                 callbacks.append(TrainingDisplayCallback())
+
+        # Add custom model summary callback
+        if ModelSummaryCallback not in callback_types:
+            callbacks.append(ModelSummaryCallback())
 
         return callbacks
 

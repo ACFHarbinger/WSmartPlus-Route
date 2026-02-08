@@ -12,22 +12,24 @@
 # =============================================================================
 
 env:
-  name: "wcvrp"  # Environment identifier
-  num_loc: 50  # Number of bins. Standard sizes: 20, 50, 100
-  area: "riomaior"  # Geographic area. Options: riomaior, manhattan, random
-  waste_type: "plastic"  # Waste category. Options: plastic, glass, paper, organic
+  name: "wcvrp" # Environment identifier
+  num_loc: 50 # Number of bins. Standard sizes: 20, 50, 100
 
   # =============================================================================
   # Graph Construction
   # =============================================================================
-  distance_method: "gmaps"  # Distance calculation. Options: gmaps, osm, euclidean, manhattan
-  vertex_method: "mmn"  # Vertex placement. Options: mmn, grid, random
-  edge_threshold: 1.0  # Max edge distance (km)
-  edge_method: "knn"  # Edge construction. Options: knn, radius, delaunay, complete
+  graph:
+    area: "riomaior" # Geographic area. Options: riomaior, manhattan, random
+    waste_type: "plastic" # Waste category. Options: plastic, glass, paper, organic
+    distance_method: "gmaps" # Distance calculation. Options: gmaps, osm, euclidean, manhattan
+    vertex_method: "mmn" # Vertex placement. Options: mmn, grid, random
+    edge_threshold: 1.0 # Max edge distance (km)
+    edge_method: "knn" # Edge construction. Options: knn, radius, delaunay, complete
 
   # =============================================================================
   # Objective Function Weights
   # =============================================================================
-  cost_weight: 1.0  # Distance penalty weight
-  overflow_penalty: 10.0  # Overflow penalty weight
-  collection_reward: 10.0  # Collection reward weight
+  reward:
+    cost_weight: 1.0 # Distance penalty weight
+    overflow_penalty: 10.0 # Overflow penalty weight
+    waste_weight: 10.0 # Collection reward weight

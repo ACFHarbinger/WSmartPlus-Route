@@ -13,10 +13,8 @@ class ObjectiveConfig:
         cost_weight: Weight for length/distance in cost function.
         waste_weight: Weight for waste collection in cost function.
         overflow_penalty: Penalty factor for overflows.
-        collection_reward: Reward for each collection (if applicable).
     """
 
     cost_weight: float = 1.0
     waste_weight: float = 1.0
     overflow_penalty: float = 1.0
-    collection_reward: float = 1.0
