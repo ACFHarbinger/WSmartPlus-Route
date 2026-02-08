@@ -1,9 +1,14 @@
+"""
+Package containing all functional UI tabs for the WSmart-Route GUI.
+"""
+
 from .analysis import InputAnalysisTab, OutputAnalysisTab
 from .evaluation import (
     EvalDataBatchingTab,
     EvalDecodingTab,
     EvalIOTab,
     EvalProblemTab,
+    EvaluationTab,
 )
 from .file_system import (
     FileSystemCryptographyTab,

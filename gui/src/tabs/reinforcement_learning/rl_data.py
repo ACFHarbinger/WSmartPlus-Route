@@ -1,3 +1,7 @@
+"""
+Dataset and data generation configuration for RL training.
+"""
+
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -30,6 +34,9 @@ class RLDataTab(BaseReinforcementLearningTab):
     """Data parameters for Reinforcement Learning"""
 
     def __init__(self):
+        """
+        Initialize the RLDataTab and setup data generation parameters.
+        """
         super().__init__()
         self.widgets = {}
         # Container for the field widget
@@ -39,6 +46,9 @@ class RLDataTab(BaseReinforcementLearningTab):
         self.init_ui()
 
     def init_ui(self):
+        """
+        Setup the UI components for data parameter configuration.
+        """
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll_widget = QWidget()
@@ -160,7 +170,12 @@ class RLDataTab(BaseReinforcementLearningTab):
             self.data_dist_label.setVisible(is_visible)
 
     def get_params(self):
-        """Returns parameters from the TrainDataTab widgets."""
+        """
+        Collect data parameters from the UI widgets.
+
+        Returns:
+            dict: Dictionary of parameters for reinforcement learning data loading.
+        """
         params = {}
         for key, widget in self.widgets.items():
             value = None

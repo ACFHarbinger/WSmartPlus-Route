@@ -12,6 +12,12 @@ class SimulationDataManager:
     """
 
     def __init__(self, policy_names: List[str]):
+        """
+        Initialize the data manager.
+
+        Args:
+            policy_names: List of policy names involved in the simulation.
+        """
         self.policy_names = policy_names
         self.accumulated_data: Dict[str, Dict[str, List[Any]]] = {}
         self.policy_samples: Dict[str, Set[str]] = {}

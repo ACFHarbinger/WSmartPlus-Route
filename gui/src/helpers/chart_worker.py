@@ -1,3 +1,7 @@
+"""
+Background worker for processing chart and bin state data.
+"""
+
 from PySide6.QtCore import QMutex, QMutexLocker, QObject, Signal, Slot
 
 
@@ -18,6 +22,17 @@ class ChartWorker(QObject):
         data_mutex: QMutex,
         parent=None,
     ):
+        """
+        Initialize ChartWorker.
+
+        Args:
+            daily_data: Dictionary containing scalar metric history.
+            historical_bin_data: Dictionary containing bin state history matrices.
+            latest_bin_data: Dictionary containing latest bin state scalars.
+            metrics_to_plot: List of metric keys to process.
+            data_mutex: Shared mutex for thread-safe data access.
+            parent: Parent QObject.
+        """
         super().__init__(parent)
         self.daily_data = daily_data
         self.historical_bin_data = historical_bin_data

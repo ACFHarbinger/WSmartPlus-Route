@@ -1,3 +1,7 @@
+"""
+Cost function and reward shaping configuration for RL.
+"""
+
 from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFormLayout,
@@ -11,11 +15,17 @@ class RLCostsTab(BaseReinforcementLearningTab):
     """Cost function weights"""
 
     def __init__(self):
+        """
+        Initialize the RLCostsTab and setup the UI.
+        """
         super().__init__()
         self.widgets = {}
         self.init_ui()
 
     def init_ui(self):
+        """
+        Setup the UI components for cost function weight configuration.
+        """
         layout = QFormLayout()
 
         # Waste weight
@@ -69,6 +79,12 @@ class RLCostsTab(BaseReinforcementLearningTab):
         self.setLayout(layout)
 
     def get_params(self):
+        """
+        Collect the cost weight parameters from the UI.
+
+        Returns:
+            dict: Dictionary of weights for different cost components.
+        """
         params = {}
         for key, widget in self.widgets.items():
             if isinstance(widget, QDoubleSpinBox):

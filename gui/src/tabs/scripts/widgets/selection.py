@@ -1,3 +1,7 @@
+"""
+Widget for selecting and browsing scripts to execute.
+"""
+
 import sys
 
 from PySide6.QtCore import QSize, Signal
@@ -28,6 +32,9 @@ class ScriptSelectionWidget(QWidget):
     selectionCleared = Signal()
 
     def __init__(self):
+        """
+        Initialize the selection widget, generating buttons for each available script.
+        """
         super().__init__()
 
         self.SCRIPTS = SCRIPTS
@@ -93,7 +100,13 @@ class ScriptSelectionWidget(QWidget):
         return btn
 
     def _on_script_clicked(self, script_name, checked):
-        """Handle internal button click"""
+        """
+        Internal handler for script button toggles.
+
+        Args:
+            script_name (str): Key of the clicked script.
+            checked (bool): Toggle state.
+        """
         if checked:
             self.selected_script = script_name
             self.scriptSelected.emit(script_name)

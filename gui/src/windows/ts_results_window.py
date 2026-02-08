@@ -33,6 +33,13 @@ class SimulationResultsWindow(QWidget):
     start_chart_processing = Signal(str)
 
     def __init__(self, policy_names, log_path=None):
+        """
+        Initialize the simulation results orchestration window.
+
+        Args:
+            policy_names (list[str]): List of policy identifiers used to track results.
+            log_path (str, optional): Absolute path to the simulation log file to tail.
+        """
         super().__init__()
         self.setWindowTitle("Simulation Results")
         self.setWindowFlags(self.windowFlags() | Qt.Window)
@@ -126,7 +133,13 @@ class SimulationResultsWindow(QWidget):
             self.redraw_summary_chart()
 
     def _update_route_cache(self, key, record):
-        """Keep track of routes for map visualization."""
+        """
+        Update the internal cache of routes for map visualization.
+
+        Args:
+            key (str): The policy/sample identifier.
+            record (dict): Parsed log data containing route information.
+        """
         if "routes" in record:
             if key not in self.historical_routes:
                 self.historical_routes[key] = {}
@@ -134,7 +147,13 @@ class SimulationResultsWindow(QWidget):
 
     @Slot(str, dict)
     def _update_ui_on_data_ready(self, target_key, processed_data):
-        """Update chart canvases with processed data."""
+        """
+        Update the UI components when new processed simulation data is available.
+
+        Args:
+            target_key (str): Identifier for the policy/sample being updated.
+            processed_data (dict): The data to be plotted.
+        """
         # delegation to dashboard_tab or summary_tab based on current key
         # For brevity, assume integration with Matplotlib canvases in the tabs
         self.dashboard_tab.day_combo.clear()
@@ -158,7 +177,11 @@ class SimulationResultsWindow(QWidget):
         pass
 
     def _view_route_on_map(self):
-        """Generate and open Folium map for the selected route."""
+        """
+        Generate a Folium-based HTML map for the selected route and open it in the web browser.
+
+        Uses stored coordinates from the route cache to draw polylines.
+        """
         policy = self.dashboard_tab.policy_combo.currentText()
         sample = self.dashboard_tab.sample_combo.currentText()
         day_str = self.dashboard_tab.day_combo.currentText()

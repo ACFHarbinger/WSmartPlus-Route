@@ -1,3 +1,7 @@
+"""
+Control widgets for Output Analysis dashboard.
+"""
+
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -9,7 +13,14 @@ from PySide6.QtWidgets import (
 
 
 class OutputControlsWidget(QWidget):
+    """
+    Horizontal control bar for loading and configuring output analysis plots.
+    """
+
     def __init__(self, parent=None):
+        """
+        Initialize the control widget and create UI elements (buttons, comboboxes).
+        """
         super().__init__(parent)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

@@ -1,3 +1,7 @@
+"""
+Widget for configuring script-specific parameters.
+"""
+
 import multiprocessing as mp
 
 from PySide6.QtWidgets import (
@@ -23,6 +27,9 @@ class ScriptParametersWidget(QWidget):
     """
 
     def __init__(self):
+        """
+        Initialize the parameter widget, creating common controls and individual script parameter containers.
+        """
         super().__init__()
 
         self.SCRIPTS = SCRIPTS
@@ -138,7 +145,15 @@ class ScriptParametersWidget(QWidget):
         self.default_params_label.hide()
 
     def get_params(self, selected_script):
-        """Get all parameters for the selected script"""
+        """
+        Collect all parameters (common and specific) for the given script.
+
+        Args:
+            selected_script (str): The name of the script to collect parameters for.
+
+        Returns:
+            dict: Dictionary of parameter names and values.
+        """
         if not selected_script:
             return {}
 

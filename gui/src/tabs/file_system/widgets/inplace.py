@@ -1,3 +1,7 @@
+"""
+Widget for inplace update parameters in the file system.
+"""
+
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
     QComboBox,
@@ -15,7 +19,17 @@ from ....constants import OPERATION_MAP
 
 
 class InplaceUpdateWidget(QWidget):
+    """
+    Collapsible widget for configuring inplace value updates.
+    """
+
     def __init__(self, parent=None):
+        """
+        Initialize the inplace update widget.
+
+        Args:
+            parent (QWidget, optional): Parent widget. Defaults to None.
+        """
         super().__init__(parent)
         self.layout = QFormLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)

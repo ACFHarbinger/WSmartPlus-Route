@@ -41,7 +41,9 @@ class TestSimAdvancedTab(QWidget):
     """
 
     def __init__(self):
-        """Initialize the advanced settings tab."""
+        """
+        Initialize the advanced settings tab and create scrollable form layout.
+        """
         super().__init__()
         # 1. Setup the main layout for the tab (to hold the scroll area)
         main_layout = QVBoxLayout(self)
@@ -229,7 +231,12 @@ class TestSimAdvancedTab(QWidget):
         self.is_key_license_files_visible = not self.is_key_license_files_visible
 
     def get_params(self):
-        """Retrieve the configured advanced system parameters as a dictionary."""
+        """
+        Retrieve the configured advanced system parameters as a dictionary.
+
+        Returns:
+            dict: Dictionary containing CPU cores, graph methods, and license file paths.
+        """
         params = {
             # Advanced
             "cpu_cores": self.cpu_cores_input.value(),

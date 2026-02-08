@@ -39,6 +39,16 @@ def generate_plot(
         return
 
     def filter_data(key: str, indices: List[int]) -> List[Any]:
+        """
+        Filter a list in json_data by the given indices.
+
+        Args:
+            key (str): Key in json_data to filter.
+            indices (List[int]): List of indices to keep.
+
+        Returns:
+            List[Any]: Filtered list of values.
+        """
         full_list = json_data.get(key, [])
         return [full_list[i] for i in indices]
 

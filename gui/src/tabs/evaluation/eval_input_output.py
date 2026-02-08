@@ -1,3 +1,7 @@
+"""
+Configuration tab for evaluation input datasets and output paths.
+"""
+
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -21,6 +25,7 @@ class EvalIOTab(QWidget):
     """
 
     def __init__(self):
+        """Build the I/O configuration layout."""
         super().__init__()
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -129,6 +134,12 @@ class EvalIOTab(QWidget):
         self.is_output_file_visible = not self.is_output_file_visible
 
     def get_params(self):
+        """
+        Collect I/O parameters and paths.
+
+        Returns:
+            dict: Model weight path, data path, and saving flags.
+        """
         params = {
             "datasets": self.datasets_input.text().strip() or None,
             "model": self.model_input.text().strip() or None,

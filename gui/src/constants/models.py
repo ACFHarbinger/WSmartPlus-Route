@@ -1,4 +1,9 @@
+"""
+Neural network model and encoding constants for the GUI.
+"""
+
 # Models
+# TODO: Rename to STRATEGIES to match logic layer
 DECODE_TYPES = ["greedy", "sampling"]
 
 DECODE_STRATEGIES = {

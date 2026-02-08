@@ -1,3 +1,5 @@
+"""Input analysis and dataset exploration tab."""
+
 import pandas as pd
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -113,6 +115,12 @@ class InputAnalysisTab(QWidget):
 
     @Slot(object)  # object is a list of (name, thread_safe_dict) OR just thread_safe_dicts (backward compat)
     def _handle_successful_load(self, thread_safe_list):
+        """
+        Processes successfully loaded data from the worker thread.
+
+        Args:
+            thread_safe_list (list): List of (name, data_dict) tuples from DataLoadWorker.
+        """
         self.load_btn.setEnabled(True)
         self.dfs = {}
         self.slice_selector.blockSignals(True)
@@ -151,7 +159,10 @@ class InputAnalysisTab(QWidget):
 
     @Slot()
     def _switch_current_df(self):
-        """Switches the current DataFrame being displayed/plotted based on the selector."""
+        """
+        Switches the current DataFrame being displayed in the table and used for plotting.
+        Triggered when the slice_selector index changes.
+        """
         key = self.slice_selector.currentText()
         if not key or key not in self.dfs:
             self.current_slice_key = None
@@ -191,6 +202,12 @@ class InputAnalysisTab(QWidget):
 
     @Slot(str)
     def _handle_load_error(self, message):
+        """
+        Handles data loading errors by re-enabling controls and showing a message box.
+
+        Args:
+            message (str): The error message.
+        """
         self.load_btn.setEnabled(True)
         QMessageBox.critical(self, "Error Loading File", message)
 

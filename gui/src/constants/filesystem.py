@@ -1,3 +1,7 @@
+"""
+File system related constants for the GUI.
+"""
+
 # File System Settings
 OPERATION_MAP = {
     "": "",

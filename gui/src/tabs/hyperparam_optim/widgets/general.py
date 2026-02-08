@@ -1,3 +1,7 @@
+"""
+General settings widget for Hyperparameter Optimization (Method, Range, Epochs, Metric).
+"""
+
 from gui.src.constants.hpo import HPO_METHODS, HPO_METRICS
 from PySide6.QtWidgets import (
     QComboBox,
@@ -10,7 +14,14 @@ from PySide6.QtWidgets import (
 
 
 class GeneralSettingsWidget(QWidget):
+    """
+    Widget for configuring core HPO settings like method, range, and optimization metric.
+    """
+
     def __init__(self):
+        """
+        Initialize GeneralSettingsWidget with form layout.
+        """
         super().__init__()
         layout = QFormLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -39,6 +50,12 @@ class GeneralSettingsWidget(QWidget):
         layout.addRow(QLabel("Metric to Optimize:"), self.metric_combo)
 
     def get_params(self):
+        """
+        Extract general HPO parameters from the UI.
+
+        Returns:
+            dict: Dictionary containing hpo_method, hpo_range, hpo_epochs, and metric.
+        """
         params = {
             "hpo_method": self.hpo_method_combo.currentText(),
             "hpo_epochs": self.hpo_epochs_input.value(),

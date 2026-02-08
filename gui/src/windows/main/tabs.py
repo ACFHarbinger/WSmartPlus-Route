@@ -40,6 +40,7 @@ class TabManager:
     """
 
     def __init__(self):
+        """Build the tab mappings and shared instances for the main window."""
         self.train_tabs_map = {
             "Data": RLDataTab(),
             "Model": RLModelTab(),

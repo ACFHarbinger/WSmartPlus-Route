@@ -1,8 +1,7 @@
-# from PySide6.QtCore import QObject
-# from abc import ABCMeta, abstractmethod
-# class MetaBaseTab(ABCMeta, type(QObject)):
-#    """A metaclass combining ABCMeta and Qt's metaclass"""
-#    pass
+"""
+Base configuration tab for reinforcement learning.
+"""
+
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLabel, QWidget
 
@@ -13,6 +12,7 @@ class BaseReinforcementLearningTab(QWidget):  # (QWidget, metaclass=MetaBaseTab)
     paramsChanged = Signal()
 
     def __init__(self):
+        """Build the base RL configuration layout."""
         super().__init__()
         self.params = {}
         self.widgets = {}

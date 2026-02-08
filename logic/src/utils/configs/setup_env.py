@@ -96,6 +96,6 @@ def setup_env(
                 gplic_path = os.path.join(udef.ROOT_DIR, "assets", "api", gplic_filename)
                 if os.path.exists(gplic_path):
                     os.environ["GRB_LICENSE_FILE"] = gplic_path
-        params["OutputFlag"] = 0
+        params["OutputFlag"] = udef.SOLVER_OUTPUT_FLAG
         return gp.Env(params=params)
     return None

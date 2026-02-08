@@ -1,3 +1,7 @@
+"""
+Logging metrics and heatmap constants for the GUI.
+"""
+
 # Logging
 WB_MODES = ["offline", "online", "disabled"]
 

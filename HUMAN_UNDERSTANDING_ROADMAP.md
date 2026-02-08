@@ -95,7 +95,7 @@ The core state-transition methods (`_reset_instance`, `_step_instance`) have no 
 
 _Make the first 30 minutes easier for new contributors._
 
-### H2.1 Add Inline Comments to YAML Configs ⚠️ (PARTIAL)
+### H2.1 Add Inline Comments to YAML Configs ✅
 
 **Target**: `assets/configs/`
 
@@ -103,11 +103,11 @@ Config parameters currently have no explanation. A newcomer cannot tell what `em
 
 - [x] `assets/configs/config.yaml` -- document the Hydra defaults composition
 - [x] `assets/configs/model/am.yaml` -- annotate each parameter with description and valid range (90+ lines)
-- [ ] `assets/configs/tasks/train.yaml` -- annotate training parameters, explain must-go strategies
-- [ ] `assets/configs/envs/*.yaml` -- annotate environment parameters (cwcvrp, wcvrp, vrpp, etc.)
-- [ ] Other model configs (tam.yaml, deep_decoder.yaml, ptr.yaml, etc.)
+- [x] `assets/configs/tasks/train.yaml` -- annotate training parameters, explain must-go strategies
+- [x] `assets/configs/envs/*.yaml` -- annotate environment parameters (cwcvrp, wcvrp, vrpp, etc.)
+- [x] Other model configs (tam.yaml, deep_decoder.yaml, ptr.yaml, etc.)
 
-**Status**: ⚠️ PARTIAL - 2/15+ files completed. Core config files documented; remaining can be done incrementally.
+**Status**: ✅ COMPLETE - All 15+ config files now have inline documentation
 
 Example of completed state (am.yaml):
 
@@ -180,21 +180,21 @@ No documentation exists for the Hydra config system, override syntax, or composi
 
 ---
 
-## Phase H3: Docstring & Comment Coverage (Week 2-3)
+## Phase H3: Docstring & Comment Coverage (IN PROGRESS)
 
 _Close the documentation gaps identified in the audit._
 
-### H3.1 GUI Module Docstrings
+### H3.1 GUI Module Docstrings (COMPLETE)
 
 **Target**: `gui/src/` package `__init__.py` files
 
 GUI modules are missing module-level documentation (67% coverage vs 95% in logic).
 
-- [ ] `gui/src/__init__.py` -- add description of the GUI layer, list subpackages
-- [ ] `gui/src/core/__init__.py` -- describe mediator pattern, signals architecture
-- [ ] `gui/src/styles/__init__.py` -- describe theming system (colors, effects, widgets)
-- [ ] `gui/src/tabs/__init__.py` -- list all functional tabs with one-line descriptions
-- [ ] `gui/src/components/__init__.py` -- list reusable widgets
+- [x] `gui/src/__init__.py` -- add description of the GUI layer, list subpackages
+- [x] `gui/src/core/__init__.py` -- describe mediator pattern, signals architecture
+- [x] `gui/src/styles/__init__.py` -- describe theming system (colors, effects, widgets)
+- [x] `gui/src/tabs/__init__.py` -- list all functional tabs with one-line descriptions
+- [x] `gui/src/components/__init__.py` -- list reusable widgets
 
 ---
 
@@ -227,7 +227,7 @@ Priority files (complex logic, high import count):
 
 _Reduce nesting, duplication, and cognitive load._
 
-### H4.1 Extract Encoder/Decoder Base Classes ✅
+### H4.1 Extract Encoder/Decoder Base Classes (ONGOING)
 
 **Target**: `logic/src/models/subnets/encoders/`, `logic/src/models/subnets/decoders/`
 
@@ -276,7 +276,7 @@ _Improve static analysis and reduce ambiguity._
 - [x] Replace hardcoded batch sizes in `models/hrl_manager/manager.py` and `baselines/rollout.py`
 - [x] Replace 1e-8 in `utils/decoding/greedy.py`, `utils/decoding/sampling.py`
 - [x] Replace 1e-8 in `models/subnets/decoders/mdam/cache.py`, `models/subnets/decoders/polynet/decoder.py`
-- [ ] Add `# Gurobi: suppress solver output` comment to OutputFlag = 0 in `setup/env.py` (deferred)
+- [x] Add `# Gurobi: suppress solver output` comment to OutputFlag = 0 in `setup/env.py`
 
 **Status**: ✅ COMPLETE - 8 files modified, 8 magic numbers eliminated, all linter checks passed
 
@@ -297,7 +297,7 @@ _Improve static analysis and reduce ambiguity._
 
 The codebase mixes `Tuple[...]` (Python 3.8 style) with `tuple[...]` (Python 3.10+ style).
 
-- [ ] Choose one style and document in AGENTS.md coding standards
+- [ ] Choose one style and document in AGENTS.md coding standards (use 3.8 style)
 - [ ] Run automated migration with `pyupgrade --py39-plus` if targeting 3.9
 - [ ] Add type hints to GUI helper classes (currently ~70% coverage vs 95% in logic)
 - [ ] Consider adding 3 Protocol classes: `DataLike`, `PolicyLike`, `DatasetLike` for duck typing
@@ -330,11 +330,11 @@ Documented best practices to reduce future ambiguity:
 
 ---
 
-### H6.3 Reduce Parameter Sprawl in Constructors
+### H6.3 Reduce Parameter Sprawl in Constructors (ONGOING)
 
 Some constructors have 20+ parameters (e.g., `AttentionModel.__init__`, `GATDecoder.__init__`).
 
-- [ ] Group related parameters into dataclasses:
+- [x] Group related parameters into dataclasses:
   - `NormalizationConfig(type, epsilon, learn_affine, track_stats, momentum, n_groups)`
   - `ActivationConfig(name, param, threshold, replacement_value, n_params, range)`
 - [ ] Apply to encoders and decoders with 10+ normalization/activation parameters

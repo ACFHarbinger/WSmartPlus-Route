@@ -19,6 +19,12 @@ class ProcessManager(QObject):
     output_received = Signal(str)
 
     def __init__(self, main_window):
+        """
+        Initialize the process manager.
+
+        Args:
+            main_window: The parent MainWindow instance.
+        """
         super().__init__()
         self.window = main_window
         self.process = None

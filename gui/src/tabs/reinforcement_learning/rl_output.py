@@ -1,3 +1,7 @@
+"""
+Output and logging configuration for reinforcement learning training.
+"""
+
 import os
 
 from PySide6.QtWidgets import (
@@ -20,11 +24,17 @@ class RLOutputTab(BaseReinforcementLearningTab):
     """Reinforcement Learning Logging parameters"""
 
     def __init__(self):
+        """
+        Initialize the RLOutputTab and setup logging parameters.
+        """
         super().__init__()
         self.widgets = {}
         self.init_ui()
 
     def init_ui(self):
+        """
+        Setup the UI components for logging and output configuration.
+        """
         layout = QFormLayout()
 
         # Log step
@@ -79,7 +89,16 @@ class RLOutputTab(BaseReinforcementLearningTab):
         self.setLayout(layout)
 
     def _create_browser_layout(self, line_edit, is_dir=False):
-        """Helper to create a layout with a browse button."""
+        """
+        Helper to create a layout with a line edit and a browse button.
+
+        Args:
+            line_edit (QLineEdit): The line edit to populate.
+            is_dir (bool): Whether to browse for a directory or a file.
+
+        Returns:
+            QHBoxLayout: Layout containing the widgets.
+        """
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(line_edit)
@@ -90,6 +109,13 @@ class RLOutputTab(BaseReinforcementLearningTab):
         return layout
 
     def _browse_path(self, line_edit, is_dir):
+        """
+        Open a file/directory dialog and set the selected path.
+
+        Args:
+            line_edit (QLineEdit): Target line edit.
+            is_dir (bool): Whether to browse for a directory.
+        """
         if is_dir:
             path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
         else:
@@ -99,6 +125,12 @@ class RLOutputTab(BaseReinforcementLearningTab):
             line_edit.setText(path)
 
     def get_params(self):
+        """
+        Collect logging and output parameters from the UI components.
+
+        Returns:
+            dict: Dictionary of parameters including log paths and display toggles.
+        """
         params = {}
         for key, widget in self.widgets.items():
             if isinstance(widget, QSpinBox):

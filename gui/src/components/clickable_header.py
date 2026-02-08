@@ -1,10 +1,25 @@
+"""
+Custom header widgets for collapsible UI sections.
+"""
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget
 
 
-# Class to handle the custom clickable header functionality robustly
 class ClickableHeaderWidget(QWidget):
+    """
+    A widget that acts as a clickable header to toggle visibility of other components.
+    """
+
     def __init__(self, toggle_function, *args, **kwargs):
+        """
+        Initialize the header with a toggle callback.
+
+        Args:
+            toggle_function (callable): Function to call when the header is clicked.
+            *args: Variable length argument list for QWidget.
+            **kwargs: Arbitrary keyword arguments for QWidget.
+        """
         super().__init__(*args, **kwargs)
         self._toggle_function = toggle_function
         self.setCursor(Qt.PointingHandCursor)

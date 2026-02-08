@@ -28,7 +28,12 @@ class TestSimIOTab(QWidget):
     """
 
     def __init__(self, settings_tab):  # <-- Accept settings_tab
-        """Initialize the I/O configurations tab."""
+        """
+        Initialize the I/O configurations tab.
+
+        Args:
+            settings_tab (TestSimSettingsTab): Reference to the core settings tab for synchronized updates.
+        """
         super().__init__()
         self.settings_tab = settings_tab  # <-- Store reference to settings tab
 
@@ -107,7 +112,9 @@ class TestSimIOTab(QWidget):
             line_edit.setText(path)
 
     def connect_signals(self):
-        """Connect all relevant signals to the update method."""
+        """
+        Connect all relevant signals from settings_tab and local widgets to update_default_paths.
+        """
         # Signals from Settings Tab
         if self.settings_tab:
             self.settings_tab.data_dist_input.currentTextChanged.connect(self.update_default_paths)
@@ -122,7 +129,9 @@ class TestSimIOTab(QWidget):
         self.waste_type_input.currentTextChanged.connect(self.update_default_paths)
 
     def update_default_paths(self):
-        """(Re)generates and sets the default file path QLineEdits."""
+        """
+        (Re)generates and sets the default file path QLineEdits based on current settings.
+        """
         if not self.settings_tab:
             return  # Safety check in case settings_tab isn't passed
 
@@ -164,7 +173,12 @@ class TestSimIOTab(QWidget):
             print(f"Warning: Could not update default paths. Error: {e}")
 
     def get_params(self):
-        """Retrieve the configured I/O and context parameters as a dictionary."""
+        """
+        Retrieve the configured I/O and context parameters as a dictionary.
+
+        Returns:
+            dict: Dictionary containing output paths and problem context (area, waste type).
+        """
         params = {
             # I/O
             "output_dir": self.output_dir_input.text().strip(),
