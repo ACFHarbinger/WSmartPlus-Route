@@ -5,6 +5,9 @@ ILS (Iterated Local Search) configuration.
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 
+from ..other.must_go import MustGoConfig
+from ..other.post_processing import PostProcessingConfig
+
 
 @dataclass
 class ILSConfig:
@@ -44,5 +47,5 @@ class ILSConfig:
             "random_swap": 0.2,
         }
     )
-    must_go: Optional[List[str]] = None
-    post_processing: Optional[List[str]] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

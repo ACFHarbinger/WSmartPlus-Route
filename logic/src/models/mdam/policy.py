@@ -42,9 +42,9 @@ class MDAMPolicy(AutoregressivePolicy):
         num_heads: int = 8,
         num_paths: int = 5,
         normalization: str = "batch",
-        train_decode_type: str = "sampling",
-        val_decode_type: str = "greedy",
-        test_decode_type: str = "greedy",
+        train_strategy: str = "sampling",
+        val_strategy: str = "greedy",
+        test_strategy: str = "greedy",
         **decoder_kwargs,
     ) -> None:
         """
@@ -59,9 +59,9 @@ class MDAMPolicy(AutoregressivePolicy):
             num_heads: Number of attention heads.
             num_paths: Number of parallel decoder paths.
             normalization: Normalization type ('batch', 'layer', 'instance').
-            train_decode_type: Decoding type during training.
-            val_decode_type: Decoding type during validation.
-            test_decode_type: Decoding type during testing.
+            train_strategy: Decoding type during training.
+            val_strategy: Decoding type during validation.
+            test_strategy: Decoding type during testing.
             **decoder_kwargs: Additional decoder arguments.
         """
         from logic.src.models.subnets.decoders.mdam import MDAMDecoder
@@ -97,15 +97,15 @@ class MDAMPolicy(AutoregressivePolicy):
         self.init_embedding = get_init_embedding(env_name, embed_dim)
 
         # Store decode types for phase switching
-        self.train_decode_type = train_decode_type
-        self.val_decode_type = val_decode_type
-        self.test_decode_type = test_decode_type
+        self.train_strategy = train_strategy
+        self.val_strategy = val_strategy
+        self.test_strategy = test_strategy
 
     def forward(
         self,
         td: TensorDict,
         env: RL4COEnvBase,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         num_starts: int = 1,
         phase: str = "train",
         **kwargs,
@@ -133,18 +133,13 @@ class MDAMPolicy(AutoregressivePolicy):
         # Encode inputs (encoder is guaranteed to be MDAMGraphAttentionEncoder)
         encoded_inputs, graph_embed, attn, V, h_old = self.encoder(td, x=embedding)  # type: ignore[misc]
 
-        # Determine decode type based on phase
-        # decode_type = decoder_kwargs.pop("decode_type", None) # Removed as decode_type is now a direct arg
-        # if decode_type is None: # Removed as decode_type is now a direct arg
-        #     decode_type = getattr(self, f"{phase}_decode_type") # Removed as decode_type is now a direct arg
-
         # Decode via multi-path decoder (decoder is guaranteed to be MDAMDecoder)
         log_p, actions, reward, kl_divergence = self.decoder(  # type: ignore[misc]
             td,
             (encoded_inputs, graph_embed, attn, V, h_old),
             env,
             self.encoder,  # Pass encoder for change() method
-            decode_type=decode_type,
+            strategy=strategy,
             num_starts=num_starts,
             **kwargs,
         )

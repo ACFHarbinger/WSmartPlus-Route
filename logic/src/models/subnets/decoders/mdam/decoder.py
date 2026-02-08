@@ -11,7 +11,7 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
 
-from .cache import _decode_probs
+from ..common import select_action
 from .path import MDAMPath
 
 
@@ -38,9 +38,9 @@ class MDAMDecoder(nn.Module):
         mask_logits: bool = True,
         eg_step_gap: int = 200,
         tanh_clipping: float = 10.0,
-        train_decode_type: str = "sampling",
-        val_decode_type: str = "greedy",
-        test_decode_type: str = "greedy",
+        train_strategy: str = "sampling",
+        val_strategy: str = "greedy",
+        test_strategy: str = "greedy",
     ) -> None:
         """
         Initialize MDAM decoder.
@@ -54,9 +54,9 @@ class MDAMDecoder(nn.Module):
             mask_logits: Whether to mask final logits.
             eg_step_gap: Gap between encoder update steps during decoding.
             tanh_clipping: Clipping value for tanh on logits.
-            train_decode_type: Decoding type during training.
-            val_decode_type: Decoding type during validation.
-            test_decode_type: Decoding type during testing.
+            train_strategy: Decoding type during training.
+            val_strategy: Decoding type during validation.
+            test_strategy: Decoding type during testing.
         """
         super().__init__()
 
@@ -69,9 +69,9 @@ class MDAMDecoder(nn.Module):
         self.eg_step_gap = eg_step_gap
         self.tanh_clipping = tanh_clipping
 
-        self.train_decode_type = train_decode_type
-        self.val_decode_type = val_decode_type
-        self.test_decode_type = test_decode_type
+        self.train_strategy = train_strategy
+        self.val_strategy = val_strategy
+        self.test_strategy = test_strategy
 
         # Dynamic embedding for step context
         self.dynamic_embedding = DynamicEmbedding(embed_dim=embed_dim)
@@ -100,7 +100,7 @@ class MDAMDecoder(nn.Module):
         td: TensorDict,
         embeddings: Union[torch.Tensor, Tuple[torch.Tensor, ...]],
         env: RL4COEnvBase,
-        decode_type: str = "greedy",
+        strategy: str = "greedy",
         **kwargs,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """
@@ -113,8 +113,8 @@ class MDAMDecoder(nn.Module):
         )
         encoder = kwargs.get("encoder")
 
-        if decode_type is None:
-            decode_type = self.train_decode_type
+        if strategy is None:
+            strategy = self.train_strategy
 
         # First step: calculate KL divergence between paths
         kl_divergence = self._compute_initial_kl_divergence(td, h)
@@ -134,7 +134,7 @@ class MDAMDecoder(nn.Module):
                 h_old.clone(),
                 encoder,
                 path_idx,
-                decode_type,
+                strategy,
             )
             reward_list.append(reward)
             ll_list.append(ll)
@@ -196,7 +196,7 @@ class MDAMDecoder(nn.Module):
         h_old: torch.Tensor,
         encoder: Any,
         path_idx: int,
-        decode_type: str,
+        strategy: str,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Decode a single path."""
         outputs = []
@@ -221,7 +221,7 @@ class MDAMDecoder(nn.Module):
 
             # Select action
             probs = torch.exp(logprobs[:, 0, :])
-            action = _decode_probs(probs, mask, decode_type=decode_type)
+            action = select_action(probs, mask, strategy=strategy)
 
             # Step environment
             td.set("action", action)

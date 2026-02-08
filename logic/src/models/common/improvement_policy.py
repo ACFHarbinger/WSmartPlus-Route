@@ -40,7 +40,7 @@ class ImprovementPolicy(nn.Module, ABC):
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
-        decode_type: str = "greedy",
+        strategy: str = "greedy",
         num_starts: int = 1,
         max_steps: Optional[int] = None,
         phase: str = "train",
@@ -53,7 +53,7 @@ class ImprovementPolicy(nn.Module, ABC):
         Args:
             td: TensorDict containing the environment state and current solution.
             env: Environment to use for decoding.
-            decode_type: Decoding strategy (greedy, sampling, etc.).
+            strategy: Decoding strategy (greedy, sampling, etc.).
             num_starts: Number of solution starts.
             max_steps: Maximum number of improvement steps.
             phase: Phase of the algorithm (train, val, test).
@@ -94,7 +94,7 @@ class ImprovementPolicy(nn.Module, ABC):
             # 2. Predict move via decoder
             if self.decoder is None:
                 raise ValueError("Decoder must be provided for ImprovementPolicy")
-            log_p, move = self.decoder(td, embeddings, env, decode_type=decode_type, **kwargs)
+            log_p, move = self.decoder(td, embeddings, env, strategy=strategy, **kwargs)
 
             # 3. Apply move
             td.set("action", move)

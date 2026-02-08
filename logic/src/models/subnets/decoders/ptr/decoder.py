@@ -43,7 +43,7 @@ class PointerDecoder(nn.Module):
         self.mask_logits = mask_logits
         self.use_tanh = use_tanh
         self.tanh_exploration = tanh_exploration
-        self.decode_type = None  # Needs to be set explicitly before use
+        self.strategy = None  # Needs to be set explicitly before use
 
         self.lstm = nn.LSTMCell(embed_dim, hidden_dim)
         self.pointer = PointerAttention(hidden_dim, use_tanh=use_tanh, C=tanh_exploration)
@@ -145,19 +145,19 @@ class PointerDecoder(nn.Module):
         return (torch.stack(outputs, 1), torch.stack(selections, 1)), hidden
 
     def decode(self, probs, mask):
-        """Decodes probabilities to actions based on decode_type."""
-        if self.decode_type == "greedy":
+        """Decodes probabilities to actions based on strategy."""
+        if self.strategy == "greedy":
             _, idxs = probs.max(1)
             assert not mask.gather(
                 1, idxs.unsqueeze(-1)
             ).data.any(), "Decode greedy: infeasible action has maximum probability"
-        elif self.decode_type == "sampling":
+        elif self.strategy == "sampling":
             idxs = probs.multinomial(1).squeeze(1)
             # Check if sampling went OK, can go wrong due to bug on GPU
             while mask.gather(1, idxs.unsqueeze(-1)).data.any():
                 print(" [!] resampling due to race condition")
                 idxs = probs.multinomial().squeeze(1)
         else:
-            assert False, "Unknown decode type"
+            assert False, "Unknown strategy"
 
         return idxs

@@ -105,18 +105,22 @@ class InitializingState(SimState):
                 ctx.overall_progress.update(last_day)
 
         configs = None
-        # Use refined detection for actually setting up models
         if should_load_neural and (
             "am" in ctx.pol_strip.split("_") or "transgcn" in ctx.pol_strip.split("_") or ctx.pol_strip.startswith("am")
         ):
+            # Extract decoding parameters with support for nested/namespaced decoding config
+            decoding_opts = opts.get("decoding", {})
+            temp = decoding_opts.get("temperature", opts.get("decoding.temperature", opts.get("temperature", 1.0)))
+            strat = decoding_opts.get("strategy", opts.get("decoding.strategy", opts.get("strategy", "greedy")))
+
             ctx.model_env, configs = setup_model(
                 ctx.policy,
                 ctx.model_weights_path,
                 opts["model_path"],
                 ctx.device,
                 ctx.lock,  # type: ignore
-                opts["temperature"],
-                opts["decode_type"],
+                temp,
+                strat,
             )
             ctx.hrl_manager = setup_hrl_manager(
                 opts,

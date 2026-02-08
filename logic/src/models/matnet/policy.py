@@ -51,15 +51,15 @@ class MatNetPolicy(AutoregressivePolicy):
             **kwargs,
         )
 
-    def set_decode_type(self, decode_type: str, temp: Optional[float] = None):
-        if self.decoder is not None and hasattr(self.decoder, "set_decode_type"):
-            self.decoder.set_decode_type(decode_type, temp)
+    def set_strategy(self, strategy: str, temp: Optional[float] = None):
+        if self.decoder is not None and hasattr(self.decoder, "set_strategy"):
+            self.decoder.set_strategy(strategy, temp)
 
     def forward(
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         num_starts: int = 1,
         **kwargs,
     ) -> Dict[str, Any]:

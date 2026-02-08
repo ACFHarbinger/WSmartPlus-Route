@@ -7,7 +7,7 @@ from logic.src.models.subnets.encoders.gac.encoder import GraphAttConvEncoder
 from logic.src.models.subnets.decoders.gat.decoder import GraphAttentionDecoder
 from logic.src.models.subnets.encoders.gat.encoder import GraphAttentionEncoder
 from logic.src.models.subnets.encoders.gcn.encoder import GraphConvolutionEncoder
-from logic.src.models.subnets.other.grf_predictor import GatedRecurrentFillPredictor
+from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
 from logic.src.models.subnets.encoders.mlp.encoder import MLPEncoder
 from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
 from logic.src.models.subnets.decoders.ptr.decoder import PointerDecoder
@@ -112,13 +112,13 @@ class TestGCNEncoder:
         assert output.shape == (batch, graph_size, hidden)
 
 
-class TestGatedRecurrentFillPredictor:
-    """Tests for GatedRecurrentFillPredictor."""
+class TestGatedRecurrentUnitFillPredictor:
+    """Tests for GatedRecurrentUnitFillPredictor."""
 
     def test_forward(self):
         """Verifies fill prediction."""
         hidden = 16
-        model = GatedRecurrentFillPredictor(input_dim=1, hidden_dim=hidden, num_layers=1, activation="relu")
+        model = GatedRecurrentUnitFillPredictor(input_dim=1, hidden_dim=hidden, num_layers=1, activation="relu")
         batch = 2
         seq = 5
         x = torch.randn(batch, seq, 1)
@@ -171,7 +171,7 @@ class TestPointerDecoder:
         hidden = (torch.randn(batch, hidden_dim), torch.randn(batch, hidden_dim))
         context = torch.randn(seq, batch, hidden_dim)
 
-        model.decode_type = "greedy"
+        model.strategy = "greedy"
 
         (log_p, selections), hidden_out = model(decoder_input, embedded_inputs, hidden, context)
 
@@ -275,11 +275,11 @@ class TestGlimpseDecoder:
         mask = torch.tensor([[0, 0, 0], [0, 0, 0]], dtype=torch.bool)
 
         # Test greedy
-        model.decode_type = "greedy"
+        model.strategy = "greedy"
         selected = model._select_node(probs, mask)
         assert torch.equal(selected, torch.tensor([1, 2]))
 
         # Test sampling
-        model.decode_type = "sampling"
+        model.strategy = "sampling"
         selected = model._select_node(probs, mask)
         assert selected.shape == (2,)

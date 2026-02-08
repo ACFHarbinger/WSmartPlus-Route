@@ -35,7 +35,7 @@ class NeuralHeuristicHybrid(AutoregressivePolicy):
         self,
         td: TensorDict,
         env: RL4COEnvBase,
-        decode_type: str = "greedy",
+        strategy: str = "greedy",
         num_starts: int = 1,
         **kwargs,
     ) -> Dict[str, Any]:
@@ -43,7 +43,7 @@ class NeuralHeuristicHybrid(AutoregressivePolicy):
         Solve instances using neural construction followed by heuristic refinement.
         """
         # 1. Neural Construction
-        neural_out = self.neural_policy(td, env, decode_type=decode_type, **kwargs)
+        neural_out = self.neural_policy(td, env, strategy=strategy, **kwargs)
 
         # 2. Heuristic Refinement
         # Note: Classical solvers currently don't take initial solutions in the current wrappers

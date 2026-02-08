@@ -15,10 +15,12 @@ def run_evaluate_model(opts: Dict[str, Any]) -> None:
     random.seed(opts["seed"])
     np.random.seed(opts["seed"])
     torch.manual_seed(opts["seed"])
-    widths = opts["width"] if opts["width"] is not None else [0]
-    for width in widths:
+    beam_widths = opts["beam_width"] if opts.get("beam_width") is not None else [0]
+    for beam_width in beam_widths:
         for dataset_path in opts["datasets"]:
-            eval_dataset(dataset_path, width, opts["softmax_temperature"], opts)
+            # Extract temperature from decoding config or default to 1.0
+            temp = opts.get("decoding", {}).get("temperature", 1.0)
+            eval_dataset(dataset_path, beam_width, temp, opts)
 
 
 __all__ = ["run_evaluate_model", "eval_dataset", "eval_dataset_mp", "get_best", "validate_eval_args"]

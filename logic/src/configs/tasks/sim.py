@@ -2,9 +2,14 @@
 Sim Config module.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, List, Optional
+
+from ..envs.graph import GraphConfig
+from ..envs.objective import ObjectiveConfig
+from ..models.decoding import DecodingConfig
+from ..policies.neural import NeuralConfig
 
 
 @dataclass
@@ -17,7 +22,6 @@ class SimConfig:
         mask_prob_threshold: Probability threshold for mask decisions.
         data_distribution: Distribution to generate the bins daily waste fill.
         problem: The problem the model was trained to solve.
-        size: The size of the problem graph.
         days: Number of days to run the simulation for.
         seed: Random seed.
         output_dir: Name of WSR simulator test output directory.
@@ -28,17 +32,8 @@ class SimConfig:
         n_samples: Number of simulation samplings for each policy.
         resume: Resume testing.
         n_vehicles: Number of vehicles.
-        area: County area of the bins locations.
-        waste_type: Type of waste bins selected for the optimization problem.
         bin_idx_file: File with the indices of the bins to use in the simulation.
-        decode_type: Decode type, greedy or sampling.
-        temperature: Softmax temperature.
-        edge_threshold: How many of all possible edges to consider.
-        edge_method: Method for getting edges.
-        vertex_method: Method to transform vertex coordinates.
-        distance_method: Method to compute distance matrix.
-        dm_filepath: Path to the file to read/write the distance matrix from/to.
-        waste_filepath: Path to the file to read the waste fill for each day from.
+        decoding: Decoding configuration.
         noise_mean: Mean of Gaussian noise to inject into observed bin levels.
         noise_variance: Variance of Gaussian noise to inject into observed bin levels.
         run_tsp: Activate fast_tsp for all policies.
@@ -54,18 +49,16 @@ class SimConfig:
         gapik_file: Name of the file that contains the key to use for the Google API.
         real_time_log: Activate real time results window.
         stats_filepath: Path to the file to read the statistics from.
-        model_path: Path to the directory where the model(s) is/are stored.
+        policy: Neural policy configuration.
         config_path: Path to the YAML/XML configuration file(s).
-        w_length: Weight for length in cost function.
-        w_waste: Weight for waste in cost function.
-        w_overflows: Weight for overflows in cost function.
+        graph: Graph/instance configuration.
+        reward: Objective/reward configuration.
         data_dir: Directory containing the simulation data.
     """
 
     policies: Optional[List[str]] = None
     data_distribution: str = "gamma1"
     problem: str = "vrpp"
-    size: int = 50
     days: int = 31
     seed: int = 42
     output_dir: str = "output"
@@ -78,15 +71,11 @@ class SimConfig:
 
     cpu_cores: int = 0
     n_vehicles: int = 1
-    area: str = "riomaior"
-    waste_type: str = "plastic"
+    graph: GraphConfig = field(default_factory=GraphConfig)
+    reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
+    decoding: DecodingConfig = field(default_factory=DecodingConfig)
+    policy: NeuralConfig = field(default_factory=NeuralConfig)
     bin_idx_file: Optional[str] = None
-    edge_threshold: str = "0"
-    edge_method: Optional[str] = None
-    vertex_method: str = "mmn"
-    distance_method: str = "ogd"
-    dm_filepath: Optional[str] = None
-    waste_filepath: Optional[str] = None
     noise_mean: float = 0.0
     noise_variance: float = 0.0
     cache_regular: bool = True

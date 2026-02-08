@@ -50,7 +50,7 @@ class VectorizedACOPolicy(AutoregressivePolicy):
         self,
         td: TensorDict,
         env: RL4COEnvBase,
-        decode_type: str = "sampling",  # Unused
+        strategy: str = "sampling",  # Unused
         num_starts: int = 1,
         **kwargs,
     ) -> Dict[str, Any]:

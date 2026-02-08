@@ -11,8 +11,8 @@ from typing import Any, Optional, Union
 import torch
 import torch.nn as nn
 
+from ..common import AttentionDecoderCache
 from .attention import make_heads, one_to_many_logits
-from .fixed import AttentionModelFixed
 
 
 class GlimpseDecoder(nn.Module):
@@ -34,7 +34,7 @@ class GlimpseDecoder(nn.Module):
         pomo_size: int = 0,
         spatial_bias: bool = False,
         spatial_bias_scale: float = 1.0,
-        decode_type: Optional[str] = None,
+        strategy: Optional[str] = None,
         **kwargs,
     ):
         super().__init__()
@@ -49,7 +49,7 @@ class GlimpseDecoder(nn.Module):
         self.pomo_size = pomo_size
         self.spatial_bias = spatial_bias
         self.spatial_bias_scale = spatial_bias_scale
-        self.decode_type = decode_type
+        self.strategy = strategy
 
         # Project node embeddings to MHA heads
         self.project_node_embeddings = nn.Linear(embed_dim, 3 * embed_dim, bias=False)
@@ -64,9 +64,9 @@ class GlimpseDecoder(nn.Module):
         self.step_context_dim = dim
         self.project_step_context = nn.Linear(dim, self.embed_dim, bias=False)
 
-    def set_decode_type(self, decode_type: str, temp: Optional[float] = None):
-        """Sets the decoding type and temperature."""
-        self.decode_type = decode_type
+    def set_strategy(self, strategy: str, temp: Optional[float] = None):
+        """Sets the decoding strategy and temperature."""
+        self.strategy = strategy
         if temp is not None:
             self.temp = temp
 
@@ -112,8 +112,8 @@ class GlimpseDecoder(nn.Module):
         state = self.problem.make_state(nodes, None, cost_weights, dist_matrix, **kwargs)
         fixed = self._precompute(embeddings)
 
-        # Allow overriding decode_type via kwargs (e.g. from AttentionModel.forward)
-        decode_type = kwargs.get("decode_type", self.decode_type)
+        # Allow overriding strategy via kwargs (e.g. from AttentionModel.forward)
+        strategy_name = kwargs.get("strategy", self.strategy)
 
         # Mask can be passed via kwargs
         mask = kwargs.get("mask")
@@ -137,7 +137,7 @@ class GlimpseDecoder(nn.Module):
         i = 0
         while not state.all_finished() and i < max_steps:
             log_p, mask = self._get_log_p(fixed, state, mask=mask)
-            selected = self._select_node(log_p.exp(), mask, decode_type=decode_type)
+            selected = self._select_node(log_p.exp(), mask, strategy=strategy_name)
 
             state = state.update(selected)
 
@@ -164,11 +164,11 @@ class GlimpseDecoder(nn.Module):
 
         return _log_p, pi, cost
 
-    def _select_node(self, probs: torch.Tensor, mask: Optional[torch.Tensor], decode_type: str = "greedy"):
+    def _select_node(self, probs: torch.Tensor, mask: Optional[torch.Tensor], strategy: str = "greedy"):
         """Selection logic."""
         assert (probs == probs).all(), "Probs contain NaN"
 
-        if decode_type == "greedy":
+        if strategy == "greedy":
             _, selected = probs.max(1)
             if mask is not None:
                 # Handle potential 3D mask [B, 1, N] -> [B, N]
@@ -176,7 +176,7 @@ class GlimpseDecoder(nn.Module):
                 if curr_mask.dim() == 3:
                     curr_mask = curr_mask.squeeze(1)
                 assert not curr_mask.gather(1, selected.unsqueeze(-1)).any(), "Selected masked node"
-        elif decode_type == "sampling":
+        elif strategy == "sampling":
             selected = torch.multinomial(probs, 1).squeeze(1)
 
             # Mask handling for sampling loop check
@@ -188,31 +188,31 @@ class GlimpseDecoder(nn.Module):
                 while curr_mask.gather(1, selected.unsqueeze(-1)).any():
                     selected = torch.multinomial(probs, 1).squeeze(1)
         else:
-            raise ValueError(f"Unknown decode type: {decode_type}")
+            raise ValueError(f"Unknown decoding strategy: {strategy}")
 
         return selected
 
-    def _precompute(self, embeddings: torch.Tensor, num_steps: int = 1) -> AttentionModelFixed:
+    def _precompute(self, embeddings: torch.Tensor, num_steps: int = 1) -> AttentionDecoderCache:
         """Precompute K,V for the attention mechanism."""
         node_embeddings = embeddings
-        context_node_projected = self.project_fixed_context(node_embeddings.mean(1))
+        graph_context = self.project_fixed_context(node_embeddings.mean(1))
 
         # Joint projection
         qkv = self.project_node_embeddings(node_embeddings)
         glimpse_K, glimpse_V, logit_K = qkv.chunk(3, dim=-1)
 
-        fixed = AttentionModelFixed(
-            node_embeddings,
-            context_node_projected,
-            make_heads(glimpse_K, self.n_heads),
-            make_heads(glimpse_V, self.n_heads),
-            make_heads(logit_K, self.n_heads),
+        fixed = AttentionDecoderCache(
+            node_embeddings=node_embeddings,
+            graph_context=graph_context,
+            glimpse_key=make_heads(glimpse_K, self.n_heads),
+            glimpse_val=make_heads(glimpse_V, self.n_heads),
+            logit_key=make_heads(logit_K, self.n_heads),
         )
         return fixed
 
     def _get_log_p(
         self,
-        fixed: AttentionModelFixed,
+        fixed: AttentionDecoderCache,
         state: Any,
         normalize: bool = True,
         mask_val: float = -math.inf,
@@ -286,7 +286,7 @@ class GlimpseDecoder(nn.Module):
     def propose_expansions(
         self,
         beam: Any,
-        fixed: AttentionModelFixed,
+        fixed: AttentionDecoderCache,
         expand_size: Optional[int] = None,
         normalize: bool = False,
         max_calc_batch_size: int = 4096,

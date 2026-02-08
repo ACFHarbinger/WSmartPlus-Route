@@ -84,6 +84,7 @@ def evaluate_policy(
             - samples (int): for sampling
             - num_augment (int): for augmentation
             - num_starts (int): for multistart
+            - decoding (dict): Dictionary of decoding parameters, e.g., {"temperature": 1.0}
 
     Returns:
         Dict with metrics

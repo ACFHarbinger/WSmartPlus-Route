@@ -105,7 +105,7 @@ def sim_opts(tmp_path, setup_sim_data):
         "mask_prob_threshold": 0.5,
         "two_opt_max_iter": 0,
         "temperature": 1.0,
-        "decode_type": "greedy",
+        "strategy": "greedy",
         "vertex_method": "mmn",
         # Explicit data_dir provided to override default hardcoded lookup if logic allows,
         # but logic often uses ROOT_DIR. setup_sim_data mocks ROOT_DIR.

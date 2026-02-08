@@ -39,9 +39,9 @@ class TestEvaluation:
         metrics = evaluator(self.policy, self.loader)
         assert "avg_reward" in metrics
         assert metrics["avg_reward"] == -1.5
-        # The policy should be called with decode_type="greedy"
+        # The policy should be called with strategy="greedy"
         _, kwargs = self.policy.call_args
-        assert kwargs["decode_type"] == "greedy"
+        assert kwargs["strategy"] == "greedy"
 
     def test_sampling_eval(self):
         """Verify SamplingEval runs."""
@@ -56,7 +56,7 @@ class TestEvaluation:
         assert "avg_reward" in metrics
         # Implementation takes mean of ALL samples: (-1 -1.2 -2 -2.5)/4 = -1.675
         assert abs(metrics["avg_reward"] - (-1.675)) < 1e-5
-        # self.policy.set_decode_type.assert_called_with("sampling") # implementation doesn't call this
+        # self.policy.set_strategy.assert_called_with("sampling") # implementation doesn't call this
 
     def test_augmentation_eval(self):
         """Verify AugmentationEval runs."""

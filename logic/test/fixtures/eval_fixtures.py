@@ -26,7 +26,7 @@ def eval_opts():
         "distance_method": "method",
         "model": "model_path.pt",
         "multiprocessing": False,
-        "decode_strategy": "sample",
+        "strategy": "sample",
         "eval_batch_size": 2,
         "max_calc_batch_size": 10,
         "no_progress_bar": True,

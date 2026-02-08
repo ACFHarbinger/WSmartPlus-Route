@@ -5,6 +5,9 @@ VRPP (Vehicle Routing Problem with Profits) policy configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
+from ..other.must_go import MustGoConfig
+from ..other.post_processing import PostProcessingConfig
+
 
 @dataclass
 class VRPPConfig:
@@ -25,5 +28,5 @@ class VRPPConfig:
     psi: float = 1.0
     time_limit: float = 600.0
     engine: str = "gurobi"
-    must_go: Optional[List[str]] = None
-    post_processing: Optional[List[str]] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

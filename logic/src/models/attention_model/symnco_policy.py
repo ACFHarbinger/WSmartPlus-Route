@@ -36,7 +36,7 @@ class SymNCOPolicy(AttentionModelPolicy):
         self,
         td: TensorDict,
         env,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
         **kwargs,
@@ -46,7 +46,7 @@ class SymNCOPolicy(AttentionModelPolicy):
         """
         # Request init_embeds from AttentionModelPolicy
         kwargs["return_init_embeds"] = True
-        out = super().forward(td, env, **kwargs)
+        out = super().forward(td, env, strategy=strategy, num_starts=num_starts, actions=actions, **kwargs)
 
         if self.use_projection_head:
             # [batch, graph_size, embed_dim]

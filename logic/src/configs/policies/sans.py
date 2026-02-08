@@ -5,6 +5,9 @@ SANS (Simulated Annealing Neighborhood Search) configuration.
 from dataclasses import dataclass
 from typing import List, Literal, Optional
 
+from ..other.must_go import MustGoConfig
+from ..other.post_processing import PostProcessingConfig
+
 
 @dataclass
 class SANSConfig:
@@ -31,5 +34,5 @@ class SANSConfig:
     iterations_per_T: int = 5000
     alpha: float = 0.95
     combination: Optional[Literal["a", "b"]] = None
-    must_go: Optional[List[str]] = None
-    post_processing: Optional[List[str]] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

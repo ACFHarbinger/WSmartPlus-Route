@@ -83,7 +83,7 @@ class SymNCO(POMO):
         out = self.policy(
             td,
             self.env,
-            decode_type="sampling" if phase == "train" else "greedy",
+            strategy="sampling" if phase == "train" else "greedy",
             num_starts=n_start,
         )
 

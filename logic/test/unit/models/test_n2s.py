@@ -19,7 +19,7 @@ def test_n2s_policy_forward():
     td = env.reset(batch_size=[2])
 
     # Run one step of policy
-    out = policy(td, env, decode_type="greedy", max_steps=3)
+    out = policy(td, env, strategy="greedy", max_steps=3)
 
     assert "actions" in out.keys()
     assert out["actions"].shape == (2, 3, 2)  # batch, steps, 2 nodes

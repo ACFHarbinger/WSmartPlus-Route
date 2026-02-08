@@ -5,6 +5,9 @@ HGS (Hybrid Genetic Search) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
+from ..other.must_go import MustGoConfig
+from ..other.post_processing import PostProcessingConfig
+
 
 @dataclass
 class HGSConfig:
@@ -29,5 +32,5 @@ class HGSConfig:
     n_generations: int = 100
     max_vehicles: int = 0
     engine: str = "custom"
-    must_go: Optional[List[str]] = None
-    post_processing: Optional[List[str]] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

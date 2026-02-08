@@ -59,9 +59,9 @@ class GLOPPolicy(NonAutoregressivePolicy):
             env_name=env_name,
             embed_dim=embed_dim,
             temperature=temperature,
-            train_decode_type="multistart_sampling",
-            val_decode_type="multistart_greedy",
-            test_decode_type="multistart_greedy",
+            train_strategy="multistart_sampling",
+            val_strategy="multistart_greedy",
+            test_strategy="multistart_greedy",
             **encoder_kwargs,
         )
 
@@ -80,6 +80,7 @@ class GLOPPolicy(NonAutoregressivePolicy):
         calc_reward: bool = True,
         return_actions: bool = False,
         return_entropy: bool = False,
+        strategy: Optional[str] = None,
         **decoding_kwargs,
     ) -> Dict[str, Any]:
         """
@@ -105,6 +106,7 @@ class GLOPPolicy(NonAutoregressivePolicy):
             return_actions=True,  # Need partition actions
             return_entropy=return_entropy,
             num_starts=self.n_samples,
+            strategy=strategy,
             **decoding_kwargs,
         )
 

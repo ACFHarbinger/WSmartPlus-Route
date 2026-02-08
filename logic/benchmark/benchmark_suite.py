@@ -47,7 +47,7 @@ def benchmark_neural_latency(device="cpu"):
         )
 
         # Warmup
-        model.set_decode_type("greedy")
+        model.set_strategy("greedy")
         with torch.no_grad():
             _ = model(td.clone())
 

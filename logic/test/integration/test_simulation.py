@@ -42,7 +42,7 @@ def mock_sim_opts(tmp_path):
         "vertex_method": "geo",
         "model_path": None,
         "temperature": 1.0,
-        "decode_type": "greedy",
+        "strategy": "greedy",
         "checkpoint_days": 1,
         "checkpoint_dir": str(tmp_path / "checkpoints"),
         "garbage_filepath": None,

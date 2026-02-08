@@ -39,7 +39,7 @@ class AutoregressivePolicy(ConstructivePolicy):
         self,
         td: TensorDict,
         env: RL4COEnvBase,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         num_starts: int = 1,
         **kwargs,
     ) -> Dict[str, Any]:
@@ -49,7 +49,7 @@ class AutoregressivePolicy(ConstructivePolicy):
         Args:
             td: TensorDict containing problem instance.
             env: Environment for state transitions.
-            decode_type: Decoding strategy.
+            strategy: Decoding strategy.
             num_starts: Number of solution starts.
 
         Returns:
@@ -62,7 +62,7 @@ class AutoregressivePolicy(ConstructivePolicy):
         if self.decoder is not None:
             # Note: Many decoders in WSmart-Route implement their own loop.
             # We assume the decoder handles the AR process.
-            log_p, actions = self.decoder(td, embeddings, env, decode_type=decode_type, num_starts=num_starts, **kwargs)
+            log_p, actions = self.decoder(td, embeddings, env, strategy=strategy, num_starts=num_starts, **kwargs)
         else:
             raise ValueError("AutoregressivePolicy requires a decoder.")
 
