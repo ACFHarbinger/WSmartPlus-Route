@@ -25,7 +25,9 @@ class TestSimPolicyParamsTab(QWidget):
     """
 
     def __init__(self):
-        """Initialize the policy parameters tab."""
+        """
+        Initialize the policy parameters tab and create input fields for algorithm settings.
+        """
         super().__init__()
         layout = QFormLayout(self)
         layout.addRow(QLabel("<b>Attention Model Parameters</b>"))
@@ -81,7 +83,12 @@ class TestSimPolicyParamsTab(QWidget):
         layout.addRow(boolean_flags_layout)
 
     def get_params(self):
-        """Retrieve the configured policy parameters as a dictionary."""
+        """
+        Retrieve the configured policy parameters as a dictionary.
+
+        Returns:
+            dict: Dictionary of parameters for AM, ALNS, Gurobi, etc.
+        """
         look_ahead_configs = []
         if self.lookahead_config_a.isChecked():
             look_ahead_configs.append("a")

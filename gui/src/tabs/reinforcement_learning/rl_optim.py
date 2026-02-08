@@ -1,3 +1,7 @@
+"""
+Optimizer and learning rate scheduler configuration for RL.
+"""
+
 from PySide6.QtWidgets import (
     QComboBox,
     QDoubleSpinBox,
@@ -18,11 +22,17 @@ class RLOptimizerTab(BaseReinforcementLearningTab):
     """Optimizer and scheduler parameters for Reinforcement Learning"""
 
     def __init__(self):
+        """
+        Initialize the RLOptimizerTab and setup optimization parameters.
+        """
         super().__init__()
         self.widgets = {}
         self.init_ui()
 
     def init_ui(self):
+        """
+        Setup the UI components for optimizer and scheduler configuration.
+        """
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll_widget = QWidget()
@@ -63,6 +73,12 @@ class RLOptimizerTab(BaseReinforcementLearningTab):
         self.setLayout(main_layout)
 
     def get_params(self):
+        """
+        Collect optimizer and scheduler parameters from the UI.
+
+        Returns:
+            dict: Dictionary of parameters including optimizer type and learning rate settings.
+        """
         params = {}
         for key, widget in self.widgets.items():
             if isinstance(widget, QSpinBox):

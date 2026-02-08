@@ -6,7 +6,15 @@ import sys
 
 
 def get_command(params):
-    """Generate the command to run the selected script"""
+    """
+    Generate the command string to run the selected script.
+
+    Args:
+        params (dict): Dictionary of parameters from ScriptParametersWidget.
+
+    Returns:
+        str: The formatted shell command.
+    """
     if not params:
         return ""
 

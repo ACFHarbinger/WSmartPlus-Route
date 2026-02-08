@@ -1,3 +1,7 @@
+"""
+Main tab for orchestrating and monitoring RL training processes.
+"""
+
 import os
 
 from PySide6.QtCore import QSize
@@ -28,11 +32,15 @@ class RLTrainingTab(BaseReinforcementLearningTab):
     """Training parameters for Reinforcement Learning"""
 
     def __init__(self):
+        """
+        Initialize the RLTrainingTab and setup training hyperparameters.
+        """
         super().__init__()
         self.widgets = {}
         self.init_ui()
 
     def init_ui(self):
+        """Initialize the training orchestration UI layout."""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll_widget = QWidget()
@@ -188,7 +196,16 @@ class RLTrainingTab(BaseReinforcementLearningTab):
         self.setLayout(main_layout)
 
     def _create_browser_layout(self, line_edit, is_dir=False):
-        """Helper to create a layout with a browse button."""
+        """
+        Helper to create a layout with a line edit and a browse button.
+
+        Args:
+            line_edit (QLineEdit): The line edit to populate.
+            is_dir (bool): Whether to browse for a directory or a file.
+
+        Returns:
+            QHBoxLayout: Layout containing the widgets.
+        """
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(line_edit)
@@ -199,6 +216,13 @@ class RLTrainingTab(BaseReinforcementLearningTab):
         return layout
 
     def _browse_path(self, line_edit, is_dir):
+        """
+        Open a file/directory dialog and set the selected path.
+
+        Args:
+            line_edit (QLineEdit): Target line edit.
+            is_dir (bool): Whether to browse for a directory.
+        """
         if is_dir:
             path = QFileDialog.getExistingDirectory(self, "Select Directory", os.getcwd())
         else:
@@ -228,6 +252,12 @@ class RLTrainingTab(BaseReinforcementLearningTab):
         self.is_load_visible = not self.is_load_visible
 
     def get_params(self):
+        """
+        Collect all training parameters from the UI components.
+
+        Returns:
+            dict: Dictionary of training hyperparameters and session flags.
+        """
         params = {}
         for key, widget in self.widgets.items():
             if isinstance(widget, QSpinBox):

@@ -160,27 +160,42 @@ class TestSimSettingsTab(QWidget):
 
     # Policy Management Methods (Unchanged)
     def toggle_policy(self, policy_name, checked):
-        """Toggle the selection state of a specific policy."""
+        """
+        Toggle the selection state of a specific policy.
+
+        Args:
+            policy_name (str): Name of the policy to toggle.
+            checked (bool): New checked state.
+        """
         if checked:
             self.selected_policies.add(policy_name)
         else:
             self.selected_policies.discard(policy_name)
 
     def select_all_policies(self):
-        """Select all available simulation policies."""
+        """
+        Select all available simulation policies.
+        """
         for policy_name in SIMULATOR_TEST_POLICIES.keys():
             self.selected_policies.add(policy_name)
             self.policy_buttons[policy_name].setChecked(True)
 
     def deselect_all_policies(self):
-        """Deselect all simulation policies."""
+        """
+        Deselect all simulation policies.
+        """
         self.selected_policies.clear()
         for policy_name in SIMULATOR_TEST_POLICIES.keys():
             self.policy_buttons[policy_name].setChecked(False)
 
     # Parameter Retrieval Method (Unchanged)
     def get_params(self):
-        """Retrieve the core simulation environment parameters as a dictionary."""
+        """
+        Retrieve the core simulation environment parameters as a dictionary.
+
+        Returns:
+            dict: Dictionary containing data_distribution, problem, size, days, etc.
+        """
         params = {
             "data_distribution": DATA_DISTRIBUTIONS[self.data_dist_input.currentText().strip()],
             "problem": self.problem_input.currentText().strip().lower(),

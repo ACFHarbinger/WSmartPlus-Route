@@ -1,3 +1,7 @@
+"""
+Collapsible widget for configuring HPO trial timeouts.
+"""
+
 from gui.src.components import ClickableHeaderWidget
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
@@ -12,7 +16,14 @@ from PySide6.QtWidgets import (
 
 
 class TimeoutWidget(QWidget):
+    """
+    A collapsible widget that allows users to specify a timeout in seconds for HPO trials.
+    """
+
     def __init__(self):
+        """
+        Initialize TimeoutWidget with a clickable header and hidden content container.
+        """
         super().__init__()
         layout = QFormLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -65,6 +76,9 @@ class TimeoutWidget(QWidget):
         self.content_container.hide()
 
     def _toggle(self):
+        """
+        Toggle the visibility of the timeout input field and update the UI styling.
+        """
         if self.is_visible:
             self.content_container.hide()
             self.toggle_button.setText("+")
@@ -78,6 +92,12 @@ class TimeoutWidget(QWidget):
         self.is_visible = not self.is_visible
 
     def get_value(self):
+        """
+        Parse and return the timeout value from the input field.
+
+        Returns:
+            int or None: The timeout in seconds, or None if empty/invalid.
+        """
         text = self.input.text().strip()
         if text:
             try:

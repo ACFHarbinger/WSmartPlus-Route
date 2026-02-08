@@ -1,220 +1,273 @@
 #!/usr/bin/env python3
 """
-Batch Docstring Adder Script
+Batch Docstring Adder (AST-Based)
 
-This script automatically adds docstrings to all remaining functions
-that are missing them in the WSmart-Route codebase.
+This script automatically detects missing docstrings in Python files and
+injects Google-Style docstrings. It supports type hint extraction and
+handles complex multi-line function signatures.
+
+Usage:
+    python add_docstrings_batch.py <file_or_directory> ...
 """
 
-import re
+import argparse
+import ast
+import os
 from pathlib import Path
-from typing import List
+from typing import Any, List
 
-# Files and their missing docstrings
-MISSING_DOCSTRINGS = {
-    "logic/src/models/policies/am.py": ["__init__"],
-    "logic/src/models/policies/critic.py": ["__init__"],
-    "logic/src/models/policies/utils.py": ["__init__", "get_edges_mask", "__init__"],
-    "logic/src/models/policies/deep_decoder.py": ["__init__"],
-    "logic/src/models/policies/pointer.py": ["__init__"],
-    "logic/src/models/policies/symnco.py": ["__init__"],
-    "logic/src/models/policies/temporal.py": ["__init__"],
-    "logic/src/models/policies/classical/hybrid.py": ["__init__"],
-    "logic/src/models/policies/classical/alns.py": ["__init__"],
-    "logic/src/models/policies/classical/hgs.py": ["__init__"],
-    "logic.src.models.subnets.embeddings/__init__.py": [
-        "__init__",
-        "__init__",
-        "forward",
-        "__init__",
-        "forward",
-    ],
-    "logic/src/models/subnets/deep_decoder.py": ["__getitem__", "__init__"],
-    "logic/src/pipeline/trainer.py": ["__init__"],
-    "logic/src/pipeline/rl/features/post_processing.py": ["__init__"],
-    "logic/src/pipeline/rl/hpo/optuna_hpo.py": ["__init__"],
-    "logic/src/pipeline/rl/hpo/dehb.py": ["__init__", "get_incumbents"],
-    "logic/src/pipeline/rl/meta/module.py": [
-        "__init__",
-        "validation_step",
-        "test_step",
-    ],
-    "logic/src/pipeline/rl/meta/weight_optimizer.py": [
-        "__init__",
-        "propose_weights",
-        "feedback",
-        "update_histories",
-        "prepare_meta_learning_batch",
-        "meta_learning_step",
-        "recommend_weights",
-        "update_weights_internal",
-        "get_current_weights",
-    ],
-    "logic/src/pipeline/rl/meta/td_learning.py": [
-        "__init__",
-        "state_dict",
-        "load_state_dict",
-    ],
-    "logic/src/pipeline/rl/meta/hypernet_strategy.py": [
-        "__init__",
-        "get_current_weights",
-    ],
+# --- Templates (Google Style) ---
+
+TEMPLATES = {
+    "module": '''"""{filename} module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import {module_name}
+    """''',
+    "class": '''"""{class_name} class.
+
+    Attributes:
+        attr (Type): Description of attribute.
+    """''',
+    "init": '''"""Initialize {class_name}.
+
+        Args:
+{args_section}
+        """''',
+    "function": '''"""{summary}.
+
+        Args:
+{args_section}
+
+        Returns:
+            {return_type}: Description of return value.
+        """''',
+    "function_yield": '''"""{summary}.
+
+        Args:
+{args_section}
+
+        Yields:
+            {return_type}: Description of yielded value.
+        """''',
+    "function_void": '''"""{summary}.
+
+        Args:
+{args_section}
+        """''',
+    "function_simple": '''"""{summary}."""''',
 }
 
 
-DOCSTRING_TEMPLATES = {
-    "__init__": '''"""
-        Initialize {class_name}.
+class DocstringInjector:
+    def __init__(self, filepath: str):
+        self.filepath = filepath
+        self.lines = Path(filepath).read_text(encoding="utf-8").splitlines()
+        # We process from bottom to top to avoid invalidating line numbers
+        self.modifications = []
 
-        Args:
-            {args}
-        """''',
-    "forward": '''"""
-        Forward pass.
+    def _get_indent(self, lineno: int) -> str:
+        """Returns the indentation string of a specific line."""
+        if lineno > len(self.lines):
+            return ""
+        line = self.lines[lineno - 1]
+        return line[: len(line) - len(line.lstrip())]
 
-        Args:
-            {args}
+    def _format_args(self, args: List[ast.arg], base_indent: str) -> str:
+        """Formats the Args section with type hints."""
+        lines = []
+        indent = base_indent + "    "  # Standard 4-space indent for args
 
-        Returns:
-            {return_type}
-        """''',
-    "default": '''"""
-        {description}
+        for arg in args:
+            if arg.arg in ("self", "cls"):
+                continue
 
-        Args:
-            {args}
+            # Extract annotation if available
+            type_name = "Any"
+            if arg.annotation:
+                try:
+                    type_name = ast.unparse(arg.annotation)
+                except AttributeError:
+                    pass
 
-        Returns:
-            {return_type}
-        """''',
-}
+            lines.append(f"{indent}{arg.arg} ({type_name}): Description of {arg.arg}.")
 
+        return "\n".join(lines) if lines else f"{indent}None."
 
-def generate_docstring(func_name: str, class_name: str, args_list: List[str]) -> str:
-    """Generate a docstring based on function signature."""
-    # Clean up args
-    clean_args = []
-    for arg in args_list:
-        if arg in ["self", "cls"]:
-            continue
-        # Remove type hints and defaults for docstring
-        arg_name = arg.split(":")[0].split("=")[0].strip()
-        clean_args.append(f"{arg_name}: Description for {arg_name}.")
+    def generate_docstring(self, node: Any, context: str = "") -> str:
+        """Generates the appropriate docstring based on node type and content."""
+        if isinstance(node, ast.Module):
+            filename = os.path.basename(self.filepath)
+            return TEMPLATES["module"].format(filename=filename, module_name=filename.replace(".py", ""))
 
-    args_str = "\n            ".join(clean_args) if clean_args else "None."
+        if isinstance(node, ast.ClassDef):
+            return TEMPLATES["class"].format(class_name=node.name)
 
-    if func_name == "__init__":
-        return f'''"""
-        Initialize {class_name}.
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            # Analyze function properties
+            args = node.args.args + node.args.kwonlyargs
+            if node.args.vararg:
+                args.append(node.args.vararg)
+            if node.args.kwarg:
+                args.append(node.args.kwarg)
 
-        Args:
-            {args_str}
-        """'''
-    elif func_name in ["forward", "validation_step", "test_step"]:
-        return f'''"""
-        {func_name.replace("_", " ").title()}.
+            has_args = any(a.arg not in ("self", "cls") for a in args)
+            has_yield = any(isinstance(n, (ast.Yield, ast.YieldFrom)) for n in ast.walk(node))
+            has_return = any(isinstance(n, ast.Return) and n.value is not None for n in ast.walk(node))
 
-        Args:
-            {args_str}
+            summary = node.name.replace("_", " ").capitalize()
+            indent = self._get_indent(node.lineno) + "    "
+            args_section = self._format_args(args, indent)
 
-        Returns:
-            Computation result.
-        """'''
-    else:
-        return f'''"""
-        {func_name.replace("_", " ").title()}.
+            if node.name == "__init__":
+                return TEMPLATES["init"].format(class_name=context, args_section=args_section)
 
-        Args:
-            {args_str}
-        """'''
+            if has_yield:
+                return TEMPLATES["function_yield"].format(summary=summary, args_section=args_section, return_type="Any")
 
+            if has_return:
+                # If it returns but has no args, we might skip Args section entirely?
+                # For strict Google style, if args exist, they must be documented.
+                if has_args:
+                    return TEMPLATES["function"].format(summary=summary, args_section=args_section, return_type="Any")
+                else:
+                    # No args, just return
+                    return f'''"""{summary}.\n\n{indent}Returns:\n{indent}    Any: Description.\n{indent}"""'''
 
-def add_docstring_to_function(content: str, func_name: str, class_name: str = "") -> str:
-    """Add docstring to a function if missing."""
-    lines = content.split("\n")
-    result = []
-    i = 0
+            # Void function
+            if has_args:
+                return TEMPLATES["function_void"].format(summary=summary, args_section=args_section)
 
-    while i < len(lines):
-        line = lines[i]
-        result.append(line)
+            return TEMPLATES["function_simple"].format(summary=summary)
 
-        # Check if this is a function definition
-        if line.strip().startswith(f"def {func_name}("):
-            # Check if next non-empty line is a docstring
-            j = i + 1
-            while j < len(lines) and not lines[j].strip():
-                result.append(lines[j])
-                j += 1
+        return ""
 
-            if j < len(lines):
-                next_line = lines[j].strip()
-                if not (next_line.startswith('"""') or next_line.startswith("'''")):
-                    # No docstring, add one
-                    # Extract args from function signature
-                    func_def = line
-                    k = i + 1
-                    while k < len(lines) and "):" not in lines[k - 1]:
-                        func_def += " " + lines[k].strip()
-                        k += 1
+    def _find_insertion_line(self, node: Any) -> int:
+        """Finds the correct line index to insert the docstring."""
+        # node.lineno is the start of the definition (e.g., 'def foo():')
+        # We need to find the end of the signature (the colon).
+        # We iterate from node.lineno downwards.
 
-                    # Simple arg extraction
-                    args_match = re.search(r"\((.*?)\):", func_def, re.DOTALL)
-                    if args_match:
-                        args_str = args_match.group(1)
-                        args_list = [a.strip() for a in args_str.split(",") if a.strip()]
-                    else:
-                        args_list = []
+        start = node.lineno - 1
+        for i in range(start, len(self.lines)):
+            line = self.lines[i].strip()
+            if line.endswith(":"):
+                return i + 1
+        return start + 1
 
-                    docstring = generate_docstring(func_name, class_name, args_list)
+    def scan_and_queue(self):
+        """Scans the file and queues missing docstrings for insertion."""
+        try:
+            tree = ast.parse("\n".join(self.lines))
+        except SyntaxError:
+            print(f"Skipping {self.filepath}: Syntax Error")
+            return
 
-                    # Find indentation
-                    indent = len(line) - len(line.lstrip()) + 4
-                    docstring_lines = docstring.split("\n")
-                    for ds_line in docstring_lines:
-                        result.append(" " * indent + ds_line)
+        # 1. Check Module Docstring
+        if not ast.get_docstring(tree):
+            doc = self.generate_docstring(tree)
+            # Insert at top (after shebang/encoding if present)
+            insert_idx = 0
+            if self.lines and (self.lines[0].startswith("#!") or "coding" in self.lines[0]):
+                insert_idx = 1
+            self.modifications.append((insert_idx, doc, ""))
 
-                    i = j - 1
+        # 2. Walk nodes
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                if not ast.get_docstring(node):
+                    doc = self.generate_docstring(node)
+                    idx = self._find_insertion_line(node)
+                    indent = self._get_indent(node.lineno) + "    "
+                    self.modifications.append((idx, doc, indent))
 
-        i += 1
+                # Check methods inside class
+                for item in node.body:
+                    if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        if not ast.get_docstring(item):
+                            doc = self.generate_docstring(item, context=node.name)
+                            idx = self._find_insertion_line(item)
+                            indent = self._get_indent(item.lineno) + "    "
+                            self.modifications.append((idx, doc, indent))
 
-    return "\n".join(result)
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                # Top-level functions
+                # Ensure we didn't already capture it inside a class loop (ast.walk does flat iteration too)
+                # A simple way to filter is checking col_offset or parent, but standard walk hits everything.
+                # We can check if it has a docstring.
+                if not ast.get_docstring(node):
+                    # Check if it was already queued (methods are hit twice in naive walk: once in ClassDef body loop, once in ast.walk)
+                    # To allow simple logic: we only process here if it wasn't processed.
+                    # Actually, simple `ast.walk` hits `ClassDef`, then hits `FunctionDef` later.
+                    # If we processed it in ClassDef, we need to track it.
+                    pass  # Simplified: The logic below is better.
 
+        # Refined Walk: Just use ast.walk and determine context
+        self.modifications = []  # Reset to use cleaner logic
 
-def process_file(file_path: str, missing_funcs: List[str]):
-    """Process a single file and add missing docstrings."""
-    path = Path(file_path)
-    if not path.exists():
-        print(f"File not found: {file_path}")
-        return
+        # Module
+        if not ast.get_docstring(tree):
+            doc = self.generate_docstring(tree)
+            self.modifications.append((0, doc, ""))
 
-    content = path.read_text()
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                if not ast.get_docstring(node):
+                    # Determine context (Class name if method)
+                    context = ""
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        # Only way to know if it's a method is checking parent.
+                        # Without parent pointers, we assume Function unless __init__.
+                        if node.name == "__init__":
+                            context = "Class"  # Generic placeholder
 
-    # Try to extract class name if any
-    class_match = re.search(r"class\s+(\w+)", content)
-    class_name = class_match.group(1) if class_match else "Class"
+                    doc = self.generate_docstring(node, context)
+                    idx = self._find_insertion_line(node)
+                    indent = self._get_indent(node.lineno) + "    "
+                    self.modifications.append((idx, doc, indent))
 
-    modified = content
-    for func in set(missing_funcs):  # Use set to avoid duplicates
-        modified = add_docstring_to_function(modified, func, class_name)
+        # Sort modifications by line number descending so insertion doesn't break indices
+        self.modifications.sort(key=lambda x: x[0], reverse=True)
 
-    # Write back
-    path.write_text(modified)
-    print(f"✓ Processed {file_path}")
+    def apply(self):
+        """Applies the queued modifications to the source lines."""
+        for idx, doc, indent in self.modifications:
+            # Format lines with indentation
+            doc_lines = [indent + line if line.strip() else line for line in doc.splitlines()]
+            self.lines.insert(idx, "\n".join(doc_lines))
+
+    def save(self):
+        Path(self.filepath).write_text("\n".join(self.lines), encoding="utf-8")
 
 
 def main():
-    """Run the batch docstring adder."""
-    print("Starting batch docstring addition...")
-    print(f"Processing {len(MISSING_DOCSTRINGS)} files...\n")
+    parser = argparse.ArgumentParser(description="Batch Add Google Docstrings.")
+    parser.add_argument("paths", nargs="+", help="Files or directories to scan.")
+    args = parser.parse_args()
 
-    for file_path, funcs in MISSING_DOCSTRINGS.items():
-        try:
-            process_file(file_path, funcs)
-        except Exception as e:
-            print(f"✗ Error processing {file_path}: {e}")
+    for path_arg in args.paths:
+        path = Path(path_arg)
+        files = [path] if path.is_file() else path.rglob("*.py")
 
-    print("\nDone! Run check_docstrings.py to verify.")
+        for f in files:
+            if f.name.startswith("_") and f.name != "__init__.py":
+                continue
+            if "venv" in f.parts or "__pycache__" in f.parts:
+                continue
+
+            print(f"Processing {f}...")
+            injector = DocstringInjector(str(f))
+            injector.scan_and_queue()
+
+            if injector.modifications:
+                injector.apply()
+                injector.save()
+                print(f"  -> Added {len(injector.modifications)} docstrings.")
+            else:
+                print("  -> No missing docstrings.")
 
 
 if __name__ == "__main__":

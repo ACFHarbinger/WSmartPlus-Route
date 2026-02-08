@@ -1,3 +1,7 @@
+"""
+Configuration tab for evaluation data batching and system flags.
+"""
+
 from PySide6.QtWidgets import (
     QFormLayout,
     QLabel,
@@ -17,6 +21,7 @@ class EvalDataBatchingTab(QWidget):
     """
 
     def __init__(self):
+        """Build the data batching and system flags layout."""
         super().__init__()
 
         scroll_area = QScrollArea()
@@ -78,6 +83,12 @@ class EvalDataBatchingTab(QWidget):
         QVBoxLayout(self).addWidget(scroll_area)
 
     def get_params(self):
+        """
+        Collect processing and execution parameters.
+
+        Returns:
+            dict: Batch size, device, and other execution settings.
+        """
         params = {
             "val_size": self.val_size_input.value(),
             "offset": self.offset_input.value(),

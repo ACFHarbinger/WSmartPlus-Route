@@ -49,6 +49,13 @@ class MainWindow(QWidget):
     ):
         """
         Initialize the main application window.
+
+        Args:
+            test_only (bool): If True, run in a simulation-only mode where no actual CLI
+                commands are executed beyond printing the generated command to terminal.
+            initial_window (str): The name of the tab set to display on startup.
+            restart_callback (callable): Callback function used to trigger a GUI restart.
+            initial_tab_index (int): The index of the tab to select within the tab set.
         """
         super().__init__()
         self.test_only = test_only
@@ -83,7 +90,13 @@ class MainWindow(QWidget):
         self.process_manager.finished.connect(self.on_command_finished)
 
     def _init_ui(self, initial_window, initial_tab_index):
-        """Build the main UI layout."""
+        """
+        Build and arrange the main UI layout components.
+
+        Args:
+            initial_window (str): The name of the command to select initially.
+            initial_tab_index (int): The index of the tab to activate initially.
+        """
         main_layout = QVBoxLayout(self)
         main_layout.setSpacing(12)
         main_layout.setContentsMargins(15, 15, 15, 15)
@@ -176,53 +189,87 @@ class MainWindow(QWidget):
         main_layout.addLayout(lower_layout)
 
     def toggle_theme(self):
-        """Toggles the application stylesheet between light and dark mode."""
+        """
+        Toggle the application's visual style between light and dark themes.
+
+        Updates the current_theme state and applies the corresponding QSS stylesheet.
+        """
         self.current_theme = "dark" if self.current_theme == "light" else "light"
         self.setStyleSheet(DARK_QSS if self.current_theme == "dark" else LIGHT_QSS)
 
     def close_and_reopen(self):
-        """Hides the current window and triggers external restart."""
+        """
+        Hide the current window and signal the application manager to restart the GUI.
+
+        Passes the current state (test_only mode and active tab index) to the callback.
+        """
         current_tab_index = self.tabs.currentIndex()
         self.hide()
         if self.restart_callback:
             self.restart_callback(test_only=self.test_only, tab_index=current_tab_index)
 
     def setup_tabs(self, command):
-        """Dynamically loads the correct set of tabs based on the command."""
+        """
+        Dynamically update the tab widget's content based on the selected command/mode.
+
+        Args:
+            command (str): The display name of the command (e.g., "Train Model").
+        """
         self.tab_manager.setup_tabs_in_widget(self.tabs, command)
 
     def on_command_changed(self, command):
-        """Handle command selection change."""
+        """
+        Respond to a change in the primary command selection.
+
+        Args:
+            command (str): The newly selected command name.
+        """
         self.setup_tabs(command)
         self.update_preview()
 
     def update_preview_text(self, text):
-        """Update preview text edit."""
+        """
+        Update the content of the command preview text edit.
+
+        Args:
+            text (str): The shell command string to display.
+        """
         self.preview.setPlainText(text)
 
     def update_preview(self):
-        """Delegate preview update to Mediator."""
+        """Force a refresh of the command preview by notifying the mediator."""
         self.mediator.set_current_command(self.command_combo.currentText())
 
     def copy_to_clipboard(self):
-        """Copy command to clipboard."""
+        """Copies the generated shell command from the preview to the clipboard."""
         self.update_preview()
         QApplication.clipboard().setText(self.preview.toPlainText())
         QMessageBox.information(self, "Copied:", self.preview.toPlainText())
 
     def run_command(self):
-        """Execute selected command."""
+        """Triggers the execution of the currently displayed shell command."""
         self.run_button.setDisabled(True)
         self.process_manager.run_command(self.preview.toPlainText(), self.command_combo.currentText(), self.test_only)
 
     def on_command_finished(self, exit_code, exit_status):
-        """Called when command finishes."""
+        """
+        Handle the completion of an external command execution.
+
+        Args:
+            exit_code (int): The process exit code.
+            exit_status (QProcess.ExitStatus): The status of the process exit.
+        """
         if exit_status != QProcess.ExitStatus.NormalExit or exit_code != 0:
             QMessageBox.critical(self, "Error", f"Command failed with exit code: {exit_code}")
         self.run_button.setDisabled(False)
 
     def closeEvent(self, event):
-        """Cleanup before exit."""
+        """
+        Cleanup resources and background processes before the window is closed.
+
+        Args:
+            event (QCloseEvent): The close event instance.
+        """
         self.process_manager.cleanup()
         # Cleanup analysis tabs
         for tab in self.tab_manager.analysis_tabs_map.values():

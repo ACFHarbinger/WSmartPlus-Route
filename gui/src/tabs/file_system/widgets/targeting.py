@@ -1,3 +1,7 @@
+"""
+Widget for targeting file system entries.
+"""
+
 import os
 
 from PySide6.QtWidgets import (
@@ -14,7 +18,17 @@ from ....styles.globals import START_RED_STYLE
 
 
 class TargetingWidget(QGroupBox):
+    """
+    Widget for selecting target paths and filename patterns.
+    """
+
     def __init__(self, parent=None):
+        """
+        Initialize the targeting widget.
+
+        Args:
+            parent (QWidget, optional): Parent widget. Defaults to None.
+        """
         super().__init__(parent)
         self.setLayout(QFormLayout())
         self.layout().setContentsMargins(10, 10, 10, 10)

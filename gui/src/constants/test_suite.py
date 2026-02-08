@@ -1,3 +1,7 @@
+"""
+Test suite settings and module mapping for the GUI.
+"""
+
 # Test suite settings
 TEST_MODULES = {
     "parser": "test_configs_parser.py",

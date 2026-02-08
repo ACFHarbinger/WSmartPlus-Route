@@ -1,3 +1,7 @@
+"""
+Problem-specific settings tab for data generation (Problem type, Graph sizes, Distributions).
+"""
+
 from PySide6.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -19,7 +23,14 @@ from ...styles.globals import (
 
 
 class GenDataProblemTab(QWidget):
+    """
+    Tab for selecting problem types, graph sizes, and data distributions for generation.
+    """
+
     def __init__(self):
+        """
+        Initialize GenDataProblemTab with multi-select distribution buttons.
+        """
         super().__init__()
         layout = QFormLayout(self)
         layout.setSpacing(8)
@@ -98,6 +109,12 @@ class GenDataProblemTab(QWidget):
 
     # --- Modified get_params ---
     def get_params(self):
+        """
+        Extract problem-specific parameters from the UI.
+
+        Returns:
+            dict: Dictionary containing problem type, graph sizes, and distributions.
+        """
         params = {}
         # Mandatory fields
         params["problem"] = self.problem_combo.currentText()

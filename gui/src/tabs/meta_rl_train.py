@@ -1,3 +1,7 @@
+"""
+Meta-Reinforcement Learning training configuration tab.
+"""
+
 from PySide6.QtWidgets import (
     QComboBox,
     QDoubleSpinBox,
@@ -25,6 +29,7 @@ class MetaRLTrainParserTab(QWidget):
     """
 
     def __init__(self):
+        """Build the Meta-RL configuration layout."""
         super().__init__()
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -155,6 +160,12 @@ class MetaRLTrainParserTab(QWidget):
         scroll_area.setWidget(content)
 
     def get_params(self):
+        """
+        Collect Meta-RL parameters from UI elements.
+
+        Returns:
+            dict: Parsed MRL, TDL, CB, and MORL parameters.
+        """
         # 1. Start with the values that do not require dictionary lookup
         params = {
             "mrl_history": self.mrl_history_input.value(),
@@ -174,6 +185,16 @@ class MetaRLTrainParserTab(QWidget):
         # 2. Handle QComboBox Lookups
         # Helper function for safe lookup
         def get_cli_value(combo_box, lookup_dict):
+            """
+            Look up the CLI argument value from a combo box selection.
+
+            Args:
+                combo_box (QComboBox): The combo box widget.
+                lookup_dict (dict): Mapping from UI text to CLI value.
+
+            Returns:
+                str: The CLI-compliant value.
+            """
             text = combo_box.currentText()
             # Look up the short CLI value (e.g., 'ucb') using the full UI text
             cli_arg = lookup_dict.get(text, None)

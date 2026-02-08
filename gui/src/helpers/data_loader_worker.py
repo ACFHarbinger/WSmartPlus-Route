@@ -1,3 +1,7 @@
+"""
+Worker for asynchronous data loading and processing.
+"""
+
 import collections.abc as abc
 
 import numpy as np
@@ -6,6 +10,11 @@ from PySide6.QtCore import QObject, Signal, Slot
 
 
 class DataLoadWorker(QObject):
+    """
+    Background worker that loads data files (CSV, XLSX, PKL) into Pandas DataFrames.
+    Includes heuristic splitting for VRPP/WCVRP problem datasets.
+    """
+
     # Signal to emit the loaded data as a thread-safe list of dicts
     data_loaded = Signal(object)
     error_occurred = Signal(str)

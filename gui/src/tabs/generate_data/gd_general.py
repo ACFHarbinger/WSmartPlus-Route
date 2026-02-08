@@ -1,3 +1,7 @@
+"""
+General settings tab for data generation (Dataset name, size, type, seed).
+"""
+
 import os
 
 from PySide6.QtCore import QSize
@@ -19,7 +23,14 @@ from ...components import ClickableHeaderWidget
 
 
 class GenDataGeneralTab(QWidget):
+    """
+    Tab for general data generation settings like dataset name, size, and type.
+    """
+
     def __init__(self):
+        """
+        Initialize GenDataGeneralTab with required and optional (collapsible) fields.
+        """
         super().__init__()
         layout = QFormLayout(self)
 
@@ -154,6 +165,12 @@ class GenDataGeneralTab(QWidget):
         self.is_filename_visible = not self.is_filename_visible
 
     def get_params(self):
+        """
+        Extract general generation parameters from the UI.
+
+        Returns:
+            dict: Dictionary containing mandatory and optional generation settings.
+        """
         params = {}
         # Mandatory fields
         params["name"] = self.name_input.text().strip()

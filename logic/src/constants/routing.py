@@ -79,6 +79,10 @@ HEURISTICS_RATIO = 0.5  # balanced heuristic vs exact search
 # 0.5 GB is conservative; increase for large instances on high-RAM machines.
 NODEFILE_START_GB = 0.5  # GB (start disk-based node storage)
 
+# Solver Output Flag
+# 0 = suppress solver output, 1 = enable solver output
+SOLVER_OUTPUT_FLAG = 0  # for Gurobi solver
+
 # Simulated Annealing Neighborhood Search Constants
 # -------------------------------------------------
 # Used in: logic/src/policies/adapters/policy_sans.py

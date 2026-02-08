@@ -1,3 +1,7 @@
+"""
+Worker for tailing log files in real-time.
+"""
+
 import os
 import time
 
@@ -5,10 +9,23 @@ from PySide6.QtCore import QMutex, QObject, Signal, Slot
 
 
 class FileTailerWorker(QObject):
+    """
+    Background worker that monitors a file and emits new lines as they are written.
+    Useful for real-time log monitoring of external simulation processes.
+    """
+
     # Signal emitted when a new complete log entry is found
     log_line_ready = Signal(str)
 
     def __init__(self, data_mutex: QMutex, log_path, parent=None):
+        """
+        Initialize FileTailerWorker.
+
+        Args:
+            data_mutex: Shared mutex for thread-safe access.
+            log_path: Path to the log file to monitor.
+            parent: Parent QObject.
+        """
         super().__init__(parent)
         self.file_path = log_path
         self.data_mutex = data_mutex

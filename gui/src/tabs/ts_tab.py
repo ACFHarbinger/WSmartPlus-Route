@@ -1,3 +1,7 @@
+"""
+Tab for configuring and running the test suite.
+"""
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -22,6 +26,9 @@ class TestSuiteTab(QWidget):
     """
 
     def __init__(self):
+        """
+        Initialize the TestSuiteTab and setup the configuration groups.
+        """
         super().__init__()
         self.layout = QVBoxLayout(self)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -184,13 +191,24 @@ class TestSuiteTab(QWidget):
 
     def get_params(self):
         """
-        Extracts the current settings from the GUI widgets into a dictionary
-        mimicking the output of argparse.
+        Extracts the current settings from the GUI widgets into a dictionary.
+
+        Returns:
+            dict: Parameters for test_suite execution.
         """
         params = {}
 
         # Helper function to get text and replace empty strings with None
         def get_text_or_none(widget):
+            """
+            Extract text from a widget and return None if empty.
+
+            Args:
+                widget (QWidget): The widget to extract text from.
+
+            Returns:
+                str | list | None: The extracted text or list of items, or None.
+            """
             if isinstance(widget, QLineEdit):
                 text = widget.text().strip()
                 return text if text else None

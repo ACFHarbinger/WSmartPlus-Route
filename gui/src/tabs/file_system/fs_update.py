@@ -1,3 +1,7 @@
+"""
+GUI tab for updating file system entries.
+"""
+
 from PySide6.QtWidgets import (
     QFormLayout,
     QGroupBox,
@@ -20,6 +24,7 @@ class FileSystemUpdateTab(QWidget):
     """
 
     def __init__(self):
+        """Build the file system update configuration layout."""
         super().__init__()
         # 1. Create a container widget for all content
         scrollable_content = QWidget()

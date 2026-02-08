@@ -1,3 +1,7 @@
+"""
+Visualization methods for vertices and edges in the GUI.
+"""
+
 VERTEX_METHODS = {
     "Min-Max Normalization (MMN)": "mmn",
     "3D Cartesian Coordinates (C3D)": "c3d",
