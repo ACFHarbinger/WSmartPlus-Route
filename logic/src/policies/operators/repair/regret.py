@@ -14,7 +14,7 @@ Example:
     >>> new_routes = operator.repair(destroyed_routes, unassigned_nodes)
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -25,6 +25,7 @@ def regret_2_insertion(
     dist_matrix: np.ndarray,
     demands: Dict[int, float],
     capacity: float,
+    R: Optional[float] = None,
 ) -> List[List[int]]:
     """
     Insert removed nodes based on the regret-2 criterion.
@@ -39,11 +40,12 @@ def regret_2_insertion(
         dist_matrix: Distance matrix.
         demands: Demand look-up.
         capacity: Vehicle capacity.
+        R: Revenue multiplier (Optional).
 
     Returns:
         List[List[int]]: New routes after insertion.
     """
-    return regret_k_insertion(routes, removed_nodes, dist_matrix, demands, capacity, k=2)
+    return regret_k_insertion(routes, removed_nodes, dist_matrix, demands, capacity, k=2, R=R)
 
 
 def regret_k_insertion(
@@ -53,6 +55,7 @@ def regret_k_insertion(
     demands: Dict[int, float],
     capacity: float,
     k: int = 2,
+    R: Optional[float] = None,
 ) -> List[List[int]]:
     """
     Regret-k Insertion Heuristic.
@@ -83,15 +86,23 @@ def regret_k_insertion(
         # Calculate insertion costs for all unassigned nodes in all positions
         # node -> [(cost, r_idx, pos), ...]
         all_candidates = []
+        unprofitable_nodes = []
 
         for node in unassigned:
             demand = demands.get(node, 0)
+
+            # Optimization: If R is provided, check straight insertion cost first?
+            # No, need context of routes.
+
             node_options = []
 
             # Check existing routes
             for r_idx, route in enumerate(routes):
                 if loads[r_idx] + demand > capacity:
                     continue
+
+                # Optimization:
+                # If route is long, maybe skip? No.
 
                 for pos in range(len(route) + 1):
                     prev = 0 if pos == 0 else route[pos - 1]
@@ -107,6 +118,14 @@ def regret_k_insertion(
             # Sort options by cost
             node_options.sort(key=lambda x: x[0])
 
+            # VRPP Logic
+            best_cost = node_options[0][0]
+            if R is not None:
+                revenue = demand * R
+                if best_cost > revenue:
+                    unprofitable_nodes.append(node)
+                    continue
+
             # Calculate regret
             if len(node_options) >= k:
                 # Regret = cost_at_k - cost_at_1
@@ -121,8 +140,12 @@ def regret_k_insertion(
             best_option = node_options[0] if node_options else (float("inf"), -1, -1)
             all_candidates.append((regret, node, best_option))
 
+        # Remove unprofitable nodes from unassigned
+        for node in unprofitable_nodes:
+            unassigned.remove(node)
+
         if not all_candidates:
-            # Should not happen if feasible
+            # No feasible/profitable insertions left
             break
 
         # Pick node with max regret
@@ -131,7 +154,8 @@ def regret_k_insertion(
 
         if r_idx == -1:
             # Cannot insert node anywhere
-            break
+            unassigned.remove(best_node)
+            continue
 
         # Apply insertion
         demand = demands.get(best_node, 0)

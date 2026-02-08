@@ -12,58 +12,70 @@
 # =============================================================================
 
 env:
-  name: "cwcvrp"  # Environment identifier
+  name: "cwcvrp" # Environment identifier
 
   # =============================================================================
   # Problem Size
   # =============================================================================
-  num_loc: 100  # Number of customer bins (nodes). Common sizes: 20, 50, 100, 150.
-                # Does NOT include depot. Total nodes = num_loc + 1.
+  num_loc:
+    100 # Number of customer bins (nodes). Common sizes: 20, 50, 100, 150.
+    # Does NOT include depot. Total nodes = num_loc + 1.
 
   # =============================================================================
   # Geographic Configuration
   # =============================================================================
-  area: "riomaior"  # Real-world area for bin locations. Options:
-                    # - "riomaior": Rio Maior, Portugal (default)
-                    # - "manhattan": Manhattan, NYC
-                    # - "random": Uniformly random [0,1]^2 coordinates
+  graph:
+    area:
+      "riomaior" # Real-world area for bin locations. Options:
+      # - "riomaior": Rio Maior, Portugal (default)
+      # - "manhattan": Manhattan, NYC
+      # - "random": Uniformly random [0,1]^2 coordinates
 
-  waste_type: "plastic"  # Waste category. Options: plastic, glass, paper, organic.
-                         # Affects bin capacity and fill rate distributions.
+    waste_type:
+      "plastic" # Waste category. Options: plastic, glass, paper, organic.
+      # Affects bin capacity and fill rate distributions.
 
-  # =============================================================================
-  # Distance & Graph Construction
-  # =============================================================================
-  distance_method: "gmaps"  # Distance calculation method. Options:
-                            # - "gmaps": Google Maps API (real road distances)
-                            # - "osm": OpenStreetMap routing
-                            # - "euclidean": Straight-line L2 distance
-                            # - "manhattan": L1 distance
+    # =============================================================================
+    # Distance & Graph Construction
+    # =============================================================================
+    distance_method:
+      "gmaps" # Distance calculation method. Options:
+      # - "gmaps": Google Maps API (real road distances)
+      # - "osm": OpenStreetMap routing
+      # - "euclidean": Straight-line L2 distance
+      # - "manhattan": L1 distance
 
-  vertex_method: "mmn"  # Vertex placement method. Options:
-                        # - "mmn": Map-matched nodes (snap to roads)
-                        # - "grid": Regular grid layout
-                        # - "random": Uniform random placement
+    vertex_method:
+      "mmn" # Vertex placement method. Options:
+      # - "mmn": Map-matched nodes (snap to roads)
+      # - "grid": Regular grid layout
+      # - "random": Uniform random placement
 
-  edge_threshold: 1.0  # Maximum edge distance for graph connectivity (km).
-                       # Edges longer than this are pruned. Use high value (e.g., 100) for full connectivity.
+    edge_threshold:
+      1.0 # Maximum edge distance for graph connectivity (km).
+      # Edges longer than this are pruned. Use high value (e.g., 100) for full connectivity.
 
-  edge_method: "knn"  # Graph edge construction. Options:
-                      # - "knn": K-nearest neighbors (typically K=10-20)
-                      # - "radius": All nodes within edge_threshold
-                      # - "delaunay": Delaunay triangulation
-                      # - "complete": Fully connected graph
+    edge_method:
+      "knn" # Graph edge construction. Options:
+      # - "knn": K-nearest neighbors (typically K=10-20)
+      # - "radius": All nodes within edge_threshold
+      # - "delaunay": Delaunay triangulation
+      # - "complete": Fully connected graph
 
   # =============================================================================
   # Reward / Cost Weights (Objective Function)
   # =============================================================================
   # Objective: maximize (collection_reward × kg) - (cost_weight × km) - (overflow_penalty × overflows)
 
-  cost_weight: 10.0  # Weight for distance penalty (w_len).
-                     # Higher = prioritize shorter routes. Typical range: 5-20.
+  reward:
+    cost_weight:
+      10.0 # Weight for distance penalty (w_len).
+      # Higher = prioritize shorter routes. Typical range: 5-20.
 
-  overflow_penalty: 10.0  # Weight for bin overflow penalty (w_over).
-                          # Higher = prioritize preventing overflows. Typical range: 10-50.
+    overflow_penalty:
+      10.0 # Weight for bin overflow penalty (w_over).
+      # Higher = prioritize preventing overflows. Typical range: 10-50.
 
-  collection_reward: 10.0  # Weight for waste collection reward (w_waste).
-                           # Higher = prioritize collecting more waste. Typical range: 5-20.
+    collection_reward:
+      10.0 # Weight for waste collection reward (w_waste).
+      # Higher = prioritize collecting more waste. Typical range: 5-20.

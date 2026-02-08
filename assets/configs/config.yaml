@@ -17,33 +17,40 @@
 # =============================================================================
 
 defaults:
-  - _self_  # This file's base settings
-  - tasks: train  # Default task config (tasks/train.yaml)
-  - envs: cwcvrp  # Default environment (Capacitated Waste Collection VRP)
-  - model: am  # Default model (Attention Model)
+  - _self_ # This file's base settings
+  - tasks: train # Default task config (tasks/train.yaml)
+  - envs: cwcvrp # Default environment (Capacitated Waste Collection VRP)
+  - model: am # Default model (Attention Model)
+
   # - data: train_data  # Optional data config (currently unused)
 
 # =============================================================================
 # Global Settings
 # =============================================================================
 
-seed: 42  # Random seed for reproducibility. Overridden by CLI or task configs.
-verbose: true  # Enable detailed logging output. Set false for production runs.
-task: "train"  # Active task type. Valid: train, eval, test_sim, gen_data, mrl_train, hp_optim.
-start: 0  # Starting epoch/iteration. Useful for resuming interrupted training.
-device: "cuda"  # Compute device. Options: "cuda", "cpu", "cuda:0", "cuda:1", etc.
+seed: 42 # Random seed for reproducibility. Overridden by CLI or task configs.
+verbose: true # Enable detailed logging output. Set false for production runs.
+task: "train" # Active task type. Valid: train, eval, test_sim, gen_data, mrl_train, hp_optim.
+start: 0 # Starting epoch/iteration. Useful for resuming interrupted training.
+device: "cuda" # Compute device. Options: "cuda", "cpu", "cuda:0", "cuda:1", etc.
 
 # =============================================================================
 # Training Defaults (Overridden by tasks/train.yaml)
 # =============================================================================
 train:
-  logs_dir: "logs"  # Directory for training logs and checkpoints
-  model_weights_path: "model_weights"  # Subdirectory for saved model weights
-  log_step: 10  # Log metrics every N steps
+  logs_dir: "logs" # Directory for training logs and checkpoints
+  model_weights_path: "model_weights" # Subdirectory for saved model weights
+  log_step: 10 # Log metrics every N steps
+  callbacks:
+    - display:
+        _target_: logic.src.pipeline.callbacks.display.TrainingDisplayCallback
+        metric_key: "train/reward"
+        chart_title: "📈 Training Progress"
+        refresh_rate: 4
 
 # =============================================================================
 # Output Paths
 # =============================================================================
-log_dir: "logs"  # Root directory for all logging output
-output_dir: "assets/model_weights"  # Directory for final trained models
-wandb_mode: "disabled"  # Weights & Biases integration. Options: "online", "offline", "disabled"
+log_dir: "logs" # Root directory for all logging output
+output_dir: "assets/model_weights" # Directory for final trained models
+wandb_mode: "disabled" # Weights & Biases integration. Options: "online", "offline", "disabled"

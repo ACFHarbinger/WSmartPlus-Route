@@ -66,8 +66,8 @@ class ALNSSolver:
             lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes),
         ]
         self.repair_ops = [
-            lambda r, n: greedy_insertion(r, n, self.dist_matrix, self.demands, self.capacity),
-            lambda r, n: regret_2_insertion(r, n, self.dist_matrix, self.demands, self.capacity),
+            lambda r, n: greedy_insertion(r, n, self.dist_matrix, self.demands, self.capacity, R=self.R),
+            lambda r, n: regret_2_insertion(r, n, self.dist_matrix, self.demands, self.capacity, R=self.R),
         ]
 
         self.destroy_weights = [1.0] * len(self.destroy_ops)
@@ -89,8 +89,14 @@ class ALNSSolver:
             current_routes = self.build_initial_solution()
 
         best_routes = copy.deepcopy(current_routes)
+
+        # Calculate initial metrics
         best_cost = self.calculate_cost(best_routes)
-        current_cost = best_cost
+        best_rev = sum(self.demands.get(node_idx, 0) * self.R for route in best_routes for node_idx in route)
+        best_profit = best_rev - best_cost
+
+        current_routes = copy.deepcopy(best_routes)
+        current_profit = best_profit
 
         T = self.params.start_temp
         start_time = time.time()
@@ -115,16 +121,25 @@ class ALNSSolver:
 
             partial_routes, removed = destroy_op(copy.deepcopy(current_routes), n_remove)
             new_routes = repair_op(partial_routes, removed)
+
+            # Calculate new metrics
             new_cost = self.calculate_cost(new_routes)
+            new_rev = sum(self.demands.get(node_idx, 0) * self.R for route in new_routes for node_idx in route)
+            new_profit = new_rev - new_cost
 
             accept = False
             score = 0
 
-            delta = new_cost - current_cost
+            # Delta is change in objective (Energy). We want to Maximize Profit.
+            # Minimization equivalent: minimize (-Profit).
+            # Delta = (-new_profit) - (-current_profit) = current_profit - new_profit
+            delta = current_profit - new_profit
+
             if delta < -1e-6:
                 accept = True
-                if new_cost < best_cost - 1e-6:
+                if new_profit > best_profit + 1e-6:
                     best_routes = copy.deepcopy(new_routes)
+                    best_profit = new_profit
                     best_cost = new_cost
                     score = 3
                 else:
@@ -136,7 +151,7 @@ class ALNSSolver:
 
             if accept:
                 current_routes = new_routes
-                current_cost = new_cost
+                current_profit = new_profit
 
             # Update weights
             lambda_decay = 0.8
@@ -149,10 +164,8 @@ class ALNSSolver:
 
             T *= self.params.cooling_rate
 
-        collected_revenue = sum(self.demands.get(node_idx, 0) * self.R for route in best_routes for node_idx in route)
-        profit = collected_revenue - best_cost
-
-        return best_routes, profit, best_cost
+        # Recalculate best cost for return matching signature (best_profit is already best_rev - best_cost)
+        return best_routes, best_profit, best_cost
 
     def select_operator(self, weights: List[float]) -> int:
         """
