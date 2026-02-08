@@ -19,8 +19,8 @@
   - ```{autodoc2-docstring} src.utils.data.generation._get_fill_gamma
     :summary:
     ```
-* - {py:obj}`generate_waste_prize <src.utils.data.generation.generate_waste_prize>`
-  - ```{autodoc2-docstring} src.utils.data.generation.generate_waste_prize
+* - {py:obj}`generate_waste <src.utils.data.generation.generate_waste>`
+  - ```{autodoc2-docstring} src.utils.data.generation.generate_waste
     :summary:
     ```
 ````
@@ -34,9 +34,9 @@
 ```
 ````
 
-````{py:function} generate_waste_prize(problem_size: int, distribution: str, graph: typing.Tuple[typing.Any, typing.Any], dataset_size: int = 1, bins: typing.Optional[typing.Any] = None) -> typing.Union[numpy.ndarray, typing.Any]
-:canonical: src.utils.data.generation.generate_waste_prize
+````{py:function} generate_waste(problem_size: int, distribution: str, graph: typing.Tuple[typing.Any, typing.Any], dataset_size: int = 1, bins: typing.Optional[typing.Any] = None, **kwargs) -> typing.Union[numpy.ndarray, typing.Any]
+:canonical: src.utils.data.generation.generate_waste
 
-```{autodoc2-docstring} src.utils.data.generation.generate_waste_prize
+```{autodoc2-docstring} src.utils.data.generation.generate_waste
 ```
 ````

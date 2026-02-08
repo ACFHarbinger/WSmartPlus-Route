@@ -35,7 +35,6 @@ src.models.subnets.modules.static_hyper_connection
 src.models.subnets.modules.skip_connection
 src.models.subnets.modules.polynet_attention
 src.models.subnets.modules.subproblem_mapping
-src.models.subnets.modules.ham_attention
 src.models.subnets.modules.adapter_base
 src.models.subnets.modules.activation_function
 src.models.subnets.modules.moe_feed_forward

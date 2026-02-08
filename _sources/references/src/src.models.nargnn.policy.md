@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} NARGNNPolicy(encoder: typing.Optional[logic.src.models.common.nonautoregressive_policy.NonAutoregressiveEncoder] = None, decoder: typing.Optional[logic.src.models.common.nonautoregressive_policy.NonAutoregressiveDecoder] = None, embed_dim: int = 64, env_name: str = 'tsp', init_embedding: typing.Optional[torch.nn.Module] = None, edge_embedding: typing.Optional[torch.nn.Module] = None, graph_network: typing.Optional[torch.nn.Module] = None, heatmap_generator: typing.Optional[torch.nn.Module] = None, num_layers_heatmap_generator: int = 5, num_layers_graph_encoder: int = 15, act_fn: str = 'silu', agg_fn: str = 'mean', linear_bias: bool = True, train_decode_type: str = 'sampling', val_decode_type: str = 'greedy', test_decode_type: str = 'greedy', **constructive_policy_kw)
+`````{py:class} NARGNNPolicy(encoder: typing.Optional[logic.src.models.common.nonautoregressive_policy.NonAutoregressiveEncoder] = None, decoder: typing.Optional[logic.src.models.common.nonautoregressive_policy.NonAutoregressiveDecoder] = None, embed_dim: int = 64, env_name: str = 'tsp', init_embedding: typing.Optional[torch.nn.Module] = None, edge_embedding: typing.Optional[torch.nn.Module] = None, graph_network: typing.Optional[torch.nn.Module] = None, heatmap_generator: typing.Optional[torch.nn.Module] = None, num_layers_heatmap_generator: int = 5, num_layers_graph_encoder: int = 15, act_fn: str = 'silu', agg_fn: str = 'mean', linear_bias: bool = True, train_strategy: str = 'sampling', val_strategy: str = 'greedy', test_strategy: str = 'greedy', **constructive_policy_kw)
 :canonical: src.models.nargnn.policy.NARGNNPolicy
 
 Bases: {py:obj}`logic.src.models.common.nonautoregressive_policy.NonAutoregressivePolicy`

@@ -71,14 +71,14 @@
 ```
 ````
 
-````{py:function} _eval_dataset(model: torch.nn.Module, dataset: torch.utils.data.Dataset, width: int, softmax_temp: float, opts: typing.Dict[str, typing.Any], device: torch.device) -> typing.List[typing.Dict[str, typing.Any]]
+````{py:function} _eval_dataset(model: torch.nn.Module, dataset: torch.utils.data.Dataset, beam_width: int, softmax_temp: float, opts: typing.Dict[str, typing.Any], device: torch.device) -> typing.List[typing.Dict[str, typing.Any]]
 :canonical: src.pipeline.features.eval.engine._eval_dataset
 
 ```{autodoc2-docstring} src.pipeline.features.eval.engine._eval_dataset
 ```
 ````
 
-````{py:function} eval_dataset(dataset_path: str, width: int, softmax_temp: float, opts: typing.Dict[str, typing.Any], method: typing.Optional[str] = None) -> typing.Tuple[typing.List[float], typing.List[typing.Optional[typing.List[int]]], typing.List[float]]
+````{py:function} eval_dataset(dataset_path: str, beam_width: int, softmax_temp: float, opts: typing.Dict[str, typing.Any], method: typing.Optional[str] = None) -> typing.Tuple[typing.List[float], typing.List[typing.Optional[typing.List[int]]], typing.List[float]]
 :canonical: src.pipeline.features.eval.engine.eval_dataset
 
 ```{autodoc2-docstring} src.pipeline.features.eval.engine.eval_dataset

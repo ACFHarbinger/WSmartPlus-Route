@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, decode_type: str = 'greedy', **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, strategy: str = 'greedy', **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.common.transductive_base.TransductiveModel.forward
 
 ```{autodoc2-docstring} src.models.common.transductive_base.TransductiveModel.forward

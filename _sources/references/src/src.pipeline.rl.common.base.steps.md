@@ -57,14 +57,6 @@
 ```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin.__init__
 ```
 
-````{py:method} log(name: str, value: typing.Any, **kwargs)
-:canonical: src.pipeline.rl.common.base.steps.StepMixin.log
-
-```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin.log
-```
-
-````
-
 ````{py:method} _apply_must_go_selection(td: tensordict.TensorDict) -> tensordict.TensorDict
 :canonical: src.pipeline.rl.common.base.steps.StepMixin._apply_must_go_selection
 

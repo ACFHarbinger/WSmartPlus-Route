@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} setup_model(policy: str, general_path: str, model_paths: typing.Dict[str, str], device: torch.device, lock: threading.Lock, temperature: float = 1.0, decode_type: str = 'greedy') -> typing.Tuple[torch.nn.Module, typing.Dict[str, typing.Any]]
+````{py:function} setup_model(policy: str, general_path: str, model_paths: typing.Dict[str, str], device: torch.device, lock: threading.Lock, temperature: float = 1.0, strategy: str = 'greedy') -> typing.Tuple[torch.nn.Module, typing.Dict[str, typing.Any]]
 :canonical: src.utils.configs.setup_worker.setup_model
 
 ```{autodoc2-docstring} src.utils.configs.setup_worker.setup_model

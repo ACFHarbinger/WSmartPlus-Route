@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GraphAttentionDecoder(n_heads, embed_dim, n_layers, feed_forward_hidden=512, normalization='batch', epsilon_alpha=1e-05, learn_affine=True, track_stats=False, momentum_beta=0.1, locresp_k=1.0, n_groups=3, activation='gelu', af_param=1.0, threshold=6.0, replacement_value=6.0, n_params=3, uniform_range=[0.125, 1 / 3], dropout_rate=0.1)
+`````{py:class} GraphAttentionDecoder(n_heads: int, embed_dim: int, n_layers: int, feed_forward_hidden: int = 512, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, dropout_rate: float = 0.1, **kwargs)
 :canonical: src.models.subnets.decoders.gat.graph_decoder.GraphAttentionDecoder
 
 Bases: {py:obj}`torch.nn.Module`

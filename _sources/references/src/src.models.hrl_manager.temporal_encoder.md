@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} TemporalEncoder(hidden_dim: int = 64)
+`````{py:class} TemporalEncoder(hidden_dim: int = 64, rnn_type: str = 'lstm')
 :canonical: src.models.hrl_manager.temporal_encoder.TemporalEncoder
 
 Bases: {py:obj}`torch.nn.Module`

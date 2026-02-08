@@ -45,10 +45,10 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} set_decode_type(decode_type: str, **kwargs)
-:canonical: src.models.deepaco.model.DeepACO.set_decode_type
+````{py:method} set_strategy(strategy: str, **kwargs)
+:canonical: src.models.deepaco.model.DeepACO.set_strategy
 
-```{autodoc2-docstring} src.models.deepaco.model.DeepACO.set_decode_type
+```{autodoc2-docstring} src.models.deepaco.model.DeepACO.set_strategy
 ```
 
 ````

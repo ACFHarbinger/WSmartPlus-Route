@@ -15,7 +15,6 @@
 
 src.models.subnets.decoders.glimpse.decoder
 src.models.subnets.decoders.glimpse.attention
-src.models.subnets.decoders.glimpse.fixed
 ```
 
 ## Package Contents
@@ -37,7 +36,7 @@ src.models.subnets.decoders.glimpse.fixed
 ````{py:data} __all__
 :canonical: src.models.subnets.decoders.glimpse.__all__
 :value: >
-   ['GlimpseDecoder', 'AttentionModelFixed']
+   ['GlimpseDecoder']
 
 ```{autodoc2-docstring} src.models.subnets.decoders.glimpse.__all__
 ```

@@ -20,6 +20,6 @@ src.models.subnets.decoders.polynet
 src.models.subnets.decoders.gat
 src.models.subnets.decoders.matnet
 src.models.subnets.decoders.nar
-src.models.subnets.decoders.l2d
+src.models.subnets.decoders.common
 src.models.subnets.decoders.ptr
 ```

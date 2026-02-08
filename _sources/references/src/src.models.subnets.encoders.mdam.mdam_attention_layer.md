@@ -23,10 +23,10 @@
 
 ### API
 
-`````{py:class} MultiHeadAttentionLayer(embed_dim: int, num_heads: int, feed_forward_hidden: int = 512, normalization: str = 'batch')
+````{py:class} MultiHeadAttentionLayer(embed_dim: int, num_heads: int, feed_forward_hidden: int = 512, normalization: str = 'batch')
 :canonical: src.models.subnets.encoders.mdam.mdam_attention_layer.MultiHeadAttentionLayer
 
-Bases: {py:obj}`torch.nn.Module`
+Bases: {py:obj}`logic.src.models.subnets.encoders.common.MultiHeadAttentionLayerBase`
 
 ```{autodoc2-docstring} src.models.subnets.encoders.mdam.mdam_attention_layer.MultiHeadAttentionLayer
 ```
@@ -37,12 +37,4 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.encoders.mdam.mdam_attention_layer.MultiHeadAttentionLayer.__init__
 ```
 
-````{py:method} forward(x: torch.Tensor, mask: typing.Optional[torch.Tensor] = None) -> torch.Tensor
-:canonical: src.models.subnets.encoders.mdam.mdam_attention_layer.MultiHeadAttentionLayer.forward
-
-```{autodoc2-docstring} src.models.subnets.encoders.mdam.mdam_attention_layer.MultiHeadAttentionLayer.forward
-```
-
 ````
-
-`````

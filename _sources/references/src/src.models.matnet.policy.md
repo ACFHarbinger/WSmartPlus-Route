@@ -37,15 +37,15 @@ Bases: {py:obj}`logic.src.models.common.autoregressive_policy.AutoregressivePoli
 ```{autodoc2-docstring} src.models.matnet.policy.MatNetPolicy.__init__
 ```
 
-````{py:method} set_decode_type(decode_type: str, temp: typing.Optional[float] = None)
-:canonical: src.models.matnet.policy.MatNetPolicy.set_decode_type
+````{py:method} set_strategy(strategy: str, temp: typing.Optional[float] = None)
+:canonical: src.models.matnet.policy.MatNetPolicy.set_strategy
 
-```{autodoc2-docstring} src.models.matnet.policy.MatNetPolicy.set_decode_type
+```{autodoc2-docstring} src.models.matnet.policy.MatNetPolicy.set_strategy
 ```
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, decode_type: str = 'sampling', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, strategy: str = 'sampling', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.matnet.policy.MatNetPolicy.forward
 
 ```{autodoc2-docstring} src.models.matnet.policy.MatNetPolicy.forward

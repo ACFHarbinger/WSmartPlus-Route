@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
+src.interfaces.must_go
 src.interfaces.env
 src.interfaces.adapter
 src.interfaces.model

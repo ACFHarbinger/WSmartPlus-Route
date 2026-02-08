@@ -37,6 +37,16 @@ Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
 ```{autodoc2-docstring} src.envs.wcvrp.WCVRPEnv.__init__
 ```
 
+````{py:attribute} NAME
+:canonical: src.envs.wcvrp.WCVRPEnv.NAME
+:value: >
+   'wcvrp'
+
+```{autodoc2-docstring} src.envs.wcvrp.WCVRPEnv.NAME
+```
+
+````
+
 ````{py:attribute} name
 :canonical: src.envs.wcvrp.WCVRPEnv.name
 :type: str

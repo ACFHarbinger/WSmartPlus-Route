@@ -45,10 +45,10 @@
 
 ````
 
-`````{py:class} RL4COLitModule(env: logic.src.interfaces.env.IEnv, policy: logic.src.interfaces.policy.IPolicy, baseline: typing.Optional[str] = 'rollout', optimizer: str = 'adam', optimizer_kwargs: typing.Optional[dict] = None, lr_scheduler: typing.Optional[str] = None, lr_scheduler_kwargs: typing.Optional[dict] = None, train_data_size: int = 100000, val_data_size: int = 10000, val_dataset_path: typing.Optional[str] = None, batch_size: int = 256, num_workers: int = 4, persistent_workers: bool = True, pin_memory: bool = False, must_go_selector: typing.Optional[logic.src.policies.selection.VectorizedSelector] = None, **kwargs)
+`````{py:class} RL4COLitModule(env: logic.src.interfaces.env.IEnv, policy: logic.src.interfaces.policy.IPolicy, baseline: typing.Optional[str] = 'rollout', optimizer: str = 'adam', optimizer_kwargs: typing.Optional[dict] = None, lr_scheduler: typing.Optional[str] = None, lr_scheduler_kwargs: typing.Optional[dict] = None, train_data_size: int = 100000, val_data_size: int = 10000, val_dataset_path: typing.Optional[str] = None, batch_size: int = 256, num_workers: int = 4, persistent_workers: bool = True, pin_memory: bool = False, must_go_selector: typing.Optional[logic.src.models.policies.selection.VectorizedSelector] = None, **kwargs)
 :canonical: src.pipeline.rl.common.base.model.RL4COLitModule
 
-Bases: {py:obj}`pytorch_lightning.LightningModule`, {py:obj}`src.pipeline.rl.common.base.data.DataMixin`, {py:obj}`src.pipeline.rl.common.base.optimization.OptimizationMixin`, {py:obj}`src.pipeline.rl.common.base.steps.StepMixin`, {py:obj}`abc.ABC`
+Bases: {py:obj}`src.pipeline.rl.common.base.data.DataMixin`, {py:obj}`src.pipeline.rl.common.base.optimization.OptimizationMixin`, {py:obj}`src.pipeline.rl.common.base.steps.StepMixin`, {py:obj}`pytorch_lightning.LightningModule`, {py:obj}`abc.ABC`
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.model.RL4COLitModule
 ```

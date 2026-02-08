@@ -53,7 +53,7 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[typing.Any] = None, decode_type: str = 'sampling', num_starts: int = 1, **kwargs: typing.Any) -> typing.Union[tensordict.TensorDict, typing.Dict[str, typing.Any]]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[typing.Any] = None, strategy: str = 'sampling', num_starts: int = 1, **kwargs: typing.Any) -> typing.Union[tensordict.TensorDict, typing.Dict[str, typing.Any]]
 :canonical: src.interfaces.policy.IPolicy.forward
 
 ```{autodoc2-docstring} src.interfaces.policy.IPolicy.forward

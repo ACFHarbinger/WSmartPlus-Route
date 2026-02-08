@@ -31,7 +31,6 @@ src.models.subnets.embeddings.dynamic
 src.models.subnets.embeddings.vrpp
 src.models.subnets.embeddings.wcvrp
 src.models.subnets.embeddings.static
-src.models.subnets.embeddings.pdp
 ```
 
 ## Package Contents

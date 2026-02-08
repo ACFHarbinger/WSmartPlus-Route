@@ -38,4 +38,13 @@
 
 ````
 
+````{py:method} create_from_config(config: typing.Any) -> typing.List[logic.src.interfaces.post_processing.IPostProcessor]
+:canonical: src.policies.post_processing.factory.PostProcessorFactory.create_from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.post_processing.factory.PostProcessorFactory.create_from_config
+```
+
+````
+
 `````

@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.improvement_policy.ImprovementPolicy`
 ```{autodoc2-docstring} src.models.policies.alns.VectorizedALNS.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, decode_type: str = 'greedy', num_starts: int = 1, phase: str = 'train', return_actions: bool = True, **kwargs) -> dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> dict[str, typing.Any]
 :canonical: src.models.policies.alns.VectorizedALNS.forward
 
 ```{autodoc2-docstring} src.models.policies.alns.VectorizedALNS.forward

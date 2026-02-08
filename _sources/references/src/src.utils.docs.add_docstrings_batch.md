@@ -9,24 +9,24 @@
 
 ## Module Contents
 
+### Classes
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`DocstringInjector <src.utils.docs.add_docstrings_batch.DocstringInjector>`
+  - ```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector
+    :summary:
+    ```
+````
+
 ### Functions
 
 ````{list-table}
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`generate_docstring <src.utils.docs.add_docstrings_batch.generate_docstring>`
-  - ```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.generate_docstring
-    :summary:
-    ```
-* - {py:obj}`add_docstring_to_function <src.utils.docs.add_docstrings_batch.add_docstring_to_function>`
-  - ```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.add_docstring_to_function
-    :summary:
-    ```
-* - {py:obj}`process_file <src.utils.docs.add_docstrings_batch.process_file>`
-  - ```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.process_file
-    :summary:
-    ```
 * - {py:obj}`main <src.utils.docs.add_docstrings_batch.main>`
   - ```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.main
     :summary:
@@ -39,58 +39,93 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`MISSING_DOCSTRINGS <src.utils.docs.add_docstrings_batch.MISSING_DOCSTRINGS>`
-  - ```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.MISSING_DOCSTRINGS
-    :summary:
-    ```
-* - {py:obj}`DOCSTRING_TEMPLATES <src.utils.docs.add_docstrings_batch.DOCSTRING_TEMPLATES>`
-  - ```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DOCSTRING_TEMPLATES
+* - {py:obj}`TEMPLATES <src.utils.docs.add_docstrings_batch.TEMPLATES>`
+  - ```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.TEMPLATES
     :summary:
     ```
 ````
 
 ### API
 
-````{py:data} MISSING_DOCSTRINGS
-:canonical: src.utils.docs.add_docstrings_batch.MISSING_DOCSTRINGS
+````{py:data} TEMPLATES
+:canonical: src.utils.docs.add_docstrings_batch.TEMPLATES
 :value: >
    None
 
-```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.MISSING_DOCSTRINGS
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.TEMPLATES
 ```
 
 ````
 
-````{py:data} DOCSTRING_TEMPLATES
-:canonical: src.utils.docs.add_docstrings_batch.DOCSTRING_TEMPLATES
-:value: >
-   None
+`````{py:class} DocstringInjector(filepath: str)
+:canonical: src.utils.docs.add_docstrings_batch.DocstringInjector
 
-```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DOCSTRING_TEMPLATES
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector.__init__
+```
+
+````{py:method} _get_indent(lineno: int) -> str
+:canonical: src.utils.docs.add_docstrings_batch.DocstringInjector._get_indent
+
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector._get_indent
 ```
 
 ````
 
-````{py:function} generate_docstring(func_name: str, class_name: str, args_list: typing.List[str]) -> str
-:canonical: src.utils.docs.add_docstrings_batch.generate_docstring
+````{py:method} _format_args(args: typing.List[ast.arg], base_indent: str) -> str
+:canonical: src.utils.docs.add_docstrings_batch.DocstringInjector._format_args
 
-```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.generate_docstring
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector._format_args
 ```
+
 ````
 
-````{py:function} add_docstring_to_function(content: str, func_name: str, class_name: str = '') -> str
-:canonical: src.utils.docs.add_docstrings_batch.add_docstring_to_function
+````{py:method} generate_docstring(node: typing.Any, context: str = '') -> str
+:canonical: src.utils.docs.add_docstrings_batch.DocstringInjector.generate_docstring
 
-```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.add_docstring_to_function
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector.generate_docstring
 ```
+
 ````
 
-````{py:function} process_file(file_path: str, missing_funcs: typing.List[str])
-:canonical: src.utils.docs.add_docstrings_batch.process_file
+````{py:method} _find_insertion_line(node: typing.Any) -> int
+:canonical: src.utils.docs.add_docstrings_batch.DocstringInjector._find_insertion_line
 
-```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.process_file
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector._find_insertion_line
 ```
+
 ````
+
+````{py:method} scan_and_queue()
+:canonical: src.utils.docs.add_docstrings_batch.DocstringInjector.scan_and_queue
+
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector.scan_and_queue
+```
+
+````
+
+````{py:method} apply()
+:canonical: src.utils.docs.add_docstrings_batch.DocstringInjector.apply
+
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector.apply
+```
+
+````
+
+````{py:method} save()
+:canonical: src.utils.docs.add_docstrings_batch.DocstringInjector.save
+
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector.save
+```
+
+````
+
+`````
 
 ````{py:function} main()
 :canonical: src.utils.docs.add_docstrings_batch.main

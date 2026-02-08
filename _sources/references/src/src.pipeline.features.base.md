@@ -23,6 +23,10 @@
   - ```{autodoc2-docstring} src.pipeline.features.base.remap_legacy_keys
     :summary:
     ```
+* - {py:obj}`flatten_config_dict <src.pipeline.features.base.flatten_config_dict>`
+  - ```{autodoc2-docstring} src.pipeline.features.base.flatten_config_dict
+    :summary:
+    ```
 ````
 
 ### Data
@@ -60,5 +64,12 @@
 :canonical: src.pipeline.features.base.remap_legacy_keys
 
 ```{autodoc2-docstring} src.pipeline.features.base.remap_legacy_keys
+```
+````
+
+````{py:function} flatten_config_dict(d: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.features.base.flatten_config_dict
+
+```{autodoc2-docstring} src.pipeline.features.base.flatten_config_dict
 ```
 ````

@@ -387,35 +387,35 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````
 
-````{py:attribute} w_length
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.w_length
+````{py:attribute} cost_weight
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.cost_weight
 :type: float
 :value: >
    1.0
 
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.w_length
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.cost_weight
 ```
 
 ````
 
-````{py:attribute} w_waste
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.w_waste
+````{py:attribute} waste_weight
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.waste_weight
 :type: float
 :value: >
    1.0
 
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.w_waste
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.waste_weight
 ```
 
 ````
 
-````{py:attribute} w_overflows
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.w_overflows
+````{py:attribute} overflow_penalty
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.overflow_penalty
 :type: float
 :value: >
    1.0
 
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.w_overflows
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.overflow_penalty
 ```
 
 ````

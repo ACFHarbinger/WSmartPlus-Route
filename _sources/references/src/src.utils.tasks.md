@@ -16,4 +16,5 @@
 src.utils.tasks.losses
 src.utils.tasks.training_utils
 src.utils.tasks.task_utils
+src.utils.tasks.dummy_problem
 ```

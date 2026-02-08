@@ -45,7 +45,7 @@ Bases: {py:obj}`logic.src.models.policies.hgs.VectorizedHGS`
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, decode_type: str = 'greedy', num_starts: int = 1, **kwargs) -> dict
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'greedy', num_starts: int = 1, **kwargs) -> dict
 :canonical: src.models.policies.hgs_alns.VectorizedHGSALNS.forward
 
 ```{autodoc2-docstring} src.models.policies.hgs_alns.VectorizedHGSALNS.forward

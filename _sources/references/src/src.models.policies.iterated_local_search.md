@@ -53,7 +53,7 @@ Bases: {py:obj}`logic.src.models.common.improvement_policy.ImprovementPolicy`
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, decode_type: str = 'greedy', num_starts: int = 1, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.iterated_local_search.IteratedLocalSearchPolicy.forward
 
 ```{autodoc2-docstring} src.models.policies.iterated_local_search.IteratedLocalSearchPolicy.forward

@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive_policy.AutoregressivePoli
 ```{autodoc2-docstring} src.models.pointer_network.policy.PointerNetworkPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, decode_type: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.pointer_network.policy.PointerNetworkPolicy.forward
 
 ```{autodoc2-docstring} src.models.pointer_network.policy.PointerNetworkPolicy.forward

@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.attention_model.policy.AttentionModelPolicy`
 ```{autodoc2-docstring} src.models.attention_model.symnco_policy.SymNCOPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env, decode_type: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs) -> dict
+````{py:method} forward(td: tensordict.TensorDict, env, strategy: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs) -> dict
 :canonical: src.models.attention_model.symnco_policy.SymNCOPolicy.forward
 
 ```{autodoc2-docstring} src.models.attention_model.symnco_policy.SymNCOPolicy.forward

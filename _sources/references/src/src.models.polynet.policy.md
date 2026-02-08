@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} PolyNetPolicy(k: int, encoder: typing.Optional[torch.nn.Module] = None, encoder_type: str = 'AM', embed_dim: int = 128, num_encoder_layers: int = 6, num_heads: int = 8, normalization: str = 'instance', feedforward_hidden: int = 512, env_name: str = 'vrpp', temperature: float = 1.0, tanh_clipping: float = 10.0, mask_logits: bool = True, train_decode_type: str = 'sampling', val_decode_type: str = 'sampling', test_decode_type: str = 'sampling', **kwargs)
+`````{py:class} PolyNetPolicy(k: int, encoder: typing.Optional[torch.nn.Module] = None, encoder_type: str = 'AM', embed_dim: int = 128, num_encoder_layers: int = 6, num_heads: int = 8, normalization: str = 'instance', feedforward_hidden: int = 512, env_name: str = 'vrpp', temperature: float = 1.0, tanh_clipping: float = 10.0, mask_logits: bool = True, train_strategy: str = 'sampling', val_strategy: str = 'sampling', test_strategy: str = 'sampling', **kwargs)
 :canonical: src.models.polynet.policy.PolyNetPolicy
 
 Bases: {py:obj}`logic.src.models.common.autoregressive_policy.AutoregressivePolicy`

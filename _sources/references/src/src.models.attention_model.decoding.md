@@ -35,10 +35,10 @@
 ```{autodoc2-docstring} src.models.attention_model.decoding.DecodingMixin.__init__
 ```
 
-````{py:method} set_decode_type(decode_type: str, temp: typing.Optional[float] = None)
-:canonical: src.models.attention_model.decoding.DecodingMixin.set_decode_type
+````{py:method} set_strategy(strategy: str, temp: typing.Optional[float] = None)
+:canonical: src.models.attention_model.decoding.DecodingMixin.set_strategy
 
-```{autodoc2-docstring} src.models.attention_model.decoding.DecodingMixin.set_decode_type
+```{autodoc2-docstring} src.models.attention_model.decoding.DecodingMixin.set_strategy
 ```
 
 ````

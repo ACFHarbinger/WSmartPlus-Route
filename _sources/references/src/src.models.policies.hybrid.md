@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive_policy.AutoregressivePoli
 ```{autodoc2-docstring} src.models.policies.hybrid.NeuralHeuristicHybrid.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, decode_type: str = 'greedy', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'greedy', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.hybrid.NeuralHeuristicHybrid.forward
 
 ```{autodoc2-docstring} src.models.policies.hybrid.NeuralHeuristicHybrid.forward

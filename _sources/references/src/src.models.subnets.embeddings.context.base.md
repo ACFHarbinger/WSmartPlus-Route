@@ -56,10 +56,18 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} forward(input: dict[str, typing.Any]) -> torch.Tensor
+````{py:method} forward(nodes_or_embeddings: torch.Tensor | dict[str, typing.Any], state: typing.Any | None = None) -> torch.Tensor
 :canonical: src.models.subnets.embeddings.context.base.ContextEmbedder.forward
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.context.base.ContextEmbedder.forward
+```
+
+````
+
+````{py:method} _step_context(embeddings: torch.Tensor, state: typing.Any) -> torch.Tensor
+:canonical: src.models.subnets.embeddings.context.base.ContextEmbedder._step_context
+
+```{autodoc2-docstring} src.models.subnets.embeddings.context.base.ContextEmbedder._step_context
 ```
 
 ````

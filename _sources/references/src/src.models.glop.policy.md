@@ -59,7 +59,7 @@ Bases: {py:obj}`logic.src.models.common.nonautoregressive_policy.NonAutoregressi
 ```{autodoc2-docstring} src.models.glop.policy.GLOPPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, phase: typing.Literal[train, val, test] = 'test', calc_reward: bool = True, return_actions: bool = False, return_entropy: bool = False, **decoding_kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, phase: typing.Literal[train, val, test] = 'test', calc_reward: bool = True, return_actions: bool = False, return_entropy: bool = False, strategy: typing.Optional[str] = None, **decoding_kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.glop.policy.GLOPPolicy.forward
 
 ```{autodoc2-docstring} src.models.glop.policy.GLOPPolicy.forward

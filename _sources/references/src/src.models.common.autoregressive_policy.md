@@ -37,7 +37,7 @@ Bases: {py:obj}`src.models.common.constructive.ConstructivePolicy`
 ```{autodoc2-docstring} src.models.common.autoregressive_policy.AutoregressivePolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, decode_type: str = 'sampling', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.common.autoregressive_policy.AutoregressivePolicy.forward
 
 ```{autodoc2-docstring} src.models.common.autoregressive_policy.AutoregressivePolicy.forward

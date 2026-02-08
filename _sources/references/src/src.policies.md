@@ -19,10 +19,10 @@ src.policies.simulated_annealing_neighborhood_search
 src.policies.slack_induction_by_string_removal
 src.policies.neural_agent
 src.policies.adaptive_large_neighborhood_search
+src.policies.must_go
 src.policies.post_processing
 src.policies.ant_colony_optimization
 src.policies.hybrid_genetic_search
-src.policies.selection
 src.policies.local_search
 src.policies.adapters
 src.policies.branch_cut_and_price
@@ -34,10 +34,10 @@ src.policies.branch_cut_and_price
 :titlesonly:
 :maxdepth: 1
 
-src.policies.hgs_alns_solver
-src.policies.multi_vehicle
-src.policies.lin_kernighan
-src.policies.single_vehicle
+src.policies.lin_kernighan_helsgaun
+src.policies.cvrp
+src.policies.hgs_alns
+src.policies.tsp
 ```
 
 ## Package Contents
@@ -63,7 +63,7 @@ src.policies.single_vehicle
 ````{py:data} __all__
 :canonical: src.policies.__all__
 :value: >
-   ['ALNSParams', 'PolicyFactory', 'MustGoSelectionFactory', 'MustGoSelectionRegistry', 'MustGoSelectio...
+   ['ALNSParams', 'PolicyFactory', 'MustGoSelectionFactory', 'MustGoSelectionRegistry', 'SelectionConte...
 
 ```{autodoc2-docstring} src.policies.__all__
 ```

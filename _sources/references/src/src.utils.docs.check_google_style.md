@@ -29,6 +29,10 @@
   - ```{autodoc2-docstring} src.utils.docs.check_google_style.analyze_file
     :summary:
     ```
+* - {py:obj}`display_report <src.utils.docs.check_google_style.display_report>`
+  - ```{autodoc2-docstring} src.utils.docs.check_google_style.display_report
+    :summary:
+    ```
 * - {py:obj}`main <src.utils.docs.check_google_style.main>`
   - ```{autodoc2-docstring} src.utils.docs.check_google_style.main
     :summary:
@@ -41,33 +45,27 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`console <src.utils.docs.check_google_style.console>`
+  - ```{autodoc2-docstring} src.utils.docs.check_google_style.console
+    :summary:
+    ```
 * - {py:obj}`SECTION_ALIASES <src.utils.docs.check_google_style.SECTION_ALIASES>`
   - ```{autodoc2-docstring} src.utils.docs.check_google_style.SECTION_ALIASES
-    :summary:
-    ```
-* - {py:obj}`RED <src.utils.docs.check_google_style.RED>`
-  - ```{autodoc2-docstring} src.utils.docs.check_google_style.RED
-    :summary:
-    ```
-* - {py:obj}`GREEN <src.utils.docs.check_google_style.GREEN>`
-  - ```{autodoc2-docstring} src.utils.docs.check_google_style.GREEN
-    :summary:
-    ```
-* - {py:obj}`YELLOW <src.utils.docs.check_google_style.YELLOW>`
-  - ```{autodoc2-docstring} src.utils.docs.check_google_style.YELLOW
-    :summary:
-    ```
-* - {py:obj}`CYAN <src.utils.docs.check_google_style.CYAN>`
-  - ```{autodoc2-docstring} src.utils.docs.check_google_style.CYAN
-    :summary:
-    ```
-* - {py:obj}`RESET <src.utils.docs.check_google_style.RESET>`
-  - ```{autodoc2-docstring} src.utils.docs.check_google_style.RESET
     :summary:
     ```
 ````
 
 ### API
+
+````{py:data} console
+:canonical: src.utils.docs.check_google_style.console
+:value: >
+   'Console(...)'
+
+```{autodoc2-docstring} src.utils.docs.check_google_style.console
+```
+
+````
 
 ````{py:data} SECTION_ALIASES
 :canonical: src.utils.docs.check_google_style.SECTION_ALIASES
@@ -75,56 +73,6 @@
    None
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.SECTION_ALIASES
-```
-
-````
-
-````{py:data} RED
-:canonical: src.utils.docs.check_google_style.RED
-:value: >
-   '\x1b[91m'
-
-```{autodoc2-docstring} src.utils.docs.check_google_style.RED
-```
-
-````
-
-````{py:data} GREEN
-:canonical: src.utils.docs.check_google_style.GREEN
-:value: >
-   '\x1b[92m'
-
-```{autodoc2-docstring} src.utils.docs.check_google_style.GREEN
-```
-
-````
-
-````{py:data} YELLOW
-:canonical: src.utils.docs.check_google_style.YELLOW
-:value: >
-   '\x1b[93m'
-
-```{autodoc2-docstring} src.utils.docs.check_google_style.YELLOW
-```
-
-````
-
-````{py:data} CYAN
-:canonical: src.utils.docs.check_google_style.CYAN
-:value: >
-   '\x1b[96m'
-
-```{autodoc2-docstring} src.utils.docs.check_google_style.CYAN
-```
-
-````
-
-````{py:data} RESET
-:canonical: src.utils.docs.check_google_style.RESET
-:value: >
-   '\x1b[0m'
-
-```{autodoc2-docstring} src.utils.docs.check_google_style.RESET
 ```
 
 ````
@@ -212,6 +160,13 @@ Bases: {py:obj}`ast.NodeVisitor`
 :canonical: src.utils.docs.check_google_style.analyze_file
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.analyze_file
+```
+````
+
+````{py:function} display_report(all_violations: typing.List[dict])
+:canonical: src.utils.docs.check_google_style.display_report
+
+```{autodoc2-docstring} src.utils.docs.check_google_style.display_report
 ```
 ````
 

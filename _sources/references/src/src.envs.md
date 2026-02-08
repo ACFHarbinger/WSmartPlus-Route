@@ -29,10 +29,8 @@ src.envs.wcvrp
 src.envs.tasks
 src.envs.cwcvrp
 src.envs.problems
-src.envs.pdp
 src.envs.sdwcvrp
 src.envs.tsp_kopt
-src.envs.jssp
 src.envs.tsp
 src.envs.base
 ```

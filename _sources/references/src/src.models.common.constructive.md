@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.models.common.constructive.ConstructivePolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, decode_type: str = 'sampling', num_starts: int = 1, **kwargs) -> dict
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, **kwargs) -> dict
 :canonical: src.models.common.constructive.ConstructivePolicy.forward
 :abstractmethod:
 
@@ -46,7 +46,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} _select_action(logits: torch.Tensor, mask: torch.Tensor, decode_type: str = 'sampling', **kwargs) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+````{py:method} _select_action(logits: torch.Tensor, mask: torch.Tensor, strategy: str = 'sampling', **kwargs) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.common.constructive.ConstructivePolicy._select_action
 
 ```{autodoc2-docstring} src.models.common.constructive.ConstructivePolicy._select_action

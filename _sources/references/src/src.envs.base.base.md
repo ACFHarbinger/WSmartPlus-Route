@@ -48,6 +48,26 @@ Bases: {py:obj}`src.envs.base.batch.BatchMixin`, {py:obj}`src.envs.base.ops.OpsM
 
 ````
 
+````{py:attribute} node_dim
+:canonical: src.envs.base.base.RL4COEnvBase.node_dim
+:type: int
+:value: >
+   3
+
+```{autodoc2-docstring} src.envs.base.base.RL4COEnvBase.node_dim
+```
+
+````
+
+````{py:property} dim
+:canonical: src.envs.base.base.RL4COEnvBase.dim
+:type: int
+
+```{autodoc2-docstring} src.envs.base.base.RL4COEnvBase.dim
+```
+
+````
+
 ````{py:method} render(td: typing.Any, **kwargs: typing.Any) -> typing.Any
 :canonical: src.envs.base.base.RL4COEnvBase.render
 :abstractmethod:

@@ -31,7 +31,6 @@ src.models.neuopt
 src.models.common
 src.models.hrl_manager
 src.models.dact
-src.models.l2d
 src.models.moe
 src.models.attention_model
 src.models.subnets

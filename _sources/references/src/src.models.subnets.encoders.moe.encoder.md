@@ -23,10 +23,10 @@
 
 ### API
 
-`````{py:class} MoEGraphAttentionEncoder(n_heads, embed_dim, n_layers, n_sublayers=None, feed_forward_hidden=512, normalization='batch', norm_eps_alpha=1e-05, norm_learn_affine=True, norm_track_stats=False, norm_momentum_beta=0.1, lrnorm_k=1.0, gnorm_groups=3, activation_function='gelu', af_param=1.0, af_threshold=6.0, af_replacement_value=6.0, af_num_params=3, af_uniform_range=[0.125, 1 / 3], dropout_rate=0.1, agg=None, connection_type='skip', expansion_rate=4, num_experts=4, k=2, noisy_gating=True, **kwargs)
+`````{py:class} MoEGraphAttentionEncoder(n_heads, embed_dim, n_layers, n_sublayers=None, feed_forward_hidden=512, normalization='batch', norm_eps_alpha=1e-05, norm_learn_affine=True, norm_track_stats=False, norm_momentum_beta=0.1, lrnorm_k=1.0, gnorm_groups=3, activation_function='gelu', af_param=1.0, af_threshold=6.0, af_replacement_value=6.0, af_num_params=3, af_uniform_range=None, dropout_rate=0.1, agg=None, connection_type='skip', expansion_rate=4, num_experts=4, k=2, noisy_gating=True, **kwargs)
 :canonical: src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder
 
-Bases: {py:obj}`torch.nn.Module`
+Bases: {py:obj}`logic.src.models.subnets.encoders.common.TransformerEncoderBase`
 
 ```{autodoc2-docstring} src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder
 ```
@@ -37,10 +37,10 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder.__init__
 ```
 
-````{py:method} forward(x, edges=None)
-:canonical: src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder.forward
+````{py:method} _create_layer(layer_idx: int) -> torch.nn.Module
+:canonical: src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder._create_layer
 
-```{autodoc2-docstring} src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder.forward
+```{autodoc2-docstring} src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder._create_layer
 ```
 
 ````

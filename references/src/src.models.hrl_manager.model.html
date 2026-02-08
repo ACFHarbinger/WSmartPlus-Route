@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.models.hrl_manager.model';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.models.hrl_manager.manager" href="src.models.hrl_manager.manager.html" />
+    <link rel="next" title="src.models.hrl_manager.critic_head" href="src.models.hrl_manager.critic_head.html" />
     <link rel="prev" title="src.models.hrl_manager.temporal_encoder" href="src.models.hrl_manager.temporal_encoder.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -180,17 +180,17 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.must_go</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.post_processing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns_solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.cvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tsp</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -212,7 +212,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.models.hrl_manager.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hrl_manager</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.dact.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.dact</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.l2d.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.l2d</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.moe.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.moe</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.attention_model</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
@@ -238,6 +237,7 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.must_go</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.adapter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
@@ -271,7 +271,6 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
@@ -279,6 +278,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.policies</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
@@ -295,28 +295,19 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.pdp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.pdp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.sdwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.sdwcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.jssp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.jssp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.decoding</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.eval.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.eval</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.must_go</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.train.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.train</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.env</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.optim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.optim</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.data</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.hpo</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.sim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.sim</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.meta_rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.meta_rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.other</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
@@ -473,9 +464,18 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager"><code class="docutils literal notranslate"><span class="pre">GATLSTManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager.clear_memory"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.clear_memory()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager.feature_processing"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.feature_processing()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager.forward"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.forward()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager.select_action"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.select_action()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager.get_must_go_mask"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.get_must_go_mask()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -496,11 +496,26 @@ document.write(`
 <p>This module contains the GAT-LSTM Manager agent implementation for Hierarchical RL.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.hrl_manager.model.GATLSTManager" title="src.models.hrl_manager.model.GATLSTManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GATLSTManager</span></code></a></p></td>
+<td><p>Hierarchical Manager Agent for PCVRP.
+Uses LSTM to encode temporal waste patterns and GAT (Transformer) to encode spatial structure.
+Outputs:
+1. Must-Go Selection: Which bins must be collected today (must_go=True means mandatory).
+2. Route Gate: Whether to dispatch vehicles today.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="data">
 <h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.hrl_manager.model.__all__" title="src.models.hrl_manager.model.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.hrl_manager.model.logger" title="src.models.hrl_manager.model.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -510,9 +525,111 @@ document.write(`
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py data">
-<dt class="sig sig-object py" id="src.models.hrl_manager.model.__all__">
-<span class="sig-prename descclassname"><span class="pre">src.models.hrl_manager.model.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.models.hrl_manager.model.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘GATLSTManager’]</p>
+<dt class="sig sig-object py" id="src.models.hrl_manager.model.logger">
+<span class="sig-prename descclassname"><span class="pre">src.models.hrl_manager.model.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#src.models.hrl_manager.model.logger" title="Link to this definition">#</a></dt>
+<dd><p>‘get_pylogger(…)’</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.models.hrl_manager.model.GATLSTManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.hrl_manager.model.</span></span><span class="sig-name descname"><span class="pre">GATLSTManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim_static</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">STATIC_DIM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dim_dynamic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">DEFAULT_TEMPORAL_HORIZON</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_input_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CRITICAL_FILL_THRESHOLD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">DEFAULT_EVAL_BATCH_SIZE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers_gat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_encoder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_encoder_cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_encoder_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_encoder_cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_encoder_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_factory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.models.subnets.factories.NeuralComponentFactory</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_encoder_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lstm'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.hrl_manager.model.GATLSTManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<p>Hierarchical Manager Agent for PCVRP.
+Uses LSTM to encode temporal waste patterns and GAT (Transformer) to encode spatial structure.
+Outputs:
+1. Must-Go Selection: Which bins must be collected today (must_go=True means mandatory).
+2. Route Gate: Whether to dispatch vehicles today.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize the GATLSTManager.</p>
+<p>Args:
+input_dim_static (int, optional): Static input dimension (e.g., coordinates). Defaults to 2.
+input_dim_dynamic (int, optional): Dynamic input dimension (e.g., waste history). Defaults to 10.
+global_input_dim (int, optional): Global input dimension (e.g., avg waste). Defaults to 2.
+critical_threshold (float, optional): Threshold for critical waste levels. Defaults to 0.9.
+batch_size (int, optional): Batch size. Defaults to 1024.
+hidden_dim (int, optional): Hidden dimension size. Defaults to 128.
+lstm_hidden (int, optional): LSTM hidden dimension. Defaults to 64.
+num_layers_gat (int, optional): Number of GAT layers. Defaults to 3.
+n_heads (int, optional): Number of attention heads. Defaults to 8.
+dropout (float, optional): Dropout rate. Defaults to 0.1.
+device (str, optional): Computation device. Defaults to ‘cuda’.
+shared_encoder (nn.Module, optional): Shared encoder instance. Defaults to None.
+temporal_encoder_cls (class, optional): Class for temporal encoder. Defaults to TemporalEncoder.
+temporal_encoder_kwargs (dict, optional): Kwargs for temporal encoder.
+spatial_encoder_cls (class, optional): Class for spatial encoder. Defaults to TransformerEncoder.
+spatial_encoder_kwargs (dict, optional): Kwargs for spatial encoder.
+component_factory (NeuralComponentFactory, optional): Factory for creating neural components.
+temporal_encoder_type (str, optional): Type of temporal encoder. Defaults to “lstm”.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.hrl_manager.model.GATLSTManager.clear_memory">
+<span class="sig-name descname"><span class="pre">clear_memory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.hrl_manager.model.GATLSTManager.clear_memory" title="Link to this definition">#</a></dt>
+<dd><p>Clear the memory buffers used for PPO.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.hrl_manager.model.GATLSTManager.feature_processing">
+<span class="sig-name descname"><span class="pre">feature_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">static</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.hrl_manager.model.GATLSTManager.feature_processing" title="Link to this definition">#</a></dt>
+<dd><p>Process static and dynamic features using LSTM and Linear layers.</p>
+<p>Args:
+static (torch.Tensor): Static features (Batch, N, 2).
+dynamic (torch.Tensor): Dynamic features (Batch, N, History).</p>
+<p>Returns:
+tuple: (x, temporal_embed)
+- x: Combined features projected to hidden dimension (Batch, N, Hidden).
+- temporal_embed: Temporal embeddings from LSTM (Batch, N, lstm_hidden).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.hrl_manager.model.GATLSTManager.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">static</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_features</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.hrl_manager.model.GATLSTManager.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass of the Manager Agent.</p>
+<p>Args:
+static (torch.Tensor): Static features (Batch, N, 2) - coordinates.
+dynamic (torch.Tensor): Dynamic features (Batch, N, History) - waste history.
+global_features (torch.Tensor): Global features (Batch, global_input_dim).</p>
+<p>Returns:
+tuple: (must_go_logits, gate_logits, value)
+- must_go_logits: Logits for must-go selection (B, N, 2).
+Index 0 = optional, Index 1 = must collect.
+- gate_logits: Logits for route gating (B, 2).
+Index 0 = skip routing, Index 1 = dispatch vehicles.
+- value: Estimated state value (B, 1).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.hrl_manager.model.GATLSTManager.select_action">
+<span class="sig-name descname"><span class="pre">select_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">static</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">must_go_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_must_go</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.hrl_manager.model.GATLSTManager.select_action" title="Link to this definition">#</a></dt>
+<dd><p>Select actions (gate and must_go) based on the current state.</p>
+<p>Args:
+static (torch.Tensor): Static features (Batch, N, 2).
+dynamic (torch.Tensor): Dynamic features (Batch, N, History).
+global_features (torch.Tensor): Global features (Batch, G).
+deterministic (bool): If True, use argmax instead of sampling.
+threshold (float): Probability threshold for gate decision.
+must_go_threshold (float): Probability threshold for must_go decision.
+target_must_go (torch.Tensor, optional): Ground truth must_go for auxiliary loss.</p>
+<p>Returns:
+tuple: (must_go_action, gate_action, value)
+- must_go_action: (Batch, N) boolean tensor where True = must collect.
+- gate_action: (Batch,) long tensor where 1 = dispatch vehicles.
+- value: (Batch, 1) state value estimate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.hrl_manager.model.GATLSTManager.get_must_go_mask">
+<span class="sig-name descname"><span class="pre">get_must_go_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">static</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.hrl_manager.model.GATLSTManager.get_must_go_mask" title="Link to this definition">#</a></dt>
+<dd><p>Get the must_go boolean mask for environment integration.</p>
+<p>This method provides the must_go mask in the format expected by
+the WCVRP/VRPP environments for action masking.</p>
+<p>Args:
+static (torch.Tensor): Static features (Batch, N, 2).
+dynamic (torch.Tensor): Dynamic features (Batch, N, History).
+global_features (torch.Tensor): Global features (Batch, G).
+threshold (float): Probability threshold for must_go decision.</p>
+<p>Returns:
+torch.Tensor: Boolean tensor (Batch, N) where True = must collect.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -540,11 +657,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="src.models.hrl_manager.manager.html"
+       href="src.models.hrl_manager.critic_head.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hrl_manager.manager</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hrl_manager.critic_head</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -565,9 +682,18 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager"><code class="docutils literal notranslate"><span class="pre">GATLSTManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager.clear_memory"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.clear_memory()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager.feature_processing"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.feature_processing()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager.forward"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.forward()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager.select_action"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.select_action()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.hrl_manager.model.GATLSTManager.get_must_go_mask"><code class="docutils literal notranslate"><span class="pre">GATLSTManager.get_must_go_mask()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

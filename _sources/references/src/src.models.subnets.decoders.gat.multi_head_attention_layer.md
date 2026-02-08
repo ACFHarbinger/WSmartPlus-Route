@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} MultiHeadAttentionLayer(n_heads, embed_dim, feed_forward_hidden, normalization, epsilon_alpha, learn_affine, track_stats, mbeta, lr_k, n_groups, activation, af_param, threshold, replacement_value, n_params, uniform_range)
+`````{py:class} MultiHeadAttentionLayer(n_heads: int, embed_dim: int, feed_forward_hidden: int, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, **kwargs)
 :canonical: src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer
 
 Bases: {py:obj}`torch.nn.Module`

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VRPPEnv(generator: typing.Optional[logic.src.envs.generators.VRPPGenerator] = None, generator_params: typing.Optional[dict] = None, prize_weight: float = 1.0, cost_weight: float = 1.0, revenue_kg: typing.Optional[float] = None, cost_km: typing.Optional[float] = None, device: typing.Union[str, torch.device] = 'cpu', **kwargs)
+`````{py:class} VRPPEnv(generator: typing.Optional[logic.src.envs.generators.VRPPGenerator] = None, generator_params: typing.Optional[dict] = None, waste_weight: float = 1.0, cost_weight: float = 1.0, revenue_kg: typing.Optional[float] = None, cost_km: typing.Optional[float] = None, device: typing.Union[str, torch.device] = 'cpu', **kwargs)
 :canonical: src.envs.vrpp.VRPPEnv
 
 Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
@@ -36,6 +36,16 @@ Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
 
 ```{autodoc2-docstring} src.envs.vrpp.VRPPEnv.__init__
 ```
+
+````{py:attribute} NAME
+:canonical: src.envs.vrpp.VRPPEnv.NAME
+:value: >
+   'vrpp'
+
+```{autodoc2-docstring} src.envs.vrpp.VRPPEnv.NAME
+```
+
+````
 
 ````{py:attribute} name
 :canonical: src.envs.vrpp.VRPPEnv.name

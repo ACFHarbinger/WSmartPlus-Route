@@ -58,6 +58,17 @@ Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
 
 ````
 
+````{py:attribute} node_dim
+:canonical: src.envs.tsp.TSPEnv.node_dim
+:type: int
+:value: >
+   2
+
+```{autodoc2-docstring} src.envs.tsp.TSPEnv.node_dim
+```
+
+````
+
 ````{py:method} _reset_instance(td: tensordict.TensorDict) -> tensordict.TensorDict
 :canonical: src.envs.tsp.TSPEnv._reset_instance
 

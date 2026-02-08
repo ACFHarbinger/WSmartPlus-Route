@@ -27,7 +27,7 @@
 :canonical: src.constants.hpo.HOP_KEYS
 :type: typing.Tuple[str, ...]
 :value: >
-   ('hpo_method', 'hpo_range', 'hpo_epochs', 'metric', 'n_trials', 'timeout', 'n_startup_trials', 'n_wa...
+   ('hpo_method', 'hpo_range', 'hpo_epochs', 'metric', 'cpu_cores', 'verbose', 'train_best', 'local_mod...
 
 ```{autodoc2-docstring} src.constants.hpo.HOP_KEYS
 ```

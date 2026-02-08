@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} MLPLayer(hidden_dim, norm='layer', learn_affine=True, track_norm=False)
+`````{py:class} MLPLayer(hidden_dim: int, norm_config: logic.src.configs.models.normalization.NormalizationConfig, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None)
 :canonical: src.models.subnets.encoders.mlp.mlp_layer.MLPLayer
 
 Bases: {py:obj}`torch.nn.Module`

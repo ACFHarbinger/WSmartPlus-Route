@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.decoders.mdam.path.MDAMPath.__init__
 ```
 
-````{py:method} precompute(h_embed: torch.Tensor, num_steps: int = 1) -> src.models.subnets.decoders.mdam.cache.PrecomputedCache
+````{py:method} precompute(h_embed: torch.Tensor, num_steps: int = 1) -> src.models.subnets.decoders.common.AttentionDecoderCache
 :canonical: src.models.subnets.decoders.mdam.path.MDAMPath.precompute
 
 ```{autodoc2-docstring} src.models.subnets.decoders.mdam.path.MDAMPath.precompute
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} get_logprobs(fixed: src.models.subnets.decoders.mdam.cache.PrecomputedCache, td: tensordict.TensorDict, dynamic_embed: typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor], path_index: int) -> typing.Tuple[torch.Tensor, typing.Optional[torch.Tensor]]
+````{py:method} get_logprobs(fixed: src.models.subnets.decoders.common.AttentionDecoderCache, td: tensordict.TensorDict, dynamic_embed: typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor], path_index: int) -> typing.Tuple[torch.Tensor, typing.Optional[torch.Tensor]]
 :canonical: src.models.subnets.decoders.mdam.path.MDAMPath.get_logprobs
 
 ```{autodoc2-docstring} src.models.subnets.decoders.mdam.path.MDAMPath.get_logprobs

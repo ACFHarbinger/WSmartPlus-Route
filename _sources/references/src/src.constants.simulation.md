@@ -151,7 +151,7 @@
 :canonical: src.constants.simulation.VEHICLE_CAPACITY
 :type: float
 :value: >
-   100.0
+   200.0
 
 ```{autodoc2-docstring} src.constants.simulation.VEHICLE_CAPACITY
 ```

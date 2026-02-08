@@ -64,7 +64,7 @@
 
 ````{py:attribute} must_go
 :canonical: src.configs.policies.lkh.LKHConfig.must_go
-:type: typing.Optional[typing.List[str]]
+:type: typing.Optional[typing.List[src.configs.other.must_go.MustGoConfig]]
 :value: >
    None
 
@@ -75,7 +75,7 @@
 
 ````{py:attribute} post_processing
 :canonical: src.configs.policies.lkh.LKHConfig.post_processing
-:type: typing.Optional[typing.List[str]]
+:type: typing.Optional[typing.List[src.configs.other.post_processing.PostProcessingConfig]]
 :value: >
    None
 

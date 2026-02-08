@@ -59,6 +59,10 @@
   - ```{autodoc2-docstring} src.constants.models.NORM_EPSILON
     :summary:
     ```
+* - {py:obj}`NUMERICAL_EPSILON <src.constants.models.NUMERICAL_EPSILON>`
+  - ```{autodoc2-docstring} src.constants.models.NUMERICAL_EPSILON
+    :summary:
+    ```
 * - {py:obj}`FEED_FORWARD_EXPANSION <src.constants.models.FEED_FORWARD_EXPANSION>`
   - ```{autodoc2-docstring} src.constants.models.FEED_FORWARD_EXPANSION
     :summary:
@@ -188,6 +192,17 @@
    1e-05
 
 ```{autodoc2-docstring} src.constants.models.NORM_EPSILON
+```
+
+````
+
+````{py:data} NUMERICAL_EPSILON
+:canonical: src.constants.models.NUMERICAL_EPSILON
+:type: float
+:value: >
+   1e-08
+
+```{autodoc2-docstring} src.constants.models.NUMERICAL_EPSILON
 ```
 
 ````

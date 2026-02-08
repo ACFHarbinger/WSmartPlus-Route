@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.decoders.polynet.decoder.PolyNetDecoder.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, embeddings: torch.Tensor, env: logic.src.envs.base.RL4COEnvBase, decode_type: str = 'sampling', num_starts: int = 1, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, embeddings: torch.Tensor, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.polynet.decoder.PolyNetDecoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.decoders.polynet.decoder.PolyNetDecoder.forward
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _precompute_cache(embeddings: torch.Tensor) -> src.models.subnets.decoders.polynet.cache.PrecomputedCache
+````{py:method} _precompute_cache(embeddings: torch.Tensor) -> src.models.subnets.decoders.common.AttentionDecoderCache
 :canonical: src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._precompute_cache
 
 ```{autodoc2-docstring} src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._precompute_cache
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _get_step_logits(cache: src.models.subnets.decoders.polynet.cache.PrecomputedCache, td: tensordict.TensorDict) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} _get_step_logits(cache: src.models.subnets.decoders.common.AttentionDecoderCache, td: tensordict.TensorDict) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._get_step_logits
 
 ```{autodoc2-docstring} src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._get_step_logits

@@ -29,53 +29,42 @@
 ```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig
 ```
 
-````{py:attribute} model_path
-:canonical: src.configs.policies.neural.NeuralConfig.model_path
-:type: typing.Optional[str]
+````{py:attribute} model
+:canonical: src.configs.policies.neural.NeuralConfig.model
+:type: src.configs.models.model.ModelConfig
 :value: >
-   None
+   'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig.model_path
+```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig.model
 ```
 
 ````
 
-````{py:attribute} decode_type
-:canonical: src.configs.policies.neural.NeuralConfig.decode_type
-:type: str
+````{py:attribute} decoding
+:canonical: src.configs.policies.neural.NeuralConfig.decoding
+:type: src.configs.models.decoding.DecodingConfig
 :value: >
-   'greedy'
+   'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig.decode_type
+```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig.decoding
 ```
 
 ````
 
-````{py:attribute} temperature
-:canonical: src.configs.policies.neural.NeuralConfig.temperature
-:type: float
+````{py:attribute} reward
+:canonical: src.configs.policies.neural.NeuralConfig.reward
+:type: src.configs.envs.objective.ObjectiveConfig
 :value: >
-   1.0
+   'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig.temperature
-```
-
-````
-
-````{py:attribute} beam_width
-:canonical: src.configs.policies.neural.NeuralConfig.beam_width
-:type: int
-:value: >
-   1
-
-```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig.beam_width
+```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig.reward
 ```
 
 ````
 
 ````{py:attribute} must_go
 :canonical: src.configs.policies.neural.NeuralConfig.must_go
-:type: typing.Optional[typing.List[str]]
+:type: typing.Optional[typing.List[src.configs.other.must_go.MustGoConfig]]
 :value: >
    None
 
@@ -86,7 +75,7 @@
 
 ````{py:attribute} post_processing
 :canonical: src.configs.policies.neural.NeuralConfig.post_processing
-:type: typing.Optional[typing.List[str]]
+:type: typing.Optional[typing.List[src.configs.other.post_processing.PostProcessingConfig]]
 :value: >
    None
 

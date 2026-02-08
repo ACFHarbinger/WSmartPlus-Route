@@ -42,9 +42,20 @@ Bases: {py:obj}`src.models.subnets.embeddings.context.base.ContextEmbedder`
 
 ````
 
+````{py:method} _step_context(embeddings: torch.Tensor, state: typing.Any) -> torch.Tensor
+:canonical: src.models.subnets.embeddings.context.vrpp.VRPPContextEmbedder._step_context
+
+```{autodoc2-docstring} src.models.subnets.embeddings.context.vrpp.VRPPContextEmbedder._step_context
+```
+
+````
+
 ````{py:property} step_context_dim
 :canonical: src.models.subnets.embeddings.context.vrpp.VRPPContextEmbedder.step_context_dim
 :type: int
+
+```{autodoc2-docstring} src.models.subnets.embeddings.context.vrpp.VRPPContextEmbedder.step_context_dim
+```
 
 ````
 

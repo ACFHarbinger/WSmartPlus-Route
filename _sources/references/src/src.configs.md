@@ -14,26 +14,11 @@
 :maxdepth: 3
 
 src.configs.policies
-src.configs.rl
-```
-
-## Submodules
-
-```{toctree}
-:titlesonly:
-:maxdepth: 1
-
-src.configs.decoding
-src.configs.eval
-src.configs.must_go
-src.configs.train
-src.configs.env
-src.configs.optim
-src.configs.data
-src.configs.hpo
-src.configs.sim
-src.configs.model
-src.configs.meta_rl
+src.configs.models
+src.configs.tasks
+src.configs.core
+src.configs.other
+src.configs.envs
 ```
 
 ## Package Contents
@@ -72,7 +57,7 @@ src.configs.meta_rl
 
 ````{py:attribute} env
 :canonical: src.configs.Config.env
-:type: src.configs.env.EnvConfig
+:type: src.configs.envs.EnvConfig
 :value: >
    'field(...)'
 
@@ -83,7 +68,7 @@ src.configs.meta_rl
 
 ````{py:attribute} model
 :canonical: src.configs.Config.model
-:type: src.configs.model.ModelConfig
+:type: src.configs.models.ModelConfig
 :value: >
    'field(...)'
 
@@ -94,7 +79,7 @@ src.configs.meta_rl
 
 ````{py:attribute} train
 :canonical: src.configs.Config.train
-:type: src.configs.train.TrainConfig
+:type: src.configs.tasks.TrainConfig
 :value: >
    'field(...)'
 
@@ -105,7 +90,7 @@ src.configs.meta_rl
 
 ````{py:attribute} optim
 :canonical: src.configs.Config.optim
-:type: src.configs.optim.OptimConfig
+:type: src.configs.models.OptimConfig
 :value: >
    'field(...)'
 
@@ -116,7 +101,7 @@ src.configs.meta_rl
 
 ````{py:attribute} rl
 :canonical: src.configs.Config.rl
-:type: src.configs.rl.RLConfig
+:type: src.configs.core.RLConfig
 :value: >
    'field(...)'
 
@@ -127,7 +112,7 @@ src.configs.meta_rl
 
 ````{py:attribute} meta_rl
 :canonical: src.configs.Config.meta_rl
-:type: src.configs.meta_rl.MetaRLConfig
+:type: src.configs.tasks.MetaRLConfig
 :value: >
    'field(...)'
 
@@ -138,7 +123,7 @@ src.configs.meta_rl
 
 ````{py:attribute} hpo
 :canonical: src.configs.Config.hpo
-:type: src.configs.hpo.HPOConfig
+:type: src.configs.tasks.HPOConfig
 :value: >
    'field(...)'
 
@@ -149,7 +134,7 @@ src.configs.meta_rl
 
 ````{py:attribute} eval
 :canonical: src.configs.Config.eval
-:type: src.configs.eval.EvalConfig
+:type: src.configs.tasks.EvalConfig
 :value: >
    'field(...)'
 
@@ -160,7 +145,7 @@ src.configs.meta_rl
 
 ````{py:attribute} sim
 :canonical: src.configs.Config.sim
-:type: src.configs.sim.SimConfig
+:type: src.configs.tasks.SimConfig
 :value: >
    'field(...)'
 
@@ -171,7 +156,7 @@ src.configs.meta_rl
 
 ````{py:attribute} data
 :canonical: src.configs.Config.data
-:type: src.configs.data.DataConfig
+:type: src.configs.envs.DataConfig
 :value: >
    'field(...)'
 
@@ -182,11 +167,22 @@ src.configs.meta_rl
 
 ````{py:attribute} must_go
 :canonical: src.configs.Config.must_go
-:type: src.configs.must_go.MustGoConfig
+:type: src.configs.other.MustGoConfig
 :value: >
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.Config.must_go
+```
+
+````
+
+````{py:attribute} post_processing
+:canonical: src.configs.Config.post_processing
+:type: src.configs.other.PostProcessingConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.Config.post_processing
 ```
 
 ````

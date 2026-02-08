@@ -31,7 +31,7 @@ Bases: {py:obj}`src.models.subnets.factories.base.NeuralComponentFactory`
 ```{autodoc2-docstring} src.models.subnets.factories.attention.AttentionComponentFactory
 ```
 
-````{py:method} create_encoder(**kwargs: typing.Any) -> torch.nn.Module
+````{py:method} create_encoder(norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, **kwargs: typing.Any) -> torch.nn.Module
 :canonical: src.models.subnets.factories.attention.AttentionComponentFactory.create_encoder
 
 ```{autodoc2-docstring} src.models.subnets.factories.attention.AttentionComponentFactory.create_encoder
@@ -39,7 +39,7 @@ Bases: {py:obj}`src.models.subnets.factories.base.NeuralComponentFactory`
 
 ````
 
-````{py:method} create_decoder(decoder_type: str = 'attention', **kwargs: typing.Any) -> torch.nn.Module
+````{py:method} create_decoder(decoder_type: str = 'attention', norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, **kwargs: typing.Any) -> torch.nn.Module
 :canonical: src.models.subnets.factories.attention.AttentionComponentFactory.create_decoder
 
 ```{autodoc2-docstring} src.models.subnets.factories.attention.AttentionComponentFactory.create_decoder

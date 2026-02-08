@@ -14,14 +14,12 @@
 :maxdepth: 1
 
 src.utils.data.loader
-src.utils.data.network_utils
 src.utils.data.generation
 src.utils.data.td_utils
 src.utils.data.td_state_wrapper
 src.utils.data.data_utils
 src.utils.data.rl_utils
 src.utils.data.parameters
-src.utils.data.dummy_problem
 ```
 
 ## Package Contents

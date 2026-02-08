@@ -56,7 +56,7 @@
 ```
 ````
 
-````{py:function} plot_vehicle_routes(data, route, ax1, markersize=5, visualize_demands=False, demand_scale=1, round_demand=False)
+````{py:function} plot_vehicle_routes(data, route, ax1, markersize=5, visualize_waste=False, waste_scale=1, round_waste=False)
 :canonical: src.utils.logging.plotting.routes.plot_vehicle_routes
 
 ```{autodoc2-docstring} src.utils.logging.plotting.routes.plot_vehicle_routes

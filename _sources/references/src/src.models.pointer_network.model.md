@@ -37,10 +37,10 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.pointer_network.model.PointerNetwork.__init__
 ```
 
-````{py:method} set_decode_type(decode_type)
-:canonical: src.models.pointer_network.model.PointerNetwork.set_decode_type
+````{py:method} set_strategy(strategy)
+:canonical: src.models.pointer_network.model.PointerNetwork.set_strategy
 
-```{autodoc2-docstring} src.models.pointer_network.model.PointerNetwork.set_decode_type
+```{autodoc2-docstring} src.models.pointer_network.model.PointerNetwork.set_strategy
 ```
 
 ````

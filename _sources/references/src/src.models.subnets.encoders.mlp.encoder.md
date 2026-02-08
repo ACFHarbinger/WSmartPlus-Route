@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} MLPEncoder(n_layers, feed_forward_hidden, norm='layer', learn_affine=True, track_norm=False, *args, **kwargs)
+`````{py:class} MLPEncoder(n_layers: int, feed_forward_hidden: int, norm: str = 'layer', learn_affine: bool = True, track_norm: bool = False, activation: str = 'relu', *args, **kwargs)
 :canonical: src.models.subnets.encoders.mlp.encoder.MLPEncoder
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.encoders.mlp.encoder.MLPEncoder.__init__
 ```
 
-````{py:method} forward(x, graph=None)
+````{py:method} forward(x: torch.Tensor, graph=None) -> torch.Tensor
 :canonical: src.models.subnets.encoders.mlp.encoder.MLPEncoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.encoders.mlp.encoder.MLPEncoder.forward

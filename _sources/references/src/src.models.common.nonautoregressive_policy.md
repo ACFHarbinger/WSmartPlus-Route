@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.models.common.nonautoregressive_policy.NonAutoregressivePolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.common.nonautoregressive_policy.NonAutoregressivePolicy.forward
 
 ```{autodoc2-docstring} src.models.common.nonautoregressive_policy.NonAutoregressivePolicy.forward
@@ -45,15 +45,15 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} set_decode_type(decode_type: str, **kwargs)
-:canonical: src.models.common.nonautoregressive_policy.NonAutoregressivePolicy.set_decode_type
+````{py:method} set_strategy(strategy: str, **kwargs)
+:canonical: src.models.common.nonautoregressive_policy.NonAutoregressivePolicy.set_strategy
 
-```{autodoc2-docstring} src.models.common.nonautoregressive_policy.NonAutoregressivePolicy.set_decode_type
+```{autodoc2-docstring} src.models.common.nonautoregressive_policy.NonAutoregressivePolicy.set_strategy
 ```
 
 ````
 
-````{py:method} common_decoding(decode_type: str, td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, heatmap: torch.Tensor, actions: typing.Optional[torch.Tensor] = None, **decoding_kwargs)
+````{py:method} common_decoding(strategy: str, td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, heatmap: torch.Tensor, actions: typing.Optional[torch.Tensor] = None, **decoding_kwargs)
 :canonical: src.models.common.nonautoregressive_policy.NonAutoregressivePolicy.common_decoding
 
 ```{autodoc2-docstring} src.models.common.nonautoregressive_policy.NonAutoregressivePolicy.common_decoding

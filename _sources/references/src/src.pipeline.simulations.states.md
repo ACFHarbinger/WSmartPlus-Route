@@ -35,6 +35,10 @@ src.pipeline.simulations.states.finishing
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`ROOT_DIR <src.pipeline.simulations.states.ROOT_DIR>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.states.ROOT_DIR
+    :summary:
+    ```
 * - {py:obj}`__all__ <src.pipeline.simulations.states.__all__>`
   - ```{autodoc2-docstring} src.pipeline.simulations.states.__all__
     :summary:
@@ -42,6 +46,16 @@ src.pipeline.simulations.states.finishing
 ````
 
 ### API
+
+````{py:data} ROOT_DIR
+:canonical: src.pipeline.simulations.states.ROOT_DIR
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.ROOT_DIR
+```
+
+````
 
 ````{py:data} __all__
 :canonical: src.pipeline.simulations.states.__all__

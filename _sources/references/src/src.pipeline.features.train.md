@@ -59,7 +59,7 @@ src.pipeline.features.train.engine
 ````{py:data} __all__
 :canonical: src.pipeline.features.train.__all__
 :value: >
-   ['run_training', 'run_hpo', 'create_model']
+   ['run_training', 'run_hpo', 'create_model', 'get_env', 'WSTrainer', 'AttentionModelPolicy']
 
 ```{autodoc2-docstring} src.pipeline.features.train.__all__
 ```

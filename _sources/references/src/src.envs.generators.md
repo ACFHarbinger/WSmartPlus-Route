@@ -16,8 +16,6 @@
 src.envs.generators.vrpp
 src.envs.generators.wcvrp
 src.envs.generators.scwcvrp
-src.envs.generators.pdp
-src.envs.generators.jssp
 src.envs.generators.tsp
 src.envs.generators.base
 ```
@@ -75,7 +73,7 @@ src.envs.generators.base
 ````{py:data} __all__
 :canonical: src.envs.generators.__all__
 :value: >
-   ['Generator', 'VRPPGenerator', 'WCVRPGenerator', 'SCWCVRPGenerator', 'TSPGenerator', 'PDPGenerator',...
+   ['Generator', 'VRPPGenerator', 'WCVRPGenerator', 'SCWCVRPGenerator', 'TSPGenerator', 'TSPGenerator',...
 
 ```{autodoc2-docstring} src.envs.generators.__all__
 ```

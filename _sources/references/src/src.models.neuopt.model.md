@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.neuopt.model.NeuOpt.__init__
 ```
 
-````{py:method} forward(td: typing.Any, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, decode_type: str = 'greedy', **kwargs)
+````{py:method} forward(td: typing.Any, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, strategy: str = 'greedy', **kwargs)
 :canonical: src.models.neuopt.model.NeuOpt.forward
 
 ```{autodoc2-docstring} src.models.neuopt.model.NeuOpt.forward
