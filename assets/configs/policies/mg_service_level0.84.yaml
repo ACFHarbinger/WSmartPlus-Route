@@ -1,0 +1,31 @@
+# =============================================================================
+# Must-Go Strategy: Service Level (Statistical Overflow Prediction)
+# =============================================================================
+# PURPOSE:
+#   Statistical prediction using mean + confidence_factor * stddev.
+#   Balances overflow prevention with collection costs via confidence tuning.
+#
+# ALGORITHM:
+#   1. Estimate fill level distribution (μ, σ) for each bin
+#   2. Compute threshold = μ + confidence_factor * σ
+#   3. Mark bin as must-go if predicted_fill >= threshold
+#   4. Higher confidence_factor → more conservative (fewer overflows)
+#
+# USE CASES:
+#   - Stochastic demand problems (SDWCVRP)
+#   - Risk-sensitive routing (prioritize service level over cost)
+#   - VRPP with service level constraints
+#
+# PARAMETERS:
+#   - confidence_factor: 0.84 (≈80th percentile under normal distribution)
+#     Range: 0.5-2.0 (0.5 = 69%, 1.0 = 84%, 1.65 = 95%, 2.0 = 98%)
+#     0.84 corresponds to ~80% service level
+#
+# INTERPRETATION:
+#   confidence_factor = 0.84 → collect if fill exceeds 80th percentile
+#   Prevents ~80% of potential overflows while allowing some risk
+# =============================================================================
+
+strategy: service_level
+confidence_factor: 0.84
+max_fill: 100.0

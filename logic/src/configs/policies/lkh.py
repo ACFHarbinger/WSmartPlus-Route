@@ -8,7 +8,7 @@ from typing import List, Optional
 
 @dataclass
 class LKHConfig:
-    """Configuration for Lin-Kernighan Heuristic (LKH) policy.
+    """Configuration for Lin-Kernighan-Helsgaun Heuristic (LKH) policy.
 
     Attributes:
         check_capacity: Whether to check vehicle capacity constraints.

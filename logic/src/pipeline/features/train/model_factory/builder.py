@@ -142,7 +142,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
     must_go_selector = None
     if hasattr(cfg, "must_go") and cfg.must_go is not None:
-        from logic.src.policies.selection import create_selector_from_config
+        from logic.src.policies.must_go import create_selector_from_config
 
         must_go_selector = create_selector_from_config(cfg.must_go)
         if must_go_selector is not None:

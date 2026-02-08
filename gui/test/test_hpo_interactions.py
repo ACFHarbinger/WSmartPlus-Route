@@ -15,22 +15,26 @@ class TestHPOInteractions:
 
     def test_timeout_toggle(self, hpo_tab):
         """Test Timeout section toggle."""
-        assert not hpo_tab.is_timeout_visible
-        assert hpo_tab.timeout_container.isHidden()
+        # Access timeout widget via algorithms widget
+        timeout_widget = hpo_tab.algorithms_widget.timeout_widget
+        assert not timeout_widget.is_visible
+        assert timeout_widget.content_container.isHidden()
 
-        hpo_tab._toggle_timeout()
-        assert hpo_tab.is_timeout_visible
-        assert not hpo_tab.timeout_container.isHidden()
+        timeout_widget._toggle()
+        assert timeout_widget.is_visible
+        assert not timeout_widget.content_container.isHidden()
 
-        hpo_tab._toggle_timeout()
-        assert not hpo_tab.is_timeout_visible
+        timeout_widget._toggle()
+        assert not timeout_widget.is_visible
 
     def test_get_params_basic(self, hpo_tab):
         """Test basic parameters."""
         with patch("multiprocessing.cpu_count", return_value=4):
-            hpo_tab.cpu_cores_input.setMaximum(16)
-            hpo_tab.hpo_epochs_input.setValue(15)
-            hpo_tab.cpu_cores_input.setValue(4)
+            # cpu_cores is in ray_tune_widget
+            hpo_tab.ray_tune_widget.cpu_cores_input.setMaximum(16)
+            # hpo_epochs is in general_widget
+            hpo_tab.general_widget.hpo_epochs_input.setValue(15)
+            hpo_tab.ray_tune_widget.cpu_cores_input.setValue(4)
 
             params = hpo_tab.get_params()
 
@@ -42,7 +46,8 @@ class TestHPOInteractions:
         """Test HPO Method mapping."""
         # "Bayesian Optimization (BO)" -> "bo"
         ui_text = "Bayesian Optimization (BO)"
-        hpo_tab.hpo_method_combo.setCurrentText(ui_text)
+        # hpo_method_combo is in general_widget
+        hpo_tab.general_widget.hpo_method_combo.setCurrentText(ui_text)
 
         params = hpo_tab.get_params()
         # Dictionary keys are strings
@@ -64,8 +69,10 @@ class TestHPOInteractions:
 
     def test_range_parsing(self, hpo_tab):
         """Test float list parsing."""
-        hpo_tab.hpo_range_input.setText("1.0 5.0")
-        hpo_tab.grid_input.setText("0 1 2")
+        # hpo_range_input in general_widget
+        hpo_tab.general_widget.hpo_range_input.setText("1.0 5.0")
+        # grid_input in algorithms_widget
+        hpo_tab.algorithms_widget.grid_input.setText("0 1 2")
 
         params = hpo_tab.get_params()
 
@@ -74,10 +81,11 @@ class TestHPOInteractions:
 
     def test_timeout_parsing(self, hpo_tab):
         """Test valid and invalid timeout inputs."""
-        hpo_tab.timeout_input.setText("60")
+        # timeout_input is inside algorithms_widget.timeout_widget.input
+        hpo_tab.algorithms_widget.timeout_widget.input.setText("60")
         params = hpo_tab.get_params()
         assert params["timeout"] == 60
 
-        hpo_tab.timeout_input.setText("invalid")
+        hpo_tab.algorithms_widget.timeout_widget.input.setText("invalid")
         params = hpo_tab.get_params()
         assert params["timeout"] is None

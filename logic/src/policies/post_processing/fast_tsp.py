@@ -9,7 +9,7 @@ import torch
 
 from logic.src.interfaces import IPostProcessor
 
-from ..single_vehicle import find_route
+from ..tsp import find_route
 from .registry import PostProcessorRegistry
 
 

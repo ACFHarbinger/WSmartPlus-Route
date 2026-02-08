@@ -1,3 +1,0 @@
-"""
-UI utilities module.
-"""

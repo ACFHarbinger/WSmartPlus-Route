@@ -1,27 +1,90 @@
 # @package _global_
+# =============================================================================
+# Test Simulator Task Configuration
+# =============================================================================
+# Configuration for multi-day waste collection simulation testing.
+# Used by: python main.py test_sim
+#
+# Key Features:
+#   - Compare multiple routing policies
+#   - Multi-day temporal simulation
+#   - Real-world geographic areas
+#   - Statistical analysis across random seeds
+# =============================================================================
 
-# General
-verbose: true
-seed: 42
-cpu_cores: 0
+# =============================================================================
+# General Configuration
+# =============================================================================
+verbose: true  # Enable detailed logging output
+seed: 42  # Random seed for reproducibility
+cpu_cores: 0  # Number of CPU cores for parallel policy execution.
+              # 0 = auto-detect, N = use N cores
 
-# Simulation Configuration (matches SimConfig)
+# =============================================================================
+# Simulation Configuration
+# =============================================================================
 sim:
-  days: 31
-  size: 100
-  n_samples: 10
-  checkpoint_days: 0
-  real_time_log: false
-  policies:
-    - amgat0
-  n_vehicles: 1
-  problem: "vrpp"
-  gate_prob_threshold: 0.1
-  mask_prob_threshold: 0.1
-  area: "riomaior"
-  waste_type: "plastic"
-  output_dir: "output"
-  checkpoint_dir: "checkpoints"
+  # Simulation Horizon
+  days: 31  # Number of days to simulate.
+            # Common values: 7 (week), 31 (month), 365 (year)
 
-  # Data Configuration (can be list for batch testing)
-  data_distribution: ["gamma1"]
+  # Problem Configuration
+  size: 100  # Number of bins (nodes) in the problem.
+             # Standard sizes: 20, 50, 100, 150
+
+  n_samples: 10  # Number of random instances to test per policy.
+                 # More samples = better statistical significance.
+                 # Typical: 10-100
+
+  # Checkpointing
+  checkpoint_days: 0  # Save simulation state every N days.
+                      # 0 = no checkpointing (faster)
+                      # 7 = checkpoint weekly (allows resume)
+
+  real_time_log: false  # Enable real-time logging to file (slower but useful for debugging)
+
+  # =============================================================================
+  # Policy Configuration
+  # =============================================================================
+  policies:  # List of routing policies to compare. Options:
+    - amgat0  # Neural policy (AM with GAT encoder, model variant 0)
+            # Other options:
+            # - gurobi: Exact optimization (slow but optimal)
+            # - hgs: Hybrid Genetic Search metaheuristic
+            # - alns: Adaptive Large Neighborhood Search
+            # - regular: Fixed-frequency collection (e.g., every 3 days)
+            # - lookahead: Predictive policy
+            # - last_minute: Reactive threshold-based policy
+
+  # =============================================================================
+  # Vehicle Configuration
+  # =============================================================================
+  n_vehicles: 1  # Number of vehicles in fleet.
+                 # 1 = single-vehicle routing
+                 # 2+ = multi-vehicle fleet routing
+
+  # =============================================================================
+  # Must-Go Selection (for neural policies)
+  # =============================================================================
+  gate_prob_threshold: 0.1  # Manager gating probability threshold (HRL)
+  mask_prob_threshold: 0.1  # Action masking probability threshold
+
+  # =============================================================================
+  # Environment Configuration
+  # =============================================================================
+  problem: "vrpp"  # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
+  area: "riomaior"  # Geographic area. Options: riomaior, manhattan, random
+  waste_type: "plastic"  # Waste category. Options: plastic, glass, paper, organic
+
+  # =============================================================================
+  # Output Configuration
+  # =============================================================================
+  output_dir: "output"  # Directory for simulation results (logs, metrics, routes)
+  checkpoint_dir: "checkpoints"  # Directory for simulation checkpoints
+
+  # =============================================================================
+  # Data Distribution
+  # =============================================================================
+  data_distribution: ["gamma1"]  # Waste generation distributions to test.
+                                 # Can specify multiple: ["gamma1", "gamma2", "uniform"]
+                                 # Each distribution will be tested separately.

@@ -1,20 +1,43 @@
 # @package _global_
+# =============================================================================
+# Temporal Attention Model (TAM) Configuration
+# =============================================================================
+# Extension of the Attention Model for multi-day routing problems with temporal
+# dynamics (e.g., WCVRP, SDWCVRP).
+#
+# Key Features:
+#   - Temporal horizon for future waste prediction
+#   - GRF (Gated Recurrent Flow) predictor for bin fill forecasting
+#   - Time-aware attention mechanisms
+#
+# Best For: WCVRP, SDWCVRP (multi-day waste collection)
+# Not Needed For: VRPP, CVRPP (static single-day problems)
+# =============================================================================
 
 model:
-  name: "tam"
-  embed_dim: 128
-  hidden_dim: 512
-  n_encode_layers: 3
-  n_decode_layers: 2
-  n_heads: 8
-  encoder_type: "gat"
+  name: "tam"  # Model identifier
+  embed_dim: 128  # Node embedding dimension (same as AM)
+  hidden_dim: 512  # Feed-forward hidden size (same as AM)
+  n_encode_layers: 3  # Encoder depth (same as AM)
+  n_decode_layers: 2  # Decoder depth (same as AM)
+  n_heads: 8  # Attention heads (same as AM)
+  encoder_type: "gat"  # Graph encoder type (same as AM)
 
-  # Temporal AM specific
-  temporal_horizon: 7 # Look ahead window
+  # =============================================================================
+  # Temporal-Specific Parameters
+  # =============================================================================
+  temporal_horizon: 7  # Number of days to forecast ahead for bin fill prediction.
+                       # Range: 3-14 days. Higher = better long-term planning but slower.
+                       # Typical values:
+                       #   - 7: Standard (1 week ahead)
+                       #   - 14: Long-term planning (2 weeks)
+                       #   - 3: Short-term reactive
 
-  # Standard params
-  normalization: "instance"
-  activation: "gelu"
-  dropout: 0.1
-  aggregation_node: "sum"
-  aggregation_graph: "avg"
+  # =============================================================================
+  # Standard Parameters (Inherited from AM)
+  # =============================================================================
+  normalization: "instance"  # Normalization type (same as AM)
+  activation: "gelu"  # Activation function (same as AM)
+  dropout: 0.1  # Dropout rate (same as AM)
+  aggregation_node: "sum"  # Node-level aggregation (same as AM)
+  aggregation_graph: "avg"  # Graph-level pooling (same as AM)

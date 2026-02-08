@@ -16,7 +16,7 @@ from logic.src.models.policies.random_local_search import (
 )
 from logic.src.utils.logging.structured_logging import log_benchmark_metric
 from logic.src.policies.adapters.policy_vrpp import run_vrpp_optimizer
-from logic.src.policies.multi_vehicle import find_routes, find_routes_ortools
+from logic.src.policies.cvrp import find_routes, find_routes_ortools
 
 
 def benchmark_random_local_search(
@@ -134,9 +134,9 @@ def benchmark_vrpp_solvers(num_nodes: int = 20, time_limit: int = 2) -> Dict[str
     return results
 
 
-def benchmark_multi_vehicle_solvers(num_nodes: int = 50, n_vehicles: int = 5) -> Dict[str, Any]:
+def benchmark_cvrp_solvers(num_nodes: int = 50, n_vehicles: int = 5) -> Dict[str, Any]:
     """Benchmark PyVRP vs OR-Tools."""
-    print(f"[*] Benchmarking Multi-Vehicle Solvers (nodes={num_nodes}, vehicles={n_vehicles})...")
+    print(f"[*] Benchmarking CVRP Solvers (nodes={num_nodes}, vehicles={n_vehicles})...")
 
     dist_mat = np.random.randint(10, 100, size=(num_nodes + 1, num_nodes + 1))
     np.fill_diagonal(dist_mat, 0)
@@ -184,4 +184,4 @@ if __name__ == "__main__":
     print("-" * 40)
     benchmark_vrpp_solvers(num_nodes=15, time_limit=1)
     print("-" * 40)
-    benchmark_multi_vehicle_solvers(num_nodes=30, n_vehicles=3)
+    benchmark_cvrp_solvers(num_nodes=30, n_vehicles=3)

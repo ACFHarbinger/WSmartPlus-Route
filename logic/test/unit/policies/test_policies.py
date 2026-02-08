@@ -9,16 +9,16 @@ import pandas as pd
 import pytest
 import torch
 
-from logic.src.policies import single_vehicle
+from logic.src.policies import tsp
 from logic.src.policies.adapters import PolicyRegistry
 from logic.src.policies.hybrid_genetic_search import run_hgs
-from logic.src.policies.multi_vehicle import find_routes, find_routes_ortools
+from logic.src.policies.cvrp import find_routes, find_routes_ortools
 from logic.src.policies.adapters.policy_vrpp import run_vrpp_optimizer
 from logic.src.policies.adapters.policy_alns import run_alns, ALNSPolicy
 from logic.src.policies.adapters.policy_bcp import run_bcp, BCPPolicy
 from logic.src.policies.adapters.policy_hgs import HGSPolicy
 from logic.src.policies.adapters.policy_lkh import LKHPolicy
-from logic.src.policies.lin_kernighan import solve_lk
+from logic.src.policies.lin_kernighan_helsgaun import solve_lkh
 
 
 class MockBins:
@@ -96,7 +96,7 @@ class TestPolicyAdapters:
 
     @pytest.mark.unit
     def test_lkh_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.adapters.policy_lkh.solve_lk") as mock_run:
+        with patch("logic.src.policies.adapters.policy_lkh.solve_lkh") as mock_run:
             mock_run.return_value = ([0, 1, 0], 5.0)
             policy = PolicyRegistry.get("lkh")()
             assert isinstance(policy, LKHPolicy)
@@ -221,8 +221,8 @@ class TestSingleVehiclePolicies:
         """Test finding a route using TSP heuristic."""
         test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         test_to_collect = [1, 2]
-        with patch("logic.src.policies.single_vehicle.fast_tsp.find_tour", return_value=[0, 1, 2]):
-            res_route = single_vehicle.find_route(test_C, test_to_collect)
+        with patch("logic.src.policies.tsp.fast_tsp.find_tour", return_value=[0, 1, 2]):
+            res_route = tsp.find_route(test_C, test_to_collect)
             assert res_route == [0, 1, 2, 0]
 
     @pytest.mark.unit
@@ -230,18 +230,18 @@ class TestSingleVehiclePolicies:
         """Test calculation of total cost for a given route."""
         test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         test_tour = [0, 1, 2, 0]
-        res_cost = single_vehicle.get_route_cost(test_C, test_tour)
+        res_cost = tsp.get_route_cost(test_C, test_tour)
         assert abs(float(res_cost) - 35.0) < 1e-6
 
 
-class TestLinKernighan:
-    """Tests for the Lin-Kernighan heuristic implementation."""
+class TestLinKernighanHelsgaun:
+    """Tests for the Lin-Kernighan-Helsgaun heuristic implementation."""
 
     @pytest.mark.unit
     def test_small_instance(self):
-        """Test LK on a small 4-node square graph."""
+        """Test LKH on a small 4-node square graph."""
         dist = np.array([[0, 1, 1.414, 1], [1, 0, 1, 1.414], [1.414, 1, 0, 1], [1, 1.414, 1, 0]])
-        tour, cost = solve_lk(dist, max_iterations=10)
+        tour, cost = solve_lkh(dist, max_iterations=10)
         assert len(tour) == 5
         assert tour[0] == 0
         assert tour[-1] == 0
@@ -254,5 +254,5 @@ class TestLinKernighan:
         dist = np.array([[0, 1, 10], [1, 0, 1], [10, 1, 0]])
         waste = np.array([0, 60, 40])
         capacity = 50.0
-        tour, cost = solve_lk(dist, waste=waste, capacity=capacity, max_iterations=20)
+        tour, cost = solve_lkh(dist, waste=waste, capacity=capacity, max_iterations=20)
         assert tour == [0, 2, 1, 0]

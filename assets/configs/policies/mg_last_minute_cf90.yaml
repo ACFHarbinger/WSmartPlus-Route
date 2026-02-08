@@ -1,0 +1,25 @@
+# =============================================================================
+# Must-Go Strategy: Last Minute (High Threshold)
+# =============================================================================
+# PURPOSE:
+#   Aggressive threshold-based strategy - only collect nearly-full bins.
+#   Minimizes collection frequency but increases overflow risk.
+#
+# ALGORITHM:
+#   1. Check current fill level for each bin
+#   2. Mark bin as must-go if fill >= 0.9
+#   3. Very reactive - waits until bins are 90% full
+#
+# USE CASES:
+#   - Cost-sensitive scenarios (minimize total km driven)
+#   - Areas with reliable fill patterns (low variance)
+#   - Benchmarking aggressive vs conservative thresholds
+#
+# PARAMETERS:
+#   - threshold: 0.9 (90% capacity threshold)
+#     Higher than cf70 - trades overflow risk for fewer collections
+# =============================================================================
+
+strategy: last_minute
+threshold: 0.9
+max_fill: 100.0

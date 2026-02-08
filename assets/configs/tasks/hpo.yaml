@@ -1,60 +1,73 @@
 # @package _global_
+# =============================================================================
+# Hyperparameter Optimization (HPO) Task Configuration
+# =============================================================================
+# Configuration for automated hyperparameter search using Optuna/DEHB.
+# Used by: python main.py hp_optim
+#
+# Searches over model/training hyperparameters to find optimal configurations.
+# =============================================================================
 
-# General
-verbose: true
-seed: 42
-start: 0
+# =============================================================================
+# General Configuration
+# =============================================================================
+verbose: true  # Enable detailed logging
+seed: 42  # Random seed for reproducibility
+start: 0  # Starting trial index
 
-# Environment Override
+# =============================================================================
+# Environment Override (Smaller for Faster HPO)
+# =============================================================================
 env:
-  name: "wcvrp"
-  num_loc: 20
-  area: "riomaior"
-  waste_type: "plastic"
-  edge_threshold: 1.0
-  edge_method: "knn"
-  vertex_method: "mmn"
+  name: "wcvrp"  # Problem type for HPO
+  num_loc: 20  # Use small problem size for faster trials (20 nodes vs 50-100)
+  area: "riomaior"  # Geographic area
+  waste_type: "plastic"  # Waste category
+  edge_threshold: 1.0  # Graph connectivity threshold
+  edge_method: "knn"  # Edge construction method
+  vertex_method: "mmn"  # Vertex placement method
 
+# =============================================================================
 # HPO Configuration
+# =============================================================================
 hpo:
-  method: "dehbo"
-  metric: "both"
-  n_trials: 25 # fevals
-  n_epochs_per_trial: 7 # epochs
-  fevals: 25
-  hop_range: [0.0, 2.0]
+  # HPO Method
+  method: "dehbo"  # Hyperparameter optimization method. Options:
+                   # - "dehbo": Differential Evolution Hyperband Optimization (faster)
+                   # - "optuna": Optuna with TPE sampler (more flexible)
+                   # - "random": Random search (baseline)
 
-  # DE/GA Parameters (HPOConfig fields)
-  eta: 5.0
-  n_pop: 20
-  mutpb: 0.3
-  cxpb: 0.5
-  max_tres: 40
+  metric: "both"  # Optimization metric. Options:
+                  # - "cost": Minimize total route cost
+                  # - "reward": Maximize collected reward/waste
+                  # - "both": Multi-objective (cost + reward)
 
-# Optimization Overrides
-optim:
-  optimizer: "rmsprop"
-  lr: 0.0001
-  lr_decay: 1.0
-  lr_scheduler: "lambda"
+  # Search Budget
+  n_trials: 25  # Number of hyperparameter configurations to try.
+                # Range: 10-100. More trials = better but slower.
+                # 25 is good balance for initial search.
 
-# RL / Baseline
-rl:
-  baseline: "exponential"
-  bl_alpha: 0.05
-  exp_beta: 0.8
-  max_grad_norm: 1.0
+  n_epochs_per_trial: 7  # Training epochs per configuration.
+                         # Reduced from full training for faster search.
+                         # 7 epochs is enough to distinguish good/bad configs.
 
-# Training
-train:
-  batch_size: 256
-  accumulation_steps: 1
+  fevals: 25  # Function evaluations (alias for n_trials)
 
-# Data Configuration
-data:
-  dataset_size: 128000
-  data_distributions: ["gamma1"]
-  filename: "hpo"
+  # Search Space
+  hop_range: [0.0, 2.0]  # Range for temporal horizon parameter (TAM models).
+                         # [0.0, 2.0] searches between static (0) and 2-day lookahead.
 
-# Flags
-wandb_mode: "disabled"
+  # =============================================================================
+  # Differential Evolution / Genetic Algorithm Parameters
+  # =============================================================================
+  # Used when method="dehbo"
+
+  eta: 5.0  # Hyperband eta parameter (resource allocation aggressiveness).
+            # Higher = more aggressive pruning of bad configurations.
+
+  n_pop: 20  # Population size for evolutionary algorithms.
+             # Larger = more diverse but slower.
+
+  mutpb: 0.3  # Mutation probability (0.0-1.0).
+              # Higher = more exploration, lower = more exploitation.
+              # 0.3 is standard.

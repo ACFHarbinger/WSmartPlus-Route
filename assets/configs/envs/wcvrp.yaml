@@ -1,18 +1,33 @@
 # @package _global_
+# =============================================================================
+# Waste Collection VRP (WCVRP) Environment Configuration
+# =============================================================================
+# Uncapacitated waste collection routing (no vehicle capacity constraints).
+# Simpler than CWCVRP - useful for baseline comparisons.
+#
+# Differences from CWCVRP:
+#   - No capacity constraints (vehicle can collect unlimited waste)
+#   - Simpler for algorithm development and testing
+#   - Less realistic but faster to train
+# =============================================================================
 
 env:
-  name: "wcvrp"
-  num_loc: 50
-  area: "riomaior"
-  waste_type: "plastic"
+  name: "wcvrp"  # Environment identifier
+  num_loc: 50  # Number of bins. Standard sizes: 20, 50, 100
+  area: "riomaior"  # Geographic area. Options: riomaior, manhattan, random
+  waste_type: "plastic"  # Waste category. Options: plastic, glass, paper, organic
 
-  # Generation parameters
-  distance_method: "gmaps"
-  vertex_method: "mmn"
-  edge_threshold: 1.0
-  edge_method: "knn"
+  # =============================================================================
+  # Graph Construction
+  # =============================================================================
+  distance_method: "gmaps"  # Distance calculation. Options: gmaps, osm, euclidean, manhattan
+  vertex_method: "mmn"  # Vertex placement. Options: mmn, grid, random
+  edge_threshold: 1.0  # Max edge distance (km)
+  edge_method: "knn"  # Edge construction. Options: knn, radius, delaunay, complete
 
-  # Reward/Cost Weights
-  cost_weight: 1.0
-  overflow_penalty: 10.0
-  collection_reward: 10.0
+  # =============================================================================
+  # Objective Function Weights
+  # =============================================================================
+  cost_weight: 1.0  # Distance penalty weight
+  overflow_penalty: 10.0  # Overflow penalty weight
+  collection_reward: 10.0  # Collection reward weight

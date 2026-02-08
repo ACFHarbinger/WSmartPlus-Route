@@ -1,9 +1,39 @@
 # @package _global_
+# =============================================================================
+# Vehicle Routing Problem with Profits (VRPP) Environment Configuration
+# =============================================================================
+# Classic prize-collecting routing problem:
+#   - Each node has a profit/prize
+#   - No capacity constraints (uncapacitated)
+#   - Maximize: total_prize - travel_cost
+#
+# Benchmark problem for testing neural constructive heuristics.
+# =============================================================================
 
 env:
-  name: "vrpp"
-  num_loc: 50
+  name: "vrpp"  # Environment identifier
 
-  # Reward Weights
-  prize_weight: 1.0 # Revenue per visited node
-  cost_weight: 1.0 # Cost per distance unit
+  # =============================================================================
+  # Problem Size
+  # =============================================================================
+  num_loc: 50  # Number of customer nodes (excluding depot).
+               # Standard benchmark sizes: 20, 50, 100, 200.
+               # Total nodes = num_loc + 1 (includes depot at index 0).
+
+  # =============================================================================
+  # Objective Function Weights
+  # =============================================================================
+  # Objective: maximize (prize_weight × Σ prizes) - (cost_weight × total_distance)
+
+  prize_weight: 1.0  # Weight for node prizes/rewards.
+                     # Higher = prioritize collecting high-value nodes.
+                     # Typical range: 0.5-2.0.
+
+  cost_weight: 1.0  # Weight for travel distance penalty.
+                    # Higher = prioritize shorter routes.
+                    # Typical range: 0.5-2.0.
+                    #
+                    # Balance Examples:
+                    #   - prize_weight=1.0, cost_weight=1.0: Balanced (default)
+                    #   - prize_weight=2.0, cost_weight=1.0: Prioritize collecting nodes
+                    #   - prize_weight=1.0, cost_weight=2.0: Prioritize short routes

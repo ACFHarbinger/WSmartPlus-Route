@@ -1,9 +1,30 @@
 # @package _global_
+# =============================================================================
+# Pointer Network (PTR) Configuration
+# =============================================================================
+# Classic sequence-to-sequence model with attention-based pointing mechanism.
+#
+# Architecture:
+#   - RNN/LSTM encoder for sequence encoding
+#   - Attention-based pointer decoder
+#   - Simpler than transformer-based AM
+#
+# Reference: Vinyals et al. (2015) "Pointer Networks"
+#
+# Best For: TSP, simple routing problems
+# Limitations: Slower than AM on large instances, less expressive
+# =============================================================================
 
 model:
-  name: "ptr"
-  embed_dim: 128
-  hidden_dim: 128
-  n_layers: 2 # RNN layers
-  dropout: 0.1
-  # Pointer Network specific params if any
+  name: "ptr"  # Model identifier
+  embed_dim: 128  # Node embedding dimension
+  hidden_dim: 128  # RNN hidden state size. Typically equals embed_dim for PTR.
+
+  # =============================================================================
+  # RNN Configuration
+  # =============================================================================
+  n_layers: 2  # Number of stacked RNN/LSTM layers.
+               # Range: 1-3. More layers = better but slower.
+               # 2 is standard for pointer networks.
+
+  dropout: 0.1  # Dropout between RNN layers (0.0-0.3)

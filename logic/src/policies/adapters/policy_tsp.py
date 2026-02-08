@@ -11,7 +11,7 @@ import numpy as np
 
 from logic.src.configs.policies import TSPConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.single_vehicle import find_route, get_multi_tour
+from logic.src.policies.tsp import find_route, get_multi_tour
 
 from .factory import PolicyRegistry
 

@@ -125,7 +125,7 @@ def setup_sim_data(tmp_path, mocker):
     mocker.patch("logic.src.pipeline.simulations.checkpoints.ROOT_DIR", str(tmp_path))
     mocker.patch("logic.src.constants.ROOT_DIR", str(tmp_path))
     # Mock fast_tsp to avoid solver crashes with dummy data
-    mocker.patch("logic.src.policies.single_vehicle.fast_tsp.find_tour", return_value=[0, 1, 0])
+    mocker.patch("logic.src.policies.tsp.fast_tsp.find_tour", return_value=[0, 1, 0])
     # Patch the singleton repository instance directly since it's already initialized
     mocker.patch(
         "logic.src.pipeline.simulations.loader._repository.default_data_dir",

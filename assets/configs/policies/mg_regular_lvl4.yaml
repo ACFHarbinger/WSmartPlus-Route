@@ -1,0 +1,25 @@
+# =============================================================================
+# Must-Go Strategy: Regular (4-Day Cycle)
+# =============================================================================
+# PURPOSE:
+#   Fixed-frequency collection every 4 days. Slightly less frequent than
+#   lvl3 - trades collection frequency for reduced operational costs.
+#
+# ALGORITHM:
+#   1. Track days since last collection for each bin
+#   2. Mark bin as must-go if days_since_collection >= 4
+#   3. Deterministic schedule
+#
+# USE CASES:
+#   - Moderate waste generation areas
+#   - Cost optimization (fewer trips than 3-day cycle)
+#   - Benchmarking different collection frequencies
+#
+# PARAMETERS:
+#   - frequency: 4 (collect every 4 days)
+#     lvl4 = every 4 days
+# =============================================================================
+
+strategy: regular
+frequency: 4
+max_fill: 100.0

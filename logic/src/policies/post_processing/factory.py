@@ -1,3 +1,5 @@
+from typing import Any, List
+
 from logic.src.interfaces.post_processing import IPostProcessor
 
 from .registry import PostProcessorRegistry
@@ -31,3 +33,38 @@ class PostProcessorFactory:
 
             raise ValueError(f"Unknown post-processor: {name}")
         return cls()
+
+    @classmethod
+    def create_from_config(cls, config: Any) -> List[IPostProcessor]:
+        """
+        Create a list of post-processor instances from a PostProcessingConfig object.
+
+        Args:
+            config: PostProcessingConfig instance.
+        """
+        processors = []
+        if not config.methods:
+            return processors
+
+        for method in config.methods:
+            # Map parameters based on method name and config fields
+            # ClassicalLocalSearch needs 'operator_name'
+            if method in ["2opt", "2opt_star", "swap", "relocate", "swap_star", "3opt"]:
+                processor = cls.create(method)
+            elif method == "fast_tsp":
+                processor = cls.create(method)
+            elif method == "ils":
+                # IteratedLocalSearchPostProcessor takes many params
+                # We can pass config fields if they match
+                from .ils import IteratedLocalSearchPostProcessor
+
+                processor = IteratedLocalSearchPostProcessor(
+                    ls_iterations=config.iterations,
+                    # Add other maps if needed
+                )
+            else:
+                processor = cls.create(method)
+
+            processors.append(processor)
+
+        return processors
