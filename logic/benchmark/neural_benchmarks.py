@@ -19,7 +19,7 @@ def benchmark_neural_model(
     model_name: str = "am",
     num_nodes: int = 50,
     batch_size: int = 128,
-    decode_type: str = "greedy",
+    strategy: str = "greedy",
 ) -> Dict[str, float]:
     """
     Benchmark a neural model's inference performance.
@@ -28,7 +28,7 @@ def benchmark_neural_model(
         model_name: Name of the model to benchmark.
         num_nodes: Number of nodes in the graph.
         batch_size: Inference batch size.
-        decode_type: 'greedy' or 'sampling'.
+        strategy: 'greedy' or 'sampling'.
 
     Returns:
         Dict with latency and throughput metrics.
@@ -58,7 +58,7 @@ def benchmark_neural_model(
 
     # Warmup
     with torch.no_grad():
-        _ = policy(td, env=env, decode_type=decode_type)
+        _ = policy(td, env=env, strategy=strategy)
 
     if torch.cuda.is_available():
         torch.cuda.synchronize()
@@ -66,7 +66,7 @@ def benchmark_neural_model(
     # Measurement
     start = time.time()
     with torch.no_grad():
-        _ = policy(td, env=env, decode_type=decode_type)
+        _ = policy(td, env=env, strategy=strategy)
 
     if torch.cuda.is_available():
         torch.cuda.synchronize()
@@ -88,7 +88,7 @@ def benchmark_neural_model(
             "num_nodes": num_nodes,
             "batch_size": batch_size,
             "device": device,
-            "decode_type": decode_type
+            "strategy": strategy
         }
     )
 

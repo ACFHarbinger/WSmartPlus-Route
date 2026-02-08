@@ -294,30 +294,39 @@ def hydra_entry_point(cfg: Config) -> float:
         else:
             return run_training(cfg)
     elif cfg.task == "eval":
+        from logic.src.pipeline.features.base import flatten_config_dict
         from logic.src.pipeline.features.eval import run_evaluate_model, validate_eval_args
 
         # Convert Hydra config to dict
-        eval_args = OmegaConf.to_container(cfg.eval, resolve=True)
+        eval_args = cast(dict[str, Any], OmegaConf.to_container(cfg.eval, resolve=True))
+        # Flatten
+        eval_args = flatten_config_dict(eval_args)
         # Validate and run
-        args = validate_eval_args(cast(dict[str, Any], eval_args))
+        args = validate_eval_args(eval_args)
         run_evaluate_model(args)
         return 0.0
     elif cfg.task == "test_sim":
+        from logic.src.pipeline.features.base import flatten_config_dict
         from logic.src.pipeline.features.test import run_wsr_simulator_test, validate_test_sim_args
 
         # Convert Hydra config to dict
-        sim_args = OmegaConf.to_container(cfg.sim, resolve=True)
+        sim_args = cast(dict[str, Any], OmegaConf.to_container(cfg.sim, resolve=True))
+        # Flatten
+        sim_args = flatten_config_dict(sim_args)
         # Validate and run
-        args = validate_test_sim_args(cast(dict[str, Any], sim_args))
+        args = validate_test_sim_args(sim_args)
         run_wsr_simulator_test(args)
         return 0.0
     elif cfg.task == "gen_data":
         from logic.src.data.generators import generate_datasets, validate_gen_data_args
+        from logic.src.pipeline.features.base import flatten_config_dict
 
         # Convert Hydra config to dict
-        data_args = OmegaConf.to_container(cfg.data, resolve=True)
+        data_args = cast(dict[str, Any], OmegaConf.to_container(cfg.data, resolve=True))
+        # Flatten
+        data_args = flatten_config_dict(data_args)
         # Validate and run
-        args = validate_gen_data_args(cast(dict[str, Any], data_args))
+        args = validate_gen_data_args(data_args)
         generate_datasets(args)
         return 0.0
     else:

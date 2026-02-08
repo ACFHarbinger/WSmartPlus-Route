@@ -50,4 +50,5 @@ from .encoders import (
 from .encoders import (
     TransGraphConvEncoder as TransGraphConvEncoder,
 )
-from .other.grf_predictor import GatedRecurrentFillPredictor as GatedRecurrentFillPredictor
+from .other.gru_fill_predictor import GatedRecurrentUnitFillPredictor as GatedRecurrentUnitFillPredictor
+from .other.lstm_fill_predictor import LongShortTermMemoryFillPredictor as LongShortTermMemoryFillPredictor

@@ -78,5 +78,5 @@ class NARGNN(nn.Module):
 
         return out
 
-    def set_decode_type(self, decode_type: str, **kwargs):
-        self.policy.set_decode_type(decode_type, **kwargs)
+    def set_strategy(self, strategy: str, **kwargs):
+        self.policy.set_strategy(strategy, **kwargs)

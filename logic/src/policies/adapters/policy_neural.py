@@ -44,9 +44,9 @@ class NeuralPolicy(IPolicy):
 
         # Construct cost weights
         cost_weights = {
-            "waste": kwargs.get("w_waste", 1.0),
-            "length": kwargs.get("w_length", 1.0),
-            "overflows": kwargs.get("w_overflows", 1.0),
+            "waste": kwargs.get("waste_weight", 1.0),
+            "length": kwargs.get("cost_weight", 1.0),
+            "overflows": kwargs.get("overflow_penalty", 1.0),
         }
 
         # Data preparation

@@ -8,7 +8,10 @@ from typing import Any, Optional
 import torch
 import torch.nn as nn
 
-from .deep_gat_cache import DeepAttentionModelFixed
+from logic.src.configs.models.activation_function import ActivationConfig
+from logic.src.configs.models.normalization import NormalizationConfig
+
+from ..common import AttentionDecoderCache
 from .graph_decoder import GraphAttentionDecoder
 
 
@@ -23,7 +26,8 @@ class DeepGATDecoder(nn.Module):
         hidden_dim: int,
         n_heads: int,
         n_layers: int,
-        normalization: str = "batch",
+        norm_config: Optional[NormalizationConfig] = None,
+        activation_config: Optional[ActivationConfig] = None,
         dropout_rate: float = 0.1,
         aggregation_graph: str = "avg",
         mask_graph: bool = False,
@@ -47,7 +51,8 @@ class DeepGATDecoder(nn.Module):
             embed_dim=embed_dim,
             n_layers=n_layers,
             feed_forward_hidden=hidden_dim,
-            normalization=normalization,
+            norm_config=norm_config,
+            activation_config=activation_config,
             dropout_rate=dropout_rate,
             **kwargs,
         )
@@ -98,7 +103,7 @@ class DeepGATDecoder(nn.Module):
         state = self.problem.make_state(nodes, None, cost_weights, dist_matrix, **kwargs)
         fixed = self._precompute(embeddings)
 
-        decode_type = kwargs.get("decode_type", "sampling")
+        strategy = kwargs.get("strategy", "sampling")
 
         # Try to get graph size for safety break
         try:
@@ -117,7 +122,7 @@ class DeepGATDecoder(nn.Module):
         i = 0
         while not state.all_finished() and i < max_steps:
             log_p, mask = self._get_log_p(fixed, state)
-            selected = self._select_node(log_p.exp(), mask, decode_type=decode_type)
+            selected = self._select_node(log_p.exp(), mask, strategy=strategy)
 
             state = state.update(selected)
 
@@ -141,14 +146,14 @@ class DeepGATDecoder(nn.Module):
 
         return _log_p, pi, cost
 
-    def _select_node(self, probs, mask, decode_type="greedy"):
+    def _select_node(self, probs, mask, strategy="greedy"):
         """Selection logic."""
-        if decode_type == "greedy":
+        if strategy == "greedy":
             _, selected = probs.max(1)
-        elif decode_type == "sampling":
+        elif strategy == "sampling":
             selected = torch.multinomial(probs, 1).squeeze(1)
         else:
-            raise ValueError(f"Unknown decode type: {decode_type}")
+            raise ValueError(f"Unknown strategy: {strategy}")
         return selected
 
     def _precompute(self, embeddings, num_steps=1):
@@ -164,7 +169,10 @@ class DeepGATDecoder(nn.Module):
 
         fixed_context = self.project_fixed_context(graph_embed)[:, None, :]
 
-        return DeepAttentionModelFixed(embeddings, fixed_context)
+        return AttentionDecoderCache(
+            node_embeddings=embeddings,
+            graph_context=fixed_context,
+        )
 
     def _get_log_p(self, fixed, state, normalize=True):
         """Evaluate log probabilities for all nodes at once."""

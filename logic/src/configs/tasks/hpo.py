@@ -5,6 +5,9 @@ HPO Config module.
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+from ..envs.graph import GraphConfig
+from ..envs.objective import ObjectiveConfig
+
 
 @dataclass
 class HPOConfig:
@@ -17,6 +20,8 @@ class HPOConfig:
         n_epochs_per_trial: Training epochs per trial.
         num_workers: Number of parallel workers for HPO.
         search_space: Dictionary defining the search space.
+        graph: Graph configuration.
+        reward: Objective/reward configuration.
     """
 
     method: str = "dehbo"  # dehbo, rs, gs, bo
@@ -57,3 +62,6 @@ class HPOConfig:
     max_failures: int = 3
     grid: List[float] = field(default_factory=lambda: [0.0, 0.5, 1.0, 1.5, 2.0])
     max_conc: int = 4
+
+    graph: GraphConfig = field(default_factory=GraphConfig)
+    reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)

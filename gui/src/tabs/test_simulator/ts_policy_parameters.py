@@ -30,12 +30,13 @@ class TestSimPolicyParamsTab(QWidget):
         layout = QFormLayout(self)
         layout.addRow(QLabel("<b>Attention Model Parameters</b>"))
 
-        # 1. --decode_type
-        self.decode_type_combo = QComboBox(currentText="Greedy")
-        self.decode_type_combo.addItems([dt.title() for dt in DECODE_TYPES])
-        layout.addRow("Decode Type:", self.decode_type_combo)
+        # 1. strategy
+        self.strategy_combo = QComboBox()
+        self.strategy_combo.addItems([dt.title() for dt in DECODE_TYPES])
+        self.strategy_combo.setCurrentText("Greedy")
+        layout.addRow("Decoding Strategy:", self.strategy_combo)
 
-        # 2. --temperature
+        # 2. temperature
         self.temperature_input = QDoubleSpinBox(value=1.0, minimum=0.0, maximum=5.0, singleStep=0.1)
         layout.addRow("Softmax Temperature:", self.temperature_input)
 
@@ -87,8 +88,8 @@ class TestSimPolicyParamsTab(QWidget):
         if self.lookahead_config_b.isChecked():
             look_ahead_configs.append("b")
         params = {
-            "decode_type": self.decode_type_combo.currentText().lower(),
-            "temperature": self.temperature_input.value(),
+            "decoding.strategy": self.strategy_combo.currentText().lower(),
+            "decoding.temperature": self.temperature_input.value(),
             # Boolean Flags
             "cache_regular": self.cache_regular_check.isChecked(),
             "run_tsp": self.run_tsp_check.isChecked(),

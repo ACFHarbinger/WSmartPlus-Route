@@ -2,21 +2,43 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Optional
 
-import torch
-import torch.nn as nn
-
-from logic.src.models.subnets.modules import MultiHeadAttention, Normalization
-from logic.src.models.subnets.modules.connections import get_connection_module
-
-from .gat_feed_forward_sublayer import GATFeedForwardSubLayer
+from logic.src.configs.models.activation_function import ActivationConfig
+from logic.src.configs.models.normalization import NormalizationConfig
+from logic.src.models.subnets.encoders.common import MultiHeadAttentionLayerBase
 
 
-class GATMultiHeadAttentionLayer(nn.Module):
+class GATMultiHeadAttentionLayer(MultiHeadAttentionLayerBase):
     """
     Single layer of the Graph Attention Encoder.
-    Uses connections factory for potential hyper-connections.
+
+    Inherits from MultiHeadAttentionLayerBase, which provides:
+    - Multi-head attention with configurable connections (skip/dense/hyper)
+    - Feed-forward network with configurable activation
+    - Layer normalization
+    - Automatic 4D tensor handling for hyper-connections
+
+    This class is a direct application of the base pattern with no customization needed.
+
+    Parameters
+    ----------
+    n_heads : int
+        Number of attention heads.
+    embed_dim : int
+        Embedding dimension.
+    feed_forward_hidden : int
+        Hidden dimension for feed-forward network.
+    norm_config : Optional[NormalizationConfig], default=None
+        Normalization configuration.
+    activation_config : Optional[ActivationConfig], default=None
+        Activation function configuration.
+    connection_type : str, default="skip"
+        Connection type: "skip", "dense", or "hyper".
+    expansion_rate : int, default=4
+        Expansion factor for hyper-connections.
+    **kwargs
+        Additional keyword arguments.
     """
 
     def __init__(
@@ -24,93 +46,21 @@ class GATMultiHeadAttentionLayer(nn.Module):
         n_heads: int,
         embed_dim: int,
         feed_forward_hidden: int,
-        normalization: str,
-        epsilon_alpha: float,
-        learn_affine: bool,
-        track_stats: bool,
-        mbeta: float,
-        lr_k: float,
-        n_groups: int,
-        activation: str,
-        af_param: float,
-        threshold: float,
-        replacement_value: float,
-        n_params: int,
-        uniform_range: List[float],
+        norm_config: Optional[NormalizationConfig] = None,
+        activation_config: Optional[ActivationConfig] = None,
         connection_type: str = "skip",
         expansion_rate: int = 4,
+        **kwargs,
     ) -> None:
-        """Initializes the GATMultiHeadAttentionLayer."""
-        super(GATMultiHeadAttentionLayer, self).__init__()
-
-        self.att = get_connection_module(
-            module=MultiHeadAttention(n_heads, input_dim=embed_dim, embed_dim=embed_dim),
+        """Initialize the GATMultiHeadAttentionLayer."""
+        # Simply delegate to base class - all logic is inherited
+        super(GATMultiHeadAttentionLayer, self).__init__(
+            n_heads=n_heads,
             embed_dim=embed_dim,
+            feed_forward_hidden=feed_forward_hidden,
+            norm_config=norm_config,
+            activation_config=activation_config,
             connection_type=connection_type,
             expansion_rate=expansion_rate,
+            **kwargs,
         )
-
-        self.norm1 = Normalization(
-            embed_dim,
-            normalization,
-            epsilon_alpha,
-            learn_affine,
-            track_stats,
-            mbeta,
-            n_groups,
-            lr_k,
-        )
-
-        self.ff = get_connection_module(
-            module=GATFeedForwardSubLayer(
-                embed_dim,
-                feed_forward_hidden,
-                activation,
-                af_param,
-                threshold,
-                replacement_value,
-                n_params,
-                uniform_range,
-            ),
-            embed_dim=embed_dim,
-            connection_type=connection_type,
-            expansion_rate=expansion_rate,
-        )
-
-        self.norm2 = Normalization(
-            embed_dim,
-            normalization,
-            epsilon_alpha,
-            learn_affine,
-            track_stats,
-            mbeta,
-            n_groups,
-            lr_k,
-        )
-
-    def forward(self, h: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Forward pass.
-        """
-        h = self.att(h, mask=mask)
-
-        # Handle Norm for Hyper-Connections (4D input)
-        if h.dim() == 4:  # (B, S, D, n)
-            # Permute to (B, S, n, D) for Norm(D)
-            h_perm = h.permute(0, 1, 3, 2).contiguous()
-            h_norm: torch.Tensor = self.norm1(h_perm)
-            h = h_norm.permute(0, 1, 3, 2)
-        else:
-            h = self.norm1(h)
-
-        h = self.ff(h)
-
-        if h.dim() == 4:
-            h_perm = h.permute(0, 1, 3, 2).contiguous()
-            h_norm = self.norm2(h_perm)
-            h = h_norm.permute(0, 1, 3, 2)
-        else:
-            res: torch.Tensor = self.norm2(h)
-            return res
-
-        return h

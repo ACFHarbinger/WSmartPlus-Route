@@ -2,6 +2,8 @@
 MDAM Decoder facade.
 """
 
-from .cache import PrecomputedCache as PrecomputedCache
-from .cache import _decode_probs as _decode_probs
+# Cache moved to common.AttentionDecoderCache
+# _decode_probs moved to common.select_action
 from .decoder import MDAMDecoder as MDAMDecoder
+
+__all__ = ["MDAMDecoder"]

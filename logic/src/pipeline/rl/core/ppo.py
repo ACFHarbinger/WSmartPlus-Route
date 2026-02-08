@@ -123,7 +123,7 @@ class PPO(RL4COLitModule):
 
         with torch.no_grad():
             # Sampling rollout
-            out = self.policy(td, env, decode_type="sampling")
+            out = self.policy(td, env, strategy="sampling")
             old_actions = out["actions"]  # (batch, steps)
             old_log_p = out["log_likelihood"]  # (batch)
             old_reward = out["reward"]  # (batch)

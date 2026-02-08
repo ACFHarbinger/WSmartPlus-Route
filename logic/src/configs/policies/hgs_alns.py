@@ -5,6 +5,9 @@ HGS-ALNS (Hybrid Genetic Search with ALNS Education) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
+from ..other.must_go import MustGoConfig
+from ..other.post_processing import PostProcessingConfig
+
 
 @dataclass
 class HGSALNSConfig:
@@ -31,5 +34,5 @@ class HGSALNSConfig:
     n_generations: int = 100
     max_vehicles: int = 0
     engine: str = "hgs_alns"
-    must_go: Optional[List[str]] = None
-    post_processing: Optional[List[str]] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

@@ -2,18 +2,23 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import Any, Optional
 
-import torch
 import torch.nn as nn
+
+from logic.src.configs.models.activation_function import ActivationConfig
+from logic.src.configs.models.normalization import NormalizationConfig
+from logic.src.models.subnets.encoders.common import TransformerEncoderBase
 
 from .gat_multi_head_attention_layer import GATMultiHeadAttentionLayer
 
 
-class GraphAttentionEncoder(nn.Module):
+class GraphAttentionEncoder(TransformerEncoderBase):
     """
-    Encoder composed of stacked MultiHeadAttentionLayers.
+    Graph Attention Encoder with stacked MultiHeadAttentionLayers.
+
     Supports standard Transformer architecture and Hyper-Networks.
+    Inherits from TransformerEncoderBase for common encoder patterns.
     """
 
     def __init__(
@@ -23,19 +28,8 @@ class GraphAttentionEncoder(nn.Module):
         n_layers: int,
         n_sublayers: Optional[int] = None,
         feed_forward_hidden: int = 512,
-        normalization: str = "batch",
-        epsilon_alpha: float = 1e-05,
-        learn_affine: bool = True,
-        track_stats: bool = False,
-        momentum_beta: float = 0.1,
-        locresp_k: float = 1.0,
-        n_groups: int = 3,
-        activation: str = "gelu",
-        af_param: float = 1.0,
-        threshold: float = 6.0,
-        replacement_value: float = 6.0,
-        n_params: int = 3,
-        uniform_range: List[float] = None,  # type: ignore
+        norm_config: Optional[NormalizationConfig] = None,
+        activation_config: Optional[ActivationConfig] = None,
         dropout_rate: float = 0.1,
         agg: Any = None,
         connection_type: str = "skip",
@@ -43,68 +37,73 @@ class GraphAttentionEncoder(nn.Module):
         **kwargs,
     ) -> None:
         """
-        Initializes the GraphAttentionEncoder.
+        Initialize the GraphAttentionEncoder.
+
+        Parameters
+        ----------
+        n_heads : int
+            Number of attention heads.
+        embed_dim : int
+            Embedding dimension.
+        n_layers : int
+            Number of encoder layers.
+        n_sublayers : Optional[int], default=None
+            Number of sublayers (unused, kept for API compatibility).
+        feed_forward_hidden : int, default=512
+            Hidden dimension for feed-forward layers.
+        norm_config : Optional[NormalizationConfig], default=None
+            Normalization configuration.
+        activation_config : Optional[ActivationConfig], default=None
+            Activation function configuration.
+        dropout_rate : float, default=0.1
+            Dropout probability.
+        agg : Any, default=None
+            Aggregation method (unused, kept for API compatibility).
+        connection_type : str, default="skip"
+            Connection type: "skip", "dense", or "hyper".
+        expansion_rate : int, default=4
+            Expansion factor for hyper-connections.
+        **kwargs
+            Additional keyword arguments.
         """
-        super(GraphAttentionEncoder, self).__init__()
-
-        # Set default uniform_range if None
-        if uniform_range is None:
-            uniform_range = [0.125, 1 / 3]
-
-        self.conn_type = connection_type
-        self.expansion_rate = expansion_rate
-
-        self.layers = nn.ModuleList(
-            [
-                GATMultiHeadAttentionLayer(
-                    n_heads,
-                    embed_dim,
-                    feed_forward_hidden,
-                    normalization,
-                    epsilon_alpha,
-                    learn_affine,
-                    track_stats,
-                    momentum_beta,
-                    locresp_k,
-                    n_groups,
-                    activation,
-                    af_param,
-                    threshold,
-                    replacement_value,
-                    n_params,
-                    uniform_range,
-                    connection_type=connection_type,
-                    expansion_rate=expansion_rate,
-                )
-                for _ in range(n_layers)
-            ]
+        # Initialize base class (handles layer creation, dropout, default configs)
+        super(GraphAttentionEncoder, self).__init__(
+            n_heads=n_heads,
+            embed_dim=embed_dim,
+            n_layers=n_layers,
+            feed_forward_hidden=feed_forward_hidden,
+            norm_config=norm_config,
+            activation_config=activation_config,
+            dropout_rate=dropout_rate,
+            connection_type=connection_type,
+            expansion_rate=expansion_rate,
+            **kwargs,
         )
-        self.dropout = nn.Dropout(dropout_rate)
 
-    def forward(self, x: torch.Tensor, edges: Optional[torch.Tensor] = None) -> torch.Tensor:
+        # Store unused parameters for potential future use
+        self.n_sublayers = n_sublayers
+        self.agg = agg
+
+    def _create_layer(self, layer_idx: int) -> nn.Module:
         """
-        Forward pass.
-        Args:
-            x: Input features (Batch, GraphSize, EmbedDim).
-            edges: (Optional) Edge indices or mask.
-        Returns:
-            Encoded features (Batch, GraphSize, EmbedDim).
+        Create a single GAT multi-head attention layer.
+
+        Parameters
+        ----------
+        layer_idx : int
+            Index of the layer being created (0 to n_layers-1).
+
+        Returns
+        -------
+        nn.Module
+            GATMultiHeadAttentionLayer instance.
         """
-        # 1. Expand Input (x -> H) if using Hyper-Connections
-        if "hyper" in self.conn_type:
-            # x: (B, S, D) -> H: (B, S, D, n)
-            H = x.unsqueeze(-1).repeat(1, 1, 1, self.expansion_rate)
-            curr = H
-        else:
-            curr = x
-
-        # 2. Pass through layers
-        for layer in self.layers:
-            curr = layer(curr, mask=edges)
-
-        # 3. Collapse Output (H -> x) if using Hyper-Connections
-        if "hyper" in self.conn_type:
-            curr = curr.mean(dim=-1)
-
-        res: torch.Tensor = self.dropout(curr)
-        return res  # (batch_size, graph_size, embed_dim)
+        return GATMultiHeadAttentionLayer(
+            n_heads=self.n_heads,
+            embed_dim=self.embed_dim,
+            feed_forward_hidden=self.feed_forward_hidden,
+            norm_config=self.norm_config,
+            activation_config=self.activation_config,
+            connection_type=self.conn_type,
+            expansion_rate=self.expansion_rate,
+        )

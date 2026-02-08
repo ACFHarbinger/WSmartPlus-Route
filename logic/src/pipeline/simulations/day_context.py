@@ -58,9 +58,9 @@ class SimulationDayContext(Mapping):
         mask_prob_threshold: Threshold for masking probability.
         two_opt_max_iter: Max iterations for 2-opt local search.
         config: Configuration dictionary.
-        w_length: Weight for length.
-        w_waste: Weight for waste.
-        w_overflows: Weight for overflows.
+        cost_weight: Weight for length.
+        waste_weight: Weight for waste.
+        overflow_penalty: Weight for overflows.
         engine: Policy engine.
         threshold: Decision threshold.
 
@@ -113,9 +113,9 @@ class SimulationDayContext(Mapping):
     mask_prob_threshold: float = 0.5
     two_opt_max_iter: int = 0
     config: Optional[Dict[str, Any]] = None
-    w_length: float = 1.0
-    w_waste: float = 1.0
-    w_overflows: float = 1.0
+    cost_weight: float = 1.0
+    waste_weight: float = 1.0
+    overflow_penalty: float = 1.0
     engine: Optional[str] = None
     threshold: Optional[float] = None
 

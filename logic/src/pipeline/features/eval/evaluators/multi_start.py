@@ -28,7 +28,7 @@ class MultiStartEval(EvalBase):
         for batch in tqdm(data_loader, disable=not self.progress, desc="Multi-Start Eval"):
             batch = move_to(batch, self.device)
             with torch.no_grad():
-                out = policy(batch, decode_type="greedy", num_starts=self.num_starts, **kwargs)
+                out = policy(batch, strategy="greedy", num_starts=self.num_starts, **kwargs)
                 results.append(out)
 
         total_time = time.time() - start_time

@@ -24,7 +24,7 @@ class GreedyEval(EvalBase):
         for batch in tqdm(data_loader, disable=not self.progress, desc="Greedy Eval"):
             batch = move_to(batch, self.device)
             with torch.no_grad():
-                out = policy(batch, decode_type="greedy", **kwargs)
+                out = policy(batch, strategy="greedy", **kwargs)
                 results.append(out)
 
         total_time = time.time() - start_time

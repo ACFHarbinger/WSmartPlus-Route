@@ -5,6 +5,9 @@ LKH (Lin-Kernighan-Helsgaun) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
+from ..other.must_go import MustGoConfig
+from ..other.post_processing import PostProcessingConfig
+
 
 @dataclass
 class LKHConfig:
@@ -21,5 +24,5 @@ class LKHConfig:
     check_capacity: bool = True
     max_iterations: int = 100
     engine: str = "custom"
-    must_go: Optional[List[str]] = None
-    post_processing: Optional[List[str]] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

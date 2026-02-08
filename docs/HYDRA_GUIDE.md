@@ -31,10 +31,10 @@ WSmart-Route uses [Hydra](https://hydra.cc/) for configuration management, provi
 
 The codebase has a **dual CLI system** (see `main.py:212-256`):
 
-| System | Commands | Status |
-|--------|----------|--------|
-| **Hydra** | `train`, `eval`, `test_sim`, `gen_data`, `mrl_train`, `hp_optim` | ✅ Primary |
-| **Legacy** | `gui`, `test_suite`, `file_system` | ⚠️ Being migrated |
+| System     | Commands                                                         | Status            |
+| ---------- | ---------------------------------------------------------------- | ----------------- |
+| **Hydra**  | `train`, `eval`, `test_sim`, `gen_data`, `mrl_train`, `hp_optim` | ✅ Primary        |
+| **Legacy** | `gui`, `test_suite`, `file_system`                               | ⚠️ Being migrated |
 
 All new features use Hydra. Legacy commands will be migrated over time.
 
@@ -48,10 +48,10 @@ Hydra composes configs in this order (defined in `assets/configs/config.yaml`):
 
 ```yaml
 defaults:
-  - _self_           # 1. Base settings from config.yaml
-  - tasks: train     # 2. Task-specific config (e.g., tasks/train.yaml)
-  - envs: cwcvrp     # 3. Environment config (e.g., envs/cwcvrp.yaml)
-  - model: am        # 4. Model architecture (e.g., model/am.yaml)
+  - _self_ # 1. Base settings from config.yaml
+  - tasks: train # 2. Task-specific config (e.g., tasks/train.yaml)
+  - envs: cwcvrp # 3. Environment config (e.g., envs/cwcvrp.yaml)
+  - model: am # 4. Model architecture (e.g., model/am.yaml)
 ```
 
 **Priority**: Later configs override earlier ones. So `model/am.yaml` can override settings from `tasks/train.yaml`.
@@ -63,6 +63,7 @@ python main.py train  # Uses defaults: train + cwcvrp + am
 ```
 
 This loads and merges:
+
 1. `config.yaml` (base)
 2. `tasks/train.yaml` (training parameters)
 3. `envs/cwcvrp.yaml` (Capacitated Waste Collection VRP)
@@ -187,48 +188,48 @@ outputs/
 
 ### Tasks (tasks/)
 
-| Config | Command | Purpose |
-|--------|---------|---------|
-| `train.yaml` | `train` | RL training with PyTorch Lightning |
-| `evaluation.yaml` | `eval` | Model evaluation on test sets |
-| `test_sim.yaml` | `test_sim` | Multi-day simulator testing |
-| `gen_data.yaml` | `gen_data` | Problem instance generation |
-| `hpo.yaml` | `hp_optim` | Hyperparameter optimization (Optuna) |
-| `meta_train.yaml` | `mrl_train` | Meta-RL cross-distribution training |
+| Config            | Command     | Purpose                              |
+| ----------------- | ----------- | ------------------------------------ |
+| `train.yaml`      | `train`     | RL training with PyTorch Lightning   |
+| `evaluation.yaml` | `eval`      | Model evaluation on test sets        |
+| `test_sim.yaml`   | `test_sim`  | Multi-day simulator testing          |
+| `gen_data.yaml`   | `gen_data`  | Problem instance generation          |
+| `hpo.yaml`        | `hp_optim`  | Hyperparameter optimization (Optuna) |
+| `meta_train.yaml` | `mrl_train` | Meta-RL cross-distribution training  |
 
 ### Environments (envs/)
 
-| Config | Problem | Description |
-|--------|---------|-------------|
-| `vrpp.yaml` | VRPP | Vehicle Routing with Profits |
-| `cvrpp.yaml` | CVRPP | Capacitated VRPP |
-| `wcvrp.yaml` | WCVRP | Waste Collection VRP |
-| `cwcvrp.yaml` | CWCVRP | Capacitated WCVRP (default) |
-| `sdwcvrp.yaml` | SDWCVRP | Stochastic Demand WCVRP |
-| `scwcvrp.yaml` | SCWCVRP | Selective Capacitated WCVRP |
+| Config         | Problem | Description                  |
+| -------------- | ------- | ---------------------------- |
+| `vrpp.yaml`    | VRPP    | Vehicle Routing with Profits |
+| `cvrpp.yaml`   | CVRPP   | Capacitated VRPP             |
+| `wcvrp.yaml`   | WCVRP   | Waste Collection VRP         |
+| `cwcvrp.yaml`  | CWCVRP  | Capacitated WCVRP (default)  |
+| `sdwcvrp.yaml` | SDWCVRP | Stochastic Demand WCVRP      |
+| `scwcvrp.yaml` | SCWCVRP | Selective Capacitated WCVRP  |
 
 ### Models (model/)
 
-| Config | Architecture | Best For |
-|--------|--------------|----------|
-| `am.yaml` | Attention Model | General VRP tasks (default) |
-| `tam.yaml` | Temporal AM | Multi-day problems (WCVRP) |
-| `deep_decoder.yaml` | Deep Decoder AM | Large instances (100+ nodes) |
-| `ptr.yaml` | Pointer Network | TSP, simpler routing |
-| `symnco.yaml` | Symmetric NCO | Symmetric problems |
-| `moe.yaml` | Mixture of Experts | Multi-distribution generalization |
+| Config              | Architecture       | Best For                          |
+| ------------------- | ------------------ | --------------------------------- |
+| `am.yaml`           | Attention Model    | General VRP tasks (default)       |
+| `tam.yaml`          | Temporal AM        | Multi-day problems (WCVRP)        |
+| `deep_decoder.yaml` | Deep Decoder AM    | Large instances (100+ nodes)      |
+| `ptr.yaml`          | Pointer Network    | TSP, simpler routing              |
+| `symnco.yaml`       | Symmetric NCO      | Symmetric problems                |
+| `moe.yaml`          | Mixture of Experts | Multi-distribution generalization |
 
 ### Policies (policies/)
 
 Classical optimization policies (used in `test_sim`):
 
-| Config | Solver | Type |
-|--------|--------|------|
-| `policy_alns.yaml` | ALNS | Metaheuristic |
-| `policy_hgs.yaml` | HGS | Genetic |
-| `policy_bcp.yaml` | Gurobi BCP | Exact (slow) |
-| `policy_lkh.yaml` | Lin-Kernighan | TSP heuristic |
-| `policy_neural.yaml` | Trained AM/TAM | Neural |
+| Config               | Solver         | Type          |
+| -------------------- | -------------- | ------------- |
+| `policy_alns.yaml`   | ALNS           | Metaheuristic |
+| `policy_hgs.yaml`    | HGS            | Genetic       |
+| `policy_bcp.yaml`    | Gurobi BCP     | Exact (slow)  |
+| `policy_lkh.yaml`    | Lin-Kernighan  | TSP heuristic |
+| `policy_neural.yaml` | Trained AM/TAM | Neural        |
 
 ---
 
@@ -252,19 +253,21 @@ python main.py train \
 
 ### 2. Evaluate a Trained Model
 
-```bash
 # Evaluate on test set
+
 python main.py eval \
-    eval.checkpoint=assets/model_weights/best_model.ckpt \
-    eval.data_path=data/vrpp/test.pkl \
-    eval.decode_type=greedy
+ eval.checkpoint=assets/model_weights/best_model.ckpt \
+ eval.data_path=data/vrpp/test.pkl \
+ eval.strategy=greedy
 
 # Beam search decoding
+
 python main.py eval \
-    eval.checkpoint=... \
-    eval.decode_type=beam_search \
-    eval.beam_width=10
-```
+ eval.checkpoint=... \
+ eval.strategy=beam_search \
+ eval.beam_width=10
+
+````
 
 ### 3. Run Simulator Test
 
@@ -275,7 +278,7 @@ python main.py test_sim \
     test.days=31 \
     test.area=manhattan \
     test.seeds='[1,2,3,4,5]'
-```
+````
 
 ### 4. Generate Training Data
 
@@ -328,7 +331,7 @@ ls assets/configs/model/*.yaml
 python main.py train model=am  # Use correct name
 ```
 
-#### 2. "Override  option already exists"
+#### 2. "Override option already exists"
 
 ```bash
 # Error: Duplicate override

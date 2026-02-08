@@ -8,7 +8,7 @@ to escape local minima. Useful for imitation learning and as a strong baseline.
 from __future__ import annotations
 
 import random as py_random
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import torch
 from tensordict import TensorDict
@@ -173,9 +173,10 @@ class IteratedLocalSearchPolicy(ImprovementPolicy):
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
-        decode_type: str = "greedy",  # Ignored
+        env: Optional[RL4COEnvBase] = None,
+        strategy: str = "greedy",  # Ignored
         num_starts: int = 1,
+        max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
         **kwargs,

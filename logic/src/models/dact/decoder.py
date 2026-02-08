@@ -67,8 +67,8 @@ class DACTDecoder(ImprovementDecoder):
         logits = scores.view(bs, -1)  # [bs, n*n]
 
         # 4. Sample action
-        decode_type = kwargs.get("decode_type", "greedy")
-        if decode_type == "greedy":
+        strategy = kwargs.get("strategy", "greedy")
+        if strategy == "greedy":
             action_indices = logits.argmax(dim=-1)
         else:
             probs = F.softmax(logits, dim=-1)

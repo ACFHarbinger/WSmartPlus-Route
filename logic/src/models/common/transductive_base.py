@@ -48,7 +48,7 @@ class TransductiveModel(nn.Module, ABC):
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
-        decode_type: str = "greedy",
+        strategy: str = "greedy",
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """
@@ -57,7 +57,7 @@ class TransductiveModel(nn.Module, ABC):
         Args:
             td: TensorDict containing problem instance(s).
             env: Optional environment for transition logic.
-            decode_type: Final decoding strategy.
+            strategy: Final decoding strategy.
             **kwargs: Additional arguments for the model.
 
         Returns:
@@ -82,7 +82,7 @@ class TransductiveModel(nn.Module, ABC):
             # Forward pass on the instances
             # We use sampling during search to explore
             # We pass return_pi=True to get actions
-            out = self.model(td, env, decode_type="sampling", return_pi=True, **kwargs)
+            out = self.model(td, env, strategy="sampling", return_pi=True, **kwargs)
 
             # Support both Tuple and TensorDict returns from AttentionModel
             if isinstance(out, tuple):

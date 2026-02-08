@@ -66,7 +66,7 @@ REM Build the final Python evaluation command
 REM ==============================================================================
 
 REM Build the Python command
-set "PYTHON_CMD=python main.py eval --model "!MODEL_PATH!" --datasets !DATASETS! !OVERWRITE_FLAG! !OUTPUT_ARG! --val_size "!VAL_SIZE!" --offset "!OFFSET!" --eval_batch_size "!EVAL_BATCH_SIZE!" --decode_type "!DECODE_TYPE!" --width !WIDTH! --decode_strategy "!DECODE_STRATEGY!" --softmax_temperature "!SOFTMAX_TEMPERATURE!" !NO_CUDA_FLAG! !NO_PROGRESS_BAR_FLAG! !COMPRESS_MASK_FLAG! --max_calc_batch_size "!MAX_CALC_BATCH_SIZE!" --results_dir "!RESULTS_DIR!" !MULTIPROCESSING_FLAG! --graph_size "!GRAPH_SIZE!" --area "!AREA!" --waste_type "!WASTE_TYPE!" --focus_size "!FOCUS_SIZE!" --edge_threshold "!EDGE_THRESHOLD!" --edge_method "!EDGE_METHOD!" --distance_method "!DISTANCE_METHOD!" --vertex_method "!VERTEX_METHOD!""
+set "PYTHON_CMD=python main.py eval --model "!MODEL_PATH!" --datasets !DATASETS! !OVERWRITE_FLAG! !OUTPUT_ARG! --val_size "!VAL_SIZE!" --offset "!OFFSET!" --eval_batch_size "!EVAL_BATCH_SIZE!" --strategy "!DECODE_TYPE!" --width !WIDTH! --decode_strategy "!DECODE_STRATEGY!" --softmax_temperature "!SOFTMAX_TEMPERATURE!" !NO_CUDA_FLAG! !NO_PROGRESS_BAR_FLAG! !COMPRESS_MASK_FLAG! --max_calc_batch_size "!MAX_CALC_BATCH_SIZE!" --results_dir "!RESULTS_DIR!" !MULTIPROCESSING_FLAG! --graph_size "!GRAPH_SIZE!" --area "!AREA!" --waste_type "!WASTE_TYPE!" --focus_size "!FOCUS_SIZE!" --edge_threshold "!EDGE_THRESHOLD!" --edge_method "!EDGE_METHOD!" --distance_method "!DISTANCE_METHOD!" --vertex_method "!VERTEX_METHOD!""
 
 REM Add focus_graph only if it is explicitly set
 if not "!FOCUS_GRAPH!"=="" (

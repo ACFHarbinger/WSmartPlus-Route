@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 
 
-class GatedRecurrentFillPredictor(nn.Module):
+class GatedRecurrentUnitFillPredictor(nn.Module):
     """
     Predicts bin fill levels using a GRU-based recurrent network.
     """
@@ -41,7 +41,7 @@ class GatedRecurrentFillPredictor(nn.Module):
             uniform_range: Range for uniform distribution.
             bidirectional: Whether GRU is bidirectional.
         """
-        super(GatedRecurrentFillPredictor, self).__init__()
+        super(GatedRecurrentUnitFillPredictor, self).__init__()
         from logic.src.models.subnets.modules import ActivationFunction
 
         self.hidden_dim = hidden_dim

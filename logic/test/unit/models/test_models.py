@@ -436,7 +436,7 @@ class TestMoEModel:
             "max_waste": torch.full((2,), 1000.0),
         }
 
-        model.set_decode_type("greedy")
+        model.set_strategy("greedy")
         out = model(input_data, return_pi=True)
         pi = out["pi"]
         assert pi.ndim == 2

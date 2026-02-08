@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 import torch.nn as nn
 
+from logic.src.configs.models.activation_function import ActivationConfig
+from logic.src.configs.models.normalization import NormalizationConfig
 from logic.src.models.subnets.decoders.deepaco import ACODecoder
 from logic.src.models.subnets.decoders.gat import DeepGATDecoder
 from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
@@ -54,11 +56,22 @@ class NeuralComponentFactory(ABC):
     """
 
     @abstractmethod
-    def create_encoder(self, **kwargs: Any) -> nn.Module:
+    def create_encoder(
+        self,
+        norm_config: Optional[NormalizationConfig] = None,
+        activation_config: Optional[ActivationConfig] = None,
+        **kwargs: Any,
+    ) -> nn.Module:
         """Create an encoder instance."""
         pass
 
     @abstractmethod
-    def create_decoder(self, decoder_type: str = "attention", **kwargs: Any) -> nn.Module:
+    def create_decoder(
+        self,
+        decoder_type: str = "attention",
+        norm_config: Optional[NormalizationConfig] = None,
+        activation_config: Optional[ActivationConfig] = None,
+        **kwargs: Any,
+    ) -> nn.Module:
         """Create a decoder instance based on decoder_type."""
         pass

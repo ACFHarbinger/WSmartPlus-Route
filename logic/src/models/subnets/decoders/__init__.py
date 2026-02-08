@@ -2,6 +2,7 @@
 Decoders package facade.
 """
 
+from .common import FeedForwardSubLayer as FeedForwardSubLayer
 from .deepaco import ACODecoder as ACODecoder
 from .gat import DeepGATDecoder as DeepGATDecoder
 from .gat import GraphAttentionDecoder as GraphAttentionDecoder

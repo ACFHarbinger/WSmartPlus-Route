@@ -102,9 +102,9 @@ class RunningState(SimState):
                         mask_prob_threshold=opts["mask_prob_threshold"],
                         two_opt_max_iter=opts["two_opt_max_iter"],
                         config=current_policy_config,
-                        w_length=opts.get("w_length", 1.0),
-                        w_waste=opts.get("w_waste", 1.0),
-                        w_overflows=opts.get("w_overflows", 1.0),
+                        cost_weight=opts.get("cost_weight", 1.0),
+                        waste_weight=opts.get("waste_weight", 1.0),
+                        overflow_penalty=opts.get("overflow_penalty", 1.0),
                     )
 
                     day_context = run_day(day_context)

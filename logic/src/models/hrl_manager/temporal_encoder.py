@@ -4,13 +4,19 @@ import torch.nn as nn
 
 class TemporalEncoder(nn.Module):
     """
-    LSTM-based Temporal Encoder for waste history.
+    Auto-Regressive Temporal Encoder for waste history.
     """
 
-    def __init__(self, hidden_dim: int = 64):
+    def __init__(self, hidden_dim: int = 64, rnn_type: str = "lstm"):
         super().__init__()
+        self.rnn_type = rnn_type.lower()
         # Input size is 1 because we reshape dynamic features to (Batch*N, History, 1)
-        self.lstm = nn.LSTM(input_size=1, hidden_size=hidden_dim, batch_first=True)
+        if self.rnn_type == "lstm":
+            self.rnn = nn.LSTM(input_size=1, hidden_size=hidden_dim, batch_first=True)
+        elif self.rnn_type == "gru":
+            self.rnn = nn.GRU(input_size=1, hidden_size=hidden_dim, batch_first=True)
+        else:
+            raise ValueError(f"Unknown rnn_type: {rnn_type}")
 
     def forward(self, dynamic: torch.Tensor) -> torch.Tensor:
         """
@@ -25,5 +31,8 @@ class TemporalEncoder(nn.Module):
         B, N, H_len = dynamic.size()
         # Reshape dynamic for LSTM: (Batch*N, History, 1)
         dyn_flat = dynamic.view(B * N, H_len, 1)
-        _, (h_n, _) = self.lstm(dyn_flat)
+        if self.rnn_type == "lstm":
+            _, (h_n, _) = self.rnn(dyn_flat)
+        else:
+            _, h_n = self.rnn(dyn_flat)
         return h_n.squeeze(0).view(B, N, -1)

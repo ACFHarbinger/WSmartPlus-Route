@@ -5,6 +5,9 @@ ACO (Ant Colony Optimization) configuration.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from ..other.must_go import MustGoConfig
+from ..other.post_processing import PostProcessingConfig
+
 
 @dataclass
 class ACOConfig:
@@ -47,5 +50,5 @@ class ACOConfig:
     elitist_weight: float = 1.0
     operators: List[str] = field(default_factory=lambda: ["swap", "2opt_intra", "relocate", "swap_star", "perturb"])
     engine: str = "custom"
-    must_go: Optional[List[str]] = None
-    post_processing: Optional[List[str]] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

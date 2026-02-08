@@ -44,9 +44,9 @@ class PolyNetPolicy(AutoregressivePolicy):
         temperature: float = 1.0,
         tanh_clipping: float = 10.0,
         mask_logits: bool = True,
-        train_decode_type: str = "sampling",
-        val_decode_type: str = "sampling",
-        test_decode_type: str = "sampling",
+        train_strategy: str = "sampling",
+        val_strategy: str = "sampling",
+        test_strategy: str = "sampling",
         **kwargs,
     ) -> None:
         """
@@ -65,9 +65,9 @@ class PolyNetPolicy(AutoregressivePolicy):
             temperature: Temperature for softmax.
             tanh_clipping: Tanh clipping value.
             mask_logits: Whether to mask logits.
-            train_decode_type: Decoding type during training.
-            val_decode_type: Decoding type during validation.
-            test_decode_type: Decoding type during testing.
+            train_strategy: Decoding strategy during training.
+            val_strategy: Decoding strategy during validation.
+            test_strategy: Decoding strategy during testing.
         """
         # Create encoder if not provided
         if encoder is None:
@@ -104,10 +104,10 @@ class PolyNetPolicy(AutoregressivePolicy):
         # Initialize with problem-specific embeddings
         self.init_embedding = get_init_embedding(env_name, embed_dim)
 
-        # Store decode types
-        self.train_decode_type = train_decode_type
-        self.val_decode_type = val_decode_type
-        self.test_decode_type = test_decode_type
+        # Store strategies
+        self.train_strategy = train_strategy
+        self.val_strategy = val_strategy
+        self.test_strategy = test_strategy
 
     def forward(  # type: ignore[override]
         self,
@@ -137,17 +137,17 @@ class PolyNetPolicy(AutoregressivePolicy):
         # Encode
         embeddings = self.encoder(embedding)  # type: ignore[attr-defined]
 
-        # Determine decode type
-        decode_type = kwargs.pop("decode_type", None)
-        if decode_type is None:
-            decode_type = getattr(self, f"{phase}_decode_type")
+        # Determine strategy
+        strategy = kwargs.pop("strategy", None)
+        if strategy is None:
+            strategy = getattr(self, f"{phase}_strategy")
 
         # Decode
         log_likelihood, actions = self.decoder(  # type: ignore[attr-defined]
             td,
             embeddings,
             env,
-            decode_type=decode_type,
+            strategy=strategy,
             num_starts=num_starts,
             **kwargs,
         )

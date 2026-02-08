@@ -33,7 +33,7 @@ class SamplingEval(EvalBase):
             batch = do_batch_rep(batch, self.samples)
 
             with torch.no_grad():
-                out = policy(batch, decode_type="sampling", **kwargs)
+                out = policy(batch, strategy="sampling", **kwargs)
 
                 # Reshape outputs back to (batch_size, samples, ...)
                 # Output from expanded batch is (batch_size * samples, ...)

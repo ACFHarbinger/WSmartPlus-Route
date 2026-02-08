@@ -10,8 +10,8 @@ from tensordict import TensorDict
 
 from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
 
+from ..common import AttentionDecoderCache
 from .attention import compute_mdam_logits
-from .cache import PrecomputedCache
 
 
 class MDAMPath(nn.Module):
@@ -52,7 +52,7 @@ class MDAMPath(nn.Module):
         self,
         h_embed: torch.Tensor,
         num_steps: int = 1,
-    ) -> PrecomputedCache:
+    ) -> AttentionDecoderCache:
         """Precompute fixed projections for this path."""
         graph_embed = h_embed.mean(dim=1)
 
@@ -63,7 +63,7 @@ class MDAMPath(nn.Module):
         projected = self.project_node_embeddings(h_embed[:, None, :, :])
         glimpse_key, glimpse_val, logit_key = projected.chunk(3, dim=-1)
 
-        return PrecomputedCache(
+        return AttentionDecoderCache(
             node_embeddings=h_embed,
             graph_context=fixed_context,
             glimpse_key=self._make_heads(glimpse_key, num_steps),
@@ -99,7 +99,7 @@ class MDAMPath(nn.Module):
 
     def get_logprobs(
         self,
-        fixed: PrecomputedCache,
+        fixed: AttentionDecoderCache,
         td: TensorDict,
         dynamic_embed: Tuple[torch.Tensor, torch.Tensor, torch.Tensor],
         path_index: int,  # Needed for compute_mdam_logits signature?

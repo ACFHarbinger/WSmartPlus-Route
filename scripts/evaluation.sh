@@ -81,7 +81,7 @@ fi
 PYTHON_CMD=(
     uv run python main.py eval
     --val_size "$VAL_SIZE"
-    --decode_type "$DECODE_TYPE"
+    --strategy "$DECODE_TYPE"
     --decode_strategy "$DECODE_STRATEGY"
     --graph_size "$GRAPH_SIZE"
     --area "$AREA"

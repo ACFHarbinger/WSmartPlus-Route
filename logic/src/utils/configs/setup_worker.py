@@ -21,7 +21,7 @@ def setup_model(
     device: torch.device,
     lock: threading.Lock,
     temperature: float = 1.0,
-    decode_type: str = "greedy",
+    strategy: str = "greedy",
 ) -> Tuple[nn.Module, Dict[str, Any]]:
     """
     Sets up and loads a specific model based on policy.
@@ -33,7 +33,7 @@ def setup_model(
         device: Torch device.
         lock: Threading lock for safe loading.
         temperature: Softmax temperature. Defaults to 1.
-        decode_type: Decoding strategy. Defaults to "greedy".
+        strategy: Decoding strategy. Defaults to "greedy".
 
     Returns:
         tuple: (model, configs)
@@ -44,7 +44,7 @@ def setup_model(
         model_name: str,
         device: torch.device,
         temperature: float,
-        decode_type: str,
+        strategy: str,
         lock: threading.Lock,
     ) -> Tuple[nn.Module, Dict[str, Any]]:
         # Robust path handling: only join if model_name does not exist on its own
@@ -66,8 +66,8 @@ def setup_model(
 
         model.to(device)
         model.eval()
-        if hasattr(model, "set_decode_type"):
-            model.set_decode_type(decode_type, temp=temperature)
+        if hasattr(model, "set_strategy"):
+            model.set_strategy(strategy, temp=temperature)
         return model, configs
 
     pol_strip: str = policy.rsplit("_", 1)[0]
@@ -88,4 +88,4 @@ def setup_model(
             f"Available keys in model_paths: {list(model_paths.keys())}"
         )
 
-    return _load_model(general_path, model_name, device, temperature, decode_type, lock)
+    return _load_model(general_path, model_name, device, temperature, strategy, lock)

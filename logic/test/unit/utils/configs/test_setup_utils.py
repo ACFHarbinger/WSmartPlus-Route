@@ -89,7 +89,7 @@ def test_setup_model(tmp_path):
         )
         assert model == mock_model
         assert configs == mock_configs
-        mock_model.set_decode_type.assert_called()
+        mock_model.set_strategy.assert_called()
 
 
 def test_setup_hrl_manager_not_hrl():

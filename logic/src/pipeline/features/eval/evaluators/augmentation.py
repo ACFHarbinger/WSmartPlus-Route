@@ -42,7 +42,7 @@ class AugmentationEval(EvalBase):
             with torch.no_grad():
                 # Apply augmentation: returns [batch_size * num_augment, ...]
                 aug_batch = self.augmentation(batch)
-                out = policy(aug_batch, decode_type="greedy", **kwargs)
+                out = policy(aug_batch, strategy="greedy", **kwargs)
 
                 # Reshape and pick best from augmentations
                 reward = out["reward"].view(self.samples, batch.batch_size[0], -1).max(0).values

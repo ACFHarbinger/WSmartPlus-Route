@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
 import torch.nn as nn
 
+from logic.src.configs.models.activation_function import ActivationConfig
+from logic.src.configs.models.normalization import NormalizationConfig
 from logic.src.models.subnets.modules import (
     MultiHeadAttention,
     Normalization,
     SkipConnection,
 )
 
-from .feed_forward_sublayer import FeedForwardSubLayer
+from ..common import FeedForwardSubLayer
 
 
 class MultiHeadAttentionLayer(nn.Module):
@@ -21,57 +25,48 @@ class MultiHeadAttentionLayer(nn.Module):
 
     def __init__(
         self,
-        n_heads,
-        embed_dim,
-        feed_forward_hidden,
-        normalization,
-        epsilon_alpha,
-        learn_affine,
-        track_stats,
-        mbeta,
-        lr_k,
-        n_groups,
-        activation,
-        af_param,
-        threshold,
-        replacement_value,
-        n_params,
-        uniform_range,
+        n_heads: int,
+        embed_dim: int,
+        feed_forward_hidden: int,
+        norm_config: Optional[NormalizationConfig] = None,
+        activation_config: Optional[ActivationConfig] = None,
+        **kwargs,
     ):
         """Initializes the MultiHeadAttentionLayer."""
         super(MultiHeadAttentionLayer, self).__init__()
+
+        if norm_config is None:
+            norm_config = NormalizationConfig()
+        if activation_config is None:
+            activation_config = ActivationConfig()
+
         self.att = SkipConnection(MultiHeadAttention(n_heads, input_dim=embed_dim, embed_dim=embed_dim))
         self.norm1 = Normalization(
             embed_dim,
-            normalization,
-            epsilon_alpha,
-            learn_affine,
-            track_stats,
-            mbeta,
-            n_groups,
-            lr_k,
+            norm_config.norm_type,
+            norm_config.epsilon,
+            norm_config.learn_affine,
+            norm_config.track_stats,
+            norm_config.momentum,
+            norm_config.n_groups,
+            norm_config.k_lrnorm,
         )
         self.ff = SkipConnection(
             FeedForwardSubLayer(
                 embed_dim,
                 feed_forward_hidden,
-                activation,
-                af_param,
-                threshold,
-                replacement_value,
-                n_params,
-                uniform_range,
+                activation_config=activation_config,
             )
         )
         self.norm2 = Normalization(
             embed_dim,
-            normalization,
-            epsilon_alpha,
-            learn_affine,
-            track_stats,
-            mbeta,
-            n_groups,
-            lr_k,
+            norm_config.norm_type,
+            norm_config.epsilon,
+            norm_config.learn_affine,
+            norm_config.track_stats,
+            norm_config.momentum,
+            norm_config.n_groups,
+            norm_config.k_lrnorm,
         )
 
     def forward(self, q, h, mask):

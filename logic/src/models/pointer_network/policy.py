@@ -41,7 +41,7 @@ class PointerNetworkPolicy(AutoregressivePolicy):
         self,
         td: TensorDict,
         env: RL4COEnvBase,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
         **kwargs,
@@ -59,8 +59,8 @@ class PointerNetworkPolicy(AutoregressivePolicy):
             self.model.embedding,
         ).view(graph_size, batch_size, -1)
 
-        # Set decode type in legacy decoder
-        self.model.set_decode_type(decode_type)
+        # Set strategy in legacy decoder
+        self.model.set_strategy(strategy)
 
         # We reuse the logic from PointerNetwork._inner but integrate with env
         # Actually, PointerNetwork._inner calls self.decoder which handles the whole loop

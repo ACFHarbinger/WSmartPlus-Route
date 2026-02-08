@@ -35,8 +35,11 @@ from logic.src.models.pointer_network.policy import PointerNetworkPolicy
 from logic.src.models.polynet.policy import PolyNetPolicy
 from logic.src.models.temporal_attention_model.policy import TemporalAMPolicy
 
+from .alns import VectorizedALNS
 from .ant_colony_system import VectorizedACOPolicy
+from .hgs import VectorizedHGS
 from .hgs_alns import VectorizedHGSALNS
+from .hybrid import NeuralHeuristicHybrid
 from .iterated_local_search import IteratedLocalSearchPolicy
 
 # Short-name registry: CLI model name -> (module_path, class_name)
@@ -121,4 +124,7 @@ __all__ = [
     "VectorizedHGSALNS",
     "IteratedLocalSearchPolicy",
     "VectorizedACOPolicy",
+    "VectorizedALNS",
+    "VectorizedHGS",
+    "NeuralHeuristicHybrid",
 ]

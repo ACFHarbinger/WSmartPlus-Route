@@ -202,13 +202,13 @@ def test_eval_dataset_integration(temp_eval_setup):
         "multiprocessing": False,
         "eval_batch_size": 2,
         "max_calc_batch_size": 2,
-        "decode_strategy": "greedy",
+        "strategy": "greedy",
         "compress_mask": True,
         "output_filename": None,
         "results_dir": setup["dir"],
         "overwrite": True,
         "no_progress_bar": True,
-        "width": 0,
+        "beam_width": 0,
         "softmax_temperature": 1.0,
     }
 
@@ -222,7 +222,7 @@ def test_eval_dataset_integration(temp_eval_setup):
     # Note: eval_dataset handles the loading internally
     if "softmax_temperature" in opts:
         del opts["softmax_temperature"]
-    costs, tours, durations = eval_dataset(dataset_path=setup["data_path"], width=0, softmax_temp=1.0, opts=opts)
+    costs, tours, durations = eval_dataset(dataset_path=setup["data_path"], beam_width=0, softmax_temp=1.0, opts=opts)
 
     # Assertions
     assert len(costs) == 5, f"Should have results for 5 instances, got {len(costs)}"
@@ -272,13 +272,13 @@ def test_eval_dataset_sampling_integration(temp_eval_setup):
         "multiprocessing": False,
         "eval_batch_size": 1,
         "max_calc_batch_size": 1,
-        "decode_strategy": "sample",
+        "strategy": "sample",
         "compress_mask": True,
         "output_filename": None,
         "results_dir": setup["dir"],
         "overwrite": True,
         "no_progress_bar": True,
-        "width": 2,  # 2 samples per instance
+        "beam_width": 2,  # 2 samples per instance
         "softmax_temperature": 1.0,
     }
 
@@ -291,7 +291,7 @@ def test_eval_dataset_sampling_integration(temp_eval_setup):
     # Run evaluation
     if "softmax_temperature" in opts:
         del opts["softmax_temperature"]
-    costs, tours, durations = eval_dataset(dataset_path=setup["data_path"], width=2, softmax_temp=1.0, opts=opts)
+    costs, tours, durations = eval_dataset(dataset_path=setup["data_path"], beam_width=2, softmax_temp=1.0, opts=opts)
 
     assert len(costs) == 2, "Should have results for 2 instances"
     # Tours should include multiple samples per instance potentially,

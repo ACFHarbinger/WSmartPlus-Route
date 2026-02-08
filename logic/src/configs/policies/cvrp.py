@@ -5,6 +5,9 @@ CVRP (Capacitated Vehicle Routing Problem) policy configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
+from ..other.must_go import MustGoConfig
+from ..other.post_processing import PostProcessingConfig
+
 
 @dataclass
 class CVRPConfig:
@@ -21,5 +24,5 @@ class CVRPConfig:
     cache: bool = False
     time_limit: float = 60.0
     engine: str = "ortools"
-    must_go: Optional[List[str]] = None
-    post_processing: Optional[List[str]] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

@@ -2,8 +2,13 @@
 Train Config module.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Union
+
+from ..envs.graph import GraphConfig
+from ..envs.objective import ObjectiveConfig
+from ..models.decoding import DecodingConfig
+from ..policies.neural import NeuralConfig
 
 
 @dataclass
@@ -19,6 +24,10 @@ class TrainConfig:
         num_workers: Number of data loading workers.
         data_distribution: Distribution for on-the-fly data generation.
         load_dataset: If True, loads pre-generated training dataset from path pattern.
+        graph: Graph configuration.
+        reward: Objective/reward configuration.
+        decoding: Decoding configuration.
+        model: Model configuration.
     """
 
     n_epochs: int = 100
@@ -47,7 +56,6 @@ class TrainConfig:
     epoch_start: int = 0
     eval_only: bool = False
     checkpoint_encoder: bool = False
-    load_path: Optional[str] = None
     resume: Optional[str] = None
     logs_dir: Optional[str] = None
     model_weights_path: Optional[str] = None
@@ -57,4 +65,9 @@ class TrainConfig:
     pin_memory: bool = False
     reload_dataloaders_every_n_epochs: int = 1
     devices: Union[int, str] = "auto"
-    strategy: Optional[str] = None
+    training_strategy: Optional[str] = None
+
+    graph: GraphConfig = field(default_factory=GraphConfig)
+    reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
+    decoding: DecodingConfig = field(default_factory=DecodingConfig)
+    policy: NeuralConfig = field(default_factory=NeuralConfig)

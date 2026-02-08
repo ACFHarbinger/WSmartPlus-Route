@@ -6,9 +6,9 @@ from .adaptive_imitation import AdaptiveImitationConfig
 from .gdpo import GDPOConfig
 from .grpo import GRPOConfig
 from .imitation import ImitationConfig
-from .main import RLConfig
 from .pomo import POMOConfig
 from .ppo import PPOConfig
+from .rl import RLConfig
 from .sapo import SAPOConfig
 from .symnco import SymNCOConfig
 

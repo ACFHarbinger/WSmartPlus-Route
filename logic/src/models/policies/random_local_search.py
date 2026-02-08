@@ -5,7 +5,7 @@ Performs iterative local search moves sampled from a set of operators based on p
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import torch
 from tensordict import TensorDict
@@ -82,9 +82,10 @@ class RandomLocalSearchPolicy(ImprovementPolicy):
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
-        decode_type: str = "greedy",  # Ignored
+        env: Optional[RL4COEnvBase] = None,
+        strategy: str = "greedy",  # Ignored
         num_starts: int = 1,
+        max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
         **kwargs,

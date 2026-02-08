@@ -77,7 +77,7 @@ from .subnets import (
     GatedGraphAttConvEncoder as GatedGraphAttConvEncoder,
 )
 from .subnets import (
-    GatedRecurrentFillPredictor as GatedRecurrentFillPredictor,
+    GatedRecurrentUnitFillPredictor as GatedRecurrentUnitFillPredictor,
 )
 from .subnets import (
     GraphAttConvEncoder as GraphAttConvEncoder,
@@ -122,7 +122,7 @@ __all__ = [
     "GatedGraphAttConvEncoder",
     "TransGraphConvEncoder",
     # Predictors
-    "GatedRecurrentFillPredictor",
+    "GatedRecurrentUnitFillPredictor",
     # Baselines
     "Baseline",
     "NoBaseline",

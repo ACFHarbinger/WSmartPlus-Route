@@ -6,22 +6,21 @@ historical waste data to anticipate future bin fill levels. This enables proacti
 collection decisions in stochastic demand scenarios (SDWCVRP, CWCVRP).
 
 Architecture:
-    Base AttentionModel + GatedRecurrentFillPredictor -> TemporalEmbedding -> CombineLayer
+    Base AttentionModel + FillPredictor -> TemporalEmbedding -> CombineLayer
 
 The temporal features are fused with static node embeddings before encoding,
 allowing the attention mechanism to consider predicted future fill levels
 when constructing routes.
 """
 
-from typing import Any, List, Optional, Tuple, cast
+from typing import Any, Optional
 
 import torch
 import torch.nn as nn
 
+from logic.src.configs.models.activation_function import ActivationConfig
+from logic.src.configs.models.normalization import NormalizationConfig
 from logic.src.models.attention_model import AttentionModel
-from logic.src.models.attention_model.decoding import DecodingMixin
-from logic.src.models.attention_model.forward import ForwardMixin
-from logic.src.models.attention_model.setup import SetupMixin
 from logic.src.models.subnets.factories import NeuralComponentFactory
 
 
@@ -48,19 +47,8 @@ class TemporalAttentionModel(AttentionModel):
         mask_inner: bool = True,
         mask_logits: bool = True,
         mask_graph: bool = False,
-        normalization: str = "batch",
-        norm_learn_affine: bool = True,
-        norm_track_stats: bool = False,
-        norm_eps_alpha: float = 1e-05,
-        norm_momentum_beta: float = 0.1,
-        lrnorm_k: float = 1.0,
-        gnorm_groups: int = 3,
-        activation_function: str = "gelu",
-        af_param: float = 1.0,
-        af_threshold: float = 6.0,
-        af_replacement_value: float = 6.0,
-        af_num_params: int = 3,
-        af_uniform_range: List[float] = [0.125, 1 / 3],
+        norm_config: Optional[NormalizationConfig] = None,
+        activation_config: Optional[ActivationConfig] = None,
         n_heads: int = 8,
         checkpoint_encoder: bool = False,
         shrink_size: Optional[int] = None,
@@ -73,91 +61,80 @@ class TemporalAttentionModel(AttentionModel):
         connection_type: str = "residual",
         hyper_expansion: int = 4,
         decoder_type: str = "attention",
+        predictor_type: str = "gru",
+        **kwargs,
     ) -> None:
         """
         Initialize the Temporal Attention Model.
         """
-        nn.Module.__init__(self)
-        SetupMixin.__init__(self)
-        ForwardMixin.__init__(self)
-        DecodingMixin.__init__(self)
-        # Use common init helpers, but note that for TemporalAM we set temporal_horizon=0
-        # for the context embedder initially because we handle temporal features separately
-        # in _get_initial_embeddings.
-        self._init_parameters(
+        super().__init__(
             embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             problem=problem,
-            n_heads=n_heads,
-            pomo_size=pomo_size,
-            checkpoint_encoder=checkpoint_encoder,
-            aggregation_graph=aggregation_graph,
-            temporal_horizon=0,
-            tanh_clipping=tanh_clipping,
-        )
-
-        self._init_context_embedder(temporal_horizon=0)
-        step_context_dim = self.context_embedder.step_context_dim
-
-        self._init_components(
             component_factory=component_factory,
-            step_context_dim=step_context_dim,
             n_encode_layers=n_encode_layers,
             n_encode_sublayers=n_encode_sublayers,
             n_decode_layers=n_decode_layers,
             dropout_rate=dropout_rate,
-            predictor_layers=predictor_layers,
-            normalization=normalization,
-            norm_eps_alpha=norm_eps_alpha,
-            norm_learn_affine=norm_learn_affine,
-            norm_track_stats=norm_track_stats,
-            norm_momentum_beta=norm_momentum_beta,
-            lrnorm_k=lrnorm_k,
-            gnorm_groups=gnorm_groups,
-            activation_function=activation_function,
-            af_param=af_param,
-            af_threshold=af_threshold,
-            af_replacement_value=af_replacement_value,
-            af_num_params=af_num_params,
-            af_uniform_range=af_uniform_range,
             aggregation=aggregation,
-            connection_type=connection_type,
-            hyper_expansion=hyper_expansion,
+            aggregation_graph=aggregation_graph,
             tanh_clipping=tanh_clipping,
             mask_inner=mask_inner,
             mask_logits=mask_logits,
             mask_graph=mask_graph,
+            norm_config=norm_config,
+            activation_config=activation_config,
+            n_heads=n_heads,
+            checkpoint_encoder=checkpoint_encoder,
             shrink_size=shrink_size,
+            pomo_size=pomo_size,
+            temporal_horizon=0,  # Explicitly set to 0 for initial context
             spatial_bias=spatial_bias,
             spatial_bias_scale=spatial_bias_scale,
+            entropy_weight=entropy_weight,
+            predictor_layers=predictor_layers,
+            connection_type=connection_type,
+            hyper_expansion=hyper_expansion,
             decoder_type=decoder_type,
+            **kwargs,
         )
+
+        if activation_config is None:
+            activation_config = ActivationConfig()
+
         self.temporal_horizon = temporal_horizon
         from logic.src.models.subnets.modules import ActivationFunction
-        from logic.src.models.subnets.other.grf_predictor import GatedRecurrentFillPredictor
+        from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
+        from logic.src.models.subnets.other.lstm_fill_predictor import LongShortTermMemoryFillPredictor
 
-        self.fill_predictor = GatedRecurrentFillPredictor(
-            input_dim=1,
-            hidden_dim=hidden_dim,
-            num_layers=predictor_layers,
-            dropout=dropout_rate,
-        )
+        if predictor_type == "lstm":
+            self.fill_predictor = LongShortTermMemoryFillPredictor(
+                input_dim=1,
+                hidden_dim=hidden_dim,
+                num_layers=predictor_layers,
+                dropout=dropout_rate,
+            )
+        else:
+            assert predictor_type == "gru", f"Unknown predictor type: {predictor_type}"
+            self.fill_predictor = GatedRecurrentUnitFillPredictor(
+                input_dim=1,
+                hidden_dim=hidden_dim,
+                num_layers=predictor_layers,
+                dropout=dropout_rate,
+            )
 
         self.temporal_embed = nn.Linear(1, embed_dim)
-        if self.is_wc or self.is_vrpp:
-            self.predict_future = True
-        else:
-            self.predict_future = False
+        self.predict_future = self.is_wc or self.is_vrpp
 
         self.combine_embeddings = nn.Sequential(
             nn.Linear(embed_dim * 2, embed_dim),
             ActivationFunction(
-                activation_function,
-                af_param,
-                af_threshold,
-                af_replacement_value,
-                af_num_params,
-                cast(Tuple[float, float], tuple(af_uniform_range)) if af_uniform_range else None,
+                activation_config.name,
+                activation_config.param,
+                activation_config.threshold,
+                activation_config.replacement_value,
+                activation_config.n_params,
+                activation_config.range,
             ),
             nn.Linear(embed_dim, embed_dim),
         )

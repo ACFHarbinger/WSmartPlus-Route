@@ -4,7 +4,7 @@ HGS Policy wrapper for RL4CO using vectorized implementation.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Dict, Optional
 
 import torch
 from tensordict import TensorDict
@@ -45,13 +45,14 @@ class VectorizedHGS(ImprovementPolicy):
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
-        decode_type: str = "greedy",  # Ignored for HGS
+        env: Optional[RL4COEnvBase] = None,
+        strategy: str = "greedy",  # Ignored for HGS
         num_starts: int = 1,
+        max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
         **kwargs,
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         Solve instances in the batch using vectorized HGS.
 
