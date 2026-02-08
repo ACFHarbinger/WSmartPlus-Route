@@ -1,26 +1,23 @@
 """
-HGS (Hybrid Genetic Search) configuration.
+HGS-ALNS (Hybrid Genetic Search with ALNS Education) configuration for expert policy training.
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
-
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
 
 
 @dataclass
-class HGSConfig:
-    """Configuration for Hybrid Genetic Search (HGS) policy.
+class HGSALNSConfig:
+    """Configuration for Hybrid Genetic Search with ALNS Education (HGS-ALNS) expert policy.
 
     Attributes:
         time_limit: Maximum time in seconds for the solver.
         population_size: Size of the genetic population.
         elite_size: Number of elite individuals to preserve.
         mutation_rate: Probability of mutation.
+        alns_education_iterations: Number of ALNS iterations for education phase.
         n_generations: Number of generations to evolve.
         max_vehicles: Maximum number of vehicles (0 for unlimited).
-        engine: Solver engine to use ('custom', 'pyvrp').
+        engine: Solver engine to use.
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.
     """
@@ -29,8 +26,6 @@ class HGSConfig:
     population_size: int = 50
     elite_size: int = 10
     mutation_rate: float = 0.2
+    alns_education_iterations: int = 50
     n_generations: int = 100
     max_vehicles: int = 0
-    engine: str = "custom"
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None

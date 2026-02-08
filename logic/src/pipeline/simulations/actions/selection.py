@@ -9,7 +9,7 @@ import numpy as np
 
 from logic.src.configs import MustGoConfig
 from logic.src.constants import ROOT_DIR
-from logic.src.policies import MustGoSelectionFactory, SelectionContext
+from logic.src.policies.other import MustGoSelectionFactory, SelectionContext
 from logic.src.utils.configs.config_loader import load_config
 
 from .base import SimulationAction, _flatten_config

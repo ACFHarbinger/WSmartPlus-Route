@@ -1,17 +1,13 @@
 """
-HGS (Hybrid Genetic Search) configuration.
+HGS (Hybrid Genetic Search) configuration for expert policy training.
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
-
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
 
 
 @dataclass
 class HGSConfig:
-    """Configuration for Hybrid Genetic Search (HGS) policy.
+    """Configuration for Hybrid Genetic Search (HGS) expert policy.
 
     Attributes:
         time_limit: Maximum time in seconds for the solver.
@@ -31,6 +27,3 @@ class HGSConfig:
     mutation_rate: float = 0.2
     n_generations: int = 100
     max_vehicles: int = 0
-    engine: str = "custom"
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None

@@ -1,17 +1,14 @@
 """
-ACO (Ant Colony Optimization) configuration.
+ACO (Ant Colony Optimization) configuration for expert policy training.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional
-
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from typing import List
 
 
 @dataclass
 class ACOConfig:
-    """Configuration for Ant Colony Optimization-based policies (HH-ACO, KS-ACO).
+    """Configuration for Ant Colony Optimization expert policy (HH-ACO, KS-ACO).
 
     Attributes:
         n_ants: Number of ants in the colony.
@@ -49,6 +46,3 @@ class ACOConfig:
     local_search: bool = True
     elitist_weight: float = 1.0
     operators: List[str] = field(default_factory=lambda: ["swap", "2opt_intra", "relocate", "swap_star", "perturb"])
-    engine: str = "custom"
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None

@@ -5,6 +5,7 @@ Combines PPO/REINFORCE with Imitation Learning using an annealing schedule.
 
 from __future__ import annotations
 
+from dataclasses import asdict
 from typing import Any
 
 import torch
@@ -33,7 +34,8 @@ class AdaptiveImitation(REINFORCE):
 
     def __init__(
         self,
-        expert_policy: Any,
+        policy_config: Any,
+        env_name: str,
         il_weight: float = 1.0,
         il_decay: float = 0.95,
         patience: int = 5,
@@ -47,17 +49,19 @@ class AdaptiveImitation(REINFORCE):
         Initialize AdaptiveImitation module.
 
         Args:
-            expert_policy: Expert policy to imitate.
+            policy_config: Expert policy configuration object (HGSConfig, ALNSConfig, etc.).
+            env_name: Environment name for the expert policy.
             il_weight: Initial weight for imitation loss.
             il_decay: Decay factor for IL weight each epoch.
             patience: Epochs without improvement before resetting IL weight.
             threshold: Threshold for reannealing.
             decay_step: Number of epochs to decay IL weight.
+            epsilon: Epsilon for improvement detection.
             loss_fn: Name of loss function to use ('weighted_nll', 'nll', etc.).
             **kwargs: Arguments passed to REINFORCE.
         """
         # Exclude non-serializable objects from hyperparameters
-        self.save_hyperparameters(ignore=["expert_policy", "env", "policy"])
+        self.save_hyperparameters(ignore=["policy_config", "env", "policy"])
         super().__init__(**kwargs)
 
         # Manually remove complex objects from hparams to prevent YAML serialization errors
@@ -99,7 +103,8 @@ class AdaptiveImitation(REINFORCE):
             for k in keys_to_remove:
                 self.hparams.pop(k, None)
 
-        self.expert_policy = expert_policy
+        # Create expert policy from config
+        self.expert_policy = self._create_expert_policy(policy_config, env_name)
         self.il_weight = il_weight
         self.initial_il_weight = il_weight
         self.il_decay = il_decay
@@ -123,6 +128,56 @@ class AdaptiveImitation(REINFORCE):
         self.wait = 0
         self.best_reward = float("-inf")
         self.current_il_weight = il_weight
+
+    def _create_expert_policy(self, policy_config: Any, env_name: str) -> Any:
+        """Create expert policy from configuration.
+
+        Args:
+            policy_config: Expert policy configuration (HGSConfig, ALNSConfig, etc.).
+            env_name: Environment name for the policy.
+
+        Returns:
+            Initialized expert policy instance.
+        """
+        from logic.src.configs.rl.policies import (
+            ACOConfig,
+            ALNSConfig,
+            HGSALNSConfig,
+            HGSConfig,
+            ILSConfig,
+            RLSConfig,
+        )
+        from logic.src.models.policies.alns import VectorizedALNS
+        from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
+        from logic.src.models.policies.hgs import VectorizedHGS
+        from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
+        from logic.src.models.policies.iterated_local_search import IteratedLocalSearchPolicy
+        from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
+
+        # Map config types to policy classes
+        config_to_policy_map = {
+            HGSConfig: VectorizedHGS,
+            ALNSConfig: VectorizedALNS,
+            HGSALNSConfig: VectorizedHGSALNS,
+            RLSConfig: RandomLocalSearchPolicy,
+            ILSConfig: IteratedLocalSearchPolicy,
+            ACOConfig: VectorizedACOPolicy,
+        }
+
+        # Get the policy class for this config type
+        policy_cls = config_to_policy_map.get(type(policy_config))
+        if policy_cls is None:
+            raise ValueError(
+                f"Unknown policy config type: {type(policy_config)}. "
+                f"Supported types: {list(config_to_policy_map.keys())}"
+            )
+
+        # Convert config to dict and add env_name
+        config_dict = asdict(policy_config)
+        config_dict["env_name"] = env_name
+
+        # Create and return the policy
+        return policy_cls(**config_dict)
 
     def _sanitize_td(self, td: TensorDict) -> TensorDict:
         """

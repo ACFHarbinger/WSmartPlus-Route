@@ -1,17 +1,14 @@
 """
-ILS (Iterated Local Search) configuration.
+ILS (Iterated Local Search) configuration for expert policy training.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Union
-
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from typing import Dict, Union
 
 
 @dataclass
 class ILSConfig:
-    """Configuration for Iterated Local Search (ILS) policy.
+    """Configuration for Iterated Local Search (ILS) expert policy.
 
     Attributes:
         n_restarts: Number of ILS restarts (perturbation cycles).
@@ -20,6 +17,8 @@ class ILSConfig:
         ls_operator: Local search operator name or dict of {name: prob}.
         perturbation_type: Perturbation method name or dict of {mode: prob}.
         time_limit: Maximum time in seconds for the solver.
+        op_probs: Operator selection probabilities.
+        perturb_probs: Perturbation method probabilities.
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.
     """
@@ -47,5 +46,3 @@ class ILSConfig:
             "random_swap": 0.2,
         }
     )
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None

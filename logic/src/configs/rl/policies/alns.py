@@ -1,17 +1,13 @@
 """
-ALNS (Adaptive Large Neighborhood Search) configuration.
+ALNS (Adaptive Large Neighborhood Search) configuration for expert policy training.
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
-
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
 
 
 @dataclass
 class ALNSConfig:
-    """Configuration for Adaptive Large Neighborhood Search (ALNS) policy.
+    """Configuration for Adaptive Large Neighborhood Search (ALNS) expert policy.
 
     Attributes:
         time_limit: Maximum time in seconds for the solver.
@@ -33,6 +29,3 @@ class ALNSConfig:
     reaction_factor: float = 0.1
     min_removal: int = 1
     max_removal_pct: float = 0.3
-    engine: str = "custom"
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None

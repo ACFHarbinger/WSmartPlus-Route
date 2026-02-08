@@ -17,12 +17,12 @@ from typing import List
 
 import numpy as np
 
-from logic.src.interfaces.must_go import MustGoSelectionStrategy
+from logic.src.interfaces.must_go import IMustGoSelectionStrategy
 
 from .base.selection_context import SelectionContext
 
 
-class RevenueThresholdSelection(MustGoSelectionStrategy):
+class RevenueThresholdSelection(IMustGoSelectionStrategy):
     """
     Revenue-based selection strategy.
     """
