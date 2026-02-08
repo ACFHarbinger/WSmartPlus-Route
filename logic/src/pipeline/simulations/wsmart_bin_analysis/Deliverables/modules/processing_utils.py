@@ -17,12 +17,30 @@ class ProcessingMixin:
     id: int
 
     def calc_max_min_mean(self, start_idx: int = 0, end_idx: int = -1):
+        """Calc max min mean.
+
+        Args:
+            start_idx (int): Description of start_idx.
+            end_idx (int): Description of end_idx.
+        """
         ...
 
     def calc_avg_dist_metric(self, start_idx: int = 0, end_idx: int = -1):
+        """Calc avg dist metric.
+
+        Args:
+            start_idx (int): Description of start_idx.
+            end_idx (int): Description of end_idx.
+        """
         ...
 
     def calc_spearman(self, start_idx: int = 0, end_idx: int = -1):
+        """Calc spearman.
+
+        Args:
+            start_idx (int): Description of start_idx.
+            end_idx (int): Description of end_idx.
+        """
         ...
 
     def mark_collections(self):

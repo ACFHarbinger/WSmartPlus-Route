@@ -1,3 +1,11 @@
+"""policy.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import policy
+    """
 from typing import Any, Dict, Optional, Protocol, Union
 
 import torch
@@ -27,4 +35,10 @@ class IPolicy(Protocol):
         ...
 
     def __call__(self, *args, **kwargs) -> Any:
+        """call  .
+
+        Args:
+            args (Any): Description of args.
+            kwargs (Any): Description of kwargs.
+        """
         ...

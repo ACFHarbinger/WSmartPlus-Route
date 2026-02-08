@@ -219,6 +219,14 @@ class StepwisePPO(RL4COLitModule):
         return data.view(bs * T)
 
     def _get_mbs(self, td):
+        """get mbs.
+
+        Args:
+            td (Any): Description of td.
+
+        Returns:
+            Any: Description of return value.
+        """
         bs = td.batch_size[0]
         mbs = self.mini_batch_size
         if isinstance(mbs, float):
@@ -226,8 +234,24 @@ class StepwisePPO(RL4COLitModule):
         return min(max(1, mbs), bs)
 
     def calculate_loss(self, td, out, batch_idx, env=None):
+        """Calculate loss.
+
+        Args:
+            td (Any): Description of td.
+            out (Any): Description of out.
+            batch_idx (Any): Description of batch_idx.
+            env (Any): Description of env.
+
+        Returns:
+            Any: Description of return value.
+        """
         return torch.tensor(0.0, device=td.device)
 
     def configure_optimizers(self):
+        """Configure optimizers.
+
+        Returns:
+            Any: Description.
+        """
         params = list(self.policy.parameters()) + list(self.critic.parameters())
         return torch.optim.Adam(params, **self.optimizer_kwargs)

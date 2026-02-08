@@ -1,3 +1,17 @@
+"""
+Or-opt Operator Module.
+
+This module implements the Or-opt operator for local search, which tries to
+relocate chains of 1 to 3 consecutive nodes to better positions in the solution.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.exchange.or_opt import move_or_opt
+    >>> improved = move_or_opt(ls, node=5, chain_len=2, r_idx=0, pos=1)
+"""
+
 from typing import Any
 
 
@@ -23,7 +37,7 @@ def move_or_opt(
         pos: Position of the starting node in the route.
 
     Returns:
-        True if an improving move was found and applied.
+        bool: True if an improving move was found and applied.
     """
     route = ls.routes[r_idx]
     if pos + chain_len > len(route):

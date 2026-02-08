@@ -42,6 +42,22 @@ class LegacyCriticNetwork(nn.Module):
         dropout_rate=0.0,
         temporal_horizon=0,
     ):
+        """Initialize Class.
+
+        Args:
+            problem (Any): Description of problem.
+            component_factory (Any): Description of component_factory.
+            embed_dim (Any): Description of embed_dim.
+            hidden_dim (Any): Description of hidden_dim.
+            n_layers (Any): Description of n_layers.
+            n_sublayers (Any): Description of n_sublayers.
+            encoder_normalization (Any): Description of encoder_normalization.
+            activation (Any): Description of activation.
+            n_heads (Any): Description of n_heads.
+            aggregation_graph (Any): Description of aggregation_graph.
+            dropout_rate (Any): Description of dropout_rate.
+            temporal_horizon (Any): Description of temporal_horizon.
+        """
         super().__init__()
         warnings.warn(
             "LegacyCriticNetwork is deprecated. Use logic.src.models.critic.CriticNetwork instead.",
@@ -84,9 +100,25 @@ class LegacyCriticNetwork(nn.Module):
         )
 
     def _init_embed(self, nodes):
+        """init embed.
+
+        Args:
+            nodes (Any): Description of nodes.
+
+        Returns:
+            Any: Description of return value.
+        """
         return self.context_embedder.init_node_embeddings(nodes)
 
     def forward(self, inputs):
+        """Forward.
+
+        Args:
+            inputs (Any): Description of inputs.
+
+        Returns:
+            Any: Description of return value.
+        """
         edges = inputs.get("edges", None)
         embeddings = self.encoder(self._init_embed(inputs), edges)
         if self.aggregation_graph == "avg":

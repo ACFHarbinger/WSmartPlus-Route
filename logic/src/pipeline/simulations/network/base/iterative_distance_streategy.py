@@ -1,3 +1,11 @@
+"""iterative_distance_streategy.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import iterative_distance_streategy
+    """
 from abc import abstractmethod
 from typing import Any, Tuple
 

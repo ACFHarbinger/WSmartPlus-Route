@@ -19,11 +19,30 @@ class MultiStartAugmentEval(EvalBase):
     def __init__(
         self, env: Any, num_augment: int = 8, num_starts: Optional[int] = None, progress: bool = True, **kwargs
     ):
+        """Initialize Class.
+
+        Args:
+            env (Any): Description of env.
+            num_augment (int): Description of num_augment.
+            num_starts (Optional[int]): Description of num_starts.
+            progress (bool): Description of progress.
+            kwargs (Any): Description of kwargs.
+        """
         super().__init__(env, progress, **kwargs)
         self.num_augment = num_augment
         self.num_starts = num_starts
 
     def __call__(self, policy: Any, data_loader: DataLoader, **kwargs) -> dict:
+        """call  .
+
+        Args:
+            policy (Any): Description of policy.
+            data_loader (DataLoader): Description of data_loader.
+            kwargs (Any): Description of kwargs.
+
+        Returns:
+            Any: Description of return value.
+        """
         policy.eval()
         results = []
         start_time = time.time()

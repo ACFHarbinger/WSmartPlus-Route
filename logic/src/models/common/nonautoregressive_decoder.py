@@ -1,3 +1,11 @@
+"""nonautoregressive_decoder.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import nonautoregressive_decoder
+    """
 from abc import ABC, abstractmethod
 from typing import Dict, Tuple
 

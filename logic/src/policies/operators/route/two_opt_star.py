@@ -1,16 +1,33 @@
+"""
+2-opt* Inter-Route Operator Module.
+
+This module implements the 2-opt* operator, which exchanges the tails of two
+different routes. It is a powerful operator for reducing the number of routes
+and balancing loads.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.route.two_opt_star import move_2opt_star
+    >>> improved = move_2opt_star(ls, u, v, r_u, p_u, r_v, p_v)
+"""
+
+
 def move_2opt_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-    """2-opt* inter-route operator: exchange tails between two routes.
+    """
+    2-opt* inter-route operator: exchange tails between two routes.
 
     Cuts route r_u after node u and route r_v after node v, then swaps
-    the tail segments. Only applies the move if it improves total cost.
+    the tails. New routes become (start_u + tail_v) and (start_v + tail_u).
 
     Args:
-        ls: LocalSearch instance containing routes and distance matrix.
-        u: Cut point node in route r_u.
-        v: Cut point node in route r_v.
-        r_u: Index of first route.
+        ls: LocalSearch instance.
+        u: Cut point in route r_u.
+        v: Cut point in route r_v.
+        r_u: Index of the first route.
         p_u: Position of u in route r_u.
-        r_v: Index of second route.
+        r_v: Index of the second route.
         p_v: Position of v in route r_v.
 
     Returns:

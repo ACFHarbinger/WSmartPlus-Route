@@ -1,3 +1,11 @@
+"""context.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import context
+    """
 from __future__ import annotations
 
 import os
@@ -53,6 +61,17 @@ class SimulationContext:
         model_weights_path: str,
         variables_dict: Dict[str, Any],
     ):
+        """Initialize Class.
+
+        Args:
+            opts (Dict[str, Any]): Description of opts.
+            device (torch.device): Description of device.
+            indices (List[int]): Description of indices.
+            sample_id (int): Description of sample_id.
+            pol_id (int): Description of pol_id.
+            model_weights_path (str): Description of model_weights_path.
+            variables_dict (Dict[str, Any]): Description of variables_dict.
+        """
         self.opts = opts
         self.device = device
         self.indices = indices
@@ -85,6 +104,7 @@ class SimulationContext:
         self._continue_init(variables_dict, pol_id)
 
     def _parse_policy_string(self) -> None:
+        """parse policy string."""
         parts = self.pol_strip.split("_")
         for pol_key, engines in ENGINE_POLICIES.items():
             if pol_key in parts:
@@ -116,6 +136,11 @@ class SimulationContext:
         self.pol_name = self.pol_strip
 
     def _extract_threshold(self, policy_key: str) -> None:
+        """extract threshold.
+
+        Args:
+            policy_key (str): Description of policy_key.
+        """
         try:
             parts = self.pol_strip.split(policy_key)
             if len(parts) > 1:
@@ -127,6 +152,12 @@ class SimulationContext:
             pass
 
     def _extract_threshold_with_config_char(self, policy_key: str, config_chars: List[str]) -> None:
+        """extract threshold with config char.
+
+        Args:
+            policy_key (str): Description of policy_key.
+            config_chars (List[str]): Description of config_chars.
+        """
         try:
             parts = self.pol_strip.split(policy_key)
             if len(parts) > 1:
@@ -143,6 +174,12 @@ class SimulationContext:
             pass
 
     def _continue_init(self, variables_dict: Dict[str, Any], pol_id: int) -> None:
+        """continue init.
+
+        Args:
+            variables_dict (Dict[str, Any]): Description of variables_dict.
+            pol_id (int): Description of pol_id.
+        """
         self.start_day: int = 1
         self.checkpoint: Optional[SimulationCheckpoint] = None
         self.bins: Optional[Any] = None
@@ -172,16 +209,31 @@ class SimulationContext:
         self.transition_to(InitializingState())
 
     def transition_to(self, state: Optional[SimState]) -> None:
+        """Transition to.
+
+        Args:
+            state (Optional[SimState]): Description of state.
+        """
         self.current_state = state
         if self.current_state is not None:
             self.current_state.context = self
 
     def run(self) -> Optional[Dict[str, Any]]:
+        """Run.
+
+        Returns:
+            Any: Description.
+        """
         while self.current_state is not None:
             self.current_state.handle(self)
         return self.result
 
     def get_current_state_tuple(self) -> Tuple[Any, ...]:
+        """Get current state tuple.
+
+        Returns:
+            Any: Description.
+        """
         return (
             self.new_data,
             self.coords,

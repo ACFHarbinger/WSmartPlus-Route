@@ -1,3 +1,11 @@
+"""constructive.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import constructive
+    """
 from typing import Any, Dict, cast
 
 import pytorch_lightning as pl
@@ -10,6 +18,17 @@ from logic.src.pipeline.rl import (
 
 
 def _create_pomo(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+    """create pomo.
+
+    Args:
+    cfg (Config): Description of cfg.
+    policy (Any): Description of policy.
+    env (Any): Description of env.
+    kw (Dict[str, Any]): Description of kw.
+
+    Returns:
+        Any: Description of return value.
+    """
     explicit = {
         "num_augment": cfg.rl.pomo.num_augment,
         "augment_fn": cfg.rl.pomo.augment_fn,
@@ -26,6 +45,17 @@ def _create_pomo(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningMo
 
 
 def _create_symnco(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+    """create symnco.
+
+    Args:
+    cfg (Config): Description of cfg.
+    policy (Any): Description of policy.
+    env (Any): Description of env.
+    kw (Dict[str, Any]): Description of kw.
+
+    Returns:
+        Any: Description of return value.
+    """
     # Fallback to POMO config if SymNCO specific config is missing for some keys
     explicit = {
         "alpha": cfg.rl.symnco.alpha,

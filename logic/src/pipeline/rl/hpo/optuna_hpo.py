@@ -40,6 +40,11 @@ class OptunaHPO:
         return study.best_value
 
     def _get_sampler(self) -> optuna.samplers.BaseSampler:
+        """get sampler.
+
+        Returns:
+            Any: Description.
+        """
         seed = self.cfg.seed
         if self.cfg.hpo.method == "random":
             return optuna.samplers.RandomSampler(seed=seed)
@@ -52,6 +57,11 @@ class OptunaHPO:
             return optuna.samplers.TPESampler(seed=seed)
 
     def _get_pruner(self) -> optuna.pruners.BasePruner:
+        """get pruner.
+
+        Returns:
+            Any: Description.
+        """
         if self.cfg.hpo.method == "hyperband":
             return optuna.pruners.HyperbandPruner()
         return optuna.pruners.MedianPruner()

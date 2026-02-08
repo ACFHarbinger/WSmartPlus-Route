@@ -23,6 +23,15 @@ def apply_edges(
     """
 
     def _make_path(start, end):
+        """make path.
+
+        Args:
+            start (Any): Description of start.
+            end (Any): Description of end.
+
+        Returns:
+            Any: Description of return value.
+        """
         if next_node[start, end] == -1:
             return []  # No path exists
         path = [start]

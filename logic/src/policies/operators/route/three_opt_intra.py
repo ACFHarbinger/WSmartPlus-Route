@@ -1,8 +1,24 @@
+"""
+3-opt Intra-Route Operator Module.
+
+This module implements the 3-opt intra-route operator, which removes three edges
+from a route and reconnects the resulting segments in a new order to reduce
+the total tour length.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.route.three_opt_intra import move_3opt_intra
+    >>> improved = move_3opt_intra(ls, u, v, r_u, p_u, r_v, p_v)
+"""
+
 import random
 
 
 def move_3opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-    """3-opt intra-route operator: reconnect three segments within a route.
+    """
+    3-opt intra-route operator: reconnect three segments within a route.
 
     Randomly selects a third cut point and evaluates all 3-opt reconnection
     patterns. Applies the best improving move if found.

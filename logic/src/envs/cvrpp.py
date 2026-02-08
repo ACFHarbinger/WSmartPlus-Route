@@ -40,6 +40,15 @@ class CVRPPEnv(VRPPEnv):
         return super()._reset(tensordict, **kwargs)
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
+        """reset.
+
+        Args:
+            tensordict (Optional[TensorDict]): Description of tensordict.
+            kwargs (Any): Description of kwargs.
+
+        Returns:
+            Any: Description of return value.
+        """
         """Execute action with capacity tracking."""
         action = td["action"]
 
@@ -67,6 +76,14 @@ class CVRPPEnv(VRPPEnv):
         return td
 
     def _step(self, td: TensorDict) -> TensorDict:
+        """step.
+
+        Args:
+            td (TensorDict): Description of td.
+
+        Returns:
+            Any: Description of return value.
+        """
         # RL4CO base _step calls _step_instance and then _get_action_mask.
         # Since we use _step_instance above, we just call super().
         return super(VRPPEnv, self)._step(td)

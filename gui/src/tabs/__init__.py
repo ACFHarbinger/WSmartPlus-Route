@@ -8,7 +8,6 @@ from .evaluation import (
     EvalDecodingTab,
     EvalIOTab,
     EvalProblemTab,
-    EvaluationTab,
 )
 from .file_system import (
     FileSystemCryptographyTab,

@@ -1,5 +1,17 @@
 """
-Lookahead selection strategy module.
+Lookahead Selection Strategy Module.
+
+This module implements a predictive strategy that selects bins based on
+future projections. It simulates future days to identify critical bins that
+will overflow soon or are efficient to collect now.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.must_go.selection_lookahead import LookaheadSelection
+    >>> strategy = LookaheadSelection()
+    >>> bins = strategy.select_bins(context)
 """
 
 from typing import List

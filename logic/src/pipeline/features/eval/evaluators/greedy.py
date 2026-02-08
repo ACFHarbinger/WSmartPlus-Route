@@ -17,6 +17,17 @@ class GreedyEval(EvalBase):
     """Greedy evaluation."""
 
     def __call__(self, policy: Any, data_loader: DataLoader, return_results: bool = False, **kwargs) -> dict:
+        """call  .
+
+        Args:
+            policy (Any): Description of policy.
+            data_loader (DataLoader): Description of data_loader.
+            return_results (bool): Description of return_results.
+            kwargs (Any): Description of kwargs.
+
+        Returns:
+            Any: Description of return value.
+        """
         policy.eval()
         results = []
         start_time = time.time()

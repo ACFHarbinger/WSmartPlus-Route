@@ -1,3 +1,11 @@
+"""__init__.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import __init__
+    """
 from .cvrpp import CVRPPState
 from .env import EnvState
 from .swcvrp import SWCVRPState

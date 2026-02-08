@@ -1,7 +1,15 @@
 """
-ACO Parameters module.
+ACO Parameters Module.
 
-Defines hyperparameters for the K-Sparse Ant Colony Optimization algorithm.
+This module defines the configuration parameters for the K-Sparse Ant Colony
+Optimization algorithm. It uses a dataclass to store and validate hyperparameters.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
+    >>> params = ACOParams(n_ants=20, rho=0.1)
 """
 
 from __future__ import annotations

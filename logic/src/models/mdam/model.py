@@ -50,6 +50,14 @@ def mdam_rollout(
     model = model.to(device)
 
     def eval_model(batch: TensorDict) -> torch.Tensor:
+        """Eval model.
+
+        Args:
+            batch (TensorDict): Description of batch.
+
+        Returns:
+            Any: Description of return value.
+        """
         with torch.inference_mode():
             batch = env.reset(batch.to(device))
             result = model(batch, env, strategy="greedy")

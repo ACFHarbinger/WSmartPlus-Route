@@ -1,3 +1,11 @@
+"""decoder.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import decoder
+    """
 from __future__ import annotations
 
 from typing import Tuple
@@ -18,6 +26,12 @@ class N2SDecoder(ImprovementDecoder):
     """
 
     def __init__(self, embed_dim: int = 128, **kwargs):
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            kwargs (Any): Description of kwargs.
+        """
         super().__init__(embed_dim=embed_dim)
         self.project_q = nn.Linear(embed_dim, embed_dim)
         self.project_k = nn.Linear(embed_dim, embed_dim)

@@ -107,6 +107,16 @@ class PointerNetwork(nn.Module):
         return cost, ll
 
     def _calc_log_likelihood(self, _log_p, a, mask):
+        """calc log likelihood.
+
+        Args:
+            _log_p (Any): Description of _log_p.
+            a (Any): Description of a.
+            mask (Any): Description of mask.
+
+        Returns:
+            Any: Description of return value.
+        """
         # Get log_p corresponding to selected actions
         log_p = _log_p.gather(2, a.unsqueeze(-1)).squeeze(-1)
 
@@ -120,6 +130,15 @@ class PointerNetwork(nn.Module):
         return log_p.sum(1)
 
     def _inner(self, inputs, eval_tours=None):
+        """inner.
+
+        Args:
+            inputs (Any): Description of inputs.
+            eval_tours (Any): Description of eval_tours.
+
+        Returns:
+            Any: Description of return value.
+        """
         encoder_hx = encoder_cx = torch.autograd.Variable(
             torch.zeros(1, inputs.size(1), self.encoder.hidden_dim, out=inputs.data.new()),
             requires_grad=False,

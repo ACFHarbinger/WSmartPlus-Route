@@ -19,6 +19,12 @@ class Empirical:
     """Sampling from an empirical dataset (e.g. file or Bins object)."""
 
     def __init__(self, bins: Optional[Bins] = None, dataset_path: Optional[str] = None):
+        """Initialize Class.
+
+        Args:
+            bins (Optional[Bins]): Description of bins.
+            dataset_path (Optional[str]): Description of dataset_path.
+        """
         self.bins = bins
         self.dataset = None
         if bins is None and dataset_path is not None and os.path.exists(dataset_path):

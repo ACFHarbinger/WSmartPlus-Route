@@ -1,3 +1,11 @@
+"""cvrpp.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import cvrpp
+    """
 import torch
 
 from logic.src.envs.tasks.vrpp import VRPP

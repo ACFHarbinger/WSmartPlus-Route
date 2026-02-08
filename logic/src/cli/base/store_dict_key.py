@@ -1,3 +1,11 @@
+"""store_dict_key.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import store_dict_key
+    """
 import argparse
 from typing import Any, Optional, Sequence, Union
 

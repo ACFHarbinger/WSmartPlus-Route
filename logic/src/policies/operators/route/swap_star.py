@@ -1,3 +1,35 @@
+"""
+Swap Star Operator Module.
+
+This module implements the Swap* operator (inter-route swap) for VRP.
+It attempts to swap two nodes between different routes to improve the objective.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.route.swap_star import SwapStar
+    >>> operator = SwapStar(...)
+    >>> new_solution = operator.apply(solution)
+
+Removes u from route r_u and v from route r_v, then reinserts each node
+into the other route at the best position. Only applies the move if it
+improves the total cost by a threshold margin.
+
+Args:
+    ls: LocalSearch instance containing routes and distance matrix.
+    u: Node to remove from route r_u.
+    v: Node to remove from route r_v.
+    r_u: Index of the route containing u.
+    p_u: Position of u in route r_u.
+    r_v: Index of the route containing v.
+    p_v: Position of v in route r_v.
+
+Returns:
+    bool: True if the swap was applied (improving), False otherwise.
+"""
+
+
 def move_swap_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
     """SWAP* inter-route operator: swap nodes u and v between different routes.
 

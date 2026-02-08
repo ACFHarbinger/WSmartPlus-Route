@@ -29,6 +29,16 @@ class MDAMPath(nn.Module):
         mask_inner: bool = True,
         mask_logits: bool = True,
     ) -> None:
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            env_name (str): Description of env_name.
+            num_heads (int): Description of num_heads.
+            tanh_clipping (float): Description of tanh_clipping.
+            mask_inner (bool): Description of mask_inner.
+            mask_logits (bool): Description of mask_logits.
+        """
         super().__init__()
         self.embed_dim = embed_dim
         self.num_heads = num_heads
@@ -107,6 +117,17 @@ class MDAMPath(nn.Module):
         # Wait, compute_mdam_logits uses path_index?
         # Let's check compute_mdam_logits again.
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        """Get logprobs.
+
+        Args:
+            fixed (AttentionDecoderCache): Description of fixed.
+            td (TensorDict): Description of td.
+            dynamic_embed (Tuple[torch.Tensor, torch.Tensor, torch.Tensor]): Description of dynamic_embed.
+            path_index (int): Description of path_index.
+
+        Returns:
+            Any: Description of return value.
+        """
         # Step context
         if hasattr(self.context_embedding, "forward"):
             step_context = self.context_embedding(fixed.node_embeddings, td)

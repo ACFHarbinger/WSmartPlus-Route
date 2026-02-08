@@ -79,4 +79,10 @@ class NARGNN(nn.Module):
         return out
 
     def set_strategy(self, strategy: str, **kwargs):
+        """Set strategy.
+
+        Args:
+            strategy (str): Description of strategy.
+            kwargs (Any): Description of kwargs.
+        """
         self.policy.set_strategy(strategy, **kwargs)

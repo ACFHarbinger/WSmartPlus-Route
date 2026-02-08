@@ -11,6 +11,12 @@ class Gamma:
     """Gamma distribution sampling."""
 
     def __init__(self, alpha: Union[float, torch.Tensor] = 2.0, beta: Union[float, torch.Tensor] = 2.0):
+        """Initialize Class.
+
+        Args:
+            alpha (Union[float, torch.Tensor]): Description of alpha.
+            beta (Union[float, torch.Tensor]): Description of beta.
+        """
         self.alpha = alpha
         self.beta = beta
 

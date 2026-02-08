@@ -1,3 +1,11 @@
+"""imitation.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import imitation
+    """
 import os
 from typing import Any, Dict
 
@@ -17,6 +25,16 @@ logger = get_pylogger(__name__)
 
 
 def _get_expert_policy(expert_name: str, env_name: str, cfg: Config) -> Any:
+    """get expert policy.
+
+    Args:
+    expert_name (str): Description of expert_name.
+    env_name (str): Description of env_name.
+    cfg (Config): Description of cfg.
+
+    Returns:
+        Any: Description of return value.
+    """
     expert_map = {
         "hgs": VectorizedHGS,
         "alns": VectorizedALNS,
@@ -54,6 +72,17 @@ def _get_expert_policy(expert_name: str, env_name: str, cfg: Config) -> Any:
 
 
 def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+    """create imitation.
+
+    Args:
+    cfg (Config): Description of cfg.
+    policy (Any): Description of policy.
+    env (Any): Description of env.
+    kw (Dict[str, Any]): Description of kw.
+
+    Returns:
+        Any: Description of return value.
+    """
     from logic.src.pipeline.rl.core.imitation import ImitationLearning
 
     expert_policy = _get_expert_policy(cfg.rl.imitation.mode, cfg.env.name, cfg)
@@ -61,6 +90,17 @@ def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.Lightn
 
 
 def _create_adaptive_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+    """create adaptive imitation.
+
+    Args:
+    cfg (Config): Description of cfg.
+    policy (Any): Description of policy.
+    env (Any): Description of env.
+    kw (Dict[str, Any]): Description of kw.
+
+    Returns:
+        Any: Description of return value.
+    """
     from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
 
     expert_policy = _get_expert_policy(cfg.rl.imitation.mode, cfg.env.name, cfg)
@@ -68,6 +108,15 @@ def _create_adaptive_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> 
 
 
 def _create_critic_helper(policy, cfg: Config) -> Any:
+    """create critic helper.
+
+    Args:
+    policy (Any): Description of policy.
+    cfg (Config): Description of cfg.
+
+    Returns:
+        Any: Description of return value.
+    """
     from logic.src.models.critic_network.policy import create_critic_from_actor
 
     return create_critic_from_actor(

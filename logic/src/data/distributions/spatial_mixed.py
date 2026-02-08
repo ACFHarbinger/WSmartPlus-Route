@@ -1,3 +1,11 @@
+"""spatial_mixed.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import spatial_mixed
+    """
 from typing import Tuple
 
 import torch
@@ -7,11 +15,24 @@ class Mixed:
     """50% uniform + 50% Gaussian clusters."""
 
     def __init__(self, n_cluster_mix: int = 1):
+        """Initialize Class.
+
+        Args:
+            n_cluster_mix (int): Description of n_cluster_mix.
+        """
         self.n_cluster_mix = n_cluster_mix
         self.lower, self.upper = 0.2, 0.8
         self.std = 0.07
 
     def sample(self, size: Tuple[int, int, int]) -> torch.Tensor:
+        """Sample.
+
+        Args:
+            size (Tuple[int, int, int]): Description of size.
+
+        Returns:
+            Any: Description of return value.
+        """
         batch_size, num_loc, _ = size
 
         center = self.lower + (self.upper - self.lower) * torch.rand(batch_size, self.n_cluster_mix * 2)

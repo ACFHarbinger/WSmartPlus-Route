@@ -1,3 +1,11 @@
+"""generic.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import generic
+    """
 from __future__ import annotations
 
 from typing import Any
@@ -17,6 +25,13 @@ class GenericContextEmbedder(ContextEmbedder):
     """
 
     def __init__(self, embed_dim: int, node_dim: int = NODE_DIM, temporal_horizon: int = 0):
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            node_dim (int): Description of node_dim.
+            temporal_horizon (int): Description of temporal_horizon.
+        """
         super().__init__(embed_dim, node_dim, temporal_horizon)
         self.init_embed = nn.Linear(node_dim, embed_dim)
         self.init_embed_depot = nn.Linear(2, embed_dim)
@@ -28,6 +43,14 @@ class GenericContextEmbedder(ContextEmbedder):
         )
 
     def init_node_embeddings(self, nodes: dict[str, Any]) -> torch.Tensor:
+        """Init node embeddings.
+
+        Args:
+            nodes (dict[str, Any]): Description of nodes.
+
+        Returns:
+            Any: Description of return value.
+        """
         # Fallback to 'loc' or 'locs'
         locs_key = "locs" if "locs" in nodes.keys() else "loc"
         node_features = nodes[locs_key]

@@ -1,3 +1,18 @@
+"""
+String Removal Operator Module.
+
+This module implements the string removal heuristic, which removes contiguous
+sequences (strings) of nodes from routes to preserve local structure while
+creating gaps for re-insertion.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.destroy.string import string_removal
+    >>> routes, removed = string_removal(routes, n_remove=5, ...)
+"""
+
 import random
 from typing import List, Tuple
 
@@ -8,7 +23,7 @@ def string_removal(
     routes: List[List[int]],
     n_remove: int,
     dist_matrix: np.ndarray,
-    max_string_len: int = 5,
+    max_string_len: int = 4,
     avg_string_len: float = 3.0,
 ) -> Tuple[List[List[int]], List[int]]:
     """
@@ -16,16 +31,17 @@ def string_removal(
 
     The key insight of SISR is that removing adjacent customers creates a large
     contiguous "hole" in the route, providing maneuverability for reinsertion.
+    This also reduces the number of re-insertions needed compared to random removal.
 
     Args:
         routes: Current routes.
-        n_remove: Target number of nodes to remove.
-        dist_matrix: Distance matrix for neighbor lookup.
-        max_string_len: Maximum length of a single string.
-        avg_string_len: Average string length (controls distribution).
+        n_remove: Number of nodes to remove.
+        dist_matrix: Distance matrix (used for propagation).
+        max_string_len: Maximum length of a string to remove.
+        avg_string_len: Average string length (unused, kept for API compatibility).
 
     Returns:
-        Tuple of (modified routes, list of removed node IDs).
+        Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
     """
     if not any(routes) or n_remove <= 0:
         return routes, []

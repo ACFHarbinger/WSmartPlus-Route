@@ -1,3 +1,11 @@
+"""normalization.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import normalization
+    """
 from dataclasses import dataclass
 
 from logic.src.constants.models import NORM_EPSILON

@@ -1,3 +1,19 @@
+"""
+SISR Solver Module.
+
+This module implements the Slack Induction by String Removal (SISR) metaheuristic.
+It manages the iterative process of string removal (ruin) and greedy insertion
+with blinks (recreate), accepted via Simulated Annealing.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.slack_induction_by_string_removal.solver import SISRSolver
+    >>> solver = SISRSolver(dist_matrix, demands, ...)
+    >>> result = solver.solve()
+"""
+
 import copy
 import math
 import random
@@ -25,6 +41,12 @@ class SISRSolver:
         C: float,
         params: SISRParams,
     ):
+        """
+        Initialize SISR Solver.
+
+        Args:
+            params: Parameters for the SISR algorithm.
+        """
         self.dist_matrix = dist_matrix
         self.demands = demands
         self.capacity = capacity

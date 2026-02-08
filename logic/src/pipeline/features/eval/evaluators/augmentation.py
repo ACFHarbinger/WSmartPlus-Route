@@ -26,6 +26,15 @@ class AugmentationEval(EvalBase):
         progress: bool = True,
         **kwargs,
     ):
+        """Initialize Class.
+
+        Args:
+            env (Any): Description of env.
+            num_augment (int): Description of num_augment.
+            augment_fn (str): Description of augment_fn.
+            progress (bool): Description of progress.
+            kwargs (Any): Description of kwargs.
+        """
         super().__init__(env, progress, **kwargs)
         from logic.src.data.transforms import StateAugmentation
 
@@ -33,6 +42,17 @@ class AugmentationEval(EvalBase):
         self.augmentation = StateAugmentation(num_augment=num_augment, augment_fn=augment_fn)
 
     def __call__(self, policy: Any, data_loader: DataLoader, return_results: bool = False, **kwargs) -> dict:
+        """call  .
+
+        Args:
+            policy (Any): Description of policy.
+            data_loader (DataLoader): Description of data_loader.
+            return_results (bool): Description of return_results.
+            kwargs (Any): Description of kwargs.
+
+        Returns:
+            Any: Description of return value.
+        """
         policy.eval()
         results = []
         start_time = time.time()

@@ -1,3 +1,11 @@
+"""datasets.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import datasets
+    """
 import os
 import random
 from typing import Any, Dict

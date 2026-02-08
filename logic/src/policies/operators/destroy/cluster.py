@@ -1,3 +1,17 @@
+"""
+Cluster Removal Operator Module.
+
+This module implements the cluster removal heuristic, which removes a cluster of
+nodes based on spatial proximity, effectively acting as a variant of Shaw removal.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.destroy.cluster import cluster_removal
+    >>> routes, removed = cluster_removal(routes, n_remove=5, dist_matrix=d, nodes=all_nodes)
+"""
+
 import random
 from typing import List, Tuple
 

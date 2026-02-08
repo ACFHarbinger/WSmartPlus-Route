@@ -1,5 +1,16 @@
 """
-Last Minute selection strategy module.
+Last Minute Selection Strategy Module.
+
+This module implements the "Last Minute" or "Reactive" strategy, which
+selects bins only when they exceed a certain fill threshold (e.g., 100%).
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.must_go.selection_last_minute import LastMinuteSelection
+    >>> strategy = LastMinuteSelection()
+    >>> bins = strategy.select_bins(context)
 """
 
 from typing import List

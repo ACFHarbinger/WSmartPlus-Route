@@ -45,6 +45,18 @@ class ReptileCallback(Callback):
         data_type: str = "size",
         print_log: bool = True,
     ):
+        """Initialize Class.
+
+        Args:
+            num_tasks (int): Description of num_tasks.
+            alpha (float): Description of alpha.
+            alpha_decay (float): Description of alpha_decay.
+            min_size (int): Description of min_size.
+            max_size (int): Description of max_size.
+            sch_bar (float): Description of sch_bar.
+            data_type (str): Description of data_type.
+            print_log (bool): Description of print_log.
+        """
         super().__init__()
         self.num_tasks = num_tasks
         self.alpha = alpha

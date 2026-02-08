@@ -23,6 +23,11 @@ class DataMixin:
     """Mixin for data loading logic."""
 
     def __init__(self):
+        """Initialize Class.
+
+        Args:
+            None.
+        """
         # Type hints for attributes expected from the main class
         self.env: IEnv
         self.policy: IPolicy

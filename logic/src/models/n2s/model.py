@@ -27,6 +27,16 @@ class N2S(nn.Module):
         k_neighbors: int = 20,
         **policy_kwargs,
     ):
+        """Initialize Class.
+
+        Args:
+            env (Optional[RL4COEnvBase]): Description of env.
+            policy (Optional[N2SPolicy]): Description of policy.
+            embed_dim (int): Description of embed_dim.
+            num_heads (int): Description of num_heads.
+            k_neighbors (int): Description of k_neighbors.
+            policy_kwargs (Any): Description of policy_kwargs.
+        """
         super().__init__()
         if policy is None:
             policy = N2SPolicy(

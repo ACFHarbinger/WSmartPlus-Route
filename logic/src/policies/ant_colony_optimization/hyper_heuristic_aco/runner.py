@@ -1,7 +1,15 @@
 """
-ACO Runner for Hyper-Heuristic ACO.
+Hyper-ACO Runner Module.
 
-Provides the standardized entry point for Hyper-Heuristic ACO.
+This module provides a high-level interface to run the Hyper-Heuristic ACO
+solver. It handles parameter parsing, initialization, and execution.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.ant_colony_optimization.hyper_heuristic_aco.runner import run_hyper_heuristic_aco
+    >>> result = run_hyper_heuristic_aco(dist_matrix, demands, capacity, ...)
 """
 
 from typing import Any, Dict, List, Optional, Tuple

@@ -1,3 +1,17 @@
+"""
+Worst Removal Operator Module.
+
+This module implements the worst removal heuristic, which removes the nodes
+that cause the highest increase in the objective function (cost/distance).
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.destroy.worst import worst_removal
+    >>> routes, removed = worst_removal(routes, n_remove=5, dist_matrix=d)
+"""
+
 from typing import List, Tuple
 
 import numpy as np
@@ -7,10 +21,13 @@ def worst_removal(routes: List[List[int]], n_remove: int, dist_matrix: np.ndarra
     """
     Remove nodes that contribute most to the current routing cost.
 
+    Calculates the 'cost saving' of removing each node (detour cost) and
+    removes those with the highest savings (greedy approach).
+
     Args:
-        routes (List[List[int]]): Current routes.
-        n_remove (int): Number of nodes to remove.
-        dist_matrix (np.ndarray): Distance matrix.
+        routes: Current routes.
+        n_remove: Number of nodes to remove.
+        dist_matrix: Distance matrix.
 
     Returns:
         Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.

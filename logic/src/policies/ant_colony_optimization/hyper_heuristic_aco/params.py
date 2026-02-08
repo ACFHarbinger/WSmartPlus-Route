@@ -1,7 +1,16 @@
 """
-ACO Parameters module for Hyper-Heuristic ACO.
+Hyper-ACO Parameters Module.
 
-Defines hyperparameters for the Hyper-Heuristic Ant Colony Optimization algorithm.
+This module defines the configuration parameters for the Hyper-Heuristic
+Ant Colony Optimization algorithm. It uses a dataclass to store and validate
+hyperparameters.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.ant_colony_optimization.hyper_heuristic_aco.params import HyperACOParams
+    >>> params = HyperACOParams(n_ants=10, alpha=1.0)
 """
 
 from __future__ import annotations

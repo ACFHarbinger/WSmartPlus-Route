@@ -1,3 +1,11 @@
+"""spatial_mix_multi.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import spatial_mix_multi
+    """
 from typing import Tuple
 
 import torch
@@ -11,6 +19,11 @@ class Mix_Multi_Distributions:
     """Batch-wise sampling from multiple distribution variants."""
 
     def __init__(self):
+        """Initialize Class.
+
+        Args:
+            None.
+        """
         self.distributions = [
             (None, {}),
             (Cluster, {"n_cluster": 3}),
@@ -26,6 +39,14 @@ class Mix_Multi_Distributions:
         ]
 
     def sample(self, size: Tuple[int, int, int]) -> torch.Tensor:
+        """Sample.
+
+        Args:
+            size (Tuple[int, int, int]): Description of size.
+
+        Returns:
+            Any: Description of return value.
+        """
         batch_size, num_loc, _ = size
         coords = torch.zeros(batch_size, num_loc, 2)
         dist_indices = torch.randint(0, len(self.distributions), (batch_size,))

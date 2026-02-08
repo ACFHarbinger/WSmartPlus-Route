@@ -1,3 +1,17 @@
+"""
+Post-Processing Factory Module.
+
+This module implements the Factory pattern for creating post-processing operators.
+It handles the instantiation of post-processors based on configuration or names.
+
+Attributes:
+    PostProcessorFactory (class): The factory class.
+
+Example:
+    >>> from logic.src.policies.post_processing.factory import PostProcessorFactory
+    >>> processors = PostProcessorFactory.create_from_config(config)
+"""
+
 from typing import Any, List
 
 from logic.src.interfaces.post_processing import IPostProcessor

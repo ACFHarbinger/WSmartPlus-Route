@@ -1,3 +1,19 @@
+"""
+Sparse Pheromone Management Module.
+
+This module implements the sparse pheromone matrix used in K-Sparse ACO.
+It optimizes memory and access time by storing only the k-best neighbors
+for each node.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco.pheromones import SparsePheromoneTau
+    >>> pheromone = SparsePheromoneTau(n_nodes=100, k=25, tau_0=1.0, ...)
+    >>> val = pheromone.get(0, 1)
+"""
+
 from collections import defaultdict
 from typing import Dict
 
