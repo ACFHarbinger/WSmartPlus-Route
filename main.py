@@ -35,7 +35,7 @@ from logic.src.file_system import (
     update_file_system_entries,
 )
 from logic.test import PyTestRunner
-from omegaconf import OmegaConf
+from omegaconf import DictConfig, OmegaConf
 
 warnings.filterwarnings(
     "ignore",
@@ -146,12 +146,28 @@ def pretty_print_args(comm, opts, inner_comm=None):
         raise Exception(f"failed to pretty print arguments due to {repr(e)}")
 
 
-def pretty_print_hydra_config(cfg: Config) -> None:
-    """Pretty print the Hydra configuration in YAML format."""
+def pretty_print_hydra_config(cfg: DictConfig, filter_keys: list = None) -> None:
+    """
+    Pretty print filtered sections of the Hydra configuration.
+
+    Args:
+        cfg: The full Hydra configuration.
+        filter_keys: List of top-level keys to include (e.g., ["train", "model", "env"]).
+                     If None, prints the full config.
+    """
     print("\n" + "=" * 80)
     print("HYDRA CONFIGURATION".center(80))
     print("=" * 80)
-    print(OmegaConf.to_yaml(cfg, resolve=True))
+
+    # If filters are provided, create a subset of the config
+    if filter_keys:
+        # We use masked_copy to extract only the sections we care about
+        display_cfg = OmegaConf.masked_copy(cfg, filter_keys)
+    else:
+        display_cfg = cfg
+
+    # resolve=True ensures interpolations like ${model.lr} are shown as actual values
+    print(OmegaConf.to_yaml(display_cfg, resolve=True))
     print("=" * 80 + "\n")
 
 
@@ -283,11 +299,12 @@ def main_dispatch() -> None:
 @hydra.main(version_base=None, config_path="assets/configs", config_name="config")
 def hydra_entry_point(cfg: Config) -> float:
     """Unified entry point."""
-    if cfg.verbose:
-        pretty_print_hydra_config(cfg)
-
     if cfg.task == "train":
         from logic.src.pipeline.features.train import run_hpo, run_training
+
+        if cfg.verbose:
+            training_keys = ["env", "model", "train", "rl", "optim"]
+            pretty_print_hydra_config(cfg, filter_keys=training_keys)
 
         if cfg.hpo.n_trials > 0:
             return run_hpo(cfg)

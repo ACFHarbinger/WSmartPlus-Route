@@ -22,8 +22,10 @@ class EnvConfig:
     """
 
     name: str = "vrpp"
+    num_loc: int = 50
     min_loc: float = 0.0
     max_loc: float = 1.0
+    capacity: Optional[float] = None
     graph: GraphConfig = field(default_factory=GraphConfig)
     reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
     # Data distribution and generation

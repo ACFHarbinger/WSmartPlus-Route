@@ -3,7 +3,7 @@ Configuration dataclasses for WSmart-Route.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from .core import RLConfig
 from .envs import DataConfig, EnvConfig, GraphConfig, ObjectiveConfig
@@ -59,6 +59,7 @@ class Config:
     run_name: Optional[str] = None
     verbose: bool = True
     start: int = 0
+    callbacks: Dict[str, Any] = field(default_factory=dict)
 
 
 __all__ = [

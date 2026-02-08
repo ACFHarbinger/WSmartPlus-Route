@@ -97,7 +97,7 @@ uv run python main.py train \
     "env.num_loc=${SIZE}" \
     "env.area='${AREA}'" \
     "model.name='${MODEL}'" \
-    "model.encoder_type='${ENCODER}'" \
+    "model.encoder.type='${ENCODER}'" \
     "train.n_epochs=${EPOCHS}" \
     "train.batch_size=${B_SIZE}" \
     "train.final_model_path='${FINAL_MODEL_PATH}'" \

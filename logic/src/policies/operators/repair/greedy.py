@@ -12,7 +12,7 @@ Example:
     >>> routes = greedy_insertion(routes, removed, dist_matrix, demands, capacity)
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -23,6 +23,7 @@ def greedy_insertion(
     dist_matrix: np.ndarray,
     demands: Dict[int, float],
     capacity: float,
+    R: Optional[float] = None,
 ) -> List[List[int]]:
     """
     Insert removed nodes into their best (cheapest) positions greedily.
@@ -37,6 +38,7 @@ def greedy_insertion(
         dist_matrix: Distance matrix.
         demands: Demand look-up.
         capacity: Vehicle capacity.
+        R: Revenue multiplier (Optional). If provided, insertion is skipped if cost > revenue.
 
     Returns:
         List[List[int]]: New routes after insertion.
@@ -79,6 +81,12 @@ def greedy_insertion(
             best_cost = new_route_cost
             best_r_idx = len(routes)
             best_pos = 0
+
+        # VRPP Profit Check
+        if R is not None:
+            revenue = demand * R
+            if best_cost > revenue:
+                continue
 
         # Apply insertion
         if best_r_idx == len(routes):

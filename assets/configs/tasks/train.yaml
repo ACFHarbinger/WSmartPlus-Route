@@ -98,7 +98,7 @@ rl:
 
   # Imitation Learning
   imitation:
-    mode: "hgs" # Expert policy for IL. Options: hgs_alns, hgs, alns
+    mode: "hgs_alns" # Expert policy for IL. Options: hgs_alns, hgs, alns
     loss_fn: "nll" # Loss function. Options: nll (negative log-likelihood), mse
 
   # Adaptive Imitation Learning (IL → RL)
@@ -106,17 +106,15 @@ rl:
     il_weight: 1.0 # Initial imitation loss weight (1.0 = pure IL, 0.0 = pure RL)
     il_decay: 0.95 # IL weight decay per epoch (gradual transition to RL)
     patience: 5 # Epochs to wait before decaying IL weight if no improvement
-    threshold: 0.05 # Improvement threshold for patience trigger
+    threshold: 0.0001 # Improvement threshold (lowered from 0.05 due to small reward scale)
     decay_step: 1 # Step size for IL weight decay
-    epsilon: 0.00001 # Minimum IL weight (prevents complete IL shutdown)
+    epsilon: 1.0e-6 # Minimum IL weight (prevents complete IL shutdown)
 
 # =============================================================================
 # Model Settings (Defaults - Override with model=<config>)
 # =============================================================================
 model:
   name: "am" # Model architecture (overridden by model=<config> CLI arg)
-  encoder_type: "gat" # Graph encoder type
-  policy_config: "assets/configs/policy_hgs.yaml" # Expert policy config for IL
 
 # =============================================================================
 # Must-Go Selection Strategy

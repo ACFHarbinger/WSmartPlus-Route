@@ -15,15 +15,18 @@
 # =============================================================================
 
 env:
-  name: "cvrpp"  # Environment identifier
-  num_loc: 50  # Number of customer nodes. Standard sizes: 20, 50, 100, 200.
+  name: "cvrpp" # Environment identifier
+
+  graph:
+    num_loc: 50 # Number of customer nodes. Standard sizes: 20, 50, 100, 200.
 
   # =============================================================================
   # Capacity Constraint
   # =============================================================================
-  capacity: 1.0  # Normalized vehicle capacity.
-                 # Prize values typically sum to > capacity, forcing selective collection.
-                 # Range: 0.5-2.0. Higher = less constrained routing.
+  capacity:
+    100.0 # Normalized vehicle capacity.
+    # Prize values typically sum to > capacity, forcing selective collection.
+    # Range: 0.5-2.0. Higher = less constrained routing.
 
   # =============================================================================
   # Objective Function Weights
@@ -31,5 +34,7 @@ env:
   # Objective: maximize (prize_weight × Σ prizes) - (cost_weight × total_distance)
   # Subject to: vehicle capacity constraints
 
-  prize_weight: 1.0  # Weight for node prizes/rewards. Higher = prioritize high-value nodes.
-  cost_weight: 1.0  # Weight for travel distance. Higher = prioritize shorter routes.
+  reward:
+    cost_weight: 1.0 # Weight for travel distance. Higher = prioritize shorter routes.
+    waste_weight: 1.0 # Weight for waste collection. Higher = prioritize collecting more waste.
+    overflow_penalty: 1.0 # Penalty factor for overflows. Higher = penalize overflows more.
