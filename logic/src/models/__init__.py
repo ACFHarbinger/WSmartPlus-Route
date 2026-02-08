@@ -6,8 +6,6 @@ It includes a variety of neural architectures:
 Constructive Models (Autoregressive):
 -   `AttentionModel`: The standard Encoder-Decoder with Multi-Head Attention (Kool et al. 2019).
 -   `POMO`: Policy Optimization with Multiple Optima (Kwon et al. 2020) via `AttentionModel` configuration.
--   `HeterogeneousAttentionModel` (HAM): For problems with multiple node types (PDP).
--   `L2DModel`: Learning to Dispatch for Job Shop Scheduling (JSSP).
 -   `PtrNet`: Pointer Network (Vinyals et al. 2015).
 
 Iterative Improvement Models:
@@ -62,8 +60,6 @@ from .hypernet import (
 from .hypernet import (
     HyperNetworkOptimizer as HyperNetworkOptimizer,
 )
-from .l2d import L2DModel as L2DModel
-from .l2d import L2DPPOModel as L2DPPOModel
 from .matnet import MatNet as MatNet
 from .mdam import MDAM as MDAM
 from .moe import (
@@ -114,8 +110,6 @@ __all__ = [
     "DACT",
     "N2S",
     "NeuOpt",
-    "L2DModel",
-    "L2DPPOModel",
     "MoEAttentionModel",
     "MoETemporalAttentionModel",
     "PointerNetwork",

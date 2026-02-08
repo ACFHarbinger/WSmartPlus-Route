@@ -26,14 +26,14 @@ class LocalSearch(ABC):
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        waste: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
         params: Any,
     ):
         self.d = np.array(dist_matrix)
-        self.demands = demands
+        self.waste = waste
         self.Q = capacity
         self.R = R
         self.C = C
@@ -96,7 +96,7 @@ class LocalSearch(ABC):
                     break
 
     def _calc_load_fresh(self, r: List[int]) -> float:
-        return sum(self.demands.get(x, 0) for x in r)
+        return sum(self.waste.get(x, 0) for x in r)
 
     def _process_node(self, u: int) -> bool:
         u_loc = self.node_map.get(u)

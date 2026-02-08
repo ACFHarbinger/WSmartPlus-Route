@@ -5,7 +5,7 @@ import torch
 
 from logic.src.models.subnets.embeddings.matnet import MatNetInitEmbedding
 from logic.src.models.subnets.modules.matnet_attention import MixedScoreMHA
-from logic.src.models.policies.matnet import MatNetPolicy
+from logic.src.models.matnet.policy import MatNetPolicy
 from logic.src.models.subnets.encoders.matnet.encoder import MatNetEncoder
 
 

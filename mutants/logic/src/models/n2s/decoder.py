@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from logic.src.envs.base import RL4COEnvBase
 from tensordict import TensorDict
 
-from .common.improvement import ImprovementDecoder
+from ..common.improvement_decoder import ImprovementDecoder
 
 
 class N2SDecoder(ImprovementDecoder):

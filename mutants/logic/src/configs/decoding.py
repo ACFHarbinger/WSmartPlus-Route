@@ -1,6 +1,7 @@
 """
 Decoding Config module.
 """
+
 from dataclasses import dataclass
 from typing import Optional
 

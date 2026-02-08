@@ -8,7 +8,8 @@ from typing import Any, Optional
 
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.n2s import N2SPolicy
+
+from .policy import N2SPolicy
 
 
 class N2S(nn.Module):

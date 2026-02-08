@@ -6,7 +6,6 @@ interface for configuring and launching machine learning models and
 operations research solvers.
 """
 
-
 from PySide6.QtCore import QProcess
 from PySide6.QtWidgets import (
     QApplication,

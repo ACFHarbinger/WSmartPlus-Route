@@ -14,9 +14,10 @@ import scipy.special
 import torch
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.gfacs import GFACSPolicy
 from logic.src.utils.decoding import unbatchify
 from tensordict import TensorDict
+
+from .policy import GFACSPolicy
 
 
 class GFACS(nn.Module):

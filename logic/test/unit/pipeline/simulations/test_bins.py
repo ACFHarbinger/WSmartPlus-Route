@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from unittest.mock import MagicMock, patch
 from logic.src.pipeline.simulations.bins import Bins
+from logic.src.pipeline.simulations.bins.prediction import predict_days_to_overflow
 
 
 class TestBinsStats:
@@ -114,8 +115,6 @@ class TestBinsPrediction:
 
     def test_predict_days_math(self, tmp_path, mock_bins_params_loader):
         """Test the mathematical correctness of prediction."""
-        # Use shared fixture to mock loader
-        bins = Bins(n=1, data_dir=str(tmp_path), sample_dist="gamma", area="test", waste_type="test")
 
         # Case: Mean=10, Std=1 (Low variance), Capacity=0 (Empty)
         # Should take ~10 days to reach 100%
@@ -124,6 +123,6 @@ class TestBinsPrediction:
         f = np.array([0.0])
         cl = 0.5 # median prediction
 
-        days = bins._predictdaystooverflow(ui, vi, f, cl)
+        days = predict_days_to_overflow(ui, vi, f, cl)
 
         assert 8 <= days[0] <= 12

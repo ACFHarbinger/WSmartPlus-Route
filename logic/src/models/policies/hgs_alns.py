@@ -103,9 +103,9 @@ class VectorizedHGSALNS(VectorizedHGS):
         depot = td["depot"].unsqueeze(1)  # (batch, 1, 2)
         locs = torch.cat([depot, customers], dim=1)  # (batch, num_nodes + 1, 2)
 
-        prizes = td.get("prize", torch.zeros(batch_size, locs.shape[1] - 1, device=device))
-        demands_at_nodes = td.get("demand", prizes)
-        demands = torch.cat([torch.zeros(batch_size, 1, device=device), demands_at_nodes], dim=1)
+        # Extract waste (demands)
+        waste_at_nodes = td.get("waste", torch.zeros(batch_size, locs.shape[1] - 1, device=device))
+        waste = torch.cat([torch.zeros(batch_size, 1, device=device), waste_at_nodes], dim=1)
         capacity = td.get("capacity", torch.ones(batch_size, device=device) * 10.0)
 
         # Compute Euclidean distance matrix if locations provided
@@ -115,7 +115,7 @@ class VectorizedHGSALNS(VectorizedHGS):
         else:
             dist_matrix = locs
 
-        R = getattr(env, "prize_weight", 1.0)
+        R = getattr(env, "waste_weight", 1.0)
         C = getattr(env, "cost_weight", 1.0)
 
         from joblib import Parallel, delayed
@@ -124,7 +124,7 @@ class VectorizedHGSALNS(VectorizedHGS):
         results: list[tuple[list[list[int]], float, float]] = Parallel(n_jobs=-1)(
             delayed(self.solve)(
                 dist_matrix=dist_matrix[b],
-                demands=demands[b],
+                demands=waste[b],
                 capacity=capacity[b].item() if isinstance(capacity, torch.Tensor) else capacity,
                 R=R,
                 C=C,

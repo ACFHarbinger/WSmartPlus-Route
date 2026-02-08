@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from ....utils.data.network_utils import apply_edges, get_paths_between_states
+from ....utils.graph.network_utils import apply_edges, get_paths_between_states
 from ..network import compute_distance_matrix
 from ..repository import load_depot, load_simulator_data
 from .formatting import format_coordinates

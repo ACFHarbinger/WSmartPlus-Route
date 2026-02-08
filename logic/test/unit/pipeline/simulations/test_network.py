@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from logic.src.utils.data.network_utils import apply_edges, get_paths_between_states
+from logic.src.utils.graph.network_utils import apply_edges, get_paths_between_states
 from logic.src.pipeline.simulations.network import (
     EuclideanStrategy,
     GeodesicStrategy,

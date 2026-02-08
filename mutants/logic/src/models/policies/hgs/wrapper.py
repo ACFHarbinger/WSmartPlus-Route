@@ -9,7 +9,7 @@ from typing import Any
 import torch
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.improvement import ImprovementPolicy
+from logic.src.models.common.improvement_policy import ImprovementPolicy
 from tensordict import TensorDict
 
 from ..hybrid_genetic_search import VectorizedHGS as VectorizedHGSEngine

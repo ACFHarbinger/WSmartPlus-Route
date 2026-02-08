@@ -2,9 +2,9 @@ from typing import Tuple
 
 import torch
 
-from .cluster import Cluster
-from .gaussian_mixture import Gaussian_Mixture
-from .mixed import Mixed
+from .spatial_cluster import Cluster
+from .spatial_gaussian_mixture import Gaussian_Mixture
+from .spatial_mixed import Mixed
 
 
 class Mix_Multi_Distributions:

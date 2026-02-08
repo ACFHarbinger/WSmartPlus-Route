@@ -17,8 +17,8 @@ def move_swap_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -
     Returns:
         bool: True if the swap was applied (improving), False otherwise.
     """
-    dem_u = ls.demands.get(u, 0)
-    dem_v = ls.demands.get(v, 0)
+    waste_u = ls.waste.get(u, 0)
+    waste_v = ls.waste.get(v, 0)
 
     route_u = ls.routes[r_u]
     route_v = ls.routes[r_v]
@@ -33,7 +33,7 @@ def move_swap_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -
 
     temp_rv = route_v[:]
     temp_rv.pop(p_v)
-    if ls._calc_load_fresh(temp_rv) + dem_u > ls.Q:
+    if ls._calc_load_fresh(temp_rv) + waste_u > ls.Q:
         return False
 
     best_delta_u = float("inf")
@@ -49,7 +49,7 @@ def move_swap_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -
 
     temp_ru = route_u[:]
     temp_ru.pop(p_u)
-    if ls._calc_load_fresh(temp_ru) + dem_v > ls.Q:
+    if ls._calc_load_fresh(temp_ru) + waste_v > ls.Q:
         return False
 
     best_delta_v = float("inf")

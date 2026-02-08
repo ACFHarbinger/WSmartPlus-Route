@@ -186,7 +186,7 @@ def test_get_simulator_data_both(mock_read_csv, mock_read_excel, tmp_path):
 
 def test_wrapper_functions(mocker):
     """Test top-level wrapper functions call the repository."""
-    mock_repo = mocker.patch("logic.src.pipeline.simulations.loader._repository")
+    mock_repo = mocker.patch("logic.src.pipeline.simulations.repository._repository")
 
     load_indices("test.json", 1, 1, 1)
     mock_repo.get_indices.assert_called()

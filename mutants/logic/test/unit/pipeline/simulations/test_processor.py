@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import torch
-from logic.src.pipeline.simulations.processor import SimulationDataMapper
+from logic.src.pipeline.simulations.processor import SimulationDataMapper, format_coordinates
 
 
 class TestSimulationDataMapper:
@@ -54,7 +54,7 @@ class TestSimulationDataMapper:
         coords = pd.DataFrame({"Lat": [0.0, 10.0, 20.0, 30.0], "Lng": [0.0, 10.0, 20.0, 30.0]})
 
         # 1. MMN (Min-Max)
-        depot, loc = mapper.format_coordinates(coords, "mmn")
+        depot, loc = format_coordinates(coords, "mmn")
         assert depot.shape == (2,)
         assert loc.shape == (3, 2)
         # 0 is min, 30 is max.
@@ -64,28 +64,28 @@ class TestSimulationDataMapper:
         assert np.allclose(loc[-1], [1, 1])
 
         # 2. MUN (Mean)
-        depot, loc = mapper.format_coordinates(coords, "mun")
+        depot, loc = format_coordinates(coords, "mun")
         # Mean is 15. Min 0, Max 30.
         # (0 - 15) / 30 = -0.5
         assert np.allclose(depot, [-0.5, -0.5])
 
         # 3. SMSD (Standardization)
         # std of [0, 10, 20, 30] is ~11.18
-        depot, loc = mapper.format_coordinates(coords, "smsd")
+        depot, loc = format_coordinates(coords, "smsd")
         assert depot.shape == (2,)
 
         # 4. WMP (Web Mercator)
-        depot, loc = mapper.format_coordinates(coords, "wmp")
+        depot, loc = format_coordinates(coords, "wmp")
         # Should transform lat/lng. loc[0] was (10,10), should be large number.
         assert not np.allclose(loc[0], [10.0, 10.0])
 
         # 5. C3D (3D Cartesian)
-        depot, loc = mapper.format_coordinates(coords, "c3d")
+        depot, loc = format_coordinates(coords, "c3d")
         assert depot.shape == (3,)  # x, y, z
         assert loc.shape == (3, 3)
 
         # 6. S4D (4D Spherical)
-        depot, loc = mapper.format_coordinates(coords, "s4d")
+        depot, loc = format_coordinates(coords, "s4d")
         assert depot.shape == (4,)
         assert loc.shape == (3, 4)
 
@@ -98,7 +98,7 @@ class TestSimulationDataMapper:
         coords[0, :, 1] = [0.0, 10.0, 20.0, 30.0]
 
         # MMN
-        depot, loc = mapper.format_coordinates(coords, "mmn")
+        depot, loc = format_coordinates(coords, "mmn")
         # Output for numpy path: depot (B, 2), loc (B, N-1, 2) assuming node 0 is depot
         assert depot.shape == (1, 2)
         assert loc.shape == (1, 3, 2)
@@ -145,7 +145,7 @@ class TestSimulationDataMapper:
             "logic.src.utils.data.data_utils.load_area_and_waste_type_params", return_value=(100, 1, 1, 1, 1)
         ):
             # KNN edges
-            with patch("logic.src.pipeline.simulations.processor.get_adj_knn", return_value=np.ones((1, 1))):
+            with patch("logic.src.pipeline.simulations.processor.mapper.get_adj_knn", return_value=np.ones((1, 1))):
                 data, (edges, dm), profit = mapper.process_model_input(
                     coords,
                     dist_matrix,

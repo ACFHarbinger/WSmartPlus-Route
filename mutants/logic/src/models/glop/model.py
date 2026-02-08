@@ -11,9 +11,10 @@ from typing import Any, Dict, Optional
 import torch
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.glop import GLOPPolicy
 from logic.src.utils.decoding import unbatchify
 from tensordict import TensorDict
+
+from .policy import GLOPPolicy
 
 
 class GLOP(nn.Module):

@@ -93,17 +93,17 @@ class TestSimulationContext:
         assert ctx.current_state is None
 
 class TestInitializingState:
-    @patch("logic.src.pipeline.simulations.states.setup_basedata")
-    @patch("logic.src.pipeline.simulations.states.process_data")
-    @patch("logic.src.pipeline.simulations.states.setup_dist_path_tup")
-    @patch("logic.src.pipeline.simulations.states.Bins")
-    @patch("logic.src.pipeline.simulations.states.SimulationCheckpoint")
-    @patch("logic.src.pipeline.simulations.states.setup_model")
-    @patch("logic.src.pipeline.simulations.states.load_config")
-    @patch("logic.src.pipeline.simulations.states.os.path.exists")
-    @patch("logic.src.pipeline.simulations.states.os.makedirs")
-    @patch("logic.src.pipeline.simulations.states.setup_hrl_manager")
-    @patch("logic.src.pipeline.simulations.states.process_model_data")
+    @patch("logic.src.pipeline.simulations.states.initializing.setup_basedata")
+    @patch("logic.src.pipeline.simulations.states.initializing.process_data")
+    @patch("logic.src.pipeline.simulations.states.initializing.setup_dist_path_tup")
+    @patch("logic.src.pipeline.simulations.states.initializing.Bins")
+    @patch("logic.src.pipeline.simulations.states.initializing.SimulationCheckpoint")
+    @patch("logic.src.pipeline.simulations.states.initializing.setup_model")
+    @patch("logic.src.pipeline.simulations.states.initializing.load_config")
+    @patch("logic.src.pipeline.simulations.states.initializing.os.path.exists")
+    @patch("logic.src.pipeline.simulations.states.initializing.os.makedirs")
+    @patch("logic.src.pipeline.simulations.states.initializing.setup_hrl_manager")
+    @patch("logic.src.pipeline.simulations.states.initializing.process_model_data")
     def test_initializing_handle_am(self, mock_model_data, mock_hrl, mock_makedirs, mock_exists, mock_load_cfg, mock_setup_model, mock_checkpoint, mock_bins, mock_dist, mock_proc, mock_base, mock_opts, ctx_vars, tmp_path):
         mock_opts["output_dir"] = str(tmp_path)
         ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
@@ -125,15 +125,15 @@ class TestInitializingState:
         mock_makedirs.assert_called()
 
 
-    @patch("logic.src.pipeline.simulations.states.setup_env")
-    @patch("logic.src.pipeline.simulations.states.setup_basedata")
-    @patch("logic.src.pipeline.simulations.states.process_data")
-    @patch("logic.src.pipeline.simulations.states.setup_dist_path_tup")
-    @patch("logic.src.pipeline.simulations.states.Bins")
-    @patch("logic.src.pipeline.simulations.states.SimulationCheckpoint")
+    @patch("logic.src.pipeline.simulations.states.initializing.setup_env")
+    @patch("logic.src.pipeline.simulations.states.initializing.setup_basedata")
+    @patch("logic.src.pipeline.simulations.states.initializing.process_data")
+    @patch("logic.src.pipeline.simulations.states.initializing.setup_dist_path_tup")
+    @patch("logic.src.pipeline.simulations.states.initializing.Bins")
+    @patch("logic.src.pipeline.simulations.states.initializing.SimulationCheckpoint")
     @patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params")
-    @patch("logic.src.pipeline.simulations.states.os.path.exists")
-    @patch("logic.src.pipeline.simulations.states.os.makedirs")
+    @patch("logic.src.pipeline.simulations.states.initializing.os.path.exists")
+    @patch("logic.src.pipeline.simulations.states.initializing.os.makedirs")
     def test_initializing_handle_vrpp(self, mock_makedirs, mock_exists, mock_area_params, mock_checkpoint, mock_bins, mock_dist, mock_proc, mock_base, mock_setup_env, mock_opts, ctx_vars, tmp_path):
         mock_opts["output_dir"] = str(tmp_path)
         mock_opts["policies"] = ["vrpp_gurobi_dirichlet"]
@@ -153,11 +153,11 @@ class TestInitializingState:
         assert ctx.pol_name == "vrpp"
         assert ctx.pol_engine == "gurobi"
 
-    @patch("logic.src.pipeline.simulations.states.setup_basedata")
-    @patch("logic.src.pipeline.simulations.states.Bins")
-    @patch("logic.src.pipeline.simulations.states.SimulationCheckpoint")
-    @patch("logic.src.pipeline.simulations.states.os.path.exists")
-    @patch("logic.src.pipeline.simulations.states.os.makedirs")
+    @patch("logic.src.pipeline.simulations.states.initializing.setup_basedata")
+    @patch("logic.src.pipeline.simulations.states.initializing.Bins")
+    @patch("logic.src.pipeline.simulations.states.initializing.SimulationCheckpoint")
+    @patch("logic.src.pipeline.simulations.states.initializing.os.path.exists")
+    @patch("logic.src.pipeline.simulations.states.initializing.os.makedirs")
     def test_initializing_handle_resume(self, mock_makedirs, mock_exists, mock_checkpoint, mock_bins, mock_base, mock_opts, ctx_vars, tmp_path):
         # Use a simple policy that doesn't need setup_model
         mock_opts["policies"] = ["regular_dirichlet"]
@@ -180,8 +180,8 @@ class TestInitializingState:
         assert isinstance(ctx.current_state, RunningState)
 
 class TestRunningState:
-    @patch("logic.src.pipeline.simulations.states.run_day")
-    @patch("logic.src.pipeline.simulations.states.checkpoint_manager")
+    @patch("logic.src.pipeline.simulations.states.running.run_day")
+    @patch("logic.src.pipeline.simulations.states.running.checkpoint_manager")
     def test_running_handle(self, mock_cp_manager, mock_run_day, mock_opts, ctx_vars):
         ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
         ctx.bins = MagicMock()
@@ -211,7 +211,7 @@ class TestRunningState:
         assert isinstance(ctx.current_state, FinishingState)
         assert mock_run_day.call_count == mock_opts["days"]
 
-    @patch("logic.src.pipeline.simulations.states.checkpoint_manager")
+    @patch("logic.src.pipeline.simulations.states.running.checkpoint_manager")
     def test_running_handle_checkpoint_error(self, mock_cp_manager, mock_opts, ctx_vars):
         ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
         ctx.checkpoint = MagicMock()
@@ -227,8 +227,8 @@ class TestRunningState:
         assert ctx.current_state is None
 
 class TestFinishingState:
-    @patch("logic.src.pipeline.simulations.states.log_to_json")
-    @patch("logic.src.pipeline.simulations.states.save_matrix_to_excel")
+    @patch("logic.src.pipeline.simulations.states.finishing.log_to_json")
+    @patch("logic.src.pipeline.simulations.states.finishing.save_matrix_to_excel")
     def test_finishing_handle(self, mock_excel, mock_log_json, mock_opts, ctx_vars):
         ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
         ctx.bins = MagicMock()

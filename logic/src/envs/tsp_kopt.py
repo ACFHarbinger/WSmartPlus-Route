@@ -101,7 +101,7 @@ class TSPkoptEnv(ImprovementEnvBase):
         locs = torch.cat([depot.unsqueeze(1), customers], dim=1)
 
         # Gather coordinates in tour order
-        d = locs.gather(1, solution[:, None].expand(*solution.size(), 2))
+        d = locs.gather(1, solution.unsqueeze(-1).expand(-1, -1, 2))
 
         # Total distance: sum segments + closed loop
         length = (d[:, 1:] - d[:, :-1]).norm(p=2, dim=-1).sum(1) + (d[:, -1] - d[:, 0]).norm(p=2, dim=-1)

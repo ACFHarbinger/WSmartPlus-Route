@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import numpy as np
 import torch
-from logic.src.models.policies.classical.local_search import (
+from logic.src.models.policies.local_search import (
     vectorized_two_opt,
 )
 from logic.src.policies.single_vehicle import (

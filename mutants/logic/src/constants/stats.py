@@ -1,6 +1,7 @@
 """
 Statistical functions and constants.
 """
+
 import statistics
 from typing import Any, Callable, Dict
 

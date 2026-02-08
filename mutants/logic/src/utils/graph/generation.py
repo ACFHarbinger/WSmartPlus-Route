@@ -93,7 +93,10 @@ def get_edge_idx_dist(
                 selected = edges.T
             return selected[np.lexsort((selected[:, 1], selected[:, 0]))].T
         else:
-            sorted_dist = np.sort(dist_matrix.flatten())
+            # Mask diagonals to exclude them from edge count
+            temp_dist = dist_matrix.copy()
+            np.fill_diagonal(temp_dist, np.inf)
+            sorted_dist = np.sort(temp_dist.flatten())
             thresh = sorted_dist[num_edges - 1]
             adj_matrix = (dist_matrix <= thresh).astype(int)
 

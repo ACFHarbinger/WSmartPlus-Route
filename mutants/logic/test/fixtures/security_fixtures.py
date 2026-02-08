@@ -22,7 +22,7 @@ def mock_crypto_env():
 @pytest.fixture
 def mock_crypto_dotenv():
     """Mock dotenv_values for crypto tests."""
-    with patch("logic.src.utils.security.dotenv_values") as mock:
+    with patch("logic.src.utils.security.keys.dotenv_values") as mock:
         mock.return_value = {
             "KEY_PASSWORD": "test_password",
             "SALT_SIZE": "16",

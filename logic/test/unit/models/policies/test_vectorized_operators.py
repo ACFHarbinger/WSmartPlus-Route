@@ -41,7 +41,7 @@ def test_vectorized_worst_removal(data):
     n_remove = 5
     B, N_total = tours.shape
 
-    new_tours, removed = vectorized_worst_removal(tours, n_remove, dist_matrix)
+    new_tours, removed = vectorized_worst_removal(tours, dist_matrix, n_remove)
 
     assert new_tours.shape == (B, N_total - n_remove)
     assert removed.shape == (B, n_remove)

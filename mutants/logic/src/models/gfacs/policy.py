@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional
 import torch
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.deepaco import DeepACOPolicy
+from logic.src.models.deepaco import DeepACOPolicy
 from logic.src.models.subnets.decoders.deepaco import ACODecoder
 from logic.src.models.subnets.encoders.gfacs.encoder import GFACSEncoder
 from tensordict import TensorDict

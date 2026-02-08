@@ -105,7 +105,7 @@ class BaseProblem:
         Initializes a TensorDict from the input and returns a state wrapper.
         """
         from logic.src.envs import get_env
-        from logic.src.utils.data.td_utils import TensorDictStateWrapper
+        from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
 
         env_name = cls.NAME
 
@@ -113,14 +113,13 @@ class BaseProblem:
             # Determine batch size from typical batched tensors
             bs = 1
             device = torch.device("cpu")
-            for k in ["loc", "locs", "waste", "prize", "demand"]:
+            for k in ["loc", "locs", "waste"]:
                 if k in input_data and torch.is_tensor(input_data[k]):
                     bs = input_data[k].size(0)
                     device = input_data[k].device
                     break
 
             # Initialize environment (lazy loading or re-use could be better but this is safe)
-            # We pass any extra args like cost weights if needed, though get_reward handles it usually
             env = get_env(env_name, batch_size=torch.Size([bs]), device=device)
 
             # Create TensorDict, unsqueezing non-batched tensors if needed
@@ -131,31 +130,15 @@ class BaseProblem:
                     target_key = k
                     if k == "loc":
                         target_key = "locs"
-                    elif k == "waste":
-                        # In new RL4CO envs: VRPP uses 'prize', WCVRP uses 'demand'
-                        # But CVRPP needs both prize (reward) and demand (capacity)
-                        if env_name in ["vrpp", "cvrpp"]:
-                            target_key = "prize"
-                            if env_name == "cvrpp":
-                                # Also set demand (must match prize/locs shape later)
-                                if v.dim() >= 1 and v.size(0) == bs:
-                                    td_data["demand"] = v
-                                elif v.dim() >= 2:
-                                    td_data["demand"] = v.unsqueeze(0).expand(bs, *([-1] * v.dim()))
-                                else:
-                                    td_data["demand"] = (
-                                        v.expand(bs, *([-1] * v.dim())) if v.dim() > 0 else v.unsqueeze(0).expand(bs)
-                                    )
-                                # Prepend will happen later in the locs concatenation block
-                        else:
-                            target_key = "demand"
+                    # Map prize and demand to waste
+                    if k in ["prize", "demand"]:
+                        target_key = "waste"
 
                     if v.dim() >= 1 and v.size(0) == bs:
                         td_data[target_key] = v
-                    elif v.dim() >= 2:  # Potentially a shared matrix like 'dist'
+                    elif v.dim() >= 2:
                         td_data[target_key] = v.unsqueeze(0).expand(bs, *([-1] * v.dim()))
                     else:
-                        # Scalar or weird shape, try to expand
                         td_data[target_key] = (
                             v.expand(bs, *([-1] * v.dim())) if v.dim() > 0 else v.unsqueeze(0).expand(bs)
                         )
@@ -168,11 +151,10 @@ class BaseProblem:
             bs = td.batch_size[0] if len(td.batch_size) > 0 else 1
             env = get_env(env_name, batch_size=torch.Size([bs]), device=td.device)
         else:
-            # Fallback for weird cases
             td = TensorDict({}, batch_size=[1])
             env = get_env(env_name, batch_size=torch.Size([1]))
 
-        # Ensure 'dist' and 'edges' are present and correctly shaped
+        # Ensure 'dist' and 'edges' are present
         if "dist" not in td.keys() and dist_matrix is not None:
             if dist_matrix.dim() == 2:
                 td["dist"] = dist_matrix.unsqueeze(0).expand(td.batch_size[0], -1, -1)
@@ -184,83 +166,25 @@ class BaseProblem:
             else:
                 td["edges"] = edges
 
-        # Consolidate 'locs' logic: usually we concatenate depot and nodes
-        # If we have both 'locs' (customers) and 'depot', we must concatenate them to form the full graph for the environment
-        if "depot" in td.keys() and "locs" in td.keys():
-            depot = td["depot"]
-            locs = td["locs"]
-
-            # Check if locs likely excludes depot (e.g., simpler dimension check or if it matches raw 'loc' size)
-            # We assume if separate depot is provided, locs usually contains just customers (standard VRP lib format)
-            # To be safe, we check tensor dimensions.
-            # depot: (B, 2) or (B, 1, 2). locs: (B, N, 2).
-            # If we align them:
-            if depot.dim() == locs.dim() and depot.dim() == 3:
-                pass  # shapes match (B, 1, 2) and (B, N, 2)
-            elif depot.dim() == 2 and locs.dim() == 3:
-                depot = depot.unsqueeze(1)
-
-            # Now depot is (B, 1, 2). locs is (B, N, 2).
-            # If N=100 (customers). We want 101.
-            # If locs was 101, it might already include depot.
-            # But the simulation passed 'loc' which was mapped to 'locs'. And simulation 'loc' excludes depot.
-            # So we ALWAYS concatenate if we came from that path.
-            # We can rely on the fact that we just created TD from input_data.
-
-            # Update locs
-            td["locs"] = torch.cat([depot, locs], dim=1)
-
-            # Update demand/prize
-            target_key = "prize" if env_name in ["vrpp", "cvrpp"] else "demand"
-            if target_key in td.keys():
-                dem = td[target_key]
-                # Prepend 0 for depot
-                zero_dem = torch.zeros(td.batch_size[0], 1, device=td.device)
-                td[target_key] = torch.cat([zero_dem, dem], dim=1)
-
-            # For CVRPP, we might have both
-            if env_name == "cvrpp" and "demand" in td.keys() and td["demand"].size(1) == locs.size(1):
-                dem = td["demand"]
-                zero_dem = torch.zeros(td.batch_size[0], 1, device=td.device)
-                td["demand"] = torch.cat([zero_dem, dem], dim=1)
-
-            # Handle max_waste consistency
-            if "max_waste" in td.keys() and torch.is_tensor(td["max_waste"]):
-                mw = td["max_waste"]
-                # If mw is (B, N_customers), prepend a dummy for depot (usually doesn't matter for depot)
-                if mw.dim() > 1 and mw.size(1) == locs.size(1):  # locs is still customer-only here
-                    zero_mw = torch.zeros(td.batch_size[0], 1, device=td.device)
-                    td["max_waste"] = torch.cat([zero_mw, mw], dim=1)
-
-        # Final check for environment-specific required keys
+        # Consolidate 'locs' logic:
+        # We NO LONGER concatenate depot and locs here, as modern envs handle it in reset() or step()
+        # and AttentionModel's context embedder also handles separate depot/locs.
         if "locs" not in td.keys() and "loc" in td.keys():
             td["locs"] = td["loc"]
 
+        # Final check for environment-specific required keys
         # Handle must_go mask for selective routing
-        # must_go: (B, N) boolean tensor where True = must visit this bin
-        if "must_go" in td.keys() and "locs" in td.keys():
-            must_go = td["must_go"]
-            td_locs = td["locs"]
-            # Ensure must_go includes depot (should always be False for depot)
-            # If must_go has fewer nodes than locs, it was provided without depot
-            if must_go is not None and must_go.size(1) < td_locs.size(1):
-                # Prepend False for depot
-                depot_must_go = torch.zeros(td.batch_size[0], 1, dtype=torch.bool, device=td.device)
-                td["must_go"] = torch.cat([depot_must_go, must_go], dim=1)
+        if "must_go" in td.keys():
+            pass
 
         # Ensure capacity is present
         if "capacity" not in td.keys():
-            # Try to get from profit_vars (simulation) or kwargs
             profit_vars = kwargs.get("profit_vars")
             if profit_vars and "vehicle_capacity" in profit_vars:
-                # WCVRP uses 'capacity'
                 td["capacity"] = torch.full((td.batch_size[0],), profit_vars["vehicle_capacity"], device=td.device)
             elif "vehicle_capacity" in kwargs:
                 td["capacity"] = torch.full((td.batch_size[0],), kwargs["vehicle_capacity"], device=td.device)
             else:
-                # Default capacity if not provided (e.g. VRPP might not strictly need it for env init but WCVRP does)
-                # For WCVRP, we usually normalize demand so capacity is 1.0, but simulation might use real values (e.g. 70, 100)
-                # If we don't have it, we default to 1.0 (assuming normalized)
                 if env_name in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
                     td["capacity"] = torch.ones(td.batch_size[0], device=td.device)
 

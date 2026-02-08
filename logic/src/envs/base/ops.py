@@ -132,7 +132,7 @@ class OpsMixin:
         Create a state wrapper for the environment.
         This provides the API expected by the constructive decoders.
         """
-        from logic.src.utils.data.td_utils import TensorDictStateWrapper
+        from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
 
         # If nodes is not already initialized (missing 'current_node' etc), reset it
         td = nodes

@@ -20,6 +20,6 @@ class SDWCVRPEnv(WCVRPEnv):
         # Simulate fill rate increase for unvisited bins
         if "fill_rates" in td.keys():
             fill_increase = td["fill_rates"] * (~td["visited"]).float()
-            td["demand"] = (td["demand"] + fill_increase).clamp(max=1.0)
+            td["waste"] = (td["waste"] + fill_increase).clamp(max=1.0)
 
         return td

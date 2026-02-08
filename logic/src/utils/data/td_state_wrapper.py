@@ -33,9 +33,8 @@ class TensorDictStateWrapper:
         # Expose common properties directly
         self.dist_matrix = td.get("dist", None)
 
-        # Handle 'demands_with_depot' for WCVRP partial updates
-        if "demand" in td.keys():
-            self.demands_with_depot = td["demand"]
+        # Handle 'demands_with_depot' for WCVRP partial updates (now standardized to 'waste')
+        self.demands_with_depot = td.get("waste")
 
     def get_mask(self) -> Optional[torch.Tensor]:
         """Get action mask from TensorDict."""
@@ -58,9 +57,9 @@ class TensorDictStateWrapper:
         return self.td["current_node"].long()
 
     def get_current_profit(self) -> torch.Tensor:
-        """For VRPP: get cumulative collected prize."""
+        """For VRPP: get cumulative collected waste."""
         # This is used for context embedding.
-        val = self.td.get("collected_prize", torch.zeros(self.td.batch_size, device=self.td.device))
+        val = self.td.get("collected_waste", torch.zeros(self.td.batch_size, device=self.td.device))
         if val.dim() == 1:
             val = val.unsqueeze(-1)
         return val

@@ -7,8 +7,10 @@ from __future__ import annotations
 from typing import Any, Dict, Optional, cast
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.nonautoregressive import (
+from logic.src.models.common.nonautoregressive_encoder import (
     NonAutoregressiveEncoder,
+)
+from logic.src.models.common.nonautoregressive_policy import (
     NonAutoregressivePolicy,
 )
 from logic.src.models.subnets.decoders.deepaco import ACODecoder

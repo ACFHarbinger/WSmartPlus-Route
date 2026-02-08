@@ -12,7 +12,7 @@ from logic.src.models.subnets.embeddings import (
     ContextEmbedder,
     GenericContextEmbedder,
     VRPPContextEmbedder,
-    WCContextEmbedder,
+    WCVRPContextEmbedder,
 )
 from logic.src.models.subnets.factories import NeuralComponentFactory
 from logic.src.utils.functions.problem import is_tsp_problem, is_vrpp_problem, is_wc_problem
@@ -56,7 +56,7 @@ class SetupMixin:
         if is_vrpp_problem(self.problem):
             self.context_embedder = VRPPContextEmbedder(self.embed_dim, temporal_horizon=self.temporal_horizon)
         elif is_wc_problem(self.problem):
-            self.context_embedder = WCContextEmbedder(self.embed_dim, temporal_horizon=self.temporal_horizon)
+            self.context_embedder = WCVRPContextEmbedder(self.embed_dim, temporal_horizon=self.temporal_horizon)
         else:
             node_dim = 2 if is_tsp_problem(self.problem) else NODE_DIM
             self.context_embedder = GenericContextEmbedder(

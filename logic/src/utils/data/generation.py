@@ -58,25 +58,27 @@ def _get_fill_gamma(dataset_size: int, problem_size: int, gamma_option: int) -> 
     return np.random.gamma(k, th, size=(dataset_size, problem_size)) / 100.0
 
 
-def generate_waste_prize(
+def generate_waste(
     problem_size: int,
     distribution: str,
     graph: Tuple[Any, Any],
     dataset_size: int = 1,
     bins: Optional[Any] = None,
+    **kwargs,
 ) -> Union[np.ndarray, Any]:  # typed Any to avoid torch dependency here if possible, but callers expect tensor/array
     """
-    Generates waste or prize values based on a distribution or empirical data.
+    Generates waste values based on a distribution or empirical data.
 
     Args:
         problem_size: Number of nodes/bins.
-        distribution: Distribution type ('empty', 'const', 'unif', 'gammaX', 'emp', 'dist').
+        distribution: Distribution type ('empty', 'const', 'unif', 'gammaX', 'emp', 'dist', 'beta').
         graph: (depot, loc) coordinates.
         dataset_size: Number of datasets to generate. Defaults to 1.
         bins: Bins object for empirical sampling.
+        **kwargs: Additional parameters (e.g., alpha, beta for beta distribution).
 
     Returns:
-        Generated waste/prizes.
+        Generated waste values.
     """
     if distribution == "empty":
         wp: Any = np.zeros(shape=(dataset_size, problem_size))
@@ -85,8 +87,18 @@ def generate_waste_prize(
     elif distribution in ["unif", "uniform"]:
         wp = (1 + np.random.randint(0, 100, size=(dataset_size, problem_size))) / 100.0
     elif "gamma" in distribution:
-        gamma_option = int(distribution[-1]) - 1
+        try:
+            # Handle gamma, gamma1, gamma2...
+            digit = "".join([c for c in distribution if c.isdigit()])
+            gamma_option = int(digit) - 1 if digit else 0
+        except ValueError:
+            gamma_option = 0
         wp = _get_fill_gamma(dataset_size, problem_size, gamma_option)
+    elif "beta" in distribution:
+        # Default beta(0.5, 0.5) if not in kwargs
+        alpha = kwargs.get("alpha", 0.5)
+        beta_p = kwargs.get("beta", 0.5)
+        wp = np.random.beta(alpha, beta_p, size=(dataset_size, problem_size))
     elif "emp" in distribution:
         if bins is None:
             raise ValueError("bins must be provided for empirical distribution")

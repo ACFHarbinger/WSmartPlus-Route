@@ -1,6 +1,7 @@
 """
 WCVRP Embedding module.
 """
+
 from __future__ import annotations
 
 import torch
@@ -34,7 +35,10 @@ class WCVRPInitEmbedding(nn.Module):
             Embeddings tensor [batch, num_nodes, embed_dim].
         """
         locs = td["locs"]
-        demand = td["demand"]  # Fill levels
+        demand = td.get("waste", td.get("demand"))  # Fill levels
+
+        if demand is None:
+            demand = torch.zeros(td.batch_size[0], locs.size(1), device=td.device)
 
         node_features = torch.cat([locs, demand.unsqueeze(-1)], dim=-1)
         embeddings = self.node_embed(node_features)

@@ -25,9 +25,9 @@ def test_simulator_testing_single_core():
     device = torch.device("cpu")
 
     # Mock dependencies
-    with patch("logic.src.pipeline.features.test.sequential_simulations") as mock_seq, patch(
-        "logic.src.pipeline.features.test.send_final_output_to_gui"
-    ), patch("logic.src.pipeline.features.test.display_log_metrics"):
+    with patch("logic.src.pipeline.features.test.orchestrator.sequential_simulations") as mock_seq, patch(
+        "logic.src.pipeline.features.test.orchestrator.send_final_output_to_gui"
+    ), patch("logic.src.pipeline.features.test.orchestrator.display_log_metrics"):
         mock_seq.return_value = ({"policy1": [0.5]}, None, [])
 
         simulator_testing(opts, 20, device)
@@ -55,10 +55,10 @@ def test_simulator_testing_multi_core():
 
     # Mock Manager, Pool, and results
     with patch("multiprocessing.Manager") as mock_manager, patch(
-        "logic.src.pipeline.features.test.ThreadPool"
-    ) as mock_pool_cls, patch("logic.src.pipeline.features.test.send_final_output_to_gui"), patch(
-        "logic.src.pipeline.features.test.display_log_metrics"
-    ), patch("logic.src.pipeline.features.test.output_stats"):
+        "logic.src.pipeline.features.test.orchestrator.ThreadPool"
+    ) as mock_pool_cls, patch("logic.src.pipeline.features.test.orchestrator.send_final_output_to_gui"), patch(
+        "logic.src.pipeline.features.test.orchestrator.display_log_metrics"
+    ), patch("logic.src.pipeline.features.test.orchestrator.output_stats"):
         mock_instance = mock_manager.return_value
 
         # Mock DictProxy behavior
@@ -77,7 +77,7 @@ def test_simulator_testing_multi_core():
 
         # Patch isinstance to return True for our mock_dict_proxy
         with patch(
-            "logic.src.pipeline.features.test.isinstance",
+            "logic.src.pipeline.features.test.orchestrator.isinstance",
             side_effect=lambda x, y: True if x is mock_dict_proxy and y is DictProxy else isinstance(x, y),
         ):
             simulator_testing(opts, 20, device)

@@ -1,6 +1,7 @@
 """
 Logging module for simulation and training.
 """
+
 from .analysis import (
     final_simulation_summary,
     load_log_dict,

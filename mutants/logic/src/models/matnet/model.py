@@ -8,8 +8,9 @@ from typing import Any, Dict, Optional
 
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.matnet import MatNetPolicy
 from tensordict import TensorDict
+
+from .policy import MatNetPolicy
 
 
 class MatNet(nn.Module):

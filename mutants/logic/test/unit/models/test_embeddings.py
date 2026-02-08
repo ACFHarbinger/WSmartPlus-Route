@@ -3,7 +3,8 @@
 import torch
 import pytest
 from tensordict import TensorDict
-from logic.src.models.subnets.embeddings.context import VRPPContext, CVRPPContext, SWCVRPContext
+from logic.src.models.subnets.embeddings.context.vrpp import VRPPContextEmbedder as VRPPContext, VRPPContextEmbedder as CVRPPContext
+from logic.src.models.subnets.embeddings.context.wcvrp import WCVRPContextEmbedder as SWCVRPContext
 from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
 from logic.src.models.subnets.embeddings.static import StaticEmbedding
 

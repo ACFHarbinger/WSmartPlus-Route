@@ -3,9 +3,9 @@ import shutil
 
 import pytest
 from logic.src.envs.vrpp import VRPPEnv
-from logic.src.models.critic_network_network_network import CriticNetwork
-from logic.src.models.model_factory import AttentionComponentFactory
-from logic.src.models.policies.am import AttentionModelPolicy
+from logic.src.models.critic_network.policy import CriticNetwork as CriticNetworkPolicy
+from logic.src.models.subnets.factories.attention import AttentionComponentFactory
+from logic.src.models.attention_model.policy import AttentionModelPolicy
 from logic.src.pipeline.rl.core.dr_grpo import DRGRPO
 from logic.src.pipeline.rl.core.gdpo import GDPO
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
@@ -38,7 +38,7 @@ def test_dr_grpo_training_loop(clean_logs):
     )
 
     factory = AttentionComponentFactory()
-    critic = CriticNetwork(
+    critic = CriticNetworkPolicy(
         problem=env, component_factory=factory, embed_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
     )
 
@@ -80,7 +80,7 @@ def test_gdpo_training_loop(clean_logs):
     )
 
     factory = AttentionComponentFactory()
-    critic = CriticNetwork(
+    critic = CriticNetworkPolicy(
         problem=env, component_factory=factory, embed_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
     )
 

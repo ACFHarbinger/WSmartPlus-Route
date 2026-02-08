@@ -1,6 +1,7 @@
 """
 VRPP Embedding module.
 """
+
 from __future__ import annotations
 
 import torch
@@ -19,7 +20,7 @@ class VRPPInitEmbedding(nn.Module):
             embed_dim: Embedding dimension.
         """
         super().__init__()
-        # Node features: x, y, prize
+        # Node features: x, y, waste
         self.node_embed = nn.Linear(3, embed_dim)
         # Depot features: x, y
         self.depot_embed = nn.Linear(2, embed_dim)
@@ -29,16 +30,20 @@ class VRPPInitEmbedding(nn.Module):
         Embed VRPP instance.
 
         Args:
-            td: TensorDict with keys: locs, depot, prize
+            td: TensorDict with keys: locs, depot, waste
 
         Returns:
             Node embeddings [batch, num_nodes, embed_dim]
         """
         locs = td["locs"]  # [batch, num_nodes, 2]
-        prize = td["prize"]  # [batch, num_nodes]
+        waste = td.get("waste")
 
-        # Combine location and prize for non-depot nodes
-        node_features = torch.cat([locs, prize.unsqueeze(-1)], dim=-1)
+        if waste is None:
+            # Fallback if missing
+            waste = torch.zeros(td.batch_size[0], locs.size(1), device=td.device)
+
+        # Combine location and waste for non-depot nodes
+        node_features = torch.cat([locs, waste.unsqueeze(-1)], dim=-1)
         embeddings = self.node_embed(node_features)
 
         # Special embedding for depot

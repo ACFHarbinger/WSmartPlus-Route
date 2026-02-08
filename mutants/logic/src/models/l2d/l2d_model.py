@@ -10,8 +10,9 @@ from typing import Any, Dict, Optional
 
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.l2d import L2DPolicy
 from tensordict import TensorDict
+
+from .policy import L2DPolicy
 
 
 class L2DModel(nn.Module):

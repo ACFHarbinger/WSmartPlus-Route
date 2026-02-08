@@ -30,12 +30,6 @@ from .encoders import (
     GraphConvolutionEncoder as GraphConvolutionEncoder,
 )
 from .encoders import (
-    HAMEncoder as HAMEncoder,
-)
-from .encoders import (
-    L2DEncoder as L2DEncoder,
-)
-from .encoders import (
     MatNetEncoder as MatNetEncoder,
 )
 from .encoders import (

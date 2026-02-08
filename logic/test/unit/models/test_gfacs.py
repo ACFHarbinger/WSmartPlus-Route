@@ -22,7 +22,7 @@ class TestGFACS:
         # Mock env.reset
         td = TensorDict({
             "locs": torch.rand(self.batch_size, self.num_nodes, 2),
-            "prize": torch.rand(self.batch_size, self.num_nodes),
+            "waste": torch.rand(self.batch_size, self.num_nodes),
             "depot": torch.rand(self.batch_size, 2),
             "current_node": torch.zeros(self.batch_size, dtype=torch.long),
             "mask": torch.ones(self.batch_size, self.num_nodes, dtype=torch.bool),

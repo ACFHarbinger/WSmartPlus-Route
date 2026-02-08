@@ -3,7 +3,7 @@ import torch
 from hypothesis import given
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
-from logic.src.pipeline.rl.common.reward_scaler import BatchRewardScaler, RewardScaler
+from logic.src.pipeline.rl.common.reward_scaler import RewardScaler
 
 
 @st.composite
@@ -22,7 +22,7 @@ def test_batch_scaler_normalization_properties(rewards):
     """
     Test that BatchRewardScaler produces zero mean and unit variance outputs.
     """
-    scaler = BatchRewardScaler(eps=1e-8)
+    scaler = RewardScaler(scale="norm", eps=1e-8)
     scaled = scaler(rewards)
 
     # Check shape
@@ -41,7 +41,7 @@ def test_batch_scaler_shift_invariance(rewards, shift):
     Test that BatchRewardScaler is invariant to additive shifts.
     f(x + c) = f(x)
     """
-    scaler = BatchRewardScaler(eps=1e-8)
+    scaler = RewardScaler(scale="norm", eps=1e-8)
 
     out1 = scaler(rewards)
     out2 = scaler(rewards + shift)
@@ -60,7 +60,7 @@ def test_batch_scaler_scale_invariance(rewards, scale):
     f(c * x) = f(x) if c > 0
     f(c * x) = -f(x) if c < 0 (but st generates positive scale here)
     """
-    scaler = BatchRewardScaler(eps=1e-8)
+    scaler = RewardScaler(scale="norm", eps=1e-8)
 
     out1 = scaler(rewards)
     out2 = scaler(rewards * scale)

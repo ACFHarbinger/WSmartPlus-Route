@@ -36,7 +36,7 @@ class GDPO(REINFORCE):
         Initialize GDPO module.
 
         Args:
-            gdpo_objective_keys: List of keys in the TensorDict (e.g., "reward_prize", "reward_cost")
+            gdpo_objective_keys: List of keys in the TensorDict (e.g., "reward_waste", "reward_cost")
                                  representing the raw reward components.
             gdpo_objective_weights: Weights matching the objective keys. If None, uses uniform weighting.
             gdpo_conditional_key: Optional key for conditional gating (e.g., "feasibility").

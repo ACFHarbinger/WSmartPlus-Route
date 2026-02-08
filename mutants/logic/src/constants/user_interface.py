@@ -1,6 +1,7 @@
 """
 Constants related to the User Interface and Visualization.
 """
+
 from typing import List, Tuple, Union
 
 # WSmart+ route simulation settings (Visuals)
