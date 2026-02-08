@@ -88,16 +88,17 @@ def evaluate_policy(
     Returns:
         Dict with metrics
     """
+    device = kwargs.pop("device", "cpu")
     if method == "greedy":
-        evaluator = GreedyEval(env, device=kwargs.get("device", "cpu"), **kwargs)
+        evaluator = GreedyEval(env, device=device, **kwargs)
     elif method == "sampling":
-        evaluator = SamplingEval(env, device=kwargs.get("device", "cpu"), **kwargs)
+        evaluator = SamplingEval(env, device=device, **kwargs)
     elif method == "augmentation":
-        evaluator = AugmentationEval(env, device=kwargs.get("device", "cpu"), **kwargs)
+        evaluator = AugmentationEval(env, device=device, **kwargs)
     elif method == "multistart":
-        evaluator = MultiStartEval(env, device=kwargs.get("device", "cpu"), **kwargs)
+        evaluator = MultiStartEval(env, device=device, **kwargs)
     elif method == "multistart_augment":
-        evaluator = MultiStartAugmentEval(env, device=kwargs.get("device", "cpu"), **kwargs)
+        evaluator = MultiStartAugmentEval(env, device=device, **kwargs)
     else:
         # Fallback or error? For now default to greedy if unknown or raise
         raise ValueError(f"Unknown evaluation method: {method}")

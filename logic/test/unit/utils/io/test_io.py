@@ -233,7 +233,7 @@ class TestProcessing:
         """Test processing pattern files for statistics."""
         mock_glob.value = ["file1.json"]
 
-        with patch("logic.src.utils.io.file_processing.process_file_statistics") as mock_stats:
+        with patch("logic.src.utils.io.statistics.process_file_statistics") as mock_stats:
             mock_stats.return_value = True
             statistics.process_pattern_files_statistics("root", process_func=lambda x: sum(x))
             # Just verify it attempts to run

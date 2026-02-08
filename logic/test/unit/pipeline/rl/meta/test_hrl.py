@@ -51,7 +51,7 @@ class TestHRLModule:
         e.reset.return_value = TensorDict(
             {
                 "locs": torch.randn(2, 10, 2),
-                "demand": torch.rand(2, 10),
+                "waste": torch.rand(2, 10),
                 "visited": torch.zeros(2, 10, dtype=torch.bool),
             },
             batch_size=2,
@@ -93,12 +93,12 @@ class TestHRLModule:
         hrl_module.manager.states_static = [torch.randn(2, 10, 2)]
         hrl_module.manager.states_dynamic = [torch.randn(2, 10, 1)]
         hrl_module.manager.states_global = [torch.randn(2, 2)]
-        hrl_module.manager.actions_mask = [torch.zeros(2, 10)]
+        hrl_module.manager.actions_must_go = [torch.zeros(2, 10)]
         hrl_module.manager.actions_gate = [torch.zeros(2, 1)]
-        hrl_module.manager.log_probs_mask = [torch.zeros(2)]
+        hrl_module.manager.log_probs_must_go = [torch.zeros(2)]
         hrl_module.manager.log_probs_gate = [torch.zeros(2)]
         hrl_module.manager.values = [torch.zeros(2, 1)]
-        hrl_module.manager.target_masks = None
+        hrl_module.manager.target_must_go = None
 
         hrl_module.training_step(batch, 0)
 

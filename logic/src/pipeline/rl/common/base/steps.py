@@ -33,10 +33,6 @@ class StepMixin:
         self._current_baseline_val: Any = None
         self.last_out: Any = None
 
-    def log(self, name: str, value: Any, **kwargs):
-        """Placeholder for PL log method."""
-        pass
-
     def _apply_must_go_selection(self, td: TensorDict) -> TensorDict:
         """
         Apply must-go selection to determine which bins must be collected.

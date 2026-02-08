@@ -538,7 +538,7 @@ class TestSetupUtils:
         weights = setup_cost_weights(opts)
         assert weights == {}
 
-    @patch("logic.src.utils.model.loader.load_model")
+    @patch("logic.src.utils.configs.setup_worker.load_model")
     def test_setup_model_am(self, mock_load):
         """Test setup_model for Attention Model."""
         mock_model = MagicMock()
@@ -551,7 +551,7 @@ class TestSetupUtils:
         assert configs == mock_configs
         mock_load.assert_called_once()
 
-    @patch("logic.src.utils.configs.setup_env.gp.Env", create=True)
+    @patch("gurobipy.Env", create=True)
     def test_setup_env_gurobi(self, mock_gp_env):
         """Test setup_env for Gurobi."""
         mock_env = MagicMock()

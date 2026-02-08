@@ -39,7 +39,7 @@ def test_dr_grpo_training_loop(clean_logs):
 
     factory = AttentionComponentFactory()
     critic = CriticNetworkPolicy(
-        problem=env, component_factory=factory, embed_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
+        env_name="vrpp", component_factory=factory, embed_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
     )
 
     # DR-GRPO configuration
@@ -50,6 +50,7 @@ def test_dr_grpo_training_loop(clean_logs):
         optimizer="adam",
         lr=1e-4,
         max_grad_norm=1.0,
+        env_name="vrpp",
     )
 
     trainer = Trainer(
@@ -81,7 +82,7 @@ def test_gdpo_training_loop(clean_logs):
 
     factory = AttentionComponentFactory()
     critic = CriticNetworkPolicy(
-        problem=env, component_factory=factory, embed_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
+        env_name="vrpp", component_factory=factory, embed_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
     )
 
     # GDPO configuration with objective keys
@@ -93,6 +94,7 @@ def test_gdpo_training_loop(clean_logs):
         gdpo_objective_weights=[1.0],
         optimizer="adam",
         lr=1e-4,
+        env_name="vrpp",
     )
 
     trainer = Trainer(

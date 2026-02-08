@@ -36,18 +36,22 @@ class TestTrainingOrchestration:
 
         with patch("logic.src.pipeline.features.train.get_env"), patch(
             "logic.src.pipeline.features.train.AttentionModelPolicy"
-        ), patch("logic.src.models.policies.critic.create_critic_from_actor"):
+        ), patch("logic.src.models.critic_network.create_critic_from_actor"):
             model = create_model(cfg)
             from logic.src.pipeline.rl.core.ppo import PPO
 
             assert isinstance(model, PPO)
 
     @pytest.mark.unit
-    @patch("logic.src.pipeline.features.train.WSTrainer")
-    @patch("logic.src.pipeline.features.train.create_model")
+    @patch("logic.src.pipeline.features.train.engine.WSTrainer")
+    @patch("logic.src.pipeline.features.train.engine.create_model")
     def test_run_training_flow(self, mock_create, mock_trainer_cls):
         """Verify run_training initializes model and calls trainer.fit."""
         cfg = Config()
+        # Reduce data size to prevent hanging
+        cfg.train.train_data_size = 10
+        cfg.train.val_data_size = 5
+
         mock_model = MagicMock()
         mock_create.return_value = mock_model
 
@@ -87,7 +91,7 @@ class TestTrainingOrchestration:
 
             with patch("logic.src.pipeline.features.train.get_env"), \
                  patch("logic.src.pipeline.features.train.AttentionModelPolicy"), \
-                 patch("logic.src.models.policies.critic.create_critic_from_actor"):
+                 patch("logic.src.models.critic_network.create_critic_from_actor"):
 
                 model = create_model(cfg)
                 assert model is not None

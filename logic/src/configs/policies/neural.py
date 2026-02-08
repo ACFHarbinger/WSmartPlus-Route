@@ -25,3 +25,6 @@ class NeuralConfig:
     beam_width: int = 1
     must_go: Optional[List[str]] = None
     post_processing: Optional[List[str]] = None
+    w_length: float = 1.0
+    w_waste: float = 1.0
+    w_overflows: float = 1.0

@@ -28,39 +28,101 @@ Propagation flow:
 
 from typing import List
 
-# Model configurations
-SUB_NET_ENCS: List[str] = ["tgc"]
-PRED_ENC_MODELS: List[str] = ["tam"]
-ENC_DEC_MODELS: List[str] = ["ddam"]
+# Model Architecture Registries
+# ------------------------------
+# These lists control model factory behavior in logic/src/models/model_factory.py
+# and determine which architectural components are instantiated.
 
-# Dimension constants
-NODE_DIM: int = 3  # Coordinate (2) + Demand/Value (1)
-STATIC_DIM: int = 2  # Coordinate (x, y)
-DEPOT_DIM: int = 2  # Coordinate (x, y)
+# Models requiring sub-network encoders (additional encoding layers)
+# Used in: model_factory.py to instantiate encoder.sub_network
+SUB_NET_ENCS: List[str] = ["tgc"]  # Transformer Graph Convolution requires edge feature encoding
 
-# Step context dimensionality offsets
-WC_STEP_CONTEXT_OFFSET: int = 2
-VRPP_STEP_CONTEXT_OFFSET: int = 1
+# Models with predictive encoders (future state prediction)
+# Used in: model_factory.py to instantiate predictor networks for temporal models
+PRED_ENC_MODELS: List[str] = ["tam"]  # Temporal Attention Model predicts future bin fill levels
 
-# Temporal defaults
-DEFAULT_TEMPORAL_HORIZON: int = 10
+# Models with separate encoder-decoder architecture
+# Used in: model_factory.py to instantiate both encoder and decoder separately
+ENC_DEC_MODELS: List[str] = ["ddam"]  # Deep Decoder Attention Model has deep transformer decoder
+
+# Dimension Constants
+# --------------------
+# Feature vector dimensions for problem representations.
+# These define the size of node/depot embeddings before model processing.
+
+# Total node feature dimension: [x, y, demand/prize]
+# Used in: embedding layers to size input projections
+NODE_DIM: int = 3  # Coordinate (2D: x, y) + Node attribute (1D: demand or prize value)
+
+# Static coordinate dimension for depot and customer locations
+# Used in: distance matrix computation, spatial encoders
+STATIC_DIM: int = 2  # 2D Euclidean coordinates (x, y) in [0, 1] range
+
+# Depot coordinate dimension (same as STATIC_DIM, kept separate for semantic clarity)
+# Used in: depot-specific encoding, route start/end point embeddings
+DEPOT_DIM: int = 2  # 2D Euclidean coordinates (x, y) in [0, 1] range
+
+# Step Context Dimensionality Offsets
+# ------------------------------------
+# Additional context features beyond basic node attributes.
+# Added to NODE_DIM to compute total decoder context size.
+
+# Waste Collection (WC) context: [current_capacity, remaining_capacity]
+# Used in: wcvrp.py state embeddings for capacity-aware decoding
+WC_STEP_CONTEXT_OFFSET: int = 2  # 2 extra dims for vehicle capacity tracking
+
+# VRPP context: [collected_profit]
+# Used in: vrpp.py state embeddings for profit-aware decoding
+VRPP_STEP_CONTEXT_OFFSET: int = 1  # 1 extra dim for cumulative profit tracking
+
+# Temporal Defaults
+# ------------------
+# Default lookahead horizon for time-dependent models (TAM, HRL Manager).
+# Defines how many future timesteps to predict/consider.
+# Used in: Temporal Attention Model (TAM), HRL manager network
+DEFAULT_TEMPORAL_HORIZON: int = 10  # Days. Typical waste collection planning horizon is 7-14 days.
 
 # Architecture Constants
-TANH_CLIPPING: float = 10.0
-NORM_EPSILON: float = 1e-5
-FEED_FORWARD_EXPANSION: int = 4
+# -----------------------
+# Standard hyperparameter values for transformer-based models.
+# These are defaults; can be overridden via config files.
 
+# Logit clipping for numerical stability in attention mechanisms.
+# Prevents exp() overflow in softmax by clamping logits to [-C, +C].
+# Used in: decoder attention layers, pointer networks
+TANH_CLIPPING: float = 10.0  # Kool et al. (2019) standard for VRP models
+
+# Epsilon for layer/batch/instance normalization stability.
+# Added to variance denominator to prevent division by zero.
+# Used in: normalization.py across all normalization types
+NORM_EPSILON: float = 1e-5  # PyTorch default (same as nn.LayerNorm)
+
+# Numerical stability epsilon for general computations.
+# Added to denominators to prevent division by zero and log(0) errors.
+# Used in: probability clamping, normalization, efficiency calculations (kg/km).
+# Smaller than NORM_EPSILON to minimize impact on probability distributions.
+NUMERICAL_EPSILON: float = 1e-8  # Standard for probability and division safety
+
+# Feed-forward hidden dimension multiplier.
+# Transformer standard: hidden_dim = embed_dim * FEED_FORWARD_EXPANSION
+# Used in: feed_forward.py module instantiation
+FEED_FORWARD_EXPANSION: int = 4  # Vaswani et al. (2017) "Attention is All You Need" standard
+
+# Mixture of Experts (MoE) Default Configuration
+# ------------------------------------------------
+# Used in: logic/src/models/moe_model.py when config omits MoE parameters.
+# MoE enables model specialization: different experts activate for different problem instances.
 DEFAULT_MOE_KWARGS = {
     "encoder": {
-        "hidden_act": "ReLU",
-        "num_experts": 4,
-        "k": 2,
-        "noisy_gating": True,
+        "hidden_act": "ReLU",  # Activation function for expert feed-forward layers
+        "num_experts": 4,  # Number of expert networks (more = higher capacity, slower)
+        "k": 2,  # Top-k routing: activate best k experts per input (k < num_experts)
+        "noisy_gating": True,  # Add noise to gating logits for exploration (recommended for training)
     },
     "decoder": {
-        "light_version": True,
-        "num_experts": 4,
-        "k": 2,
-        "noisy_gating": True,
+        "light_version": True,  # Use lightweight MoE (shared routing across heads) for speed
+        "num_experts": 4,  # Number of expert networks in decoder
+        "k": 2,  # Top-k routing for decoder
+        "noisy_gating": True,  # Gating noise for decoder (exploration during training)
     },
 }

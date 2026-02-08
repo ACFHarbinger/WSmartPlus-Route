@@ -128,7 +128,7 @@ class TestVisualizeUtils(unittest.TestCase):
 # ============================================================================
 
 
-@patch("logic.src.utils.logging.plot_utils.plt")
+@patch("logic.src.utils.logging.plotting.charts.plt")
 class TestPlotUtils(unittest.TestCase):
     """Test suite for general plotting utilities."""
 

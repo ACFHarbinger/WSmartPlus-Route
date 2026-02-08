@@ -22,12 +22,12 @@ from .steps import StepMixin
 if TYPE_CHECKING:
     from logic.src.interfaces.env import IEnv
     from logic.src.interfaces.policy import IPolicy
-    from logic.src.policies.selection import VectorizedSelector
+    from logic.src.models.policies.selection import VectorizedSelector
 
 logger = get_pylogger(__name__)
 
 
-class RL4COLitModule(pl.LightningModule, DataMixin, OptimizationMixin, StepMixin, ABC):
+class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule, ABC):
     """
     Base PyTorch Lightning module for RL training.
 
@@ -77,8 +77,16 @@ class RL4COLitModule(pl.LightningModule, DataMixin, OptimizationMixin, StepMixin
             must_go_selector: Optional vectorized selector for must-go bin selection.
             **kwargs: Additional keyword arguments.
         """
-        super().__init__()
-        self.save_hyperparameters(ignore=["env", "policy", "must_go_selector"])
+        pl.LightningModule.__init__(self)
+        DataMixin.__init__(self)
+        OptimizationMixin.__init__(self)
+        StepMixin.__init__(self)
+
+        # Explicitly save hyperparameters to handle MRO/introspection issues
+        params_to_save = {
+            k: v for k, v in locals().items() if k not in ["self", "__class__", "env", "policy", "must_go_selector"]
+        }
+        self.save_hyperparameters(params_to_save)
 
         self.env = env
         self.policy = policy

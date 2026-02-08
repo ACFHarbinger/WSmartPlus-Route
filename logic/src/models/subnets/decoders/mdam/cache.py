@@ -7,6 +7,8 @@ from typing import Optional
 
 import torch
 
+from logic.src.constants.models import NUMERICAL_EPSILON
+
 
 def _decode_probs(
     probs: torch.Tensor,
@@ -27,13 +29,13 @@ def _decode_probs(
     if mask is not None:
         probs = probs.masked_fill(~mask, 0.0)
         # Renormalize
-        probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-8)
+        probs = probs / (probs.sum(dim=-1, keepdim=True) + NUMERICAL_EPSILON)
 
     if decode_type == "greedy":
         return probs.argmax(dim=-1)
     else:
         # Sampling
-        probs = probs.clamp(min=1e-8)
+        probs = probs.clamp(min=NUMERICAL_EPSILON)
         return torch.multinomial(probs, 1).squeeze(-1)
 
 

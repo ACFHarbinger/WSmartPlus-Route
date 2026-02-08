@@ -27,10 +27,14 @@ class TestIntegrationTraining:
         cfg.train.n_epochs = 1
         cfg.train.logs_dir = str(tmp_path / "logs")
         cfg.train.final_model_path = str(tmp_path / "final.pt")
+        # Safety net: reduce data size in case mock fails
+        cfg.train_data_size = 10
+        cfg.val_data_size = 10
 
         # We mock WSTrainer to avoid actual training in unit tests,
         # but check if run_training flow completes.
-        with patch("logic.src.pipeline.features.train.WSTrainer") as mock_trainer_cls, patch(
+        # Must patch where it is IMPORTED in engine.py
+        with patch("logic.src.pipeline.features.train.engine.WSTrainer") as mock_trainer_cls, patch(
             "logic.src.pipeline.features.train.create_model"
         ):
             mock_trainer = mock_trainer_cls.return_value
@@ -63,8 +67,8 @@ class TestIntegrationSimulation:
         assert any("regular_emp" in k for k in log.keys())
 
     @pytest.mark.unit
-    @patch("logic.src.pipeline.simulations.states.setup_model")
-    @patch("logic.src.policies.neural_agent.NeuralPolicy.execute")
+    @patch("logic.src.pipeline.simulations.states.initializing.setup_model")
+    @patch("logic.src.policies.adapters.policy_neural.NeuralPolicy.execute")
     def test_sim_policy_neural_mock(self, mock_exec, mock_setup, sim_opts):
         """Test Neural policy integration in simulation."""
         mock_setup.return_value = (MagicMock(), {})
@@ -101,9 +105,13 @@ class TestIntegrationProblems:
         """Verify WCVRP physics behaves correctly."""
         from logic.src.envs.problems import WCVRP
 
+        depot = torch.rand(1, 2)
+        customers = torch.rand(1, 4, 2)
+        loc = torch.cat([depot.unsqueeze(1), customers], dim=1) # (1, 5, 2)
+
         batch = {
-            "loc": torch.rand(1, 5, 2),
-            "depot": torch.rand(1, 2),
+            "loc": loc,
+            "depot": depot,
             "waste": torch.rand(1, 5),
             "max_waste": torch.ones(1, 5),
         }
