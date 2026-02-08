@@ -11,7 +11,7 @@ from typing import Tuple, Union
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from logic.src.models.policies.common.nonautoregressive_encoder import NonAutoregressiveEncoder
+from logic.src.models.common.nonautoregressive_encoder import NonAutoregressiveEncoder
 from tensordict import TensorDict
 
 

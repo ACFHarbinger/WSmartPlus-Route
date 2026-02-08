@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import torch.nn as nn
-from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
+from logic.src.models.subnets.encoders.moe import MoEGraphAttentionEncoder
 
 from .base import NeuralComponentFactory, _create_decoder_by_type
 

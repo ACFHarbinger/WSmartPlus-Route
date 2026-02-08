@@ -2,12 +2,15 @@
 Routing post-processing sub-package.
 """
 
-from .base import IPostProcessor, PostProcessorFactory, PostProcessorRegistry
+from logic.src.interfaces import IPostProcessor
+
+from .factory import PostProcessorFactory
 from .fast_tsp import FastTSPPostProcessor
 from .ils import IteratedLocalSearchPostProcessor
 from .local_search import ClassicalLocalSearchPostProcessor
 from .path import PathPostProcessor
 from .random_ls import RandomLocalSearchPostProcessor
+from .registry import PostProcessorRegistry
 
 __all__ = [
     "IPostProcessor",

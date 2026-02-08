@@ -1,5 +1,5 @@
 import torch
-from logic.src.utils.functions.decoding import BeamSearch, Evaluate, Greedy, Sampling, top_k_filter, top_p_filter
+from logic.src.utils.decoding import BeamSearch, Evaluate, Greedy, Sampling, top_k_filter, top_p_filter
 from tensordict import TensorDict
 
 

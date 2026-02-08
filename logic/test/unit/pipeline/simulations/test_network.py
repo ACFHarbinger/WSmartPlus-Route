@@ -4,13 +4,13 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 import pytest
+
+from logic.src.utils.data.network_utils import apply_edges, get_paths_between_states
 from logic.src.pipeline.simulations.network import (
     EuclideanStrategy,
     GeodesicStrategy,
     HaversineStrategy,
-    apply_edges,
     compute_distance_matrix,
-    get_paths_between_states,
 )
 
 

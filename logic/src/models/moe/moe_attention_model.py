@@ -3,7 +3,7 @@ Mixture of Experts (MoE) Attention Model.
 """
 
 from logic.src.models.attention_model import AttentionModel
-from logic.src.models.model_factory import MoEComponentFactory
+from logic.src.models.subnets.factories import MoEComponentFactory
 
 
 class MoEAttentionModel(AttentionModel):

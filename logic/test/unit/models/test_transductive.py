@@ -10,7 +10,10 @@ from tensordict import TensorDict
 from logic.src.envs.tsp import TSPEnv
 from logic.src.models.attention_model import AttentionModel
 from unittest.mock import MagicMock
-from logic.src.models.policies.common.transductive import ActiveSearch, EAS, EASEmb, EASLay
+from logic.src.models.common.active_search import ActiveSearch
+from logic.src.models.common.eas import EAS
+from logic.src.models.common.eas_embeddings import EASEmb
+from logic.src.models.common.eas_layers import EASLay
 from logic.src.models.subnets.factories import AttentionComponentFactory
 
 

@@ -4,14 +4,14 @@ import time
 
 import pytest
 import torch
-from logic.src.models.policies.classical.hybrid_genetic_search import (
+from logic.src.models.policies.hgs import calc_broken_pairs_distance
+from logic.src.models.policies.hybrid_genetic_search import (
     VectorizedHGS,
     VectorizedPopulation,
-    calc_broken_pairs_distance,
     vectorized_linear_split,
     vectorized_ordered_crossover,
 )
-from logic.src.models.policies.classical.local_search import (
+from logic.src.models.policies.local_search import (
     vectorized_relocate,
     vectorized_swap,
     vectorized_swap_star,

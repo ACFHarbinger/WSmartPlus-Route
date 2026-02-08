@@ -21,11 +21,13 @@ from logic.src.models.subnets.modules.normalization import Normalization
 from logic.src.models.subnets.modules.normalized_activation_function import (
     NormalizedActivationFunction,
 )
-from logic.src.models.subnets.modules.positional_embeddings import (
+from logic.src.models.subnets.embeddings.positional.absolute_positional_embedding import (
     AbsolutePositionalEmbedding,
-    CyclicPositionalEmbedding,
-    pos_init_embedding,
 )
+from logic.src.models.subnets.embeddings.positional.cyclic_positional_embedding import (
+    CyclicPositionalEmbedding,
+)
+from logic.src.models.subnets.embeddings.positional import pos_init_embedding
 from logic.src.models.subnets.modules.skip_connection import SkipConnection
 
 

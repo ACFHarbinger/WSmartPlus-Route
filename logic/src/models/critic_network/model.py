@@ -14,7 +14,7 @@ import torch.nn as nn
 
 # Re-export the canonical CriticNetwork and factory
 from logic.src.models.critic_network.policy import CriticNetwork, create_critic_from_actor  # noqa: F401
-from logic.src.models.subnets.embeddings import VRPPContextEmbedder, WCContextEmbedder
+from logic.src.models.subnets.embeddings import VRPPContextEmbedder, WCVRPContextEmbedder
 from logic.src.models.subnets.modules import ActivationFunction
 
 
@@ -60,7 +60,9 @@ class LegacyCriticNetwork(nn.Module):
         node_dim = 3
 
         if self.is_wc:
-            self.context_embedder = WCContextEmbedder(embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)
+            self.context_embedder = WCVRPContextEmbedder(
+                embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
+            )
         else:
             self.context_embedder = VRPPContextEmbedder(embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)
 

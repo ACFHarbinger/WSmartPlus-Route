@@ -4,13 +4,11 @@ import torch
 from tensordict import TensorDict
 from unittest.mock import MagicMock
 
-from logic.src.models.policies.common.nonautoregressive import (
-    NonAutoregressiveDecoder,
-    NonAutoregressiveEncoder,
-    NonAutoregressivePolicy,
-)
-from logic.src.models.deepaco import DeepACO
-from logic.src.models.policies.deepaco import DeepACOPolicy
+from logic.src.models.common.nonautoregressive_policy import NonAutoregressivePolicy
+from logic.src.models.common.nonautoregressive_encoder import NonAutoregressiveEncoder
+from logic.src.models.common.nonautoregressive_decoder import NonAutoregressiveDecoder
+from logic.src.models.deepaco.model import DeepACO
+from logic.src.models.deepaco.policy import DeepACOPolicy
 from logic.src.models.subnets.decoders.deepaco.decoder import ACODecoder
 from logic.src.models.subnets.encoders.deepaco.encoder import DeepACOEncoder
 

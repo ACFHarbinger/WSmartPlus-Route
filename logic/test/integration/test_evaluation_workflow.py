@@ -6,7 +6,7 @@ import pytest
 import torch
 from logic.src.envs.problems import VRPP
 from logic.src.models import AttentionModel
-from logic.src.models.model_factory import AttentionComponentFactory
+from logic.src.models.subnets.factories.attention import AttentionComponentFactory
 from logic.src.pipeline.features.eval import eval_dataset
 
 

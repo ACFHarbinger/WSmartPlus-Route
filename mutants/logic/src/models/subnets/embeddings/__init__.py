@@ -14,15 +14,11 @@ from logic.src.models.subnets.embeddings.vrpp import VRPPInitEmbedding
 from logic.src.models.subnets.embeddings.wcvrp import WCVRPInitEmbedding
 
 from .context import (
+    CONTEXT_EMBEDDING_REGISTRY,
     ContextEmbedder,
-    CVRPPContext,
-    EnvContext,
     GenericContextEmbedder,
-    SWCVRPContext,
-    VRPPContext,
     VRPPContextEmbedder,
-    WCContextEmbedder,
-    WCVRPContext,
+    WCVRPContextEmbedder,
 )
 from .dynamic import DynamicEmbedding
 from .edges import (
@@ -33,6 +29,20 @@ from .edges import (
     TSPEdgeEmbedding,
     WCVRPEdgeEmbedding,
     get_edge_embedding,
+)
+from .positional import (
+    POSITIONAL_EMBEDDING_REGISTRY,
+    AbsolutePositionalEmbedding,
+    CyclicPositionalEmbedding,
+    pos_init_embedding,
+)
+from .state import (
+    STATE_EMBEDDING_REGISTRY,
+    CVRPPState,
+    EnvState,
+    SWCVRPState,
+    VRPPState,
+    WCVRPState,
 )
 from .static import StaticEmbedding
 
@@ -46,16 +56,6 @@ INIT_EMBEDDING_REGISTRY = {
     "swcvrp": WCVRPInitEmbedding,
     "scwcvrp": WCVRPInitEmbedding,
     "pdp": PDPInitEmbedding,
-}
-
-CONTEXT_EMBEDDING_REGISTRY = {
-    "vrpp": VRPPContext,
-    "cvrpp": CVRPPContext,
-    "wcvrp": WCVRPContext,
-    "cwcvrp": WCVRPContext,
-    "sdwcvrp": WCVRPContext,
-    "swcvrp": SWCVRPContext,
-    "scwcvrp": SWCVRPContext,
 }
 
 DYNAMIC_EMBEDDING_REGISTRY = {
@@ -86,14 +86,14 @@ __all__ = [
     "VRPPInitEmbedding",
     "CVRPPInitEmbedding",
     "WCVRPInitEmbedding",
-    "EnvContext",
-    "VRPPContext",
-    "CVRPPContext",
-    "WCVRPContext",
-    "SWCVRPContext",
+    "EnvState",
+    "VRPPState",
+    "CVRPPState",
+    "WCVRPState",
+    "SWCVRPState",
     "ContextEmbedder",
     "VRPPContextEmbedder",
-    "WCContextEmbedder",
+    "WCVRPContextEmbedder",
     "DynamicEmbedding",
     "StaticEmbedding",
     "EdgeEmbedding",
@@ -102,10 +102,15 @@ __all__ = [
     "WCVRPEdgeEmbedding",
     "NoEdgeEmbedding",
     "INIT_EMBEDDING_REGISTRY",
-    "CONTEXT_EMBEDDING_REGISTRY",
+    "STATE_EMBEDDING_REGISTRY",
     "DYNAMIC_EMBEDDING_REGISTRY",
     "EDGE_EMBEDDING_REGISTRY",
     "get_init_embedding",
     "get_edge_embedding",
     "GenericContextEmbedder",
+    "AbsolutePositionalEmbedding",
+    "CyclicPositionalEmbedding",
+    "pos_init_embedding",
+    "POSITIONAL_EMBEDDING_REGISTRY",
+    "CONTEXT_EMBEDDING_REGISTRY",
 ]

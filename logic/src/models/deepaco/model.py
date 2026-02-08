@@ -10,7 +10,8 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.deepaco import DeepACOPolicy
+
+from .policy import DeepACOPolicy
 
 
 class DeepACO(nn.Module):

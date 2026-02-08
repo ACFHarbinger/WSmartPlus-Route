@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from torch.distributions.normal import Normal
 
-from .dispatcher import SparseDispatcher
+from .moe_dispatcher import SparseDispatcher
 
 
 class MoE(nn.Module):

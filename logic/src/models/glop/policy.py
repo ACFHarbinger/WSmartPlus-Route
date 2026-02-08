@@ -12,7 +12,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.nonautoregressive import NonAutoregressivePolicy
+from logic.src.models.common.nonautoregressive_policy import NonAutoregressivePolicy
 from logic.src.models.subnets.modules.glop_factory import get_adapter
 from logic.src.utils.decoding import batchify, unbatchify
 

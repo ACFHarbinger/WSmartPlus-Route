@@ -52,7 +52,10 @@ def test_setup_optimizer_available_types():
         assert opt.__class__.__name__.lower().startswith(opt_name)
 
 
-from logic.src.utils.configs.setup_utils import setup_env, setup_model, setup_hrl_manager, setup_model_and_baseline
+from logic.src.utils.configs.setup_env import setup_env
+from logic.src.utils.configs.setup_worker import setup_model
+from logic.src.utils.configs.setup_manager import setup_hrl_manager
+from logic.src.utils.configs.setup_training import setup_model_and_baseline
 import os
 from unittest.mock import patch
 
@@ -80,7 +83,7 @@ def test_setup_model(tmp_path):
     mock_configs = {"key": "val"}
     lock = MagicMock()
 
-    with patch("logic.src.utils.configs.setup_utils.load_model", return_value=(mock_model, mock_configs)):
+    with patch("logic.src.utils.configs.setup_worker.load_model", return_value=(mock_model, mock_configs)):
         model, configs = setup_model(
             "am_50", "path/", {"am": "am.pt"}, torch.device("cpu"), lock
         )

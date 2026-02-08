@@ -6,7 +6,7 @@ from tensordict import TensorDict
 
 from logic.src.models.subnets.modules import MultiHeadAttention, Normalization
 
-from .common.improvement import ImprovementEncoder
+from ..common.improvement_encoder import ImprovementEncoder
 
 
 class NeuOptEncoder(ImprovementEncoder):
