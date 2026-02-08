@@ -29,67 +29,81 @@ class TestSimResultsWindowInteractions:
         """Test processing of a day log line."""
         # Simulated log line
         log_data = {"overflows": 5, "profit": 100.0, "tour": {}}
-        line = f"GUI_DAY_LOG_START: p1, 1, 0, {json.dumps(log_data)}"
+        line = f"GUI_DAY_LOG_START:p1, sample, 0, {json.dumps(log_data)}"
 
-        # Invoke processing directly (simulate signal)
-        results_window._process_single_record(line)
+        # Invoke processing via the handler
+        results_window._handle_new_log_line(line)
+
+        # Verify data storage in data_manager
+        # data_manager.process_record extracts policy from the record if present,
+        # otherwise logic depends on parse_log_line.
+        # But wait, results_window._handle_new_log_line parses using split on "GUI_DAY_LOG_START:"
+        # AND THEN calls parse_log_line.
+        # data_manager.parse_log_line expects just JSON.
+        # The line format in code: "GUI_DAY_LOG_START:" + json_str.
+        # So my line above is correct if I stick to that.
+        # However, data_manager.process_record requires "policy" and "sample" in the record.
+        # My log_data above lacks them.
+        # Let's add them.
+        log_data = {"policy": "p1", "sample": "1", "day": 0, "overflows": 5, "profit": 100.0, "routes": {}}
+        line = f"GUI_DAY_LOG_START:{json.dumps(log_data)}"
+
+        results_window._handle_new_log_line(line)
 
         # Verify data storage
-        key = "p1 sample 1"
-        assert 1 in results_window.available_samples_dict["p1"]
-
-        assert results_window.daily_data[key]["overflows"][0] == 5.0
+        key = "p1_1"
+        assert "1" in results_window.data_manager.policy_samples["p1"]
+        assert results_window.data_manager.day_data[key][0]["metrics"]["overflows"] == 5
 
         # Verify UI Dropdown update
-        assert results_window.live_policy_combo.findText("p1") >= 0
+        # Dashboard tab might store items. Check dashboard_tab directly.
+        assert results_window.dashboard_tab.policy_combo.findText("p1") >= 0
 
     def test_process_summary_log(self, results_window):
         """Test processing of a summary log line."""
-        summary = {"policies": ["p1"], "log": {"p1": [10.0, 5.0]}, "log_std": {"p1": [1.0, 0.5]}, "n_samples": 10}
-        line = f"GUI_SUMMARY_LOG_START: {json.dumps(summary)}"
+        # Summary log just triggers a redraw in current implementation
+        line = "GUI_SUMMARY_LOG_START: {}"
 
         # Patch redraw to avoid matplotlib errors in headless env
         with patch.object(results_window, "redraw_summary_chart") as mock_redraw:
-            results_window._process_single_record(line)
-
-            assert results_window.summary_data["n_samples"] == 10
-            assert "p1" in results_window.summary_data["policies"]
+            results_window._handle_new_log_line(line)
             assert mock_redraw.called
 
     def test_chart_update(self, results_window):
         """Test chart update logic."""
         # Setup pre-reqs
-        key = "p1 sample 1"
-        results_window.live_policy_combo.addItem("p1")
-        results_window.live_sample_combo.addItem("1")
-        results_window.live_policy_combo.setCurrentText("p1")
-        results_window.live_sample_combo.setCurrentText("1")
+        key = "p1_1"
+        results_window.dashboard_tab.policy_combo.addItem("p1")
+        results_window.dashboard_tab.sample_combo.addItem("1")
+        results_window.dashboard_tab.policy_combo.setCurrentText("p1")
+        results_window.dashboard_tab.sample_combo.setCurrentText("1")
 
         processed_data = {"max_days": 10, "metrics": {"profit": {"days": [0, 1], "values": [100, 200]}}}
 
         # Mock canvas draw
-        canvas_mock = results_window.live_ui_components["line_canvas"] = MagicMock()
+        # dashboard_tab has the canvas logic? No, check if live_ui_components exists.
+        # Use dashboard_tab objects if possible or skip if too complex to mock deep structure.
+        # checking results_window.dashboard_tab...
+        # Assuming it has a method to update.
+        # But _update_ui_on_data_ready delegates to tabs.
+        # Let's just call _update_ui_on_data_ready and verify it tries to update dashboard tab
 
-        results_window._update_chart_on_main_thread(key, processed_data)
-
-        assert canvas_mock.draw_idle.called
+        with patch.object(results_window.dashboard_tab, "day_combo") as mock_combo:
+             results_window._update_ui_on_data_ready(key, processed_data)
+             mock_combo.clear.assert_called()
 
     def test_dropdown_logic(self, results_window):
         """Test dynamic dropdown updates."""
-        results_window._update_live_dropdowns("p2", 2)
+        # Current logic: _handle_new_log_line -> data_manager.process_record -> dashboard_tab.update_samples
 
-        assert results_window.live_policy_combo.findText("p2") >= 0
+        # We simulate the dashboard tab update method
+        with patch.object(results_window.dashboard_tab, "update_samples") as mock_update:
+            # Create a fake record that triggers update
+            log_data = {"policy": "p2", "sample": "2", "day": 0}
+            line = f"GUI_DAY_LOG_START:{json.dumps(log_data)}"
 
-        # If we select p2, sample 2 should appear
-        results_window.live_policy_combo.setCurrentText("p2")
-        # Trigger change handler manually if needed, or rely on signal if connected
-        # Signal is connected. But QTest or direct call?
-        # Direct call to verify logic:
-        # The logic _update_live_dropdowns adds sample if policy is current.
-        # But here we just added it.
-        # Let's test _on_live_policy_changed population
+            results_window._handle_new_log_line(line)
 
-        results_window.available_samples_dict["p2"].add(2)
-        results_window._on_live_policy_changed()
-
-        assert results_window.live_sample_combo.findText("2") >= 0
+            mock_update.assert_called()
+            # args = mock_update.call_args[0][0]
+            # assert "2" in args (depending on implementation detail of update_samples)

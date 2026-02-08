@@ -1,100 +1,168 @@
 # @package _global_
+# =============================================================================
+# Training Task Configuration
+# =============================================================================
+# Configuration for reinforcement learning training with PyTorch Lightning.
+# Used by: python main.py train
+#
+# Key Features:
+#   - Adaptive Imitation Learning (IL → RL transition)
+#   - Multi-day temporal training for WCVRP
+#   - Must-go bin selection strategies
+#   - Lightning-based distributed training
+# =============================================================================
 
+# =============================================================================
 # General Configuration
-verbose: true
-seed: 42
-start: 0
+# =============================================================================
+verbose: true  # Enable detailed logging output
+seed: 42  # Random seed for reproducibility
+start: 0  # Starting epoch (for resuming training)
 
+# =============================================================================
 # Environment
+# =============================================================================
 env:
-  name: "vrpp"
+  name: "vrpp"  # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
 
+# =============================================================================
 # Training Settings
+# =============================================================================
 train:
-  train_data_size: 1280
-  val_data_size: 128
-  train_time: true
-  eval_time_days: 7
-  data_distribution: "gamma1"
-  load_dataset: "time"
-  n_epochs: 100
-  batch_size: 128
-  eval_batch_size: 128
-  log_step: 10
-  logs_dir: "logs/output"
-  model_weights_path: "model_weights"
-  persistent_workers: true
-  pin_memory: true
-  reload_dataloaders_every_n_epochs: 0
+  train_data_size: 1280  # Number of training instances per epoch
+  val_data_size: 128  # Number of validation instances
 
+  train_time: true  # Enable multi-day temporal training (for WCVRP)
+  eval_time_days: 7  # Evaluation horizon in days (temporal problems)
+
+  data_distribution: "gamma1"  # Waste generation distribution. Options: gamma1, gamma2, uniform, beta
+  load_dataset: "time"  # Dataset loading mode. Options: "time" (temporal), "static"
+
+  n_epochs: 100  # Total training epochs
+  batch_size: 128  # Training batch size. Reduce if OOM errors occur.
+  eval_batch_size: 128  # Validation batch size (can be larger than train)
+
+  log_step: 10  # Log metrics every N batches
+  logs_dir: "logs/output"  # Directory for training logs
+  model_weights_path: "model_weights"  # Directory for checkpoints
+
+  # DataLoader optimization
+  persistent_workers: true  # Keep workers alive between epochs (faster but more memory)
+  pin_memory: true  # Pin memory for faster GPU transfer
+  reload_dataloaders_every_n_epochs: 0  # Reload data every N epochs (0 = never, for dynamic data)
+
+# =============================================================================
 # Data Configuration
+# =============================================================================
 data:
-  dataset_size: 1280
-  data_distributions: ["gamma1"]
+  dataset_size: 1280  # Total dataset instances (should match train_data_size)
+  data_distributions: ["gamma1"]  # List of distributions for multi-distribution training
 
+# =============================================================================
 # Optimizer Settings
+# =============================================================================
 optim:
-  optimizer: "rmsprop"
-  lr: 0.0001
-  lr_decay: 1.0
-  lr_scheduler: "lambda"
+  optimizer: "rmsprop"  # Optimizer type. Options: adam, adamw, rmsprop, sgd
+  lr: 0.0001  # Learning rate. Typical range: 1e-5 to 1e-3
+  lr_decay: 1.0  # Learning rate decay per epoch (1.0 = no decay)
+  lr_scheduler: "lambda"  # LR scheduler. Options: lambda, step, cosine, exponential
 
-# RL / Algorithm Settings
+# =============================================================================
+# Reinforcement Learning / Algorithm Settings
+# =============================================================================
 rl:
-  algorithm: "adaptive_imitation"
-  baseline: "exponential"
-  bl_alpha: 0.05
-  exp_beta: 0.8
-  max_grad_norm: 1.0
-  gamma: 1.0
+  algorithm: "adaptive_imitation"  # RL algorithm. Options:
+                                   # - "adaptive_imitation": IL → RL transition
+                                   # - "reinforce": REINFORCE with baseline
+                                   # - "ppo": Proximal Policy Optimization
+                                   # - "imitation": Pure imitation learning
 
-  # Algorithm-specific configurations
+  # Baseline Configuration
+  baseline: "exponential"  # Baseline type. Options: exponential, rollout, critic, no
+  bl_alpha: 0.05  # Exponential baseline moving average weight
+  exp_beta: 0.8  # Exponential moving average coefficient
+
+  # Training Stability
+  max_grad_norm: 1.0  # Gradient clipping threshold (prevents explosion)
+  gamma: 1.0  # Discount factor for future rewards (1.0 = no discounting for episodic tasks)
+
+  # =============================================================================
+  # Algorithm-Specific Configurations
+  # =============================================================================
+
+  # PPO (Proximal Policy Optimization)
   ppo:
-    epochs: 7
-    eps_clip: 0.2
+    epochs: 7  # Number of PPO update epochs per batch
+    eps_clip: 0.2  # Clipping parameter for PPO objective
 
+  # Imitation Learning
   imitation:
-    mode: "hgs_alns"
-    loss_fn: "nll"
+    mode: "hgs_alns"  # Expert policy for IL. Options: hgs_alns, hgs, alns, gurobi
+    loss_fn: "nll"  # Loss function. Options: nll (negative log-likelihood), mse
 
+  # Adaptive Imitation Learning (IL → RL)
   adaptive_imitation:
-    il_weight: 1.0
-    il_decay: 0.95
-    patience: 5
-    threshold: 0.05
-    decay_step: 1
-    epsilon: 0.00001
+    il_weight: 1.0  # Initial imitation loss weight (1.0 = pure IL, 0.0 = pure RL)
+    il_decay: 0.95  # IL weight decay per epoch (gradual transition to RL)
+    patience: 5  # Epochs to wait before decaying IL weight if no improvement
+    threshold: 0.05  # Improvement threshold for patience trigger
+    decay_step: 1  # Step size for IL weight decay
+    epsilon: 0.00001  # Minimum IL weight (prevents complete IL shutdown)
 
-# Model Settings
+# =============================================================================
+# Model Settings (Defaults - Override with model=<config>)
+# =============================================================================
 model:
-  name: "am"
-  encoder_type: "gat"
-  policy_config: "assets/configs/policy_hgs.yaml"
+  name: "am"  # Model architecture (overridden by model=<config> CLI arg)
+  encoder_type: "gat"  # Graph encoder type
+  policy_config: "assets/configs/policy_hgs.yaml"  # Expert policy config for IL
 
+# =============================================================================
 # Must-Go Selection Strategy
-# Determines which bins must be collected during training
-# Options: last_minute, regular, lookahead, revenue, service_level, manager, combined, null
+# =============================================================================
+# Determines which bins MUST be collected during each routing decision.
+# Critical for WCVRP training to prevent overflow penalties.
+#
+# Strategy Options:
+#   - last_minute: Collect bins exceeding threshold (reactive)
+#   - regular: Fixed-frequency collection (e.g., every 3 days)
+#   - lookahead: Predict future overflows and collect proactively
+#   - revenue: Collect if revenue > cost
+#   - service_level: Statistical overflow prediction
+#   - manager: Neural network decides must-go bins (HRL)
+#   - combined: Hybrid of multiple strategies
+#   - null: No must-go constraints (free routing)
+# =============================================================================
 must_go:
-  strategy: "lookahead"
-  # LastMinute/Manager threshold
-  threshold: 0.7 # Fill level threshold (0-1) / must_go probability threshold for manager
-  # Regular parameters
-  frequency: 3 # Collection frequency in days
-  # ServiceLevel parameters
-  confidence_factor: 1.0 # Standard deviations for statistical prediction
-  # Revenue parameters
-  revenue_kg: 1.0 # Revenue per kg
-  bin_capacity: 1.0 # Bin capacity
-  revenue_threshold: 0.0 # Minimum revenue threshold
-  # Common parameters
-  max_fill: 1.0 # Overflow threshold
-  # Manager (neural network) parameters - used when strategy: "manager"
-  hidden_dim: 128 # Manager network hidden dimension
-  lstm_hidden: 64 # LSTM hidden dimension for temporal encoding
-  history_length: 10 # Number of timesteps in waste history
-  critical_threshold: 0.9 # Fill level considered critical
-  manager_weights: null # Path to pre-trained manager weights (optional)
-  device: "cuda" # Device for manager computation
+  strategy: "lookahead"  # Default strategy for training
 
+  # LastMinute/Manager threshold
+  threshold: 0.7  # Fill level threshold (0-1). Bins >= threshold are must-go.
+                  # For manager: probability threshold for must-go decision.
+
+  # Regular parameters
+  frequency: 3  # Collection frequency in days (for strategy=regular)
+
+  # ServiceLevel parameters
+  confidence_factor: 1.0  # Standard deviations for statistical prediction (σ multiplier)
+
+  # Revenue parameters
+  revenue_kg: 1.0  # Revenue per kg of waste collected
+  bin_capacity: 1.0  # Maximum bin capacity
+  revenue_threshold: 0.0  # Minimum revenue to justify collection
+
+  # Common parameters
+  max_fill: 1.0  # Overflow threshold (bins at max_fill overflow)
+
+  # Manager (HRL high-level policy) parameters
+  hidden_dim: 128  # Manager network hidden dimension
+  lstm_hidden: 64  # LSTM hidden size for temporal encoding
+  history_length: 10  # Number of past timesteps in waste history
+  critical_threshold: 0.9  # Fill level considered critical for manager
+  manager_weights: null  # Path to pre-trained manager checkpoint (optional)
+  device: "cuda"  # Device for manager inference
+
+# =============================================================================
 # Global flags
-wandb_mode: "disabled"
+# =============================================================================
+wandb_mode: "disabled"  # Weights & Biases logging. Options: online, offline, disabled

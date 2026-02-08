@@ -1,7 +1,78 @@
+# @package _global_
+
+# =============================================================================
+# CVRP (Capacitated Vehicle Routing Problem) Solver Configuration
+# =============================================================================
+# PURPOSE:
+#   Fast heuristic solver for standard CVRP using OR-Tools local search.
+#   Balances solution quality and speed for medium instances (50-150 nodes).
+#
+# ALGORITHM:
+#   1. Construct initial solution using savings heuristic
+#   2. Improve via Guided Local Search (GLS) metaheuristic
+#   3. Apply 2-opt and relocate moves until local optimum
+#
+# BACKEND:
+#   OR-Tools VRP solver with heuristic mode (no branch-and-bound)
+#
+# TYPICAL USE CASES:
+#   - Real-time routing (requires <10s response)
+#   - Large fleets (100-200 nodes) where BCP times out
+#   - Baseline comparison for neural policies
+#
+# PERFORMANCE EXPECTATIONS:
+#   - 50 nodes: Good solutions (gap ~3-5%), <5s runtime
+#   - 100 nodes: Acceptable (gap ~5-10%), ~10s runtime
+#   - 200 nodes: Fast but suboptimal (gap ~15%), ~20s runtime
+# =============================================================================
+
 cvrp:
   ortools:
+    # ---------------------------------------------------------------------
+    # Performance Tuning
+    # ---------------------------------------------------------------------
     - cache: false
+      # Enable/disable distance matrix caching
+      # true = faster repeated solves, higher memory usage
+      # false = recalculate each time, lower memory footprint
+      # Recommendation: false for one-off solves, true for batch experiments
+
+    # ---------------------------------------------------------------------
+    # Node Selection Strategy
+    # ---------------------------------------------------------------------
     - must_go:
-        ["mg_regular_lvl3.xml", "mg_regular_lvl4.xml", "mg_regular_lvl5.xml"]
+        ["mg_regular_lvl3.yaml", "mg_regular_lvl4.yaml", "mg_regular_lvl5.yaml"]
+      # Multiple selection strategies for waste collection
+      # Collects bins when fill level exceeds 70%, 80%, or 90%
+      # Note: Uses regular thresholds instead of lookahead prediction
+      # See: docs/MUST_GO_STRATEGIES.md for strategy comparison
+
+    # ---------------------------------------------------------------------
+    # Runtime Control
+    # ---------------------------------------------------------------------
     - time_limit: 60
+      # Maximum wall-clock seconds for optimization
+      # Range: 5-300 (5s = real-time, 60s = production, 300s = thorough)
+      # OR-Tools will return best solution found within time budget
+
+    # ---------------------------------------------------------------------
+    # Infrastructure Settings
+    # ---------------------------------------------------------------------
     - post_processing: []
+      # Route refinement heuristics (OR-Tools local search handles this)
+      # Empty = trust OR-Tools built-in 2-opt/relocate
+      # OR-Tools already applies: 2-opt, Relocate, Exchange, CROSS
+
+    # ---------------------------------------------------------------------
+    # Solver Parameters (Implicit)
+    # ---------------------------------------------------------------------
+    # OR-Tools CVRP parameters configured in:
+    #   logic/src/policies/multi_vehicle.py
+    #
+    # Key implicit settings:
+    #   - First solution: SAVINGS (Clarke-Wright heuristic)
+    #   - Metaheuristic: GUIDED_LOCAL_SEARCH (escape local optima)
+    #   - Local search operators: 2-opt, Relocate, Exchange, Cross
+    #   - Solution pool: Best 10 solutions maintained
+    #   - Node limit: No limit (runs until time_limit)
+# =============================================================================

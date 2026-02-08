@@ -1,0 +1,35 @@
+# =============================================================================
+# Post-Processing: Fast TSP
+# =============================================================================
+# PURPOSE:
+#   Apply fast TSP solver (Christofides + 2-opt) to refine constructed routes.
+#   Optimizes node sequencing within each route independently.
+#
+# ALGORITHM:
+#   1. For each route in solution:
+#      a. Extract route as TSP instance
+#      b. Apply Christofides heuristic (MST-based construction)
+#      c. Improve with 2-opt local search
+#      d. Replace original route with improved sequence
+#   2. Return refined multi-route solution
+#
+# USE CASES:
+#   - Refine neural policy outputs (AM, TAM often produce suboptimal sequences)
+#   - Quick polish after constructive heuristics
+#   - Default post-processing for most policies
+#
+# PERFORMANCE:
+#   - Very fast: <0.1s per route for 50 nodes
+#   - Improvement: Typically 2-5% cost reduction
+#
+# PARAMETERS:
+#   - methods: [fast_tsp] - Single-method post-processing pipeline
+#   - n_routes: Number of routes to optimize (implicitly all routes)
+# =============================================================================
+
+methods:
+  - fast_tsp
+
+# Fast TSP parameters (implicit from library)
+time_limit: 10.0
+iterations: 1000

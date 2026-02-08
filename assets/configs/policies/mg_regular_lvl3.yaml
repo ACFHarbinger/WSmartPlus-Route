@@ -1,0 +1,26 @@
+# =============================================================================
+# Must-Go Strategy: Regular (Periodic Collection)
+# =============================================================================
+# PURPOSE:
+#   Fixed-frequency collection schedule - collect every N days regardless
+#   of fill level. Traditional waste collection approach.
+#
+# ALGORITHM:
+#   1. Track days since last collection for each bin
+#   2. Mark bin as must-go if days_since_collection >= frequency
+#   3. Deterministic, no fill-level awareness
+#
+# USE CASES:
+#   - Baseline for comparison against adaptive strategies
+#   - Regulatory compliance (mandatory collection intervals)
+#   - Areas with predictable waste generation
+#
+# PARAMETERS:
+#   - frequency: 3 (collect every 3 days)
+#     Range: 1-7 (1 = daily, 7 = weekly)
+#     lvl3 = every 3 days
+# =============================================================================
+
+strategy: regular
+frequency: 3
+max_fill: 100.0

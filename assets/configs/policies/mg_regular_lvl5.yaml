@@ -1,0 +1,25 @@
+# =============================================================================
+# Must-Go Strategy: Regular (5-Day Cycle)
+# =============================================================================
+# PURPOSE:
+#   Least frequent periodic schedule - collect every 5 days. Minimizes
+#   collection frequency but suitable only for low waste generation rates.
+#
+# ALGORITHM:
+#   1. Track days since last collection for each bin
+#   2. Mark bin as must-go if days_since_collection >= 5
+#   3. Deterministic schedule
+#
+# USE CASES:
+#   - Low waste generation areas (rural, residential)
+#   - Maximum cost reduction scenarios
+#   - Comparison baseline for high-frequency strategies
+#
+# PARAMETERS:
+#   - frequency: 5 (collect every 5 days)
+#     lvl5 = every 5 days (weekly work schedule)
+# =============================================================================
+
+strategy: regular
+frequency: 5
+max_fill: 100.0

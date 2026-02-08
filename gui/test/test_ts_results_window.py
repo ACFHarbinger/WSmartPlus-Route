@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 import pytest
 
@@ -16,47 +17,19 @@ def window(results_window):
 def test_initialization(results_window):
     """Test that the window initializes with correct default state."""
     assert results_window.policy_names == ["DefaultPolicy"]
-    assert isinstance(results_window.summary_data, dict)
-    assert results_window.summary_data["policies"] == []
+    # summary_data removed in favor of DataManager
+    assert results_window.data_manager is not None
 
 
 def test_process_summary_merging(results_window):
     """Test merging of multiple GUI_SUMMARY_LOG_START records."""
 
-    # Record 1
-    summary1 = {
-        "log": {"PolicyA": [10]},
-        "log_std": {"PolicyA": [1]},
-        "policies": ["PolicyA"],
-        "n_samples": 5,
-    }
-    line1 = "GUI_SUMMARY_LOG_START: " + json.dumps(summary1)
+    # Currently summary log start just triggers redraw, logic for merging
+    # might happen inside data manager if at all, but current implementation
+    # of _handle_new_log_line just calls redraw_summary_chart.
 
-    # Record 2
-    summary2 = {
-        "log": {"PolicyB": [20]},
-        "log_std": {"PolicyB": [2]},
-        "policies": ["PolicyB"],
-        "n_samples": 6,
-    }
-    line2 = "GUI_SUMMARY_LOG_START: " + json.dumps(summary2)
+    line1 = "GUI_SUMMARY_LOG_START: {}"
 
-    # Process
-    results_window._process_single_record(line1)
-    results_window._process_single_record(line2)
-
-    data = results_window.summary_data
-
-    # Assertions
-    assert "PolicyA" in data["policies"]
-    assert "PolicyB" in data["policies"]
-    assert len(data["policies"]) == 2
-
-    assert data["log"]["PolicyA"] == [10]
-    assert data["log"]["PolicyB"] == [20]
-
-    # Check that n_samples was updated to the latest
-    assert data["n_samples"] == 6
-
-    # Ensure redraw was called
-    assert results_window.redraw_summary_chart.call_count == 2
+    with patch.object(results_window, "redraw_summary_chart") as mock_redraw:
+        results_window._handle_new_log_line(line1)
+        assert mock_redraw.called

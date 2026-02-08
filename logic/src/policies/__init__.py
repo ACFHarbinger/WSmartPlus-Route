@@ -14,20 +14,20 @@ from .adaptive_large_neighborhood_search import (
 )
 from .ant_colony_optimization import run_hyper_heuristic_aco, run_k_sparse_aco
 from .branch_cut_and_price import run_bcp
+from .cvrp import find_routes, find_routes_ortools
 from .hybrid_genetic_search import run_hgs
 from .local_search.local_search_aco import ACOLocalSearch
 from .local_search.local_search_base import LocalSearch
 from .local_search.local_search_hgs import HGSLocalSearch
-from .multi_vehicle import find_routes, find_routes_ortools
+from .must_go.base.selection_context import SelectionContext
+from .must_go.base.selection_factory import MustGoSelectionFactory
+from .must_go.base.selection_registry import MustGoSelectionRegistry
+from .must_go.base.selection_strategy import MustGoSelectionStrategy
 from .neural_agent import NeuralAgent
-from .selection.base.selection_context import SelectionContext
-from .selection.base.selection_factory import MustGoSelectionFactory
-from .selection.base.selection_registry import MustGoSelectionRegistry
-from .selection.base.selection_strategy import MustGoSelectionStrategy
 from .simulated_annealing_neighborhood_search.common.routes import create_points
 from .simulated_annealing_neighborhood_search.refinement.route_search import find_solutions
-from .single_vehicle import find_route, get_route_cost
 from .slack_induction_by_string_removal import run_sisr
+from .tsp import find_route, get_route_cost
 
 __all__ = [
     "ALNSParams",
@@ -53,6 +53,9 @@ __all__ = [
     "run_hgs",
     "run_sisr",
     "run_vrpp_optimizer",
+    "ACOLocalSearch",
+    "HGSLocalSearch",
+    "LocalSearch",
 ]
 
 from .adapters.factory import (

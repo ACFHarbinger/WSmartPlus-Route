@@ -210,6 +210,23 @@ def main(args) -> None:
 
 
 def main_dispatch() -> None:
+    """
+    Dispatch commands to either Hydra-based or legacy argparse-based systems.
+
+    This function routes incoming CLI commands to the appropriate execution path
+    based on the command type. It handles the transition between the old argparse
+    system and the modern Hydra configuration system.
+
+    System Architecture:
+        - Hydra Commands: Configuration-driven, composable, supports sweeps
+        - Legacy Commands: Direct argument parsing, simpler but less flexible
+
+    Args:
+        None (reads from sys.argv)
+
+    Returns:
+        None (calls sys.exit with appropriate code)
+    """
     # ========================================================================
     # Dual Dispatch System
     # ========================================================================
@@ -217,14 +234,21 @@ def main_dispatch() -> None:
     #
     # 1. HYDRA_COMMANDS (below): Modern commands routed through Hydra/Lightning.
     #    Examples: train, eval, test_sim, gen_data
-    #    These bypass parse_params() and go directly to unified_main().
+    #    These bypass parse_params() and go directly to hydra_entry_point().
     #
     # 2. Legacy CLI (parse_params): Traditional argparse-based routing.
     #    Examples: gui, test_suite, file_system
     #    These use the original argument parser and main() function.
     #
-    # The sys.argv manipulation below (lines 296-304) converts user commands
-    # into Hydra-compatible overrides (e.g., 'eval' -> 'task=eval').
+    # The sys.argv manipulation below converts user commands into Hydra-compatible
+    # overrides (e.g., 'eval' -> 'task=eval').
+    #
+    # MIGRATION NOTE: The long-term goal is to migrate ALL commands to Hydra for
+    # consistency and to enable powerful features like config composition, sweeps,
+    # and reproducibility. Priority migration candidates:
+    #   - gui -> Hydra with GUI-specific config group
+    #   - test_suite -> Hydra with test config group
+    #   - file_system -> Hydra with filesystem operations config
     # ========================================================================
     HYDRA_COMMANDS = [
         "train",

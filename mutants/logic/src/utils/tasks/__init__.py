@@ -1,3 +1,0 @@
-"""
-Task utilities module.
-"""

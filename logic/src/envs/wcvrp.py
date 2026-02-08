@@ -63,7 +63,42 @@ class WCVRPEnv(RL4COEnvBase):
         self.cost_weight = cost_km if cost_km is not None else cost_weight
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialize WCVRP episode state."""
+        """
+        Initialize Waste Collection VRP (WCVRP) episode state with capacity tracking.
+
+        This method extends the base VRPP reset logic to add capacity constraints and overflow
+        monitoring for waste collection scenarios. It initializes bin fill levels, vehicle load
+        tracking, and overflow counting.
+
+        Capacity-Specific Initialization:
+            - current_load: Vehicle's current waste load (starts at 0)
+            - total_collected: Cumulative waste collected across all depot returns
+            - cur_overflows: Count of bins currently at or exceeding max_waste threshold
+
+        Args:
+            td (TensorDict): Input tensor dictionary containing:
+                - locs (Tensor): Location coordinates, shape (batch, N, 2) or (batch, N+1, 2)
+                - depot (Tensor): Depot coordinates, shape (batch, 2)
+                - waste (Tensor): Current bin fill levels, shape (batch, N) or (batch, N+1)
+                - max_waste (Tensor): Maximum bin capacity per node, shape (batch, 1) or (batch, N)
+                - capacity (Tensor): Vehicle capacity, shape (batch,)
+                - visited (Tensor, optional): If present, skip reinitialization
+
+        Returns:
+            TensorDict: Updated state with WCVRP-specific fields:
+                - current_node (LongTensor): Starting at depot (0), shape (batch,)
+                - visited (BoolTensor): Depot marked as visited, shape (batch, num_nodes)
+                - tour (LongTensor): Empty tour sequence, shape (batch, 0)
+                - tour_length (Tensor): Zero distance, shape (batch,)
+                - current_load (Tensor): Zero initial load, shape (batch,)
+                - collected_waste (Tensor): Zero collected, shape (batch,)
+                - total_collected (Tensor): Zero total, shape (batch,)
+                - cur_overflows (Tensor): Count of overflowing bins (waste >= max_waste), shape (batch,)
+
+        Note:
+            Overflow counting excludes the depot (index 0) and only considers customer bins.
+            The initial overflow count is computed as sum(waste[1:] >= max_waste[1:]).
+        """
         # If state already initialized (e.g. transductive search resuming), skip coord mod
         if "visited" in td.keys():
             return td
@@ -128,7 +163,47 @@ class WCVRPEnv(RL4COEnvBase):
         return td
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
-        """Execute action and update state."""
+        """
+        Execute a waste collection action with capacity constraints and bin clearing.
+
+        This method extends the base VRPP step logic to handle:
+        1. Capacity-constrained waste collection (collect min of bin level and vehicle capacity)
+        2. Depot emptying (vehicle load resets to 0 when returning to depot)
+        3. Bin clearing (collected bins have waste set to 0)
+        4. Load tracking across multiple depot visits
+
+        Collection Mechanics:
+            - At customer nodes (action != 0):
+                * Collect min(waste_at_node, max_waste, remaining_capacity)
+                * Add collected amount to current_load and total_collected
+                * Set bin waste level to 0 after collection
+            - At depot (action == 0):
+                * Reset current_load to 0 (emptying vehicle)
+                * total_collected remains unchanged (cumulative across trips)
+
+        Args:
+            td (TensorDict): Current state containing:
+                - action (LongTensor): Selected node to visit, shape (batch,)
+                - current_node (LongTensor): Current position, shape (batch,)
+                - current_load (Tensor): Current vehicle load, shape (batch,)
+                - waste (Tensor): Bin fill levels, shape (batch, num_nodes)
+                - max_waste (Tensor): Bin capacity limits, shape (batch, 1) or (batch, num_nodes)
+                - capacity (Tensor): Vehicle capacity, shape (batch,)
+                - visited, tour, tour_length: Inherited tracking fields
+
+        Returns:
+            TensorDict: Updated state with modifications to:
+                - current_load: Increased by collected waste, or reset to 0 at depot
+                - collected_waste: Incremented by collection amount
+                - total_collected: Cumulative waste across all trips (equals collected_waste)
+                - waste: Bin at action index set to 0 after collection
+                - current_node: Updated to action value
+                - tour, tour_length, visited: Updated via parent class
+
+        Note:
+            The method calls super()._step_instance() first to handle base VRP state updates
+            (distance, tour, visited), then applies capacity-specific waste collection logic.
+        """
         action = td["action"]
         waste = td["waste"]
 
@@ -172,13 +247,38 @@ class WCVRPEnv(RL4COEnvBase):
         """
         Compute action mask based on capacity, visited status, and must-go constraints.
 
-        The must_go mask determines routing behavior:
-        - If must_go is None: Standard behavior (depot always valid)
-        - If must_go has True values: Must route to those bins; depot invalid until done
-        - If must_go is all False: No routing needed; depot is valid (stay)
+        This method implements three-tier filtering to determine valid actions:
+        1. **Visit filter**: Exclude already-visited nodes (except depot)
+        2. **Capacity filter**: Exclude bins exceeding remaining vehicle capacity
+        3. **Must-go filter**: Enforce priority routing to critical bins
+
+        Must-Go Routing Logic:
+            - If must_go is None: Standard VRP behavior, depot always valid
+            - If must_go has True values: MUST visit those bins first; depot blocked until complete
+            - If must_go is all False: Episode complete; only depot is valid (return home)
+
+        Edge Cases:
+            - **Vehicle full with must-go bins**: Depot becomes valid to allow emptying
+            - **All must-go bins visited**: Depot becomes valid for return
+            - **No valid customer nodes**: Depot is always fallback to prevent deadlock
+            - **Waste array mismatch**: Dynamically prepends depot zero if needed
+
+        Args:
+            td (TensorDict): Current state containing:
+                - visited (BoolTensor): Visit status, shape (batch, num_nodes)
+                - waste (Tensor): Bin fill levels, shape (batch, num_nodes) or (batch, N)
+                - current_load (Tensor): Current vehicle load, shape (batch,)
+                - capacity (Tensor): Vehicle capacity, shape (batch,)
+                - must_go (BoolTensor, optional): Priority bins, shape (batch, num_nodes)
 
         Returns:
-            Tensor: Boolean mask (batch, num_nodes) where True = valid action.
+            Tensor: Boolean action mask (batch, num_nodes) where True indicates a valid action.
+                    At least one action per batch instance is guaranteed to be valid.
+
+        Note:
+            The capacity check uses remaining_capacity = capacity - current_load.
+            Nodes requiring more waste collection than remaining capacity are masked out,
+            forcing a depot return when the vehicle is near full.
         """
         mask = ~td["visited"].clone()
 

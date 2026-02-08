@@ -1,29 +1,67 @@
 # @package _global_
+# =============================================================================
+# Evaluation Task Configuration
+# =============================================================================
+# Configuration for evaluating trained models on test datasets.
+# Used by: python main.py eval
+#
+# Key Features:
+#   - Multiple decoding strategies (greedy, sampling, beam search)
+#   - Batch evaluation on multiple datasets
+#   - GPU-accelerated inference
+# =============================================================================
 
-# Problem Definition
+# =============================================================================
+# Environment
+# =============================================================================
 env:
-  name: "cwcvrp"
+  name: "cwcvrp"  # Problem type to evaluate. Should match training environment.
 
+# =============================================================================
 # Evaluation Configuration
+# =============================================================================
 eval:
-  decode_type: "greedy"
-  decode_strategy: "greedy"
-  width: [0]
-  softmax_temperature: 1.0
-  val_size: 12800
-  offset: 0
-  eval_batch_size: 256
-  max_calc_batch_size: 12800
-  results_dir: "results_eval"
-  model: "checkpoints/best_model.pt"
-  datasets: ["data/example_vrp_50.pkl"]
+  # Decoding Strategy
+  decode_type: "greedy"  # Decoding method. Options:
+                         # - "greedy": Deterministic, always selects highest-probability action
+                         # - "sampling": Stochastic, samples from probability distribution
+                         # - "beam_search": Explores top-k paths simultaneously
 
-  # Graph Parameters
-  problem: "cwcvrp"
+  decode_strategy: "greedy"  # Alias for decode_type (legacy parameter)
 
-  # Flags (Mapped to EvalConfig fields)
-  overwrite: false
-  no_cuda: false
-  no_progress_bar: false
-  compress_mask: false
-  multiprocessing: false
+  width: [0]  # Beam width for beam search. [0] disables beam search.
+              # For beam search, use [5, 10, 20] to try multiple widths.
+
+  softmax_temperature: 1.0  # Temperature for sampling (decode_type=sampling).
+                            # Range: 0.1-2.0. Lower = more greedy, higher = more random.
+                            # 1.0 = standard softmax.
+
+  # Dataset Configuration
+  val_size: 12800  # Number of instances to evaluate
+  offset: 0  # Starting index in dataset (for partial evaluation)
+
+  # Batching
+  eval_batch_size: 256  # Evaluation batch size.
+                        # Larger = faster but more GPU memory.
+                        # Reduce if OOM errors occur.
+
+  max_calc_batch_size: 12800  # Maximum batch size for internal calculations.
+                              # Should be >= val_size for single-batch processing.
+
+  # I/O Configuration
+  results_dir: "results_eval"  # Directory to save evaluation results
+  model: "checkpoints/best_model.pt"  # Path to trained model checkpoint
+  datasets: ["data/example_vrp_50.pkl"]  # List of dataset paths to evaluate.
+                                          # Can specify multiple for batch evaluation.
+
+  # Problem Configuration
+  problem: "cwcvrp"  # Problem type (should match env.name)
+
+  # =============================================================================
+  # Execution Flags
+  # =============================================================================
+  overwrite: false  # Overwrite existing results if true
+  no_cuda: false  # Force CPU-only evaluation (slower)
+  no_progress_bar: false  # Disable progress bar output
+  compress_mask: false  # Compress action masks for memory efficiency
+  multiprocessing: false  # Enable multiprocessing for CPU parallelization

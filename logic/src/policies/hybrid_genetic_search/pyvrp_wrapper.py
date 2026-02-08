@@ -25,7 +25,7 @@ def solve_pyvrp(dist_matrix, demands, capacity, R, C, values):
     for i in range(1, n_active):
         g = compact_to_global[i]
         d = int(demands.get(g, 0))
-        # Use delivery for demand as in multi_vehicle.py
+        # Use delivery for demand as in cvrp.py
         clients_list.append(pyvrp.Client(x=0, y=0, delivery=d))
 
     depots_list = [pyvrp.Depot(x=0, y=0)]

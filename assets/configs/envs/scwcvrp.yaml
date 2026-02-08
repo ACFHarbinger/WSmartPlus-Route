@@ -1,22 +1,46 @@
 # @package _global_
+# =============================================================================
+# Selective Capacitated Waste Collection VRP (SCWCVRP) Configuration
+# =============================================================================
+# Advanced variant combining:
+#   - Stochastic demand (uncertain waste generation)
+#   - Selective collection (optional bin visits)
+#   - Capacity constraints
+#
+# Most Realistic Problem:
+#   - Not all bins must be collected every day
+#   - Waste generation is uncertain
+#   - Vehicle has capacity limits
+#
+# Use Case: Real-world waste collection optimization where collection
+#           decisions are based on profitability and overflow risk.
+# =============================================================================
 
 env:
-  name: "scwcvrp"
-  num_loc: 50
-  area: "riomaior"
-  waste_type: "plastic"
+  name: "scwcvrp"  # Environment identifier
+  num_loc: 50  # Number of bins. Standard sizes: 20, 50, 100
+  area: "riomaior"  # Geographic area. Options: riomaior, manhattan, random
+  waste_type: "plastic"  # Waste category. Options: plastic, glass, paper, organic
 
-  # Stochastic parameters
-  stochastic: true
-  variance: 0.1
+  # =============================================================================
+  # Stochasticity Parameters
+  # =============================================================================
+  stochastic: true  # Enable stochastic waste generation
+  variance: 0.1  # Fill rate variance (coefficient of variation).
+                 # 0.1 = 10% uncertainty, 0.2 = 20% uncertainty
 
-  # Generation parameters
-  distance_method: "gmaps"
-  vertex_method: "mmn"
-  edge_threshold: 1.0
-  edge_method: "knn"
+  # =============================================================================
+  # Graph Construction
+  # =============================================================================
+  distance_method: "gmaps"  # Distance calculation. Options: gmaps, osm, euclidean, manhattan
+  vertex_method: "mmn"  # Vertex placement. Options: mmn (map-matched), grid, random
+  edge_threshold: 1.0  # Max edge distance for connectivity (km)
+  edge_method: "knn"  # Edge construction. Options: knn, radius, delaunay, complete
 
-  # Reward/Cost Weights
-  cost_weight: 1.0
-  overflow_penalty: 10.0
-  collection_reward: 10.0
+  # =============================================================================
+  # Objective Function Weights
+  # =============================================================================
+  # Selective collection: bins collected only if profitable or near overflow
+  cost_weight: 1.0  # Distance penalty weight
+  overflow_penalty: 10.0  # Overflow penalty weight (critical - prevents service failures)
+  collection_reward: 10.0  # Collection reward weight

@@ -1,25 +1,51 @@
 # @package _global_
+# =============================================================================
+# Mixture of Experts (MoE) Attention Model Configuration
+# =============================================================================
+# AM variant with multiple expert sub-networks for problem specialization.
+#
+# Key Features:
+#   - Multiple expert networks (num_experts)
+#   - Gating network routes inputs to top-k experts
+#   - Better multi-distribution generalization
+#   - Adaptive specialization per problem instance
+#
+# Best For: Meta-learning, multi-distribution training, domain adaptation
+# Trade-off: Higher memory/compute for better generalization
+# =============================================================================
 
 model:
-  name: "moe"
-  embed_dim: 128
-  hidden_dim: 512
-  n_encode_layers: 3
-  n_encoder_sublayers: 1
-  n_predictor_layers: 2
-  n_decode_layers: 2
-  n_heads: 8
-  encoder_type: "gat"
+  name: "moe"  # Model identifier
+  embed_dim: 128  # Node embedding dimension (same as AM)
+  hidden_dim: 512  # Feed-forward hidden size (same as AM)
+  n_encode_layers: 3  # Encoder depth (same as AM)
+  n_encoder_sublayers: 1  # Sublayers per encoder block
+  n_predictor_layers: 2  # GRF predictor depth
+  n_decode_layers: 2  # Decoder depth (same as AM)
+  n_heads: 8  # Attention heads (same as AM)
+  encoder_type: "gat"  # Graph encoder type (same as AM)
 
-  # MoE Specific Parameters
-  num_experts: 4
-  k: 2
-  noisy_gating: true
+  # =============================================================================
+  # MoE-Specific Parameters
+  # =============================================================================
+  num_experts: 4  # Number of expert networks.
+                  # Range: 2-8. More experts = more specialization but higher memory.
+                  # 4 is good balance for multi-distribution problems.
 
-  # Standard Parameters
-  temporal_horizon: 0
-  normalization: "instance"
-  activation: "gelu"
-  dropout: 0.1
-  aggregation_node: "sum"
-  aggregation_graph: "avg"
+  k: 2  # Number of experts activated per input (top-k routing).
+        # Range: 1 to num_experts. k=2 is standard.
+        # Higher k = smoother but more compute.
+
+  noisy_gating: true  # Add noise to gating network for exploration.
+                      # Helps prevent expert collapse (all inputs to one expert).
+                      # Set false for deterministic inference.
+
+  # =============================================================================
+  # Standard Parameters (Inherited from AM)
+  # =============================================================================
+  temporal_horizon: 0  # Temporal lookahead (0 for static problems)
+  normalization: "instance"  # Normalization type
+  activation: "gelu"  # Activation function
+  dropout: 0.1  # Dropout rate
+  aggregation_node: "sum"  # Node-level aggregation
+  aggregation_graph: "avg"  # Graph-level pooling

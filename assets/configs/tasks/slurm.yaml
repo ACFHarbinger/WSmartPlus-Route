@@ -1,27 +1,54 @@
 # @package _global_
+# =============================================================================
+# SLURM Cluster Deployment Configuration
+# =============================================================================
+# Configuration for running jobs on SLURM-managed HPC clusters.
+# Used by: sbatch scripts/slurm.sh (cluster deployment)
+#
+# **Target Audience**: System administrators, cluster users
+# **NOT** used for local development - use train.yaml instead.
+# =============================================================================
 
-# General Slurm Settings
-number_of_cores: 32
-command: "train"
-model: ["amgc"]
-problem: "wcvrp"
-gs: 20 # Graph Size
+# =============================================================================
+# SLURM Resource Allocation
+# =============================================================================
+number_of_cores: 32  # Number of CPU cores to request per job.
+                     # Adjust based on cluster node configuration.
 
-# Train Parameters
-bs: 256 # Batch Size
-ne: 25 # Num Epochs
-es: 0 # Epoch Start
-ebs: 256 # Eval Batch Size
-et: 0.3 # Edge Threshold
+# =============================================================================
+# Job Configuration
+# =============================================================================
+command: "train"  # Command to execute. Options: train, eval, test_sim, gen_data
 
-# Test Parameters
-days: 365
-od: "output" # Output Dir
-ns: 100 # Num Samples
-lvl: []
-cf: []
-nv: 1 # Num Vehicles
+model: ["amgc"]  # List of model names to run (for batch job submission).
+                 # Example: ["am", "tam", "deep_decoder"]
 
+problem: "wcvrp"  # Problem type
+
+gs: 20  # Graph size (number of nodes) - abbreviated for brevity
+
+# =============================================================================
+# Training Parameters (for command="train")
+# =============================================================================
+bs: 256  # Batch size
+ne: 25  # Number of epochs
+es: 0  # Epoch start (for resuming training)
+ebs: 256  # Evaluation batch size
+et: 0.3  # Edge threshold (graph connectivity)
+
+# =============================================================================
+# Test/Simulation Parameters (for command="test_sim")
+# =============================================================================
+days: 365  # Number of simulation days (1 year)
+od: "output"  # Output directory
+ns: 100  # Number of samples/instances
+lvl: []  # Fill level thresholds (empty = use defaults)
+cf: []  # Confidence factors (empty = use defaults)
+nv: 1  # Number of vehicles
+
+# =============================================================================
 # Data Configuration
+# =============================================================================
 data:
-  data_distributions: ["unif", "gamma1"]
+  data_distributions: ["unif", "gamma1"]  # Distributions to test.
+                                          # Cluster jobs often test multiple distributions.

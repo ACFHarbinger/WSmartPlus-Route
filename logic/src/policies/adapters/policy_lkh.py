@@ -1,7 +1,7 @@
 """
 LKH Policy Adapter.
 
-Uses Lin-Kernighan heuristic for TSP optimization.
+Uses Lin-Kernighan-Helsgaun heuristic for TSP optimization.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -10,8 +10,8 @@ import numpy as np
 
 from logic.src.configs.policies import LKHConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.lin_kernighan import solve_lk
-from logic.src.policies.single_vehicle import get_multi_tour, get_route_cost
+from logic.src.policies.lin_kernighan_helsgaun import solve_lkh
+from logic.src.policies.tsp import get_multi_tour, get_route_cost
 
 from .factory import PolicyRegistry
 
@@ -19,9 +19,9 @@ from .factory import PolicyRegistry
 @PolicyRegistry.register("lkh")
 class LKHPolicy(BaseRoutingPolicy):
     """
-    Lin-Kernighan heuristic policy class.
+    Lin-Kernighan-Helsgaun heuristic policy class.
 
-    Uses LK-tour improvement for TSP with capacity-based splitting.
+    Uses LKH-tour improvement for TSP with capacity-based splitting.
     """
 
     def __init__(self, config: Optional[LKHConfig] = None):
@@ -106,7 +106,7 @@ class LKHPolicy(BaseRoutingPolicy):
             for c in range(n_nodes):
                 sub_matrix[r, c] = distance_matrix[map_local_to_global[r]][map_local_to_global[c]]
 
-        lk_tour_local, _ = solve_lk(
+        lk_tour_local, _ = solve_lkh(
             sub_matrix,
             waste=local_waste,
             capacity=capacity,

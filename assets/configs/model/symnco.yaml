@@ -1,23 +1,44 @@
 # @package _global_
+# =============================================================================
+# Symmetric Neural Combinatorial Optimization (SymNCO) Configuration
+# =============================================================================
+# AM variant exploiting problem symmetries for improved generalization.
+#
+# Key Features:
+#   - Projection head for symmetry-aware embeddings
+#   - Better generalization across problem distributions
+#   - Invariance to node permutations and reflections
+#
+# Reference: Kim et al. (2022) "Sym-NCO: Leveraging Symmetricity for
+#            Neural Combinatorial Optimization"
+#
+# Best For: Problems with inherent symmetries (TSP, CVRP, VRPP)
+# =============================================================================
 
 model:
-  name: "symnco"
-  embed_dim: 128
-  hidden_dim: 512
-  n_encode_layers: 3
-  n_encoder_sublayers: 1
-  n_predictor_layers: 2
-  n_decode_layers: 2
-  n_heads: 8
-  encoder_type: "gat"
+  name: "symnco"  # Model identifier
+  embed_dim: 128  # Node embedding dimension (same as AM)
+  hidden_dim: 512  # Feed-forward hidden size (same as AM)
+  n_encode_layers: 3  # Encoder depth (same as AM)
+  n_encoder_sublayers: 1  # Sublayers per encoder block
+  n_predictor_layers: 2  # GRF predictor depth
+  n_decode_layers: 2  # Decoder depth (same as AM)
+  n_heads: 8  # Attention heads (same as AM)
+  encoder_type: "gat"  # Graph encoder type (same as AM)
 
-  # SymNCO specific
-  use_projection_head: true
+  # =============================================================================
+  # SymNCO-Specific Parameters
+  # =============================================================================
+  use_projection_head: true  # Enable symmetry-aware projection head.
+                             # Projects embeddings to symmetry-invariant space.
+                             # Set false to disable symmetry exploitation (reduces to AM).
 
-  # Standard AM params
-  temporal_horizon: 0
-  normalization: "instance"
-  activation: "gelu"
-  dropout: 0.1
-  aggregation_node: "sum"
-  aggregation_graph: "avg"
+  # =============================================================================
+  # Standard Parameters (Inherited from AM)
+  # =============================================================================
+  temporal_horizon: 0  # Temporal lookahead (0 for static problems)
+  normalization: "instance"  # Normalization type
+  activation: "gelu"  # Activation function
+  dropout: 0.1  # Dropout rate
+  aggregation_node: "sum"  # Node-level aggregation
+  aggregation_graph: "avg"  # Graph-level pooling
