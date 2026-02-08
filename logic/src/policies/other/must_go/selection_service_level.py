@@ -18,11 +18,11 @@ from typing import List
 
 import numpy as np
 
-from logic.src.interfaces.must_go import MustGoSelectionStrategy
-from logic.src.policies.must_go.base.selection_context import SelectionContext
+from logic.src.interfaces.must_go import IMustGoSelectionStrategy
+from logic.src.policies.other.must_go.base.selection_context import SelectionContext
 
 
-class ServiceLevelSelection(MustGoSelectionStrategy):
+class ServiceLevelSelection(IMustGoSelectionStrategy):
     """
     Statistical overflow prediction strategy.
     """

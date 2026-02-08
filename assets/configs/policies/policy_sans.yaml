@@ -30,20 +30,23 @@ sans:
   # Recommended for new experiments and production use.
   # ===========================================================================
   new:
-    engine: new
+    engine:
+      new
       # Execution backend: logic/src/policies/simulated_annealing.py (refactored)
 
     # -------------------------------------------------------------------------
     # Runtime Control
     # -------------------------------------------------------------------------
-    time_limit: 60
+    time_limit:
+      60
       # Maximum wall-clock seconds
       # Range: 10-600 (60s = production, 300s = thorough)
 
     # -------------------------------------------------------------------------
     # Constraint Handling
     # -------------------------------------------------------------------------
-    perc_bins_can_overflow: 0
+    perc_bins_can_overflow:
+      0
       # Percentage of bins allowed to overflow in feasible solutions
       # Range: 0.0-0.1 (0 = strict feasibility, 0.1 = allow 10% overflow)
       # Recommendation: 0 for production, 0.05 for research flexibility
@@ -51,20 +54,24 @@ sans:
     # -------------------------------------------------------------------------
     # Temperature Schedule (Geometric Cooling)
     # -------------------------------------------------------------------------
-    T_min: 0.01
+    T_min:
+      0.01
       # Minimum temperature (termination criterion)
       # Range: 0.001-0.1 (lower = longer runtime, higher = earlier stop)
 
-    T_init: 75
+    T_init:
+      75
       # Initial temperature T_0
       # Range: 10-200 (higher = accept worse moves early, more exploration)
       # Rule of thumb: T_init ≈ 10% of average solution cost delta
 
-    iterations_per_T: 5000
+    iterations_per_T:
+      5000
       # Number of neighbor evaluations per temperature level
       # Range: 1000-10000 (higher = more thorough at each temp)
 
-    alpha: 0.95
+    alpha:
+      0.95
       # Cooling rate: T_new = alpha * T_old
       # Range: 0.8-0.99 (0.8 = fast cooling, 0.99 = slow cooling)
       # Standard SA uses 0.90-0.95
@@ -87,7 +94,8 @@ sans:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
-    must_go: ["mg_lookahead.yaml"]
+    must_go:
+      ["other/mg_lookahead.yaml"]
       # Node selection strategy
       # See: docs/MUST_GO_STRATEGIES.md
 
@@ -101,17 +109,21 @@ sans:
   # published results. Uses opaque numeric parameter array.
   # ===========================================================================
   og_a:
-    engine: og
+    engine:
+      og
       # Execution backend: logic/src/policies/look_ahead_collection.py (legacy)
 
-    combination: a
+    combination:
+      a
       # LAC tuning preset: "a" = conservative, "b" = aggressive
       # Affects internal neighborhood operator weights
 
-    time_limit: 60
+    time_limit:
+      60
       # Maximum wall-clock seconds
 
-    must_go: ["mg_lookahead.yaml"]
+    must_go:
+      ["mg_lookahead.yaml"]
       # Node selection strategy
 
     post_processing: []
@@ -121,13 +133,13 @@ sans:
     # WARNING: Do not modify unless reproducing exact published results.
     # Parameter meanings are undocumented in original code.
     params:
-      - 500       # Parameter 0: Suspected to be initial iterations
-      - 75        # Parameter 1: Suspected to be initial temperature
-      - 0.7       # Parameter 2: Suspected to be cooling factor
-      - 0         # Parameter 3: Unknown (always 0)
-      - 0.095     # Parameter 4: Suspected to be acceptance threshold
-      - 0         # Parameter 5: Unknown (always 0)
-      - 0         # Parameter 6: Unknown (always 0)
+      - 500 # Parameter 0: Suspected to be initial iterations
+      - 75 # Parameter 1: Suspected to be initial temperature
+      - 0.7 # Parameter 2: Suspected to be cooling factor
+      - 0 # Parameter 3: Unknown (always 0)
+      - 0.095 # Parameter 4: Suspected to be acceptance threshold
+      - 0 # Parameter 5: Unknown (always 0)
+      - 0 # Parameter 6: Unknown (always 0)
 
   # ===========================================================================
   # ORIGINAL ENGINE: LAC (Look-Ahead Collection) - Variant B
@@ -135,16 +147,20 @@ sans:
   # Same as og_a but with different parameter tuning for larger instances.
   # ===========================================================================
   og_b:
-    engine: og
+    engine:
+      og
       # Execution backend: logic/src/policies/look_ahead_collection.py (legacy)
 
-    combination: b
+    combination:
+      b
       # LAC tuning preset: "b" = more iterations, same temperature
 
-    time_limit: 60
+    time_limit:
+      60
       # Maximum wall-clock seconds
 
-    must_go: ["mg_lookahead.yaml"]
+    must_go:
+      ["mg_lookahead.yaml"]
       # Node selection strategy
 
     post_processing: []
@@ -152,13 +168,13 @@ sans:
 
     # LAC-specific numeric parameters (legacy format)
     params:
-      - 2000      # Parameter 0: Higher iteration count vs variant A
-      - 75        # Parameter 1: Same initial temperature
-      - 0.7       # Parameter 2: Same cooling factor
-      - 0         # Parameter 3: Unknown (always 0)
-      - 0.095     # Parameter 4: Same acceptance threshold
-      - 0         # Parameter 5: Unknown (always 0)
-      - 0         # Parameter 6: Unknown (always 0)
+      - 2000 # Parameter 0: Higher iteration count vs variant A
+      - 75 # Parameter 1: Same initial temperature
+      - 0.7 # Parameter 2: Same cooling factor
+      - 0 # Parameter 3: Unknown (always 0)
+      - 0.095 # Parameter 4: Same acceptance threshold
+      - 0 # Parameter 5: Unknown (always 0)
+      - 0 # Parameter 6: Unknown (always 0)
 
 # =============================================================================
 # BACKWARD COMPATIBILITY ALIASES

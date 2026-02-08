@@ -10,6 +10,7 @@ from .constructive import ConstructivePolicy
 from .eas import EAS
 from .eas_embeddings import EASEmb
 from .eas_layers import EASLay
+from .hybrid import NeuralHeuristicHybrid
 from .improvement_decoder import ImprovementDecoder
 from .improvement_encoder import ImprovementEncoder
 from .improvement_policy import ImprovementPolicy
@@ -34,4 +35,5 @@ __all__ = [
     "EAS",
     "EASEmb",
     "EASLay",
+    "NeuralHeuristicHybrid",
 ]

@@ -44,7 +44,7 @@ tsp:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - must_go: ["mg_last_minute_cf70.yaml"]
+    - must_go: ["other/mg_last_minute_cf70.yaml"]
       # Pre-filter nodes before TSP solving
       # mg_last_minute_cf70.xml: Collect bins when fill ≥70% capacity
       # Alternative strategies: mg_lookahead.yaml (predictive), mg_regular.yaml

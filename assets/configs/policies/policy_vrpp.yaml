@@ -63,7 +63,6 @@ vrpp:
 
     # Objective = Σ profit - psi * Σ cost - Omega * Σ overtime + delta * Σ must_go
     # Gurobi maximizes this combined objective
-
     # ---------------------------------------------------------------------
     # Solver Backend
     # ---------------------------------------------------------------------
@@ -74,7 +73,7 @@ vrpp:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - must_go: ["mg_lookahead.yaml", "mg_service_level0.84.yaml"]
+    - must_go: ["other/mg_lookahead.yaml", "other/mg_service_level0.84.yaml"]
       # Multiple selection strategies (union of both):
       #   1. mg_lookahead.yaml: Bins predicted to overflow soon
       #   2. mg_service_level0.84.xml: Statistical service level ≥84%

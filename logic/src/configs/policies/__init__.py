@@ -11,6 +11,7 @@ from .hgs_alns import HGSALNSConfig
 from .ils import ILSConfig
 from .lkh import LKHConfig
 from .neural import NeuralConfig
+from .other import MustGoConfig, PostProcessingConfig
 from .sans import SANSConfig
 from .sisr import SISRConfig
 from .tsp import TSPConfig
@@ -30,4 +31,6 @@ __all__ = [
     "SISRConfig",
     "TSPConfig",
     "VRPPConfig",
+    "MustGoConfig",
+    "PostProcessingConfig",
 ]

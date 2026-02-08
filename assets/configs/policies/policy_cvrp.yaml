@@ -41,7 +41,11 @@ cvrp:
     # Node Selection Strategy
     # ---------------------------------------------------------------------
     - must_go:
-        ["mg_regular_lvl3.yaml", "mg_regular_lvl4.yaml", "mg_regular_lvl5.yaml"]
+        [
+          "other/mg_regular_lvl3.yaml",
+          "other/mg_regular_lvl4.yaml",
+          "other/mg_regular_lvl5.yaml",
+        ]
       # Multiple selection strategies for waste collection
       # Collects bins when fill level exceeds 70%, 80%, or 90%
       # Note: Uses regular thresholds instead of lookahead prediction

@@ -70,7 +70,7 @@ neural:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - must_go: ["mg_lookahead.yaml"]
+    - must_go: ["other/mg_lookahead.yaml"]
       # Pre-filter nodes before neural model inference
       # Options: mg_lookahead.yaml (predict overflow), mg_last_minute_*.yaml
       # See: docs/MUST_GO_STRATEGIES.md

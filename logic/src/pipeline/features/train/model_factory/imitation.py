@@ -1,121 +1,82 @@
-"""imitation.py module.
+"""Imitation learning model factory.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Creates imitation learning modules from configuration.
+"""
 
-    Example:
-        >>> import imitation
-    """
-import os
 from typing import Any, Dict
 
 import pytorch_lightning as pl
 
 from logic.src.configs import Config
-from logic.src.models.policies.alns import VectorizedALNS
-from logic.src.models.policies.hgs import VectorizedHGS
-from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
-from logic.src.models.policies.random_local_search import (
-    RandomLocalSearchPolicy,
-)
-from logic.src.utils.configs.config_loader import load_yaml_config
-from logic.src.utils.logging.pylogger import get_pylogger
-
-logger = get_pylogger(__name__)
-
-
-def _get_expert_policy(expert_name: str, env_name: str, cfg: Config) -> Any:
-    """get expert policy.
-
-    Args:
-    expert_name (str): Description of expert_name.
-    env_name (str): Description of env_name.
-    cfg (Config): Description of cfg.
-
-    Returns:
-        Any: Description of return value.
-    """
-    expert_map = {
-        "hgs": VectorizedHGS,
-        "alns": VectorizedALNS,
-        "hgs_alns": VectorizedHGSALNS,
-        "random_ls": RandomLocalSearchPolicy,
-    }
-    if expert_name not in expert_map:
-        raise ValueError(f"Unknown expert: {expert_name}")
-
-    expert_cls = expert_map[expert_name]
-    expert_kwargs: Dict[str, Any] = {"env_name": env_name}
-
-    config_path = getattr(cfg.model, "policy_config", None)
-    if config_path is None:
-        default_path = f"assets/configs/model/{expert_name}.yaml"
-        if os.path.exists(default_path):
-            config_path = default_path
-
-    if config_path and os.path.exists(config_path):
-        try:
-            custom_params = load_yaml_config(config_path)
-            if custom_params:
-                expert_kwargs.update(custom_params)
-                logger.info(f"Loaded {expert_name} configuration from {config_path}")
-        except (OSError, ValueError, KeyError) as e:
-            logger.warning(f"Failed to load {expert_name} config from {config_path}: {e}")
-
-    if expert_name in ["random_ls", "2opt"]:
-        if "n_iterations" not in expert_kwargs:
-            expert_kwargs["n_iterations"] = int(getattr(cfg.rl.imitation, "random_ls_iterations", 100))
-        if "op_probs" not in expert_kwargs:
-            expert_kwargs["op_probs"] = getattr(cfg.rl.imitation, "random_ls_op_probs", None)
-
-    return expert_cls(**expert_kwargs)
 
 
 def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
-    """create imitation.
+    """Create imitation learning module.
 
     Args:
-    cfg (Config): Description of cfg.
-    policy (Any): Description of policy.
-    env (Any): Description of env.
-    kw (Dict[str, Any]): Description of kw.
+        cfg: Full training configuration.
+        policy: Student policy to train.
+        env: Environment instance.
+        kw: Additional keyword arguments for the module.
 
     Returns:
-        Any: Description of return value.
+        Configured ImitationLearning module.
     """
     from logic.src.pipeline.rl.core.imitation import ImitationLearning
 
-    expert_policy = _get_expert_policy(cfg.rl.imitation.mode, cfg.env.name, cfg)
-    return ImitationLearning(expert_policy=expert_policy, expert_name=cfg.rl.imitation.mode, **kw)
+    # Validate policy config is provided
+    if cfg.rl.imitation.policy_config is None:
+        raise ValueError("imitation.policy_config must be provided for ImitationLearning")
+
+    return ImitationLearning(
+        policy_config=cfg.rl.imitation.policy_config,
+        env_name=cfg.env.name,
+        loss_fn=cfg.rl.imitation.loss_fn,
+        **kw,
+    )
 
 
 def _create_adaptive_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
-    """create adaptive imitation.
+    """Create adaptive imitation learning module.
 
     Args:
-    cfg (Config): Description of cfg.
-    policy (Any): Description of policy.
-    env (Any): Description of env.
-    kw (Dict[str, Any]): Description of kw.
+        cfg: Full training configuration.
+        policy: Student policy to train.
+        env: Environment instance.
+        kw: Additional keyword arguments for the module.
 
     Returns:
-        Any: Description of return value.
+        Configured AdaptiveImitation module.
     """
     from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
 
-    expert_policy = _get_expert_policy(cfg.rl.imitation.mode, cfg.env.name, cfg)
-    return AdaptiveImitation(expert_policy=expert_policy, **kw)
+    # Validate policy config is provided
+    if cfg.rl.adaptive_imitation.policy_config is None:
+        raise ValueError("adaptive_imitation.policy_config must be provided for AdaptiveImitation")
+
+    return AdaptiveImitation(
+        policy_config=cfg.rl.adaptive_imitation.policy_config,
+        env_name=cfg.env.name,
+        il_weight=cfg.rl.adaptive_imitation.il_weight,
+        il_decay=cfg.rl.adaptive_imitation.il_decay,
+        patience=cfg.rl.adaptive_imitation.patience,
+        threshold=cfg.rl.adaptive_imitation.threshold,
+        decay_step=cfg.rl.adaptive_imitation.decay_step,
+        epsilon=cfg.rl.adaptive_imitation.epsilon,
+        loss_fn=cfg.rl.adaptive_imitation.loss_fn,
+        **kw,
+    )
 
 
 def _create_critic_helper(policy, cfg: Config) -> Any:
-    """create critic helper.
+    """Create critic network from actor policy.
 
     Args:
-    policy (Any): Description of policy.
-    cfg (Config): Description of cfg.
+        policy: Actor policy to create critic from.
+        cfg: Training configuration.
 
     Returns:
-        Any: Description of return value.
+        Initialized critic network.
     """
     from logic.src.models.critic_network.policy import create_critic_from_actor
 

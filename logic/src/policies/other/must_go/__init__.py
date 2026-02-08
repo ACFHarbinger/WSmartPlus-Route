@@ -27,6 +27,7 @@ Example:
     >>> selected_nodes = selector.select(context)
 """
 
+from logic.src.interfaces import IMustGoSelectionStrategy
 from logic.src.models.policies.selection import (
     CombinedSelector,
     LastMinuteSelector,
@@ -40,6 +41,8 @@ from logic.src.models.policies.selection import (
     get_vectorized_selector,
 )
 
+from .base import MustGoSelectionFactory, MustGoSelectionRegistry, SelectionContext
+
 __all__ = [
     # Vectorized selectors for training
     "VectorizedSelector",
@@ -52,4 +55,8 @@ __all__ = [
     "ManagerSelector",
     "get_vectorized_selector",
     "create_selector_from_config",
+    "IMustGoSelectionStrategy",
+    "MustGoSelectionFactory",
+    "MustGoSelectionRegistry",
+    "SelectionContext",
 ]

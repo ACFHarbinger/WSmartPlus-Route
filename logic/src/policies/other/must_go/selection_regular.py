@@ -15,11 +15,11 @@ Example:
 
 from typing import List
 
-from logic.src.interfaces.must_go import MustGoSelectionStrategy
-from logic.src.policies.must_go.base.selection_context import SelectionContext
+from logic.src.interfaces.must_go import IMustGoSelectionStrategy
+from logic.src.policies.other.must_go.base.selection_context import SelectionContext
 
 
-class RegularSelection(MustGoSelectionStrategy):
+class RegularSelection(IMustGoSelectionStrategy):
     """
     Periodic collection strategy.
 

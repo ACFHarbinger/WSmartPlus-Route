@@ -14,7 +14,7 @@ Example:
 
 from typing import Any, Optional, Type, cast
 
-from logic.src.interfaces.must_go import MustGoSelectionStrategy
+from logic.src.interfaces.must_go import IMustGoSelectionStrategy
 
 from .selection_registry import MustGoSelectionRegistry
 
@@ -23,7 +23,7 @@ class MustGoSelectionFactory:
     """Factory for creating Must Go selection strategies."""
 
     @staticmethod
-    def create_strategy(name: str, **kwargs) -> MustGoSelectionStrategy:
+    def create_strategy(name: str, **kwargs) -> IMustGoSelectionStrategy:
         """
         Create a selection strategy by name.
 
@@ -60,7 +60,7 @@ class MustGoSelectionFactory:
                 return cls()
 
         # Check default map
-        cls_def = cast(Optional[Type[MustGoSelectionStrategy]], default_map.get(name.lower()))
+        cls_def = cast(Optional[Type[IMustGoSelectionStrategy]], default_map.get(name.lower()))
         if cls_def:
             try:
                 return cls_def(**kwargs)
@@ -71,7 +71,7 @@ class MustGoSelectionFactory:
         raise ValueError(f"Unknown selection strategy: {name}")
 
     @classmethod
-    def create_from_config(cls, config: Any) -> MustGoSelectionStrategy:
+    def create_from_config(cls, config: Any) -> IMustGoSelectionStrategy:
         """
         Create a selection strategy from a MustGoConfig object.
 

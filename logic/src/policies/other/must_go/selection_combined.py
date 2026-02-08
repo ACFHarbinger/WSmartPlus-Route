@@ -16,13 +16,13 @@ Example:
 
 from typing import Any, Dict, List, Optional, cast
 
-from logic.src.interfaces.must_go import MustGoSelectionStrategy
+from logic.src.interfaces.must_go import IMustGoSelectionStrategy
 
 from .base.selection_context import SelectionContext
 from .base.selection_factory import MustGoSelectionFactory
 
 
-class CombinedSelection(MustGoSelectionStrategy):
+class CombinedSelection(IMustGoSelectionStrategy):
     """
     Combines multiple selection strategies with logical OR or AND.
     """

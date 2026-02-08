@@ -50,7 +50,7 @@ class PostProcessAction(SimulationAction):
             pp_configs = []
 
         if pp_configs:
-            from logic.src.policies.post_processing import PostProcessorFactory
+            from logic.src.policies.other.post_processing import PostProcessorFactory
 
             for entry in pp_configs:
                 if isinstance(entry, PostProcessingConfig):

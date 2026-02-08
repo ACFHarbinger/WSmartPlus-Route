@@ -5,6 +5,7 @@ Trains a policy to mimic an expert solver (e.g., HGS, Local Search).
 
 from __future__ import annotations
 
+from dataclasses import asdict
 from typing import Any
 
 import torch
@@ -36,8 +37,8 @@ class ImitationLearning(RL4COLitModule):
 
     def __init__(
         self,
-        expert_policy: Any = None,  # Policy or Solver class
-        expert_name: str = "hgs",
+        policy_config: Any,  # Expert policy configuration (HGSConfig, ALNSConfig, etc.)
+        env_name: str,
         loss_fn: str = "nll",
         **kwargs,
     ):
@@ -45,16 +46,22 @@ class ImitationLearning(RL4COLitModule):
         Initialize ImitationLearning module.
 
         Args:
-            expert_policy: Expert policy or solver to imitate.
-            expert_name: Name of expert solver ('hgs', 'local_search').
+            policy_config: Expert policy configuration object (HGSConfig, ALNSConfig, etc.).
+            env_name: Environment name for the expert policy.
             loss_fn: Name of loss function to use ('nll', 'kl', 'js', etc.).
             **kwargs: Arguments passed to RL4COLitModule.
         """
         # Baseline is not used in IL, but we keep the structure
         kwargs["baseline"] = "none"
+
+        # Exclude non-serializable objects from hyperparameters
+        self.save_hyperparameters(ignore=["policy_config", "env", "policy"])
+
         super().__init__(**kwargs)
-        self.expert_policy = expert_policy
-        self.expert_name = expert_name
+
+        # Create expert policy from config
+        self.expert_policy = self._create_expert_policy(policy_config, env_name)
+        self.expert_name = type(policy_config).__name__.replace("Config", "").lower()
 
         # Map loss functions
         self._loss_map = {
@@ -66,6 +73,56 @@ class ImitationLearning(RL4COLitModule):
         }
         self.loss_fn_name = loss_fn
         self.loss_fn = self._loss_map.get(loss_fn, nll_loss)
+
+    def _create_expert_policy(self, policy_config: Any, env_name: str) -> Any:
+        """Create expert policy from configuration.
+
+        Args:
+            policy_config: Expert policy configuration (HGSConfig, ALNSConfig, etc.).
+            env_name: Environment name for the policy.
+
+        Returns:
+            Initialized expert policy instance.
+        """
+        from logic.src.configs.rl.policies import (
+            ACOConfig,
+            ALNSConfig,
+            HGSALNSConfig,
+            HGSConfig,
+            ILSConfig,
+            RLSConfig,
+        )
+        from logic.src.models.policies.alns import VectorizedALNS
+        from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
+        from logic.src.models.policies.hgs import VectorizedHGS
+        from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
+        from logic.src.models.policies.iterated_local_search import IteratedLocalSearchPolicy
+        from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
+
+        # Map config types to policy classes
+        config_to_policy_map = {
+            HGSConfig: VectorizedHGS,
+            ALNSConfig: VectorizedALNS,
+            HGSALNSConfig: VectorizedHGSALNS,
+            RLSConfig: RandomLocalSearchPolicy,
+            ILSConfig: IteratedLocalSearchPolicy,
+            ACOConfig: VectorizedACOPolicy,
+        }
+
+        # Get the policy class for this config type
+        policy_cls = config_to_policy_map.get(type(policy_config))
+        if policy_cls is None:
+            raise ValueError(
+                f"Unknown policy config type: {type(policy_config)}. "
+                f"Supported types: {list(config_to_policy_map.keys())}"
+            )
+
+        # Convert config to dict and add env_name
+        config_dict = asdict(policy_config)
+        config_dict["env_name"] = env_name
+
+        # Create and return the policy
+        return policy_cls(**config_dict)
 
     def calculate_loss(
         self,

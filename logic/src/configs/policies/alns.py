@@ -5,8 +5,8 @@ ALNS (Adaptive Large Neighborhood Search) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
-from ..other.must_go import MustGoConfig
-from ..other.post_processing import PostProcessingConfig
+from .other.must_go import MustGoConfig
+from .other.post_processing import PostProcessingConfig
 
 
 @dataclass
