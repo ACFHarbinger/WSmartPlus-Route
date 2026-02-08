@@ -11,9 +11,6 @@ from logic.src.policies.operators.route_operators import (
 )
 
 
-
-
-
 def test_move_relocate_success(mock_ls):
     """Test successful relocation of node 3 to after node 1."""
     # Move node 3 (route 1, pos 0) to route 0 after node 1 (pos 0)

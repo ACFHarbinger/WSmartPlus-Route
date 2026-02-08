@@ -40,7 +40,7 @@ bcp:
       # Execution backend: Google OR-Tools with exact BCP mode
       # Alternative: "vrpy" (VRPy library, slower but more flexible)
 
-    - must_go: ["mg_lookahead.yaml"]
+    - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md

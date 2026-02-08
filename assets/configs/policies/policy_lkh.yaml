@@ -60,7 +60,6 @@ lkh:
     #   - Candidate sets: Dynamic (20-50 nearest neighbors per node)
     #   - Perturbation: Enabled (random 4-opt kicks to escape local optima)
     #   - Time limit: No hard limit (controlled by max_iterations)
-
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
@@ -68,7 +67,7 @@ lkh:
       # Execution backend: logic/src/policies/lin_kernighan.py
       # Uses LKH-3 library (http://webhotel4.ruc.dk/~keld/research/LKH-3/)
 
-    - must_go: ["mg_lookahead.yaml"]
+    - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md

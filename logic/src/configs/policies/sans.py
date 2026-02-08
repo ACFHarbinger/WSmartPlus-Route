@@ -5,8 +5,8 @@ SANS (Simulated Annealing Neighborhood Search) configuration.
 from dataclasses import dataclass
 from typing import List, Literal, Optional
 
-from ..other.must_go import MustGoConfig
-from ..other.post_processing import PostProcessingConfig
+from .other.must_go import MustGoConfig
+from .other.post_processing import PostProcessingConfig
 
 
 @dataclass

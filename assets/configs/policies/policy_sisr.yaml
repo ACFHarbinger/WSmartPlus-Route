@@ -60,7 +60,6 @@ sisr:
 
     # Acceptance: P(accept worse) = exp(-Δcost / T)
     # Standard SA criterion applied after each string reinsertion
-
     # ---------------------------------------------------------------------
     # String Removal Parameters
     # ---------------------------------------------------------------------
@@ -76,7 +75,6 @@ sisr:
 
     # String selection: Random route, random starting position
     # Consecutive nodes removed from that position
-
     # ---------------------------------------------------------------------
     # Diversification Mechanism
     # ---------------------------------------------------------------------
@@ -91,7 +89,6 @@ sisr:
       # Example: 100-node instance, destroy_ratio=0.2 → remove 20 nodes
 
     # Blink helps escape deep local optima by introducing large randomness
-
     # ---------------------------------------------------------------------
     # Insertion Strategy (Implicit)
     # ---------------------------------------------------------------------
@@ -100,14 +97,13 @@ sisr:
     #   - Ties broken randomly
     #
     # Implemented in: logic/src/policies/stochastic_iterative_solution_refinement.py
-
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "custom"
       # Execution backend: logic/src/policies/stochastic_iterative_solution_refinement.py
 
-    - must_go: ["mg_lookahead.yaml"]
+    - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md

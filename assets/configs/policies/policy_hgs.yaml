@@ -70,7 +70,6 @@ hgs:
     #   - Relocate inter-route
     #   - Swap inter-route
     #   - CROSS exchange (remove 2 edges, reconnect differently)
-
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
@@ -78,7 +77,7 @@ hgs:
       # Execution backend: logic/src/policies/hybrid_genetic_search.py
       # Uses PyVRP library (https://pyvrp.org/)
 
-    - must_go: ["mg_lookahead.yaml"]
+    - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md

@@ -1,0 +1,33 @@
+# @package _global_
+
+# =============================================================================
+# RLS (Random Local Search) Expert Policy Configuration for RL Training
+# =============================================================================
+# PURPOSE:
+#   Configuration for using Random Local Search as expert policy in
+#   Imitation Learning or Adaptive Imitation Learning.
+#
+# USAGE:
+#   python main.py train rl.imitation.policy_config=tasks/policies/rl/rls
+# =============================================================================
+
+_target_: logic.src.configs.rl.policies.RLSConfig
+
+# Search Parameters
+n_iterations: 100
+# Number of local search operator applications
+# Range: 50-500 (50 = fast, 100 = balanced, 500 = thorough)
+
+time_limit: 30.0
+# Maximum wall-clock seconds for RLS solver
+# Range: 10-60
+
+# Operator Selection Probabilities
+op_probs:
+  two_opt: 0.25 # Standard 2-opt (intra-route)
+  swap: 0.15 # Swap two nodes
+  relocate: 0.15 # Move single node
+  two_opt_star: 0.2 # 2-opt* (inter-route)
+  swap_star: 0.15 # Swap between routes
+  three_opt: 0.1 # 3-opt reconnection
+# Note: Probabilities are normalized internally if they don't sum to 1

@@ -5,8 +5,8 @@ ILS (Iterated Local Search) configuration.
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 
-from ..other.must_go import MustGoConfig
-from ..other.post_processing import PostProcessingConfig
+from .other.must_go import MustGoConfig
+from .other.post_processing import PostProcessingConfig
 
 
 @dataclass

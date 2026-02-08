@@ -2,14 +2,14 @@
 
 from dataclasses import dataclass, field
 
-from .adaptive_imitation import AdaptiveImitationConfig
-from .gdpo import GDPOConfig
-from .grpo import GRPOConfig
-from .imitation import ImitationConfig
-from .pomo import POMOConfig
-from .ppo import PPOConfig
-from .sapo import SAPOConfig
-from .symnco import SymNCOConfig
+from .core.adaptive_imitation import AdaptiveImitationConfig
+from .core.gdpo import GDPOConfig
+from .core.grpo import GRPOConfig
+from .core.imitation import ImitationConfig
+from .core.pomo import POMOConfig
+from .core.ppo import PPOConfig
+from .core.sapo import SAPOConfig
+from .core.symnco import SymNCOConfig
 
 
 @dataclass

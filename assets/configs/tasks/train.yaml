@@ -12,6 +12,11 @@
 #   - Lightning-based distributed training
 # =============================================================================
 
+defaults:
+  - /tasks/policies/hgs_alns@rl.imitation.policy_config
+  - /tasks/policies/hgs_alns@rl.adaptive_imitation.policy_config
+  - _self_
+
 # =============================================================================
 # General Configuration
 # =============================================================================
@@ -98,17 +103,24 @@ rl:
 
   # Imitation Learning
   imitation:
-    mode: "hgs_alns" # Expert policy for IL. Options: hgs_alns, hgs, alns
-    loss_fn: "nll" # Loss function. Options: nll (negative log-likelihood), mse
+    # Expert policy configuration loaded from defaults: /tasks/policies/rl/hgs_alns
+    # Override via CLI: rl.imitation.policy_config@=/tasks/policies/rl/hgs
+    # Override params: rl.imitation.policy_config.time_limit=60.0
+    # policy_config is populated by defaults list (see top of file)
+    loss_fn: "nll" # Loss function. Options: nll, weighted_nll, kl, reverse_kl, js
 
   # Adaptive Imitation Learning (IL → RL)
   adaptive_imitation:
+    # Expert policy configuration loaded from defaults: /tasks/policies/rl/hgs_alns
+    # Override via CLI: rl.adaptive_imitation.policy_config@=/tasks/policies/rl/hgs
+    # policy_config is populated by defaults list (see top of file)
     il_weight: 1.0 # Initial imitation loss weight (1.0 = pure IL, 0.0 = pure RL)
     il_decay: 0.95 # IL weight decay per epoch (gradual transition to RL)
     patience: 5 # Epochs to wait before decaying IL weight if no improvement
     threshold: 0.0001 # Improvement threshold (lowered from 0.05 due to small reward scale)
     decay_step: 1 # Step size for IL weight decay
     epsilon: 1.0e-6 # Minimum IL weight (prevents complete IL shutdown)
+    loss_fn: "weighted_nll" # Loss function. Options: nll, weighted_nll, kl, reverse_kl
 
 # =============================================================================
 # Model Settings (Defaults - Override with model=<config>)

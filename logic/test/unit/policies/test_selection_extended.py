@@ -1,10 +1,10 @@
 
 import numpy as np
 import pytest
-from logic.src.policies.must_go.selection_last_minute import LastMinuteSelection
-from logic.src.policies.must_go.selection_service_level import ServiceLevelSelection
-from logic.src.policies.must_go.selection_revenue import RevenueThresholdSelection
-from logic.src.policies.must_go.base.selection_context import SelectionContext
+from logic.src.policies.other.must_go.selection_last_minute import LastMinuteSelection
+from logic.src.policies.other.must_go.selection_service_level import ServiceLevelSelection
+from logic.src.policies.other.must_go.selection_revenue import RevenueThresholdSelection
+from logic.src.policies.other.must_go.base.selection_context import SelectionContext
 
 @pytest.fixture
 def base_context():

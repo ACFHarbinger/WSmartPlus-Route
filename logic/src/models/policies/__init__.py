@@ -10,8 +10,6 @@ Registries:
 - ``get_policy(name, **kwargs)``: Factory function for instantiation.
 """
 
-from typing import TYPE_CHECKING
-
 import torch.nn as nn
 
 from logic.src.models.attention_model.deep_decoder_policy import DeepDecoderPolicy
@@ -20,6 +18,7 @@ from logic.src.models.attention_model.symnco_policy import SymNCOPolicy
 from logic.src.models.common import (
     ConstructivePolicy,
     ImprovementPolicy,
+    NeuralHeuristicHybrid,
     NonAutoregressivePolicy,
 )
 from logic.src.models.dact.policy import DACTPolicy
@@ -39,7 +38,6 @@ from .alns import VectorizedALNS
 from .ant_colony_system import VectorizedACOPolicy
 from .hgs import VectorizedHGS
 from .hgs_alns import VectorizedHGSALNS
-from .hybrid import NeuralHeuristicHybrid
 from .iterated_local_search import IteratedLocalSearchPolicy
 
 # Short-name registry: CLI model name -> (module_path, class_name)

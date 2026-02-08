@@ -5,8 +5,8 @@ ACO (Ant Colony Optimization) configuration.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from ..other.must_go import MustGoConfig
-from ..other.post_processing import PostProcessingConfig
+from .other.must_go import MustGoConfig
+from .other.post_processing import PostProcessingConfig
 
 
 @dataclass

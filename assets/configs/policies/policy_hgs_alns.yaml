@@ -73,7 +73,6 @@ hgs_alns:
     #   - start_temp: 100, cooling_rate: 0.995
     #   - Destroy operators: Random, Worst, Shaw, String
     #   - Repair operators: Greedy, Regret-2, Regret-3
-
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
@@ -81,7 +80,7 @@ hgs_alns:
       # Execution backend: logic/src/policies/hybrid_genetic_search.py
       # Automatically coordinates HGS and ALNS phases
 
-    - must_go: ["mg_lookahead.yaml"]
+    - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
