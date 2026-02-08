@@ -10,6 +10,8 @@ import torch
 import torch.nn.functional as F
 from tensordict import TensorDict
 
+from logic.src.constants.models import NUMERICAL_EPSILON
+
 from .base import DecodingStrategy
 
 
@@ -37,7 +39,7 @@ class Greedy(DecodingStrategy):
         probs = F.softmax(logits, dim=-1)
 
         action = probs.argmax(dim=-1)
-        log_prob = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-8).squeeze(-1)
+        log_prob = torch.log(probs.gather(1, action.unsqueeze(-1)) + NUMERICAL_EPSILON).squeeze(-1)
 
         # Entropy for greedy is 0 since it's deterministic
         entropy = torch.zeros_like(log_prob)

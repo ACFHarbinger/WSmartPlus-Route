@@ -41,12 +41,12 @@ def test_batch_scaler_shift_invariance(rewards, shift):
     Test that BatchRewardScaler is invariant to additive shifts.
     f(x + c) = f(x)
     """
-    scaler = RewardScaler(scale="norm", eps=1e-8)
+    scaler1 = RewardScaler(scale="norm", eps=1e-8)
+    out1 = scaler1(rewards)
 
-    out1 = scaler(rewards)
-    out2 = scaler(rewards + shift)
+    scaler2 = RewardScaler(scale="norm", eps=1e-8)
+    out2 = scaler2(rewards + shift)
 
-    # Should be close
     # Should be close
     if rewards.std(correction=0) > 1e-2:
         assert torch.allclose(out1, out2, atol=1e-3)
@@ -60,10 +60,11 @@ def test_batch_scaler_scale_invariance(rewards, scale):
     f(c * x) = f(x) if c > 0
     f(c * x) = -f(x) if c < 0 (but st generates positive scale here)
     """
-    scaler = RewardScaler(scale="norm", eps=1e-8)
+    scaler1 = RewardScaler(scale="norm", eps=1e-8)
+    out1 = scaler1(rewards)
 
-    out1 = scaler(rewards)
-    out2 = scaler(rewards * scale)
+    scaler2 = RewardScaler(scale="norm", eps=1e-8)
+    out2 = scaler2(rewards * scale)
 
     if rewards.std(correction=0) > 1e-2:
         assert torch.allclose(out1, out2, atol=1e-3)

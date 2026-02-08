@@ -2,7 +2,7 @@
 State and Cost utilities for Simulated Annealing.
 """
 
-from logic.src.constants.optimization import (
+from logic.src.constants.routing import (
     MAX_CAPACITY_PERCENT,
     PENALTY_MUST_GO_MISSED,
 )

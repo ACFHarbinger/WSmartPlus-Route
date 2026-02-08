@@ -42,7 +42,7 @@ class SharedBaseline(Baseline):
         if self.critic is not None:
             return  # Already built
 
-        from logic.src.models.policies.critic import create_critic_from_actor
+        from logic.src.models.critic_network.policy import create_critic_from_actor
 
         self.critic = create_critic_from_actor(policy)
 

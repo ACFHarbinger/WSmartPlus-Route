@@ -68,7 +68,7 @@ def _create_adaptive_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> 
 
 
 def _create_critic_helper(policy, cfg: Config) -> Any:
-    from logic.src.models.policies.critic import create_critic_from_actor
+    from logic.src.models.critic_network.policy import create_critic_from_actor
 
     return create_critic_from_actor(
         policy,

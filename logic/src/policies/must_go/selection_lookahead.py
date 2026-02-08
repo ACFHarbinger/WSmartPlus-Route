@@ -6,7 +6,8 @@ from typing import List
 
 import numpy as np
 
-from .base.selection_strategy import MustGoSelectionStrategy, SelectionContext
+from logic.src.interfaces.must_go import MustGoSelectionStrategy
+from logic.src.policies.must_go.base.selection_context import SelectionContext
 
 
 class LookaheadSelection(MustGoSelectionStrategy):

@@ -1283,7 +1283,7 @@ class TestDayResults:
         N_BINS = 3
 
         # Patch get_route_cost used by NeuralAgent
-        mocker.patch("logic.src.policies.neural_agent.simulator.get_route_cost", return_value=50.0)
+        mocker.patch("logic.src.policies.neural_agent.simulation.get_route_cost", return_value=50.0)
 
         # --- 1. Setup Filesystem ---
         mock_root_dir = tmp_path

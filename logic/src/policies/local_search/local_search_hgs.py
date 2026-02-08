@@ -18,13 +18,13 @@ class HGSLocalSearch(LocalSearch):
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        waste: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
         params: "HGSParams",
     ):
-        super().__init__(dist_matrix, demands, capacity, R, C, params)
+        super().__init__(dist_matrix, waste, capacity, R, C, params)
 
     def optimize(self, solution: "Individual") -> "Individual":
         """

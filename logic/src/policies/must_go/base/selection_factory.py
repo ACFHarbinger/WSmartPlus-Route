@@ -1,7 +1,8 @@
 from typing import Any, Optional, Type, cast
 
+from logic.src.interfaces.must_go import MustGoSelectionStrategy
+
 from .selection_registry import MustGoSelectionRegistry
-from .selection_strategy import MustGoSelectionStrategy
 
 
 class MustGoSelectionFactory:

@@ -116,7 +116,7 @@ def hgs_inputs():
         [30, 20, 10, 0, 10],
         [40, 30, 20, 10, 0],
     ]
-    demands = {1: 10, 2: 10, 3: 10, 4: 10}
+    waste = {1: 10, 2: 10, 3: 10, 4: 10}
     capacity = 100
     R = 1.0
     C = 1.0
@@ -126,7 +126,7 @@ def hgs_inputs():
 
     return (
         dist_matrix,
-        demands,
+        waste,
         capacity,
         R,
         C,

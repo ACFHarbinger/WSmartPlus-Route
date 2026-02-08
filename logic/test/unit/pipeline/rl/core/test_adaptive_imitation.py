@@ -11,7 +11,7 @@ class TestAdaptiveImitation:
     def expert_policy(self):
         policy = MagicMock()
         # Mock forward return
-        policy.return_value = {"actions": torch.tensor([[0, 1]])}
+        policy.return_value = {"actions": torch.tensor([[0, 1]]), "reward": torch.tensor([2.0])}
         return policy
 
     @pytest.fixture
@@ -89,7 +89,8 @@ class TestAdaptiveImitation:
 
             # Verify policy call args manually to avoid RuntimeError with tensors
             args, kwargs = adaptive_imitation_module.policy.call_args
-            assert args[0] is td  # td
+            # The policy call uses the tensor dict returned by env.reset(td), which is a new object
+            assert args[0] is not td  # It's a new dict from reset
             assert args[1] is adaptive_imitation_module.env  # env
             assert torch.equal(kwargs["actions"], torch.tensor([[0, 1]]))
 

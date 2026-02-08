@@ -34,6 +34,7 @@ class TestRL4COLitModule:
         assert model.env == env
         assert model.policy == policy
         assert model.batch_size == 32
+        print(f"DEBUG: hparams keys: {model.hparams.keys()}")
         assert "batch_size" in model.hparams
         assert model.hparams["batch_size"] == 32
 

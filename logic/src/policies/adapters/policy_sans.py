@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from logic.src.configs.policies import SANSConfig
-from logic.src.constants.optimization import (
+from logic.src.constants.routing import (
     DEFAULT_COMBINATION,
     DEFAULT_SHIFT_DURATION,
     DEFAULT_TIME_LIMIT,

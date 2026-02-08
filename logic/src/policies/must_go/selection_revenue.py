@@ -6,8 +6,9 @@ from typing import List
 
 import numpy as np
 
+from logic.src.interfaces.must_go import MustGoSelectionStrategy
+
 from .base.selection_context import SelectionContext
-from .base.selection_strategy import MustGoSelectionStrategy
 
 
 class RevenueThresholdSelection(MustGoSelectionStrategy):

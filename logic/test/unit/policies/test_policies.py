@@ -102,7 +102,8 @@ class TestPolicyAdapters:
             assert isinstance(policy, LKHPolicy)
             tour, cost, extra = policy.execute(policy="lkh_1.0", **mock_policy_data)
             # LKH policy adds +1 to indices internally, so input [1] becomes index 2
-            assert tour == [0, 2, 0]
+            # Update: mapping is now 1-to-1 for local execution, so [0, 1, 0] is expected
+            assert tour == [0, 1, 0]
             assert mock_run.called
 
 
@@ -116,7 +117,7 @@ class TestAdvancedSolverEngines:
         """Tests the custom HGS engine integration."""
         (
             dist_matrix,
-            demands,
+            waste,
             capacity,
             R,
             C,
@@ -127,7 +128,7 @@ class TestAdvancedSolverEngines:
         values = {"hgs_engine": "custom", "time_limit": 1}
         routes, fitness, cost = run_hgs(
             dist_matrix,
-            demands,
+            waste,
             capacity,
             R,
             C,
@@ -146,7 +147,7 @@ class TestAdvancedSolverEngines:
         """Tests the PyVRP HGS engine integration."""
         (
             dist_matrix,
-            demands,
+            waste,
             capacity,
             R,
             C,
@@ -157,7 +158,7 @@ class TestAdvancedSolverEngines:
         values = {"hgs_engine": "pyvrp", "time_limit": 1}
         routes, fitness, cost = run_hgs(
             dist_matrix,
-            demands,
+            waste,
             capacity,
             R,
             C,

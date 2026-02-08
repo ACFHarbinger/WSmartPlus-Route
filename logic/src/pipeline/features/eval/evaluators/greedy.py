@@ -32,10 +32,24 @@ class GreedyEval(EvalBase):
 
         metrics = {
             "avg_reward": avg_reward,
-            "total_time": total_time,
+            "duration": total_time,
             "samples_per_second": len(data_loader.dataset) / total_time,
         }
 
         if return_results:
+            # Assuming output has 'reward' and 'actions' (or 'sequences'?)
+            # AttentionModel output usually has 'reward', 'log_likelihood', 'actions'
+            metrics["rewards"] = torch.cat([r["reward"] for r in results]).cpu()
+
+            # Pad sequences to max length
+            max_len = max([r["actions"].size(-1) for r in results])
+            padded_actions = []
+            for r in results:
+                act = r["actions"]
+                pad_len = max_len - act.size(-1)
+                if pad_len > 0:
+                    act = torch.nn.functional.pad(act, (0, pad_len), value=0)
+                padded_actions.append(act)
+            metrics["sequences"] = torch.cat(padded_actions).cpu()
             metrics["results"] = results
         return metrics

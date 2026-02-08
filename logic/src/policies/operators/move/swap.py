@@ -20,8 +20,8 @@ def move_swap(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> boo
     if r_u == r_v and abs(p_u - p_v) <= 1:
         return False
 
-    dem_u = ls.demands.get(u, 0)
-    dem_v = ls.demands.get(v, 0)
+    dem_u = ls.waste.get(u, 0)
+    dem_v = ls.waste.get(v, 0)
 
     if r_u != r_v:
         if ls._get_load_cached(r_u) - dem_u + dem_v > ls.Q:

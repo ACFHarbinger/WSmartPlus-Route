@@ -9,6 +9,7 @@ class TestSolverParity:
     """Compare solvers on identical instances."""
 
     @pytest.mark.integration
+    @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
     def test_parity_small_instance(self, parity_instance, check_license):
         data = parity_instance
         results = {}

@@ -5,10 +5,10 @@ Main Neural Agent class assembling mixins.
 from __future__ import annotations
 
 from .batch import BatchMixin
-from .simulator import SimulatorMixin
+from .simulation import SimulationMixin
 
 
-class NeuralAgent(BatchMixin, SimulatorMixin):
+class NeuralAgent(BatchMixin, SimulationMixin):
     """
     Agent interface between simulator/environment and neural routing models.
 

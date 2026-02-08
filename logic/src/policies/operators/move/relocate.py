@@ -19,7 +19,7 @@ def move_relocate(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) ->
     """
     if r_u == r_v and (p_u == p_v + 1):
         return False
-    dem_u = ls.demands.get(u, 0)
+    dem_u = ls.waste.get(u, 0)
 
     if r_u != r_v:
         if ls._get_load_cached(r_v) + dem_u > ls.Q:

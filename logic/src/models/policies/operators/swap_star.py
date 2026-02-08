@@ -4,7 +4,7 @@ Swap* local search operator (inter-route swap with re-insertion).
 
 import torch
 
-from logic.src.constants.optimization import IMPROVEMENT_EPSILON
+from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
 def vectorized_swap_star(tours, dist_matrix, max_iterations=100):

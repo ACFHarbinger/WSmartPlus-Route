@@ -54,10 +54,10 @@ def policies_solution_values():
 
 class MockLS:
     """Mock LocalSearch object for operator testing."""
-    def __init__(self, routes, dist_matrix, demands, capacity):
+    def __init__(self, routes, dist_matrix, waste, capacity):
         self.routes = routes
         self.d = dist_matrix
-        self.demands = demands
+        self.waste = waste
         self.Q = capacity
         self.C = 1.0 # Minimize distance
         # Precompute initial loads
@@ -70,7 +70,7 @@ class MockLS:
         self._update_map = MagicMock()
 
     def _calc_load_fresh(self, r):
-        return sum(self.demands.get(x, 0) for x in r)
+        return sum(self.waste.get(x, 0) for x in r)
 
     def _get_load_cached(self, ri):
         return self.route_loads[ri]
@@ -105,7 +105,7 @@ def mock_ls():
     # 2 is close to 3?
     d[2, 3] = d[3, 2] = 1.0
 
-    demands = {1: 10, 2: 10, 3: 10, 4: 10}
+    waste = {1: 10, 2: 10, 3: 10, 4: 10}
     capacity = 100.0
 
-    return MockLS(routes, d, demands, capacity)
+    return MockLS(routes, d, waste, capacity)
