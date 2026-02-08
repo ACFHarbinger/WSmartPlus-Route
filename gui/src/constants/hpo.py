@@ -1,3 +1,7 @@
+"""
+Hyperparameter optimization constants for the GUI.
+"""
+
 # Hyper-Parameter Optimization
 HPO_METRICS = {
     "Training Loss": "loss",

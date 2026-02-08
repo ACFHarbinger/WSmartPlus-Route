@@ -1,3 +1,7 @@
+"""
+Configuration tab for model decoding and search strategies.
+"""
+
 from PySide6.QtWidgets import (
     QComboBox,
     QDoubleSpinBox,
@@ -18,6 +22,7 @@ class EvalDecodingTab(QWidget):
     """
 
     def __init__(self):
+        """Build the decoding strategy configuration layout."""
         super().__init__()
 
         scroll_area = QScrollArea()
@@ -48,6 +53,12 @@ class EvalDecodingTab(QWidget):
         QVBoxLayout(self).addWidget(scroll_area)
 
     def get_params(self):
+        """
+        Collect decoding strategy and temperature parameters.
+
+        Returns:
+            dict: Strategy mapping and softmax temperature.
+        """
         # beam_width is nargs='+', so it needs special handling for output
         beam_width_str = self.beam_width_input.text().strip()
 

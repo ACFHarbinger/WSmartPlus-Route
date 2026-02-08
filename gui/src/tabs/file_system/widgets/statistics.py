@@ -1,3 +1,7 @@
+"""
+Widget for statistics update parameters in the file system.
+"""
+
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
     QComboBox,
@@ -15,7 +19,17 @@ from ....constants import FUNCTION_MAP
 
 
 class StatisticsUpdateWidget(QWidget):
+    """
+    Collapsible widget for configuring statistics calculation.
+    """
+
     def __init__(self, parent=None):
+        """
+        Initialize the statistics update widget.
+
+        Args:
+            parent (QWidget, optional): Parent widget. Defaults to None.
+        """
         super().__init__(parent)
         self.layout = QFormLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)

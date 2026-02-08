@@ -1,3 +1,7 @@
+"""
+Dashboard and visualization for simulation results.
+"""
+
 from __future__ import annotations
 
 import json
@@ -26,7 +30,14 @@ from .widgets.visualization import VisualizationWidget
 
 
 class OutputAnalysisTab(QWidget):
+    """
+    Main tab for analyzing and visualizing simulation results from JSON/TensorBoard files.
+    """
+
     def __init__(self):
+        """
+        Initialize the OutputAnalysisTab and setup sub-widgets.
+        """
         super().__init__()
         self.state = OutputDataState()
 
@@ -107,6 +118,9 @@ class OutputAnalysisTab(QWidget):
             QMessageBox.warning(self, "TensorBoard Error", f"Failed to launch TensorBoard: {e}")
 
     def load_files(self):
+        """
+        Open a file dialog to load output files and trigger data processing.
+        """
         file_paths, _ = QFileDialog.getOpenFileNames(
             self, "Open Output File(s)", "", "Output Files (*.json *.jsonl *.tfevents*)"
         )
@@ -135,6 +149,7 @@ class OutputAnalysisTab(QWidget):
             return
 
         try:
+            """Process and merge the selected output files."""
             if self.state.json_data:
                 all_policy_names = self.state.json_data.pop("__Policy_Names__", [])
                 all_distributions = self.state.json_data.pop("__Distributions__", [])
@@ -234,6 +249,9 @@ class OutputAnalysisTab(QWidget):
             QMessageBox.critical(self, "Error", f"Failed to process files: {e}")
 
     def plot_json_key(self):
+        """
+        Generate a plot based on the current selections in the control widget.
+        """
         if not self.state.json_data:
             return
 
@@ -250,4 +268,7 @@ class OutputAnalysisTab(QWidget):
         self.visualization.setCurrentIndex(1)
 
     def shutdown(self):
+        """
+        Clean up resources (processes and data state) before closing.
+        """
         self.state.clear()

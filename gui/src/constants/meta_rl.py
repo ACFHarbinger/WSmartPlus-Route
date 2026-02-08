@@ -1,3 +1,7 @@
+"""
+Meta-Reinforcement Learning constants for the GUI.
+"""
+
 # Meta-Reinforcement Learning
 MRL_METHODS = {
     "": None,

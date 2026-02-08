@@ -1,3 +1,7 @@
+"""
+GUI tab for deleting file system entries.
+"""
+
 import os
 
 from PySide6.QtWidgets import (
@@ -24,6 +28,7 @@ class FileSystemDeleteTab(QWidget):
     """
 
     def __init__(self):
+        """Build the file system deletion configuration layout."""
         super().__init__()
         # 1. Create a container widget for all content
         scrollable_content = QWidget()

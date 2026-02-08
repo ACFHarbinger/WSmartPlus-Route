@@ -24,6 +24,13 @@ class SummaryStatisticsTab(QWidget):
     redrawRequested = Signal()
 
     def __init__(self, policy_names: List[str], parent=None):
+        """
+        Initialize the summary statistics view.
+
+        Args:
+            policy_names: List of policy names for comparison.
+            parent: Optional parent widget.
+        """
         super().__init__(parent)
         self.policy_names = policy_names
         self.setup_ui()

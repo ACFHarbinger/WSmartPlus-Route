@@ -1,3 +1,7 @@
+"""
+Visualization widgets for Output Analysis.
+"""
+
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from PySide6.QtWidgets import (
@@ -9,7 +13,14 @@ from PySide6.QtWidgets import (
 
 
 class VisualizationWidget(QTabWidget):
+    """
+    Tabbed widget for displaying data summaries and Matplotlib visualizations.
+    """
+
     def __init__(self, parent=None):
+        """
+        Initialize the visualization widget with summary and chart tabs.
+        """
         super().__init__(parent)
 
         # Tab 1: Text Summary
@@ -26,6 +37,9 @@ class VisualizationWidget(QTabWidget):
         self.addTab(self.chart_widget, "Visualization")
 
     def clear(self):
+        """
+        Clear the text summary and reset the Matplotlib figure.
+        """
         self.text_view.clear()
         self.figure.clear()
         self.canvas.draw()

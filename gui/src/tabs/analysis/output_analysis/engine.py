@@ -26,6 +26,14 @@ def extract_num_bins_from_path(fpath: str) -> int:
 def pivot_json_data(data: Dict[str, Any], filename_prefix: str = "", file_id: Any = None) -> Dict[str, List[Any]]:
     """
     Pivots nested JSON data into a flat metrics dictionary.
+
+    Args:
+        data (dict): The nested results dictionary from a JSON log.
+        filename_prefix (str): Prefix to use for policy names if not present.
+        file_id (any): Identifier for the source file.
+
+    Returns:
+        dict: Flattened dictionary with __Policy_Names__, __Distributions__, and __File_IDs__.
     """
     metrics = defaultdict(list)
     policy_names = []
@@ -65,7 +73,15 @@ def pivot_json_data(data: Dict[str, Any], filename_prefix: str = "", file_id: An
 
 
 def process_tensorboard_file(fpath: str) -> Dict[str, List[Any]]:
-    """Extracts scalar data from a TensorBoard event file."""
+    """
+    Extracts scalar data from a TensorBoard event file.
+
+    Args:
+        fpath (str): Path to the tfevents file.
+
+    Returns:
+        dict: Dictionary of metrics indexed by tag name.
+    """
     ea = EventAccumulator(fpath)
     ea.Reload()
 
@@ -104,7 +120,13 @@ def process_tensorboard_file(fpath: str) -> Dict[str, List[Any]]:
 def calculate_pareto_front(x_values: List[float], y_values: List[float]) -> List[int]:
     """
     Calculates indices of non-dominated points (Min X, Max Y).
-    Note: The original code implements Min X, Max Y logic.
+
+    Args:
+        x_values (list): List of X coordinates.
+        y_values (list): List of Y coordinates.
+
+    Returns:
+        list: List of indices for points on the Pareto front.
     """
     points = []
     for i, (xv, yv) in enumerate(zip(x_values, y_values)):

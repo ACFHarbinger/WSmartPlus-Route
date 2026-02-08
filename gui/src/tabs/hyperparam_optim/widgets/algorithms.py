@@ -1,3 +1,7 @@
+"""
+Settings widget for different HPO algorithms (BO, DEA, HBO, GS, DEHBO, RS).
+"""
+
 import multiprocessing as mp
 
 from PySide6.QtWidgets import (
@@ -13,7 +17,14 @@ from .timeout import TimeoutWidget
 
 
 class AlgorithmSettingsWidget(QWidget):
+    """
+    Widget containing settings for various hyperparameter optimization algorithms.
+    """
+
     def __init__(self):
+        """
+        Initialize AlgorithmSettingsWidget and create form layout for all algorithms.
+        """
         super().__init__()
         layout = QFormLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -101,6 +112,12 @@ class AlgorithmSettingsWidget(QWidget):
         layout.addRow(QLabel("Maximum Trial Failures:"), self.max_failures_input)
 
     def get_params(self):
+        """
+        Extract and return all algorithm-specific parameters from the UI.
+
+        Returns:
+            dict: Dictionary of parameters for all supported optimization methods.
+        """
         params = {
             # BO/Optuna
             "n_trials": self.n_trials_input.value(),

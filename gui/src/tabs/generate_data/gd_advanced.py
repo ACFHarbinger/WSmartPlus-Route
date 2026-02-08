@@ -1,3 +1,7 @@
+"""
+Advanced settings tab for data generation (Epochs, Area specific, Focus graphs).
+"""
+
 import os
 
 from PySide6.QtCore import QSize
@@ -20,7 +24,14 @@ from ...components import ClickableHeaderWidget
 
 
 class GenDataAdvancedTab(QWidget):
+    """
+    Tab for advanced data generation parameters like epoch settings and area specialization.
+    """
+
     def __init__(self):
+        """
+        Initialize GenDataAdvancedTab with form layout and collapsible sections.
+        """
         super().__init__()
         layout = QFormLayout(self)
 
@@ -227,6 +238,12 @@ class GenDataAdvancedTab(QWidget):
         self.is_graphs_visible = not self.is_graphs_visible
 
     def get_params(self):
+        """
+        Extract advanced generation parameters from the UI.
+
+        Returns:
+            dict: Dictionary of parameters including n_epochs, vertex_method, and optional area filters.
+        """
         params = {}
         # Mandatory fields
         params["n_epochs"] = self.n_epochs_input.value()

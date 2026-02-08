@@ -1,3 +1,7 @@
+"""
+GUI Constants.
+"""
+
 from .filesystem import FUNCTION_MAP, OPERATION_MAP
 from .hpo import HPO_METHODS, HPO_METRICS
 from .logging import HEATMAP_METRICS, TARGET_METRICS, WB_MODES

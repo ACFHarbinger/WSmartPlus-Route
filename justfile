@@ -56,7 +56,8 @@ tree-loc:
 
 # Check docstring coverage
 check-docs:
-    uv run python logic/src/utils/validation/check_docstrings.py logic/src
+    uv run python logic/src/utils/docs/check_docstrings.py logic/src
+    uv run python logic/src/utils/docs/check_docstrings.py gui/src
 
 # Check Google style docstrings
 check-google-docs:

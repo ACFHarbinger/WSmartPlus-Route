@@ -24,6 +24,13 @@ class LiveDashboardTab(QWidget):
     viewRouteRequested = Signal(str, int)  # key, day
 
     def __init__(self, policy_names: List[str], parent=None):
+        """
+        Initialize the live dashboard.
+
+        Args:
+            policy_names: List of all policy names to display.
+            parent: Optional parent widget.
+        """
         super().__init__(parent)
         self.policy_names = policy_names
         self.setup_ui()

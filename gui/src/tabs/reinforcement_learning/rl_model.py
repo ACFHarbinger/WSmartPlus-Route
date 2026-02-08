@@ -1,3 +1,7 @@
+"""
+Neural model architecture and policy configuration for RL.
+"""
+
 from PySide6.QtWidgets import (
     QComboBox,
     QDoubleSpinBox,
@@ -27,11 +31,17 @@ class RLModelTab(BaseReinforcementLearningTab):
     """Model parameters for Reinforcement Learning"""
 
     def __init__(self):
+        """
+        Initialize the RLModelTab and setup model architecture parameters.
+        """
         super().__init__()
         self.widgets = {}
         self.init_ui()
 
     def init_ui(self):
+        """
+        Setup the UI components for model configuration (encoder, dimensions, masking).
+        """
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll_widget = QWidget()
@@ -151,6 +161,12 @@ class RLModelTab(BaseReinforcementLearningTab):
                 widget.toggled.connect(lambda: self.paramsChanged.emit())
 
     def get_params(self):
+        """
+        Collect model architectural parameters from the UI.
+
+        Returns:
+            dict: Dictionary of parameters including model type, dimensions, and masking flags.
+        """
         params = {}
         for key, widget in self.widgets.items():
             if isinstance(widget, QSpinBox):

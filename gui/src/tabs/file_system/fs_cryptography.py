@@ -1,3 +1,7 @@
+"""
+Cryptography management for the file system tab.
+"""
+
 import os
 
 from PySide6.QtCore import QSize
@@ -25,6 +29,7 @@ class FileSystemCryptographyTab(QWidget):
     """
 
     def __init__(self):
+        """Build the cryptography configuration layout."""
         super().__init__()
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(QLabel("<h2>Cryptography Tools</h2>"))

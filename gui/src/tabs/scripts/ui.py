@@ -17,7 +17,14 @@ from .widgets.selection import ScriptSelectionWidget
 
 
 class RunScriptsTab(QWidget):
+    """
+    Main tab for configuring and running system scripts (training, testing, HPO, etc.).
+    """
+
     def __init__(self):
+        """
+        Initialize the RunScriptsTab and setup the selection and parameter widgets.
+        """
         super().__init__()
 
         # 1. Create the content widget
@@ -68,13 +75,20 @@ class RunScriptsTab(QWidget):
         return separator
 
     def _on_script_selected(self, script_name):
+        """Update parameter widget when a script is selected."""
         self.parameters_widget.update_selection(script_name)
 
     def _on_selection_cleared(self):
+        """Clear parameter widget when selection is cleared."""
         self.parameters_widget.clear_selection()
 
     def get_command(self):
-        """Generate the command to run the selected script"""
+        """
+        Generate the final shell command based on user selections and parameters.
+
+        Returns:
+            str: The formatted command string, or None if no script is selected.
+        """
         selected_script = self.selection_widget.selected_script
         if not selected_script:
             return None

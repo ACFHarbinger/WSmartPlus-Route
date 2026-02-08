@@ -1,3 +1,7 @@
+"""
+Settings widget for Ray Tune framework configuration (CPUs, Verbosity, etc.).
+"""
+
 import multiprocessing as mp
 
 from gui.src.styles.globals import START_RED_STYLE
@@ -11,7 +15,14 @@ from PySide6.QtWidgets import (
 
 
 class RayTuneSettingsWidget(QWidget):
+    """
+    Widget for configuring Ray Tune execution parameters like CPU cores and verbosity.
+    """
+
     def __init__(self):
+        """
+        Initialize RayTuneSettingsWidget with form layout.
+        """
         super().__init__()
         layout = QFormLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -46,6 +57,12 @@ class RayTuneSettingsWidget(QWidget):
         layout.addRow(QLabel("Number of Samples:"), self.num_samples_input)
 
     def get_params(self):
+        """
+        Extract Ray Tune specific parameters from the UI.
+
+        Returns:
+            dict: Dictionary containing cpu_cores, verbose, train_best, local_mode, and num_samples.
+        """
         return {
             "cpu_cores": self.cpu_cores_input.value(),
             "verbose": self.verbose_input.value(),

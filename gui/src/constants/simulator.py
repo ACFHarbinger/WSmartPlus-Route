@@ -1,3 +1,7 @@
+"""
+Simulator-related constants for the GUI.
+"""
+
 # Simulator Data
 COUNTY_AREAS = {
     "Rio Maior": "riomaior",

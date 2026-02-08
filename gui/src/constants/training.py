@@ -1,3 +1,7 @@
+"""
+Training-related constants for the GUI (optimizers, schedulers, baselines).
+"""
+
 # Training
 OPTIMIZERS = {
     "Adaptive Moment Estimation (Adam)": "adam",

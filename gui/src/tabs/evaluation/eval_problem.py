@@ -1,3 +1,7 @@
+"""
+Configuration tab for problem instance and preprocessing settings.
+"""
+
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
     QComboBox,
@@ -30,6 +34,7 @@ class EvalProblemTab(QWidget):
     """
 
     def __init__(self):
+        """Build the problem definition and preprocessing layout."""
         super().__init__()
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -171,6 +176,12 @@ class EvalProblemTab(QWidget):
         self.is_focus_graph_visible = not self.is_focus_graph_visible
 
     def get_params(self):
+        """
+        Collect problem configuration parameters.
+
+        Returns:
+            dict: Problem name and graph size.
+        """
         params = {
             "graph_size": self.graph_size_input.value(),
             "area": COUNTY_AREAS.get(self.area_input.text().strip(), ""),
