@@ -7,13 +7,22 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.cli.base
+```
+
 ## Submodules
 
 ```{toctree}
 :titlesonly:
 :maxdepth: 1
 
-src.cli.base_parser
+src.cli.benchmark_parser
 src.cli.gui_parser
 src.cli.ts_parser
 src.cli.registry

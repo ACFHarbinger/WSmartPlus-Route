@@ -23,12 +23,18 @@
 
 ### API
 
-`````{py:class} HGSPolicy
+`````{py:class} HGSPolicy(config: typing.Optional[logic.src.configs.policies.HGSConfig] = None)
 :canonical: src.policies.adapters.policy_hgs.HGSPolicy
 
-Bases: {py:obj}`src.policies.base_routing_policy.BaseRoutingPolicy`
+Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy`
 
 ```{autodoc2-docstring} src.policies.adapters.policy_hgs.HGSPolicy
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.adapters.policy_hgs.HGSPolicy.__init__
 ```
 
 ````{py:method} _get_config_key() -> str

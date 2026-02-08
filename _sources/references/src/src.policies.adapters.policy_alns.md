@@ -23,12 +23,18 @@
 
 ### API
 
-`````{py:class} ALNSPolicy
+`````{py:class} ALNSPolicy(config: typing.Optional[logic.src.configs.policies.ALNSConfig] = None)
 :canonical: src.policies.adapters.policy_alns.ALNSPolicy
 
-Bases: {py:obj}`src.policies.base_routing_policy.BaseRoutingPolicy`
+Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy`
 
 ```{autodoc2-docstring} src.policies.adapters.policy_alns.ALNSPolicy
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.adapters.policy_alns.ALNSPolicy.__init__
 ```
 
 ````{py:method} _get_config_key() -> str

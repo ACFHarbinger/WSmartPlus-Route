@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 3
 
+src.utils.logging.plotting
 src.utils.logging.visualization
 src.utils.logging.modules
 ```
@@ -26,7 +27,9 @@ src.utils.logging.modules
 src.utils.logging.plot_utils
 src.utils.logging.visualize_utils
 src.utils.logging.log_visualization
+src.utils.logging.logstash_handler
 src.utils.logging.log_utils
+src.utils.logging.json_formatter
 src.utils.logging.logger_writer
 src.utils.logging.pylogger
 src.utils.logging.structured_logging

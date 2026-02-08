@@ -16,14 +16,6 @@
 src.pipeline.simulations
 src.pipeline.ui
 src.pipeline.rl
-src.pipeline.features
-```
-
-## Submodules
-
-```{toctree}
-:titlesonly:
-:maxdepth: 1
-
 src.pipeline.callbacks
+src.pipeline.features
 ```

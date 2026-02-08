@@ -23,12 +23,18 @@
 
 ### API
 
-`````{py:class} TSPPolicy
+`````{py:class} TSPPolicy(config: typing.Optional[logic.src.configs.policies.TSPConfig] = None)
 :canonical: src.policies.adapters.policy_tsp.TSPPolicy
 
-Bases: {py:obj}`src.policies.base_routing_policy.BaseRoutingPolicy`
+Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy`
 
 ```{autodoc2-docstring} src.policies.adapters.policy_tsp.TSPPolicy
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.adapters.policy_tsp.TSPPolicy.__init__
 ```
 
 ````{py:method} _get_config_key() -> str

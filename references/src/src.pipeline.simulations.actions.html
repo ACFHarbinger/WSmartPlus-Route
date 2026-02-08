@@ -64,8 +64,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.pipeline.simulations.actions';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.pipeline.ui" href="src.pipeline.ui.html" />
-    <link rel="prev" title="src.pipeline.simulations.checkpoints" href="src.pipeline.simulations.checkpoints.html" />
+    <link rel="next" title="src.pipeline.simulations.actions.fill" href="src.pipeline.simulations.actions.fill.html" />
+    <link rel="prev" title="src.pipeline.simulations.bins.base" href="src.pipeline.simulations.bins.base.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -174,63 +174,80 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.vehicle_routing_problem_with_profits.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vehicle_routing_problem_with_profits</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.aco_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.aco_aux</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns_solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.base_routing_policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base_routing_policy</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hyper_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_aco</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.must_go_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.must_go_selection</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.post_processing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.k_sparse_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.k_sparse_aco</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns_solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.embeddings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.embeddings</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.modules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.modules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.mdam.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.mdam</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.gfacs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.gfacs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.deepaco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deepaco</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.nargnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.nargnn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.weight_adjustment_rnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.weight_adjustment_rnn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.temporal_attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.temporal_attention_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.glop.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.glop</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.n2s.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.n2s</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.polynet.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.polynet</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.hypernet.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hypernet</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.temporal_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.temporal_am</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.model_factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.model_factory</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.moe_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.moe_model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.gat_lstm_manager.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.gat_lstm_manager</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.attention_model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.context_embedder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.context_embedder</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.pointer_network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.pointer_network</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.meta_rnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta_rnn</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.critic_network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.critic_network</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.deep_decoder_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deep_decoder_am</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.matnet.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.matnet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.neuopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.neuopt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.hrl_manager.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hrl_manager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.dact.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.dact</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.l2d.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.l2d</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.moe.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.moe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.attention_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.hooks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.add_docstrings_batch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.add_docstrings_batch</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.adapter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.base_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.benchmark_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
@@ -238,27 +255,30 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
@@ -268,14 +288,23 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.pdp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.pdp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.sdwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.sdwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.jssp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.jssp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.decoding</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.eval.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.eval</span></code></a></li>
@@ -443,39 +472,11 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions._flatten_config"><code class="docutils literal notranslate"><span class="pre">_flatten_config()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.SimulationAction"><code class="docutils literal notranslate"><span class="pre">SimulationAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.SimulationAction.execute"><code class="docutils literal notranslate"><span class="pre">SimulationAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.FillAction"><code class="docutils literal notranslate"><span class="pre">FillAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.FillAction.execute"><code class="docutils literal notranslate"><span class="pre">FillAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.MustGoSelectionAction"><code class="docutils literal notranslate"><span class="pre">MustGoSelectionAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.MustGoSelectionAction.execute"><code class="docutils literal notranslate"><span class="pre">MustGoSelectionAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.PolicyExecutionAction"><code class="docutils literal notranslate"><span class="pre">PolicyExecutionAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.PolicyExecutionAction.execute"><code class="docutils literal notranslate"><span class="pre">PolicyExecutionAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.PostProcessAction"><code class="docutils literal notranslate"><span class="pre">PostProcessAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.PostProcessAction.execute"><code class="docutils literal notranslate"><span class="pre">PostProcessAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.CollectAction"><code class="docutils literal notranslate"><span class="pre">CollectAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.CollectAction.execute"><code class="docutils literal notranslate"><span class="pre">CollectAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.LogAction"><code class="docutils literal notranslate"><span class="pre">LogAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.LogAction.execute"><code class="docutils literal notranslate"><span class="pre">LogAction.execute()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -493,62 +494,29 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.actions">
 <span id="src-pipeline-simulations-actions"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.actions" title="src.pipeline.simulations.actions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.actions" title="Link to this heading">#</a></h1>
-<p>Command Pattern Implementation for Simulation Day Execution.</p>
-<p>This module implements the Command Pattern to encapsulate simulation actions
-as discrete, reusable objects. Each action represents a step in the daily
-simulation cycle: bin filling, policy execution, waste collection, and logging.</p>
-<p>The Command Pattern provides:</p>
-<ul class="simple">
-<li><p>Separation of concerns: Each action is isolated and testable</p></li>
-<li><p>Flexibility: Actions can be reordered, extended, or replaced</p></li>
-<li><p>Composability: Complex workflows are built from simple commands</p></li>
+<p>Actions package for simulation day execution.</p>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.pipeline.simulations.actions.fill.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.fill</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.pipeline.simulations.actions.collection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.collection</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.pipeline.simulations.actions.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.selection</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.pipeline.simulations.actions.post_process.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.post_process</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.pipeline.simulations.actions.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.logging</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.pipeline.simulations.actions.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.policy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.pipeline.simulations.actions.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.base</span></code></a></li>
 </ul>
-<p>Classes:
-SimulationAction: Abstract base class for all simulation commands
-FillAction: Executes daily bin filling (stochastic or empirical)
-MustGoSelectionAction: Identifies targets for collection
-PolicyExecutionAction: Runs routing policy and computes tours
-PostProcessAction: Refines generated tours
-CollectAction: Processes waste collection from visited bins
-LogAction: Records daily metrics and outputs results</p>
-<section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.SimulationAction" title="src.pipeline.simulations.actions.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimulationAction</span></code></a></p></td>
-<td><p>Abstract base class for simulation day actions.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.FillAction" title="src.pipeline.simulations.actions.FillAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FillAction</span></code></a></p></td>
-<td><p>Executes daily bin filling simulation.
-…</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.MustGoSelectionAction" title="src.pipeline.simulations.actions.MustGoSelectionAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MustGoSelectionAction</span></code></a></p></td>
-<td><p>Identifies which bins are targets for collection based on various strategies.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.PolicyExecutionAction" title="src.pipeline.simulations.actions.PolicyExecutionAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolicyExecutionAction</span></code></a></p></td>
-<td><p>Executes the routing policy to generate collection tours.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.PostProcessAction" title="src.pipeline.simulations.actions.PostProcessAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PostProcessAction</span></code></a></p></td>
-<td><p>Refines generated collection tours using modular refinement strategies.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.CollectAction" title="src.pipeline.simulations.actions.CollectAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CollectAction</span></code></a></p></td>
-<td><p>Processes waste collection from bins visited in the tour.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.LogAction" title="src.pipeline.simulations.actions.LogAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LogAction</span></code></a></p></td>
-<td><p>Records daily simulation metrics and outputs results.</p></td>
-</tr>
-</tbody>
-</table>
 </div>
 </section>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions._flatten_config" title="src.pipeline.simulations.actions._flatten_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_flatten_config</span></code></a></p></td>
-<td><p>Helper to flatten nested configuration structures (e.g. hgs.custom -&gt; list of dicts).</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.__all__" title="src.pipeline.simulations.actions.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -556,197 +524,10 @@ LogAction: Records daily metrics and outputs results</p>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions._flatten_config">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">_flatten_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions._flatten_config" title="Link to this definition">#</a></dt>
-<dd><p>Helper to flatten nested configuration structures (e.g. hgs.custom -&gt; list of dicts).</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.SimulationAction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">SimulationAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.SimulationAction" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Abstract base class for simulation day actions.</p>
-<p>Defines the interface for all simulation commands. Each action receives
-a shared context dictionary and modifies it in-place with its outputs.</p>
-<p>The context dictionary is the primary communication mechanism between
-actions within a single simulation day.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.SimulationAction.execute">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.SimulationAction.execute" title="Link to this definition">#</a></dt>
-<dd><p>Executes the action and updates the context in-place.</p>
-<p>Args:
-context: Shared dictionary containing simulation state, inputs,
-and outputs. Modified in-place to communicate results to
-subsequent actions.</p>
-<p>Returns:
-None. All outputs are written to the context dictionary.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.FillAction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">FillAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.FillAction" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pipeline.simulations.actions.SimulationAction" title="src.pipeline.simulations.actions.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.SimulationAction</span></code></a></p>
-<p>Executes daily bin filling simulation.
-…</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.FillAction.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.FillAction.execute" title="Link to this definition">#</a></dt>
-<dd><p>Execute daily bin filling.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.MustGoSelectionAction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">MustGoSelectionAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.MustGoSelectionAction" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pipeline.simulations.actions.SimulationAction" title="src.pipeline.simulations.actions.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.SimulationAction</span></code></a></p>
-<p>Identifies which bins are targets for collection based on various strategies.</p>
-<p>Strategies range from simple fill-threshold rules (Regular, Last-Minute)
-to sophisticated stochastic prediction (Means/Std Dev). The output is
-a list of ‘must_go’ bin indices stored in the context for policy execution.</p>
-<p>Context Inputs:
-policy_name: Policy identifier used to map to selection strategy
-bins: Bin state management object
-threshold: Global override threshold
-distance_matrix: Distance information
-paths_between_states: Shortest paths
-max_capacity: Vehicle capacity</p>
-<p>Context Outputs:
-must_go: List of bin indices identified for collection (List[int])</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.MustGoSelectionAction.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.MustGoSelectionAction.execute" title="Link to this definition">#</a></dt>
-<dd><p>Identifies bins that MUST be collected on the current day.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.PolicyExecutionAction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">PolicyExecutionAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.PolicyExecutionAction" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pipeline.simulations.actions.SimulationAction" title="src.pipeline.simulations.actions.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.SimulationAction</span></code></a></p>
-<p>Executes the routing policy to generate collection tours.</p>
-<p>Dispatches to the appropriate policy adapter (Neural, Heuristic, Exact solver)
-to compute which bins to visit and in what order. The policy uses current
-bin states, distance information, and vehicle constraints to make decisions.</p>
-<p>Supported Policy Types:
-- Neural (AM, DDAM, TransGCN): Deep learning models
-- Heuristic (ALNS, HGS, Look-ahead): Metaheuristics
-- Exact (Gurobi, Hexaly): Mathematical optimization
-- Baseline (Regular, Last-minute): Simple rules</p>
-<p>Context Inputs:
-policy_name: Policy identifier string
-bins: Bin state management object
-fill: Current fill levels from FillAction
-distpath_tup: (distance_matrix, paths, dm_tensor, distancesC)
-model_env: Loaded neural model or solver environment
-model_ls: Model configuration tuple
-config: Policy-specific configuration dict
-(Plus various simulation parameters)</p>
-<p>Context Outputs:
-tour: Ordered list of bin IDs to visit (List[int])
-cost: Total tour distance in km (float)
-extra_output: Policy-specific metadata (varies by policy)
-cached: Updated cache for regular policy
-output_dict: Neural model outputs (attention, embeddings, etc.)</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.PolicyExecutionAction.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.PolicyExecutionAction.execute" title="Link to this definition">#</a></dt>
-<dd><p>Execute the selected routing policy.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.PostProcessAction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">PostProcessAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.PostProcessAction" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pipeline.simulations.actions.SimulationAction" title="src.pipeline.simulations.actions.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.SimulationAction</span></code></a></p>
-<p>Refines generated collection tours using modular refinement strategies.</p>
-<p>This action applies optimization passes (like fast_tsp or Local Search) to the
-tour generated by a policy. It enables clean separation between the base
-routing algorithm and late-stage refinement.</p>
-<p>Context Inputs:
-tour: Original tour from PolicyExecutionAction
-post_process: Name of post-processing strategy
-config: Simulation configuration (containing post_process_cfg)
-distance_matrix: Required for cost re-computation</p>
-<p>Context Outputs:
-tour: Refined tour (replaces previous tour)
-cost: Refined cost (replaces previous cost)</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.PostProcessAction.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.PostProcessAction.execute" title="Link to this definition">#</a></dt>
-<dd><p>Refine the generated collection tour.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.CollectAction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">CollectAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.CollectAction" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pipeline.simulations.actions.SimulationAction" title="src.pipeline.simulations.actions.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.SimulationAction</span></code></a></p>
-<p>Processes waste collection from bins visited in the tour.</p>
-<p>Simulates the physical act of emptying bins along the computed route.
-Updates bin states, calculates collection statistics, and computes
-profit based on revenue and operational costs.</p>
-<p>The collection process:</p>
-<ol class="arabic simple">
-<li><p>Validates tour (must have &gt;2 nodes to be non-trivial)</p></li>
-<li><p>Empties visited bins and records collected waste</p></li>
-<li><p>Updates bin statistics (means, std dev) using Welford’s method</p></li>
-<li><p>Computes profit: (collected_kg × revenue) - (distance × cost_per_km)</p></li>
-</ol>
-<p>Context Inputs:
-bins: Bin state manager
-tour: Ordered list of bin IDs from PolicyExecutionAction
-cost: Tour distance in km</p>
-<p>Context Outputs:
-collected: Per-bin collected waste array (np.ndarray)
-total_collected: Total kg collected across all bins (float)
-ncol: Number of bins collected (int)
-profit: Net profit for this day (float)</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.CollectAction.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.CollectAction.execute" title="Link to this definition">#</a></dt>
-<dd><p>Execute waste collection based on the generated tour.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.LogAction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">LogAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.LogAction" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pipeline.simulations.actions.SimulationAction" title="src.pipeline.simulations.actions.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.SimulationAction</span></code></a></p>
-<p>Records daily simulation metrics and outputs results.</p>
-<p>Aggregates results from previous actions into a structured daily log
-and optionally streams data to the GUI for real-time visualization.</p>
-<p>Logged metrics include:
-- Operational: kg collected, km traveled, bins visited, efficiency (kg/km)
-- Economic: profit, total cost
-- Environmental: overflows, waste lost
-- Routing: tour sequence with real bin IDs</p>
-<p>Context Inputs:
-tour: Computed route
-cost: Tour distance
-total_collected: Collected waste (kg)
-ncol: Number of bins collected
-profit: Net profit
-new_overflows: Bins that overflowed today
-sum_lost: Waste lost to overflows
-day: Current simulation day
-coords: Bin coordinate DataFrame
-(Plus GUI communication parameters)</p>
-<p>Context Outputs:
-daily_log: Structured dictionary of today’s metrics</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.actions.LogAction.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.LogAction.execute" title="Link to this definition">#</a></dt>
-<dd><p>Log daily results and update GUI.</p>
-</dd></dl>
-
+<dl class="py data">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.__all__">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘SimulationAction’, ‘_flatten_config’, ‘FillAction’, ‘MustGoSelectionAction’, ‘PolicyExecutionActio…</p>
 </dd></dl>
 
 </section>
@@ -765,20 +546,20 @@ daily_log: Structured dictionary of today’s metrics</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.pipeline.simulations.checkpoints.html"
+       href="src.pipeline.simulations.bins.base.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.checkpoints</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.bins.base</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.pipeline.ui.html"
+       href="src.pipeline.simulations.actions.fill.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.fill</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -798,39 +579,11 @@ daily_log: Structured dictionary of today’s metrics</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions._flatten_config"><code class="docutils literal notranslate"><span class="pre">_flatten_config()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.SimulationAction"><code class="docutils literal notranslate"><span class="pre">SimulationAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.SimulationAction.execute"><code class="docutils literal notranslate"><span class="pre">SimulationAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.FillAction"><code class="docutils literal notranslate"><span class="pre">FillAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.FillAction.execute"><code class="docutils literal notranslate"><span class="pre">FillAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.MustGoSelectionAction"><code class="docutils literal notranslate"><span class="pre">MustGoSelectionAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.MustGoSelectionAction.execute"><code class="docutils literal notranslate"><span class="pre">MustGoSelectionAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.PolicyExecutionAction"><code class="docutils literal notranslate"><span class="pre">PolicyExecutionAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.PolicyExecutionAction.execute"><code class="docutils literal notranslate"><span class="pre">PolicyExecutionAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.PostProcessAction"><code class="docutils literal notranslate"><span class="pre">PostProcessAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.PostProcessAction.execute"><code class="docutils literal notranslate"><span class="pre">PostProcessAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.CollectAction"><code class="docutils literal notranslate"><span class="pre">CollectAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.CollectAction.execute"><code class="docutils literal notranslate"><span class="pre">CollectAction.execute()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.LogAction"><code class="docutils literal notranslate"><span class="pre">LogAction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.LogAction.execute"><code class="docutils literal notranslate"><span class="pre">LogAction.execute()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>

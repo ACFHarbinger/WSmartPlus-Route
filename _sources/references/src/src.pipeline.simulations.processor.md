@@ -7,19 +7,17 @@
 :allowtitles:
 ```
 
-## Module Contents
+## Submodules
 
-### Classes
+```{toctree}
+:titlesonly:
+:maxdepth: 1
 
-````{list-table}
-:class: autosummary longtable
-:align: left
+src.pipeline.simulations.processor.formatting
+src.pipeline.simulations.processor.mapper
+```
 
-* - {py:obj}`SimulationDataMapper <src.pipeline.simulations.processor.SimulationDataMapper>`
-  - ```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper
-    :summary:
-    ```
-````
+## Package Contents
 
 ### Functions
 
@@ -87,6 +85,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`__all__ <src.pipeline.simulations.processor.__all__>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.processor.__all__
+    :summary:
+    ```
 * - {py:obj}`_mapper <src.pipeline.simulations.processor._mapper>`
   - ```{autodoc2-docstring} src.pipeline.simulations.processor._mapper
     :summary:
@@ -95,85 +97,15 @@
 
 ### API
 
-`````{py:class} SimulationDataMapper
-:canonical: src.pipeline.simulations.processor.SimulationDataMapper
+````{py:data} __all__
+:canonical: src.pipeline.simulations.processor.__all__
+:value: >
+   ['SimulationDataMapper', 'format_coordinates', 'sort_dataframe', 'get_df_types', 'setup_df', 'sample...
 
-```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper
-```
-
-````{py:method} sort_dataframe(df: pandas.DataFrame, metric_tosort: str, ascending_order: bool = True) -> pandas.DataFrame
-:canonical: src.pipeline.simulations.processor.SimulationDataMapper.sort_dataframe
-
-```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper.sort_dataframe
+```{autodoc2-docstring} src.pipeline.simulations.processor.__all__
 ```
 
 ````
-
-````{py:method} get_df_types(df: pandas.DataFrame, prec: str = '32') -> typing.Dict[str, str]
-:canonical: src.pipeline.simulations.processor.SimulationDataMapper.get_df_types
-
-```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper.get_df_types
-```
-
-````
-
-````{py:method} setup_df(depot: pandas.DataFrame, df: pandas.DataFrame, col_names: typing.List[str], index_name: typing.Optional[str] = '#bin') -> pandas.DataFrame
-:canonical: src.pipeline.simulations.processor.SimulationDataMapper.setup_df
-
-```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper.setup_df
-```
-
-````
-
-````{py:method} sample_df(df: pandas.DataFrame, n_elems: int, depot: typing.Optional[pandas.DataFrame] = None, output_path: typing.Optional[str] = None) -> pandas.DataFrame
-:canonical: src.pipeline.simulations.processor.SimulationDataMapper.sample_df
-
-```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper.sample_df
-```
-
-````
-
-````{py:method} process_indices(df: pandas.DataFrame, indices: typing.Optional[typing.List[int]]) -> pandas.DataFrame
-:canonical: src.pipeline.simulations.processor.SimulationDataMapper.process_indices
-
-```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper.process_indices
-```
-
-````
-
-````{py:method} process_raw_data(data: pandas.DataFrame, bins_coordinates: pandas.DataFrame, depot: pandas.DataFrame, indices: typing.Optional[typing.List[int]] = None) -> typing.Tuple[pandas.DataFrame, pandas.DataFrame]
-:canonical: src.pipeline.simulations.processor.SimulationDataMapper.process_raw_data
-
-```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper.process_raw_data
-```
-
-````
-
-````{py:method} format_coordinates(coords: typing.Any, method: str, col_names: typing.Optional[typing.List[str]] = None) -> typing.Tuple[typing.Any, typing.Any]
-:canonical: src.pipeline.simulations.processor.SimulationDataMapper.format_coordinates
-
-```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper.format_coordinates
-```
-
-````
-
-````{py:method} process_model_input(coordinates, dist_matrix, device, method, configs, edge_threshold, edge_method, area, waste_type, adj_matrix=None)
-:canonical: src.pipeline.simulations.processor.SimulationDataMapper.process_model_input
-
-```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper.process_model_input
-```
-
-````
-
-````{py:method} save_results(matrix, results_dir, seed, data_dist, policy, sample_id)
-:canonical: src.pipeline.simulations.processor.SimulationDataMapper.save_results
-
-```{autodoc2-docstring} src.pipeline.simulations.processor.SimulationDataMapper.save_results
-```
-
-````
-
-`````
 
 ````{py:data} _mapper
 :canonical: src.pipeline.simulations.processor._mapper

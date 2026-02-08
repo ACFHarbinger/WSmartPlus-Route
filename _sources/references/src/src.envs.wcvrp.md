@@ -19,14 +19,6 @@
   - ```{autodoc2-docstring} src.envs.wcvrp.WCVRPEnv
     :summary:
     ```
-* - {py:obj}`CWCVRPEnv <src.envs.wcvrp.CWCVRPEnv>`
-  - ```{autodoc2-docstring} src.envs.wcvrp.CWCVRPEnv
-    :summary:
-    ```
-* - {py:obj}`SDWCVRPEnv <src.envs.wcvrp.SDWCVRPEnv>`
-  - ```{autodoc2-docstring} src.envs.wcvrp.SDWCVRPEnv
-    :summary:
-    ```
 ````
 
 ### API
@@ -89,68 +81,6 @@ Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
 :canonical: src.envs.wcvrp.WCVRPEnv._get_reward
 
 ```{autodoc2-docstring} src.envs.wcvrp.WCVRPEnv._get_reward
-```
-
-````
-
-`````
-
-`````{py:class} CWCVRPEnv(generator: typing.Optional[logic.src.envs.generators.WCVRPGenerator] = None, generator_params: typing.Optional[dict] = None, overflow_penalty: float = 10.0, collection_reward: float = 1.0, cost_weight: float = 1.0, revenue_kg: typing.Optional[float] = None, cost_km: typing.Optional[float] = None, device: typing.Union[str, torch.device] = 'cpu', **kwargs)
-:canonical: src.envs.wcvrp.CWCVRPEnv
-
-Bases: {py:obj}`src.envs.wcvrp.WCVRPEnv`
-
-```{autodoc2-docstring} src.envs.wcvrp.CWCVRPEnv
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.envs.wcvrp.CWCVRPEnv.__init__
-```
-
-````{py:attribute} name
-:canonical: src.envs.wcvrp.CWCVRPEnv.name
-:type: str
-:value: >
-   'cwcvrp'
-
-```{autodoc2-docstring} src.envs.wcvrp.CWCVRPEnv.name
-```
-
-````
-
-`````
-
-`````{py:class} SDWCVRPEnv(generator: typing.Optional[logic.src.envs.generators.WCVRPGenerator] = None, generator_params: typing.Optional[dict] = None, overflow_penalty: float = 10.0, collection_reward: float = 1.0, cost_weight: float = 1.0, revenue_kg: typing.Optional[float] = None, cost_km: typing.Optional[float] = None, device: typing.Union[str, torch.device] = 'cpu', **kwargs)
-:canonical: src.envs.wcvrp.SDWCVRPEnv
-
-Bases: {py:obj}`src.envs.wcvrp.WCVRPEnv`
-
-```{autodoc2-docstring} src.envs.wcvrp.SDWCVRPEnv
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.envs.wcvrp.SDWCVRPEnv.__init__
-```
-
-````{py:attribute} name
-:canonical: src.envs.wcvrp.SDWCVRPEnv.name
-:type: str
-:value: >
-   'sdwcvrp'
-
-```{autodoc2-docstring} src.envs.wcvrp.SDWCVRPEnv.name
-```
-
-````
-
-````{py:method} _step(td: tensordict.TensorDict) -> tensordict.TensorDict
-:canonical: src.envs.wcvrp.SDWCVRPEnv._step
-
-```{autodoc2-docstring} src.envs.wcvrp.SDWCVRPEnv._step
 ```
 
 ````

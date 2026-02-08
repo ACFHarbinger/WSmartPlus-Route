@@ -64,8 +64,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.pipeline.simulations.processor';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.pipeline.simulations.network" href="src.pipeline.simulations.network.html" />
-    <link rel="prev" title="src.pipeline.simulations.loader" href="src.pipeline.simulations.loader.html" />
+    <link rel="next" title="src.pipeline.simulations.processor.formatting" href="src.pipeline.simulations.processor.formatting.html" />
+    <link rel="prev" title="src.pipeline.simulations.states.finishing" href="src.pipeline.simulations.states.finishing.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -174,63 +174,80 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.vehicle_routing_problem_with_profits.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vehicle_routing_problem_with_profits</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.alns_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.alns_aux</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.aco_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.aco_aux</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.look_ahead_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.look_ahead_aux</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_aux.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_aux</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns_solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.base_routing_policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base_routing_policy</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hyper_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_aco</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.must_go_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.must_go_selection</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.post_processing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.k_sparse_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.k_sparse_aco</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns_solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns_solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.multi_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.multi_vehicle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.single_vehicle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.single_vehicle</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.embeddings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.embeddings</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.modules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.modules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.mdam.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.mdam</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.gfacs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.gfacs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.deepaco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deepaco</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.nargnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.nargnn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.weight_adjustment_rnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.weight_adjustment_rnn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.temporal_attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.temporal_attention_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.glop.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.glop</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.n2s.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.n2s</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.polynet.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.polynet</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.hypernet.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hypernet</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.temporal_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.temporal_am</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.model_factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.model_factory</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.moe_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.moe_model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.gat_lstm_manager.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.gat_lstm_manager</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.attention_model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.context_embedder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.context_embedder</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.pointer_network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.pointer_network</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.meta_rnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta_rnn</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.critic_network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.critic_network</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.deep_decoder_am.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deep_decoder_am</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.matnet.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.matnet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.neuopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.neuopt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.hrl_manager.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hrl_manager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.dact.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.dact</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.l2d.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.l2d</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.moe.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.moe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.attention_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.hooks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.add_docstrings_batch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.add_docstrings_batch</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.adapter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.base_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.benchmark_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
@@ -238,27 +255,30 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.transforms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.transforms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.builders.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.builders</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.generate_data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generate_data</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4 current active"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
@@ -268,14 +288,23 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.pdp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.pdp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.sdwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.sdwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.jssp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.jssp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.decoding</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.configs.eval.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.eval</span></code></a></li>
@@ -443,23 +472,12 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.sort_dataframe"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.sort_dataframe()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.get_df_types"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.get_df_types()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.setup_df"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.setup_df()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.sample_df"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.sample_df()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.process_indices"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.process_indices()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.process_raw_data"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.process_raw_data()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.format_coordinates"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.format_coordinates()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.process_model_input"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.process_model_input()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.save_results"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.save_results()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor._mapper"><code class="docutils literal notranslate"><span class="pre">_mapper</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.sort_dataframe"><code class="docutils literal notranslate"><span class="pre">sort_dataframe()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.get_df_types"><code class="docutils literal notranslate"><span class="pre">get_df_types()</span></code></a></li>
@@ -492,84 +510,59 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.processor">
 <span id="src-pipeline-simulations-processor"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.processor" title="src.pipeline.simulations.processor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.processor</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.processor" title="Link to this heading">#</a></h1>
 <p>Data Processing and Transformation Pipeline for Simulation Setup.</p>
-<p>This module implements data normalization, coordinate transformation, and
-model input preparation for the WSmart-Route simulator. It bridges raw
-data (CSV files) with runtime representations (PyTorch tensors, numpy arrays).</p>
-<p>Key Responsibilities:
-- Geographic coordinate normalization (9 projection methods)
-- DataFrame preprocessing (sorting, indexing, type casting)
-- Neural model input preparation (tensors, edges, distance matrices)
-- Result persistence (Excel exports)</p>
-<p>The SimulationDataMapper class centralizes all data transformations,
-following the Data Mapper pattern to decouple data structures from
-business logic.</p>
-<p>Coordinate Normalization Methods:
-- mmn: Min-Max normalization [0, 1]
-- mun: Mean normalization
-- smsd: Standardization (z-score)
-- ecp: Equidistant Cylindrical Projection
-- wmp: Web Mercator Projection
-- hdp: Haversine Distance Projection
-- c3d: 3D Cartesian coordinates
-- s4d: 4D Spherical coordinates</p>
-<p>Classes:
-SimulationDataMapper: Central data transformation hub</p>
-<section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.SimulationDataMapper" title="src.pipeline.simulations.processor.SimulationDataMapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimulationDataMapper</span></code></a></p></td>
-<td><p>Data Mapper for the WSmart+ Route simulator.</p></td>
-</tr>
-</tbody>
-</table>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.pipeline.simulations.processor.formatting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.processor.formatting</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.pipeline.simulations.processor.mapper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.processor.mapper</span></code></a></li>
+</ul>
 </div>
 </section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.sort_dataframe" title="src.pipeline.simulations.processor.sort_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_dataframe</span></code></a></p></td>
-<td><p>Wrapper for SimulationDataMapper.sort_dataframe.</p></td>
+<td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.get_df_types" title="src.pipeline.simulations.processor.get_df_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_df_types</span></code></a></p></td>
-<td><p>Wrapper for SimulationDataMapper.get_df_types.</p></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.setup_df" title="src.pipeline.simulations.processor.setup_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_df</span></code></a></p></td>
-<td><p>Wrapper for SimulationDataMapper.setup_df.</p></td>
+<td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.sample_df" title="src.pipeline.simulations.processor.sample_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_df</span></code></a></p></td>
-<td><p>Wrapper for SimulationDataMapper.sample_df.</p></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_indices" title="src.pipeline.simulations.processor.process_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_indices</span></code></a></p></td>
-<td><p>Wrapper for SimulationDataMapper.process_indices.</p></td>
+<td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_data" title="src.pipeline.simulations.processor.process_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_data</span></code></a></p></td>
-<td><p>Wrapper for SimulationDataMapper.process_raw_data.</p></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_coordinates" title="src.pipeline.simulations.processor.process_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_coordinates</span></code></a></p></td>
-<td><p>Wrapper for SimulationDataMapper.format_coordinates.</p></td>
+<td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_model_data" title="src.pipeline.simulations.processor.process_model_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_model_data</span></code></a></p></td>
-<td><p>Wrapper for SimulationDataMapper.process_model_input.</p></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.create_dataframe_from_matrix" title="src.pipeline.simulations.processor.create_dataframe_from_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_dataframe_from_matrix</span></code></a></p></td>
-<td><p>Converts a simulation result matrix into a formatted DataFrame for reporting.</p></td>
+<td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.convert_to_dict" title="src.pipeline.simulations.processor.convert_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_to_dict</span></code></a></p></td>
-<td><p>Converts a coordinates DataFrame into a dictionary indexed by bin ID.
-Used for mapping-related visualizations.</p></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.save_matrix_to_excel" title="src.pipeline.simulations.processor.save_matrix_to_excel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_matrix_to_excel</span></code></a></p></td>
-<td><p>Wrapper for SimulationDataMapper.save_results.</p></td>
+<td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.setup_basedata" title="src.pipeline.simulations.processor.setup_basedata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_basedata</span></code></a></p></td>
-<td><p>High-level initialization sequence to load all required simulation data.</p></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.setup_dist_path_tup" title="src.pipeline.simulations.processor.setup_dist_path_tup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_dist_path_tup</span></code></a></p></td>
-<td><p>Combined setup for distance matrix, shortest paths, and sparsification.</p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -579,7 +572,10 @@ Used for mapping-related visualizations.</p></td>
 <h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor._mapper" title="src.pipeline.simulations.processor._mapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_mapper</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.__all__" title="src.pipeline.simulations.processor.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor._mapper" title="src.pipeline.simulations.processor._mapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_mapper</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -588,77 +584,10 @@ Used for mapping-related visualizations.</p></td>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.pipeline.simulations.processor.SimulationDataMapper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">SimulationDataMapper</span></span><a class="headerlink" href="#src.pipeline.simulations.processor.SimulationDataMapper" title="Link to this definition">#</a></dt>
-<dd><p>Data Mapper for the WSmart+ Route simulator.</p>
-<p>Centralizes all data transformations between raw data sources (CSV/Excel)
-and runtime representations (PyTorch tensors, NumPy arrays). Implements
-the Data Mapper pattern to isolate data structure knowledge.</p>
-<p>Key Methods:
-- format_coordinates: Normalize geographic coords (9 projection modes)
-- process_model_input: Prepare neural model inputs (tensors, graphs)
-- setup_df: Merge depot and bin data into unified DataFrames
-- save_results: Export simulation outputs to Excel</p>
-<p>This class is stateless and thread-safe. All methods operate on
-input parameters without modifying internal state.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.processor.SimulationDataMapper.sort_dataframe">
-<span class="sig-name descname"><span class="pre">sort_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_tosort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.processor.SimulationDataMapper.sort_dataframe" title="Link to this definition">#</a></dt>
-<dd><p>Sorts a DataFrame by a metric and ensures that metric is the first column.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.processor.SimulationDataMapper.get_df_types">
-<span class="sig-name descname"><span class="pre">get_df_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'32'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.processor.SimulationDataMapper.get_df_types" title="Link to this definition">#</a></dt>
-<dd><p>Infers and maps column data types to specific precisions (e.g., float32).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.processor.SimulationDataMapper.setup_df">
-<span class="sig-name descname"><span class="pre">setup_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'#bin'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.processor.SimulationDataMapper.setup_df" title="Link to this definition">#</a></dt>
-<dd><p>Merges depot data with bin data and sets up a unified indexing scheme.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.processor.SimulationDataMapper.sample_df">
-<span class="sig-name descname"><span class="pre">sample_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_elems</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.processor.SimulationDataMapper.sample_df" title="Link to this definition">#</a></dt>
-<dd><p>Samples a subset of rows from a DataFrame and optionally adds the depot.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.processor.SimulationDataMapper.process_indices">
-<span class="sig-name descname"><span class="pre">process_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.processor.SimulationDataMapper.process_indices" title="Link to this definition">#</a></dt>
-<dd><p>Extracts a subset of rows or columns from a DataFrame based on indices.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.processor.SimulationDataMapper.process_raw_data">
-<span class="sig-name descname"><span class="pre">process_raw_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins_coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.processor.SimulationDataMapper.process_raw_data" title="Link to this definition">#</a></dt>
-<dd><p>Higher-level method to filter and prepare both statistic and coordinate data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.processor.SimulationDataMapper.format_coordinates">
-<span class="sig-name descname"><span class="pre">format_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.processor.SimulationDataMapper.format_coordinates" title="Link to this definition">#</a></dt>
-<dd><p>Normalizes and formats coordinates based on the specified method.
-Supported methods: ‘mmn’, ‘mun’, ‘smsd’, ‘ecp’, ‘utmp’, ‘wmp’, ‘hdp’, ‘c3d’, ‘s4d’.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.processor.SimulationDataMapper.process_model_input">
-<span class="sig-name descname"><span class="pre">process_model_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.SimulationDataMapper.process_model_input" title="Link to this definition">#</a></dt>
-<dd><p>Prepares and normalizes input data for neural model consumption.</p>
-<p>Converts raw coordinates and distance matrices into PyTorch tensors,
-applies graph sparsification, and loads problem parameters.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.processor.SimulationDataMapper.save_results">
-<span class="sig-name descname"><span class="pre">save_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.SimulationDataMapper.save_results" title="Link to this definition">#</a></dt>
-<dd><p>Exports simulation fill history to Excel files.</p>
-</dd></dl>
-
+<dl class="py data">
+<dt class="sig sig-object py" id="src.pipeline.simulations.processor.__all__">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.pipeline.simulations.processor.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘SimulationDataMapper’, ‘format_coordinates’, ‘sort_dataframe’, ‘get_df_types’, ‘setup_df’, ‘sample…</p>
 </dd></dl>
 
 <dl class="py data">
@@ -670,81 +599,67 @@ applies graph sparsification, and loads problem parameters.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.sort_dataframe">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">sort_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_tosort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.sort_dataframe" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for SimulationDataMapper.sort_dataframe.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.get_df_types">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">get_df_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'32'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.get_df_types" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for SimulationDataMapper.get_df_types.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.setup_df">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">setup_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">depot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#bin'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.setup_df" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for SimulationDataMapper.setup_df.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.sample_df">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">sample_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_elems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.sample_df" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for SimulationDataMapper.sample_df.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.process_indices">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">process_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.process_indices" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for SimulationDataMapper.process_indices.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.process_data">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins_coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.process_data" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for SimulationDataMapper.process_raw_data.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.process_coordinates">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">process_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Lat',</span> <span class="pre">'Lng']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.process_coordinates" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for SimulationDataMapper.format_coordinates.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.process_model_data">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">process_model_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.process_model_data" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for SimulationDataMapper.process_model_input.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.create_dataframe_from_matrix">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">create_dataframe_from_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.create_dataframe_from_matrix" title="Link to this definition">#</a></dt>
-<dd><p>Converts a simulation result matrix into a formatted DataFrame for reporting.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.convert_to_dict">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">convert_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins_coordinates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.convert_to_dict" title="Link to this definition">#</a></dt>
-<dd><p>Converts a coordinates DataFrame into a dictionary indexed by bin ID.
-Used for mapping-related visualizations.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.save_matrix_to_excel">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">save_matrix_to_excel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.save_matrix_to_excel" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for SimulationDataMapper.save_results.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.setup_basedata">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">setup_basedata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.setup_basedata" title="Link to this definition">#</a></dt>
-<dd><p>High-level initialization sequence to load all required simulation data.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.setup_dist_path_tup">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">setup_dist_path_tup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins_coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm_filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gapik_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symkey_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_thresh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focus_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor.setup_dist_path_tup" title="Link to this definition">#</a></dt>
-<dd><p>Combined setup for distance matrix, shortest paths, and sparsification.</p>
-</dd></dl>
+<dd></dd></dl>
 
 </section>
 </section>
@@ -762,20 +677,20 @@ Used for mapping-related visualizations.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.pipeline.simulations.loader.html"
+       href="src.pipeline.simulations.states.finishing.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.loader</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.states.finishing</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.pipeline.simulations.network.html"
+       href="src.pipeline.simulations.processor.formatting.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.network</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.processor.formatting</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -795,23 +710,12 @@ Used for mapping-related visualizations.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.sort_dataframe"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.sort_dataframe()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.get_df_types"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.get_df_types()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.setup_df"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.setup_df()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.sample_df"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.sample_df()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.process_indices"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.process_indices()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.process_raw_data"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.process_raw_data()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.format_coordinates"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.format_coordinates()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.process_model_input"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.process_model_input()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.SimulationDataMapper.save_results"><code class="docutils literal notranslate"><span class="pre">SimulationDataMapper.save_results()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor._mapper"><code class="docutils literal notranslate"><span class="pre">_mapper</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.sort_dataframe"><code class="docutils literal notranslate"><span class="pre">sort_dataframe()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.get_df_types"><code class="docutils literal notranslate"><span class="pre">get_df_types()</span></code></a></li>

@@ -27,7 +27,7 @@
 
 ### API
 
-````{py:function} send_daily_output_to_gui(daily_log: typing.Dict[str, typing.Any], policy: str, sample_idx: int, day: int, bins_c: typing.Sequence[float], collected: typing.Sequence[float], bins_c_after: typing.Sequence[float], log_path: str, tour: typing.Sequence[int], coordinates: typing.Union[pandas.DataFrame, typing.List[typing.Any]], lock: typing.Optional[threading.Lock] = None) -> None
+````{py:function} send_daily_output_to_gui(daily_log: typing.Dict[str, typing.Any], policy: str, sample_idx: int, day: int, bins_c: typing.Sequence[float], collected: typing.Sequence[float], bins_real_c_after: typing.Sequence[float], log_path: str, tour: typing.Sequence[int], coordinates: typing.Union[pandas.DataFrame, typing.List[typing.Any]], lock: typing.Optional[threading.Lock] = None, must_go: typing.Optional[typing.Sequence[int]] = None) -> None
 :canonical: src.utils.logging.modules.gui.send_daily_output_to_gui
 
 ```{autodoc2-docstring} src.utils.logging.modules.gui.send_daily_output_to_gui

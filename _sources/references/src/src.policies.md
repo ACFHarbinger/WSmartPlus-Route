@@ -13,13 +13,19 @@
 :titlesonly:
 :maxdepth: 3
 
+src.policies.vehicle_routing_problem_with_profits
 src.policies.operators
-src.policies.alns_aux
-src.policies.aco_aux
-src.policies.look_ahead_aux
-src.policies.hgs_aux
+src.policies.simulated_annealing_neighborhood_search
+src.policies.slack_induction_by_string_removal
+src.policies.neural_agent
+src.policies.adaptive_large_neighborhood_search
+src.policies.post_processing
+src.policies.ant_colony_optimization
+src.policies.hybrid_genetic_search
 src.policies.selection
+src.policies.local_search
 src.policies.adapters
+src.policies.branch_cut_and_price
 ```
 
 ## Submodules
@@ -29,20 +35,9 @@ src.policies.adapters
 :maxdepth: 1
 
 src.policies.hgs_alns_solver
-src.policies.base_routing_policy
-src.policies.branch_cut_and_price
 src.policies.multi_vehicle
-src.policies.hyper_aco
-src.policies.must_go_selection
 src.policies.lin_kernighan
-src.policies.hybrid_genetic_search
-src.policies.neural_agent
-src.policies.adaptive_large_neighborhood_search
 src.policies.single_vehicle
-src.policies.post_processing
-src.policies.k_sparse_aco
-src.policies.local_search
-src.policies.slack_induction_by_string_removal
 ```
 
 ## Package Contents
@@ -68,7 +63,7 @@ src.policies.slack_induction_by_string_removal
 ````{py:data} __all__
 :canonical: src.policies.__all__
 :value: >
-   ['ACOParams', 'ALNSParams', 'PolicyFactory', 'NeuralAgent', 'create_points', 'create_policy', 'find_...
+   ['ALNSParams', 'PolicyFactory', 'MustGoSelectionFactory', 'MustGoSelectionRegistry', 'MustGoSelectio...
 
 ```{autodoc2-docstring} src.policies.__all__
 ```

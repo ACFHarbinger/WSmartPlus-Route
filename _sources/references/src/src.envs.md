@@ -7,17 +7,33 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.envs.generators
+```
+
 ## Submodules
 
 ```{toctree}
 :titlesonly:
 :maxdepth: 1
 
-src.envs.generators
+src.envs.cvrpp
 src.envs.vrpp
 src.envs.swcvrp
 src.envs.wcvrp
+src.envs.tasks
+src.envs.cwcvrp
 src.envs.problems
+src.envs.pdp
+src.envs.sdwcvrp
+src.envs.tsp_kopt
+src.envs.jssp
+src.envs.tsp
 src.envs.base
 ```
 

@@ -63,6 +63,10 @@
   - ```{autodoc2-docstring} src.constants.models.FEED_FORWARD_EXPANSION
     :summary:
     ```
+* - {py:obj}`DEFAULT_MOE_KWARGS <src.constants.models.DEFAULT_MOE_KWARGS>`
+  - ```{autodoc2-docstring} src.constants.models.DEFAULT_MOE_KWARGS
+    :summary:
+    ```
 ````
 
 ### API
@@ -195,6 +199,16 @@
    4
 
 ```{autodoc2-docstring} src.constants.models.FEED_FORWARD_EXPANSION
+```
+
+````
+
+````{py:data} DEFAULT_MOE_KWARGS
+:canonical: src.constants.models.DEFAULT_MOE_KWARGS
+:value: >
+   None
+
+```{autodoc2-docstring} src.constants.models.DEFAULT_MOE_KWARGS
 ```
 
 ````

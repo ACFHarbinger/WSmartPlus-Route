@@ -7,6 +7,20 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.policies.operators.repair
+src.policies.operators.destroy
+src.policies.operators.exchange
+src.policies.operators.perturbation
+src.policies.operators.route
+src.policies.operators.move
+```
+
 ## Submodules
 
 ```{toctree}

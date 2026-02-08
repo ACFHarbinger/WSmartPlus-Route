@@ -23,6 +23,10 @@
   - ```{autodoc2-docstring} src.utils.functions.problem.is_vrpp_problem
     :summary:
     ```
+* - {py:obj}`is_tsp_problem <src.utils.functions.problem.is_tsp_problem>`
+  - ```{autodoc2-docstring} src.utils.functions.problem.is_tsp_problem
+    :summary:
+    ```
 ````
 
 ### API
@@ -38,5 +42,12 @@
 :canonical: src.utils.functions.problem.is_vrpp_problem
 
 ```{autodoc2-docstring} src.utils.functions.problem.is_vrpp_problem
+```
+````
+
+````{py:function} is_tsp_problem(problem: typing.Any) -> bool
+:canonical: src.utils.functions.problem.is_tsp_problem
+
+```{autodoc2-docstring} src.utils.functions.problem.is_tsp_problem
 ```
 ````

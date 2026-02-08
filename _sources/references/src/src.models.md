@@ -14,28 +14,27 @@
 :maxdepth: 3
 
 src.models.policies
-src.models.embeddings
-src.models.subnets
-src.models.modules
-```
-
-## Submodules
-
-```{toctree}
-:titlesonly:
-:maxdepth: 1
-
+src.models.mdam
+src.models.gfacs
+src.models.deepaco
+src.models.nargnn
+src.models.weight_adjustment_rnn
+src.models.temporal_attention_model
+src.models.glop
+src.models.n2s
+src.models.polynet
 src.models.hypernet
-src.models.temporal_am
-src.models.model_factory
-src.models.moe_model
-src.models.gat_lstm_manager
-src.models.attention_model
-src.models.context_embedder
 src.models.pointer_network
-src.models.meta_rnn
 src.models.critic_network
-src.models.deep_decoder_am
+src.models.matnet
+src.models.neuopt
+src.models.common
+src.models.hrl_manager
+src.models.dact
+src.models.l2d
+src.models.moe
+src.models.attention_model
+src.models.subnets
 ```
 
 ## Package Contents
@@ -57,7 +56,7 @@ src.models.deep_decoder_am
 ````{py:data} __all__
 :canonical: src.models.__all__
 :value: >
-   ['AttentionModel', 'DeepDecoderAttentionModel', 'TemporalAttentionModel', 'CriticNetwork', 'GATLSTMa...
+   ['AttentionModel', 'TemporalAttentionModel', 'CriticNetwork', 'GATLSTManager', 'WeightAdjustmentRNN'...
 
 ```{autodoc2-docstring} src.models.__all__
 ```

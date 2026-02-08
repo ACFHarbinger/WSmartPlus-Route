@@ -13,8 +13,14 @@
 :titlesonly:
 :maxdepth: 3
 
+src.utils.decoding
+src.utils.model
 src.utils.tasks
 src.utils.io
+src.utils.graph
+src.utils.hooks
+src.utils.ui
+src.utils.docs
 src.utils.security
 src.utils.data
 src.utils.functions
@@ -29,6 +35,6 @@ src.utils.configs
 :titlesonly:
 :maxdepth: 1
 
+src.utils.ops
 src.utils.io_utils
-src.utils.add_docstrings_batch
 ```

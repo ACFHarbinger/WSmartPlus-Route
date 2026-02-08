@@ -23,10 +23,10 @@
 
 ### API
 
-`````{py:class} HGSALNSSolver(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hgs_aux.types.HGSParams, alns_education_iterations: int = 50)
+`````{py:class} HGSALNSSolver(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_genetic_search.HGSParams, alns_education_iterations: int = 50)
 :canonical: src.policies.hgs_alns_solver.HGSALNSSolver
 
-Bases: {py:obj}`src.policies.hybrid_genetic_search.HGSSolver`
+Bases: {py:obj}`src.policies.hybrid_genetic_search.hgs.HGSSolver`
 
 ```{autodoc2-docstring} src.policies.hgs_alns_solver.HGSALNSSolver
 ```

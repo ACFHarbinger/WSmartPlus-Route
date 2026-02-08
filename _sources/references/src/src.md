@@ -16,6 +16,7 @@
 src.policies
 src.models
 src.utils
+src.interfaces
 src.cli
 src.data
 src.pipeline

@@ -7,47 +7,40 @@
 :allowtitles:
 ```
 
-## Module Contents
+## Submodules
 
-### Functions
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.pipeline.features.test.orchestrator
+src.pipeline.features.test.validation
+src.pipeline.features.test.config
+src.pipeline.features.test.engine
+```
+
+## Package Contents
+
+### Data
 
 ````{list-table}
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`simulator_testing <src.pipeline.features.test.simulator_testing>`
-  - ```{autodoc2-docstring} src.pipeline.features.test.simulator_testing
-    :summary:
-    ```
-* - {py:obj}`validate_test_sim_args <src.pipeline.features.test.validate_test_sim_args>`
-  - ```{autodoc2-docstring} src.pipeline.features.test.validate_test_sim_args
-    :summary:
-    ```
-* - {py:obj}`run_wsr_simulator_test <src.pipeline.features.test.run_wsr_simulator_test>`
-  - ```{autodoc2-docstring} src.pipeline.features.test.run_wsr_simulator_test
+* - {py:obj}`__all__ <src.pipeline.features.test.__all__>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.__all__
     :summary:
     ```
 ````
 
 ### API
 
-````{py:function} simulator_testing(opts, data_size, device)
-:canonical: src.pipeline.features.test.simulator_testing
+````{py:data} __all__
+:canonical: src.pipeline.features.test.__all__
+:value: >
+   ['run_wsr_simulator_test', 'simulator_testing', 'validate_test_sim_args']
 
-```{autodoc2-docstring} src.pipeline.features.test.simulator_testing
+```{autodoc2-docstring} src.pipeline.features.test.__all__
 ```
-````
 
-````{py:function} validate_test_sim_args(args: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]
-:canonical: src.pipeline.features.test.validate_test_sim_args
-
-```{autodoc2-docstring} src.pipeline.features.test.validate_test_sim_args
-```
-````
-
-````{py:function} run_wsr_simulator_test(opts)
-:canonical: src.pipeline.features.test.run_wsr_simulator_test
-
-```{autodoc2-docstring} src.pipeline.features.test.run_wsr_simulator_test
-```
 ````

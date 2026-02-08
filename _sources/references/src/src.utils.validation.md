@@ -13,6 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.validation.check_docstrings
+src.utils.validation.check_multi_classes
+src.utils.validation.tree_loc
+src.utils.validation.count_loc
 src.utils.validation.debug_utils
 ```

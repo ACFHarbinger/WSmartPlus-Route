@@ -23,12 +23,18 @@
 
 ### API
 
-`````{py:class} SISRPolicy
+`````{py:class} SISRPolicy(config: typing.Optional[logic.src.configs.policies.SISRConfig] = None)
 :canonical: src.policies.adapters.policy_sisr.SISRPolicy
 
-Bases: {py:obj}`src.policies.base_routing_policy.BaseRoutingPolicy`
+Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy`
 
 ```{autodoc2-docstring} src.policies.adapters.policy_sisr.SISRPolicy
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.adapters.policy_sisr.SISRPolicy.__init__
 ```
 
 ````{py:method} _get_config_key() -> str

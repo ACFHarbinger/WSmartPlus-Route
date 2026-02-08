@@ -23,12 +23,18 @@
 
 ### API
 
-`````{py:class} SANSPolicy
+`````{py:class} SANSPolicy(config: typing.Optional[logic.src.configs.policies.SANSConfig] = None)
 :canonical: src.policies.adapters.policy_sans.SANSPolicy
 
-Bases: {py:obj}`src.policies.base_routing_policy.BaseRoutingPolicy`
+Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy`
 
 ```{autodoc2-docstring} src.policies.adapters.policy_sans.SANSPolicy
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.adapters.policy_sans.SANSPolicy.__init__
 ```
 
 ````{py:method} _get_config_key() -> str
@@ -51,6 +57,22 @@ Bases: {py:obj}`src.policies.base_routing_policy.BaseRoutingPolicy`
 :canonical: src.policies.adapters.policy_sans.SANSPolicy.execute
 
 ```{autodoc2-docstring} src.policies.adapters.policy_sans.SANSPolicy.execute
+```
+
+````
+
+````{py:method} _execute_new(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
+:canonical: src.policies.adapters.policy_sans.SANSPolicy._execute_new
+
+```{autodoc2-docstring} src.policies.adapters.policy_sans.SANSPolicy._execute_new
+```
+
+````
+
+````{py:method} _execute_og(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
+:canonical: src.policies.adapters.policy_sans.SANSPolicy._execute_og
+
+```{autodoc2-docstring} src.policies.adapters.policy_sans.SANSPolicy._execute_og
 ```
 
 ````

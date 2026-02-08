@@ -7,6 +7,17 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.data.distributions
+src.data.generators
+src.data.datasets
+```
+
 ## Submodules
 
 ```{toctree}
@@ -15,6 +26,4 @@
 
 src.data.transforms
 src.data.builders
-src.data.datasets
-src.data.generate_data
 ```

@@ -16,7 +16,6 @@
 src.pipeline.rl.meta.weight_strategy
 src.pipeline.rl.meta.contextual_bandits
 src.pipeline.rl.meta.module
-src.pipeline.rl.meta.multi_objective
 src.pipeline.rl.meta.hypernet_strategy
 src.pipeline.rl.meta.weight_optimizer
 src.pipeline.rl.meta.td_learning

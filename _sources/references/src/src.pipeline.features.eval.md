@@ -7,7 +7,28 @@
 :allowtitles:
 ```
 
-## Module Contents
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.pipeline.features.eval.evaluators
+```
+
+## Submodules
+
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.pipeline.features.eval.evaluate
+src.pipeline.features.eval.eval_base
+src.pipeline.features.eval.validation
+src.pipeline.features.eval.engine
+```
+
+## Package Contents
 
 ### Functions
 
@@ -15,26 +36,6 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`get_best <src.pipeline.features.eval.get_best>`
-  - ```{autodoc2-docstring} src.pipeline.features.eval.get_best
-    :summary:
-    ```
-* - {py:obj}`eval_dataset_mp <src.pipeline.features.eval.eval_dataset_mp>`
-  - ```{autodoc2-docstring} src.pipeline.features.eval.eval_dataset_mp
-    :summary:
-    ```
-* - {py:obj}`eval_dataset <src.pipeline.features.eval.eval_dataset>`
-  - ```{autodoc2-docstring} src.pipeline.features.eval.eval_dataset
-    :summary:
-    ```
-* - {py:obj}`_eval_dataset <src.pipeline.features.eval._eval_dataset>`
-  - ```{autodoc2-docstring} src.pipeline.features.eval._eval_dataset
-    :summary:
-    ```
-* - {py:obj}`validate_eval_args <src.pipeline.features.eval.validate_eval_args>`
-  - ```{autodoc2-docstring} src.pipeline.features.eval.validate_eval_args
-    :summary:
-    ```
 * - {py:obj}`run_evaluate_model <src.pipeline.features.eval.run_evaluate_model>`
   - ```{autodoc2-docstring} src.pipeline.features.eval.run_evaluate_model
     :summary:
@@ -47,62 +48,27 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`mp <src.pipeline.features.eval.mp>`
-  - ```{autodoc2-docstring} src.pipeline.features.eval.mp
+* - {py:obj}`__all__ <src.pipeline.features.eval.__all__>`
+  - ```{autodoc2-docstring} src.pipeline.features.eval.__all__
     :summary:
     ```
 ````
 
 ### API
 
-````{py:data} mp
-:canonical: src.pipeline.features.eval.mp
-:value: >
-   'get_context(...)'
-
-```{autodoc2-docstring} src.pipeline.features.eval.mp
-```
-
-````
-
-````{py:function} get_best(sequences: numpy.ndarray, cost: numpy.ndarray, ids: typing.Optional[numpy.ndarray] = None, batch_size: typing.Optional[int] = None) -> typing.Tuple[typing.List[typing.Optional[numpy.ndarray]], typing.List[float]]
-:canonical: src.pipeline.features.eval.get_best
-
-```{autodoc2-docstring} src.pipeline.features.eval.get_best
-```
-````
-
-````{py:function} eval_dataset_mp(args: typing.Tuple[str, int, float, typing.Dict[str, typing.Any], int, int]) -> typing.List[typing.Dict[str, typing.Any]]
-:canonical: src.pipeline.features.eval.eval_dataset_mp
-
-```{autodoc2-docstring} src.pipeline.features.eval.eval_dataset_mp
-```
-````
-
-````{py:function} eval_dataset(dataset_path: str, width: int, softmax_temp: float, opts: typing.Dict[str, typing.Any], method: typing.Optional[str] = None) -> typing.Tuple[typing.List[float], typing.List[typing.Optional[typing.List[int]]], typing.List[float]]
-:canonical: src.pipeline.features.eval.eval_dataset
-
-```{autodoc2-docstring} src.pipeline.features.eval.eval_dataset
-```
-````
-
-````{py:function} _eval_dataset(model: torch.nn.Module, dataset: torch.utils.data.Dataset, width: int, softmax_temp: float, opts: typing.Dict[str, typing.Any], device: torch.device) -> typing.List[typing.Dict[str, typing.Any]]
-:canonical: src.pipeline.features.eval._eval_dataset
-
-```{autodoc2-docstring} src.pipeline.features.eval._eval_dataset
-```
-````
-
-````{py:function} validate_eval_args(args: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]
-:canonical: src.pipeline.features.eval.validate_eval_args
-
-```{autodoc2-docstring} src.pipeline.features.eval.validate_eval_args
-```
-````
-
 ````{py:function} run_evaluate_model(opts: typing.Dict[str, typing.Any]) -> None
 :canonical: src.pipeline.features.eval.run_evaluate_model
 
 ```{autodoc2-docstring} src.pipeline.features.eval.run_evaluate_model
 ```
+````
+
+````{py:data} __all__
+:canonical: src.pipeline.features.eval.__all__
+:value: >
+   ['run_evaluate_model', 'eval_dataset', 'eval_dataset_mp', 'get_best', 'validate_eval_args']
+
+```{autodoc2-docstring} src.pipeline.features.eval.__all__
+```
+
 ````

@@ -19,22 +19,6 @@
   - ```{autodoc2-docstring} src.pipeline.rl.common.reward_scaler.RewardScaler
     :summary:
     ```
-* - {py:obj}`BatchRewardScaler <src.pipeline.rl.common.reward_scaler.BatchRewardScaler>`
-  - ```{autodoc2-docstring} src.pipeline.rl.common.reward_scaler.BatchRewardScaler
-    :summary:
-    ```
-````
-
-### Data
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`__all__ <src.pipeline.rl.common.reward_scaler.__all__>`
-  - ```{autodoc2-docstring} src.pipeline.rl.common.reward_scaler.__all__
-    :summary:
-    ```
 ````
 
 ### API
@@ -135,35 +119,3 @@
 ````
 
 `````
-
-`````{py:class} BatchRewardScaler(eps: float = 1e-08)
-:canonical: src.pipeline.rl.common.reward_scaler.BatchRewardScaler
-
-```{autodoc2-docstring} src.pipeline.rl.common.reward_scaler.BatchRewardScaler
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.pipeline.rl.common.reward_scaler.BatchRewardScaler.__init__
-```
-
-````{py:method} __call__(scores: torch.Tensor) -> torch.Tensor
-:canonical: src.pipeline.rl.common.reward_scaler.BatchRewardScaler.__call__
-
-```{autodoc2-docstring} src.pipeline.rl.common.reward_scaler.BatchRewardScaler.__call__
-```
-
-````
-
-`````
-
-````{py:data} __all__
-:canonical: src.pipeline.rl.common.reward_scaler.__all__
-:value: >
-   ['RewardScaler', 'BatchRewardScaler']
-
-```{autodoc2-docstring} src.pipeline.rl.common.reward_scaler.__all__
-```
-
-````

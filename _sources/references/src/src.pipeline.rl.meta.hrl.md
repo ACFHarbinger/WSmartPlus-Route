@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HRLModule(manager: logic.src.models.gat_lstm_manager.GATLSTManager, worker: logic.src.models.policies.base.ConstructivePolicy, env: logic.src.envs.base.RL4COEnvBase, lr: float = 0.0001, gamma: float = 0.99, clip_eps: float = 0.2, ppo_epochs: int = 4, lambda_mask_aux: float = 0.0, entropy_coef: float = 0.1, **kwargs)
+`````{py:class} HRLModule(manager: logic.src.models.hrl_manager.GATLSTManager, worker: logic.src.models.common.constructive.ConstructivePolicy, env: logic.src.envs.base.RL4COEnvBase, lr: float = 0.0001, gamma: float = 0.99, clip_eps: float = 0.2, ppo_epochs: int = 4, lambda_mask_aux: float = 0.0, entropy_coef: float = 0.1, **kwargs)
 :canonical: src.pipeline.rl.meta.hrl.HRLModule
 
 Bases: {py:obj}`pytorch_lightning.LightningModule`

@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} get_parser() -> logic.src.cli.base_parser.ConfigsParser
+````{py:function} get_parser() -> logic.src.cli.base.ConfigsParser
 :canonical: src.cli.registry.get_parser
 
 ```{autodoc2-docstring} src.cli.registry.get_parser

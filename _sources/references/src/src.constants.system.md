@@ -55,7 +55,7 @@
 :canonical: src.constants.system.CORE_LOCK_WAIT_TIME
 :type: int
 :value: >
-   10
+   100
 
 ```{autodoc2-docstring} src.constants.system.CORE_LOCK_WAIT_TIME
 ```

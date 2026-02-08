@@ -7,6 +7,15 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.policies.selection.base
+```
+
 ## Submodules
 
 ```{toctree}
@@ -14,7 +23,7 @@
 :maxdepth: 1
 
 src.policies.selection.selection_last_minute
-src.policies.selection.vectorized
+src.policies.selection.selection_combined
 src.policies.selection.selection_service_level
 src.policies.selection.selection_revenue
 src.policies.selection.selection_regular

@@ -7,83 +7,40 @@
 :allowtitles:
 ```
 
-## Module Contents
+## Submodules
 
-### Classes
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.policies.adaptive_large_neighborhood_search.ortools_wrapper
+src.policies.adaptive_large_neighborhood_search.params
+src.policies.adaptive_large_neighborhood_search.alns
+src.policies.adaptive_large_neighborhood_search.alns_package
+```
+
+## Package Contents
+
+### Data
 
 ````{list-table}
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`ALNSSolver <src.policies.adaptive_large_neighborhood_search.ALNSSolver>`
-  - ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.ALNSSolver
-    :summary:
-    ```
-````
-
-### Functions
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`run_alns <src.policies.adaptive_large_neighborhood_search.run_alns>`
-  - ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.run_alns
+* - {py:obj}`__all__ <src.policies.adaptive_large_neighborhood_search.__all__>`
+  - ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.__all__
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} ALNSSolver(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.alns_aux.params.ALNSParams)
-:canonical: src.policies.adaptive_large_neighborhood_search.ALNSSolver
+````{py:data} __all__
+:canonical: src.policies.adaptive_large_neighborhood_search.__all__
+:value: >
+   ['ALNSParams', 'run_alns', 'run_alns_ortools', 'run_alns_package']
 
-```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.ALNSSolver
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.__all__
 ```
 
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.ALNSSolver.__init__
-```
-
-````{py:method} solve(initial_solution: typing.Optional[typing.List[typing.List[int]]] = None) -> typing.Tuple[typing.List[typing.List[int]], float, float]
-:canonical: src.policies.adaptive_large_neighborhood_search.ALNSSolver.solve
-
-```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.ALNSSolver.solve
-```
-
-````
-
-````{py:method} select_operator(weights: typing.List[float]) -> int
-:canonical: src.policies.adaptive_large_neighborhood_search.ALNSSolver.select_operator
-
-```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.ALNSSolver.select_operator
-```
-
-````
-
-````{py:method} calculate_cost(routes: typing.List[typing.List[int]]) -> float
-:canonical: src.policies.adaptive_large_neighborhood_search.ALNSSolver.calculate_cost
-
-```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.ALNSSolver.calculate_cost
-```
-
-````
-
-````{py:method} build_initial_solution() -> typing.List[typing.List[int]]
-:canonical: src.policies.adaptive_large_neighborhood_search.ALNSSolver.build_initial_solution
-
-```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.ALNSSolver.build_initial_solution
-```
-
-````
-
-`````
-
-````{py:function} run_alns(dist_matrix, demands, capacity, R, C, values, *args)
-:canonical: src.policies.adaptive_large_neighborhood_search.run_alns
-
-```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.run_alns
-```
 ````

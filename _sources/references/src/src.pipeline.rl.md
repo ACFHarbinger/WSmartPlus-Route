@@ -21,12 +21,28 @@ src.pipeline.rl.hpo
 
 ## Package Contents
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`get_rl_algorithm <src.pipeline.rl.get_rl_algorithm>`
+  - ```{autodoc2-docstring} src.pipeline.rl.get_rl_algorithm
+    :summary:
+    ```
+````
+
 ### Data
 
 ````{list-table}
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`RL_ALGORITHM_REGISTRY <src.pipeline.rl.RL_ALGORITHM_REGISTRY>`
+  - ```{autodoc2-docstring} src.pipeline.rl.RL_ALGORITHM_REGISTRY
+    :summary:
+    ```
 * - {py:obj}`__all__ <src.pipeline.rl.__all__>`
   - ```{autodoc2-docstring} src.pipeline.rl.__all__
     :summary:
@@ -35,10 +51,27 @@ src.pipeline.rl.hpo
 
 ### API
 
+````{py:data} RL_ALGORITHM_REGISTRY
+:canonical: src.pipeline.rl.RL_ALGORITHM_REGISTRY
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.rl.RL_ALGORITHM_REGISTRY
+```
+
+````
+
+````{py:function} get_rl_algorithm(name: str) -> type
+:canonical: src.pipeline.rl.get_rl_algorithm
+
+```{autodoc2-docstring} src.pipeline.rl.get_rl_algorithm
+```
+````
+
 ````{py:data} __all__
 :canonical: src.pipeline.rl.__all__
 :value: >
-   ['REINFORCE', 'PPO', 'SAPO', 'GSPO', 'DRGRPO', 'GDPO', 'HRLModule', 'MetaRLModule', 'POMO', 'SymNCO'...
+   ['REINFORCE', 'PPO', 'A2C', 'SAPO', 'GSPO', 'DRGRPO', 'GDPO', 'HRLModule', 'MetaRLModule', 'POMO', '...
 
 ```{autodoc2-docstring} src.pipeline.rl.__all__
 ```

@@ -109,7 +109,7 @@
 ```
 ````
 
-````{py:function} symmetric_augmentation(xy: torch.Tensor, num_augment: int = 8, first_augment: bool = False)
+````{py:function} symmetric_augmentation(xy: torch.Tensor, num_augment: int = 8, first_augment: bool = False, **kwargs)
 :canonical: src.data.transforms.symmetric_augmentation
 
 ```{autodoc2-docstring} src.data.transforms.symmetric_augmentation

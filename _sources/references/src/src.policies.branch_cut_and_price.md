@@ -7,58 +7,40 @@
 :allowtitles:
 ```
 
-## Module Contents
+## Submodules
 
-### Functions
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.policies.branch_cut_and_price.vrpy_engine
+src.policies.branch_cut_and_price.dispatcher
+src.policies.branch_cut_and_price.ortools_engine
+src.policies.branch_cut_and_price.gurobi_engine
+```
+
+## Package Contents
+
+### Data
 
 ````{list-table}
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`run_bcp <src.policies.branch_cut_and_price.run_bcp>`
-  - ```{autodoc2-docstring} src.policies.branch_cut_and_price.run_bcp
-    :summary:
-    ```
-* - {py:obj}`_run_bcp_ortools <src.policies.branch_cut_and_price._run_bcp_ortools>`
-  - ```{autodoc2-docstring} src.policies.branch_cut_and_price._run_bcp_ortools
-    :summary:
-    ```
-* - {py:obj}`_run_bcp_vrpy <src.policies.branch_cut_and_price._run_bcp_vrpy>`
-  - ```{autodoc2-docstring} src.policies.branch_cut_and_price._run_bcp_vrpy
-    :summary:
-    ```
-* - {py:obj}`_run_bcp_gurobi <src.policies.branch_cut_and_price._run_bcp_gurobi>`
-  - ```{autodoc2-docstring} src.policies.branch_cut_and_price._run_bcp_gurobi
+* - {py:obj}`__all__ <src.policies.branch_cut_and_price.__all__>`
+  - ```{autodoc2-docstring} src.policies.branch_cut_and_price.__all__
     :summary:
     ```
 ````
 
 ### API
 
-````{py:function} run_bcp(dist_matrix, demands, capacity, R, C, values, must_go_indices=None, env=None)
-:canonical: src.policies.branch_cut_and_price.run_bcp
+````{py:data} __all__
+:canonical: src.policies.branch_cut_and_price.__all__
+:value: >
+   ['run_bcp', 'run_bcp_gurobi', 'run_bcp_ortools', 'run_bcp_vrpy']
 
-```{autodoc2-docstring} src.policies.branch_cut_and_price.run_bcp
+```{autodoc2-docstring} src.policies.branch_cut_and_price.__all__
 ```
-````
 
-````{py:function} _run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indices=None)
-:canonical: src.policies.branch_cut_and_price._run_bcp_ortools
-
-```{autodoc2-docstring} src.policies.branch_cut_and_price._run_bcp_ortools
-```
-````
-
-````{py:function} _run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values)
-:canonical: src.policies.branch_cut_and_price._run_bcp_vrpy
-
-```{autodoc2-docstring} src.policies.branch_cut_and_price._run_bcp_vrpy
-```
-````
-
-````{py:function} _run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indices=None, env=None)
-:canonical: src.policies.branch_cut_and_price._run_bcp_gurobi
-
-```{autodoc2-docstring} src.policies.branch_cut_and_price._run_bcp_gurobi
-```
 ````

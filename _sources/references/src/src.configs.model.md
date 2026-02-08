@@ -106,6 +106,17 @@
 
 ````
 
+````{py:attribute} decoder_type
+:canonical: src.configs.model.ModelConfig.decoder_type
+:type: str
+:value: >
+   'attention'
+
+```{autodoc2-docstring} src.configs.model.ModelConfig.decoder_type
+```
+
+````
+
 ````{py:attribute} temporal_horizon
 :canonical: src.configs.model.ModelConfig.temporal_horizon
 :type: int

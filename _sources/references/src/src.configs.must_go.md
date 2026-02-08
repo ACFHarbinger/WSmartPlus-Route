@@ -62,17 +62,6 @@
 
 ````
 
-````{py:attribute} lookahead_days
-:canonical: src.configs.must_go.MustGoConfig.lookahead_days
-:type: int
-:value: >
-   1
-
-```{autodoc2-docstring} src.configs.must_go.MustGoConfig.lookahead_days
-```
-
-````
-
 ````{py:attribute} confidence_factor
 :canonical: src.configs.must_go.MustGoConfig.confidence_factor
 :type: float
@@ -135,6 +124,17 @@
    None
 
 ```{autodoc2-docstring} src.configs.must_go.MustGoConfig.combined_strategies
+```
+
+````
+
+````{py:attribute} logic
+:canonical: src.configs.must_go.MustGoConfig.logic
+:type: str
+:value: >
+   'or'
+
+```{autodoc2-docstring} src.configs.must_go.MustGoConfig.logic
 ```
 
 ````

@@ -23,12 +23,18 @@
 
 ### API
 
-`````{py:class} CVRPPolicy
+`````{py:class} CVRPPolicy(config: typing.Optional[logic.src.configs.policies.CVRPConfig] = None)
 :canonical: src.policies.adapters.policy_cvrp.CVRPPolicy
 
-Bases: {py:obj}`src.policies.base_routing_policy.BaseRoutingPolicy`
+Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy`
 
 ```{autodoc2-docstring} src.policies.adapters.policy_cvrp.CVRPPolicy
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.adapters.policy_cvrp.CVRPPolicy.__init__
 ```
 
 ````{py:method} _get_config_key() -> str

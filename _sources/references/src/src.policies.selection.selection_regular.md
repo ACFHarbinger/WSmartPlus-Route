@@ -26,12 +26,12 @@
 `````{py:class} RegularSelection
 :canonical: src.policies.selection.selection_regular.RegularSelection
 
-Bases: {py:obj}`src.policies.must_go_selection.MustGoSelectionStrategy`
+Bases: {py:obj}`src.policies.selection.base.selection_strategy.MustGoSelectionStrategy`
 
 ```{autodoc2-docstring} src.policies.selection.selection_regular.RegularSelection
 ```
 
-````{py:method} select_bins(context: src.policies.must_go_selection.SelectionContext) -> typing.List[int]
+````{py:method} select_bins(context: src.policies.selection.base.selection_strategy.SelectionContext) -> typing.List[int]
 :canonical: src.policies.selection.selection_regular.RegularSelection.select_bins
 
 ```{autodoc2-docstring} src.policies.selection.selection_regular.RegularSelection.select_bins

@@ -7,13 +7,22 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.configs.policies
+src.configs.rl
+```
+
 ## Submodules
 
 ```{toctree}
 :titlesonly:
 :maxdepth: 1
 
-src.configs.rl
 src.configs.decoding
 src.configs.eval
 src.configs.must_go
