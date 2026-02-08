@@ -23,6 +23,8 @@ def test_input_analysis_tab_init(qapp):
 def test_output_analysis_tab_init(qapp):
     """Test initialization of OutputAnalysisTab."""
     tab = OutputAnalysisTab()
-    assert hasattr(tab, "load_btn") or hasattr(tab, "plot_btn")
+    # Buttons are in the controls widget
+    assert hasattr(tab.controls, "load_btn")
+    assert hasattr(tab.controls, "plot_btn")
     tab.deleteLater()
     qapp.processEvents()

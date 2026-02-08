@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 import torch.nn as nn
 
+from logic.src.models.attention_model.deep_decoder_policy import DeepDecoderPolicy
 from logic.src.models.attention_model.policy import AttentionModelPolicy
 from logic.src.models.attention_model.symnco_policy import SymNCOPolicy
 from logic.src.models.common import (
@@ -100,6 +101,7 @@ __all__ = [
     "ConstructivePolicy",
     "ImprovementPolicy",
     "AttentionModelPolicy",
+    "DeepDecoderPolicy",
     "DeepACOPolicy",
     "GFACSPolicy",
     "GLOPPolicy",

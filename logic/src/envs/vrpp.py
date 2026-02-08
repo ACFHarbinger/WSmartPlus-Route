@@ -60,7 +60,39 @@ class VRPPEnv(RL4COEnvBase):
         self.cost_weight = cost_km if cost_km is not None else cost_weight
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialize VRPP episode state."""
+        """
+        Initialize VRPP episode state with depot prepending and state field initialization.
+
+        This method sets up the initial state for a Vehicle Routing Problem with Profits (VRPP)
+        episode. It handles depot prepending logic to ensure coordinates are in the correct format
+        (N+1 nodes including depot at index 0), and initializes all tracking fields.
+
+        State Initialization Logic:
+            1. Check if depot needs to be prepended to customer locations
+            2. Prepend depot to both locations and waste arrays if needed
+            3. Initialize tracking fields: visited, tour, tour_length, collected_waste
+
+        Args:
+            td (TensorDict): Input tensor dictionary containing:
+                - locs (Tensor): Location coordinates, shape (batch, N, 2) or (batch, N+1, 2)
+                - depot (Tensor): Depot coordinates, shape (batch, 2)
+                - waste (Tensor, optional): Waste/prize at each location, shape (batch, N) or (batch, N+1)
+                - visited (Tensor, optional): If present, skip reinitialization (transductive search)
+
+        Returns:
+            TensorDict: Updated state dictionary with added fields:
+                - current_node (LongTensor): Current position index, shape (batch, 1), initialized to 0 (depot)
+                - visited (BoolTensor): Visit status for each node, shape (batch, num_nodes), depot marked visited
+                - tour (LongTensor): Sequence of visited node indices, shape (batch, 0), starts empty
+                - tour_length (Tensor): Total distance traveled, shape (batch,), initialized to 0.0
+                - collected_waste (Tensor): Total waste/profit collected, shape (batch,), initialized to 0.0
+
+        Note:
+            The robust depot prepending logic handles three scenarios:
+            1. Generator provides num_loc - compare actual shape to expected N+1
+            2. No generator hint - check if first location matches depot coordinates
+            3. Mismatched waste array - ensure waste has same node count as locations
+        """
         # If state is already initialized (e.g. transductive search resuming), skip coord mod
         if "visited" in td.keys():
             return td
@@ -111,7 +143,44 @@ class VRPPEnv(RL4COEnvBase):
         return td
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
-        """Execute action and update state."""
+        """
+        Execute a routing action and update the episode state.
+
+        This method processes a single step in the VRPP episode by:
+        1. Computing the Euclidean distance traveled from current node to selected action node
+        2. Collecting waste/profit from the destination node (if unvisited and not depot)
+        3. Updating the visit mask, current position, tour sequence, and cumulative metrics
+
+        Reward Logic:
+            - Waste is collected only from nodes that are:
+                a) Previously unvisited (checked via visited mask)
+                b) Not the depot (action != 0)
+            - The depot (node 0) has zero waste and serves as the return point
+            - Revisiting a node does not collect additional waste
+
+        Args:
+            td (TensorDict): Current state containing:
+                - action (LongTensor): Selected next node index, shape (batch,)
+                - current_node (LongTensor): Current position, shape (batch, 1)
+                - locs (Tensor): All node coordinates including depot, shape (batch, num_nodes, 2)
+                - waste (Tensor): Waste/profit at each node, shape (batch, num_nodes)
+                - visited (BoolTensor): Visit status, shape (batch, num_nodes)
+                - tour (LongTensor): Historical tour, shape (batch, tour_len)
+                - tour_length (Tensor): Cumulative distance, shape (batch,)
+                - collected_waste (Tensor): Cumulative waste collected, shape (batch,)
+
+        Returns:
+            TensorDict: Updated state with modifications to:
+                - tour_length: Incremented by Euclidean distance
+                - collected_waste: Incremented by waste[action] if valid collection
+                - visited: action node marked as True
+                - current_node: Updated to action value
+                - tour: Action appended to tour sequence
+
+        Note:
+            The method handles edge cases where waste array may not include depot
+            (shape mismatch) by dynamically prepending a zero depot waste value.
+        """
         # Locs and waste are already prepended in reset or previously
         bs = td.batch_size
         device = td.device

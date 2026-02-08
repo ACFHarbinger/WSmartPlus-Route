@@ -7,6 +7,7 @@ from typing import Any, Dict, List, cast
 
 import numpy as np
 
+from logic.src.configs import MustGoConfig
 from logic.src.constants import ROOT_DIR
 from logic.src.policies import MustGoSelectionFactory, SelectionContext
 from logic.src.utils.configs.config_loader import load_config
@@ -31,12 +32,17 @@ class MustGoSelectionAction(SimulationAction):
         flat_cfg = _flatten_config(raw_cfg)
         config_must_go = flat_cfg.get("must_go")
 
-        if config_must_go:
+        if isinstance(config_must_go, MustGoConfig):
+            # Use the structured config object directly
+            strategies.append({"config": config_must_go})
+        elif config_must_go:
             if not isinstance(config_must_go, list):
                 config_must_go = [config_must_go]
 
             for item in config_must_go:
-                if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
+                if isinstance(item, MustGoConfig):
+                    strategies.append({"config": item})
+                elif isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
                     # Load config file
                     fpath = os.path.join(ROOT_DIR, "assets", "configs", "policies", item)
                     cfg = load_config(fpath)
@@ -87,7 +93,13 @@ class MustGoSelectionAction(SimulationAction):
                 vehicle_capacity=context.get("max_capacity", 100.0),
             )
 
-            if s_name == "select_all":
+            if "config" in strat_info:
+                # Use structured config
+                m_config = strat_info["config"]
+                strategy = MustGoSelectionFactory.create_from_config(m_config)
+                res = strategy.select_bins(sel_ctx)
+                s_name = m_config.strategy
+            elif s_name == "select_all":
                 res = list(sel_ctx.bin_ids)
             else:
                 strategy = MustGoSelectionFactory.create_strategy(str(s_name), **cast(Dict[str, Any], s_params))

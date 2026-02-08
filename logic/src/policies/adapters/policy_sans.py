@@ -29,7 +29,7 @@ from logic.src.policies.simulated_annealing_neighborhood_search.common.solution_
     compute_initial_solution,
 )
 from logic.src.policies.simulated_annealing_neighborhood_search.refinement.route_search import find_solutions
-from logic.src.policies.single_vehicle import get_route_cost
+from logic.src.policies.tsp import get_route_cost
 
 from .factory import PolicyRegistry
 

@@ -10,7 +10,7 @@ import torch
 from logic.src.models.policies.local_search import (
     vectorized_two_opt,
 )
-from logic.src.policies.single_vehicle import (
+from logic.src.policies.tsp import (
     find_route,
     get_multi_tour,
     get_route_cost,

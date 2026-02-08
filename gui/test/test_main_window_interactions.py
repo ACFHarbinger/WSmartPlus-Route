@@ -49,7 +49,7 @@ class TestMainWindowInteractions:
                 assert "Command Simulation" in args[1]
                 assert "python main.py simulated" in args[2]
 
-    @patch("gui.src.windows.main_window.QProcess")
+    @patch("gui.src.windows.main.process.QProcess")
     def test_run_command_real_execution(self, MockProcess, main_window):
         """Test 'Run Command' launching a process."""
         # Reuse fixture, modify state
@@ -61,7 +61,7 @@ class TestMainWindowInteractions:
         process_instance.waitForStarted.return_value = True
 
         # Mock results window to avoid it popping up
-        with patch("gui.src.windows.main_window.SimulationResultsWindow"):
+        with patch("gui.src.windows.main.process.SimulationResultsWindow"):
             # Patch mediator safely
             with patch.object(main_window, "mediator", MagicMock()):
                 main_window.run_command()
@@ -89,8 +89,8 @@ class TestMainWindowInteractions:
         from PySide6.QtGui import QCloseEvent
 
         # Properly mock shutdown on EXISTING tabs to avoid orphaning/leaking real threads
-        orig_input = main_window.analysis_tabs_map["Input Analysis"]
-        orig_output = main_window.analysis_tabs_map["Output Analysis"]
+        orig_input = main_window.tab_manager.analysis_tabs_map["Input Analysis"]
+        orig_output = main_window.tab_manager.analysis_tabs_map["Output Analysis"]
 
         with patch.object(orig_input, "shutdown") as mock_input_shutdown, patch.object(
             orig_output, "shutdown"
