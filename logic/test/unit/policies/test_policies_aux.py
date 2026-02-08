@@ -434,7 +434,7 @@ class TestHGSAux:
         class ConcreteLocalSearch(local_search_base.LocalSearch):
             def optimize(self, solution):
                 # Mock implementation just returns the individual
-                return individual
+                return solution
 
         ls = ConcreteLocalSearch(
             sample_data["dist_matrix"],

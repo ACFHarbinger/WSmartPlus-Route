@@ -74,7 +74,7 @@ def test_plot_vehicle_routes(mock_pc, mock_fig, mock_get_cmap):
     # Route: 0 -> 1 -> 2 -> 0 represented as [0, 1, 2, 0]
     route = torch.tensor([0, 1, 2, 0])
     ax = MagicMock()
-    plot_vehicle_routes(data, route, ax, visualize_demands=True)
+    plot_vehicle_routes(data, route, ax, visualize_waste=True)
     assert ax.quiver.called
     assert mock_pc.called
 

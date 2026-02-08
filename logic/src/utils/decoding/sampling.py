@@ -10,6 +10,8 @@ import torch
 import torch.nn.functional as F
 from tensordict import TensorDict
 
+from logic.src.constants.models import NUMERICAL_EPSILON
+
 from .base import DecodingStrategy
 
 
@@ -27,7 +29,7 @@ class Sampling(DecodingStrategy):
         probs = F.softmax(logits, dim=-1)
 
         # Handle numerical issues
-        probs = probs.clamp(min=1e-8)
+        probs = probs.clamp(min=NUMERICAL_EPSILON)
         probs = probs / probs.sum(dim=-1, keepdim=True)
 
         dist = torch.distributions.Categorical(probs)

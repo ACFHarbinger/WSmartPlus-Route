@@ -4,7 +4,7 @@ Sim Config module.
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -63,8 +63,6 @@ class SimConfig:
     """
 
     policies: Optional[List[str]] = None
-    gate_prob_threshold: float = 0.5
-    mask_prob_threshold: float = 0.5
     data_distribution: str = "gamma1"
     problem: str = "vrpp"
     size: int = 50
@@ -83,8 +81,6 @@ class SimConfig:
     area: str = "riomaior"
     waste_type: str = "plastic"
     bin_idx_file: Optional[str] = None
-    decode_type: str = "greedy"
-    temperature: float = 1.0
     edge_threshold: str = "0"
     edge_method: Optional[str] = None
     vertex_method: str = "mmn"
@@ -93,8 +89,6 @@ class SimConfig:
     waste_filepath: Optional[str] = None
     noise_mean: float = 0.0
     noise_variance: float = 0.0
-    run_tsp: bool = False
-    two_opt_max_iter: int = 0
     cache_regular: bool = True
     no_cuda: bool = False
     no_progress_bar: bool = False
@@ -106,9 +100,5 @@ class SimConfig:
     gapik_file: Optional[str] = None
     real_time_log: bool = False
     stats_filepath: Optional[str] = None
-    model_path: Optional[Any] = None
     config_path: Optional[Dict[str, str]] = None
-    w_length: float = 1.0
-    w_waste: float = 1.0
-    w_overflows: float = 1.0
     data_dir: Optional[str] = None

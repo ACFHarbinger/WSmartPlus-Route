@@ -139,6 +139,15 @@ def _eval_dataset(
             instance = dataset[i]
             if isinstance(instance, (list, tuple)):
                 batch_i = {k: v.unsqueeze(0).to(device) for k, v in zip(["locs"], instance)}
+            elif isinstance(instance, dict):
+                batch_i = {}
+                for k, v in instance.items():
+                    if torch.is_tensor(v):
+                        batch_i[k] = v.unsqueeze(0).to(device)
+                    elif isinstance(v, np.ndarray):
+                        batch_i[k] = torch.from_numpy(v).unsqueeze(0).to(device)
+                    else:
+                        batch_i[k] = v
             else:
                 batch_i = instance.unsqueeze(0).to(device)
 

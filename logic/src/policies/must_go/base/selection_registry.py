@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Type
 
-from .selection_strategy import MustGoSelectionStrategy
+from logic.src.interfaces.must_go import MustGoSelectionStrategy
 
 
 class MustGoSelectionRegistry:

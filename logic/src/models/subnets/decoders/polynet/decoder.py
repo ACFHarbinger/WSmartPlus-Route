@@ -8,6 +8,7 @@ import torch
 import torch.nn as nn
 from tensordict import TensorDict
 
+from logic.src.constants.models import NUMERICAL_EPSILON
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
 from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
@@ -103,11 +104,11 @@ class PolyNetDecoder(nn.Module):
             if decode_type == "greedy":
                 action = probs.argmax(dim=-1)
             else:
-                probs = probs.clamp(min=1e-8)
+                probs = probs.clamp(min=NUMERICAL_EPSILON)
                 action = torch.multinomial(probs, 1).squeeze(-1)
 
             # Store outputs
-            log_p = torch.log(probs.gather(-1, action.unsqueeze(-1)) + 1e-8).squeeze(-1)
+            log_p = torch.log(probs.gather(-1, action.unsqueeze(-1)) + NUMERICAL_EPSILON).squeeze(-1)
             outputs.append(log_p)
             actions.append(action)
 

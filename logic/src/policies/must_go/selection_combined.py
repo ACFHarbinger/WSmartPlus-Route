@@ -4,9 +4,10 @@ Combined selection strategy module.
 
 from typing import Any, Dict, List, Optional, cast
 
+from logic.src.interfaces.must_go import MustGoSelectionStrategy
+
 from .base.selection_context import SelectionContext
 from .base.selection_factory import MustGoSelectionFactory
-from .base.selection_strategy import MustGoSelectionStrategy
 
 
 class CombinedSelection(MustGoSelectionStrategy):

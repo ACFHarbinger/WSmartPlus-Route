@@ -11,6 +11,7 @@ from logic.src.constants.models import (
     FEED_FORWARD_EXPANSION,
     STATIC_DIM,
 )
+from logic.src.constants.routing import DEFAULT_EVAL_BATCH_SIZE
 from logic.src.constants.waste import CRITICAL_FILL_THRESHOLD
 from logic.src.utils.logging.pylogger import get_pylogger
 
@@ -37,7 +38,7 @@ class GATLSTManager(nn.Module):
         input_dim_dynamic=DEFAULT_TEMPORAL_HORIZON,  # waste history length
         global_input_dim=2,  # avg_waste, max_waste (Only current)
         critical_threshold=CRITICAL_FILL_THRESHOLD,
-        batch_size=1024,
+        batch_size=DEFAULT_EVAL_BATCH_SIZE,
         hidden_dim=128,
         lstm_hidden=64,
         num_layers_gat=3,

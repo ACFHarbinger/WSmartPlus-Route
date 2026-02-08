@@ -34,15 +34,13 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         AttentionModel,
         TemporalAttentionModel,
     )
-    from logic.src.pipeline.features.train.model_factory.builder import (
-        AttentionComponentFactory,
-        GACComponentFactory,
-        GCNComponentFactory,
-        GGACComponentFactory,
-        MLPComponentFactory,
-        NeuralComponentFactory,
-        TGCComponentFactory,
-    )
+    from logic.src.models.subnets.factories.attention import AttentionComponentFactory
+    from logic.src.models.subnets.factories.base import NeuralComponentFactory
+    from logic.src.models.subnets.factories.gac import GACComponentFactory
+    from logic.src.models.subnets.factories.gcn import GCNComponentFactory
+    from logic.src.models.subnets.factories.ggac import GGACComponentFactory
+    from logic.src.models.subnets.factories.mlp import MLPComponentFactory
+    from logic.src.models.subnets.factories.tgc import TGCComponentFactory
 
     if os.path.isfile(path):
         model_filename = path
@@ -200,7 +198,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         spatial_bias=args.get("spatial_bias", False),
         spatial_bias_scale=args.get("spatial_bias_scale", 1.0),
         entropy_weight=args.get("entropy_weight", 0.0),
-        predictor_layers=args.get("n_predict_layers", None),
+        predictor_layers=args.get("n_predict_layers", 0),
         decoder_type=decoder_type,
     )
 

@@ -15,7 +15,7 @@ class TestFeatures:
         policy = am_setup
         env = mocker.MagicMock()
         baseline = mocker.MagicMock()
-        baseline.wrap_dataset.side_effect = lambda m, d, e: "wrapped_dataset"
+        baseline.wrap_dataset.side_effect = lambda d, policy=None, env=None: "wrapped_dataset"
         baseline.unwrap_dataset.side_effect = lambda d: d
 
         dataset = "original_dataset"
@@ -23,7 +23,7 @@ class TestFeatures:
         # Training phase with baseline wrapping
         wrapped = prepare_epoch(policy, env, baseline, dataset, 0, phase="train")
         assert wrapped == "wrapped_dataset"
-        baseline.wrap_dataset.assert_called_once_with(policy, dataset, env)
+        baseline.wrap_dataset.assert_called_once_with(dataset, policy=policy, env=env)
 
         # Validation phase (no wrapping)
         val_ds = prepare_epoch(policy, env, baseline, dataset, 0, phase="val")

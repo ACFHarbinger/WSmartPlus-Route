@@ -247,8 +247,8 @@ class TestFileSystemCommand:
         # Mock the maps used by UpdateFunctionMapActionFactory so our test inputs are considered valid
         # This allows us to bypass the ValueError in the Action and hit the AssertionError in validation
         with (
-            patch("logic.src.cli.base.parser.OPERATION_MAP", {"op_test": 1}),
-            patch("logic.src.cli.base.parser.STATS_FUNCTION_MAP", {"stat_test": 1}),
+            patch("logic.src.cli.base.update_function_factory.OPERATION_MAP", {"op_test": 1}),
+            patch("logic.src.cli.base.update_function_factory.STATS_FUNCTION_MAP", {"stat_test": 1}),
             patch.object(sys, "argv", args),
         ):
             # Expect AssertionError: "'update_operation' and 'stats_function' arguments are mutually exclusive"

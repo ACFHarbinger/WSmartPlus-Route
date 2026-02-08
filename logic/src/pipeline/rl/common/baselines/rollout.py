@@ -9,6 +9,7 @@ from typing import Any, Optional
 import torch
 import torch.nn as nn
 
+from logic.src.constants.routing import DEFAULT_ROLLOUT_BATCH_SIZE
 from logic.src.utils.data.rl_utils import safe_td_copy
 from logic.src.utils.logging.pylogger import get_pylogger
 
@@ -89,7 +90,7 @@ class RolloutBaseline(Baseline):
         from logic.src.utils.functions.rl import ensure_tensordict
 
         # Determine strict batch size from environment
-        batch_size = 64  # Default
+        batch_size = DEFAULT_ROLLOUT_BATCH_SIZE  # Default from constants
         if hasattr(env, "batch_size") and len(env.batch_size) > 0:
             batch_size = int(env.batch_size[0])
 

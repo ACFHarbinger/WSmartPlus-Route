@@ -22,7 +22,6 @@ from .local_search.local_search_hgs import HGSLocalSearch
 from .must_go.base.selection_context import SelectionContext
 from .must_go.base.selection_factory import MustGoSelectionFactory
 from .must_go.base.selection_registry import MustGoSelectionRegistry
-from .must_go.base.selection_strategy import MustGoSelectionStrategy
 from .neural_agent import NeuralAgent
 from .simulated_annealing_neighborhood_search.common.routes import create_points
 from .simulated_annealing_neighborhood_search.refinement.route_search import find_solutions
@@ -34,7 +33,6 @@ __all__ = [
     "PolicyFactory",
     "MustGoSelectionFactory",
     "MustGoSelectionRegistry",
-    "MustGoSelectionStrategy",
     "SelectionContext",
     "NeuralAgent",
     "create_points",

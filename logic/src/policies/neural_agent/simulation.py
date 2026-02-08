@@ -18,7 +18,7 @@ from logic.src.policies.tsp import (
 from logic.src.utils.functions import add_attention_hooks
 
 
-class SimulatorMixin:
+class SimulationMixin:
     """
     Mixin for single-day simulation logic in NeuralAgent.
     """

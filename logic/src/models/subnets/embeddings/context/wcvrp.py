@@ -28,7 +28,9 @@ class WCVRPContextEmbedder(ContextEmbedder):
         self.project_step_context = nn.Linear(self.step_context_dim, embed_dim)
 
     def init_node_embeddings(self, nodes: dict[str, Any], temporal_features: bool = True) -> torch.Tensor:
-        locs = nodes.get("locs", nodes.get("loc"))
+        locs = nodes.get("locs", None)
+        if locs is None:
+            locs = nodes.get("loc")
         waste = nodes.get("waste")
 
         if waste is None:

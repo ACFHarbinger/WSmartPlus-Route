@@ -116,5 +116,5 @@ class TestDistributions:
         beta = torch.ones(num_loc) * 5.0
         dist = Gamma(alpha=alpha, beta=beta)
         # size matches batch, num_loc
-        out = dist.sample((batch, num_loc))
+        out = dist.sample((batch,))
         assert out.shape == (batch, num_loc)
