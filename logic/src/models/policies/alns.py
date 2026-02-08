@@ -67,11 +67,10 @@ class VectorizedALNS(ImprovementPolicy):
         else:
             dist_matrix = locs
 
-        # Extract demands
-        prizes = td.get("prize", torch.zeros(batch_size, num_nodes - 1, device=device))
-        demands_at_nodes = td.get("demand", prizes)
+        # Extract waste (demands)
+        waste_at_nodes = td.get("waste", torch.zeros(batch_size, num_nodes - 1, device=device))
         # Prepend 0 for depot
-        demands = torch.cat([torch.zeros(batch_size, 1, device=device), demands_at_nodes], dim=1)
+        waste = torch.cat([torch.zeros(batch_size, 1, device=device), waste_at_nodes], dim=1)
 
         # Extract capacity
         capacity = td.get("capacity", torch.ones(batch_size, device=device) * VEHICLE_CAPACITY)
@@ -96,7 +95,7 @@ class VectorizedALNS(ImprovementPolicy):
 
         solver = VectorizedALNSEngine(
             dist_matrix=dist_matrix,
-            demands=demands,
+            demands=waste,
             vehicle_capacity=capacity,
             time_limit=self.time_limit,
             device=device,
@@ -132,14 +131,14 @@ class VectorizedALNS(ImprovementPolicy):
         )
 
         # Compute rewards (profit - cost)
-        R = getattr(env, "prize_weight", 1.0)
+        R = getattr(env, "waste_weight", 1.0)
         C = getattr(env, "cost_weight", 1.0)
 
         # Approximate rewards for now (similar to HGS implementation)
         all_rewards = []
         for b in range(batch_size):
             collected_nodes = set(all_actions[b].tolist()) - {0}
-            profit = sum(demands[b, node].item() * R for node in collected_nodes if node < num_nodes)
+            profit = sum(waste[b, node].item() * R for node in collected_nodes if node < num_nodes)
             cost = costs[b].item() * C
             all_rewards.append(torch.tensor(profit - cost, device=device))
 

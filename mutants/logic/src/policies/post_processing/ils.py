@@ -7,8 +7,9 @@ from typing import Any, Dict, List, Union
 
 import numpy as np
 import torch
+from logic.src.interfaces import IPostProcessor
 
-from .base import IPostProcessor, PostProcessorRegistry
+from .registry import PostProcessorRegistry
 
 
 @PostProcessorRegistry.register("ils")
@@ -53,7 +54,7 @@ class IteratedLocalSearchPostProcessor(IPostProcessor):
         """
         Apply ILS to refine the tour.
         """
-        from logic.src.models.policies.classical.local_search import (
+        from logic.src.models.policies.local_search import (
             vectorized_relocate,
             vectorized_swap,
             vectorized_swap_star,

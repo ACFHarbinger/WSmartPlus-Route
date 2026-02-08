@@ -29,7 +29,8 @@ class CVRPPEnv(VRPPEnv):
         capacity = td.get("capacity", torch.ones(bs, device=device) * 100)
         td["capacity"] = capacity  # Ensure it's in the TensorDict for _step
         td["remaining_capacity"] = capacity.clone()
-        td["collected"] = torch.zeros(bs, device=device)
+        td["collected_waste"] = torch.zeros(bs, device=device)
+        td["collected"] = td["collected_waste"]  # Alias
 
         return td
 
@@ -44,24 +45,25 @@ class CVRPPEnv(VRPPEnv):
         action = td["action"]
 
         # Update capacity when collecting
-        demand = td.get("demand", td.get("prize", torch.zeros_like(td["remaining_capacity"].unsqueeze(-1))))
-        if demand.dim() > 1:
-            demand_at_node = demand.gather(1, action.unsqueeze(-1)).squeeze(-1)
+        waste = td.get("waste", torch.zeros_like(td["remaining_capacity"].unsqueeze(-1)))
+        if waste.dim() > 1:
+            waste_at_node = waste.gather(1, action.unsqueeze(-1)).squeeze(-1)
         else:
-            demand_at_node = demand
+            waste_at_node = waste
 
         # Reset capacity at depot
         at_depot = action == 0
         td["remaining_capacity"] = torch.where(
             at_depot,
             td["capacity"],
-            td["remaining_capacity"] - demand_at_node,
+            td["remaining_capacity"] - waste_at_node,
         )
-        td["collected"] = torch.where(
+        td["collected_waste"] = torch.where(
             at_depot,
-            torch.zeros_like(td["collected"]),
-            td["collected"] + demand_at_node,
+            torch.zeros_like(td["collected_waste"]),
+            td["collected_waste"] + waste_at_node,
         )
+        td["collected"] = td["collected_waste"]  # Alias
 
         return td
 
@@ -80,11 +82,17 @@ class CVRPPEnv(VRPPEnv):
         # Get base mask (without must-go depot logic applied yet)
         base_mask = ~td["visited"].clone()
 
-        # Mask nodes whose demand exceeds remaining capacity
-        # For VRPP-based envs, we might use 'prize' as demand for consistency
-        demand = td.get("demand", td.get("prize", torch.zeros_like(td["remaining_capacity"].unsqueeze(-1))))
+        # Mask nodes whose waste exceeds remaining capacity
+        waste = td.get("waste")
+        if waste is not None and waste.shape[-1] == td["visited"].shape[-1] - 1:
+            # needs depot
+            waste = torch.cat([torch.zeros(*td.batch_size, 1, device=td.device), waste], dim=1)
+
+        if waste is None:
+            waste = torch.zeros_like(td["visited"], dtype=torch.float32)
+
         remaining = td["remaining_capacity"].unsqueeze(-1)
-        exceeds_capacity = demand > remaining
+        exceeds_capacity = waste > remaining
 
         mask = base_mask & ~exceeds_capacity
 

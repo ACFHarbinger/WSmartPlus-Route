@@ -1,6 +1,7 @@
 """
 WCVRP Embedding module.
 """
+
 from __future__ import annotations
 
 import torch
@@ -19,7 +20,7 @@ class WCVRPInitEmbedding(nn.Module):
             embed_dim: Embedding dimension.
         """
         super().__init__()
-        # Node features: x, y, fill_level
+        # Node features: x, y, waste (fill_level)
         self.node_embed = nn.Linear(3, embed_dim)
         self.depot_embed = nn.Linear(2, embed_dim)
 
@@ -28,15 +29,18 @@ class WCVRPInitEmbedding(nn.Module):
         Forward pass for WCVRP embedding.
 
         Args:
-            td: TensorDict containing 'locs', 'demand' (fill levels), 'depot'.
+            td: TensorDict containing 'locs', 'waste' (fill levels), 'depot'.
 
         Returns:
             Embeddings tensor [batch, num_nodes, embed_dim].
         """
         locs = td["locs"]
-        demand = td["demand"]  # Fill levels
+        waste = td.get("waste")  # Fill levels
 
-        node_features = torch.cat([locs, demand.unsqueeze(-1)], dim=-1)
+        if waste is None:
+            waste = torch.zeros(td.batch_size[0], locs.size(1), device=td.device)
+
+        node_features = torch.cat([locs, waste.unsqueeze(-1)], dim=-1)
         embeddings = self.node_embed(node_features)
 
         depot_emb = self.depot_embed(td["depot"])

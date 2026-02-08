@@ -58,11 +58,11 @@ class SCWCVRPEnv(WCVRPEnv):
 
         # Ensure real_waste is tracked
         if "real_waste" not in td.keys():
-            # If not provided by generator, assume it's same as demand (no noise)
-            td["real_waste"] = td["demand"].clone()
+            # If not provided by generator, assume it's same as waste (no noise)
+            td["real_waste"] = td["waste"].clone()
 
         # Track total real waste collected
-        td["total_real_collected"] = torch.zeros_like(td["total_collected"])
+        td["total_real_collected"] = torch.zeros_like(td["collected_waste"])
 
         return td
 
@@ -77,12 +77,15 @@ class SCWCVRPEnv(WCVRPEnv):
         # Update real waste tracking (internal)
         # We need to ensure we don't collect more than vehicle capacity
         # WCVRPEnv base class already handles current_load and current_node update
-        # but it uses 'demand' (which is the noisy version here).
+        # but it uses 'waste' (which is the noisy version here).
         # However, for reward we want to know what was *actually* collected.
 
         # We first call super to get the basic state updates
-        # Wait, if I call super it will use td['demand'] to update current_load and total_collected.
-        # But in SCWCVRP, the agent thinks it collects 'demand' (noisy),
+        # In legacy logic:
+        # actual_collected = min(real_waste, remaining_capacity)
+        # current_node_wastes -= actual_collected
+
+        # In SCWCVRP, the agent thinks it collects 'waste' (noisy),
         # but it actually collects based on capacity.
 
         # In legacy logic:
@@ -100,9 +103,9 @@ class SCWCVRPEnv(WCVRPEnv):
         )
         td["real_waste"] = new_real_waste
 
-        # Now update noisy demand - usually setting to 0 after visit if we think we cleared it
+        # Now update noisy waste - usually setting to 0 after visit if we think we cleared it
         # or update based on what we think we collected?
-        # Standard WCVRPEnv sets td['demand'] to 0 at the node.
+        # Standard WCVRPEnv sets td['waste'] to 0 at the node.
 
         td = super()._step_instance(td)
 
@@ -144,7 +147,7 @@ class SCWCVRPEnv(WCVRPEnv):
         td["real_overflows"] = overflows
 
         # Store for GDPO
-        td["reward_collection"] = collection
+        td["reward_waste"] = collection
         td["reward_cost"] = -total_cost
         td["reward_overflow"] = -overflows
 

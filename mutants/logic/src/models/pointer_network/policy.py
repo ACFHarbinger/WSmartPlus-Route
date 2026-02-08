@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 import torch
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.autoregressive import AutoregressivePolicy
+from logic.src.models.common.autoregressive_policy import AutoregressivePolicy
 from logic.src.models.pointer_network import PointerNetwork
 from tensordict import TensorDict
 
@@ -27,7 +27,7 @@ class PointerNetworkPolicy(AutoregressivePolicy):
     ):
         """Initialize PointerNetworkPolicy."""
         super().__init__(env_name=env_name, embed_dim=embed_dim)
-        from logic.src.utils.data.td_utils import DummyProblem
+        from logic.src.utils.tasks.dummy_problem import DummyProblem
 
         self.model = PointerNetwork(
             embed_dim=embed_dim,

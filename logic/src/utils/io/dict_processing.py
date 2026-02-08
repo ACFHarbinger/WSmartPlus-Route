@@ -30,7 +30,10 @@ def process_dict_of_dicts(
                 modified = True
         elif k == output_key:
             if process_func:
-                data_dict[k] = process_func(v, update_val)
+                if isinstance(v, (list, tuple)):
+                    data_dict[k] = type(v)([process_func(i, update_val) for i in v])
+                else:
+                    data_dict[k] = process_func(v, update_val)
             else:
                 data_dict[k] = update_val
             modified = True
@@ -80,7 +83,10 @@ def process_dict_two_inputs(
 
     if has_k1 and has_k2:
         val1 = data_dict[input_key1]
-        data_dict[output_key] = process_func(val1, val2)
+        if isinstance(val1, (list, tuple)) and isinstance(val2, (list, tuple)) and len(val1) == len(val2):
+            data_dict[output_key] = type(val1)([process_func(v1, v2) for v1, v2 in zip(val1, val2)])
+        else:
+            data_dict[output_key] = process_func(val1, val2)
         modified = True
 
     # Recurse

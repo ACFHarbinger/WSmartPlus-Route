@@ -51,7 +51,7 @@ class TestNARGNN:
         """Verify NARGNNPolicy forward pass."""
         td = TensorDict({
             "locs": torch.rand(self.batch_size, self.num_nodes, 2),
-            "prize": torch.rand(self.batch_size, self.num_nodes),
+            "waste": torch.rand(self.batch_size, self.num_nodes),
             "depot": torch.rand(self.batch_size, 2),
             "current_node": torch.zeros(self.batch_size, dtype=torch.long),
             "mask": torch.ones(self.batch_size, self.num_nodes, dtype=torch.bool),
@@ -71,7 +71,7 @@ class TestNARGNN:
         """Verify NARGNN model forward pass for training."""
         td = TensorDict({
             "locs": torch.rand(self.batch_size, self.num_nodes, 2),
-            "prize": torch.rand(self.batch_size, self.num_nodes),
+            "waste": torch.rand(self.batch_size, self.num_nodes),
             "depot": torch.rand(self.batch_size, 2),
             "current_node": torch.zeros(self.batch_size, dtype=torch.long),
             "mask": torch.ones(self.batch_size, self.num_nodes, dtype=torch.bool),

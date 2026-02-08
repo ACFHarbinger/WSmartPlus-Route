@@ -16,7 +16,7 @@ def move_or_opt(
     effective when customers are geographically clustered.
 
     Args:
-        ls: LocalSearch instance with routes, distance matrix, demands, etc.
+        ls: LocalSearch instance with routes, distance matrix, waste, etc.
         node: Starting node of the chain.
         chain_len: Length of chain to move (1, 2, or 3).
         r_idx: Route index containing the chain.
@@ -31,7 +31,7 @@ def move_or_opt(
 
     # Extract chain
     chain = route[pos : pos + chain_len]
-    chain_demand = sum(ls.demands.get(n, 0) for n in chain)
+    chain_waste = sum(ls.waste.get(n, 0) for n in chain)
 
     # Calculate removal cost
     prev_node = route[pos - 1] if pos > 0 else 0
@@ -46,7 +46,7 @@ def move_or_opt(
         # Check capacity
         if target_r_idx != r_idx:
             target_load = ls._calc_load_fresh(target_route)
-            if target_load + chain_demand > ls.Q:
+            if target_load + chain_waste > ls.Q:
                 continue
 
         # Try all insertion positions

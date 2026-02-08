@@ -16,7 +16,8 @@ from logic.src.models.common.autoregressive_policy import AutoregressivePolicy
 from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.subnets.embeddings import get_init_embedding
 from logic.src.models.subnets.encoders.gat import GraphAttentionEncoder
-from logic.src.utils.data import DummyProblem, TensorDictStateWrapper
+from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
+from logic.src.utils.tasks.dummy_problem import DummyProblem
 from tensordict import TensorDict
 
 

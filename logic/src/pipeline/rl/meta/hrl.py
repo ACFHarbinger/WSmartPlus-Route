@@ -85,15 +85,17 @@ class HRLModule(pl.LightningModule):
 
         # Prepare inputs for manager
         static = td["locs"]
-        if "demand_history" in td.keys():
+        if "waste_history" in td.keys():
+            dynamic = td["waste_history"]
+        elif "demand_history" in td.keys():
             dynamic = td["demand_history"]
         else:
-            dynamic = td["demand"].unsqueeze(-1).expand(-1, -1, 10)
+            dynamic = td["waste"].unsqueeze(-1).expand(-1, -1, 10)
 
         global_features = torch.stack(
             [
-                td["demand"].mean(dim=1),
-                td["demand"].max(dim=1)[0],
+                td["waste"].mean(dim=1),
+                td["waste"].max(dim=1)[0],
             ],
             dim=-1,
         )

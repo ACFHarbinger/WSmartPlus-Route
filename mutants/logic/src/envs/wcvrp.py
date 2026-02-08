@@ -23,6 +23,7 @@ class WCVRPEnv(RL4COEnvBase):
     while minimizing travel cost and respecting vehicle capacity.
     """
 
+    NAME = "wcvrp"
     name: str = "wcvrp"
 
     def __init__(
@@ -64,7 +65,14 @@ class WCVRPEnv(RL4COEnvBase):
         """Initialize WCVRP episode state."""
         device = td.device
         bs = td.batch_size
-        num_nodes = td["locs"].shape[-2]
+        num_loc = td["locs"].shape[-2]
+        # Robustly determine number of nodes
+        waste_key = "waste"
+        if waste_key in td.keys() and td[waste_key].shape[-1] == num_loc:
+            # Both have same size, usually means both are customer-only
+            num_nodes = num_loc + 1
+        else:
+            num_nodes = num_loc  # Already has depot?
 
         td["current_node"] = torch.zeros(bs, dtype=torch.long, device=device)
         td["visited"] = torch.zeros(*bs, num_nodes, dtype=torch.bool, device=device)
@@ -75,17 +83,17 @@ class WCVRPEnv(RL4COEnvBase):
 
         # Vehicle load tracking
         td["current_load"] = torch.zeros(*bs, device=device)
-        td["total_collected"] = torch.zeros(*bs, device=device)
-        td["collected_prize"] = td["total_collected"]  # Alias for compatibility
+        td["collected_waste"] = torch.zeros(*bs, device=device)
+        td["total_collected"] = td["collected_waste"]  # Alias
 
         # Initial overflows
         max_waste = td.get("max_waste", torch.tensor(1.0, device=device))
-        demand = td["demand"]
+        waste = td["waste"]
         if max_waste.dim() > 1:
             max_waste = max_waste[..., 1:]
         elif max_waste.dim() == 1:
             max_waste = max_waste.unsqueeze(-1)
-        td["cur_overflows"] = (demand[..., 1:] >= max_waste).float().sum(-1)
+        td["cur_overflows"] = (waste[..., 1:] >= max_waste).float().sum(-1)
 
         return td
 
@@ -96,27 +104,39 @@ class WCVRPEnv(RL4COEnvBase):
 
         action = td["action"]
         is_not_depot = action != 0
-        demand_at_node = td["demand"].gather(1, action.unsqueeze(-1)).squeeze(-1)
+        # Combine depot and customers for full locs if not already done
+        locs = td["locs"]
+        if locs.shape[-2] == td["visited"].shape[-1] - 1:
+            locs = torch.cat([td["depot"].unsqueeze(1), locs], dim=1)
+
+        # Combine depot and customers for waste if not already done
+        waste = td["waste"]
+        if waste.shape[-1] == td["visited"].shape[-1] - 1:
+            waste = torch.cat([torch.zeros(*td.batch_size, 1, device=td.device), waste], dim=1)
+            td["waste"] = waste
+
+        waste_at_node = waste.gather(1, action.unsqueeze(-1)).squeeze(-1)
 
         # Collect waste (clamped to max_waste if present)
         max_w = td.get("max_waste", torch.tensor(1e9, device=td.device))
+        if max_w.dim() > 1 and max_w.shape[-1] == td["visited"].shape[-1] - 1:
+            max_w = torch.cat([torch.tensor(1e9, device=td.device).expand(*td.batch_size, 1), max_w], dim=1)
         if max_w.dim() > 1:
             max_w_at_node = max_w.gather(1, action.unsqueeze(-1)).squeeze(-1)
         else:
             max_w_at_node = max_w
 
-        collected = torch.min(demand_at_node, max_w_at_node) * is_not_depot.float()
+        collected = torch.min(waste_at_node, max_w_at_node) * is_not_depot.float()
         td["current_load"] = td["current_load"] + collected
-        td["total_collected"] = td["total_collected"] + collected
-        td["collected_prize"] = td["total_collected"]  # Alias
+        td["collected_waste"] = td["collected_waste"] + collected
+        td["total_collected"] = td["collected_waste"]  # Alias
 
         # Empty at depot
         at_depot = action == 0
         td["current_load"] = torch.where(at_depot, torch.zeros_like(td["current_load"]), td["current_load"])
 
-        # Clear bin (set demand to 0 after collection)
-        # We MUST do this on td['demand'] which will be in td_next
-        td["demand"].scatter_(1, action.unsqueeze(-1), 0)
+        # Clear bin (set waste to 0 after collection)
+        td["waste"].scatter_(1, action.unsqueeze(-1), 0)
 
         # Update current node (overriding super which might used unsqueezed action)
         td["current_node"] = action.squeeze(-1) if action.dim() > 1 else action
@@ -141,9 +161,9 @@ class WCVRPEnv(RL4COEnvBase):
         mask = ~td["visited"].clone()
 
         # Check capacity constraints
-        demand = td["demand"]
+        waste = td["waste"]
         remaining_capacity = td["capacity"].unsqueeze(-1) - td["current_load"].unsqueeze(-1)
-        exceeds_capacity = demand > remaining_capacity
+        exceeds_capacity = waste > remaining_capacity
 
         mask = mask & ~exceeds_capacity
 
@@ -187,6 +207,10 @@ class WCVRPEnv(RL4COEnvBase):
             current = current.unsqueeze(0)
 
         locs = td["locs"]
+        # Use robust concatenation
+        if locs.shape[-2] == td.get("visited", torch.zeros(0)).shape[-1] - 1:
+            locs = torch.cat([td["depot"].unsqueeze(1), locs], dim=1)
+
         # Use robust indexing
         current_idx = current[:, None, None].expand(-1, -1, 2)
         current_loc = locs.gather(1, current_idx).squeeze(1)
@@ -196,22 +220,21 @@ class WCVRPEnv(RL4COEnvBase):
         not_at_depot = current != 0
         total_cost = cost + return_distance * not_at_depot.float()
 
-        # Calculate overflows: unvisited nodes where demand >= max_waste
-        # In current WCVRP, visited nodes have demand=0 in the final td.
+        # Calculate overflows: unvisited nodes where waste >= max_waste
+        # In current WCVRP, visited nodes have waste=0 in the final td.
         max_waste = td.get("max_waste", torch.tensor(1.0, device=td.device))
 
         # We only care about customers (index 1 onwards) for overflows
-        demand = td["demand"][..., 1:]
+        waste = td["waste"][..., 1:]
         if max_waste.dim() > 1:  # (B, N)
             max_waste = max_waste[..., 1:]
         elif max_waste.dim() == 1:
             max_waste = max_waste.unsqueeze(-1)
 
-        overflows = (demand >= max_waste).float().sum(-1)
+        overflows = (waste >= max_waste).float().sum(-1)
 
         # Store individual components in TensorDict for logging/meta access
         td["collection"] = collection
-        td["collected_prize"] = collection  # Alias
         td["cost"] = total_cost
         td["overflows"] = overflows
         td["cur_overflows"] = overflows  # Alias

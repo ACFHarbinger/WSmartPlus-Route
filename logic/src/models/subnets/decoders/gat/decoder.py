@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from typing import Any, Optional
 
 import torch
 import torch.nn as nn
@@ -55,6 +56,100 @@ class DeepGATDecoder(nn.Module):
         # Input to project_fixed_context is graph_embed (embed_dim)
         self.project_fixed_context = nn.Linear(embed_dim, embed_dim, bias=False)
         self.project_step_context = nn.Linear(2 * embed_dim + 1, embed_dim, bias=False)
+
+    def forward(
+        self,
+        input: torch.Tensor,
+        embeddings: torch.Tensor,
+        fixed_context: Optional[torch.Tensor] = None,
+        init_context: Optional[torch.Tensor] = None,
+        env: Optional[Any] = None,
+        expert_pi: Optional[torch.Tensor] = None,
+        **kwargs: Any,
+    ):
+        """Standard Module forward wrapper."""
+        return self._inner(
+            input,
+            embeddings,
+            fixed_context,
+            init_context,
+            env,
+            expert_pi,
+            **kwargs,
+        )
+
+    def _inner(
+        self,
+        nodes: torch.Tensor,
+        embeddings: torch.Tensor,
+        fixed_context: Optional[torch.Tensor] = None,
+        init_context: Optional[torch.Tensor] = None,
+        env: Optional[Any] = None,
+        expert_pi: Optional[torch.Tensor] = None,
+        **kwargs: Any,
+    ):
+        """Constructive decoding loop."""
+        outputs = []
+        sequences = []
+
+        cost_weights = kwargs.get("cost_weights")
+        dist_matrix = kwargs.get("dist_matrix")
+
+        state = self.problem.make_state(nodes, None, cost_weights, dist_matrix, **kwargs)
+        fixed = self._precompute(embeddings)
+
+        decode_type = kwargs.get("decode_type", "sampling")
+
+        # Try to get graph size for safety break
+        try:
+            if isinstance(nodes, torch.Tensor):
+                graph_size = nodes.shape[1]
+            elif hasattr(nodes, "__getitem__") and "locs" in nodes:
+                graph_size = nodes["locs"].shape[1]
+            else:
+                graph_size = 100
+        except Exception:
+            graph_size = 100
+
+        # Safety break for infinite loops (e.g. 10x graph size)
+        max_steps = max(100, graph_size * 10)
+
+        i = 0
+        while not state.all_finished() and i < max_steps:
+            log_p, mask = self._get_log_p(fixed, state)
+            selected = self._select_node(log_p.exp(), mask, decode_type=decode_type)
+
+            state = state.update(selected)
+
+            outputs.append(log_p)
+            sequences.append(selected)
+            i += 1
+
+        if i >= max_steps:
+            print(f" [!] Warning: Decoding reached max_steps ({max_steps}). Possible infinite loop.")
+
+        _log_p = torch.stack(outputs, 1)
+        pi = torch.stack(sequences, 1)
+
+        cost = None
+        if hasattr(self.problem, "get_costs"):
+            out_cost = self.problem.get_costs(nodes, pi, None)
+            if isinstance(out_cost, tuple):
+                cost = out_cost[0]
+            else:
+                cost = out_cost
+
+        return _log_p, pi, cost
+
+    def _select_node(self, probs, mask, decode_type="greedy"):
+        """Selection logic."""
+        if decode_type == "greedy":
+            _, selected = probs.max(1)
+        elif decode_type == "sampling":
+            selected = torch.multinomial(probs, 1).squeeze(1)
+        else:
+            raise ValueError(f"Unknown decode type: {decode_type}")
+        return selected
 
     def _precompute(self, embeddings, num_steps=1):
         """Precompute fixed context for decoding."""

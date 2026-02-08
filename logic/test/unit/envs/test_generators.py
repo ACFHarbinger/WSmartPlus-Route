@@ -78,17 +78,23 @@ class TestVRPPGenerator:
 
     def test_waste_distributions(self):
         """Test uniform and gamma waste distributions."""
-        # Gamma
-        gen_g = VRPPGenerator(waste_distribution="gamma", waste_alpha=2.0, waste_beta=0.5)
+        # Gamma - use 'gamma' or 'gamma1'
+        gen_g = VRPPGenerator(waste_distribution="gamma1", waste_alpha=2.0, waste_beta=0.5)
         td_g = gen_g(10)
         assert td_g["waste"].shape == (10, 50)
         assert torch.all(td_g["waste"] >= 0)
 
+        # Uniform
+        gen_u = VRPPGenerator(waste_distribution="uniform")
+        td_u = gen_u(10)
+        assert td_u["waste"].shape == (10, 50)
+
     def test_prize_distributions(self):
-        """Test distance correlated prizes."""
-        gen = VRPPGenerator(prize_distribution="distance_correlated")
+        """Test distance correlated waste."""
+        # Since 'prize' is standardized to 'waste' in VRPPGenerator
+        gen = VRPPGenerator(waste_distribution="dist")
         td = gen(5)
-        assert td["prize"].shape == (5, 50)
+        assert td["waste"].shape == (5, 50)
 
 
 class TestWCVRPGenerator:
@@ -99,7 +105,7 @@ class TestWCVRPGenerator:
         # Beta
         gen_b = WCVRPGenerator(fill_distribution="beta", fill_alpha=0.5, fill_beta=0.5)
         td_b = gen_b(10)
-        assert td_b["demand"].shape == (10, 50)
+        assert td_b["waste"].shape == (10, 50)
 
 
 class TestSCWCVRPGenerator:

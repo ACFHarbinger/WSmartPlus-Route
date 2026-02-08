@@ -4,13 +4,14 @@ WCVRP problem generator.
 
 from __future__ import annotations
 
+import math
 from typing import Any, Callable, Union
 
 import numpy as np
 import torch
 from tensordict import TensorDict
 
-from logic.src.utils.data.data_utils import generate_waste_prize
+from logic.src.utils.data.data_utils import generate_waste
 
 from .base import Generator
 
@@ -84,7 +85,7 @@ class WCVRPGenerator(Generator):
             {
                 "locs": locs,
                 "depot": depot,
-                "demand": fill,  # Fill level as demand
+                "waste": fill,  # Standardized keyword
                 "capacity": torch.full((*batch_size,), self.capacity, device=self.device),
                 "max_waste": torch.full(
                     (*batch_size,), 1.0, device=self.device
@@ -111,9 +112,12 @@ class WCVRPGenerator(Generator):
     def _generate_fill_levels(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate bin fill levels."""
         # Use common utility for consistency
-        bs = batch_size[0] if batch_size else 1
-        coords = (self._generate_depot(batch_size), self._generate_locations(batch_size))
-        fill = generate_waste_prize(self.num_loc, self.fill_distribution, coords, bs, bins=self.bins)
+        bs = math.prod(batch_size) if batch_size else 1
+        coords = (
+            self._generate_depot(batch_size).view(bs, 2),
+            self._generate_locations(batch_size).view(bs, self.num_loc, 2),
+        )
+        fill = generate_waste(self.num_loc, self.fill_distribution, coords, bs, bins=self.bins)
         if isinstance(fill, np.ndarray):
             fill = torch.from_numpy(fill).float()
         return fill.to(self.device).view(*batch_size, self.num_loc)

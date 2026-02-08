@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from tensordict import TensorDict
 
-from logic.src.envs.tsp import TSPEnv
+from logic.src.envs.vrpp import VRPPEnv
 from logic.src.models.attention_model import AttentionModel
 from unittest.mock import MagicMock
 from logic.src.models.common.active_search import ActiveSearch
@@ -38,7 +38,7 @@ class MockPolicy(nn.Module):
 
 def test_active_search_forward():
     """Test Active Search fine-tuning loop."""
-    env = TSPEnv(num_loc=10)
+    env = VRPPEnv(num_loc=10)
     am = AttentionModel(embed_dim=64, hidden_dim=64, problem=env, component_factory=AttentionComponentFactory())
 
     # Active Search wrapper
@@ -63,7 +63,7 @@ def test_active_search_forward():
 
 def test_eas_forward():
     """Test EAS selective fine-tuning."""
-    env = TSPEnv(num_loc=10)
+    env = VRPPEnv(num_loc=10)
     am = AttentionModel(embed_dim=64, hidden_dim=64, problem=env, component_factory=AttentionComponentFactory())
 
     # EAS wrapper targeting only the projection layer

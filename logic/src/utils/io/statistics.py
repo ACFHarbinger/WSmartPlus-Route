@@ -54,24 +54,27 @@ def process_file_statistics(
     if not found_values:
         return False
 
-    # Extract just numeric values
-    numeric_values = [v for _, v in found_values if isinstance(v, (int, float))]
-    if not numeric_values:
+    # Aggregate by parent key name
+    aggregated = {}
+    for path, v in found_values:
+        if not isinstance(v, (int, float)):
+            continue
+        # Get parent key name (last component of path before the key itself)
+        parent = path.split(".")[-1].split("[")[0]
+        if parent not in aggregated:
+            aggregated[parent] = []
+        aggregated[parent].append(v)
+
+    if not aggregated:
         return False
 
-    # Aggregate
-    if process_func:
-        result = process_func(numeric_values)
-    else:
-        # Default: Mean
-        result = sum(numeric_values) / len(numeric_values)
-
-    output_data = {
-        "source": file_path,
-        "key": output_key,
-        "count": len(numeric_values),
-        "result": result,
-    }
+    output_data = {}
+    for parent, values in aggregated.items():
+        if process_func:
+            result = process_func(values)
+        else:
+            result = sum(values) / len(values)
+        output_data[parent] = {output_key: result}
 
     dir_path = os.path.dirname(file_path)
     out_path = os.path.join(dir_path, output_filename)

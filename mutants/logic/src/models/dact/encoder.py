@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import torch
 import torch.nn as nn
+from logic.src.models.subnets.embeddings.positional import pos_init_embedding
 from logic.src.models.subnets.modules import MultiHeadAttention, Normalization
-from logic.src.models.subnets.modules.positional_embeddings import pos_init_embedding
 from tensordict import TensorDict
 
 from ..common.improvement_encoder import ImprovementEncoder

@@ -44,7 +44,7 @@ class TestCheckDocstrings:
         assert len(missing) == 0
 
     @patch("os.walk")
-    @patch("logic.src.utils.validation.check_docstrings.check_path")
+    @patch("logic.src.utils.docs.check_docstrings.check_path")
     def test_recursive(self, mock_check, mock_walk):
         mock_walk.return_value = [("root", [], ["a.py", "b.py"])]
         mock_check.return_value = ["error"]

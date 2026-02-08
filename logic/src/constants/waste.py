@@ -1,6 +1,7 @@
 """
 Waste management specific constants.
 """
+
 from typing import Dict
 
 # Waste management information

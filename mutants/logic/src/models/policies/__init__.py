@@ -13,35 +13,32 @@ Registries:
 from typing import TYPE_CHECKING
 
 import torch.nn as nn
+from logic.src.models.attention_model.deep_decoder_policy import DeepDecoderPolicy
+from logic.src.models.attention_model.ham_policy import HAMPolicy
+from logic.src.models.attention_model.policy import AttentionModelPolicy
+from logic.src.models.attention_model.symnco_policy import SymNCOPolicy
 from logic.src.models.common import (
     ConstructivePolicy,
     ImprovementPolicy,
+    NonAutoregressivePolicy,
 )
+from logic.src.models.dact.policy import DACTPolicy
+from logic.src.models.deepaco.policy import DeepACOPolicy
+from logic.src.models.gfacs.policy import GFACSPolicy
+from logic.src.models.glop.policy import GLOPPolicy
+from logic.src.models.l2d.policy import L2DPolicy
+from logic.src.models.mdam.policy import MDAMPolicy
+from logic.src.models.moe.policy import MoEPolicy
+from logic.src.models.n2s.policy import N2SPolicy
+from logic.src.models.nargnn.policy import NARGNNPolicy
+from logic.src.models.neuopt.policy import NeuOptPolicy
+from logic.src.models.pointer_network.policy import PointerNetworkPolicy
+from logic.src.models.polynet.policy import PolyNetPolicy
+from logic.src.models.temporal_attention_model.policy import TemporalAMPolicy
 
 from .ant_colony_system import VectorizedACOPolicy
 from .hgs_alns import VectorizedHGSALNS
 from .iterated_local_search import IteratedLocalSearchPolicy
-
-if TYPE_CHECKING:
-    from logic.src.models.attention_model.deep_decoder_policy import DeepDecoderPolicy
-    from logic.src.models.attention_model.ham_policy import HAMPolicy
-    from logic.src.models.attention_model.policy import AttentionModelPolicy
-    from logic.src.models.attention_model.symnco_policy import SymNCOPolicy
-    from logic.src.models.common import NonAutoregressivePolicy
-    from logic.src.models.dact.policy import DACTPolicy
-    from logic.src.models.deepaco.policy import DeepACOPolicy
-    from logic.src.models.gfacs.policy import GFACSPolicy
-    from logic.src.models.glop.policy import GLOPPolicy
-    from logic.src.models.l2d.policy import L2DPolicy
-    from logic.src.models.mdam.policy import MDAMPolicy
-    from logic.src.models.moe.policy import MoEPolicy
-    from logic.src.models.n2s.policy import N2SPolicy
-    from logic.src.models.nargnn.policy import NARGNNPolicy
-    from logic.src.models.neuopt.policy import NeuOptPolicy
-    from logic.src.models.pointer_network.policy import PointerNetworkPolicy
-    from logic.src.models.polynet.policy import PolyNetPolicy
-    from logic.src.models.temporal_attention_model.policy import TemporalAMPolicy
-
 
 # Short-name registry: CLI model name -> (module_path, class_name)
 # This enables ``get_policy("am")`` without importing everything eagerly.

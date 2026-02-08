@@ -60,8 +60,8 @@ class SCWCVRPGenerator(WCVRPGenerator):
         """Generate SCWCVRP instances."""
         td = super()._generate(batch_size)
 
-        # Rename 'demand' to 'real_waste' (internal) and add 'noisy_waste'
-        real_waste = td["demand"].clone()
+        # Rename 'waste' to 'real_waste' (internal) and add 'noisy_waste'
+        real_waste = td["waste"].clone()
         td["real_waste"] = real_waste
 
         if self.noise_variance > 0:
@@ -76,6 +76,5 @@ class SCWCVRPGenerator(WCVRPGenerator):
             noisy_waste = real_waste.clone()
 
         td["waste"] = noisy_waste
-        td["demand"] = noisy_waste  # Set demand to the noisy version for the agent
 
         return td

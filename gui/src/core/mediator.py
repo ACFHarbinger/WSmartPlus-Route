@@ -1,4 +1,5 @@
 """Mediator class for handling communication between different GUI components."""
+
 import re
 import sys
 

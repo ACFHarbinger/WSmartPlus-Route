@@ -8,7 +8,7 @@ from logic.src.data.datasets import BaselineDataset
 from logic.src.envs import problems as problem_module
 from logic.src.envs.problems import CVRPP
 from logic.src.models.attention_model import AttentionModel
-from logic.src.models.subnets.modules.moe import MoE
+from logic.src.models.subnets.modules.moe_layer import MoE
 from logic.src.models.subnets.modules.moe_feed_forward import MoEFeedForward
 from logic.src.models.moe import MoEAttentionModel, MoETemporalAttentionModel
 from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
@@ -67,8 +67,8 @@ class TestAttentionModel:
 
         input_data = {
             "depot": torch.rand(batch_size, 2),
-            "loc": torch.rand(batch_size, graph_size, 2),
-            "demand": torch.rand(batch_size, graph_size),
+            "locs": torch.rand(batch_size, graph_size, 2),
+            "prize": torch.rand(batch_size, graph_size),
             "waste": torch.rand(batch_size, graph_size),
         }
         # Add fill history
@@ -121,8 +121,8 @@ class TestAttentionModel:
 
         input_data = {
             "depot": torch.zeros(2, 2),
-            "loc": torch.zeros(2, 5, 2),
-            "demand": torch.zeros(2, 5),
+            "locs": torch.zeros(2, 5, 2),
+            "prize": torch.zeros(2, 5),
             "waste": torch.zeros(2, 5),
         }
         for day in range(1, model.temporal_horizon + 1):
@@ -323,9 +323,9 @@ class TestTemporalAttentionModel:
 
         input_data = {
             "depot": torch.rand(1, 2),
-            "loc": torch.rand(1, 4, 2),
+            "locs": torch.rand(1, 4, 2),
             "waste": torch.zeros(1, 4),
-            "demand": torch.zeros(1, 4),
+            "prize": torch.zeros(1, 4),
         }
 
         # Calling forward should inject fill_history if missing
@@ -431,8 +431,8 @@ class TestMoEModel:
 
         input_data = {
             "depot": torch.rand(2, 2),
-            "loc": torch.rand(2, 5, 2),
-            "demand": torch.rand(2, 5),
+            "locs": torch.rand(2, 5, 2),
+            "prize": torch.rand(2, 5),
             "waste": torch.rand(2, 5),
             "capacity": torch.full((2,), 1000.0),
             "max_waste": torch.full((2,), 1000.0),

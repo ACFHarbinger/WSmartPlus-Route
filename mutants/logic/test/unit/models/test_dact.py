@@ -6,9 +6,9 @@ import pytest
 import torch
 from tensordict import TensorDict
 
-from logic.src.envs.tsp import TSPkoptEnv
+from logic.src.envs.tsp_kopt import TSPkoptEnv
 from logic.src.models.dact import DACT
-from logic.src.models.policies.dact import DACTPolicy
+from logic.src.models.dact.policy import DACTPolicy
 
 
 def test_tsp_kopt_env():

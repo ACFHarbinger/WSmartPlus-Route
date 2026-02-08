@@ -19,7 +19,8 @@ from logic.src.pipeline.rl.common.baselines import (
     WarmupBaseline,
     get_baseline,
 )
-from logic.src.pipeline.rl.common.reward_scaler import BatchRewardScaler, RewardScaler
+from logic.src.pipeline.rl.common.reward_scaler import RewardScaler
+from logic.src.pipeline.rl.common.reward_scaler_batch import BatchRewardScaler
 from logic.src.pipeline.rl.common.trainer import WSTrainer
 
 __all__ = [

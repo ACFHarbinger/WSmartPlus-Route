@@ -1,6 +1,7 @@
 """
 Test suite settings and constants.
 """
+
 from typing import Dict
 
 # Test suite settings

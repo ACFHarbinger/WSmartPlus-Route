@@ -34,7 +34,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         AttentionModel,
         TemporalAttentionModel,
     )
-    from logic.src.models.model_factory import (
+    from logic.src.pipeline.features.train.model_factory.builder import (
         AttentionComponentFactory,
         GACComponentFactory,
         GCNComponentFactory,

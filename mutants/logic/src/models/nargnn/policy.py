@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.nonautoregressive import (
+from logic.src.models.common.nonautoregressive_policy import (
     NonAutoregressiveDecoder,
     NonAutoregressiveEncoder,
     NonAutoregressivePolicy,

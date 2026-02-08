@@ -8,7 +8,7 @@ def shaw_removal(
     routes: List[List[int]],
     n_remove: int,
     dist_matrix: np.ndarray,
-    demands: Optional[Dict[int, float]] = None,
+    waste: Optional[Dict[int, float]] = None,
     time_windows: Optional[Dict[int, tuple]] = None,
     phi: float = 9.0,
     chi: float = 3.0,
@@ -20,14 +20,14 @@ def shaw_removal(
 
     Relatedness R(i,j) = phi * d(i,j) + chi * |T_i - T_j| + psi * |q_i - q_j|
 
-    Customers that are "similar" (close in space, time, and demand) are removed
+    Customers that are "similar" (close in space, time, and waste) are removed
     together, maximizing the potential for rearrangement during repair.
 
     Args:
         routes: Current routes.
         n_remove: Number of nodes to remove.
         dist_matrix: Distance matrix.
-        demands: Node demand dictionary {node: demand}.
+        waste: Node waste dictionary {node: waste}.
         time_windows: Time window dict {node: (earliest, latest)}.
         phi: Distance weight in relatedness.
         chi: Time window weight in relatedness.
@@ -40,7 +40,7 @@ def shaw_removal(
     if not any(routes) or n_remove <= 0:
         return routes, []
 
-    demands = demands or {}
+    waste = waste or {}
     time_windows = time_windows or {}
 
     # Build node map
@@ -60,7 +60,7 @@ def shaw_removal(
 
     # Normalize distance for relatedness calculation
     max_dist: float = float(np.max(dist_matrix)) if np.max(dist_matrix) > 0 else 1.0
-    max_demand: float = float(max(demands.values())) if demands else 1.0
+    max_waste: float = float(max(waste.values())) if waste else 1.0
     max_tw: float = 1.0
     if time_windows:
         tw_spans = [tw[1] - tw[0] for tw in time_windows.values() if tw]
@@ -80,10 +80,10 @@ def shaw_removal(
                 # Distance component
                 dist_rel: float = float(dist_matrix[node, rem_node]) / max_dist if max_dist > 0 else 0.0
 
-                # Demand component
-                dem_rel: float = 0.0
-                if demands:
-                    dem_rel = float(abs(demands.get(node, 0.0) - demands.get(rem_node, 0.0))) / max_demand
+                # Waste/Demand component
+                waste_rel: float = 0.0
+                if waste:
+                    waste_rel = float(abs(waste.get(node, 0.0) - waste.get(rem_node, 0.0))) / max_waste
 
                 # Time window component
                 tw_rel: float = 0.0
@@ -92,7 +92,8 @@ def shaw_removal(
                     tw_rem = time_windows.get(rem_node, (0.0, max_tw))
                     tw_rel = float(abs(tw_node[0] - tw_rem[0])) / max_tw
 
-                total_rel += float(phi * dist_rel + chi * tw_rel + psi * dem_rel)
+                rel: float = phi * dist_rel + chi * tw_rel + psi * waste_rel
+                total_rel += rel
 
             avg_rel: float = total_rel / len(removed)
             relatedness_scores.append((node, avg_rel))

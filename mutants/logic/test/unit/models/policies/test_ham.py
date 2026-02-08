@@ -3,7 +3,7 @@ import pytest
 import torch
 from tensordict import TensorDict
 
-from logic.src.models.policies.ham import HAMPolicy
+from logic.src.models.attention_model.ham_policy import HAMPolicy
 from logic.src.models.subnets.encoders.ham.encoder import HAMEncoder
 from logic.src.models.subnets.modules.ham_attention import HeterogeneousAttentionLayer
 from logic.src.models.subnets.embeddings.pdp import PDPInitEmbedding

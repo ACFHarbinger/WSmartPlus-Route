@@ -26,6 +26,12 @@ class RL4COEnvBase(BatchMixin, OpsMixin, EnvBase):
     """
 
     name: str = "base"
+    node_dim: int = 3  # Default dimension for most routing problems (x, y, demand/prize)
+
+    @property
+    def dim(self) -> int:
+        """Alias for node_dim, expected by some models."""
+        return self.node_dim
 
     def __init__(
         self,

@@ -532,7 +532,6 @@ WSmart-Route/
 This project adapts code and ideas from:
 
 - [Attention, Learn to Solve Routing Problems](https://github.com/wouterkool/attention-learn-to-route)
-- [Heterogeneous Attentions for Solving PDP via DRL](https://github.com/jingwenli0312/Heterogeneous-Attentions-PDP-DRL)
 - [POMO: Policy Optimization with Multiple Optima](https://github.com/yd-kwon/POMO/tree/master)
 - [WSmart+ Bin Analysis](https://github.com/ACFPeacekeeper/wsmart_bin_analysis)
 - [Do We Need Anisotropic Graph Neural Networks?](https://github.com/shyam196/egc)

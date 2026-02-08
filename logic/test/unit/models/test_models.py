@@ -67,8 +67,7 @@ class TestAttentionModel:
 
         input_data = {
             "depot": torch.rand(batch_size, 2),
-            "loc": torch.rand(batch_size, graph_size, 2),
-            "demand": torch.rand(batch_size, graph_size),
+            "locs": torch.rand(batch_size, graph_size, 2),
             "waste": torch.rand(batch_size, graph_size),
         }
         # Add fill history
@@ -121,8 +120,7 @@ class TestAttentionModel:
 
         input_data = {
             "depot": torch.zeros(2, 2),
-            "loc": torch.zeros(2, 5, 2),
-            "demand": torch.zeros(2, 5),
+            "locs": torch.zeros(2, 5, 2),
             "waste": torch.zeros(2, 5),
         }
         for day in range(1, model.temporal_horizon + 1):
@@ -323,9 +321,9 @@ class TestTemporalAttentionModel:
 
         input_data = {
             "depot": torch.rand(1, 2),
-            "loc": torch.rand(1, 4, 2),
+            "locs": torch.rand(1, 4, 2),
             "waste": torch.zeros(1, 4),
-            "demand": torch.zeros(1, 4),
+            "prize": torch.zeros(1, 4),
         }
 
         # Calling forward should inject fill_history if missing
@@ -431,8 +429,8 @@ class TestMoEModel:
 
         input_data = {
             "depot": torch.rand(2, 2),
-            "loc": torch.rand(2, 5, 2),
-            "demand": torch.rand(2, 5),
+            "locs": torch.rand(2, 5, 2),
+            "prize": torch.rand(2, 5),
             "waste": torch.rand(2, 5),
             "capacity": torch.full((2,), 1000.0),
             "max_waste": torch.full((2,), 1000.0),

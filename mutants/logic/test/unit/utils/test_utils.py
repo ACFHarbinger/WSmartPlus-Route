@@ -20,19 +20,18 @@ import torch
 import torch.nn as nn
 from logic.src.utils.configs.setup_env import setup_cost_weights, setup_env
 from logic.src.utils.configs.setup_worker import setup_model
-from logic.src.utils.functions import (
-    add_attention_hooks,
+from logic.src.utils.functions.path import get_path_until_string
+from logic.src.utils.functions.sampling import sample_many
+from logic.src.utils.functions.tensors import (
     compute_in_batches,
     do_batch_rep,
-    get_inner_model,
-    get_path_until_string,
-    load_model,
-    load_problem,
     move_to,
-    parse_softmax_temperature,
-    sample_many,
-    torch_load_cpu,
 )
+from logic.src.utils.hooks.attention import add_attention_hooks
+from logic.src.utils.model.checkpoint_utils import torch_load_cpu
+from logic.src.utils.model.loader import load_model
+from logic.src.utils.model.problem_factory import load_problem
+from logic.src.utils.model.processing import get_inner_model, parse_softmax_temperature
 from logic.src.utils.functions.lexsort import _torch_lexsort_cuda, torch_lexsort
 from logic.src.utils.io import (
     find_single_input_values,
@@ -173,9 +172,9 @@ class TestLexSort:
 class TestLoadModel:
     """Class for load_model tests."""
 
-    @patch("logic.src.utils.functions.function.load_problem")
-    @patch("logic.src.utils.functions.function.load_args")
-    @patch("logic.src.utils.functions.function.torch.load")
+    @patch("logic.src.utils.model.problem_factory.load_problem")
+    @patch("logic.src.utils.model.loader.load_args")
+    @patch("torch.load")
     def test_load_model_basic(self, mock_torch_load, mock_load_args, mock_load_problem, tmp_path):
         """Test load_model by mocking internal dependencies and file structure."""
         model_dir = tmp_path / "model_dir"
@@ -539,7 +538,7 @@ class TestSetupUtils:
         weights = setup_cost_weights(opts)
         assert weights == {}
 
-    @patch("logic.src.utils.configs.setup_utils.load_model")
+    @patch("logic.src.utils.model.loader.load_model")
     def test_setup_model_am(self, mock_load):
         """Test setup_model for Attention Model."""
         mock_model = MagicMock()
@@ -552,7 +551,7 @@ class TestSetupUtils:
         assert configs == mock_configs
         mock_load.assert_called_once()
 
-    @patch("logic.src.utils.configs.setup_utils.gp.Env", create=True)
+    @patch("logic.src.utils.configs.setup_env.gp.Env", create=True)
     def test_setup_env_gurobi(self, mock_gp_env):
         """Test setup_env for Gurobi."""
         mock_env = MagicMock()

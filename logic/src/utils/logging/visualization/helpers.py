@@ -23,7 +23,7 @@ def get_batch(device, size=50, batch_size=32, temporal_horizon=0):
         temporal_horizon (int, optional): Temporal horizon for features. Defaults to 0.
 
     Returns:
-        dict: Batch dictionary with keys 'depot', 'loc', 'dist', 'demand', etc.
+        dict: Batch dictionary with keys 'depot', 'loc', 'dist', 'waste', etc.
     """
     # TODO: This should ideally use the problem's generate_instance or make_dataset
     all_coords = torch.rand(batch_size, size + 1, 2, device=device)
@@ -37,7 +37,6 @@ def get_batch(device, size=50, batch_size=32, temporal_horizon=0):
         "depot": depot,
         "loc": loc,
         "dist": dist_tensor,
-        "demand": waste,
         "waste": waste,
         "max_waste": max_waste,
     }

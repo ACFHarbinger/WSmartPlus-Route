@@ -9,8 +9,9 @@ from typing import Any, Dict, Optional
 import torch
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.dact import DACTPolicy
 from tensordict import TensorDict
+
+from .policy import DACTPolicy
 
 
 class DACT(nn.Module):

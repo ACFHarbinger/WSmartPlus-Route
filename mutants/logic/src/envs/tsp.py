@@ -24,6 +24,7 @@ class TSPEnv(RL4COEnvBase):
 
     NAME = "tsp"
     name: str = "tsp"
+    node_dim: int = 2  # (x, y)
 
     def __init__(
         self,
@@ -55,6 +56,11 @@ class TSPEnv(RL4COEnvBase):
         td["tour_length"] = torch.zeros(*bs, device=device)
         td["first_node"] = torch.zeros(*bs, 1, dtype=torch.long, device=device)
 
+        # RL4CO/TorchRL expected keys
+        td["reward"] = torch.zeros(*bs, device=device)
+        td["terminated"] = torch.zeros(*bs, dtype=torch.bool, device=device)
+        td["truncated"] = torch.zeros(*bs, dtype=torch.bool, device=device)
+
         return td
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
@@ -84,6 +90,8 @@ class TSPEnv(RL4COEnvBase):
         # Append to tour
         td["tour"] = torch.cat([td["tour"], action.unsqueeze(-1)], dim=-1)
 
+        # print(f"DEBUG: Step i={td['i'].item()}, action={action.item()}, visited={td['visited'].sum().item()}")
+
         return td
 
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
@@ -111,4 +119,9 @@ class TSPEnv(RL4COEnvBase):
         """Done when all nodes visited and back at depot."""
         all_visited = td["visited"].all(dim=-1)
         current_is_depot = td["current_node"].squeeze(-1) == 0
-        return all_visited & current_is_depot
+        done = all_visited & current_is_depot
+
+        # Debugging infinite loop
+        # if done.any(): print(f"DEBUG: TSP Done at nodes {td['visited'].sum(-1)}")
+
+        return done

@@ -83,7 +83,7 @@ class WCVRPGenerator(Generator):
             {
                 "locs": locs,
                 "depot": depot,
-                "demand": fill,  # Fill level as demand
+                "waste": fill,  # Standardized keyword
                 "capacity": torch.full((*batch_size,), self.capacity, device=self.device),
                 "max_waste": torch.full(
                     (*batch_size,), 1.0, device=self.device

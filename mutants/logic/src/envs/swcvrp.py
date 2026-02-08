@@ -57,11 +57,11 @@ class SCWCVRPEnv(WCVRPEnv):
 
         # Ensure real_waste is tracked
         if "real_waste" not in td.keys():
-            # If not provided by generator, assume it's same as demand (no noise)
-            td["real_waste"] = td["demand"].clone()
+            # If not provided by generator, assume it's same as waste (no noise)
+            td["real_waste"] = td.get("waste", td.get("demand")).clone()
 
         # Track total real waste collected
-        td["total_real_collected"] = torch.zeros_like(td["total_collected"])
+        td["total_real_collected"] = torch.zeros_like(td.get("collected_waste", td.get("total_collected")))
 
         return td
 

@@ -10,7 +10,7 @@ from typing import List
 
 import numpy as np
 
-from .types import Individual
+from .individual import Individual
 
 
 def ordered_crossover(p1: Individual, p2: Individual) -> Individual:

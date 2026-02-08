@@ -8,8 +8,9 @@ from typing import Any, Dict, Optional
 
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.nargnn import NARGNNPolicy
 from tensordict import TensorDict
+
+from .policy import NARGNNPolicy
 
 
 class NARGNN(nn.Module):

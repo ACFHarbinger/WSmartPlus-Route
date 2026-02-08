@@ -3,10 +3,10 @@ from typing import Any, Dict
 
 import pytorch_lightning as pl
 from logic.src.configs import Config
-from logic.src.models.policies.classical.alns import VectorizedALNS
-from logic.src.models.policies.classical.hgs import VectorizedHGS
-from logic.src.models.policies.classical.hgs_alns import VectorizedHGSALNS
-from logic.src.models.policies.classical.random_local_search import (
+from logic.src.models.policies.alns import VectorizedALNS
+from logic.src.models.policies.hgs import VectorizedHGS
+from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
+from logic.src.models.policies.random_local_search import (
     RandomLocalSearchPolicy,
 )
 from logic.src.utils.configs.config_loader import load_yaml_config

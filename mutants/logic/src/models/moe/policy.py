@@ -4,7 +4,7 @@ Mixture of Experts (MoE) Policy.
 Extends AttentionModelPolicy with MoE Graph Attention Encoder.
 """
 
-from logic.src.models.policies.am import AttentionModelPolicy
+from logic.src.models.attention_model import AttentionModelPolicy
 from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
 
 

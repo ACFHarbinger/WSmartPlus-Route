@@ -74,21 +74,19 @@ class GlimpseDecoder(nn.Module):
         self,
         input: Union[torch.Tensor, dict[str, torch.Tensor]],
         embeddings: torch.Tensor,
-        cost_weights: Optional[torch.Tensor] = None,
-        dist_matrix: Optional[torch.Tensor] = None,
-        mask: Optional[torch.Tensor] = None,
+        fixed_context: Optional[torch.Tensor] = None,
+        init_context: Optional[torch.Tensor] = None,
+        env: Optional[Any] = None,
         expert_pi: Optional[torch.Tensor] = None,
         **kwargs: Any,
     ):
         """Standard Module forward wrapper."""
         return self._inner(
             input,
-            None,
             embeddings,
-            cost_weights,
-            dist_matrix,
-            None,
-            mask,
+            fixed_context,
+            init_context,
+            env,
             expert_pi,
             **kwargs,
         )
@@ -96,12 +94,10 @@ class GlimpseDecoder(nn.Module):
     def _inner(
         self,
         nodes: Union[torch.Tensor, dict[str, torch.Tensor]],
-        edges: Optional[torch.Tensor],
         embeddings: torch.Tensor,
-        cost_weights: Optional[torch.Tensor],
-        dist_matrix: Optional[torch.Tensor],
-        profit_vars: Optional[torch.Tensor] = None,
-        mask: Optional[torch.Tensor] = None,
+        fixed_context: Optional[torch.Tensor] = None,
+        init_context: Optional[torch.Tensor] = None,
+        env: Optional[Any] = None,
         expert_pi: Optional[torch.Tensor] = None,
         **kwargs: Any,
     ):
@@ -109,14 +105,37 @@ class GlimpseDecoder(nn.Module):
         outputs = []
         sequences = []
 
-        state = self.problem.make_state(nodes, edges, cost_weights, dist_matrix, profit_vars=profit_vars, **kwargs)
+        # cost_weights and dist_matrix can be passed via kwargs or init_context
+        cost_weights = kwargs.get("cost_weights")
+        dist_matrix = kwargs.get("dist_matrix")
+
+        state = self.problem.make_state(nodes, None, cost_weights, dist_matrix, **kwargs)
         fixed = self._precompute(embeddings)
 
         # Allow overriding decode_type via kwargs (e.g. from AttentionModel.forward)
         decode_type = kwargs.get("decode_type", self.decode_type)
 
+        # Mask can be passed via kwargs
+        mask = kwargs.get("mask")
+
+        # Try to get graph size for safety break
+        try:
+            if isinstance(nodes, torch.Tensor):
+                graph_size = nodes.shape[1]
+            elif hasattr(nodes, "get"):
+                # Handle TensorDict or dict
+                loc_tensor = nodes.get("locs", nodes.get("loc"))
+                graph_size = loc_tensor.shape[1] if hasattr(loc_tensor, "shape") else 100
+            else:
+                graph_size = 100
+        except Exception:
+            graph_size = 100
+
+        # Safety break for infinite loops (e.g. 10x graph size)
+        max_steps = max(100, graph_size * 10)
+
         i = 0
-        while not state.all_finished():
+        while not state.all_finished() and i < max_steps:
             log_p, mask = self._get_log_p(fixed, state, mask=mask)
             selected = self._select_node(log_p.exp(), mask, decode_type=decode_type)
 
@@ -125,6 +144,9 @@ class GlimpseDecoder(nn.Module):
             outputs.append(log_p)
             sequences.append(selected)
             i += 1
+
+        if i >= max_steps:
+            print(f" [!] Warning: Decoding reached max_steps ({max_steps}). Possible infinite loop.")
 
         # Stack outputs
         _log_p = torch.stack(outputs, 1)

@@ -2,7 +2,7 @@
 import pytest
 import torch
 from logic.src.envs.jssp import JSSPEnv
-from logic.src.models.policies.l2d import L2DPolicy
+from logic.src.models.l2d.policy import L2DPolicy
 from logic.src.models.subnets.encoders.l2d.encoder import L2DEncoder
 
 class TestL2D:

@@ -2,8 +2,7 @@
 Data utilities module.
 """
 
-from .dummy_problem import DummyProblem
-from .generation import generate_waste_prize
+from .generation import generate_waste
 from .loader import (
     check_extension,
     collate_fn,
@@ -24,8 +23,7 @@ __all__ = [
     "load_dataset",
     "collate_fn",
     "load_focus_coords",
-    "generate_waste_prize",
+    "generate_waste",
     "load_area_and_waste_type_params",
     "TensorDictStateWrapper",
-    "DummyProblem",
 ]

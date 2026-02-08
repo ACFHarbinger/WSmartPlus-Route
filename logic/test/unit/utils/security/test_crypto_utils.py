@@ -16,8 +16,8 @@ from logic.src.utils.security import (
 
 def test_generate_key(mock_crypto_dotenv):
     """Test key generation."""
-    with patch("logic.src.utils.security.set_key") as mock_set:
-        with patch("logic.src.utils.security.open", mock_open()) as m:
+    with patch("logic.src.utils.security.keys.set_key") as mock_set:
+        with patch("logic.src.utils.security.keys.open", mock_open()) as m:
             with patch("os.makedirs"):
                 key, salt = generate_key(symkey_name="test_key")
 
@@ -29,8 +29,8 @@ def test_generate_key(mock_crypto_dotenv):
 
 def test_load_key_from_env(mock_crypto_env):
     """Test loading key from environment."""
-    with patch("logic.src.utils.security.ROOT_DIR", "/tmp"):
-        with patch("logic.src.utils.security.load_dotenv"):
+    with patch("logic.src.utils.security.keys.ROOT_DIR", "/tmp"):
+        with patch("logic.src.utils.security.keys.load_dotenv"):
             key = load_key()
             assert isinstance(key, bytes)
             # Fernet key must be 32 base64-encoded bytes

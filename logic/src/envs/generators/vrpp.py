@@ -4,13 +4,14 @@ VRPP problem generator.
 
 from __future__ import annotations
 
+import math
 from typing import Any, Callable, Optional, Union
 
 import numpy as np
 import torch
 from tensordict import TensorDict
 
-from logic.src.utils.data.data_utils import generate_waste_prize
+from logic.src.utils.data.data_utils import generate_waste
 
 from .base import Generator
 
@@ -89,9 +90,6 @@ class VRPPGenerator(Generator):
         # Generate waste/demand
         waste = self._generate_waste(batch_size)
 
-        # Generate prizes
-        prize = self._generate_prize(batch_size)
-
         # Compute max_waste per instance (for normalization)
         max_waste = torch.full((*batch_size,), self.capacity, device=self.device)
 
@@ -106,7 +104,6 @@ class VRPPGenerator(Generator):
                 "locs": locs,
                 "depot": depot,
                 "waste": waste,
-                "prize": prize,
                 "capacity": torch.full((*batch_size,), self.capacity, device=self.device),
                 "max_waste": max_waste,
                 "max_length": torch.full((*batch_size,), max_length, device=self.device),
@@ -130,9 +127,12 @@ class VRPPGenerator(Generator):
     def _generate_waste(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate waste/demand values."""
         # Use common utility for consistency
-        bs = batch_size[0] if batch_size else 1
-        coords = (self._generate_depot(batch_size), self._generate_locations(batch_size))
-        waste = generate_waste_prize(self.num_loc, self.waste_distribution, coords, bs, bins=self.bins)
+        bs = math.prod(batch_size) if batch_size else 1
+        coords = (
+            self._generate_depot(batch_size).view(bs, 2),
+            self._generate_locations(batch_size).view(bs, self.num_loc, 2),
+        )
+        waste = generate_waste(self.num_loc, self.waste_distribution, coords, bs, bins=self.bins)
         if isinstance(waste, np.ndarray):
             waste = torch.from_numpy(waste).float()
         return waste.to(self.device).view(*batch_size, self.num_loc)
@@ -149,9 +149,12 @@ class VRPPGenerator(Generator):
             return normalized_dist * (self.max_prize - self.min_prize) + self.min_prize
 
         # Otherwise use common utility
-        bs = batch_size[0] if batch_size else 1
-        coords = (self._generate_depot(batch_size), self._generate_locations(batch_size))
-        prize = generate_waste_prize(self.num_loc, self.prize_distribution, coords, bs, bins=self.bins)
+        bs = math.prod(batch_size) if batch_size else 1
+        coords = (
+            self._generate_depot(batch_size).view(bs, 2),
+            self._generate_locations(batch_size).view(bs, self.num_loc, 2),
+        )
+        prize = generate_waste(self.num_loc, self.prize_distribution, coords, bs, bins=self.bins)
         if isinstance(prize, np.ndarray):
             prize = torch.from_numpy(prize).float()
         return prize.to(self.device).view(*batch_size, self.num_loc)

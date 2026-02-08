@@ -5,8 +5,6 @@ Problem instance generators sub-package.
 from typing import Any
 
 from .base import Generator
-from .jssp import JSSPGenerator
-from .pdp import PDPGenerator
 from .scwcvrp import SCWCVRPGenerator
 from .tsp import TSPGenerator
 from .vrpp import VRPPGenerator
@@ -20,8 +18,6 @@ GENERATOR_REGISTRY: dict[str, type[Generator]] = {
     "cwcvrp": WCVRPGenerator,
     "scwcvrp": SCWCVRPGenerator,
     "tsp": TSPGenerator,
-    "pdp": PDPGenerator,
-    "jssp": JSSPGenerator,
 }
 
 
@@ -51,8 +47,7 @@ __all__ = [
     "WCVRPGenerator",
     "SCWCVRPGenerator",
     "TSPGenerator",
-    "PDPGenerator",
-    "JSSPGenerator",
+    "TSPGenerator",
     "GENERATOR_REGISTRY",
     "get_generator",
 ]

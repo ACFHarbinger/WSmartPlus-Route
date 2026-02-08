@@ -14,7 +14,7 @@ from tensordict import TensorDict
 from logic.src.constants import MAX_WASTE
 from logic.src.pipeline.simulations.bins import Bins
 from logic.src.pipeline.simulations.processor import process_coordinates
-from logic.src.utils.data.data_utils import generate_waste_prize, load_focus_coords
+from logic.src.utils.data.data_utils import generate_waste, load_focus_coords
 from logic.src.utils.functions import get_path_until_string
 
 
@@ -136,7 +136,7 @@ class VRPInstanceBuilder:
         coords = (depot, loc)
 
         for _ in range(self._num_days):
-            waste = generate_waste_prize(self._problem_size, self._distribution, coords, self._dataset_size, bins)
+            waste = generate_waste(self._problem_size, self._distribution, coords, self._dataset_size, bins)
             if self._dataset_size == 1 and len(waste.shape) == 1:
                 waste = waste[None, :]
             fill_values.append(waste)
@@ -194,7 +194,7 @@ class VRPInstanceBuilder:
         fill_values = []
         coords = (depot, loc)
         for _ in range(self._num_days):
-            waste = generate_waste_prize(self._problem_size, self._distribution, coords, self._dataset_size, bins)
+            waste = generate_waste(self._problem_size, self._distribution, coords, self._dataset_size, bins)
             if self._dataset_size == 1 and len(waste.shape) == 1:
                 waste = waste[None, :]
             fill_values.append(waste)

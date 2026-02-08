@@ -8,8 +8,6 @@ from .gat import GraphAttentionEncoder
 from .gcn import GraphConvolutionEncoder
 from .gfacs import GFACSEncoder
 from .ggac import GatedGraphAttConvEncoder
-from .ham import HAMEncoder
-from .l2d import L2DEncoder
 from .matnet import MatNetEncoder
 from .mdam import MDAMGraphAttentionEncoder
 from .mlp import MLPEncoder
@@ -24,9 +22,6 @@ __all__ = [
     "GraphAttentionEncoder",
     "GraphConvolutionEncoder",
     "GFACSEncoder",
-    "GatedGraphAttConvEncoder",
-    "HAMEncoder",
-    "L2DEncoder",
     "MatNetEncoder",
     "MDAMGraphAttentionEncoder",
     "MLPEncoder",
