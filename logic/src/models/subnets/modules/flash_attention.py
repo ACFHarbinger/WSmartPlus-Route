@@ -120,6 +120,17 @@ class MultiHeadFlashAttention(nn.Module):
             return self.W_out(out)
 
     def _manual_attention(self, Q, K, V, mask):
+        """manual attention.
+
+        Args:
+            Q (Any): Description of Q.
+            K (Any): Description of K.
+            V (Any): Description of V.
+            mask (Any): Description of mask.
+
+        Returns:
+            Any: Description of return value.
+        """
         scale = 1.0 / math.sqrt(self.head_dim)
         scores = torch.matmul(Q, K.transpose(-2, -1)) * scale
 

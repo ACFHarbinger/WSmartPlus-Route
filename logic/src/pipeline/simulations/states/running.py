@@ -1,3 +1,11 @@
+"""running.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import running
+    """
 from __future__ import annotations
 
 import os
@@ -22,6 +30,11 @@ class RunningState(SimState):
     """State handles the day-by-day simulation loop."""
 
     def handle(self, ctx: SimulationContext) -> None:
+        """Handle.
+
+        Args:
+            ctx (SimulationContext): Description of ctx.
+        """
         opts = ctx.opts
         desc = f"{ctx.policy} #{ctx.sample_id}"
         realtime_log_path = os.path.join(

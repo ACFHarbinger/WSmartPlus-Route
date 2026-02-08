@@ -1,3 +1,11 @@
+"""ant_colony_system.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import ant_colony_system
+    """
 from __future__ import annotations
 
 from typing import Any, Dict, Optional, Tuple
@@ -30,6 +38,20 @@ class VectorizedACOPolicy(AutoregressivePolicy):
         min_pheromone: float = 0.01,
         **kwargs,
     ):
+        """Initialize Class.
+
+        Args:
+            env_name (str): Description of env_name.
+            n_ants (int): Description of n_ants.
+            n_iterations (int): Description of n_iterations.
+            alpha (float): Description of alpha.
+            beta (float): Description of beta.
+            decay (float): Description of decay.
+            elitism (int): Description of elitism.
+            q0 (float): Description of q0.
+            min_pheromone (float): Description of min_pheromone.
+            kwargs (Any): Description of kwargs.
+        """
         super().__init__(env_name=env_name, **kwargs)
         self.n_ants = n_ants
         self.n_iterations = n_iterations

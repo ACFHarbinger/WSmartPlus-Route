@@ -1,3 +1,11 @@
+"""autoregressive_encoder.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import autoregressive_encoder
+    """
 from abc import ABC, abstractmethod
 from typing import Tuple, Union
 

@@ -13,6 +13,11 @@ class OptimizationMixin:
     """Mixin for optimizer and scheduler configuration."""
 
     def __init__(self):
+        """Initialize Class.
+
+        Args:
+            None.
+        """
         # Type hints for attributes expected from the main class
         self.policy: Any
         self.optimizer_name: str

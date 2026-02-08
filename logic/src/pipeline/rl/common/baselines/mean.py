@@ -1,3 +1,11 @@
+"""mean.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import mean
+    """
 from typing import Any, Optional
 
 import torch

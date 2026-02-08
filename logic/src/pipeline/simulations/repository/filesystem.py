@@ -31,6 +31,14 @@ class FileSystemRepository(SimulationRepository):
         self.default_data_dir = os.path.join(data_root_dir, "data", "wsr_simulator")
 
     def _get_data_dir(self, override_dir=None):
+        """get data dir.
+
+        Args:
+            override_dir (Any): Description of override_dir.
+
+        Returns:
+            Any: Description of return value.
+        """
         return override_dir if override_dir else self.default_data_dir
 
     def get_indices(self, filename, n_samples, n_nodes, data_size, lock=None):
@@ -101,6 +109,15 @@ class FileSystemRepository(SimulationRepository):
         d_dir = self._get_data_dir(data_dir)
 
         def _preprocess_county_date(data, date_str="Date"):
+            """preprocess county date.
+
+            Args:
+                    data (Any): Description of data.
+                    date_str (Any): Description of date_str.
+
+            Returns:
+                Any: Description of return value.
+            """
             data[date_str] = pd.to_datetime(data[date_str], format="%Y-%m-%d")
             data = data.set_index(date_str)
             data = data.round()
@@ -108,6 +125,15 @@ class FileSystemRepository(SimulationRepository):
             return data
 
         def _preprocess_county_data(data):
+            """preprocess county data.
+
+            Args:
+                    data (Any): Description of data.
+
+            Returns:
+                Any: Description of return value.
+            """
+
             def __get_stock(col):
                 """Helper to extract initial stock from time series column."""
                 positive_values = col[col >= 1e-32].dropna()

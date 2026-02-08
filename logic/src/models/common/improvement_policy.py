@@ -1,3 +1,11 @@
+"""improvement_policy.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import improvement_policy
+    """
 from __future__ import annotations
 
 from abc import ABC

@@ -92,6 +92,17 @@ class DeepACOPolicy(NonAutoregressivePolicy):
         num_starts: int = 1,
         **kwargs,
     ) -> Dict[str, Any]:
+        """Forward.
+
+        Args:
+            td (TensorDict): Description of td.
+            env (RL4COEnvBase): Description of env.
+            num_starts (int): Description of num_starts.
+            kwargs (Any): Description of kwargs.
+
+        Returns:
+            Any: Description of return value.
+        """
         # Encode: predict heatmap
         encoder = cast(NonAutoregressiveEncoder, self.encoder)
         heatmap = encoder(td, **kwargs)

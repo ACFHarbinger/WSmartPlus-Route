@@ -1,5 +1,19 @@
+"""
+Shaw Removal (Relatedness) Operator Module.
+
+This module implements the Shaw removal heuristic, which removes nodes that are
+similar (related) to a seed node based on distance, time, and demand.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.destroy.shaw import shaw_removal
+    >>> routes, removed = shaw_removal(routes, n_remove=5, dist_matrix=d, ...)
+"""
+
 import random
-from typing import Dict, List, Optional, Tuple
+from typing import List, Tuple
 
 import numpy as np
 
@@ -8,12 +22,15 @@ def shaw_removal(
     routes: List[List[int]],
     n_remove: int,
     dist_matrix: np.ndarray,
-    waste: Optional[Dict[int, float]] = None,
-    time_windows: Optional[Dict[int, tuple]] = None,
+    nodes: List[int],
+    demands: List[int] = None,
+    waste: dict = None,
+    time_windows: dict = None,
+    relatedness_weights: Tuple[float, float, float] = (0.5, 0.3, 0.2),
+    randomization_factor: float = 2.0,
     phi: float = 9.0,
     chi: float = 3.0,
     psi: float = 2.0,
-    randomization_factor: float = 2.0,
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Shaw Removal: Remove related customers based on multi-criteria similarity.
@@ -27,15 +44,18 @@ def shaw_removal(
         routes: Current routes.
         n_remove: Number of nodes to remove.
         dist_matrix: Distance matrix.
-        waste: Node waste dictionary {node: waste}.
-        time_windows: Time window dict {node: (earliest, latest)}.
+        nodes: List of all node identifiers.
+        demands: List of demands for each node (optional).
+        waste: Node waste dictionary {node: waste} (optional).
+        time_windows: Time window dict {node: (earliest, latest)} (optional).
+        relatedness_weights: Weights for (dist, time, demand) - deprecated/unused if phi/chi/psi used directly.
+        randomization_factor: Power for randomized selection (higher = more random).
         phi: Distance weight in relatedness.
         chi: Time window weight in relatedness.
         psi: Demand weight in relatedness.
-        randomization_factor: Power for randomized selection (higher = more random).
 
     Returns:
-        Tuple of (modified routes, removed nodes).
+        Tuple[List[List[int]], List[int]]: Modified routes and removed nodes.
     """
     if not any(routes) or n_remove <= 0:
         return routes, []

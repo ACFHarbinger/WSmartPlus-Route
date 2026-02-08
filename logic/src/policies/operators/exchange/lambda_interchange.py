@@ -1,3 +1,18 @@
+"""
+Lambda-Interchange Operator Module.
+
+This module implements a wrapper for the Lambda-Interchange neighborhood search,
+which systematically explores cross-exchange moves between all pairs of routes
+with segment lengths up to a specified maximum (lambda_max).
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.exchange.lambda_interchange import lambda_interchange
+    >>> improved = lambda_interchange(ls, lambda_max=2)
+"""
+
 from typing import Any
 
 from .cross import cross_exchange
@@ -18,7 +33,7 @@ def lambda_interchange(
         lambda_max: Maximum segment length to exchange.
 
     Returns:
-        True if any improving move was found.
+        bool: True if any improving move was found.
     """
     improved = False
 

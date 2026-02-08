@@ -40,6 +40,12 @@ class BatchMixin:
             self._batch_size = value
 
             def _safe_set_shape(s, shp):
+                """safe set shape.
+
+                Args:
+                            s (Any): Description of s.
+                            shp (Any): Description of shp.
+                """
                 if s is None:
                     return
                 try:

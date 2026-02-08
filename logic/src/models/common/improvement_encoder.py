@@ -1,3 +1,11 @@
+"""improvement_encoder.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import improvement_encoder
+    """
 from abc import ABC, abstractmethod
 from typing import Tuple, Union
 

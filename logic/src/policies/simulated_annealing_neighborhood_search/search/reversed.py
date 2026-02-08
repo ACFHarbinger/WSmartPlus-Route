@@ -1,3 +1,18 @@
+"""
+Reversed Search Module.
+
+This module implements a search strategy that explores the solution space
+by reversing routes or segments of routes.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.simulated_annealing_neighborhood_search.search.reversed import ReversedSearch
+    >>> search = ReversedSearch(...)
+    >>> result = search.run()
+"""
+
 from copy import deepcopy
 
 from logic.src.policies.simulated_annealing_neighborhood_search.common.objectives import (

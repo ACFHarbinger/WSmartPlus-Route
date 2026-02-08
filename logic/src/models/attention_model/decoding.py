@@ -15,6 +15,11 @@ class DecodingMixin:
     """Mixin for decoding strategies (Greedy, Sampling, Beam Search, POMO)."""
 
     def __init__(self):
+        """Initialize Class.
+
+        Args:
+            None.
+        """
         # Type hints
         self.strategy: str = "greedy"
         self.temp: Optional[float] = None

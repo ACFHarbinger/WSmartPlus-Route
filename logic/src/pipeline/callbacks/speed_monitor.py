@@ -124,4 +124,12 @@ class SpeedMonitor(Callback):
 
     @staticmethod
     def _should_log(trainer) -> bool:
+        """should log.
+
+        Args:
+            trainer (Any): Description of trainer.
+
+        Returns:
+            Any: Description of return value.
+        """
         return (trainer.global_step + 1) % trainer.log_every_n_steps == 0 or trainer.should_stop

@@ -287,6 +287,14 @@ class Bins:
         """Configures bins with predefined Gamma distribution profiles."""
 
         def __set_param(param):
+            """set param.
+
+            Args:
+                    param (Any): Description of param.
+
+            Returns:
+                Any: Description of return value.
+            """
             param_len = len(param)
             if self.n == param_len:
                 return param

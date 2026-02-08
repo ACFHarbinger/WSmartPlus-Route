@@ -1,3 +1,11 @@
+"""registry.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import registry
+    """
 from typing import Any, Dict
 
 from logic.src.pipeline.rl import REINFORCE
@@ -9,6 +17,17 @@ from .ppo import _create_gdpo, _create_ppo_family
 
 
 def _create_reinforce(cfg, policy, env, kw):
+    """create reinforce.
+
+    Args:
+    cfg (Any): Description of cfg.
+    policy (Any): Description of policy.
+    env (Any): Description of env.
+    kw (Any): Description of kw.
+
+    Returns:
+        Any: Description of return value.
+    """
     return REINFORCE(**kw)
 
 

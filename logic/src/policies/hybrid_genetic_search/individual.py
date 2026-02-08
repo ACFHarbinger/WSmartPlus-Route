@@ -1,3 +1,19 @@
+"""
+HGS Individual Module.
+
+This module defines the Individual class used in the Hybrid Genetic Search (HGS)
+algorithm. It represents a single solution in the population, storing genotype
+(giant tour) and phenotype (routes), along with cost and fitness metrics.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.hybrid_genetic_search.individual import Individual
+    >>> ind = Individual(genotype=[1, 5, 2, ...], cost=100.0)
+"""
+
+
 class Individual:
     """
     Individual solution representation for genetic algorithm.

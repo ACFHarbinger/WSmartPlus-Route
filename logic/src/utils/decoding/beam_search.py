@@ -1,3 +1,11 @@
+"""beam_search.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import beam_search
+    """
 from typing import Optional, Tuple
 
 import torch

@@ -3,6 +3,13 @@ HGS-ALNS Hybrid Solver.
 
 This module implements a hybrid approach where Hybrid Genetic Search (HGS)
 uses Adaptive Large Neighborhood Search (ALNS) for its education phase.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.hgs_alns import solve_hgs_alns
+    >>> result = solve_hgs_alns(problem_instance, config)
 """
 
 import random

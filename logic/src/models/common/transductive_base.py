@@ -1,3 +1,11 @@
+"""transductive_base.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import transductive_base
+    """
 from __future__ import annotations
 
 from abc import ABC

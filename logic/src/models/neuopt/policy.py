@@ -1,3 +1,11 @@
+"""policy.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import policy
+    """
 from __future__ import annotations
 
 from ..common.improvement_policy import ImprovementPolicy
@@ -17,6 +25,14 @@ class NeuOptPolicy(ImprovementPolicy):
         num_layers: int = 3,
         **kwargs,
     ):
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            num_heads (int): Description of num_heads.
+            num_layers (int): Description of num_layers.
+            kwargs (Any): Description of kwargs.
+        """
         super().__init__(env_name="tsp_kopt", embed_dim=embed_dim)
         self.encoder = NeuOptEncoder(embed_dim, num_heads, num_layers)
         self.decoder = NeuOptDecoder(embed_dim)

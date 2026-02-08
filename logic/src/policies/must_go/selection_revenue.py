@@ -1,5 +1,16 @@
 """
-Revenue-based selection strategy module.
+Revenue Selection Strategy Module.
+
+This module implements a value-based selection strategy. Bins are selected
+if the estimated revenue of their current content exceeds a threshold.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.must_go.selection_revenue import RevenueThresholdSelection
+    >>> strategy = RevenueThresholdSelection()
+    >>> bins = strategy.select_bins(context)
 """
 
 from typing import List

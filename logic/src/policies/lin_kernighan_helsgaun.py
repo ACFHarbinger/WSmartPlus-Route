@@ -2,11 +2,15 @@
 LKH-3 inspired Heuristic Module.
 
 This module implements a version of the Lin-Kernighan-Helsgaun heuristic inspired by LKH-3.
-Key improvements over basic LKH:
-1. Alpha-measure candidate sets for pruning search space.
-2. Lexicographical optimization: (Penalty, Cost) where Penalty handles VRP constraints.
-3. Sequential 3-opt moves for deeper exploration.
-4. Iterated Local Search (ILS) with Double Bridge kicks.
+Key features include Alpha-measure pruning, lexicographical optimization (Penalty, Cost),
+and Iterated Local Search with Double Bridge kicks.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.lin_kernighan_helsgaun import solve_lkh
+    >>> tour, cost = solve_lkh(distance_matrix)
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -89,7 +93,7 @@ def solve_lkh(
         capacity: Optional vehicle capacity for VRP penalty calculation.
 
     Returns:
-        tuple: (final_tour, final_cost)
+        Tuple[List[int], float]: Tuple containing (final_tour, final_cost).
     """
     n = len(distance_matrix)
     if n < 3:

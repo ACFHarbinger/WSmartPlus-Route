@@ -1,3 +1,19 @@
+"""
+K-Sparse ACO Solver Module.
+
+This module implements the main loop of the K-Sparse Ant Colony Optimization
+algorithm. It manages the ant colony, pheromone updates (local and global),
+and coordinates the search process.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco.solver import KSparseACOSolver
+    >>> solver = KSparseACOSolver(dist_matrix, demands, ...)
+    >>> result = solver.solve()
+"""
+
 import time
 from typing import Dict, List, Tuple
 

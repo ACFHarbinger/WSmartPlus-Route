@@ -1,5 +1,22 @@
+"""
+Relocate Operator Module.
+
+This module implements the relocate operator, which moves a single node
+from its current position to a new position (after another node) in the
+same or a different route.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.move.relocate import move_relocate
+    >>> improved = move_relocate(ls, u=1, v=2, r_u=0, p_u=1, r_v=0, p_v=5)
+"""
+
+
 def move_relocate(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-    """Relocate operator: move node u to a position after node v.
+    """
+    Relocate operator: move node u to a position after node v.
 
     Removes node u from route r_u and inserts it immediately after node v
     in route r_v. Can be inter-route or intra-route. Only applies the move

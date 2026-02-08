@@ -27,6 +27,16 @@ class NeuOpt(nn.Module):
         num_layers: int = 3,
         **policy_kwargs,
     ):
+        """Initialize Class.
+
+        Args:
+            env (Optional[RL4COEnvBase]): Description of env.
+            policy (Optional[NeuOptPolicy]): Description of policy.
+            embed_dim (int): Description of embed_dim.
+            num_heads (int): Description of num_heads.
+            num_layers (int): Description of num_layers.
+            policy_kwargs (Any): Description of policy_kwargs.
+        """
         super().__init__()
         if policy is None:
             policy = NeuOptPolicy(

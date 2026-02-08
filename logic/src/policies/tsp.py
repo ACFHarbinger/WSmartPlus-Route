@@ -1,19 +1,24 @@
 """
-Single-vehicle routing utilities module.
+TSP Policy Module.
 
 This module provides helper functions for solving single-vehicle routing problems
-including TSP construction, local search optimization, and capacity management.
+(TSP) including construction, local search optimization, and capacity management.
+It typically wraps exact methods (like Concorde or LKH if available) or
+heuristics (like Nearest Neighbor or 2-opt).
 
 Key Functions:
---------------
 - find_route: Solve TSP using fast_tsp library
 - get_multi_tour: Split single tour into multiple depot trips (capacity aware)
 - get_route_cost: Calculate total tour distance
 - get_partial_tour: Remove bins to meet capacity constraints
 - dist_matrix_from_graph: Compute all-pairs shortest paths from NetworkX graph
 
-These utilities are used by higher-level policies (Regular, LastMinute, etc.)
-to generate and optimize single-vehicle collection routes.
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.tsp import find_route
+    >>> tour, length = find_route(dist_matrix)
 """
 
 from typing import List, Tuple

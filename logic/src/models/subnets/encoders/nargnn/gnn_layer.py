@@ -17,6 +17,13 @@ class GNNLayer(nn.Module):
     """Simplified GNN layer for NARGNN."""
 
     def __init__(self, embed_dim: int, act_fn: str = "silu", agg_fn: str = "mean"):
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            act_fn (str): Description of act_fn.
+            agg_fn (str): Description of agg_fn.
+        """
         super().__init__()
         assert BatchNorm is not None, "torch_geometric required"
 

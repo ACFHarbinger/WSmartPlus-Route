@@ -1,3 +1,18 @@
+"""
+Neural Policy Adapter Implementation.
+
+This module provides the NeuralPolicy class, which adapts deep reinforcement
+learning models to the common IPolicy interface used by the optimization engine.
+
+Attributes:
+    PolicyRegistry: Registry where this policy is automatically registered with key "neural".
+
+Example:
+    >>> from logic.src.policies.adapters.policy_neural import NeuralPolicy
+    >>> policy = NeuralPolicy()
+    >>> route, cost, _ = policy.execute(model_env=env, model_ls=ls, ...)
+"""
+
 from typing import Any, List, Optional, Tuple
 
 import torch
@@ -10,12 +25,13 @@ from logic.src.utils.functions import move_to
 @PolicyRegistry.register("neural")
 class NeuralPolicy(IPolicy):
     """
-    Neural Policy wrapper.
-    Executes deep reinforcement learning models.
+    Neural Policy wrapper that executes deep reinforcement learning models.
 
-    Supports must-go bin selection via:
-    - Explicit must_go mask passed in kwargs
-    - Selection strategy name (selector_name) with threshold (selector_threshold)
+    This class handles the interface between the constructive neural search
+    and the local search / simulation environment.
+
+    Attributes:
+        None: This class is a stateless wrapper.
     """
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:

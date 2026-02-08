@@ -1,10 +1,19 @@
 """
-Destroy operators for the Adaptive Large Neighborhood Search (ALNS).
+Destroy Operators Module.
 
-This module contains various removal heuristics used to discard nodes
-from the current routing solution to explore the search space.
+This module exposes the various destroy (removal) operators used in the
+Adaptive Large Neighborhood Search (ALNS) algorithm.
 
-(Refactored to point to `logic.src.policies.operators.destroy` package)
+Attributes:
+    random_removal (function): Randomly removes nodes.
+    worst_removal (function): Removes nodes with highest cost contribution.
+    cluster_removal (function): Removes spatially clustered nodes.
+    shaw_removal (function): Removes related nodes (distance/time/demand).
+    string_removal (function): Removes contiguous sequences of nodes.
+
+Example:
+    >>> from logic.src.policies.operators import destroy_operators
+    >>> routes, removed = destroy_operators.random_removal(routes, n=5)
 """
 
 from .destroy import (

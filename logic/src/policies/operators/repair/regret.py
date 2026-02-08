@@ -1,3 +1,19 @@
+"""
+Regret Insertion Operator Module.
+
+This module implements the Regret-k insertion heuristic for VRP repair.
+It calculates a regret value for each unassigned node based on the cost difference
+between its best and k-th best insertion positions.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.repair.regret import RegretInsertion
+    >>> operator = RegretInsertion(k=2)
+    >>> new_routes = operator.repair(destroyed_routes, unassigned_nodes)
+"""
+
 from typing import Dict, List
 
 import numpy as np
@@ -12,13 +28,17 @@ def regret_2_insertion(
 ) -> List[List[int]]:
     """
     Insert removed nodes based on the regret-2 criterion.
+    Regret-2 Insertion Heuristic.
+
+    Prioritizes inserting nodes that would be much more expensive to insert
+    later (high regret = cost difference between best and 2nd best option).
 
     Args:
-        routes (List[List[int]]): Partial routes.
-        removed_nodes (List[int]): Nodes to be re-inserted.
-        dist_matrix (np.ndarray): Distance matrix.
-        demands (Dict[int, float]): Demand look-up.
-        capacity (float): Vehicle capacity.
+        routes: Partial routes.
+        removed_nodes: Nodes to be re-inserted.
+        dist_matrix: Distance matrix.
+        demands: Demand look-up.
+        capacity: Vehicle capacity.
 
     Returns:
         List[List[int]]: New routes after insertion.
@@ -32,18 +52,19 @@ def regret_k_insertion(
     dist_matrix: np.ndarray,
     demands: Dict[int, float],
     capacity: float,
-    k: int = 3,
+    k: int = 2,
 ) -> List[List[int]]:
     """
-    Generalized Regret-k insertion heuristic.
+    Regret-k Insertion Heuristic.
+
+    Generalization of regret insertion to k-th best option.
+    Calculates regret as cost(k-th best) - cost(best).
 
     For each unassigned node, calculate the difference between the best and
     k-th best insertion cost. Insert the node with maximum regret first.
 
     Args:
         routes: Partial routes.
-        removed_nodes: Nodes to insert.
-        dist_matrix: Distance matrix.
         demands: Node demands.
         capacity: Vehicle capacity.
         k: Regret degree (2, 3, etc.).

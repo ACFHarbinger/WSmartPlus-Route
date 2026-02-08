@@ -15,6 +15,14 @@ class EvalBase(ABC):
     """Base class for evaluation strategies."""
 
     def __init__(self, env: Any, progress: bool = True, device: str | torch.device = "cpu", **kwargs):
+        """Initialize Class.
+
+        Args:
+            env (Any): Description of env.
+            progress (bool): Description of progress.
+            device (str | torch.device): Description of device.
+            kwargs (Any): Description of kwargs.
+        """
         self.env = env
         self.progress = progress
         self.device = device

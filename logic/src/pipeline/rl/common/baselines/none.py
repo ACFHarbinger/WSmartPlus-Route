@@ -1,3 +1,11 @@
+"""none.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import none
+    """
 from typing import Any, Optional
 
 import torch

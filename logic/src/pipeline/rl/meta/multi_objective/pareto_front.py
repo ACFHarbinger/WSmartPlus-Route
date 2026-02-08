@@ -1,3 +1,13 @@
+"""pareto_front.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import pareto_front
+    """
+
+
 class ParetoFront:
     """Maintains a set of non-dominated solutions."""
 

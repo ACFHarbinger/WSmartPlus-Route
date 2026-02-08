@@ -1,3 +1,17 @@
+"""
+Selection Context Module.
+
+This module defines the `SelectionContext` data class, which serves as a
+container for all relevant data needed by selection strategies to make decisions.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.must_go.base.selection_context import SelectionContext
+    >>> ctx = SelectionContext(bin_ids=np.array([1, 2]), current_fill=np.array([0.8, 0.5]))
+"""
+
 from dataclasses import dataclass
 from typing import Any, List, Optional
 

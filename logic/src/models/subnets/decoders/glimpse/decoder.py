@@ -37,6 +37,24 @@ class GlimpseDecoder(nn.Module):
         strategy: Optional[str] = None,
         **kwargs,
     ):
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            hidden_dim (int): Description of hidden_dim.
+            problem (Any): Description of problem.
+            n_heads (int): Description of n_heads.
+            mask_inner (bool): Description of mask_inner.
+            mask_logits (bool): Description of mask_logits.
+            tanh_clipping (float): Description of tanh_clipping.
+            mask_graph (bool): Description of mask_graph.
+            shrink_size (Optional[int]): Description of shrink_size.
+            pomo_size (int): Description of pomo_size.
+            spatial_bias (bool): Description of spatial_bias.
+            spatial_bias_scale (float): Description of spatial_bias_scale.
+            strategy (Optional[str]): Description of strategy.
+            kwargs (Any): Description of kwargs.
+        """
         super().__init__()
         self.embed_dim = embed_dim
         self.problem = problem

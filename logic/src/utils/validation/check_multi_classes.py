@@ -1,3 +1,11 @@
+"""check_multi_classes.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import check_multi_classes
+    """
 import argparse
 import ast
 import os
@@ -12,6 +20,14 @@ RESET = "\033[0m"
 
 
 def get_top_level_classes(filepath):
+    """Get top level classes.
+
+    Args:
+    filepath (Any): Description of filepath.
+
+    Returns:
+        Any: Description of return value.
+    """
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             source = f.read()
@@ -22,6 +38,7 @@ def get_top_level_classes(filepath):
 
 
 def main():
+    """Main."""
     parser = argparse.ArgumentParser(description="Find files with multiple top-level class definitions.")
     parser.add_argument("path", nargs="?", default=".", help="Directory to scan")
     parser.add_argument("--ignore-private", action="store_true", help="Ignore classes starting with _")

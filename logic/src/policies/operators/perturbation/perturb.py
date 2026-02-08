@@ -1,3 +1,17 @@
+"""
+Perturb Operator Module.
+
+This module implements the 'perturb' operator, which performs a series of random
+swaps to shake up the current solution and escape local optima.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.perturbation.perturb import perturb
+    >>> changed = perturb(context, k=5)
+"""
+
 import random
 from typing import Any
 
@@ -5,11 +19,16 @@ from typing import Any
 def perturb(ctx: Any, k: int = 3) -> bool:
     """
     Perturbation operator: perform k random swaps to escape local optima.
-    Returns True if any swap was performed.
+
+    Attempts to perform `k` random swaps between nodes. Swaps are forced
+    even if they don't improve the objective, provided they are feasible.
 
     Args:
         ctx: Context object with routes, node_map, demands, capacity, etc.
-        k: Number of swaps to perform.
+        k: Number of swaps to perform (default: 3).
+
+    Returns:
+        bool: True if any swap was performed, False otherwise.
     """
     all_nodes = list(ctx.node_map.keys())
     if len(all_nodes) < 2:

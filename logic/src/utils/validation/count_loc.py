@@ -1,3 +1,11 @@
+"""count_loc.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import count_loc
+    """
 import argparse
 import ast
 import os
@@ -8,6 +16,14 @@ from rich.table import Table
 
 
 def get_docstring_lines(source: str) -> Set[int]:
+    """Get docstring lines.
+
+    Args:
+    source (str): Description of source.
+
+    Returns:
+        Any: Description of return value.
+    """
     doc_lines = set()
     try:
         tree = ast.parse(source)
@@ -26,6 +42,14 @@ def get_docstring_lines(source: str) -> Set[int]:
 
 
 def analyze_file(filepath: str) -> Dict[str, int]:
+    """Analyze file.
+
+    Args:
+    filepath (str): Description of filepath.
+
+    Returns:
+        Any: Description of return value.
+    """
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             source = f.read()
@@ -51,6 +75,7 @@ def analyze_file(filepath: str) -> Dict[str, int]:
 
 
 def main():
+    """Main."""
     parser = argparse.ArgumentParser()
     parser.add_argument("path", nargs="?", default=".")
     parser.add_argument("--sort", choices=["code", "comment", "docstring", "total"], default="total")

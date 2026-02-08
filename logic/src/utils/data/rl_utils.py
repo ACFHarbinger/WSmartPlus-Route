@@ -20,6 +20,14 @@ def safe_td_copy(td: Any) -> Any:
     visited = set()
 
     def _internal_safe_copy(obj):
+        """internal safe copy.
+
+        Args:
+            obj (Any): Description of obj.
+
+        Returns:
+            Any: Description of return value.
+        """
         obj_id = id(obj)
         if obj_id in visited:
             print(f"Warning: Circular reference detected in TensorDict for object {obj_id}. Breaking cycle.")

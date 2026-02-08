@@ -18,15 +18,37 @@ class SimulationCheckpoint:
     """
 
     def __init__(self, output_dir: str, checkpoint_dir: str = "temp", policy: str = "", sample_id: int = 0):
+        """Initialize Class.
+
+        Args:
+            output_dir (str): Description of output_dir.
+            checkpoint_dir (str): Description of checkpoint_dir.
+            policy (str): Description of policy.
+            sample_id (int): Description of sample_id.
+        """
         self.checkpoint_dir = os.path.join(ROOT_DIR, checkpoint_dir)
         self.output_dir = os.path.join(output_dir, checkpoint_dir)
         self.policy = policy
         self.sample_id = sample_id
 
     def get_simulation_info(self) -> dict:
+        """Get simulation info.
+
+        Returns:
+            Any: Description.
+        """
         return {"policy": self.policy, "sample": self.sample_id}
 
     def get_checkpoint_file(self, day: Optional[int] = None, end_simulation: bool = False) -> str:
+        """Get checkpoint file.
+
+        Args:
+            day (Optional[int]): Description of day.
+            end_simulation (bool): Description of end_simulation.
+
+        Returns:
+            Any: Description of return value.
+        """
         parent_dir = self.output_dir if end_simulation else self.checkpoint_dir
         if day is not None:
             return os.path.join(parent_dir, f"checkpoint_{self.policy}_{self.sample_id}_day{day}.pkl")
@@ -34,6 +56,13 @@ class SimulationCheckpoint:
         return os.path.join(parent_dir, f"checkpoint_{self.policy}_{self.sample_id}_day{last_day}.pkl")
 
     def save_state(self, state: Any, day: int = 0, end_simulation: bool = False) -> None:
+        """Save state.
+
+        Args:
+            state (Any): Description of state.
+            day (int): Description of day.
+            end_simulation (bool): Description of end_simulation.
+        """
         checkpoint_data = {
             "state": state,
             "policy": self.policy,
@@ -49,6 +78,14 @@ class SimulationCheckpoint:
             pickle.dump(checkpoint_data, f)
 
     def load_state(self, day: Optional[int] = None) -> Tuple[Optional[Any], int]:
+        """Load state.
+
+        Args:
+            day (Optional[int]): Description of day.
+
+        Returns:
+            Any: Description of return value.
+        """
         checkpoint_files = []
 
         if day is not None:
@@ -75,6 +112,11 @@ class SimulationCheckpoint:
         return None, 0
 
     def find_last_checkpoint_day(self) -> int:
+        """Find last checkpoint day.
+
+        Returns:
+            Any: Description.
+        """
         max_day = 0
         pattern = f"checkpoint_{self.policy}_{self.sample_id}_day"
         if not os.path.exists(self.checkpoint_dir):
@@ -89,6 +131,15 @@ class SimulationCheckpoint:
         return max_day
 
     def clear(self, policy: Optional[str] = None, sample_id: Optional[int] = None) -> int:
+        """Clear.
+
+        Args:
+            policy (Optional[str]): Description of policy.
+            sample_id (Optional[int]): Description of sample_id.
+
+        Returns:
+            Any: Description of return value.
+        """
         if policy is None:
             policy = self.policy
         if sample_id is None:
@@ -108,6 +159,14 @@ class SimulationCheckpoint:
         return removed_count
 
     def delete_checkpoint_day(self, day: int) -> bool:
+        """Delete checkpoint day.
+
+        Args:
+            day (int): Description of day.
+
+        Returns:
+            Any: Description of return value.
+        """
         checkpoint_file = self.get_checkpoint_file(day)
         try:
             if os.path.exists(checkpoint_file):

@@ -1,3 +1,18 @@
+"""
+K-Sparse ACO Runner Module.
+
+This module provides a high-level interface to run the K-Sparse ACO solver.
+It handles parameter parsing from a configuration dictionary and initializes
+the solver.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco.runner import run_k_sparse_aco
+    >>> result = run_k_sparse_aco(dist_matrix, demands, capacity, ...)
+"""
+
 from typing import Any, Dict, List, Tuple
 
 import numpy as np

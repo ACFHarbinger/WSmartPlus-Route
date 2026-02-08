@@ -1,3 +1,11 @@
+"""decoder.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import decoder
+    """
 from __future__ import annotations
 
 from typing import Any, Optional, Tuple, Union
@@ -23,6 +31,16 @@ class MatNetDecoder(GlimpseDecoder):
         tanh_clipping: float = 10.0,
         **kwargs,
     ):
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            hidden_dim (int): Description of hidden_dim.
+            problem (Any): Description of problem.
+            n_heads (int): Description of n_heads.
+            tanh_clipping (float): Description of tanh_clipping.
+            kwargs (Any): Description of kwargs.
+        """
         super().__init__(
             embed_dim=embed_dim,
             hidden_dim=hidden_dim,
@@ -36,6 +54,15 @@ class MatNetDecoder(GlimpseDecoder):
         self.temp = 1.0
 
     def _precompute(self, embeddings: torch.Tensor, num_steps: int = 1) -> Any:
+        """precompute.
+
+        Args:
+            embeddings (torch.Tensor): Description of embeddings.
+            num_steps (int): Description of num_steps.
+
+        Returns:
+            Any: Description of return value.
+        """
         # Standard precompute logic
         fixed = super()._precompute(embeddings, num_steps)
         return fixed

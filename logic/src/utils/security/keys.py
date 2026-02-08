@@ -17,6 +17,16 @@ from logic.src.constants import ROOT_DIR
 
 
 def _set_param(config, param_name, param_value=None):
+    """set param.
+
+    Args:
+    config (Any): Description of config.
+    param_name (Any): Description of param_name.
+    param_value (Any): Description of param_value.
+
+    Returns:
+        Any: Description of return value.
+    """
     if param_value is None:
         param_value = config.get(param_name.upper())
     if not param_value:

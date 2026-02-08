@@ -1,5 +1,17 @@
 """
-Combined selection strategy module.
+Combined Selection Strategy Module.
+
+This module implements a strategy that combines multiple other selection
+strategies using logical operators (OR, AND). This allows creating complex rules
+like "Select if (Revenue > X OR Fill > Y)".
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.must_go.selection_combined import CombinedSelection
+    >>> strategy = CombinedSelection(strategies=[...], logic="or")
+    >>> bins = strategy.select_bins(context)
 """
 
 from typing import Any, Dict, List, Optional, cast

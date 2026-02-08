@@ -1,3 +1,18 @@
+"""
+Ejection Chain Operator Module.
+
+This module implements the Ejection Chain operator, which is primarily used for
+fleet minimization by attempting to empty a route and eject its customers into
+other routes, potentially triggering a chain of displacements.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.exchange.ejection import ejection_chain
+    >>> success = ejection_chain(ls, source_route=0, max_depth=5)
+"""
+
 from typing import Any, List, Optional, Tuple
 
 
@@ -20,7 +35,7 @@ def ejection_chain(
         max_depth: Maximum chain depth before giving up.
 
     Returns:
-        True if the source route was successfully emptied.
+        bool: True if the source route was successfully emptied.
     """
     if source_route >= len(ls.routes) or not ls.routes[source_route]:
         return False

@@ -1,3 +1,11 @@
+"""decoder.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import decoder
+    """
 from __future__ import annotations
 
 from typing import Tuple

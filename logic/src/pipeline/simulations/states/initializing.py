@@ -1,3 +1,11 @@
+"""initializing.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import initializing
+    """
 from __future__ import annotations
 
 import os
@@ -30,6 +38,11 @@ class InitializingState(SimState):
     """State handles the initialization of simulation data (graph, models, etc.)."""
 
     def handle(self, ctx: SimulationContext) -> None:
+        """Handle.
+
+        Args:
+            ctx (SimulationContext): Description of ctx.
+        """
         opts = ctx.opts
 
         setup_system_logger(opts.get("log_file", "logs/simulation.log"), opts.get("log_level", "INFO"))

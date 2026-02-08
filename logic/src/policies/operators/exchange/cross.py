@@ -1,3 +1,18 @@
+"""
+Cross-Exchange Operator Module.
+
+This module implements the Cross-Exchange operator, which swaps segments of
+arbitrary length between two different routes, preserving the internal order
+of nodes within each segment.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.exchange.cross import cross_exchange
+    >>> improved = cross_exchange(ls, r_a=0, seg_a_start=1, seg_a_len=2, ...)
+"""
+
 from typing import Any
 
 
@@ -26,7 +41,7 @@ def cross_exchange(
         seg_b_len: Length of segment in Route B.
 
     Returns:
-        True if an improving exchange was applied.
+        bool: True if an improving exchange was applied.
     """
     if r_a == r_b:
         return False

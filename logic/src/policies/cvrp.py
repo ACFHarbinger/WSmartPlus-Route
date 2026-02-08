@@ -1,5 +1,5 @@
 """
-Multi-vehicle routing utilities module.
+CVRP Policy Module.
 
 This module provides functions for solving multi-vehicle routing problems (VRP)
 with capacity constraints. It supports two solver backends:
@@ -12,8 +12,12 @@ Both solvers handle:
 - Distance minimization
 - Dynamic fleet sizing (n_vehicles=0 for automatic)
 
-These utilities are used by policies that require multi-vehicle support
-(Regular, LastMinute, LookAhead, etc.) when n_vehicles > 1.
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.cvrp import find_routes
+    >>> routes = find_routes(dist_matrix, demands, capacity, num_vehicles)
 """
 
 from typing import List, Tuple

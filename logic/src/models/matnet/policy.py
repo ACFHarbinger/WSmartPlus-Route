@@ -1,3 +1,11 @@
+"""policy.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import policy
+    """
 from typing import Any, Dict, Optional
 
 from tensordict import TensorDict
@@ -28,6 +36,18 @@ class MatNetPolicy(AutoregressivePolicy):
         normalization: str = "instance",
         **kwargs,
     ):
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            hidden_dim (int): Description of hidden_dim.
+            problem (Any): Description of problem.
+            num_layers (int): Description of num_layers.
+            n_heads (int): Description of n_heads.
+            tanh_clipping (float): Description of tanh_clipping.
+            normalization (str): Description of normalization.
+            kwargs (Any): Description of kwargs.
+        """
         super(MatNetPolicy, self).__init__(env_name=None)
         self.problem = problem
         self.embed_dim = embed_dim
@@ -52,6 +72,12 @@ class MatNetPolicy(AutoregressivePolicy):
         )
 
     def set_strategy(self, strategy: str, temp: Optional[float] = None):
+        """Set strategy.
+
+        Args:
+            strategy (str): Description of strategy.
+            temp (Optional[float]): Description of temp.
+        """
         if self.decoder is not None and hasattr(self.decoder, "set_strategy"):
             self.decoder.set_strategy(strategy, temp)
 

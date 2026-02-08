@@ -166,10 +166,20 @@ class AttentionModel(DecodingMixin, nn.Module):
 
     @property
     def is_vrpp(self):
+        """Is vrpp.
+
+        Returns:
+            Any: Description.
+        """
         return is_vrpp_problem(self.problem)
 
     @property
     def is_wc(self):
+        """Is wc.
+
+        Returns:
+            Any: Description.
+        """
         return is_wc_problem(self.problem)
 
     def _init_components(

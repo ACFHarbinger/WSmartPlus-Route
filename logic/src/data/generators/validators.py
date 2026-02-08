@@ -1,3 +1,11 @@
+"""validators.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import validators
+    """
 import re
 from typing import Any, Dict
 

@@ -1,5 +1,17 @@
 """
-Mean and Standard Deviation based selection strategy module.
+Service Level Selection Strategy Module.
+
+This module implements a robust optimization strategy that selects bins
+to maintain a service level guarantee. It uses fill rate uncertainty (std dev)
+to ensure bins are collected before they have a high probability of overflow.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.must_go.selection_service_level import ServiceLevelSelection
+    >>> strategy = ServiceLevelSelection()
+    >>> bins = strategy.select_bins(context)
 """
 
 from typing import List

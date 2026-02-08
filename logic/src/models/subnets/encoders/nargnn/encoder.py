@@ -37,6 +37,23 @@ class NARGNNEncoder(NonAutoregressiveEncoder):
         k_sparse: Optional[int] = None,
         **kwargs,
     ) -> None:
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            env_name (str): Description of env_name.
+            init_embedding (Optional[nn.Module]): Description of init_embedding.
+            edge_embedding (Optional[nn.Module]): Description of edge_embedding.
+            graph_network (Optional[nn.Module]): Description of graph_network.
+            heatmap_generator (Optional[nn.Module]): Description of heatmap_generator.
+            num_layers_heatmap_generator (int): Description of num_layers_heatmap_generator.
+            num_layers_graph_encoder (int): Description of num_layers_graph_encoder.
+            act_fn (str): Description of act_fn.
+            agg_fn (str): Description of agg_fn.
+            linear_bias (bool): Description of linear_bias.
+            k_sparse (Optional[int]): Description of k_sparse.
+            kwargs (Any): Description of kwargs.
+        """
         super().__init__()
         self.env_name = env_name
 

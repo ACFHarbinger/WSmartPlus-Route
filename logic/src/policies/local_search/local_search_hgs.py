@@ -1,3 +1,18 @@
+"""
+HGS Local Search Module.
+
+This module provides the local search implementation specifically for
+Hybrid Genetic Search (HGS). It applies operators to HGS 'Individual' objects.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.local_search.local_search_hgs import HGSLocalSearch
+    >>> ls = HGSLocalSearch(dist_matrix, waste, capacity, R, C, params)
+    >>> improved_ind = ls.optimize(individual)
+"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Dict
@@ -24,6 +39,17 @@ class HGSLocalSearch(LocalSearch):
         C: float,
         params: "HGSParams",
     ):
+        """
+        Initialize HGS Local Search.
+
+        Args:
+            dist_matrix: Distance matrix.
+            waste: Dictionary of waste amounts for each node.
+            capacity: Vehicle capacity.
+            R: Parameter R.
+            C: Parameter C.
+            params: HGS parameters.
+        """
         super().__init__(dist_matrix, waste, capacity, R, C, params)
 
     def optimize(self, solution: "Individual") -> "Individual":

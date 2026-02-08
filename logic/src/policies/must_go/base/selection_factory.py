@@ -1,3 +1,17 @@
+"""
+Selection Factory Module.
+
+This module implements the Factory pattern for creating `MustGoSelectionStrategy`
+instances. It allows creating strategies by name or from a configuration object.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.must_go.base.selection_factory import MustGoSelectionFactory
+    >>> strategy = MustGoSelectionFactory.create_strategy("regular", threshold=2)
+"""
+
 from typing import Any, Optional, Type, cast
 
 from logic.src.interfaces.must_go import MustGoSelectionStrategy
