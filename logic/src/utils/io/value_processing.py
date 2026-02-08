@@ -27,7 +27,7 @@ def find_single_input_values(
         for k, v in data.items():
             new_path = f"{current_path}.{k}" if current_path else k
             if k == output_key:
-                results.append((new_path, v))
+                results.append((current_path if current_path else k, v))
             elif isinstance(v, (dict, list)):
                 results.extend(find_single_input_values(v, new_path, output_key))
     elif isinstance(data, list):
@@ -73,7 +73,19 @@ def find_two_input_values(
             val2_direct = input_key2
 
         if has_k1 and has_k2:
-            results.append((current_path, data[input_key1], val2_direct))
+            val1 = data[input_key1]
+            if isinstance(val1, (list, tuple)):
+                if isinstance(val2_direct, (list, tuple)) and len(val1) == len(val2_direct):
+                    for i, (v1, v2) in enumerate(zip(val1, val2_direct)):
+                        results.append((f"{current_path}[{i}]" if current_path else f"[{i}]", v1, v2))
+                else:
+                    for i, v1 in enumerate(val1):
+                        results.append((f"{current_path}[{i}]" if current_path else f"[{i}]", v1, val2_direct))
+            elif isinstance(val2_direct, (list, tuple)):
+                for i, v2 in enumerate(val2_direct):
+                    results.append((f"{current_path}[{i}]" if current_path else f"[{i}]", val1, v2))
+            else:
+                results.append((current_path, val1, val2_direct))
 
         for k, v in data.items():
             new_path = f"{current_path}.{k}" if current_path else k

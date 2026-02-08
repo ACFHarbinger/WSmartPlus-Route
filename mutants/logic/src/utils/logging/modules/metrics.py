@@ -1,6 +1,7 @@
 """
 Metrics logging for training (terminal, WandB, TensorBoard).
 """
+
 from typing import Any, Dict, List, Tuple
 
 import logic.src.constants as udef

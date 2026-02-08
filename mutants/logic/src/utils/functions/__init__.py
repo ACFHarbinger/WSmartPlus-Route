@@ -4,7 +4,8 @@ Mathematical and environment-related helper functions sub-package.
 
 # Re-exports from relocated packages for backward compatibility
 from ..hooks.attention import add_attention_hooks
-from ..model.loading import load_args, load_data, load_model, torch_load_cpu
+from ..model.checkpoint_utils import load_data
+from ..model.loader import load_args, load_model, torch_load_cpu
 from ..model.problem_factory import load_problem
 from ..model.processing import get_inner_model, parse_softmax_temperature
 from .parallel import run_all_in_pool

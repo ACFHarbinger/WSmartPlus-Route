@@ -5,7 +5,7 @@ Training engine for WSmart-Route.
 import torch
 from logic.src.configs import Config
 from logic.src.pipeline.callbacks import SpeedMonitor
-from logic.src.pipeline.features.train.model_factory import create_model
+from logic.src.pipeline.features.train.model_factory.builder import create_model
 from logic.src.pipeline.rl.common.trainer import WSTrainer
 from pytorch_lightning import seed_everything
 from pytorch_lightning.loggers import CSVLogger

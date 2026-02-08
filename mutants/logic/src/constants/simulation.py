@@ -1,6 +1,7 @@
 """
 Simulation and Physics constants.
 """
+
 from typing import Dict, List
 
 # Distance matrix

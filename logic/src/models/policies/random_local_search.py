@@ -106,7 +106,7 @@ class RandomLocalSearchPolicy(ImprovementPolicy):
         else:
             dist_matrix = locs
 
-        demands = td.get("demand", td.get("prize", torch.zeros(batch_size, num_nodes, device=device)))
+        waste = td.get("waste", torch.zeros(batch_size, num_nodes, device=device))
         capacity = td.get("capacity", torch.ones(batch_size, device=device))
 
         # 2. Prepare initial solutions (giant tours)
@@ -116,7 +116,7 @@ class RandomLocalSearchPolicy(ImprovementPolicy):
             solutions = torch.stack([torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)])
 
         # Convert to routed format initially
-        routes_list, _ = vectorized_linear_split(solutions, dist_matrix, demands, capacity)
+        routes_list, _ = vectorized_linear_split(solutions, dist_matrix, waste, capacity)
 
         # Create a padded route tensor (B, max_len)
         max_l = max(len(r) for r in routes_list)
@@ -163,14 +163,14 @@ class RandomLocalSearchPolicy(ImprovementPolicy):
         # RL4CO return format
         # We return the routed result as actions.
 
-        # Approximate rewards
-        R = getattr(env, "prize_weight", 1.0)
+        # Compute rewards (profit - cost)
+        R = getattr(env, "waste_weight", 1.0)
         C = getattr(env, "cost_weight", 1.0)
 
         all_rewards = []
         for b in range(batch_size):
             collected_nodes = set(current_routes[b].tolist()) - {0}
-            profit = sum(demands[b, node].item() * R for node in collected_nodes if node < num_nodes)
+            profit = sum(waste[b, node].item() * R for node in collected_nodes if node < num_nodes)
             cost = costs[b].item() * C
             all_rewards.append(torch.tensor(profit - cost, device=device))
 

@@ -1,4 +1,5 @@
-from .base import SimState, SimulationContext
+from .base import SimState
+from .context import SimulationContext
 
 __all__ = [
     "SimulationContext",

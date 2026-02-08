@@ -23,15 +23,9 @@ Common Components:
 -   `ActivationFunction`: Configurable activations.
 """
 
-from .absolute_positional_embedding import (
-    AbsolutePositionalEmbedding as AbsolutePositionalEmbedding,
-)
 from .activation_function import ActivationFunction as ActivationFunction
 from .cross_attention import (
     MultiHeadCrossAttention as MultiHeadCrossAttention,
-)
-from .cyclic_positional_embedding import (
-    CyclicPositionalEmbedding as CyclicPositionalEmbedding,
 )
 from .dynamic_hyper_connection import (
     DynamicHyperConnection as DynamicHyperConnection,
@@ -56,7 +50,6 @@ from .multi_head_attention import MultiHeadAttention as MultiHeadAttention
 from .normalization import Normalization as Normalization
 from .pointer_attn_moe import PointerAttnMoE
 from .polynet_attention import PolyNetAttention as PolyNetAttention
-from .positional_embedding_factory import pos_init_embedding as pos_init_embedding
 from .skip_connection import SkipConnection as SkipConnection
 from .static_hyper_connection import (
     StaticHyperConnection as StaticHyperConnection,

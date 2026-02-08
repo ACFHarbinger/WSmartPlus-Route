@@ -1,4 +1,5 @@
 """Main entry point for the GUI application."""
+
 import argparse
 import signal
 import sys

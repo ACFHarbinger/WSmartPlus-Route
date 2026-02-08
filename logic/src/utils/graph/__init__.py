@@ -27,6 +27,12 @@ from .generation import (
 from .generation import (
     get_edge_idx_dist as get_edge_idx_dist,
 )
+from .network_utils import (
+    apply_edges as apply_edges,
+)
+from .network_utils import (
+    get_paths_between_states as get_paths_between_states,
+)
 
 __all__ = [
     "find_longest_path",
@@ -38,4 +44,6 @@ __all__ = [
     "get_edge_idx_dist",
     "get_adj_knn",
     "get_adj_osm",
+    "get_paths_between_states",
+    "apply_edges",
 ]

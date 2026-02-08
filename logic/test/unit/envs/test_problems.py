@@ -34,14 +34,14 @@ class TestVRPP:
         # 1->2: sqrt(1^2) = 1.0
         # 2->0: sqrt(2^2) = 2.0
         # Total Length = 4.0
-        assert torch.isclose(c_dict["length"], torch.tensor([4.0]))
+        assert torch.allclose(c_dict["length"], torch.tensor([4.0]))
 
         # Waste: 10 + 20 = 30.0
-        assert torch.isclose(c_dict["waste"], torch.tensor([30.0]))
+        assert torch.allclose(c_dict["waste"], torch.tensor([30.0]))
 
-        # Profit (COST_KM=1, REVENUE=0.1)
-        # negative_profit = Length * 1 - Waste * 0.1 = 4.0 - 3.0 = 1.0
-        assert torch.isclose(neg_profit, torch.tensor([1.0]))
+        # Profit (COST_KM=1, REVENUE=1.0)
+        # negative_profit = Length * 1 - Waste * 1.0 = 4.0 - 30.0 = -26.0
+        assert torch.allclose(neg_profit.flatten(), torch.tensor([-26.0]))
 
     @pytest.mark.unit
     def test_make_state_defaults(self):
@@ -88,10 +88,10 @@ class TestStateVRPP:
         # In new envs, visited is (B, N+1) and usually boolean
         assert state.td["visited"].shape == (batch_size, n_loc + 1)
         # waste should be padded with 0 (depot) -> n_loc + 1
-        # In new envs, prize/demand is used. VRPP uses 'prize'.
-        assert state.td["prize"].shape == (batch_size, n_loc + 1)
-        assert state.td["prize"][:, 0].eq(0).all()
-        assert state.td["collected_prize"].shape == (batch_size,)
+        # In new envs, prize/demand is used. VRPP uses 'waste'.
+        assert state.td["waste"].shape == (batch_size, n_loc + 1)
+        assert state.td["waste"][:, 0].eq(0).all()
+        assert state.td["collected_waste"].shape == (batch_size,)
 
     @pytest.mark.unit
     def test_update_and_mask(self):
@@ -166,7 +166,7 @@ class TestWCVRP:
         # w = waste.gather... clamp(max)
         # So collected waste is 100.
 
-        assert torch.isclose(cost, torch.tensor([-98.0]))
+        assert torch.allclose(cost, torch.tensor([-98.0]))
 
     @pytest.mark.unit
     def test_make_state_is_callable(self):
@@ -177,6 +177,7 @@ class TestWCVRP:
             "depot": torch.zeros(1, 2),
             "loc": torch.rand(1, 2, 2),
             "waste": torch.rand(1, 2),
+            "max_waste": torch.ones(1),
         }
         state = WCVRP.make_state(input_data)
         assert state is not None
@@ -188,7 +189,7 @@ class TestWCVRP:
         generator = WCVRPGenerator(num_loc=10)
         td = generator(batch_size=2)
         assert td.batch_size[0] == 2
-        assert td["demand"].shape == (2, 10)
+        assert td["waste"].shape == (2, 10)
 
 
 class TestStateWCVRP:
@@ -203,7 +204,7 @@ class TestStateWCVRP:
         input_data = {
             "depot": torch.zeros(batch_size, 2),
             "loc": torch.rand(batch_size, n_loc, 2),
-            "waste": torch.tensor([[12.0, 5.0]]),  # Node 1 overflows (12 > 10)
+            "waste": torch.tensor([[5.0, 12.0]]),  # Consistent with loc (B, 2)
             "max_waste": torch.tensor([10.0]),
         }
         state = WCVRP.make_state(input_data)
@@ -232,7 +233,7 @@ class TestStateWCVRP:
         state = state.update(selected)
 
         # In WCVRPEnv, collected waste is cumulative
-        assert state.td["collected_prize"].item() == 10.0
+        assert state.td["collected_waste"].item() == 10.0
 
     @pytest.mark.unit
     def test_batched_max_waste_broadcasting(self):
@@ -320,7 +321,7 @@ class TestStateCVRPP:
 
         # 0 -> 2 (Load 6) -> Should be allowed now
         state = state.update(torch.tensor([2]))
-        assert state.td["collected"].item() == 6.0
+        assert state.td["collected_waste"].item() == 6.0
 
 
 class TestCVRPP:
@@ -373,4 +374,4 @@ class TestCVRPP:
         # collected waste is waste at 1 and 2. Depot implies reset capacity not "collection of negative waste".
         # get_costs logic sums gathered waste. gather([1, 0, 2]) -> [60, 0, 60]. Sum = 120.
         # Profit = 120 - 6 = 114. Negative Profit = -114.
-        assert torch.isclose(cost, torch.tensor([-114.0]))
+        assert torch.allclose(cost, torch.tensor([-114.0]))

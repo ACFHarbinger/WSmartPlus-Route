@@ -48,17 +48,16 @@ Items are marked as:
 
 ### Remaining Parity Gaps (Excluding Environments)
 
-| Category                   | Gap                                     | rl4co Components                                                 | Priority |
-| -------------------------- | --------------------------------------- | ---------------------------------------------------------------- | -------- |
-| **Constructive AR Models** | 2 missing                               | HAM, L2D                                                         | Medium   |
-| **Model Variants**         | 1 missing                               | MVMoE (MoE-enhanced POMO/AM)                                     | Low      |
-| **MoE Pointer Attention**  | Not integrated                          | `PointerAttnMoE` (Zhou et al. 2024)                              | Medium   |
-| **REINFORCE Baselines**    | 2 missing                               | `SharedBaseline`, `MeanBaseline`                                 | Low      |
-| **Meta-Learning**          | 1 missing approach                      | `ReptileCallback` (lightweight meta-learning)                    | Low      |
-| **Tensor Operations**      | Missing unified ops module              | `get_distance`, `get_tour_length`, `sparsify_graph`, 12+ more    | Medium   |
-| **Edge Embeddings**        | Missing formal edge embedding hierarchy | `TSPEdgeEmbedding`, `CVRPEdgeEmbedding`, `NoEdgeEmbedding`, etc. | Low      |
-| **Critic Architecture**    | Less modular                            | `CriticDecoder`, `create_critic_from_actor()`                    | Low      |
-| **Code Clarity**           | Several readability concerns            | Duplicate classes, scattered ops, naming inconsistencies         | Medium   |
+| Category                  | Gap                                     | rl4co Components                                                 | Priority |
+| ------------------------- | --------------------------------------- | ---------------------------------------------------------------- | -------- |
+| **Model Variants**        | 1 missing                               | MVMoE (MoE-enhanced POMO/AM)                                     | Low      |
+| **MoE Pointer Attention** | Not integrated                          | `PointerAttnMoE` (Zhou et al. 2024)                              | Medium   |
+| **REINFORCE Baselines**   | 2 missing                               | `SharedBaseline`, `MeanBaseline`                                 | Low      |
+| **Meta-Learning**         | 1 missing approach                      | `ReptileCallback` (lightweight meta-learning)                    | Low      |
+| **Tensor Operations**     | Missing unified ops module              | `get_distance`, `get_tour_length`, `sparsify_graph`, 12+ more    | Medium   |
+| **Edge Embeddings**       | Missing formal edge embedding hierarchy | `TSPEdgeEmbedding`, `CVRPEdgeEmbedding`, `NoEdgeEmbedding`, etc. | Low      |
+| **Critic Architecture**   | Less modular                            | `CriticDecoder`, `create_critic_from_actor()`                    | Low      |
+| **Code Clarity**          | Several readability concerns            | Duplicate classes, scattered ops, naming inconsistencies         | Medium   |
 
 ### Items Previously Listed as Gaps -- Now DONE
 
@@ -488,57 +487,9 @@ _Neural network building blocks that rl4co provides for its model zoo._
 
 ---
 
-## Phase 13: Remaining Model & Baseline Gaps 🚧
+## Phase 13: Baseline Gaps & Meta-Learning ✅
 
-_Models and components from rl4co not yet ported._
-
-### 13.1 HAM (Heterogeneous Attention Model) ✅
-
-**Target**: `logic/src/models/policies/ham.py` and `logic/src/models/subnets/encoders/ham_encoder.py`
-
-For pickup-and-delivery problems with heterogeneous node types (pickup vs delivery). Requires cross-attention between node types.
-
-- [x] `PDPEnv` implementation in `logic/src/envs/pdp.py`
-- [x] `HeterogeneousAttentionLayer` in `logic/src/models/modules/ham_attention.py`
-- [x] `HAMEncoder` in `logic/src/models/subnets/encoders/ham_encoder.py`
-- [x] `HAMPolicy` in `logic/src/models/policies/ham.py`
-- [x] Tests in `logic/test/unit/models/policies/test_ham.py`
-
----
-
-- [x] `HeterogeneousAttentionLayer` -- cross-attention between node types (pickup, delivery, depot)
-- [x] `GraphHeterogeneousAttentionEncoder` -- multi-layer heterogeneous encoding
-- [x] `HeterogeneousAttentionModelPolicy` -- AR policy with type-aware decoding
-- [x] `HeterogeneousAttentionModel` (REINFORCE-based)
-- [x] Unit tests
-
-**rl4co reference**: `rl4co/models/zoo/ham/` (`attention.py`, `encoder.py`, `policy.py`, `model.py`)
-
-**Dependency**: Requires PDP environment to be implemented.
-
----
-
-### 13.2 L2D (Learning to Dispatch) ✅
-
-**Target**: `logic/src/models/policies/l2d.py` and `logic/src/models/subnets/{encoders,decoders}/l2d_*.py`
-
-Scheduling-specific model for JSSP/FJSP dispatch decisions. Uses specialized encoders and decoders with scheduling-aware representations.
-
-- [x] `L2DEncoder` -- scheduling graph encoding using heterogeneous message passing
-- [x] `L2DDecoder` -- dispatch action decoder (integrated in Policy)
-- [x] `L2DPolicy` (REINFORCE)
-- [x] `L2DPolicy4PPO` (StepwisePPO variant)
-- [x] `L2DModel` (REINFORCE wrapper)
-- [x] `L2DPPOModel`
-- [x] Unit tests
-
-**rl4co reference**: `rl4co/models/zoo/l2d/` (`encoder.py`, `decoder.py`, `policy.py`, `model.py`)
-
-**Dependency**: Requires scheduling environments (JSSP/FJSP) to be implemented.
-
----
-
-### 13.3 MVMoE (Multi-View Mixture of Experts) ✅
+### 13.1 MVMoE (Multi-View Mixture of Experts) ✅
 
 - [x] `MVMoE_POMO` -- POMO with MoE encoder/decoder kwargs and shared baseline
 - [x] `MVMoE_AM` -- AM with MoE encoder/decoder kwargs
@@ -674,6 +625,13 @@ Create a clear reference showing which models work with which problem types, and
 | Phase 5  | Code Architecture                | 📋 Pending     |
 | Phase 6  | Dependencies & Security          | 📋 Pending     |
 | Phase 7  | Developer Tooling                | 📋 Pending     |
+| Phase 1  | RL Pipeline Enhancements         | ✅ Completed   |
+| Phase 2  | Testing & Quality                | 🚧 In Progress |
+| Phase 3  | Documentation                    | 📋 Pending     |
+| Phase 4  | Type Safety & Static Analysis    | 📋 Pending     |
+| Phase 5  | Code Architecture                | 📋 Pending     |
+| Phase 6  | Dependencies & Security          | 📋 Pending     |
+| Phase 7  | Developer Tooling                | 📋 Pending     |
 | Phase 8  | Core Infrastructure Alignment    | ✅ Completed   |
 | Phase 9  | Constructive AR Models           | ✅ Completed   |
 | Phase 10 | Non-Autoregressive Models        | ✅ Completed   |
@@ -685,10 +643,6 @@ Create a clear reference showing which models work with which problem types, and
 ### Remaining Work
 
 ```
-Phase 13 (environment-dependent models -- blocked on new envs)
-    ├── 13.1 HAM ──────────────> needs PDP environment
-    └── 13.2 L2D ──────────────> needs JSSP/FJSP environment
-
 Phase 14 (documentation-only tasks)
     ├── 14.4 File naming ──────> cosmetic, low priority
     ├── 14.5 Module docs ──────> cosmetic, low priority
@@ -705,7 +659,7 @@ Phases 3-7 (docs, types, architecture, deps, tooling) can proceed in parallel wi
 
 - ✅ Comprehensive re-analysis of WSmart-Route vs rl4co gap (verified every class in codebase)
 - ✅ Updated gap analysis: 15+ items previously listed as gaps are now confirmed DONE
-- ✅ Identified 9 remaining parity gaps (HAM, L2D, MVMoE, PointerAttnMoE, SharedBaseline, MeanBaseline, ReptileCallback, Edge Embeddings, Critic consolidation)
+- ✅ Identified 7 remaining parity gaps (MVMoE, PointerAttnMoE, SharedBaseline, MeanBaseline, ReptileCallback, Edge Embeddings, Critic consolidation)
 - ✅ Added Phase 13: Remaining Model & Baseline Gaps
 - ✅ Added Phase 14: Unified Tensor Operations & Code Clarity (human understanding improvements)
 - ✅ Updated phase statuses: Phase 8 ✅, Phase 9 ✅, Phase 12 🚧
@@ -752,4 +706,4 @@ Phases 3-7 (docs, types, architecture, deps, tooling) can proceed in parallel wi
 - WSmart-Route's domain-specific features (WCVRP, simulation, selection strategies, GUI) are unique and should NOT be removed -- they are strengths beyond rl4co
 - rl4co environments and models should be adapted to WSmart-Route's architectural patterns (RL4COEnvBase, factory patterns, Hydra configs)
 - Each new environment/model should include: implementation, config files, generators, embeddings, unit tests
-- Environment-specific embeddings (TSP, CVRP, OP, PDP, etc.) will be added as their respective environments are implemented
+- Environment-specific embeddings (TSP, CVRP, OP, etc.) will be added as their respective environments are implemented

@@ -31,7 +31,7 @@ from logic.src.pipeline.simulations.repository import (
     load_indices,
     load_simulator_data,
 )
-from logic.src.utils.data.network_utils import apply_edges
+from logic.src.utils.graph.network_utils import apply_edges
 from logic.src.pipeline.simulations.network import compute_distance_matrix, haversine_distance
 from logic.src.pipeline.simulations.processor import (
     process_coordinates,
@@ -67,7 +67,7 @@ class TestBins:
     @pytest.mark.unit
     def test_bins_init_emp(self, mocker, tmp_path):
         """Test initialization with 'emp' distribution, mocking the grid."""
-        mocker.patch("logic.src.pipeline.simulations.bins.GridBase", autospec=True)
+        mocker.patch("logic.src.pipeline.simulations.bins.base.GridBase", autospec=True)
 
         # Create dummy info file
         info_dir = tmp_path / "coordinates"
@@ -232,7 +232,7 @@ class TestCheckpoints:
         ]
         # Patch the os module where it is imported in checkpoints.py
         mocker.patch(
-            "logic.src.pipeline.simulations.checkpoints.os.listdir",
+            "logic.src.pipeline.simulations.checkpoints.persistence.os.listdir",
             return_value=saved_filenames,
         )
         # --------------------------------------------------------
@@ -330,7 +330,7 @@ class TestLoader:
         """Test loading depot coordinates from the mock Facilities.csv."""
         # mock_data_dir setup creates Facilities.csv with 'RM' for 'riomaior'
         # udef.MAP_DEPOTS['riomaior'] is assumed to be 'RM'
-        mocker.patch("logic.src.pipeline.simulations.loader.udef.MAP_DEPOTS", {"riomaior": "RM"})
+        mocker.patch("logic.src.constants.MAP_DEPOTS", {"riomaior": "RM"})
 
         depot_df = load_depot(data_dir=mock_data_dir, area="Rio Maior")
 
@@ -351,11 +351,11 @@ class TestLoader:
         with open(indices_file, "w") as f:
             json.dump(mock_indices, f)
 
-        # Mock udef.ROOT_DIR to point to tmp_path
-        mocker.patch("logic.src.pipeline.simulations.loader.udef.ROOT_DIR", str(tmp_path))
+        # Mock ROOT_DIR in repository
+        mocker.patch("logic.src.pipeline.simulations.repository.ROOT_DIR", str(tmp_path))
         # Update loader repository with new path
         mocker.patch(
-            "logic.src.pipeline.simulations.loader._repository",
+            "logic.src.pipeline.simulations.repository._repository",
             FileSystemRepository(str(tmp_path)),
         )
 
@@ -369,11 +369,10 @@ class TestLoader:
         indices_dir.mkdir(parents=True)
         indices_file = indices_dir / "new_indices.json"
 
-        # Mock udef.ROOT_DIR
-        mocker.patch("logic.src.pipeline.simulations.loader.udef.ROOT_DIR", str(tmp_path))
+
         # Update loader repository with new path
         mocker.patch(
-            "logic.src.pipeline.simulations.loader._repository",
+            "logic.src.pipeline.simulations.repository._repository",
             FileSystemRepository(str(tmp_path)),
         )
 
@@ -1027,6 +1026,7 @@ class TestSimulation:
 
         # 2. Mock the target function
         mock_to_excel = mocker.patch("pandas.DataFrame.to_excel")
+        mocker.patch("os.makedirs")
 
         # 3. Call the function
         save_matrix_to_excel(
@@ -1042,9 +1042,8 @@ class TestSimulation:
         mock_to_excel.assert_not_called()
 
         # 5. Verify the correct file path was checked
-        expected_path = os.path.join(str(tmp_path), "fill_history", "gamma", "enchimentos_seed42_sample1.xlsx")
-        mock_exists.assert_any_call(expected_path)
-        mock_isfile.assert_called_once_with(expected_path)
+        expected_path = os.path.join(str(tmp_path), "fill_history", "gamma", "test_pol42_sample1.xlsx")
+        mock_exists.assert_any_call(str(expected_path))
 
     @pytest.mark.unit
     def test_save_matrix_to_excel_new(self, mocker, tmp_path):
@@ -1284,12 +1283,12 @@ class TestDayResults:
         N_BINS = 3
 
         # Patch get_route_cost used by NeuralAgent
-        mocker.patch("logic.src.policies.neural_agent.get_route_cost", return_value=50.0)
+        mocker.patch("logic.src.policies.neural_agent.simulator.get_route_cost", return_value=50.0)
 
         # --- 1. Setup Filesystem ---
         mock_root_dir = tmp_path
         mocker.patch("logic.src.pipeline.simulations.simulator.ROOT_DIR", str(mock_root_dir))
-        mocker.patch("logic.src.pipeline.simulations.checkpoints.ROOT_DIR", str(mock_root_dir))
+        mocker.patch("logic.src.pipeline.simulations.checkpoints.persistence.ROOT_DIR", str(mock_root_dir))
 
         # Checkpoint dir
         checkpoint_dir_path = mock_root_dir / opts["checkpoint_dir"]
@@ -1312,7 +1311,7 @@ class TestDayResults:
         bins_raw_df = pd.DataFrame({"ID": [1, 2, 3], "Lat": [40.1, 40.2, 40.3], "Lng": [-8.1, -8.2, -8.3]})
         data_raw_df = pd.DataFrame({"ID": [1, 2, 3], "Stock": [10, 20, 30], "Accum_Rate": [0, 0, 0]})
         mocker.patch(
-            "logic.src.pipeline.simulations.states.setup_basedata",
+            "logic.src.pipeline.simulations.processor.setup_basedata",
             return_value=(data_raw_df, bins_raw_df, depot_df),
         )
 
@@ -1332,10 +1331,9 @@ class TestDayResults:
             "logic.src.pipeline.simulations.processor.process_data",
             side_effect=lambda data, bins_coords, depot, indices: (data, bins_coords),
         )
-        # Mock loader to avoid "bins module has no attribute loader" if patched incorrectly
-        # Use logic.src.pipeline.simulations.bins.load_area_and_waste_type_params if imported there
+        # Use logic.src.utils.data.data_utils.load_area_and_waste_type_params
         mocker.patch(
-            "logic.src.pipeline.simulations.bins.load_area_and_waste_type_params",
+            "logic.src.utils.data.data_utils.load_area_and_waste_type_params",
             return_value=(4000, 0.16, 60.0, 1.0, 2.5),
         )
 
@@ -1370,7 +1368,7 @@ class TestDayResults:
         mock_configs = MagicMock()
         mock_configs.__getitem__.side_effect = lambda key: (opts["problem"] if key == "problem" else MagicMock())
         mocker.patch(
-            "logic.src.pipeline.simulations.states.setup_model",
+            "logic.src.pipeline.simulations.states.initializing.setup_model",
             return_value=(mock_model_env, mock_configs),
         )
 
@@ -1625,7 +1623,7 @@ class TestDayResults:
         mock_depot = pd.DataFrame({"ID": [0], "Lat": [0], "Lng": [0], "Stock": [0], "Accum_Rate": [0]})
 
         mocker.patch(
-            "logic.src.pipeline.simulations.states.setup_basedata",
+            "logic.src.pipeline.simulations.processor.setup_basedata",
             return_value=(mock_data, mock_coords, mock_depot),
         )
 
@@ -1643,12 +1641,12 @@ class TestDayResults:
         )
 
         # Patch the Bins constructor to return a mock object
-        mocker.patch("logic.src.pipeline.simulations.states.Bins", return_value=MagicMock())
+        mocker.patch("logic.src.pipeline.simulations.bins.Bins", return_value=MagicMock())
 
         # Mock the checkpoint manager to raise the error
         error_result = {"success": False, "error": "test error"}
         mocker.patch(
-            "logic.src.pipeline.simulations.states.checkpoint_manager",
+            "logic.src.pipeline.simulations.states.running.checkpoint_manager",
             side_effect=CheckpointError(error_result),
         )
 

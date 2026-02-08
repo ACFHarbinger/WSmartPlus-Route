@@ -37,13 +37,11 @@ def setup_model_and_baseline(
         TemporalAttentionModel,
         WarmupBaseline,
     )
-    from logic.src.models.model_factory import (
-        AttentionComponentFactory,
-        GACComponentFactory,
-        GCNComponentFactory,
-        GGACComponentFactory,
-        TGCComponentFactory,
-    )
+    from logic.src.models.subnets.factories.attention import AttentionComponentFactory
+    from logic.src.models.subnets.factories.gac import GACComponentFactory
+    from logic.src.models.subnets.factories.gcn import GCNComponentFactory
+    from logic.src.models.subnets.factories.ggac import GGACComponentFactory
+    from logic.src.models.subnets.factories.tgc import TGCComponentFactory
 
     factory_cls: Optional[Type[Any]] = {
         "gat": AttentionComponentFactory,

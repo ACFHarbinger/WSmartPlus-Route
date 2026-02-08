@@ -2,8 +2,8 @@ from typing import Tuple
 
 import torch
 
-from .cluster import Cluster
-from .mixed import Mixed
+from .spatial_cluster import Cluster
+from .spatial_mixed import Mixed
 
 
 class Mix_Distribution:

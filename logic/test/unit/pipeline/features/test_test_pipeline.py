@@ -31,11 +31,11 @@ class TestPipelineFeaturesTest:
             "lookahead_configs": [1],
         }
 
-    @patch("logic.src.pipeline.features.test.udef")
-    @patch("logic.src.pipeline.features.test.load_indices")
-    @patch("logic.src.pipeline.features.test.sequential_simulations")
-    @patch("logic.src.pipeline.features.test.send_final_output_to_gui")
-    @patch("logic.src.pipeline.features.test.display_log_metrics")
+    @patch("logic.src.pipeline.features.test.orchestrator.udef")
+    @patch("logic.src.pipeline.features.test.orchestrator.load_indices")
+    @patch("logic.src.pipeline.features.test.orchestrator.sequential_simulations")
+    @patch("logic.src.pipeline.features.test.orchestrator.send_final_output_to_gui")
+    @patch("logic.src.pipeline.features.test.orchestrator.display_log_metrics")
     def test_simulator_testing_sequential(self, mock_display, mock_send, mock_seq, mock_load, mock_udef, opts):
         # Configure mocks
         # Bottom-Up Mapping:
@@ -71,12 +71,12 @@ class TestPipelineFeaturesTest:
         assert mock_send.called
         assert mock_display.called
 
-    @patch("logic.src.pipeline.features.test.udef")
-    @patch("logic.src.pipeline.features.test.load_indices")
-    @patch("logic.src.pipeline.features.test.ThreadPool")
-    @patch("logic.src.pipeline.features.test.output_stats")
-    @patch("logic.src.pipeline.features.test.send_final_output_to_gui")
-    @patch("logic.src.pipeline.features.test.display_log_metrics")
+    @patch("logic.src.pipeline.features.test.orchestrator.udef")
+    @patch("logic.src.pipeline.features.test.orchestrator.load_indices")
+    @patch("logic.src.pipeline.features.test.orchestrator.ThreadPool")
+    @patch("logic.src.pipeline.features.test.orchestrator.output_stats")
+    @patch("logic.src.pipeline.features.test.orchestrator.send_final_output_to_gui")
+    @patch("logic.src.pipeline.features.test.orchestrator.display_log_metrics")
     def test_simulator_testing_parallel(
         self, mock_display, mock_send, mock_out_stats, mock_pool, mock_load, mock_udef, opts
     ):
@@ -121,9 +121,9 @@ class TestPipelineFeaturesTest:
 
             assert pool_instance.apply_async.called
 
-    @patch("logic.src.pipeline.features.test.load_simulator_data")
-    @patch("logic.src.pipeline.features.test.simulator_testing")
-    @patch("os.makedirs")
+    @patch("logic.src.pipeline.features.test.engine.load_simulator_data")
+    @patch("logic.src.pipeline.features.test.engine.simulator_testing")
+    @patch("logic.src.pipeline.features.test.engine.os.makedirs")
     def test_run_wsr_simulator_test(self, mock_makedirs, mock_sim_test, mock_load_data, opts):
         mock_load_data.return_value = ([1] * 10, None)  # 10 bins
 
@@ -141,9 +141,9 @@ class TestPipelineFeaturesTest:
 
     def test_run_wsr_simulator_test_fallback(self, opts):
         # Test fallback logic if load_simulator_data fails
-        with patch("logic.src.pipeline.features.test.load_simulator_data", side_effect=Exception("Fail")):
-            with patch("logic.src.pipeline.features.test.simulator_testing") as mock_sim_test:
-                with patch("os.makedirs"):
+        with patch("logic.src.pipeline.features.test.engine.load_simulator_data", side_effect=Exception("Fail")):
+            with patch("logic.src.pipeline.features.test.engine.simulator_testing") as mock_sim_test:
+                with patch("logic.src.pipeline.features.test.engine.os.makedirs"):
                     opts["area"] = "mixrmbac"
                     opts["size"] = 20
                     run_sim_test_func(opts)

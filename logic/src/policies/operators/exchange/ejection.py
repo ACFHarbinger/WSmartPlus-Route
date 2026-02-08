@@ -57,7 +57,7 @@ def _try_insert_with_chain(
     if depth <= 0:
         return False
 
-    node_demand = ls.demands.get(node, 0)
+    node_waste = ls.waste.get(node, 0)
 
     # Find best insertion
     best_cost = float("inf")
@@ -68,7 +68,7 @@ def _try_insert_with_chain(
             continue
 
         load = ls._calc_load_fresh(route)
-        if load + node_demand > ls.Q:
+        if load + node_waste > ls.Q:
             continue
 
         for pos in range(len(route) + 1):
@@ -93,11 +93,11 @@ def _try_insert_with_chain(
 
         # Try ejecting a node from this route
         for eject_pos, eject_node in enumerate(route):
-            eject_demand = ls.demands.get(eject_node, 0)
+            eject_waste = ls.waste.get(eject_node, 0)
             load = ls._calc_load_fresh(route)
 
             # Check if we can fit the new node after ejection
-            if load - eject_demand + node_demand > ls.Q:
+            if load - eject_waste + node_waste > ls.Q:
                 continue
 
             # Eject and try to reinsert recursively

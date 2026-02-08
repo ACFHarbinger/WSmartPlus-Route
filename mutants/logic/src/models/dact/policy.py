@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from .common.improvement import ImprovementPolicy
-from .dact_decoder import DACTDecoder
-from .dact_encoder import DACTEncoder
+from ..common.improvement_policy import ImprovementPolicy
+from .decoder import DACTDecoder
+from .encoder import DACTEncoder
 
 
 class DACTPolicy(ImprovementPolicy):

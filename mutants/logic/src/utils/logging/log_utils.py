@@ -2,6 +2,7 @@
 Logging systems for terminal, file, and GUI communication.
 This module acts as a facade, delegating to specialized sub-modules.
 """
+
 from .modules.analysis import (
     final_simulation_summary,
     load_log_dict,

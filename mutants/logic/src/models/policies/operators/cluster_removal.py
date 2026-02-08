@@ -19,12 +19,14 @@ def vectorized_cluster_removal(tours, dist_matrix, n_remove):
     # 3. Take n_remove nearest nodes
     _, remove_idx = torch.topk(tour_distances, n_remove, dim=1, largest=False)
 
-    # 4. Create mask and partial tours
+    # 4. Create mask and collapse
     mask = torch.ones_like(tours, dtype=torch.bool)
     mask[batch_indices[:, :n_remove], remove_idx] = False
 
     removed_nodes = torch.gather(tours, 1, remove_idx)
-    partial_tours = tours.clone()
-    partial_tours[~mask] = -1
 
-    return partial_tours, removed_nodes
+    # Compress tours (remove marked nodes)
+    # Since we remove exactly n_remove nodes from each row, we can reshape safely
+    new_tours = tours[mask].view(B, N - n_remove)
+
+    return new_tours, removed_nodes

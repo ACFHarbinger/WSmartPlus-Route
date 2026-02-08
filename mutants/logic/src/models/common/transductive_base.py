@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 from abc import ABC
 from typing import Any, Dict, Optional
 
@@ -64,7 +63,9 @@ class TransductiveModel(nn.Module, ABC):
             Dictionary containing final results (reward, actions, etc.).
         """
         # Save original state to restore after search
-        original_state = copy.deepcopy(self.model.state_dict())
+        # Save original state to restore later
+        # Use manual copy to avoid recursion in deepcopy with complex models
+        original_state = {k: v.cpu().detach().clone() for k, v in self.model.state_dict().items()}
 
         optimizer = self._setup_optimizer(self._get_search_params())
 
@@ -102,16 +103,34 @@ class TransductiveModel(nn.Module, ABC):
 
             # Update best found
             if best_reward is None:
-                best_reward = reward.clone()
-                best_actions = actions.clone() if actions is not None else None
+                best_reward = reward.detach().clone()
+                best_actions = actions.detach().clone() if actions is not None else None
             else:
                 better = reward > best_reward
-                best_reward = torch.where(better, reward, best_reward)
+                best_reward = torch.where(better, reward.detach(), best_reward)
                 if best_actions is not None and actions is not None:
+                    # Handle different sequence lengths by padding
+                    if actions.size(1) != best_actions.size(1):
+                        max_len = max(actions.size(1), best_actions.size(1))
+                        # Pad with 0 (depot)
+                        if actions.size(1) < max_len:
+                            padding = torch.zeros(
+                                actions.size(0), max_len - actions.size(1), dtype=actions.dtype, device=actions.device
+                            )
+                            actions = torch.cat([actions, padding], dim=1)
+                        if best_actions.size(1) < max_len:
+                            padding = torch.zeros(
+                                best_actions.size(0),
+                                max_len - best_actions.size(1),
+                                dtype=best_actions.dtype,
+                                device=best_actions.device,
+                            )
+                            best_actions = torch.cat([best_actions, padding], dim=1)
+
                     # For actions, we need to mask correctly
                     # actions: [B, seq_len]
                     better_expanded = better.view(-1, 1).expand_as(best_actions)
-                    best_actions = torch.where(better_expanded, actions, best_actions)
+                    best_actions = torch.where(better_expanded, actions.detach(), best_actions)
 
             # Compute loss (REINFORCE with best-so-far baseline)
             # Minimize -(reward - best_reward) * log_p

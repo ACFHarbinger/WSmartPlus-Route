@@ -14,8 +14,8 @@ from logic.src.utils.logging.plot_utils import (
     plot_attention_maps_wrapper
 )
 
-@patch("logic.src.utils.logging.plot_utils.plt")
-@patch("logic.src.utils.logging.plot_utils.nx")
+@patch("logic.src.utils.logging.plotting.routes.plt")
+@patch("logic.src.utils.logging.plotting.routes.nx")
 def test_draw_graph(mock_nx, mock_plt):
     """Test graph drawing calls."""
     dm = np.zeros((3, 3))
@@ -23,7 +23,7 @@ def test_draw_graph(mock_nx, mock_plt):
     assert mock_nx.from_numpy_array.called
     assert mock_plt.show.called
 
-@patch("logic.src.utils.logging.plot_utils.plt")
+@patch("logic.src.utils.logging.plotting.charts.plt")
 def test_plot_linechart_simple(mock_plt):
     """Test generic line chart plotting."""
     log = np.random.randn(5, 6) # 2D log (single policy)
@@ -32,7 +32,7 @@ def test_plot_linechart_simple(mock_plt):
     assert plot_func.called
     assert mock_plt.savefig.called
 
-@patch("logic.src.utils.logging.plot_utils.plt")
+@patch("logic.src.utils.logging.plotting.charts.plt")
 def test_plot_linechart_pareto(mock_plt):
     """Test Pareto front calculation and plotting."""
     # Data: (x, y) where x is col 0, y is col 5
@@ -61,9 +61,9 @@ def test_discrete_cmap():
     cmap = discrete_cmap(5, "viridis")
     assert cmap.N == 5
 
-@patch("logic.src.utils.logging.plot_utils.plt.cm.get_cmap", side_effect=plt.cm.get_cmap)
-@patch("logic.src.utils.logging.plot_utils.plt.figure")
-@patch("logic.src.utils.logging.plot_utils.PatchCollection")
+@patch("logic.src.utils.logging.plotting.routes.plt.cm.get_cmap", side_effect=plt.cm.get_cmap)
+@patch("logic.src.utils.logging.plotting.routes.plt.figure")
+@patch("logic.src.utils.logging.plotting.routes.PatchCollection")
 def test_plot_vehicle_routes(mock_pc, mock_fig, mock_get_cmap):
     """Test VRP route visualization."""
     data = {
@@ -78,8 +78,8 @@ def test_plot_vehicle_routes(mock_pc, mock_fig, mock_get_cmap):
     assert ax.quiver.called
     assert mock_pc.called
 
-@patch("logic.src.utils.logging.plot_utils.plt")
-@patch("logic.src.utils.logging.plot_utils.sns")
+@patch("logic.src.utils.logging.plotting.attention.plt")
+@patch("logic.src.utils.logging.plotting.attention.sns")
 def test_plot_attention_maps(mock_sns, mock_plt, tmp_path):
     """Test attention map wrapper."""
     # attention_weights shape: [layers, heads, batch, size, size]

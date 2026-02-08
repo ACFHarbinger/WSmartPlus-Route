@@ -4,7 +4,7 @@ import pytest
 from logic.src.policies.selection.selection_last_minute import LastMinuteSelection
 from logic.src.policies.selection.selection_service_level import ServiceLevelSelection
 from logic.src.policies.selection.selection_revenue import RevenueThresholdSelection
-from logic.src.policies.must_go_selection import SelectionContext
+from logic.src.policies.selection.base.selection_context import SelectionContext
 
 @pytest.fixture
 def base_context():

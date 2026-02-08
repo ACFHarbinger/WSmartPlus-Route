@@ -36,9 +36,9 @@ class ForwardMixin:
             input: The input data dictionary.
 
         Returns:
-            Initial node embeddings.
+            Tuple containing (initial node embeddings, initial context).
         """
-        return self.context_embedder(input)
+        return self.context_embedder(input), None
 
     def forward(
         self,
@@ -111,9 +111,12 @@ class ForwardMixin:
 
         if _log_p is not None:
             out["log_likelihood"] = _log_p
+            out["log_p"] = _log_p
 
-        if return_pi and pi is not None:
-            out["pi"] = pi
+        if pi is not None:
+            out["actions"] = pi
+            if return_pi:
+                out["pi"] = pi
 
         return out
 

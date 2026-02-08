@@ -4,14 +4,14 @@ import torch
 from torch import Tensor
 
 
-def vectorized_worst_removal(tours: Tensor, n_remove: int, dist_matrix: Tensor) -> Tuple[Tensor, Tensor]:
+def vectorized_worst_removal(tours: Tensor, dist_matrix: Tensor, n_remove: int) -> Tuple[Tensor, Tensor]:
     """
     Vectorized worst removal (highest saving).
 
     Args:
         tours (Tensor): (B, N)
-        n_remove (int): Number to remove
         dist_matrix (Tensor): (B, N_all, N_all) or (1, N_all, N_all)
+        n_remove (int): Number to remove
 
     Returns:
         Tuple[Tensor, Tensor]: New tours, Removed nodes

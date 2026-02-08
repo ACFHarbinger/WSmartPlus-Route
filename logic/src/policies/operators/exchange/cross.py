@@ -44,14 +44,14 @@ def cross_exchange(
     seg_b = route_b[seg_b_start : seg_b_start + seg_b_len]
 
     # Check capacity feasibility
-    demand_a = sum(ls.demands.get(n, 0) for n in seg_a)
-    demand_b = sum(ls.demands.get(n, 0) for n in seg_b)
+    waste_a = sum(ls.waste.get(n, 0) for n in seg_a)
+    waste_b = sum(ls.waste.get(n, 0) for n in seg_b)
 
     load_a = ls._calc_load_fresh(route_a)
     load_b = ls._calc_load_fresh(route_b)
 
-    new_load_a = load_a - demand_a + demand_b
-    new_load_b = load_b - demand_b + demand_a
+    new_load_a = load_a - waste_a + waste_b
+    new_load_b = load_b - waste_b + waste_a
 
     if new_load_a > ls.Q or new_load_b > ls.Q:
         return False

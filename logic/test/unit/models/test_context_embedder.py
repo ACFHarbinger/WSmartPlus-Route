@@ -35,7 +35,7 @@ class TestContextEmbedder:
         input_data = {
             "loc": torch.rand(1, 5, 2),  # Test 'loc' vs 'locs' key fallback
             "depot": torch.rand(1, 2),
-            "demand": torch.rand(1, 5),  # Test 'demand' vs 'waste' fallback
+            "waste": torch.rand(1, 5),
         }
 
         embeddings = model.init_node_embeddings(input_data, temporal_features=False)

@@ -13,9 +13,10 @@ from typing import Any, Dict, Optional
 import torch
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.mdam import MDAMPolicy
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
+
+from .policy import MDAMPolicy
 
 
 def mdam_rollout(

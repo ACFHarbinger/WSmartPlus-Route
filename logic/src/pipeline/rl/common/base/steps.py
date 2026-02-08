@@ -53,7 +53,7 @@ class StepMixin:
         # Get fill levels from the TensorDict
         # WCVRP uses 'demand', VRPP uses 'prize' or 'demand'
         fill_levels = None
-        for key in ["demand", "prize", "fill_level"]:
+        for key in ["waste", "demand", "prize", "fill_level"]:
             if key in td.keys():
                 fill_levels = td[key]
                 break
@@ -82,10 +82,10 @@ class StepMixin:
             selector_kwargs["locs"] = td["loc"]
 
         # Waste history for temporal modeling
-        if "demand_history" in td.keys():
-            selector_kwargs["waste_history"] = td["demand_history"]
-        elif "waste_history" in td.keys():
+        if "waste_history" in td.keys():
             selector_kwargs["waste_history"] = td["waste_history"]
+        elif "demand_history" in td.keys():
+            selector_kwargs["waste_history"] = td["demand_history"]
 
         # Apply selector to get must-go mask
         must_go_mask = self.must_go_selector.select(fill_levels, **selector_kwargs)

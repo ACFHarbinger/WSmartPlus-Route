@@ -14,8 +14,6 @@ from typing import TYPE_CHECKING
 
 import torch.nn as nn
 
-from logic.src.models.attention_model.deep_decoder_policy import DeepDecoderPolicy
-from logic.src.models.attention_model.ham_policy import HAMPolicy
 from logic.src.models.attention_model.policy import AttentionModelPolicy
 from logic.src.models.attention_model.symnco_policy import SymNCOPolicy
 from logic.src.models.common import (
@@ -27,7 +25,6 @@ from logic.src.models.dact.policy import DACTPolicy
 from logic.src.models.deepaco.policy import DeepACOPolicy
 from logic.src.models.gfacs.policy import GFACSPolicy
 from logic.src.models.glop.policy import GLOPPolicy
-from logic.src.models.l2d.policy import L2DPolicy
 from logic.src.models.mdam.policy import MDAMPolicy
 from logic.src.models.moe.policy import MoEPolicy
 from logic.src.models.n2s.policy import N2SPolicy
@@ -49,8 +46,6 @@ _POLICY_REGISTRY_SPEC = {
     "deepaco": ("logic.src.models.deepaco.policy", "DeepACOPolicy"),
     "gfacs": ("logic.src.models.gfacs.policy", "GFACSPolicy"),
     "glop": ("logic.src.models.glop.policy", "GLOPPolicy"),
-    "ham": ("logic.src.models.attention_model.ham_policy", "HAMPolicy"),
-    "l2d": ("logic.src.models.l2d.policy", "L2DPolicy"),
     "mdam": ("logic.src.models.mdam.policy", "MDAMPolicy"),
     "moe": ("logic.src.models.moe.policy", "MoEPolicy"),
     "nargnn": ("logic.src.models.nargnn.policy", "NARGNNPolicy"),
@@ -105,7 +100,6 @@ __all__ = [
     "ConstructivePolicy",
     "ImprovementPolicy",
     "AttentionModelPolicy",
-    "DeepDecoderPolicy",
     "DeepACOPolicy",
     "GFACSPolicy",
     "GLOPPolicy",

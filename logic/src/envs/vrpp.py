@@ -24,13 +24,14 @@ class VRPPEnv(RL4COEnvBase):
     total prize collected minus travel cost.
     """
 
+    NAME = "vrpp"
     name: str = "vrpp"
 
     def __init__(
         self,
         generator: Optional[VRPPGenerator] = None,
         generator_params: Optional[dict] = None,
-        prize_weight: float = 1.0,
+        waste_weight: float = 1.0,
         cost_weight: float = 1.0,
         revenue_kg: Optional[float] = None,
         cost_km: Optional[float] = None,
@@ -43,9 +44,9 @@ class VRPPEnv(RL4COEnvBase):
         Args:
             generator: Problem instance generator.
             generator_params: Parameters for generator initialization.
-            prize_weight: Weight for prize collection in reward.
+            waste_weight: Weight for waste collection in reward.
             cost_weight: Weight for travel cost in reward.
-            revenue_kg: Optional revenue per kg (overrides prize_weight).
+            revenue_kg: Optional revenue per kg (overrides waste_weight).
             cost_km: Optional cost per km (overrides cost_weight).
             device: Device for torch tensors ('cpu' or 'cuda').
             **kwargs: Additional keyword arguments.
@@ -55,31 +56,70 @@ class VRPPEnv(RL4COEnvBase):
             generator = VRPPGenerator(**generator_params, device=device)
 
         super().__init__(generator, generator_params, device, **kwargs)
-        self.prize_weight = revenue_kg if revenue_kg is not None else prize_weight
+        self.waste_weight = revenue_kg if revenue_kg is not None else waste_weight
         self.cost_weight = cost_km if cost_km is not None else cost_weight
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
         """Initialize VRPP episode state."""
+        # If state is already initialized (e.g. transductive search resuming), skip coord mod
+        if "visited" in td.keys():
+            return td
+
         device = td.device
         bs = td.batch_size
+
+        # Prepend depot to locs and waste if they are customer-only
+        locs = td["locs"]
+        waste = td.get("waste")
+
+        # Robust N vs N+1 logic
+        # gen_n represents customers only. If shape is gen_n + 1, it already has depot.
+        gen_n = getattr(self.generator, "num_loc", None)
+
+        needs_prepend = False
+        if "depot" in td.keys():
+            # 1. If we know N, check if we are already at N+1
+            if gen_n is not None and locs.shape[-2] == gen_n + 1:
+                needs_prepend = False
+            # 2. If we are at N, we definitely need to prepend
+            elif gen_n is not None and locs.shape[-2] == gen_n:
+                needs_prepend = True
+            # 3. Fallback: check coordinate values
+            elif not torch.allclose(locs[..., 0, :], td["depot"], atol=1e-4):
+                needs_prepend = True
+
+        if needs_prepend:
+            td["locs"] = torch.cat([td["depot"].unsqueeze(1), locs], dim=1)
+            locs = td["locs"]
+            if waste is not None:
+                td["waste"] = torch.cat([torch.zeros(*bs, 1, device=device), waste], dim=1)
+        elif waste is not None and waste.shape[-1] == locs.shape[-2] - 1:
+            # Catch case where locs has depot but waste doesn't
+            td["waste"] = torch.cat([torch.zeros(*bs, 1, device=device), waste], dim=1)
+
         num_nodes = td["locs"].shape[-2]
 
         # Initialize state fields
         td["current_node"] = torch.zeros(*bs, 1, dtype=torch.long, device=device)
         td["visited"] = torch.zeros(*bs, num_nodes, dtype=torch.bool, device=device)
-        td["visited"][..., 0] = True  # Depot is "visited" initially
+        td["visited"][..., 0] = True  # Depot index 0
 
         # Tour tracking
         td["tour"] = torch.zeros(*bs, 0, dtype=torch.long, device=device)
         td["tour_length"] = torch.zeros(*bs, device=device)
-        td["collected_prize"] = torch.zeros(*bs, device=device)
+        td["collected_waste"] = torch.zeros(*bs, device=device)
         return td
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
         """Execute action and update state."""
+        # Locs and waste are already prepended in reset or previously
+        bs = td.batch_size
+        device = td.device
+        locs = td["locs"]
+        waste = td["waste"]
+
         action = td["action"]
         current = td["current_node"].squeeze(-1)
-        locs = td["locs"]
 
         # Compute distance traveled
         current_loc = locs.gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
@@ -92,8 +132,19 @@ class VRPPEnv(RL4COEnvBase):
         # Collect prize (only for unvisited, non-depot nodes)
         is_new_visit = ~td["visited"].gather(1, action.unsqueeze(-1)).squeeze(-1)
         is_not_depot = action != 0
-        prize_collected = td["prize"].gather(1, action.unsqueeze(-1)).squeeze(-1)
-        td["collected_prize"] = td["collected_prize"] + prize_collected * is_new_visit * is_not_depot
+
+        # waste handling
+        waste = td.get("waste")
+        if waste is not None and waste.shape[-1] == td["visited"].shape[-1] - 1:
+            # needs depot
+            waste = torch.cat([torch.zeros(*bs, 1, device=device), waste], dim=1)
+            td["waste"] = waste
+
+        if waste is not None:
+            waste_collected = waste.gather(1, action.unsqueeze(-1)).squeeze(-1)
+            td["collected_waste"] = (
+                td["collected_waste"] + waste_collected * is_new_visit.float() * is_not_depot.float()
+            )
 
         # Update visited
         td["visited"] = td["visited"].scatter(1, action.unsqueeze(-1), True)
@@ -150,17 +201,22 @@ class VRPPEnv(RL4COEnvBase):
 
     def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
-        Compute VRPP reward: prize - cost.
+        Compute VRPP reward: waste - cost.
 
-        Reward = (prize_weight * total_prize) - (cost_weight * tour_length)
+        Reward = (waste_weight * total_waste) - (cost_weight * tour_length)
         """
-        prize = td["collected_prize"] if "collected_prize" in list(td.keys()) else torch.zeros_like(td["tour_length"])
+        waste = td.get("collected_waste", torch.zeros_like(td["tour_length"]))
         cost = td["tour_length"]
 
         # Also add return to depot distance if not already there
         current = td["current_node"].squeeze(-1)
+        # Combine depot and customers for full locs if not already done
         locs = td["locs"]
-        current_loc = locs.gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
+        if locs.shape[-2] == td.get("visited", torch.zeros(0)).shape[-1] - 1:
+            locs = torch.cat([td["depot"].unsqueeze(1), locs], dim=1)
+
+        current_idx = current[:, None, None].expand(-1, -1, 2)
+        current_loc = locs.gather(1, current_idx).squeeze(1)
         depot_loc = td["depot"]
         return_distance = torch.norm(depot_loc - current_loc, dim=-1)
 
@@ -169,10 +225,10 @@ class VRPPEnv(RL4COEnvBase):
         total_cost = cost + return_distance * not_at_depot.float()
 
         # Store decomposed rewards for GDPO
-        td["reward_prize"] = prize
+        td["reward_waste"] = waste
         td["reward_cost"] = -total_cost  # Convention: maximized, so negative cost
 
-        reward = self.prize_weight * prize - self.cost_weight * total_cost
+        reward = self.waste_weight * waste - self.cost_weight * total_cost
         return reward
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:

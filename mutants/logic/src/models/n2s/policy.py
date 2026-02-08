@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from .common.improvement import ImprovementPolicy
-from .n2s_decoder import N2SDecoder
-from .n2s_encoder import N2SEncoder
+from ..common.improvement_policy import ImprovementPolicy
+from .decoder import N2SDecoder
+from .encoder import N2SEncoder
 
 
 class N2SPolicy(ImprovementPolicy):

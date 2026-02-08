@@ -7,7 +7,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Any, Optional, cast
 
-from logic.src.data.datasets import tensordict_collate_fn
+from logic.src.utils.data.td_utils import tensordict_collate_fn
 from logic.src.utils.logging.pylogger import get_pylogger
 from torch.utils.data import DataLoader
 

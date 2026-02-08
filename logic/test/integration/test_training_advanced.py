@@ -38,7 +38,7 @@ def test_dr_grpo_training_loop(clean_logs):
     )
 
     factory = AttentionComponentFactory()
-    critic = CriticNetwork(
+    critic = CriticNetworkPolicy(
         problem=env, component_factory=factory, embed_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
     )
 
@@ -80,7 +80,7 @@ def test_gdpo_training_loop(clean_logs):
     )
 
     factory = AttentionComponentFactory()
-    critic = CriticNetwork(
+    critic = CriticNetworkPolicy(
         problem=env, component_factory=factory, embed_dim=128, hidden_dim=128, n_layers=2, n_sublayers=1, n_heads=8
     )
 

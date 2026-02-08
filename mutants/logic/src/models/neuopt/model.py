@@ -8,7 +8,8 @@ from typing import Any, Optional
 
 import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.neuopt import NeuOptPolicy
+
+from .policy import NeuOptPolicy
 
 
 class NeuOpt(nn.Module):

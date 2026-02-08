@@ -26,7 +26,7 @@ class EnvConfig:
     overflow_penalty: float = 1.0
     collection_reward: float = 1.0
     cost_weight: float = 1.0
-    prize_weight: float = 1.0
+    waste_weight: float = 1.0
     # NEW FIELDS:
     area: str = "riomaior"
     waste_type: str = "plastic"

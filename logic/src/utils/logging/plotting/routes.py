@@ -97,28 +97,28 @@ def plot_vehicle_routes(
     route,
     ax1,
     markersize=5,
-    visualize_demands=False,
-    demand_scale=1,
-    round_demand=False,
+    visualize_waste=False,
+    waste_scale=1,
+    round_waste=False,
 ):
     """
     Plot the vehicle routes on matplotlib axis ax1.
 
     Args:
-        data (dict): Dictionary with 'depot', 'loc', 'demand'.
+        data (dict): Dictionary with 'depot', 'locs', 'waste'.
         route (Tensor): Route indices (single sequence with delimiters).
         ax1 (matplotlib.axes.Axes): Axis to plot on.
         markersize (int, optional): Size of markers. Defaults to 5.
-        visualize_demands (bool, optional): Visualize demands as bars. Defaults to False.
-        demand_scale (float, optional): Scaling factor for demands. Defaults to 1.
-        round_demand (bool, optional): Round demand values in labels. Defaults to False.
+        visualize_waste (bool, optional): Visualize waste levels as bars. Defaults to False.
+        waste_scale (float, optional): Scaling factor for waste values. Defaults to 1.
+        round_waste (bool, optional): Round waste values in labels. Defaults to False.
     """
     # Route is one sequence, separating different routes with 0 (depot)
     routes = [r[r != 0] for r in np.split(route.cpu().numpy(), np.where(route == 0)[0]) if (r != 0).any()]
     depot = data["depot"].cpu().numpy()
-    locs = data["loc"].cpu().numpy()
-    demands = data["demand"].cpu().numpy() * demand_scale
-    capacity = demand_scale  # capacity is always 1
+    locs = data.get("locs", data.get("loc")).cpu().numpy()
+    demands = data.get("waste", data.get("demand")).cpu().numpy() * waste_scale
+    capacity = waste_scale  # capacity is always 1
 
     x_dep, y_dep = depot
     ax1.plot(x_dep, y_dep, "sk", markersize=markersize * 4)
@@ -127,7 +127,7 @@ def plot_vehicle_routes(
     ax1.legend(loc="upper center")
 
     cmap = discrete_cmap(len(routes) + 2, "nipy_spectral")
-    dem_rects = []
+    waste_rects = []
     used_rects = []
     cap_rects = []
     qvs = []
@@ -135,27 +135,27 @@ def plot_vehicle_routes(
     for veh_number, r in enumerate(routes):
         color = cmap(len(routes) - veh_number)  # invert to have in rainbow order
 
-        route_demands = demands[r - 1]
+        route_waste = demands[r - 1]
         coords = locs[r - 1, :]
         xs, ys = coords.transpose()
 
-        total_route_demand = sum(route_demands)
-        assert total_route_demand <= capacity
-        if not visualize_demands:
+        total_route_waste = sum(route_waste)
+        assert total_route_waste <= capacity
+        if not visualize_waste:
             ax1.plot(xs, ys, "o", mfc=color, markersize=markersize, markeredgewidth=0.0)
 
         dist = 0
         x_prev, y_prev = x_dep, y_dep
-        cum_demand = 0
-        for (x, y), d in zip(coords, route_demands):
+        cum_waste = 0
+        for (x, y), d in zip(coords, route_waste):
             dist += np.sqrt((x - x_prev) ** 2 + (y - y_prev) ** 2)
 
             cap_rects.append(Rectangle((x, y), 0.01, 0.1))
-            used_rects.append(Rectangle((x, y), 0.01, 0.1 * total_route_demand / capacity))
-            dem_rects.append(Rectangle((x, y + 0.1 * cum_demand / capacity), 0.01, 0.1 * d / capacity))
+            used_rects.append(Rectangle((x, y), 0.01, 0.1 * total_route_waste / capacity))
+            waste_rects.append(Rectangle((x, y + 0.1 * cum_waste / capacity), 0.01, 0.1 * d / capacity))
 
             x_prev, y_prev = x, y
-            cum_demand += d
+            cum_waste += d
 
         dist += np.sqrt((x_dep - x_prev) ** 2 + (y_dep - y_prev) ** 2)
         total_dist += dist
@@ -171,8 +171,8 @@ def plot_vehicle_routes(
             label="R{}, # {}, c {} / {}, d {:.2f}".format(
                 veh_number,
                 len(r),
-                int(total_route_demand) if round_demand else total_route_demand,
-                int(capacity) if round_demand else capacity,
+                int(total_route_waste) if round_waste else total_route_waste,
+                int(capacity) if round_waste else capacity,
                 dist,
             ),
         )
@@ -184,9 +184,9 @@ def plot_vehicle_routes(
 
     pc_cap = PatchCollection(cap_rects, facecolor="whitesmoke", alpha=1.0, edgecolor="lightgray")
     pc_used = PatchCollection(used_rects, facecolor="lightgray", alpha=1.0, edgecolor="lightgray")
-    pc_dem = PatchCollection(dem_rects, facecolor="black", alpha=1.0, edgecolor="black")
+    pc_waste = PatchCollection(waste_rects, facecolor="black", alpha=1.0, edgecolor="black")
 
-    if visualize_demands:
+    if visualize_waste:
         ax1.add_collection(pc_cap)
         ax1.add_collection(pc_used)
-        ax1.add_collection(pc_dem)
+        ax1.add_collection(pc_waste)
