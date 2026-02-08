@@ -1,11 +1,12 @@
 """builder.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import builder
-    """
+Example:
+    >>> import builder
+"""
+
 from typing import Any, Dict, cast
 
 import pytorch_lightning as pl
@@ -67,7 +68,6 @@ def create_model(cfg: Config) -> pl.LightningModule:
                 "cost_weight": reward.cost_weight,
                 "waste_weight": reward.waste_weight,
                 "overflow_penalty": reward.overflow_penalty,
-                "collection_reward": reward.collection_reward,
             }
         )
 

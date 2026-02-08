@@ -41,22 +41,30 @@ class TrainingDisplayCallback(Callback):
 
     def __init__(
         self,
-        metric_key: str = "val/reward",
+        metric_keys: str | List[str] = "train/reward",
         chart_title: str = "Training Progress",
         refresh_rate: int = 4,
-        history_length: int = 1000,
+        history_length: Optional[int] = None,
         theme: str = "dark",
     ):
         super().__init__()
-        self.metric_key = metric_key
+        # Handle single string or list of strings
+        if isinstance(metric_keys, str):
+            self.metric_keys = [k.strip() for k in metric_keys.split(",")]
+        else:
+            self.metric_keys = metric_keys
+
         self.chart_title = chart_title
         self.refresh_rate = refresh_rate
         self.history_length = history_length
         self.theme = theme
 
-        # Chart Data
-        self.history: List[float] = []
-        self.epochs: List[int] = []
+        # Chart Data: Dict mapping metric_key -> List of values/steps
+        self.history: Dict[str, List[float]] = {k: [] for k in self.metric_keys}
+        self.steps: Dict[str, List[int]] = {k: [] for k in self.metric_keys}
+
+        # Colors for multiple lines
+        self.colors = ["cyan", "magenta", "green", "yellow", "red", "blue", "white"]
 
         # Rich Components
         self.console = Console()
@@ -164,20 +172,33 @@ class TrainingDisplayCallback(Callback):
         plt.theme(self.theme)
 
         # Get actual layout width if possible, or use sensible defaults
-        # We subtract some units for borders and padding
         width = (self.console.width * 2 // 3) - 10
         height = self.layout["main"].size or 15
         if height <= 0:
-            height = 15  # handle cases where size might be None or 0 initially
+            height = 15
 
-        if len(self.history) > 1:
-            plt.plot(self.epochs, self.history, color="cyan", marker="dot", label=self.metric_key)
+        has_data = False
+        all_histories = []
+
+        for i, key in enumerate(self.metric_keys):
+            if len(self.history[key]) > 1:
+                color = self.colors[i % len(self.colors)]
+                plt.plot(self.steps[key], self.history[key], color=color, marker="dot", label=key)
+                all_histories.extend(self.history[key])
+                has_data = True
+
+        if has_data:
             plt.title(self.chart_title)
-            plt.xlabel("Epoch")
-            plt.ylabel(self.metric_key)
+            plt.xlabel("Step")
+            # plt.ylabel("Value") # Combined Y label is generic
 
-            # Smart Y-axis limits
-            ymin, ymax = min(self.history), max(self.history)
+            # Ensure X-axis shows the full range if history_length is None
+            if self.history_length is None:
+                max_step = max(max(s for s in steps if s) for steps in self.steps.values() if any(steps))
+                plt.xlim(0, max_step)
+
+            # Smart Y-axis limits across all metrics
+            ymin, ymax = min(all_histories), max(all_histories)
             yrange = ymax - ymin
             if yrange > 0:
                 plt.ylim(ymin - 0.1 * yrange, ymax + 0.1 * yrange)
@@ -202,7 +223,7 @@ class TrainingDisplayCallback(Callback):
                 continue
             value = self.current_metrics[key]
             if isinstance(value, float):
-                val_str = f"{value:.4f}"
+                val_str = f"{value:.4e}"
             else:
                 val_str = str(value)
             table.add_row(key, val_str)
@@ -257,26 +278,44 @@ class TrainingDisplayCallback(Callback):
             else:
                 self.current_metrics[k] = v
 
+        # Update History for chart (per batch/step)
+        for key in self.metric_keys:
+            if key in metrics:
+                val = metrics[key]
+                if hasattr(val, "item"):
+                    val = val.item()
+
+                self.history[key].append(float(val))
+                self.steps[key].append(trainer.global_step)
+
+                # Trim history if history_length is set
+                if self.history_length is not None and len(self.history[key]) > self.history_length:
+                    self.history[key] = self.history[key][-self.history_length :]
+                    self.steps[key] = self.steps[key][-self.history_length :]
+
         if self.live:
             self.live.update(self._render_layout())
 
     def on_validation_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        """Update chart with validation metrics."""
+        """Update metrics display with latest validation scores."""
         metrics = trainer.callback_metrics
-        if self.metric_key in metrics:
-            val = metrics[self.metric_key]
-            if hasattr(val, "item"):
-                val = val.item()
 
-            self.history.append(float(val))
-            self.epochs.append(trainer.current_epoch)
+        # Record metrics for chart
+        for key in self.metric_keys:
+            if key in metrics:
+                val = metrics[key]
+                if hasattr(val, "item"):
+                    val = val.item()
 
-            # Trim history
-            if len(self.history) > self.history_length:
-                self.history = self.history[-self.history_length :]
-                self.epochs = self.epochs[-self.history_length :]
+                self.history[key].append(float(val))
+                self.steps[key].append(trainer.global_step)
 
-        # Update metrics display with latest validation scores
+                # Trim history if history_length is set
+                if self.history_length is not None and len(self.history[key]) > self.history_length:
+                    self.history[key] = self.history[key][-self.history_length :]
+                    self.steps[key] = self.steps[key][-self.history_length :]
+
+        # Update metrics table with latest validation scores
         for k, v in metrics.items():
             if hasattr(v, "item"):
                 self.current_metrics[k] = v.item()

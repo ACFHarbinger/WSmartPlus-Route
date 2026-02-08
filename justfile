@@ -11,7 +11,7 @@ reset := '\033[0m'
 
 # Default variables (can be overridden: just train problem=wcvrp)
 
-problem := "cvrpp"
+problem := "wcvrp"
 model := "am"
 encoder := "gat"
 decoder := "glimpse"

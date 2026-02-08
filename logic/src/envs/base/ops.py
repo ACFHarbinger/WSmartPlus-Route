@@ -165,7 +165,8 @@ class OpsMixin:
         reward = self.get_reward(curr_td, pi)
 
         # Return negative reward as cost (AttentionModel expects minimizing cost)
-        return -reward, {"total": -reward}, None
+        # We also return the final td so metrics can be extracted
+        return -reward, {"total": -reward}, curr_td
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
         """

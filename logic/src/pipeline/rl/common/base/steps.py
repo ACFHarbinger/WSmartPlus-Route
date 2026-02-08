@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Union, cast
 import torch
 from tensordict import TensorDict
 
+from logic.src.constants.metrics import METRIC_MAPPING
 from logic.src.utils.logging.pylogger import get_pylogger
 
 if TYPE_CHECKING:
@@ -91,6 +92,18 @@ class StepMixin:
         # Apply selector to get must-go mask
         must_go_mask = self.must_go_selector.select(fill_levels, **selector_kwargs)
 
+        # Ensure must_go_mask matches the environment's node count (N+1)
+        # Bins are typically customers-only in fill_levels, but mask needs depot (index 0)
+        # Check num_loc in env or its generator
+        num_loc = getattr(self.env, "num_loc", None)
+        if num_loc is None and hasattr(self.env, "generator"):
+            num_loc = getattr(self.env.generator, "num_loc", None)
+
+        if num_loc is not None and must_go_mask.shape[-1] == num_loc:
+            # Prepend False for the depot (index 0)
+            depot_must_go = torch.zeros(*must_go_mask.shape[:-1], 1, dtype=torch.bool, device=must_go_mask.device)
+            must_go_mask = torch.cat([depot_must_go, must_go_mask], dim=-1)
+
         # Store in TensorDict
         td["must_go"] = must_go_mask
 
@@ -165,20 +178,18 @@ class StepMixin:
             strategy="sampling" if phase == "train" else "greedy",
         )
 
+        # Get updated td from rollout (if available)
+        final_td = out.get("td", td)
+
         # Compute loss for training
         if phase == "train":
             out["loss"] = self.calculate_loss(td, out, batch_idx, env=self.env)
 
-        # Merge granular metrics from td if available
-        for key in ["collection", "cost"]:
-            if key in list(td.keys()):
-                out[key] = td[key]
-
-        # Log metrics
+        # Log reward
         reward_mean = out["reward"].mean()
         batch_size = out["reward"].shape[0]
-
-        self.log(
+        # Use type: ignore because LitModule.log is known to but StepMixin is a mixin
+        self.log(  # type: ignore
             f"{phase}/reward",
             reward_mean,
             prog_bar=True,
@@ -186,22 +197,26 @@ class StepMixin:
             batch_size=batch_size,
         )
 
-        if "collection" in out:
-            self.log(
-                f"{phase}/collection",
-                out["collection"].mean(),
-                sync_dist=True,
-                batch_size=batch_size,
-            )
-        if "cost" in out:
-            self.log(
-                f"{phase}/cost",
-                out["cost"].mean(),
-                sync_dist=True,
-                batch_size=batch_size,
-            )
-        else:
-            self.log(f"{phase}/cost_total", -reward_mean, sync_dist=True)
+        # Log granular metrics from td if available (standardized)
+        # Prioritize reward_* keys as they are typically populated at the end of rollout
+        for log_key, td_keys in METRIC_MAPPING.items():
+            val = None
+            for k in td_keys:
+                if k in final_td.keys():
+                    val = final_td[k]
+                    break
+
+            if val is not None:
+                # Handle negative cost/overflow convention
+                if (log_key in ["cost", "overflows", "initial_overflows"]) and val.mean() < 0:
+                    val = -val
+
+                self.log(  # type: ignore
+                    f"{phase}/{log_key}",
+                    val.mean(),
+                    sync_dist=True,
+                    batch_size=batch_size,
+                )
 
         # Store for meta-learning or logging access
         self.last_out = out
