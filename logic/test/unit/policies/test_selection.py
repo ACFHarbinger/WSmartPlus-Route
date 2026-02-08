@@ -5,7 +5,7 @@ import pytest
 from logic.src.policies.selection.selection_regular import RegularSelection
 from logic.src.policies.selection.selection_last_minute import LastMinuteSelection
 from logic.src.policies.selection.selection_lookahead import LookaheadSelection
-from logic.src.policies.must_go_selection import SelectionContext
+from logic.src.policies.selection.base.selection_context import SelectionContext
 
 @pytest.fixture
 def base_context():

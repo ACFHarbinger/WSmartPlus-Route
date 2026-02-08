@@ -12,7 +12,8 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.l2d import L2DPolicy
+
+from .policy import L2DPolicy
 
 
 class L2DModel(nn.Module):

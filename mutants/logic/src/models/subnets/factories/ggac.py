@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import torch.nn as nn
-from logic.src.models.subnets.encoders.ggac.encoder import GatedGraphAttConvEncoder
+from logic.src.models.subnets.encoders.ggac import GatedGraphAttConvEncoder
 
 from .base import NeuralComponentFactory, _create_decoder_by_type
 

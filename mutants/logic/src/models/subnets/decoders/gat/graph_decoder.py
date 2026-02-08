@@ -5,7 +5,7 @@ Graph Attention Decoder module.
 import torch
 import torch.nn as nn
 
-from .layers import MultiHeadAttentionLayer
+from .multi_head_attention_layer import MultiHeadAttentionLayer
 
 
 class GraphAttentionDecoder(nn.Module):

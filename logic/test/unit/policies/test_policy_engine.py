@@ -10,7 +10,6 @@ import logic.src.policies.adapters.policy_vrpp as policy_vrpp_module
 import logic.src.policies.adapters.policy_hgs as policy_hgs_module
 import logic.src.policies.adapters.policy_alns as policy_alns_module
 import logic.src.policies.adapters.policy_sans as policy_sans_module
-import logic.src.policies.adapters.policy_lac as policy_lac_module
 
 from logic.src.policies.adapters import PolicyRegistry, PolicyFactory
 from logic.src.policies.adapters.policy_bcp import BCPPolicy
@@ -18,7 +17,6 @@ from logic.src.policies.adapters.policy_vrpp import VRPPPolicy
 from logic.src.policies.adapters.policy_hgs import HGSPolicy
 from logic.src.policies.adapters.policy_alns import ALNSPolicy
 from logic.src.policies.adapters.policy_sans import SANSPolicy
-from logic.src.policies.adapters.policy_lac import LACPolicy
 
 class MockBins:
     def __init__(self, n=5):
@@ -101,12 +99,12 @@ def test_bcp_engine_override(mock_engine_data):
 
 @pytest.mark.unit
 def test_vrpp_engine_override(mocker, mock_engine_data):
-    # VRPP Policy imports logic.src.pipeline.simulations.loader inside execute
-    mocker.patch("logic.src.pipeline.simulations.loader.load_area_and_waste_type_params",
+    # VRPP Policy imports logic.src.utils.data.data_utils inside execute
+    mocker.patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params",
                  return_value=(4000, 0.16, 21.0, 1.0, 2.5))
 
     with patch("logic.src.policies.adapters.policy_vrpp.run_vrpp_optimizer") as mock_opt:
-        mock_opt.return_value = ([0, 1, 0], 10.0, {})
+        mock_opt.return_value = ([0, 1, 0], 10.0)
 
         policy = PolicyRegistry.get("vrpp")()
         policy.execute(**mock_engine_data)
@@ -145,7 +143,7 @@ def test_alns_engine_override(mock_engine_data):
 def test_sans_execution(mock_engine_data):
     # Patch improved_simulated_annealing in its home module (or where it's used)
     with patch("logic.src.policies.adapters.policy_sans.improved_simulated_annealing") as mock_sans, \
-         patch("logic.src.pipeline.simulations.loader.load_area_and_waste_type_params") as mock_load:
+         patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_load:
 
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
         mock_sans.return_value = ([[1, 0]], 10.0, 5.0, 2.0, 10.0)
@@ -154,16 +152,3 @@ def test_sans_execution(mock_engine_data):
         policy.execute(**mock_engine_data)
 
         assert mock_sans.called
-
-def test_lac_execution(mock_engine_data):
-    # Patch find_solutions in LAC module
-    with patch("logic.src.policies.adapters.policy_lac.find_solutions") as mock_find, \
-         patch("logic.src.pipeline.simulations.loader.load_area_and_waste_type_params") as mock_load:
-
-        mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
-        mock_find.return_value = ([[1, 0]], 10.0, 5.0)
-
-        policy = PolicyRegistry.get("lac")()
-        policy.execute(**mock_engine_data)
-
-        assert mock_find.called

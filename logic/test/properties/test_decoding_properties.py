@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
-from logic.src.utils.functions.decoding import (
+from logic.src.utils.decoding.decoding_utils import (
     top_k_filter,
     top_p_filter,
 )

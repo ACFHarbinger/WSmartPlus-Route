@@ -1,7 +1,8 @@
 """Tests for RewardScaler."""
 
 import torch
-from logic.src.pipeline.rl.common.reward_scaler import BatchRewardScaler, RewardScaler
+from logic.src.pipeline.rl.common.reward_scaler_batch import BatchRewardScaler
+from logic.src.pipeline.rl.common.reward_scaler import RewardScaler
 
 
 def test_reward_scaler_norm():

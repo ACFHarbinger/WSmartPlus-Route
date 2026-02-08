@@ -10,7 +10,7 @@ from typing import Dict, Tuple, Union
 
 import torch
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.common.nonautoregressive_decoder import NonAutoregressiveDecoder
+from logic.src.models.common.nonautoregressive_decoder import NonAutoregressiveDecoder
 from tensordict import TensorDict
 
 

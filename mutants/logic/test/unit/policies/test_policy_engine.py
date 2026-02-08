@@ -10,7 +10,6 @@ import logic.src.policies.adapters.policy_vrpp as policy_vrpp_module
 import logic.src.policies.adapters.policy_hgs as policy_hgs_module
 import logic.src.policies.adapters.policy_alns as policy_alns_module
 import logic.src.policies.adapters.policy_sans as policy_sans_module
-import logic.src.policies.adapters.policy_lac as policy_lac_module
 
 from logic.src.policies.adapters import PolicyRegistry, PolicyFactory
 from logic.src.policies.adapters.policy_bcp import BCPPolicy
@@ -18,7 +17,6 @@ from logic.src.policies.adapters.policy_vrpp import VRPPPolicy
 from logic.src.policies.adapters.policy_hgs import HGSPolicy
 from logic.src.policies.adapters.policy_alns import ALNSPolicy
 from logic.src.policies.adapters.policy_sans import SANSPolicy
-from logic.src.policies.adapters.policy_lac import LACPolicy
 
 class MockBins:
     def __init__(self, n=5):
@@ -154,16 +152,3 @@ def test_sans_execution(mock_engine_data):
         policy.execute(**mock_engine_data)
 
         assert mock_sans.called
-
-def test_lac_execution(mock_engine_data):
-    # Patch find_solutions in LAC module
-    with patch("logic.src.policies.adapters.policy_lac.find_solutions") as mock_find, \
-         patch("logic.src.pipeline.simulations.loader.load_area_and_waste_type_params") as mock_load:
-
-        mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
-        mock_find.return_value = ([[1, 0]], 10.0, 5.0)
-
-        policy = PolicyRegistry.get("lac")()
-        policy.execute(**mock_engine_data)
-
-        assert mock_find.called

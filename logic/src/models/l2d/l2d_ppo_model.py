@@ -9,9 +9,11 @@ from typing import Any, Dict, Optional
 import torch.nn as nn
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.critic import CriticNetwork
-from logic.src.models.policies.l2d import L2DPolicy, L2DPolicy4PPO
+from logic.src.models.critic_network import CriticNetwork
 from logic.src.pipeline.rl.core.stepwise_ppo import StepwisePPO
+
+from .policy import L2DPolicy
+from .ppo_policy import L2DPolicy4PPO
 
 
 class L2DPPOModel(StepwisePPO):

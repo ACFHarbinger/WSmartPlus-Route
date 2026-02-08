@@ -5,7 +5,7 @@ from tensordict import TensorDict
 from unittest.mock import MagicMock
 
 from logic.src.models.nargnn import NARGNN
-from logic.src.models.policies.nargnn import NARGNNPolicy
+from logic.src.models.nargnn.policy import NARGNNPolicy
 
 
 class TestNARGNN:

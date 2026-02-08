@@ -1,5 +1,5 @@
-from .sisr_params import SISRParams
-from .sisr_solver import SISRSolver
+from .params import SISRParams
+from .solver import SISRSolver
 
 
 def run_sisr(dist_matrix, demands, capacity, R, C, values, **kwargs):

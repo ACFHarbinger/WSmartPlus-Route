@@ -1,5 +1,6 @@
 import torch
-from logic.src.pipeline.rl.common.reward_scaler import BatchRewardScaler, RewardScaler
+from logic.src.pipeline.rl.common.reward_scaler import RewardScaler
+from logic.src.pipeline.rl.common.reward_scaler_batch import BatchRewardScaler
 
 
 def test_reward_scaler_welford():

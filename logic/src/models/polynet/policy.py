@@ -12,7 +12,7 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.autoregressive import AutoregressivePolicy
+from logic.src.models.common.autoregressive_policy import AutoregressivePolicy
 from logic.src.models.subnets.decoders.polynet import PolyNetDecoder
 from logic.src.models.subnets.embeddings import get_init_embedding
 from logic.src.models.subnets.encoders.gat.encoder import GraphAttentionEncoder

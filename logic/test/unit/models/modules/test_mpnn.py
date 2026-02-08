@@ -2,7 +2,8 @@
 import pytest
 import torch
 from torch import nn
-from logic.src.models.subnets.modules.mpnn import MessagePassingLayer, MPNNEncoder
+from logic.src.models.subnets.modules.mpnn_layer import MessagePassingLayer
+from logic.src.models.subnets.modules.mpnn_encoder import MPNNEncoder
 
 class TestMPNN:
     @pytest.fixture

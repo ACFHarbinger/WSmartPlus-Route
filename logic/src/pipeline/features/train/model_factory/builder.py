@@ -13,10 +13,10 @@ from logic.src.models.policies import (
     SymNCOPolicy,
     TemporalAMPolicy,
 )
-from logic.src.models.policies.classical.alns import VectorizedALNS
-from logic.src.models.policies.classical.hgs import VectorizedHGS
-from logic.src.models.policies.classical.hgs_alns import VectorizedHGSALNS
-from logic.src.models.policies.classical.hybrid import NeuralHeuristicHybrid
+from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
+from logic.src.models.policies.hgs import VectorizedHGS
+from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
+from logic.src.models.policies.hybrid import NeuralHeuristicHybrid
 from logic.src.pipeline.features.base import deep_sanitize, remap_legacy_keys
 from logic.src.pipeline.rl import REINFORCE, MetaRLModule
 from logic.src.utils.logging.pylogger import get_pylogger

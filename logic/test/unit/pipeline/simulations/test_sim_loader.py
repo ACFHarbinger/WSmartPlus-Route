@@ -9,7 +9,7 @@ import pandas as pd
 from unittest.mock import MagicMock, patch, mock_open
 
 from logic.src.pipeline.simulations.day_context import SimulationDayContext
-from logic.src.pipeline.simulations.loader import (
+from logic.src.pipeline.simulations.repository import (
     FileSystemRepository,
     load_indices,
     load_depot,

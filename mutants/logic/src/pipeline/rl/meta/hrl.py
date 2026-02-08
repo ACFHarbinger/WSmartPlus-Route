@@ -18,8 +18,8 @@ import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 from logic.src.envs.base import RL4COEnvBase
+from logic.src.models.common.constructive import ConstructivePolicy
 from logic.src.models.hrl_manager import GATLSTManager
-from logic.src.models.policies.common.constructive import ConstructivePolicy
 from tensordict import TensorDict
 
 

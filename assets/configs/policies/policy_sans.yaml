@@ -1,10 +1,78 @@
 sans:
+  # New engine (improved simulated annealing) - default
+  new:
+    engine: new
+    time_limit: 60
+    perc_bins_can_overflow: 0
+    T_min: 0.01
+    T_init: 75
+    iterations_per_T: 5000
+    alpha: 0.95
+    must_go: ["mg_lookahead.xml"]
+    post_processing: []
+
+  # Original LAC engine (look-ahead collection) - variant A
+  og_a:
+    engine: og
+    combination: a
+    time_limit: 60
+    must_go: ["mg_lookahead.xml"]
+    post_processing: []
+    # LAC-specific numeric parameters (legacy format)
+    params:
+      - 500 # Parameter 0
+      - 75 # Parameter 1
+      - 0.7 # Parameter 2
+      - 0 # Parameter 3
+      - 0.095 # Parameter 4
+      - 0 # Parameter 5
+      - 0 # Parameter 6
+
+  # Original LAC engine (look-ahead collection) - variant B
+  og_b:
+    engine: og
+    combination: b
+    time_limit: 60
+    must_go: ["mg_lookahead.xml"]
+    post_processing: []
+    # LAC-specific numeric parameters (legacy format)
+    params:
+      - 2000 # Parameter 0
+      - 75 # Parameter 1
+      - 0.7 # Parameter 2
+      - 0 # Parameter 3
+      - 0.095 # Parameter 4
+      - 0 # Parameter 5
+      - 0 # Parameter 6
+
+# Backward compatibility aliases
+lac:
   a:
-    - time_limit: 60
-    - perc_bins_can_overflow: 0
-    - T_min: 0.01
-    - T_init: 75
-    - iterations_per_T: 5000
-    - alpha: 0.95
-    - must_go: ["mg_lookahead.xml"]
-    - post_processing: []
+    engine: og
+    combination: a
+    time_limit: 60
+    must_go: ["mg_lookahead.xml"]
+    post_processing: []
+    params:
+      - 500
+      - 75
+      - 0.7
+      - 0
+      - 0.095
+      - 0
+      - 0
+
+  b:
+    engine: og
+    combination: b
+    time_limit: 60
+    must_go: ["mg_lookahead.xml"]
+    post_processing: []
+    params:
+      - 2000
+      - 75
+      - 0.7
+      - 0
+      - 0.095
+      - 0
+      - 0

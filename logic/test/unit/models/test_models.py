@@ -8,7 +8,7 @@ from logic.src.data.datasets import BaselineDataset
 from logic.src.envs import problems as problem_module
 from logic.src.envs.problems import CVRPP
 from logic.src.models.attention_model import AttentionModel
-from logic.src.models.subnets.modules.moe import MoE
+from logic.src.models.subnets.modules.moe_layer import MoE
 from logic.src.models.subnets.modules.moe_feed_forward import MoEFeedForward
 from logic.src.models.moe import MoEAttentionModel, MoETemporalAttentionModel
 from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder

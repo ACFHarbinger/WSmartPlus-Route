@@ -9,7 +9,7 @@ from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 
-from .common.improvement import ImprovementDecoder
+from ..common.improvement_decoder import ImprovementDecoder
 
 
 class NeuOptDecoder(ImprovementDecoder):

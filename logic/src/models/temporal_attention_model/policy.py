@@ -9,10 +9,10 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.policies.am import AttentionModelPolicy
+from logic.src.models.attention_model.policy import AttentionModelPolicy
 from logic.src.models.subnets.modules.activation_function import ActivationFunction
 from logic.src.models.subnets.other.grf_predictor import GatedRecurrentFillPredictor
-from logic.src.utils.data.problem_utils import TensorDictStateWrapper
+from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
 
 
 class TemporalAMPolicy(AttentionModelPolicy):
