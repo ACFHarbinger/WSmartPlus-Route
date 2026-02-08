@@ -1,3 +1,11 @@
+"""finishing.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import finishing
+    """
 from __future__ import annotations
 
 import os
@@ -20,6 +28,11 @@ class FinishingState(SimState):
     """State handles final result aggregation and persistence."""
 
     def handle(self, ctx: SimulationContext) -> None:
+        """Handle.
+
+        Args:
+            ctx (SimulationContext): Description of ctx.
+        """
         opts = ctx.opts
         assert ctx.bins is not None
 

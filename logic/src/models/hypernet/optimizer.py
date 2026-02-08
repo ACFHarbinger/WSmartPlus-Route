@@ -1,3 +1,11 @@
+"""optimizer.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import optimizer
+    """
 import torch
 import torch.nn.functional as F
 

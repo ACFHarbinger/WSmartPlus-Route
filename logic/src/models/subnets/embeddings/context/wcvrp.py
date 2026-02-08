@@ -16,6 +16,13 @@ class WCVRPContextEmbedder(ContextEmbedder):
     """Context Embedder for Waste Collection Vehicle Routing Problems (WCVRP)."""
 
     def __init__(self, embed_dim: int, node_dim: int = NODE_DIM, temporal_horizon: int = 0):
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            node_dim (int): Description of node_dim.
+            temporal_horizon (int): Description of temporal_horizon.
+        """
         super().__init__(embed_dim, node_dim, temporal_horizon)
         input_dim = node_dim
         if temporal_horizon > 0:
@@ -28,6 +35,15 @@ class WCVRPContextEmbedder(ContextEmbedder):
         self.project_step_context = nn.Linear(self.step_context_dim, embed_dim)
 
     def init_node_embeddings(self, nodes: dict[str, Any], temporal_features: bool = True) -> torch.Tensor:
+        """Init node embeddings.
+
+        Args:
+            nodes (dict[str, Any]): Description of nodes.
+            temporal_features (bool): Description of temporal_features.
+
+        Returns:
+            Any: Description of return value.
+        """
         locs = nodes.get("locs", None)
         if locs is None:
             locs = nodes.get("loc")

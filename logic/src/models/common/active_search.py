@@ -1,3 +1,11 @@
+"""active_search.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import active_search
+    """
 from typing import Any
 
 from .transductive_base import TransductiveModel

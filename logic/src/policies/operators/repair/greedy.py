@@ -1,3 +1,17 @@
+"""
+Greedy Insertion Operator Module.
+
+This module implements the greedy insertion heuristic, which iteratively inserts
+unassigned nodes into the position that minimizes the immediate cost increase.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.repair.greedy import greedy_insertion
+    >>> routes = greedy_insertion(routes, removed, dist_matrix, demands, capacity)
+"""
+
 from typing import Dict, List
 
 import numpy as np
@@ -13,12 +27,16 @@ def greedy_insertion(
     """
     Insert removed nodes into their best (cheapest) positions greedily.
 
+    Iterates through all unassigned nodes and all possible insertion positions,
+    finding the globally cheapest insertion and applying it. Repeats until all
+    nodes are inserted.
+
     Args:
-        routes (List[List[int]]): Partial routes.
-        removed_nodes (List[int]): Nodes to be re-inserted.
-        dist_matrix (np.ndarray): Distance matrix.
-        demands (Dict[int, float]): Demand look-up.
-        capacity (float): Vehicle capacity.
+        routes: Partial routes.
+        removed_nodes: Nodes to be re-inserted.
+        dist_matrix: Distance matrix.
+        demands: Demand look-up.
+        capacity: Vehicle capacity.
 
     Returns:
         List[List[int]]: New routes after insertion.

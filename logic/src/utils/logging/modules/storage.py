@@ -41,6 +41,14 @@ def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") 
 
 
 def _convert_numpy(obj: Any) -> Any:
+    """convert numpy.
+
+    Args:
+    obj (Any): Description of obj.
+
+    Returns:
+        Any: Description of return value.
+    """
     if isinstance(obj, np.ndarray):
         return obj.tolist()
     elif isinstance(obj, (np.int64, np.int32)):
@@ -55,6 +63,14 @@ def _convert_numpy(obj: Any) -> Any:
 
 
 def _sort_log(log: Dict[str, Any]) -> Dict[str, Any]:
+    """sort log.
+
+    Args:
+    log (Dict[str, Any]): Description of log.
+
+    Returns:
+        Any: Description of return value.
+    """
     log = {key: value for key, value in sorted(log.items())}
     tmp_log: Dict[str, Any] = {}
     keywords = ["policy_last_minute", "policy_regular", "policy_look_ahead", "gurobi", "hexaly"]

@@ -1,3 +1,11 @@
+"""nonautoregressive_encoder.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import nonautoregressive_encoder
+    """
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

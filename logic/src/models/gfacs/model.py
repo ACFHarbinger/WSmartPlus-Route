@@ -62,6 +62,23 @@ class GFACS(nn.Module):
         beta_flat_epochs: int = 5,
         **kwargs,
     ) -> None:
+        """Initialize Class.
+
+        Args:
+            env (RL4COEnvBase): Description of env.
+            policy (Optional[GFACSPolicy]): Description of policy.
+            baseline (str): Description of baseline.
+            train_with_local_search (bool): Description of train_with_local_search.
+            policy_kwargs (Optional[Dict[str, Any]]): Description of policy_kwargs.
+            baseline_kwargs (Optional[Dict[str, Any]]): Description of baseline_kwargs.
+            alpha_min (float): Description of alpha_min.
+            alpha_max (float): Description of alpha_max.
+            alpha_flat_epochs (int): Description of alpha_flat_epochs.
+            beta_min (float): Description of beta_min.
+            beta_max (float): Description of beta_max.
+            beta_flat_epochs (int): Description of beta_flat_epochs.
+            kwargs (Any): Description of kwargs.
+        """
         super().__init__()
 
         policy_kwargs = policy_kwargs or {}

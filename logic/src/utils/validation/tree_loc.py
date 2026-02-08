@@ -1,3 +1,11 @@
+"""tree_loc.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import tree_loc
+    """
 import argparse
 import ast
 import os
@@ -53,6 +61,14 @@ def analyze_file(filepath: str) -> Tuple[int, int, int]:
 
 
 def print_tree(directory, prefix="", is_last=True, skip_dirs=None):
+    """Print tree.
+
+    Args:
+    directory (Any): Description of directory.
+    prefix (Any): Description of prefix.
+    is_last (Any): Description of is_last.
+    skip_dirs (Any): Description of skip_dirs.
+    """
     if skip_dirs is None:
         skip_dirs = {".git", "__pycache__", "venv", ".venv", "node_modules"}
 
@@ -93,6 +109,7 @@ def print_tree(directory, prefix="", is_last=True, skip_dirs=None):
 
 
 def main():
+    """Main."""
     parser = argparse.ArgumentParser(description="Output Python LoC in a tree format.")
     parser.add_argument("path", nargs="?", default=".", help="Root directory")
     args = parser.parse_args()

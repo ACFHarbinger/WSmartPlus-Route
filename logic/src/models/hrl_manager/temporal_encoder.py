@@ -1,3 +1,11 @@
+"""temporal_encoder.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import temporal_encoder
+    """
 import torch
 import torch.nn as nn
 
@@ -8,6 +16,12 @@ class TemporalEncoder(nn.Module):
     """
 
     def __init__(self, hidden_dim: int = 64, rnn_type: str = "lstm"):
+        """Initialize Class.
+
+        Args:
+            hidden_dim (int): Description of hidden_dim.
+            rnn_type (str): Description of rnn_type.
+        """
         super().__init__()
         self.rnn_type = rnn_type.lower()
         # Input size is 1 because we reshape dynamic features to (Batch*N, History, 1)

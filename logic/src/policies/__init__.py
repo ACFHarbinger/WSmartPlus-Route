@@ -1,8 +1,21 @@
 """
-Policies package for WSmart-Route.
+Policies Package.
 
 This package contains all routing policies (classical, heuristic, and neural)
-used for solving the Waste Collection Vehicle Routing Problem.
+used for solving the Waste Collection Vehicle Routing Problem (WCVRP) and
+its variants.
+
+Attributes:
+    ALNSParams (class): Parameters for ALNS.
+    NeuralAgent (class): Neural policy wrapper.
+    run_alns (function): Runs ALNS algorithm.
+    run_hgs (function): Runs HGS algorithm.
+    find_routes (function): Solves CVRP using classical heuristics.
+    find_route (function): Solves TSP.
+
+Example:
+    >>> from logic.src.policies import find_routes
+    >>> routes = find_routes(distance_matrix, demands, capacity)
 """
 
 from .adapters.policy_vrpp import run_vrpp_optimizer

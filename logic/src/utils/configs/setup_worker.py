@@ -47,6 +47,19 @@ def setup_model(
         strategy: str,
         lock: threading.Lock,
     ) -> Tuple[nn.Module, Dict[str, Any]]:
+        """load model.
+
+        Args:
+            general_path (str): Description of general_path.
+            model_name (str): Description of model_name.
+            device (torch.device): Description of device.
+            temperature (float): Description of temperature.
+            strategy (str): Description of strategy.
+            lock (threading.Lock): Description of lock.
+
+        Returns:
+            Any: Description of return value.
+        """
         # Robust path handling: only join if model_name does not exist on its own
         if os.path.isabs(model_name) or os.path.exists(model_name):
             model_path = model_name

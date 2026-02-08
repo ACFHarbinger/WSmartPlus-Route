@@ -1,3 +1,18 @@
+"""
+Local Search Base Module.
+
+This module defines the abstract base class for local search algorithms.
+It handles common initialization, neighbor lists, and provides wrappers
+for atomic move operators.
+
+Attributes:
+    None
+
+Example:
+    >>> # Cannot be instantiated directly
+    >>> class MyLS(LocalSearch): ...
+"""
+
 from __future__ import annotations
 
 import random
@@ -32,6 +47,18 @@ class LocalSearch(ABC):
         C: float,
         params: Any,
     ):
+        """
+        Initialize Local Search base class.
+
+        Args:
+            dist_matrix: The distance matrix between nodes.
+            waste: A dictionary mapping node IDs to their waste amounts.
+            capacity: The maximum capacity of a vehicle.
+            R: A parameter, likely related to route cost or penalty.
+            C: A parameter, likely related to route cost or penalty.
+            params: An object containing additional parameters for the local search,
+                    such as time_limit.
+        """
         self.d = np.array(dist_matrix)
         self.waste = waste
         self.Q = capacity

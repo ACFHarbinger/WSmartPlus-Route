@@ -1,3 +1,11 @@
+"""ppo.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import ppo
+    """
 from typing import Any, Dict
 
 import pytorch_lightning as pl
@@ -15,12 +23,35 @@ from .imitation import _create_critic_helper
 
 
 def _create_ppo_family(algo_name: str, cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+    """create ppo family.
+
+    Args:
+    algo_name (str): Description of algo_name.
+    cfg (Config): Description of cfg.
+    policy (Any): Description of policy.
+    env (Any): Description of env.
+    kw (Dict[str, Any]): Description of kw.
+
+    Returns:
+        Any: Description of return value.
+    """
     critic = _create_critic_helper(policy, cfg)
     cls_map = {"ppo": PPO, "sapo": SAPO, "gspo": GSPO, "dr_grpo": DRGRPO}
     return cls_map[algo_name](critic=critic, **kw)
 
 
 def _create_gdpo(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
+    """create gdpo.
+
+    Args:
+    cfg (Config): Description of cfg.
+    policy (Any): Description of policy.
+    env (Any): Description of env.
+    kw (Dict[str, Any]): Description of kw.
+
+    Returns:
+        Any: Description of return value.
+    """
     return GDPO(
         gdpo_objective_keys=cfg.rl.gdpo.objective_keys,
         gdpo_objective_weights=cfg.rl.gdpo.objective_weights,

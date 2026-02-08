@@ -84,8 +84,8 @@ class TestSimTabInteractions:
 
         params = policy_params_tab.get_params()
 
-        assert params["strategy"] == "sampling"
-        assert params["temperature"] == 2.5
+        assert params["decoding.strategy"] == "sampling"
+        assert params["decoding.temperature"] == 2.5
         assert params["run_tsp"] is True
 
         # Lookahead configs should be "a b"

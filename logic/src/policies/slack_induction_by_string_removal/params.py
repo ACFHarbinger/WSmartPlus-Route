@@ -1,5 +1,15 @@
 """
-Configuration parameters for the SISR solver.
+SISR Parameters Module.
+
+This module defines the configuration parameters for the Slack Induction by
+String Removal (SISR) algorithm.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.slack_induction_by_string_removal.params import SISRParams
+    >>> params = SISRParams(time_limit=10.0)
 """
 
 from __future__ import annotations

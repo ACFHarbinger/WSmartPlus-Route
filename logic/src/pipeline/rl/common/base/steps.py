@@ -24,6 +24,11 @@ class StepMixin:
     """Mixin for training, validation, and test steps."""
 
     def __init__(self):
+        """Initialize Class.
+
+        Args:
+            None.
+        """
         # Type hints
         self.env: IEnv
         self.policy: IPolicy

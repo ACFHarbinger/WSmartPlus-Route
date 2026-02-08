@@ -1,3 +1,11 @@
+"""check_google_style.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import check_google_style
+    """
 import argparse
 import ast
 import os
@@ -42,18 +50,43 @@ SECTION_ALIASES = {
 
 
 class GoogleStyleValidator(ast.NodeVisitor):
+    """GoogleStyleValidator class.
+
+    Attributes:
+        attr (Type): Description of attribute.
+    """
+
     def __init__(self, filepath):
+        """Initialize Class.
+
+        Args:
+            filepath (Any): Description of filepath.
+        """
         self.filepath = filepath
         self.violations = []
         self.current_class = None
 
     def add_violation(self, node, message):
+        """Add violation.
+
+        Args:
+            node (Any): Description of node.
+            message (Any): Description of message.
+        """
         lineno = getattr(node, "lineno", 1)
         name = getattr(node, "name", "module")
         # Store raw data; formatting happens later
         self.violations.append({"line": lineno, "context": type(node).__name__, "name": name, "message": message})
 
     def _parse_docstring_sections(self, docstring: str) -> Dict[str, str]:
+        """parse docstring sections.
+
+        Args:
+            docstring (str): Description of docstring.
+
+        Returns:
+            Any: Description of return value.
+        """
         if not docstring:
             return {}
 
@@ -74,6 +107,12 @@ class GoogleStyleValidator(ast.NodeVisitor):
         return sections
 
     def _check_missing_args(self, node, sections):
+        """check missing args.
+
+        Args:
+            node (Any): Description of node.
+            sections (Any): Description of sections.
+        """
         args_to_check = []
         for arg in node.args.args:
             if arg.arg not in ("self", "cls"):
@@ -103,6 +142,12 @@ class GoogleStyleValidator(ast.NodeVisitor):
             self.add_violation(node, f"Missing description for arguments: {', '.join(missing)}")
 
     def _check_returns_yields(self, node, sections):
+        """check returns yields.
+
+        Args:
+            node (Any): Description of node.
+            sections (Any): Description of sections.
+        """
         has_yield = False
         has_return_value = False
 
@@ -122,6 +167,11 @@ class GoogleStyleValidator(ast.NodeVisitor):
             self.add_violation(node, "Function returns data but missing 'Returns' section")
 
     def visit_Module(self, node):
+        """Visit module.
+
+        Args:
+            node (Any): Description of node.
+        """
         docstring = ast.get_docstring(node)
         if not docstring:
             self.add_violation(node, "Missing module-level docstring")
@@ -134,6 +184,11 @@ class GoogleStyleValidator(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_ClassDef(self, node):
+        """Visit classdef.
+
+        Args:
+            node (Any): Description of node.
+        """
         prev_class = self.current_class
         self.current_class = node.name
         docstring = ast.get_docstring(node)
@@ -147,12 +202,27 @@ class GoogleStyleValidator(ast.NodeVisitor):
         self.current_class = prev_class
 
     def visit_FunctionDef(self, node):
+        """Visit functiondef.
+
+        Args:
+            node (Any): Description of node.
+        """
         self._validate_function(node)
 
     def visit_AsyncFunctionDef(self, node):
+        """Visit asyncfunctiondef.
+
+        Args:
+            node (Any): Description of node.
+        """
         self._validate_function(node)
 
     def _validate_function(self, node):
+        """validate function.
+
+        Args:
+            node (Any): Description of node.
+        """
         docstring = ast.get_docstring(node)
         if not docstring:
             self.add_violation(node, "Missing function docstring")
@@ -163,6 +233,14 @@ class GoogleStyleValidator(ast.NodeVisitor):
 
 
 def analyze_file(filepath):
+    """Analyze file.
+
+    Args:
+    filepath (Any): Description of filepath.
+
+    Returns:
+        Any: Description of return value.
+    """
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             source = f.read()
@@ -232,6 +310,7 @@ def display_report(all_violations: List[dict]):
 
 
 def main():
+    """Main."""
     parser = argparse.ArgumentParser(description="Strict Google Style Docstring Validator.")
     parser.add_argument("path", nargs="?", default=".", help="Directory or file to scan")
     args = parser.parse_args()

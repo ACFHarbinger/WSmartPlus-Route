@@ -1,5 +1,16 @@
 """
-Regular interval selection strategy module.
+Regular Selection Strategy Module.
+
+This module implements a fixed-frequency selection strategy. Bins are selected
+if the current day matches their assigned schedule frequency (e.g., every 3 days).
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.must_go.selection_regular import RegularSelection
+    >>> strategy = RegularSelection()
+    >>> bins = strategy.select_bins(context)
 """
 
 from typing import List

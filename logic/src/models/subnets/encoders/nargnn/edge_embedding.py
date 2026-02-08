@@ -18,6 +18,13 @@ class SimplifiedEdgeEmbedding(nn.Module):
     """Simplified edge embedding for NARGNN using distance matrix."""
 
     def __init__(self, embed_dim: int, k_sparse: Optional[int] = None, linear_bias: bool = True):
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            k_sparse (Optional[int]): Description of k_sparse.
+            linear_bias (bool): Description of linear_bias.
+        """
         super().__init__()
         assert Batch is not None, "torch_geometric required for NARGNN"
 

@@ -1,5 +1,15 @@
 """
 Intra-route swap operators for the Look-Ahead policy.
+
+This module provides functions to perform intra-route swaps, such as swapping
+two random bins or swapping sequences of bins within the same route.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.simulated_annealing_neighborhood_search.operators.intra_swap import swap_1_route
+    >>> swap_1_route(routes)
 """
 
 from random import sample as rsample
@@ -82,6 +92,16 @@ def swap_n_route_consecutive(routes_list, n=None):
         # ... it avoids overlap by deleting the segment from a copy and sampling from the rest
 
         def get_segments(route, n_size):
+            """
+            Identify two non-overlapping segments of length n_size in the route.
+
+            Args:
+                route (List[int]): The route to search.
+                n_size (int): Length of segments to find.
+
+            Returns:
+                Tuple[int, int] | None: Start indices of the two segments, or None if not found.
+            """
             # Pick a segment of size n_size (excluding start/end depots)
             # Route: [0, 1, 2, 3, 4, 0], len=6, bins=[1, 2, 3, 4]
             # range for start index: 1 to len-n_size-1

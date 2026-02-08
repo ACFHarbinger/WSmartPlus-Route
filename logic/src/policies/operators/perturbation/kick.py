@@ -1,3 +1,18 @@
+"""
+Kick Operator Module.
+
+This module implements the 'kick' operator, which destroys a significant portion
+of the current solution and then repairs it using a greedy heuristic. This is
+typically used to escape deep local optima.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.perturbation.kick import kick
+    >>> modified = kick(context, destroy_ratio=0.3)
+"""
+
 import random
 from typing import Any
 
@@ -5,12 +20,15 @@ from typing import Any
 def kick(ctx: Any, destroy_ratio: float = 0.2) -> bool:
     """
     Kick operator: destroy a portion of the solution and repair.
+
     Removes random nodes and reinserts them greedily.
-    Returns True if the operation was performed.
 
     Args:
         ctx: Context object with routes, node_map, demands, capacity, etc.
-        destroy_ratio: Fraction of nodes to remove.
+        destroy_ratio: Fraction of nodes to remove (default: 0.2).
+
+    Returns:
+        bool: True if the operation was performed, False otherwise.
     """
     all_nodes = list(ctx.node_map.keys())
     n_remove = max(1, int(len(all_nodes) * destroy_ratio))

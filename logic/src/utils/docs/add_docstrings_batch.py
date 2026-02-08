@@ -63,7 +63,18 @@ TEMPLATES = {
 
 
 class DocstringInjector:
+    """DocstringInjector class.
+
+    Attributes:
+        attr (Type): Description of attribute.
+    """
+
     def __init__(self, filepath: str):
+        """Initialize Class.
+
+        Args:
+            filepath (str): Description of filepath.
+        """
         self.filepath = filepath
         self.lines = Path(filepath).read_text(encoding="utf-8").splitlines()
         # We process from bottom to top to avoid invalidating line numbers
@@ -240,10 +251,12 @@ class DocstringInjector:
             self.lines.insert(idx, "\n".join(doc_lines))
 
     def save(self):
+        """Save."""
         Path(self.filepath).write_text("\n".join(self.lines), encoding="utf-8")
 
 
 def main():
+    """Main."""
     parser = argparse.ArgumentParser(description="Batch Add Google Docstrings.")
     parser.add_argument("paths", nargs="+", help="Files or directories to scan.")
     args = parser.parse_args()

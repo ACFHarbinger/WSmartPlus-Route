@@ -1,3 +1,11 @@
+"""activation_function.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import activation_function
+    """
 from dataclasses import dataclass, field
 from typing import List
 

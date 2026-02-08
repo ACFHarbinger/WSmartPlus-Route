@@ -12,6 +12,11 @@ class CheckpointError(Exception):
     """Special exception to carry error results through the context manager"""
 
     def __init__(self, error_result: dict):
+        """Initialize Class.
+
+        Args:
+            error_result (dict): Description of error_result.
+        """
         self.error_result = error_result
         super().__init__(error_result["error"])
 

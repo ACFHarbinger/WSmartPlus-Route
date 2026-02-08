@@ -1,5 +1,21 @@
+"""
+2-opt Intra-Route Operator Module.
+
+This module implements the 2-opt intra-route operator, which reverses a segment
+of a route to eliminate crossing edges and reduce total tour length.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.route.two_opt_intra import move_2opt_intra
+    >>> improved = move_2opt_intra(ls, u, v, r_u, p_u, r_v, p_v)
+"""
+
+
 def move_2opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-    """2-opt intra-route operator: reverse a segment within a route.
+    """
+    2-opt intra-route operator: reverse a segment within a route.
 
     Reverses the segment between positions p_u+1 and p_v (inclusive)
     in route r_u. Only applies the move if it reduces total cost.

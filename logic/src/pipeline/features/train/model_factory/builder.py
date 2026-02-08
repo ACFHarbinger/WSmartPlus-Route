@@ -1,3 +1,11 @@
+"""builder.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import builder
+    """
 from typing import Any, Dict, cast
 
 import pytorch_lightning as pl

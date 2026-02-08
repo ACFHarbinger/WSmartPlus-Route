@@ -1,3 +1,11 @@
+"""__init__.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import __init__
+    """
 from .model import CriticNetwork as CriticNetwork
 from .model import LegacyCriticNetwork as LegacyCriticNetwork
 from .model import create_critic_from_actor as create_critic_from_actor

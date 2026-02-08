@@ -1,3 +1,11 @@
+"""cvrpp.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import cvrpp
+    """
 import torch
 from torch_geometric.data import Batch, Data
 
@@ -19,6 +27,15 @@ class CVRPPEdgeEmbedding(EdgeEmbedding):
         batch_cost_matrix: torch.Tensor,
         init_embeddings: torch.Tensor,
     ):
+        """cost matrix to graph.
+
+        Args:
+            batch_cost_matrix (torch.Tensor): Description of batch_cost_matrix.
+            init_embeddings (torch.Tensor): Description of init_embeddings.
+
+        Returns:
+            Any: Description of return value.
+        """
         k_sparse = self._get_k_sparse(batch_cost_matrix.shape[-1])
         graph_data = []
 

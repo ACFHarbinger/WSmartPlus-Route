@@ -1,3 +1,11 @@
+"""autoregressive_policy.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import autoregressive_policy
+    """
 from typing import Any, Dict, Optional
 
 from tensordict import TensorDict

@@ -26,6 +26,15 @@ class EdgeHeatmapGenerator(nn.Module):
         linear_bias: bool = True,
         undirected_graph: bool = True,
     ) -> None:
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            num_layers (int): Description of num_layers.
+            act_fn (str | Callable): Description of act_fn.
+            linear_bias (bool): Description of linear_bias.
+            undirected_graph (bool): Description of undirected_graph.
+        """
         super().__init__()
 
         self.linears = nn.ModuleList([nn.Linear(embed_dim, embed_dim, bias=linear_bias) for _ in range(num_layers - 1)])

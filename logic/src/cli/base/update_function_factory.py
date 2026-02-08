@@ -1,3 +1,11 @@
+"""update_function_factory.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import update_function_factory
+    """
 import argparse
 from typing import Any, List, Optional, Union
 

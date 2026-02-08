@@ -1,3 +1,18 @@
+"""
+Greedy Blink Insertion Operator Module.
+
+This module implements the 'Greedy with Blinks' insertion heuristic. It is a
+randomized version of greedy insertion where the algorithm 'blinks' (skips)
+the best position with some probability, encouraging diversity.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.repair.greedy_blink import greedy_insertion_with_blinks
+    >>> routes = greedy_insertion_with_blinks(routes, removed, dist_matrix, demands, capacity, blink_rate=0.1)
+"""
+
 import random
 from typing import Dict, List
 
@@ -10,13 +25,14 @@ def greedy_insertion_with_blinks(
     dist_matrix: np.ndarray,
     demands: Dict[int, float],
     capacity: float,
-    blink_rate: float = 0.2,
+    blink_rate: float = 0.1,
 ) -> List[List[int]]:
     """
-    Greedy insertion with probabilistic "blinks" for speed.
+    Greedy insertion with randomized skips ('blinks').
 
-    SISR uses this fast insertion operator to allow millions of iterations.
-    With probability `blink_rate`, skip checking a position entirely.
+    Similar to standard greedy insertion, but during the selection of the best
+    position, the algorithm may skip the absolute best option with probability
+    `blink_rate` and choose the second best, and so on.
 
     Args:
         routes: Partial routes.

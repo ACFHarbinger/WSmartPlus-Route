@@ -91,6 +91,11 @@ def simulator_testing(opts, data_size, device):
             args = [(indices[0], 0, pol_id) for pol_id in range(len(opts["policies"]))]
 
         def _update_result(result):
+            """update result.
+
+            Args:
+                    result (Any): Description of result.
+            """
             success = result.pop("success")
             if isinstance(result, dict) and success:
                 log_tmp[list(result.keys())[0]].append(list(result.values())[0])

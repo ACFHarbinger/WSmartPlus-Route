@@ -19,6 +19,11 @@ class SimpleNARDecoder(NonAutoregressiveDecoder):
     """
 
     def __init__(self, **kwargs):
+        """Initialize Class.
+
+        Args:
+            kwargs (Any): Description of kwargs.
+        """
         super().__init__(**kwargs)
 
     def forward(

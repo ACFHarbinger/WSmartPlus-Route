@@ -10,6 +10,14 @@ Key Features:
 - Pheromone trail: tau[i][j] = favorability of applying operator j after operator i
 - Heuristic information: Dynamic based on operator success rate
 - Solution evaluation: Apply operator sequence to a base solution
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.ant_colony_optimization.hyper_heuristic_aco import HyperHeuristicACO
+    >>> solver = HyperHeuristicACO(dist_matrix, demands, capacity, R, C, params)
+    >>> best_solution = solver.solve(initial_solution)
 """
 
 import random
@@ -38,15 +46,29 @@ class HyperHeuristicACO:
         dist_matrix: np.ndarray,
         demands: Dict[int, float],
         capacity: float,
-        R: float,
-        C: float,
+        heuristic_matrix: np.ndarray,
+        problem: str = "vrpp",
         params: Optional[HyperACOParams] = None,
+        **kwargs,
     ):
+        """
+        Initialize HyperHeuristicACO.
+
+        Args:
+            dist_matrix: Distance matrix between nodes.
+            demands: Dictionary mapping node indices to demands.
+            capacity: Vehicle capacity.
+            heuristic_matrix: Heuristic information matrix (unused in base, but kept for compatibility).
+            problem: Problem type identifier (default: "vrpp").
+            params: Hyper-heuristics parameters object.
+            **kwargs: Additional keyword arguments (e.g., R, C).
+        """
         self.dist_matrix = np.array(dist_matrix)
         self.demands = demands
         self.capacity = capacity
-        self.R = R
-        self.C = C
+        # R and C are no longer passed as explicit arguments, assuming they are handled by kwargs or params
+        self.R = kwargs.get("R", 1.0)  # Default value if not in kwargs
+        self.C = kwargs.get("C", 1.0)  # Default value if not in kwargs
         self.params = params or HyperACOParams()
 
         # Operator configuration

@@ -1,3 +1,11 @@
+"""env.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import env
+    """
 from typing import Any, Optional, Protocol
 
 import torch

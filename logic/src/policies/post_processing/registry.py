@@ -1,3 +1,18 @@
+"""
+Post-Processing Registry Module.
+
+This module provides a registry for post-processing operators. It allows
+registering and retrieving post-processors by name.
+
+Attributes:
+    PostProcessorRegistry (class): The registry class.
+
+Example:
+    >>> from logic.src.policies.post_processing.registry import PostProcessorRegistry
+    >>> PostProcessorRegistry.register("my_processor", MyProcessorClass)
+    >>> cls = PostProcessorRegistry.get("my_processor")
+"""
+
 from typing import Callable, Dict, Optional, Type
 
 from logic.src.interfaces.post_processing import IPostProcessor

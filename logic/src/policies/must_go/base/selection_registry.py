@@ -1,3 +1,19 @@
+"""
+Selection Registry Module.
+
+This module provides a registry for `MustGoSelectionStrategy` classes.
+It allows dynamic registration and retrieval of strategies, facilitating
+plugin-style extensions.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.must_go.base.selection_registry import MustGoSelectionRegistry
+    >>> @MustGoSelectionRegistry.register("my_strategy")
+    >>> class MyStrategy(MustGoSelectionStrategy): ...
+"""
+
 from typing import Dict, Optional, Type
 
 from logic.src.interfaces.must_go import MustGoSelectionStrategy

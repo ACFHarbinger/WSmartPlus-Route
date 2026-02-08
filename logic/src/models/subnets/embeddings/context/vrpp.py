@@ -16,6 +16,13 @@ class VRPPContextEmbedder(ContextEmbedder):
     """Context Embedder for VRP with Profits (VRPP) families."""
 
     def __init__(self, embed_dim: int, node_dim: int = NODE_DIM, temporal_horizon: int = 0):
+        """Initialize Class.
+
+        Args:
+            embed_dim (int): Description of embed_dim.
+            node_dim (int): Description of node_dim.
+            temporal_horizon (int): Description of temporal_horizon.
+        """
         super().__init__(embed_dim, node_dim, temporal_horizon)
         input_dim = node_dim
         if temporal_horizon > 0:
@@ -28,6 +35,15 @@ class VRPPContextEmbedder(ContextEmbedder):
         self.project_step_context = nn.Linear(self.step_context_dim, embed_dim)
 
     def init_node_embeddings(self, nodes: dict[str, Any], temporal_features: bool = True) -> torch.Tensor:
+        """Init node embeddings.
+
+        Args:
+            nodes (dict[str, Any]): Description of nodes.
+            temporal_features (bool): Description of temporal_features.
+
+        Returns:
+            Any: Description of return value.
+        """
         # Initial node embedding: locs + waste (demand) + prize
         # Waste and prize are usually [batch_size, num_nodes]
         # locs is [batch_size, num_nodes, 2]

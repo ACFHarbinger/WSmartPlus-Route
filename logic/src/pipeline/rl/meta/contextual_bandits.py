@@ -175,6 +175,15 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         return self.current_config
 
     def _generate_weight_configs(self, initial_weights, num_configs):
+        """generate weight configs.
+
+        Args:
+            initial_weights (Any): Description of initial_weights.
+            num_configs (Any): Description of num_configs.
+
+        Returns:
+            Any: Description of return value.
+        """
         configs = []
         if initial_weights:
             configs.append(initial_weights.copy())
@@ -187,10 +196,26 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         return configs if configs else [initial_weights]
 
     def _context_to_key(self, context: Dict[str, Any]) -> Tuple:
+        """context to key.
+
+        Args:
+            context (Dict[str, Any]): Description of context.
+
+        Returns:
+            Any: Description of return value.
+        """
         # Simplified context to key mapping
         return tuple(sorted(context.items()))
 
     def _select_ucb(self, context_key):
+        """select ucb.
+
+        Args:
+            context_key (Any): Description of context_key.
+
+        Returns:
+            Any: Description of return value.
+        """
         if self.total_trials == 0:
             return random.randint(0, self.num_configs - 1)
 
@@ -203,10 +228,26 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         return np.argmax(scores)
 
     def _select_thompson_sampling(self, context_key):
+        """select thompson sampling.
+
+        Args:
+            context_key (Any): Description of context_key.
+
+        Returns:
+            Any: Description of return value.
+        """
         samples = [np.random.beta(self.alpha[i], self.beta[i]) for i in range(self.num_configs)]
         return np.argmax(samples)
 
     def _select_epsilon_greedy(self, context_key):
+        """select epsilon greedy.
+
+        Args:
+            context_key (Any): Description of context_key.
+
+        Returns:
+            Any: Description of return value.
+        """
         if random.random() < self.exploration_factor:
             return random.randint(0, self.num_configs - 1)
 

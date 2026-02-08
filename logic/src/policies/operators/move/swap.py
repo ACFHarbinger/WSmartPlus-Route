@@ -1,5 +1,21 @@
+"""
+Swap Operator Module.
+
+This module implements the swap operator, which exchanges the positions of
+two nodes, either within the same route or between two different routes.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.move.swap import move_swap
+    >>> improved = move_swap(ls, u=1, v=2, r_u=0, p_u=1, r_v=1, p_v=3)
+"""
+
+
 def move_swap(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-    """Swap operator: exchange positions of nodes u and v.
+    """
+    Swap operator: exchange positions of nodes u and v.
 
     Swaps node u (in route r_u) with node v (in route r_v). Can be
     inter-route or intra-route swap. Only applies the move if it

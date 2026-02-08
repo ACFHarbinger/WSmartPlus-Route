@@ -1,3 +1,19 @@
+"""
+Solution Construction Module for K-Sparse ACO.
+
+This module implements the solution construction phase of the ACS algorithm.
+Ants construct solutions by probabilistically selecting edges based on pheromone
+levels and heuristic information.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco.construction import SolutionConstructor
+    >>> constructor = SolutionConstructor(...)
+    >>> routes = constructor.construct()
+"""
+
 import random
 from typing import Dict, List, Set
 
@@ -25,6 +41,20 @@ class SolutionConstructor:
         params: ACOParams,
         tau_0: float,
     ):
+        """
+        Initialize Solution Constructor.
+
+        Args:
+            dist_matrix: Distance matrix between nodes.
+            demands: Dictionary of node demands.
+            capacity: Vehicle capacity.
+            pheromone: Sparse pheromone matrix.
+            eta: Heuristic information matrix (inverse of distances).
+            candidate_lists: Precomputed candidate lists for each node.
+            nodes: List of all nodes (excluding depot).
+            params: ACO parameters.
+            tau_0: Initial pheromone value.
+        """
         self.dist_matrix = dist_matrix
         self.demands = demands
         self.capacity = capacity

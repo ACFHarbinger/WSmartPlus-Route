@@ -1,17 +1,35 @@
+"""
+Random Removal Operator Module.
+
+This module implements the random removal heuristic, which simply removes
+a specified number of nodes chosen uniformly at random.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.operators.destroy.random import random_removal
+    >>> routes, removed = random_removal(routes, n_remove=5)
+"""
+
 import random
 from typing import List, Tuple
 
 
 def random_removal(routes: List[List[int]], n_remove: int) -> Tuple[List[List[int]], List[int]]:
     """
-    Randomly remove n_remove nodes from the current routes.
+    Remove nodes randomly from the solution.
+
+    Selects `n_remove` nodes uniformly at random from the current routes
+    and removes them.
 
     Args:
-        routes (List[List[int]]): Current routes.
-        n_remove (int): Number of nodes to remove.
+        routes: The current solution (list of routes).
+        n_remove: Number of nodes to remove.
 
     Returns:
-        Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
+        Tuple[List[List[int]], List[int]]: A tuple containing the
+        modified routes (with nodes removed) and a list of removed node IDs.
     """
     removed = []
     # Flatten

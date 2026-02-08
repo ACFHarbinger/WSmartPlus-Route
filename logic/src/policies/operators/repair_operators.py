@@ -1,10 +1,18 @@
 """
-Repair operators for the Adaptive Large Neighborhood Search (ALNS).
+Repair Operators Module.
 
-This module contains various insertion heuristics used to re-integrate
-removed nodes back into the routing solution.
+This module exposes the repair (insertion) operators used to reconstruct
+partial solutions in the ALNS algorithm.
 
-(Refactored to point to `logic.src.policies.operators.repair` package)
+Attributes:
+    greedy_insertion (function): Cheapest insertion.
+    regret_2_insertion (function): 2-regret insertion.
+    regret_k_insertion (function): k-regret insertion.
+    greedy_insertion_with_blinks (function): Randomized greedy insertion.
+
+Example:
+    >>> from logic.src.policies.operators import repair_operators
+    >>> routes = repair_operators.greedy_insertion(routes, removed, ...)
 """
 
 from .repair import (

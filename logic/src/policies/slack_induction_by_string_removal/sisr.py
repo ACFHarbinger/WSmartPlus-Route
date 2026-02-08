@@ -1,3 +1,17 @@
+"""
+SISR Runner Module.
+
+This module provides a convenience entry point for running the SISR solver
+with a dictionary of configuration values.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.slack_induction_by_string_removal.sisr import run_sisr
+    >>> result = run_sisr(dist_matrix, demands, ...)
+"""
+
 from .params import SISRParams
 from .solver import SISRSolver
 

@@ -1,3 +1,11 @@
+"""distance_strategy.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import distance_strategy
+    """
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 

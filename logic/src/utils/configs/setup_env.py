@@ -27,6 +27,15 @@ def setup_cost_weights(opts: Dict[str, Any], def_val: float = 1.0) -> Dict[str, 
     """
 
     def _set_val(cost_weight: Optional[float], default_value: float) -> float:
+        """set val.
+
+        Args:
+            cost_weight (Optional[float]): Description of cost_weight.
+            default_value (float): Description of default_value.
+
+        Returns:
+            Any: Description of return value.
+        """
         return default_value if cost_weight is None else cost_weight
 
     cw_dict: Dict[str, float] = {}

@@ -1,3 +1,11 @@
+"""shared_critic.py module.
+
+    Attributes:
+        MODULE_VAR (Type): Description of module level variable.
+
+    Example:
+        >>> import shared_critic
+    """
 from typing import Any, Optional
 
 import torch

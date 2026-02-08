@@ -1,9 +1,17 @@
 """
-Hyper-Heuristic Operators for Hyper-ACO.
+Hyper-Heuristic Operators Module.
 
 This module provides wrapper functions for local search operators
 that can be called as standalone moves in a hyper-heuristic context.
 Each operator attempts to improve a solution and returns the modified routes.
+
+Attributes:
+    HYPER_OPERATORS (list): List of operator functions.
+    OPERATOR_NAMES (list): List of operator names.
+
+Example:
+    >>> from logic.src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_operators import apply_2opt
+    >>> improved = apply_2opt(context)
 """
 
 import random
@@ -37,6 +45,16 @@ class HyperOperatorContext:
         capacity: float,
         C: float,
     ):
+        """
+        Initialize HyperOperatorContext.
+
+        Args:
+            routes: Current routes.
+            dist_matrix: Distance matrix.
+            demands: Node demands.
+            capacity: Vehicle capacity.
+            C: Parameter C.
+        """
         self.routes = routes
         self.d = dist_matrix
         self.demands = demands
