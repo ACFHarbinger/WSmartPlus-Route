@@ -47,6 +47,9 @@ from logic.src.pipeline.rl.common.baselines import (
 )
 
 from .attention_model import AttentionModel as AttentionModel
+from .common.active_search import ActiveSearch as ActiveSearch
+from .common.eas import EAS as EAS
+from .common.transductive_base import TransductiveModel as TransductiveModel
 from .critic_network import CriticNetwork as CriticNetwork
 from .dact import DACT as DACT
 from .deepaco import DeepACO as DeepACO
@@ -73,9 +76,6 @@ from .n2s import N2S as N2S
 from .nargnn import NARGNN as NARGNN
 from .neuopt import NeuOpt as NeuOpt
 from .pointer_network import PointerNetwork as PointerNetwork
-from .policies.common.transductive import EAS as EAS
-from .policies.common.transductive import ActiveSearch as ActiveSearch
-from .policies.common.transductive import TransductiveModel as TransductiveModel
 from .polynet import PolyNet as PolyNet
 from .subnets import (
     GatedGraphAttConvEncoder as GatedGraphAttConvEncoder,

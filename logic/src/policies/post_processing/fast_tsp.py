@@ -7,8 +7,10 @@ from typing import Any, List
 import numpy as np
 import torch
 
+from logic.src.interfaces import IPostProcessor
+
 from ..single_vehicle import find_route
-from .base import IPostProcessor, PostProcessorRegistry
+from .registry import PostProcessorRegistry
 
 
 @PostProcessorRegistry.register("fast_tsp")

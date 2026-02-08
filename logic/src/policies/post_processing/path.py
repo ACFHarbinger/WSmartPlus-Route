@@ -4,7 +4,9 @@ Path Refinement Post-Processor.
 
 from typing import Any, List
 
-from .base import IPostProcessor, PostProcessorRegistry
+from logic.src.interfaces import IPostProcessor
+
+from .registry import PostProcessorRegistry
 
 
 @PostProcessorRegistry.register("path")

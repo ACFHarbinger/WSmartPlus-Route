@@ -12,7 +12,7 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.nonautoregressive import (
+from logic.src.models.common.nonautoregressive_policy import (
     NonAutoregressiveDecoder,
     NonAutoregressiveEncoder,
     NonAutoregressivePolicy,

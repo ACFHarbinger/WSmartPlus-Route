@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.autoregressive import AutoregressivePolicy
+from logic.src.models.common.autoregressive_policy import AutoregressivePolicy
 from logic.src.models.subnets.embeddings import get_init_embedding
 
 if TYPE_CHECKING:

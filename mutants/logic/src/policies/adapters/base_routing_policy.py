@@ -38,7 +38,23 @@ class BaseRoutingPolicy(IPolicyAdapter):
 
     Context Outputs:
         Tuple[List[int], float, Any]: (tour, cost, extra_output)
+
+    Attributes:
+        config: Optional configuration dataclass for this policy.
     """
+
+    def __init__(self, config: Any = None):
+        """Initialize policy with optional config dataclass.
+
+        Args:
+            config: Optional dataclass with policy-specific parameters.
+        """
+        self._config = config
+
+    @property
+    def config(self) -> Any:
+        """Return the policy configuration dataclass."""
+        return self._config
 
     def _get_config_key(self) -> str:
         """
@@ -76,10 +92,16 @@ class BaseRoutingPolicy(IPolicyAdapter):
         Returns:
             Tuple of (capacity, revenue, cost_unit, merged_values_dict)
         """
+        from dataclasses import asdict, is_dataclass
+
         from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 
         config_key = self._get_config_key()
         policy_config = config.get(config_key, {})
+
+        # If we have a dataclass config, convert to dict and merge
+        if self._config is not None and is_dataclass(self._config):
+            policy_config = {**policy_config, **asdict(self._config)}
 
         Q, R, _, C, _ = load_area_and_waste_type_params(area, waste_type)
 

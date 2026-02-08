@@ -1,4 +1,4 @@
-from .l2d_policy import L2DPolicy
+from .policy import L2DPolicy
 
 
 class L2DPolicy4PPO(L2DPolicy):

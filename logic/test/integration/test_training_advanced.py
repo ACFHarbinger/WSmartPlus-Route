@@ -3,9 +3,9 @@ import shutil
 
 import pytest
 from logic.src.envs.vrpp import VRPPEnv
-from logic.src.models.critic_network_network_network import CriticNetwork
-from logic.src.models.model_factory import AttentionComponentFactory
-from logic.src.models.policies.am import AttentionModelPolicy
+from logic.src.models.critic_network.policy import CriticNetwork as CriticNetworkPolicy
+from logic.src.models.subnets.factories.attention import AttentionComponentFactory
+from logic.src.models.attention_model.policy import AttentionModelPolicy
 from logic.src.pipeline.rl.core.dr_grpo import DRGRPO
 from logic.src.pipeline.rl.core.gdpo import GDPO
 from logic.src.pipeline.rl.core.reinforce import REINFORCE

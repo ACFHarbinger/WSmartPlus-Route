@@ -7,7 +7,9 @@ from typing import Any, List
 import numpy as np
 import torch
 
-from .base import IPostProcessor, PostProcessorRegistry
+from logic.src.interfaces import IPostProcessor
+
+from .registry import PostProcessorRegistry
 
 
 @PostProcessorRegistry.register("classical")
@@ -38,7 +40,7 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
         Returns:
             List[int]: The refined tour after applying the local search operator.
         """
-        from logic.src.models.policies.classical.local_search import (
+        from logic.src.models.policies.local_search import (
             vectorized_relocate,
             vectorized_swap,
             vectorized_swap_star,

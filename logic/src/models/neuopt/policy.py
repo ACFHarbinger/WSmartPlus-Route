@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from .common.improvement import ImprovementPolicy
-from .neuopt_decoder import NeuOptDecoder
-from .neuopt_encoder import NeuOptEncoder
+from ..common.improvement_policy import ImprovementPolicy
+from .decoder import NeuOptDecoder
+from .encoder import NeuOptEncoder
 
 
 class NeuOptPolicy(ImprovementPolicy):

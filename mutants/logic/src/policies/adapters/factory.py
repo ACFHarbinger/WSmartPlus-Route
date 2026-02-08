@@ -37,7 +37,6 @@ class PolicyFactory:
         import logic.src.policies.adapters.policy_cvrp as policy_cvrp  # noqa
         import logic.src.policies.adapters.policy_hgs as policy_hgs  # noqa
         import logic.src.policies.adapters.policy_hgs_alns as policy_hgs_alns  # noqa
-        import logic.src.policies.adapters.policy_lac as policy_lac  # noqa
         import logic.src.policies.adapters.policy_lkh as policy_lkh  # noqa
         import logic.src.policies.adapters.policy_sans as policy_sans  # noqa
         import logic.src.policies.adapters.policy_tsp as policy_tsp  # noqa
@@ -148,10 +147,6 @@ def __getattr__(name: str) -> Any:
         from logic.src.policies.adapters.policy_sans import SANSPolicy
 
         return SANSPolicy
-    elif name == "LACPolicy":
-        from logic.src.policies.adapters.policy_lac import LACPolicy
-
-        return LACPolicy
     elif name == "PolicyAdapter":
         return IPolicy
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

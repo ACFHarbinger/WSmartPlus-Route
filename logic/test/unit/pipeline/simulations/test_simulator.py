@@ -19,21 +19,21 @@ from logic.src.pipeline.simulations.checkpoints import (
     CheckpointError,
     checkpoint_manager,
 )
-from logic.src.pipeline.simulations.day import (
+from logic.src.pipeline.simulations.day_context import (
     get_daily_results,
     run_day,
     set_daily_waste,
 )
-from logic.src.pipeline.simulations.loader import (
+from logic.src.pipeline.simulations.repository import (
     FileSystemRepository,
     load_area_and_waste_type_params,
     load_depot,
     load_indices,
     load_simulator_data,
 )
-from logic.src.pipeline.simulations.network import apply_edges, compute_distance_matrix
+from logic.src.utils.data.network_utils import apply_edges
+from logic.src.pipeline.simulations.network import compute_distance_matrix, haversine_distance
 from logic.src.pipeline.simulations.processor import (
-    haversine_distance,
     process_coordinates,
     process_data,
     save_matrix_to_excel,

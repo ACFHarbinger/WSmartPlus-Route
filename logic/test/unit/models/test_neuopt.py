@@ -6,9 +6,9 @@ import pytest
 import torch
 from tensordict import TensorDict
 
-from logic.src.envs.tsp import TSPkoptEnv
+from logic.src.envs.tsp_kopt import TSPkoptEnv
 from logic.src.models.neuopt import NeuOpt
-from logic.src.models.policies.neuopt import NeuOptPolicy
+from logic.src.models.neuopt.policy import NeuOptPolicy
 
 
 def test_neuopt_policy_forward():

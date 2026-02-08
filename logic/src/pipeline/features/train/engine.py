@@ -8,7 +8,7 @@ from pytorch_lightning.loggers import CSVLogger
 
 from logic.src.configs import Config
 from logic.src.pipeline.callbacks import SpeedMonitor
-from logic.src.pipeline.features.train.model_factory import create_model
+from logic.src.pipeline.features.train.model_factory.builder import create_model
 from logic.src.pipeline.rl.common.trainer import WSTrainer
 
 
