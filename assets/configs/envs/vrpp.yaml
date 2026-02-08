@@ -11,29 +11,32 @@
 # =============================================================================
 
 env:
-  name: "vrpp"  # Environment identifier
+  name: "vrpp" # Environment identifier
 
   # =============================================================================
   # Problem Size
   # =============================================================================
-  num_loc: 50  # Number of customer nodes (excluding depot).
-               # Standard benchmark sizes: 20, 50, 100, 200.
-               # Total nodes = num_loc + 1 (includes depot at index 0).
+  num_loc:
+    50 # Number of customer nodes (excluding depot).
+    # Standard benchmark sizes: 20, 50, 100, 200.
+    # Total nodes = num_loc + 1 (includes depot at index 0).
 
   # =============================================================================
   # Objective Function Weights
   # =============================================================================
   # Objective: maximize (prize_weight × Σ prizes) - (cost_weight × total_distance)
+  reward:
+    waste_weight:
+      1.0 # Weight for node prizes/rewards. (prize_weight in user's request)
+      # Higher = prioritize collecting high-value nodes.
+      # Typical range: 0.5-2.0.
 
-  prize_weight: 1.0  # Weight for node prizes/rewards.
-                     # Higher = prioritize collecting high-value nodes.
-                     # Typical range: 0.5-2.0.
-
-  cost_weight: 1.0  # Weight for travel distance penalty.
-                    # Higher = prioritize shorter routes.
-                    # Typical range: 0.5-2.0.
-                    #
-                    # Balance Examples:
-                    #   - prize_weight=1.0, cost_weight=1.0: Balanced (default)
-                    #   - prize_weight=2.0, cost_weight=1.0: Prioritize collecting nodes
-                    #   - prize_weight=1.0, cost_weight=2.0: Prioritize short routes
+    cost_weight:
+      1.0 # Weight for travel distance penalty.
+      # Higher = prioritize shorter routes.
+      # Typical range: 0.5-2.0.
+      #
+      # Balance Examples:
+      #   - prize_weight=1.0, cost_weight=1.0: Balanced (default)
+      #   - prize_weight=2.0, cost_weight=1.0: Prioritize collecting nodes
+      #   - prize_weight=1.0, cost_weight=2.0: Prioritize short routes

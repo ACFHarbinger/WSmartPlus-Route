@@ -32,7 +32,7 @@ class WCVRPEnv(RL4COEnvBase):
         generator: Optional[WCVRPGenerator] = None,
         generator_params: Optional[dict] = None,
         overflow_penalty: float = 10.0,
-        collection_reward: float = 1.0,
+        waste_weight: float = 1.0,
         cost_weight: float = 1.0,
         revenue_kg: Optional[float] = None,
         cost_km: Optional[float] = None,
@@ -46,9 +46,9 @@ class WCVRPEnv(RL4COEnvBase):
             generator: Problem instance generator.
             generator_params: Parameters for generator initialization.
             overflow_penalty: Penalty for bin overflow.
-            collection_reward: Reward weight for waste collection.
+            waste_weight: Reward weight for waste collection.
             cost_weight: Weight for travel cost in reward.
-            revenue_kg: Optional revenue per kg (overrides collection_reward).
+            revenue_kg: Optional revenue per kg (overrides waste_weight).
             cost_km: Optional cost per kg (overrides cost_weight).
             device: Device for torch tensors ('cpu' or 'cuda').
             **kwargs: Additional keyword arguments.
@@ -59,7 +59,7 @@ class WCVRPEnv(RL4COEnvBase):
 
         super().__init__(generator, generator_params, device, **kwargs)
         self.overflow_penalty = overflow_penalty
-        self.collection_reward = revenue_kg if revenue_kg is not None else collection_reward
+        self.waste_weight = revenue_kg if revenue_kg is not None else waste_weight
         self.cost_weight = cost_km if cost_km is not None else cost_weight
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
@@ -370,14 +370,13 @@ class WCVRPEnv(RL4COEnvBase):
         td["collection"] = collection
         td["cost"] = total_cost
         td["overflows"] = overflows
-        td["cur_overflows"] = overflows  # Alias
 
         # Store decomposed rewards for GDPO (signed for maximization)
         td["reward_waste"] = collection
         td["reward_cost"] = -total_cost
         td["reward_overflow"] = -overflows
 
-        reward = self.collection_reward * collection - self.cost_weight * total_cost - self.overflow_penalty * overflows
+        reward = self.waste_weight * collection - self.cost_weight * total_cost - self.overflow_penalty * overflows
 
         # Ensure it's 1D [B] matching batch_size
         if reward.dim() > 1:

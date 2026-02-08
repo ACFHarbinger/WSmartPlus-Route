@@ -43,10 +43,10 @@ train:
   log_step: 10 # Log metrics every N steps
   callbacks:
     - display:
-        _target_: logic.src.pipeline.callbacks.display.TrainingDisplayCallback
-        metric_key: "train/reward"
+        _target_: logic.src.pipeline.callbacks.training_display.TrainingDisplayCallback
+        metric_keys: ["train/reward", "val/reward"]
         chart_title: "📈 Training Progress"
-        refresh_rate: 4
+        history_length: null
 
 # =============================================================================
 # Output Paths

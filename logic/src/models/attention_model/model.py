@@ -313,7 +313,7 @@ class AttentionModel(DecodingMixin, nn.Module):
 
         # Pass through Decoder
         # The decoder handles autoregressive steps
-        _log_p, pi, cost = self.decoder(
+        _log_p, pi, cost, final_td = self.decoder(
             input,
             outputs,
             graph_context,
@@ -324,7 +324,7 @@ class AttentionModel(DecodingMixin, nn.Module):
             expert_pi=expert_pi,
         )
 
-        out = {"cost": cost, "reward": -cost}  # RL maximizes reward
+        out = {"cost": cost, "reward": -cost, "td": final_td}  # RL maximizes reward
 
         if _log_p is not None:
             out["log_likelihood"] = _log_p

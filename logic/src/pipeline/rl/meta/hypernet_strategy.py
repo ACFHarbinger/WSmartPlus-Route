@@ -90,7 +90,7 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
             self.current_day = day
 
         # Parse metrics
-        # In MetaRLModule 'metrics' is a list: [collection_reward, cost_reward]
+        # In MetaRLModule 'metrics' is a list: [waste_weight, cost_weight]
         # But Hypernetwork needs specific components like 'overflows', 'kg', 'km'
         # If 'metrics' passed is a dict, we can update last_costs
 
