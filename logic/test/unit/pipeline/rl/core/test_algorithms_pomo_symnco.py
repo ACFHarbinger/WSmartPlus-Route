@@ -20,7 +20,7 @@ class MockPolicy(torch.nn.Module):
         self.n_start = n_start
         self.n_aug = n_aug
 
-    def forward(self, td, env, decode_type="sampling", num_starts=None):
+    def forward(self, td, env, strategy="sampling", num_starts=None):
         bs = td.batch_size[0]
         n_s = num_starts if num_starts is not None else self.n_start
         # reward: [batch * n_aug * n_s]

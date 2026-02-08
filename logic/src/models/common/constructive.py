@@ -43,7 +43,7 @@ class ConstructivePolicy(nn.Module, ABC):
         self,
         td: TensorDict,
         env: RL4COEnvBase,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         num_starts: int = 1,
         **kwargs,
     ) -> dict:
@@ -53,7 +53,7 @@ class ConstructivePolicy(nn.Module, ABC):
         Args:
             td: TensorDict containing problem instance.
             env: Environment for state transitions.
-            decode_type: Decoding strategy ("sampling", "greedy", "beam_search").
+            strategy: Decoding strategy ("sampling", "greedy", "beam_search").
             num_starts: Number of solution starts for multi-start methods.
 
         Returns:
@@ -68,7 +68,7 @@ class ConstructivePolicy(nn.Module, ABC):
         self,
         logits: torch.Tensor,
         mask: torch.Tensor,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         **kwargs,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
@@ -77,17 +77,17 @@ class ConstructivePolicy(nn.Module, ABC):
         Args:
             logits: Action logits [batch, num_nodes]
             mask: Valid action mask [batch, num_nodes]
-            decode_type: Decoding strategy name
+            strategy: Decoding strategy name
             **kwargs: Additional arguments for decoding strategy (temperature, etc.)
 
         Returns:
             Tuple of (action, log_prob, entropy)
         """
         # Get strategy (can be cached if needed)
-        strategy = get_decoding_strategy(decode_type, **kwargs)
+        decoder_strategy = get_decoding_strategy(strategy, **kwargs)
 
         # Step
-        result = strategy.step(logits, mask)
+        result = decoder_strategy.step(logits, mask)
         if len(result) == 3:
             action, log_prob, entropy = result
         else:

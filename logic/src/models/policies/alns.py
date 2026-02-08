@@ -4,7 +4,7 @@ ALNS Policy wrapper for RL4CO using vectorized implementation.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
 import torch
 from tensordict import TensorDict
@@ -38,9 +38,10 @@ class VectorizedALNS(ImprovementPolicy):
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
-        decode_type: str = "greedy",  # Ignored for ALNS
+        env: Optional[RL4COEnvBase] = None,
+        strategy: str = "greedy",  # Ignored for ALNS
         num_starts: int = 1,
+        max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
         **kwargs,

@@ -20,8 +20,8 @@ def validate_eval_args(args: Dict[str, Any]) -> Dict[str, Any]:
     assert (
         "o" not in args
         or args["o"] is None
-        or (len(args.get("datasets") or []) == 1 and len(args.get("width") or []) <= 1)
-    ), "Cannot specify result filename with more than one dataset or more than one width"
+        or (len(args.get("datasets") or []) == 1 and len(args.get("beam_width") or []) <= 1)
+    ), "Cannot specify result filename with more than one dataset or more than one beam_width"
 
     args["area"] = re.sub(r"[^a-zA-Z]", "", args.get("area", "").lower())
     assert args["area"] in MAP_DEPOTS.keys(), "Unknown area {}, available areas: {}".format(

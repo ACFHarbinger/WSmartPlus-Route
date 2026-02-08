@@ -45,7 +45,7 @@ def test_dact_policy_forward():
 
     # Run one step of policy
     # We need to ensure we can run it in greedy mode
-    out = policy(td, env, decode_type="greedy", max_steps=3)
+    out = policy(td, env, strategy="greedy", max_steps=3)
 
     assert "actions" in out.keys()
     assert out["actions"].shape == (2, 3, 2)  # batch, steps, 2 nodes

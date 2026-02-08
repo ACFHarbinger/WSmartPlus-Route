@@ -61,7 +61,7 @@ def rl_loss_fn(m, x_batch, cost_weights=None):
         }
 
     with torch.no_grad():
-        model_to_call.set_decode_type("greedy")
+        model_to_call.set_strategy("greedy")
         cost, _, _, _, _ = model_to_call(x_batch, cost_weights=cost_weights, return_pi=False)
     return cost.float().mean().item()
 
@@ -94,7 +94,7 @@ def plot_loss_landscape(model, opts, output_dir, epoch=0, size=50, batch_size=16
     )
 
     print("Generating expert targets for landscape...")
-    model.set_decode_type("greedy")
+    model.set_strategy("greedy")
     with torch.no_grad():
         _, _, _, pi, _ = model(x_batch, return_pi=True)
         x_dist = x_batch["dist"]

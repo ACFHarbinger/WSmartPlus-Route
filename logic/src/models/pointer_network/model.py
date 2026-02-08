@@ -67,14 +67,14 @@ class PointerNetwork(nn.Module):
         self.embedding = nn.Parameter(torch.FloatTensor(self.input_dim, embed_dim))
         self.embedding.data.uniform_(-std, std)
 
-    def set_decode_type(self, decode_type):
+    def set_strategy(self, strategy):
         """
         Set the decoding strategy for the model.
 
         Args:
-            decode_type (str): The decoding strategy ('greedy' or 'sampling').
+            strategy (str): The decoding strategy ('greedy' or 'sampling').
         """
-        self.decoder.decode_type = decode_type
+        self.decoder.strategy = strategy
 
     def forward(self, inputs, eval_tours=None, return_pi=False):
         """

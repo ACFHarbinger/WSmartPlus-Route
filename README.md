@@ -57,6 +57,7 @@
 
 <p>
   <a href="#-documentation-hub"><strong>Documentation</strong></a> |
+  <a href="COMPATIBILITY.md"><strong>Compatibility</strong></a> |
   <a href="#-overview"><strong>Overview</strong></a> |
   <a href="#-key-features"><strong>Features</strong></a> |
   <a href="#-quickstart"><strong>Quickstart</strong></a> |
@@ -81,6 +82,7 @@ Our comprehensive documentation covers every aspect of the WSmart+ Route system:
 | **[CONTRIBUTING.md](CONTRIBUTING.md)**       | Code style, Git workflow, PR process, and development guidelines.                                                                       | Contributors                             |
 | **[DEVELOPMENT.md](DEVELOPMENT.md)**         | Environment setup, CLI reference, development workflows, and debugging guides.                                                          | Developers                               |
 | **[TESTING.md](TESTING.md)**                 | Test suite organization, fixtures, coverage requirements, and best practices.                                                           | QA Engineers, Developers                 |
+| **[COMPATIBILITY.md](COMPATIBILITY.md)**     | Detailed matrix of supported models, environments, and configuration pairs.                                                             | Researchers, Developers                  |
 | **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** | Common issues, diagnostic steps, error reference, and quick fixes.                                                                      | Everyone                                 |
 | **[TUTORIAL.md](TUTORIAL.md)**               | Deep dives into algorithms, code examples, and implementation guides.                                                                   | Developers, Researchers                  |
 

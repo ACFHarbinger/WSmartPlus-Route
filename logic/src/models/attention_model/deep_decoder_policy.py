@@ -65,7 +65,7 @@ class DeepDecoderPolicy(AutoregressivePolicy):
         self,
         td: TensorDict,
         env: RL4COEnvBase,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
         **kwargs,
@@ -117,7 +117,7 @@ class DeepDecoderPolicy(AutoregressivePolicy):
                 log_p = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-10).squeeze(-1)
             else:
                 # Select action
-                action, log_p, entropy_step = self._select_action(logits, valid_mask, decode_type)
+                action, log_p, entropy_step = self._select_action(logits, valid_mask, strategy)
                 entropy = entropy + entropy_step
 
             td["action"] = action

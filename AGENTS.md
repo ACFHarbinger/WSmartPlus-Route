@@ -483,12 +483,13 @@ uv sync
 
 ### 9.2 Reference Files
 
-| File                 | Purpose                          |
-| -------------------- | -------------------------------- |
-| `project_map.txt`    | Full project structure map       |
-| `CLAUDE.md`          | This file (symlink to AGENTS.md) |
-| `ARCHITECTURE.md`    | System design documentation      |
-| `TROUBLESHOOTING.md` | Common issues and fixes          |
+| File                 | Purpose                              |
+| -------------------- | ------------------------------------ |
+| `project_map.txt`    | Full project structure map           |
+| `CLAUDE.md`          | This file (symlink to AGENTS.md)     |
+| `ARCHITECTURE.md`    | System design documentation          |
+| `TROUBLESHOOTING.md` | Common issues and fixes              |
+| `COMPATIBILITY.md`   | Model and Environment support matrix |
 
 ---
 

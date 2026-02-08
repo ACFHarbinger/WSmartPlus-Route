@@ -2,6 +2,11 @@
 Encoder Subnetworks.
 """
 
+from .common import (
+    EncoderFeedForwardSubLayer,
+    MultiHeadAttentionLayerBase,
+    TransformerEncoderBase,
+)
 from .deepaco import DeepACOEncoder
 from .gac import GraphAttConvEncoder
 from .gat import GraphAttentionEncoder
@@ -17,11 +22,17 @@ from .ptr import PointerEncoder
 from .tgc import TransGraphConvEncoder
 
 __all__ = [
+    # Base classes and common components
+    "TransformerEncoderBase",
+    "EncoderFeedForwardSubLayer",
+    "MultiHeadAttentionLayerBase",
+    # Encoder implementations
     "DeepACOEncoder",
     "GraphAttConvEncoder",
     "GraphAttentionEncoder",
     "GraphConvolutionEncoder",
     "GFACSEncoder",
+    "GatedGraphAttConvEncoder",
     "MatNetEncoder",
     "MDAMGraphAttentionEncoder",
     "MLPEncoder",

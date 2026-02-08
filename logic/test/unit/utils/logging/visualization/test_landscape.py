@@ -16,7 +16,7 @@ from logic.src.utils.logging.visualization.landscape import (
 def mock_model():
     """Create a mock model that behaves like an nn.Module with necessary methods."""
     # Use spec to avoid having every attribute by default
-    model = MagicMock(spec=["eval", "parameters", "cost_weights", "set_decode_type", "model", "modules"])
+    model = MagicMock(spec=["eval", "parameters", "cost_weights", "set_strategy", "model", "modules"])
 
     # Mock parameters to get a device
     param = MagicMock()
@@ -59,7 +59,7 @@ def test_rl_loss_fn(mock_model):
 
     assert isinstance(loss, float)
     assert loss == 10.0
-    mock_model.set_decode_type.assert_called_with("greedy")
+    mock_model.set_strategy.assert_called_with("greedy")
 
 @patch("logic.src.utils.logging.visualization.landscape.get_batch")
 @patch("logic.src.utils.logging.visualization.landscape.vectorized_two_opt")

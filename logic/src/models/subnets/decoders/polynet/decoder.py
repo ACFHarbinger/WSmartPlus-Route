@@ -14,7 +14,7 @@ from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
 from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
 from logic.src.models.subnets.modules.polynet_attention import PolyNetAttention
 
-from .cache import PrecomputedCache
+from ..common import AttentionDecoderCache
 
 
 class PolyNetDecoder(nn.Module):
@@ -79,7 +79,7 @@ class PolyNetDecoder(nn.Module):
         td: TensorDict,
         embeddings: torch.Tensor,
         env: RL4COEnvBase,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         num_starts: int = 1,
         **kwargs,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -101,7 +101,7 @@ class PolyNetDecoder(nn.Module):
             probs = torch.softmax(logits, dim=-1)
 
             # Select action
-            if decode_type == "greedy":
+            if strategy == "greedy":
                 action = probs.argmax(dim=-1)
             else:
                 probs = probs.clamp(min=NUMERICAL_EPSILON)
@@ -125,7 +125,7 @@ class PolyNetDecoder(nn.Module):
     def _precompute_cache(
         self,
         embeddings: torch.Tensor,
-    ) -> PrecomputedCache:
+    ) -> AttentionDecoderCache:
         """Precompute fixed projections for decoding."""
         # Handle MatNet-style embeddings (tuple)
         if isinstance(embeddings, tuple):
@@ -146,7 +146,7 @@ class PolyNetDecoder(nn.Module):
         else:
             graph_context = torch.zeros(context_emb.size(0), self.embed_dim, device=context_emb.device)
 
-        return PrecomputedCache(
+        return AttentionDecoderCache(
             node_embeddings=node_embeddings,
             graph_context=graph_context,
             glimpse_key=glimpse_key,
@@ -156,7 +156,7 @@ class PolyNetDecoder(nn.Module):
 
     def _get_step_logits(
         self,
-        cache: PrecomputedCache,
+        cache: AttentionDecoderCache,
         td: TensorDict,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Get logits for current step."""

@@ -42,9 +42,9 @@ class NeuOpt(nn.Module):
         self,
         td: Any,
         env: Optional[RL4COEnvBase] = None,
-        decode_type: str = "greedy",
+        strategy: str = "greedy",
         **kwargs,
     ):
         """Forward pass of the model."""
         env = env or self.env
-        return self.policy(td, env, decode_type=decode_type, **kwargs)
+        return self.policy(td, env, strategy=strategy, **kwargs)

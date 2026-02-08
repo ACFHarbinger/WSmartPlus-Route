@@ -74,13 +74,13 @@ class TestEvalTabInteractions:
     def test_decoding_tab_get_params(self, decoding_tab):
         """Test decoding parameters."""
         decoding_tab.decode_strategy_combo.setCurrentText("Sampling")
-        decoding_tab.decode_type_combo.setCurrentText("Greedy")
+        decoding_tab.strategy_combo.setCurrentText("Greedy")
         decoding_tab.width_input.setText("10 20")
         decoding_tab.softmax_temperature_input.setValue(1.5)
 
         params = decoding_tab.get_params()
 
         assert params["decode_strategy"] == "sampling"
-        assert params["decode_type"] == "greedy"
+        assert params["strategy"] == "greedy"
         assert params["width"] == "10 20"
         assert params["softmax_temperature"] == 1.5

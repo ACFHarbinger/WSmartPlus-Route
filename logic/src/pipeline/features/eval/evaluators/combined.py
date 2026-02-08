@@ -35,7 +35,7 @@ class MultiStartAugmentEval(EvalBase):
             batch = move_to(batch, self.device)
             with torch.no_grad():
                 aug_batch = augment(batch)
-                out = policy(aug_batch, decode_type="greedy", num_starts=self.num_starts, **kwargs)
+                out = policy(aug_batch, strategy="greedy", num_starts=self.num_starts, **kwargs)
 
                 # Reshape and pick best from augmentations (pomo handles multi-start)
                 reward = out["reward"].view(self.num_augment, batch.batch_size[0], -1).max(0).values

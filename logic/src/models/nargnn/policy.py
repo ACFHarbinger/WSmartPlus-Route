@@ -52,9 +52,9 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         act_fn: Activation function to use in the encoder.
         agg_fn: Aggregation function to use in the encoder.
         linear_bias: Whether to use bias in the encoder.
-        train_decode_type: Type of decoding during training.
-        val_decode_type: Type of decoding during validation.
-        test_decode_type: Type of decoding during testing.
+        train_strategy: Type of decoding during training.
+        val_strategy: Type of decoding during validation.
+        test_strategy: Type of decoding during testing.
         **constructive_policy_kw: Additional keyword arguments.
     """
 
@@ -73,9 +73,9 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         act_fn: str = "silu",
         agg_fn: str = "mean",
         linear_bias: bool = True,
-        train_decode_type: str = "sampling",
-        val_decode_type: str = "greedy",
-        test_decode_type: str = "greedy",
+        train_strategy: str = "sampling",
+        val_strategy: str = "greedy",
+        test_strategy: str = "greedy",
         **constructive_policy_kw,
     ) -> None:
         """
@@ -95,9 +95,9 @@ class NARGNNPolicy(NonAutoregressivePolicy):
            act_fn: Activation function.
            agg_fn: Aggregation function.
            linear_bias: Use bias in linear layers.
-           train_decode_type: Decode type for training.
-           val_decode_type: Decode type for validation.
-           test_decode_type: Decode type for testing.
+           train_strategy: Strategy for training.
+           val_strategy: Strategy for validation.
+           test_strategy: Strategy for testing.
            **constructive_policy_kw: Args for NonAutoregressivePolicy.
         """
         if encoder is None:
@@ -129,9 +129,9 @@ class NARGNNPolicy(NonAutoregressivePolicy):
             **constructive_policy_kw,
         )
 
-        self.train_decode_type = train_decode_type
-        self.val_decode_type = val_decode_type
-        self.test_decode_type = test_decode_type
+        self.train_strategy = train_strategy
+        self.val_strategy = val_strategy
+        self.test_strategy = test_strategy
 
     def forward(
         self,
@@ -147,10 +147,10 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         # Encode: predict heatmap
         heatmap, node_embed = self.encoder(td)
 
-        # Decode type selection
-        decode_type = kwargs.get("decode_type")
-        if decode_type is None:
-            decode_type = getattr(self, f"{phase}_decode_type", "greedy")
+        # Strategy selection
+        strategy = kwargs.get("strategy")
+        if strategy is None:
+            strategy = getattr(self, f"{phase}_strategy", "greedy")
 
         # Instantiate environment if needed
         if env is None:
@@ -160,7 +160,7 @@ class NARGNNPolicy(NonAutoregressivePolicy):
 
         # Use common_decoding
         logprobs, actions, td, env = self.common_decoding(
-            decode_type=decode_type,
+            strategy=strategy,
             td=td,
             env=env,
             heatmap=heatmap,

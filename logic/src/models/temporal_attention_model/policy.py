@@ -11,7 +11,8 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.attention_model.policy import AttentionModelPolicy
 from logic.src.models.subnets.modules.activation_function import ActivationFunction
-from logic.src.models.subnets.other.grf_predictor import GatedRecurrentFillPredictor
+from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
+from logic.src.models.subnets.other.lstm_fill_predictor import LongShortTermMemoryFillPredictor
 from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
 
 
@@ -30,6 +31,7 @@ class TemporalAMPolicy(AttentionModelPolicy):
         hidden_dim: int = 512,
         temporal_horizon: int = 5,
         predictor_layers: int = 2,
+        predictor_type: str = "gru",
         **kwargs,
     ):
         """Initialize TemporalAMPolicy."""
@@ -42,12 +44,20 @@ class TemporalAMPolicy(AttentionModelPolicy):
         self.temporal_horizon = temporal_horizon
 
         # Sub-components for temporal features
-        self.fill_predictor = GatedRecurrentFillPredictor(
-            input_dim=1,
-            hidden_dim=hidden_dim,
-            num_layers=predictor_layers,
-            dropout=kwargs.get("dropout_rate", 0.1),
-        )
+        if predictor_type == "lstm":
+            self.fill_predictor = LongShortTermMemoryFillPredictor(
+                input_dim=1,
+                hidden_dim=hidden_dim,
+                num_layers=predictor_layers,
+                dropout=kwargs.get("dropout_rate", 0.1),
+            )
+        else:
+            self.fill_predictor = GatedRecurrentUnitFillPredictor(
+                input_dim=1,
+                hidden_dim=hidden_dim,
+                num_layers=predictor_layers,
+                dropout=kwargs.get("dropout_rate", 0.1),
+            )
 
         self.temporal_embed = nn.Linear(1, embed_dim)
 
@@ -62,7 +72,7 @@ class TemporalAMPolicy(AttentionModelPolicy):
         self,
         td: TensorDict,
         env: RL4COEnvBase,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
         **kwargs,
@@ -128,7 +138,7 @@ class TemporalAMPolicy(AttentionModelPolicy):
                 probs = torch.softmax(logits.masked_fill(~valid_mask, float("-inf")), dim=-1)
                 log_p = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-10).squeeze(-1)
             else:
-                action, log_p, entropy_step = self._select_action(logits, valid_mask, decode_type)
+                action, log_p, entropy_step = self._select_action(logits, valid_mask, strategy)
                 entropy = entropy + entropy_step
 
             td["action"] = action

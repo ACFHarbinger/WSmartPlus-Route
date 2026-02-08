@@ -14,7 +14,7 @@ class MockPolicy(nn.Module):
         self.embed_dim = embed_dim
         self.param = nn.Parameter(torch.randn(1))
 
-    def forward(self, td, env=None, decode_type="sampling"):
+    def forward(self, td, env=None, strategy="sampling"):
         batch_size = td.batch_size[0]
         return {
             "reward": torch.ones(batch_size, device=td.device),

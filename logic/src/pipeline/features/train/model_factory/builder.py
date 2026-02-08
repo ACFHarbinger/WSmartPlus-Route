@@ -9,14 +9,14 @@ from logic.src.models.policies import (
     AttentionModelPolicy,
     DeepDecoderPolicy,
     MoEPolicy,
+    NeuralHeuristicHybrid,
     PointerNetworkPolicy,
     SymNCOPolicy,
     TemporalAMPolicy,
+    VectorizedALNS,
+    VectorizedHGS,
+    VectorizedHGSALNS,
 )
-from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
-from logic.src.models.policies.hgs import VectorizedHGS
-from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
-from logic.src.models.policies.hybrid import NeuralHeuristicHybrid
 from logic.src.pipeline.features.base import deep_sanitize, remap_legacy_keys
 from logic.src.pipeline.rl import REINFORCE, MetaRLModule
 from logic.src.utils.logging.pylogger import get_pylogger
@@ -30,7 +30,39 @@ def create_model(cfg: Config) -> pl.LightningModule:
     """Helper to create the RL model based on config."""
     # 1. Initialize Environment
     env_name = cfg.env.name
-    env_kwargs = {k: v for k, v in vars(cfg.env).items() if k != "name"}
+    env_kwargs = {k: v for k, v in vars(cfg.env).items() if k not in ["name", "graph", "reward"]}
+
+    # Flatten GraphConfig
+    if hasattr(cfg.env, "graph"):
+        graph = cfg.env.graph
+        env_kwargs.update(
+            {
+                "area": graph.area,
+                "waste_type": graph.waste_type,
+                "vertex_method": graph.vertex_method,
+                "distance_method": graph.distance_method,
+                "dm_filepath": graph.dm_filepath,
+                "waste_filepath": graph.waste_filepath,
+                "edge_threshold": graph.edge_threshold,
+                "edge_method": graph.edge_method,
+                "focus_graphs": graph.focus_graphs,
+                "focus_size": graph.focus_size,
+                "eval_focus_size": graph.eval_focus_size,
+            }
+        )
+
+    # Flatten ObjectiveConfig
+    if hasattr(cfg.env, "reward"):
+        reward = cfg.env.reward
+        env_kwargs.update(
+            {
+                "cost_weight": reward.cost_weight,
+                "waste_weight": reward.waste_weight,
+                "overflow_penalty": reward.overflow_penalty,
+                "collection_reward": reward.collection_reward,
+            }
+        )
+
     # Override distribution if specified in train config
     if getattr(cfg.train, "data_distribution", None) is not None:
         env_kwargs["data_distribution"] = cfg.train.data_distribution
@@ -55,22 +87,82 @@ def create_model(cfg: Config) -> pl.LightningModule:
         "hybrid": NeuralHeuristicHybrid,
     }
 
-    if cfg.model.name not in policy_map:
-        raise ValueError(f"Unknown model name: {cfg.model.name}. Available: {list(policy_map.keys())}")
+    # Flatten ModelConfig for policy initialization
+    policy_kwargs = {}
 
-    policy_cls = policy_map[cfg.model.name]
-    policy_kwargs = vars(cfg.model).copy()
+    # Base model params
+    if hasattr(cfg.model, "encoder"):
+        # Map EncoderConfig
+        enc = cfg.model.encoder
+        policy_kwargs.update(
+            {
+                "embed_dim": enc.embed_dim,
+                "hidden_dim": enc.hidden_dim,
+                "n_encode_layers": enc.n_layers,
+                "n_heads": enc.n_heads,
+                "normalization": enc.normalization.norm_type if hasattr(enc, "normalization") else "instance",
+                "activation": enc.activation.name if hasattr(enc, "activation") else "relu",
+                # Pass full configs as well for newer models
+                "norm_config": enc.normalization,
+                "activation_config": enc.activation,
+                "encoder_config": enc,
+            }
+        )
+
+    if hasattr(cfg.model, "decoder"):
+        # Map DecoderConfig
+        dec = cfg.model.decoder
+        policy_kwargs.update(
+            {
+                "n_decode_layers": dec.n_layers,
+                "decoder_type": dec.type,
+                "decoder_config": dec,
+            }
+        )
+
+    # Copy other top-level model params
+    for k, v in vars(cfg.model).items():
+        if k not in ["encoder", "decoder", "name"]:
+            policy_kwargs[k] = v
+
     policy_kwargs["env_name"] = cfg.env.name
 
     for key in ["lr_critic", "lr_critic_value"]:
         policy_kwargs.pop(key, None)
     policy_kwargs.pop("name", None)
+
     if cfg.model.name == "hybrid":
-        neural = AttentionModelPolicy(**policy_kwargs)
-        heuristic = VectorizedALNS(env_name=cfg.env.name, max_iterations=500)
-        policy = NeuralHeuristicHybrid(neural, heuristic)
+        # Hybrid requires special handling
+        # 1. Neural construction policy
+        # Create a temporary config for the neural part
+        dict_cfg = cast(Any, OmegaConf.structured(cfg))
+        neural_cfg = OmegaConf.masked_copy(dict_cfg, ["model", "env", "train", "rl"])
+        neural_cfg.model.name = "am"  # Force AM for construction
+        neural_policy = create_model(cast(Config, neural_cfg)).policy
+
+        # 2. Heuristic refinement policy
+        # Use getattr with defaults to handle cases where these fields might be missing from RLConfig
+        ref_strategy = getattr(cfg.rl, "refinement_strategy", "alns")
+        ref_time = getattr(cfg.rl, "refinement_time_limit", 5.0)
+        ref_iters = getattr(cfg.rl, "refinement_iterations", 500)
+        max_v = getattr(cfg.rl, "max_vehicles", 0)
+
+        if ref_strategy == "alns":
+            heuristic_policy = VectorizedALNS(
+                env_name=cfg.env.name,
+                time_limit=ref_time,
+                max_iterations=ref_iters,
+                max_vehicles=max_v,
+            )
+        else:
+            heuristic_policy = VectorizedHGS(
+                env_name=cfg.env.name,
+                time_limit=ref_time,
+                max_iterations=ref_iters,
+            )
+        policy = NeuralHeuristicHybrid(neural_policy, heuristic_policy)
     else:
-        policy = policy_cls(**policy_kwargs)
+        policy = policy_map[cfg.model.name](**policy_kwargs)
 
     # 3. Initialize RL Module
     if isinstance(cfg.rl, dict):

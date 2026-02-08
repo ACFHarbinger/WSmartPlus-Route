@@ -5,6 +5,9 @@ Meta-RL Config module.
 from dataclasses import dataclass, field
 from typing import List
 
+from ..envs.graph import GraphConfig
+from ..envs.objective import ObjectiveConfig
+
 
 @dataclass
 class MetaRLConfig:
@@ -17,6 +20,8 @@ class MetaRLConfig:
         meta_hidden_dim: Hidden dimension for meta-network.
         meta_history_length: History length for meta-learning.
         hrl_threshold: HRL threshold parameter.
+        graph: Graph configuration.
+        reward: Objective/reward configuration.
     """
 
     # Meta-RL
@@ -62,3 +67,6 @@ class MetaRLConfig:
     # MORL
     morl_objectives: List[str] = field(default_factory=lambda: ["waste_efficiency", "overflow_rate"])
     morl_adaptation_rate: float = 0.1
+
+    graph: GraphConfig = field(default_factory=GraphConfig)
+    reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)

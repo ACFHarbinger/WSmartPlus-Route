@@ -71,7 +71,7 @@ class TestSimTabInteractions:
 
     def test_policy_params_tab_get_params(self, policy_params_tab):
         """Test policy parameters form logic."""
-        policy_params_tab.decode_type_combo.setCurrentText("Sampling")
+        policy_params_tab.strategy_combo.setCurrentText("Sampling")
         policy_params_tab.temperature_input.setValue(2.5)
 
         # Boolean flags
@@ -84,7 +84,7 @@ class TestSimTabInteractions:
 
         params = policy_params_tab.get_params()
 
-        assert params["decode_type"] == "sampling"
+        assert params["strategy"] == "sampling"
         assert params["temperature"] == 2.5
         assert params["run_tsp"] is True
 

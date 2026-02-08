@@ -5,6 +5,9 @@ SISR (Slack Induction by String Removal) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
+from ..other.must_go import MustGoConfig
+from ..other.post_processing import PostProcessingConfig
+
 
 @dataclass
 class SISRConfig:
@@ -33,5 +36,5 @@ class SISRConfig:
     blink_rate: float = 0.01
     destroy_ratio: float = 0.2
     engine: str = "custom"
-    must_go: Optional[List[str]] = None
-    post_processing: Optional[List[str]] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

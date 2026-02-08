@@ -40,6 +40,7 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         self,
         td: TensorDict,
         env: RL4COEnvBase,
+        strategy: str = "sampling",
         num_starts: int = 1,
         **kwargs,
     ) -> Dict[str, Any]:
@@ -76,15 +77,15 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         out["heatmap"] = heatmap
         return out
 
-    def set_decode_type(self, decode_type: str, **kwargs):
-        """Set decode type (compatibility with evaluation pipeline)."""
-        self._decode_type = decode_type
+    def set_strategy(self, strategy: str, **kwargs):
+        """Set decoding strategy (compatibility with evaluation pipeline)."""
+        self._strategy = strategy
         for k, v in kwargs.items():
             setattr(self, f"_{k}", v)
 
     def common_decoding(
         self,
-        decode_type: str,
+        strategy: str,
         td: TensorDict,
         env: RL4COEnvBase,
         heatmap: torch.Tensor,
@@ -95,7 +96,7 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         Common decoding logic for NAR models.
 
         Args:
-            decode_type: Decoding strategy ('sampling', 'greedy', etc.)
+            strategy: Decoding strategy ('sampling', 'greedy', etc.)
             td: Initial TensorDict
             env: Environment
             heatmap: Predicted heatmap from encoder
@@ -108,13 +109,13 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         from logic.src.utils.decoding import get_decoding_strategy
 
         if actions is not None:
-            decode_type = "evaluate"
+            strategy = "evaluate"
             decoding_kwargs["actions"] = actions
 
-        strategy = get_decoding_strategy(decode_type, **decoding_kwargs)
+        strategy_obj = get_decoding_strategy(strategy, **decoding_kwargs)
 
         # Pre-decoding hook
-        td, env, num_starts_hook = strategy.pre_decoder_hook(td, env)
+        td, env, num_starts_hook = strategy_obj.pre_decoder_hook(td, env)
 
         # Determine num_starts
         num_starts = decoding_kwargs.get("num_starts", decoding_kwargs.get("num_samples", num_starts_hook))
@@ -144,7 +145,7 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         while not td["done"].all():
             # In NAR models, the decoder uses the pre-computed heatmap
             logits, mask = self.decoder(td, heatmap, env)
-            action, log_prob, _ = strategy.step(logits, mask, td)
+            action, log_prob, _ = strategy_obj.step(logits, mask, td)
 
             actions_list.append(action)
             log_probs_list.append(log_prob)
@@ -157,7 +158,7 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         logprobs = torch.stack(log_probs_list, dim=1)
 
         # Post-decoding hook
-        logprobs, actions, td, env = strategy.post_decoder_hook(td, env, logprobs, actions)
+        logprobs, actions, td, env = strategy_obj.post_decoder_hook(td, env, logprobs, actions)
         return logprobs, actions, td, env
 
     def eval(self):

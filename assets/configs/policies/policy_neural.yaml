@@ -66,8 +66,7 @@ neural:
     #
     # Default for simulation: Greedy (fastest, reproducible)
     #
-    # To override: python main.py test_sim policy=neural decode_type=sampling
-
+    # To override: python main.py test_sim policy=neural strategy=sampling
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------

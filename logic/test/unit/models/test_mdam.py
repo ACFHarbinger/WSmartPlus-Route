@@ -80,7 +80,7 @@ def test_mdam_decoder_forward(mdam_decoder):
     env.get_reward.return_value = torch.zeros(batch_size, dtype=torch.float)
 
     # Run forward
-    reward, ll, kl, actions = mdam_decoder(td, embeddings, env, decode_type="greedy")
+    reward, ll, kl, actions = mdam_decoder(td, embeddings, env, strategy="greedy")
 
     assert reward.shape == (batch_size, mdam_decoder.num_paths)
     assert ll.shape == (batch_size, mdam_decoder.num_paths)

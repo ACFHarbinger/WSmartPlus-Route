@@ -48,7 +48,7 @@ def eval_dataset_mp(
     args: Tuple[str, int, float, Dict[str, Any], int, int],
 ) -> List[Dict[str, Any]]:
     """Worker function for multiprocessing evaluation."""
-    (dataset_path, width, softmax_temp, opts, i, num_processes) = args
+    (dataset_path, beam_width, softmax_temp, opts, i, num_processes) = args
     model, _ = load_model(opts.get("load_path") or opts["model"])
     val_size = opts["val_size"] // num_processes
     dataset = model.problem.make_dataset(
@@ -57,24 +57,24 @@ def eval_dataset_mp(
         offset=opts["offset"] + val_size * i,
         distribution=opts["data_distribution"],
         vertex_strat=opts["vertex_method"],
-        size=opts["graph_size"],
+        size=opts.get("num_loc", 50),  # Default to 50 if graph_size not present
         focus_graph=opts["focus_graph"],
         focus_size=opts["focus_size"],
         area=opts["area"],
         dist_matrix_path=opts["dm_filepath"],
         number_edges=opts["edge_threshold"],
-        waste_type=opts["waste_type"],
+        waste_weight=opts["waste_weight"],
         dist_strat=opts["distance_method"],
         edge_strat=opts["edge_method"],
     )
     device = torch.device("cuda:{}".format(i))
-    return _eval_dataset(model, dataset, width, softmax_temp, opts, device)
+    return _eval_dataset(model, dataset, beam_width, softmax_temp, opts, device)
 
 
 def _eval_dataset(
     model: nn.Module,
     dataset: Dataset,
-    width: int,
+    beam_width: int,
     softmax_temp: float,
     opts: Dict[str, Any],
     device: torch.device,
@@ -82,16 +82,16 @@ def _eval_dataset(
     """Inner evaluation loop for a single batch/process."""
     model.to(device)
     model.eval()
-    if hasattr(model, "set_decode_type"):
-        model.set_decode_type(
-            "greedy" if opts["decode_strategy"] in ("bs", "greedy") else "sampling",
+    if hasattr(model, "set_strategy"):
+        model.set_strategy(
+            opts["strategy"],
             temp=softmax_temp,
         )
 
     dataloader = DataLoader(dataset, batch_size=opts.get("eval_batch_size", 1024), pin_memory=True)
     results: List[Dict[str, Any]] = []
 
-    method = opts.get("decode_strategy", "greedy")
+    method = opts.get("strategy", "greedy")
     if method == "sample":
         method = "sampling"
 
@@ -104,7 +104,7 @@ def _eval_dataset(
             dataloader,
             method=method,
             initial_batch_size=eval_batch_size,
-            samples=width,
+            samples=beam_width,
         )
         opts["eval_batch_size"] = eval_batch_size
         dataloader = DataLoader(dataset, batch_size=eval_batch_size, pin_memory=True)
@@ -115,7 +115,7 @@ def _eval_dataset(
         dataloader,
         method=method,
         return_results=True,
-        samples=width,
+        samples=beam_width,
         softmax_temperature=softmax_temp,
         **opts,
     )
@@ -174,7 +174,7 @@ def _eval_dataset(
 
 def eval_dataset(
     dataset_path: str,
-    width: int,
+    beam_width: int,
     softmax_temp: float,
     opts: Dict[str, Any],
     method: Optional[str] = None,
@@ -194,7 +194,10 @@ def eval_dataset(
                 itertools.chain.from_iterable(
                     pool.map(
                         eval_dataset_mp,
-                        [(dataset_path, width, softmax_temp, opts, i, num_processes) for i in range(num_processes)],
+                        [
+                            (dataset_path, beam_width, softmax_temp, opts, i, num_processes)
+                            for i in range(num_processes)
+                        ],
                     )
                 )
             )
@@ -212,11 +215,11 @@ def eval_dataset(
             area=opts["area"],
             number_edges=opts["edge_threshold"],
             dist_matrix_path=opts["dm_filepath"],
-            waste_type=opts["waste_type"],
+            waste_weight=opts["waste_weight"],
             edge_strat=opts["edge_method"],
             dist_strat=opts["distance_method"],
         )
-        results = _eval_dataset(model, dataset, width, softmax_temp, opts, device)
+        results = _eval_dataset(model, dataset, beam_width, softmax_temp, opts, device)
 
     parallelism: int = opts["eval_batch_size"]
     avg_cost = np.mean([r["cost"] for r in results])
@@ -253,8 +256,8 @@ def eval_dataset(
             "{}-{}-{}{}-t{}-{}-{}{}".format(
                 dataset_basename,
                 model_name,
-                opts["decode_strategy"],
-                width if opts["decode_strategy"] != "greedy" else "",
+                opts["strategy"],
+                beam_width if opts["strategy"] != "greedy" else "",
                 softmax_temp,
                 opts["offset"],
                 opts["offset"] + len(costs),

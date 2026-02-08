@@ -5,6 +5,8 @@ Data Config module.
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
+from .graph import GraphConfig
+
 
 @dataclass
 class DataConfig:
@@ -48,8 +50,4 @@ class DataConfig:
     n_epochs: int = 1
     epoch_start: int = 0
     dataset_type: Optional[str] = None
-    area: str = "riomaior"
-    waste_type: str = "plastic"
-    focus_graphs: Optional[List[str]] = None
-    focus_size: int = 0
-    vertex_method: str = "mmn"
+    graph: GraphConfig = field(default_factory=GraphConfig)

@@ -52,7 +52,7 @@ def mdam_rollout(
     def eval_model(batch: TensorDict) -> torch.Tensor:
         with torch.inference_mode():
             batch = env.reset(batch.to(device))
-            result = model(batch, env, decode_type="greedy")
+            result = model(batch, env, strategy="greedy")
             # Take max reward across paths
             return result["reward"].max(dim=1).values
 

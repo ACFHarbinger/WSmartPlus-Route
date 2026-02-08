@@ -2,19 +2,31 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
-import torch
-import torch.nn as nn
-
-from logic.src.models.subnets.modules.multi_head_attention import MultiHeadAttention
-from logic.src.models.subnets.modules.normalization import Normalization
-from logic.src.models.subnets.modules.skip_connection import SkipConnection
+from logic.src.configs.models.activation_function import ActivationConfig
+from logic.src.configs.models.normalization import NormalizationConfig
+from logic.src.models.subnets.encoders.common import MultiHeadAttentionLayerBase
 
 
-class MultiHeadAttentionLayer(nn.Module):
+class MultiHeadAttentionLayer(MultiHeadAttentionLayerBase):
     """
-    Single transformer layer with MHA + FFN.
+    Single transformer layer with MHA + FFN for MDAM encoder.
+
+    Inherits from MultiHeadAttentionLayerBase, which provides the standard
+    transformer encoder layer pattern. This is a simplified version that:
+    - Uses ReLU activation (hardcoded)
+    - Uses simple skip connections (no hyper-connections)
+    - Uses configurable normalization type
+
+    Parameters
+    ----------
+    embed_dim : int
+        Embedding dimension.
+    num_heads : int
+        Number of attention heads.
+    feed_forward_hidden : int, default=512
+        Hidden dimension for FFN.
+    normalization : str, default="batch"
+        Type of normalization ('batch', 'layer', 'instance').
     """
 
     def __init__(
@@ -33,38 +45,17 @@ class MultiHeadAttentionLayer(nn.Module):
             feed_forward_hidden: Hidden dimension for FFN.
             normalization: Type of normalization ('batch', 'layer', 'instance').
         """
-        super().__init__()
+        # Create config objects for base class
+        norm_config = NormalizationConfig(norm_type=normalization)
+        activation_config = ActivationConfig(name="relu")  # MDAM uses ReLU
 
-        self.attention = MultiHeadAttention(
+        # Delegate to base class with simplified configuration
+        super().__init__(
             n_heads=num_heads,
-            input_dim=embed_dim,
             embed_dim=embed_dim,
+            feed_forward_hidden=feed_forward_hidden,
+            norm_config=norm_config,
+            activation_config=activation_config,
+            connection_type="skip",  # MDAM uses simple residual connections
+            expansion_rate=4,  # Not used with "skip", but required parameter
         )
-
-        self.norm1 = Normalization(embed_dim, normalization)
-
-        self.ffn = SkipConnection(
-            nn.Sequential(
-                nn.Linear(embed_dim, feed_forward_hidden),
-                nn.ReLU(),
-                nn.Linear(feed_forward_hidden, embed_dim),
-            )
-            if feed_forward_hidden > 0
-            else nn.Linear(embed_dim, embed_dim)
-        )
-
-        self.norm2 = Normalization(embed_dim, normalization)
-
-    def forward(self, x: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Forward pass.
-        """
-        # Self-attention with residual
-        h = x + self.attention(x, x, mask)
-        h = self.norm1(h)
-
-        # FFN with residual (handled by SkipConnection)
-        h = self.ffn(h)
-        h = self.norm2(h)
-
-        return h

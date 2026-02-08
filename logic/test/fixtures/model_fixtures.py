@@ -123,8 +123,8 @@ def tam_setup(mocker):
     mocker.patch("logic.src.models.subnets.modules.ActivationFunction", new=MockActivationFunction)
 
     # Patch both to be safe
-    mocker.patch("logic.src.models.subnets.other.grf_predictor.GatedRecurrentFillPredictor", autospec=False)
-    mock_grfp_cls = mocker.patch("logic.src.models.subnets.other.grf_predictor.GatedRecurrentFillPredictor", autospec=False)
+    mocker.patch("logic.src.models.subnets.other.gru_fill_predictor.GatedRecurrentUnitFillPredictor", autospec=False)
+    mock_grfp_cls = mocker.patch("logic.src.models.subnets.other.gru_fill_predictor.GatedRecurrentUnitFillPredictor", autospec=False)
 
     mock_grfp = mock_grfp_cls.return_value
 
@@ -189,7 +189,7 @@ def mock_train_model(mocker, mock_torch_device):
     # Allow .to(device) chaining
     mock_model.to.return_value = mock_model
     mock_model.module = mock_model
-    mock_model.set_decode_type = mocker.MagicMock()
+    mock_model.set_strategy = mocker.MagicMock()
 
     return mock_model
 
@@ -287,8 +287,8 @@ def mock_dr_grpo_deps():
     model.train = MagicMock()
     model.eval = MagicMock()
     model.__call__ = MagicMock(side_effect=model_side_effect)
-    model.decode_type = "sampling"
-    model.set_decode_type = MagicMock()
+    model.strategy = "sampling"
+    model.set_strategy = MagicMock()
 
     optimizer = MagicMock()
     baseline = MagicMock()

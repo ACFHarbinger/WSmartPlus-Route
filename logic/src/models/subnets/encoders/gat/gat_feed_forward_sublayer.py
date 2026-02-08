@@ -2,47 +2,49 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Optional
 
-import numpy as np
 import torch
 import torch.nn as nn
 
+from logic.src.configs.models.activation_function import ActivationConfig
 from logic.src.models.subnets.modules import ActivationFunction, FeedForward
 
 
 class GATFeedForwardSubLayer(nn.Module):
     """
-    Sub-layer containing a Feed-Forward Network and activation.
+    Feed-Forward Sub-Layer for GAT Encoder.
+    Contains:
+    - FeedForward (expansion)
+    - Activation
+    - FeedForward (projection)
     """
 
     def __init__(
         self,
         embed_dim: int,
         feed_forward_hidden: int,
-        activation: str,
-        af_param: float,
-        threshold: float,
-        replacement_value: float,
-        n_params: int,
-        dist_range: List[float],
+        activation_config: Optional[ActivationConfig] = None,
         bias: bool = True,
+        **kwargs,
     ) -> None:
         """Initializes the GATFeedForwardSubLayer."""
         super(GATFeedForwardSubLayer, self).__init__()
+
+        if activation_config is None:
+            activation_config = ActivationConfig()
+
         self.sub_layers = (
             nn.Sequential(
                 FeedForward(embed_dim, feed_forward_hidden, bias=bias),
                 ActivationFunction(
-                    activation,
-                    af_param,
-                    threshold,
-                    replacement_value,
-                    n_params,
-                    (dist_range[0], dist_range[1])
-                    if dist_range is not None
-                    and isinstance(dist_range, (list, tuple, np.ndarray))
-                    and len(dist_range) >= 2
+                    activation_config.name,
+                    activation_config.param,
+                    activation_config.threshold,
+                    activation_config.replacement_value,
+                    activation_config.n_params,
+                    (activation_config.range[0], activation_config.range[1])
+                    if activation_config.range and len(activation_config.range) >= 2
                     else None,
                 ),
                 FeedForward(feed_forward_hidden, embed_dim, bias=bias),

@@ -5,6 +5,9 @@ ALNS (Adaptive Large Neighborhood Search) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
+from ..other.must_go import MustGoConfig
+from ..other.post_processing import PostProcessingConfig
+
 
 @dataclass
 class ALNSConfig:
@@ -31,5 +34,5 @@ class ALNSConfig:
     min_removal: int = 1
     max_removal_pct: float = 0.3
     engine: str = "custom"
-    must_go: Optional[List[str]] = None
-    post_processing: Optional[List[str]] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

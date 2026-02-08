@@ -16,19 +16,19 @@ class DecodingMixin:
 
     def __init__(self):
         # Type hints
-        self.decode_type: str = "greedy"
+        self.strategy: str = "greedy"
         self.temp: Optional[float] = None
         self.problem: Any
 
-    def set_decode_type(self, decode_type: str, temp: Optional[float] = None):
+    def set_strategy(self, strategy: str, temp: Optional[float] = None):
         """
         Set the decoding strategy for the model.
 
         Args:
-            decode_type: The decoding strategy ('greedy' or 'sampling').
+            strategy: The decoding strategy ('greedy' or 'sampling').
             temp: Temperature for sampling. Defaults to None.
         """
-        self.decode_type = decode_type
+        self.strategy = strategy
         if temp is not None:
             self.temp = temp
 
@@ -94,7 +94,7 @@ class DecodingMixin:
         return sample_many(
             lambda i: self.forward(
                 i,
-                decode_type="sampling",
+                strategy="sampling",
                 return_pi=True,
                 cost_weights=cost_weights,
             ),

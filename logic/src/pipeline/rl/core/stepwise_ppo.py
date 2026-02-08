@@ -99,7 +99,7 @@ class StepwisePPO(RL4COLitModule):
 
             # One step of decoding
             assert self.policy.decoder is not None, "Policy must have a decoder"
-            log_p, action = self.policy.decoder(td, embeddings, env, decode_type="sampling", return_pi=True)
+            log_p, action = self.policy.decoder(td, embeddings, env, strategy="sampling", return_pi=True)
 
             # Step environment
             td["action"] = action

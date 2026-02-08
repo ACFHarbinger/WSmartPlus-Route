@@ -700,7 +700,6 @@ Phases 3-7 (docs, types, architecture, deps, tooling) can proceed in parallel wi
 ## Notes
 
 - Decoding module based on RL4CO patterns
-- Backward compatible with existing `decode_type` parameter
 - New features are opt-in via kwargs
 - All baselines (RolloutBaseline, WarmupBaseline, POMOBaseline, etc.) were already complete
 - WSmart-Route's domain-specific features (WCVRP, simulation, selection strategies, GUI) are unique and should NOT be removed -- they are strengths beyond rl4co

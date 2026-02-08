@@ -32,7 +32,7 @@ class MatNetDecoder(GlimpseDecoder):
             **kwargs,
         )
         self.project_col_context = nn.Linear(embed_dim, embed_dim, bias=False)
-        self.decode_type = "greedy"
+        self.strategy = "greedy"
         self.temp = 1.0
 
     def _precompute(self, embeddings: torch.Tensor, num_steps: int = 1) -> Any:

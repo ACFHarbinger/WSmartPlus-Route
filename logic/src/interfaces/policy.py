@@ -17,7 +17,7 @@ class IPolicy(Protocol):
         self,
         td: TensorDict,
         env: Optional[Any] = None,
-        decode_type: str = "sampling",
+        strategy: str = "sampling",
         num_starts: int = 1,
         **kwargs: Any,
     ) -> Union[TensorDict, Dict[str, Any]]:
