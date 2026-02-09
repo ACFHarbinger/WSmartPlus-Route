@@ -50,6 +50,17 @@ class SimulationDisplay:
         refresh_rate: int = 2,
         theme: str = "dark",
     ):
+        """
+        Initialize the simulation display dashboard.
+
+        Args:
+            policies: List of policy names being tested.
+            n_samples: Total number of samples per policy.
+            total_days: Total simulation days per sample.
+            chart_metric: Metric to visualize in the history chart.
+            refresh_rate: Terminal refresh rate in seconds.
+            theme: Plotext theme for the chart.
+        """
         self.policies = policies
         self.n_samples = n_samples
         self.total_days = total_days

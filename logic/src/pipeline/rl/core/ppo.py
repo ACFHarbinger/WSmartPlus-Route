@@ -142,7 +142,8 @@ class PPO(RL4COLitModule):
         if isinstance(opt, list):
             opt = opt[0]
 
-        assert isinstance(opt, LightningOptimizer)
+        if not isinstance(opt, LightningOptimizer):
+            raise TypeError(f"Expected LightningOptimizer, got {type(opt)}")
 
         # Create DataLoader for mini-batching
         # Add necessary keys to TensorDict

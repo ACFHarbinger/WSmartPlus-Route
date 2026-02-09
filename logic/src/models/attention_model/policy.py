@@ -76,7 +76,8 @@ class AttentionModelPolicy(AutoregressivePolicy):
 
         # 2. Encoder
         edges = td.get("edges", None)
-        assert self.encoder is not None, "Encoder is not initialized"
+        if self.encoder is None:
+            raise RuntimeError("Encoder is not initialized")
         embeddings = self.encoder(init_embeds, edges)
 
         # 3. Multi-start expansion if needed
@@ -85,7 +86,8 @@ class AttentionModelPolicy(AutoregressivePolicy):
             embeddings = embeddings.unsqueeze(1).repeat(1, num_starts, 1, 1).reshape(-1, *embeddings.shape[1:])
 
         # 4. Decoder Precomputation
-        assert self.decoder is not None, "Decoder is not initialized"
+        if self.decoder is None:
+            raise RuntimeError("Decoder is not initialized")
         fixed = self.decoder._precompute(embeddings)
 
         # 5. Decoding Loop
@@ -101,7 +103,8 @@ class AttentionModelPolicy(AutoregressivePolicy):
 
         while not td["done"].all():
             # Wrap state for legacy compatibility
-            assert self.env_name is not None, "env_name must be set"
+            if self.env_name is None:
+                raise ValueError("env_name must be set")
             state_wrapper = TensorDictStateWrapper(td, self.env_name)
 
             # Get logits from decoder

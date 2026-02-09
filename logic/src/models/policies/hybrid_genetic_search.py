@@ -89,24 +89,31 @@ class VectorizedHGS:
         )
 
         pop = VectorizedPopulation(population_size, self.device)
+        # 1. Initialization: Create the initial population from guest solutions (Expert Imitation).
+        # In HGS, the population is split into feasible and infeasible sub-populations.
         pop.initialize(initial_solutions, costs)
 
         no_improv = 0
         best_cost_tracker = pop.costs.min().item()
 
+        # 2. Main Evolutionary Loop
         for gen in range(n_generations):
             if time_limit is not None and (time.time() - start_time > time_limit):
                 break
 
-            # Selection
+            # 3. Selection: Binary Tournament Selection
+            # Select two parents from the population. HGS uses biased fitness which
+            # combines objective value and a diversity rank based on distance to neighbors.
             p1, p2 = pop.get_parents(n_offspring=1)
             p1 = p1.squeeze(1)
             p2 = p2.squeeze(1)
 
-            # Crossover
+            # 4. Crossover: Ordered Crossover (OX) for giant tours
+            # Combines segments from parents while maintaining relative order of cities.
             offspring_giant = vectorized_ordered_crossover(p1, p2)
 
-            # Evaluation
+            # 5. Evaluation & Splitting:
+            # Convert the giant tour offspring into actual routes using a linear split algorithm.
             routes_list, split_costs = vectorized_linear_split(
                 offspring_giant,
                 self.dist_matrix,
@@ -115,7 +122,9 @@ class VectorizedHGS:
                 max_vehicles=max_vehicles,
             )
 
-            # Education (Local Search)
+            # 6. Education Phase (Local Search Intensification):
+            # Apply a sequence of neighborhood operators to improve the offspring's cost.
+            # This 'Education' step is what makes it a 'Hybrid' genetic algorithm.
             max_l = max(len(r) for r in routes_list)
             offspring_routes = torch.zeros((B, max_l), dtype=torch.long, device=self.device)
             for b in range(B):
@@ -123,6 +132,7 @@ class VectorizedHGS:
                 offspring_routes[b, : len(r)] = torch.tensor(r, device=self.device)
 
             if max_l > 2:
+                # Apply various local search moves iteratively
                 improved_routes = vectorized_two_opt(offspring_routes, self.dist_matrix, max_iterations=50)
                 improved_routes = vectorized_three_opt(improved_routes, self.dist_matrix, max_iterations=20)
                 improved_routes = vectorized_swap(improved_routes, self.dist_matrix, max_iterations=50)
@@ -130,7 +140,7 @@ class VectorizedHGS:
                 improved_routes = vectorized_two_opt_star(improved_routes, self.dist_matrix, max_iterations=50)
                 improved_routes = vectorized_swap_star(improved_routes, self.dist_matrix, max_iterations=50)
 
-                # Recalculate cost
+                # Re-calculate costs after local search optimization
                 from_n = improved_routes[:, :-1]
                 to_n = improved_routes[:, 1:]
 
@@ -152,7 +162,8 @@ class VectorizedHGS:
                 improved_routes = offspring_routes
                 improved_costs = split_costs
 
-            # Reconstruct Giant Tour
+            # 7. Giant Tour Reconstruction:
+            # Flatten the improved routes back into a single sequence for the next generation.
             giant_candidates = torch.zeros((B, N), dtype=torch.long, device=self.device)
             improved_routes_cpu = improved_routes.cpu().numpy()
 
@@ -164,10 +175,14 @@ class VectorizedHGS:
                 else:
                     giant_candidates[b, :] = offspring_giant[b, :]
 
-            # Survivor Selection
+            # 8. Survivor Selection:
+            # Add the improved offspring back into the population.
+            # The population manager will then prune individuals to maintain the size limit,
+            # using 'Biased Fitness' to balance objective quality and population diversity.
             pop.add_individuals(giant_candidates, improved_costs)
 
-            # Stagnation Check
+            # 9. Stagnation Check & Restart:
+            # If the best solution hasn't improved for many generations, trigger a restart.
             current_best = pop.costs.min().item()
             if current_best < best_cost_tracker - 1e-4:
                 best_cost_tracker = current_best
@@ -176,21 +191,23 @@ class VectorizedHGS:
                 no_improv += 1
 
             if no_improv > 50:
+                # Restart Mechanism:
+                # Keep the elite individuals and replace the rest with new random solutions.
+                # This helps escape local optima and explores different regions of the search space.
                 k = elite_size
                 # Keep Elite
                 sorted_idx = torch.argsort(pop.biased_fitness, dim=1)[:, :k]
                 elite_pop = torch.gather(pop.population, 1, sorted_idx.unsqueeze(2).expand(-1, -1, N))
                 elite_cost = torch.gather(pop.costs, 1, sorted_idx)
 
-                # New candidates (Random Permutations)
+                # Generate and evaluate new random solutions to diversify the population.
                 n_rest = pop.max_size - k
                 new_pop = torch.zeros((B, n_rest, N), dtype=torch.long, device=self.device)
                 for b in range(B):
                     for i in range(n_rest):
                         new_pop[b, i] = torch.randperm(N, device=self.device) + 1
 
-                # Eval new pop
-                # Flatten (B, n_rest, N) -> (B*n_rest, N)
+                # Evaluate new population...
                 b_sz, n_rst, n_nds = new_pop.shape
                 flat_pop = new_pop.view(b_sz * n_rst, n_nds)
 
@@ -209,7 +226,7 @@ class VectorizedHGS:
                 )
                 new_costs = new_costs_flat.view(b_sz, n_rst)
 
-                # Update pop directly
+                # Merge elite and new individuals back into the population.
                 pop.population = torch.cat([elite_pop, new_pop], dim=1)
                 pop.costs = torch.cat([elite_cost, new_costs], dim=1)
                 pop.compute_biased_fitness()

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
 import torch.nn as nn
 
 from logic.src.configs.models.activation_function import ActivationConfig
@@ -108,6 +110,8 @@ class MoEGraphAttentionEncoder(TransformerEncoderBase):
         num_experts=4,
         k=2,
         noisy_gating=True,
+        norm_config: Optional[NormalizationConfig] = None,
+        activation_config: Optional[ActivationConfig] = None,
         **kwargs,
     ):
         """Initialize the MoEGraphAttentionEncoder."""
@@ -131,25 +135,26 @@ class MoEGraphAttentionEncoder(TransformerEncoderBase):
         self.lrnorm_k = lrnorm_k
         self.gnorm_groups = gnorm_groups
 
-        # Create config objects
-        norm_config = NormalizationConfig(
-            norm_type=normalization,
-            epsilon=norm_eps_alpha,
-            learn_affine=norm_learn_affine,
-            track_stats=norm_track_stats,
-            momentum=norm_momentum_beta,
-            k_lrnorm=lrnorm_k,
-            n_groups=gnorm_groups,
-        )
+        if norm_config is None:
+            norm_config = NormalizationConfig(
+                norm_type=normalization,
+                epsilon=norm_eps_alpha,
+                learn_affine=norm_learn_affine,
+                track_stats=norm_track_stats,
+                momentum=norm_momentum_beta,
+                k_lrnorm=lrnorm_k,
+                n_groups=gnorm_groups,
+            )
 
-        activation_config = ActivationConfig(
-            name=activation_function,
-            param=af_param,
-            threshold=af_threshold,
-            replacement_value=af_replacement_value,
-            n_params=af_num_params,
-            range=self.af_uniform_range,
-        )
+        if activation_config is None:
+            activation_config = ActivationConfig(
+                name=activation_function,
+                param=af_param,
+                threshold=af_threshold,
+                replacement_value=af_replacement_value,
+                n_params=af_num_params,
+                range=self.af_uniform_range,
+            )
 
         # Initialize base class (handles layer creation, dropout, forward pass)
         super(MoEGraphAttentionEncoder, self).__init__(

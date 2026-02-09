@@ -92,7 +92,11 @@ def setup_env(
                     line.split("=")[0]: convert_int(line.split("=")[1]) for line in data.split("\n") if "=" in line
                 }
             else:
-                assert env_filename is not None
+                if env_filename is None:
+                    raise ValueError(
+                        "env_filename must be provided when gplic_filename is not specified. "
+                        "Please provide either a Gurobi license file path or an environment file name."
+                    )
                 env_path: str = os.path.join(udef.ROOT_DIR, "env", env_filename)
                 config: Dict[str, Optional[str]] = dotenv_values(env_path)
                 glp_ls: List[str] = ["WLSACCESSID", "WLSSECRET", "LICENSEID"]

@@ -44,6 +44,14 @@ def add_activation_capture_hooks(
         """Create hook to capture layer output."""
 
         def hook(module: nn.Module, input: Tuple[torch.Tensor, ...], output: torch.Tensor) -> None:
+            """
+            Forward hook that captures layer activations.
+
+            Args:
+                module: The layer being executed.
+                input: Input tensors to the layer.
+                output: Output tensor from the layer.
+            """
             # Store activation (detached from graph to save memory)
             if isinstance(output, torch.Tensor):
                 activations[name] = output.detach()
@@ -103,6 +111,14 @@ def add_dead_neuron_detector_hook(
         """Count neurons with activation below threshold."""
 
         def hook(module: nn.Module, input: Tuple[torch.Tensor, ...], output: torch.Tensor) -> None:
+            """
+            Forward hook that detects dead neurons.
+
+            Args:
+                module: The layer being executed.
+                input: Input tensors to the layer.
+                output: Output tensor from the layer.
+            """
             if isinstance(output, torch.Tensor):
                 # Count neurons with max activation below threshold
                 max_activation = output.abs().max(dim=0)[0]  # Max across batch
@@ -153,6 +169,14 @@ def add_activation_statistics_hook(
         """Accumulate activation statistics."""
 
         def hook(module: nn.Module, input: Tuple[torch.Tensor, ...], output: torch.Tensor) -> None:
+            """
+            Forward hook that accumulates activation statistics.
+
+            Args:
+                module: The layer being executed.
+                input: Input tensors to the layer.
+                output: Output tensor from the layer.
+            """
             if isinstance(output, torch.Tensor):
                 stats = statistics[name]
                 stats["sum"] += output.sum().item()
@@ -235,6 +259,14 @@ def add_activation_sparsity_hook(
         """Count near-zero activations."""
 
         def hook(module: nn.Module, input: Tuple[torch.Tensor, ...], output: torch.Tensor) -> None:
+            """
+            Forward hook that measures activation sparsity.
+
+            Args:
+                module: The layer being executed.
+                input: Input tensors to the layer.
+                output: Output tensor from the layer.
+            """
             if isinstance(output, torch.Tensor):
                 stats = sparsity_stats[name]
                 stats["zeros"] += (output.abs() < threshold).sum().item()
