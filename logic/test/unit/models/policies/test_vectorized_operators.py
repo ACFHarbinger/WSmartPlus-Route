@@ -1,9 +1,11 @@
 import pytest
 import torch
-from logic.src.models.policies.operators.random_removal import vectorized_random_removal
-from logic.src.models.policies.operators.worst_removal import vectorized_worst_removal
-from logic.src.models.policies.operators.greedy_insertion import vectorized_greedy_insertion
-from logic.src.models.policies.operators.regret_k_insertion import vectorized_regret_k_insertion
+from logic.src.models.policies.operators import (
+    vectorized_greedy_insertion,
+    vectorized_random_removal,
+    vectorized_regret_k_insertion,
+    vectorized_worst_removal,
+)
 
 @pytest.fixture
 def data():
