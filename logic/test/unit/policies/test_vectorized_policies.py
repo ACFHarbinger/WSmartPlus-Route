@@ -13,12 +13,14 @@ from logic.src.models.policies.hybrid_genetic_search import (
     vectorized_ordered_crossover,
 )
 from logic.src.models.policies.hgs.evaluation import calc_broken_pairs_distance
-from logic.src.models.policies.operators.relocate import vectorized_relocate
-from logic.src.models.policies.operators.swap import vectorized_swap
-from logic.src.models.policies.operators.swap_star import vectorized_swap_star
-from logic.src.models.policies.operators.three_opt import vectorized_three_opt
-from logic.src.models.policies.operators.two_opt import vectorized_two_opt
-from logic.src.models.policies.operators.two_opt_star import vectorized_two_opt_star
+from logic.src.models.policies.operators import (
+    vectorized_relocate,
+    vectorized_swap,
+    vectorized_swap_star,
+    vectorized_three_opt,
+    vectorized_two_opt,
+    vectorized_two_opt_star,
+)
 from logic.src.models.policies.shared.linear import (
     vectorized_linear_split,
 )
