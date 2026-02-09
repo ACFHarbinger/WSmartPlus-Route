@@ -7,16 +7,17 @@ Example:
     >>> import must_go
 """
 
-from typing import List, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, List, Protocol, runtime_checkable
 
-from logic.src.policies.other.must_go.base.selection_context import SelectionContext
+if TYPE_CHECKING:
+    from logic.src.policies.other.must_go.base.selection_context import SelectionContext
 
 
 @runtime_checkable
 class IMustGoSelectionStrategy(Protocol):
     """Interface for Must Go selection strategies."""
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: "SelectionContext") -> List[int]:
         """
         Determine which bins must be collected based on the strategy logic.
         """

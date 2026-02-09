@@ -49,11 +49,7 @@ class NeuralPolicy(IPolicy):
         device = kwargs["device"]
         fill = kwargs["fill"]
         dm_tensor = kwargs["dm_tensor"]
-        run_tsp = kwargs["run_tsp"]
         hrl_manager = kwargs.get("hrl_manager")
-        gate_prob_threshold = kwargs.get("gate_prob_threshold", 0.5)
-        mask_prob_threshold = kwargs.get("mask_prob_threshold", 0.5)
-        two_opt_max_iter = kwargs.get("two_opt_max_iter", 0)
 
         agent = NeuralAgent(model_env)
         model_data, graph, profit_vars = model_ls
@@ -79,12 +75,8 @@ class NeuralPolicy(IPolicy):
             graph,
             dm_tensor,
             profit_vars,
-            run_tsp,
             hrl_manager=hrl_manager,
             waste_history=bins.get_level_history(device=device),
-            threshold=gate_prob_threshold,
-            mask_threshold=mask_prob_threshold,
-            two_opt_max_iter=two_opt_max_iter,
             cost_weights=cost_weights,
             must_go=must_go_mask,
         )

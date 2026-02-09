@@ -39,7 +39,6 @@ class SimulationDayContext(Mapping):
         distancesC: Integer distance matrix (numpy).
         paths_between_states: Precomputed paths.
         dm_tensor: Tensor version of distance matrix.
-        run_tsp: Boolean indicating if TSP should be run.
         sample_id: ID of the current sample.
         overflows: Current count of overflows.
         day: Current day index.
@@ -54,9 +53,6 @@ class SimulationDayContext(Mapping):
         device: Torch device.
         lock: Multiprocessing lock.
         hrl_manager: Manager for Hierarchical RL.
-        gate_prob_threshold: Threshold for gating probability.
-        mask_prob_threshold: Threshold for masking probability.
-        two_opt_max_iter: Max iterations for 2-opt local search.
         config: Configuration dictionary.
         cost_weight: Weight for length.
         waste_weight: Weight for waste.
@@ -94,7 +90,6 @@ class SimulationDayContext(Mapping):
     distancesC: Optional[np.ndarray] = None
     paths_between_states: Optional[Dict[Tuple[int, int], List[int]]] = None
     dm_tensor: Optional[torch.Tensor] = None
-    run_tsp: bool = False
     sample_id: int = 0
     overflows: int = 0
     day: int = 0
@@ -109,9 +104,6 @@ class SimulationDayContext(Mapping):
     device: Optional[torch.device] = None
     lock: Optional[Lock] = None
     hrl_manager: Any = None
-    gate_prob_threshold: float = 0.5
-    mask_prob_threshold: float = 0.5
-    two_opt_max_iter: int = 0
     config: Optional[Dict[str, Any]] = None
     cost_weight: float = 1.0
     waste_weight: float = 1.0

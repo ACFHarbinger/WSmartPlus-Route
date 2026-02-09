@@ -97,13 +97,9 @@ def sim_opts(tmp_path, setup_sim_data):
         "stats_filepath": None,
         "waste_filepath": None,
         "cache_regular": False,
-        "run_tsp": False,
         "n_vehicles": 1,
         "checkpoint_dir": "checkpoints",
         "checkpoint_days": 1,
-        "gate_prob_threshold": 0.5,  # Day context default
-        "mask_prob_threshold": 0.5,
-        "two_opt_max_iter": 0,
         "temperature": 1.0,
         "strategy": "greedy",
         "vertex_method": "mmn",

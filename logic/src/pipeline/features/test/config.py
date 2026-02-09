@@ -67,14 +67,24 @@ def expand_policy_configs(opts):
                         for mg_item in mg_list:
                             v_prefix = ""
                             if isinstance(mg_item, str):
-                                clean_mg = mg_item.replace("mg_", "").replace(".xml", "").replace(".yaml", "")
+                                clean_mg = (
+                                    os.path.basename(mg_item)
+                                    .replace("mg_", "")
+                                    .replace(".xml", "")
+                                    .replace(".yaml", "")
+                                )
                                 v_prefix = f"{clean_mg}_"
 
                             v_suffix = ""
                             if pp_list:
                                 first_pp = pp_list[0]
                                 if isinstance(first_pp, str):
-                                    clean_pp = first_pp.replace("pp_", "").replace(".xml", "").replace(".yaml", "")
+                                    clean_pp = (
+                                        os.path.basename(first_pp)
+                                        .replace("pp_", "")
+                                        .replace(".xml", "")
+                                        .replace(".yaml", "")
+                                    )
                                     v_suffix = f"_{clean_pp}"
 
                             var_cfg = copy.deepcopy(pol_cfg)
@@ -108,14 +118,24 @@ def expand_policy_configs(opts):
                         if mg_list:
                             first_mg = mg_list[0]
                             if isinstance(first_mg, str):
-                                clean_mg = first_mg.replace("mg_", "").replace(".xml", "").replace(".yaml", "")
+                                clean_mg = (
+                                    os.path.basename(first_mg)
+                                    .replace("mg_", "")
+                                    .replace(".xml", "")
+                                    .replace(".yaml", "")
+                                )
                                 prefix_str = f"{clean_mg}_"
 
                         suffix_str = ""
                         if pp_list:
                             first_pp = pp_list[0]
                             if isinstance(first_pp, str):
-                                clean_pp = first_pp.replace("pp_", "").replace(".xml", "").replace(".yaml", "")
+                                clean_pp = (
+                                    os.path.basename(first_pp)
+                                    .replace("pp_", "")
+                                    .replace(".xml", "")
+                                    .replace(".yaml", "")
+                                )
                                 suffix_str = f"_{clean_pp}"
 
                         variants.append((prefix_str, suffix_str, None))
