@@ -7,6 +7,7 @@ import random
 
 import numpy as np
 import torch
+from omegaconf import OmegaConf
 
 import logic.src.constants as udef
 from logic.src.pipeline.simulations.repository import load_simulator_data
@@ -17,6 +18,27 @@ from .orchestrator import simulator_testing
 
 def run_wsr_simulator_test(opts):
     """Main entry point for the simulation test script."""
+    # Convert to standard dict for mutability and ease of use
+    if not isinstance(opts, dict):
+        try:
+            opts = OmegaConf.to_container(opts, resolve=True)
+        except Exception:
+            pass  # Already a dict or compatible
+
+    # Backwards compatibility: Map num_loc to size (main.py flattens graph config)
+    if "num_loc" in opts:
+        opts["size"] = opts["num_loc"]
+
+    # If graph is present (not flattened), flatten it
+    if "graph" in opts:
+        opts["size"] = opts["graph"]["num_loc"]
+        opts["area"] = opts["graph"]["area"]
+        opts["waste_type"] = opts["graph"]["waste_type"]
+        opts["dm_filepath"] = opts["graph"].get("dm_filepath")
+        opts["waste_filepath"] = opts["graph"].get("waste_filepath")
+        opts["edge_threshold"] = opts["graph"].get("edge_threshold")
+        opts["edge_method"] = opts["graph"].get("edge_method")
+
     random.seed(opts["seed"])
     np.random.seed(opts["seed"])
     torch.manual_seed(opts["seed"])
@@ -42,7 +64,11 @@ def run_wsr_simulator_test(opts):
 
     try:
         parent_dir = os.path.join(
-            udef.ROOT_DIR, "assets", opts["output_dir"], f"{opts['days']}_days", f"{opts['area']}_{opts['size']}"
+            udef.ROOT_DIR,
+            "assets",
+            opts["output_dir"],
+            f"{opts['days']}_days",
+            f"{opts['area']}_{opts['size']}",
         )
         os.makedirs(parent_dir, exist_ok=True)
         os.makedirs(os.path.join(parent_dir, "fill_history", opts["data_distribution"]), exist_ok=True)

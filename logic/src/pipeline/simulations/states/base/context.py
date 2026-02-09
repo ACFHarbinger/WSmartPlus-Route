@@ -1,11 +1,12 @@
 """context.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import context
-    """
+Example:
+    >>> import context
+"""
+
 from __future__ import annotations
 
 import os
@@ -39,6 +40,7 @@ class SimulationContext:
     lock: Optional[threading.Lock]
     counter: Optional[Any]
     overall_progress: Optional[Any]
+    shared_metrics: Any = None
     pbar: Optional[Any]
     log_path: str = ""
     exec_time: Optional[float] = None
@@ -82,6 +84,7 @@ class SimulationContext:
         self.lock = variables_dict.get("lock")
         self.counter = variables_dict.get("counter")
         self.overall_progress = variables_dict.get("overall_progress")
+        self.shared_metrics = variables_dict.get("shared_metrics")
 
         self.current_state: Optional[SimState] = None
         self.result: Optional[Dict[str, Any]] = None

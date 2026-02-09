@@ -68,7 +68,6 @@ def mock_engine_data():
         },
         "n_vehicles": 2,
         "model_env": MagicMock(),
-        "run_tsp": False,
         "graph_size": n_bins
     }
 

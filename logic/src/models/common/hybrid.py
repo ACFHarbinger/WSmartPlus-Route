@@ -5,14 +5,16 @@ Uses a neural model for construction and a heuristic for refinement.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.common.autoregressive_policy import AutoregressivePolicy
-from logic.src.models.policies.alns import VectorizedALNS
-from logic.src.models.policies.hgs import VectorizedHGS
+
+if TYPE_CHECKING:
+    from logic.src.models.policies.alns import VectorizedALNS
+    from logic.src.models.policies.hgs import VectorizedHGS
 
 
 class NeuralHeuristicHybrid(AutoregressivePolicy):

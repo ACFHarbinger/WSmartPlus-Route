@@ -58,7 +58,6 @@ set DIST_METHOD=gmaps
 set DM_PATH=data/wsr_simulator/distance_matrix/gmaps_distmat_plastic[riomaior].csv
 set WASTE_PATH=daily_waste/riomaior170_emp_wsr31_N10_seed42.pkl
 
-set RUN_TSP=1
 set CHECKPOINTS=40
 
 echo ========================================
@@ -70,37 +69,19 @@ echo Area: %AREA%
 echo Policies: %POLICIES%
 echo Samples: %N_SAMPLES%
 echo Days: %N_DAYS%
-echo Fast TSP Mode: %RUN_TSP%
 echo ========================================
 echo.
 
-if %RUN_TSP% equ 0 (
-    echo [Running with fast_tsp...]
-    if %VERBOSE% equ 0 (
-        @echo on
-    )
-    python main.py test --policies %POLICIES% --data_distribution "%DATA_DIST%" --dt "%DECODE_TYPE%" ^
-    --n_samples %N_SAMPLES% --bin_idx_file "%IDX_PATH%" --size %N_BINS% --seed %SEED% --dm "%DIST_METHOD%" ^
-    --n_vehicles %VEHICLES% --vm "%VERTEX_METHOD%" --env_file "%ENV_FILE%" --run_tsp --hp %HEXALY_PARAM% ^
-    --lvl %REGULAR_LEVEL% --cf %LAST_MINUTE_CF% --gp %GUROBI_PARAM% --lac %LOOKAHEAD_CONFIGS% ^
-    --problem "%PROBLEM%" --days %N_DAYS% --waste_filepath "%WASTE_PATH%" --area "%AREA%" --waste_type "%WTYPE%" ^
-    --cc %N_CORES% --et %EDGE_THRESH% --em "%EDGE_METHOD%" --dm_filepath "%DM_PATH%" --cpd %CHECKPOINTS%
-    if %VERBOSE% equ 0 (
-        @echo off
-    )
-) else (
-    echo [Running without fast_tsp...]
-    if %VERBOSE% equ 0 (
-        @echo on
-    )
-    python main.py test --policies %POLICIES% --data_distribution "%DATA_DIST%" --dt "%DECODE_TYPE%" --hp %HEXALY_PARAM% ^
+if %VERBOSE% equ 0 (
+    @echo on
+)
+python main.py test --policies %POLICIES% --data_distribution "%DATA_DIST%" --dt "%DECODE_TYPE%" --hp %HEXALY_PARAM% ^
     --n_samples %N_SAMPLES% --area "%AREA%" --bin_idx_file "%IDX_PATH%" --size %N_BINS% --seed %SEED% --dm "%DIST_METHOD%" ^
     --problem "%PROBLEM%" --n_vehicles %VEHICLES% --vm "%VERTEX_METHOD%" --env_file "%ENV_FILE%" --waste_filepath "%WASTE_PATH%" ^
     --days %N_DAYS% --lvl %REGULAR_LEVEL% --cf %LAST_MINUTE_CF% --gp %GUROBI_PARAM% --lac %LOOKAHEAD_CONFIGS% ^
     --cc %N_CORES% --et %EDGE_THRESH% --em "%EDGE_METHOD%" --waste_type "%WTYPE%" --dm_filepath "%DM_PATH%" --cpd %CHECKPOINTS%
-    if %VERBOSE% equ 0 (
-        @echo off
-    )
+if %VERBOSE% equ 0 (
+    @echo off
 )
 
 if !errorlevel! equ 0 (

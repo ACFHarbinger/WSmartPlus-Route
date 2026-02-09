@@ -1,11 +1,12 @@
 """running.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import running
-    """
+Example:
+    >>> import running
+"""
+
 from __future__ import annotations
 
 import os
@@ -14,7 +15,6 @@ from multiprocessing.synchronize import Lock
 from typing import TYPE_CHECKING, Optional, cast
 
 from loguru import logger
-from tqdm import tqdm
 
 from logic.src.utils.logging.log_utils import final_simulation_summary
 
@@ -36,7 +36,6 @@ class RunningState(SimState):
             ctx (SimulationContext): Description of ctx.
         """
         opts = ctx.opts
-        desc = f"{ctx.policy} #{ctx.sample_id}"
         realtime_log_path = os.path.join(
             ctx.results_dir,
             f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl",
@@ -50,15 +49,6 @@ class RunningState(SimState):
                 hook.set_timer(ctx.tic)
 
                 iterator = range(ctx.start_day, opts["days"] + 1)
-                if not opts["no_progress_bar"]:
-                    iterator = tqdm(
-                        iterator,
-                        desc=desc,
-                        position=ctx.tqdm_pos + 1,
-                        dynamic_ncols=True,
-                        leave=False,
-                        colour=ctx.colour,
-                    )
 
                 for day in iterator:
                     hook.before_day(day)
@@ -91,7 +81,6 @@ class RunningState(SimState):
                         bins=ctx.bins,
                         new_data=ctx.new_data,
                         coords=ctx.coords,
-                        run_tsp=opts["run_tsp"],
                         sample_id=ctx.sample_id,
                         overflows=ctx.overflows,
                         day=day,
@@ -111,9 +100,6 @@ class RunningState(SimState):
                         device=ctx.device,
                         lock=cast(Optional[Lock], ctx.lock),
                         hrl_manager=ctx.hrl_manager,
-                        gate_prob_threshold=opts["gate_prob_threshold"],
-                        mask_prob_threshold=opts["mask_prob_threshold"],
-                        two_opt_max_iter=opts["two_opt_max_iter"],
                         config=current_policy_config,
                         cost_weight=opts.get("cost_weight", 1.0),
                         waste_weight=opts.get("waste_weight", 1.0),
@@ -144,6 +130,24 @@ class RunningState(SimState):
                     if dlog is not None:
                         for key, val in dlog.items():
                             ctx.daily_log[key].append(val)
+
+                        if ctx.shared_metrics is not None:
+                            # We send CUMULATIVE metrics to shared_metrics for real-time reporting
+                            # and daily_delta for the real-time chart.
+                            # We only sum numeric metrics (METRICS) and exclude ratios like 'kg/km'
+                            # which must be recalculated from sums to remain accurate.
+                            from logic.src.constants import METRICS
+
+                            cumulative_metrics = {
+                                k: sum(v) for k, v in (ctx.daily_log or {}).items() if k in METRICS and k != "kg/km"
+                            }
+                            ctx.shared_metrics[f"{ctx.policy}_{ctx.sample_id}"] = {
+                                "day": day,
+                                "metrics": cumulative_metrics,  # For table averages
+                                "daily_delta": dlog,  # For chart history
+                                "policy": ctx.policy,
+                                "sample_id": ctx.sample_id,
+                            }
 
                     hook.after_day(ctx.execution_time)
                     if ctx.overall_progress:

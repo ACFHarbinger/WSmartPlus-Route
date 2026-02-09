@@ -30,6 +30,8 @@ from __future__ import annotations
 
 import os
 import statistics
+import sys
+import traceback
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import torch
@@ -44,27 +46,43 @@ from .states import SimulationContext
 if TYPE_CHECKING:
     pass
 
-# Create a global variable/placeholder for the lock and counter
+# Create global variables/placeholders for parallel workers
 _lock: Optional[Any] = None
 _counter: Optional[Any] = None
+_shared_metrics: Optional[Any] = None
 
 
-def init_single_sim_worker(lock_from_main: Any, counter_from_main: Any) -> None:
+def init_single_sim_worker(
+    lock_from_main: Any,
+    counter_from_main: Any,
+    shared_metrics_from_main: Any = None,
+    log_file: Optional[str] = None,
+) -> None:
     """
     Initializes global shared resources for parallel simulation workers.
 
     This function is called by the multiprocessing Pool during its worker
     initialization phase. It sets process-global variables to ensure all
-    simulations can access the shared lock and counter.
+    simulations can access the shared resources.
 
     Args:
         lock_from_main: Multiprocessing Lock for file I/O synchronization.
         counter_from_main: Multiprocessing Value for overall progress tracking.
+        shared_metrics_from_main: Multiprocessing Manager.dict for real-time stats.
+        log_file: Path to the log file for redirection.
     """
     global _lock
     global _counter
+    global _shared_metrics
     _lock = lock_from_main
     _counter = counter_from_main
+    _shared_metrics = shared_metrics_from_main
+
+    # Setup logger redirection in the worker process (silent=True to avoid garbling dashboard)
+    if log_file:
+        from logic.src.utils.logging.logger_writer import setup_logger_redirection
+
+        setup_logger_redirection(log_file, silent=True)
 
 
 def display_log_metrics(
@@ -162,16 +180,28 @@ def single_simulation(
     # Retrieve the shared objects via the global variables initialized by init_worker
     global _lock
     global _counter
+    global _shared_metrics
 
-    variables_dict: Dict[str, Any] = {
-        "lock": _lock,
-        "counter": _counter,
-        "tqdm_pos": os.getpid() % n_cores,
-    }
+    try:
+        sys.stdout.flush()
+        variables_dict: Dict[str, Any] = {
+            "lock": _lock,
+            "counter": _counter,
+            "shared_metrics": _shared_metrics,
+            "tqdm_pos": os.getpid() % n_cores,
+        }
 
-    context = SimulationContext(opts, device, indices, sample_id, pol_id, model_weights_path, variables_dict)
-    res: Optional[Dict[str, Any]] = context.run()
-    return res if res is not None else {}
+        context = SimulationContext(opts, device, indices, sample_id, pol_id, model_weights_path, variables_dict)
+        res: Optional[Dict[str, Any]] = context.run()
+        return res if res is not None else {}
+    except BaseException as e:
+        print(
+            f"CRITICAL ERROR (BaseException) in single_simulation (Sample {sample_id}, Policy {pol_id}): {e}",
+            file=sys.stdout,
+        )
+        traceback.print_exc(file=sys.stdout)
+        sys.stdout.flush()
+        return {"policy": "unknown", "sample_id": sample_id, "error": str(e), "success": False}
 
 
 def sequential_simulations(
@@ -238,6 +268,7 @@ def sequential_simulations(
                 variables_dict: Dict[str, Any] = {
                     "lock": lock,
                     "overall_progress": overall_progress,
+                    "shared_metrics": opts.get("shared_metrics"),
                     "tqdm_pos": 1,
                 }
 

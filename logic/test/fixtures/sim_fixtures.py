@@ -48,7 +48,6 @@ def wsr_opts(tmp_path):
         "gplic_file": None,
         "cache_regular": False,
         "waste_filepath": None,
-        "run_tsp": False,
         "n_vehicles": 1,
         "checkpoint_days": 5,
         "no_progress_bar": True,
@@ -462,7 +461,6 @@ def make_day_context():
             "distancesC": MagicMock(),
             "paths_between_states": MagicMock(),
             "dm_tensor": MagicMock(),
-            "run_tsp": True,
             "sample_id": 0,
             "overflows": 0,
             "day": 1,
@@ -476,10 +474,6 @@ def make_day_context():
             "cached": None,
             "device": torch.device("cpu"),
             "lock": None,
-            "hrl_manager": None,
-            "gate_prob_threshold": 0.5,
-            "mask_prob_threshold": 0.5,
-            "two_opt_max_iter": 0,
             "config": {},
         }
         defaults.update(kwargs)

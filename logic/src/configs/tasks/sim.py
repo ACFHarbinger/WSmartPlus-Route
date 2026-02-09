@@ -18,8 +18,6 @@ class SimConfig:
 
     Attributes:
         policies: Name of the policy(ies) to test on the WSR simulator.
-        gate_prob_threshold: Probability threshold for gating decisions.
-        mask_prob_threshold: Probability threshold for mask decisions.
         data_distribution: Distribution to generate the bins daily waste fill.
         problem: The problem the model was trained to solve.
         days: Number of days to run the simulation for.
@@ -36,8 +34,6 @@ class SimConfig:
         decoding: Decoding configuration.
         noise_mean: Mean of Gaussian noise to inject into observed bin levels.
         noise_variance: Variance of Gaussian noise to inject into observed bin levels.
-        run_tsp: Activate fast_tsp for all policies.
-        two_opt_max_iter: Maximum number of 2-opt iterations.
         cache_regular: Deactivate caching for policy regular (Default True).
         no_cuda: Disable CUDA.
         no_progress_bar: Disable progress bar.
