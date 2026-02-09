@@ -48,6 +48,12 @@ def add_gradient_monitoring_hooks(
         """Create a hook that captures gradient statistics for a named parameter."""
 
         def hook(grad: torch.Tensor) -> None:
+            """
+            Backward hook that captures gradient statistics.
+
+            Args:
+                grad: The gradient of the parameter.
+            """
             if grad is None:
                 return
 
@@ -108,6 +114,15 @@ def add_gradient_clipping_hook(
         """Create gradient clipping hook."""
 
         def hook(grad: torch.Tensor) -> torch.Tensor:
+            """
+            Backward hook that clips gradient norm.
+
+            Args:
+                grad: The gradient of the parameter.
+
+            Returns:
+                torch.Tensor: Clipped gradient.
+            """
             if grad is None:
                 return grad
             return torch.nn.utils.clip_grad_norm_(grad, max_norm)
@@ -154,6 +169,12 @@ def add_gradient_accumulation_hook(
         """Track gradient norm accumulation."""
 
         def hook(grad: torch.Tensor) -> None:
+            """
+            Backward hook that tracks gradient accumulation statistics.
+
+            Args:
+                grad: The gradient of the parameter.
+            """
             if grad is not None:
                 accumulated_norms[name].append(grad.norm().item())
                 # Keep only last N accumulation steps
@@ -199,6 +220,15 @@ def add_gradient_nan_detector_hook(
         """Detect NaN/Inf in gradients."""
 
         def hook(grad: torch.Tensor) -> None:
+            """
+            Backward hook that detects NaN/Inf in gradients.
+
+            Args:
+                grad: The gradient of the parameter.
+
+            Raises:
+                ValueError: If NaN/Inf detected and raise_error is True.
+            """
             if grad is None:
                 return
 

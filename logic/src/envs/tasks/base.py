@@ -25,7 +25,8 @@ class BaseProblem:
         if pi.size(-1) <= 1:
             return True
         sorted_pi: torch.Tensor = pi.data.sort(1)[0]
-        assert ((sorted_pi[:, 1:] == 0) | (sorted_pi[:, 1:] > sorted_pi[:, :-1])).all()
+        if not ((sorted_pi[:, 1:] == 0) | (sorted_pi[:, 1:] > sorted_pi[:, :-1])).all():
+            raise ValueError("Tour validation failed: duplicates detected (excluding depot).")
         return True
 
     @staticmethod
@@ -41,7 +42,6 @@ class BaseProblem:
         use_dist_matrix = dist_matrix is not None and isinstance(dist_matrix, torch.Tensor)
         if use_dist_matrix:
             # Simple distance matrix lookup
-            assert dist_matrix is not None
             if dist_matrix.dim() == 2:
                 dist_matrix = dist_matrix.unsqueeze(0)
             src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
@@ -89,7 +89,8 @@ class BaseProblem:
 
         def propose_expansions(beam):
             """Propose expansions for the current beam search state."""
-            assert model is not None
+            if model is None:
+                raise ValueError("Model is required for proposing expansions.")
             return model.propose_expansions(beam, fixed, normalize=True)
 
         # Note: make_state is problem-specific, must be implemented by subclasses

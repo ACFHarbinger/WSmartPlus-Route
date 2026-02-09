@@ -47,6 +47,16 @@ class TrainingDisplayCallback(Callback):
         history_length: Optional[int] = None,
         theme: str = "dark",
     ):
+        """
+        Initialize the training display dashboard.
+
+        Args:
+            metric_keys: Keys of metrics to track in the chart.
+            chart_title: Title of the progress chart.
+            refresh_rate: Terminal refresh rate in seconds.
+            history_length: Maximum number of history points to keep.
+            theme: Plotext theme for the chart.
+        """
         super().__init__()
         # Handle single string or list of strings
         if isinstance(metric_keys, str):

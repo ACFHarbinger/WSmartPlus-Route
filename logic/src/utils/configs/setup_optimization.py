@@ -46,7 +46,10 @@ def setup_optimizer_and_lr_scheduler(
         "asgd": optim.ASGD,
         "sgd": optim.SGD,
     }.get(opts["optimizer"], None)
-    assert optimizer_cls is not None, "Unknown optimizer: {}".format(opts["optimizer"])
+    assert optimizer_cls is not None, (
+        f"Unknown optimizer: '{opts['optimizer']}'. "
+        f"Valid options are: adam, adamw, adamax, nadam, radam, sadam, adadelta, adagrad, rmsprop, rprop, lbfgs, asgd, sgd"
+    )
 
     optimizer: optim.Optimizer = optimizer_cls(optimizer_params)  # type: ignore
 
@@ -87,7 +90,10 @@ def setup_optimizer_and_lr_scheduler(
             opts["lr_min_decay"],
         ),
     }.get(opts["lr_scheduler"], None)
-    assert scheduler_factory is not None, "Unknown learning rate scheduler: {}".format(opts["lr_scheduler"])
+    assert scheduler_factory is not None, (
+        f"Unknown learning rate scheduler: '{opts['lr_scheduler']}'. "
+        f"Valid options are: exp, step, mult, lambda, const, poly, multistep, cosan, linear, cosanwr, plateau"
+    )
 
     lr_scheduler: Any = scheduler_factory(optimizer)
     return optimizer, lr_scheduler

@@ -3,6 +3,7 @@ Worker for asynchronous data loading and processing.
 """
 
 import collections.abc as abc
+from typing import Any, List
 
 import numpy as np
 import pandas as pd
@@ -19,9 +20,17 @@ class DataLoadWorker(QObject):
     data_loaded = Signal(object)
     error_occurred = Signal(str)
 
-    def _process_data_to_dfs(self, raw_data):
-        """Recursively processes raw data (DataFrame, NumPy array, or converted list) into a flat list of DataFrames."""
-        dfs = []
+    def _process_data_to_dfs(self, raw_data: Any) -> List[pd.DataFrame]:
+        """
+        Recursively processes raw data into a flat list of DataFrames.
+
+        Args:
+            raw_data: Raw data loaded from file (DataFrame, NumPy array, or list).
+
+        Returns:
+            List of Pandas DataFrames extracted from the raw data.
+        """
+        dfs: List[pd.DataFrame] = []
 
         if isinstance(raw_data, pd.DataFrame):
             # Transpose DataFrames loaded directly from non-pkl files if needed
@@ -89,10 +98,15 @@ class DataLoadWorker(QObject):
         return dfs
 
     @Slot(str)
-    def load_data_file(self, file_path):
-        """Loads data in worker thread, converts to DataFrames, and emits."""
+    def load_data_file(self, file_path: str) -> None:
+        """
+        Loads data in worker thread, converts to DataFrames, and emits.
+
+        Args:
+            file_path: Path to the data file to load (CSV, XLSX, or PKL).
+        """
         try:
-            dfs_to_emit = []
+            dfs_to_emit: List[pd.DataFrame] = []
 
             if file_path.endswith(".csv"):
                 # We assume CSV/XLSX are correctly oriented and should NOT be transposed by default.

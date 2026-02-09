@@ -367,17 +367,76 @@ from logic.src.utils import get_device
 
 #### Type Hints
 
-Always use type hints for public functions:
+**Standard**: Use Python 3.8/3.9 compatible type hints from the `typing` module.
+
+**Rationale**: While the project supports Python 3.9+, using `typing` module imports ensures:
+- **Explicit clarity**: Imports clearly show typing dependencies
+- **Backward compatibility**: Code works on Python 3.8-3.9 without `from __future__ import annotations`
+- **Static analysis reliability**: Mypy and IDE autocomplete work consistently
+- **Community convention**: Most Python typing documentation uses this style
+
+**Required Style**:
 
 ```python
+# CORRECT: Import from typing module (Python 3.8+ compatible)
+from typing import Dict, List, Optional, Tuple, Union, Any
+
 def compute_route_cost(
     route: List[int],
     distance_matrix: torch.Tensor,
+    capacity: float = 100.0,
+    metadata: Optional[Dict[str, Any]] = None
+) -> Tuple[float, List[int]]:
+    """Compute total cost and optimized route."""
+    ...
+
+# WRONG: Lowercase built-in types (requires Python 3.10+ OR __future__ import)
+def compute_route_cost(
+    route: list[int],  # ❌ Don't use without __future__ import
+    distance_matrix: torch.Tensor,
     capacity: float = 100.0
-) -> float:
-    """Compute total cost of a route."""
+) -> tuple[float, list[int]]:  # ❌ Don't use without __future__ import
     ...
 ```
+
+**Common Types**:
+
+| Built-in | Typing Module | Usage |
+|----------|---------------|-------|
+| `list`   | `List[T]`     | `from typing import List` |
+| `dict`   | `Dict[K, V]`  | `from typing import Dict` |
+| `tuple`  | `Tuple[T, ...]` | `from typing import Tuple` |
+| `set`    | `Set[T]`      | `from typing import Set` |
+| `None`   | `Optional[T]` | `from typing import Optional` (for `T | None`) |
+| -        | `Union[T, U]` | `from typing import Union` (for `T | U`) |
+| -        | `Any`         | `from typing import Any` (avoid when possible) |
+
+**Protocol Classes**: For structural subtyping (duck typing with type safety):
+
+```python
+from typing import Protocol, runtime_checkable
+
+@runtime_checkable
+class PolicyLike(Protocol):
+    """Structural type for policy objects."""
+    def __call__(self, state: torch.Tensor) -> torch.Tensor:
+        ...
+```
+
+**DO NOT use** `from __future__ import annotations` in new files unless absolutely necessary (e.g., circular import resolution).
+
+#### Variable Naming Standards
+
+To reduce ambiguity and maintain consistency across high-performance tensor code:
+
+1.  **Single-Letter Tensors**: Acceptable ONLY in core algorithmic code and MUST be followed by a shape comment.
+    ```python
+    B, N = parent1.size()  # B=batch, N=nodes
+    x = x.view(B, N, -1)
+    ```
+2.  **Weight Matrices**: Use prefix `W_` for learnable parameters (e.g., `W_query`, `W_out`).
+3.  **Tensor Flattening**: Use underscore for clarity (e.g., `h_flat` instead of `hflat`).
+4.  **Device-Awareness**: Use `setup_utils.get_device()` to avoid hardcoding `.cuda()`.
 
 ---
 

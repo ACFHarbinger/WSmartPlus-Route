@@ -39,7 +39,7 @@ def _mask_bool2byte(mask):
     Returns:
         Tensor: Packed byte mask.
     """
-    assert mask.dtype == torch.uint8
+    assert mask.dtype == torch.uint8, f"Mask must be uint8 dtype, got {mask.dtype}"
     # assert (mask <= 1).all()  # Precondition, disabled for efficiency
     mask, d = _pad_mask(mask)
     return (mask.view(*mask.size()[:-1], d, 8) << torch.arange(8, out=mask.new())).sum(-1, dtype=torch.uint8)
@@ -55,7 +55,7 @@ def _mask_byte2long(mask):
     Returns:
         Tensor: Long tensor.
     """
-    assert mask.dtype == torch.uint8
+    assert mask.dtype == torch.uint8, f"Mask must be uint8 dtype, got {mask.dtype}"
     mask, d = _pad_mask(mask)
     # Note this corresponds to a temporary factor 8
     # memory overhead by converting to long before summing
@@ -75,7 +75,7 @@ def mask_bool2long(mask):
     Returns:
         Tensor: Long mask.
     """
-    assert mask.dtype == torch.uint8
+    assert mask.dtype == torch.uint8, f"Mask must be uint8 dtype, got {mask.dtype}"
     return _mask_byte2long(_mask_bool2byte(mask))
 
 

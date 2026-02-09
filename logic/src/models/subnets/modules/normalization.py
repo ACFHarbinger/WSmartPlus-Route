@@ -10,6 +10,8 @@ from typing import Optional
 import torch
 import torch.nn as nn
 
+from logic.src.configs.models.normalization import NormalizationConfig
+
 
 class Normalization(nn.Module):
     """
@@ -21,14 +23,15 @@ class Normalization(nn.Module):
     def __init__(
         self,
         embed_dim: int,
-        norm_name: str = "batch",
-        eps_alpha: float = 1e-05,
-        learn_affine: Optional[bool] = True,
-        track_stats: Optional[bool] = False,
-        mbval: Optional[float] = 0.1,
+        norm_name: Optional[str] = None,
+        eps_alpha: Optional[float] = None,
+        learn_affine: Optional[bool] = None,
+        track_stats: Optional[bool] = None,
+        mbval: Optional[float] = None,
         n_groups: Optional[int] = None,
         kval: Optional[float] = None,
         bias: Optional[bool] = True,
+        norm_config: Optional[NormalizationConfig] = None,
     ) -> None:
         """
         Initializes the normalization layer.
@@ -43,8 +46,29 @@ class Normalization(nn.Module):
             n_groups: Number of groups for GroupNorm.
             kval: k value for LocalResponseNorm.
             bias: If True, add bias for LayerNorm.
+            norm_config: Normalization configuration object.
         """
         super(Normalization, self).__init__()
+
+        # Use norm_config if provided, otherwise create from individual args
+        if norm_config is None:
+            norm_config = NormalizationConfig(
+                norm_type=norm_name if norm_name is not None else "batch",
+                epsilon=eps_alpha if eps_alpha is not None else 1e-05,
+                learn_affine=learn_affine if learn_affine is not None else True,
+                track_stats=track_stats if track_stats is not None else False,
+                momentum=mbval if mbval is not None else 0.1,
+                n_groups=n_groups if n_groups is not None else 3,
+                k_lrnorm=kval if kval is not None else 1.0,
+            )
+
+        norm_name = norm_config.norm_type
+        eps_alpha = norm_config.epsilon
+        learn_affine = norm_config.learn_affine
+        track_stats = norm_config.track_stats
+        mbval = norm_config.momentum
+        n_groups = norm_config.n_groups
+        kval = norm_config.k_lrnorm
 
         if norm_name == "instance":
             self.normalizer = nn.InstanceNorm1d(

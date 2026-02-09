@@ -41,6 +41,7 @@ def improved_simulated_annealing(
     start_time = time.time()
 
     # --- 1. ROBUST INITIALIZATION ---
+    # Prepare the initial solution and ensure state consistency between routes and removed bins.
     if removed_bins is None:
         removed_bins = set()
     else:
@@ -51,7 +52,8 @@ def improved_simulated_annealing(
     else:
         must_go_bins = set(must_go_bins)
 
-    # Capture any bins missed by the initial greedy solution
+    # State Sync: Capture any bins missed by the initial greedy solution.
+    # Every bin ID must be either in a route or in the 'removed_bins' set.
     all_bins_ids = set(data["#bin"].tolist()) - {0}
     scheduled_bins = set()
     for r in routes:
@@ -63,10 +65,12 @@ def improved_simulated_annealing(
         removed_bins.add(b)
 
     initial_solution = copy.deepcopy(routes)
+    # Post-processing: Uncross arcs in the initial solution to start from a geometric optimum.
     current_solution = uncross_arcs_in_sans_routes(initial_solution, id_to_index, distance_matrix)
 
     stocks = dict(zip(data["#bin"], data["Stock"]))
 
+    # Initial Evaluation: Calculate the starting profit, cost, and revenue.
     current_profit, current_cost, current_revenue, real_kg = compute_profit(
         current_solution,
         distance_matrix,
@@ -91,22 +95,28 @@ def improved_simulated_annealing(
     T = T_init
 
     iter_count = 0
+    # --- 2. MAIN SIMULATED ANNEALING LOOP ---
+    # The temperature T gradually decreases from T_init to T_min.
     while T > T_min:
         if time.time() - start_time > time_limit:
             if verbose:
                 print("[DEBUG] Time limit reached.")
             break
 
+        # Inner Loop: Perform multiple iterations at each temperature level.
         for _ in range(iterations_per_T):
             iter_count += 1
             if time.time() - start_time > time_limit:
                 break
 
-            # --- 2. STATE COPYING ---
+            # --- 3. STATE COPYING ---
             new_solution = copy.deepcopy(current_solution)
             candidate_removed_bins = copy.deepcopy(removed_bins)
 
-            # --- 3. GUARD CLAUSES ---
+            # --- 4. NEIGHBORHOOD MOVE SELECTION (SANS Strategy) ---
+            # SANS uses a multi-neighborhood approach. We define two sets of operators:
+            # - route_ops: Modify existing routes (intra/inter route moves).
+            # - add_ops: Move bins between 'removed_bins' and the active 'routes'.
             route_ops = [
                 "2opt",
                 "move",
@@ -131,7 +141,7 @@ def improved_simulated_annealing(
                 "add_route_removed_consec",
             ]
 
-            # Smart Selection
+            # Smart Selection: Only choose operators that are valid for the current state.
             valid_ops = []
             if len(new_solution) > 0:
                 valid_ops.extend(route_ops)
@@ -141,9 +151,10 @@ def improved_simulated_annealing(
             if not valid_ops:
                 continue
 
+            # Randomly select and apply one operator to generate a neighbor 'new_solution'.
             op = random.choice(valid_ops)
 
-            # --- 4. APPLY OPERATORS ---
+            # --- 5. APPLY OPERATOR ---
             new_solution = apply_operator(
                 op,
                 new_solution,
@@ -159,7 +170,8 @@ def improved_simulated_annealing(
             # Filter out empty routes (safely)
             new_solution = [r for r in new_solution if len(r) > 2]
 
-            # --- 5. EVALUATION ---
+            # --- 6. EVALUATION ---
+            # Compute the objective value (profit) of the neighbor solution.
             new_profit, new_cost, new_revenue, new_real_kg = compute_profit(
                 new_solution,
                 distance_matrix,
@@ -175,7 +187,10 @@ def improved_simulated_annealing(
 
             delta = new_profit - current_profit
 
-            # Acceptance Probability
+            # --- 7. METROPOLIS ACCEPTANCE CRITERION ---
+            # 1. Improvements (delta > 0) are always accepted.
+            # 2. Deteriorations are accepted with probability exp(delta / T).
+            # This allows the algorithm to escape local optima early in the search.
             if delta > 0:
                 accept = True
             else:
@@ -183,12 +198,13 @@ def improved_simulated_annealing(
                 accept = random.random() < p
 
             if accept:
-                # ACCEPT
+                # ACCEPT the new state
                 current_solution = new_solution
                 current_cost = new_cost
                 current_profit = new_profit
                 removed_bins = candidate_removed_bins
 
+                # TRACK the overall best solution found so far
                 if current_profit > best_profit:
                     best_solution = copy.deepcopy(current_solution)
                     best_profit = current_profit
@@ -199,17 +215,23 @@ def improved_simulated_annealing(
                 else:
                     no_improvement_count += 1
             else:
-                # REJECT
+                # REJECT and keep the current state
                 no_improvement_count += 1
 
+        # --- 8. COOLING SCHEDULE ---
+        # Reduce the temperature according to a geometric factor 'alpha'.
+        # As T becomes small, the probability of accepting deteriorations approaches zero.
         T = T * alpha
         if verbose:
             print(f"Temperature cooled to {T:.4f}")
 
+        # --- 9. REHEATING (Escaping Stagnation) ---
+        # If no improvement is found for a long time, reset the temperature to T_init.
+        # This implementation uses a simplified reheating strategy.
         if no_improvement_count > 500:
             if verbose:
                 print("[INFO] Rehearing temperature.")
-            T = T_init  # start again from the original temperature
+            T = T_init
             no_improvement_count = 0
 
     best_solution = [r for r in best_solution if len(r) > 2]
