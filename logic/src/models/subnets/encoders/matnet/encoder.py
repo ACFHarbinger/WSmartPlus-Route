@@ -1,8 +1,6 @@
 """MatNet Encoder."""
 
-from __future__ import annotations
-
-from typing import Optional
+from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -34,7 +32,7 @@ class MatNetEncoder(nn.Module):
 
     def forward(
         self, row_emb: torch.Tensor, col_emb: torch.Tensor, matrix: torch.Tensor, mask: Optional[torch.Tensor] = None
-    ) -> tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Forward pass.
         """

@@ -53,11 +53,12 @@ class TestAttentionModel:
 
         # Mocking embeddings return from encoder
         model.encoder.return_value = torch.zeros(batch_size, graph_size + 1, 128)  # +1 for depot
-        # Mock decoder return value (log_p, pi, cost)
+        # Mock decoder return value (log_p, pi, cost, td)
         model.decoder.return_value = (
             torch.zeros(batch_size, graph_size),
             torch.zeros(batch_size, graph_size),
             torch.zeros(batch_size),
+            None,
         )
         # _calc_log_likelihood returns (ll, entropy) when training=True
         model.decoder._calc_log_likelihood.return_value = (
@@ -313,6 +314,7 @@ class TestTemporalAttentionModel:
             torch.zeros(1, 5),
             torch.zeros(1, 5),
             torch.zeros(1),
+            None,
         )
         model.decoder._calc_log_likelihood.return_value = (
             torch.zeros(1),

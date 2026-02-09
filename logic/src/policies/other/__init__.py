@@ -1,3 +1,10 @@
+"""
+Other specialized policies for WSmart-Route.
+
+Includes policies that do not fit into the standard RL or classical categories,
+such as baseline comparisons and experimental heuristics.
+"""
+
 from .must_go import (
     CombinedSelector,
     IMustGoSelectionStrategy,

@@ -117,13 +117,7 @@ class MultiHeadAttentionLayerBase(nn.Module):
         # 2. First normalization (after attention)
         self.norm1 = Normalization(
             embed_dim,
-            norm_config.norm_type,
-            norm_config.epsilon,
-            norm_config.learn_affine,
-            norm_config.track_stats,
-            norm_config.momentum,
-            norm_config.n_groups,
-            norm_config.k_lrnorm,
+            norm_config=norm_config,
         )
 
         # 3. Feed-Forward Network with connection wrapper
@@ -138,13 +132,7 @@ class MultiHeadAttentionLayerBase(nn.Module):
         # 4. Second normalization (after feed-forward)
         self.norm2 = Normalization(
             embed_dim,
-            norm_config.norm_type,
-            norm_config.epsilon,
-            norm_config.learn_affine,
-            norm_config.track_stats,
-            norm_config.momentum,
-            norm_config.n_groups,
-            norm_config.k_lrnorm,
+            norm_config=norm_config,
         )
 
     def _create_feed_forward(

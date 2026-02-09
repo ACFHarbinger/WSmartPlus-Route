@@ -67,7 +67,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         else:
             model_filename = os.path.join(path, "epoch{}.pt".format(epoch))
     else:
-        assert False, "{} is not a valid directory or file".format(path)
+        raise FileNotFoundError(f"{path} is not a valid directory or file.")
 
     # Load hyperparameters
     args = {}
@@ -148,7 +148,8 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     }.get(args.get("encoder", "gat"), None)
 
     # Fallback/Check
-    assert factory_class is not None, "Unknown encoder type: {}".format(args.get("encoder", "gat"))
+    if factory_class is None:
+        raise ValueError(f"Unknown encoder type: {args.get('encoder', 'gat')}")
 
     factory_type = cast(Type[NeuralComponentFactory], factory_class)
     component_factory = factory_type()

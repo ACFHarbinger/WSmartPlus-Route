@@ -43,13 +43,7 @@ class MultiHeadAttentionLayer(nn.Module):
         self.att = SkipConnection(MultiHeadAttention(n_heads, input_dim=embed_dim, embed_dim=embed_dim))
         self.norm1 = Normalization(
             embed_dim,
-            norm_config.norm_type,
-            norm_config.epsilon,
-            norm_config.learn_affine,
-            norm_config.track_stats,
-            norm_config.momentum,
-            norm_config.n_groups,
-            norm_config.k_lrnorm,
+            norm_config=norm_config,
         )
         self.ff = SkipConnection(
             FeedForwardSubLayer(
@@ -60,13 +54,7 @@ class MultiHeadAttentionLayer(nn.Module):
         )
         self.norm2 = Normalization(
             embed_dim,
-            norm_config.norm_type,
-            norm_config.epsilon,
-            norm_config.learn_affine,
-            norm_config.track_stats,
-            norm_config.momentum,
-            norm_config.n_groups,
-            norm_config.k_lrnorm,
+            norm_config=norm_config,
         )
 
     def forward(self, q, h, mask):

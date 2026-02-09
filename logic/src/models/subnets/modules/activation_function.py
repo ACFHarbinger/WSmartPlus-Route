@@ -1,10 +1,10 @@
-"""Activation functions wrapper for neural networks."""
-
 import math
 from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
+
+from logic.src.configs.models.activation_function import ActivationConfig
 
 
 class ActivationFunction(nn.Module):
@@ -17,13 +17,14 @@ class ActivationFunction(nn.Module):
 
     def __init__(
         self,
-        af_name: str = "relu",
+        af_name: Optional[str] = None,
         fparam: Optional[float] = None,
         tval: Optional[float] = None,
         rval: Optional[float] = None,
         n_params: Optional[int] = None,
         urange: Optional[Tuple[float, float]] = None,
         inplace: Optional[bool] = False,
+        activation_config: Optional[ActivationConfig] = None,
     ):
         """
         Initializes the activation function.
@@ -36,8 +37,31 @@ class ActivationFunction(nn.Module):
             n_params: Number of parameters for PReLU.
             urange: Uniform range for RReLU (lower, upper).
             inplace: Whether to perform the operation in-place.
+            activation_config: Activation function configuration object.
         """
         super(ActivationFunction, self).__init__()
+
+        # Use activation_config if provided, otherwise create from individual args
+        if activation_config is None:
+            activation_config = ActivationConfig(
+                name=af_name if af_name is not None else "relu",
+                param=fparam if fparam is not None else 1.0,
+                threshold=tval if tval is not None else 6.0,
+                replacement_value=rval if rval is not None else 6.0,
+                n_params=n_params if n_params is not None else 3,
+                range=list(urange) if urange is not None else [0.125, 1 / 3],
+            )
+
+        af_name = activation_config.name
+        fparam = activation_config.param
+        tval = activation_config.threshold
+        rval = activation_config.replacement_value
+        n_params = activation_config.n_params
+        urange = (
+            (activation_config.range[0], activation_config.range[1])
+            if activation_config.range and len(activation_config.range) >= 2
+            else None
+        )
         self.activation: nn.Module
         if tval and rval is None and not af_name == "softplus":
             rval = tval  # Replacement value = threshold

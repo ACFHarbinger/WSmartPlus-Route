@@ -44,6 +44,14 @@ def add_memory_profiling_hooks(
         """Capture memory usage after layer execution."""
 
         def hook(module: nn.Module, input: Any, output: Any) -> None:
+            """
+            Forward hook that captures CUDA memory statistics.
+
+            Args:
+                module: The layer being executed.
+                input: Input tensors to the layer.
+                output: Output tensor from the layer.
+            """
             if device.type == "cuda":
                 torch.cuda.synchronize(device)
                 allocated = torch.cuda.memory_allocated(device) / 1024**2  # MB
@@ -104,6 +112,14 @@ def add_memory_leak_detector_hook(
         nonlocal initial_memory
 
         def hook(module: nn.Module, input: Any, output: Any) -> None:
+            """
+            Forward hook that detects memory leaks between passes.
+
+            Args:
+                module: The layer being executed.
+                input: Input tensors to the layer.
+                output: Output tensor from the layer.
+            """
             nonlocal initial_memory
 
             if device.type == "cuda":

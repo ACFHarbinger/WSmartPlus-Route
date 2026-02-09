@@ -36,7 +36,8 @@ def load_data(load_path: Optional[str], resume: Optional[str]) -> Any:
         Loaded data or empty dict if neither is provided.
     """
     data = {}
-    assert load_path is None or resume is None, "Only one of load path and resume can be given"
+    if load_path is not None and resume is not None:
+        raise ValueError("Only one of load_path and resume can be provided.")
 
     load_path = load_path if load_path is not None else resume
     if load_path is not None:

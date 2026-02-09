@@ -17,7 +17,22 @@ from .orchestrator import simulator_testing
 
 
 def run_wsr_simulator_test(opts):
-    """Main entry point for the simulation test script."""
+    """
+    Main entry point for the WSmart+ Route simulator test engine.
+
+    This function orchestrates the end-to-end simulation testing workflow:
+    1. Synchronizes Hydra configuration into a standard dictionary.
+    2. Handles backwards compatibility for graph size and metadata.
+    3. Initializes random seeds for reproducibility.
+    4. Validates data availability and resolves data sizes.
+    5. Expands policy configurations for multi-policy testing.
+    6. Ensures output and checkpoint directories exist.
+    7. Dispatches to the orchestrator for parallel or sequential execution.
+
+    Args:
+        opts (dict | DictConfig): Configuration options containing simulation
+            parameters, policy settings, and environment metadata.
+    """
     # Convert to standard dict for mutability and ease of use
     if not isinstance(opts, dict):
         try:

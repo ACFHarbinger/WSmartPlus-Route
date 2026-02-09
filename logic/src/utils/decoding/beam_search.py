@@ -1,11 +1,12 @@
 """beam_search.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import beam_search
-    """
+Example:
+    >>> import beam_search
+"""
+
 from typing import Optional, Tuple
 
 import torch
@@ -63,6 +64,7 @@ class BeamSearch(DecodingStrategy):
 def beam_search(*args, **kwargs):
     """
     Orchestrates beam search decoding on a batch of states.
+    This is the high-level entry point that runs the search and then reconstructs the results.
 
     Args:
         *args: positional args passed to _beam_search
@@ -71,13 +73,17 @@ def beam_search(*args, **kwargs):
     Returns:
         tuple: (score, solutions, cost, ids, batch_size)
     """
+    # 1. Execute the search loop to get a list of beams and the final state
     beams, final_state = _beam_search(*args, **kwargs)
+
+    # 2. Extract and format the results from the raw beam data
     return get_beam_search_results(beams, final_state)
 
 
 def get_beam_search_results(beams, final_state):
     """
     Reconstructs solutions from the final beam state.
+    This involves backtracking through the beam parents to reconstruct the full path.
 
     Args:
         beams (list): List of BatchBeam objects from each step.
@@ -86,15 +92,20 @@ def get_beam_search_results(beams, final_state):
     Returns:
         tuple: (score, solutions, cost, ids, batch_size)
     """
-    beam = beams[-1]  # Final beam
+    beam = beams[-1]  # Final beam containing top-k results
     if final_state is None:
         return None, None, None, None, beam.batch_size
 
-    # First state has no actions/parents and should be omitted when backtracking
+    # Backtracking Phase:
+    # 1. Gather all actions and parents taken at each step.
+    # First state has no actions/parents and should be omitted when backtracking.
     actions = [beam.action for beam in beams[1:]]
     parents = [beam.parent for beam in beams[1:]]
 
+    # 2. Use the backtrack utility to resolve the sequence for each candidate in the top-k.
+    # 3. Use the environment state to convert these action sequences into a problem-specific solution format.
     solutions = final_state.construct_solutions(backtrack(parents, actions))
+
     return (
         beam.score,
         solutions,
@@ -117,25 +128,37 @@ def _beam_search(state, beam_size, propose_expansions=None, keep_states=False):
     Returns:
         tuple: (beams, final_state)
     """
+    # 1. Initialize the beam with the starting state
+    # BatchBeam manages a batch of beams, where each beam has 'beam_size' candidates.
     beam = BatchBeam.initialize(state)
 
-    # Initial state
+    # Initial state tracking
     beams = [beam if keep_states else beam.clear_state()]
 
-    # Perform decoding steps
+    # 2. Iterative decoding until all beams reach the terminal state (e.g., all nodes visited)
     while not beam.all_finished():
-        # Use the model to propose and score expansions
+        # Expansion Phase:
+        # The model (or a heuristic) proposes the best next actions for each candidate in each beam.
+        # This typically returns a set of (parent_index, action, score) triples.
         parent, action, score = beam.propose_expansions() if propose_expansions is None else propose_expansions(beam)
+
         if parent is None:
+            # Handle cases where no valid expansions are possible
             return beams, None
 
-        # Expand and update the state according to the selected actions
+        # 3. Expansion:
+        # Apply the chosen actions to create new states. This expands the beam width
+        # from B to (B * K) where K is the number of proposed expansions.
         beam = beam.expand(parent, action, score=score)
 
-        # Get topk
+        # 4. Pruning (Selection Phase):
+        # Keep only the top 'beam_size' best candidates for each element in the batch.
+        # This prevents the exponential growth of the search space.
         beam = beam.topk(beam_size)
 
-        # Collect output of step
+        # 5. Collection:
+        # Store intermediate results. If keep_states=False, we discard the State objects
+        # to save memory, keeping only the parent/action pointers for backtracking.
         beams.append(beam if keep_states else beam.clear_state())
 
     # Return the final state separately since beams may not keep state

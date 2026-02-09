@@ -74,20 +74,14 @@ class EncoderFeedForwardSubLayer(nn.Module):
             self.sub_layers = nn.Sequential(
                 FeedForward(embed_dim, feed_forward_hidden, bias=bias),
                 ActivationFunction(
-                    activation_config.name,
-                    activation_config.param,
-                    activation_config.threshold,
-                    activation_config.replacement_value,
-                    activation_config.n_params,
-                    (activation_config.range[0], activation_config.range[1])
-                    if activation_config.range and len(activation_config.range) >= 2
-                    else None,
+                    activation_config=activation_config,
                 ),
                 FeedForward(feed_forward_hidden, embed_dim, bias=bias),
             )
         else:
             # Identity mapping when feed_forward_hidden == 0
-            self.sub_layers = FeedForward(embed_dim, embed_dim, bias=bias)
+            # Wrap in Sequential to maintain consistent type for self.sub_layers
+            self.sub_layers = nn.Sequential(FeedForward(embed_dim, embed_dim, bias=bias))
 
     def forward(self, h: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
         """

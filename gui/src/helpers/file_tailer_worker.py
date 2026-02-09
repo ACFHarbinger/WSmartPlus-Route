@@ -4,6 +4,7 @@ Worker for tailing log files in real-time.
 
 import os
 import time
+from typing import Optional
 
 from PySide6.QtCore import QMutex, QObject, Signal, Slot
 
@@ -17,7 +18,7 @@ class FileTailerWorker(QObject):
     # Signal emitted when a new complete log entry is found
     log_line_ready = Signal(str)
 
-    def __init__(self, data_mutex: QMutex, log_path, parent=None):
+    def __init__(self, data_mutex: QMutex, log_path: str, parent: Optional[QObject] = None) -> None:
         """
         Initialize FileTailerWorker.
 
@@ -31,12 +32,12 @@ class FileTailerWorker(QObject):
         self.data_mutex = data_mutex
         self._is_running = True
 
-    def stop(self):
+    def stop(self) -> None:
         """Method to safely stop the worker from the main thread."""
         self._is_running = False
 
     @Slot()
-    def tail_file(self):
+    def tail_file(self) -> None:
         """Continuously monitors the log file for new entries."""
 
         # Give the system time to start the simulation process and create the file

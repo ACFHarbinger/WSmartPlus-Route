@@ -243,6 +243,16 @@ def add_weight_norm_constraint_hook(
         """Hook to constrain parameter norm."""
 
         def hook(grad: torch.Tensor) -> None:
+            """
+            Gradient hook that applies weight norm constraint.
+
+            This hook is called during the backward pass. It ignores the gradient
+            ('grad') and directly modifies the parameter data if its norm exceeds
+            'max_norm'.
+
+            Args:
+                grad: The gradient of the parameter.
+            """
             with torch.no_grad():
                 norm = param.data.norm()
                 if norm > max_norm:
@@ -328,7 +338,7 @@ def print_weight_summary(
         std = stats.get("std", 0.0)
         sparsity = stats.get("sparsity", 0.0)
 
-        print(f"{name:<40} " f"{change:>10.6f} " f"{mean:>10.4f} " f"{std:>10.4f} " f"{sparsity:>9.2%}")
+        print(f"{name:<40} {change:>10.6f} {mean:>10.4f} {std:>10.4f} {sparsity:>9.2%}")
 
     print(f"{'=' * 100}\n")
 

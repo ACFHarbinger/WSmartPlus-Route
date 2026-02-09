@@ -43,6 +43,15 @@ class ModelSummaryCallback(Callback):
         table.add_column("FLOPs", justify="right")
 
         def fmt_params(module):
+            """
+            Format parameter count for display.
+
+            Args:
+                module: PyTorch module or LightningModule.
+
+            Returns:
+                str: Human-readable parameter count (e.g., '1.2 M', '450.0 K').
+            """
             count = sum(p.numel() for p in module.parameters())
             if count >= 1e6:
                 return f"{count / 1e6:.1f} M"

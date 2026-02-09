@@ -2,6 +2,8 @@
 Background worker for processing chart and bin state data.
 """
 
+from typing import Any, Dict, List, Optional
+
 from PySide6.QtCore import QMutex, QMutexLocker, QObject, Signal, Slot
 
 
@@ -15,13 +17,13 @@ class ChartWorker(QObject):
 
     def __init__(
         self,
-        daily_data,
-        historical_bin_data,
-        latest_bin_data,
-        metrics_to_plot,
+        daily_data: Dict[str, Any],
+        historical_bin_data: Dict[str, Any],
+        latest_bin_data: Dict[str, Any],
+        metrics_to_plot: List[str],
         data_mutex: QMutex,
-        parent=None,
-    ):
+        parent: Optional[QObject] = None,
+    ) -> None:
         """
         Initialize ChartWorker.
 
@@ -41,11 +43,14 @@ class ChartWorker(QObject):
         self.data_mutex = data_mutex
 
     @Slot(str)
-    def process_data(self, target_key):
+    def process_data(self, target_key: str) -> None:
         """
         Reads scalar metrics AND bin state data, then emits them.
+
+        Args:
+            target_key: Key identifying the target policy/dataset.
         """
-        processed_data = {
+        processed_data: Dict[str, Any] = {
             "max_days": 0,
             "metrics": {},
             # [NEW] Container for bin state info
