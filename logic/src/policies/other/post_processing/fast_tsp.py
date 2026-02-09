@@ -8,8 +8,8 @@ import numpy as np
 import torch
 
 from logic.src.interfaces import IPostProcessor
+from logic.src.policies.tsp import find_route
 
-from ..tsp import find_route
 from .registry import PostProcessorRegistry
 
 

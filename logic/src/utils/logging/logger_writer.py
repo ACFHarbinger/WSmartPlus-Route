@@ -5,6 +5,7 @@ filtering tqdm progress bars from file output.
 """
 
 import os
+import re
 import sys
 from datetime import datetime
 
@@ -29,15 +30,27 @@ class LoggerWriter:
         self.echo_to_terminal = echo_to_terminal
 
     def write(self, message):
-        """Write message to terminal and/or log file, filtering tqdm output."""
+        """Write message to terminal and/or log file, filtering based on tags line-by-line."""
         if self.echo_to_terminal:
             self.terminal.write(message)
 
-        # Avoid writing tqdm progress bars (which use \r) and cursor movements to the file
-        # Filter ANSI escape codes for cursor up [A which might appear from tqdm
-        if "\r" not in message and "\033[A" not in message and "[A" not in message:
-            self.log.write(message)
-            self.log.flush()  # Ensure it writes immediately
+        # Logic to filter based on tags: [INFO], [WARNING], [ERROR]
+        # We split the message into lines and check each one.
+        # We use regex to check if a line STARTS with one of these tags,
+        # allowing for optional ANSI color codes (e.g., colors) preceding them.
+        # Pattern matches:
+        # ^                 : Start of string
+        # (\x1b\[[0-9;]*m)* : Zero or more ANSI escape sequences
+        # \s*               : Optional whitespace
+        # \[(INFO|WARNING|ERROR)\] : The tag
+        tag_pattern = re.compile(r"^(\x1b\[[0-9;]*m)*\s*\[(INFO|WARNING|ERROR)\]")
+
+        # splitlines(True) keeps the line endings (\n)
+        for line in message.splitlines(keepends=True):
+            if tag_pattern.match(line):
+                self.log.write(line)
+
+        self.log.flush()  # Ensure it writes immediately
 
     def flush(self):
         """Flush both terminal and log file buffers."""
@@ -62,28 +75,44 @@ class LoggerWriter:
         return getattr(self.terminal, name)
 
 
-def setup_logger_redirection():
-    """Redirects stdout and stderr to a timestamped log file."""
-    try:
-        base_dir = hydra.utils.get_original_cwd()
-    except (ValueError, ImportError):
-        base_dir = os.getcwd()
+def setup_logger_redirection(log_file=None, silent=False):
+    """Redirects stdout and stderr to a timestamped log file.
 
-    log_dir = os.path.join(base_dir, "logs/simulations")
-    os.makedirs(log_dir, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    log_file = os.path.join(log_dir, f"{timestamp}.log")
+    Args:
+        log_file: Optional path to an existing log file to reuse.
+        silent: If True, do not print the redirection announcement.
+    """
+    if log_file is None:
+        try:
+            base_dir = hydra.utils.get_original_cwd()
+        except (ValueError, ImportError):
+            base_dir = os.getcwd()
+
+        log_dir = os.path.join(base_dir, "logs/simulations")
+        os.makedirs(log_dir, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        log_file = os.path.join(log_dir, f"{timestamp}.log")
 
     # Tee stdout and stderr
-    # stdout goes ONLY to log (silent_terminal=True -> echo_to_terminal=False)
+    # stdout/stderr goes to log, but NOT terminal (echo_to_terminal=False)
+    # The dashboard in SimulationDisplay will use .terminal to bypass this.
     sys.stdout = LoggerWriter(sys.stdout, log_file, echo_to_terminal=False)
+    sys.stderr = LoggerWriter(sys.stderr, log_file, echo_to_terminal=False)
 
-    # stderr goes to BOTH (so we see tqdm), but LoggerWriter.write filters tqdm from file
-    sys.stderr = LoggerWriter(sys.stderr, log_file, echo_to_terminal=True)
+    # Reconfigure Loguru to use the redirected sys.stderr
+    try:
+        from loguru import logger
 
-    # Print to ORIGINAL stdout so user knows where logs are, before redirection takes full effect
-    # (Though we just redirected stdout, so this will go to log only if we use print)
-    # let's write to the original stderr or stdout if we want user to see it
-    sys.stderr.terminal.write(f"Logging simulation output to: {log_file}\n")
+        logger.remove()
+        logger.add(sys.stderr, format="[{level}] {message}")
+    except ImportError:
+        pass
+
+    # Print to ORIGINAL stderr so user knows where logs are, before redirection takes full effect
+    if not silent:
+        if hasattr(sys.stderr, "terminal"):
+            sys.stderr.terminal.write(f"Logging simulation output to: {log_file}\n")
+        else:
+            sys.stderr.write(f"Logging simulation output to: {log_file}\n")
 
     return log_file

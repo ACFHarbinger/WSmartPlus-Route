@@ -77,7 +77,6 @@ class TestSimTabInteractions:
         # Boolean flags
         policy_params_tab.lookahead_config_a.setChecked(True)
         policy_params_tab.lookahead_config_b.setChecked(True)
-        policy_params_tab.run_tsp_check.setChecked(True)
 
         # Text inputs
         policy_params_tab.gurobi_param_input.setText("0.5 0.9")
@@ -86,7 +85,6 @@ class TestSimTabInteractions:
 
         assert params["decoding.strategy"] == "sampling"
         assert params["decoding.temperature"] == 2.5
-        assert params["run_tsp"] is True
 
         # Lookahead configs should be "a b"
         assert "a" in params["lookahead_configs"]

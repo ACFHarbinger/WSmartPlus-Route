@@ -71,13 +71,11 @@ class TestSimPolicyParamsTab(QWidget):
         self.lookahead_config_a = QCheckBox("Look-Ahead Configuration A")  # 7. lookahead_configs
         self.lookahead_config_b = QCheckBox("Look-Ahead Configuration B")
         self.cache_regular_check = QCheckBox("Deactivate Regular Cache")  # 8. --cache_regular
-        self.run_tsp_check = QCheckBox("Run fast_tsp for routing")  # 9. --run_tsp
 
         # Add widgets to the horizontal layout (using addWidget)
         boolean_flags_layout.addWidget(self.lookahead_config_a)
         boolean_flags_layout.addWidget(self.lookahead_config_b)
         boolean_flags_layout.addWidget(self.cache_regular_check)
-        boolean_flags_layout.addWidget(self.run_tsp_check)
 
         # Add the entire horizontal layout as a single row to the QFormLayout
         layout.addRow(boolean_flags_layout)
@@ -99,7 +97,6 @@ class TestSimPolicyParamsTab(QWidget):
             "decoding.temperature": self.temperature_input.value(),
             # Boolean Flags
             "cache_regular": self.cache_regular_check.isChecked(),
-            "run_tsp": self.run_tsp_check.isChecked(),
         }
         # Multi-value arguments
         if len(look_ahead_configs) > 0:

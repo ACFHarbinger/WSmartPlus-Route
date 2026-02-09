@@ -230,18 +230,17 @@ class TemporalAttentionModel(AttentionModel):
         updated_history[:, :, -1] = new_fills
         return updated_history
 
-    def compute_simulator_day(self, input, graph, run_tsp=False):
+    def compute_simulator_day(self, input, graph):
         """
         Compute one simulation day, updating fill history if present.
 
         Args:
             input (dict): Input data.
             graph (object): The graph object.
-            run_tsp (bool, optional): Whether to run TSP locally. Defaults to False.
 
         Returns:
             dict: Simulation results.
         """
         if "fill_history" in list(input.keys()) and "current_fill" in list(input.keys()):
             input["fill_history"] = self.update_fill_history(input["fill_history"], input["current_fill"])
-        return super().compute_simulator_day(input, graph, run_tsp)
+        return super().compute_simulator_day(input, graph)

@@ -4,15 +4,9 @@ Simulator day logic for Neural Agent.
 
 from __future__ import annotations
 
-import numpy as np
 import torch
 
-from logic.src.models.policies.local_search import (
-    vectorized_two_opt,
-)
 from logic.src.policies.tsp import (
-    find_route,
-    get_multi_tour,
     get_route_cost,
 )
 from logic.src.utils.functions import add_attention_hooks
@@ -29,12 +23,7 @@ class SimulationMixin:
         graph,
         distC,
         profit_vars=None,
-        run_tsp=False,
-        hrl_manager=None,
         waste_history=None,
-        threshold=0.5,
-        mask_threshold=0.5,
-        two_opt_max_iter=0,
         cost_weights=None,
         must_go=None,
     ):
@@ -56,20 +45,15 @@ class SimulationMixin:
         - If gate open: Worker model constructs route respecting mask
 
         Post-processing:
-        - run_tsp=True: Refine route using fast_tsp
-        - two_opt_max_iter>0: Apply 2-opt local search (GPU accelerated)
+        - TODO: Add post-processing logic
 
         Args:
             input (dict): Problem instance with 'loc', 'waste', etc.
             graph (tuple): (edges, dist_matrix) for the model
             distC (torch.Tensor or np.ndarray): Distance matrix for cost calculation
             profit_vars (dict, optional): VRPP parameters (vehicle_capacity, R, C, etc.)
-            run_tsp (bool): Whether to refine route with TSP solver. Default: False
-            hrl_manager (optional): HRL manager network
             waste_history (torch.Tensor, optional): Historical bin levels (Days x N) or (N x Days)
             threshold (float): Gating probability threshold. Default: 0.5
-            mask_threshold (float): Masking probability threshold. Default: 0.5
-            two_opt_max_iter (int): 2-opt iterations. 0 disables. Default: 0
             must_go (torch.Tensor, optional): Boolean mask (N,) or (1, N) where True = must visit.
                 If all False, returns [0] immediately (no routing needed).
 
@@ -111,96 +95,6 @@ class SimulationMixin:
 
         mask = None
         dynamic_feat = None
-        if hrl_manager is not None and waste_history is not None:
-            # Static: Customer Locations (Batch, N, 2)
-            # Should be shape (1, N, 2) if single instance
-            if input["locs"].dim() == 2:
-                static_feat = input["locs"].unsqueeze(0)
-            else:
-                static_feat = input["locs"]
-
-            # Dynamic: Waste History (Batch, N, History)
-            # waste_history likely (N, History) if single instance
-            if waste_history.dim() == 2:
-                dynamic_feat = waste_history.unsqueeze(0)
-            else:
-                dynamic_feat = waste_history
-
-            # Ensure shapes align:
-            # static_feat: (Batch, N, 2)
-            # dynamic_feat: (Batch, N, History)
-
-            # If dynamic_feat came from (Days, N), it is now (1, Days, N)
-            # We check if dim 1 matches N (from static). If not, and dim 2 does, we permute.
-            N = static_feat.size(1)
-            if dynamic_feat.size(1) != N and dynamic_feat.size(2) == N:
-                dynamic_feat = dynamic_feat.permute(0, 2, 1)  # (B, N, Days)
-
-            # Feature Normalization Check
-            # History should be [0, 1]. If we see values >> 1 (e.g. 0-100), normalize.
-            if dynamic_feat.max() > 2.0:  # Safe threshold, assuming valid fills roughly <= 100% (1.0)
-                dynamic_feat = dynamic_feat / 100.0
-
-            # Truncate to Window Size if passed full history (e.g. from Notebook)
-            # dynamic_feat: (Batch, N, History)
-            if hasattr(hrl_manager, "input_dim_dynamic"):
-                window_size = hrl_manager.input_dim_dynamic
-                if dynamic_feat.size(2) > window_size:
-                    # Take last 'window_size' steps
-                    dynamic_feat = dynamic_feat[:, :, -window_size:]
-
-            # Compute Global Features
-            # dynamic_feat: (Batch, N, History)
-            # current_waste: (Batch, N) - assuming last step is current
-            current_waste = dynamic_feat[:, :, -1]
-
-            # 1. Critical Ratio Now
-            critical_mask = (current_waste > hrl_manager.critical_threshold).float()
-            critical_ratio = critical_mask.mean(dim=1, keepdim=True)  # (B, 1)
-
-            # 2. Max Current Waste
-            max_current_waste = current_waste.max(dim=1, keepdim=True)[0]  # (B, 1)
-
-            # Combine: (B, 2)
-            global_features = torch.cat(
-                [
-                    critical_ratio,
-                    max_current_waste,
-                ],
-                dim=1,
-            )  # (B, 2)
-
-            # Get must_go selection and gate decision
-            # must_go_action: 1 = must collect, 0 = optional
-            must_go_action, gate_action, _ = hrl_manager.select_action(
-                static_feat,
-                dynamic_feat,
-                global_features,
-                deterministic=True,
-                threshold=threshold,
-                must_go_threshold=mask_threshold,
-            )
-
-            # If Gate is closed (0), return empty immediately (no dispatch)
-            if gate_action.item() == 0:
-                for handle in hook_data["handles"]:
-                    handle.remove()
-                return (
-                    [0],
-                    0,
-                    {
-                        "attention_weights": torch.tensor([]),
-                        "graph_masks": hook_data["masks"],
-                    },
-                )
-
-            # Construct model mask from must_go_action
-            # must_go_action: 1=must collect, 0=optional -> mask: True=can skip
-            mask = must_go_action == 0
-            # Clear hooks after manager decision as we only want worker's attention weights
-            hook_data["weights"].clear()
-            hook_data["masks"].clear()
-
         input_for_model = input.copy()  # Shallow copy
         if "edges" not in list(input_for_model.keys()) and edges is not None:
             input_for_model["edges"] = edges
@@ -218,7 +112,6 @@ class SimulationMixin:
         horizon = getattr(self.model, "temporal_horizon", 0)
         if horizon > 0 and waste_history is not None:
             # waste_history: (Days, N) or (N, Days). After processing/hrl: dynamic_feat (1, N, History)
-            # If hrl_manager was used, dynamic_feat is already processed. If not, we process it now.
             if dynamic_feat is None:
                 # Get location tensor regardless of key
                 loc_tensor = input.get("locs", input.get("loc"))
@@ -271,40 +164,8 @@ class SimulationMixin:
             cost_weights=cost_weights,
         )
 
-        if run_tsp:
-            try:
-                pi_nodes = pi[pi != 0].cpu().numpy()
-                if len(pi_nodes) > 0:
-                    route = find_route(np.round(dist_matrix.cpu().numpy() * 1000), pi_nodes)
-                    # distC might be a CUDA tensor, ensure it is numpy for get_route_cost
-                    distC_np = distC.cpu().numpy() if torch.is_tensor(distC) else distC
-
-                    # Respect Capacity in Simulator Evaluation
-                    if profit_vars is not None and "vehicle_capacity" in profit_vars:
-                        raw_wastes = input["waste"].squeeze(0).cpu().numpy()
-                        route = get_multi_tour(
-                            route,
-                            raw_wastes,
-                            profit_vars["vehicle_capacity"],
-                            dist_matrix.cpu().numpy(),
-                        )
-
-                    cost = get_route_cost(distC_np * 100, route)
-                else:
-                    route = [0]
-                    cost = 0
-            except Exception:
-                route = []
-                cost = 0
-        else:
-            route = torch.cat((torch.tensor([0]).to(pi.device), pi.squeeze(0)))
-
-            # Apply 2-opt refinement (GPU accelerated)
-            if two_opt_max_iter > 0:
-                route = vectorized_two_opt(route, distC, two_opt_max_iter)
-
-            cost = get_route_cost(distC * 100, route)
-
+        route = torch.cat((torch.tensor([0]).to(pi.device), pi.squeeze(0)))
+        cost = get_route_cost(distC * 100, route)
         for handle in hook_data["handles"]:
             handle.remove()
 

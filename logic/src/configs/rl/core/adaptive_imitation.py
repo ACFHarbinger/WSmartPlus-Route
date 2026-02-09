@@ -1,7 +1,7 @@
 """Adaptive Imitation Learning specific configuration."""
 
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Any, Union
 
 from logic.src.configs.rl.policies import (
     ACOConfig,
@@ -26,11 +26,9 @@ class AdaptiveImitationConfig:
     threshold: float = 0.05
     decay_step: int = 1
     epsilon: float = 1e-5
-    policy_config: Optional[ExpertPolicyConfig] = None
+    policy_config: Any = None
     loss_fn: str = "nll"
 
     def __post_init__(self):
         """Set default policy config if not provided."""
-        if self.policy_config is None:
-            # Default to HGS with reasonable settings
-            self.policy_config = HGSConfig(time_limit=30.0)
+        pass

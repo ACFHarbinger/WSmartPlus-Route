@@ -56,8 +56,6 @@ SAMPLES="${SIM_N_SAMPLES:-10}"
 WASTE_TYPE="${SIM_WASTE_TYPE:-plastic}"
 DATA_DIST="${SIM_DATA_DISTRIBUTION:-gamma1}"
 POLICIES="${SIM_POLICIES[@]:-alns bcp}"
-GATE_THRESH="${SIM_GATE_PROB_THRESHOLD:-0.1}"
-MASK_THRESH="${SIM_MASK_PROB_THRESHOLD:-0.1}"
 
 # Derived paths
 IDX_PATH="graphs_${SIZE}V_1N_${WASTE_TYPE}.json"
@@ -104,20 +102,18 @@ fi
 uv run python main.py test_sim \
     "sim.policies=${POLICIES_STR}" \
     "sim.problem='${PROBLEM}'" \
-    "sim.area='${AREA}'" \
-    "sim.size=${SIZE}" \
+    "sim.graph.area='${AREA}'" \
+    "sim.graph.num_loc=${SIZE}" \
     "sim.days=${DAYS}" \
     "sim.n_samples=${SAMPLES}" \
-    "sim.waste_type='${WASTE_TYPE}'" \
+    "sim.graph.waste_type='${WASTE_TYPE}'" \
     "sim.data_distribution='${DATA_DIST}'" \
     "sim.bin_idx_file='${IDX_PATH}'" \
-    "sim.dm_filepath='${DM_PATH}'" \
-    "sim.waste_filepath='${WASTE_PATH}'" \
-    "sim.gate_prob_threshold=${GATE_THRESH}" \
-    "sim.mask_prob_threshold=${MASK_THRESH}" \
+    "sim.graph.dm_filepath='${DM_PATH}'" \
+    "sim.graph.waste_filepath='${WASTE_PATH}'" \
     "sim.checkpoint_days=30" \
-    "sim.edge_threshold=1.0" \
-    "sim.edge_method='dist'" \
+    "sim.graph.edge_threshold='1.0'" \
+    "sim.graph.edge_method='dist'" \
     "sim.log_level='WARNING'" \
     "${CLI_OVERRIDES[@]}" \
     "$@"

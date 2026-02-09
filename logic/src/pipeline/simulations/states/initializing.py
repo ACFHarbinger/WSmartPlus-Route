@@ -1,11 +1,12 @@
 """initializing.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import initializing
-    """
+Example:
+    >>> import initializing
+"""
+
 from __future__ import annotations
 
 import os
@@ -66,13 +67,13 @@ class InitializingState(SimState):
                             loaded = load_config(path)
 
                         ctx.config[key] = loaded
-                        print(f"Loaded configuration for '{key}' from {path}")
+                        print(f"[INFO] Loaded configuration for '{key}' from {path}")
                     except (OSError, ValueError) as e:
-                        print(f"Warning: Failed to load config file {path}: {e}")
+                        print(f"[Warning] Failed to load config file {path}: {e}")
             else:
                 try:
                     ctx.config = load_config(config_paths)
-                    print(f"Loaded configuration from {config_paths}")
+                    print(f"[INFO] Loaded configuration from {config_paths}")
                 except (OSError, ValueError):
                     pass
 
@@ -98,9 +99,9 @@ class InitializingState(SimState):
                                         opts["model_path"][pol_key] = item["model_path"]
                     else:
                         ctx.config.update(neural_cfg)
-                print(f"Loaded configuration from {neural_cfg_path}")
+                print(f"[INFO] Loaded configuration from {neural_cfg_path}")
             except (OSError, ValueError) as e:
-                print(f"Warning: Failed to load neural config {neural_cfg_path}: {e}")
+                print(f"[WARNING] Failed to load neural config {neural_cfg_path}: {e}")
 
         data, bins_coordinates, depot = setup_basedata(opts["size"], ctx.data_dir, opts["area"], opts["waste_type"])
 

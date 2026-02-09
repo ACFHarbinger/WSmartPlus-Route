@@ -50,12 +50,21 @@ class MustGoSelectionAction(SimulationAction):
                     if "config" in cfg and len(cfg) == 1:
                         cfg = cfg["config"]
 
-                    for k, v in cfg.items():
-                        strategies.append({"name": k, "params": v if isinstance(v, dict) else {}})
+                    if "strategy" in cfg:
+                        strat_name = cfg.pop("strategy")
+                        strategies.append({"name": strat_name, "params": cfg})
+                    else:
+                        for k, v in cfg.items():
+                            strategies.append({"name": k, "params": v if isinstance(v, dict) else {}})
 
                 elif isinstance(item, dict):
-                    for k, v in item.items():
-                        strategies.append({"name": k, "params": v if isinstance(v, dict) else {}})
+                    # Handle case where item is a dict describing a single strategy
+                    if "strategy" in item:
+                        strat_name = item.pop("strategy")
+                        strategies.append({"name": strat_name, "params": item})
+                    else:
+                        for k, v in item.items():
+                            strategies.append({"name": k, "params": v if isinstance(v, dict) else {}})
                 else:
                     strategies.append({"name": item, "params": {}})
 

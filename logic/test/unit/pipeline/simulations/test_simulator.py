@@ -934,7 +934,6 @@ class TestDay:
                 bins=mock_run_day_deps["bins"],
                 new_data=mock_run_day_deps["new_data"],
                 coords=mock_run_day_deps["coords"],
-                run_tsp=True,
                 sample_id=0,
                 overflows=0,
                 day=1,
@@ -975,7 +974,6 @@ class TestDay:
                 bins=mock_run_day_deps["bins"],
                 new_data=mock_run_day_deps["new_data"],
                 coords=mock_run_day_deps["coords"],
-                run_tsp=True,
                 sample_id=0,
                 overflows=0,
                 day=5,
@@ -1274,9 +1272,6 @@ class TestDayResults:
         opts["area"] = "riomaior"
         opts["size"] = 3
         opts["data_distribution"] = "gamma"
-        opts["two_opt_max_iter"] = 100
-        opts["gate_prob_threshold"] = 0.5
-        opts["mask_prob_threshold"] = 0.5
 
         # Set N_BINS to 3 to satisfy len(ids) > 2 in Bins.collect
         # (Depot + 2 bins = 3 unique IDs)
@@ -1550,9 +1545,6 @@ class TestDayResults:
         opts["policies"] = ["policy_gamma1"]
         opts["days"] = 10
         opts["resume"] = True
-        opts["gate_prob_threshold"] = 0.5
-        opts["mask_prob_threshold"] = 0.5
-        opts["two_opt_max_iter"] = 100
 
         resume_daily_log = {
             "day": [1, 2, 3, 4, 5],
@@ -1672,9 +1664,6 @@ class TestDayResults:
         opts["n_samples"] = 2
         opts["days"] = 5
         opts["policies"] = ["policy_gamma1"]
-        opts["gate_prob_threshold"] = 0.5
-        opts["mask_prob_threshold"] = 0.5
-        opts["two_opt_max_iter"] = 100
 
         indices_ls = [None, None]  # List of indices for 2 samples
         sample_idx_ls = [[0, 1]]  # Policy 0 runs samples 0 and 1
