@@ -3,7 +3,6 @@ Relocate local search operator.
 """
 
 import torch
-
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
