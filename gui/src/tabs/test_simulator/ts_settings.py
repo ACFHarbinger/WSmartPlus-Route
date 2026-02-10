@@ -73,7 +73,7 @@ class TestSimSettingsTab(QWidget):
             btn.setObjectName("toggleStyleButton")  # Apply new toggle style ID
 
             btn.clicked.connect(lambda checked, p=policy_name: self.toggle_policy(p, checked))
-            row_layout.addWidget(btn)
+            row_layout.addWidget(btn)  # type: ignore[union-attr]
             self.policy_buttons[policy_name] = btn
 
         if row_layout is not None and len(SIMULATOR_TEST_POLICIES.keys()) % 3 != 0:
@@ -105,7 +105,7 @@ class TestSimSettingsTab(QWidget):
 
         # 2. --data_distribution
         self.data_dist_input = QComboBox()
-        self.data_dist_input.addItems(DATA_DISTRIBUTIONS.keys())
+        self.data_dist_input.addItems(DATA_DISTRIBUTIONS.keys())  # type: ignore[arg-type]
         self.data_dist_input.setCurrentText("Gamma 1")
         # No inline style needed, handled by main_window.py
         content_layout.addRow("Waste Fill Data Distribution:", self.data_dist_input)

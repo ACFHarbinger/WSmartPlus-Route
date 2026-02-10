@@ -30,8 +30,8 @@ class TestSuiteTab(QWidget):
         Initialize the TestSuiteTab and setup the configuration groups.
         """
         super().__init__()
-        self.layout = QVBoxLayout(self)
-        self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.layout = QVBoxLayout(self)  # type: ignore[assignment, method-assign]
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # type: ignore[attr-defined]
 
         # Use a QScrollArea for the main content to ensure responsiveness
         scroll_area = QScrollArea()
@@ -46,7 +46,7 @@ class TestSuiteTab(QWidget):
 
         self.content_layout.addStretch(1)  # Push content to the top
         scroll_area.setWidget(self.content_widget)
-        self.layout.addWidget(scroll_area)
+        self.layout.addWidget(scroll_area)  # type: ignore[attr-defined]
 
     def _add_grid_row(self, layout, row, label_text, widget):
         """Helper function to add a label and a widget to a QGridLayout."""

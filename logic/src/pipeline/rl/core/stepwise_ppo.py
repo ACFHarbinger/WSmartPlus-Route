@@ -169,7 +169,7 @@ class StepwisePPO(RL4COLitModule):
                 opt.zero_grad()
                 self.manual_backward(loss)
                 if self.max_grad_norm > 0:
-                    self.clip_gradients(opt, gradient_clip_val=self.max_grad_norm, gradient_clip_algorithm="norm")
+                    self.clip_gradients(opt, gradient_clip_val=self.max_grad_norm, gradient_clip_algorithm="norm")  # type: ignore[arg-type]
                 opt.step()
 
         # Logging
@@ -209,11 +209,11 @@ class StepwisePPO(RL4COLitModule):
         data = torch.stack([e["td"] for e in experiences], dim=1)  # [B, T, ...]
 
         # Build flattened TensorDict
-        data["action"] = torch.stack([e["action"] for e in experiences], dim=1)
-        data["log_p"] = torch.stack([e["log_p"] for e in experiences], dim=1)
-        data["advantage"] = advantages
-        data["return"] = returns
-        data["reward"] = rewards  # per-step reward for logging
+        data["action"] = torch.stack([e["action"] for e in experiences], dim=1)  # type: ignore[index]
+        data["log_p"] = torch.stack([e["log_p"] for e in experiences], dim=1)  # type: ignore[index]
+        data["advantage"] = advantages  # type: ignore[index]
+        data["return"] = returns  # type: ignore[index]
+        data["reward"] = rewards  # type: ignore[index]  # per-step reward for logging
 
         # Reshape to [B*T]
         return data.view(bs * T)
@@ -253,5 +253,5 @@ class StepwisePPO(RL4COLitModule):
         Returns:
             Any: Description.
         """
-        params = list(self.policy.parameters()) + list(self.critic.parameters())
+        params = list(self.policy.parameters()) + list(self.critic.parameters())  # type: ignore[attr-defined]
         return torch.optim.Adam(params, **self.optimizer_kwargs)

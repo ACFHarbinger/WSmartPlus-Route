@@ -83,8 +83,8 @@ def _create_critic_helper(policy, cfg: Config) -> Any:
     return create_critic_from_actor(
         policy,
         env_name=cfg.env.name,
-        embed_dim=cfg.model.embed_dim,
-        hidden_dim=cfg.model.hidden_dim,
-        n_layers=cfg.model.n_encode_layers,
-        n_heads=cfg.model.n_heads,
+        embed_dim=cfg.model.embed_dim,  # type: ignore[attr-defined]
+        hidden_dim=cfg.model.hidden_dim,  # type: ignore[attr-defined]
+        n_layers=cfg.model.n_encode_layers,  # type: ignore[attr-defined]
+        n_heads=cfg.model.n_heads,  # type: ignore[attr-defined]
     )

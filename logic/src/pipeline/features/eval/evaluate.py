@@ -94,13 +94,13 @@ def evaluate_policy(
     if method == "greedy":
         evaluator = GreedyEval(env, device=device, **kwargs)
     elif method == "sampling":
-        evaluator = SamplingEval(env, device=device, **kwargs)
+        evaluator = SamplingEval(env, device=device, **kwargs)  # type: ignore[assignment]
     elif method == "augmentation":
-        evaluator = AugmentationEval(env, device=device, **kwargs)
+        evaluator = AugmentationEval(env, device=device, **kwargs)  # type: ignore[assignment]
     elif method == "multistart":
-        evaluator = MultiStartEval(env, device=device, **kwargs)
+        evaluator = MultiStartEval(env, device=device, **kwargs)  # type: ignore[assignment]
     elif method == "multistart_augment":
-        evaluator = MultiStartAugmentEval(env, device=device, **kwargs)
+        evaluator = MultiStartAugmentEval(env, device=device, **kwargs)  # type: ignore[assignment]
     else:
         # Fallback or error? For now default to greedy if unknown or raise
         raise ValueError(f"Unknown evaluation method: {method}")

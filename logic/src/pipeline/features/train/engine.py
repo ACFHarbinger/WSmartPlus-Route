@@ -56,7 +56,7 @@ def run_training(cfg: Config) -> float:
     if progress_bar is not None and terminal_chart is not None:
         # We know these are the correct types based on the class name check above
         # avoiding circular imports for type checking here
-        progress_bar.set_chart_callback(terminal_chart)
+        progress_bar.set_chart_callback(terminal_chart)  # type: ignore[attr-defined]
 
     trainer = WSTrainer(
         max_epochs=cfg.train.n_epochs,
@@ -67,7 +67,7 @@ def run_training(cfg: Config) -> float:
         strategy=cfg.train.strategy,
         gradient_clip_val=(float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0),
         logger=CSVLogger(cfg.train.logs_dir or "logs", name=""),
-        callbacks=callbacks,
+        callbacks=callbacks,  # type: ignore[arg-type]
         precision=cfg.train.precision,
         log_every_n_steps=cfg.train.log_step,
         model_weights_path=cfg.train.model_weights_path,

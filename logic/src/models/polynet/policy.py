@@ -135,7 +135,7 @@ class PolyNetPolicy(AutoregressivePolicy):
         embedding = self.init_embedding(td)
 
         # Encode
-        embeddings = self.encoder(embedding)  # type: ignore[attr-defined]
+        embeddings = self.encoder(embedding)  # type: ignore[attr-defined, misc]
 
         # Determine strategy
         strategy = kwargs.pop("strategy", None)
@@ -143,7 +143,7 @@ class PolyNetPolicy(AutoregressivePolicy):
             strategy = getattr(self, f"{phase}_strategy")
 
         # Decode
-        log_likelihood, actions = self.decoder(  # type: ignore[attr-defined]
+        log_likelihood, actions = self.decoder(  # type: ignore[attr-defined, misc]
             td,
             embeddings,
             env,
@@ -153,7 +153,7 @@ class PolyNetPolicy(AutoregressivePolicy):
         )
 
         # Calculate reward
-        reward = env.get_reward(td, actions)  # type: ignore[attr-defined]
+        reward = env.get_reward(td, actions)  # type: ignore[attr-defined, union-attr]
 
         return {
             "reward": reward,

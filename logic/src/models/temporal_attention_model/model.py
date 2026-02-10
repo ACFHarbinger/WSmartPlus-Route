@@ -116,7 +116,7 @@ class TemporalAttentionModel(AttentionModel):
             )
         else:
             assert predictor_type == "gru", f"Unknown predictor type: {predictor_type}"
-            self.fill_predictor = GatedRecurrentUnitFillPredictor(
+            self.fill_predictor = GatedRecurrentUnitFillPredictor(  # type: ignore[assignment]
                 input_dim=1,
                 hidden_dim=hidden_dim,
                 num_layers=predictor_layers,
@@ -134,7 +134,7 @@ class TemporalAttentionModel(AttentionModel):
                 activation_config.threshold,
                 activation_config.replacement_value,
                 activation_config.n_params,
-                activation_config.range,
+                activation_config.range,  # type: ignore[arg-type]
             ),
             nn.Linear(embed_dim, embed_dim),
         )
@@ -171,7 +171,7 @@ class TemporalAttentionModel(AttentionModel):
         combined_embeddings = self.combine_embeddings(torch.cat((base_embeddings, fill_embeddings), dim=-1))
         return combined_embeddings, None
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         input,
         cost_weights=None,
@@ -243,4 +243,4 @@ class TemporalAttentionModel(AttentionModel):
         """
         if "fill_history" in list(input.keys()) and "current_fill" in list(input.keys()):
             input["fill_history"] = self.update_fill_history(input["fill_history"], input["current_fill"])
-        return super().compute_simulator_day(input, graph)
+        return super().compute_simulator_day(input, graph)  # type: ignore[misc]

@@ -87,7 +87,7 @@ class RLOptimizerTab(BaseReinforcementLearningTab):
                 val = widget.value()
                 # Only add if value is non-zero, as per original logic
                 if val != 0.0:
-                    params[key] = val
+                    params[key] = val  # type: ignore[assignment]
             elif isinstance(widget, QComboBox):
                 text = widget.currentText()
                 if not text:
@@ -105,12 +105,12 @@ class RLOptimizerTab(BaseReinforcementLearningTab):
                     # Look up the short CLI value (e.g., 'rmsprop') using the full UI text
                     cli_argument = lookup_dict.get(text, None)
                     if cli_argument:
-                        params[key] = cli_argument
+                        params[key] = cli_argument  # type: ignore[assignment]
                     # If the lookup fails (e.g., for custom entry), fall back to the raw text
                     else:
-                        params[key] = text
+                        params[key] = text  # type: ignore[assignment]
                 else:
                     # If no specific dictionary is matched (shouldn't happen here), use raw text
-                    params[key] = text
+                    params[key] = text  # type: ignore[assignment]
 
         return params

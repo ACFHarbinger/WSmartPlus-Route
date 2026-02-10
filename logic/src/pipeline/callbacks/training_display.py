@@ -290,7 +290,7 @@ class TrainingDisplayCallback(Callback):
             if key in metrics:
                 val = metrics[key]
                 if hasattr(val, "item"):
-                    val = val.item()
+                    val = val.item()  # type: ignore[assignment]
 
                 self.history[key].append(float(val))
                 self.steps[key].append(trainer.global_step)
@@ -312,7 +312,7 @@ class TrainingDisplayCallback(Callback):
             if key in metrics:
                 val = metrics[key]
                 if hasattr(val, "item"):
-                    val = val.item()
+                    val = val.item()  # type: ignore[assignment]
 
                 self.history[key].append(float(val))
                 self.steps[key].append(trainer.global_step)

@@ -39,7 +39,7 @@ class MetaRLTrainParserTab(QWidget):
 
         # --mrl_method
         self.mrl_method_combo = QComboBox()
-        self.mrl_method_combo.addItems(MRL_METHODS.keys())
+        self.mrl_method_combo.addItems(MRL_METHODS.keys())  # type: ignore[arg-type]
         self.mrl_method_combo.setCurrentText("")
         form_layout.addRow(QLabel("Meta-Learning Method:"), self.mrl_method_combo)
 
@@ -78,7 +78,7 @@ class MetaRLTrainParserTab(QWidget):
 
         # --cb_exploration_method
         self.cb_exploration_method_combo = QComboBox()
-        self.cb_exploration_method_combo.addItems(CB_EXPLORATION_METHODS.keys())
+        self.cb_exploration_method_combo.addItems(CB_EXPLORATION_METHODS.keys())  # type: ignore[arg-type]
         self.cb_exploration_method_combo.setCurrentText("Upper Confidence Bound (UCB)")
         form_layout.addRow(QLabel("Exploration Method:"), self.cb_exploration_method_combo)
 
@@ -93,7 +93,7 @@ class MetaRLTrainParserTab(QWidget):
 
         # --cb_features_aggregation
         self.cb_features_aggregation_combo = QComboBox()
-        self.cb_features_aggregation_combo.addItems(AGGREGATION_FUNCTIONS.keys())
+        self.cb_features_aggregation_combo.addItems(AGGREGATION_FUNCTIONS.keys())  # type: ignore[arg-type]
         self.cb_features_aggregation_combo.setCurrentText("Average")
         form_layout.addRow(QLabel("Feature Aggregation:"), self.cb_features_aggregation_combo)
 
@@ -128,13 +128,13 @@ class MetaRLTrainParserTab(QWidget):
 
         # --rwa_model
         self.rwa_model_combo = QComboBox()
-        self.rwa_model_combo.addItems(RWA_MODELS.keys())
+        self.rwa_model_combo.addItems(RWA_MODELS.keys())  # type: ignore[arg-type]
         self.rwa_model_combo.setCurrentText("Recurrent Neural Network (RNN)")
         form_layout.addRow(QLabel("Model:"), self.rwa_model_combo)
 
         # --rwa_optimizer
         self.rwa_optimizer_combo = QComboBox()
-        self.rwa_optimizer_combo.addItems(RWA_OPTIMIZERS.keys())
+        self.rwa_optimizer_combo.addItems(RWA_OPTIMIZERS.keys())  # type: ignore[arg-type]
         self.rwa_optimizer_combo.setCurrentText("Root Mean Square Propagation (RMSProp)")
         form_layout.addRow(QLabel("Optimizer:"), self.rwa_optimizer_combo)
 
@@ -234,18 +234,18 @@ class MetaRLTrainParserTab(QWidget):
             try:
                 # The assumption here is that your CLI handles this list of floats.
                 # If your main window preview logic handles lists correctly, this is fine.
-                params["mrl_range"] = [float(x) for x in mrl_range_text.split()]
+                params["mrl_range"] = [float(x) for x in mrl_range_text.split()]  # type: ignore[assignment]
             except ValueError:
                 print("Warning: mrl_range must contain space-separated floats. Skipping.")
 
         # --cb_context_features (List of Strings)
         cb_context_features_text = self.cb_context_features_input.text().strip()
         if cb_context_features_text:
-            params["cb_context_features"] = cb_context_features_text.split()
+            params["cb_context_features"] = cb_context_features_text.split()  # type: ignore[assignment]
 
         # --morl_objectives (List of Strings)
         morl_objectives_text = self.morl_objectives_input.text().strip()
         if morl_objectives_text:
-            params["morl_objectives"] = morl_objectives_text.split()
+            params["morl_objectives"] = morl_objectives_text.split()  # type: ignore[assignment]
 
         return params

@@ -76,7 +76,7 @@ class RunningState(SimState):
                 ctx.overall_progress.update(1)
 
     def _get_current_policy_config(self, ctx):
-        current_policy_config = {}
+        current_policy_config = {}  # type: ignore[var-annotated]
         for key, cfg in (ctx.config or {}).items():
             if key in ctx.policy:
                 if isinstance(cfg, list):

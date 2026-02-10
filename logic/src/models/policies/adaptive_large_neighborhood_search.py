@@ -102,11 +102,11 @@ class VectorizedALNS:
 
             # 2. Destroy & Repair (Fast TSP operators)
             if destroy_op == vectorized_random_removal:
-                partial, removed = destroy_op(current_solutions, n_remove)
+                partial, removed = destroy_op(current_solutions, n_remove)  # type: ignore[operator]
             else:
-                partial, removed = destroy_op(current_solutions, self.dist_matrix, n_remove)
+                partial, removed = destroy_op(current_solutions, self.dist_matrix, n_remove)  # type: ignore[operator]
 
-            candidate_solutions = repair_op(partial, removed, self.dist_matrix)
+            candidate_solutions = repair_op(partial, removed, self.dist_matrix)  # type: ignore[operator]
 
             # 3. Fast Education (TSP Local Search)
             if i % 20 == 0:

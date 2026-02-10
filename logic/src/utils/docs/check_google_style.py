@@ -334,7 +334,7 @@ def main():
     else:
         for root, dirs, files in os.walk(args.path):
             dirs[:] = [d for d in dirs if d not in skip_dirs]
-            targets.append((root, dirs, files))
+            targets.append((root, dirs, files))  # type: ignore[arg-type]
 
     # Run Analysis with Spinner
     with console.status("[bold green]Scanning codebase...[/bold green]", spinner="dots"):

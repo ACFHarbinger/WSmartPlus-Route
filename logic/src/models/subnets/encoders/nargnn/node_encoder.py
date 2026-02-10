@@ -15,7 +15,7 @@ class NARGNNNodeEncoder(NARGNNEncoder):
     NARGNN encoder variant that returns node embeddings instead of heatmaps.
     """
 
-    def forward(self, td: TensorDict) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, td: TensorDict) -> Tuple[torch.Tensor, torch.Tensor]:  # type: ignore[override]
         """Forward pass."""
         node_embed = self.init_embedding(td)
         graph = self.edge_embedding(td, node_embed)

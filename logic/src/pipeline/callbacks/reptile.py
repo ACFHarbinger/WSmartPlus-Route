@@ -189,10 +189,10 @@ class ReptileCallback(Callback):
         if data_type == "distribution":
             task_set = [(0, 0)] + [(m, c) for m in range(1, 10) for c in [1, 10, 20, 30, 40, 50]]
         elif data_type == "size":
-            task_set = [(n,) for n in range(min_size, max_size + 1)]
+            task_set = [(n,) for n in range(min_size, max_size + 1)]  # type: ignore[misc]
         elif data_type == "size_distribution":
             dist_set = [(0, 0), (1, 1)] + [(m, c) for m in [3, 5, 7] for c in [10, 30, 50]]
-            task_set = [(n, m, c) for n in range(50, 201, 5) for (m, c) in dist_set]
+            task_set = [(n, m, c) for n in range(50, 201, 5) for (m, c) in dist_set]  # type: ignore[misc]
         else:
             raise ValueError(f"Unknown data_type: {data_type}. Use 'size', 'distribution', or 'size_distribution'.")
 

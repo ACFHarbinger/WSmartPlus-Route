@@ -47,6 +47,7 @@ class WCVRPContextEmbedder(ContextEmbedder):
         locs = nodes.get("locs")
         if locs is None:
             locs = nodes.get("loc")
+        assert locs is not None, "nodes must contain 'locs' or 'loc'"
         waste = nodes.get("waste")
 
         if waste is None:
@@ -56,7 +57,7 @@ class WCVRPContextEmbedder(ContextEmbedder):
         if waste.dim() == 2:
             waste = waste.unsqueeze(-1)
 
-        node_features = [locs, waste]
+        node_features: list[torch.Tensor] = [locs, waste]
 
         # Add temporal features if available
         if self.temporal_horizon > 0:
@@ -66,7 +67,7 @@ class WCVRPContextEmbedder(ContextEmbedder):
                 # Pad with zeros if missing
                 node_features.append(torch.zeros(locs.size(0), locs.size(1), self.temporal_horizon, device=locs.device))
 
-        node_features = torch.cat(node_features, -1)
+        node_features = torch.cat(node_features, -1)  # type: ignore[assignment]
 
         # Determine if locs already contains the depot
         depot = nodes["depot"]
@@ -84,13 +85,13 @@ class WCVRPContextEmbedder(ContextEmbedder):
 
         if is_concatenated:
             # Already has depot, just embed
-            return self.init_embed(node_features)
+            return self.init_embed(node_features)  # type: ignore[misc]
         else:
             # Traditional: separate depot and customers
             return torch.cat(
                 (
                     self.init_embed_depot(depot)[:, None, :],
-                    self.init_embed(node_features),
+                    self.init_embed(node_features),  # type: ignore[misc]
                 ),
                 1,
             )

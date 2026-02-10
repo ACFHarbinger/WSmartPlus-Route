@@ -76,7 +76,7 @@ def find_two_input_values(
     input_key2: Union[str, int, float, None] = None,
 ) -> List[Tuple[str, Any, Any]]:
     """Recursively find all pairs of *source* values for two-input mode."""
-    results = []
+    results: List[Tuple[str, Any, Any]] = []
 
     if isinstance(data, ITraversable) and input_key1 is not None:
         v1, v2, success = _extract_two_vals(data, input_key1, input_key2)

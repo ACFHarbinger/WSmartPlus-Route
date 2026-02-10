@@ -194,7 +194,7 @@ def add_weight_update_monitor_hook(
         return result
 
     # Replace optimizer step
-    optimizer.step = monitored_step
+    optimizer.step = monitored_step  # type: ignore[method-assign]
 
     return {
         "update_history": dict(update_history),
@@ -212,7 +212,7 @@ def restore_optimizer_step(optimizer: torch.optim.Optimizer, hook_data: Dict[str
         hook_data: Data from add_weight_update_monitor_hook.
     """
     if "original_step" in hook_data:
-        optimizer.step = hook_data["original_step"]
+        optimizer.step = hook_data["original_step"]  # type: ignore[method-assign]
 
 
 def add_weight_norm_constraint_hook(

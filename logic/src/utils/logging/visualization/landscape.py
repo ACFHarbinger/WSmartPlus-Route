@@ -154,7 +154,7 @@ def plot_loss_landscape(model, opts, output_dir, epoch=0, size=50, batch_size=16
         plt.figure()
         ax = plt.axes(projection="3d")
         X, Y = np.meshgrid(np.arange(resolution), np.arange(resolution))
-        ax.plot_surface(X, Y, np.array(data), cmap="viridis")
+        ax.plot_surface(X, Y, np.array(data), cmap="viridis")  # type: ignore[attr-defined]
         plt.title(f"Imitation Loss Surface (Epoch {epoch})")
         plt.savefig(os.path.join(output_dir, f"surface_imitation_ep{epoch}.png"))
         plt.close()
@@ -190,7 +190,7 @@ def plot_loss_landscape(model, opts, output_dir, epoch=0, size=50, batch_size=16
         plt.figure()
         ax = plt.axes(projection="3d")
         X, Y = np.meshgrid(np.arange(resolution), np.arange(resolution))
-        ax.plot_surface(X, Y, np.array(data), cmap="magma")
+        ax.plot_surface(X, Y, np.array(data), cmap="magma")  # type: ignore[attr-defined]
         plt.title(f"RL Cost Surface (Epoch {epoch})")
         plt.savefig(os.path.join(output_dir, f"surface_rl_ep{epoch}.png"))
         plt.close()

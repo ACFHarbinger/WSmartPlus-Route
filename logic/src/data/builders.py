@@ -142,16 +142,16 @@ class VRPInstanceBuilder:
             fill_values.append(waste)
 
         # Transpose to (dataset_size, num_days, problem_size)
-        fill_values = np.transpose(np.array(fill_values), (1, 0, 2))
+        fill_values = np.transpose(np.array(fill_values), (1, 0, 2))  # type: ignore[assignment]
 
         # Construct the output list
         if self._problem_name == "swcvrp":
             # SWCVRP Case: Generate Noisy Waste
-            real_waste_list = fill_values.tolist()
+            real_waste_list = fill_values.tolist()  # type: ignore[attr-defined]
 
             # Generate Noise
-            noise = np.random.normal(self._noise_mean, np.sqrt(self._noise_variance), fill_values.shape)
-            noisy_fill_values = np.clip(fill_values + noise, 0, MAX_WASTE)
+            noise = np.random.normal(self._noise_mean, np.sqrt(self._noise_variance), fill_values.shape)  # type: ignore[attr-defined]
+            noisy_fill_values = np.clip(fill_values + noise, 0, MAX_WASTE)  # type: ignore[operator]
             noisy_waste_list = noisy_fill_values.tolist()
 
             return list(
@@ -165,7 +165,7 @@ class VRPInstanceBuilder:
             )
         else:
             # Standard WCVRP/VRPP Case
-            waste_list = fill_values.tolist()
+            waste_list = fill_values.tolist()  # type: ignore[attr-defined]
 
             return list(
                 zip(
@@ -264,16 +264,16 @@ class VRPInstanceBuilder:
                 self._problem_size,
                 self._method,
                 self._area,
-                self._waste_type,
+                self._waste_type,  # type: ignore[arg-type]
                 self._focus_graph,
                 self._focus_size,
             )
             remaining_coords_size = self._dataset_size - self._focus_size
             if remaining_coords_size > 0:
                 random_coords = np.random.uniform(
-                    mm_arr[0],
-                    mm_arr[1],
-                    size=(remaining_coords_size, self._problem_size + 1, mm_arr.shape[-1]),
+                    mm_arr[0],  # type: ignore[index]
+                    mm_arr[1],  # type: ignore[index]
+                    size=(remaining_coords_size, self._problem_size + 1, mm_arr.shape[-1]),  # type: ignore[union-attr]
                 )
                 depots, locs = process_coordinates(random_coords, self._method, col_names=None)
                 depot = np.concatenate((depot, depots))  # type ignore[assignment]
@@ -283,16 +283,16 @@ class VRPInstanceBuilder:
                 data_dir = get_path_until_string(self._focus_graph, "wsr_simulator")
                 bins = Bins(
                     self._problem_size,
-                    data_dir,
+                    data_dir,  # type: ignore[arg-type]
                     sample_dist=self._distribution,
                     area=self._area,
-                    indices=idx[0],
+                    indices=idx[0],  # type: ignore[arg-type]
                     grid=None,
                     waste_type=self._waste_type,
                 )
         else:
             bins = None
-            idx = [None]
+            idx = [None]  # type: ignore[list-item]
             coord_size = 2 if self._method != "triple" else 3
             depot = np.random.uniform(size=(self._dataset_size, coord_size))
             loc = np.random.uniform(size=(self._dataset_size, self._problem_size, coord_size))

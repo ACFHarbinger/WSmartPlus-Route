@@ -273,7 +273,7 @@ class CachedLookup:
                     self.current["_data"] = self.data[key]
 
             if self.data is not None and not self.orig:
-                return self.current["_data"]
+                return self.current["_data"]  # type: ignore[index]
             return self.current
 
         if key in self.orig:

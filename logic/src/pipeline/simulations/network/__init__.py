@@ -83,7 +83,7 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
 
     # Strategy Execution
     strategy_cls = STRATEGIES[method]
-    strategy = strategy_cls()
+    strategy = strategy_cls()  # type: ignore[abstract, assignment]
 
     kwargs["verbose"] = to_save or kwargs.get("verbose", False)
 
@@ -91,7 +91,7 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
 
     # Saving Result
     if to_save:
-        with open(matrix_path, mode="a", newline="") as matrix_f:
+        with open(matrix_path, mode="a", newline="") as matrix_f:  # type: ignore[arg-type]
             for row in distance_matrix:
                 matrix_f.write(",".join(map(str, row)) + "\n")
 

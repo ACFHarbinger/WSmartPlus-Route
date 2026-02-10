@@ -139,7 +139,7 @@ def run_benchmarks(args):
     else:
         device = device_arg
 
-    results = {}
+    results = {}  # type: ignore[var-annotated]
 
     print(f"Running Benchmarks (Subset: {subset}, Device: {device})...")
 

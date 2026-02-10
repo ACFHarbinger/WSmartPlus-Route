@@ -74,7 +74,7 @@ class GenDataProblemTab(QWidget):
             if dist_name.lower() == "all":
                 btn.setChecked(True)
 
-            row_layout.addWidget(btn)
+            row_layout.addWidget(btn)  # type: ignore[union-attr]
             self.dist_buttons[dist_name] = btn
 
         if row_layout is not None and len(DATA_DISTRIBUTIONS.keys()) % NUM_COLS != 0:

@@ -232,13 +232,13 @@ class MDAMDecoder(nn.Module):
             step += 1
 
         # Compute reward and log-likelihood
-        outputs = torch.stack(outputs, dim=1)  # (batch, seq_len, graph_size)
-        actions = torch.stack(actions, dim=1)  # (batch, seq_len)
+        outputs = torch.stack(outputs, dim=1)  # type: ignore[assignment]  # (batch, seq_len, graph_size)
+        actions = torch.stack(actions, dim=1)  # type: ignore[assignment]  # (batch, seq_len)
 
-        reward = env.get_reward(td, actions)
-        ll = self._get_log_likelihood(outputs, actions)
+        reward = env.get_reward(td, actions)  # type: ignore[arg-type]
+        ll = self._get_log_likelihood(outputs, actions)  # type: ignore[arg-type]
 
-        return reward, ll, actions
+        return reward, ll, actions  # type: ignore[return-value]
 
     def _get_log_likelihood(
         self,

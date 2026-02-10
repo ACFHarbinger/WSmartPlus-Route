@@ -44,7 +44,7 @@ class BatchMixin:
                 - ret_dict: Dictionary with 'overflows', 'kg', 'waste', 'km'
                 - output_dict: Dictionary with 'attention_weights', 'graph_masks'
         """
-        hook_data = add_attention_hooks(self.model.encoder)
+        hook_data = add_attention_hooks(self.model.encoder)  # type: ignore[attr-defined]
 
         mask = None
         if hrl_manager is not None and waste_history is not None:
@@ -93,10 +93,10 @@ class BatchMixin:
             mask = mask | gate_mask
 
         # Use model forward pass
-        cost, _, cost_dict, pi, _ = self.model(input, cost_weights=None, return_pi=True, pad=False, mask=mask)
+        cost, _, cost_dict, pi, _ = self.model(input, cost_weights=None, return_pi=True, pad=False, mask=mask)  # type: ignore[attr-defined]
 
         # Calculate ucost (unweighted cost)
-        ucost, cost_dict, _ = self.problem.get_costs(input, pi, cw_dict=None)
+        ucost, cost_dict, _ = self.problem.get_costs(input, pi, cw_dict=None)  # type: ignore[attr-defined]
 
         src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
         dst_mask = dst_vertices != 0

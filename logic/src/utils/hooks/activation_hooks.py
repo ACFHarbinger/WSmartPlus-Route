@@ -106,8 +106,8 @@ def add_dead_neuron_detector_hook(
         >>> for name, count in hook_data['dead_neurons'].items():
         ...     print(f"{name}: {count} dead neurons")
     """
-    dead_neuron_counts = defaultdict(int)
-    activation_counts = defaultdict(int)
+    dead_neuron_counts: Dict[str, int] = defaultdict(int)
+    activation_counts: Dict[str, int] = defaultdict(int)
     handles = []
 
     def dead_neuron_hook(name: str, threshold: float) -> Callable:
@@ -127,14 +127,14 @@ def add_dead_neuron_detector_hook(
                 max_activation = output.abs().max(dim=0)[0]  # Max across batch
                 if max_activation.dim() > 0:  # Handle different output shapes
                     dead_count = (max_activation < threshold).sum().item()
-                    dead_neuron_counts[name] += dead_count
+                    dead_neuron_counts[name] += dead_count  # type: ignore[assignment]
                     activation_counts[name] += 1
 
         return hook
 
     for name, module in model.named_modules():
         if isinstance(module, layer_types) and name:
-            handle = module.register_forward_hook(dead_neuron_hook(name, threshold))
+            handle = module.register_forward_hook(dead_neuron_hook(name, threshold))  # type: ignore[arg-type, attr-defined]
             handles.append(handle)
 
     return {
@@ -165,7 +165,9 @@ def add_activation_statistics_hook(
         >>> for name, stats in hook_data['statistics'].items():
         ...     print(f"{name}: mean={stats['mean']:.4f}, std={stats['std']:.4f}")
     """
-    statistics = defaultdict(lambda: {"sum": 0, "sum_sq": 0, "min": float("inf"), "max": float("-inf"), "count": 0})
+    statistics: Dict[str, Dict[str, float]] = defaultdict(
+        lambda: {"sum": 0, "sum_sq": 0, "min": float("inf"), "max": float("-inf"), "count": 0}
+    )  # type: ignore[assignment]
     handles = []
 
     def stats_hook(name: str) -> Callable:
@@ -192,7 +194,7 @@ def add_activation_statistics_hook(
 
     for name, module in model.named_modules():
         if isinstance(module, layer_types) and name:
-            handle = module.register_forward_hook(stats_hook(name))
+            handle = module.register_forward_hook(stats_hook(name))  # type: ignore[arg-type, attr-defined]
             handles.append(handle)
 
     return {"statistics": dict(statistics), "handles": handles}
@@ -255,7 +257,7 @@ def add_activation_sparsity_hook(
         >>> for name, sparsity in hook_data['sparsity'].items():
         ...     print(f"{name}: {sparsity:.2%} sparse")
     """
-    sparsity_stats = defaultdict(lambda: {"zeros": 0, "total": 0})
+    sparsity_stats: Dict[str, Dict[str, int]] = defaultdict(lambda: {"zeros": 0, "total": 0})  # type: ignore[assignment]
     handles = []
 
     def sparsity_hook(name: str, threshold: float) -> Callable:
@@ -272,14 +274,14 @@ def add_activation_sparsity_hook(
             """
             if isinstance(output, torch.Tensor):
                 stats = sparsity_stats[name]
-                stats["zeros"] += (output.abs() < threshold).sum().item()
+                stats["zeros"] += (output.abs() < threshold).sum().item()  # type: ignore[assignment]
                 stats["total"] += output.numel()
 
         return hook
 
     for name, module in model.named_modules():
         if isinstance(module, layer_types) and name:
-            handle = module.register_forward_hook(sparsity_hook(name, threshold))
+            handle = module.register_forward_hook(sparsity_hook(name, threshold))  # type: ignore[arg-type, attr-defined]
             handles.append(handle)
 
     return {"sparsity": dict(sparsity_stats), "handles": handles}

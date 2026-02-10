@@ -175,14 +175,14 @@ class GenDataGeneralTab(QWidget):
         # Mandatory fields
         params["name"] = self.name_input.text().strip()
         params["data_dir"] = self.data_dir_input.text().strip()
-        params["dataset_size"] = self.dataset_size_input.value()
+        params["dataset_size"] = self.dataset_size_input.value()  # type: ignore[assignment]
         params["dataset_type"] = self.dataset_type_combo.currentText()
-        params["seed"] = self.seed_input.value()
+        params["seed"] = self.seed_input.value()  # type: ignore[assignment]
 
         # Optional fields
         if self.filename_input.text().strip():
             params["filename"] = self.filename_input.text().strip()
         if self.overwrite_check.isChecked():
-            params["f"] = True
+            params["f"] = True  # type: ignore[assignment]
 
         return params

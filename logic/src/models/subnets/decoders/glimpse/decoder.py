@@ -143,7 +143,7 @@ class GlimpseDecoder(nn.Module):
             elif hasattr(nodes, "get"):
                 # Handle TensorDict or dict
                 loc_tensor = nodes.get("locs", nodes.get("loc"))
-                graph_size = loc_tensor.shape[1] if hasattr(loc_tensor, "shape") else 100
+                graph_size = loc_tensor.shape[1] if hasattr(loc_tensor, "shape") else 100  # type: ignore[union-attr]
             else:
                 graph_size = 100
         except Exception:
@@ -155,7 +155,7 @@ class GlimpseDecoder(nn.Module):
         i = 0
         while not state.all_finished() and i < max_steps:
             log_p, mask = self._get_log_p(fixed, state, mask=mask)
-            selected = self._select_node(log_p.exp(), mask, strategy=strategy_name)
+            selected = self._select_node(log_p.exp(), mask, strategy=strategy_name)  # type: ignore[arg-type]
 
             state = state.update(selected)
 
@@ -201,7 +201,7 @@ class GlimpseDecoder(nn.Module):
             selected = torch.multinomial(probs, 1).squeeze(1)
 
             # Mask handling for sampling loop check
-            curr_mask = mask
+            curr_mask = mask  # type: ignore[assignment]
             if curr_mask is not None and curr_mask.dim() == 3:
                 curr_mask = curr_mask.squeeze(1)
 
@@ -249,9 +249,9 @@ class GlimpseDecoder(nn.Module):
 
         logits = one_to_many_logits(
             query.unsqueeze(1),
-            fixed.glimpse_key,
-            fixed.glimpse_val,
-            fixed.logit_key,
+            fixed.glimpse_key,  # type: ignore[arg-type]
+            fixed.glimpse_val,  # type: ignore[arg-type]
+            fixed.logit_key,  # type: ignore[arg-type]
             mask.unsqueeze(1) if mask is not None and mask.dim() == 2 else mask,
             self.n_heads,
             tanh_clipping=self.tanh_clipping,

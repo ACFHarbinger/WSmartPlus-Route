@@ -55,7 +55,7 @@ def compute_validation_metrics(out: Dict, batch: TensorDict, env: Any) -> Dict[s
     """
     Compute rich validation metrics beyond simple reward.
     """
-    metrics = {}
+    metrics: Dict[str, float] = {}
     _add_reward_metric(metrics, out)
     _add_costs_metrics(metrics, out, batch, env)
     _add_efficiency_metric(metrics)

@@ -23,7 +23,7 @@ def reconstruct_routes(B, N, giant_tours, P, costs):
 
     for b in range(B):
         curr = N
-        route_nodes = []
+        route_nodes = []  # type: ignore[var-annotated]
         possible = True
         while curr > 0:
             prev = P_cpu[b, curr]
@@ -60,7 +60,7 @@ def reconstruct_limited(B, N, giant_tours, P_k, best_k, costs):
     Returns:
         tuple: (list of routes, costs)
     """
-    routes_batch = []
+    routes_batch = []  # type: ignore[var-annotated]
     P_cpu = P_k.cpu().numpy()
     k_cpu = best_k.cpu().numpy()
     giant_tours_cpu = giant_tours.cpu().numpy()
@@ -72,7 +72,7 @@ def reconstruct_limited(B, N, giant_tours, P_k, best_k, costs):
             continue
 
         curr = N
-        route_nodes = []
+        route_nodes = []  # type: ignore[var-annotated]
 
         # Backtrack with known k
         current_k = k

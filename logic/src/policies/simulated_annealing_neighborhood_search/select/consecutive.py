@@ -44,7 +44,7 @@ def remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed):
     Returns:
         List[List[int]]: Mutated routing solution.
     """
-    bins_to_remove_consecutive = []
+    bins_to_remove_consecutive = []  # type: ignore[var-annotated]
     possible_n = [2, 3, 4, 5]
     chosen_n = rsample(possible_n, 1)[0]
 

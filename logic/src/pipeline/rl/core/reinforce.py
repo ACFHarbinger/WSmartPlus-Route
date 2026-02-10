@@ -55,7 +55,7 @@ class REINFORCE(RL4COLitModule):
         td: TensorDict,
         out: dict,
         batch_idx: int,
-        env: Optional["RL4COEnvBase"] = None,
+        env: Optional["RL4COEnvBase"] = None,  # type: ignore[override]
     ) -> torch.Tensor:
         """
         Compute REINFORCE loss.
@@ -94,6 +94,6 @@ class REINFORCE(RL4COLitModule):
         """Gradient clipping."""
         if self.max_grad_norm > 0:
             torch.nn.utils.clip_grad_norm_(
-                self.policy.parameters(),
+                self.policy.parameters(),  # type: ignore[attr-defined]
                 self.max_grad_norm,
             )

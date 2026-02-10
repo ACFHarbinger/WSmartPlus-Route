@@ -26,7 +26,7 @@ def _flatten_config(cfg: Any) -> dict:
 
     # Handle list of dicts (common in Hydra 'custom' lists)
     if isinstance(curr, list):
-        merged = {}
+        merged: Dict[str, Any] = {}
         for item in curr:
             if isinstance(item, ITraversable):
                 merged.update(item)

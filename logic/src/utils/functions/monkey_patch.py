@@ -69,14 +69,14 @@ def load_state_dict(self, state_dict):
         elif isinstance(value, ITraversable):
             return {k: cast(param, v) for k, v in value.items()}
         elif isinstance(value, Iterable):
-            return type(value)(cast(param, v) for v in value)
+            return type(value)(cast(param, v) for v in value)  # type: ignore[call-arg]
         else:
             return value
 
     # Copy state assigned to params (and cast tensors to appropriate types).
     # State that is not assigned to params is copied as is (needed for
     # backward compatibility).
-    state = defaultdict(dict)
+    state = defaultdict(dict)  # type: ignore[var-annotated]
     for k, v in state_dict["state"].items():
         if k in id_map:
             param = id_map[k]

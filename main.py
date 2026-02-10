@@ -146,7 +146,7 @@ def pretty_print_args(comm, opts, inner_comm=None):
         raise Exception(f"failed to pretty print arguments due to {repr(e)}") from e
 
 
-def pretty_print_hydra_config(cfg: DictConfig, filter_keys: list = None) -> None:
+def pretty_print_hydra_config(cfg: DictConfig, filter_keys: list = None) -> None:  # type: ignore[assignment]
     """
     Pretty print filtered sections of the Hydra configuration.
 
@@ -300,7 +300,7 @@ def hydra_entry_point(cfg: Config) -> float:
 
         if cfg.verbose:
             training_keys = ["env", "model", "train", "rl", "optim"]
-            pretty_print_hydra_config(cfg, filter_keys=training_keys)
+            pretty_print_hydra_config(cfg, filter_keys=training_keys)  # type: ignore[arg-type]
 
         if cfg.hpo.n_trials > 0:
             return run_hpo(cfg)

@@ -31,8 +31,8 @@ class InplaceUpdateWidget(QWidget):
             parent (QWidget, optional): Parent widget. Defaults to None.
         """
         super().__init__(parent)
-        self.layout = QFormLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout = QFormLayout(self)  # type: ignore[assignment, method-assign]
+        self.layout.setContentsMargins(0, 0, 0, 0)  # type: ignore[attr-defined]
 
         # 2.1 Create a container widget for the header using the custom clickable class
         self.inplace_update_header_widget = ClickableHeaderWidget(self._toggle_inplace_update)
@@ -68,7 +68,7 @@ class InplaceUpdateWidget(QWidget):
         iu_header_layout.addWidget(self.inplace_update_toggle_button)
 
         # 2.5 Add the header widget to the logic layout
-        self.layout.addRow(self.inplace_update_header_widget)
+        self.layout.addRow(self.inplace_update_header_widget)  # type: ignore[attr-defined]
 
         # 2.6 Create a container for the collapsible content
         self.inplace_update_container = QWidget()
@@ -78,7 +78,7 @@ class InplaceUpdateWidget(QWidget):
         # 2.7 Add widgets to the container's layout
         # --update_operation (default=None)
         self.update_operation_combo = QComboBox()
-        self.update_operation_combo.addItems(OPERATION_MAP.keys())
+        self.update_operation_combo.addItems(OPERATION_MAP.keys())  # type: ignore[arg-type]
         self.update_operation_combo.setCurrentIndex(-1)  # Start with no selection
         self.update_operation_combo.setPlaceholderText("Select Operation")
         inplace_update_layout.addRow("Update Operation:", self.update_operation_combo)
@@ -104,7 +104,7 @@ class InplaceUpdateWidget(QWidget):
         inplace_update_layout.addRow("Input Keys (for two-input calculation):", input_keys_h_layout)
 
         # 2.8 Add the content container to the logic layout
-        self.layout.addRow(self.inplace_update_container)
+        self.layout.addRow(self.inplace_update_container)  # type: ignore[attr-defined]
 
         # 2.9 Initialize state: hidden
         self.is_inplace_update_visible = False
@@ -142,11 +142,11 @@ class InplaceUpdateWidget(QWidget):
             update_value_str = self.update_value_input.text().strip()
             try:
                 # Try to convert to float, otherwise keep as string/default
-                params["update_value"] = float(update_value_str)
+                params["update_value"] = float(update_value_str)  # type: ignore[assignment]
             except ValueError:
                 # If it's not a valid float, keep it as the string, as it might be used
                 # for 'replace_string' or similar functions.
-                params["update_value"] = update_value_str if update_value_str else 0.0
+                params["update_value"] = update_value_str if update_value_str else 0.0  # type: ignore[assignment]
 
             # 3.3a Handle --input_keys (nargs='*', default=(None, None))
             key1 = self.input_key_1_input.text().strip() or False

@@ -100,12 +100,12 @@ def run_hpo(cfg: Config) -> float:
                         obj = getattr(obj, part)
                 setattr(obj, parts[-1], v)
 
-            model = create_model(cast(DictConfig, temp_cfg))
+            model = create_model(cast(DictConfig, temp_cfg))  # type: ignore[arg-type]
             trainer = WSTrainer(
                 max_epochs=int(fidelity),
                 enable_progress_bar=False,
                 logger=False,
-                log_every_n_steps=temp_cfg.train.log_step,
+                log_every_n_steps=temp_cfg.train.log_step,  # type: ignore[union-attr]
             )
             trainer.fit(model)
             reward = trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()

@@ -64,8 +64,8 @@ def plot_weight_trajectories(checkpoint_dir, output_file):
         print("No weights found.")
         return
 
-    weights = np.array(weights)
-    if weights.shape[0] < 2:
+    weights = np.array(weights)  # type: ignore[assignment]
+    if weights.shape[0] < 2:  # type: ignore[attr-defined]
         print("Not enough checkpoints for trajectory.")
         return
 

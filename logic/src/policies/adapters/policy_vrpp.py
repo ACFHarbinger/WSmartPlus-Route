@@ -72,13 +72,13 @@ class VRPPPolicy(BaseRoutingPolicy):
         # bins argument in run_vrpp_optimizer expects NDArray[float] of amounts
 
         route, profit = run_vrpp_optimizer(
-            bins=bins,
-            distance_matrix=distance_matrix,
+            bins=bins,  # type: ignore[arg-type]
+            distance_matrix=distance_matrix,  # type: ignore[arg-type]
             param=kwargs.get("param", 0.0),
             media=kwargs.get("media", np.array([])),
             desviopadrao=kwargs.get("desviopadrao", np.array([])),
             values=values,
-            binsids=binsids,
+            binsids=binsids,  # type: ignore[arg-type]
             must_go=must_go,
             number_vehicles=kwargs.get("number_vehicles", 1),
             time_limit=kwargs.get("time_limit", 60),

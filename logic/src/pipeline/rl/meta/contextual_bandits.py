@@ -255,4 +255,4 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
             (np.mean(self.context_rewards[context_key][i]) if self.context_rewards[context_key][i] else -1e6)
             for i in range(self.num_configs)
         ]
-        return np.argmax(scores)
+        return np.argmax(scores)  # type: ignore[arg-type]

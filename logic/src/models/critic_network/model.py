@@ -80,7 +80,7 @@ class LegacyCriticNetwork(nn.Module):
                 embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon
             )
         else:
-            self.context_embedder = VRPPContextEmbedder(embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)
+            self.context_embedder = VRPPContextEmbedder(embed_dim, node_dim=node_dim, temporal_horizon=temporal_horizon)  # type: ignore[assignment]
 
         self.encoder = component_factory.create_encoder(
             n_heads=n_heads,

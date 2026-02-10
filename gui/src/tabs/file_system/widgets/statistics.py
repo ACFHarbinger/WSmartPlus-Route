@@ -31,8 +31,8 @@ class StatisticsUpdateWidget(QWidget):
             parent (QWidget, optional): Parent widget. Defaults to None.
         """
         super().__init__(parent)
-        self.layout = QFormLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout = QFormLayout(self)  # type: ignore[assignment, method-assign]
+        self.layout.setContentsMargins(0, 0, 0, 0)  # type: ignore[attr-defined]
 
         # 3.1 Create a container widget for the header using the custom clickable class
         self.stats_update_header_widget = ClickableHeaderWidget(self._toggle_stats_update)
@@ -68,7 +68,7 @@ class StatisticsUpdateWidget(QWidget):
         su_header_layout.addWidget(self.stats_update_toggle_button)
 
         # 3.5 Add the header widget to the logic layout
-        self.layout.addRow(self.stats_update_header_widget)
+        self.layout.addRow(self.stats_update_header_widget)  # type: ignore[attr-defined]
 
         # 3.6 Create a container for the collapsible content
         self.stats_update_container = QWidget()
@@ -78,7 +78,7 @@ class StatisticsUpdateWidget(QWidget):
         # 3.7 Add widgets to the container's layout
         # --stats_function (default=None)
         self.update_function_combo = QComboBox()
-        self.update_function_combo.addItems(FUNCTION_MAP.keys())
+        self.update_function_combo.addItems(FUNCTION_MAP.keys())  # type: ignore[arg-type]
         self.update_function_combo.addItem("")
         self.update_function_combo.setCurrentIndex(-1)  # Start with no selection
         self.update_function_combo.setPlaceholderText("Select Statistics Function")
@@ -90,7 +90,7 @@ class StatisticsUpdateWidget(QWidget):
         stats_update_layout.addRow("Output Filename:", self.output_filename_input)
 
         # 3.8 Add the content container to the logic layout
-        self.layout.addRow(self.stats_update_container)
+        self.layout.addRow(self.stats_update_container)  # type: ignore[attr-defined]
 
         # 3.9 Initialize state: hidden
         self.is_stats_update_visible = False

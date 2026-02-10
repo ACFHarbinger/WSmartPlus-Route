@@ -103,7 +103,7 @@ class ACODecoder(NonAutoregressiveDecoder):
 
         # Run ants
         if return_all:
-            all_tours, all_costs, all_log_probs, best_tours, best_costs, _ = self._run_ants(
+            all_tours, all_costs, all_log_probs, best_tours, best_costs, _ = self._run_ants(  # type: ignore[misc]
                 prob_matrix, dist_matrix, td, env, return_all=True
             )
 
@@ -131,7 +131,7 @@ class ACODecoder(NonAutoregressiveDecoder):
 
             return out
 
-        best_tours, best_costs, log_probs = self._run_ants(prob_matrix, dist_matrix, td, env, return_all=False)
+        best_tours, best_costs, log_probs = self._run_ants(prob_matrix, dist_matrix, td, env, return_all=False)  # type: ignore[misc]
 
         # Optional local search
         if self.use_local_search:

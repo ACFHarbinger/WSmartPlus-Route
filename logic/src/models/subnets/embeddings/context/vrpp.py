@@ -86,13 +86,13 @@ class VRPPContextEmbedder(ContextEmbedder):
         )
 
         if is_concatenated:
-            return self.init_embed(node_features_tensor)
+            return self.init_embed(node_features_tensor)  # type: ignore[misc]
 
         # Traditional: separate depot and customers
         return torch.cat(
             (
                 self.init_embed_depot(depot)[:, None, :],
-                self.init_embed(node_features_tensor),
+                self.init_embed(node_features_tensor),  # type: ignore[misc]
             ),
             dim=1,
         )

@@ -15,7 +15,7 @@ from typing import Set, Tuple
 
 def get_docstring_lines(source: str) -> Set[int]:
     """Parses the source code AST to find all lines that are part of docstrings."""
-    doc_lines = set()
+    doc_lines: Set[int] = set()
     try:
         tree = ast.parse(source)
     except Exception:

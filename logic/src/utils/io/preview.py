@@ -71,9 +71,9 @@ def preview_changes(
                     print(f"- No suitable input pairs ({key1}, {input2_name}) found")
             else:
                 # Single-input mode: find the output key
-                key_values_found = find_single_input_values(data, output_key=output_key)
+                key_values_found = find_single_input_values(data, output_key=output_key)  # type: ignore[assignment]
                 if key_values_found:
-                    for location, old_value in key_values_found:
+                    for location, old_value in key_values_found:  # type: ignore[misc]
                         new_value = process_func(old_value, update_val)
                         print(
                             f"- Would update file '{location}' and key '{output_key}': "
@@ -140,9 +140,9 @@ def preview_file_changes(file_path, output_key="km", process_func=None, update_v
                 print(f"- No suitable input pairs ({key1}, {input2_name}) found")
         else:
             # Single-input mode: find the output key
-            key_values_found = find_single_input_values(data, output_key=output_key)
+            key_values_found = find_single_input_values(data, output_key=output_key)  # type: ignore[assignment]
             if key_values_found:
-                for location, old_value in key_values_found:
+                for location, old_value in key_values_found:  # type: ignore[misc]
                     new_value = process_func(old_value, update_val)
                     print(
                         f"- Would update file '{location}' and key '{output_key}': "
@@ -192,7 +192,7 @@ def preview_pattern_files_statistics(
             key_values_found = find_single_input_values(data, output_key=output_key)
             if key_values_found:
                 # Group values by field name (the part after the last dot)
-                grouped_values = {}
+                grouped_values = {}  # type: ignore[var-annotated]
                 for location, value in key_values_found:
                     # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
                     field_name = location.split(".", 1)[-1] if "." in location else location
@@ -245,7 +245,7 @@ def preview_file_statistics(file_path, output_filename="output.json", output_key
         key_values_found = find_single_input_values(data, output_key=output_key)
         if key_values_found:
             # Group values by field name (the part after the last dot)
-            grouped_values = {}
+            grouped_values = {}  # type: ignore[var-annotated]
             for location, value in key_values_found:
                 # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
                 field_name = location.split(".", 1)[-1] if "." in location else location

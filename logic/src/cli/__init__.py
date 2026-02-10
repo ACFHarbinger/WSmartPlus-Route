@@ -34,7 +34,7 @@ def parse_params():
         if command == "file_system":
             # This returns a tuple: (fs_command, validated_opts)
             command, opts = validate_file_system_args(opts)
-            command = ("file_system", command)  # Re-wrap for main() function handling
+            command = ("file_system", command)  # type: ignore[assignment]  # Re-wrap for main()
         elif command == "gui":
             opts = validate_gui_args(opts)
         elif command == "test_suite":

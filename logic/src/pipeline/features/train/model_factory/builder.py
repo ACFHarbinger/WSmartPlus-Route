@@ -186,7 +186,7 @@ def _init_hybrid_policy(cfg: Config):
             env_name=cfg.env.name, time_limit=ref_time, max_iterations=ref_iters, max_vehicles=max_v
         )
     else:
-        heuristic_policy = VectorizedHGS(env_name=cfg.env.name, time_limit=ref_time, max_iterations=ref_iters)
+        heuristic_policy = VectorizedHGS(env_name=cfg.env.name, time_limit=ref_time, max_iterations=ref_iters)  # type: ignore[assignment]
     return NeuralHeuristicHybrid(neural_policy=neural_policy, heuristic_policy=heuristic_policy)
 
 

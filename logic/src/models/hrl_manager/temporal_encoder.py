@@ -29,7 +29,7 @@ class TemporalEncoder(nn.Module):
         if self.rnn_type == "lstm":
             self.rnn = nn.LSTM(input_size=1, hidden_size=hidden_dim, batch_first=True)
         elif self.rnn_type == "gru":
-            self.rnn = nn.GRU(input_size=1, hidden_size=hidden_dim, batch_first=True)
+            self.rnn = nn.GRU(input_size=1, hidden_size=hidden_dim, batch_first=True)  # type: ignore[assignment]
         else:
             raise ValueError(f"Unknown rnn_type: {rnn_type}")
 

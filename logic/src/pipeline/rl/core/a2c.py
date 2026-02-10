@@ -80,7 +80,7 @@ class A2C(RL4COLitModule):
 
         super().__init__(
             env=env,
-            policy=policy_cast,
+            policy=policy_cast,  # type: ignore[arg-type]
             optimizer=actor_optimizer,  # Ignored as we override configure_optimizers
             optimizer_kwargs={"lr": actor_lr},
             **kwargs,
@@ -121,7 +121,7 @@ class A2C(RL4COLitModule):
         td: TensorDict,
         out: dict,
         batch_idx: int,
-        env: Optional[RL4COEnvBase] = None,
+        env: Optional[RL4COEnvBase] = None,  # type: ignore[override]
     ) -> torch.Tensor:
         """
         Calculate A2C loss.
@@ -173,9 +173,9 @@ class A2C(RL4COLitModule):
         """Configure separate optimizers for actor and critic."""
         # Actor optimizer
         if self.actor_optimizer_name.lower() == "adam":
-            actor_opt = torch.optim.Adam(self.policy.parameters(), lr=self.actor_lr)
+            actor_opt = torch.optim.Adam(self.policy.parameters(), lr=self.actor_lr)  # type: ignore[attr-defined]
         elif self.actor_optimizer_name.lower() == "adamw":
-            actor_opt = torch.optim.AdamW(self.policy.parameters(), lr=self.actor_lr)
+            actor_opt = torch.optim.AdamW(self.policy.parameters(), lr=self.actor_lr)  # type: ignore[assignment, attr-defined]
         else:
             raise ValueError(f"Unknown actor optimizer: {self.actor_optimizer_name}")
 
@@ -183,7 +183,7 @@ class A2C(RL4COLitModule):
         if self.critic_optimizer_name.lower() == "adam":
             critic_opt = torch.optim.Adam(self.critic.parameters(), lr=self.critic_lr)
         elif self.critic_optimizer_name.lower() == "adamw":
-            critic_opt = torch.optim.AdamW(self.critic.parameters(), lr=self.critic_lr)
+            critic_opt = torch.optim.AdamW(self.critic.parameters(), lr=self.critic_lr)  # type: ignore[assignment]
         else:
             raise ValueError(f"Unknown critic optimizer: {self.critic_optimizer_name}")
 

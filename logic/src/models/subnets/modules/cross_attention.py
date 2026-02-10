@@ -13,7 +13,7 @@ from torch import nn
 try:
     from torch.nn.functional import scaled_dot_product_attention
 except ImportError:
-    scaled_dot_product_attention = None
+    scaled_dot_product_attention = None  # type: ignore[assignment]
 
 
 class MultiHeadCrossAttention(nn.Module):

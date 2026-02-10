@@ -100,7 +100,7 @@ def find_routes(
     # Seed is optional but good for determinism.
     res = pyvrp.solve(data, stop=MaxRuntime(time_limit), seed=42)
 
-    tour_flat = []
+    tour_flat = []  # type: ignore[var-annotated]
 
     # Parse result
     # res.best.routes() -> list of Route
@@ -215,7 +215,7 @@ def find_routes_ortools(
     )
 
     # Flatten and Map Indices
-    tour_flat = []
+    tour_flat = []  # type: ignore[var-annotated]
     for t in tours_subset:
         if not tour_flat:
             tour_flat.append(0)

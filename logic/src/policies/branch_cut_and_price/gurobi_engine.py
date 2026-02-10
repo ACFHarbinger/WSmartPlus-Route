@@ -76,7 +76,7 @@ def _extract_solution(model, x, nodes):
 
     routes = []
     # Build adjacency list
-    adj = {i: [] for i in nodes}
+    adj = {i: [] for i in nodes}  # type: ignore[var-annotated]
     for i in nodes:
         for j in nodes:
             if i != j and x[i, j].X > 0.5:
