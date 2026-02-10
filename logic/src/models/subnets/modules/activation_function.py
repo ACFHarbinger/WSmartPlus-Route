@@ -63,7 +63,7 @@ class ActivationFunction(nn.Module):
             else None
         )
         self.activation: nn.Module
-        if tval and rval is None and not af_name == "softplus":
+        if tval and rval is None and af_name != "softplus":
             rval = tval  # Replacement value = threshold
         if af_name == "relu":
             self.activation = nn.ReLU(inplace=bool(inplace))

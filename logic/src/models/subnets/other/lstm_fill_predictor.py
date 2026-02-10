@@ -21,7 +21,7 @@ class LongShortTermMemoryFillPredictor(nn.Module):
         threshold=6.0,
         replacement_value=6.0,
         n_params=3,
-        uniform_range=[0.125, 1 / 3],
+        uniform_range=None,
         bidirectional=False,
     ):
         """
@@ -40,6 +40,8 @@ class LongShortTermMemoryFillPredictor(nn.Module):
             uniform_range: Range for uniform distribution.
             bidirectional: Whether LSTM is bidirectional.
         """
+        if uniform_range is None:
+            uniform_range = [0.125, 1 / 3]
         super(LongShortTermMemoryFillPredictor, self).__init__()
         from logic.src.models.subnets.modules import ActivationFunction
 

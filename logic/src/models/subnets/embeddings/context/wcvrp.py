@@ -101,10 +101,7 @@ class WCVRPContextEmbedder(ContextEmbedder):
         Concatenates current node embedding and state features (capacity, time).
         """
         batch_size = embeddings.size(0)
-        if hasattr(state, "get_current_node"):
-            current_node = state.get_current_node()
-        else:
-            current_node = state.get("current_node")
+        current_node = state.get_current_node() if hasattr(state, "get_current_node") else state.get("current_node")
 
         if current_node.dim() > 1:
             current_node = current_node.squeeze(-1)

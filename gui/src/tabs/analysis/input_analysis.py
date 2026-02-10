@@ -137,10 +137,7 @@ class InputAnalysisTab(QWidget):
             df = pd.DataFrame(data_dict)
 
             # Construct Display Key
-            if name:
-                key = f"{name} ({df.shape[0]}x{df.shape[1]})"
-            else:
-                key = f"Table {i + 1} ({df.shape[0]}x{df.shape[1]})"
+            key = f"{name} ({df.shape[0]}x{df.shape[1]})" if name else f"Table {i + 1} ({df.shape[0]}x{df.shape[1]})"
 
             self.dfs[key] = df
             self.slice_selector.addItem(key)

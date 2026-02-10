@@ -41,10 +41,7 @@ def plot_attention_heatmaps(model, output_dir, epoch=0):
         for name in ["W_query", "W_key", "W_val"]:
             if hasattr(mha, name):
                 param = getattr(mha, name)
-                if hasattr(param, "weight"):
-                    weight = param.weight.data.cpu().numpy()
-                else:
-                    weight = param.data.cpu().numpy()
+                weight = param.weight.data.cpu().numpy() if hasattr(param, "weight") else param.data.cpu().numpy()
 
                 # Handle 3D weights (Multi-Head Attention)
                 if weight.ndim == 3:
@@ -85,7 +82,7 @@ def plot_logit_lens(model, x_batch, output_file, epoch=0):
 
     with torch.no_grad():
         h = model._get_initial_embeddings(x_batch)
-        edges = x_batch.get("edges", None)
+        edges = x_batch.get("edges")
 
         all_probs = []
 
@@ -109,7 +106,7 @@ def plot_logit_lens(model, x_batch, output_file, epoch=0):
         # 1. Intermediate Layers
         curr = h
         if hasattr(model.embedder, "layers"):
-            for i, layer in enumerate(model.embedder.layers):
+            for _i, layer in enumerate(model.embedder.layers):
                 curr = layer(curr, mask=edges)
                 all_probs.append(get_probs(curr))
 

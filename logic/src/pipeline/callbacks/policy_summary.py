@@ -11,6 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 from logic.src.configs import MustGoConfig
+from logic.src.interfaces import ITraversable
 from logic.src.pipeline.simulations.actions.base import _flatten_config
 
 
@@ -90,7 +91,7 @@ class PolicySummaryCallback:
 
         # 2. Check 'policy' sub-config
         if not solver_key:
-            if isinstance(policy_cfg, dict):
+            if isinstance(policy_cfg, ITraversable):
                 solver_key = policy_cfg.get("type") or policy_cfg.get("solver") or policy_cfg.get("engine")
             elif isinstance(policy_cfg, str):
                 solver_key = policy_cfg
@@ -133,7 +134,7 @@ class PolicySummaryCallback:
                     params = f"(freq={item.frequency})"
                 elif item.strategy == "revenue":
                     params = f"(thresh={item.revenue_threshold})"
-            elif isinstance(item, dict):
+            elif isinstance(item, ITraversable):
                 if "strategy" in item:
                     name = item.get("strategy")
                     # Try to get threshold or relevant param
@@ -145,7 +146,7 @@ class PolicySummaryCallback:
                     if keys:
                         name = keys[0]
                         val = item[name]
-                        if isinstance(val, dict) and "threshold" in val:
+                        if isinstance(val, ITraversable) and "threshold" in val:
                             params = f"(t={val['threshold']})"
             elif isinstance(item, str):
                 name = item
@@ -168,7 +169,7 @@ class PolicySummaryCallback:
         for item in items:
             if isinstance(item, str):
                 steps.append(item)
-            elif isinstance(item, dict):
+            elif isinstance(item, ITraversable):
                 steps.append(list(item.keys())[0])
 
         return ", ".join(steps)

@@ -12,6 +12,7 @@ Usage:
 
 import argparse
 import ast
+import contextlib
 import os
 from pathlib import Path
 from typing import Any, List
@@ -99,10 +100,8 @@ class DocstringInjector:
             # Extract annotation if available
             type_name = "Any"
             if arg.annotation:
-                try:
+                with contextlib.suppress(AttributeError):
                     type_name = ast.unparse(arg.annotation)
-                except AttributeError:
-                    pass
 
             lines.append(f"{indent}{arg.arg} ({type_name}): Description of {arg.arg}.")
 

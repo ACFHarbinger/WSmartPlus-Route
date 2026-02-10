@@ -66,6 +66,14 @@ class ITraversable(Protocol):
         """
         ...
 
+    def items(self) -> Any:
+        """Return key-value pairs.
+
+        Returns:
+            Iterable of (key, value) tuples
+        """
+        ...
+
     def get(self, key: str, default: Optional[Any] = None) -> Any:
         """Get value by key with optional default.
 

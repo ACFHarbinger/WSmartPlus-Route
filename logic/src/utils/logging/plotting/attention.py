@@ -118,7 +118,7 @@ def plot_attention_maps_wrapper(
     # Adjust annotations and font sizes to scale inversely with map_size
     max_ticsize = 8
     max_annotsize = 8
-    annot = True if map_size <= 55 else False  # Disable annotations for large graphs to avoid clutter
+    annot = map_size <= 55  # Disable annotations for large graphs to avoid clutter
     tick_fontsize = max(max_ticsize, 14 - map_size // 10)
     annot_fontsize = max(max_annotsize, 12 - map_size // 10)
 

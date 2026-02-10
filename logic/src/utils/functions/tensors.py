@@ -4,6 +4,7 @@ Tensor manipulation and device movement utilities.
 
 from __future__ import annotations
 
+from logic.src.interfaces import ITraversable
 from typing import Any, Callable, List, Optional, TypeVar, cast
 
 import torch
@@ -27,7 +28,7 @@ def move_to(var: T, device: torch.device, non_blocking: bool = False) -> T:
     """
     if var is None:
         return var  # type: ignore
-    if isinstance(var, dict):
+    if isinstance(var, ITraversable):
         return {k: move_to(v, device, non_blocking=non_blocking) for k, v in var.items()}  # type: ignore
     if isinstance(var, torch.Tensor):
         return var.to(device, non_blocking=non_blocking)  # type: ignore
@@ -89,7 +90,7 @@ def do_batch_rep(v: Any, n: int) -> Any:
     """
     if v is None:
         return None
-    if isinstance(v, dict):
+    if isinstance(v, ITraversable):
         # We need a recursive call that works for nested dicts
         return {k: do_batch_rep(v_, n) for k, v_ in v.items()}
     elif isinstance(v, list):

@@ -2,6 +2,8 @@
 Batch handling mixin for RL4CO environment.
 """
 
+import contextlib
+
 import torch
 
 
@@ -20,10 +22,7 @@ class BatchMixin:
         """Set the batch size of the environment."""
         # Check if value is a torch.Size object
         if not isinstance(value, torch.Size):
-            if isinstance(value, int):
-                value = torch.Size([value])
-            else:
-                value = torch.Size(value)
+            value = torch.Size([value]) if isinstance(value, int) else torch.Size(value)
 
         try:
             # Try to let EnvBase handle it
@@ -68,10 +67,8 @@ class BatchMixin:
                     spec = getattr(self, spec_name, None)
                     if spec is not None:
                         if hasattr(spec, "shape"):
-                            try:
+                            with contextlib.suppress(ValueError, RuntimeError):
                                 spec.shape = value
-                            except (ValueError, RuntimeError):
-                                pass
                         # Also sync internal done/terminated if they are in there
                         if hasattr(spec, "items"):
                             for k, v in spec.items():

@@ -55,15 +55,14 @@ def add_bin(routes_list, removed_bins):
     Returns:
         List[List[int]]: Mutated routing solution.
     """
-    if len(routes_list) > 0:
-        if len(removed_bins) > 0:
-            bin_to_add = rsample(removed_bins, 1)[0]
-            chosen_route = rsample(routes_list, 1)[0]
-            chosen_position = chosen_route.index(rsample(chosen_route[1 : len(chosen_route) - 1], 1)[0])
+    if len(routes_list) > 0 and len(removed_bins) > 0:
+        bin_to_add = rsample(removed_bins, 1)[0]
+        chosen_route = rsample(routes_list, 1)[0]
+        chosen_position = chosen_route.index(rsample(chosen_route[1 : len(chosen_route) - 1], 1)[0])
 
-            chosen_route.insert(chosen_position, bin_to_add)
-            removed_bins.remove(bin_to_add)
-            return bin_to_add
+        chosen_route.insert(chosen_position, bin_to_add)
+        removed_bins.remove(bin_to_add)
+        return bin_to_add
 
 
 # Function to remove n bin from route randomly
@@ -125,16 +124,15 @@ def add_n_bins_random(routes_list, removed_bins):
     bins_to_add_random = []
     possible_n = [2, 3, 4, 5]
     chosen_n = rsample(possible_n, 1)[0]
-    if len(routes_list) > 0:
-        if len(removed_bins) >= chosen_n:
-            for b in range(0, chosen_n):
-                bin_to_add = rsample(removed_bins, 1)[0]
-                chosen_route = rsample(routes_list, 1)[0]
-                chosen_position = chosen_route.index(rsample(chosen_route[1 : len(chosen_route) - 1], 1)[0])
+    if len(routes_list) > 0 and len(removed_bins) >= chosen_n:
+        for _b in range(0, chosen_n):
+            bin_to_add = rsample(removed_bins, 1)[0]
+            chosen_route = rsample(routes_list, 1)[0]
+            chosen_position = chosen_route.index(rsample(chosen_route[1 : len(chosen_route) - 1], 1)[0])
 
-                chosen_route.insert(chosen_position, bin_to_add)
-                removed_bins.remove(bin_to_add)
-                bins_to_add_random.append(bin_to_add)
+            chosen_route.insert(chosen_position, bin_to_add)
+            removed_bins.remove(bin_to_add)
+            bins_to_add_random.append(bin_to_add)
     return bins_to_add_random, chosen_n
 
 
@@ -158,7 +156,7 @@ def add_route_random(routes_list, distance_matrix):
     chosen_n = rsample(possible_percent, 1)[0]
     chosen_n_percent = int(chosen_n * length_chosen_route)
     bins = []
-    for s in range(0, chosen_n_percent):
+    for _s in range(0, chosen_n_percent):
         chosen_bin = rsample(chosen_route[1 : len(chosen_route) - 1], 1)[0]
         chosen_route.remove(chosen_bin)
         bins.append(chosen_bin)
@@ -190,7 +188,7 @@ def add_route_with_removed_bins_random(routes_list, removed_bins, distance_matri
     chosen_n = rsample(possible_percent, 1)[0]
     chosen_n_percent = int(chosen_n * length_removed_bins)
     bins_random = []
-    for o in range(0, chosen_n_percent):
+    for _o in range(0, chosen_n_percent):
         chosen_bin = rsample(removed_bins, 1)[0]
         removed_bins.remove(chosen_bin)
         bins_random.append(chosen_bin)

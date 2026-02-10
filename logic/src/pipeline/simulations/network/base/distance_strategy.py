@@ -39,4 +39,4 @@ class DistanceStrategy(ABC):
 
     def _eval_kwarg(self, kwarg: str, kwargs: Dict[str, Any]) -> bool:
         """Check if keyword argument exists and is not None."""
-        return True if kwarg in kwargs and kwargs[kwarg] is not None else False
+        return bool(kwarg in kwargs and kwargs[kwarg] is not None)

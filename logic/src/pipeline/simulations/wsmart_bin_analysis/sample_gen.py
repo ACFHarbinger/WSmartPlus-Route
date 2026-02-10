@@ -192,7 +192,7 @@ if __name__ == "__main__":
     fill = np.zeros(grid.get_num_bins())
 
     # start simulation
-    for i in range(10):
+    for _i in range(10):
         # sample from the distribution
         rate = grid.sample()
 

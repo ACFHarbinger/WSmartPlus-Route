@@ -7,6 +7,7 @@ import os
 
 import logic.src.constants as udef
 from logic.src.utils.configs.config_loader import load_config
+from logic.src.interfaces import ITraversable
 
 
 def expand_policy_configs(opts):
@@ -27,21 +28,18 @@ def expand_policy_configs(opts):
 
             try:
                 cfg_path = os.path.join(udef.ROOT_DIR, "assets", "configs", "policies", f"{tmp_pol}.yaml")
-                if not os.path.exists(cfg_path):
-                    if not tmp_pol.startswith("policy_"):
-                        cfg_path = os.path.join(
-                            udef.ROOT_DIR, "assets", "configs", "policies", f"policy_{tmp_pol}.yaml"
-                        )
+                if not os.path.exists(cfg_path) and not tmp_pol.startswith("policy_"):
+                    cfg_path = os.path.join(udef.ROOT_DIR, "assets", "configs", "policies", f"policy_{tmp_pol}.yaml")
 
                 if os.path.exists(cfg_path):
                     pol_cfg = load_config(cfg_path)
                     inner_cfg = []
                     if pol_cfg:
-                        for k, v in pol_cfg.items():
+                        for _k, v in pol_cfg.items():
                             if isinstance(v, list):
                                 inner_cfg = v
                                 break
-                            if isinstance(v, dict):
+                            if isinstance(v, ITraversable):
                                 if "must_go" in v or "post_processing" in v:
                                     pass
                                 else:
@@ -55,7 +53,7 @@ def expand_policy_configs(opts):
                     pp_list = []
                     match_item_idx = -1
                     for idx, item in enumerate(inner_cfg):
-                        if isinstance(item, dict):
+                        if isinstance(item, ITraversable):
                             if "must_go" in item:
                                 mg_list = item["must_go"]
                                 match_item_idx = idx
@@ -91,12 +89,12 @@ def expand_policy_configs(opts):
                             var_inner = []
                             if var_cfg:
                                 found = False
-                                for k, v in var_cfg.items():
+                                for _k, v in var_cfg.items():
                                     if isinstance(v, list):
                                         var_inner = v
                                         found = True
                                         break
-                                    if isinstance(v, dict):
+                                    if isinstance(v, ITraversable):
                                         if "must_go" in v or "post_processing" in v:
                                             pass
                                         else:
@@ -109,7 +107,7 @@ def expand_policy_configs(opts):
                                         break
 
                             if var_inner and match_item_idx >= 0 and match_item_idx < len(var_inner):
-                                if isinstance(var_inner[match_item_idx], dict):
+                                if isinstance(var_inner[match_item_idx], ITraversable):
                                     var_inner[match_item_idx]["must_go"] = [mg_item]
 
                             variants.append((v_prefix, v_suffix, var_cfg))
@@ -152,9 +150,9 @@ def expand_policy_configs(opts):
                 full_name = f"{prefix}{middle_name}{suffix}_{opts['data_distribution']}"
                 policies.append(full_name)
 
-                if "config_path" not in opts or not isinstance(opts["config_path"], dict):
+                if "config_path" not in opts or not isinstance(opts["config_path"], ITraversable):
                     opts["config_path"] = (
-                        opts.get("config_path", {}) if isinstance(opts.get("config_path"), dict) else {}
+                        opts.get("config_path", {}) if isinstance(opts.get("config_path"), ITraversable) else {}
                     )
 
                 key = full_name

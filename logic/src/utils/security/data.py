@@ -6,6 +6,7 @@ import os
 import pickle
 import struct
 from pathlib import Path
+from logic.src.interfaces import ITraversable
 from typing import Any, Optional, Union
 
 from cryptography.fernet import Fernet
@@ -27,7 +28,7 @@ def encode_data(data: Any) -> bytes:
         return data.to_bytes((data.bit_length() + 7) // 8, byteorder="big")
     elif isinstance(data, float):
         return struct.pack("!f", data)
-    else:  # elif isinstance(data, list) or isinstance(data, dict):
+    else:  # elif isinstance(data, list) or isinstance(data, ITraversable):
         return pickle.dumps(data)
 
 

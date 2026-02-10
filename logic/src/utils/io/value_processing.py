@@ -2,6 +2,7 @@
 Recursive traversal utilities for JSON-like data structures.
 """
 
+from logic.src.interfaces import ITraversable
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 
@@ -23,7 +24,7 @@ def find_single_input_values(
     """
     results = []
 
-    if isinstance(data, dict):
+    if isinstance(data, ITraversable):
         for k, v in data.items():
             new_path = f"{current_path}.{k}" if current_path else k
             if k == output_key:
@@ -59,7 +60,7 @@ def find_two_input_values(
     """
     results = []
 
-    if isinstance(data, dict):
+    if isinstance(data, ITraversable):
         has_k1 = input_key1 in data
         val2_direct = None
         has_k2 = False

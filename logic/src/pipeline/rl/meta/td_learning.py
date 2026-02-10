@@ -9,6 +9,7 @@ import random
 from typing import Any, Dict, List, Optional, Tuple
 
 from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
+from logic.src.interfaces import ITraversable
 
 
 class CostWeightManager(WeightAdjustmentStrategy):
@@ -53,7 +54,7 @@ class CostWeightManager(WeightAdjustmentStrategy):
         self.expected_reward: Optional[float] = None
 
         # Current weights
-        if initial_weights and isinstance(initial_weights, dict):
+        if initial_weights and isinstance(initial_weights, ITraversable):
             self.weights = initial_weights.copy()
         else:
             self.weights = {
@@ -66,7 +67,7 @@ class CostWeightManager(WeightAdjustmentStrategy):
         # Handle weight_ranges list from old API
         if "weight_ranges" in kwargs and isinstance(kwargs["weight_ranges"], list):
             wr = kwargs["weight_ranges"]
-            self.weight_bounds = {k: (wr[0], wr[1]) for k in self.weights.keys()}
+            self.weight_bounds = {k: (wr[0], wr[1]) for k in self.weights}
         else:
             self.weight_bounds = weight_bounds or {
                 "w_lost": (0.0, 10.0),

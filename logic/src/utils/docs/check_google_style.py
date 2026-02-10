@@ -153,9 +153,8 @@ class GoogleStyleValidator(ast.NodeVisitor):
         has_return_value = False
 
         for child in ast.walk(node):
-            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                if child is not node:
-                    continue
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and child is not node:
+                continue
             if isinstance(child, (ast.Yield, ast.YieldFrom)):
                 has_yield = True
             elif isinstance(child, ast.Return) and child.value is not None:

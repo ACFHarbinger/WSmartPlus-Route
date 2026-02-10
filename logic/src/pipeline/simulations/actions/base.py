@@ -3,6 +3,7 @@ Base classes and utilities for simulation actions.
 """
 
 from abc import ABC, abstractmethod
+from logic.src.interfaces import ITraversable
 from typing import Any, Dict
 
 
@@ -26,18 +27,18 @@ def _flatten_config(cfg: Any) -> dict:
     if isinstance(curr, list):
         merged = {}
         for item in curr:
-            if isinstance(item, dict):
+            if isinstance(item, ITraversable):
                 merged.update(item)
         return merged
 
     # Handle dict which might contain lists to be flattened (e.g. {'custom': [...], 'ortools': [...]})
-    if isinstance(curr, dict):
+    if isinstance(curr, ITraversable):
         flat = {**curr}
         # Iterate over all keys and flatten if value is a list of dicts
-        for k, v in list(flat.items()):
+        for _k, v in list(flat.items()):
             if isinstance(v, list):
                 for item in v:
-                    if isinstance(item, dict):
+                    if isinstance(item, ITraversable):
                         flat.update(item)
         return flat
 

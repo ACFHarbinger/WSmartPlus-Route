@@ -39,6 +39,7 @@ from tqdm import tqdm
 
 from logic.src.constants import ROOT_DIR, SIM_METRICS
 from logic.src.utils.logging.log_utils import log_to_json, output_stats
+from logic.src.interfaces import ITraversable
 
 from .checkpoints import CheckpointError
 from .states import SimulationContext
@@ -136,8 +137,8 @@ def display_log_metrics(
             lock=lock,
         )
         for lg, lg_std, pol in zip(log.values(), log_std.values(), log.keys()):
-            logm = lg.values() if isinstance(lg, dict) else lg
-            logs = lg_std.values() if isinstance(lg_std, dict) else lg_std
+            logm = lg.values() if isinstance(lg, ITraversable) else lg
+            logs = lg_std.values() if isinstance(lg_std, ITraversable) else lg_std
             tmp_lg = [(str(x), str(y)) for x, y in zip(logm, logs)]
             print(f"\n{pol} log:")
             for (x, y), key in zip(tmp_lg, SIM_METRICS):
@@ -145,7 +146,7 @@ def display_log_metrics(
     else:
         for pol, lg in log.items():
             print(f"\n{pol} log:")
-            lg_vals = lg.values() if isinstance(lg, dict) else lg
+            lg_vals = lg.values() if isinstance(lg, ITraversable) else lg
             for key, val in zip(SIM_METRICS, lg_vals):
                 print(f"- {key}: {val}")
 

@@ -145,10 +145,7 @@ class Generator(ABC):
         Returns:
             TensorDict containing the generated instances.
         """
-        if isinstance(batch_size, int):
-            batch_size = (batch_size,)
-        else:
-            batch_size = tuple(batch_size)
+        batch_size = (batch_size,) if isinstance(batch_size, int) else tuple(batch_size)
 
         td = self._generate(batch_size)
         return td.to(self.device)

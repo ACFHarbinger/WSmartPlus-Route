@@ -7,6 +7,9 @@ from typing import Any
 import torch
 from tensordict import TensorDict
 
+from logic.src.interfaces import ITensorDictLike
+from logic.src.interfaces import ITraversable
+
 
 def safe_td_copy(td: Any) -> Any:
     """
@@ -14,7 +17,8 @@ def safe_td_copy(td: Any) -> Any:
     and complex objects (like Shiboken/Qt proxy objects).
     Only clones Tensors and recurse into nested TensorDicts or dicts.
     """
-    if not hasattr(td, "items") or not hasattr(td, "batch_size"):
+    # Check if td is a TensorDict-like object using Protocol
+    if not isinstance(td, ITensorDictLike):
         return td
 
     visited = set()
@@ -38,12 +42,13 @@ def safe_td_copy(td: Any) -> Any:
             if isinstance(obj, torch.Tensor):
                 return obj.clone()
 
-            if hasattr(obj, "items") and hasattr(obj, "batch_size"):  # TensorDict-like
+            # Use ITensorDictLike protocol to check for TensorDict-like objects
+            if isinstance(obj, ITensorDictLike):
                 # Use a plain dict to accumulate clean items
                 clean_dict = {}
                 for k, v in obj.items():
-                    # Only keep tensors or nested collections
-                    if isinstance(v, (torch.Tensor, dict)) or (hasattr(v, "items") and hasattr(v, "batch_size")):
+                    # Only keep tensors, dicts, or nested TensorDict-like objects
+                    if isinstance(v, (torch.Tensor, dict)) or isinstance(v, ITensorDictLike):
                         copied_v = _internal_safe_copy(v)
                         if copied_v is not None:
                             clean_dict[k] = copied_v
@@ -51,7 +56,7 @@ def safe_td_copy(td: Any) -> Any:
                 # Create a new TensorDict with standard batch/device
                 return TensorDict(clean_dict, batch_size=obj.batch_size, device=obj.device)
 
-            if isinstance(obj, dict):
+            if isinstance(obj, ITraversable):
                 res_dict = {}
                 for k, v in obj.items():
                     copied_v = _internal_safe_copy(v)
@@ -78,7 +83,7 @@ def safe_td_copy(td: Any) -> Any:
     res = _internal_safe_copy(td)
     # Ensure we return at least a zero tensor or original if result is None (to satisfy type hints)
     if res is None:
-        if hasattr(td, "batch_size"):
+        if isinstance(td, ITensorDictLike):
             return TensorDict({}, batch_size=td.batch_size, device=td.device)
         return td
     return res

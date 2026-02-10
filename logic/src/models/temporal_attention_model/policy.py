@@ -81,7 +81,7 @@ class TemporalAMPolicy(AttentionModelPolicy):
         Forward pass with temporal feature prediction.
         """
         # 1. Prepare temporal features (fill_history)
-        if "fill_history" not in td.keys():
+        if "fill_history" not in td:
             batch_size = td.batch_size[0]
             num_nodes = td["locs"].shape[1]
             td["fill_history"] = torch.zeros(

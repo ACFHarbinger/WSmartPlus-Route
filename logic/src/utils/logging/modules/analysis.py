@@ -13,6 +13,7 @@ from loguru import logger
 
 import logic.src.constants as udef
 from logic.src.utils.io.files import compose_dirpath, read_json
+from logic.src.interfaces import ITraversable
 
 
 @compose_dirpath
@@ -69,10 +70,10 @@ def output_stats(
             mean_dit = sort_log_func(mean_dit)
             std_dit = sort_log_func(std_dit)
         if print_output:
-            for pol in mean_dit.keys():
+            for pol in mean_dit:
                 lg, lg_std = mean_dit[pol], std_dit[pol]
-                logm = lg.values() if isinstance(lg, dict) else lg
-                logs = lg_std.values() if isinstance(lg_std, dict) else lg_std
+                logm = lg.values() if isinstance(lg, ITraversable) else lg
+                logs = lg_std.values() if isinstance(lg_std, ITraversable) else lg_std
                 print(f"{pol}:")
                 for key, m, s in zip(keys, logm, logs):
                     print(f"- {key}: {m:.2f} +- {s:.4f}")

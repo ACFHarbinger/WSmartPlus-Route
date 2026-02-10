@@ -4,6 +4,7 @@ Action for routing policy execution.
 
 from typing import Any, Dict
 
+from logic.src.interfaces import ITraversable
 from logic.src.policies.adapters import PolicyFactory
 
 from .base import SimulationAction, _flatten_config
@@ -35,7 +36,7 @@ class PolicyExecutionAction(SimulationAction):
         policy_cfg = flat_cfg.get("policy", {})
 
         if not solver_key:
-            if isinstance(policy_cfg, dict):
+            if isinstance(policy_cfg, ITraversable):
                 solver_key = policy_cfg.get("type") or policy_cfg.get("solver") or policy_cfg.get("engine")
             elif isinstance(policy_cfg, str):
                 solver_key = policy_cfg

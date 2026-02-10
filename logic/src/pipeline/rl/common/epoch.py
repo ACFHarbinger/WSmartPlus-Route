@@ -82,13 +82,12 @@ def compute_validation_metrics(out: Dict, batch: TensorDict, env: Any) -> Dict[s
 
     # 3. Efficiency (kg/km)
     # If not already computed in get_costs
-    if "val/efficiency" not in metrics:
-        if "val/waste" in metrics and "val/dist" in metrics:
-            # Avoid division by zero
-            avg_waste = metrics["val/waste"]
-            avg_dist = metrics["val/dist"]
-            if avg_dist > 1e-6:
-                metrics["val/efficiency"] = avg_waste / avg_dist
+    if "val/efficiency" not in metrics and "val/waste" in metrics and "val/dist" in metrics:
+        # Avoid division by zero
+        avg_waste = metrics["val/waste"]
+        avg_dist = metrics["val/dist"]
+        if avg_dist > 1e-6:
+            metrics["val/efficiency"] = avg_waste / avg_dist
 
     # 4. Constraints Violations (Overflows)
     # If environment provides info on violations

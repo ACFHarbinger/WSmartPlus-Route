@@ -42,15 +42,9 @@ def improved_simulated_annealing(
 
     # --- 1. ROBUST INITIALIZATION ---
     # Prepare the initial solution and ensure state consistency between routes and removed bins.
-    if removed_bins is None:
-        removed_bins = set()
-    else:
-        removed_bins = set(removed_bins)
+    removed_bins = set() if removed_bins is None else set(removed_bins)
 
-    if must_go_bins is None:
-        must_go_bins = set()
-    else:
-        must_go_bins = set(must_go_bins)
+    must_go_bins = set() if must_go_bins is None else set(must_go_bins)
 
     # State Sync: Capture any bins missed by the initial greedy solution.
     # Every bin ID must be either in a route or in the 'removed_bins' set.

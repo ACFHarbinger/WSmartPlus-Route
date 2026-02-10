@@ -5,6 +5,7 @@ Checkpoint loading utilities for PyTorch models.
 from __future__ import annotations
 
 import os
+from logic.src.interfaces import ITraversable
 from typing import Any, Dict, Optional, Tuple
 
 import torch
@@ -62,7 +63,7 @@ def _load_model_file(load_path: str, model: nn.Module) -> Tuple[nn.Module, Optio
     print("  [*] Loading model from {}".format(load_path))
 
     load_data = torch.load(os.path.join(os.getcwd(), load_path), map_location=lambda storage, loc: storage)
-    if isinstance(load_data, dict):
+    if isinstance(load_data, ITraversable):
         load_optimizer_state_dict = load_data.get("optimizer", None)
         load_model_state_dict = load_data.get("model", load_data)
     else:

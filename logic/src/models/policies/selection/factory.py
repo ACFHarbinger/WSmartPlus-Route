@@ -4,6 +4,8 @@ Factory functions for creating vectorized selectors.
 
 from typing import Optional
 
+from logic.src.interfaces import ITraversable
+
 from .base import VectorizedSelector
 from .combined import CombinedSelector
 from .last_minute import LastMinuteSelector
@@ -28,10 +30,10 @@ def create_selector_from_config(cfg) -> Optional[VectorizedSelector]:
     if cfg is None:
         return None
 
-    # Handle both dataclass and dict
+    # Handle both dataclass and config-like objects (dict, DictConfig)
     if hasattr(cfg, "strategy"):
         strategy = cfg.strategy
-    elif isinstance(cfg, dict):
+    elif isinstance(cfg, ITraversable):
         strategy = cfg.get("strategy")
     else:
         return None
@@ -47,7 +49,7 @@ def create_selector_from_config(cfg) -> Optional[VectorizedSelector]:
     # Extract parameters from config
     if hasattr(cfg, "__dict__"):
         params = {k: v for k, v in vars(cfg).items() if k != "strategy" and v is not None}
-    elif isinstance(cfg, dict):
+    elif isinstance(cfg, ITraversable):
         params = {k: v for k, v in cfg.items() if k != "strategy" and v is not None}
     else:
         params = {}

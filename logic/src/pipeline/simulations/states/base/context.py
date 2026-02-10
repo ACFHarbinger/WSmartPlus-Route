@@ -9,6 +9,7 @@ Example:
 
 from __future__ import annotations
 
+import contextlib
 import os
 import threading
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
@@ -169,10 +170,8 @@ class SimulationContext:
                 if sub_parts[0] in config_chars and len(sub_parts) > 1:
                     self.pol_threshold = float(sub_parts[1])
                 elif sub_parts[0]:
-                    try:
+                    with contextlib.suppress(ValueError):
                         self.pol_threshold = float(sub_parts[0])
-                    except ValueError:
-                        pass
         except (ValueError, IndexError):
             pass
 

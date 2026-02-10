@@ -61,7 +61,7 @@ def local_search_reversed(
     for it, i in reversed(list(enumerate(previous_solution))):
         i = previous_solution[it]
         idx_route = previous_solution.index(i)
-        for j, val in reversed(list(enumerate(i[0 : len(i) - 1]))):
+        for _j, val in reversed(list(enumerate(i[0 : len(i) - 1]))):
             position = i.index(val)
             row = list(distance_matrix[val][:])
             row_new = sorted(row)
@@ -78,10 +78,7 @@ def local_search_reversed(
                         index_route_to_remove = previous_solution.index(z)
                         if index_route_to_remove == idx_route:
                             position_bin_to_move = i.index(bin_to_move)
-                            if position_bin_to_move < position:
-                                place = position
-                            else:
-                                place = position + 1
+                            place = position if position_bin_to_move < position else position + 1
                         else:
                             place = position + 1
                         if bin_to_move == 0:
@@ -130,10 +127,7 @@ def local_search_reversed(
                             index_route_to_remove = previous_solution.index(z)
                             if index_route_to_remove == idx_route:
                                 position_bin_to_move = i.index(bin_to_move)
-                                if position_bin_to_move < position:
-                                    place = position
-                                else:
-                                    place = position + 1
+                                place = position if position_bin_to_move < position else position + 1
                             else:
                                 place = position + 1
                             if index_route_to_remove == idx_route:

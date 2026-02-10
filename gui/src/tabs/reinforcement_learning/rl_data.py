@@ -207,10 +207,9 @@ class RLDataTab(BaseReinforcementLearningTab):
                     value = value.lower()
                 elif key == "distance_method":
                     value = DISTANCE_MATRIX_METHODS.get(value, "")
-            elif isinstance(widget, QCheckBox):
-                if widget.isChecked():
-                    params[key] = True
-                    continue
+            elif isinstance(widget, QCheckBox) and widget.isChecked():
+                params[key] = True
+                continue
 
             if value is not None:
                 # Handle empty strings (i.e., optional fields left blank), except for '0' in edge_threshold

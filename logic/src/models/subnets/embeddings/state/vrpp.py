@@ -32,9 +32,9 @@ class VRPPState(EnvState):
         """
         # Remaining length or capacity
         # We use 'max_length' or 'remaining_capacity'
-        if "remaining_length" in td.keys():
+        if "remaining_length" in td:
             state = td["remaining_length"]
-        elif "remaining_capacity" in td.keys():
+        elif "remaining_capacity" in td:
             state = td["remaining_capacity"]
         else:
             state = torch.ones(embeddings.size(0), device=embeddings.device)

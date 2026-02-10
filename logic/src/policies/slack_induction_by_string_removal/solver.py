@@ -58,10 +58,7 @@ class SISRSolver:
         """
         Run the SISR algorithm.
         """
-        if initial_solution:
-            current_routes = [r[:] for r in initial_solution]
-        else:
-            current_routes = self._build_initial_solution()
+        current_routes = [r[:] for r in initial_solution] if initial_solution else self._build_initial_solution()
 
         best_routes = [r[:] for r in current_routes]
         best_cost = self._calculate_cost(best_routes)
@@ -73,7 +70,7 @@ class SISRSolver:
         n_nodes = len(self.dist_matrix) - 1
         n_remove = max(1, int(n_nodes * self.params.destroy_ratio))
 
-        for it in range(self.params.max_iterations):
+        for _it in range(self.params.max_iterations):
             if time.time() - start_time > self.params.time_limit:
                 break
 

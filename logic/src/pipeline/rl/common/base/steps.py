@@ -12,6 +12,7 @@ from tensordict import TensorDict
 
 from logic.src.constants.metrics import METRIC_MAPPING
 from logic.src.utils.logging.pylogger import get_pylogger
+from logic.src.interfaces import ITraversable
 
 if TYPE_CHECKING:
     from logic.src.interfaces.env import IEnv
@@ -56,7 +57,7 @@ class StepMixin:
         # WCVRP uses 'demand', VRPP uses 'prize' or 'demand'
         fill_levels = None
         for key in ["waste", "demand", "prize", "fill_level"]:
-            if key in td.keys():
+            if key in td:
                 fill_levels = td[key]
                 break
 
@@ -70,23 +71,23 @@ class StepMixin:
 
         # Get additional data for advanced selectors (lookahead, service_level)
         selector_kwargs = {}
-        if "accumulation_rate" in td.keys():
+        if "accumulation_rate" in td:
             selector_kwargs["accumulation_rates"] = td["accumulation_rate"]
-        if "std_deviation" in td.keys():
+        if "std_deviation" in td:
             selector_kwargs["std_deviations"] = td["std_deviation"]
-        if "current_day" in td.keys():
+        if "current_day" in td:
             selector_kwargs["current_day"] = td["current_day"]
 
         # Get data needed for ManagerSelector (neural network-based selection)
-        if "locs" in td.keys():
+        if "locs" in td:
             selector_kwargs["locs"] = td["locs"]
-        elif "loc" in td.keys():
+        elif "loc" in td:
             selector_kwargs["locs"] = td["loc"]
 
         # Waste history for temporal modeling
-        if "waste_history" in td.keys():
+        if "waste_history" in td:
             selector_kwargs["waste_history"] = td["waste_history"]
-        elif "demand_history" in td.keys():
+        elif "demand_history" in td:
             selector_kwargs["waste_history"] = td["demand_history"]
 
         # Apply selector to get must-go mask
@@ -153,7 +154,7 @@ class StepMixin:
         # Move to device (crucial when pin_memory=False)
         if hasattr(batch, "to"):
             batch = cast(Any, batch).to(self.device)
-        elif isinstance(batch, dict):
+        elif isinstance(batch, ITraversable):
             batch = {k: v.to(self.device) if hasattr(v, "to") else v for k, v in batch.items()}
 
         if baseline_val is not None:
@@ -202,7 +203,7 @@ class StepMixin:
         for log_key, td_keys in METRIC_MAPPING.items():
             val = None
             for k in td_keys:
-                if k in final_td.keys():
+                if k in final_td:
                     val = final_td[k]
                     break
 

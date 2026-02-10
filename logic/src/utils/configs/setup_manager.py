@@ -12,6 +12,7 @@ from torch import nn
 
 from logic.src.models import GATLSTManager
 from logic.src.utils.functions import torch_load_cpu
+from logic.src.interfaces import ITraversable
 
 
 def setup_hrl_manager(

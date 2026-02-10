@@ -69,10 +69,7 @@ class SymNCO(POMO):
         # Determine number of starts
         n_start = self.num_starts
         if n_start is None:
-            if hasattr(self.env, "get_num_starts"):
-                n_start = self.env.get_num_starts(td)
-            else:
-                n_start = td["locs"].shape[1]
+            n_start = self.env.get_num_starts(td) if hasattr(self.env, "get_num_starts") else td["locs"].shape[1]
 
         # Augmentation
         n_aug = self.num_augment
@@ -107,10 +104,7 @@ class SymNCO(POMO):
 
             # 3. Invariance loss (invariant representation across augmentations)
             loss_inv_val: float | torch.Tensor
-            if "proj_embeddings" in out:
-                loss_inv_val = invariance_loss(out["proj_embeddings"], n_aug)
-            else:
-                loss_inv_val = 0.0
+            loss_inv_val = invariance_loss(out["proj_embeddings"], n_aug) if "proj_embeddings" in out else 0.0
 
             loss = loss_ps + self.beta * loss_ss + self.alpha * loss_inv_val
 

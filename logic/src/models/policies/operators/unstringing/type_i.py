@@ -92,7 +92,7 @@ def vectorized_type_i_unstringing(
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
     # Main improvement loop
-    for iteration in range(max_iterations):
+    for _iteration in range(max_iterations):
         improved = False
 
         # Process each batch instance
@@ -221,25 +221,16 @@ def _apply_type_i_move(
     # Extract segments
     # Segment 1: V_{i+1} ... V_k
     i_next = (i + 1) % n
-    if i_next <= k:
-        seg1 = tour_list[i_next : k + 1]
-    else:
-        seg1 = tour_list[i_next:] + tour_list[: k + 1]
+    seg1 = tour_list[i_next : k + 1] if i_next <= k else tour_list[i_next:] + tour_list[: k + 1]
 
     # Segment 2: V_{k+1} ... V_j
     k_next = (k + 1) % n
-    if k_next <= j:
-        seg2 = tour_list[k_next : j + 1]
-    else:
-        seg2 = tour_list[k_next:] + tour_list[: j + 1]
+    seg2 = tour_list[k_next : j + 1] if k_next <= j else tour_list[k_next:] + tour_list[: j + 1]
 
     # Remainder: V_{j+1} ... V_{i-1}
     j_next = (j + 1) % n
     i_prev = (i - 1) if i > 0 else (n - 1)
-    if j_next <= i_prev:
-        remainder = tour_list[j_next : i_prev + 1]
-    else:
-        remainder = tour_list[j_next:] + tour_list[: i_prev + 1]
+    remainder = tour_list[j_next : i_prev + 1] if j_next <= i_prev else tour_list[j_next:] + tour_list[: i_prev + 1]
 
     # Reconstruct: V_{i-1} -> seg1_rev -> seg2_rev -> remainder
     v_i_prev = tour_list[i_prev]

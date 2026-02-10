@@ -22,7 +22,7 @@ class JsonFormatter(logging.Formatter):
         }
 
         # Add extra fields if present
-        if hasattr(record, "extra_fields") and isinstance(record.extra_fields, dict):
+        if hasattr(record, "extra_fields") and isinstance(record.extra_fields, ITraversable):
             log_entry.update(record.extra_fields)
 
         return json.dumps(log_entry)

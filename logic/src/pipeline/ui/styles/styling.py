@@ -208,10 +208,7 @@ def create_kpi_row(metrics: dict) -> str:
 
     for i, (label, value) in enumerate(metrics.items()):
         color = colors[i % len(colors)]
-        if isinstance(value, float):
-            formatted = format_number(value)
-        else:
-            formatted = str(value)
+        formatted = format_number(value) if isinstance(value, float) else str(value)
         cards.append(create_kpi_html(label, formatted, color))
 
     return f'<div style="display: flex; flex-wrap: wrap; gap: 12px;">{"".join(cards)}</div>'

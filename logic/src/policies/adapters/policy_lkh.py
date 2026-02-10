@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.configs.policies import LKHConfig
+from logic.src.interfaces import ITraversable
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.lin_kernighan_helsgaun import solve_lkh
 from logic.src.policies.tsp import get_multi_tour, get_route_cost
@@ -78,9 +79,9 @@ class LKHPolicy(BaseRoutingPolicy):
             opt_cfg = lkh_cfg[engine]
             if isinstance(opt_cfg, list):
                 for item in opt_cfg:
-                    if isinstance(item, dict):
+                    if isinstance(item, ITraversable):
                         values.update(item)
-            elif isinstance(opt_cfg, dict):
+            elif isinstance(opt_cfg, ITraversable):
                 values.update(opt_cfg)
         else:
             values.update(lkh_cfg)

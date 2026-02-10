@@ -41,7 +41,7 @@ class VRPP(BaseProblem):
 
         waste_with_depot = torch.cat((torch.zeros_like(dataset["waste"][:, :1]), dataset["waste"]), 1)
         w = waste_with_depot.gather(1, pi)
-        if "max_waste" in dataset.keys():
+        if "max_waste" in dataset:
             w = w.clamp(max=dataset["max_waste"][:, None])
         waste = w.sum(dim=-1)
         length = VRPP.get_tour_length(dataset, pi, dist_matrix)

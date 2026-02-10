@@ -50,8 +50,5 @@ class PointerAttention(nn.Module):
         v_view = self.v.unsqueeze(0).expand(expanded_q.size(0), len(self.v)).unsqueeze(1)
         # [batch_size x 1 x hidden_dim] * [batch_size x hidden_dim x sourceL]
         u = torch.bmm(v_view, self.tanh(expanded_q + e)).squeeze(1)
-        if self.use_tanh:
-            logits = self.C * self.tanh(u)
-        else:
-            logits = u
+        logits = self.C * self.tanh(u) if self.use_tanh else u
         return e, logits

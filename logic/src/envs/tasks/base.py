@@ -10,6 +10,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.utils.decoding import beam_search as beam_search_func
+from logic.src.interfaces import ITraversable
 
 
 class BaseProblem:
@@ -110,7 +111,7 @@ class BaseProblem:
 
         env_name = cls.NAME
 
-        if isinstance(input_data, dict):
+        if isinstance(input_data, ITraversable):
             # Determine batch size from typical batched tensors
             bs = 1
             device = torch.device("cpu")
@@ -156,12 +157,12 @@ class BaseProblem:
             env = get_env(env_name, batch_size=torch.Size([1]))
 
         # Ensure 'dist' and 'edges' are present
-        if "dist" not in td.keys() and dist_matrix is not None:
+        if "dist" not in td and dist_matrix is not None:
             if dist_matrix.dim() == 2:
                 td["dist"] = dist_matrix.unsqueeze(0).expand(td.batch_size[0], -1, -1)
             else:
                 td["dist"] = dist_matrix
-        if "edges" not in td.keys() and edges is not None:
+        if "edges" not in td and edges is not None:
             if edges.dim() == 2:
                 td["edges"] = edges.unsqueeze(0).expand(td.batch_size[0], -1, -1)
             else:
@@ -170,16 +171,16 @@ class BaseProblem:
         # Consolidate 'locs' logic:
         # We NO LONGER concatenate depot and locs here, as modern envs handle it in reset() or step()
         # and AttentionModel's context embedder also handles separate depot/locs.
-        if "locs" not in td.keys() and "loc" in td.keys():
+        if "locs" not in td and "loc" in td:
             td["locs"] = td["loc"]
 
         # Final check for environment-specific required keys
         # Handle must_go mask for selective routing
-        if "must_go" in td.keys():
+        if "must_go" in td:
             pass
 
         # Ensure capacity is present
-        if "capacity" not in td.keys():
+        if "capacity" not in td:
             profit_vars = kwargs.get("profit_vars")
             if profit_vars and "vehicle_capacity" in profit_vars:
                 td["capacity"] = torch.full((td.batch_size[0],), profit_vars["vehicle_capacity"], device=td.device)

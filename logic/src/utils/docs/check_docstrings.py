@@ -80,7 +80,7 @@ def check_docstrings_recursive(directory):
         list: A list of dictionaries describing missing docstrings.
     """
     missing_items = []
-    for root, dirs, files in os.walk(directory):
+    for root, _dirs, files in os.walk(directory):
         for file in files:
             missing_items.extend(check_path(os.path.join(root, file)))
     return missing_items

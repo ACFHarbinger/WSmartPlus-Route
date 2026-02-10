@@ -100,7 +100,7 @@ def vectorized_cross_exchange(
     # Note: Vectorizing cross-exchange across all segment pairs is extremely memory-intensive
     # This implementation uses a hybrid approach: vectorize within batch, iterate over segments
 
-    for iteration in range(max_iterations):
+    for _iteration in range(max_iterations):
         improved_any = False
 
         # Try all combinations of segment lengths

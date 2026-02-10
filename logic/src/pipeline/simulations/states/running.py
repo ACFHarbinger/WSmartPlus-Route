@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Optional, cast
 from loguru import logger
 
 from logic.src.utils.logging.log_utils import final_simulation_summary
+from logic.src.interfaces import ITraversable
 
 from ..checkpoints import CheckpointError, checkpoint_manager
 from ..day_context import SimulationDayContext, run_day
@@ -57,9 +58,9 @@ class RunningState(SimState):
                         if key in ctx.policy:
                             if isinstance(cfg, list):
                                 for item in cfg:
-                                    if isinstance(item, dict):
+                                    if isinstance(item, ITraversable):
                                         current_policy_config.update(item)
-                            elif isinstance(cfg, dict):
+                            elif isinstance(cfg, ITraversable):
                                 current_policy_config.update(cfg)
 
                     if "hgs" in ctx.pol_strip and ctx.vehicle_capacity is not None:

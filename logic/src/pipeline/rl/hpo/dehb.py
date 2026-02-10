@@ -3,6 +3,7 @@ Differential Evolution Hyperband (DEHB) wrapper.
 """
 
 import time
+from logic.src.interfaces import ITraversable
 from typing import Callable, Dict, Tuple, Union
 
 import ConfigSpace
@@ -39,11 +40,11 @@ class DifferentialEvolutionHyperband(DEHB):
             output_path: Path for logs and results.
             **kwargs: Additional arguments for DEHB.
         """
-        self.parameter_names = list(cs.keys()) if isinstance(cs, dict) else []
+        self.parameter_names = list(cs.keys()) if isinstance(cs, ITraversable) else []
 
         # Convert simple dict config space to ConfigSpace object if needed
         config_space: Union[ConfigSpace.ConfigurationSpace, Dict] = cs
-        if isinstance(cs, dict):
+        if isinstance(cs, ITraversable):
             config_space = ConfigSpace.ConfigurationSpace()
             for name, (low, high) in cs.items():
                 # specific handling for validation that expects floats
