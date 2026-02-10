@@ -178,44 +178,52 @@ class RLDataTab(BaseReinforcementLearningTab):
         """
         params = {}
         for key, widget in self.widgets.items():
-            value = None
-            if isinstance(widget, QSpinBox):
-                value = widget.value()
-            elif isinstance(widget, QDoubleSpinBox):
-                params[key] = widget.value()
-                continue
-            elif isinstance(widget, QLineEdit):
-                value = widget.text().strip()
-            elif isinstance(widget, QComboBox):
-                value = widget.currentText()
-
-                # Special handling for data_distribution: map display name to command-line argument
-                if key == "data_distribution":
-                    # Only include data_distribution if its container is visible
-                    if self.data_dist_row and self.data_dist_row.isVisible():
-                        # Use the map to get the correct command-line argument string
-                        value = DATA_DISTRIBUTIONS.get(value, "")
-                    else:
-                        continue  # Skip parameter if not relevant/visible
-                elif key in "vertex_method":
-                    value = VERTEX_METHODS.get(value, "")
-                elif key == "edge_method":
-                    value = EDGE_METHODS.get(value, "")
-                elif key == "area":
-                    value = COUNTY_AREAS.get(value, "")
-                elif key == "waste_type":
-                    value = value.lower()
-                elif key == "distance_method":
-                    value = DISTANCE_MATRIX_METHODS.get(value, "")
-            elif isinstance(widget, QCheckBox) and widget.isChecked():
-                params[key] = True
-                continue
+            value = self._get_widget_value(key, widget)
 
             if value is not None:
                 # Handle empty strings (i.e., optional fields left blank), except for '0' in edge_threshold
-                if isinstance(value, str) and not value and key != "edge_threshold":
+                is_empty_str = isinstance(value, str) and not value
+                if is_empty_str and key != "edge_threshold":
                     continue
 
                 params[key] = value
 
         return params
+
+    def _get_widget_value(self, key, widget):
+        """Extracts the value from a widget based on its type."""
+        if isinstance(widget, QSpinBox):
+            return widget.value()
+        if isinstance(widget, QDoubleSpinBox):
+            return widget.value()
+        if isinstance(widget, QLineEdit):
+            return widget.text().strip()
+        if isinstance(widget, QComboBox):
+            return self._process_combobox_value(key, widget)
+        if isinstance(widget, QCheckBox) and widget.isChecked():
+            return True
+        return None
+
+    def _process_combobox_value(self, key, widget):
+        """Processes QComboBox values with specific mappings."""
+        value = widget.currentText()
+        if key == "data_distribution":
+            # Only include data_distribution if its container is visible
+            if self.data_dist_row and self.data_dist_row.isVisible():
+                return DATA_DISTRIBUTIONS.get(value, "")
+            return None
+
+        mappings = {
+            "vertex_method": VERTEX_METHODS,
+            "edge_method": EDGE_METHODS,
+            "area": COUNTY_AREAS,
+            "distance_method": DISTANCE_MATRIX_METHODS,
+        }
+
+        if key in mappings:
+            return mappings[key].get(value, "")
+
+        if key == "waste_type":
+            return value.lower()
+
+        return value

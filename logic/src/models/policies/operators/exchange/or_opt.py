@@ -97,149 +97,154 @@ def vectorized_or_opt(
 
     # Iterate through chain lengths
     for chain_len in chain_lengths:
-        if chain_len >= N // 2:  # Skip if chain too long
+        if chain_len >= N // 2:
             continue
 
         for _iteration in range(max_iterations):
             improved_any = False
-
-            # Generate all valid chain start positions: [0, N - chain_len)
             chain_starts = torch.arange(N - chain_len, device=device)
             n_chains = len(chain_starts)
-
             if n_chains == 0:
                 break
 
-            # Expand for batch: (B, n_chains)
             chain_starts_batch = chain_starts.unsqueeze(0).expand(B, -1)
 
-            # Get nodes involved in removal
-            # prev_node: node before chain
-            # next_node: node after chain
-            prev_idx = chain_starts_batch - 1
-            next_idx = chain_starts_batch + chain_len
-
-            # Handle depot edges
-            prev_idx = prev_idx.clamp(min=0)
-            next_idx = next_idx.clamp(max=N - 1)
-
-            prev_nodes = torch.gather(tours, 1, prev_idx)
-            chain_first = torch.gather(tours, 1, chain_starts_batch)
-            chain_last = torch.gather(tours, 1, (chain_starts_batch + chain_len - 1).clamp(max=N - 1))
-            next_nodes = torch.gather(tours, 1, next_idx)
-
-            # Compute removal gain: d(prev, chain_first) + d(chain_last, next) - d(prev, next)
-            b_exp = batch_indices.expand(B, n_chains)
-            removal_gain = (
-                distance_matrix[b_exp, prev_nodes, chain_first]
-                + distance_matrix[b_exp, chain_last, next_nodes]
-                - distance_matrix[b_exp, prev_nodes, next_nodes]
+            # Compute removal gain and chain demands
+            removal_gain, chain_demands = _compute_removal_info(
+                tours,
+                chain_starts_batch,
+                chain_len,
+                distance_matrix,
+                demands,
+                has_capacity,
+                batch_indices,
+                B,
+                n_chains,
+                N,
             )
 
-            # Compute chain demand if capacity checking enabled
-            if has_capacity:
-                chain_demands = torch.zeros(B, n_chains, device=device)
-                for k in range(chain_len):
-                    chain_nodes = torch.gather(tours, 1, (chain_starts_batch + k).clamp(max=N - 1))
-                    chain_demands += torch.gather(demands, 1, chain_nodes)
-
-            # Try all insertion positions for each chain
-            best_delta = torch.full((B, n_chains), float("inf"), device=device)
-            best_insert_pos = torch.zeros((B, n_chains), dtype=torch.long, device=device)
-
-            for insert_pos in range(N + 1):
-                # Get insertion neighbors
-                ins_prev_idx = torch.full((B, n_chains), insert_pos - 1, device=device)
-                ins_next_idx = torch.full((B, n_chains), insert_pos, device=device)
-
-                # Clamp to valid range
-                ins_prev_idx = ins_prev_idx.clamp(min=0, max=N - 1)
-                ins_next_idx = ins_next_idx.clamp(min=0, max=N - 1)
-
-                ins_prev_nodes = torch.gather(tours, 1, ins_prev_idx)
-                ins_next_nodes = torch.gather(tours, 1, ins_next_idx)
-
-                # Skip positions that would reinsert at same spot
-                # This requires adjusting for removal effect
-                skip_mask = torch.zeros((B, n_chains), dtype=torch.bool, device=device)
-                for k in range(n_chains):
-                    chain_start = chain_starts[k].item()
-                    # Skip if insert_pos is in [chain_start, chain_start + chain_len]
-                    if chain_start <= insert_pos <= chain_start + chain_len:
-                        skip_mask[:, k] = True
-
-                # Compute insertion cost
-                insertion_cost = (
-                    distance_matrix[b_exp, ins_prev_nodes, chain_first]
-                    + distance_matrix[b_exp, chain_last, ins_next_nodes]
-                    - distance_matrix[b_exp, ins_prev_nodes, ins_next_nodes]
-                )
-
-                # Capacity check if enabled
-                if has_capacity:
-                    # Current tour load (approximation - simplified for vectorization)
-                    # In practice, would need route-specific load tracking
-                    feasible = chain_demands <= capacities.unsqueeze(1)
-                    insertion_cost = torch.where(feasible, insertion_cost, torch.tensor(float("inf"), device=device))
-
-                # Delta = insertion_cost - removal_gain
-                delta = insertion_cost - removal_gain
-                delta = torch.where(skip_mask, torch.tensor(float("inf"), device=device), delta)
-
-                # Update best if better
-                better = delta < best_delta
-                best_delta = torch.where(better, delta, best_delta)
-                best_insert_pos = torch.where(better, ins_next_idx, best_insert_pos)
+            # Find best insertions
+            best_delta, best_insert_pos = _find_best_insertions(
+                B,
+                n_chains,
+                N,
+                chain_len,
+                chain_starts,
+                tours,
+                distance_matrix,
+                removal_gain,
+                chain_demands,
+                capacities,
+                has_capacity,
+                batch_indices,
+                device,
+            )
 
             # Find best chain to move for each batch instance
             best_chain_delta, best_chain_idx = torch.min(best_delta, dim=1)
 
-            # Check if any improvements found
             improved = best_chain_delta < -IMPROVEMENT_EPSILON
             if not improved.any():
                 break
 
             improved_any = True
-
-            # Apply best move for each improved instance
-            # This is complex in vectorized form - simplified version:
-            # For each batch element that improved, we need to:
-            # 1. Remove chain from original position
-            # 2. Insert chain at new position
-            # This requires careful index manipulation
-
-            for b in range(B):
-                if improved[b]:
-                    chain_idx = best_chain_idx[b].item()
-                    chain_start = chain_starts[chain_idx].item()
-                    insert_pos = best_insert_pos[b, chain_idx].item()
-
-                    # Extract chain
-                    chain = tours[b, chain_start : chain_start + chain_len].clone()
-
-                    # Remove chain
-                    mask = torch.ones(N, dtype=torch.bool, device=device)
-                    mask[chain_start : chain_start + chain_len] = False
-                    remaining = tours[b][mask]
-
-                    # Adjust insertion position if after removal point
-                    adj_insert = insert_pos
-                    if insert_pos > chain_start + chain_len:
-                        adj_insert -= chain_len
-
-                    # Insert chain
-                    new_tour = torch.cat([remaining[:adj_insert], chain, remaining[adj_insert:]])
-
-                    # Pad if necessary to maintain shape
-                    if new_tour.size(0) < N:
-                        padding = torch.zeros(N - new_tour.size(0), dtype=tours.dtype, device=device)
-                        new_tour = torch.cat([new_tour, padding])
-                    elif new_tour.size(0) > N:
-                        new_tour = new_tour[:N]
-
-                    tours[b] = new_tour
+            tours = _apply_or_opt_moves(
+                tours, improved, best_chain_idx, best_insert_pos, chain_starts, chain_len, B, N, device
+            )
 
             if not improved_any:
                 break
 
     return tours if is_batch else tours.squeeze(0)
+
+
+def _compute_removal_info(
+    tours, chain_starts, chain_len, dist_mat, demands, has_capacity, batch_indices, B, n_chains, N
+):
+    """Computes removal gain and chain demands."""
+    prev_idx = (chain_starts - 1).clamp(min=0)
+    next_idx = (chain_starts + chain_len).clamp(max=N - 1)
+
+    prev_nodes = torch.gather(tours, 1, prev_idx)
+    chain_first = torch.gather(tours, 1, chain_starts)
+    chain_last = torch.gather(tours, 1, (chain_starts + chain_len - 1).clamp(max=N - 1))
+    next_nodes = torch.gather(tours, 1, next_idx)
+
+    b_exp = batch_indices.expand(B, n_chains)
+    removal_gain = (
+        dist_mat[b_exp, prev_nodes, chain_first]
+        + dist_mat[b_exp, chain_last, next_nodes]
+        - dist_mat[b_exp, prev_nodes, next_nodes]
+    )
+
+    chain_demands = None
+    if has_capacity:
+        chain_demands = torch.zeros(B, n_chains, device=tours.device)
+        for k in range(chain_len):
+            nodes = torch.gather(tours, 1, (chain_starts + k).clamp(max=N - 1))
+            chain_demands += torch.gather(demands, 1, nodes)
+
+    return removal_gain, chain_demands
+
+
+def _find_best_insertions(
+    B, n_chains, N, chain_len, chain_starts, tours, dist_mat, rem_gain, chain_demands, caps, has_cap, b_idx, device
+):
+    """Finds best insertion positions for all chains in batch."""
+    best_delta = torch.full((B, n_chains), float("inf"), device=device)
+    best_insert_pos = torch.zeros((B, n_chains), dtype=torch.long, device=device)
+    b_exp = b_idx.expand(B, n_chains)
+
+    # Get chain nodes for insertion cost calculation
+    chain_first = torch.gather(tours, 1, chain_starts.unsqueeze(0).expand(B, -1))
+    chain_last = torch.gather(tours, 1, (chain_starts + chain_len - 1).clamp(max=N - 1).unsqueeze(0).expand(B, -1))
+
+    for insert_pos in range(N + 1):
+        ins_prev = torch.full((B, n_chains), insert_pos - 1, device=device).clamp(min=0, max=N - 1)
+        ins_next = torch.full((B, n_chains), insert_pos, device=device).clamp(min=0, max=N - 1)
+
+        ins_prev_nodes = torch.gather(tours, 1, ins_prev)
+        ins_next_nodes = torch.gather(tours, 1, ins_next)
+
+        # Skip positions inside original chain
+        skip_mask = (chain_starts.unsqueeze(0) <= insert_pos) & (insert_pos <= chain_starts.unsqueeze(0) + chain_len)
+
+        ins_cost = (
+            dist_mat[b_exp, ins_prev_nodes, chain_first]
+            + dist_mat[b_exp, chain_last, ins_next_nodes]
+            - dist_mat[b_exp, ins_prev_nodes, ins_next_nodes]
+        )
+
+        if has_cap:
+            feasible = chain_demands <= caps.unsqueeze(1)
+            ins_cost = torch.where(feasible, ins_cost, torch.tensor(float("inf"), device=device))
+
+        delta = torch.where(skip_mask, torch.tensor(float("inf"), device=device), ins_cost - rem_gain)
+
+        better = delta < best_delta
+        best_delta = torch.where(better, delta, best_delta)
+        best_insert_pos = torch.where(better, ins_next, best_insert_pos)
+
+    return best_delta, best_insert_pos
+
+
+def _apply_or_opt_moves(tours, improved, best_chain_idx, best_insert_pos, chain_starts, chain_len, B, N, device):
+    """Applies the best Or-opt moves found to the batch of tours."""
+    for b in range(B):
+        if improved[b]:
+            idx = best_chain_idx[b].item()
+            start = chain_starts[idx].item()
+            pos = best_insert_pos[b, idx].item()
+
+            chain = tours[b, start : start + chain_len].clone()
+            mask = torch.ones(N, dtype=torch.bool, device=device)
+            mask[start : start + chain_len] = False
+            remaining = tours[b][mask]
+
+            adj_pos = pos - chain_len if pos > start + chain_len else pos
+            new_tour = torch.cat([remaining[:adj_pos], chain, remaining[adj_pos:]])
+
+            if new_tour.size(0) < N:
+                new_tour = torch.cat([new_tour, torch.zeros(N - new_tour.size(0), dtype=tours.dtype, device=device)])
+            tours[b] = new_tour[:N]
+    return tours

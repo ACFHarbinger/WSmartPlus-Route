@@ -9,8 +9,8 @@ from typing import Any, Dict, Optional
 import torch
 from tensordict import TensorDict
 
-from logic.src.utils.decoding import beam_search as beam_search_func
 from logic.src.interfaces import ITraversable
+from logic.src.utils.decoding import beam_search as beam_search_func
 
 
 class BaseProblem:
@@ -112,42 +112,9 @@ class BaseProblem:
         env_name = cls.NAME
 
         if isinstance(input_data, ITraversable):
-            # Determine batch size from typical batched tensors
-            bs = 1
-            device = torch.device("cpu")
-            for k in ["loc", "locs", "waste"]:
-                if k in input_data and torch.is_tensor(input_data[k]):
-                    bs = input_data[k].size(0)
-                    device = input_data[k].device
-                    break
-
-            # Initialize environment (lazy loading or re-use could be better but this is safe)
+            bs, device = cls._get_batch_info(input_data)
             env = get_env(env_name, batch_size=torch.Size([bs]), device=device)
-
-            # Create TensorDict, unsqueezing non-batched tensors if needed
-            td_data = {}
-            for k, v in input_data.items():
-                if torch.is_tensor(v):
-                    # Key mapping for simulator compatibility
-                    target_key = k
-                    if k == "loc":
-                        target_key = "locs"
-                    # Map prize and demand to waste
-                    if k in ["prize", "demand"]:
-                        target_key = "waste"
-
-                    if v.dim() >= 1 and v.size(0) == bs:
-                        td_data[target_key] = v
-                    elif v.dim() >= 2:
-                        td_data[target_key] = v.unsqueeze(0).expand(bs, *([-1] * v.dim()))
-                    else:
-                        td_data[target_key] = (
-                            v.expand(bs, *([-1] * v.dim())) if v.dim() > 0 else v.unsqueeze(0).expand(bs)
-                        )
-                else:
-                    td_data[k] = v
-
-            td = TensorDict(td_data, batch_size=[bs], device=device)
+            td = cls._prepare_td_from_traversable(input_data, bs, device)
         elif isinstance(input_data, TensorDict):
             td = input_data
             bs = td.batch_size[0] if len(td.batch_size) > 0 else 1
@@ -156,38 +123,7 @@ class BaseProblem:
             td = TensorDict({}, batch_size=[1])
             env = get_env(env_name, batch_size=torch.Size([1]))
 
-        # Ensure 'dist' and 'edges' are present
-        if "dist" not in td and dist_matrix is not None:
-            if dist_matrix.dim() == 2:
-                td["dist"] = dist_matrix.unsqueeze(0).expand(td.batch_size[0], -1, -1)
-            else:
-                td["dist"] = dist_matrix
-        if "edges" not in td and edges is not None:
-            if edges.dim() == 2:
-                td["edges"] = edges.unsqueeze(0).expand(td.batch_size[0], -1, -1)
-            else:
-                td["edges"] = edges
-
-        # Consolidate 'locs' logic:
-        # We NO LONGER concatenate depot and locs here, as modern envs handle it in reset() or step()
-        # and AttentionModel's context embedder also handles separate depot/locs.
-        if "locs" not in td and "loc" in td:
-            td["locs"] = td["loc"]
-
-        # Final check for environment-specific required keys
-        # Handle must_go mask for selective routing
-        if "must_go" in td:
-            pass
-
-        # Ensure capacity is present
-        if "capacity" not in td:
-            profit_vars = kwargs.get("profit_vars")
-            if profit_vars and "vehicle_capacity" in profit_vars:
-                td["capacity"] = torch.full((td.batch_size[0],), profit_vars["vehicle_capacity"], device=td.device)
-            elif "vehicle_capacity" in kwargs:
-                td["capacity"] = torch.full((td.batch_size[0],), kwargs["vehicle_capacity"], device=td.device)
-            elif env_name in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
-                td["capacity"] = torch.ones(td.batch_size[0], device=td.device)
+        cls._ensure_required_keys(td, env_name, edges, dist_matrix, **kwargs)
 
         td_reset = TensorDict(
             source={k: v for k, v in td.items()},
@@ -195,5 +131,63 @@ class BaseProblem:
             device=td.device,
         )
         td = env.reset(td_reset)
-
         return TensorDictStateWrapper(td, env_name, env=env)
+
+    @staticmethod
+    def _get_batch_info(input_data: Any) -> tuple[int, torch.device]:
+        """Extract batch size and device from input data."""
+        bs = 1
+        device = torch.device("cpu")
+        for k in ["loc", "locs", "waste"]:
+            if k in input_data and torch.is_tensor(input_data[k]):
+                bs = input_data[k].size(0)
+                device = input_data[k].device
+                break
+        return bs, device
+
+    @classmethod
+    def _prepare_td_from_traversable(cls, input_data: Any, bs: int, device: torch.device) -> TensorDict:
+        """Create a TensorDict from an ITraversable object."""
+        td_data = {}
+        for k, v in input_data.items():
+            if torch.is_tensor(v):
+                target_key = cls._map_key(k)
+                td_data[target_key] = cls._batch_tensor(v, bs)
+            else:
+                td_data[k] = v
+        return TensorDict(td_data, batch_size=[bs], device=device)
+
+    @staticmethod
+    def _map_key(k: str) -> str:
+        """Map legacy keys to environment keys."""
+        if k == "loc":
+            return "locs"
+        if k in ["prize", "demand"]:
+            return "waste"
+        return k
+
+    @staticmethod
+    def _batch_tensor(v: torch.Tensor, bs: int) -> torch.Tensor:
+        """Ensure tensor has correct batch dimension."""
+        if v.dim() >= 1 and v.size(0) == bs:
+            return v
+        if v.dim() >= 2:
+            return v.unsqueeze(0).expand(bs, *([-1] * v.dim()))
+        return v.expand(bs, *([-1] * v.dim())) if v.dim() > 0 else v.unsqueeze(0).expand(bs)
+
+    @staticmethod
+    def _ensure_required_keys(td: TensorDict, env_name: str, edges: Any, dist_matrix: Any, **kwargs: Any) -> None:
+        """Ensure all required keys are present in the TensorDict."""
+        bs = td.batch_size[0]
+        if "dist" not in td and dist_matrix is not None:
+            td["dist"] = dist_matrix.unsqueeze(0).expand(bs, -1, -1) if dist_matrix.dim() == 2 else dist_matrix
+        if "edges" not in td and edges is not None:
+            td["edges"] = edges.unsqueeze(0).expand(bs, -1, -1) if edges.dim() == 2 else edges
+        if "locs" not in td and "loc" in td:
+            td["locs"] = td["loc"]
+        if "capacity" not in td:
+            cap = kwargs.get("vehicle_capacity") or kwargs.get("profit_vars", {}).get("vehicle_capacity")
+            if cap:
+                td["capacity"] = torch.full((bs,), cap, device=td.device)
+            elif env_name in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
+                td["capacity"] = torch.ones(bs, device=td.device)

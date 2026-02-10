@@ -59,7 +59,8 @@ def get_automatic_batch_size(
         except RuntimeError as e:
             if "out of memory" in str(e).lower():
                 if current_batch_size <= 1:
-                    raise RuntimeError("Even a batch size of 1 causes OOM.")
+                    raise RuntimeError("Even a batch size of 1 causes OOM.") from e
+
                 current_batch_size //= 2
                 torch.cuda.empty_cache()
                 log.warning(f"OOM detected. Reducing batch size to: {current_batch_size}")

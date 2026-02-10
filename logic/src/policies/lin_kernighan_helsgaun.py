@@ -159,6 +159,135 @@ def double_bridge_kick(tour: List[int]) -> List[int]:
     return new_tour
 
 
+def _initialize_tour(distance_matrix: np.ndarray, initial_tour: Optional[List[int]]) -> List[int]:
+    """Initialize tour using nearest neighbor if not provided."""
+    n = len(distance_matrix)
+    if initial_tour is None:
+        # Nearest Neighbor Construction
+        curr = 0
+        path = [0]
+        unvisited = set(range(1, n))
+        while unvisited:
+            next_node = min(unvisited, key=lambda x: distance_matrix[curr, x])
+            path.append(next_node)
+            unvisited.remove(next_node)
+            curr = next_node
+        path.append(0)
+        return path
+    else:
+        curr_tour = initial_tour[:]
+        if curr_tour[0] != curr_tour[-1]:
+            curr_tour.append(curr_tour[0])
+        return curr_tour
+
+
+def _try_2opt_move(curr_tour, i, t1, t2, candidates, distance_matrix, waste, capacity):
+    """Attempt 2-opt moves for edge (t1, t2)."""
+    nodes_count = len(curr_tour) - 1
+    # Check candidates for t2
+    for t3 in candidates[t2]:
+        if t3 == t1:
+            continue
+        if t3 == curr_tour[(i + 2) % nodes_count]:
+            continue  # skip next edge
+
+        # 2-opt Attempt
+        try:
+            j = curr_tour.index(t3)
+        except ValueError:
+            continue
+
+        # Case A: j > i
+        if j <= i + 1:
+            continue
+
+        t4 = curr_tour[j + 1]
+
+        # Gain check roughly
+        gain = (distance_matrix[t1, t2] + distance_matrix[t3, t4]) - (distance_matrix[t1, t3] + distance_matrix[t2, t4])
+
+        if gain > 1e-6:
+            new_tour = apply_2opt_move(curr_tour, i, j)
+            p_new, c_new = get_score(new_tour, distance_matrix, waste, capacity)
+            return new_tour, p_new, c_new, True, j
+
+    return None, 0.0, 0.0, False, -1
+
+
+def _try_3opt_move(curr_tour, i, j, t1, t2, t3, t4, distance_matrix, waste, capacity):
+    """Attempt 3-opt moves given a failing 2-opt configuration."""
+    nodes_count = len(curr_tour) - 1
+    for k in range(j + 2, nodes_count):
+        t5 = curr_tour[k]
+        t6 = curr_tour[k + 1]
+
+        # Check gain
+        gain3 = (distance_matrix[t1, t2] + distance_matrix[t3, t4] + distance_matrix[t5, t6]) - (
+            distance_matrix[t1, t3] + distance_matrix[t2, t5] + distance_matrix[t4, t6]
+        )
+
+        if gain3 > 1e-6:
+            new_3opt = apply_3opt_move(curr_tour, i, j, k, 0)
+            p3, c3 = get_score(new_3opt, distance_matrix, waste, capacity)
+            return new_3opt, p3, c3, True
+
+    return None, 0.0, 0.0, False
+
+
+def _improve_tour(curr_tour, curr_pen, curr_cost, candidates, distance_matrix, waste, capacity):
+    """Run one pass of local search improvement."""
+    nodes_count = len(curr_tour) - 1
+
+    for i in range(nodes_count):
+        t1 = curr_tour[i]
+        t2 = curr_tour[i + 1]
+
+        # 1. Try 2-opt
+        # We need to iterate candidates manually to support 3-opt fallback
+        # Re-implementing logic from original to support extraction
+        for t3 in candidates[t2]:
+            if t3 == t1 or t3 == curr_tour[(i + 2) % nodes_count]:
+                continue
+            try:
+                j = curr_tour.index(t3)
+            except ValueError:
+                continue
+
+            if j <= i + 1:
+                continue
+
+            t4 = curr_tour[j + 1]
+            gain = (distance_matrix[t1, t2] + distance_matrix[t3, t4]) - (
+                distance_matrix[t1, t3] + distance_matrix[t2, t4]
+            )
+
+            if gain > 1e-6:
+                new_tour = apply_2opt_move(curr_tour, i, j)
+                p_new, c_new = get_score(new_tour, distance_matrix, waste, capacity)
+                if is_better(p_new, c_new, curr_pen, curr_cost):
+                    return new_tour, p_new, c_new, True
+
+            # 2. Try 3-opt if 2-opt didn't improve locally but was a candidate
+            # Only do 3-opt for smaller instances or limit breadth
+            if len(distance_matrix) < 500:
+                res_tour, res_p, res_c, res_imp = _try_3opt_move(
+                    curr_tour,
+                    i,
+                    j,
+                    t1,
+                    t2,
+                    t3,
+                    t4,
+                    distance_matrix,
+                    waste,
+                    capacity,
+                )
+                if res_imp and is_better(res_p, res_c, curr_pen, curr_cost):
+                    return res_tour, res_p, res_c, True
+
+    return curr_tour, curr_pen, curr_cost, False
+
+
 def solve_lkh(
     distance_matrix: np.ndarray,
     initial_tour: Optional[List[int]] = None,
@@ -181,28 +310,12 @@ def solve_lkh(
     """
     n = len(distance_matrix)
     if n < 4:
-        # Trivial solution
         tour = list(range(n)) + [0]
         cost = sum(distance_matrix[tour[i], tour[i + 1]] for i in range(n))
         return tour, float(cost)
 
     # 1. Initialization
-    if initial_tour is None:
-        # Nearest Neighbor Construction
-        curr = 0
-        path = [0]
-        unvisited = set(range(1, n))
-        while unvisited:
-            next_node = min(unvisited, key=lambda x: distance_matrix[curr, x])
-            path.append(next_node)
-            unvisited.remove(next_node)
-            curr = next_node
-        path.append(0)
-        curr_tour = path
-    else:
-        curr_tour = initial_tour[:]
-        if curr_tour[0] != curr_tour[-1]:
-            curr_tour.append(curr_tour[0])
+    curr_tour = _initialize_tour(distance_matrix, initial_tour)
 
     # 2. Candidates
     alpha = compute_alpha_measures(distance_matrix)
@@ -215,76 +328,18 @@ def solve_lkh(
     for _ in range(max_iterations):
         # Local Search Loop (2-opt / 3-opt until local optimal)
         while True:
-            improved_local = False
-
-            # Iterate edges (t1, t2)
-            # In tour [n0, n1, ... n_last]
-            # Edge i is (node[i], node[i+1])
-            nodes_count = len(curr_tour) - 1
-
-            for i in range(nodes_count):
-                t1 = curr_tour[i]
-                t2 = curr_tour[i + 1]  # t2 is successor of t1
-
-                # Check candidates for t2
-                for t3 in candidates[t2]:
-                    if t3 == t1:
-                        continue
-                    if t3 == curr_tour[(i + 2) % nodes_count]:
-                        continue  # skip next edge
-
-                    # 2-opt Attempt
-                    try:
-                        j = curr_tour.index(t3)
-                    except ValueError:
-                        continue  # Should not happen
-
-                    # Case A: j > i
-                    if j <= i + 1:
-                        # Wrap-around cases or adjacent - simplified: only forward
-                        continue
-
-                    t4 = curr_tour[j + 1]
-
-                    # Gain check roughly
-                    gain = (distance_matrix[t1, t2] + distance_matrix[t3, t4]) - (
-                        distance_matrix[t1, t3] + distance_matrix[t2, t4]
-                    )
-
-                    if gain > 1e-6:
-                        # Candidate 2-opt found
-                        new_tour = apply_2opt_move(curr_tour, i, j)
-                        p_new, c_new = get_score(new_tour, distance_matrix, waste, capacity)
-
-                        if is_better(p_new, c_new, curr_pen, curr_cost):
-                            curr_tour, curr_pen, curr_cost = new_tour, p_new, c_new
-                            improved_local = True
-                            break  # Restart search from improved solution
-
-                    # 3-opt Attempt (Extension)
-                    if not improved_local and n < 500:  # Only do 3-opt for smaller instances or limit breadth
-                        for k in range(j + 2, nodes_count):
-                            t5 = curr_tour[k]
-                            t6 = curr_tour[k + 1]
-
-                            # Check gain
-                            gain3 = (distance_matrix[t1, t2] + distance_matrix[t3, t4] + distance_matrix[t5, t6]) - (
-                                distance_matrix[t1, t3] + distance_matrix[t2, t5] + distance_matrix[t4, t6]
-                            )
-
-                            if gain3 > 1e-6:
-                                new_3opt = apply_3opt_move(curr_tour, i, j, k, 0)
-                                p3, c3 = get_score(new_3opt, distance_matrix, waste, capacity)
-                                if is_better(p3, c3, curr_pen, curr_cost):
-                                    curr_tour, curr_pen, curr_cost = new_3opt, p3, c3
-                                    improved_local = True
-                                    break
-
-                if improved_local:
-                    break
-
+            # delegated to helper
+            curr_tour, curr_pen, curr_cost, improved_local = _improve_tour(
+                curr_tour,
+                curr_pen,
+                curr_cost,
+                candidates,
+                distance_matrix,
+                waste,
+                capacity,
+            )
             if not improved_local:
-                break  # Local Optimum Reached
+                break
 
         # Update Global Best
         if is_better(curr_pen, curr_cost, best_pen, best_cost):

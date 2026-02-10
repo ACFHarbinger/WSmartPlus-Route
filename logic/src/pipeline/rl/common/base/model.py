@@ -195,14 +195,16 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
             )
 
         # Regenerate training dataset for next epoch if configured
-        if self.hparams.get("regenerate_per_epoch", False):
-            if self.trainer.max_epochs is not None and self.current_epoch < self.trainer.max_epochs - 1:
-                # Check if environment supports generation
-                if hasattr(self.env, "generator"):
-                    new_dataset = regenerate_dataset(self.env, self.train_data_size)
-                    if new_dataset is not None:
-                        self.train_dataset = new_dataset
+        if (
+            self.hparams.get("regenerate_per_epoch", False)
+            and self.trainer.max_epochs is not None
+            and self.current_epoch < self.trainer.max_epochs - 1
+            and hasattr(self.env, "generator")
+        ):
+            new_dataset = regenerate_dataset(self.env, self.train_data_size)
+            if new_dataset is not None:
+                self.train_dataset = new_dataset
 
-                    # Log generation
-                    if self.local_rank == 0:
-                        logger.info(f"Regenerated training dataset for epoch {self.current_epoch + 1}")
+            # Log generation
+            if self.local_rank == 0:
+                logger.info(f"Regenerated training dataset for epoch {self.current_epoch + 1}")

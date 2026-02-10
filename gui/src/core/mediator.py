@@ -45,59 +45,76 @@ class UIMediator(QObject):
 
     def get_actual_command(self, main_command_display):
         """Maps the display name to the command-line argument dynamically."""
-        # Logic moved from MainWindow
-        command_mapping = {
+        actual_command = self._get_base_command_mapping(main_command_display)
+        actual_command = self._handle_dynamic_tab_command(main_command_display, actual_command)
+
+        if actual_command == "scripts":
+            actual_command = self._format_script_command()
+
+        return actual_command
+
+    def _get_base_command_mapping(self, display_name):
+        """Returns the base command string for a display name."""
+        mapping = {
             "Train Model": "train",
             "Generate Data": "gen_data",
             "Evaluate": "eval",
             "Test Simulator": "test_sim",
             "Analysis": "analysis",
         }
-        actual_command = command_mapping.get(main_command_display, main_command_display)
+        return mapping.get(display_name, display_name)
 
-        # Dynamic handling based on active tab for specific commands
-        if self.main_window and hasattr(self.main_window, "tabs"):
-            current_tab_title = self.main_window.tabs.tabText(self.main_window.tabs.currentIndex())
+    def _handle_dynamic_tab_command(self, display_name, current_cmd):
+        """Adjusts the command based on the active tab's context."""
+        if not (self.main_window and hasattr(self.main_window, "tabs")):
+            return current_cmd
 
-            if main_command_display == "Train Model":
-                if current_tab_title == "Hyper-Parameter Optimization":
-                    actual_command = "hp_optim"
-                elif current_tab_title == "Meta-Learning":
-                    actual_command = "mrl_train"
-            elif main_command_display == "File System Tools":
-                actual_command = "file_system "
-                if current_tab_title == "Cryptography Settings":
-                    actual_command += "cryptography"
-                elif current_tab_title == "Update Settings":
-                    actual_command += "update"
-                elif current_tab_title == "Delete Settings":
-                    actual_command += "delete"
-            elif main_command_display == "Other Tools":
-                if current_tab_title == "Execute Script":
-                    actual_command = "scripts"
-                elif current_tab_title == "Program Test Suite":
-                    actual_command = "test_suite"
+        idx = self.main_window.tabs.currentIndex()
+        tab_title = self.main_window.tabs.tabText(idx)
 
-        # Script handling
-        if actual_command == "scripts":
-            # We need to access the script tab specifically if possible,
-            # or just let get_params() logic handle it, but here we need the name to form the command.
-            # Accessing via self.tabs if registered correctly
-            script_tab = self.tabs.get("Other Tools", {}).get("Execute Script")
-            if script_tab and hasattr(script_tab, "get_params"):
-                script_params = script_tab.get_params()
-                script_name = script_params.get("script", None)
-                if script_name:
-                    if sys.platform.startswith("linux"):
-                        actual_command = f"scripts/{script_name}"
-                        if not actual_command.endswith(".sh"):
-                            actual_command += ".sh"
-                    elif sys.platform.startswith("win"):
-                        actual_command = f"scripts\\{script_name}"
-                        if not actual_command.endswith(".bat"):
-                            actual_command += ".bat"
+        if display_name == "Train Model":
+            if tab_title == "Hyper-Parameter Optimization":
+                return "hp_optim"
+            if tab_title == "Meta-Learning":
+                return "mrl_train"
 
-        return actual_command
+        if display_name == "File System Tools":
+            sub_cmds = {
+                "Cryptography Settings": "cryptography",
+                "Update Settings": "update",
+                "Delete Settings": "delete",
+            }
+            sub = sub_cmds.get(tab_title)
+            return f"file_system {sub}" if sub else "file_system "
+
+        if display_name == "Other Tools":
+            if tab_title == "Execute Script":
+                return "scripts"
+            if tab_title == "Program Test Suite":
+                return "test_suite"
+
+        return current_cmd
+
+    def _format_script_command(self):
+        """Formats the script execution command based on the OS."""
+        script_tab = self.tabs.get("Other Tools", {}).get("Execute Script")
+        if not (script_tab and hasattr(script_tab, "get_params")):
+            return "scripts"
+
+        script_params = script_tab.get_params()
+        script_name = script_params.get("script")
+        if not script_name:
+            return "scripts"
+
+        if sys.platform.startswith("linux"):
+            ext = ".sh"
+            path_sep = "/"
+        else:
+            ext = ".bat"
+            path_sep = "\\"
+
+        full_name = script_name if script_name.endswith(ext) else f"{script_name}{ext}"
+        return f"scripts{path_sep}{full_name}"
 
     def update_preview(self):
         """Generates the command string based on the current command and tab parameters."""
@@ -111,43 +128,44 @@ class UIMediator(QObject):
             return
 
         actual_command = self.get_actual_command(self.current_command)
-        all_params = {}
+        all_params = self._collect_tab_parameters()
+        command_str = self._construct_command_string(actual_command, all_params)
+        self.command_updated.emit(command_str)
 
-        # Collect parameters based on the command type
+    def _collect_tab_parameters(self):
+        """Collects combined parameters from all relevant tabs."""
+        all_params = {}
         if self.current_command in ["File System Tools", "Other Tools"]:
-            # Active tab only
             if self.main_window:
                 current_tab = self.main_window.tabs.currentWidget()
                 if hasattr(current_tab, "get_params"):
                     all_params.update(current_tab.get_params())
+
         elif self.current_command == "Train Model":
-            # Base tabs + potentially active special tab
             if self.current_command in self.tabs:
                 train_tabs = self.tabs[self.current_command]
                 current_tab_title = self.main_window.tabs.tabText(self.main_window.tabs.currentIndex())
 
                 for title, tab_widget in train_tabs.items():
                     if hasattr(tab_widget, "get_params"):
-                        is_base_tab = title not in [
-                            "Hyper-Parameter Optimization",
-                            "Meta-Learning",
-                        ]
-                        is_active_special_tab = title == current_tab_title and title in [
-                            "Hyper-Parameter Optimization",
-                            "Meta-Learning",
-                        ]
-                        if is_base_tab or is_active_special_tab:
+                        is_special = title in ["Hyper-Parameter Optimization", "Meta-Learning"]
+                        if not is_special or title == current_tab_title:
                             all_params.update(tab_widget.get_params())
-        # Aggregate from all tabs for this command
+
         elif self.current_command in self.tabs:
             for tab_widget in self.tabs[self.current_command].values():
                 if hasattr(tab_widget, "get_params"):
                     all_params.update(tab_widget.get_params())
 
-        # Construct Command String
-        if actual_command.startswith("scripts/") and "script" in all_params:
-            all_params.pop("script")  # Remove script name from params as it's in command
-            cmd_parts = [f"bash {actual_command}"] if sys.platform.startswith("linux") else [actual_command]
+        return all_params
+
+    def _construct_command_string(self, actual_command, all_params):
+        """Formats the final command string from parameters."""
+        # Split logic into parts
+        if actual_command.startswith(("scripts/", "scripts\\")) and "script" in all_params:
+            all_params.pop("script")
+            is_linux = sys.platform.startswith("linux")
+            cmd_parts = [f"bash {actual_command}"] if is_linux else [actual_command]
         else:
             cmd_parts = [f"python main.py {actual_command}"]
 
@@ -187,5 +205,4 @@ class UIMediator(QObject):
                 else:
                     cmd_parts.append(f"--{key} {value}")
 
-        command_str = " \\\n  ".join(cmd_parts)
-        self.command_updated.emit(command_str)
+        return " \\\n  ".join(cmd_parts)

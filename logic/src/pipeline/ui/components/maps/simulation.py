@@ -11,7 +11,7 @@ from logic.src.constants.dashboard import BIN_COLORS, ROUTE_COLORS
 from logic.src.utils.ui.maps_utils import get_map_center
 
 
-def create_simulation_map(
+def create_simulation_map(  # noqa: C901
     tour: List[Dict[str, Any]],
     bin_states: Optional[List[float]] = None,
     served_indices: Optional[List[int]] = None,
@@ -162,10 +162,9 @@ def create_simulation_map(
                 try:
                     id_from = route_ids[i]
                     id_to = route_ids[i + 1]
-                    if id_from >= 0 and id_to >= 0:
-                        if id_from < len(distance_matrix) and id_to < len(distance_matrix):
-                            dist_km = distance_matrix.iloc[id_from, id_to]
-                            dist_source = f"{strategy_label} (Matrix)"
+                    if id_from >= 0 and id_to >= 0 and id_from < len(distance_matrix) and id_to < len(distance_matrix):
+                        dist_km = distance_matrix.iloc[id_from, id_to]
+                        dist_source = f"{strategy_label} (Matrix)"
                 except Exception:
                     pass
 

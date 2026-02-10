@@ -84,8 +84,8 @@ def watch(
     except KeyError:
         try:
             initial = caller_frame.f_globals[var_name]
-        except KeyError:
-            raise NameError(f"Variable '{var_name}' not found in local or global scope")
+        except KeyError as e:
+            raise NameError(f"Variable '{var_name}' not found in local or global scope") from e
 
     old_value[0] = initial
     sys.settrace(tracer)

@@ -11,6 +11,7 @@ from typing import Any
 import torch
 from tensordict import TensorDict
 
+from logic.src.interfaces import ITraversable
 from logic.src.pipeline.rl.core.losses import (
     kl_divergence_loss,
     nll_loss,
@@ -18,7 +19,6 @@ from logic.src.pipeline.rl.core.losses import (
     weighted_nll_loss,
 )
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
-from logic.src.interfaces import ITraversable
 
 
 class AdaptiveImitation(REINFORCE):
@@ -229,10 +229,14 @@ class AdaptiveImitation(REINFORCE):
         # We compare means to decide whether to run the expensive forward pass to save compute
         do_imitation = not self.stop_il
         current_reward = out.get("reward")
-        if do_imitation and expert_reward is not None and current_reward is not None:
-            if expert_reward.max() <= current_reward.min() + self.threshold:
-                do_imitation = False
-                print("\n[AdaptiveImitation] Stopping IL for this batch")
+        if (
+            do_imitation
+            and expert_reward is not None
+            and current_reward is not None
+            and expert_reward.max() <= current_reward.min() + self.threshold
+        ):
+            do_imitation = False
+            print("\n[AdaptiveImitation] Stopping IL for this batch")
 
         if do_imitation:
             td_il = self.env.reset(td)

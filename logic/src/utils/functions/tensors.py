@@ -4,10 +4,11 @@ Tensor manipulation and device movement utilities.
 
 from __future__ import annotations
 
-from logic.src.interfaces import ITraversable
 from typing import Any, Callable, List, Optional, TypeVar, cast
 
 import torch
+
+from logic.src.interfaces import ITraversable
 
 T = TypeVar("T")
 

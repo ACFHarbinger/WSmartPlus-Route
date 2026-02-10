@@ -101,177 +101,187 @@ def vectorized_cross_exchange(
     # This implementation uses a hybrid approach: vectorize within batch, iterate over segments
 
     for _iteration in range(max_iterations):
-        improved_any = False
-
-        # Try all combinations of segment lengths
-        for seg_a_len in range(0, max_segment_len + 1):
-            for seg_b_len in range(0, max_segment_len + 1):
-                if seg_a_len == 0 and seg_b_len == 0:
-                    continue  # No-op
-
-                # For simplicity in vectorized form, we'll evaluate moves sequentially
-                # within each batch instance (full vectorization across all route pairs
-                # and positions would require O(N^4) memory)
-
-                for b in range(B):
-                    tour = tours[b]
-
-                    # Identify distinct "routes" by depot visits
-                    # For simplicity, assume depot = 0 and splits routes
-                    depot_positions = torch.where(tour == 0)[0]
-
-                    if len(depot_positions) < 2:
-                        continue  # Need at least 2 routes for cross-exchange
-
-                    # Extract routes (segments between depots)
-                    routes = []
-                    for i in range(len(depot_positions) - 1):
-                        start = depot_positions[i].item() + 1
-                        end = depot_positions[i + 1].item()
-                        if end > start:
-                            routes.append((start, end))
-
-                    if len(routes) < 2:
-                        continue
-
-                    best_delta = torch.tensor(0.0, device=device)
-                    best_move = None
-
-                    # Try all pairs of routes
-                    for r_a_idx in range(len(routes)):
-                        for r_b_idx in range(r_a_idx + 1, len(routes)):
-                            route_a_start, route_a_end = routes[r_a_idx]
-                            route_b_start, route_b_end = routes[r_b_idx]
-
-                            # Try all segment positions in route A
-                            for seg_a_start in range(route_a_start, route_a_end - seg_a_len + 1):
-                                # Try all segment positions in route B
-                                for seg_b_start in range(route_b_start, route_b_end - seg_b_len + 1):
-                                    # Extract segments
-                                    seg_a = (
-                                        tour[seg_a_start : seg_a_start + seg_a_len]
-                                        if seg_a_len > 0
-                                        else torch.tensor([], dtype=torch.long, device=device)
-                                    )
-                                    seg_b = (
-                                        tour[seg_b_start : seg_b_start + seg_b_len]
-                                        if seg_b_len > 0
-                                        else torch.tensor([], dtype=torch.long, device=device)
-                                    )
-
-                                    # Check capacity feasibility
-                                    if has_capacity:
-                                        demand_a = (
-                                            demands[b, seg_a].sum()
-                                            if seg_a_len > 0
-                                            else torch.tensor(0.0, device=device)
-                                        )
-                                        demand_b = (
-                                            demands[b, seg_b].sum()
-                                            if seg_b_len > 0
-                                            else torch.tensor(0.0, device=device)
-                                        )
-
-                                        # Approximate route loads (simplified)
-                                        route_a_demand = demands[b, tour[route_a_start:route_a_end]].sum()
-                                        route_b_demand = demands[b, tour[route_b_start:route_b_end]].sum()
-
-                                        new_load_a = route_a_demand - demand_a + demand_b
-                                        new_load_b = route_b_demand - demand_b + demand_a
-
-                                        if new_load_a > capacities[b] or new_load_b > capacities[b]:
-                                            continue
-
-                                    # Compute delta cost
-                                    # Route A: remove seg_a, insert seg_b
-                                    a_prev = (
-                                        tour[seg_a_start - 1]
-                                        if seg_a_start > route_a_start
-                                        else torch.tensor(0, device=device)
-                                    )
-                                    a_next = (
-                                        tour[seg_a_start + seg_a_len]
-                                        if seg_a_start + seg_a_len < route_a_end
-                                        else torch.tensor(0, device=device)
-                                    )
-
-                                    if seg_a_len > 0:
-                                        removal_a = (
-                                            distance_matrix[b, a_prev, seg_a[0]] + distance_matrix[b, seg_a[-1], a_next]
-                                        )
-                                    else:
-                                        removal_a = torch.tensor(0.0, device=device)
-
-                                    if seg_b_len > 0:
-                                        insertion_a = (
-                                            distance_matrix[b, a_prev, seg_b[0]] + distance_matrix[b, seg_b[-1], a_next]
-                                        )
-                                    else:
-                                        insertion_a = distance_matrix[b, a_prev, a_next]
-
-                                    # Route B: remove seg_b, insert seg_a
-                                    b_prev = (
-                                        tour[seg_b_start - 1]
-                                        if seg_b_start > route_b_start
-                                        else torch.tensor(0, device=device)
-                                    )
-                                    b_next = (
-                                        tour[seg_b_start + seg_b_len]
-                                        if seg_b_start + seg_b_len < route_b_end
-                                        else torch.tensor(0, device=device)
-                                    )
-
-                                    if seg_b_len > 0:
-                                        removal_b = (
-                                            distance_matrix[b, b_prev, seg_b[0]] + distance_matrix[b, seg_b[-1], b_next]
-                                        )
-                                    else:
-                                        removal_b = torch.tensor(0.0, device=device)
-
-                                    if seg_a_len > 0:
-                                        insertion_b = (
-                                            distance_matrix[b, b_prev, seg_a[0]] + distance_matrix[b, seg_a[-1], b_next]
-                                        )
-                                    else:
-                                        insertion_b = distance_matrix[b, b_prev, b_next]
-
-                                    delta = (insertion_a - removal_a) + (insertion_b - removal_b)
-
-                                    if delta < best_delta - IMPROVEMENT_EPSILON:
-                                        best_delta = delta
-                                        best_move = (r_a_idx, seg_a_start, seg_a_len, r_b_idx, seg_b_start, seg_b_len)
-
-                    # Apply best move if found
-                    if best_move is not None:
-                        r_a_idx, seg_a_start, seg_a_len, r_b_idx, seg_b_start, seg_b_len = best_move
-
-                        # Extract segments
-                        seg_a = (
-                            tour[seg_a_start : seg_a_start + seg_a_len].clone()
-                            if seg_a_len > 0
-                            else torch.tensor([], dtype=torch.long, device=device)
-                        )
-                        seg_b = (
-                            tour[seg_b_start : seg_b_start + seg_b_len].clone()
-                            if seg_b_len > 0
-                            else torch.tensor([], dtype=torch.long, device=device)
-                        )
-
-                        # Build new tour with swapped segments
-                        new_tour = tour.clone()
-                        if seg_a_len > 0 and seg_b_len > 0 and seg_a_len == seg_b_len:
-                            # Simple swap
-                            new_tour[seg_a_start : seg_a_start + seg_a_len] = seg_b
-                            new_tour[seg_b_start : seg_b_start + seg_b_len] = seg_a
-                        else:
-                            # Complex case: different lengths, requires reconstruction
-                            # This is simplified - full implementation would rebuild tour properly
-                            pass  # Skip complex reconstruction for now
-
-                        tours[b] = new_tour
-                        improved_any = True
-
+        improved_any = _perform_cross_exchange_iteration(
+            B,
+            tours,
+            max_segment_len,
+            distance_matrix,
+            demands,
+            capacities,
+            has_capacity,
+            device,
+        )
         if not improved_any:
             break
 
     return tours if is_batch else tours.squeeze(0)
+
+
+def _perform_cross_exchange_iteration(
+    B,
+    tours,
+    max_segment_len,
+    distance_matrix,
+    demands,
+    capacities,
+    has_capacity,
+    device,
+) -> bool:
+    """Performs one iteration of cross-exchange over all segment length combinations."""
+    improved_any = False
+
+    # Try all combinations of segment lengths
+    for seg_a_len in range(0, max_segment_len + 1):
+        for seg_b_len in range(0, max_segment_len + 1):
+            if seg_a_len == 0 and seg_b_len == 0:
+                continue  # No-op
+
+            # For simplicity in vectorized form, we'll evaluate moves sequentially
+            for b in range(B):
+                tour = tours[b]
+                routes = _get_routes_from_tour(tour)
+                if len(routes) < 2:
+                    continue
+
+                best_delta, best_move = _find_best_move_for_segments(
+                    b,
+                    tour,
+                    routes,
+                    seg_a_len,
+                    seg_b_len,
+                    distance_matrix,
+                    demands,
+                    capacities,
+                    has_capacity,
+                    device,
+                )
+
+                # Apply best move if found
+                if best_move is not None:
+                    tours[b] = _apply_cross_exchange_move(tour, best_move, device)
+                    improved_any = True
+
+    return improved_any
+
+
+def _get_routes_from_tour(tour: torch.Tensor):
+    """Identifies distinct routes by depot visits."""
+    depot_positions = torch.where(tour == 0)[0]
+    routes = []
+    for i in range(len(depot_positions) - 1):
+        start = depot_positions[i].item() + 1
+        end = depot_positions[i + 1].item()
+        if end > start:
+            routes.append((start, end))
+    return routes
+
+
+def _find_best_move_for_segments(
+    b_idx,
+    tour,
+    routes,
+    seg_a_len,
+    seg_b_len,
+    distance_matrix,
+    demands,
+    capacities,
+    has_capacity,
+    device,
+):
+    """Finds best cross-exchange move for given segment lengths."""
+    best_delta = torch.tensor(0.0, device=device)
+    best_move = None
+
+    for r_a_idx, (r_a_start, r_a_end) in enumerate(routes):
+        for r_b_idx, (r_b_start, r_b_end) in enumerate(routes[r_a_idx + 1 :], start=r_a_idx + 1):
+            for s_a_start in range(r_a_start, r_a_end - seg_a_len + 1):
+                for s_b_start in range(r_b_start, r_b_end - seg_b_len + 1):
+                    # Check capacity
+                    # Check capacity
+                    if has_capacity and not _check_cross_capacity(
+                        b_idx,
+                        tour,
+                        s_a_start,
+                        seg_a_len,
+                        s_b_start,
+                        seg_b_len,
+                        r_a_start,
+                        r_a_end,
+                        r_b_start,
+                        r_b_end,
+                        demands,
+                        capacities,
+                    ):
+                        continue
+
+                    # Compute delta
+                    delta = _compute_cross_delta(
+                        b_idx,
+                        tour,
+                        s_a_start,
+                        seg_a_len,
+                        s_b_start,
+                        seg_b_len,
+                        r_a_start,
+                        r_a_end,
+                        r_b_start,
+                        r_b_end,
+                        distance_matrix,
+                    )
+
+                    if delta < best_delta - IMPROVEMENT_EPSILON:
+                        best_delta = delta
+                        best_move = (r_a_idx, s_a_start, seg_a_len, r_b_idx, s_b_start, seg_b_len)
+
+    return best_delta, best_move
+
+
+def _check_cross_capacity(b, tour, s_a, len_a, s_b, len_b, r_a_s, r_a_e, r_b_s, r_b_e, demands, capacities):
+    """Checks feasibility of swapping segments between two routes."""
+    dem_a = demands[b, tour[s_a : s_a + len_a]].sum() if len_a > 0 else 0.0
+    dem_b = demands[b, tour[s_b : s_b + len_b]].sum() if len_b > 0 else 0.0
+
+    r_a_dem = demands[b, tour[r_a_s:r_a_e]].sum()
+    r_b_dem = demands[b, tour[r_b_s:r_b_e]].sum()
+
+    return (r_a_dem - dem_a + dem_b <= capacities[b]) and (r_b_dem - dem_b + dem_a <= capacities[b])
+
+
+def _compute_cross_delta(b, tour, s_a, len_a, s_b, len_b, r_a_s, r_a_e, r_b_s, r_b_e, dist_mat):
+    """Computes cost change for cross-exchange."""
+    # Route A
+    a_prev = tour[s_a - 1] if s_a > r_a_s else 0
+    a_next = tour[s_a + len_a] if s_a + len_a < r_a_e else 0
+
+    rem_a = (dist_mat[b, a_prev, tour[s_a]] + dist_mat[b, tour[s_a + len_a - 1], a_next]) if len_a > 0 else 0.0
+    ins_a = (
+        (dist_mat[b, a_prev, tour[s_b]] + dist_mat[b, tour[s_b + len_b - 1], a_next])
+        if len_b > 0
+        else dist_mat[b, a_prev, a_next]
+    )
+
+    # Route B
+    b_prev = tour[s_b - 1] if s_b > r_b_s else 0
+    b_next = tour[s_b + len_b] if s_b + len_b < r_b_e else 0
+
+    rem_b = (dist_mat[b, b_prev, tour[s_b]] + dist_mat[b, tour[s_b + len_b - 1], b_next]) if len_b > 0 else 0.0
+    ins_b = (
+        (dist_mat[b, b_prev, tour[s_a]] + dist_mat[b, tour[s_a + len_a - 1], b_next])
+        if len_a > 0
+        else dist_mat[b, b_prev, b_next]
+    )
+
+    return (ins_a - rem_a) + (ins_b - rem_b)
+
+
+def _apply_cross_exchange_move(tour, move, device):
+    """Applies the cross-exchange move to the tour."""
+    _, s_a_start, s_a_len, _, s_b_start, s_b_len = move
+    new_tour = tour.clone()
+    if s_a_len == s_b_len:
+        new_tour[s_a_start : s_a_start + s_a_len] = tour[s_b_start : s_b_start + s_b_len]
+        new_tour[s_b_start : s_b_start + s_b_len] = tour[s_a_start : s_a_start + s_a_len]
+        return new_tour
+
+    # For now, only simple swaps supported to avoid reconstruction complexity issues here
+    return new_tour

@@ -106,7 +106,7 @@ class Predictor:
                 )
             self.load_cache()
         except Exception:
-            raise Exception("There is a problem with the R script")
+            raise Exception("There is a problem with the R script") from None
 
         finally:
             self.deleate_cache()

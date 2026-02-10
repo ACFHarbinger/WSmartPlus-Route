@@ -87,11 +87,7 @@ class POMO(REINFORCE):
         if n_start is None:
             # Typical for POMO: n_start = n_nodes (if possible)
             # This depends on the environment implementation
-            if hasattr(self.env, "get_num_starts"):
-                n_start = self.env.get_num_starts(td)
-            else:
-                # Default to graph size if not specified
-                n_start = td["locs"].shape[1]
+            n_start = self.env.get_num_starts(td) if hasattr(self.env, "get_num_starts") else td["locs"].shape[1]
 
         # Augmentation during val/test (usually not during training in basic POMO,
         # but RL4CO allows it. We'll follow RL4CO: training = no aug, unless specified)

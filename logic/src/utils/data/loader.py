@@ -127,8 +127,8 @@ def save_dataset(dataset: Any, filename: str) -> None:
     if filedir and not os.path.isdir(filedir):
         try:
             os.makedirs(filedir, exist_ok=True)
-        except Exception:
-            raise Exception("directories to save datasets do not exist and could not be created")
+        except Exception as e:
+            raise Exception("directories to save datasets do not exist and could not be created") from e
 
     with open(filename, "wb") as f:
         pickle.dump(dataset, f)

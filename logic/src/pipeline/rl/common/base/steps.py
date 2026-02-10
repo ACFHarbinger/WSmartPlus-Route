@@ -11,8 +11,8 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.constants.metrics import METRIC_MAPPING
-from logic.src.utils.logging.pylogger import get_pylogger
 from logic.src.interfaces import ITraversable
+from logic.src.utils.logging.pylogger import get_pylogger
 
 if TYPE_CHECKING:
     from logic.src.interfaces.env import IEnv

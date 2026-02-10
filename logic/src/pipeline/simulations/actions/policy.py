@@ -77,4 +77,4 @@ class PolicyExecutionAction(SimulationAction):
                 context["output_dict"] = extra_output
 
         except ValueError as e:
-            raise ValueError(f"Failed to load policy adapter for '{solver_key}': {e}")
+            raise ValueError(f"Failed to load policy adapter for '{solver_key}': {e}") from e

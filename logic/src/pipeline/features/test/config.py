@@ -4,10 +4,11 @@ Configuration loader for Test Engine.
 
 import copy
 import os
+from typing import Any, Dict, cast
 
 import logic.src.constants as udef
-from logic.src.utils.configs.config_loader import load_config
 from logic.src.interfaces import ITraversable
+from logic.src.utils.configs.config_loader import load_config
 
 
 def expand_policy_configs(opts):
@@ -17,148 +18,117 @@ def expand_policy_configs(opts):
     """
     policies = []
 
-    for pol in opts["policies"]:
-        tmp_pols = [pol]
-        for tmp_pol in tmp_pols:
-            prefix_str = ""
-            suffix_str = ""
-            variant_name = None
-            cfg_path = None
-            variants = [("", "", None)]
+    if "config_path" not in opts or not isinstance(opts["config_path"], (dict, ITraversable)):
+        opts["config_path"] = cast(Dict[str, Any], {})
 
-            try:
-                cfg_path = os.path.join(udef.ROOT_DIR, "assets", "configs", "policies", f"{tmp_pol}.yaml")
-                if not os.path.exists(cfg_path) and not tmp_pol.startswith("policy_"):
-                    cfg_path = os.path.join(udef.ROOT_DIR, "assets", "configs", "policies", f"policy_{tmp_pol}.yaml")
+    config_path = cast(Dict[str, Any], opts["config_path"])
 
-                if os.path.exists(cfg_path):
-                    pol_cfg = load_config(cfg_path)
-                    inner_cfg = []
-                    if pol_cfg:
-                        for _k, v in pol_cfg.items():
-                            if isinstance(v, list):
-                                inner_cfg = v
-                                break
-                            if isinstance(v, ITraversable):
-                                if "must_go" in v or "post_processing" in v:
-                                    pass
-                                else:
-                                    for sub_k, sub_v in v.items():
-                                        if isinstance(sub_v, list):
-                                            inner_cfg = sub_v
-                                            variant_name = sub_k
-                                            break
+    for pol_name in opts["policies"]:
+        cfg_path = _resolve_policy_cfg_path(pol_name)
+        variants, variant_name = _extract_variants(pol_name, cfg_path)
 
-                    mg_list = []
-                    pp_list = []
-                    match_item_idx = -1
-                    for idx, item in enumerate(inner_cfg):
-                        if isinstance(item, ITraversable):
-                            if "must_go" in item:
-                                mg_list = item["must_go"]
-                                match_item_idx = idx
-                            if "post_processing" in item:
-                                pp_list = item["post_processing"]
+        for prefix, suffix, custom_cfg in variants:
+            middle_name = pol_name.replace("policy_", "")
+            if variant_name and variant_name.lower() != "default":
+                middle_name = f"{middle_name}_{variant_name}"
 
-                    variants = []
-                    if mg_list and len(mg_list) > 1:
-                        for mg_item in mg_list:
-                            v_prefix = ""
-                            if isinstance(mg_item, str):
-                                clean_mg = (
-                                    os.path.basename(mg_item)
-                                    .replace("mg_", "")
-                                    .replace(".xml", "")
-                                    .replace(".yaml", "")
-                                )
-                                v_prefix = f"{clean_mg}_"
-
-                            v_suffix = ""
-                            if pp_list:
-                                first_pp = pp_list[0]
-                                if isinstance(first_pp, str):
-                                    clean_pp = (
-                                        os.path.basename(first_pp)
-                                        .replace("pp_", "")
-                                        .replace(".xml", "")
-                                        .replace(".yaml", "")
-                                    )
-                                    v_suffix = f"_{clean_pp}"
-
-                            var_cfg = copy.deepcopy(pol_cfg)
-                            var_inner = []
-                            if var_cfg:
-                                found = False
-                                for _k, v in var_cfg.items():
-                                    if isinstance(v, list):
-                                        var_inner = v
-                                        found = True
-                                        break
-                                    if isinstance(v, ITraversable):
-                                        if "must_go" in v or "post_processing" in v:
-                                            pass
-                                        else:
-                                            for sub_k, sub_v in v.items():
-                                                if isinstance(sub_v, list):
-                                                    var_inner = sub_v
-                                                    found = True
-                                                    break
-                                    if found:
-                                        break
-
-                            if var_inner and match_item_idx >= 0 and match_item_idx < len(var_inner):
-                                if isinstance(var_inner[match_item_idx], ITraversable):
-                                    var_inner[match_item_idx]["must_go"] = [mg_item]
-
-                            variants.append((v_prefix, v_suffix, var_cfg))
-                    else:
-                        prefix_str = ""
-                        if mg_list:
-                            first_mg = mg_list[0]
-                            if isinstance(first_mg, str):
-                                clean_mg = (
-                                    os.path.basename(first_mg)
-                                    .replace("mg_", "")
-                                    .replace(".xml", "")
-                                    .replace(".yaml", "")
-                                )
-                                prefix_str = f"{clean_mg}_"
-
-                        suffix_str = ""
-                        if pp_list:
-                            first_pp = pp_list[0]
-                            if isinstance(first_pp, str):
-                                clean_pp = (
-                                    os.path.basename(first_pp)
-                                    .replace("pp_", "")
-                                    .replace(".xml", "")
-                                    .replace(".yaml", "")
-                                )
-                                suffix_str = f"_{clean_pp}"
-
-                        variants.append((prefix_str, suffix_str, None))
-
-            except Exception as e:
-                print(f"Warning: Could not load config for naming {tmp_pol}: {e}")
-                variants = [("", "", None)]
-
-            for prefix, suffix, custom_cfg in variants:
-                middle_name = tmp_pol.replace("policy_", "")
-                if variant_name and variant_name.lower() != "default":
-                    middle_name = f"{middle_name}_{variant_name}"
-
-                full_name = f"{prefix}{middle_name}{suffix}_{opts['data_distribution']}"
-                policies.append(full_name)
-
-                if "config_path" not in opts or not isinstance(opts["config_path"], ITraversable):
-                    opts["config_path"] = (
-                        opts.get("config_path", {}) if isinstance(opts.get("config_path"), ITraversable) else {}
-                    )
-
-                key = full_name
-                if custom_cfg:
-                    opts["config_path"][key] = custom_cfg
-                elif cfg_path and os.path.exists(cfg_path):
-                    opts["config_path"][key] = cfg_path
+            full_name = f"{prefix}{middle_name}{suffix}_{opts['data_distribution']}"
+            policies.append(full_name)
+            config_path[full_name] = custom_cfg or cfg_path
 
     opts["policies"] = policies
+
+
+def _resolve_policy_cfg_path(pol_name: str) -> str:
+    """Resolve the YAML configuration path for a policy."""
+    base_dir = os.path.join(udef.ROOT_DIR, "assets", "configs", "policies")
+    paths = [
+        os.path.join(base_dir, f"{pol_name}.yaml"),
+        os.path.join(base_dir, f"policy_{pol_name}.yaml") if not pol_name.startswith("policy_") else None,
+    ]
+    for p in paths:
+        if p and os.path.exists(p):
+            return p
+    return ""
+
+
+def _extract_variants(pol_name: str, cfg_path: str):
+    """Extract policy variants from its configuration."""
+    if not cfg_path:
+        return [("", "", None)], None
+
+    try:
+        pol_cfg = load_config(cfg_path)
+        if not pol_cfg:
+            return [("", "", None)], None
+
+        inner_cfg, variant_name = _find_inner_config(pol_cfg)
+        mg_list, pp_list, match_idx = _parse_inner_components(inner_cfg)
+
+        if mg_list and len(mg_list) > 1:
+            variants = []
+            for mg_item in mg_list:
+                prefix = f"{_clean_id(mg_item, 'mg_')}_"
+                suffix = f"_{_clean_id(pp_list[0], 'pp_')}" if pp_list else ""
+
+                var_cfg = copy.deepcopy(pol_cfg)
+                _apply_mg_override(var_cfg, match_idx, mg_item)
+                variants.append((prefix, suffix, var_cfg))
+            return variants, variant_name
+
+        # Single variant case
+        prefix = f"{_clean_id(mg_list[0], 'mg_')}_" if mg_list else ""
+        suffix = f"_{_clean_id(pp_list[0], 'pp_')}" if pp_list else ""
+        return [(prefix, suffix, None)], variant_name
+
+    except Exception as e:
+        print(f"Warning: Could not load variants for {pol_name}: {e}")
+        return [("", "", None)], None
+
+
+def _find_inner_config(pol_cfg: Any):
+    """Find the list of configurations/variants within a policy config."""
+    if hasattr(pol_cfg, "items"):
+        for _k, v in pol_cfg.items():
+            if isinstance(v, list):
+                return v, None
+            if isinstance(v, ITraversable):
+                # Skip top-level components
+                if any(k in cast(Any, v) for k in ["must_go", "post_processing"]):
+                    continue
+                for sub_k, sub_v in cast(Any, v).items():
+                    if isinstance(sub_v, list):
+                        return sub_v, sub_k
+    return [], None
+
+
+def _parse_inner_components(inner_cfg):
+    """Extract must-go and post-processing lists from inner config."""
+    mg_list, pp_list, match_idx = [], [], -1
+    for idx, item in enumerate(inner_cfg):
+        if isinstance(item, ITraversable):
+            if "must_go" in item:
+                mg_list = item["must_go"]
+                match_idx = idx
+            if "post_processing" in item:
+                pp_list = item["post_processing"]
+    return mg_list, pp_list, match_idx
+
+
+def _apply_mg_override(var_cfg: Any, match_idx: int, mg_item: str):
+    """Apply a must-go override to a deep-copied config."""
+    var_inner, _ = _find_inner_config(var_cfg)
+    if var_inner and 0 <= match_idx < len(var_inner):
+        item = var_inner[match_idx]
+        if isinstance(item, (dict, ITraversable)):
+            cast(Any, item)["must_go"] = [mg_item]
+
+
+def _clean_id(path_or_str: Any, prefix: str) -> str:
+    """Clean a component ID from a path or string."""
+    if not isinstance(path_or_str, str):
+        return ""
+    name = os.path.basename(path_or_str)
+    for p in [prefix, ".xml", ".yaml"]:
+        name = name.replace(p, "")
+    return name

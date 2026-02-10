@@ -85,8 +85,8 @@ def chunk_zip_content(zip_path, max_part_size, data_dir):
     temp_dir = os.path.join(data_dir, "temp_extracted")
     try:
         os.makedirs(temp_dir, exist_ok=True)
-    except Exception:
-        raise Exception("directories to save zip files do not exist and could not be created")
+    except Exception as e:
+        raise Exception("directories to save zip files do not exist and could not be created") from e
 
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
         zip_ref.extractall(temp_dir)

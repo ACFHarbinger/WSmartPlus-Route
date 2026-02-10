@@ -2,8 +2,9 @@
 Recursive traversal utilities for JSON-like data structures.
 """
 
-from logic.src.interfaces import ITraversable
 from typing import Any, Dict, List, Optional, Tuple, Union
+
+from logic.src.interfaces import ITraversable
 
 
 def find_single_input_values(
@@ -40,53 +41,47 @@ def find_single_input_values(
     return results
 
 
+def _extract_two_vals(data: Any, k1: str, k2_or_val: Any) -> Tuple[Any, Any, bool]:
+    """Extract v1 and v2 based on input keys/val."""
+    if k1 not in data:
+        return None, None, False
+    v1 = data[k1]
+    if isinstance(k2_or_val, str):
+        if k2_or_val in data:
+            return v1, data[k2_or_val], True
+        return None, None, False
+    return v1, k2_or_val, True
+
+
+def _process_val_pair(path: str, v1: Any, v2: Any, results: List[Tuple[str, Any, Any]]):
+    """Process a pair of values, handling list/tuple combinations."""
+    if isinstance(v1, (list, tuple)):
+        if isinstance(v2, (list, tuple)) and len(v1) == len(v2):
+            for i, (item1, item2) in enumerate(zip(v1, v2)):
+                results.append((f"{path}[{i}]" if path else f"[{i}]", item1, item2))
+        else:
+            for i, item1 in enumerate(v1):
+                results.append((f"{path}[{i}]" if path else f"[{i}]", item1, v2))
+    elif isinstance(v2, (list, tuple)):
+        for i, item2 in enumerate(v2):
+            results.append((f"{path}[{i}]" if path else f"[{i}]", v1, item2))
+    else:
+        results.append((path, v1, v2))
+
+
 def find_two_input_values(
     data: Union[Dict[str, Any], List[Any]],
     current_path: str = "",
     input_key1: Optional[str] = None,
     input_key2: Union[str, int, float, None] = None,
 ) -> List[Tuple[str, Any, Any]]:
-    """
-    Recursively find all pairs of *source* values for two-input mode.
-
-    Args:
-        data: The data structure to search.
-        current_path: Current path string.
-        input_key1: First key to find.
-        input_key2: Second key to find (or constant value).
-
-    Returns:
-        List of (location_path, value1, value2) tuples.
-    """
+    """Recursively find all pairs of *source* values for two-input mode."""
     results = []
 
-    if isinstance(data, ITraversable):
-        has_k1 = input_key1 in data
-        val2_direct = None
-        has_k2 = False
-
-        if isinstance(input_key2, str):
-            has_k2 = input_key2 in data
-            if has_k2:
-                val2_direct = data[input_key2]
-        else:
-            has_k2 = True
-            val2_direct = input_key2
-
-        if has_k1 and has_k2:
-            val1 = data[input_key1]
-            if isinstance(val1, (list, tuple)):
-                if isinstance(val2_direct, (list, tuple)) and len(val1) == len(val2_direct):
-                    for i, (v1, v2) in enumerate(zip(val1, val2_direct)):
-                        results.append((f"{current_path}[{i}]" if current_path else f"[{i}]", v1, v2))
-                else:
-                    for i, v1 in enumerate(val1):
-                        results.append((f"{current_path}[{i}]" if current_path else f"[{i}]", v1, val2_direct))
-            elif isinstance(val2_direct, (list, tuple)):
-                for i, v2 in enumerate(val2_direct):
-                    results.append((f"{current_path}[{i}]" if current_path else f"[{i}]", val1, v2))
-            else:
-                results.append((current_path, val1, val2_direct))
+    if isinstance(data, ITraversable) and input_key1 is not None:
+        v1, v2, success = _extract_two_vals(data, input_key1, input_key2)
+        if success:
+            _process_val_pair(current_path, v1, v2, results)
 
         for k, v in data.items():
             new_path = f"{current_path}.{k}" if current_path else k

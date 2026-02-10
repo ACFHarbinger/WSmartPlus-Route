@@ -3,8 +3,9 @@ Base classes and utilities for simulation actions.
 """
 
 from abc import ABC, abstractmethod
-from logic.src.interfaces import ITraversable
 from typing import Any, Dict
+
+from logic.src.interfaces import ITraversable
 
 
 def _flatten_config(cfg: Any) -> dict:

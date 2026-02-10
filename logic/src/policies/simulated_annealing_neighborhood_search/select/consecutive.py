@@ -7,7 +7,31 @@ from random import sample as rsample
 from logic.src.policies.simulated_annealing_neighborhood_search.common.routes import organize_route
 
 
-# Function to remove n bin from route consecutively
+def _extract_valid_segment(chosen_route, chosen_n, bins_cannot_removed):
+    """Attempt to find a valid segment of length chosen_n to remove."""
+    # Try finding a valid segment up to 100 times
+    # Note: original loop just tried 100 times randomly.
+    # A more deterministic approach would be sliding window, but let's stick to the stochastic nature.
+
+    if len(chosen_route) - 2 < chosen_n:
+        return []
+
+    for _ in range(100):
+        # start index range: 1 to len - 1 - chosen_n
+        max_start = len(chosen_route) - 1 - chosen_n
+        if max_start < 1:
+            break
+
+        start_idx = rsample(range(1, max_start + 1), 1)[0]  # rsample returns list
+
+        # Check if segment contains mandatory bins
+        segment = chosen_route[start_idx : start_idx + chosen_n]
+        if not any(b in bins_cannot_removed for b in segment):
+            return segment
+
+    return []
+
+
 def remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed):
     """
     Remove n consecutive bins from a route.
@@ -23,55 +47,50 @@ def remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed):
     bins_to_remove_consecutive = []
     possible_n = [2, 3, 4, 5]
     chosen_n = rsample(possible_n, 1)[0]
-    if len(routes_list) > 0:
-        chosen_route = rsample(routes_list, 1)[0]
-        n_bins_in_chosen_route_cannot_be_removed = 0
-        for x in bins_cannot_removed:
-            if x in chosen_route:
-                n_bins_in_chosen_route_cannot_be_removed = n_bins_in_chosen_route_cannot_be_removed + 1
 
-        if len(chosen_route) - 2 - n_bins_in_chosen_route_cannot_be_removed > chosen_n:
-            if len(bins_cannot_removed) > 0:
-                bin_to_remove = rsample(chosen_route[1 : len(chosen_route) - chosen_n - 1], 1)[0]
-                position_bin_to_remove_prov = chosen_route.index(bin_to_remove)
-                bins = []
-                bins.append(bin_to_remove)
-                for a in range(1, chosen_n):
-                    bin_x = chosen_route[position_bin_to_remove_prov + a]
-                    bins.append(bin_x)
+    if not routes_list:
+        return bins_to_remove_consecutive, chosen_n
 
-                i = 0
-                while any(map(lambda each: each in bins, bins_cannot_removed)) and i < 100:
-                    bins = []
-                    bin_to_remove = rsample(chosen_route[1 : len(chosen_route) - chosen_n - 1], 1)[0]
-                    i += 1
-                    position_bin_to_remove_prov = chosen_route.index(bin_to_remove)
-                    bins.append(bin_to_remove)
-                    for a in range(1, chosen_n):
-                        bin_x = chosen_route[position_bin_to_remove_prov + a]
-                        bins.append(bin_x)
-                if not any(map(lambda each: each in bins, bins_cannot_removed)):
-                    for c in bins:
-                        bins_to_remove_consecutive.append(c)
-                        removed_bins.append(c)
-            else:
-                for j in range(0, chosen_n):
-                    if j == 0:
-                        bin_to_remove = rsample(chosen_route[1 : len(chosen_route) - chosen_n - 1], 1)[0]
-                        position_bin_to_remove = chosen_route.index(bin_to_remove)
-                        bins_to_remove_consecutive.append(bin_to_remove)
-                        removed_bins.append(bin_to_remove)
-                    if j > 0:
-                        bin_to_remove = chosen_route[position_bin_to_remove + j]
-                        bins_to_remove_consecutive.append(bin_to_remove)
-                        removed_bins.append(bin_to_remove)
-        for a in bins_to_remove_consecutive:
-            chosen_route.remove(a)
+    chosen_route = rsample(routes_list, 1)[0]
 
-        if len(chosen_route) == 2:
-            routes_list.remove(chosen_route)
+    # Calculate if possible to remove n
 
-        routes_list = list(filter(None, routes_list))
+    # Check if route is long enough and feasible
+    # Optimization: count mandatory bins in route
+    mandatory_in_route = sum(1 for b in chosen_route if b in bins_cannot_removed)
+    available_bins = len(chosen_route) - 2  # excluding depots
+
+    if available_bins - mandatory_in_route < chosen_n:
+        # Not enough removable bins total, certainly no consecutive segment of n
+        return bins_to_remove_consecutive, chosen_n
+
+    if not bins_cannot_removed:
+        # Fast path: just pick any segment
+        if available_bins >= chosen_n:
+            max_start = len(chosen_route) - 1 - chosen_n
+            start_idx = rsample(range(1, max_start + 1), 1)[0]
+            segment = chosen_route[start_idx : start_idx + chosen_n]
+            bins_to_remove_consecutive.extend(segment)
+            removed_bins.extend(segment)
+            del chosen_route[start_idx : start_idx + chosen_n]
+    else:
+        # Complex path with mandatory constraints
+        segment = _extract_valid_segment(chosen_route, chosen_n, bins_cannot_removed)
+        if segment:
+            bins_to_remove_consecutive.extend(segment)
+            removed_bins.extend(segment)
+
+            # To delete efficiently, we need index.
+            if len(segment) > 0:
+                first_bin_idx = chosen_route.index(segment[0])
+                del chosen_route[first_bin_idx : first_bin_idx + len(segment)]
+
+    if len(chosen_route) <= 2 and chosen_route in routes_list:
+        routes_list.remove(chosen_route)
+
+    # Clean up empty routes
+    routes_list[:] = [r for r in routes_list if len(r) > 2]
+
     return bins_to_remove_consecutive, chosen_n
 
 

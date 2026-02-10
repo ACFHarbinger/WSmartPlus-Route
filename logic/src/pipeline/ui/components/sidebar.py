@@ -127,24 +127,8 @@ def render_training_controls(
     }
 
 
-def render_simulation_controls(
-    available_logs: List[str],
-    policies: List[str],
-    samples: List[int],
-    day_range: Tuple[int, int],
-) -> Dict[str, Any]:
-    """
-    Render controls for simulation visualizer mode.
-
-    Args:
-        available_logs: List of available log file names.
-        policies: List of policy names in the log.
-        samples: List of sample IDs.
-        day_range: (min_day, max_day) tuple.
-
-    Returns:
-        Dict with selected options.
-    """
+def _render_filter_controls(available_logs: List[str], policies: List[str], samples: List[int]) -> Dict[str, Any]:
+    """Render log, policy, and sample selection controls."""
     st.sidebar.markdown("---")
     st.sidebar.subheader("🗺️ Simulation Controls")
 
@@ -179,7 +163,15 @@ def render_simulation_controls(
         if selected_sample_str != "All":
             selected_sample = int(selected_sample_str)
 
-    # Playback mode
+    return {
+        "selected_log": selected_log,
+        "selected_policy": selected_policy,
+        "selected_sample": selected_sample,
+    }
+
+
+def _render_playback_controls(day_range: Tuple[int, int]) -> Dict[str, Any]:
+    """Render playback mode and day slider controls."""
     st.sidebar.markdown("---")
     st.sidebar.subheader("▶️ Playback")
 
@@ -202,31 +194,14 @@ def render_simulation_controls(
             value=day_range[1],
         )
 
-    # Display options
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("👁️ Display Options")
+    return {"is_live": is_live, "selected_day": selected_day}
 
-    show_route = st.sidebar.checkbox("Show Route Lines", value=True)
-    show_stats = st.sidebar.checkbox("Show Statistics", value=True)
 
-    display_options = {
-        "Haversine (Spherical)": "hsd",
-        "Geodesic (WGS84)": "gdsc",
-        "Euclidean (Planar)": "ogd",
-        "Load Matrix (Custom)": "load_matrix",
-    }
-
-    strategy_label = st.sidebar.selectbox(
-        "Distance Strategy",
-        options=list(display_options.keys()),
-        index=3,  # Default to Load Matrix if available, or Haversine
-        help="Choose method for calculating edge distances.\n'Load Matrix' allows selecting a custom file.",
-    )
-
-    distance_strategy = display_options[strategy_label]
-
+def _render_matrix_loader(distance_strategy: str) -> Dict[str, Any]:
+    """Render controls for loading custom distance matrices."""
     selected_matrix_file = None
     selected_index_file = None
+
     if distance_strategy == "load_matrix":
         import os
 
@@ -270,16 +245,69 @@ def render_simulation_controls(
             selected_index_file = None
 
     return {
-        "selected_log": selected_log,
-        "selected_policy": selected_policy,
-        "selected_sample": selected_sample,
-        "is_live": is_live,
-        "selected_day": selected_day,
+        "selected_matrix_file": selected_matrix_file,
+        "selected_index_file": selected_index_file,
+    }
+
+
+def render_simulation_controls(
+    available_logs: List[str],
+    policies: List[str],
+    samples: List[int],
+    day_range: Tuple[int, int],
+) -> Dict[str, Any]:
+    """
+    Render controls for simulation visualizer mode.
+
+    Args:
+        available_logs: List of available log file names.
+        policies: List of policy names in the log.
+        samples: List of sample IDs.
+        day_range: (min_day, max_day) tuple.
+
+    Returns:
+        Dict with selected options.
+    """
+    # 1. Filter Controls
+    filter_opts = _render_filter_controls(available_logs, policies, samples)
+
+    # 2. Playback Controls
+    playback_opts = _render_playback_controls(day_range)
+
+    # 3. Display Options
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("👁️ Display Options")
+
+    show_route = st.sidebar.checkbox("Show Route Lines", value=True)
+    show_stats = st.sidebar.checkbox("Show Statistics", value=True)
+
+    display_options = {
+        "Haversine (Spherical)": "hsd",
+        "Geodesic (WGS84)": "gdsc",
+        "Euclidean (Planar)": "ogd",
+        "Load Matrix (Custom)": "load_matrix",
+    }
+
+    strategy_label = st.sidebar.selectbox(
+        "Distance Strategy",
+        options=list(display_options.keys()),
+        index=3,  # Default to Load Matrix if available, or Haversine
+        help="Choose method for calculating edge distances.\n'Load Matrix' allows selecting a custom file.",
+    )
+
+    distance_strategy = display_options[strategy_label]
+
+    # 4. Matrix Loader (Conditional)
+    matrix_opts = _render_matrix_loader(distance_strategy)
+
+    # Merge all options
+    return {
+        **filter_opts,
+        **playback_opts,
         "show_route": show_route,
         "show_stats": show_stats,
         "distance_strategy": distance_strategy,
-        "selected_matrix_file": selected_matrix_file,
-        "selected_index_file": selected_index_file,
+        **matrix_opts,
     }
 
 

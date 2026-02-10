@@ -82,8 +82,8 @@ def generate_key(
         dir_path = os.path.join(ROOT_DIR, "assets", "keys")
         try:
             os.makedirs(dir_path, exist_ok=True)
-        except OSError:
-            raise Exception("directories to save output files do not exist and could not be created")
+        except OSError as e:
+            raise Exception("directories to save output files do not exist and could not be created") from e
 
         with open(os.path.join(dir_path, f"{symkey_name}.salt"), "wb") as salt_file:
             salt_file.write(salt)

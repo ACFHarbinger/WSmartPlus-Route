@@ -4,6 +4,8 @@ Line chart plotting utilities.
 
 from __future__ import annotations
 
+from typing import Dict, List, Tuple
+
 import matplotlib.pyplot as plt
 
 
@@ -80,89 +82,57 @@ def plot_linechart(
                 points_by_nbins[id].append((x, y))
         return points_by_nbins
 
+    points_by_nbins: Dict[int, List[Tuple[float, float]]] = {}
     plt.figure(dpi=200)
     if title is not None:
         plt.title(title)
 
     if len(graph_log.shape) == 2:
-        points_by_nbins = {0: []}
-        for id, ll in enumerate(graph_log):
-            if markers is not None:
-                mark = markers[id % len(markers)]
-                plot_func(ll, mark)
-            else:
-                plot_func(ll)
-
-            points_by_nbins[0].append((ll[0], ll[5]))
+        points_by_nbins = _plot_2d_graph(plot_func, graph_log, markers)
     elif len(graph_log.shape) == 3:
-        # nbins = [20, 50, 100, 200]
-        # for id in range(len(nbins)):
-        #    graph_log[id, :, 0] /= nbins[id]
         points_by_nbins = plot_graphs_out(plot_func, graph_log, x_values, linestyles, markers)
         if annotate:
-            for lg in zip(*graph_log):
-                for id, xy in enumerate(zip(list(zip(*lg))[0], list(zip(*lg))[5])):
-                    # plt.annotate(id, xy=xy, textcoords='data')
-                    if id == graph_log.shape[0] - 1:
-                        plt.scatter(
-                            xy[0],
-                            xy[1],
-                            s=200,
-                            marker="o",
-                            facecolors="none",
-                            edgecolors="black",
-                            linewidths=1,
-                            zorder=10,
-                        )
+            _annotate_plot(graph_log)
 
     # Pareto front for minimizing x and maximizing y
+    pareto_dominants = []
     if pareto_front:
-        pareto_dominants = []
-        pareto_labels = []
         for id_nbins, points in points_by_nbins.items():
-            pareto_points = []
-            dominance_ls = [0] * len(points)
-            for id_point, point in enumerate(points):
-                dominated = False
-                for other_point in points:
-                    # Check if other_point dominates point
-                    if (
-                        other_point[0] <= point[0]
-                        and other_point[1] >= point[1]
-                        and (other_point[0] < point[0] or other_point[1] > point[1])
-                    ):
-                        dominated = True
-                        break
-                if not dominated:
-                    dominance_ls[id_point] = 1
-                    pareto_points.append(point)
-
+            dominance_ls = _calculate_dominance(points)
             pareto_dominants.append(dominance_ls)
+            _plot_pareto_front(points, dominance_ls, id_nbins)
 
-            # Sort Pareto points by x-coordinate for drawing the front
-            pareto_points.sort(key=lambda p: p[0])
+    _set_plot_attributes(scale, x_label, y_label, policies)
 
-            pareto_x = [p[0] for p in pareto_points]
-            pareto_y = [p[1] for p in pareto_points]
+    if fsave:
+        _save_plot(output_dest, x_values)
+    plt.show()
+    return pareto_dominants if pareto_front else None
 
-            # colors = ['red', 'blue', 'green', 'purple', 'orange']
-            # color = colors[id % len(colors)]
 
-            label = f"Pareto Front (ID {id_nbins})"
-            pareto_labels.append(label)
-            plt.plot(
-                pareto_x,
-                pareto_y,
-                "--",
-                color="black",
-                linewidth=2,
-                label=label,
-                zorder=5,
-            )
+def _plot_2d_graph(plot_func, graph_log, markers) -> Dict[int, List[Tuple[float, float]]]:
+    """Helper to plot 2D graph log data."""
+    points_by_nbins = {0: []}
+    for id_val, ll in enumerate(graph_log):
+        if markers is not None:
+            mark = markers[id_val % len(markers)]
+            plot_func(ll, mark)
+        else:
+            plot_func(ll)
+        points_by_nbins[0].append((ll[0], ll[5]))
+    return points_by_nbins
 
-            # Add dots at Pareto points
-            # plt.scatter(pareto_x, pareto_y, c=color, s=50, zorder=6)
 
+def _annotate_plot(graph_log) -> None:
+    """Helper to annotate plot points."""
+    for lg in zip(*graph_log):
+        for id_val, xy in enumerate(zip(list(zip(*lg))[0], list(zip(*lg))[5])):
+            if id_val == graph_log.shape[0] - 1:
+                _add_scatter_marker(xy)
+
+
+def _set_plot_attributes(scale, x_label, y_label, policies) -> None:
+    """Helper to set plot scales, labels and legend."""
     if scale != "linear":
         plt.yscale(scale)
         plt.xscale(scale)
@@ -170,12 +140,65 @@ def plot_linechart(
         plt.xlabel(x_label)
     if y_label is not None:
         plt.ylabel(y_label)
-
     plt.legend(policies)
-    if fsave:
-        if x_values is not None:
-            plt.savefig(output_dest)
-        else:
-            plt.savefig(output_dest, bbox_inches="tight")
-    plt.show()
-    return pareto_dominants if pareto_front else None
+
+
+def _save_plot(output_dest, x_values) -> None:
+    """Helper to save plot with appropriate parameters."""
+    if x_values is not None:
+        plt.savefig(output_dest)
+    else:
+        plt.savefig(output_dest, bbox_inches="tight")
+
+
+def _add_scatter_marker(xy: Tuple[float, float]) -> None:
+    """Helper to add a specific scatter marker to the plot."""
+    plt.scatter(
+        xy[0],
+        xy[1],
+        s=200,
+        marker="o",
+        facecolors="none",
+        edgecolors="black",
+        linewidths=1,
+        zorder=10,
+    )
+
+
+def _plot_pareto_front(points: List[Tuple[float, float]], dominance_ls: List[int], id_nbins: int) -> None:
+    """Helper to calculate and plot Pareto front for a set of points."""
+    pareto_points = [p for i, p in enumerate(points) if dominance_ls[i] == 1]
+    pareto_points.sort(key=lambda p: p[0])
+
+    pareto_x = [p[0] for p in pareto_points]
+    pareto_y = [p[1] for p in pareto_points]
+
+    label = f"Pareto Front (ID {id_nbins})"
+    plt.plot(
+        pareto_x,
+        pareto_y,
+        "--",
+        color="black",
+        linewidth=2,
+        label=label,
+        zorder=5,
+    )
+
+
+def _calculate_dominance(points: List[Tuple[float, float]]) -> List[int]:
+    """Calculate Pareto dominance for a list of points (min x, max y)."""
+    dominance_ls = [0] * len(points)
+    for id_point, point in enumerate(points):
+        dominated = False
+        for other_point in points:
+            # Check if other_point dominates point
+            if (
+                other_point[0] <= point[0]
+                and other_point[1] >= point[1]
+                and (other_point[0] < point[0] or other_point[1] > point[1])
+            ):
+                dominated = True
+                break
+        if not dominated:
+            dominance_ls[id_point] = 1
+    return dominance_ls

@@ -26,8 +26,10 @@ class LoggerWriter:
             echo_to_terminal: If True, also write to terminal.
         """
         self.terminal = terminal
-        self.log = open(filename, "a", encoding="utf-8")
+        self.filename = filename
         self.echo_to_terminal = echo_to_terminal
+        # Open file in append mode.
+        self.log = open(filename, "a", encoding="utf-8")  # noqa: SIM115
 
     def write(self, message):
         """Write message to terminal and/or log file, filtering based on tags line-by-line."""
