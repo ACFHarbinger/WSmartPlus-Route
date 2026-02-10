@@ -37,6 +37,29 @@ This document serves as the authoritative reference for AI assistants (Claude, G
 
 ---
 
+## Detailed Module Documentation
+
+This document provides a high-level overview of the codebase. For deep dives into specific subsystems, consult the [docs/](docs/) directory:
+
+| Document | Module Path | Description |
+|----------|-------------|-------------|
+| **[CLI Module](docs/CLI_MODULE.md)** | `logic/src/cli/` | Command-line interface, argument parsing, Hydra integration, entry points, and TUI |
+| **[Configuration Module](docs/CONFIGS_MODULE.md)** | `logic/src/configs/` | Config system architecture, Hydra composition, dataclass configurations, and overrides |
+| **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)** | - | Comprehensive guide to Hydra configuration, CLI syntax, multi-run sweeps, and best practices |
+| **[Constants Module](docs/CONSTANTS_MODULE.md)** | `logic/src/utils/` | System-wide constants, problem definitions, enum types, and magic numbers |
+| **[Data Module](docs/DATA_MODULE.md)** | `logic/src/data/` | Dataset generation, loading utilities, data augmentation, and transforms |
+| **[Environments Module](docs/ENVS_MODULE.md)** | `logic/src/envs/` | Problem environments (VRPP, WCVRP, SDWCVRP), state management, and physics |
+| **[Interfaces Module](docs/INTERFACES_MODULE.md)** | `logic/src/interfaces/` | Abstract base classes, protocols, type definitions, and contracts |
+| **[Models Module](docs/MODELS_MODULE.md)** | `logic/src/models/` | Neural architectures (264KB doc): encoders, decoders, attention mechanisms, graph layers |
+| **[Pipeline Module](docs/PIPELINE_MODULE.md)** | `logic/src/pipeline/` | Training pipeline, evaluation, simulation orchestration, RL algorithms, and HPO |
+| **[Policies Module](docs/POLICIES_MODULE.md)** | `logic/src/policies/` | Classical solvers (Gurobi, ALNS, HGS), heuristics, and policy interfaces |
+| **[Utilities Module](docs/UTILS_MODULE.md)** | `logic/src/utils/` | Helper functions, I/O utilities, logging, debugging, encryption, and config loading |
+| **[Documentation Standards](docs/DOCUMENTATION_STANDARDS.md)** | - | Style guide, templates, and quality checklist for all documentation |
+
+These module docs complement sections 10-11 below with implementation-level API references, usage examples, and integration patterns.
+
+---
+
 ## 1. Project Overview & Mission
 
 **WSmart+ Route** is a high-performance framework for solving complex Combinatorial Optimization (CO) problems, specifically:

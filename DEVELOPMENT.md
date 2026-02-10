@@ -18,6 +18,58 @@ This guide provides everything you need to set up a development environment for 
 
 ---
 
+## ⚡ < 5 Minute Quickstart
+
+**Get up and running with WSmart+ Route in under 5 minutes!**
+
+```bash
+# 1. Install uv package manager (< 1 min)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 2. Clone and enter repository (< 1 min)
+git clone https://github.com/ACFPeacekeeper/WSmart-Route.git
+cd WSmart-Route
+
+# 3. Sync dependencies and activate environment (< 2 min)
+uv sync
+source .venv/bin/activate  # Linux/macOS
+# OR: .venv\Scripts\activate  # Windows
+
+# 4. Verify installation (< 30 seconds)
+python -c "import torch; print(f'✓ PyTorch {torch.__version__}, CUDA: {torch.cuda.is_available()}')"
+
+# 5. Run a quick training example (< 1 min)
+python main.py train_lightning model=am env.name=vrpp env.num_loc=20 train.n_epochs=1 train.batch_size=32
+```
+
+### What Just Happened?
+
+- ✅ **uv** installed (fast Rust-based package manager)
+- ✅ **Repository cloned** with all source code
+- ✅ **Dependencies synced** (PyTorch, Lightning, solvers, etc.)
+- ✅ **Virtual environment activated** (.venv)
+- ✅ **Quick training run** completed (Attention Model on VRPP-20)
+
+### Next Steps
+
+- **Generate data**: `python main.py gen_data virtual --problem vrpp --graph_sizes 20 50`
+- **Run simulation**: `python main.py test_sim --policies regular gurobi --days 7`
+- **Launch GUI**: `python main.py gui`
+- **Run tests**: `python main.py test_suite`
+
+### Troubleshooting Quick Fixes
+
+| Issue | Quick Fix |
+|-------|-----------|
+| `uv: command not found` | Restart terminal or run `source ~/.bashrc` |
+| `CUDA not available` | CPU-only mode works fine for testing! |
+| Import errors | Run `uv sync --all-extras` to ensure all deps installed |
+| Permission errors | Don't use `sudo` - uv manages everything in userspace |
+
+**For detailed setup, continue reading below. For immediate help, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).**
+
+---
+
 ## Table of Contents
 
 1. [Prerequisites](#1-prerequisites)
@@ -33,6 +85,33 @@ This guide provides everything you need to set up a development environment for 
 
 ---
 
+## Documentation Resources
+
+### Module Documentation
+
+For detailed technical documentation of individual subsystems, see the [docs/](docs/) directory:
+
+- **[CLI Module](docs/CLI_MODULE.md)** - Command-line interface, argument parsing, and Hydra integration
+- **[Configuration Module](docs/CONFIGS_MODULE.md)** - Config system architecture and Hydra composition
+- **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)** - Comprehensive Hydra configuration guide
+- **[Data Module](docs/DATA_MODULE.md)** - Dataset generation and loading utilities
+- **[Environments Module](docs/ENVS_MODULE.md)** - Problem environments and state management
+- **[Models Module](docs/MODELS_MODULE.md)** - Neural architectures and network components
+- **[Pipeline Module](docs/PIPELINE_MODULE.md)** - Training, evaluation, and simulation orchestration
+- **[Policies Module](docs/POLICIES_MODULE.md)** - Classical solvers and heuristic policies
+- **[Utilities Module](docs/UTILS_MODULE.md)** - Helper functions and debugging tools
+
+### Documentation Standards
+
+When contributing documentation, follow the standards in [docs/DOCUMENTATION_STANDARDS.md](docs/DOCUMENTATION_STANDARDS.md):
+
+- Consistent structure and formatting
+- Required sections (header, TOC, overview, examples, best practices)
+- Code example requirements
+- Style guidelines (tone, headers, tables, cross-references)
+
+---
+
 ## 1. Prerequisites
 
 ### 1.1 System Requirements
@@ -40,7 +119,7 @@ This guide provides everything you need to set up a development environment for 
 | Component    | Minimum                                 | Recommended   |
 | ------------ | --------------------------------------- | ------------- |
 | **OS**       | Ubuntu 20.04+ / Windows 10+ / macOS 12+ | Ubuntu 22.04+ |
-| **Python**   | 3.9                                     | 3.11          |
+| **Python**   | 3.9                                     | 3.9           |
 | **RAM**      | 16 GB                                   | 32 GB         |
 | **GPU VRAM** | 8 GB                                    | 12+ GB        |
 | **Storage**  | 20 GB                                   | 50 GB SSD     |

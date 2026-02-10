@@ -13,8 +13,8 @@
 # =============================================================================
 
 defaults:
-  - /tasks/policies/hgs_alns@rl.imitation.policy_config
-  - /tasks/policies/hgs_alns@rl.adaptive_imitation.policy_config
+  - /models/policies/hgs_alns@rl.imitation.policy_config
+  - /models/policies/hgs_alns@rl.adaptive_imitation.policy_config
   - _self_
 
 # =============================================================================
@@ -41,7 +41,7 @@ train:
   eval_time_days: 7 # Evaluation horizon in days (temporal problems)
 
   data_distribution: "gamma1" # Waste generation distribution. Options: gamma1, gamma2, uniform, beta
-  load_dataset: "time" # Dataset loading mode. Options: "time" (temporal), "static"
+  load_dataset: "data/datasets/${env.name}/${env.name}${env.num_loc}_${env.distribution}_time${train.n_epochs}_seed${train.seed}.td"
 
   n_epochs: 100 # Total training epochs
   batch_size: 128 # Training batch size. Reduce if OOM errors occur.
@@ -50,18 +50,12 @@ train:
   log_step: 10 # Log metrics every N batches
   logs_dir: "logs/output" # Directory for training logs
   model_weights_path: "model_weights" # Directory for checkpoints
+  final_model_path: "assets/model_weights/${env.name}${env.num_loc}_${env.graph.area}_${env.graph.waste_type}/${train.distribution}/${model.name}${model.encoder.name}${env.temporal_horizon}/epoch-${train.n_epochs}.pt"
 
   # DataLoader optimization
   persistent_workers: true # Keep workers alive between epochs (faster but more memory)
   pin_memory: false # Pin memory for faster GPU transfer
   reload_dataloaders_every_n_epochs: 0 # Reload data every N epochs (0 = never, for dynamic data)
-
-# =============================================================================
-# Data Configuration
-# =============================================================================
-data:
-  dataset_size: 1280 # Total dataset instances (should match train_data_size)
-  data_distributions: ["gamma1"] # List of distributions for multi-distribution training
 
 # =============================================================================
 # Optimizer Settings
