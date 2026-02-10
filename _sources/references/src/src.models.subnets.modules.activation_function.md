@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ActivationFunction(af_name: str = 'relu', fparam: typing.Optional[float] = None, tval: typing.Optional[float] = None, rval: typing.Optional[float] = None, n_params: typing.Optional[int] = None, urange: typing.Optional[typing.Tuple[float, float]] = None, inplace: typing.Optional[bool] = False)
+`````{py:class} ActivationFunction(af_name: typing.Optional[str] = None, fparam: typing.Optional[float] = None, tval: typing.Optional[float] = None, rval: typing.Optional[float] = None, n_params: typing.Optional[int] = None, urange: typing.Optional[typing.Tuple[float, float]] = None, inplace: typing.Optional[bool] = False, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None)
 :canonical: src.models.subnets.modules.activation_function.ActivationFunction
 
 Bases: {py:obj}`torch.nn.Module`
@@ -36,6 +36,14 @@ Bases: {py:obj}`torch.nn.Module`
 
 ```{autodoc2-docstring} src.models.subnets.modules.activation_function.ActivationFunction.__init__
 ```
+
+````{py:method} _get_activation_module(af_name: str, fparam: typing.Optional[float], tval: typing.Optional[float], rval: typing.Optional[float], n_params: typing.Optional[int], urange: typing.Optional[typing.Tuple[float, float]], inplace: typing.Optional[bool]) -> torch.nn.Module
+:canonical: src.models.subnets.modules.activation_function.ActivationFunction._get_activation_module
+
+```{autodoc2-docstring} src.models.subnets.modules.activation_function.ActivationFunction._get_activation_module
+```
+
+````
 
 ````{py:method} init_parameters()
 :canonical: src.models.subnets.modules.activation_function.ActivationFunction.init_parameters

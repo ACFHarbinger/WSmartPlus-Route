@@ -40,6 +40,9 @@ Bases: {py:obj}`logic.src.models.common.nonautoregressive_policy.NonAutoregressi
 ````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.deepaco.policy.DeepACOPolicy.forward
 
+```{autodoc2-docstring} src.models.deepaco.policy.DeepACOPolicy.forward
+```
+
 ````
 
 `````

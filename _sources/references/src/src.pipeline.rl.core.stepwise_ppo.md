@@ -64,10 +64,16 @@ Bases: {py:obj}`logic.src.pipeline.rl.common.base.RL4COLitModule`
 ````{py:method} calculate_loss(td, out, batch_idx, env=None)
 :canonical: src.pipeline.rl.core.stepwise_ppo.StepwisePPO.calculate_loss
 
+```{autodoc2-docstring} src.pipeline.rl.core.stepwise_ppo.StepwisePPO.calculate_loss
+```
+
 ````
 
 ````{py:method} configure_optimizers()
 :canonical: src.pipeline.rl.core.stepwise_ppo.StepwisePPO.configure_optimizers
+
+```{autodoc2-docstring} src.pipeline.rl.core.stepwise_ppo.StepwisePPO.configure_optimizers
+```
 
 ````
 

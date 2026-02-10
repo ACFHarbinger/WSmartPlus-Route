@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SCWCVRPEnv(generator: typing.Optional[logic.src.envs.generators.SCWCVRPGenerator] = None, generator_params: typing.Optional[dict] = None, overflow_penalty: float = 10.0, collection_reward: float = 1.0, cost_weight: float = 1.0, device: typing.Union[str, torch.device] = 'cpu', **kwargs)
+`````{py:class} SCWCVRPEnv(generator: typing.Optional[logic.src.envs.generators.SCWCVRPGenerator] = None, generator_params: typing.Optional[dict] = None, overflow_penalty: float = 10.0, waste_weight: float = 1.0, cost_weight: float = 1.0, device: typing.Union[str, torch.device] = 'cpu', **kwargs)
 :canonical: src.envs.swcvrp.SCWCVRPEnv
 
 Bases: {py:obj}`logic.src.envs.wcvrp.WCVRPEnv`

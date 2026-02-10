@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} LongShortTermMemoryFillPredictor(input_dim=1, hidden_dim=64, num_layers=2, dropout=0.1, activation='relu', af_param=1.0, threshold=6.0, replacement_value=6.0, n_params=3, uniform_range=[0.125, 1 / 3], bidirectional=False)
+`````{py:class} LongShortTermMemoryFillPredictor(input_dim=1, hidden_dim=64, num_layers=2, dropout=0.1, activation='relu', af_param=1.0, threshold=6.0, replacement_value=6.0, n_params=3, uniform_range=None, bidirectional=False)
 :canonical: src.models.subnets.other.lstm_fill_predictor.LongShortTermMemoryFillPredictor
 
 Bases: {py:obj}`torch.nn.Module`

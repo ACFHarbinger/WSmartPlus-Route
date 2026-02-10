@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HyperHeuristicACO(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Optional[src.policies.ant_colony_optimization.hyper_heuristic_aco.params.HyperACOParams] = None)
+`````{py:class} HyperHeuristicACO(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, heuristic_matrix: numpy.ndarray, problem: str = 'vrpp', params: typing.Optional[src.policies.ant_colony_optimization.hyper_heuristic_aco.params.HyperACOParams] = None, **kwargs)
 :canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO

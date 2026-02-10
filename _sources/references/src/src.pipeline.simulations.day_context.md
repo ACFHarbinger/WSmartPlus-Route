@@ -180,17 +180,6 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````
 
-````{py:attribute} run_tsp
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.run_tsp
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.run_tsp
-```
-
-````
-
 ````{py:attribute} sample_id
 :canonical: src.pipeline.simulations.day_context.SimulationDayContext.sample_id
 :type: int
@@ -339,39 +328,6 @@ Bases: {py:obj}`collections.abc.Mapping`
    None
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.hrl_manager
-```
-
-````
-
-````{py:attribute} gate_prob_threshold
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.gate_prob_threshold
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.gate_prob_threshold
-```
-
-````
-
-````{py:attribute} mask_prob_threshold
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.mask_prob_threshold
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.mask_prob_threshold
-```
-
-````
-
-````{py:attribute} two_opt_max_iter
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.two_opt_max_iter
-:type: int
-:value: >
-   0
-
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.two_opt_max_iter
 ```
 
 ````

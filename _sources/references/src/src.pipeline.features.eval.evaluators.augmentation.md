@@ -40,6 +40,9 @@ Bases: {py:obj}`logic.src.pipeline.features.eval.eval_base.EvalBase`
 ````{py:method} __call__(policy: typing.Any, data_loader: torch.utils.data.DataLoader, return_results: bool = False, **kwargs) -> dict
 :canonical: src.pipeline.features.eval.evaluators.augmentation.AugmentationEval.__call__
 
+```{autodoc2-docstring} src.pipeline.features.eval.evaluators.augmentation.AugmentationEval.__call__
+```
+
 ````
 
 `````

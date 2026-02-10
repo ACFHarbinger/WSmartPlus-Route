@@ -69,6 +69,54 @@ Bases: {py:obj}`src.pipeline.simulations.repository.base.SimulationRepository`
 
 ````
 
+````{py:method} _get_mixrmbac_data(d_dir, number_of_bins, src_area)
+:canonical: src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_mixrmbac_data
+
+```{autodoc2-docstring} src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_mixrmbac_data
+```
+
+````
+
+````{py:method} _get_riomaior_data(d_dir, number_of_bins, src_area, wtype)
+:canonical: src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_riomaior_data
+
+```{autodoc2-docstring} src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_riomaior_data
+```
+
+````
+
+````{py:method} _get_figueiradafoz_data(d_dir, number_of_bins, src_area, wtype)
+:canonical: src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_figueiradafoz_data
+
+```{autodoc2-docstring} src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_figueiradafoz_data
+```
+
+````
+
+````{py:method} _get_both_areas_data(d_dir, number_of_bins, src_area)
+:canonical: src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_both_areas_data
+
+```{autodoc2-docstring} src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_both_areas_data
+```
+
+````
+
+````{py:method} _preprocess_county_date(data, date_str='Date')
+:canonical: src.pipeline.simulations.repository.filesystem.FileSystemRepository._preprocess_county_date
+
+```{autodoc2-docstring} src.pipeline.simulations.repository.filesystem.FileSystemRepository._preprocess_county_date
+```
+
+````
+
+````{py:method} _preprocess_county_data(data)
+:canonical: src.pipeline.simulations.repository.filesystem.FileSystemRepository._preprocess_county_data
+
+```{autodoc2-docstring} src.pipeline.simulations.repository.filesystem.FileSystemRepository._preprocess_county_data
+```
+
+````
+
 ````{py:method} get_area_params(area, waste_type)
 :canonical: src.pipeline.simulations.repository.filesystem.FileSystemRepository.get_area_params
 

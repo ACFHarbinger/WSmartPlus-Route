@@ -22,7 +22,7 @@ src.envs.tasks.sdwcvrp
 src.envs.tasks.base
 ```
 
-## Module Contents
+## Package Contents
 
 ### Data
 

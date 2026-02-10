@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`_floyd_warshall <src.utils.graph.network_utils._floyd_warshall>`
+  - ```{autodoc2-docstring} src.utils.graph.network_utils._floyd_warshall
+    :summary:
+    ```
 * - {py:obj}`apply_edges <src.utils.graph.network_utils.apply_edges>`
   - ```{autodoc2-docstring} src.utils.graph.network_utils.apply_edges
     :summary:
@@ -26,6 +30,13 @@
 ````
 
 ### API
+
+````{py:function} _floyd_warshall(dist_matrix: numpy.ndarray, adj_matrix: numpy.ndarray) -> typing.Tuple[numpy.ndarray, numpy.ndarray]
+:canonical: src.utils.graph.network_utils._floyd_warshall
+
+```{autodoc2-docstring} src.utils.graph.network_utils._floyd_warshall
+```
+````
 
 ````{py:function} apply_edges(dist_matrix: numpy.ndarray, edge_thresh: float, edge_method: typing.Optional[str]) -> typing.Tuple[numpy.ndarray, typing.Optional[typing.Dict[typing.Tuple[int, int], typing.List[int]]], typing.Optional[numpy.ndarray]]
 :canonical: src.utils.graph.network_utils.apply_edges

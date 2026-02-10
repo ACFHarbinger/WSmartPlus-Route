@@ -207,7 +207,7 @@
 
 ````{py:attribute} must_go
 :canonical: src.configs.policies.aco.ACOConfig.must_go
-:type: typing.Optional[typing.List[src.configs.other.must_go.MustGoConfig]]
+:type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]
 :value: >
    None
 
@@ -218,7 +218,7 @@
 
 ````{py:attribute} post_processing
 :canonical: src.configs.policies.aco.ACOConfig.post_processing
-:type: typing.Optional[typing.List[src.configs.other.post_processing.PostProcessingConfig]]
+:type: typing.Optional[typing.List[src.configs.policies.other.post_processing.PostProcessingConfig]]
 :value: >
    None
 

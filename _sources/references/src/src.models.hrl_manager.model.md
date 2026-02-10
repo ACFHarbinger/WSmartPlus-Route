@@ -45,7 +45,7 @@
 
 ````
 
-`````{py:class} GATLSTManager(input_dim_static=STATIC_DIM, input_dim_dynamic=DEFAULT_TEMPORAL_HORIZON, global_input_dim=2, critical_threshold=CRITICAL_FILL_THRESHOLD, batch_size=DEFAULT_EVAL_BATCH_SIZE, hidden_dim=128, lstm_hidden=64, num_layers_gat=3, n_heads=8, dropout=0.1, device='cuda', shared_encoder=None, temporal_encoder_cls=None, temporal_encoder_kwargs=None, spatial_encoder_cls=None, spatial_encoder_kwargs=None, component_factory: logic.src.models.subnets.factories.NeuralComponentFactory = None, temporal_encoder_type: str = 'lstm')
+`````{py:class} GATLSTManager(input_dim_static=STATIC_DIM, input_dim_dynamic=DEFAULT_TEMPORAL_HORIZON, global_input_dim=2, critical_threshold=CRITICAL_FILL_THRESHOLD, batch_size=DEFAULT_EVAL_BATCH_SIZE, hidden_dim=128, lstm_hidden=64, num_layers_gat=3, n_heads=8, dropout=0.1, device='cuda', shared_encoder=None, temporal_encoder_cls=None, temporal_encoder_kwargs=None, spatial_encoder_cls=None, spatial_encoder_kwargs=None, component_factory: logic.src.models.subnets.factories.NeuralComponentFactory = None, temporal_encoder_type: str = 'lstm', norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None)
 :canonical: src.models.hrl_manager.model.GATLSTManager
 
 Bases: {py:obj}`torch.nn.Module`
@@ -58,6 +58,22 @@ Bases: {py:obj}`torch.nn.Module`
 
 ```{autodoc2-docstring} src.models.hrl_manager.model.GATLSTManager.__init__
 ```
+
+````{py:method} _init_heads(hidden_dim: int, lstm_hidden: int, global_input_dim: int)
+:canonical: src.models.hrl_manager.model.GATLSTManager._init_heads
+
+```{autodoc2-docstring} src.models.hrl_manager.model.GATLSTManager._init_heads
+```
+
+````
+
+````{py:method} _initialize_head_weights()
+:canonical: src.models.hrl_manager.model.GATLSTManager._initialize_head_weights
+
+```{autodoc2-docstring} src.models.hrl_manager.model.GATLSTManager._initialize_head_weights
+```
+
+````
 
 ````{py:method} clear_memory()
 :canonical: src.models.hrl_manager.model.GATLSTManager.clear_memory

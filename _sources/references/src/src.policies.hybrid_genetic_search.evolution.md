@@ -45,7 +45,7 @@
 ```
 ````
 
-````{py:function} evaluate(ind: src.policies.hybrid_genetic_search.individual.Individual, split_manager)
+````{py:function} evaluate(ind: src.policies.hybrid_genetic_search.individual.Individual, split_manager: src.policies.hybrid_genetic_search.split.LinearSplit)
 :canonical: src.policies.hybrid_genetic_search.evolution.evaluate
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.evolution.evaluate

@@ -76,4 +76,49 @@
 
 ````
 
+````{py:method} _get_batch_info(input_data: typing.Any) -> tuple[int, torch.device]
+:canonical: src.envs.tasks.base.BaseProblem._get_batch_info
+:staticmethod:
+
+```{autodoc2-docstring} src.envs.tasks.base.BaseProblem._get_batch_info
+```
+
+````
+
+````{py:method} _prepare_td_from_traversable(input_data: typing.Any, bs: int, device: torch.device) -> tensordict.TensorDict
+:canonical: src.envs.tasks.base.BaseProblem._prepare_td_from_traversable
+:classmethod:
+
+```{autodoc2-docstring} src.envs.tasks.base.BaseProblem._prepare_td_from_traversable
+```
+
+````
+
+````{py:method} _map_key(k: str) -> str
+:canonical: src.envs.tasks.base.BaseProblem._map_key
+:staticmethod:
+
+```{autodoc2-docstring} src.envs.tasks.base.BaseProblem._map_key
+```
+
+````
+
+````{py:method} _batch_tensor(v: torch.Tensor, bs: int) -> torch.Tensor
+:canonical: src.envs.tasks.base.BaseProblem._batch_tensor
+:staticmethod:
+
+```{autodoc2-docstring} src.envs.tasks.base.BaseProblem._batch_tensor
+```
+
+````
+
+````{py:method} _ensure_required_keys(td: tensordict.TensorDict, env_name: str, edges: typing.Any, dist_matrix: typing.Any, **kwargs: typing.Any) -> None
+:canonical: src.envs.tasks.base.BaseProblem._ensure_required_keys
+:staticmethod:
+
+```{autodoc2-docstring} src.envs.tasks.base.BaseProblem._ensure_required_keys
+```
+
+````
+
 `````

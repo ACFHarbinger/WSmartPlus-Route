@@ -19,10 +19,9 @@ src.policies.simulated_annealing_neighborhood_search
 src.policies.slack_induction_by_string_removal
 src.policies.neural_agent
 src.policies.adaptive_large_neighborhood_search
-src.policies.must_go
-src.policies.post_processing
 src.policies.ant_colony_optimization
 src.policies.hybrid_genetic_search
+src.policies.other
 src.policies.local_search
 src.policies.adapters
 src.policies.branch_cut_and_price

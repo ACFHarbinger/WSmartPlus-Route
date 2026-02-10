@@ -21,7 +21,29 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`td_kwargs <src.utils.data.td_utils.td_kwargs>`
+  - ```{autodoc2-docstring} src.utils.data.td_utils.td_kwargs
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} td_kwargs
+:canonical: src.utils.data.td_utils.td_kwargs
+:value: >
+   None
+
+```{autodoc2-docstring} src.utils.data.td_utils.td_kwargs
+```
+
+````
 
 ````{py:function} tensordict_collate_fn(batch: list[typing.Union[dict, tensordict.tensordict.TensorDict]]) -> typing.Union[dict, tensordict.tensordict.TensorDict]
 :canonical: src.utils.data.td_utils.tensordict_collate_fn

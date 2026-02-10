@@ -101,6 +101,14 @@
 
 ````
 
+````{py:method} _queue_docstrings(tree)
+:canonical: src.utils.docs.add_docstrings_batch.DocstringInjector._queue_docstrings
+
+```{autodoc2-docstring} src.utils.docs.add_docstrings_batch.DocstringInjector._queue_docstrings
+```
+
+````
+
 ````{py:method} scan_and_queue()
 :canonical: src.utils.docs.add_docstrings_batch.DocstringInjector.scan_and_queue
 

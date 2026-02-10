@@ -72,6 +72,9 @@ Bases: {py:obj}`logic.src.envs.vrpp.VRPPEnv`
 ````{py:method} _step(td: tensordict.TensorDict) -> tensordict.TensorDict
 :canonical: src.envs.cvrpp.CVRPPEnv._step
 
+```{autodoc2-docstring} src.envs.cvrpp.CVRPPEnv._step
+```
+
 ````
 
 ````{py:method} _get_action_mask(td: tensordict.TensorDict) -> torch.Tensor

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} Normalization(embed_dim: int, norm_name: str = 'batch', eps_alpha: float = 1e-05, learn_affine: typing.Optional[bool] = True, track_stats: typing.Optional[bool] = False, mbval: typing.Optional[float] = 0.1, n_groups: typing.Optional[int] = None, kval: typing.Optional[float] = None, bias: typing.Optional[bool] = True)
+`````{py:class} Normalization(embed_dim: int, norm_name: typing.Optional[str] = None, eps_alpha: typing.Optional[float] = None, learn_affine: typing.Optional[bool] = None, track_stats: typing.Optional[bool] = None, mbval: typing.Optional[float] = None, n_groups: typing.Optional[int] = None, kval: typing.Optional[float] = None, bias: typing.Optional[bool] = True, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None)
 :canonical: src.models.subnets.modules.normalization.Normalization
 
 Bases: {py:obj}`torch.nn.Module`

@@ -27,6 +27,18 @@
   - ```{autodoc2-docstring} src.pipeline.ui.components.sidebar.render_training_controls
     :summary:
     ```
+* - {py:obj}`_render_filter_controls <src.pipeline.ui.components.sidebar._render_filter_controls>`
+  - ```{autodoc2-docstring} src.pipeline.ui.components.sidebar._render_filter_controls
+    :summary:
+    ```
+* - {py:obj}`_render_playback_controls <src.pipeline.ui.components.sidebar._render_playback_controls>`
+  - ```{autodoc2-docstring} src.pipeline.ui.components.sidebar._render_playback_controls
+    :summary:
+    ```
+* - {py:obj}`_render_matrix_loader <src.pipeline.ui.components.sidebar._render_matrix_loader>`
+  - ```{autodoc2-docstring} src.pipeline.ui.components.sidebar._render_matrix_loader
+    :summary:
+    ```
 * - {py:obj}`render_simulation_controls <src.pipeline.ui.components.sidebar.render_simulation_controls>`
   - ```{autodoc2-docstring} src.pipeline.ui.components.sidebar.render_simulation_controls
     :summary:
@@ -57,6 +69,27 @@
 :canonical: src.pipeline.ui.components.sidebar.render_training_controls
 
 ```{autodoc2-docstring} src.pipeline.ui.components.sidebar.render_training_controls
+```
+````
+
+````{py:function} _render_filter_controls(available_logs: typing.List[str], policies: typing.List[str], samples: typing.List[int]) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.ui.components.sidebar._render_filter_controls
+
+```{autodoc2-docstring} src.pipeline.ui.components.sidebar._render_filter_controls
+```
+````
+
+````{py:function} _render_playback_controls(day_range: typing.Tuple[int, int]) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.ui.components.sidebar._render_playback_controls
+
+```{autodoc2-docstring} src.pipeline.ui.components.sidebar._render_playback_controls
+```
+````
+
+````{py:function} _render_matrix_loader(distance_strategy: str) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.ui.components.sidebar._render_matrix_loader
+
+```{autodoc2-docstring} src.pipeline.ui.components.sidebar._render_matrix_loader
 ```
 ````
 

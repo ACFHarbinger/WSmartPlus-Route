@@ -7,6 +7,16 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.pipeline.rl.common.base
+src.pipeline.rl.common.baselines
+```
+
 ## Submodules
 
 ```{toctree}
@@ -15,12 +25,10 @@
 
 src.pipeline.rl.common.epoch
 src.pipeline.rl.common.time_training
-src.pipeline.rl.common.baselines
 src.pipeline.rl.common.reward_scaler
 src.pipeline.rl.common.reward_scaler_batch
 src.pipeline.rl.common.post_processing
 src.pipeline.rl.common.trainer
-src.pipeline.rl.common.base
 ```
 
 ## Package Contents

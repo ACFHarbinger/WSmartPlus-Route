@@ -159,7 +159,7 @@ src.pipeline.simulations.processor.mapper
 ```
 ````
 
-````{py:function} process_coordinates(coords, method, col_names=['Lat', 'Lng'])
+````{py:function} process_coordinates(coords, method, col_names=None)
 :canonical: src.pipeline.simulations.processor.process_coordinates
 
 ```{autodoc2-docstring} src.pipeline.simulations.processor.process_coordinates

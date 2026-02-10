@@ -75,6 +75,14 @@ Bases: {py:obj}`torch_geometric.nn.MessagePassing`
 
 ````
 
+````{py:method} _norm_and_cache(x: torch.Tensor, edge_index: torch_geometric.typing.Adj) -> typing.Tuple[torch_geometric.typing.Adj, torch_geometric.typing.OptTensor]
+:canonical: src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution._norm_and_cache
+
+```{autodoc2-docstring} src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution._norm_and_cache
+```
+
+````
+
 ````{py:method} message(x_j: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.message
 
@@ -91,10 +99,26 @@ Bases: {py:obj}`torch_geometric.nn.MessagePassing`
 
 ````
 
+````{py:method} _run_aggregator(aggregator: str, inputs: torch.Tensor, index: torch.Tensor, dim_size: typing.Optional[int], symnorm_weight: torch_geometric.typing.OptTensor) -> torch.Tensor
+:canonical: src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution._run_aggregator
+
+```{autodoc2-docstring} src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution._run_aggregator
+```
+
+````
+
 ````{py:method} message_and_aggregate(adj_t: torch_geometric.typing.SparseTensor, x: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.message_and_aggregate
 
 ```{autodoc2-docstring} src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.message_and_aggregate
+```
+
+````
+
+````{py:method} _run_sparse_aggregator(aggregator: str, adj_t: torch_geometric.typing.SparseTensor, adj_t_nonorm: torch_geometric.typing.SparseTensor, x: torch.Tensor) -> torch.Tensor
+:canonical: src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution._run_sparse_aggregator
+
+```{autodoc2-docstring} src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution._run_sparse_aggregator
 ```
 
 ````

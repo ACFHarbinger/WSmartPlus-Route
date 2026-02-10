@@ -20,7 +20,7 @@ src.utils.ops.pomo
 src.utils.ops.distance
 ```
 
-## Module Contents
+## Package Contents
 
 ### Data
 

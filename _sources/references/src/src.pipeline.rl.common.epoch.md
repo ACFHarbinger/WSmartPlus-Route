@@ -27,6 +27,22 @@
   - ```{autodoc2-docstring} src.pipeline.rl.common.epoch.compute_validation_metrics
     :summary:
     ```
+* - {py:obj}`_add_reward_metric <src.pipeline.rl.common.epoch._add_reward_metric>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.epoch._add_reward_metric
+    :summary:
+    ```
+* - {py:obj}`_add_costs_metrics <src.pipeline.rl.common.epoch._add_costs_metrics>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.epoch._add_costs_metrics
+    :summary:
+    ```
+* - {py:obj}`_add_efficiency_metric <src.pipeline.rl.common.epoch._add_efficiency_metric>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.epoch._add_efficiency_metric
+    :summary:
+    ```
+* - {py:obj}`_add_overflow_metrics <src.pipeline.rl.common.epoch._add_overflow_metrics>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.epoch._add_overflow_metrics
+    :summary:
+    ```
 ````
 
 ### API
@@ -49,5 +65,33 @@
 :canonical: src.pipeline.rl.common.epoch.compute_validation_metrics
 
 ```{autodoc2-docstring} src.pipeline.rl.common.epoch.compute_validation_metrics
+```
+````
+
+````{py:function} _add_reward_metric(metrics: typing.Dict[str, float], out: typing.Dict) -> None
+:canonical: src.pipeline.rl.common.epoch._add_reward_metric
+
+```{autodoc2-docstring} src.pipeline.rl.common.epoch._add_reward_metric
+```
+````
+
+````{py:function} _add_costs_metrics(metrics: typing.Dict[str, float], out: typing.Dict, batch: tensordict.TensorDict, env: typing.Any) -> None
+:canonical: src.pipeline.rl.common.epoch._add_costs_metrics
+
+```{autodoc2-docstring} src.pipeline.rl.common.epoch._add_costs_metrics
+```
+````
+
+````{py:function} _add_efficiency_metric(metrics: typing.Dict[str, float]) -> None
+:canonical: src.pipeline.rl.common.epoch._add_efficiency_metric
+
+```{autodoc2-docstring} src.pipeline.rl.common.epoch._add_efficiency_metric
+```
+````
+
+````{py:function} _add_overflow_metrics(metrics: typing.Dict[str, float], out: typing.Dict, batch: tensordict.TensorDict, env: typing.Any) -> None
+:canonical: src.pipeline.rl.common.epoch._add_overflow_metrics
+
+```{autodoc2-docstring} src.pipeline.rl.common.epoch._add_overflow_metrics
 ```
 ````

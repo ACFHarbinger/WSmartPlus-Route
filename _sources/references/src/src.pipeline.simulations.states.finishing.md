@@ -34,6 +34,9 @@ Bases: {py:obj}`src.pipeline.simulations.states.base.SimState`
 ````{py:method} handle(ctx: src.pipeline.simulations.states.base.SimulationContext) -> None
 :canonical: src.pipeline.simulations.states.finishing.FinishingState.handle
 
+```{autodoc2-docstring} src.pipeline.simulations.states.finishing.FinishingState.handle
+```
+
 ````
 
 `````

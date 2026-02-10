@@ -47,6 +47,10 @@
   - ```{autodoc2-docstring} src.pipeline.simulations.simulator._counter
     :summary:
     ```
+* - {py:obj}`_shared_metrics <src.pipeline.simulations.simulator._shared_metrics>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.simulator._shared_metrics
+    :summary:
+    ```
 ````
 
 ### API
@@ -73,7 +77,18 @@
 
 ````
 
-````{py:function} init_single_sim_worker(lock_from_main: typing.Any, counter_from_main: typing.Any) -> None
+````{py:data} _shared_metrics
+:canonical: src.pipeline.simulations.simulator._shared_metrics
+:type: typing.Optional[typing.Any]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.simulator._shared_metrics
+```
+
+````
+
+````{py:function} init_single_sim_worker(lock_from_main: typing.Any, counter_from_main: typing.Any, shared_metrics_from_main: typing.Any = None, log_file: typing.Optional[str] = None) -> None
 :canonical: src.pipeline.simulations.simulator.init_single_sim_worker
 
 ```{autodoc2-docstring} src.pipeline.simulations.simulator.init_single_sim_worker

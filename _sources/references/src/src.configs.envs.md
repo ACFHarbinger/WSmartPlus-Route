@@ -15,7 +15,6 @@
 
 src.configs.envs.graph
 src.configs.envs.env
-src.configs.envs.data
 src.configs.envs.objective
 ```
 
@@ -38,7 +37,7 @@ src.configs.envs.objective
 ````{py:data} __all__
 :canonical: src.configs.envs.__all__
 :value: >
-   ['DataConfig', 'EnvConfig', 'GraphConfig', 'ObjectiveConfig']
+   ['EnvConfig', 'GraphConfig', 'ObjectiveConfig']
 
 ```{autodoc2-docstring} src.configs.envs.__all__
 ```

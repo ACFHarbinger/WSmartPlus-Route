@@ -20,6 +20,7 @@ src.utils.io
 src.utils.graph
 src.utils.hooks
 src.utils.ui
+src.utils.ops
 src.utils.docs
 src.utils.security
 src.utils.data
@@ -35,6 +36,5 @@ src.utils.configs
 :titlesonly:
 :maxdepth: 1
 
-src.utils.ops
 src.utils.io_utils
 ```

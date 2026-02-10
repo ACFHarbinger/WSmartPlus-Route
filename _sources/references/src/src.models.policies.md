@@ -26,7 +26,6 @@ src.models.policies.shared
 :maxdepth: 1
 
 src.models.policies.random_local_search
-src.models.policies.hybrid
 src.models.policies.hybrid_genetic_search
 src.models.policies.adaptive_large_neighborhood_search
 src.models.policies.alns

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ImitationLearning(expert_policy: typing.Any = None, expert_name: str = 'hgs', loss_fn: str = 'nll', **kwargs)
+`````{py:class} ImitationLearning(policy_config: typing.Any, env_name: str, loss_fn: str = 'nll', **kwargs)
 :canonical: src.pipeline.rl.core.imitation.ImitationLearning
 
 Bases: {py:obj}`logic.src.pipeline.rl.common.base.RL4COLitModule`
@@ -36,6 +36,14 @@ Bases: {py:obj}`logic.src.pipeline.rl.common.base.RL4COLitModule`
 
 ```{autodoc2-docstring} src.pipeline.rl.core.imitation.ImitationLearning.__init__
 ```
+
+````{py:method} _create_expert_policy(policy_config: typing.Any, env_name: str) -> typing.Any
+:canonical: src.pipeline.rl.core.imitation.ImitationLearning._create_expert_policy
+
+```{autodoc2-docstring} src.pipeline.rl.core.imitation.ImitationLearning._create_expert_policy
+```
+
+````
 
 ````{py:method} calculate_loss(td: tensordict.TensorDict, out: dict, batch_idx: int, env: typing.Any = None) -> torch.Tensor
 :canonical: src.pipeline.rl.core.imitation.ImitationLearning.calculate_loss

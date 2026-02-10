@@ -19,7 +19,7 @@ src.envs.base.improvement
 src.envs.base.base
 ```
 
-## Module Contents
+## Package Contents
 
 ### Data
 

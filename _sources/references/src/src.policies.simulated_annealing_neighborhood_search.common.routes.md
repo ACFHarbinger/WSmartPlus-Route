@@ -19,6 +19,14 @@
   - ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.common.routes.create_points
     :summary:
     ```
+* - {py:obj}`_find_crossed_arcs <src.policies.simulated_annealing_neighborhood_search.common.routes._find_crossed_arcs>`
+  - ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.common.routes._find_crossed_arcs
+    :summary:
+    ```
+* - {py:obj}`_remove_invalid_crossings <src.policies.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings>`
+  - ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings
+    :summary:
+    ```
 * - {py:obj}`uncross_arcs_in_routes <src.policies.simulated_annealing_neighborhood_search.common.routes.uncross_arcs_in_routes>`
   - ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.common.routes.uncross_arcs_in_routes
     :summary:
@@ -47,6 +55,20 @@
 :canonical: src.policies.simulated_annealing_neighborhood_search.common.routes.create_points
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.common.routes.create_points
+```
+````
+
+````{py:function} _find_crossed_arcs(route, points, route_idx, cache)
+:canonical: src.policies.simulated_annealing_neighborhood_search.common.routes._find_crossed_arcs
+
+```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.common.routes._find_crossed_arcs
+```
+````
+
+````{py:function} _remove_invalid_crossings(crossings, points)
+:canonical: src.policies.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings
+
+```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings
 ```
 ````
 

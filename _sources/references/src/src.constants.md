@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
+src.constants.metrics
 src.constants.paths
 src.constants.dashboard
 src.constants.simulation

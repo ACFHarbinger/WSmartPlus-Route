@@ -7,24 +7,13 @@
 :allowtitles:
 ```
 
-## Submodules
+## Subpackages
 
 ```{toctree}
 :titlesonly:
-:maxdepth: 1
+:maxdepth: 3
 
-src.models.policies.operators.greedy_insertion
-src.models.policies.operators.random_removal
-src.models.policies.operators.swap
-src.models.policies.operators.three_opt
-src.models.policies.operators.cluster_removal
-src.models.policies.operators.swap_star
-src.models.policies.operators.two_opt
-src.models.policies.operators.regret_k_insertion
-src.models.policies.operators.worst_removal
-src.models.policies.operators.two_opt_star
-src.models.policies.operators.cross_exchange
-src.models.policies.operators.relocate
+src.models.policies.operators.unstringing
 ```
 
 ## Package Contents
@@ -46,7 +35,7 @@ src.models.policies.operators.relocate
 ````{py:data} __all__
 :canonical: src.models.policies.operators.__all__
 :value: >
-   ['vectorized_two_opt', 'vectorized_swap', 'vectorized_relocate', 'vectorized_two_opt_star', 'vectori...
+   ['vectorized_two_opt', 'vectorized_three_opt', 'vectorized_two_opt_star', 'vectorized_swap_star', 'v...
 
 ```{autodoc2-docstring} src.models.policies.operators.__all__
 ```

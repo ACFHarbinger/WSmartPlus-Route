@@ -27,6 +27,10 @@
   - ```{autodoc2-docstring} src.file_system.delete_file_system_entries
     :summary:
     ```
+* - {py:obj}`_collect_directories_to_delete <src.file_system._collect_directories_to_delete>`
+  - ```{autodoc2-docstring} src.file_system._collect_directories_to_delete
+    :summary:
+    ```
 ````
 
 ### API
@@ -49,5 +53,12 @@
 :canonical: src.file_system.delete_file_system_entries
 
 ```{autodoc2-docstring} src.file_system.delete_file_system_entries
+```
+````
+
+````{py:function} _collect_directories_to_delete(opts: typing.Dict[str, typing.Any])
+:canonical: src.file_system._collect_directories_to_delete
+
+```{autodoc2-docstring} src.file_system._collect_directories_to_delete
 ```
 ````

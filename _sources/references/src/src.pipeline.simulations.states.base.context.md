@@ -68,6 +68,17 @@
 
 ````
 
+````{py:attribute} shared_metrics
+:canonical: src.pipeline.simulations.states.base.context.SimulationContext.shared_metrics
+:type: typing.Any
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.shared_metrics
+```
+
+````
+
 ````{py:attribute} pbar
 :canonical: src.pipeline.simulations.states.base.context.SimulationContext.pbar
 :type: typing.Optional[typing.Any]

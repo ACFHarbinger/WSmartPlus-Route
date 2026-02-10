@@ -62,15 +62,4 @@
 
 ````
 
-````{py:attribute} collection_reward
-:canonical: src.configs.envs.objective.ObjectiveConfig.collection_reward
-:type: float
-:value: >
-   1.0
-
-```{autodoc2-docstring} src.configs.envs.objective.ObjectiveConfig.collection_reward
-```
-
-````
-
 `````

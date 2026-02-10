@@ -19,6 +19,14 @@
   - ```{autodoc2-docstring} src.utils.io.value_processing.find_single_input_values
     :summary:
     ```
+* - {py:obj}`_extract_two_vals <src.utils.io.value_processing._extract_two_vals>`
+  - ```{autodoc2-docstring} src.utils.io.value_processing._extract_two_vals
+    :summary:
+    ```
+* - {py:obj}`_process_val_pair <src.utils.io.value_processing._process_val_pair>`
+  - ```{autodoc2-docstring} src.utils.io.value_processing._process_val_pair
+    :summary:
+    ```
 * - {py:obj}`find_two_input_values <src.utils.io.value_processing.find_two_input_values>`
   - ```{autodoc2-docstring} src.utils.io.value_processing.find_two_input_values
     :summary:
@@ -31,6 +39,20 @@
 :canonical: src.utils.io.value_processing.find_single_input_values
 
 ```{autodoc2-docstring} src.utils.io.value_processing.find_single_input_values
+```
+````
+
+````{py:function} _extract_two_vals(data: typing.Any, k1: str, k2_or_val: typing.Any) -> typing.Tuple[typing.Any, typing.Any, bool]
+:canonical: src.utils.io.value_processing._extract_two_vals
+
+```{autodoc2-docstring} src.utils.io.value_processing._extract_two_vals
+```
+````
+
+````{py:function} _process_val_pair(path: str, v1: typing.Any, v2: typing.Any, results: typing.List[typing.Tuple[str, typing.Any, typing.Any]])
+:canonical: src.utils.io.value_processing._process_val_pair
+
+```{autodoc2-docstring} src.utils.io.value_processing._process_val_pair
 ```
 ````
 

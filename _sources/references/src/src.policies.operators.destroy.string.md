@@ -27,7 +27,7 @@
 
 ### API
 
-````{py:function} string_removal(routes: typing.List[typing.List[int]], n_remove: int, dist_matrix: numpy.ndarray, max_string_len: int = 5, avg_string_len: float = 3.0) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
+````{py:function} string_removal(routes: typing.List[typing.List[int]], n_remove: int, dist_matrix: numpy.ndarray, max_string_len: int = 4, avg_string_len: float = 3.0) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
 :canonical: src.policies.operators.destroy.string.string_removal
 
 ```{autodoc2-docstring} src.policies.operators.destroy.string.string_removal

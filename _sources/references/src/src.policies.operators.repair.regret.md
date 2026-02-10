@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} regret_2_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float) -> typing.List[typing.List[int]]
+````{py:function} regret_2_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: typing.Optional[float] = None) -> typing.List[typing.List[int]]
 :canonical: src.policies.operators.repair.regret.regret_2_insertion
 
 ```{autodoc2-docstring} src.policies.operators.repair.regret.regret_2_insertion
 ```
 ````
 
-````{py:function} regret_k_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, k: int = 3) -> typing.List[typing.List[int]]
+````{py:function} regret_k_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, k: int = 2, R: typing.Optional[float] = None) -> typing.List[typing.List[int]]
 :canonical: src.policies.operators.repair.regret.regret_k_insertion
 
 ```{autodoc2-docstring} src.policies.operators.repair.regret.regret_k_insertion

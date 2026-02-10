@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.encoders.matnet.encoder.MatNetEncoder.__init__
 ```
 
-````{py:method} forward(row_emb: torch.Tensor, col_emb: torch.Tensor, matrix: torch.Tensor, mask: typing.Optional[torch.Tensor] = None) -> tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(row_emb: torch.Tensor, col_emb: torch.Tensor, matrix: torch.Tensor, mask: typing.Optional[torch.Tensor] = None) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.encoders.matnet.encoder.MatNetEncoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.encoders.matnet.encoder.MatNetEncoder.forward

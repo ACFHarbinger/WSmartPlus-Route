@@ -40,6 +40,9 @@ Bases: {py:obj}`src.models.subnets.embeddings.context.base.ContextEmbedder`
 ````{py:method} init_node_embeddings(nodes: dict[str, typing.Any]) -> torch.Tensor
 :canonical: src.models.subnets.embeddings.context.generic.GenericContextEmbedder.init_node_embeddings
 
+```{autodoc2-docstring} src.models.subnets.embeddings.context.generic.GenericContextEmbedder.init_node_embeddings
+```
+
 ````
 
 ````{py:method} _step_context(embeddings: torch.Tensor, state: typing.Any) -> torch.Tensor

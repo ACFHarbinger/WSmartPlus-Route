@@ -93,6 +93,14 @@ Bases: {py:obj}`src.models.attention_model.decoding.DecodingMixin`, {py:obj}`tor
 
 ````
 
+````{py:method} _aggregate_graph_context(outputs: torch.Tensor) -> torch.Tensor
+:canonical: src.models.attention_model.model.AttentionModel._aggregate_graph_context
+
+```{autodoc2-docstring} src.models.attention_model.model.AttentionModel._aggregate_graph_context
+```
+
+````
+
 ````{py:method} precompute_fixed(input: typing.Dict[str, torch.Tensor], edges: typing.Optional[torch.Tensor])
 :canonical: src.models.attention_model.model.AttentionModel.precompute_fixed
 

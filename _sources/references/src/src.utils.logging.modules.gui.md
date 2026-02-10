@@ -23,6 +23,10 @@
   - ```{autodoc2-docstring} src.utils.logging.modules.gui.send_final_output_to_gui
     :summary:
     ```
+* - {py:obj}`_process_tour_point <src.utils.logging.modules.gui._process_tour_point>`
+  - ```{autodoc2-docstring} src.utils.logging.modules.gui._process_tour_point
+    :summary:
+    ```
 ````
 
 ### API
@@ -38,5 +42,12 @@
 :canonical: src.utils.logging.modules.gui.send_final_output_to_gui
 
 ```{autodoc2-docstring} src.utils.logging.modules.gui.send_final_output_to_gui
+```
+````
+
+````{py:function} _process_tour_point(idx: int, coords_lookup: typing.Optional[pandas.DataFrame]) -> typing.Dict[str, typing.Any]
+:canonical: src.utils.logging.modules.gui._process_tour_point
+
+```{autodoc2-docstring} src.utils.logging.modules.gui._process_tour_point
 ```
 ````

@@ -16,7 +16,9 @@
 :align: left
 
 * - {py:obj}`GoogleStyleValidator <src.utils.docs.check_google_style.GoogleStyleValidator>`
-  -
+  - ```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator
+    :summary:
+    ```
 ````
 
 ### Functions
@@ -81,6 +83,15 @@
 :canonical: src.utils.docs.check_google_style.GoogleStyleValidator
 
 Bases: {py:obj}`ast.NodeVisitor`
+
+```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator.__init__
+```
 
 ````{py:method} add_violation(node, message)
 :canonical: src.utils.docs.check_google_style.GoogleStyleValidator.add_violation

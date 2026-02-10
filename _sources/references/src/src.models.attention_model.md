@@ -13,7 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.models.attention_model.hybrid_stage_policy
 src.models.attention_model.decoding
+src.models.attention_model.time_tracking_policy
 src.models.attention_model.model
 src.models.attention_model.policy
 src.models.attention_model.symnco_policy
@@ -39,7 +41,7 @@ src.models.attention_model.deep_decoder_policy
 ````{py:data} __all__
 :canonical: src.models.attention_model.__all__
 :value: >
-   ['AttentionModel', 'AttentionModelPolicy', 'DeepDecoderPolicy', 'SymNCOPolicy']
+   ['AttentionModel', 'AttentionModelPolicy', 'DeepDecoderPolicy', 'HybridTwoStagePolicy', 'SymNCOPolic...
 
 ```{autodoc2-docstring} src.models.attention_model.__all__
 ```

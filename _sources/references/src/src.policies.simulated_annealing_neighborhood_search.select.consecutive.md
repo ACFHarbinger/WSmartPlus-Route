@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`_extract_valid_segment <src.policies.simulated_annealing_neighborhood_search.select.consecutive._extract_valid_segment>`
+  - ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.consecutive._extract_valid_segment
+    :summary:
+    ```
 * - {py:obj}`remove_n_bins_consecutive <src.policies.simulated_annealing_neighborhood_search.select.consecutive.remove_n_bins_consecutive>`
   - ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.consecutive.remove_n_bins_consecutive
     :summary:
@@ -34,6 +38,13 @@
 ````
 
 ### API
+
+````{py:function} _extract_valid_segment(chosen_route, chosen_n, bins_cannot_removed)
+:canonical: src.policies.simulated_annealing_neighborhood_search.select.consecutive._extract_valid_segment
+
+```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.consecutive._extract_valid_segment
+```
+````
 
 ````{py:function} remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.consecutive.remove_n_bins_consecutive

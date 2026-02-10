@@ -47,6 +47,38 @@
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.__init__
 ```
 
+````{py:method} _initialize_solve(initial_solution: typing.Optional[typing.List[typing.List[int]]])
+:canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve
+```
+
+````
+
+````{py:method} _select_and_apply_operators(current_routes)
+:canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._select_and_apply_operators
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._select_and_apply_operators
+```
+
+````
+
+````{py:method} _accept_solution(current_profit, new_profit, T)
+:canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution
+```
+
+````
+
+````{py:method} _update_weights(d_idx, r_idx, score)
+:canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights
+```
+
+````
+
 ````{py:method} solve(initial_solution: typing.Optional[typing.List[typing.List[int]]] = None) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.solve
 

@@ -19,7 +19,7 @@ src.pipeline.rl.common.base.data
 src.pipeline.rl.common.base.model
 ```
 
-## Module Contents
+## Package Contents
 
 ### Data
 

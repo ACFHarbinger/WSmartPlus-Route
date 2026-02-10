@@ -97,7 +97,7 @@
 
 `````
 
-````{py:function} setup_logger_redirection()
+````{py:function} setup_logger_redirection(log_file=None, silent=False)
 :canonical: src.utils.logging.logger_writer.setup_logger_redirection
 
 ```{autodoc2-docstring} src.utils.logging.logger_writer.setup_logger_redirection

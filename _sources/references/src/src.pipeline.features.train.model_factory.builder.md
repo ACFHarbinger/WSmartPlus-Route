@@ -19,6 +19,22 @@
   - ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder.create_model
     :summary:
     ```
+* - {py:obj}`_init_environment <src.pipeline.features.train.model_factory.builder._init_environment>`
+  - ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._init_environment
+    :summary:
+    ```
+* - {py:obj}`_init_policy <src.pipeline.features.train.model_factory.builder._init_policy>`
+  - ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._init_policy
+    :summary:
+    ```
+* - {py:obj}`_init_hybrid_policy <src.pipeline.features.train.model_factory.builder._init_hybrid_policy>`
+  - ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._init_hybrid_policy
+    :summary:
+    ```
+* - {py:obj}`_prepare_rl_kwargs <src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs>`
+  - ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs
+    :summary:
+    ```
 ````
 
 ### Data
@@ -49,5 +65,33 @@
 :canonical: src.pipeline.features.train.model_factory.builder.create_model
 
 ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder.create_model
+```
+````
+
+````{py:function} _init_environment(cfg: logic.src.configs.Config)
+:canonical: src.pipeline.features.train.model_factory.builder._init_environment
+
+```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._init_environment
+```
+````
+
+````{py:function} _init_policy(cfg: logic.src.configs.Config, env: typing.Any)
+:canonical: src.pipeline.features.train.model_factory.builder._init_policy
+
+```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._init_policy
+```
+````
+
+````{py:function} _init_hybrid_policy(cfg: logic.src.configs.Config)
+:canonical: src.pipeline.features.train.model_factory.builder._init_hybrid_policy
+
+```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._init_hybrid_policy
+```
+````
+
+````{py:function} _prepare_rl_kwargs(cfg: logic.src.configs.Config, env: typing.Any, policy: typing.Any)
+:canonical: src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs
+
+```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs
 ```
 ````

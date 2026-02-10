@@ -16,8 +16,7 @@
 src.configs.policies
 src.configs.models
 src.configs.tasks
-src.configs.core
-src.configs.other
+src.configs.rl
 src.configs.envs
 ```
 
@@ -101,7 +100,7 @@ src.configs.envs
 
 ````{py:attribute} rl
 :canonical: src.configs.Config.rl
-:type: src.configs.core.RLConfig
+:type: src.configs.rl.RLConfig
 :value: >
    'field(...)'
 
@@ -156,7 +155,7 @@ src.configs.envs
 
 ````{py:attribute} data
 :canonical: src.configs.Config.data
-:type: src.configs.envs.DataConfig
+:type: src.configs.tasks.DataConfig
 :value: >
    'field(...)'
 
@@ -167,7 +166,7 @@ src.configs.envs
 
 ````{py:attribute} must_go
 :canonical: src.configs.Config.must_go
-:type: src.configs.other.MustGoConfig
+:type: src.configs.policies.other.MustGoConfig
 :value: >
    'field(...)'
 
@@ -178,7 +177,7 @@ src.configs.envs
 
 ````{py:attribute} post_processing
 :canonical: src.configs.Config.post_processing
-:type: src.configs.other.PostProcessingConfig
+:type: src.configs.policies.other.PostProcessingConfig
 :value: >
    'field(...)'
 
@@ -315,6 +314,17 @@ src.configs.envs
    0
 
 ```{autodoc2-docstring} src.configs.Config.start
+```
+
+````
+
+````{py:attribute} callbacks
+:canonical: src.configs.Config.callbacks
+:type: typing.Dict[str, typing.Any]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.Config.callbacks
 ```
 
 ````

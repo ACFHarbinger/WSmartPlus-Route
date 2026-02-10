@@ -31,6 +31,18 @@
   - ```{autodoc2-docstring} src.pipeline.features.eval.engine.eval_dataset
     :summary:
     ```
+* - {py:obj}`_eval_multiprocessing <src.pipeline.features.eval.engine._eval_multiprocessing>`
+  - ```{autodoc2-docstring} src.pipeline.features.eval.engine._eval_multiprocessing
+    :summary:
+    ```
+* - {py:obj}`_eval_singleprocess <src.pipeline.features.eval.engine._eval_singleprocess>`
+  - ```{autodoc2-docstring} src.pipeline.features.eval.engine._eval_singleprocess
+    :summary:
+    ```
+* - {py:obj}`_get_eval_output_path <src.pipeline.features.eval.engine._get_eval_output_path>`
+  - ```{autodoc2-docstring} src.pipeline.features.eval.engine._get_eval_output_path
+    :summary:
+    ```
 ````
 
 ### Data
@@ -82,5 +94,26 @@
 :canonical: src.pipeline.features.eval.engine.eval_dataset
 
 ```{autodoc2-docstring} src.pipeline.features.eval.engine.eval_dataset
+```
+````
+
+````{py:function} _eval_multiprocessing(dataset_path: str, beam_width: int, softmax_temp: float, opts: typing.Dict[str, typing.Any]) -> typing.List[typing.Dict[str, typing.Any]]
+:canonical: src.pipeline.features.eval.engine._eval_multiprocessing
+
+```{autodoc2-docstring} src.pipeline.features.eval.engine._eval_multiprocessing
+```
+````
+
+````{py:function} _eval_singleprocess(model: torch.nn.Module, dataset_path: str, beam_width: int, softmax_temp: float, opts: typing.Dict[str, typing.Any], use_cuda: bool) -> typing.List[typing.Dict[str, typing.Any]]
+:canonical: src.pipeline.features.eval.engine._eval_singleprocess
+
+```{autodoc2-docstring} src.pipeline.features.eval.engine._eval_singleprocess
+```
+````
+
+````{py:function} _get_eval_output_path(model: torch.nn.Module, dataset_path: str, opts: typing.Dict[str, typing.Any], model_name: str, beam_width: int, softmax_temp: float, num_costs: int) -> str
+:canonical: src.pipeline.features.eval.engine._get_eval_output_path
+
+```{autodoc2-docstring} src.pipeline.features.eval.engine._get_eval_output_path
 ```
 ````

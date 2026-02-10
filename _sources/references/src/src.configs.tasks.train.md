@@ -392,13 +392,13 @@
 
 ````
 
-````{py:attribute} training_strategy
-:canonical: src.configs.tasks.train.TrainConfig.training_strategy
+````{py:attribute} strategy
+:canonical: src.configs.tasks.train.TrainConfig.strategy
 :type: typing.Optional[str]
 :value: >
-   None
+   'auto'
 
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.training_strategy
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.strategy
 ```
 
 ````
@@ -443,6 +443,17 @@
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.policy
+```
+
+````
+
+````{py:attribute} callbacks
+:canonical: src.configs.tasks.train.TrainConfig.callbacks
+:type: typing.Optional[typing.List[typing.Any]]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.callbacks
 ```
 
 ````

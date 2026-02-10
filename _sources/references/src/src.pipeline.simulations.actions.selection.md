@@ -39,4 +39,20 @@ Bases: {py:obj}`src.pipeline.simulations.actions.base.SimulationAction`
 
 ````
 
+````{py:method} _gather_strategies(context: typing.Dict[str, typing.Any]) -> typing.List[typing.Dict[str, typing.Any]]
+:canonical: src.pipeline.simulations.actions.selection.MustGoSelectionAction._gather_strategies
+
+```{autodoc2-docstring} src.pipeline.simulations.actions.selection.MustGoSelectionAction._gather_strategies
+```
+
+````
+
+````{py:method} _parse_strategy_item(item: typing.Any) -> typing.List[typing.Dict[str, typing.Any]]
+:canonical: src.pipeline.simulations.actions.selection.MustGoSelectionAction._parse_strategy_item
+
+```{autodoc2-docstring} src.pipeline.simulations.actions.selection.MustGoSelectionAction._parse_strategy_item
+```
+
+````
+
 `````

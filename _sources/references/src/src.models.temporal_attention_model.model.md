@@ -61,7 +61,7 @@ Bases: {py:obj}`logic.src.models.attention_model.AttentionModel`
 
 ````
 
-````{py:method} compute_simulator_day(input, graph, run_tsp=False)
+````{py:method} compute_simulator_day(input, graph)
 :canonical: src.models.temporal_attention_model.model.TemporalAttentionModel.compute_simulator_day
 
 ```{autodoc2-docstring} src.models.temporal_attention_model.model.TemporalAttentionModel.compute_simulator_day

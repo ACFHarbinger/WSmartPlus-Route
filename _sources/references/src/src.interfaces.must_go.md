@@ -15,26 +15,26 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`MustGoSelectionStrategy <src.interfaces.must_go.MustGoSelectionStrategy>`
-  - ```{autodoc2-docstring} src.interfaces.must_go.MustGoSelectionStrategy
+* - {py:obj}`IMustGoSelectionStrategy <src.interfaces.must_go.IMustGoSelectionStrategy>`
+  - ```{autodoc2-docstring} src.interfaces.must_go.IMustGoSelectionStrategy
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} MustGoSelectionStrategy
-:canonical: src.interfaces.must_go.MustGoSelectionStrategy
+`````{py:class} IMustGoSelectionStrategy
+:canonical: src.interfaces.must_go.IMustGoSelectionStrategy
 
 Bases: {py:obj}`typing.Protocol`
 
-```{autodoc2-docstring} src.interfaces.must_go.MustGoSelectionStrategy
+```{autodoc2-docstring} src.interfaces.must_go.IMustGoSelectionStrategy
 ```
 
-````{py:method} select_bins(context: logic.src.policies.must_go.base.selection_context.SelectionContext) -> typing.List[int]
-:canonical: src.interfaces.must_go.MustGoSelectionStrategy.select_bins
+````{py:method} select_bins(context: logic.src.policies.other.must_go.base.selection_context.SelectionContext) -> typing.List[int]
+:canonical: src.interfaces.must_go.IMustGoSelectionStrategy.select_bins
 
-```{autodoc2-docstring} src.interfaces.must_go.MustGoSelectionStrategy.select_bins
+```{autodoc2-docstring} src.interfaces.must_go.IMustGoSelectionStrategy.select_bins
 ```
 
 ````

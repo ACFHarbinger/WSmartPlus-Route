@@ -13,8 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.callbacks.training_display
+src.pipeline.callbacks.policy_summary
+src.pipeline.callbacks.model_summary
 src.pipeline.callbacks.reptile
 src.pipeline.callbacks.speed_monitor
+src.pipeline.callbacks.simulation_display
 ```
 
 ## Package Contents
@@ -36,7 +40,7 @@ src.pipeline.callbacks.speed_monitor
 ````{py:data} __all__
 :canonical: src.pipeline.callbacks.__all__
 :value: >
-   ['ReptileCallback', 'SpeedMonitor']
+   ['TrainingDisplayCallback', 'ReptileCallback', 'SpeedMonitor', 'ModelSummaryCallback']
 
 ```{autodoc2-docstring} src.pipeline.callbacks.__all__
 ```

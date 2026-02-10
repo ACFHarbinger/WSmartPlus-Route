@@ -60,14 +60,14 @@
 ```
 ````
 
-````{py:function} move_n_2_routes_random(routes_list: list) -> int
+````{py:function} move_n_2_routes_random(routes_list: list) -> typing.Optional[int]
 :canonical: src.policies.simulated_annealing_neighborhood_search.operators.inter_move.move_n_2_routes_random
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.operators.inter_move.move_n_2_routes_random
 ```
 ````
 
-````{py:function} move_n_2_routes_consecutive(routes_list: list) -> int
+````{py:function} move_n_2_routes_consecutive(routes_list: list) -> typing.Optional[int]
 :canonical: src.policies.simulated_annealing_neighborhood_search.operators.inter_move.move_n_2_routes_consecutive
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.operators.inter_move.move_n_2_routes_consecutive

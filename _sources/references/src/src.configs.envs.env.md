@@ -40,6 +40,17 @@
 
 ````
 
+````{py:attribute} num_loc
+:canonical: src.configs.envs.env.EnvConfig.num_loc
+:type: int
+:value: >
+   50
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.num_loc
+```
+
+````
+
 ````{py:attribute} min_loc
 :canonical: src.configs.envs.env.EnvConfig.min_loc
 :type: float
@@ -58,6 +69,17 @@
    1.0
 
 ```{autodoc2-docstring} src.configs.envs.env.EnvConfig.max_loc
+```
+
+````
+
+````{py:attribute} capacity
+:canonical: src.configs.envs.env.EnvConfig.capacity
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.capacity
 ```
 
 ````

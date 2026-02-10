@@ -40,6 +40,9 @@ Bases: {py:obj}`logic.src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder
 ````{py:method} _precompute(embeddings: torch.Tensor, num_steps: int = 1) -> typing.Any
 :canonical: src.models.subnets.decoders.matnet.decoder.MatNetDecoder._precompute
 
+```{autodoc2-docstring} src.models.subnets.decoders.matnet.decoder.MatNetDecoder._precompute
+```
+
 ````
 
 ````{py:method} forward(input: typing.Union[torch.Tensor, dict[str, torch.Tensor]], embeddings: torch.Tensor, cost_weights: typing.Optional[torch.Tensor] = None, dist_matrix: typing.Optional[torch.Tensor] = None, mask: typing.Optional[torch.Tensor] = None, expert_pi: typing.Optional[torch.Tensor] = None, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]

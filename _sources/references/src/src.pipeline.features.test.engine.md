@@ -19,6 +19,18 @@
   - ```{autodoc2-docstring} src.pipeline.features.test.engine.run_wsr_simulator_test
     :summary:
     ```
+* - {py:obj}`_prepare_opts <src.pipeline.features.test.engine._prepare_opts>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.engine._prepare_opts
+    :summary:
+    ```
+* - {py:obj}`_resolve_data_size <src.pipeline.features.test.engine._resolve_data_size>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.engine._resolve_data_size
+    :summary:
+    ```
+* - {py:obj}`_ensure_directories <src.pipeline.features.test.engine._ensure_directories>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.engine._ensure_directories
+    :summary:
+    ```
 ````
 
 ### API
@@ -27,5 +39,26 @@
 :canonical: src.pipeline.features.test.engine.run_wsr_simulator_test
 
 ```{autodoc2-docstring} src.pipeline.features.test.engine.run_wsr_simulator_test
+```
+````
+
+````{py:function} _prepare_opts(opts)
+:canonical: src.pipeline.features.test.engine._prepare_opts
+
+```{autodoc2-docstring} src.pipeline.features.test.engine._prepare_opts
+```
+````
+
+````{py:function} _resolve_data_size(opts)
+:canonical: src.pipeline.features.test.engine._resolve_data_size
+
+```{autodoc2-docstring} src.pipeline.features.test.engine._resolve_data_size
+```
+````
+
+````{py:function} _ensure_directories(opts)
+:canonical: src.pipeline.features.test.engine._ensure_directories
+
+```{autodoc2-docstring} src.pipeline.features.test.engine._ensure_directories
 ```
 ````

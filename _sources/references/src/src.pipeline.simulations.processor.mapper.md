@@ -77,6 +77,30 @@
 
 ````
 
+````{py:method} _prepare_model_data(coordinates, method, configs, problem_size) -> typing.Dict[str, torch.Tensor]
+:canonical: src.pipeline.simulations.processor.mapper.SimulationDataMapper._prepare_model_data
+
+```{autodoc2-docstring} src.pipeline.simulations.processor.mapper.SimulationDataMapper._prepare_model_data
+```
+
+````
+
+````{py:method} _prepare_edges(dist_matrix, configs, device, edge_threshold, edge_method, adj_matrix)
+:canonical: src.pipeline.simulations.processor.mapper.SimulationDataMapper._prepare_edges
+
+```{autodoc2-docstring} src.pipeline.simulations.processor.mapper.SimulationDataMapper._prepare_edges
+```
+
+````
+
+````{py:method} _load_profit_vars(area, waste_type)
+:canonical: src.pipeline.simulations.processor.mapper.SimulationDataMapper._load_profit_vars
+
+```{autodoc2-docstring} src.pipeline.simulations.processor.mapper.SimulationDataMapper._load_profit_vars
+```
+
+````
+
 ````{py:method} process_model_input(coordinates, dist_matrix, device, method, configs, edge_threshold, edge_method, area, waste_type, adj_matrix=None)
 :canonical: src.pipeline.simulations.processor.mapper.SimulationDataMapper.process_model_input
 

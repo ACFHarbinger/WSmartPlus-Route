@@ -24,7 +24,7 @@ src.pipeline.rl.common.baselines.exponential
 src.pipeline.rl.common.baselines.base
 ```
 
-## Module Contents
+## Package Contents
 
 ### Functions
 
@@ -44,27 +44,17 @@ src.pipeline.rl.common.baselines.base
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`__all__ <src.pipeline.rl.common.baselines.__all__>`
-  - ```{autodoc2-docstring} src.pipeline.rl.common.baselines.__all__
-    :summary:
-    ```
 * - {py:obj}`BASELINE_REGISTRY <src.pipeline.rl.common.baselines.BASELINE_REGISTRY>`
   - ```{autodoc2-docstring} src.pipeline.rl.common.baselines.BASELINE_REGISTRY
+    :summary:
+    ```
+* - {py:obj}`__all__ <src.pipeline.rl.common.baselines.__all__>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.baselines.__all__
     :summary:
     ```
 ````
 
 ### API
-
-````{py:data} __all__
-:canonical: src.pipeline.rl.common.baselines.__all__
-:value: >
-   ['Baseline', 'MeanBaseline', 'NoBaseline', 'CriticBaseline', 'SharedBaseline', 'ExponentialBaseline'...
-
-```{autodoc2-docstring} src.pipeline.rl.common.baselines.__all__
-```
-
-````
 
 ````{py:data} BASELINE_REGISTRY
 :canonical: src.pipeline.rl.common.baselines.BASELINE_REGISTRY
@@ -81,4 +71,14 @@ src.pipeline.rl.common.baselines.base
 
 ```{autodoc2-docstring} src.pipeline.rl.common.baselines.get_baseline
 ```
+````
+
+````{py:data} __all__
+:canonical: src.pipeline.rl.common.baselines.__all__
+:value: >
+   ['Baseline', 'MeanBaseline', 'NoBaseline', 'CriticBaseline', 'SharedBaseline', 'ExponentialBaseline'...
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.__all__
+```
+
 ````
