@@ -43,13 +43,13 @@ def vectorized_split_limited(
     idx_i = indices.view(1, 1, N + 1).expand(B, N + 1, N + 1)
 
     # Mask valid upper triangle: j < i
-    mask_indices = J < idx_i
+    mask_indices = idx_i > J
 
     # Load Constraint
     # L[b, j, i] = cum_load[b, i] - cum_load[b, j].
     L = cum_load.unsqueeze(1) - cum_load.unsqueeze(2)
 
-    mask_cap = (L <= capacity) & mask_indices
+    mask_cap = (capacity >= L) & mask_indices
 
     # Costs
     # d0_pad (B, N+1)

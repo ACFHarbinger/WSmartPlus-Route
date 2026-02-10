@@ -169,9 +169,7 @@ class RLModelTab(BaseReinforcementLearningTab):
         """
         params = {}
         for key, widget in self.widgets.items():
-            if isinstance(widget, QSpinBox):
-                params[key] = widget.value()
-            elif isinstance(widget, QDoubleSpinBox):
+            if isinstance(widget, QSpinBox) or isinstance(widget, QDoubleSpinBox):
                 params[key] = widget.value()
             elif isinstance(widget, QLineEdit):
                 text = widget.text().strip()

@@ -84,12 +84,12 @@ def sort_by_pairs(graph_size: int, edge_idx: torch.Tensor) -> torch.Tensor:
     Returns:
         Tensor: Sorted edge indices.
     """
-    assert (
-        len(edge_idx.size()) == 2
-    ), f"edge_idx must be a 2D tensor, got shape {edge_idx.size()} with {len(edge_idx.size())} dimensions"
-    assert (
-        edge_idx.size(dim=0) == 2 or edge_idx.size(dim=-1) == 2
-    ), f"edge_idx must have shape (2, num_edges) or (num_edges, 2), got {edge_idx.size()}"
+    assert len(edge_idx.size()) == 2, (
+        f"edge_idx must be a 2D tensor, got shape {edge_idx.size()} with {len(edge_idx.size())} dimensions"
+    )
+    assert edge_idx.size(dim=0) == 2 or edge_idx.size(dim=-1) == 2, (
+        f"edge_idx must have shape (2, num_edges) or (num_edges, 2), got {edge_idx.size()}"
+    )
 
     # Transpose the tensor if it has size (2, num_edges)
     is_transpose = edge_idx.size(dim=-1) != 2

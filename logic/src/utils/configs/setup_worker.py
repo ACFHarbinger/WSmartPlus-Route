@@ -9,7 +9,7 @@ import threading
 from typing import Any, Dict, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.utils.functions import load_model
 

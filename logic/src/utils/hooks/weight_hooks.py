@@ -10,7 +10,7 @@ from collections import defaultdict
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 def add_weight_change_monitor_hook(

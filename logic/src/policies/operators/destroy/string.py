@@ -141,6 +141,6 @@ def _propagate_string_removal(
                 end = min(len(route), start + string_len)
 
                 for p in range(end - 1, start - 1, -1):
-                    if routes[r_idx][p] not in removed:
-                        removed.append(routes[r_idx].pop(p))
+                    if route[p] not in removed:
+                        removed.append(route.pop(p))
                 break

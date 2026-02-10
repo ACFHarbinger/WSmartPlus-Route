@@ -4,7 +4,6 @@ Type II Unstringing Operator (vectorized).
 Removes node V_i and reconnects the route with two reversed segments where k > j.
 """
 
-
 import torch
 
 from logic.src.constants.routing import IMPROVEMENT_EPSILON

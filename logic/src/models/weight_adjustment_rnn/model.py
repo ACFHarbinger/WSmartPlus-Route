@@ -2,7 +2,7 @@
 This module contains the Meta RNN model for dynamic weight adjustment.
 """
 
-import torch.nn as nn
+from torch import nn
 
 
 class WeightAdjustmentRNN(nn.Module):

@@ -1,11 +1,12 @@
 """cwcvrp.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import cwcvrp
-    """
+Example:
+    >>> import cwcvrp
+"""
+
 from .wcvrp import WCVRP
 
 

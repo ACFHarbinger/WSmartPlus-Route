@@ -24,7 +24,7 @@ def compute_distance_per_route(routes_list, distance_matrix):
     for i in routes_list:
         for j, element in enumerate(i):
             if j < len(i) - 1:
-                travelled_distance_route += distance_matrix[i[j]][i[j + 1]]
+                travelled_distance_route += distance_matrix[element][i[j + 1]]
         distance_route_vector.append(travelled_distance_route)
         travelled_distance_route = 0
     return distance_route_vector

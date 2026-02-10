@@ -8,8 +8,8 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.utils.decoding import get_decoding_strategy

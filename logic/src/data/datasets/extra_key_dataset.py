@@ -26,9 +26,9 @@ class ExtraKeyDataset(Dataset):
         self.extra = extra
         # Validate lengths
         for k, v in extra.items():
-            assert len(cast(Sized, dataset)) == len(
-                v
-            ), f"Length mismatch for key {k}: {len(cast(Sized, dataset))} vs {len(v)}"
+            assert len(cast(Sized, dataset)) == len(v), (
+                f"Length mismatch for key {k}: {len(cast(Sized, dataset))} vs {len(v)}"
+            )
 
     def __getitem__(self, index: int) -> dict:
         """

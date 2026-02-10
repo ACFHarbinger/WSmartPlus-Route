@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-import torch.nn as nn
+from torch import nn
 
 from logic.src.configs.models.activation_function import ActivationConfig
 from logic.src.configs.models.normalization import NormalizationConfig

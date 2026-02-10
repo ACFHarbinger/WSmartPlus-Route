@@ -36,7 +36,7 @@ def validate_gui_args(args):
     Validates and post-processes arguments for gui.src.
     """
     args = args.copy()
-    assert (
-        args.get("app_style") in [None] + APP_STYLES
-    ), f"Invalid application style '{args.get('app_style')}' - app_style value must be: {[None] + APP_STYLES}"
+    assert args.get("app_style") in [None] + APP_STYLES, (
+        f"Invalid application style '{args.get('app_style')}' - app_style value must be: {[None] + APP_STYLES}"
+    )
     return args

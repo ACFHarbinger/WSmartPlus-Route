@@ -138,12 +138,11 @@ class UIMediator(QObject):
                         ]
                         if is_base_tab or is_active_special_tab:
                             all_params.update(tab_widget.get_params())
-        else:
-            # Aggregate from all tabs for this command
-            if self.current_command in self.tabs:
-                for tab_widget in self.tabs[self.current_command].values():
-                    if hasattr(tab_widget, "get_params"):
-                        all_params.update(tab_widget.get_params())
+        # Aggregate from all tabs for this command
+        elif self.current_command in self.tabs:
+            for tab_widget in self.tabs[self.current_command].values():
+                if hasattr(tab_widget, "get_params"):
+                    all_params.update(tab_widget.get_params())
 
         # Construct Command String
         if actual_command.startswith("scripts/") and "script" in all_params:

@@ -2,7 +2,7 @@ import math
 from typing import Optional, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.configs.models.activation_function import ActivationConfig
 

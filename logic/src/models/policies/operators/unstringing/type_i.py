@@ -5,7 +5,6 @@ Removes node V_i and reconnects the route by reversing two sub-tours.
 This operator deletes 4 arcs and inserts 3 arcs with segment reversals.
 """
 
-
 import torch
 
 from logic.src.constants.routing import IMPROVEMENT_EPSILON

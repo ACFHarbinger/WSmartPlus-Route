@@ -1,13 +1,14 @@
 """critic_head.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import critic_head
-    """
+Example:
+    >>> import critic_head
+"""
+
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class CriticHead(nn.Module):

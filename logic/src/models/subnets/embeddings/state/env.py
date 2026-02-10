@@ -1,17 +1,18 @@
 """env.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import env
-    """
+Example:
+    >>> import env
+"""
+
 from __future__ import annotations
 
 from typing import Any
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class EnvState(nn.Module):

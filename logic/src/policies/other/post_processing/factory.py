@@ -63,9 +63,7 @@ class PostProcessorFactory:
         for method in config.methods:
             # Map parameters based on method name and config fields
             # ClassicalLocalSearch needs 'operator_name'
-            if method in ["2opt", "2opt_star", "swap", "relocate", "swap_star", "3opt"]:
-                processor = cls.create(method)
-            elif method == "fast_tsp":
+            if method in ["2opt", "2opt_star", "swap", "relocate", "swap_star", "3opt"] or method == "fast_tsp":
                 processor = cls.create(method)
             elif method == "ils":
                 # IteratedLocalSearchPostProcessor takes many params

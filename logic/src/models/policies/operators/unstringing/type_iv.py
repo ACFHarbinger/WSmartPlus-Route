@@ -5,7 +5,6 @@ Most complex US operator involving four neighbor nodes and multiple reversals.
 Provides the deepest exploration of the unstringing neighborhood.
 """
 
-
 import torch
 
 from logic.src.constants.routing import IMPROVEMENT_EPSILON

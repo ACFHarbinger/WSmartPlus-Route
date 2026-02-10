@@ -8,8 +8,8 @@ import copy
 from typing import Optional
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.models.subnets.embeddings import get_init_embedding
 from logic.src.models.subnets.encoders.gat import GraphAttentionEncoder

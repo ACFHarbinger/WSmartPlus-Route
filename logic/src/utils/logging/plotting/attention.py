@@ -53,15 +53,15 @@ def plot_attention_maps_wrapper(
     assert sample_idx >= 0, f"sample_idx {sample_idx} must be a non-negative integer"
 
     attention_weights = attention_dict[model_name][sample_idx]["attention_weights"]
-    assert (
-        layer_idx < attention_weights.shape[0]
-    ), f"layer_idx {layer_idx} exceeds number of layers {attention_weights.shape[0]}"
-    assert (
-        head_idx < attention_weights.shape[1]
-    ), f"head_idx {head_idx} exceeds number of heads {attention_weights.shape[1]}"
-    assert (
-        batch_idx < attention_weights.shape[2]
-    ), f"layer_idx {batch_idx} exceeds batch size {attention_weights.shape[2]}"
+    assert layer_idx < attention_weights.shape[0], (
+        f"layer_idx {layer_idx} exceeds number of layers {attention_weights.shape[0]}"
+    )
+    assert head_idx < attention_weights.shape[1], (
+        f"head_idx {head_idx} exceeds number of heads {attention_weights.shape[1]}"
+    )
+    assert batch_idx < attention_weights.shape[2], (
+        f"layer_idx {batch_idx} exceeds batch size {attention_weights.shape[2]}"
+    )
 
     # Extract attention map
     if head_idx >= 0:
@@ -83,27 +83,24 @@ def plot_attention_maps_wrapper(
                 model_name,
                 f"layer{layer_idx}_head{head_idx}_map{sample_idx}.png",
             )
+    elif batch_idx >= 0:
+        attn_map = attention_weights[layer_idx, :, batch_idx].mean(dim=0).cpu().numpy()  # Average over heads
+        title = "Attention Map Average Over All Heads (Layer {}, Batch {})".format(layer_idx, batch_idx)
+        attention_filename = os.path.join(
+            dir_path,
+            "attention_maps",
+            model_name,
+            f"layer{layer_idx}_headavg_map{sample_idx}.png",
+        )
     else:
-        if batch_idx >= 0:
-            attn_map = attention_weights[layer_idx, :, batch_idx].mean(dim=0).cpu().numpy()  # Average over heads
-            title = "Attention Map Average Over All Heads (Layer {}, Batch {})".format(layer_idx, batch_idx)
-            attention_filename = os.path.join(
-                dir_path,
-                "attention_maps",
-                model_name,
-                f"layer{layer_idx}_headavg_map{sample_idx}.png",
-            )
-        else:
-            attn_map = (
-                attention_weights[layer_idx, :, :].mean(dim=(0, 1)).cpu().numpy()
-            )  # Average over heads and batches
-            title = "Attention Map Average Over All Heads and Batches (Layer {})".format(layer_idx)
-            attention_filename = os.path.join(
-                dir_path,
-                "attention_maps",
-                model_name,
-                f"layer{layer_idx}_headavg_map{sample_idx}.png",
-            )
+        attn_map = attention_weights[layer_idx, :, :].mean(dim=(0, 1)).cpu().numpy()  # Average over heads and batches
+        title = "Attention Map Average Over All Heads and Batches (Layer {})".format(layer_idx)
+        attention_filename = os.path.join(
+            dir_path,
+            "attention_maps",
+            model_name,
+            f"layer{layer_idx}_headavg_map{sample_idx}.png",
+        )
 
     try:
         os.makedirs(os.path.dirname(attention_filename), exist_ok=True)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.subnets.encoders.tgc import TransGraphConvEncoder
 

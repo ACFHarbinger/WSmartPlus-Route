@@ -5,8 +5,8 @@ MDAM Path module.
 from typing import Optional, Tuple
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
 

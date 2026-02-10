@@ -51,8 +51,7 @@ def split_file(file_path, max_part_size, output_dir):
         return [out_file]
 
     rows_per_chunk = int(max_part_size // (mem_usage // num_rows))
-    if rows_per_chunk < 1:
-        rows_per_chunk = 1
+    rows_per_chunk = max(rows_per_chunk, 1)
 
     # Calculate number of digits needed for zero padding
     num_chunks = (num_rows + rows_per_chunk - 1) // rows_per_chunk

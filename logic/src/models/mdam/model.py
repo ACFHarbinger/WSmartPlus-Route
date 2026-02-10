@@ -11,8 +11,8 @@ from functools import partial
 from typing import Any, Dict, Optional
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 from torch.utils.data import DataLoader
 
 from logic.src.envs.base import RL4COEnvBase

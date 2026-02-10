@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional, Union
 
-import torch.nn as nn
+from torch import nn
 
 from logic.src.constants.models import DEFAULT_MOE_KWARGS
 from logic.src.pipeline.rl.core.pomo import POMO

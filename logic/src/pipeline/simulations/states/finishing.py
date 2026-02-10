@@ -1,11 +1,12 @@
 """finishing.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import finishing
-    """
+Example:
+    >>> import finishing
+"""
+
 from __future__ import annotations
 
 import os

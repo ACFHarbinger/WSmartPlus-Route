@@ -1,11 +1,12 @@
 """__init__.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import __init__
-    """
+Example:
+    >>> import __init__
+"""
+
 from .conv_layer import GraphConvolutionLayer
 from .conv_sublayer import FFConvSubLayer
 from .encoder import TransGraphConvEncoder

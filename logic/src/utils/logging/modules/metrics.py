@@ -94,7 +94,7 @@ def log_epoch(
 def get_loss_stats(epoch_loss: Dict[str, List[torch.Tensor]]) -> List[float]:
     """Computes mean, std, min, and max for each loss key."""
     loss_stats: List[float] = []
-    for key in epoch_loss.keys():
+    for key in epoch_loss:
         loss_tensor: torch.Tensor = torch.cat(epoch_loss[key]).float()
         loss_tmp: List[float] = [
             torch.mean(loss_tensor).item(),

@@ -1,11 +1,12 @@
 """hrl.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import hrl
-    """
+Example:
+    >>> import hrl
+"""
+
 from typing import Any, Dict
 
 import pytorch_lightning as pl

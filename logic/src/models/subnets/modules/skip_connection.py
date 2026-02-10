@@ -1,6 +1,6 @@
 """Residual skip connection implementation."""
 
-import torch.nn as nn
+from torch import nn
 
 
 class SkipConnection(nn.Module):

@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 def add_gradient_monitoring_hooks(

@@ -8,8 +8,8 @@ import os
 import re
 from typing import Any, Dict, Optional, Tuple, Type, cast
 
-import torch.nn as nn
 from omegaconf import OmegaConf
+from torch import nn
 
 from .checkpoint_utils import torch_load_cpu
 from .config_utils import load_args

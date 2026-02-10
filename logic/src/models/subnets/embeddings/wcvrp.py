@@ -5,8 +5,8 @@ WCVRP Embedding module.
 from __future__ import annotations
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 
 class WCVRPInitEmbedding(nn.Module):

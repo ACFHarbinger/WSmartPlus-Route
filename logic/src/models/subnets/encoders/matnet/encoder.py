@@ -3,7 +3,7 @@
 from typing import Optional, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from .matnet_encoder_layer import MatNetEncoderLayer
 

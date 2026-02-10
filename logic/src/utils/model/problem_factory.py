@@ -36,6 +36,6 @@ def load_problem(name: str) -> Type[Any]:
         "cwcvrp": CWCVRP,
         "sdwcvrp": SDWCVRP,
         "scwcvrp": SCWCVRP,
-    }.get(name, None)
+    }.get(name)
     assert problem is not None, "Currently unsupported problem: {}!".format(name)
     return problem

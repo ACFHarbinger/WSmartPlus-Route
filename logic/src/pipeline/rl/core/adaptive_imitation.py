@@ -227,7 +227,7 @@ class AdaptiveImitation(REINFORCE):
         # Conditional Imitation: Check if expert provides significant improvement
         # We compare means to decide whether to run the expensive forward pass to save compute
         do_imitation = not self.stop_il
-        current_reward = out.get("reward", None)
+        current_reward = out.get("reward")
         if do_imitation and expert_reward is not None and current_reward is not None:
             if expert_reward.max() <= current_reward.min() + self.threshold:
                 do_imitation = False

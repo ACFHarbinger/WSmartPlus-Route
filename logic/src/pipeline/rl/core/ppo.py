@@ -12,8 +12,8 @@ from __future__ import annotations
 from typing import Any
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 from logic.src.utils.data.rl_utils import safe_td_copy
@@ -157,8 +157,7 @@ class PPO(RL4COLitModule):
         if isinstance(mbs, float):
             mbs = max(1, int(bs * mbs))
 
-        if mbs > bs:
-            mbs = bs
+        mbs = min(mbs, bs)
 
         dataset = FastTdDataset(td)
         dataloader = DataLoader(dataset, batch_size=mbs, shuffle=True, collate_fn=FastTdDataset.collate_fn)

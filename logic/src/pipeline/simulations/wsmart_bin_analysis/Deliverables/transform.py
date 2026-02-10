@@ -181,7 +181,6 @@ def pre_process_container_metrics(containers_dict: dict, calc_spearman: bool = T
         if i > thresh:
             print(f"Processed {i} of {len(containers_dict)} containers")
             thresh += step
-    return
 
 
 def view_metrics(containers_dict: dict, box_window: int, mv_thresh: int, min_days: int, use: str):
@@ -240,7 +239,6 @@ def view_metrics(containers_dict: dict, box_window: int, mv_thresh: int, min_day
         plt.xlabel("Value")
         plt.ylabel(yaxis)
         plt.show()
-        return
 
     if use == "spear":
         all_spear = np.concatenate(list(dict_spear.values()))

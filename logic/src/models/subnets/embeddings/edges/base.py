@@ -11,7 +11,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import torch
-import torch.nn as nn
+from torch import nn
 from torch_geometric.data import Batch, Data
 
 from logic.src.utils.ops import get_distance_matrix, get_full_graph_edge_index, sparsify_graph
@@ -42,9 +42,9 @@ class EdgeEmbedding(nn.Module):
             k_sparse: Number of neighbors per node, or a callable(n) -> k.
                        Defaults to max(n // 5, 10).
         """
-        assert (
-            Batch is not None
-        ), "torch_geometric is required for EdgeEmbedding. Install via: pip install torch_geometric"
+        assert Batch is not None, (
+            "torch_geometric is required for EdgeEmbedding. Install via: pip install torch_geometric"
+        )
         super().__init__()
 
         if k_sparse is None:

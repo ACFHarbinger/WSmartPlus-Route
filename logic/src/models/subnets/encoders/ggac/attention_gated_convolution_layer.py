@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.subnets.modules import (
     ActivationFunction,

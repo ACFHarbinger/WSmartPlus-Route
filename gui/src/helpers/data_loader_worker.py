@@ -2,7 +2,7 @@
 Worker for asynchronous data loading and processing.
 """
 
-import collections.abc as abc
+from collections import abc
 from typing import Any, List
 
 import numpy as np

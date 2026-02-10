@@ -307,29 +307,27 @@ def sequential_simulations(
                     log.update(res_log)
                 if res_std and log_std is not None:
                     log_std.update(res_std)
-            else:
-                if policy in log_full and log_full[policy]:
-                    log[policy] = [*map(statistics.mean, zip(*log_full[policy]))]
-                    if len(log_full[policy]) > 1:
-                        if log_std is not None:
-                            log_std[policy] = [*map(statistics.stdev, zip(*log_full[policy]))]
-                    else:
-                        if log_std is not None:
-                            log_std[policy] = [0.0] * len(log[policy])
+            elif policy in log_full and log_full[policy]:
+                log[policy] = [*map(statistics.mean, zip(*log_full[policy]))]
+                if len(log_full[policy]) > 1:
+                    if log_std is not None:
+                        log_std[policy] = [*map(statistics.stdev, zip(*log_full[policy]))]
+                elif log_std is not None:
+                    log_std[policy] = [0.0] * len(log[policy])
 
+                log_to_json(
+                    os.path.join(results_dir, f"log_mean_{opts['n_samples']}N.json"),
+                    SIM_METRICS,
+                    {policy: log[policy]},
+                    lock=lock,
+                )
+                if log_std is not None:
                     log_to_json(
-                        os.path.join(results_dir, f"log_mean_{opts['n_samples']}N.json"),
+                        os.path.join(results_dir, f"log_std_{opts['n_samples']}N.json"),
                         SIM_METRICS,
-                        {policy: log[policy]},
+                        {policy: log_std[policy]},
                         lock=lock,
                     )
-                    if log_std is not None:
-                        log_to_json(
-                            os.path.join(results_dir, f"log_std_{opts['n_samples']}N.json"),
-                            SIM_METRICS,
-                            {policy: log_std[policy]},
-                            lock=lock,
-                        )
 
     # Close overall progress bar
     overall_progress.close()

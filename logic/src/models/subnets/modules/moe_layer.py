@@ -1,7 +1,7 @@
 """Mixture of Experts (MoE) layer."""
 
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.distributions.normal import Normal
 
 from .moe_dispatcher import SparseDispatcher
