@@ -89,7 +89,7 @@ model:
   # Decoder Architecture
   # =============================================================================
   decoder:
-    type: "attention"
+    type: "glimpse"
     embed_dim: 128
     hidden_dim: 512
     n_layers:
