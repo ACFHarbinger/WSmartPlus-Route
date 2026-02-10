@@ -265,15 +265,15 @@ class RLTrainingTab(BaseReinforcementLearningTab):
                 if key == "epoch_start" and val != 0 or key != "epoch_start":
                     params[key] = val
             elif isinstance(widget, QDoubleSpinBox):
-                params[key] = widget.value()
+                params[key] = widget.value()  # type: ignore[assignment]
             elif isinstance(widget, QLineEdit):
                 text = widget.text().strip()
                 if text:
-                    params[key] = text
+                    params[key] = text  # type: ignore[assignment]
             elif isinstance(widget, QComboBox):
                 text = widget.currentText()
                 if text:
-                    params[key] = text
+                    params[key] = text  # type: ignore[assignment]
             elif isinstance(widget, QCheckBox):
                 if widget.isChecked():
                     params[key] = True

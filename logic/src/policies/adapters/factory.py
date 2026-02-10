@@ -54,7 +54,7 @@ class PolicyFactory:
         cls = PolicyRegistry.get(name) or PolicyRegistry.get(f"policy_{name}")
 
         if cls:
-            return cls()
+            return cls()  # type: ignore[return-value]
 
         # Fallback for complex names or un-registered policies (backward compatibility)
         if name == "regular" or "regular" in name:

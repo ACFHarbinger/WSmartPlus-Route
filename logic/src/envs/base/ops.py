@@ -24,8 +24,8 @@ class OpsMixin:
         from torchrl.data import DiscreteTensorSpec, UnboundedContinuousTensorSpec
 
         # self.device is assumed from EnvBase
-        self.done_spec = DiscreteTensorSpec(n=2, shape=(*self.batch_size, 1), dtype=torch.bool, device=self.device)
-        self.reward_spec = UnboundedContinuousTensorSpec(shape=(*self.batch_size, 1), device=self.device)
+        self.done_spec = DiscreteTensorSpec(n=2, shape=(*self.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
+        self.reward_spec = UnboundedContinuousTensorSpec(shape=(*self.batch_size, 1), device=self.device)  # type: ignore[attr-defined]
 
     def step(self, td: TensorDict) -> TensorDict:
         """
@@ -33,7 +33,7 @@ class OpsMixin:
         Synchronizes environment batch size with input TensorDict.
         """
         self.batch_size = td.batch_size
-        out = cast(TensorDict, super().step(td))
+        out = cast(TensorDict, super().step(td))  # type: ignore[misc]
         return out
 
     def reset(self, td: Optional[TensorDict] = None, **kwargs) -> TensorDict:
@@ -54,28 +54,28 @@ class OpsMixin:
         Initialize episode state from problem instance.
         """
         if td is None:
-            if self.generator is None:
+            if self.generator is None:  # type: ignore[attr-defined]
                 raise ValueError("Either provide td or set a generator for the environment")
-            td = self.generator(batch_size or self.batch_size)
+            td = self.generator(batch_size or self.batch_size)  # type: ignore[attr-defined]
         else:
             td = td.clone()
 
         # Move to device
-        td = td.to(self.device)
+        td = td.to(self.device)  # type: ignore[attr-defined]
 
         # Call problem-specific reset (must be implemented by subclasses)
         td = self._reset_instance(td)
 
         # Add common fields
         td["action_mask"] = self._get_action_mask(td)
-        td["i"] = torch.zeros(td.batch_size, dtype=torch.long, device=self.device)
+        td["i"] = torch.zeros(td.batch_size, dtype=torch.long, device=self.device)  # type: ignore[attr-defined]
 
         # Initialize done signals with [B, 1] shape
-        td["done"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)
+        td["done"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
         if "terminated" in td:
-            td["terminated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)
+            td["terminated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
         if "truncated" in td:
-            td["truncated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)
+            td["truncated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
 
         return td
 
@@ -143,7 +143,7 @@ class OpsMixin:
         if dist_matrix is not None:
             td["dist"] = dist_matrix
 
-        return TensorDictStateWrapper(td, self.name, self)
+        return TensorDictStateWrapper(td, self.name, self)  # type: ignore[attr-defined]
 
     def get_costs(
         self,

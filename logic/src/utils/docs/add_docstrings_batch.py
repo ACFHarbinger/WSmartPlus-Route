@@ -79,7 +79,7 @@ class DocstringInjector:
         self.filepath = filepath
         self.lines = Path(filepath).read_text(encoding="utf-8").splitlines()
         # We process from bottom to top to avoid invalidating line numbers
-        self.modifications = []
+        self.modifications: List[Any] = []
 
     def _get_indent(self, lineno: int) -> str:
         """Returns the indentation string of a specific line."""

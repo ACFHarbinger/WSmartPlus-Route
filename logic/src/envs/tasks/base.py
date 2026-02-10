@@ -43,22 +43,22 @@ class BaseProblem:
         use_dist_matrix = dist_matrix is not None and isinstance(dist_matrix, torch.Tensor)
         if use_dist_matrix:
             # Simple distance matrix lookup
-            if dist_matrix.dim() == 2:
-                dist_matrix = dist_matrix.unsqueeze(0)
+            if dist_matrix.dim() == 2:  # type: ignore[union-attr]
+                dist_matrix = dist_matrix.unsqueeze(0)  # type: ignore[union-attr]
             src_vertices, dst_vertices = pi[:, :-1], pi[:, 1:]
             dst_mask: torch.Tensor = dst_vertices != 0
             pair_mask: torch.Tensor = (src_vertices != 0) & (dst_mask)
-            dists: torch.Tensor = dist_matrix[0, src_vertices, dst_vertices] * pair_mask.float()
+            dists: torch.Tensor = dist_matrix[0, src_vertices, dst_vertices] * pair_mask.float()  # type: ignore[index]
             last_dst: torch.Tensor = torch.max(
                 dst_mask * torch.arange(dst_vertices.size(1), device=dst_vertices.device),
                 dim=1,
             ).indices
             length: torch.Tensor = (
-                dist_matrix[
+                dist_matrix[  # type: ignore[index]
                     0, dst_vertices[torch.arange(dst_vertices.size(0), device=dst_vertices.device), last_dst], 0
                 ]
                 + dists.sum(dim=1)
-                + dist_matrix[0, 0, pi[:, 0]]
+                + dist_matrix[0, 0, pi[:, 0]]  # type: ignore[index]
             )
         else:
             loc_val = dataset.get("locs") if "locs" in dataset else dataset.get("loc")

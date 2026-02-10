@@ -52,7 +52,7 @@ class CVRPP(VRPP):
                 if node == 0:
                     cur_trip_waste = 0
                 else:
-                    cur_trip_waste += w[b, i].item()
+                    cur_trip_waste += w[b, i].item()  # type: ignore[assignment]
                     # Use a small epsilon for float comparison
                     assert cur_trip_waste <= capacity[b].item() + 1e-6, "Used more than capacity"
 

@@ -246,7 +246,7 @@ def _get_routes_with_loads(tour, demand, N) -> List[Tuple[int, int, List[int], f
 def _attempt_route_elimination(tour, route_data, dist, demand, capacity, max_depth, depot_positions):
     """Attempts to eliminate a single route by ejecting its nodes."""
     start, end, nodes, _ = route_data
-    ejection_log = []
+    ejection_log = []  # type: ignore[var-annotated]
     success = True
     modified_tour = tour.clone()
 

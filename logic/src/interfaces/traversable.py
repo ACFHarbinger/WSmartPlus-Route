@@ -74,6 +74,14 @@ class ITraversable(Protocol):
         """
         ...
 
+    def values(self) -> Any:
+        """Return all values.
+
+        Returns:
+            Iterable of values
+        """
+        ...
+
     def get(self, key: str, default: Optional[Any] = None) -> Any:
         """Get value by key with optional default.
 

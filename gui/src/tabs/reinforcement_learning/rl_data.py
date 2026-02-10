@@ -221,7 +221,7 @@ class RLDataTab(BaseReinforcementLearningTab):
         }
 
         if key in mappings:
-            return mappings[key].get(value, "")
+            return mappings[key].get(value, "")  # type: ignore[attr-defined]
 
         if key == "waste_type":
             return value.lower()

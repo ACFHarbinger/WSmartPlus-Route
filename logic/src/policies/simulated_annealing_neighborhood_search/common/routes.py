@@ -20,7 +20,7 @@ def create_points(data, bins_coordinates):
         Dict[int, Tuple[float, float]]: Mapping from bin ID to coordinates.
     """
     points = []
-    pair_lng_lat = []
+    pair_lng_lat = []  # type: ignore[var-annotated]
     for index, _row in data.iterrows():
         lat = bins_coordinates["Lat"][index]
         lng = bins_coordinates["Lng"][index]
@@ -116,7 +116,7 @@ def uncross_arcs_in_routes(
         List[List[int]]: Improved routing solution.
     """
     # Local cache instead of globals
-    crossed_arcs_cache = {}
+    crossed_arcs_cache = {}  # type: ignore[var-annotated]
 
     # 1. Identify initial crossings
     for idx, route in enumerate(previous_solution):

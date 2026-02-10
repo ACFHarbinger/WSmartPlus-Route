@@ -128,8 +128,8 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
                 break
 
         if features:
-            features = torch.stack(features).to(self.device)
-            targets = torch.tensor(targets, dtype=torch.float32).to(self.device)
+            features = torch.stack(features).to(self.device)  # type: ignore[assignment]
+            targets = torch.tensor(targets, dtype=torch.float32).to(self.device)  # type: ignore[assignment]
             return features, targets
 
         return None, 0

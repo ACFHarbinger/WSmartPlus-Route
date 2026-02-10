@@ -68,7 +68,7 @@ class MatNetDecoder(GlimpseDecoder):
         fixed = super()._precompute(embeddings, num_steps)
         return fixed
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         input: Union[torch.Tensor, dict[str, torch.Tensor]],
         embeddings: torch.Tensor,
@@ -91,7 +91,7 @@ class MatNetDecoder(GlimpseDecoder):
 
         # Add column information to fixed context
         col_avg = col_embeddings.mean(1)
-        fixed.context_node_projected = fixed.context_node_projected + self.project_col_context(col_avg)[:, None, :]
+        fixed.context_node_projected = fixed.context_node_projected + self.project_col_context(col_avg)[:, None, :]  # type: ignore[misc]
 
         outputs = []
         sequences = []
@@ -109,12 +109,12 @@ class MatNetDecoder(GlimpseDecoder):
             current_mask = mask_out if mask_out is not None else mask
 
             # Select node
-            probs = log_p.exp()[:, 0, :]
+            probs = log_p.exp()[:, 0, :]  # type: ignore[union-attr]
             m = current_mask[:, 0, :] if current_mask is not None else None
             selected = self._select_node(probs, m)
 
             state = state.update(selected)
-            outputs.append(log_p[:, 0, :])
+            outputs.append(log_p[:, 0, :])  # type: ignore[call-overload]
             sequences.append(selected)
 
         if not outputs:

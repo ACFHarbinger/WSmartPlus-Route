@@ -50,7 +50,7 @@ class PolyNetDecoder(nn.Module):
 
         # Context embedding
         if env_name in CONTEXT_EMBEDDING_REGISTRY:
-            self.context_embedding: Union[nn.Module, nn.Linear] = CONTEXT_EMBEDDING_REGISTRY[env_name](
+            self.context_embedding: Union[nn.Module, nn.Linear] = CONTEXT_EMBEDDING_REGISTRY[env_name](  # type: ignore[abstract]
                 embed_dim=embed_dim
             )
         else:
@@ -118,9 +118,9 @@ class PolyNetDecoder(nn.Module):
 
         # Stack outputs
         log_likelihood = torch.stack(outputs, dim=1).sum(dim=1)
-        actions = torch.stack(actions, dim=1)
+        actions = torch.stack(actions, dim=1)  # type: ignore[assignment]
 
-        return log_likelihood, actions
+        return log_likelihood, actions  # type: ignore[return-value]
 
     def _precompute_cache(
         self,

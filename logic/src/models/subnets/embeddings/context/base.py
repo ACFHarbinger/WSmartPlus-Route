@@ -23,7 +23,7 @@ class ContextEmbedder(nn.Module, ABC):
         self.embed_dim = embed_dim
         self.node_dim = node_dim
         self.temporal_horizon = temporal_horizon
-        self.init_embed = None
+        self.init_embed: nn.Module | None = None
 
     @abstractmethod
     def init_node_embeddings(self, nodes: dict[str, Any]) -> torch.Tensor:
@@ -49,7 +49,7 @@ class ContextEmbedder(nn.Module, ABC):
         """
         if state is None:
             return self.init_node_embeddings(nodes_or_embeddings)  # type: ignore[arg-type]
-        return self._step_context(nodes_or_embeddings, state)
+        return self._step_context(nodes_or_embeddings, state)  # type: ignore[arg-type]
 
     def _step_context(self, embeddings: torch.Tensor, state: Any) -> torch.Tensor:
         """

@@ -52,7 +52,7 @@ def run_annealing_loop(
     p_route_difference = chosen_combination[5]
     p_shift = chosen_combination[6]
 
-    removed_bins = []
+    removed_bins: List[int] = []
     previous_sol = initial_solution
     previous_sol_profit = compute_profit(
         previous_sol,

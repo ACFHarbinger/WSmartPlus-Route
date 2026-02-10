@@ -138,11 +138,11 @@ class RLOutputTab(BaseReinforcementLearningTab):
             elif isinstance(widget, QLineEdit):
                 text = widget.text().strip()
                 if text:
-                    params[key] = text
+                    params[key] = text  # type: ignore[assignment]
             elif isinstance(widget, QComboBox):
                 text = widget.currentText()
                 if text:
-                    params[key] = text
+                    params[key] = text  # type: ignore[assignment]
 
         params["no_tensorboard"] = self.widgets["no_tensorboard"].isChecked()
         params["no_progress_bar"] = self.widgets["no_progress_bar"].isChecked()

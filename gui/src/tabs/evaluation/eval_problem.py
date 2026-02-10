@@ -42,8 +42,8 @@ class EvalProblemTab(QWidget):
         form_layout = QFormLayout(content)
 
         # Ensure standard QFormLayout behavior (optional but good practice)
-        form_layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
-        form_layout.setRowWrapPolicy(QFormLayout.DontWrapRows)
+        form_layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)  # type: ignore[attr-defined]
+        form_layout.setRowWrapPolicy(QFormLayout.DontWrapRows)  # type: ignore[attr-defined]
 
         form_layout.addRow(QLabel("<b>Problem Instance</b>"))
 
@@ -125,13 +125,13 @@ class EvalProblemTab(QWidget):
 
         # --distance_method
         self.distance_method_combo = QComboBox()
-        self.distance_method_combo.addItems(DISTANCE_MATRIX_METHODS.keys())
+        self.distance_method_combo.addItems(DISTANCE_MATRIX_METHODS.keys())  # type: ignore[arg-type]
         self.distance_method_combo.setCurrentText("Google Maps (GMaps)")
         form_layout.addRow("Distance Method:", self.distance_method_combo)
 
         # --vertex_method
         self.vertex_method_combo = QComboBox()
-        self.vertex_method_combo.addItems(VERTEX_METHODS.keys())
+        self.vertex_method_combo.addItems(VERTEX_METHODS.keys())  # type: ignore[arg-type]
         self.vertex_method_combo.setCurrentText("Min-Max Normalization")
         form_layout.addRow("Vertex Method:", self.vertex_method_combo)
 
@@ -145,7 +145,7 @@ class EvalProblemTab(QWidget):
 
         # --edge_method
         self.edge_method_combo = QComboBox()
-        self.edge_method_combo.addItems(EDGE_METHODS.keys())
+        self.edge_method_combo.addItems(EDGE_METHODS.keys())  # type: ignore[arg-type]
         self.edge_method_combo.setCurrentIndex(0)
         form_layout.addRow("Edge Method:", self.edge_method_combo)
 

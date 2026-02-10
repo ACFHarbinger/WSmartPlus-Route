@@ -12,7 +12,7 @@ def _categorize_bins_by_zone(bins, bins_coordinates):
     zone_1_l = min_lng + lng_amp / 3
     zone_2_l = min_lng + 2 * lng_amp / 3
 
-    zone_bins = {1: [], 2: [], 3: []}
+    zone_bins = {1: [], 2: [], 3: []}  # type: ignore[var-annotated]
 
     # Bin index starts at 1 usually?
     # Logic in original: lng_list_without_dep is lng_list[1:]
@@ -99,7 +99,7 @@ def find_initial_solution(  # noqa: C901
     th1 = min_lng + amp / 3
     th2 = min_lng + 2 * amp / 3
 
-    zones = {1: [], 2: [], 3: []}
+    zones = {1: [], 2: [], 3: []}  # type: ignore[var-annotated]
     # Skip depot (index 0)
     for i in range(1, len(lng_vals)):
         lng = lng_vals[i]

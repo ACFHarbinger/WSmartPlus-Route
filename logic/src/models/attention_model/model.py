@@ -155,10 +155,10 @@ class AttentionModel(DecodingMixin, nn.Module):
         if is_vrpp_problem(self.problem):
             self.context_embedder = VRPPContextEmbedder(self.embed_dim, temporal_horizon=self.temporal_horizon)
         elif is_wc_problem(self.problem):
-            self.context_embedder = WCVRPContextEmbedder(self.embed_dim, temporal_horizon=self.temporal_horizon)
+            self.context_embedder = WCVRPContextEmbedder(self.embed_dim, temporal_horizon=self.temporal_horizon)  # type: ignore[assignment]
         else:
             node_dim = 2 if is_tsp_problem(self.problem) else NODE_DIM
-            self.context_embedder = GenericContextEmbedder(
+            self.context_embedder = GenericContextEmbedder(  # type: ignore[assignment]
                 self.embed_dim,
                 node_dim=node_dim,
                 temporal_horizon=self.temporal_horizon,
@@ -373,7 +373,7 @@ class AttentionModel(DecodingMixin, nn.Module):
             return None
         # Use ITensorDictLike protocol for dict-like tensor containers
         if isinstance(t, ITensorDictLike):
-            return t.__class__({k: self.expand(v) for k, v in t.items()})
+            return t.__class__({k: self.expand(v) for k, v in t.items()})  # type: ignore[call-arg]
 
         # Expand (Batch, ...) -> (Batch * POMO, ...)
         # We repeat the batch elements

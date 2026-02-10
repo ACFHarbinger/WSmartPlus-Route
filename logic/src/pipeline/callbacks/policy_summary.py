@@ -127,7 +127,7 @@ class PolicySummaryCallback:
             params = ""
 
             if isinstance(item, MustGoConfig):
-                name = item.strategy
+                name = item.strategy  # type: ignore[assignment]
                 if item.strategy == "lookahead":
                     pass  # No specific params essential for summary usually
                 elif item.strategy == "regular":

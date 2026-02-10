@@ -31,12 +31,12 @@ class TargetingWidget(QGroupBox):
         """
         super().__init__(parent)
         self.setLayout(QFormLayout())
-        self.layout().setContentsMargins(10, 10, 10, 10)
+        self.layout().setContentsMargins(10, 10, 10, 10)  # type: ignore[union-attr]
 
         # --target_entry (str)
         self.target_entry_input = QLineEdit()
         self.target_entry_input.setPlaceholderText("e.g., /path/to/directory or /path/to/single_file.json")
-        self.layout().addRow(
+        self.layout().addRow(  # type: ignore[union-attr]
             "Target Entry Path:",
             self._create_browser_layout(self.target_entry_input, is_dir=True),
         )
@@ -44,23 +44,23 @@ class TargetingWidget(QGroupBox):
         # --output_key (str, default=None)
         self.output_key_input = QLineEdit()
         self.output_key_input.setPlaceholderText("e.g., 'overflows' (or the calculated output key)")
-        self.layout().addRow("Output Field Key:", self.output_key_input)
+        self.layout().addRow("Output Field Key:", self.output_key_input)  # type: ignore[union-attr]
 
         # --filename_pattern (str, default=None)
-        self.layout().addRow(QLabel('<span style="font-weight: 600;">Target Directory Settings</span>'))
+        self.layout().addRow(QLabel('<span style="font-weight: 600;">Target Directory Settings</span>'))  # type: ignore[union-attr]
         self.filename_pattern_input = QLineEdit()
         self.filename_pattern_input.setPlaceholderText("e.g., 'log_*.json'")
-        self.layout().addRow("Glob Filename Pattern:", self.filename_pattern_input)
+        self.layout().addRow("Glob Filename Pattern:", self.filename_pattern_input)  # type: ignore[union-attr]
 
         # --- Separator and Preview Checkbox ---
-        self.layout().addRow(QLabel("<hr>"))
+        self.layout().addRow(QLabel("<hr>"))  # type: ignore[union-attr]
 
         # --update_preview (action='store_true' -> default False)
         self.preview_check = QPushButton("Preview Update")
         self.preview_check.setCheckable(True)
         self.preview_check.setChecked(False)
         self.preview_check.setStyleSheet(START_RED_STYLE)
-        self.layout().addRow("Verify changes before updating:", self.preview_check)
+        self.layout().addRow("Verify changes before updating:", self.preview_check)  # type: ignore[union-attr]
 
     def _create_browser_layout(self, line_edit, is_dir=False):
         """Helper to create a layout with a browse button."""
@@ -92,6 +92,6 @@ class TargetingWidget(QGroupBox):
 
         # If the button is UNCHECKED (False), the user wants to PERFORM the update (update_preview=False).
         if not self.preview_check.isChecked():
-            params["update_preview"] = False
+            params["update_preview"] = False  # type: ignore[assignment]
 
         return params

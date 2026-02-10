@@ -45,7 +45,7 @@ class MustGoSelectionAction(SimulationAction):
         if n_bins is None:
             n_bins = len(current_fill) if current_fill is not None else 0
 
-        final_must_go = set()
+        final_must_go: set = set()
 
         for strat_info in strategies:
             s_name = strat_info["name"]

@@ -13,7 +13,7 @@ Example:
 """
 
 import random
-from typing import List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -23,9 +23,9 @@ def shaw_removal(
     n_remove: int,
     dist_matrix: np.ndarray,
     nodes: List[int],
-    demands: List[int] = None,
-    waste: dict = None,
-    time_windows: dict = None,
+    demands: Optional[List[int]] = None,
+    waste: Optional[Dict[Any, Any]] = None,
+    time_windows: Optional[Dict[Any, Any]] = None,
     relatedness_weights: Tuple[float, float, float] = (0.5, 0.3, 0.2),
     randomization_factor: float = 2.0,
     phi: float = 9.0,

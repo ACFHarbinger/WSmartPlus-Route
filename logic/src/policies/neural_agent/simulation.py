@@ -29,7 +29,7 @@ class SimulationMixin:
     ):
         """Execute neural routing policy for a single simulation day."""
         edges, dist_matrix = graph
-        hook_data = add_attention_hooks(self.model.encoder)
+        hook_data = add_attention_hooks(self.model.encoder)  # type: ignore[attr-defined]
 
         # Check must_go: if provided and empty (no bins to visit), skip routing
         if must_go is not None:
@@ -57,7 +57,7 @@ class SimulationMixin:
             # We don't have embeddings size yet to expand against batch.
             # But model forward will handle batching.
 
-        _, _, _, pi, _ = self.model(
+        _, _, _, pi, _ = self.model(  # type: ignore[attr-defined]
             input_for_model,
             return_pi=True,
             mask=mask,
@@ -87,7 +87,7 @@ class SimulationMixin:
 
     def _prepare_temporal_features(self, input_for_model, waste_history):
         """Populates temporal features (fill1, fill2, ...) based on waste history."""
-        horizon = getattr(self.model, "temporal_horizon", 0)
+        horizon = getattr(self.model, "temporal_horizon", 0)  # type: ignore[attr-defined]
         if horizon <= 0 or waste_history is None:
             return
 

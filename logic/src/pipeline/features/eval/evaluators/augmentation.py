@@ -58,7 +58,7 @@ class AugmentationEval(EvalBase):
         start_time = time.time()
 
         for batch in tqdm(data_loader, disable=not self.progress, desc=f"Augmentation Eval ({self.samples})"):
-            batch = move_to(batch, self.device)
+            batch = move_to(batch, self.device)  # type: ignore[arg-type]
             with torch.no_grad():
                 # Apply augmentation: returns [batch_size * num_augment, ...]
                 aug_batch = self.augmentation(batch)
@@ -75,9 +75,9 @@ class AugmentationEval(EvalBase):
         metrics = {
             "avg_reward": avg_reward,
             "total_time": total_time,
-            "samples_per_second": len(data_loader.dataset) / total_time,
+            "samples_per_second": len(data_loader.dataset) / total_time,  # type: ignore[arg-type]
         }
 
         if return_results:
-            metrics["results"] = results
+            metrics["results"] = results  # type: ignore[assignment]
         return metrics

@@ -11,7 +11,7 @@ import time
 import traceback
 from collections import defaultdict
 from multiprocessing.pool import Pool
-from typing import Any
+from typing import Any, Dict
 
 from loguru import logger
 
@@ -65,8 +65,8 @@ def simulator_testing(opts, data_size, device):
     lock = manager.Lock()
     sample_idx_dict = {pol: list(range(opts["n_samples"])) for pol in opts["policies"]}
     if opts["resume"]:
-        to_remove = runs_per_policy(
-            udef.ROOT_DIR,
+        to_remove = runs_per_policy(  # type: ignore[call-arg, misc]
+            udef.ROOT_DIR,  # type: ignore[arg-type]
             opts["days"],
             [opts["size"]],
             opts["output_dir"],
@@ -167,9 +167,9 @@ def _process_display_updates(
     policy_updates = {}
     new_daily_data = []  # For chart updates
 
-    policy_days_done = defaultdict(int)
-    policy_sample_metrics = defaultdict(lambda: {k: [] for k in SIM_METRICS})
-    policy_sample_counts = defaultdict(int)
+    policy_days_done: Dict[str, int] = defaultdict(int)
+    policy_sample_metrics: Dict[str, Dict[str, list]] = defaultdict(lambda: {k: [] for k in SIM_METRICS})  # type: ignore[assignment]
+    policy_sample_counts: Dict[str, int] = defaultdict(int)
 
     # A. Process ACTIVE samples from shared_metrics
     # shared_metrics now contains CUMULATIVE totals from RunningState
@@ -479,7 +479,7 @@ def _monitor_tasks_until_complete(tasks, display, opts, counter, log_tmp):
         counter (mp.Value): Shared counter
         log_tmp (dict): Temporary log storage
     """
-    last_reported_days = {}
+    last_reported_days = {}  # type: ignore[var-annotated]
     loop_tic = time.time()
 
     while not all(task.ready() for task in tasks):
@@ -551,8 +551,8 @@ def _aggregate_final_results(log_tmp, opts, lock):
     """
     if opts["n_samples"] > 1:
         if opts["resume"]:
-            return output_stats(
-                udef.ROOT_DIR,
+            return output_stats(  # type: ignore[call-arg, misc]
+                udef.ROOT_DIR,  # type: ignore[arg-type]
                 opts["days"],
                 opts["size"],
                 opts["output_dir"],

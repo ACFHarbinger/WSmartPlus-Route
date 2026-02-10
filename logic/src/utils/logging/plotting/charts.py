@@ -59,7 +59,7 @@ def plot_linechart(
             linestyles: Line styles.
             markers: Markers.
         """
-        points_by_nbins = {}
+        points_by_nbins = {}  # type: ignore[var-annotated]
         for id, lg in enumerate(zip(*graph_log)):
             to_plot = (*lg,) if x_values is None else (x_values, *lg)
 
@@ -112,7 +112,7 @@ def plot_linechart(
 
 def _plot_2d_graph(plot_func, graph_log, markers) -> Dict[int, List[Tuple[float, float]]]:
     """Helper to plot 2D graph log data."""
-    points_by_nbins = {0: []}
+    points_by_nbins: Dict[int, List[Tuple[float, float]]] = {0: []}
     for id_val, ll in enumerate(graph_log):
         if markers is not None:
             mark = markers[id_val % len(markers)]

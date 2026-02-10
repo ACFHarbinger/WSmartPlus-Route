@@ -32,7 +32,7 @@ class MultiStartAugmentEval(EvalBase):
         self.num_augment = num_augment
         self.num_starts = num_starts
 
-    def __call__(self, policy: Any, data_loader: DataLoader, **kwargs) -> dict:
+    def __call__(self, policy: Any, data_loader: DataLoader, **kwargs) -> dict:  # type: ignore[override]
         """call  .
 
         Args:
@@ -51,7 +51,7 @@ class MultiStartAugmentEval(EvalBase):
         augment = StateAugmentation(num_augment=self.num_augment)
 
         for batch in tqdm(data_loader, disable=not self.progress, desc="Multi-Start Augment Eval"):
-            batch = move_to(batch, self.device)
+            batch = move_to(batch, self.device)  # type: ignore[arg-type]
             with torch.no_grad():
                 aug_batch = augment(batch)
                 out = policy(aug_batch, strategy="greedy", num_starts=self.num_starts, **kwargs)
@@ -67,5 +67,5 @@ class MultiStartAugmentEval(EvalBase):
         return {
             "avg_reward": avg_reward,
             "total_time": total_time,
-            "samples_per_second": len(data_loader.dataset) / total_time,
+            "samples_per_second": len(data_loader.dataset) / total_time,  # type: ignore[arg-type]
         }

@@ -251,5 +251,5 @@ class PPO(RL4COLitModule):
             Adam optimizer with combined policy and critic parameters.
         """
         # Combined parameters from policy and critic
-        params = list(self.policy.parameters()) + list(self.critic.parameters())
+        params = list(self.policy.parameters()) + list(self.critic.parameters())  # type: ignore[attr-defined]
         return torch.optim.Adam(params, **self.optimizer_kwargs)

@@ -28,7 +28,7 @@ class MultiStartEval(EvalBase):
         super().__init__(env, progress, **kwargs)
         self.num_starts = num_starts
 
-    def __call__(self, policy: Any, data_loader: DataLoader, **kwargs) -> dict:
+    def __call__(self, policy: Any, data_loader: DataLoader, **kwargs) -> dict:  # type: ignore[override]
         """call  .
 
         Args:
@@ -44,7 +44,7 @@ class MultiStartEval(EvalBase):
         start_time = time.time()
 
         for batch in tqdm(data_loader, disable=not self.progress, desc="Multi-Start Eval"):
-            batch = move_to(batch, self.device)
+            batch = move_to(batch, self.device)  # type: ignore[arg-type]
             with torch.no_grad():
                 out = policy(batch, strategy="greedy", num_starts=self.num_starts, **kwargs)
                 results.append(out)
@@ -55,5 +55,5 @@ class MultiStartEval(EvalBase):
         return {
             "avg_reward": avg_reward,
             "total_time": total_time,
-            "samples_per_second": len(data_loader.dataset) / total_time,
+            "samples_per_second": len(data_loader.dataset) / total_time,  # type: ignore[arg-type]
         }

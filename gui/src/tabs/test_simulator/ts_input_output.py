@@ -75,7 +75,7 @@ class TestSimIOTab(QWidget):
 
         # 1. County Area (Now a QComboBox)
         self.area_input = QComboBox()
-        self.area_input.addItems(COUNTY_AREAS.keys())
+        self.area_input.addItems(COUNTY_AREAS.keys())  # type: ignore[arg-type]
         self.area_input.setCurrentText("Rio Maior")  # Set a default value
         form_layout.addRow("County Area:", self.area_input)
 

@@ -56,7 +56,7 @@ class PostProcessorFactory:
         Args:
             config: PostProcessingConfig instance.
         """
-        processors = []
+        processors: List[IPostProcessor] = []
         if not config.methods:
             return processors
 

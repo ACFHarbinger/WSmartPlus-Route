@@ -52,7 +52,7 @@ class MoETemporalAttentionModel(TemporalAttentionModel):
         Embed and transform input.
         Wraps parent method to handle potential 4D output from MoE encoder.
         """
-        embeddings, _ = super().embed_and_transform(input, edges)
+        embeddings, _ = super().embed_and_transform(input, edges)  # type: ignore[misc]
 
         if embeddings.dim() == 4:
             # [Batch, Graph, K/Heads, Dim] -> [Batch, Graph, Dim]

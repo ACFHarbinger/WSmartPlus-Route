@@ -27,7 +27,7 @@ def process_dict_of_dicts(
     """
     modified = False
     for k, v in data_dict.items():
-        if isinstance(v, ITraversable) and process_dict_of_dicts(v, output_key, process_func, update_val):
+        if isinstance(v, ITraversable) and process_dict_of_dicts(v, output_key, process_func, update_val):  # type: ignore[arg-type]
             modified = True
         elif k == output_key:
             if process_func:
@@ -92,7 +92,11 @@ def process_dict_two_inputs(
     # Recurse
     for v in data_dict.values():
         if isinstance(v, ITraversable) and process_dict_two_inputs(
-            v, input_key1, input_key2_or_val, output_key, process_func
+            v,
+            input_key1,
+            input_key2_or_val,
+            output_key,
+            process_func,  # type: ignore[arg-type]
         ):
             modified = True
     return modified

@@ -109,10 +109,10 @@ class TestSimAdvancedTab(QWidget):
         # --- Edge/Vertex Args ---
         form_layout.addRow(QLabel("<b>Edge/Vertex Setup</b>"))
         self.vertex_method_combo = QComboBox(currentText="Min-Max Normalization")
-        self.vertex_method_combo.addItems(VERTEX_METHODS.keys())
+        self.vertex_method_combo.addItems(VERTEX_METHODS.keys())  # type: ignore[arg-type]
         form_layout.addRow("Vertex Method:", self.vertex_method_combo)
         self.distance_method_combo = QComboBox(currentText="Google Maps (GMaps)")
-        self.distance_method_combo.addItems(DISTANCE_MATRIX_METHODS.keys())
+        self.distance_method_combo.addItems(DISTANCE_MATRIX_METHODS.keys())  # type: ignore[arg-type]
         form_layout.addRow("Distance Method:", self.distance_method_combo)
 
         # Edge Threshold and Method
@@ -124,7 +124,7 @@ class TestSimAdvancedTab(QWidget):
         form_layout.addRow("Edge Threshold (0.0 to 1.0):", self.edge_threshold_input)
 
         self.edge_method_combo = QComboBox()
-        self.edge_method_combo.addItems(EDGE_METHODS.keys())
+        self.edge_method_combo.addItems(EDGE_METHODS.keys())  # type: ignore[arg-type]
         self.edge_method_combo.setCurrentIndex(0)
         form_layout.addRow("Edge Method:", self.edge_method_combo)
 

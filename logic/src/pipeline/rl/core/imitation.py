@@ -172,7 +172,7 @@ class ImitationLearning(RL4COLitModule):
                 )
                 loss = nll_loss(log_likelihood, reduction="mean")
             else:
-                loss = self._loss_map[self.loss_fn_name](log_likelihood, target_log_probs, reduction="mean")
+                loss = self._loss_map[self.loss_fn_name](log_likelihood, target_log_probs, reduction="mean")  # type: ignore[operator]
         else:
             loss = nll_loss(log_likelihood, reduction="mean")
 

@@ -42,7 +42,7 @@ class SimulationResultsWindow(QWidget):
         """
         super().__init__()
         self.setWindowTitle("Simulation Results")
-        self.setWindowFlags(self.windowFlags() | Qt.Window)
+        self.setWindowFlags(self.windowFlags() | Qt.Window)  # type: ignore[attr-defined]
         self.resize(1200, 800)
 
         self.data_mutex = QMutex()
@@ -123,7 +123,7 @@ class SimulationResultsWindow(QWidget):
                 key, policy, sample = self.data_manager.process_record(record)
                 if key:
                     self.status_label.setText(f"Processing: {policy} - Sample {sample}")
-                    self.dashboard_tab.update_samples(list(self.data_manager.policy_samples[policy]))
+                    self.dashboard_tab.update_samples(list(self.data_manager.policy_samples[policy]))  # type: ignore[index]
                     self.dashboard_tab.update_metrics(list(self.data_manager.metrics))
                     self._update_route_cache(key, record)
                     self.start_chart_processing.emit(key)

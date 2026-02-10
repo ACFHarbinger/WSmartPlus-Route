@@ -24,7 +24,7 @@ class BatchMixin:
             value = torch.Size([value]) if isinstance(value, int) else torch.Size(value)
 
         try:
-            super(BatchMixin, self.__class__).batch_size.fset(self, value)
+            super(BatchMixin, self.__class__).batch_size.fset(self, value)  # type: ignore[misc]
         except (ValueError, RuntimeError, AttributeError):
             self._batch_size = value
             self._sync_spec_shapes(value)

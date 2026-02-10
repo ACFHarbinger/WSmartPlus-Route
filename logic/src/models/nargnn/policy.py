@@ -133,7 +133,7 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         self.val_strategy = val_strategy
         self.test_strategy = test_strategy
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
@@ -145,7 +145,7 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         Forward pass: encode heatmap + decode solution.
         """
         # Encode: predict heatmap
-        heatmap, node_embed = self.encoder(td)
+        heatmap, node_embed = self.encoder(td)  # type: ignore[misc]
 
         # Strategy selection
         strategy = kwargs.get("strategy")
@@ -156,11 +156,11 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         if env is None:
             from logic.src.envs import get_env
 
-            env = get_env(self.env_name)
+            env = get_env(self.env_name)  # type: ignore[arg-type]
 
         # Use common_decoding
         logprobs, actions, td, env = self.common_decoding(
-            strategy=strategy,
+            strategy=strategy,  # type: ignore[arg-type]
             td=td,
             env=env,
             heatmap=heatmap,

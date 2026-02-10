@@ -89,7 +89,7 @@ class GFACSPolicy(DeepACOPolicy):
         # Initialize to 0.0 or a small random value
         self.logZ = nn.Parameter(torch.tensor(0.0))
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         td: TensorDict,
         env: RL4COEnvBase,

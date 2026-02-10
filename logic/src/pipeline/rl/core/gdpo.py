@@ -65,7 +65,7 @@ class GDPO(REINFORCE):
         td: TensorDict,
         out: dict,
         batch_idx: int,
-        env: Optional["RL4COEnvBase"] = None,
+        env: Optional["RL4COEnvBase"] = None,  # type: ignore[override]
     ) -> torch.Tensor:
         """
         Compute GDPO loss using decoupled normalization.

@@ -9,10 +9,8 @@ import numpy as np
 import pandas as pd
 
 from logic.src.policies.simulated_annealing_neighborhood_search.common.routes import uncross_arcs_in_routes
-from logic.src.policies.simulated_annealing_neighborhood_search.search.deterministic import (
-    local_search_2,
-    local_search_reversed,
-)
+from logic.src.policies.simulated_annealing_neighborhood_search.search.deterministic import local_search_2
+from logic.src.policies.simulated_annealing_neighborhood_search.search.reversed import local_search_reversed
 
 
 def refine_solution(

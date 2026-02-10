@@ -33,7 +33,7 @@ class GreedyEval(EvalBase):
         start_time = time.time()
 
         for batch in tqdm(data_loader, disable=not self.progress, desc="Greedy Eval"):
-            batch = move_to(batch, self.device)
+            batch = move_to(batch, self.device)  # type: ignore[arg-type]
             with torch.no_grad():
                 out = policy(batch, strategy="greedy", **kwargs)
                 results.append(out)
@@ -44,13 +44,13 @@ class GreedyEval(EvalBase):
         metrics = {
             "avg_reward": avg_reward,
             "duration": total_time,
-            "samples_per_second": len(data_loader.dataset) / total_time,
+            "samples_per_second": len(data_loader.dataset) / total_time,  # type: ignore[arg-type]
         }
 
         if return_results:
             # Assuming output has 'reward' and 'actions' (or 'sequences'?)
             # AttentionModel output usually has 'reward', 'log_likelihood', 'actions'
-            metrics["rewards"] = torch.cat([r["reward"] for r in results]).cpu()
+            metrics["rewards"] = torch.cat([r["reward"] for r in results]).cpu()  # type: ignore[assignment]
 
             # Pad sequences to max length
             max_len = max([r["actions"].size(-1) for r in results])
@@ -61,6 +61,6 @@ class GreedyEval(EvalBase):
                 if pad_len > 0:
                     act = torch.nn.functional.pad(act, (0, pad_len), value=0)
                 padded_actions.append(act)
-            metrics["sequences"] = torch.cat(padded_actions).cpu()
-            metrics["results"] = results
+            metrics["sequences"] = torch.cat(padded_actions).cpu()  # type: ignore[assignment]
+            metrics["results"] = results  # type: ignore[assignment]
         return metrics
