@@ -12,6 +12,7 @@ from .hybrid_stage_policy import HybridTwoStagePolicy
 from .model import AttentionModel
 from .policy import AttentionModelPolicy
 from .symnco_policy import SymNCOPolicy
+from .time_tracking_policy import TimeTrackingPolicy
 
 __all__ = [
     "AttentionModel",
@@ -19,4 +20,5 @@ __all__ = [
     "DeepDecoderPolicy",
     "HybridTwoStagePolicy",
     "SymNCOPolicy",
+    "TimeTrackingPolicy",
 ]

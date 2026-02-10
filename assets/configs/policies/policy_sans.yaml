@@ -1,7 +1,7 @@
 # @package _global_
 
 # =============================================================================
-# SANS (Self-Adaptive Neighborhood Search) Policy Configuration
+# SANS (Simulated Annealing Neighborhood Search) Policy Configuration
 # =============================================================================
 # PURPOSE:
 #   Simulated annealing-based routing with adaptive neighborhood operators.
