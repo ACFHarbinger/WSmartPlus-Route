@@ -59,23 +59,11 @@ def plot_linechart(
         """
         points_by_nbins = {}
         for id, lg in enumerate(zip(*graph_log)):
-            if x_values is None:
-                to_plot = (*lg,)
-            else:
-                to_plot = (
-                    x_values,
-                    *lg,
-                )
+            to_plot = (*lg,) if x_values is None else (x_values, *lg)
 
-            if linestyles is not None:
-                line = linestyles[id % len(linestyles)]
-            else:
-                line = False
+            line = linestyles[id % len(linestyles)] if linestyles is not None else False
 
-            if markers is not None:
-                mark = markers[id % len(markers)]
-            else:
-                mark = False
+            mark = markers[id % len(markers)] if markers is not None else False
 
             if not line and not mark:
                 plot_func(*to_plot)

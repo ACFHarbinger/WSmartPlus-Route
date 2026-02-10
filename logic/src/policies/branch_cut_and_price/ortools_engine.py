@@ -71,10 +71,7 @@ def run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indice
         d = demands.get(i, 0)
         revenue = d * R
 
-        if i in must_go_indices:
-            penalty = MUST_GO_PENALTY
-        else:
-            penalty = int(revenue * SCALE)
+        penalty = MUST_GO_PENALTY if i in must_go_indices else int(revenue * SCALE)
 
         routing.AddDisjunction([manager.NodeToIndex(i)], penalty)
 

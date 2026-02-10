@@ -368,7 +368,8 @@ class AttentionModel(DecodingMixin, nn.Module):
         """
         if t is None:
             return None
-        if isinstance(t, dict) or isinstance(t, TensorDict):
+        # Use ITensorDictLike protocol for dict-like tensor containers
+        if isinstance(t, ITensorDictLike):
             return t.__class__({k: self.expand(v) for k, v in t.items()})
 
         # Expand (Batch, ...) -> (Batch * POMO, ...)

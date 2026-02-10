@@ -65,7 +65,7 @@ class ChartWorker(QObject):
                 for metric in self.metrics_to_plot:
                     data_map = self.daily_data[target_key].get(metric, {})
                     if data_map:
-                        max_days = max(max_days, max(data_map.keys()))
+                        max_days = max(max_days, *data_map.keys())
 
                 processed_data["max_days"] = max_days
 

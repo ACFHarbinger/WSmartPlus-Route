@@ -2,6 +2,8 @@
 Training engine for WSmart-Route.
 """
 
+import contextlib
+
 import hydra
 import torch
 from omegaconf import DictConfig
@@ -9,6 +11,7 @@ from pytorch_lightning import seed_everything
 from pytorch_lightning.loggers import CSVLogger
 
 from logic.src.configs import Config
+from logic.src.interfaces import ITraversable
 from logic.src.pipeline.callbacks import SpeedMonitor
 from logic.src.pipeline.features.train.model_factory.builder import create_model
 from logic.src.pipeline.rl.common.trainer import WSTrainer
@@ -28,21 +31,20 @@ def run_training(cfg: Config) -> float:
     callbacks = [SpeedMonitor(epoch_time=True)]
     if cfg.train.callbacks:
         for cb_cfg in cfg.train.callbacks:
-            if isinstance(cb_cfg, (dict, DictConfig)):
+            # Use ITraversable protocol for config-like objects
+            if isinstance(cb_cfg, ITraversable):
                 # Handle direct target dicts: {_target_: ...}
                 if "_target_" in cb_cfg:
                     callbacks.append(hydra.utils.instantiate(cb_cfg))
                 # Handle named dicts: {name: {_target_: ...}}
                 else:
                     for _, actual_cfg in cb_cfg.items():
-                        if isinstance(actual_cfg, (dict, DictConfig)) and "_target_" in actual_cfg:
+                        if isinstance(actual_cfg, ITraversable) and "_target_" in actual_cfg:
                             callbacks.append(hydra.utils.instantiate(actual_cfg))
             else:
                 # Fallback for other types (e.g. if it's already an object or unhandled type)
-                try:
+                with contextlib.suppress(Exception):
                     callbacks.append(hydra.utils.instantiate(cb_cfg))
-                except Exception:
-                    pass
 
     # DEBUG: Print callbacks
     print(f"[Engine] Active callbacks: {[type(c).__name__ for c in callbacks]}")

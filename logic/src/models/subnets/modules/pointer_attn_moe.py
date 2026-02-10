@@ -96,11 +96,10 @@ class PointerAttnMoE(nn.Module):
 
         # Adjust mask for MHA if needed to handle (batch, graph_size)
         mha_mask = attn_mask
-        if self.mask_inner and attn_mask is not None:
-            if attn_mask.dim() == 2:
-                # (batch, graph_size) -> (batch, num_steps, graph_size)
-                num_steps = query.size(1)
-                mha_mask = attn_mask.unsqueeze(1).expand(-1, num_steps, -1)
+        if self.mask_inner and attn_mask is not None and attn_mask.dim() == 2:
+            # (batch, graph_size) -> (batch, num_steps, graph_size)
+            num_steps = query.size(1)
+            mha_mask = attn_mask.unsqueeze(1).expand(-1, num_steps, -1)
 
         glimpse = self.mha(q=query, h=key, mask=mha_mask)
 

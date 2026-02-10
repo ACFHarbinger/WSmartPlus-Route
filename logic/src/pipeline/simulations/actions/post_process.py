@@ -10,6 +10,7 @@ from loguru import logger
 from logic.src.configs import PostProcessingConfig
 from logic.src.constants import ROOT_DIR
 from logic.src.utils.configs.config_loader import load_config
+from logic.src.interfaces import ITraversable
 
 from .base import SimulationAction, _flatten_config
 
@@ -35,10 +36,7 @@ class PostProcessAction(SimulationAction):
             pp_configs = [pp_list]
         elif pp_list:
             if not isinstance(pp_list, list):
-                if isinstance(pp_list, str) and pp_list.lower() != "none":
-                    pp_list = [pp_list]
-                else:
-                    pp_list = []
+                pp_list = [pp_list] if isinstance(pp_list, str) and pp_list.lower() != "none" else []
 
             pp_configs = []
             for item in pp_list:
@@ -70,7 +68,7 @@ class PostProcessAction(SimulationAction):
 
                             for k, v in cfg.items():
                                 pp_name = k
-                                if isinstance(v, dict):
+                                if isinstance(v, ITraversable):
                                     pp_params.update(v)
                         except (OSError, ValueError) as e:
                             logger.warning(f"Error loading post_processing config {item}: {e}")

@@ -14,6 +14,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
+from logic.src.interfaces import ITraversable
 from logic.src.models.common.improvement_policy import ImprovementPolicy
 
 from .local_search import (
@@ -163,10 +164,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy):
         from_n = tours[:, :-1]
         to_n = tours[:, 1:]
 
-        if dist_matrix.dim() == 3:
-            dists = dist_matrix[batch_ids, from_n, to_n]
-        else:
-            dists = dist_matrix[from_n, to_n]
+        dists = dist_matrix[batch_ids, from_n, to_n] if dist_matrix.dim() == 3 else dist_matrix[from_n, to_n]
 
         return dists.sum(dim=1)
 
@@ -222,7 +220,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy):
         ops_sorted: list[str] = []
         op_weights: list[float] = []
 
-        if isinstance(self.ls_operator, dict):
+        if isinstance(self.ls_operator, ITraversable):
             op_probs_dict = self.ls_operator
         elif isinstance(self.ls_operator, str) and self.ls_operator == "random":
             op_probs_dict = self.default_op_probs
@@ -235,7 +233,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy):
         p_modes_sorted: list[str] = []
         p_weights: list[float] = []
 
-        if isinstance(self.perturbation_type, dict):
+        if isinstance(self.perturbation_type, ITraversable):
             p_probs_dict = self.perturbation_type
         elif isinstance(self.perturbation_type, str) and self.perturbation_type == "random":
             p_probs_dict = self.default_perturb_probs

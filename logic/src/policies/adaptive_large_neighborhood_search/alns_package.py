@@ -169,7 +169,7 @@ def alns_pkg_worst_removal(state: ALNSState, random_state: np.random.RandomState
         return new_state
 
     costs = []
-    for r_idx, route in enumerate(new_state.routes):
+    for _r_idx, route in enumerate(new_state.routes):
         for idx, node in enumerate(route):
             prev_node = 0 if idx == 0 else route[idx - 1]
             next_node = 0 if idx == len(route) - 1 else route[idx + 1]

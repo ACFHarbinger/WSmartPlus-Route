@@ -63,7 +63,7 @@ def load_state_dict(self, state_dict):
                 value = value.type_as(param.data)
             value = value.to(param.device)
             return value
-        elif isinstance(value, dict):
+        elif isinstance(value, ITraversable):
             return {k: cast(param, v) for k, v in value.items()}
         elif isinstance(value, Iterable):
             return type(value)(cast(param, v) for v in value)

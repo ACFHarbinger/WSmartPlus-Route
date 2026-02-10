@@ -48,10 +48,7 @@ class NeuOptDecoder(ImprovementDecoder):
         """
         Predict move (idx1, idx2).
         """
-        if isinstance(embeddings, tuple):
-            h = embeddings[0]
-        else:
-            h = embeddings
+        h = embeddings[0] if isinstance(embeddings, tuple) else embeddings
         bs, n, _ = h.shape
 
         q = self.project_q(h)  # [bs, n, d]

@@ -118,10 +118,7 @@ class SimulationMixin:
                 if loc_tensor is None:
                     raise KeyError("Input must contain 'loc' or 'locs'")
 
-                if loc_tensor.dim() == 2:
-                    h_static = loc_tensor.unsqueeze(0)
-                else:
-                    h_static = loc_tensor
+                h_static = loc_tensor.unsqueeze(0) if loc_tensor.dim() == 2 else loc_tensor
 
                 if waste_history.dim() == 2:
                     h_feat = waste_history.unsqueeze(0)
@@ -150,9 +147,8 @@ class SimulationMixin:
                     input_for_model[f"fill{h}"] = torch.zeros_like(dynamic_feat[:, :, 0])
 
         # Expand dist_matrix for post-processing if needed (like in original code)
-        if dist_matrix is not None:
-            if dist_matrix.dim() == 2:
-                dist_matrix = dist_matrix.unsqueeze(0)
+        if dist_matrix is not None and dist_matrix.dim() == 2:
+            dist_matrix = dist_matrix.unsqueeze(0)
             # We don't have embeddings size yet to expand against batch.
             # But model forward will handle batching.
 

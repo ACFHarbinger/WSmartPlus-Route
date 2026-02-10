@@ -52,10 +52,10 @@ def insert_bins(
         distance_matrix,
         values,
     )
-    for it, a in enumerate(removed_bins):
+    for _it, a in enumerate(removed_bins):
         for it1, i in enumerate(previous_solution):
             i = routes_list[it1]
-            for it2, j in enumerate(i[0 : len(i) - 1]):
+            for it2, _j in enumerate(i[0 : len(i) - 1]):
                 i = routes_list[it1]
                 for b in routes_list:
                     if a in b:

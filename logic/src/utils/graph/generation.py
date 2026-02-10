@@ -22,10 +22,7 @@ def generate_adj_matrix(
     """
     # If `num_edges` is a percentage, convert to int
     if isinstance(num_edges, float):
-        if undirected:
-            num_edges = int(num_edges * (size * (size - 1)) / 2)
-        else:
-            num_edges = int(num_edges * size * (size - 1))
+        num_edges = int(num_edges * (size * (size - 1)) / 2) if undirected else int(num_edges * size * (size - 1))
 
     max_edges = int((size * (size - 1)) / 2) if undirected else int(size * (size - 1))
     if num_edges >= 0 and num_edges < max_edges:
@@ -64,10 +61,7 @@ def get_edge_idx_dist(
     size = len(dist_matrix)
 
     if isinstance(num_edges, float):
-        if undirected:
-            num_edges = int(num_edges * (size * (size - 1)) / 2)
-        else:
-            num_edges = int(num_edges * size * (size - 1))
+        num_edges = int(num_edges * (size * (size - 1)) / 2) if undirected else int(num_edges * size * (size - 1))
 
     max_edges = int((size * (size - 1)) / 2) if undirected else int(size * (size - 1))
     if num_edges >= 0 and num_edges < max_edges:

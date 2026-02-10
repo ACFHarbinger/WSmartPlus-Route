@@ -194,7 +194,7 @@ def vectorized_ejection_chain(
                 depot_positions = torch.where(tour == 0)[0].tolist()
             else:
                 # Rollback all ejections for this route
-                for node, old_pos in reversed(ejection_log):
+                for node, _old_pos in reversed(ejection_log):
                     # This is simplified - full rollback would require more state
                     pass
 

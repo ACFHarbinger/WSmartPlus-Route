@@ -30,7 +30,7 @@ class TransGraphConvEncoder(nn.Module):
         threshold=6.0,
         replacement_value=6.0,
         n_params=3,
-        uniform_range=[0.125, 1 / 3],
+        uniform_range=None,
         dropout_rate=0.1,
         agg="mean",
     ):
@@ -59,6 +59,8 @@ class TransGraphConvEncoder(nn.Module):
             dropout_rate: Dropout rate.
             agg: Aggregation method.
         """
+        if uniform_range is None:
+            uniform_range = [0.125, 1 / 3]
         super(TransGraphConvEncoder, self).__init__()
         layers = [
             TGCMultiHeadAttentionLayer(

@@ -7,6 +7,8 @@ import sys
 
 import yaml
 
+from logic.src.interfaces import ITraversable
+
 
 def to_bash_value(value):
     """Convert a Python value to a Bash-friendly string representation.
@@ -19,7 +21,7 @@ def to_bash_value(value):
     """
     if isinstance(value, bool):
         return "true" if value else "false"
-    elif isinstance(value, dict):
+    elif isinstance(value, ITraversable):
         # Convert dict to bash associative array: ( ["key1"]="val1" ["key2"]="val2" )
         # Note: Bash 4.0+ required.
         entries = []
@@ -72,7 +74,7 @@ def load_config(config_path):
     for d in defaults:
         if d == "_self_":
             final_merged.update(config)
-        elif isinstance(d, dict):
+        elif isinstance(d, ITraversable):
             for folder, filename in d.items():
                 if filename:
                     # Look for file in the same configs/ folder structure
@@ -94,7 +96,7 @@ def load_config(config_path):
 def deep_merge(target, source):
     """Deeply merge source dictionary into target dictionary."""
     for key, value in source.items():
-        if isinstance(value, dict) and key in target and isinstance(target[key], dict):
+        if isinstance(value, ITraversable) and key in target and isinstance(target[key], ITraversable):
             deep_merge(target[key], value)
         else:
             target[key] = value
@@ -118,7 +120,7 @@ def main():
         items = []
         for k, v in d.items():
             new_key = f"{parent_key}{sep}{k}" if parent_key else k
-            if isinstance(v, dict):
+            if isinstance(v, ITraversable):
                 items.extend(flatten_dict(v, new_key, sep=sep).items())
             else:
                 items.append((new_key, v))
@@ -128,7 +130,7 @@ def main():
     for key, value in final_config.items():
         bash_var_name = key.upper()
         bash_value = to_bash_value(value)
-        if isinstance(value, dict):
+        if isinstance(value, ITraversable):
             # Associative arrays must be declared with -A
             print(f"declare -A {bash_var_name}={bash_value}")
         else:
@@ -143,7 +145,7 @@ def main():
         bash_var_name = key.upper()
         bash_value = to_bash_value(value)
         # We don't export nested dicts as flattened variables here, only leaves
-        if not isinstance(value, dict):
+        if not isinstance(value, ITraversable):
             print(f"export {bash_var_name}={bash_value}")
 
 

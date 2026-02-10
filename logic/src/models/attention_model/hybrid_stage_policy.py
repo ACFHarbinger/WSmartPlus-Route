@@ -253,7 +253,7 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
 
         log_likelihood = 0.0
 
-        for step in range(self.refine_steps):
+        for _step in range(self.refine_steps):
             # Predict Operator
             op_logits, _ = self.improvement_decoder(td, embeddings, env)
 

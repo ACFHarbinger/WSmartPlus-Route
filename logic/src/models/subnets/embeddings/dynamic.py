@@ -49,10 +49,10 @@ class DynamicEmbedding(nn.Module):
         # visited: [batch, num_loc]
         dynamic_feat = None
 
-        if "dynamic_context" in td.keys():
+        if "dynamic_context" in td:
             # Explicit dynamic context provided by env
             dynamic_feat = td["dynamic_context"]
-        elif "visited" in td.keys():
+        elif "visited" in td:
             # Use visited mask as dynamic feature
             # [batch, num_loc] -> [batch, num_loc, 1]
             dynamic_feat = td["visited"].float().unsqueeze(-1)

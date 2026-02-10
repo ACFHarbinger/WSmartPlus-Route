@@ -176,7 +176,7 @@ class TestSimSettingsTab(QWidget):
         """
         Select all available simulation policies.
         """
-        for policy_name in SIMULATOR_TEST_POLICIES.keys():
+        for policy_name in SIMULATOR_TEST_POLICIES:
             self.selected_policies.add(policy_name)
             self.policy_buttons[policy_name].setChecked(True)
 
@@ -185,7 +185,7 @@ class TestSimSettingsTab(QWidget):
         Deselect all simulation policies.
         """
         self.selected_policies.clear()
-        for policy_name in SIMULATOR_TEST_POLICIES.keys():
+        for policy_name in SIMULATOR_TEST_POLICIES:
             self.policy_buttons[policy_name].setChecked(False)
 
     # Parameter Retrieval Method (Unchanged)

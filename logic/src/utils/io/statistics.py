@@ -70,10 +70,7 @@ def process_file_statistics(
 
     output_data = {}
     for parent, values in aggregated.items():
-        if process_func:
-            result = process_func(values)
-        else:
-            result = sum(values) / len(values)
+        result = process_func(values) if process_func else sum(values) / len(values)
         output_data[parent] = {output_key: result}
 
     dir_path = os.path.dirname(file_path)

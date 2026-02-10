@@ -13,6 +13,7 @@ import pytorch_lightning as pl
 from omegaconf import OmegaConf
 
 from logic.src.configs import Config
+from logic.src.interfaces import ITraversable
 from logic.src.envs import get_env
 from logic.src.models.policies import (
     AttentionModelPolicy,
@@ -173,12 +174,12 @@ def create_model(cfg: Config) -> pl.LightningModule:
         policy = policy_map[cfg.model.name](**policy_kwargs)
 
     # 3. Initialize RL Module
-    if isinstance(cfg.rl, dict):
+    if isinstance(cfg.rl, ITraversable):
         common_kwargs = cfg.rl.copy()
     else:
         common_kwargs = cast(Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.rl)), resolve=True))
 
-    if isinstance(cfg.train, dict):
+    if isinstance(cfg.train, ITraversable):
         train_params = cfg.train.copy()
     else:
         train_params = cast(
@@ -194,7 +195,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
     if "val_dataset" in common_kwargs:
         common_kwargs["val_dataset_path"] = common_kwargs.pop("val_dataset")
 
-    if isinstance(cfg.model, dict):
+    if isinstance(cfg.model, ITraversable):
         model_params = cfg.model.copy()
     else:
         model_params = cast(
@@ -225,7 +226,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
     common_kwargs = cast(Dict[str, Any], deep_sanitize(common_kwargs))
 
     algo_name = cfg.rl.algorithm
-    if algo_name in common_kwargs and isinstance(common_kwargs[algo_name], dict):
+    if algo_name in common_kwargs and isinstance(common_kwargs[algo_name], ITraversable):
         algo_specific = common_kwargs[algo_name]
         if algo_name == "ppo":
             common_kwargs["ppo_epochs"] = algo_specific.get("epochs", 10)

@@ -53,10 +53,7 @@ class DACTDecoder(ImprovementDecoder):
         Returns:
             Tuple of (log_p, actions) where actions is [batch, 2].
         """
-        if isinstance(embeddings, tuple):
-            h = embeddings[0]
-        else:
-            h = embeddings
+        h = embeddings[0] if isinstance(embeddings, tuple) else embeddings
         bs, n, _ = h.shape
 
         # 1. Project to queries and keys

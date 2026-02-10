@@ -7,6 +7,8 @@ from typing import Any, Dict, Optional, Union
 import torch
 from tensordict import TensorDict
 
+from logic.src.interfaces import ITensorDictLike
+
 
 def ensure_tensordict(batch: Union[Dict[str, Any], TensorDict], device: Optional[torch.device] = None) -> TensorDict:
     """
@@ -20,8 +22,8 @@ def ensure_tensordict(batch: Union[Dict[str, Any], TensorDict], device: Optional
     Returns:
         TensorDict: The processed batch.
     """
-    if isinstance(batch, (dict, TensorDict)):
-        if "data" in batch.keys():
+    if isinstance(batch, ITensorDictLike):
+        if "data" in batch:
             # Handling BaselineDataset wrapped output
             td_data = batch["data"]
             if not isinstance(td_data, TensorDict):

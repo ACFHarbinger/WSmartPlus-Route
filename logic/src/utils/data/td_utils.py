@@ -2,6 +2,7 @@
 Utilities for TensorDict datasets.
 """
 
+from logic.src.interfaces import ITraversable
 from typing import Union, cast
 
 import tensordict
@@ -10,19 +11,16 @@ from packaging import version
 from tensordict.tensordict import TensorDict
 
 # Version check for tensordict
-if version.parse(str(tensordict.__version__)) <= version.parse("0.4.0"):
-    td_kwargs = {"_run_checks": False}
-else:
-    td_kwargs = {}
+td_kwargs = {"_run_checks": False} if version.parse(str(tensordict.__version__)) <= version.parse("0.4.0") else {}
 
 
 def tensordict_collate_fn(
     batch: list[Union[dict, TensorDict]],
 ) -> Union[dict, TensorDict]:
     """Collate list of TensorDicts or dicts into batched TensorDict or dict."""
-    if isinstance(batch[0], dict):
+    if isinstance(batch[0], ITraversable):
         # We recursively collate the values
-        return {key: tensordict_collate_fn([d[key] for d in batch]) for key in batch[0].keys()}
+        return {key: tensordict_collate_fn([d[key] for d in batch]) for key in batch[0]}
 
     if isinstance(batch[0], TensorDict):
         # We stack and convert to dict for pin_memory compatibility.

@@ -87,7 +87,7 @@ def vectorized_lambda_interchange(
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
     # Main loop: try all segment length combinations
-    for iteration in range(max_iterations):
+    for _iteration in range(max_iterations):
         improved_this_sweep = False
 
         # Systematically explore all (λ_a, λ_b) combinations

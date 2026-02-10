@@ -132,7 +132,7 @@ def _propagate_string_removal(
             break
 
         # Find which route contains this neighbor
-        for r_idx, route in enumerate(routes):
+        for _r_idx, route in enumerate(routes):
             if neighbor in route:
                 pos = route.index(neighbor)
                 # Remove a small string around this neighbor

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 import xml.etree.ElementTree as ET
+from logic.src.interfaces import ITraversable
 from typing import Any, Dict, List, Union
 
 import yaml
@@ -87,7 +88,7 @@ def load_xml_config(config_path: str) -> dict[str, Any]:
             return result
 
         data = xml_to_dict(root)
-        if root.tag == "config" and isinstance(data, dict):
+        if root.tag == "config" and isinstance(data, ITraversable):
             return data
         return {root.tag: data}
 

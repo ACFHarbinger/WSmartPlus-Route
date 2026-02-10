@@ -9,6 +9,8 @@ from typing import Any, Optional, Tuple
 
 import torch
 from tensordict import TensorDict
+
+from logic.src.interfaces import ITensorDictLike
 from torch import nn
 
 from logic.src.utils.logging.pylogger import get_pylogger
@@ -37,7 +39,7 @@ class Baseline(nn.Module, ABC):
         Returns:
             Tuple: Unwrapped batch data and optional baseline.
         """
-        if isinstance(batch, (dict, TensorDict)):
+        if isinstance(batch, ITensorDictLike):
             if "data" in list(batch.keys()) and "baseline" in list(batch.keys()):
                 return batch["data"], batch["baseline"]
         return batch, None

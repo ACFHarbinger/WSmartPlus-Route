@@ -31,7 +31,7 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
                 key,
                 range_val[0],
                 range_val[1],
-                log=(True if range_val[0] > 0 and range_val[1] / range_val[0] > 10 else False),
+                log=(bool(range_val[0] > 0 and range_val[1] / range_val[0] > 10)),
             )
         elif isinstance(range_val[0], int):
             val = trial.suggest_int(key, range_val[0], range_val[1])

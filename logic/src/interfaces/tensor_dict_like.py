@@ -79,11 +79,28 @@ class ITensorDictLike(Protocol):
         """
         ...
 
+    def items(self) -> Any:
+        """Return key-value pairs.
+
+        Returns:
+            Iterable of (key, value) tuples
+        """
+        ...
+
     @property
     def batch_size(self) -> Tuple[int, ...]:
         """Batch dimensions.
 
         Returns:
             Tuple of batch dimension sizes
+        """
+        ...
+
+    @property
+    def device(self) -> torch.device:
+        """Device where tensors are stored.
+
+        Returns:
+            Device (cpu, cuda, etc.)
         """
         ...

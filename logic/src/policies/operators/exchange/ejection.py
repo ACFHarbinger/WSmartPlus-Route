@@ -151,9 +151,8 @@ def _rollback_ejections(
 ) -> None:
     """Rollback ejection chain insertions."""
     for node, r_idx, pos in reversed(log):
-        if r_idx < len(ls.routes) and pos < len(ls.routes[r_idx]):
-            if ls.routes[r_idx][pos] == node:
-                ls.routes[r_idx].pop(pos)
-                # Put back in source route
-                ls.routes[source_route].append(node)
+        if r_idx < len(ls.routes) and pos < len(ls.routes[r_idx]) and ls.routes[r_idx][pos] == node:
+            ls.routes[r_idx].pop(pos)
+            # Put back in source route
+            ls.routes[source_route].append(node)
     log.clear()

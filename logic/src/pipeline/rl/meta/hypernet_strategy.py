@@ -11,6 +11,7 @@ import torch
 
 from logic.src.models.hypernet.optimizer import HyperNetworkOptimizer
 from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
+from logic.src.interfaces import ITraversable
 
 
 class HyperNetworkStrategy(WeightAdjustmentStrategy):
@@ -94,9 +95,9 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
         # But Hypernetwork needs specific components like 'overflows', 'kg', 'km'
         # If 'metrics' passed is a dict, we can update last_costs
 
-        if isinstance(metrics, dict):
+        if isinstance(metrics, ITraversable):
             # Update our cache of costs for next proposal
-            for k in self.last_costs.keys():
+            for k in self.last_costs:
                 if k in metrics:
                     val = metrics[k]
                     if isinstance(val, (int, float)):

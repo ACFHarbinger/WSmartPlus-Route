@@ -119,10 +119,7 @@ class PolyNet(nn.Module):
         td = self.env.reset(batch)
 
         # Get number of solutions based on phase
-        if phase == "train":
-            num_solutions = self.k
-        else:
-            num_solutions = self.val_num_solutions
+        num_solutions = self.k if phase == "train" else self.val_num_solutions
 
         # Apply augmentation if training
         if phase == "train" and self.num_augment > 1:

@@ -173,7 +173,7 @@ def _process_display_updates(
 
     # A. Process ACTIVE samples from shared_metrics
     # shared_metrics now contains CUMULATIVE totals from RunningState
-    for key, data in shared_metrics.items():
+    for _key, data in shared_metrics.items():
         pol = data["policy"]
         sid = data["sample_id"]
         day = data["day"]

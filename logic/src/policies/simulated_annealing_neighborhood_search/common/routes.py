@@ -28,7 +28,7 @@ def create_points(data, bins_coordinates):
     """
     points = []
     pair_lng_lat = []
-    for index, row in data.iterrows():
+    for index, _row in data.iterrows():
         lat = bins_coordinates["Lat"][index]
         lng = bins_coordinates["Lng"][index]
         pair_lng_lat = []

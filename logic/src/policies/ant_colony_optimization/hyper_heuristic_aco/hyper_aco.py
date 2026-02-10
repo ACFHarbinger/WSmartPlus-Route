@@ -111,7 +111,7 @@ class HyperHeuristicACO:
 
         t_start = time.time()
 
-        for iteration in range(self.params.max_iterations):
+        for _iteration in range(self.params.max_iterations):
             if time.time() - t_start > self.params.time_limit:
                 break
 

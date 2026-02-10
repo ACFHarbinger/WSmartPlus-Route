@@ -76,7 +76,7 @@ def log_epoch(
 ) -> None:
     """Logs summary statistics for a completed epoch."""
     log_str: str = f"Finished {x_tup[0]} {x_tup[1]} log:"
-    for id, key in enumerate(loss_keys):
+    for _id, key in enumerate(loss_keys):
         if not epoch_loss.get(key):
             continue
         lname: str = key if key in udef.LOSS_KEYS else f"{key}_cost"

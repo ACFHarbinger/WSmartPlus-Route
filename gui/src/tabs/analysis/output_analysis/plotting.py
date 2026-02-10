@@ -31,7 +31,7 @@ def generate_plot(
     indices_to_plot = []
 
     for i, dist in enumerate(all_dists):
-        if selected_dist == "All" or dist == selected_dist:
+        if selected_dist in ("All", dist):
             indices_to_plot.append(i)
 
     if not indices_to_plot:

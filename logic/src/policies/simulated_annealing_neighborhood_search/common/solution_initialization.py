@@ -82,10 +82,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
                 min_idx = row_new.argmin()
 
                 # Get the correct bin id (because of deleting the 0 distance)
-                if min_idx >= previous_bin:
-                    next_bin_idx = min_idx + 1
-                else:
-                    next_bin_idx = min_idx
+                next_bin_idx = min_idx + 1 if min_idx >= previous_bin else min_idx
 
                 # Check if the closest bin is already in any of the routes created
                 stop = None
@@ -105,10 +102,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
 
                         # Get index of the bin that is being tried
                         idx_tried_bin = row_new_list.index(row_sorted[j])
-                        if idx_tried_bin >= previous_bin:
-                            next_bin_idx = idx_tried_bin + 1
-                        else:
-                            next_bin_idx = idx_tried_bin
+                        next_bin_idx = idx_tried_bin + 1 if idx_tried_bin >= previous_bin else idx_tried_bin
 
                         # Verify if it is in any route and not only in the current route
                         if (
@@ -159,10 +153,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
                 min_idx = row_new.argmin()
 
                 # Get the correct bin id (because of deleting the 0 distance)
-                if min_idx >= previous_bin:
-                    next_bin_idx = min_idx + 1
-                else:
-                    next_bin_idx = min_idx
+                next_bin_idx = min_idx + 1 if min_idx >= previous_bin else min_idx
 
                 # Check if the closest bin is already in any of the routes created
                 stop = None
@@ -182,10 +173,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
 
                         # Get index of the bin that is being tried
                         idx_tried_bin = row_new_list.index(row_sorted[j])
-                        if idx_tried_bin >= previous_bin:
-                            next_bin_idx = idx_tried_bin + 1
-                        else:
-                            next_bin_idx = idx_tried_bin
+                        next_bin_idx = idx_tried_bin + 1 if idx_tried_bin >= previous_bin else idx_tried_bin
 
                         # Verify if it is in any route and not only in the current route
                         if (

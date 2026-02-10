@@ -54,10 +54,7 @@ class CVRPPEnv(VRPPEnv):
 
         # Update capacity when collecting
         waste = td["waste"]
-        if waste.dim() > 1:
-            waste_at_node = waste.gather(1, action.unsqueeze(-1)).squeeze(-1)
-        else:
-            waste_at_node = waste
+        waste_at_node = waste.gather(1, action.unsqueeze(-1)).squeeze(-1) if waste.dim() > 1 else waste
 
         # Reset capacity at depot
         at_depot = action == 0

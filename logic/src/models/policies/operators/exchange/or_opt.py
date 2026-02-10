@@ -100,7 +100,7 @@ def vectorized_or_opt(
         if chain_len >= N // 2:  # Skip if chain too long
             continue
 
-        for iteration in range(max_iterations):
+        for _iteration in range(max_iterations):
             improved_any = False
 
             # Generate all valid chain start positions: [0, N - chain_len)

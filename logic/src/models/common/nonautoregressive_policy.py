@@ -71,10 +71,7 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         """
         # Encode: predict heatmap
         encoder_out = self.encoder(td, **kwargs) if self.encoder is not None else None
-        if isinstance(encoder_out, tuple):
-            heatmap = encoder_out[0]
-        else:
-            heatmap = encoder_out
+        heatmap = encoder_out[0] if isinstance(encoder_out, tuple) else encoder_out
 
         # Decode: construct solution(s) from heatmap
         if self.decoder is not None and heatmap is not None:

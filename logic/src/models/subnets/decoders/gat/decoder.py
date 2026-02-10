@@ -139,10 +139,7 @@ class DeepGATDecoder(nn.Module):
         cost = None
         if hasattr(self.problem, "get_costs"):
             out_cost = self.problem.get_costs(nodes, pi, None)
-            if isinstance(out_cost, tuple):
-                cost = out_cost[0]
-            else:
-                cost = out_cost
+            cost = out_cost[0] if isinstance(out_cost, tuple) else out_cost
 
         return _log_p, pi, cost
 

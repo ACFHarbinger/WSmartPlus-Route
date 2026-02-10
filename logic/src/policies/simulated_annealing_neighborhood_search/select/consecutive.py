@@ -90,17 +90,16 @@ def add_n_bins_consecutive(routes_list, removed_bins):
     bins_to_add_consecutive = []
     possible_n = [2, 3, 4, 5]
     chosen_n = rsample(possible_n, 1)[0]
-    if len(routes_list) > 0:
-        if len(removed_bins) >= chosen_n:
-            for b in range(0, chosen_n):
-                bin_to_add = rsample(removed_bins, 1)[0]
-                removed_bins.remove(bin_to_add)
-                bins_to_add_consecutive.append(bin_to_add)
+    if len(routes_list) > 0 and len(removed_bins) >= chosen_n:
+        for _b in range(0, chosen_n):
+            bin_to_add = rsample(removed_bins, 1)[0]
+            removed_bins.remove(bin_to_add)
+            bins_to_add_consecutive.append(bin_to_add)
 
-            chosen_route = rsample(routes_list, 1)[0]
-            chosen_position = chosen_route.index(rsample(chosen_route[1 : len(chosen_route) - 1], 1)[0])
-            for d in range(0, chosen_n):
-                chosen_route.insert(chosen_position + d, bins_to_add_consecutive[d])
+        chosen_route = rsample(routes_list, 1)[0]
+        chosen_position = chosen_route.index(rsample(chosen_route[1 : len(chosen_route) - 1], 1)[0])
+        for d in range(0, chosen_n):
+            chosen_route.insert(chosen_position + d, bins_to_add_consecutive[d])
     return bins_to_add_consecutive, chosen_n
 
 

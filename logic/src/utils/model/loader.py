@@ -62,10 +62,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
 
         # Check if version with hyphen exists first
         hyphen_path = os.path.join(path, "epoch-{}.pt".format(epoch))
-        if os.path.exists(hyphen_path):
-            model_filename = hyphen_path
-        else:
-            model_filename = os.path.join(path, "epoch{}.pt".format(epoch))
+        model_filename = hyphen_path if os.path.exists(hyphen_path) else os.path.join(path, "epoch{}.pt".format(epoch))
     else:
         raise FileNotFoundError(f"{path} is not a valid directory or file.")
 

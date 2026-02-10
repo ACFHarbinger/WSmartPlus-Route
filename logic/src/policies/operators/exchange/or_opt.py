@@ -73,13 +73,12 @@ def move_or_opt(
             ins_next = target_route[insert_pos] if insert_pos < len(target_route) else 0
 
             # Adjust for removal if same route
-            if target_r_idx == r_idx:
-                if insert_pos > pos + chain_len:
-                    # Actually insert at insert_pos - chain_len after removal
-                    temp_route = route[:pos] + route[pos + chain_len :]
-                    adj_pos = insert_pos - chain_len
-                    ins_prev = temp_route[adj_pos - 1] if adj_pos > 0 else 0
-                    ins_next = temp_route[adj_pos] if adj_pos < len(temp_route) else 0
+            if target_r_idx == r_idx and insert_pos > pos + chain_len:
+                # Actually insert at insert_pos - chain_len after removal
+                temp_route = route[:pos] + route[pos + chain_len :]
+                adj_pos = insert_pos - chain_len
+                ins_prev = temp_route[adj_pos - 1] if adj_pos > 0 else 0
+                ins_next = temp_route[adj_pos] if adj_pos < len(temp_route) else 0
 
             insertion_cost = ls.d[ins_prev, chain[0]] + ls.d[chain[-1], ins_next] - ls.d[ins_prev, ins_next]
 

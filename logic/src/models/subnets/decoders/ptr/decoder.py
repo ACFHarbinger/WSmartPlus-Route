@@ -85,7 +85,7 @@ class PointerDecoder(nn.Module):
 
         hy, cy = self.lstm(x, h_in)
         g_l, h_out = hy, (hy, cy)
-        for i in range(self.n_glimpses):
+        for _i in range(self.n_glimpses):
             ref, logits = self.glimpse(g_l, context)
             # For the glimpses, only mask before softmax so we have always an L1 norm 1 readout vector
             if mask_glimpses:
@@ -158,6 +158,6 @@ class PointerDecoder(nn.Module):
                 print(" [!] resampling due to race condition")
                 idxs = probs.multinomial().squeeze(1)
         else:
-            assert False, "Unknown strategy"
+            raise AssertionError("Unknown strategy")
 
         return idxs

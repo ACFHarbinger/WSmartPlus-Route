@@ -119,10 +119,7 @@ class VectorizedALNS(ImprovementPolicy):
 
             # vectorized_linear_split usually returns routes with 0s.
             # If not, we add them.
-            if route_nodes.size(0) > 0:
-                actions = route_nodes
-            else:
-                actions = torch.tensor([0, 0], device=device)
+            actions = route_nodes if route_nodes.size(0) > 0 else torch.tensor([0, 0], device=device)
             all_actions.append(actions)
 
         # Pad actions

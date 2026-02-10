@@ -97,7 +97,7 @@ class VectorizedHGS:
         best_cost_tracker = pop.costs.min().item()
 
         # 2. Main Evolutionary Loop
-        for gen in range(n_generations):
+        for _gen in range(n_generations):
             if time_limit is not None and (time.time() - start_time > time_limit):
                 break
 

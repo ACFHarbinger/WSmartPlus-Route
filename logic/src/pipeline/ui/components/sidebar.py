@@ -237,7 +237,7 @@ def render_simulation_controls(
         # Helper to recursively find files
         matrix_files = []
         if os.path.exists(matrix_dir):
-            for root, dirs, files in os.walk(matrix_dir):
+            for root, _dirs, files in os.walk(matrix_dir):
                 for file in files:
                     if file.endswith((".csv", ".xlsx", ".txt")):
                         rel_path = os.path.relpath(os.path.join(root, file), matrix_dir)
@@ -254,7 +254,7 @@ def render_simulation_controls(
         bins_selection_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator", "bins_selection")
         index_files = []
         if os.path.exists(bins_selection_dir):
-            for root, dirs, files in os.walk(bins_selection_dir):
+            for root, _dirs, files in os.walk(bins_selection_dir):
                 for file in files:
                     if file.endswith(".json"):
                         rel_path = os.path.relpath(os.path.join(root, file), bins_selection_dir)

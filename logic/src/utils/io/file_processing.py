@@ -5,6 +5,7 @@ File and pattern-based data processing utilities.
 import glob
 import json
 import os
+from logic.src.interfaces import ITraversable
 from typing import Any, Callable, Optional, Tuple, Union
 
 from .dict_processing import process_dict_of_dicts, process_dict_two_inputs
@@ -59,21 +60,20 @@ def process_file(
 
     if key1 is not None and process_func is not None:
         # Two-input mode
-        if isinstance(data, dict):
+        if isinstance(data, ITraversable):
             modified = process_dict_two_inputs(data, key1, key2, output_key, process_func)
         elif isinstance(data, list):
             for item in data:
-                if isinstance(item, dict):
+                if isinstance(item, ITraversable):
                     if process_dict_two_inputs(item, key1, key2, output_key, process_func):
                         modified = True
     # Single-input/Constant mode
-    elif isinstance(data, dict):
+    elif isinstance(data, ITraversable):
         modified = process_dict_of_dicts(data, output_key, process_func, update_val)
     elif isinstance(data, list):
         for item in data:
-            if isinstance(item, dict):
-                if process_dict_of_dicts(item, output_key, process_func, update_val):
-                    modified = True
+            if isinstance(item, dict) and process_dict_of_dicts(item, output_key, process_func, update_val):
+                modified = True
 
     if modified:
         try:

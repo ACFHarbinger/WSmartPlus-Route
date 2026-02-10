@@ -23,7 +23,7 @@ class IBinContainer(Protocol):
     bin containers to eliminate getattr/isinstance chains.
 
     **Replaces patterns like**:
-        - getattr(bins, "c", bins.get("c") if isinstance(bins, dict) else None)
+        - getattr(bins, "c", bins.get("c") if isinstance(bins, ITraversable) else None)
         - hasattr(bins, "fill_levels") or "fill_levels" in bins
 
     Attributes:

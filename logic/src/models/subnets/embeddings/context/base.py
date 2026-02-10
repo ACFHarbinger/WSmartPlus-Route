@@ -56,10 +56,7 @@ class ContextEmbedder(nn.Module, ABC):
         Default step context: project current node embedding.
         Can be overridden by subclasses for problem-specific features.
         """
-        if hasattr(state, "get_current_node"):
-            current_node = state.get_current_node()
-        else:
-            current_node = state.get("current_node")
+        current_node = state.get_current_node() if hasattr(state, "get_current_node") else state.get("current_node")
 
         batch_size = embeddings.size(0)
 

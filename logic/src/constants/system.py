@@ -59,10 +59,7 @@ def update_lock_wait_time(num_cpu_cores: Optional[int] = None) -> int:
     """
     global LOCK_TIMEOUT
     global CORE_LOCK_WAIT_TIME
-    if num_cpu_cores is None:
-        LOCK_TIMEOUT = CORE_LOCK_WAIT_TIME
-    else:
-        LOCK_TIMEOUT = CORE_LOCK_WAIT_TIME * num_cpu_cores
+    LOCK_TIMEOUT = CORE_LOCK_WAIT_TIME if num_cpu_cores is None else CORE_LOCK_WAIT_TIME * num_cpu_cores
     return LOCK_TIMEOUT
 
 

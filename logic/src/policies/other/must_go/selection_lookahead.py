@@ -33,9 +33,7 @@ class LookaheadSelection(IMustGoSelectionStrategy):
         """
         Check if bin overflows today.
         """
-        if current_fill_level + accumulation_rate >= 100:
-            return True
-        return False
+        return current_fill_level + accumulation_rate >= 100
 
     def _update_fill_levels_after_first_collection(
         self, bin_indices: List[int], must_go_bins: List[int], current_fill_levels: np.ndarray

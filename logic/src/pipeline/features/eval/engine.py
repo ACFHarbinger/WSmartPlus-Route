@@ -15,6 +15,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
 from logic.src.pipeline.features.eval.evaluate import evaluate_policy, get_automatic_batch_size
+from logic.src.interfaces import ITraversable
 from logic.src.utils.data.data_utils import save_dataset
 from logic.src.utils.functions import load_model
 
@@ -132,14 +133,14 @@ def _eval_dataset(
                 seq = np.trim_zeros(seq).tolist()
             else:
                 seq = None
-                assert False, "Unknown problem: {}".format(model.problem.NAME)
+                raise AssertionError("Unknown problem: {}".format(model.problem.NAME))
 
         if seq is not None:
             seq_tensor = torch.tensor(seq, device=device).unsqueeze(0)
             instance = dataset[i]
             if isinstance(instance, (list, tuple)):
                 batch_i = {k: v.unsqueeze(0).to(device) for k, v in zip(["locs"], instance)}
-            elif isinstance(instance, dict):
+            elif isinstance(instance, ITraversable):
                 batch_i = {}
                 for k, v in instance.items():
                     if torch.is_tensor(v):
