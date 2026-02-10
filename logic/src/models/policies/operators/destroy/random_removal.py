@@ -1,11 +1,12 @@
 """random_removal.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import random_removal
-    """
+Example:
+    >>> import random_removal
+"""
+
 from typing import Tuple
 
 import torch

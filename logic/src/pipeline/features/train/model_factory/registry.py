@@ -1,11 +1,12 @@
 """registry.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import registry
-    """
+Example:
+    >>> import registry
+"""
+
 from typing import Any, Dict
 
 from logic.src.pipeline.rl import REINFORCE

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.subnets.modules.matnet_attention import MixedScoreMHA
 from logic.src.models.subnets.modules.normalization import Normalization

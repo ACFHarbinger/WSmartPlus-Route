@@ -6,7 +6,7 @@ import math
 from typing import Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.subnets.modules.moe_layer import MoE
 from logic.src.models.subnets.modules.multi_head_attention import MultiHeadAttention

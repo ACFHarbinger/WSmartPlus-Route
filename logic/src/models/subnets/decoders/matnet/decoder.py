@@ -1,17 +1,18 @@
 """decoder.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import decoder
-    """
+Example:
+    >>> import decoder
+"""
+
 from __future__ import annotations
 
 from typing import Any, Optional, Tuple, Union
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 

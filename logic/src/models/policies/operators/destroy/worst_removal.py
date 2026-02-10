@@ -1,11 +1,12 @@
 """worst_removal.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import worst_removal
-    """
+Example:
+    >>> import worst_removal
+"""
+
 from typing import Tuple
 
 import torch

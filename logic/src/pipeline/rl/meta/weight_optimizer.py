@@ -5,7 +5,7 @@ Neural Network-Based Meta-Learning for Reward Weight Optimization.
 from typing import Dict, List, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 

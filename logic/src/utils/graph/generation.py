@@ -58,9 +58,9 @@ def get_edge_idx_dist(
     """
     Generates edge indices based on shortest distances in the distance matrix.
     """
-    assert not undirected or np.allclose(
-        dist_matrix, dist_matrix.T
-    ), "Distance matrix must be symmetric for an undirected graph"
+    assert not undirected or np.allclose(dist_matrix, dist_matrix.T), (
+        "Distance matrix must be symmetric for an undirected graph"
+    )
     size = len(dist_matrix)
 
     if isinstance(num_edges, float):
@@ -145,7 +145,9 @@ def get_adj_osm(coords: Any, size: int, args: list, add_depot: bool = True, nega
     try:
         import osmnx as ox
     except ImportError:
-        raise ImportError("osmnx is required for OSM graph generation. Install it with 'pip install wsmart-route[geo]'.")
+        raise ImportError(
+            "osmnx is required for OSM graph generation. Install it with 'pip install wsmart-route[geo]'."
+        )
 
     G, *args = args
     assert isinstance(G, nx.MultiDiGraph)

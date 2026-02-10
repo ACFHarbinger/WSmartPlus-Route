@@ -304,18 +304,19 @@ Items are marked as:
 
 ---
 
-## Phase 7: Developer Tooling (Month 4) 📋
+## Phase 7: Developer Tooling (Month 4) ✅
 
-### 7.1 Pre-commit & CI 📋
+### 7.1 Pre-commit & CI ✅
 
-- [ ] Add pre-commit hooks for all checks
-- [ ] Complexity checks in CI (radon, mccabe)
+- [x] Add pre-commit hooks for all checks
+- [x] Complexity checks in CI (radon, mccabe)
 
 ---
 
-### 7.2 DevContainer & Docker 📋
+### 7.2 DevContainer & Docker ✅
 
-- [ ] Create Docker/DevContainer setup
+- [x] Create Docker/DevContainer setup
+- [x] Refine root Dockerfile for production and GIS support
 
 ---
 
@@ -646,7 +647,7 @@ Create a clear reference showing which models work with which problem types, and
 | Phase 4  | Type Safety & Static Analysis    | 📋 Pending     |
 | Phase 5  | Code Architecture                | 📋 Pending     |
 | Phase 6  | Dependencies & Security          | 📋 Pending     |
-| Phase 7  | Developer Tooling                | 📋 Pending     |
+| Phase 7  | Developer Tooling                | ✅ Completed   |
 | Phase 8  | Core Infrastructure Alignment    | ✅ Completed   |
 | Phase 9  | Constructive AR Models           | ✅ Completed   |
 | Phase 10 | Non-Autoregressive Models        | ✅ Completed   |

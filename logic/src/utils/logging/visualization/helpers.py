@@ -5,7 +5,7 @@ Provides data generation and model loading functions used across visualization m
 """
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.attention_model import AttentionModel
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory

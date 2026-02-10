@@ -3,7 +3,7 @@
 import math
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from .activation_function import ActivationFunction
 from .normalization import Normalization

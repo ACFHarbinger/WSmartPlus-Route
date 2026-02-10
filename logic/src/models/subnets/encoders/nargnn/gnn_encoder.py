@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from .gnn_layer import GNNLayer
 

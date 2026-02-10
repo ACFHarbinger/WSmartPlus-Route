@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.constants.models import NODE_DIM, WC_STEP_CONTEXT_OFFSET
 
@@ -44,7 +44,7 @@ class WCVRPContextEmbedder(ContextEmbedder):
         Returns:
             Any: Description of return value.
         """
-        locs = nodes.get("locs", None)
+        locs = nodes.get("locs")
         if locs is None:
             locs = nodes.get("loc")
         waste = nodes.get("waste")

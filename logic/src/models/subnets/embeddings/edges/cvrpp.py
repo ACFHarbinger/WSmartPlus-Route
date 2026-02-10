@@ -1,11 +1,12 @@
 """cvrpp.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import cvrpp
-    """
+Example:
+    >>> import cvrpp
+"""
+
 import torch
 from torch_geometric.data import Batch, Data
 

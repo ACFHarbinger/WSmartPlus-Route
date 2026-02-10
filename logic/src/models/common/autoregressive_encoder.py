@@ -1,17 +1,18 @@
 """autoregressive_encoder.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import autoregressive_encoder
-    """
+Example:
+    >>> import autoregressive_encoder
+"""
+
 from abc import ABC, abstractmethod
 from typing import Tuple, Union
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 
 class AutoregressiveEncoder(nn.Module, ABC):

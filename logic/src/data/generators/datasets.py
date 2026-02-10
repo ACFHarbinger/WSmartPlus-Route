@@ -1,11 +1,12 @@
 """datasets.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import datasets
-    """
+Example:
+    >>> import datasets
+"""
+
 import os
 import random
 from typing import Any, Dict
@@ -150,7 +151,7 @@ def generate_datasets(opts: Dict[str, Any]) -> None:
 
                         if "filename" not in opts or opts["filename"] is None:
                             ext = ".td"
-                            if opts.get("mu", None) is not None:
+                            if opts.get("mu") is not None:
                                 filename = os.path.join(
                                     datadir,
                                     "{}{}{}_{}{}_seed{}_{}_{}{}".format(
@@ -195,7 +196,7 @@ def generate_datasets(opts: Dict[str, Any]) -> None:
                             print("- Generating epoch {} data".format(epoch))
                             if "filename" not in opts or opts["filename"] is None:
                                 ext = ".td"
-                                if opts.get("mu", None) is not None:
+                                if opts.get("mu") is not None:
                                     filename = os.path.join(
                                         datadir,
                                         "{}{}{}_{}{}_seed{}_{}_{}{}".format(

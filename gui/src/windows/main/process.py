@@ -118,9 +118,8 @@ class ProcessManager(QObject):
         if exit_status == QProcess.ExitStatus.NormalExit and exit_code == 0:
             if self.results_window:
                 self.results_window.status_label.setText("Simulation Complete: Success")
-        else:
-            if self.results_window:
-                self.results_window.status_label.setText(f"Simulation Failed (Code: {exit_code})")
+        elif self.results_window:
+            self.results_window.status_label.setText(f"Simulation Failed (Code: {exit_code})")
 
         self.process = None
         self.finished.emit(exit_code, exit_status)

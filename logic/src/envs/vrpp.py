@@ -114,10 +114,11 @@ class VRPPEnv(RL4COEnvBase):
             if gen_n is not None and locs.shape[-2] == gen_n + 1:
                 needs_prepend = False
             # 2. If we are at N, we definitely need to prepend
-            elif gen_n is not None and locs.shape[-2] == gen_n:
-                needs_prepend = True
-            # 3. Fallback: check coordinate values
-            elif not torch.allclose(locs[..., 0, :], td["depot"], atol=1e-4):
+            elif (
+                gen_n is not None
+                and locs.shape[-2] == gen_n
+                or not torch.allclose(locs[..., 0, :], td["depot"], atol=1e-4)
+            ):
                 needs_prepend = True
 
         if needs_prepend:

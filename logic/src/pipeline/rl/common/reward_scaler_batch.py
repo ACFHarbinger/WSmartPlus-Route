@@ -1,11 +1,12 @@
 """reward_scaler_batch.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import reward_scaler_batch
-    """
+Example:
+    >>> import reward_scaler_batch
+"""
+
 import torch
 
 

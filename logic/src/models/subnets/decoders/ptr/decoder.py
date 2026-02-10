@@ -2,7 +2,7 @@
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 
 from .pointer_attention import PointerAttention
 
@@ -148,9 +148,9 @@ class PointerDecoder(nn.Module):
         """Decodes probabilities to actions based on strategy."""
         if self.strategy == "greedy":
             _, idxs = probs.max(1)
-            assert not mask.gather(
-                1, idxs.unsqueeze(-1)
-            ).data.any(), "Decode greedy: infeasible action has maximum probability"
+            assert not mask.gather(1, idxs.unsqueeze(-1)).data.any(), (
+                "Decode greedy: infeasible action has maximum probability"
+            )
         elif self.strategy == "sampling":
             idxs = probs.multinomial(1).squeeze(1)
             # Check if sampling went OK, can go wrong due to bug on GPU

@@ -1,19 +1,20 @@
 """decoder.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import decoder
-    """
+Example:
+    >>> import decoder
+"""
+
 from __future__ import annotations
 
 from typing import Tuple
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
 

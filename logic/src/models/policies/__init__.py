@@ -10,7 +10,7 @@ Registries:
 - ``get_policy(name, **kwargs)``: Factory function for instantiation.
 """
 
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.attention_model.deep_decoder_policy import DeepDecoderPolicy
 from logic.src.models.attention_model.policy import AttentionModelPolicy

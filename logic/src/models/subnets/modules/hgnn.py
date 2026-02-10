@@ -5,7 +5,7 @@ Heterogeneous Graph Neural Network Module.
 from typing import Dict, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.subnets.modules.normalization import Normalization
 

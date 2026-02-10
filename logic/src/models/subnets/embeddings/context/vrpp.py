@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.constants.models import NODE_DIM, VRPP_STEP_CONTEXT_OFFSET
 

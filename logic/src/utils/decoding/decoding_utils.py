@@ -143,14 +143,13 @@ def get_log_likelihood(
     if actions is None:
         # Assume log_probs are already the selected log probabilities
         log_ll = log_probs
+    # Gather log probs for selected actions
+    elif log_probs.dim() == 3:
+        # [batch, seq_len, num_nodes] -> gather on last dim
+        log_ll = log_probs.gather(2, actions.unsqueeze(-1)).squeeze(-1)
     else:
-        # Gather log probs for selected actions
-        if log_probs.dim() == 3:
-            # [batch, seq_len, num_nodes] -> gather on last dim
-            log_ll = log_probs.gather(2, actions.unsqueeze(-1)).squeeze(-1)
-        else:
-            # [batch, num_nodes] -> gather on last dim
-            log_ll = log_probs.gather(1, actions.unsqueeze(-1)).squeeze(-1)
+        # [batch, num_nodes] -> gather on last dim
+        log_ll = log_probs.gather(1, actions.unsqueeze(-1)).squeeze(-1)
 
     # Apply mask if provided
     if mask is not None:

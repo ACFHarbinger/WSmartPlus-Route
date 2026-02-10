@@ -9,7 +9,7 @@ import math
 from typing import Any, Optional, Union
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from ..common import AttentionDecoderCache
 from .attention import make_heads, one_to_many_logits

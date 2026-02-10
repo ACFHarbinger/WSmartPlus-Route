@@ -8,8 +8,8 @@ individual steps and provides reward signals for each transition.
 from __future__ import annotations
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 from torch.utils.data import DataLoader
 
 from logic.src.pipeline.rl.common.base import RL4COLitModule

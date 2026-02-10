@@ -2,7 +2,7 @@
 MoE Feed Forward Network implementation.
 """
 
-import torch.nn as nn
+from torch import nn
 
 from .activation_function import ActivationFunction
 from .feed_forward import FeedForward

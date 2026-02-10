@@ -49,7 +49,7 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
         "file": FileStrategy,
     }
 
-    assert method in STRATEGIES.keys(), f"Method {method} not supported. usage: {list(STRATEGIES.keys())}"
+    assert method in STRATEGIES, f"Method {method} not supported. usage: {list(STRATEGIES.keys())}"
 
     # Caching Logic
     to_save = False

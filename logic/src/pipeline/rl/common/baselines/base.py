@@ -8,8 +8,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional, Tuple
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.utils.logging.pylogger import get_pylogger
 

@@ -104,11 +104,10 @@ def setup_env(
                 for glp_key, glp_val in params.items():
                     if isinstance(glp_val, str) and glp_val == "":
                         raise ValueError(f"Missing parameter {glp_key} for Gurobi license")
-        else:
-            if gplic_filename is not None:
-                gplic_path = os.path.join(udef.ROOT_DIR, "assets", "api", gplic_filename)
-                if os.path.exists(gplic_path):
-                    os.environ["GRB_LICENSE_FILE"] = gplic_path
+        elif gplic_filename is not None:
+            gplic_path = os.path.join(udef.ROOT_DIR, "assets", "api", gplic_filename)
+            if os.path.exists(gplic_path):
+                os.environ["GRB_LICENSE_FILE"] = gplic_path
         params["OutputFlag"] = udef.SOLVER_OUTPUT_FLAG
         return gp.Env(params=params)
     return None

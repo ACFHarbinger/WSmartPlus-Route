@@ -1,11 +1,12 @@
 """base.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import base
-    """
+Example:
+    >>> import base
+"""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

@@ -1,11 +1,12 @@
 """validators.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import validators
-    """
+Example:
+    >>> import validators
+"""
+
 import re
 from typing import Any, Dict
 
@@ -58,7 +59,7 @@ def validate_gen_data_args(args: Dict[str, Any]) -> Dict[str, Any]:
         )
 
     args["waste_type"] = re.sub(r"[^a-zA-Z]", "", args.get("waste_type", "").lower())
-    assert (
-        args["waste_type"] in WASTE_TYPES.keys() or args["waste_type"] is None
-    ), "Unknown waste type {}, available waste types: {}".format(args["waste_type"], WASTE_TYPES.keys())
+    assert args["waste_type"] in WASTE_TYPES.keys() or args["waste_type"] is None, (
+        "Unknown waste type {}, available waste types: {}".format(args["waste_type"], WASTE_TYPES.keys())
+    )
     return args

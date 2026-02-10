@@ -1,18 +1,19 @@
 """nonautoregressive_encoder.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import nonautoregressive_encoder
-    """
+Example:
+    >>> import nonautoregressive_encoder
+"""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 
 class NonAutoregressiveEncoder(nn.Module, ABC):

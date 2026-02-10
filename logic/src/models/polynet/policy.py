@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.common.autoregressive_policy import AutoregressivePolicy

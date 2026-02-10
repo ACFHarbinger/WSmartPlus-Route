@@ -5,8 +5,8 @@ MDAM Multi-Path Decoder implementation.
 from typing import Any, Tuple, Union, cast
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding

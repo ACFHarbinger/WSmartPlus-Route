@@ -60,7 +60,7 @@ class BaseProblem:
                 + dist_matrix[0, 0, pi[:, 0]]
             )
         else:
-            loc_val = dataset.get("locs") if "locs" in dataset.keys() else dataset.get("loc")
+            loc_val = dataset.get("locs") if "locs" in dataset else dataset.get("loc")
             waste_val = dataset.get("waste")
             if loc_val is not None and loc_val.size(1) == dataset["depot"].size(0) + (
                 waste_val.size(1) if waste_val is not None else 0
@@ -185,9 +185,8 @@ class BaseProblem:
                 td["capacity"] = torch.full((td.batch_size[0],), profit_vars["vehicle_capacity"], device=td.device)
             elif "vehicle_capacity" in kwargs:
                 td["capacity"] = torch.full((td.batch_size[0],), kwargs["vehicle_capacity"], device=td.device)
-            else:
-                if env_name in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
-                    td["capacity"] = torch.ones(td.batch_size[0], device=td.device)
+            elif env_name in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
+                td["capacity"] = torch.ones(td.batch_size[0], device=td.device)
 
         td_reset = TensorDict(
             source={k: v for k, v in td.items()},

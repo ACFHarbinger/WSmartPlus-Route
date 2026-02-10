@@ -1,15 +1,16 @@
 """none.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import none
-    """
+Example:
+    >>> import none
+"""
+
 from __future__ import annotations
 
 import torch
-import torch.nn as nn
+from torch import nn
 from torch_geometric.data import Batch, Data
 
 from logic.src.utils.ops import get_full_graph_edge_index
@@ -32,9 +33,9 @@ class NoEdgeEmbedding(nn.Module):
             self_loop: Whether to include self-loops.
             **kwargs: Unused arguments.
         """
-        assert (
-            Batch is not None
-        ), "torch_geometric is required for NoEdgeEmbedding. Install via: pip install torch_geometric"
+        assert Batch is not None, (
+            "torch_geometric is required for NoEdgeEmbedding. Install via: pip install torch_geometric"
+        )
         super().__init__()
         self.embed_dim = embed_dim
         self.self_loop = self_loop

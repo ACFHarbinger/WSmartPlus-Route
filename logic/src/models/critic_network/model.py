@@ -10,7 +10,7 @@ the new (TensorDict-based) and legacy (problem/factory-based) versions.
 
 import warnings
 
-import torch.nn as nn
+from torch import nn
 
 # Re-export the canonical CriticNetwork and factory
 from logic.src.models.critic_network.policy import CriticNetwork, create_critic_from_actor  # noqa: F401

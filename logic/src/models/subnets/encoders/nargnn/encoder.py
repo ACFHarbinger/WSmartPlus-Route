@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import Optional, Tuple
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.models.common.nonautoregressive_encoder import NonAutoregressiveEncoder
 from logic.src.models.subnets.embeddings import get_init_embedding

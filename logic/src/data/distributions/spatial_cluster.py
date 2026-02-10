@@ -1,11 +1,12 @@
 """spatial_cluster.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import spatial_cluster
-    """
+Example:
+    >>> import spatial_cluster
+"""
+
 from typing import Tuple
 
 import torch

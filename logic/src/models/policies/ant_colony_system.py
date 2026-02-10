@@ -1,11 +1,12 @@
 """ant_colony_system.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import ant_colony_system
-    """
+Example:
+    >>> import ant_colony_system
+"""
+
 from __future__ import annotations
 
 from typing import Any, Dict, Optional, Tuple

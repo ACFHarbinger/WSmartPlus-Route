@@ -5,8 +5,8 @@ This module contains the GAT-LSTM Manager agent implementation for Hierarchical 
 from typing import Optional
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import nn
 
 from logic.src.configs.models.activation_function import ActivationConfig
 from logic.src.configs.models.normalization import NormalizationConfig
@@ -101,10 +101,10 @@ class GATLSTManager(nn.Module):
             try:
                 val = None
                 if hasattr(shared_encoder, "embed_dim"):
-                    val = getattr(shared_encoder, "embed_dim")
-                elif hasattr(shared_encoder, "layers") and len(getattr(shared_encoder, "layers")) > 0:
+                    val = shared_encoder.embed_dim
+                elif hasattr(shared_encoder, "layers") and len(shared_encoder.layers) > 0:
                     # Attempt to find embed_dim in deep layers
-                    first_layer = getattr(shared_encoder, "layers")[0]
+                    first_layer = shared_encoder.layers[0]
                     # Check for TransformerEncoderLayer style
                     if (
                         hasattr(first_layer, "att")
@@ -168,22 +168,21 @@ class GATLSTManager(nn.Module):
                 "feed_forward_hidden": hidden_dim * FEED_FORWARD_EXPANSION,
             }
             self.gat_encoder = component_factory.create_encoder(**encoder_kwargs)
+        elif spatial_encoder_cls is None:
+            # Default to TransformerEncoder
+            encoder_layer = nn.TransformerEncoderLayer(
+                d_model=hidden_dim,
+                nhead=n_heads,
+                dim_feedforward=hidden_dim * FEED_FORWARD_EXPANSION,
+                dropout=dropout,
+                batch_first=True,
+            )
+            self.gat_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_gat)
         else:
-            if spatial_encoder_cls is None:
-                # Default to TransformerEncoder
-                encoder_layer = nn.TransformerEncoderLayer(
-                    d_model=hidden_dim,
-                    nhead=n_heads,
-                    dim_feedforward=hidden_dim * FEED_FORWARD_EXPANSION,
-                    dropout=dropout,
-                    batch_first=True,
-                )
-                self.gat_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_gat)
-            else:
-                # Use custom spatial encoder
-                if spatial_encoder_kwargs is None:
-                    spatial_encoder_kwargs = {}
-                self.gat_encoder = spatial_encoder_cls(**spatial_encoder_kwargs)
+            # Use custom spatial encoder
+            if spatial_encoder_kwargs is None:
+                spatial_encoder_kwargs = {}
+            self.gat_encoder = spatial_encoder_cls(**spatial_encoder_kwargs)
 
         # 4. Heads
 

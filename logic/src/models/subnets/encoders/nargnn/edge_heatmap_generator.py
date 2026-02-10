@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 try:
     from torch_geometric.data import Batch

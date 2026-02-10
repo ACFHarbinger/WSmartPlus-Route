@@ -1,6 +1,6 @@
 """Transformer Graph Convolution Encoder."""
 
-import torch.nn as nn
+from torch import nn
 
 from .conv_layer import GraphConvolutionLayer
 from .mha_layer import TGCMultiHeadAttentionLayer

@@ -82,15 +82,15 @@ class Generator(ABC):
         if hasattr(self, "min_waste"):
             kwargs.update(
                 {
-                    "min_waste": getattr(self, "min_waste"),
-                    "max_waste": getattr(self, "max_waste"),
-                    "waste_distribution": getattr(self, "waste_distribution"),
-                    "min_prize": getattr(self, "min_prize"),
-                    "max_prize": getattr(self, "max_prize"),
-                    "prize_distribution": getattr(self, "prize_distribution"),
-                    "capacity": getattr(self, "capacity"),
-                    "max_length": getattr(self, "max_length"),
-                    "depot_type": getattr(self, "depot_type"),
+                    "min_waste": self.min_waste,
+                    "max_waste": self.max_waste,
+                    "waste_distribution": self.waste_distribution,
+                    "min_prize": self.min_prize,
+                    "max_prize": self.max_prize,
+                    "prize_distribution": self.prize_distribution,
+                    "capacity": self.capacity,
+                    "max_length": self.max_length,
+                    "depot_type": self.depot_type,
                 }
             )
 
@@ -98,13 +98,13 @@ class Generator(ABC):
         if hasattr(self, "min_fill"):
             kwargs.update(
                 {
-                    "min_fill": getattr(self, "min_fill"),
-                    "max_fill": getattr(self, "max_fill"),
-                    "fill_distribution": getattr(self, "fill_distribution"),
-                    "capacity": getattr(self, "capacity"),
-                    "cost_km": getattr(self, "cost_km"),
-                    "revenue_kg": getattr(self, "revenue_kg"),
-                    "depot_type": getattr(self, "depot_type"),
+                    "min_fill": self.min_fill,
+                    "max_fill": self.max_fill,
+                    "fill_distribution": self.fill_distribution,
+                    "capacity": self.capacity,
+                    "cost_km": self.cost_km,
+                    "revenue_kg": self.revenue_kg,
+                    "depot_type": self.depot_type,
                 }
             )
 
@@ -112,8 +112,8 @@ class Generator(ABC):
         if hasattr(self, "noise_mean"):
             kwargs.update(
                 {
-                    "noise_mean": getattr(self, "noise_mean"),
-                    "noise_variance": getattr(self, "noise_variance"),
+                    "noise_mean": self.noise_mean,
+                    "noise_variance": self.noise_variance,
                 }
             )
 

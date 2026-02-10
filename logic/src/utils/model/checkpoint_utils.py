@@ -8,7 +8,7 @@ import os
 from typing import Any, Dict, Optional, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 def torch_load_cpu(load_path: str) -> Any:
