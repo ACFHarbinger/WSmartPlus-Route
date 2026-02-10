@@ -28,7 +28,7 @@ class PandasModel(QAbstractTableModel):
         """Return the number of columns in the DataFrame."""
         return self._data.shape[1]
 
-    def data(self, index, role=Qt.DisplayRole):
+    def data(self, index, role=Qt.DisplayRole):  # type: ignore[attr-defined]
         """
         Retrieve data for a specific index and role.
 
@@ -39,11 +39,11 @@ class PandasModel(QAbstractTableModel):
         Returns:
             Any: The data at the index, or None if invalid.
         """
-        if index.isValid() and role == Qt.DisplayRole:
+        if index.isValid() and role == Qt.DisplayRole:  # type: ignore[attr-defined]
             return str(self._data.iloc[index.row(), index.column()])
         return None
 
-    def headerData(self, col, orientation, role):
+    def headerData(self, col, orientation, role):  # type: ignore[override]
         """
         Retrieve header data for columns.
 
@@ -55,6 +55,6 @@ class PandasModel(QAbstractTableModel):
         Returns:
             Any: The column name for horizontal headers.
         """
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:  # type: ignore[attr-defined]
             return self._data.columns[col]
         return None

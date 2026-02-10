@@ -92,6 +92,8 @@ def vectorized_cross_exchange(
     # Handle demands if provided
     has_capacity = capacities is not None and demands is not None
     if has_capacity:
+        assert demands is not None
+        assert capacities is not None
         if demands.dim() == 1:
             demands = demands.unsqueeze(0).expand(B, -1)
         if capacities.dim() == 0:

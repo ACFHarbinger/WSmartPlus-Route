@@ -4,7 +4,7 @@ Multi-Objective Reinforcement Learning (MORL) Weight Optimizer.
 
 import copy
 from collections import deque
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -19,8 +19,8 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
     def __init__(
         self,
         initial_weights: Dict[str, float],
-        weight_names: List[str] = None,
-        objective_names: List[str] = None,
+        weight_names: Optional[List[str]] = None,
+        objective_names: Optional[List[str]] = None,
         history_window: int = 20,
         exploration_factor: float = 0.2,
         adaptation_rate: float = 0.1,

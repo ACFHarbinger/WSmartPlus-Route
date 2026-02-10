@@ -183,10 +183,10 @@ class InitializingState(SimState):
                 ctx.opts["env_file"],
             )
             ctx.model_tup = (None, None)
-            self.configs = None
+            self.configs = None  # type: ignore[assignment]
         else:
             ctx.model_tup = (None, None)
-            self.configs = None
+            self.configs = None  # type: ignore[assignment]
 
     def _restore_state(self, ctx, saved_state, last_day):
         (

@@ -64,7 +64,7 @@ def load_config(config_path):
         return config
 
     defaults = config.pop("defaults")
-    final_merged = {}
+    final_merged = {}  # type: ignore[var-annotated]
 
     config_dir = os.path.dirname(os.path.abspath(config_path))
     # If we are in a subdirectory (like tasks/), the base config dir is the parent
@@ -109,7 +109,7 @@ def main():
         print("Usage: python yaml_to_env.py <config1.yaml> [<config2.yaml> ...]", file=sys.stderr)
         sys.exit(1)
 
-    final_config = {}
+    final_config = {}  # type: ignore[var-annotated]
 
     for config_path in sys.argv[1:]:
         config = load_config(config_path)

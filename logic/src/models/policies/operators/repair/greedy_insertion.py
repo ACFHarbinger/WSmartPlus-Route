@@ -2,12 +2,18 @@
 Greedy insertion repair operator (vectorized).
 """
 
+from typing import Optional
+
 import torch
 from torch import Tensor
 
 
 def vectorized_greedy_insertion(
-    tours: Tensor, removed_nodes: Tensor, dist_matrix: Tensor, demands: Tensor = None, capacity: float = None
+    tours: Tensor,
+    removed_nodes: Tensor,
+    dist_matrix: Tensor,
+    demands: Optional[Tensor] = None,
+    capacity: Optional[float] = None,
 ) -> Tensor:
     """
     Vectorized greedy insertion.

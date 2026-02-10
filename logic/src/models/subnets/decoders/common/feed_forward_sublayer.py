@@ -103,14 +103,14 @@ class FeedForwardSubLayer(nn.Module):
                     activation_config.threshold,
                     activation_config.replacement_value,
                     activation_config.n_params,
-                    tuple(activation_config.range) if activation_config.range else None,
+                    tuple(activation_config.range) if activation_config.range else None,  # type: ignore[arg-type]
                 ),
                 # Down-projection: feed_forward_hidden -> embed_dim
                 FeedForward(feed_forward_hidden, embed_dim, bias=bias),
             )
         else:
             # Degenerate case: single linear layer (no activation)
-            self.sub_layers = FeedForward(embed_dim, embed_dim, bias=bias)
+            self.sub_layers = FeedForward(embed_dim, embed_dim, bias=bias)  # type: ignore[assignment]
 
     def forward(
         self,

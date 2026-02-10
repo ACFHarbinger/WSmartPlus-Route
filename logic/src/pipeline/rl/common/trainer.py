@@ -150,7 +150,7 @@ class WSTrainer(pl.Trainer):
 
             # Append version if available from logger
             if dirpath and logger and hasattr(logger, "version"):
-                version = logger.version
+                version = logger.version  # type: ignore[union-attr]
                 if isinstance(version, int):
                     version = f"version_{version}"
                 if isinstance(version, str):

@@ -25,7 +25,7 @@ def get_docstring_lines(source: str) -> Set[int]:
     Returns:
         Any: Description of return value.
     """
-    doc_lines = set()
+    doc_lines: Set[int] = set()
     try:
         tree = ast.parse(source)
     except SyntaxError:

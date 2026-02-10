@@ -5,7 +5,7 @@ Statistical aggregation and log processing utilities.
 import glob
 import json
 import os
-from typing import Callable, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from .value_processing import find_single_input_values
 
@@ -55,7 +55,7 @@ def process_file_statistics(
         return False
 
     # Aggregate by parent key name
-    aggregated = {}
+    aggregated: Dict[str, List[float]] = {}
     for path, v in found_values:
         if not isinstance(v, (int, float)):
             continue

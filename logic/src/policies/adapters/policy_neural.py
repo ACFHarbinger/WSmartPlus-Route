@@ -70,7 +70,7 @@ class NeuralPolicy(IPolicy):
         # Handle must_go selection
         must_go_mask = self._get_must_go_mask(kwargs, bins, profit_vars, device)
 
-        tour, cost, output_dict = agent.compute_simulator_day(
+        tour, cost, output_dict = agent.compute_simulator_day(  # type: ignore[call-arg]
             daily_data,
             graph,
             dm_tensor,

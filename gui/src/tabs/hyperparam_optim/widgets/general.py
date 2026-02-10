@@ -30,7 +30,7 @@ class GeneralSettingsWidget(QWidget):
 
         # --hpo_method
         self.hpo_method_combo = QComboBox()
-        self.hpo_method_combo.addItems(HPO_METHODS.keys())
+        self.hpo_method_combo.addItems(HPO_METHODS.keys())  # type: ignore[arg-type]
         self.hpo_method_combo.setCurrentText("")
         layout.addRow(QLabel("Optimization Method:"), self.hpo_method_combo)
 
@@ -45,7 +45,7 @@ class GeneralSettingsWidget(QWidget):
 
         # --metric
         self.metric_combo = QComboBox()
-        self.metric_combo.addItems(HPO_METRICS.keys())
+        self.metric_combo.addItems(HPO_METRICS.keys())  # type: ignore[arg-type]
         self.metric_combo.setCurrentText("Validation Loss")
         layout.addRow(QLabel("Metric to Optimize:"), self.metric_combo)
 

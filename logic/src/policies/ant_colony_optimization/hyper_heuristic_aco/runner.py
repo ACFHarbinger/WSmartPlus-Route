@@ -57,7 +57,7 @@ def run_hyper_heuristic_aco(
         time_limit=values.get("time_limit", 30.0),
         sequence_length=values.get("sequence_length", 5),
         q0=values.get("q0", 0.9),
-        operators=values.get("operators"),
+        operators=values.get("operators"),  # type: ignore[arg-type]
     )
 
     # Determine initial routes
@@ -70,7 +70,7 @@ def run_hyper_heuristic_aco(
         # Build a simple greedy construction if none provided
         initial_routes = _build_greedy_solution(list(demands.keys()), dist_matrix, demands, capacity)
 
-    solver = HyperHeuristicACO(dist_matrix, demands, capacity, R, C, params)
+    solver = HyperHeuristicACO(dist_matrix, demands, capacity, R, C, params)  # type: ignore[arg-type]
     return solver.solve(initial_routes)
 
 

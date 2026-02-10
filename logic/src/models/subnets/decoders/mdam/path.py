@@ -48,9 +48,9 @@ class MDAMPath(nn.Module):
 
         # Context embedding
         if env_name in CONTEXT_EMBEDDING_REGISTRY:
-            self.context_embedding = CONTEXT_EMBEDDING_REGISTRY[env_name](embed_dim=embed_dim)
+            self.context_embedding = CONTEXT_EMBEDDING_REGISTRY[env_name](embed_dim=embed_dim)  # type: ignore[abstract]
         else:
-            self.context_embedding = nn.Linear(embed_dim, embed_dim)
+            self.context_embedding = nn.Linear(embed_dim, embed_dim)  # type: ignore[assignment]
 
         # Projections
         self.project_node_embeddings = nn.Linear(embed_dim, 3 * embed_dim, bias=False)

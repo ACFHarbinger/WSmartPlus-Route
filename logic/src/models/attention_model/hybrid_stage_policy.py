@@ -184,7 +184,7 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         tours = torch.zeros(batch_size, td["locs"].size(1), dtype=torch.long, device=device)
 
         if not hasattr(self, "aco_model"):
-            self.aco_model = VectorizedACOPolicy(env_name=self.env_name, embed_dim=self.encoder.embed_dim, **kwargs)
+            self.aco_model = VectorizedACOPolicy(env_name=self.env_name, embed_dim=self.encoder.embed_dim, **kwargs)  # type: ignore[arg-type, union-attr]
 
         for algo_idx, algo_name in enumerate(self.INIT_ALGOS):
             mask = init_choice_idx == algo_idx
@@ -200,9 +200,9 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
                 rand_sol = self._get_random_tours(sub_td)
                 sub_tours, _ = solver.solve(rand_sol, n_generations=5, population_size=10)
             elif algo_name == "alns":
-                solver = VectorizedALNS(dist_matrix, demands, vehicle_capacity=1.0, device=device)
+                solver = VectorizedALNS(dist_matrix, demands, vehicle_capacity=1.0, device=device)  # type: ignore[assignment]
                 rand_sol = self._get_random_tours(sub_td)
-                sub_tours, _ = solver.solve(rand_sol, n_iterations=10)
+                sub_tours, _ = solver.solve(rand_sol, n_iterations=10)  # type: ignore[call-arg]
             elif algo_name == "aco":
                 out = self.aco_model(sub_td, env, **kwargs)
                 sub_tours = out["actions"]
@@ -281,7 +281,7 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         if "n_remove" in sig.parameters:
             valid_kwargs["n_remove"] = int(sub_tours.size(1) * 0.1) + 1
         if "removed_nodes" in sig.parameters:
-            valid_kwargs["removed_nodes"] = sub_removed
+            valid_kwargs["removed_nodes"] = sub_removed  # type: ignore[assignment]
 
         try:
             result = operator_fn(sub_tours, sub_dist, **valid_kwargs)
@@ -309,7 +309,7 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
                 new_state[b, : r.size(0)] = r
         return new_state
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         td: TensorDict,
         env: RL4COEnvBase,
@@ -318,7 +318,7 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
     ) -> Dict[str, Any]:
         # 1. Encode Graph
         init_embeds = self.init_embedding(td)
-        embeddings = self.encoder(init_embeds)
+        embeddings = self.encoder(init_embeds)  # type: ignore[misc]
 
         # 2. Stage 1: Initialization
         current_tours, init_choice_idx = self._initialize_tours(td, env, strategy, embeddings, **kwargs)
@@ -332,7 +332,7 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
             current_tours, removed_nodes_state, step_log_p = self._apply_operator_step(
                 td, env, embeddings, current_tours, dist_matrix_all, removed_nodes_state, strategy
             )
-            log_likelihood = log_likelihood + step_log_p
+            log_likelihood = log_likelihood + step_log_p  # type: ignore[assignment]
 
         # Calculate final reward
         reward = env.get_reward(td, current_tours)

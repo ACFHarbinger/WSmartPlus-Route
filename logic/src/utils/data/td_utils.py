@@ -21,7 +21,7 @@ def tensordict_collate_fn(
     """Collate list of TensorDicts or dicts into batched TensorDict or dict."""
     if isinstance(batch[0], ITraversable):
         # We recursively collate the values
-        return {key: tensordict_collate_fn([d[key] for d in batch]) for key in batch[0]}
+        return {key: tensordict_collate_fn([d[key] for d in batch]) for key in batch[0]}  # type: ignore[union-attr]
 
     if isinstance(batch[0], TensorDict):
         # We stack and convert to dict for pin_memory compatibility.

@@ -72,7 +72,7 @@ class GLOPPolicy(NonAutoregressivePolicy):
         # Get appropriate adapter for environment
         self.adapter_class = get_adapter(env_name)
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
@@ -100,13 +100,13 @@ class GLOPPolicy(NonAutoregressivePolicy):
         # Stage 1: Global partitioning via NAR policy
         par_out = super().forward(
             td=td,
-            env=env,
+            env=env,  # type: ignore[arg-type]
             phase=phase,
             calc_reward=False,
             return_actions=True,  # Need partition actions
             return_entropy=return_entropy,
             num_starts=self.n_samples,
-            strategy=strategy,
+            strategy=strategy,  # type: ignore[arg-type]
             **decoding_kwargs,
         )
 
@@ -213,8 +213,8 @@ class GLOPPolicy(NonAutoregressivePolicy):
             dists = torch.cdist(coords[current : current + 1], coords).squeeze(0)
             dists[visited] = float("inf")
             nearest = dists.argmin().item()
-            tour.append(nearest)
-            visited[nearest] = True
+            tour.append(nearest)  # type: ignore[arg-type]
+            visited[nearest] = True  # type: ignore[index]
 
         return torch.tensor(tour)
 

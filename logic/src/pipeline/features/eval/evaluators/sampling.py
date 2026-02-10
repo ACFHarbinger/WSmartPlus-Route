@@ -46,7 +46,7 @@ class SamplingEval(EvalBase):
         start_time = time.time()
 
         for batch in tqdm(data_loader, disable=not self.progress, desc=f"Sampling Eval ({self.samples} samples)"):
-            batch = move_to(batch, self.device)
+            batch = move_to(batch, self.device)  # type: ignore[arg-type]
 
             # Expand batch for sampling
             batch_size = batch["loc"].size(0) if isinstance(batch, ITraversable) else batch.size(0)
@@ -76,7 +76,7 @@ class SamplingEval(EvalBase):
         metrics = {
             "avg_reward": avg_reward,
             "duration": total_time,
-            "samples_per_second": len(data_loader.dataset) / total_time,
+            "samples_per_second": len(data_loader.dataset) / total_time,  # type: ignore[arg-type]
         }
 
         if return_results:
@@ -105,7 +105,7 @@ class SamplingEval(EvalBase):
             max_idx_expanded = max_idx.view(-1, 1, 1).expand(-1, 1, all_actions.size(2))
             best_sequences = all_actions.gather(1, max_idx_expanded).squeeze(1)
 
-            metrics["rewards"] = best_rewards.cpu()
-            metrics["sequences"] = best_sequences.cpu()
-            metrics["results"] = results
+            metrics["rewards"] = best_rewards.cpu()  # type: ignore[assignment]
+            metrics["sequences"] = best_sequences.cpu()  # type: ignore[assignment]
+            metrics["results"] = results  # type: ignore[assignment]
         return metrics

@@ -64,7 +64,7 @@ class MainWindow(QWidget):
             "Machine Learning Models and Operations Research Solvers for Combinatorial Optimization Problems"
         )
         self.setMinimumSize(1080, 900)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore[attr-defined]
 
         # Initialize Mediator
         self.mediator = UIMediator(self)

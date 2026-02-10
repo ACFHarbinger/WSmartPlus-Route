@@ -195,18 +195,18 @@ class FileSystemDeleteTab(QWidget):
         # Here: If the box is UNCHECKED (value=False), the deletion action is requested.
         for name, checkbox in self.flags_store_false.items():
             if not checkbox.isChecked():
-                params[name] = False
+                params[name] = False  # type: ignore[assignment]
 
         # Handle action="store_true" flags (default=False).
         # Argparse includes the flag if the value should be True.
         # Here: If the box is CHECKED (value=True), the deletion action is requested.
         for name, checkbox in self.flags_store_true.items():
             if checkbox.isChecked():
-                params[name] = True
+                params[name] = True  # type: ignore[assignment]
 
         # Handle --delete_preview (action='store_false' -> default True)
         # If button is UNCHECKED, the user wants to PERFORM the delete (delete_preview=False).
         if not self.preview_check.isChecked():
-            params["delete_preview"] = False
+            params["delete_preview"] = False  # type: ignore[assignment]
 
         return params

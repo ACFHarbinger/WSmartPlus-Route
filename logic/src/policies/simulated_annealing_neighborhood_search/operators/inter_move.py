@@ -7,6 +7,7 @@ supporting both random and consecutive relocations.
 
 from random import randint
 from random import sample as rsample
+from typing import Optional
 
 __all__ = ["move_2_routes", "move_n_2_routes_random", "move_n_2_routes_consecutive"]
 
@@ -45,7 +46,7 @@ def move_2_routes(routes_list: list) -> None:
         routes_list.remove(donor_route)
 
 
-def move_n_2_routes_random(routes_list: list) -> int:
+def move_n_2_routes_random(routes_list: list) -> Optional[int]:
     """
     Inter-route perturbation: Move n random bins from one route to another.
 
@@ -88,7 +89,7 @@ def move_n_2_routes_random(routes_list: list) -> int:
     return n
 
 
-def move_n_2_routes_consecutive(routes_list: list) -> int:
+def move_n_2_routes_consecutive(routes_list: list) -> Optional[int]:
     """
     Inter-route perturbation: Move a sequence of consecutive bins from one route
     to another.

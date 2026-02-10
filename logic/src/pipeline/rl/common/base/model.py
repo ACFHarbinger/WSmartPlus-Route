@@ -158,7 +158,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
 
         if self.baseline_type is None:
             self.baseline_type = "rollout"
-        baseline = get_baseline(self.baseline_type, self.policy, **self.hparams)
+        baseline = get_baseline(self.baseline_type, self.policy, **self.hparams)  # type: ignore[arg-type]
 
         # Handle warmup
         warmup_epochs = self.hparams.get("bl_warmup_epochs", 0)
@@ -173,7 +173,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
 
         assert self.train_dataset is not None
         self.train_dataset = prepare_epoch(
-            self.policy,
+            self.policy,  # type: ignore[arg-type]
             self.env,
             self.baseline,
             self.train_dataset,

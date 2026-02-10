@@ -59,7 +59,7 @@ class GenericContextEmbedder(ContextEmbedder):
         return torch.cat(
             (
                 self.init_embed_depot(nodes["depot"])[:, None, :],
-                self.init_embed(node_features),
+                self.init_embed(node_features),  # type: ignore[misc]
             ),
             1,
         )

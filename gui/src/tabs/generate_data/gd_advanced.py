@@ -52,7 +52,7 @@ class GenDataAdvancedTab(QWidget):
 
         # 3. --vertex_method
         self.vertex_method_combo = QComboBox()
-        self.vertex_method_combo.addItems(VERTEX_METHODS.keys())
+        self.vertex_method_combo.addItems(VERTEX_METHODS.keys())  # type: ignore[arg-type]
         layout.addRow("Vertex Method:", self.vertex_method_combo)
 
         # --- Area Specific (Custom Header) ---
@@ -248,13 +248,13 @@ class GenDataAdvancedTab(QWidget):
         # Mandatory fields
         params["n_epochs"] = self.n_epochs_input.value()
         params["epoch_start"] = self.epoch_start_input.value()
-        params["vertex_method"] = VERTEX_METHODS.get(self.vertex_method_combo.currentText(), "")
+        params["vertex_method"] = VERTEX_METHODS.get(self.vertex_method_combo.currentText(), "")  # type: ignore[assignment]
         # Optional fields
         if self.area_input.text():
-            params["area"] = COUNTY_AREAS.get(self.area_input.text(), "")
-            params["waste_type"] = self.waste_type_input.text().strip().lower()
+            params["area"] = COUNTY_AREAS.get(self.area_input.text(), "")  # type: ignore[assignment]
+            params["waste_type"] = self.waste_type_input.text().strip().lower()  # type: ignore[assignment]
 
         if self.focus_graphs_input.text().strip():
             params["focus_size"] = self.focus_size_input.value()
-            params["focus_graph"] = self.focus_graphs_input.text().strip()
+            params["focus_graph"] = self.focus_graphs_input.text().strip()  # type: ignore[assignment]
         return params

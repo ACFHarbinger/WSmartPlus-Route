@@ -93,7 +93,7 @@ def vectorized_string_removal(
                 string_len += 1
 
             # Limit to remaining removal quota and tour length
-            string_len = min(string_len, remaining_to_remove, N - seed_idx.item())
+            string_len = min(string_len, remaining_to_remove, N - seed_idx.item())  # type: ignore[assignment]
 
             # Remove string starting at seed
             for offset in range(string_len):

@@ -92,7 +92,7 @@ def process_tensorboard_file(fpath: str) -> Dict[str, List[Any]]:
         return {}
 
     metrics = defaultdict(list)
-    data_by_step = defaultdict(dict)
+    data_by_step: Dict[int, Dict[str, Any]] = defaultdict(dict)
     filename = os.path.basename(fpath)
 
     for tag in tags:
@@ -110,9 +110,9 @@ def process_tensorboard_file(fpath: str) -> Dict[str, List[Any]]:
     for tag in tags:
         metrics[tag] = [data_by_step[s].get(tag, float("nan")) for s in sorted_steps]
 
-    metrics["__Policy_Names__"] = [f"{filename}" for _ in range(count)]
-    metrics["__Distributions__"] = ["tensorboard"] * count
-    metrics["__File_IDs__"] = [fpath] * count
+    metrics["__Policy_Names__"] = [f"{filename}" for _ in range(count)]  # type: ignore[misc]
+    metrics["__Distributions__"] = ["tensorboard"] * count  # type: ignore[list-item]
+    metrics["__File_IDs__"] = [fpath] * count  # type: ignore[list-item]
 
     return dict(metrics)
 
@@ -148,4 +148,4 @@ def calculate_pareto_front(x_values: List[float], y_values: List[float]) -> List
                 break
         if not dominated:
             pareto_indices.append(point["idx"])
-    return pareto_indices
+    return pareto_indices  # type: ignore[return-value]

@@ -72,6 +72,8 @@ def vectorized_lkh(
 
     has_capacity = demands is not None and capacities is not None
     if has_capacity:
+        assert demands is not None
+        assert capacities is not None
         if demands.dim() == 1:
             demands = demands.unsqueeze(0).expand(B, -1)
         if capacities.dim() == 0:
@@ -88,8 +90,8 @@ def vectorized_lkh(
             alpha = _compute_alpha_measures(dist, device)
             candidates = _get_candidate_sets(alpha, max_candidates)
 
-            inst_demand = demands[b] if has_capacity else None
-            inst_cap = capacities[b] if has_capacity else None
+            inst_demand = demands[b] if has_capacity else None  # type: ignore[index]
+            inst_cap = capacities[b] if has_capacity else None  # type: ignore[index]
 
             tours[b] = _run_local_search(tour, dist, inst_demand, inst_cap, candidates, use_3opt)
 

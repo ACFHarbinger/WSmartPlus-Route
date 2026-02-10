@@ -53,7 +53,7 @@ class GATLSTManager(nn.Module):
         temporal_encoder_kwargs=None,
         spatial_encoder_cls=None,
         spatial_encoder_kwargs=None,
-        component_factory: NeuralComponentFactory = None,
+        component_factory: NeuralComponentFactory = None,  # type: ignore[assignment]
         temporal_encoder_type: str = "lstm",
         norm_config: Optional[NormalizationConfig] = None,
         activation_config: Optional[ActivationConfig] = None,

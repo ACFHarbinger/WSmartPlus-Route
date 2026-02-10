@@ -65,7 +65,7 @@ def _torch_lexsort_cuda(keys, dim=-1):
 
     # In the end gather only numel and strip of extra sort key
     if numel < MIN_NUMEL_STABLE_SORT:
-        idx = idx[:numel]
+        idx = idx[:numel]  # type: ignore[index]
 
     # Get only numel (if we have replicated), swap axis back and shape results
-    return idx[:numel].view(*reordered_keys[0].size()).transpose(dim, -1) % d
+    return idx[:numel].view(*reordered_keys[0].size()).transpose(dim, -1) % d  # type: ignore[index]

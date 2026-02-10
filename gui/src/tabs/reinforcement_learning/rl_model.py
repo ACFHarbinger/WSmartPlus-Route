@@ -174,7 +174,7 @@ class RLModelTab(BaseReinforcementLearningTab):
             elif isinstance(widget, QLineEdit):
                 text = widget.text().strip()
                 if text:
-                    params[key] = text
+                    params[key] = text  # type: ignore[assignment]
             elif isinstance(widget, QComboBox):
                 text = widget.currentText()
                 if not text or text == "none":
@@ -197,11 +197,11 @@ class RLModelTab(BaseReinforcementLearningTab):
                     # and UI displays Title Case with spaces (Batch Norm)
                     original_key = text.lower().replace(" ", "_")
                     if original_key and original_key in NORMALIZATION_METHODS:
-                        params[key] = original_key
+                        params[key] = original_key  # type: ignore[assignment]
                     continue
                 else:
                     # For any other combobox, just pass the text if no mapping is needed
-                    params[key] = text
+                    params[key] = text  # type: ignore[assignment]
                     continue
 
                 # 2. Perform the lookup: Use the UI text (e.g., "Attention Model") to get the value (e.g., "attn")
@@ -209,7 +209,7 @@ class RLModelTab(BaseReinforcementLearningTab):
 
                 if cli_argument:
                     # 3. Assign the command-line value to the parameter key
-                    params[key] = cli_argument
+                    params[key] = cli_argument  # type: ignore[assignment]
 
         # This part handles boolean flags that might not be QCheckBoxes.
         params["mask_inner"] = self.widgets["mask_inner"].isChecked()

@@ -129,17 +129,17 @@ def local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed
         else:
             # n move/swap
             if chosen_procedure == "Move n 1 route random":
-                chosen_n = move_n_route_random(routes_list)
+                chosen_n = move_n_route_random(routes_list)  # type: ignore[assignment]
             elif chosen_procedure == "Move n 1 route consecutive":
-                chosen_n = move_n_route_consecutive(routes_list)
+                chosen_n = move_n_route_consecutive(routes_list)  # type: ignore[assignment]
             elif chosen_procedure == "Swap n 1 route random":
                 chosen_n = swap_n_route_random(routes_list)
             elif chosen_procedure == "Swap n 1 route consecutive":
                 chosen_n = swap_n_route_consecutive(routes_list)
             elif chosen_procedure == "Move n 2 routes random":
-                chosen_n = move_n_2_routes_random(routes_list)
+                chosen_n = move_n_2_routes_random(routes_list)  # type: ignore[assignment]
             elif chosen_procedure == "Move n 2 routes consecutive":
-                chosen_n = move_n_2_routes_consecutive(routes_list)
+                chosen_n = move_n_2_routes_consecutive(routes_list)  # type: ignore[assignment]
             elif chosen_procedure == "Swap n 2 routes random":
                 chosen_n = swap_n_2_routes_random(routes_list)
             elif chosen_procedure == "Swap n 2 routes consecutive":

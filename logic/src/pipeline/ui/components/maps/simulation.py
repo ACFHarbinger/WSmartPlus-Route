@@ -178,7 +178,7 @@ def create_simulation_map(  # noqa: C901
 
             # Fallback
             if dist_km == 0.0:
-                dist_km = haversine_distance(start[0], start[1], end[0], end[1])
+                dist_km = haversine_distance(start[0], start[1], end[0], end[1])  # type: ignore[assignment]
                 if strategy_label != "Haversine" and "Matrix" not in dist_source:
                     dist_source += " (Fallback)"
 

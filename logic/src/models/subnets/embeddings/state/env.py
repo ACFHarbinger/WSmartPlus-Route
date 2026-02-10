@@ -31,7 +31,7 @@ class EnvState(nn.Module):
         if step_context_dim > 0:
             self.project_context = nn.Linear(step_context_dim, embed_dim)
         else:
-            self.project_context = None
+            self.project_context: nn.Module | None = None  # type: ignore[assignment, no-redef]
 
     def forward(
         self,

@@ -73,7 +73,7 @@ class DecodingMixin:
         """
         # Delegate to decoder's detailed proposal method if available
         # logic.src.models.subnets.modules/decoder.py usually handles this
-        return self.decoder.propose_expansions(beam, fixed, expand_size, normalize, max_calc_batch_size)
+        return self.decoder.propose_expansions(beam, fixed, expand_size, normalize, max_calc_batch_size)  # type: ignore[attr-defined]
 
     def sample_many(
         self,
@@ -97,13 +97,13 @@ class DecodingMixin:
                 pis: Tensor of action indices for each sampled solution.
         """
         return sample_many(
-            lambda i: self.forward(
+            lambda i: self.forward(  # type: ignore[attr-defined]
                 i,
                 strategy="sampling",
                 return_pi=True,
                 cost_weights=cost_weights,
             ),
-            input,
+            input,  # type: ignore[arg-type]
             batch_rep,
             iter_rep,
         )

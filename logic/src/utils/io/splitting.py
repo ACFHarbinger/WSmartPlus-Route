@@ -130,7 +130,7 @@ def reassemble_files(data_dir):
         return []
 
     dir_files = sorted(os.listdir(data_dir))
-    dfs = []
+    dfs = []  # type: ignore[var-annotated]
     for _file_id, file in enumerate(dir_files):
         # Check if we moved to a new file group
         if filename is not None and filename not in file:

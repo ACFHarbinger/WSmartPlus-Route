@@ -31,14 +31,14 @@ class TimeOptimizedREINFORCE(REINFORCE):
 
         # Wrap policy for time tracking if needed
         if self.time_sensitivity > 0:
-            self.policy = TimeTrackingPolicy(self.policy)
+            self.policy = TimeTrackingPolicy(self.policy)  # type: ignore[arg-type, assignment]
 
     def calculate_loss(
         self,
         td: TensorDict,
         out: dict,
         batch_idx: int,
-        env: Optional["RL4COEnvBase"] = None,
+        env: Optional["RL4COEnvBase"] = None,  # type: ignore[override]
     ) -> torch.Tensor:
         """
         Compute REINFORCE loss with time penalty.

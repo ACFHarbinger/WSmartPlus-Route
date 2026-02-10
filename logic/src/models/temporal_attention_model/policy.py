@@ -52,7 +52,7 @@ class TemporalAMPolicy(AttentionModelPolicy):
                 dropout=kwargs.get("dropout_rate", 0.1),
             )
         else:
-            self.fill_predictor = GatedRecurrentUnitFillPredictor(
+            self.fill_predictor = GatedRecurrentUnitFillPredictor(  # type: ignore[assignment]
                 input_dim=1,
                 hidden_dim=hidden_dim,
                 num_layers=predictor_layers,

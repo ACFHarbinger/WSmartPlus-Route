@@ -62,16 +62,20 @@ def process_file(
     if key1 is not None and process_func is not None:
         # Two-input mode
         if isinstance(data, ITraversable):
-            modified = process_dict_two_inputs(data, key1, key2, output_key, process_func)
+            modified = process_dict_two_inputs(data, key1, key2, output_key, process_func)  # type: ignore[arg-type]
         elif isinstance(data, list):
             for item in data:
                 if isinstance(item, ITraversable) and process_dict_two_inputs(
-                    item, key1, key2, output_key, process_func
+                    item,
+                    key1,
+                    key2,
+                    output_key,
+                    process_func,  # type: ignore[arg-type]
                 ):
                     modified = True
     # Single-input/Constant mode
     elif isinstance(data, ITraversable):
-        modified = process_dict_of_dicts(data, output_key, process_func, update_val)
+        modified = process_dict_of_dicts(data, output_key, process_func, update_val)  # type: ignore[arg-type]
     elif isinstance(data, list):
         for item in data:
             if isinstance(item, dict) and process_dict_of_dicts(item, output_key, process_func, update_val):

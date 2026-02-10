@@ -7,6 +7,7 @@ within the same route, supporting both random and consecutive relocations.
 
 from random import randint
 from random import sample as rsample
+from typing import Optional
 
 __all__ = ["move_1_route", "move_n_route_random", "move_n_route_consecutive"]
 
@@ -38,7 +39,7 @@ def move_1_route(routes_list: list) -> None:
     chosen_route.insert(target_idx, bin_to_move)
 
 
-def move_n_route_random(routes_list: list, n: int = None) -> int:
+def move_n_route_random(routes_list: list, n: Optional[int] = None) -> Optional[int]:
     """
     Move n random bins to new positions within their routes.
 
@@ -75,7 +76,7 @@ def move_n_route_random(routes_list: list, n: int = None) -> int:
     return n
 
 
-def move_n_route_consecutive(routes_list: list, n: int = None) -> int:
+def move_n_route_consecutive(routes_list: list, n: Optional[int] = None) -> Optional[int]:
     """
     Move a sequence of consecutive bins to a new position in the same route.
 

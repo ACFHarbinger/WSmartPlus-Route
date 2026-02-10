@@ -71,6 +71,25 @@ class ITensorDictLike(Protocol):
         """
         ...
 
+    def __contains__(self, key: str) -> bool:
+        """Check if key exists.
+
+        Args:
+            key: Tensor key name
+
+        Returns:
+            True if key exists
+        """
+        ...
+
+    def values(self) -> Any:
+        """Return all tensor values.
+
+        Returns:
+            Iterable of tensor values
+        """
+        ...
+
     def keys(self) -> Any:
         """Return available tensor keys.
 
