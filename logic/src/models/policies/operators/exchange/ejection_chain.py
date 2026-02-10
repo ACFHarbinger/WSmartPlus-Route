@@ -119,84 +119,36 @@ def vectorized_ejection_chain(
         demand = demands[b]
         capacity = capacities[b]
 
-        # Identify routes (depot-separated segments)
-        depot_positions = torch.where(tour == 0)[0].tolist()
-
-        if len(depot_positions) < 2:
-            continue  # Need at least 2 routes for ejection
-
-        # Extract routes
-        routes: List[Tuple[int, int, List[int]]] = []  # (start, end, nodes)
-        for i in range(len(depot_positions) - 1):
-            start = depot_positions[i] + 1
-            end = depot_positions[i + 1]
-            if end > start:
-                route_nodes = tour[start:end].tolist()
-                # Filter out padding (-1) and depot (0)
-                route_nodes = [n for n in route_nodes if n > 0 and n < N]
-                if route_nodes:
-                    routes.append((start, end, route_nodes))
-
+        # Extract routes and calculate loads
+        routes = _get_routes_with_loads(tour, demand, N)
         if len(routes) < 2:
-            continue  # Need at least 2 non-empty routes
-
-        # Calculate route loads and sort by utilization (target least loaded first)
-        route_loads = []
-        for start, end, route_nodes in routes:
-            load = sum(demand[n].item() for n in route_nodes)
-            route_loads.append(load)
-
-        # Sort routes by load (ascending)
-        route_indices = sorted(range(len(routes)), key=lambda i: route_loads[i])
+            continue
 
         # Try to eliminate routes
         routes_to_eliminate = target_route_reduction if target_route_reduction else len(routes) - 1
         routes_eliminated = 0
 
-        for route_idx in route_indices:
+        # Sort routes by load (ascending)
+        route_indices = sorted(range(len(routes)), key=lambda i: routes[i][3])
+
+        for idx in route_indices:
             if routes_eliminated >= routes_to_eliminate:
                 break
 
-            start, end, source_nodes = routes[route_idx]
-
-            if not source_nodes:
-                continue
-
-            # Try to eject all nodes from this route
-            ejection_log: List[Tuple[int, int]] = []  # (node, new_position_in_tour)
-            success = True
-
-            for node in source_nodes:
-                # Try to insert node into another route
-                inserted = _try_insert_with_ejection_chain(
-                    tour=tour,
-                    node=node,
-                    source_start=start,
-                    source_end=end,
-                    dist=dist,
-                    demand=demand,
-                    capacity=capacity,
-                    max_depth=max_depth,
-                    ejection_log=ejection_log,
-                    depot_positions=depot_positions,
-                )
-
-                if not inserted:
-                    success = False
-                    break
+            success, modified_tour = _attempt_route_elimination(
+                tour=tour,
+                route_data=routes[idx],
+                dist=dist,
+                demand=demand,
+                capacity=capacity,
+                max_depth=max_depth,
+                depot_positions=torch.where(tour == 0)[0].tolist(),
+            )
 
             if success:
-                # Remove source route nodes (mark as -1)
-                tour[start:end] = -1
+                tour = modified_tour
                 routes_eliminated += 1
-
-                # Rebuild depot positions after modification
-                depot_positions = torch.where(tour == 0)[0].tolist()
-            else:
-                # Rollback all ejections for this route
-                for node, _old_pos in reversed(ejection_log):
-                    # This is simplified - full rollback would require more state
-                    pass
+                routes = _get_routes_with_loads(tour, demand, N)
 
         tours[b] = tour
 
@@ -257,21 +209,7 @@ def _try_insert_with_ejection_chain(
 
         if route_load + node_demand <= capacity.item():
             # Find best insertion position
-            best_cost = float("inf")
-            best_pos = route_start
-
-            for pos in range(route_start, route_end + 1):
-                prev_node = tour[pos - 1].item() if pos > route_start else 0
-                next_node = tour[pos].item() if pos < route_end else 0
-
-                # Insertion cost
-                cost = dist[prev_node, node].item() + dist[node, next_node].item()
-                if next_node > 0:
-                    cost -= dist[prev_node, next_node].item()
-
-                if cost < best_cost:
-                    best_cost = cost
-                    best_pos = pos
+            best_pos = _find_best_insertion_in_route(tour, node, route_start, route_end, dist)
 
             # Insert node at best position
             # Shift elements and insert
@@ -288,3 +226,53 @@ def _try_insert_with_ejection_chain(
     # by the sequential algorithm
 
     return False
+
+
+def _get_routes_with_loads(tour, demand, N) -> List[Tuple[int, int, List[int], float]]:
+    """Identifies routes and calculates their respective loads."""
+    depot_positions = torch.where(tour == 0)[0].tolist()
+    routes = []
+    for i in range(len(depot_positions) - 1):
+        start = depot_positions[i] + 1
+        end = depot_positions[i + 1]
+        if end > start:
+            nodes = [n for n in tour[start:end].tolist() if 0 < n < N]
+            if nodes:
+                load = sum(demand[n].item() for n in nodes)
+                routes.append((start, end, nodes, load))
+    return routes
+
+
+def _attempt_route_elimination(tour, route_data, dist, demand, capacity, max_depth, depot_positions):
+    """Attempts to eliminate a single route by ejecting its nodes."""
+    start, end, nodes, _ = route_data
+    ejection_log = []
+    success = True
+    modified_tour = tour.clone()
+
+    for node in nodes:
+        if not _try_insert_with_ejection_chain(
+            modified_tour, node, start, end, dist, demand, capacity, max_depth, ejection_log, depot_positions
+        ):
+            success = False
+            break
+
+    if success:
+        modified_tour[start:end] = -1
+        return True, modified_tour
+    return False, tour
+
+
+def _find_best_insertion_in_route(tour, node, start, end, dist) -> int:
+    """Finds position in route with minimum insertion cost."""
+    best_cost = float("inf")
+    best_pos = start
+    for pos in range(start, end + 1):
+        prev = tour[pos - 1].item() if pos > start else 0
+        nxt = tour[pos].item() if pos < end else 0
+        cost = dist[prev, node].item() + dist[node, nxt].item()
+        if nxt > 0:
+            cost -= dist[prev, nxt].item()
+        if cost < best_cost:
+            best_cost, best_pos = cost, pos
+    return best_pos

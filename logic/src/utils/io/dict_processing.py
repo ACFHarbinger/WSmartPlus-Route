@@ -2,8 +2,9 @@
 Dictionary and list processing utilities for JSON-like data.
 """
 
-from logic.src.interfaces import ITraversable
 from typing import Any, Callable, Dict, List, Optional, Union
+
+from logic.src.interfaces import ITraversable
 
 
 def process_dict_of_dicts(
@@ -26,9 +27,8 @@ def process_dict_of_dicts(
     """
     modified = False
     for k, v in data_dict.items():
-        if isinstance(v, ITraversable):
-            if process_dict_of_dicts(v, output_key, process_func, update_val):
-                modified = True
+        if isinstance(v, ITraversable) and process_dict_of_dicts(v, output_key, process_func, update_val):
+            modified = True
         elif k == output_key:
             if process_func:
                 if isinstance(v, (list, tuple)):
@@ -91,9 +91,10 @@ def process_dict_two_inputs(
 
     # Recurse
     for v in data_dict.values():
-        if isinstance(v, ITraversable):
-            if process_dict_two_inputs(v, input_key1, input_key2_or_val, output_key, process_func):
-                modified = True
+        if isinstance(v, ITraversable) and process_dict_two_inputs(
+            v, input_key1, input_key2_or_val, output_key, process_func
+        ):
+            modified = True
     return modified
 
 
@@ -109,7 +110,8 @@ def process_list_two_inputs(
     """
     modified = False
     for item in data_list:
-        if isinstance(item, ITraversable):
-            if process_dict_two_inputs(item, input_key1, input_key2_or_val, output_key, process_func):
-                modified = True
+        if isinstance(item, ITraversable) and process_dict_two_inputs(
+            item, input_key1, input_key2_or_val, output_key, process_func
+        ):
+            modified = True
     return modified

@@ -10,10 +10,11 @@ from __future__ import annotations
 
 import os
 import xml.etree.ElementTree as ET
-from logic.src.interfaces import ITraversable
 from typing import Any, Dict, List, Union
 
 import yaml
+
+from logic.src.interfaces import ITraversable
 
 
 def load_yaml_config(config_path: str) -> dict[str, Any]:
@@ -33,7 +34,7 @@ def load_yaml_config(config_path: str) -> dict[str, Any]:
         try:
             return yaml.safe_load(f)
         except yaml.YAMLError as e:
-            raise ValueError(f"Error parsing YAML file: {e}")
+            raise ValueError(f"Error parsing YAML file: {e}") from e
 
 
 def load_xml_config(config_path: str) -> dict[str, Any]:
@@ -93,7 +94,7 @@ def load_xml_config(config_path: str) -> dict[str, Any]:
         return {root.tag: data}
 
     except ET.ParseError as e:
-        raise ValueError(f"Error parsing XML file: {e}")
+        raise ValueError(f"Error parsing XML file: {e}") from e
 
 
 def load_config(config_path: str) -> dict[str, Any]:

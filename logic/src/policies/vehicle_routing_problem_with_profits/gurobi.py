@@ -14,7 +14,7 @@ from numpy.typing import NDArray
 from logic.src.constants.routing import HEURISTICS_RATIO, MIP_GAP, NODEFILE_START_GB
 
 
-def _run_gurobi_optimizer(
+def _run_gurobi_optimizer(  # noqa: C901
     bins: NDArray[np.float64],
     distance_matrix: List[List[float]],
     env: Optional[gp.Env],

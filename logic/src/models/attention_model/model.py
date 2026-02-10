@@ -8,7 +8,6 @@ from typing import Any, Dict, Optional
 
 import torch
 import torch.utils.checkpoint
-from tensordict import TensorDict
 from torch import nn
 
 from logic.src.configs.models.activation_function import ActivationConfig
@@ -18,6 +17,7 @@ from logic.src.constants.models import (
     NODE_DIM,
     TANH_CLIPPING,
 )
+from logic.src.interfaces.tensor_dict_like import ITensorDictLike
 from logic.src.models.subnets.embeddings import (
     GenericContextEmbedder,
     VRPPContextEmbedder,
@@ -300,16 +300,9 @@ class AttentionModel(DecodingMixin, nn.Module):
             outputs = self.encoder(embeddings, mask)
 
         # Graph aggregation for context
-        # (batch, seq, hidden) -> (batch, hidden)
-        if self.aggregation_graph == "avg":
-            graph_context = outputs.mean(1)
-        elif self.aggregation_graph == "max":
-            graph_context = outputs.max(1)[0]
-        elif self.aggregation_graph == "sum":
-            graph_context = outputs.sum(1)
-        else:
-            # Default to average
-            graph_context = outputs.mean(1)
+        graph_context = self._aggregate_graph_context(outputs)
+
+        # Pass through Decoder
 
         # Pass through Decoder
         # The decoder handles autoregressive steps
@@ -336,6 +329,16 @@ class AttentionModel(DecodingMixin, nn.Module):
                 out["pi"] = pi
 
         return out
+
+    def _aggregate_graph_context(self, outputs: torch.Tensor) -> torch.Tensor:
+        """Helper to aggregate node embeddings into a graph-level context."""
+        if self.aggregation_graph == "avg":
+            return outputs.mean(dim=1)
+        if self.aggregation_graph == "max":
+            return outputs.max(dim=1)[0]
+        if self.aggregation_graph == "sum":
+            return outputs.sum(dim=1)
+        return outputs.mean(dim=1)
 
     def precompute_fixed(self, input: Dict[str, torch.Tensor], edges: Optional[torch.Tensor]):
         """

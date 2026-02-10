@@ -100,55 +100,8 @@ class EfficientGraphConvolution(MessagePassing):
             Updated node features tensor.
         """
         symnorm_weight: OptTensor = None
-        if "symnorm" in self.aggregators:
-            if isinstance(edge_index, Tensor):
-                cache = self._cached_edge_index
-                if cache is None:
-                    edge_index, symnorm_weight = gcn_norm(  # yapf: disable
-                        edge_index,
-                        None,
-                        num_nodes=x.size(self.node_dim),
-                        improved=False,
-                        add_self_loops=self.add_self_loops,
-                    )
-                    if self.cached:
-                        self._cached_edge_index = (edge_index, symnorm_weight)
-                else:
-                    edge_index, symnorm_weight = cache
-
-            elif isinstance(edge_index, SparseTensor):
-                cache = self._cached_adj_t
-                if cache is None:
-                    edge_index = gcn_norm(  # yapf: disable
-                        edge_index,
-                        None,
-                        num_nodes=x.size(self.node_dim),
-                        improved=False,
-                        add_self_loops=self.add_self_loops,
-                    )
-                    if self.cached:
-                        self._cached_adj_t = edge_index
-                else:
-                    edge_index = cache
-
-        elif self.add_self_loops:
-            if isinstance(edge_index, Tensor):
-                cache = self._cached_edge_index
-                if self.cached and cache is not None:
-                    edge_index = cache[0]
-                else:
-                    edge_index, _ = add_remaining_self_loops(edge_index)
-                    if self.cached:
-                        self._cached_edge_index = (edge_index, None)
-
-            elif isinstance(edge_index, SparseTensor):
-                cache = self._cached_adj_t
-                if self.cached and cache is not None:
-                    edge_index = cache
-                else:
-                    edge_index = torch_sparse.fill_diag(edge_index, 1.0)
-                    if self.cached:
-                        self._cached_adj_t = edge_index
+        if "symnorm" in self.aggregators or self.add_self_loops:
+            edge_index, symnorm_weight = self._norm_and_cache(x, edge_index)
 
         batch_size = x.size(0)
         num_nodes = x.size(1)
@@ -188,6 +141,48 @@ class EfficientGraphConvolution(MessagePassing):
 
         return out
 
+    def _norm_and_cache(self, x: Tensor, edge_index: Adj) -> Tuple[Adj, OptTensor]:
+        """Helper to handle graph normalization and caching."""
+        num_nodes = x.size(self.node_dim)
+
+        if "symnorm" in self.aggregators:
+            if isinstance(edge_index, Tensor):
+                if self._cached_edge_index is None:
+                    edge_index, sw = gcn_norm(edge_index, num_nodes=num_nodes, add_self_loops=self.add_self_loops)
+                    if self.cached:
+                        self._cached_edge_index = (edge_index, sw)
+
+                    return edge_index, sw
+                return self._cached_edge_index
+
+            if self._cached_adj_t is None:
+                adj_t = gcn_norm(edge_index, num_nodes=num_nodes, add_self_loops=self.add_self_loops)
+                if self.cached:
+                    self._cached_adj_t = adj_t
+
+                return adj_t, None
+            return self._cached_adj_t, None
+
+        if self.add_self_loops:
+            if isinstance(edge_index, Tensor):
+                if self._cached_edge_index is None:
+                    edge_index, _ = add_remaining_self_loops(edge_index)
+                    if self.cached:
+                        self._cached_edge_index = (edge_index, None)
+
+                    return edge_index, None
+                return self._cached_edge_index[0], None
+
+            if self._cached_adj_t is None:
+                adj_t = torch_sparse.fill_diag(edge_index, 1.0)
+                if self.cached:
+                    self._cached_adj_t = adj_t
+
+                return adj_t, None
+            return self._cached_adj_t, None
+
+        return edge_index, None
+
     def message(self, x_j: Tensor) -> Tensor:
         """
         Passes messages along edges.
@@ -201,72 +196,72 @@ class EfficientGraphConvolution(MessagePassing):
         dim_size: Optional[int] = None,
         symnorm_weight: OptTensor = None,
     ) -> Tensor:
-        """
-        Aggregates messages from neighbors using multiple aggregators.
-        """
+        """Aggregates messages from neighbors using multiple aggregators."""
         aggregated = []
         inputs = inputs.permute(1, 0, 2)
         for aggregator in self.aggregators:
-            if aggregator == "sum":
-                out = scatter(inputs, index, 0, dim_size, reduce="sum")
-            elif aggregator == "symnorm":
-                assert symnorm_weight is not None
-                out = scatter(
-                    inputs * symnorm_weight.unsqueeze(-1),
-                    index,
-                    0,
-                    dim_size,
-                    reduce="sum",
-                )
-            elif aggregator == "mean":
-                out = scatter(inputs, index, 0, dim_size, reduce="mean")
-            elif aggregator == "min":
-                out = scatter(inputs, index, 0, dim_size, reduce="min")
-            elif aggregator == "max":
-                out = scatter(inputs, index, 0, dim_size, reduce="max")
-            elif aggregator in {"var", "std"}:
-                mean = scatter(inputs, index, 0, dim_size, reduce="mean")
-                mean_squares = scatter(inputs * inputs, index, 0, dim_size, reduce="mean")
-                out = mean_squares - mean * mean
-                if aggregator == "std":
-                    out = torch.sqrt(torch.relu(out) + 1e-5)
-            else:
-                raise ValueError(f'Unknown aggregator "{aggregator}".')
+            out = self._run_aggregator(aggregator, inputs, index, dim_size, symnorm_weight)
             aggregated.append(out)
-
         return torch.stack(aggregated, dim=1)
+
+    def _run_aggregator(
+        self,
+        aggregator: str,
+        inputs: Tensor,
+        index: Tensor,
+        dim_size: Optional[int],
+        symnorm_weight: OptTensor,
+    ) -> Tensor:
+        """Execute a single neighborhood aggregator."""
+        if aggregator == "sum":
+            return scatter(inputs, index, 0, dim_size, reduce="sum")
+        if aggregator == "symnorm":
+            assert symnorm_weight is not None
+            return scatter(inputs * symnorm_weight.unsqueeze(-1), index, 0, dim_size, reduce="sum")
+        if aggregator == "mean":
+            return scatter(inputs, index, 0, dim_size, reduce="mean")
+        if aggregator == "min":
+            return scatter(inputs, index, 0, dim_size, reduce="min")
+        if aggregator == "max":
+            return scatter(inputs, index, 0, dim_size, reduce="max")
+        if aggregator in {"var", "std"}:
+            mean = scatter(inputs, index, 0, dim_size, reduce="mean")
+            mean_squares = scatter(inputs * inputs, index, 0, dim_size, reduce="mean")
+            out = mean_squares - mean * mean
+            if aggregator == "std":
+                out = torch.sqrt(torch.relu(out) + 1e-5)
+            return out
+        raise ValueError(f'Unknown aggregator "{aggregator}".')
 
     def message_and_aggregate(self, adj_t: SparseTensor, x: Tensor) -> Tensor:
         """
         Performs message passing and aggregation in a single step for sparse tensors.
         """
         aggregated = []
-        if len(self.aggregators) > 1 and "symnorm" in self.aggregators:
-            adj_t_nonorm = adj_t.set_value(None)
-        else:
-            # No normalization is calculated in forward if symnorm isn't one
-            # of the aggregators
-            adj_t_nonorm = adj_t
+        adj_t_nonorm = adj_t.set_value(None) if len(self.aggregators) > 1 and "symnorm" in self.aggregators else adj_t
 
         for aggregator in self.aggregators:
-            if aggregator == "symnorm":
-                correct_adj = adj_t
-                agg = "sum"
-            else:
-                correct_adj = adj_t_nonorm
-                agg = aggregator
-
-            if aggregator in ["var", "std"]:
-                mean = torch_sparse.matmul(correct_adj, x, reduce="mean")
-                mean_sq = torch_sparse.matmul(correct_adj, x * x, reduce="mean")
-                out = mean_sq - mean * mean
-                if aggregator == "std":
-                    out = torch.sqrt(torch.relu(out) + 1e-5)
-                aggregated.append(out)
-            else:
-                aggregated.append(torch_sparse.matmul(correct_adj, x, reduce=agg))
+            out = self._run_sparse_aggregator(aggregator, adj_t, adj_t_nonorm, x)
+            aggregated.append(out)
 
         return torch.stack(aggregated, dim=1)
+
+    def _run_sparse_aggregator(
+        self, aggregator: str, adj_t: SparseTensor, adj_t_nonorm: SparseTensor, x: Tensor
+    ) -> Tensor:
+        """Execute a single sparse neighborhood aggregator."""
+        if aggregator == "symnorm":
+            return torch_sparse.matmul(adj_t, x, reduce="sum")
+
+        if aggregator in ["var", "std"]:
+            mean = torch_sparse.matmul(adj_t_nonorm, x, reduce="mean")
+            mean_sq = torch_sparse.matmul(adj_t_nonorm, x * x, reduce="mean")
+            out = mean_sq - mean * mean
+            if aggregator == "std":
+                out = torch.sqrt(torch.relu(out) + 1e-5)
+            return out
+
+        return torch_sparse.matmul(adj_t_nonorm, x, reduce=aggregator)
 
     def __repr__(self):
         """String representation of the layer."""

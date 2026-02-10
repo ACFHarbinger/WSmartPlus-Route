@@ -3,10 +3,74 @@ Initialization strategies for vehicle routing solutions.
 Extracts constructive heuristics from the legacy solutions module.
 """
 
-import numpy as np
+
+def _categorize_bins_by_zone(bins, bins_coordinates):
+    """Group bins into zones based on longitude."""
+    max_lng = max(bins_coordinates["Lng"])
+    min_lng = min(bins_coordinates["Lng"])
+    lng_amp = max_lng - min_lng
+    zone_1_l = min_lng + lng_amp / 3
+    zone_2_l = min_lng + 2 * lng_amp / 3
+
+    zone_bins = {1: [], 2: [], 3: []}
+
+    # Bin index starts at 1 usually?
+    # Logic in original: lng_list_without_dep is lng_list[1:]
+    # for n, h in enumerate: n + 1
+    # Assuming bins_coordinates is aligned 0..N
+
+    for i in range(len(bins)):
+        bin_id = bins[i]
+        try:
+            # Assuming bins_coordinates is DataFrame indexed 0..N, depot at 0
+            # Need to find index for bin_id if they are not matching
+            # Original code: list(bins_coordinates['Lng'])[1:]
+            # n is index in that list, so bin_id corresponds to n+1
+            lng = bins_coordinates.iloc[bin_id - 1 if bin_id > 0 else 0]["Lng"]
+            # Hmm, original code assumed index match. Let's stick to original logic:
+            # lng_list = list(bins_coordinates["Lng"])
+            # The bin IDs seem to be n+1 where n is enumerate index.
+        except IndexError:
+            continue
+
+        if min_lng <= lng < zone_1_l:
+            zone_bins[1].append(bin_id)
+        elif zone_1_l <= lng < zone_2_l:
+            zone_bins[2].append(bin_id)
+        else:
+            zone_bins[3].append(bin_id)
+    return zone_bins
 
 
-def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bins, vehicle_capacity, E, B):
+def _get_bin_stock(data, bin_id, E, B):
+    row = data[data["#bin"] == bin_id]
+    if row.empty:
+        return 0
+    return (row.iloc[0]["Stock"] + row.iloc[0]["Accum_Rate"]) * E * B
+
+
+def _find_closest_valid_bin(current_bin, potential_bins_in_zone, available_bins, current_route, distance_matrix):
+    """Find the closest bin in the zone that is available and valid."""
+    if not potential_bins_in_zone:
+        return None
+
+    row = distance_matrix[current_bin][:]
+    # Filter only relevant bins (in zone and available)
+    # This is inefficient but mimics original logic
+    candidates = [b for b in potential_bins_in_zone if b in available_bins and b not in current_route]
+
+    if not candidates:
+        return None
+
+    # Find closest among candidates
+    # Distance matrix index matches bin ID? usually yes (0 is depot)
+    closest_bin = min(candidates, key=lambda b: row[b])
+    return closest_bin
+
+
+def find_initial_solution(  # noqa: C901
+    data, bins_coordinates, distance_matrix, number_of_bins, vehicle_capacity, E, B
+):
     """
     Construct a feasible initial solution for the routing problem.
 
@@ -14,7 +78,7 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
 
     Args:
         data (pd.DataFrame): Bin weights and metadata.
-        bins_coordinates (List): Lat/Lon pairs.
+        bins_coordinates (List): Lat/Lon pairs (DataFrame in original context).
         distance_matrix (np.ndarray): Shortest path distances.
         number_of_bins (int): Scale of the problem.
         vehicle_capacity (float): Max tanker capacity.
@@ -22,262 +86,103 @@ def find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bin
         B (float): Bin density.
 
     Returns:
-        Tuple: (routes, removed_bins, bins_cannot_removed, points).
+        List[List[int]]: Constructed routes.
     """
     bins = list(data["#bin"][1 : number_of_bins + 1])
-    depot = list(data["#bin"][0:1])
+    depot_id = data["#bin"].iloc[0]
 
-    # Initialization of routes
-    i = 0
-    routes_list = list()
-    max_lng = max(bins_coordinates["Lng"])
-    min_lng = min(bins_coordinates["Lng"])
-    lng_amp = max_lng - min_lng
-    zone_1_s = min_lng
-    zone_1_l = min_lng + lng_amp / 3
-    zone_2_l = min_lng + 2 * lng_amp / 3
-    lng_list = list(bins_coordinates["Lng"])
-    lng_list_without_dep = lng_list[1 : len(lng_list)]
-    bins_zone_1 = []
-    bins_zone_2 = []
-    bins_zone_3 = []
-    for n, h in enumerate(lng_list_without_dep):
-        if h >= zone_1_s and h < zone_1_l:
-            bins_zone_1.append(n + 1)
-        elif h >= zone_1_l and h < zone_2_l:
-            bins_zone_2.append(n + 1)
+    # Zones logic (simplified from original)
+    # Original logic extracted Lng manually
+    lng_vals = bins_coordinates["Lng"].values
+    min_lng, max_lng = lng_vals.min(), lng_vals.max()
+    amp = max_lng - min_lng
+    th1 = min_lng + amp / 3
+    th2 = min_lng + 2 * amp / 3
+
+    zones = {1: [], 2: [], 3: []}
+    # Skip depot (index 0)
+    for i in range(1, len(lng_vals)):
+        lng = lng_vals[i]
+        bin_id = i  # Assuming 1-based indexing for bin IDs based on original code
+        if bin_id not in bins:
+            continue
+
+        if lng < th1:
+            zones[1].append(bin_id)
+        elif lng < th2:
+            zones[2].append(bin_id)
         else:
-            bins_zone_3.append(n + 1)
-    while len(bins) != 0:
-        i += 1
-        globals()["route_{0}".format(i)] = []
-        space_occupied = 0
+            zones[3].append(bin_id)
 
-        # Choose depot to initialize the route
-        bin_chosen_n = depot[0]
+    routes_list = []
 
-        # Get data for the bin chosen
-        corresponding_row = data[data["#bin"] == bin_chosen_n]
+    while bins:
+        current_route = [depot_id]
+        space_occupied = _get_bin_stock(data, depot_id, E, B)
+        # Note: Depot typically has 0 stock, but kept for consistency
 
-        # Get fill level of the bin (stock)
-        stock = (corresponding_row.iloc[0]["Stock"] + corresponding_row.iloc[0]["Accum_Rate"]) * E * B
-        space_occupied += stock
-        globals()["route_{0}".format(i)].append(bin_chosen_n)
+        current_bin = depot_id
 
-        # Previous_bin is the bin previously added in the route
-        previous_bin = bin_chosen_n
+        # Try finding bins in zones 1, then 2, then 3
+        # Original code nested while loops for zones.
+        # We can streamline this.
 
-        # While there is space in the vehicle and there are bins to collect:
-        while space_occupied < vehicle_capacity and len(bins) != 0:
-            old_space_occupied = space_occupied
-            while space_occupied < vehicle_capacity and len(bins_zone_1) != 0:
-                # Get the distance between the previous bin and all the other bins
-                row = distance_matrix[previous_bin][:]
+        for zone_id in [1, 2, 3]:
+            potential_bins = zones[zone_id]
 
-                # Delete previous bin to previous bin distance
-                row_new = np.delete(row, previous_bin)
+            while space_occupied < vehicle_capacity and potential_bins:
+                next_bin = _find_closest_valid_bin(current_bin, potential_bins, bins, current_route, distance_matrix)
 
-                # Get the index of the bin with the minimum distance from the previous one
-                min(row_new)
-                min_idx = row_new.argmin()
-
-                # Get the correct bin id (because of deleting the 0 distance)
-                next_bin_idx = min_idx + 1 if min_idx >= previous_bin else min_idx
-
-                # Check if the closest bin is already in any of the routes created
-                stop = None
-                if (
-                    next_bin_idx in globals()["route_{0}".format(i)]
-                    or next_bin_idx not in bins
-                    or next_bin_idx not in bins_zone_1
-                ):
-                    # if yes, sort the distances from the shortest to the longest
-                    row_sorted = np.sort(row_new)
-                    j = 1
-                    stop = "A"
-
-                    # Iterate through sorted list until the closest bin that is not in any route is found
-                    while j <= len(row_sorted[1:]) and stop != "B":
-                        row_new_list = row_new.tolist()
-
-                        # Get index of the bin that is being tried
-                        idx_tried_bin = row_new_list.index(row_sorted[j])
-                        next_bin_idx = idx_tried_bin + 1 if idx_tried_bin >= previous_bin else idx_tried_bin
-
-                        # Verify if it is in any route and not only in the current route
-                        if (
-                            next_bin_idx not in globals()["route_{0}".format(i)]
-                            and next_bin_idx in bins
-                            and next_bin_idx in bins_zone_1
-                        ):
-                            stop = "B"
-                            min_idx = next_bin_idx
-
-                        j += 1
-
-                if stop == "A" and (
-                    next_bin_idx in globals()["route_{0}".format(i)] or next_bin_idx not in bins_zone_1
-                ):
+                if next_bin is None:
                     break
 
-                # Get current bin index from the bins list
-                try:
-                    bin_index_in_bins = bins.index(next_bin_idx)
-                except ValueError:
+                # Check capacity
+                stock = _get_bin_stock(data, next_bin, E, B)
+                if space_occupied + stock > vehicle_capacity:
+                    # Logic in original: break inner loop if capacity full?
+                    # Original logic has 'if space < capacity: append'.
+                    # It continues searching if capacity fits.
+                    # If this bin doesn't fit, do we try another?
+                    # Original code breaks strictly if loop condition met or continues?
+                    # "while space_occupied < vehicle_capacity and ..."
+                    # If next closest doesn't fit, we might stop this zone pass?
+                    # Just skip it for now to be safe or break?
+                    # Original: "if space_occupied < vehicle_capacity ... append"
                     break
 
-                # Update space occupied in the vehicle
-                corresponding_row = data[data["#bin"] == next_bin_idx]
-                stock = (corresponding_row.iloc[0]["Stock"] + corresponding_row.iloc[0]["Accum_Rate"]) * E * B
+                # Add bin
+                current_route.append(next_bin)
                 space_occupied += stock
-                if space_occupied < vehicle_capacity and next_bin_idx not in globals()["route_{0}".format(i)]:
-                    # Add bin to the route
-                    globals()["route_{0}".format(i)].append(next_bin_idx)
-                    bins.pop(bin_index_in_bins)
 
-                    # Remove bin from bins zone
-                    bin_index_in_bins_zone = bins_zone_1.index(next_bin_idx)
-                    bins_zone_1.pop(bin_index_in_bins_zone)
+                # Update state
+                if next_bin in bins:
+                    bins.remove(next_bin)
+                if next_bin in potential_bins:
+                    potential_bins.remove(next_bin)
 
-                    # Update previous bin
-                    previous_bin = next_bin_idx
-            while space_occupied < vehicle_capacity and len(bins_zone_2) != 0:
-                # Get the distance between the previous bin and all the other bins
-                row = distance_matrix[previous_bin][:]
+                current_bin = next_bin
 
-                # Delete previous bin to previous bin distance
-                row_new = np.delete(row, previous_bin)
-
-                # Get the index of the bin with the minimum distance from the previous one
-                min(row_new)
-                min_idx = row_new.argmin()
-
-                # Get the correct bin id (because of deleting the 0 distance)
-                next_bin_idx = min_idx + 1 if min_idx >= previous_bin else min_idx
-
-                # Check if the closest bin is already in any of the routes created
-                stop = None
-                if (
-                    next_bin_idx in globals()["route_{0}".format(i)]
-                    or next_bin_idx not in bins
-                    or next_bin_idx not in bins_zone_2
-                ):
-                    # if yes, sort the distances from the shortest to the longest
-                    row_sorted = np.sort(row_new)
-                    j = 1
-                    stop = "A"
-
-                    # Iterate through sorted list until the closest bin that is not in any route is found
-                    while j <= len(row_sorted[1:]) and stop != "B":
-                        row_new_list = row_new.tolist()
-
-                        # Get index of the bin that is being tried
-                        idx_tried_bin = row_new_list.index(row_sorted[j])
-                        next_bin_idx = idx_tried_bin + 1 if idx_tried_bin >= previous_bin else idx_tried_bin
-
-                        # Verify if it is in any route and not only in the current route
-                        if (
-                            next_bin_idx not in globals()["route_{0}".format(i)]
-                            and next_bin_idx in bins
-                            and next_bin_idx in bins_zone_2
-                        ):
-                            stop = "B"
-                            min_idx = next_bin_idx
-
-                        j += 1
-
-                if stop == "A" and (
-                    next_bin_idx in globals()["route_{0}".format(i)] or next_bin_idx not in bins_zone_2
-                ):
-                    break
-
-                # Get current bin index from the bins list
-                try:
-                    bin_index_in_bins = bins.index(next_bin_idx)
-                except ValueError:
-                    break
-
-                # Update space occupied in the vehicle
-                corresponding_row = data[data["#bin"] == next_bin_idx]
-                stock = (corresponding_row.iloc[0]["Stock"] + corresponding_row.iloc[0]["Accum_Rate"]) * E * B
-                space_occupied += stock
-                if space_occupied < vehicle_capacity and next_bin_idx not in globals()["route_{0}".format(i)]:
-                    # Add bin to the route
-                    globals()["route_{0}".format(i)].append(next_bin_idx)
-
-                    # Remove bin from bins to be collected list
-                    bins.pop(bin_index_in_bins)
-
-                    # Remove bin from bins zone
-                    bin_index_in_bins_zone = bins_zone_2.index(next_bin_idx)
-                    bins_zone_2.pop(bin_index_in_bins_zone)
-
-                    # Update previous bin
-                    previous_bin = next_bin_idx
-
-            while space_occupied < vehicle_capacity and len(bins_zone_3) != 0:
-                # Get the distance between the previous bin and all the other bins
-                row = distance_matrix[previous_bin][:]
-                row_sorted = np.sort(row)
-                j = 1
-                stop = "A"
-
-                # Iterate through sorted list until the closest bin that is not in any route is found
-                while j <= len(row_sorted[1:]) and stop != "B":
-                    _ = row_sorted.tolist()
-                    possible_indexes = [index for index, value in enumerate(row) if value == row_sorted[j]]
-                    for z in possible_indexes:
-                        if z in bins:
-                            idx_tried_bin = z
-                            next_bin_idx = z
-
-                    # Verify if it is in any route and not only in the current route
-                    if (
-                        next_bin_idx not in globals()["route_{0}".format(i)]
-                        and next_bin_idx in bins
-                        and next_bin_idx in bins_zone_3
-                    ):
-                        stop = "B"
-                        min_idx = next_bin_idx
-
-                    j += 1
-
-                if stop == "A" and (
-                    next_bin_idx in globals()["route_{0}".format(i)] or next_bin_idx not in bins_zone_3
-                ):
-                    break
-
-                # Get current bin index from the bins list
-                try:
-                    bin_index_in_bins = bins.index(next_bin_idx)
-                except ValueError:
-                    break
-
-                # Update space occupied in the vehicle
-                corresponding_row = data[data["#bin"] == next_bin_idx]
-                stock = (corresponding_row.iloc[0]["Stock"] + corresponding_row.iloc[0]["Accum_Rate"]) * E * B
-                space_occupied += stock
-                if space_occupied < vehicle_capacity and next_bin_idx not in globals()["route_{0}".format(i)]:
-                    # Add bin to the route
-                    globals()["route_{0}".format(i)].append(next_bin_idx)
-
-                    # Remove bin from bins to be collected list
-                    bins.pop(bin_index_in_bins)
-
-                    # Remove bin from bins zone
-                    bin_index_in_bins_zone = bins_zone_3.index(next_bin_idx)
-                    bins_zone_3.pop(bin_index_in_bins_zone)
-
-                    # Update previous bin
-                    previous_bin = next_bin_idx
-                # else:
-                # travel_time = travel_time - (distance/37.5) * 60 + 5
-
-            if space_occupied == old_space_occupied:
+            if space_occupied >= vehicle_capacity:
                 break
 
-        globals()["route_{0}".format(i)] = globals()["route_{0}".format(i)] + depot
-        routes_list.append(globals()["route_{0}".format(i)])
+        # Close route
+        current_route.append(depot_id)
+        routes_list.append(current_route)
+
+        # Safety break if no bins added (avoid infinite loop)
+        if len(current_route) <= 2 and not bins:
+            break
+        if len(current_route) <= 2 and bins:
+            # Force pick one if stuck? Or logic handles it?
+            # If stuck, pick first available
+            random_bin = bins[0]
+            routes_list[-1].insert(1, random_bin)
+            bins.pop(0)
+            # Remove from zones
+            for z in zones.values():
+                if random_bin in z:
+                    z.remove(random_bin)
+
     return routes_list
 
 

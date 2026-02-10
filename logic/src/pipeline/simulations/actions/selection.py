@@ -8,9 +8,8 @@ from typing import Any, Dict, List, cast
 import numpy as np
 
 from logic.src.configs import MustGoConfig
-from logic.src.interfaces import ITraversable
 from logic.src.constants import ROOT_DIR
-from logic.src.interfaces import IBinContainer
+from logic.src.interfaces import IBinContainer, ITraversable
 from logic.src.policies.other import MustGoSelectionFactory, SelectionContext
 from logic.src.utils.configs.config_loader import load_config
 
@@ -27,48 +26,7 @@ class MustGoSelectionAction(SimulationAction):
         Identifies bins that MUST be collected on the current day.
         """
         # 1. Gather all strategies to run
-        strategies: List[Dict[str, Any]] = []
-
-        # Check config for 'must_go' list
-        raw_cfg = context.get("config", {})
-        flat_cfg = _flatten_config(raw_cfg)
-        config_must_go = flat_cfg.get("must_go")
-
-        if isinstance(config_must_go, MustGoConfig):
-            # Use the structured config object directly
-            strategies.append({"config": config_must_go})
-        elif config_must_go:
-            if not isinstance(config_must_go, list):
-                config_must_go = [config_must_go]
-
-            for item in config_must_go:
-                if isinstance(item, MustGoConfig):
-                    strategies.append({"config": item})
-                elif isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
-                    # Load config file
-                    fpath = os.path.join(ROOT_DIR, "assets", "configs", "policies", item)
-                    cfg = load_config(fpath)
-                    # Extract strategy name and params
-                    if "config" in cfg and len(cfg) == 1:
-                        cfg = cfg["config"]
-
-                    if "strategy" in cfg:
-                        strat_name = cfg.pop("strategy")
-                        strategies.append({"name": strat_name, "params": cfg})
-                    else:
-                        for k, v in cfg.items():
-                            strategies.append({"name": k, "params": v if isinstance(v, ITraversable) else {}})
-
-                elif isinstance(item, ITraversable):
-                    # Handle case where item is a dict describing a single strategy
-                    if "strategy" in item:
-                        strat_name = item.pop("strategy")
-                        strategies.append({"name": strat_name, "params": item})
-                    else:
-                        for k, v in item.items():
-                            strategies.append({"name": k, "params": v if isinstance(v, ITraversable) else {}})
-                else:
-                    strategies.append({"name": item, "params": {}})
+        strategies = self._gather_strategies(context)
 
         # 2. Execute all strategies and union results
         bins = context["bins"]
@@ -132,3 +90,52 @@ class MustGoSelectionAction(SimulationAction):
             final_must_go.update(res)
 
         context["must_go"] = list(final_must_go)
+
+    def _gather_strategies(self, context: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Gather all strategies from configuration."""
+        strategies: List[Dict[str, Any]] = []
+        raw_cfg = context.get("config", {})
+        flat_cfg = _flatten_config(raw_cfg)
+        config_must_go = flat_cfg.get("must_go")
+
+        if isinstance(config_must_go, MustGoConfig):
+            strategies.append({"config": config_must_go})
+        elif config_must_go:
+            if not isinstance(config_must_go, list):
+                config_must_go = [config_must_go]
+
+            for item in config_must_go:
+                strategies.extend(self._parse_strategy_item(item))
+        return strategies
+
+    def _parse_strategy_item(self, item: Any) -> List[Dict[str, Any]]:
+        """Parse a single must-go configuration item."""
+        strategies: List[Dict[str, Any]] = []
+        if isinstance(item, MustGoConfig):
+            strategies.append({"config": item})
+        elif isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
+            fpath = os.path.join(ROOT_DIR, "assets", "configs", "policies", item)
+            cfg = load_config(fpath)
+            if "config" in cfg and len(cfg) == 1:
+                cfg = cfg["config"]
+
+            if "strategy" in cfg:
+                # Convert to dict to allow pop() and type-safe kwargs
+                cfg_dict = dict(cfg.items()) if hasattr(cfg, "items") else dict(cfg)  # type: ignore
+                strat_name = cfg_dict.pop("strategy")
+                strategies.append({"name": strat_name, "params": cfg_dict})
+            else:
+                for k, v in cfg.items():
+                    strategies.append({"name": k, "params": v if isinstance(v, ITraversable) else {}})
+        elif isinstance(item, ITraversable):
+            # Convert to dict to allow pop() and type-safe kwargs
+            item_dict = dict(item.items()) if hasattr(item, "items") else dict(item)  # type: ignore
+            if "strategy" in item_dict:
+                strat_name = item_dict.pop("strategy")
+                strategies.append({"name": strat_name, "params": item_dict})
+            else:
+                for k, v in item_dict.items():
+                    strategies.append({"name": k, "params": v if isinstance(v, (dict, ITraversable)) else {}})
+        else:
+            strategies.append({"name": item, "params": {}})
+        return strategies

@@ -116,21 +116,8 @@ class SimulationDataMapper:
         new_data = self.setup_df(depot, new_data, ["ID", "Stock", "Accum_Rate"])
         return new_data, coords
 
-    def process_model_input(
-        self,
-        coordinates,
-        dist_matrix,
-        device,
-        method,
-        configs,
-        edge_threshold,
-        edge_method,
-        area,
-        waste_type,
-        adj_matrix=None,
-    ):
-        """Prepares data for neural models."""
-        problem_size = len(dist_matrix) - 1
+    def _prepare_model_data(self, coordinates, method, configs, problem_size) -> Dict[str, torch.Tensor]:
+        """Prepare the base model data dictionary."""
         depot, loc = format_coordinates(coordinates, method)
         model_data = {
             "locs": torch.as_tensor(loc, dtype=torch.float32),
@@ -146,39 +133,82 @@ class SimulationDataMapper:
         if configs.get("model") == "tam":
             model_data["fill_history"] = torch.zeros((1, configs["graph_size"], configs["temporal_horizon"]))
 
-        if 0 < edge_threshold < 1:
-            if edge_method == "dist":
-                edges = (
-                    torch.tensor(adj_to_idx(adj_matrix, negative=False))
-                    if adj_matrix is not None
-                    else torch.tensor(get_edge_idx_dist(dist_matrix[1:, 1:], edge_threshold))
-                )
-            else:
-                assert edge_method == "knn"
-                edges = (
-                    torch.from_numpy(adj_matrix)
-                    if adj_matrix is not None
-                    else torch.from_numpy(get_adj_knn(dist_matrix[1:, 1:], edge_threshold, negative=False))
-                )
+        return model_data
 
-            dtype = torch.float32 if configs.get("encoder") in ["gac", "tgc"] else torch.bool
-            edges = edges.unsqueeze(0).to(device, dtype=dtype)
+    def _prepare_edges(self, dist_matrix, configs, device, edge_threshold, edge_method, adj_matrix):
+        """Prepare edge indices and adjacency matrix."""
+        if not (0 < edge_threshold < 1):
+            return None
+
+        if edge_method == "dist":
+            edges = (
+                torch.tensor(adj_to_idx(adj_matrix, negative=False))
+                if adj_matrix is not None
+                else torch.tensor(get_edge_idx_dist(dist_matrix[1:, 1:], edge_threshold))
+            )
         else:
-            edges = None
+            assert edge_method == "knn"
+            edges = (
+                torch.from_numpy(adj_matrix)
+                if adj_matrix is not None
+                else torch.from_numpy(get_adj_knn(dist_matrix[1:, 1:], edge_threshold, negative=False))
+            )
 
+        dtype = torch.float32 if configs.get("encoder") in ["gac", "tgc"] else torch.bool
+        return edges.unsqueeze(0).to(device, dtype=dtype)
+
+    def _load_profit_vars(self, area, waste_type):
+        """Load profit-related variables for the simulation."""
         from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 
-        VEHICLE_CAPACITY, REVENUE_KG, DENSITY, COST_KM, VOLUME = load_area_and_waste_type_params(area, waste_type)
+        (
+            VEHICLE_CAPACITY,
+            REVENUE_KG,
+            DENSITY,
+            COST_KM,
+            VOLUME,
+        ) = load_area_and_waste_type_params(area, waste_type)
 
-        profit_vars = {
+        return {
             "cost_km": COST_KM,
             "revenue_kg": REVENUE_KG,
             "bin_capacity": VOLUME * DENSITY,
             "vehicle_capacity": VEHICLE_CAPACITY / 100,
         }
 
+    def process_model_input(
+        self,
+        coordinates,
+        dist_matrix,
+        device,
+        method,
+        configs,
+        edge_threshold,
+        edge_method,
+        area,
+        waste_type,
+        adj_matrix=None,
+    ):
+        """Prepares data for neural models."""
+        problem_size = len(dist_matrix) - 1
+
+        # 1. Prepare Model Data
+        model_data = self._prepare_model_data(coordinates, method, configs, problem_size)
+
+        # 2. Prepare Edges
+        edges = self._prepare_edges(dist_matrix, configs, device, edge_threshold, edge_method, adj_matrix)
+
+        # 3. Load Profit Variables
+        profit_vars = self._load_profit_vars(area, waste_type)
+
+        # 4. Final Formatting
         dm_tensor = torch.as_tensor(dist_matrix, dtype=torch.float32, device=device)
-        return ({k: v.unsqueeze(0) for k, v in model_data.items()}, (edges, dm_tensor), profit_vars)
+
+        return (
+            {k: v.unsqueeze(0) for k, v in model_data.items()},
+            (edges, dm_tensor),
+            profit_vars,
+        )
 
     def save_results(self, matrix, results_dir, seed, data_dist, policy, sample_id):
         """Exports history to Excel."""

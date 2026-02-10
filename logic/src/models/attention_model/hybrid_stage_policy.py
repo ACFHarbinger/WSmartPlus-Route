@@ -162,31 +162,17 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
             embed_dim=embed_dim, n_operators=len(self.OPERATORS), hidden_dim=hidden_dim
         )
 
-    def forward(
-        self,
-        td: TensorDict,
-        env: RL4COEnvBase,
-        strategy: str = "greedy",
-        **kwargs,
-    ) -> Dict[str, Any]:
-        # Import locally to avoid circular imports
+    def _initialize_tours(
+        self, td: TensorDict, env: RL4COEnvBase, strategy: str, embeddings: torch.Tensor, **kwargs
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Stage 1: Initialization."""
         from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
         from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
         from logic.src.models.policies.hybrid_genetic_search import VectorizedHGS
 
-        # Instantiate ACO model here if needed, or keep it lazy
-        if not hasattr(self, "aco_model"):
-            self.aco_model = VectorizedACOPolicy(env_name=self.env_name, embed_dim=self.encoder.embed_dim, **kwargs)
-
         batch_size = td.size(0)
         device = td["locs"].device
-
-        # 1. Encode Graph
-        init_embeds = self.init_embedding(td)
-        embeddings = self.encoder(init_embeds)
         graph_context = embeddings.mean(dim=1)
-
-        # 2. Stage 1: Initialization
         init_logits = self.init_router(graph_context)
 
         if strategy == "greedy":
@@ -195,163 +181,158 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
             probs = torch.softmax(init_logits, dim=-1)
             init_choice_idx = torch.multinomial(probs, 1).squeeze(-1)
 
-        # Execute selected initializers
-        # Initialize tours container
         tours = torch.zeros(batch_size, td["locs"].size(1), dtype=torch.long, device=device)
 
-        # Group by choice to run batch solvers
+        if not hasattr(self, "aco_model"):
+            self.aco_model = VectorizedACOPolicy(env_name=self.env_name, embed_dim=self.encoder.embed_dim, **kwargs)
+
         for algo_idx, algo_name in enumerate(self.INIT_ALGOS):
             mask = init_choice_idx == algo_idx
             if not mask.any():
                 continue
 
             sub_td = td[mask]
-
-            # Prepare Solver Inputs
             dist_matrix = self._get_dist_matrix(sub_td)
             demands = sub_td.get("demand", None)
-
-            # Using 1.0 capacity default if not present, as placeholders
-            # In real scenario, capacity should come from sub_td
-            vehicle_capacity = sub_td.get("vehicle_capacity", 1.0)
-            if vehicle_capacity.dim() > 0:
-                # If capacity is per-instance, take mean or first (usually homogenous in batch)
-                # Solvers might expect scalar or tensor
-                pass
 
             if algo_name == "hgs":
                 solver = VectorizedHGS(dist_matrix, demands, vehicle_capacity=1.0, device=device)
                 rand_sol = self._get_random_tours(sub_td)
                 sub_tours, _ = solver.solve(rand_sol, n_generations=5, population_size=10)
-
             elif algo_name == "alns":
                 solver = VectorizedALNS(dist_matrix, demands, vehicle_capacity=1.0, device=device)
                 rand_sol = self._get_random_tours(sub_td)
                 sub_tours, _ = solver.solve(rand_sol, n_iterations=10)
-
             elif algo_name == "aco":
-                # VectorizedACOPolicy acts as a model/policy
                 out = self.aco_model(sub_td, env, **kwargs)
                 sub_tours = out["actions"]
 
-            # Scatter back
-            if isinstance(sub_tours, list):
-                # Handle list of lists (routes) conversion to padded tensor
-                pass  # Skipping complex conversion for brevity in V1
-            else:
+            if not isinstance(sub_tours, list):
                 tours[mask] = sub_tours.to(dtype=torch.long)
 
+        return tours, init_choice_idx
+
+    def _apply_operator_step(
+        self,
+        td: TensorDict,
+        env: RL4COEnvBase,
+        embeddings: torch.Tensor,
+        current_tours: torch.Tensor,
+        dist_matrix_all: torch.Tensor,
+        removed_nodes_state: torch.Tensor,
+        strategy: str,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Apply a single refinement step."""
+        batch_size = td.size(0)
+        device = td.device
+        op_logits, _ = self.improvement_decoder(td, embeddings, env)
+
+        log_p = torch.zeros(batch_size, device=device)
+        if strategy == "greedy":
+            op_idx = op_logits.argmax(dim=-1)
+        else:
+            probs = torch.softmax(op_logits, dim=-1)
+            op_idx = torch.multinomial(probs, 1).squeeze(-1)
+            log_p = torch.log(probs.gather(1, op_idx.unsqueeze(-1)) + 1e-10).squeeze(-1)
+
+        next_tours = current_tours.clone()
+        updated_removed_nodes_list = [None] * batch_size
+
+        for o_i, operator_fn in enumerate(self.OPERATORS):
+            mask = op_idx == o_i
+            if not mask.any():
+                continue
+
+            sub_tours, sub_dist = current_tours[mask], dist_matrix_all[mask]
+            sub_removed = (
+                removed_nodes_state[mask]
+                if removed_nodes_state.size(0) == batch_size
+                else torch.zeros((sub_tours.size(0), 0), dtype=torch.long, device=device)
+            )
+
+            new_sub_tours, new_sub_removed = self._execute_refinement_operator(
+                operator_fn, sub_tours, sub_dist, sub_removed, device
+            )
+
+            next_tours[mask] = new_sub_tours
+            sub_indices = torch.nonzero(mask).squeeze(-1)
+            if sub_indices.dim() == 0:
+                sub_indices = sub_indices.unsqueeze(0)
+            for i, idx in enumerate(sub_indices):
+                updated_removed_nodes_list[idx.item()] = new_sub_removed[i]
+
+        return next_tours, self._assemble_removed_state(updated_removed_nodes_list, device), log_p
+
+    def _execute_refinement_operator(
+        self,
+        operator_fn,
+        sub_tours: torch.Tensor,
+        sub_dist: torch.Tensor,
+        sub_removed: torch.Tensor,
+        device: torch.device,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Helper to safely execute a refinement operator."""
+        import inspect
+
+        sig = inspect.signature(operator_fn)
+        valid_kwargs = {}
+        if "max_iterations" in sig.parameters:
+            valid_kwargs["max_iterations"] = 5
+        if "n_remove" in sig.parameters:
+            valid_kwargs["n_remove"] = int(sub_tours.size(1) * 0.1) + 1
+        if "removed_nodes" in sig.parameters:
+            valid_kwargs["removed_nodes"] = sub_removed
+
+        try:
+            result = operator_fn(sub_tours, sub_dist, **valid_kwargs)
+        except Exception:
+            result = sub_tours
+
+        if isinstance(result, tuple):
+            return result
+
+        return result, (
+            torch.zeros((sub_tours.size(0), 0), dtype=torch.long, device=device)
+            if "removed_nodes" in sig.parameters
+            else sub_removed
+        )
+
+    def _assemble_removed_state(self, removed_list: list, device: torch.device) -> torch.Tensor:
+        """Helper to re-assemble removed state tensor."""
+        batch_size = len(removed_list)
+        max_len = max([r.size(0) if r is not None else 0 for r in removed_list])
+        if max_len == 0:
+            return torch.zeros((batch_size, 0), dtype=torch.long, device=device)
+        new_state = torch.full((batch_size, max_len), -1, dtype=torch.long, device=device)
+        for b, r in enumerate(removed_list):
+            if r is not None:
+                new_state[b, : r.size(0)] = r
+        return new_state
+
+    def forward(
+        self,
+        td: TensorDict,
+        env: RL4COEnvBase,
+        strategy: str = "greedy",
+        **kwargs,
+    ) -> Dict[str, Any]:
+        # 1. Encode Graph
+        init_embeds = self.init_embedding(td)
+        embeddings = self.encoder(init_embeds)
+
+        # 2. Stage 1: Initialization
+        current_tours, init_choice_idx = self._initialize_tours(td, env, strategy, embeddings, **kwargs)
+
         # 3. Stage 2: Refinement Loop
-        current_tours = tours
         dist_matrix_all = self._get_dist_matrix(td)
-
-        # State mechanism for partial solutions (Destroy/Repair)
-        # We track removed_nodes for each batch element
-        # Initialize with placeholder (no nodes removed)
-        # B x 0 tensor
-        removed_nodes_state = torch.zeros((batch_size, 0), dtype=torch.long, device=device)
-
+        removed_nodes_state = torch.zeros((td.size(0), 0), dtype=torch.long, device=td.device)
         log_likelihood = 0.0
 
         for _step in range(self.refine_steps):
-            # Predict Operator
-            op_logits, _ = self.improvement_decoder(td, embeddings, env)
-
-            if strategy == "greedy":
-                op_idx = op_logits.argmax(dim=-1)
-            else:
-                probs = torch.softmax(op_logits, dim=-1)
-                op_idx = torch.multinomial(probs, 1).squeeze(-1)
-                log_p = torch.log(probs.gather(1, op_idx.unsqueeze(-1)) + 1e-10).squeeze(-1)
-                log_likelihood = log_likelihood + log_p
-
-            # Apply Operators (Grouped by op_idx)
-            next_tours = current_tours.clone()
-
-            # List to collect new removed states
-            updated_removed_nodes_list = [None] * batch_size
-
-            for o_i, operator_fn in enumerate(self.OPERATORS):
-                mask = op_idx == o_i
-                if not mask.any():
-                    continue
-
-                sub_tours = current_tours[mask]
-                sub_dist = dist_matrix_all[mask]
-
-                # Get current removed nodes for this group
-                if removed_nodes_state.size(0) == batch_size:
-                    sub_removed = removed_nodes_state[mask]
-                else:
-                    # Fallback if state shape mismatch (should not happen)
-                    sub_removed = torch.zeros((sub_tours.size(0), 0), dtype=torch.long, device=device)
-
-                # Inspect signature
-                import inspect
-
-                sig = inspect.signature(operator_fn)
-                valid_kwargs = {}
-
-                # Setup kwargs
-                if "max_iterations" in sig.parameters:
-                    valid_kwargs["max_iterations"] = 5
-
-                if "n_remove" in sig.parameters:
-                    # Default remove count
-                    valid_kwargs["n_remove"] = int(sub_tours.size(1) * 0.1) + 1
-
-                if "removed_nodes" in sig.parameters:
-                    # This is a Repair operator
-                    valid_kwargs["removed_nodes"] = sub_removed
-
-                # Apply
-                try:
-                    result = operator_fn(sub_tours, sub_dist, **valid_kwargs)
-                except Exception:
-                    # If operator fails, fallback to identity
-                    result = sub_tours
-
-                # Parse result
-                if isinstance(result, tuple):
-                    new_sub_tours, new_sub_removed = result
-                else:
-                    new_sub_tours = result
-                    if "removed_nodes" in sig.parameters:
-                        # Repair -> Cleared
-                        new_sub_removed = torch.zeros((sub_tours.size(0), 0), dtype=torch.long, device=device)
-                    else:
-                        # Move/Improve -> Preserve
-                        new_sub_removed = sub_removed
-
-                # Update next_tours
-                next_tours[mask] = new_sub_tours
-
-                # Store new removed output
-                sub_indices = torch.nonzero(mask).squeeze(-1)
-                if sub_indices.dim() == 0:
-                    sub_indices = sub_indices.unsqueeze(0)
-
-                for i, batch_idx_k in enumerate(sub_indices):
-                    updated_removed_nodes_list[batch_idx_k.item()] = new_sub_removed[i]
-
-            # Re-assemble removed_nodes_state
-            max_len = 0
-            for r in updated_removed_nodes_list:
-                if r is not None:
-                    max_len = max(max_len, r.size(0))
-
-            if max_len == 0:
-                removed_nodes_state = torch.zeros((batch_size, 0), dtype=torch.long, device=device)
-            else:
-                new_state = torch.full((batch_size, max_len), -1, dtype=torch.long, device=device)
-                for b in range(batch_size):
-                    r = updated_removed_nodes_list[b]
-                    if r is not None:
-                        l = r.size(0)
-                        new_state[b, :l] = r
-                removed_nodes_state = new_state
-
-            current_tours = next_tours
+            current_tours, removed_nodes_state, step_log_p = self._apply_operator_step(
+                td, env, embeddings, current_tours, dist_matrix_all, removed_nodes_state, strategy
+            )
+            log_likelihood = log_likelihood + step_log_p
 
         # Calculate final reward
         reward = env.get_reward(td, current_tours)

@@ -6,7 +6,6 @@ import contextlib
 
 import hydra
 import torch
-from omegaconf import DictConfig
 from pytorch_lightning import seed_everything
 from pytorch_lightning.loggers import CSVLogger
 

@@ -21,24 +21,27 @@ epochs := "100"
 batch_size := "64"
 temporal_horizon := "0"
 days := "31"
+samples := "10"
 seed := "42"
 marker := "fast"
+strategy := "greedy"
+distribution := "gamma1"
 
 # --- Setup & Environment ---
 
 # Sync dependencies using uv
 sync:
-    uv sync --all-groups
+    uv sync --all-groups --all-extras
 
 # Install dependencies via pip
 install:
     uv pip install -r requirements.txt || uv pip install -e .
 
-# --- Primary Execution ---
-# --- Training Recipe ---
+# --- Primary Execution Commands (Hydra-based) ---
+# Train a model with Hydra configs
 
-# Usage: just train problem=tsp model=ptr size=100
-train problem=problem model=model size=size epochs=epochs encoder=encoder batch_size=batch_size:
+# Usage: just train problem=wcvrp model=am size=50 epochs=100
+train problem=problem model=model size=size epochs=epochs encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🚀 STARTING HYDRA TRAINING SESSION"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -61,17 +64,61 @@ train problem=problem model=model size=size epochs=epochs encoder=encoder batch_
         train.n_epochs={{ epochs }} \
         train.batch_size={{ batch_size }}
 
-# Run model evaluation
-eval:
-    uv run python main.py eval
+# Run model evaluation with Hydra configs
 
-# Run simulator testing
-test-sim policies="regular gurobi alns" days=days:
-    uv run python main.py test_sim --policies {{ policies }} --days {{ days }}
+# Usage: just eval model_path=./weights/best.pt problem=wcvrp size=50 strategy=greedy
+eval model_path="" problem=problem size=size samples="128" strategy=strategy:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📊 STARTING MODEL EVALUATION"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Model Path:" "{{ model_path }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Graph Size:" "{{ size }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Strategy:" "{{ strategy }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python main.py eval \
+        eval.model_path={{ model_path }} \
+        env.name={{ problem }} \
+        env.graph.num_loc={{ size }} \
+        eval.num_samples={{ samples }} \
+        eval.strategy={{ strategy }}
 
-# Generate virtual graph data
-gen-data problem=problem size=size:
-    uv run python main.py generate_data virtual --problem {{ problem }} --graph_sizes {{ size }}
+# Run simulator testing with Hydra configs
+
+# Usage: just test-sim policies="regular,gurobi,alns" days=31 area=riomaior
+test-sim policies="regular,gurobi,alns" days=days area=area size=size samples=samples problem=problem:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policies:" "{{ policies }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Days:" "{{ days }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Samples:" "{{ samples }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python main.py test_sim \
+        simulation.policies=[{{ policies }}] \
+        simulation.days={{ days }} \
+        simulation.n_samples={{ samples }} \
+        env.graph.area={{ area }} \
+        env.graph.num_loc={{ size }} \
+        env.name={{ problem }}
+
+# Generate data with Hydra configs
+
+# Usage: just gen-data problem=wcvrp size=50 samples=10000 distribution=gamma
+gen-data problem=problem size=size distribution=distribution data_type="virtual":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Graph Size:" "{{ size }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python main.py gen_data \
+        data.type={{ data_type }} \
+        env.name={{ problem }} \
+        env.graph.num_loc={{ size }} \
+        data.distribution={{ distribution }}
 
 # Launch the GUI
 gui:

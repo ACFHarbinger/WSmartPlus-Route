@@ -104,7 +104,7 @@ def run_test_suite(opts):
             keyword=opts["keyword"],
         )
     except Exception as e:
-        raise Exception(f"failed to run test suite due to {repr(e)}")
+        raise Exception(f"failed to run test suite due to {repr(e)}") from e
 
 
 def pretty_print_args(comm, opts, inner_comm=None):
@@ -143,7 +143,7 @@ def pretty_print_args(comm, opts, inner_comm=None):
         )
         print(formatted, end="\n\n")
     except Exception as e:
-        raise Exception(f"failed to pretty print arguments due to {repr(e)}")
+        raise Exception(f"failed to pretty print arguments due to {repr(e)}") from e
 
 
 def pretty_print_hydra_config(cfg: DictConfig, filter_keys: list = None) -> None:
@@ -160,11 +160,7 @@ def pretty_print_hydra_config(cfg: DictConfig, filter_keys: list = None) -> None
     print("=" * 80)
 
     # If filters are provided, create a subset of the config
-    if filter_keys:
-        # We use masked_copy to extract only the sections we care about
-        display_cfg = OmegaConf.masked_copy(cfg, filter_keys)
-    else:
-        display_cfg = cfg
+    display_cfg = OmegaConf.masked_copy(cfg, filter_keys) if filter_keys else cfg
 
     # resolve=True ensures interpolations like ${model.lr} are shown as actual values
     print(OmegaConf.to_yaml(display_cfg, resolve=True))

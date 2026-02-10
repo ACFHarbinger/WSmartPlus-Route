@@ -6,6 +6,8 @@ import datetime
 import json
 import logging
 
+from logic.src.interfaces import ITraversable
+
 
 class JsonFormatter(logging.Formatter):
     """Formatter that outputs JSON strings."""

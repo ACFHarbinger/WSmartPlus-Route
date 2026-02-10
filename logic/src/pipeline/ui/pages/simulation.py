@@ -4,7 +4,7 @@ Simulation Digital Twin mode for the Streamlit dashboard.
 
 import json
 import os
-from typing import List
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -31,6 +31,153 @@ from logic.src.pipeline.ui.services.log_parser import (
     get_unique_samples,
 )
 from logic.src.pipeline.ui.styles.styling import create_kpi_row
+
+
+def _filter_simulation_data(entries: List[Any], controls: Dict[str, Any], day_range: Tuple[int, int]) -> List[Any]:
+    """Filter simulation entries based on controls."""
+    filtered = filter_entries(
+        entries,
+        policy=controls["selected_policy"],
+        sample_id=controls["selected_sample"],
+        day=controls["selected_day"] if not controls["is_live"] else None,
+    )
+
+    if controls["is_live"]:
+        # Get latest day
+        latest_day = max(e.day for e in filtered) if filtered else day_range[1]
+        filtered = filter_entries(filtered, day=latest_day)
+
+    return filtered
+
+
+def _render_kpi_dashboard(display_entry: Any) -> None:
+    """Render the Key Performance Indicators section."""
+    st.subheader("📊 Key Metrics")
+
+    kpi_data = {
+        "Day": display_entry.day,
+        "Distance (km)": display_entry.data.get("km", 0),
+        "Waste (kg)": display_entry.data.get("kg", 0),
+        "Profit": display_entry.data.get("profit", 0),
+        "Overflows": display_entry.data.get("overflows", 0),
+    }
+
+    st.markdown(create_kpi_row(kpi_data), unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+def _load_custom_matrix(controls: Dict[str, Any]) -> Any:
+    """Load a custom distance matrix if selected."""
+    dist_matrix = None
+    if controls.get("distance_strategy") == "load_matrix":
+        selected_file = controls.get("selected_matrix_file")
+        if selected_file:
+            matrix_path = os.path.join(ROOT_DIR, "data", "wsr_simulator", "distance_matrix", selected_file)
+            if os.path.isfile(matrix_path):
+                try:
+                    if matrix_path.endswith((".xlsx", ".xls")):
+                        df = pd.read_excel(matrix_path, header=None)
+                    else:
+                        # Default to CSV
+                        df = pd.read_csv(matrix_path, header=None)
+
+                    loaded_data = df.to_numpy()
+                    # Assume first row and col are headers/indices and strip them
+                    # Force conversion to float to handle potential string types
+                    sliced_data = loaded_data[1:, 1:].astype(float)
+
+                    # Apply Bin Index Subsetting if selected
+                    selected_index_file = controls.get("selected_index_file")
+                    if selected_index_file:
+                        index_path = os.path.join(
+                            ROOT_DIR,
+                            "data",
+                            "wsr_simulator",
+                            "bins_selection",
+                            selected_index_file,
+                        )
+                        if os.path.isfile(index_path):
+                            with open(index_path, "r") as f:
+                                indices_list = json.load(f)
+
+                            sample_idx = 0
+                            if isinstance(controls.get("selected_sample"), int):
+                                sample_idx = controls["selected_sample"]
+
+                            if 0 <= sample_idx < len(indices_list):
+                                idx_list = indices_list[sample_idx]
+                                target_indices = np.array([-1] + idx_list) + 1
+
+                                # Robustness check
+                                max_idx = sliced_data.shape[0] - 1
+                                valid_indices = target_indices[target_indices <= max_idx]
+
+                                if len(valid_indices) < len(target_indices):
+                                    st.warning(f"Some indices were out of bounds and ignored. Max index: {max_idx}")
+
+                                sliced_data = sliced_data[valid_indices[:, None], valid_indices]
+                            else:
+                                st.warning(
+                                    f"Sample index {sample_idx} out of range for index file (len={len(indices_list)}). Using full matrix."
+                                )
+
+                    dist_matrix = pd.DataFrame(sliced_data)
+
+                except Exception as e:
+                    st.error(f"Failed to load matrix {selected_file}: {e}")
+    return dist_matrix
+
+
+def _render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
+    """Render the route map."""
+    st.subheader("🗺️ Route Map")
+
+    tour = display_entry.data.get("tour", [])
+    bin_states = display_entry.data.get("bin_state_c", [])
+    bin_states_after = display_entry.data.get("bins_state_real_c_after", [])
+
+    if not tour:
+        st.warning("No tour data available for this entry.")
+        return
+
+    dist_matrix = _load_custom_matrix(controls)
+
+    # Determine served bins (those with bin_state_c_after = 0, meaning collected)
+    served_indices = []
+    for i, state in enumerate(bin_states_after):
+        if state == 0 and i < len(bin_states) and bin_states[i] > 0:
+            served_indices.append(i)
+
+    sim_map = create_simulation_map(
+        tour=tour,
+        bin_states=bin_states,
+        served_indices=served_indices,
+        vehicle_id=0,
+        show_route=controls["show_route"],
+        zoom_start=13,
+        distance_matrix=dist_matrix,
+        dist_strategy=controls.get("distance_strategy", "hsd"),
+    )
+
+    st_folium(sim_map, width=None, height=500, returned_objects=[])
+
+
+def _render_metric_charts(entries: List[Any], controls: Dict[str, Any]) -> None:
+    """Render evaluation metrics charts."""
+    with st.expander("📈 Metrics Over Time"):
+        df = compute_daily_stats(entries, policy=controls["selected_policy"])
+
+        if not df.empty:
+            metrics_to_plot = ["profit", "km", "kg"]
+            available_plot_metrics = [m for m in metrics_to_plot if f"{m}_mean" in df.columns]
+
+            if available_plot_metrics:
+                fig = create_simulation_metrics_chart(
+                    df=df,
+                    metrics=available_plot_metrics,
+                    show_std=True,
+                )
+                st.plotly_chart(fig, use_container_width=True)
 
 
 def render_simulation_visualizer() -> None:
@@ -90,23 +237,14 @@ def render_simulation_visualizer() -> None:
         st.warning("The selected log file is empty or contains no valid entries.")
         return
 
-    # Update metadata after loading
+    # Update metadata after loading (in case user switched logs)
+    # Note: Optimization would be to cache this if log hasn't changed
     policies = get_unique_policies(entries)
     samples = get_unique_samples(entries)
     day_range = get_day_range(entries)
 
     # Filter entries
-    filtered = filter_entries(
-        entries,
-        policy=controls["selected_policy"],
-        sample_id=controls["selected_sample"],
-        day=controls["selected_day"] if not controls["is_live"] else None,
-    )
-
-    if controls["is_live"]:
-        # Get latest day
-        latest_day = max(e.day for e in filtered) if filtered else day_range[1]
-        filtered = filter_entries(filtered, day=latest_day)
+    filtered = _filter_simulation_data(entries, controls, day_range)
 
     if not filtered:
         st.warning("No entries match the selected filters.")
@@ -117,120 +255,14 @@ def render_simulation_visualizer() -> None:
 
     # KPI Dashboard
     if controls["show_stats"]:
-        st.subheader("📊 Key Metrics")
-
-        kpi_data = {
-            "Day": display_entry.day,
-            "Distance (km)": display_entry.data.get("km", 0),
-            "Waste (kg)": display_entry.data.get("kg", 0),
-            "Profit": display_entry.data.get("profit", 0),
-            "Overflows": display_entry.data.get("overflows", 0),
-        }
-
-        st.markdown(create_kpi_row(kpi_data), unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
+        _render_kpi_dashboard(display_entry)
 
     # Map Visualization
-    st.subheader("🗺️ Route Map")
-
-    tour = display_entry.data.get("tour", [])
-    bin_states = display_entry.data.get("bin_state_c", [])
-    bin_states_after = display_entry.data.get("bins_state_real_c_after", [])
-
-    if not tour:
-        st.warning("No tour data available for this entry.")
-    else:
-        dist_matrix = None
-
-        # Load Matrix Strategy (Custom File)
-        if controls.get("distance_strategy") == "load_matrix":
-            selected_file = controls.get("selected_matrix_file")
-            if selected_file:
-                matrix_path = os.path.join(ROOT_DIR, "data", "wsr_simulator", "distance_matrix", selected_file)
-                if os.path.isfile(matrix_path):
-                    try:
-                        if matrix_path.endswith((".xlsx", ".xls")):
-                            df = pd.read_excel(matrix_path, header=None)
-                        else:
-                            # Default to CSV
-                            df = pd.read_csv(matrix_path, header=None)
-
-                        loaded_data = df.to_numpy()
-                        # Assume first row and col are headers/indices and strip them
-                        # Force conversion to float to handle potential string types in the sliced region
-                        sliced_data = loaded_data[1:, 1:].astype(float)
-
-                        # Apply Bin Index Subsetting if selected
-                        selected_index_file = controls.get("selected_index_file")
-                        if selected_index_file:
-                            index_path = os.path.join(
-                                ROOT_DIR, "data", "wsr_simulator", "bins_selection", selected_index_file
-                            )
-                            if os.path.isfile(index_path):
-                                with open(index_path, "r") as f:
-                                    indices_list = json.load(f)
-
-                                sample_idx = 0
-                                if isinstance(controls.get("selected_sample"), int):
-                                    sample_idx = controls["selected_sample"]
-
-                                if 0 <= sample_idx < len(indices_list):
-                                    idx_list = indices_list[sample_idx]
-                                    target_indices = np.array([-1] + idx_list) + 1
-
-                                    # Robustness check: ensure indices conform to matrix bounds
-                                    max_idx = sliced_data.shape[0] - 1
-                                    valid_indices = target_indices[target_indices <= max_idx]
-
-                                    if len(valid_indices) < len(target_indices):
-                                        st.warning(f"Some indices were out of bounds and ignored. Max index: {max_idx}")
-
-                                    sliced_data = sliced_data[valid_indices[:, None], valid_indices]
-                                else:
-                                    st.warning(
-                                        f"Sample index {sample_idx} out of range for index file (len={len(indices_list)}). Using full matrix."
-                                    )
-
-                        dist_matrix = pd.DataFrame(sliced_data)
-
-                    except Exception as e:
-                        st.error(f"Failed to load matrix {selected_file}: {e}")
-
-        # Determine served bins (those with bin_state_c_after = 0, meaning collected)
-        served_indices = []
-        for i, state in enumerate(bin_states_after):
-            if state == 0 and i < len(bin_states) and bin_states[i] > 0:
-                served_indices.append(i)
-
-        sim_map = create_simulation_map(
-            tour=tour,
-            bin_states=bin_states,
-            served_indices=served_indices,
-            vehicle_id=0,
-            show_route=controls["show_route"],
-            zoom_start=13,
-            distance_matrix=dist_matrix,
-            dist_strategy=controls.get("distance_strategy", "hsd"),
-        )
-
-        st_folium(sim_map, width=None, height=500, returned_objects=[])
+    _render_map_view(display_entry, controls)
 
     # Statistics over time
     if controls["show_stats"]:
-        with st.expander("📈 Metrics Over Time"):
-            df = compute_daily_stats(entries, policy=controls["selected_policy"])
-
-            if not df.empty:
-                metrics_to_plot = ["profit", "km", "kg"]
-                available_plot_metrics = [m for m in metrics_to_plot if f"{m}_mean" in df.columns]
-
-                if available_plot_metrics:
-                    fig = create_simulation_metrics_chart(
-                        df=df,
-                        metrics=available_plot_metrics,
-                        show_std=True,
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
+        _render_metric_charts(entries, controls)
 
     # Raw data view
     with st.expander("📋 View Entry Data"):

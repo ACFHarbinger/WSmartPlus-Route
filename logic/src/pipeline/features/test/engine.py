@@ -2,6 +2,7 @@
 Simulation Test Runner.
 """
 
+import contextlib
 import os
 import random
 
@@ -33,50 +34,71 @@ def run_wsr_simulator_test(opts):
         opts (dict | DictConfig): Configuration options containing simulation
             parameters, policy settings, and environment metadata.
     """
-    # Convert to standard dict for mutability and ease of use
-    if not isinstance(opts, dict):
-        try:
-            opts = OmegaConf.to_container(opts, resolve=True)
-        except Exception:
-            pass  # Already a dict or compatible
-
-    # Backwards compatibility: Map num_loc to size (main.py flattens graph config)
-    if "num_loc" in opts:
-        opts["size"] = opts["num_loc"]
-
-    # If graph is present (not flattened), flatten it
-    if "graph" in opts:
-        opts["size"] = opts["graph"]["num_loc"]
-        opts["area"] = opts["graph"]["area"]
-        opts["waste_type"] = opts["graph"]["waste_type"]
-        opts["dm_filepath"] = opts["graph"].get("dm_filepath")
-        opts["waste_filepath"] = opts["graph"].get("waste_filepath")
-        opts["edge_threshold"] = opts["graph"].get("edge_threshold")
-        opts["edge_method"] = opts["graph"].get("edge_method")
+    opts = _prepare_opts(opts)
 
     random.seed(opts["seed"])
     np.random.seed(opts["seed"])
     torch.manual_seed(opts["seed"])
 
-    try:
-        data_tmp, _ = load_simulator_data(opts.get("data_dir"), opts["size"], opts["area"], opts["waste_type"])
-        data_size = len(data_tmp)
-    except Exception:
-        if opts["area"] == "mixrmbac" and opts["size"] not in [20, 50, 225]:
-            data_size = 20 if opts["size"] < 20 else 50 if opts["size"] < 50 else 225
-        elif opts["area"] == "riomaior" and opts["size"] not in [57, 104, 203, 317]:
-            data_size = 317
-        elif opts["area"] == "both" and opts["size"] not in [57, 371, 485, 542]:
-            data_size = 57 if opts["size"] < 57 else 371 if opts["size"] < 371 else 485 if opts["size"] < 485 else 542
-        else:
-            data_size = opts["size"]
+    data_size = _resolve_data_size(opts)
 
     print(f"Area {opts['area']} ({data_size} available) for {opts['size']} bins")
-    if data_size != opts["size"] and (opts["bin_idx_file"] is None or opts["bin_idx_file"] == ""):
+    if data_size != opts["size"] and not opts.get("bin_idx_file"):
         opts["bin_idx_file"] = f"graphs_{opts['size']}V_{opts['n_samples']}N.json"
 
     expand_policy_configs(opts)
+    _ensure_directories(opts)
 
+    device = torch.device("cpu" if not torch.cuda.is_available() else f"cuda:{torch.cuda.device_count() - 1}")
+    try:
+        simulator_testing(opts, data_size, device)
+    except Exception as e:
+        raise Exception(f"failed to execute WSmart+ Route simulations due to {repr(e)}") from e
+
+
+def _prepare_opts(opts):
+    """Flatten and normalize configuration options."""
+    if not isinstance(opts, dict):
+        with contextlib.suppress(Exception):
+            opts = OmegaConf.to_container(opts, resolve=True)
+
+    if "num_loc" in opts:
+        opts["size"] = opts["num_loc"]
+
+    if "graph" in opts:
+        g = opts["graph"]
+        opts.update(
+            {
+                "size": g["num_loc"],
+                "area": g["area"],
+                "waste_type": g["waste_type"],
+                "dm_filepath": g.get("dm_filepath"),
+                "waste_filepath": g.get("waste_filepath"),
+                "edge_threshold": g.get("edge_threshold"),
+                "edge_method": g.get("edge_method"),
+            }
+        )
+    return opts
+
+
+def _resolve_data_size(opts):
+    """Resolve the available data size for the given area and requested size."""
+    try:
+        data_tmp, _ = load_simulator_data(opts.get("data_dir"), opts["size"], opts["area"], opts["waste_type"])
+        return len(data_tmp)
+    except Exception:
+        area, size = opts["area"], opts["size"]
+        if area == "mixrmbac":
+            return 20 if size < 20 else 50 if size < 50 else 225
+        if area == "riomaior":
+            return 317
+        if area == "both":
+            return 57 if size < 57 else 371 if size < 371 else 485 if size < 485 else 542
+        return size
+
+
+def _ensure_directories(opts):
+    """Ensure all required output and checkpoint directories exist."""
     try:
         parent_dir = os.path.join(
             udef.ROOT_DIR,
@@ -89,11 +111,7 @@ def run_wsr_simulator_test(opts):
         os.makedirs(os.path.join(parent_dir, "fill_history", opts["data_distribution"]), exist_ok=True)
         os.makedirs(os.path.join(udef.ROOT_DIR, opts["checkpoint_dir"]), exist_ok=True)
         os.makedirs(os.path.join(parent_dir, opts["checkpoint_dir"]), exist_ok=True)
-    except Exception:
-        raise Exception("directories to save WSR simulator test output files do not exist and could not be created")
-
-    device = torch.device("cpu" if not torch.cuda.is_available() else f"cuda:{torch.cuda.device_count() - 1}")
-    try:
-        simulator_testing(opts, data_size, device)
     except Exception as e:
-        raise Exception(f"failed to execute WSmart+ Route simulations due to {repr(e)}")
+        raise Exception(
+            f"directories to save WSR simulator test output files do not exist and could not be created: {e}"
+        ) from e

@@ -118,21 +118,16 @@ class OutputAnalysisTab(QWidget):
             QMessageBox.warning(self, "TensorBoard Error", f"Failed to launch TensorBoard: {e}")
 
     def load_files(self):
-        """
-        Open a file dialog to load output files and trigger data processing.
-        """
+        """Open a file dialog to load output files and trigger data processing."""
         file_paths, _ = QFileDialog.getOpenFileNames(
             self, "Open Output File(s)", "", "Output Files (*.json *.jsonl *.tfevents*)"
         )
         if not file_paths:
             return
 
-        json_files = [f for f in file_paths if f.endswith(".json")]
-        jsonl_files = [f for f in file_paths if f.endswith(".jsonl")]
-        tb_files = [f for f in file_paths if "tfevents" in f]
+        json_files, jsonl_files, tb_files = self._categorize_files(file_paths)
 
         for fpath in jsonl_files:
-            # Import strictly locally to avoid circular dependency if possible, though strict layering helps.
             from ...windows import SimulationResultsWindow
 
             win = SimulationResultsWindow(policy_names=["External_Log"], log_path=fpath)
@@ -140,113 +135,117 @@ class OutputAnalysisTab(QWidget):
             self.state.sim_windows.append(win)
 
         if tb_files:
-            tb_logdir = os.path.dirname(tb_files[0])
-            self._launch_tensorboard(tb_logdir)
+            self._launch_tensorboard(os.path.dirname(tb_files[0]))
 
         if not json_files and not tb_files:
             if jsonl_files:
-                self.visualization.text_view.setText(f"Opened {len(jsonl_files)} JSONL file(s) in external windows.")
+                self.visualization.text_view.setText(f"Opened {len(jsonl_files)} JSONL file(s).")
             return
 
         try:
-            """Process and merge the selected output files."""
-            if self.state.json_data:
-                all_policy_names = self.state.json_data.pop("__Policy_Names__", [])
-                all_distributions = self.state.json_data.pop("__Distributions__", [])
-                all_file_ids = self.state.json_data.pop("__File_IDs__", [])
-                all_n_bins = self.state.json_data.pop("Num Bins", [])
-                merged_metrics = defaultdict(list, self.state.json_data)
-                valid_keys_set = set(merged_metrics.keys())
-            else:
-                merged_metrics = defaultdict(list)
-                all_policy_names = []
-                all_distributions = []
-                all_file_ids = []
-                all_n_bins = []
-                valid_keys_set = set()
+            merged = self._merge_json_data(json_files + tb_files)
+            self.state.json_data = merged
 
-            files_to_process = json_files + tb_files
-            for fpath in files_to_process:
-                self.state.add_loaded_path(fpath)
+            final_keys = sorted(
+                [k for k in merged if k not in ["__Policy_Names__", "__Distributions__", "__File_IDs__"]]
+            )
+            self._update_controls_with_metrics(final_keys, merged["__Distributions__"], merged["__Policy_Names__"])
 
-            summary_text = "--- Loaded/Merged Files ---\n"
-            for fpath in self.state.get_loaded_paths():
-                summary_text += f"- {fpath}\n"
-
-            for fpath in files_to_process:
-                fname_prefix = os.path.basename(fpath)
-                n_bins_val = extract_num_bins_from_path(fpath)
-                file_unique_id = fpath
-
-                if "tfevents" in fpath:
-                    pivoted_data = process_tensorboard_file(fpath)
-                else:
-                    with open(fpath, "r") as f:
-                        raw_data = json.load(f)
-
-                    if isinstance(raw_data, dict) and raw_data and isinstance(next(iter(raw_data.values())), dict):
-                        pivoted_data = pivot_json_data(
-                            raw_data,
-                            filename_prefix=fname_prefix,
-                            file_id=file_unique_id,
-                        )
-                    else:
-                        pivoted_data = raw_data
-
-                current_names = pivoted_data.get("__Policy_Names__", [])
-                count = len(current_names)
-
-                all_policy_names.extend(current_names)
-                all_distributions.extend(pivoted_data.get("__Distributions__", ["unknown"] * count))
-                all_file_ids.extend(pivoted_data.get("__File_IDs__", [file_unique_id] * count))
-                all_n_bins.extend([n_bins_val] * count)
-
-                for k, v in pivoted_data.items():
-                    if k in ["__Policy_Names__", "__Distributions__", "__File_IDs__"]:
-                        continue
-                    if isinstance(v, list):
-                        merged_metrics[k].extend(v)
-                        valid_keys_set.add(k)
-
-            self.state.json_data = dict(merged_metrics)
-            self.state.json_data["__Policy_Names__"] = all_policy_names
-            self.state.json_data["__Distributions__"] = all_distributions
-            self.state.json_data["__File_IDs__"] = all_file_ids
-            self.state.json_data["Num Bins"] = all_n_bins
-
-            valid_keys_set.add("Num Bins")
-            if "step" in valid_keys_set:
-                valid_keys_set.add("step")
-
-            final_keys = sorted(list(valid_keys_set))
-
-            self.controls.y_key_combo.clear()
-            self.controls.y_key_combo.addItems(final_keys)
-
-            self.controls.x_key_combo.clear()
-            self.controls.x_key_combo.addItem("Policy Names")
-            self.controls.x_key_combo.addItems(final_keys)
-
-            if any("tfevents" in f for f in files_to_process) and "step" in final_keys:
-                index = self.controls.x_key_combo.findText("step")
-                if index >= 0:
-                    self.controls.x_key_combo.setCurrentIndex(index)
-
-            self.controls.dist_combo.clear()
-            self.controls.dist_combo.addItem("All")
-            unique_dists_found = sorted(list(set(d for d in all_distributions if d != "unknown")))
-            if unique_dists_found:
-                self.controls.dist_combo.addItems(unique_dists_found)
-
-            self.controls.plot_btn.setEnabled(len(final_keys) > 0)
-
-            summary_text += f"\nTotal Policies/Datapoints: {len(all_policy_names)}\n"
+            summary_text = "--- Loaded/Merged Files ---\n" + "\n".join(
+                [f"- {p}" for p in self.state.get_loaded_paths()]
+            )
+            summary_text += f"\n\nTotal Policies/Datapoints: {len(merged['__Policy_Names__'])}\n"
             summary_text += f"Available Metrics: {', '.join(final_keys)}"
             self.visualization.text_view.setText(summary_text)
             self.visualization.setCurrentIndex(0)
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to process files: {e}")
+
+    def _categorize_files(self, file_paths):
+        """Groups file paths by their extension/type."""
+        json_f = [f for f in file_paths if f.endswith(".json")]
+        jsonl_f = [f for f in file_paths if f.endswith(".jsonl")]
+        tb_f = [f for f in file_paths if "tfevents" in f]
+        return json_f, jsonl_f, tb_f
+
+    def _merge_json_data(self, files_to_process):
+        """Processes and merges data from JSON and TensorBoard files."""
+        if self.state.json_data:
+            all_names = self.state.json_data.get("__Policy_Names__", []).copy()
+            all_dists = self.state.json_data.get("__Distributions__", []).copy()
+            all_ids = self.state.json_data.get("__File_IDs__", []).copy()
+            all_bins = self.state.json_data.get("Num Bins", []).copy()
+            merged_metrics = defaultdict(
+                list,
+                {
+                    k: v
+                    for k, v in self.state.json_data.items()
+                    if k not in ["__Policy_Names__", "__Distributions__", "__File_IDs__", "Num Bins"]
+                },
+            )
+        else:
+            merged_metrics = defaultdict(list)
+            all_names, all_dists, all_ids, all_bins = [], [], [], []
+
+        for fpath in files_to_process:
+            self.state.add_loaded_path(fpath)
+            n_bins = extract_num_bins_from_path(fpath)
+
+            if "tfevents" in fpath:
+                pivoted = process_tensorboard_file(fpath)
+            else:
+                with open(fpath, "r") as f:
+                    raw = json.load(f)
+                pivoted = (
+                    pivot_json_data(raw, os.path.basename(fpath), fpath)
+                    if isinstance(raw, dict) and raw and isinstance(next(iter(raw.values())), dict)
+                    else raw
+                )
+
+            names = pivoted.get("__Policy_Names__", [])
+            count = len(names)
+            all_names.extend(names)
+            all_dists.extend(pivoted.get("__Distributions__", ["unknown"] * count))
+            all_ids.extend(pivoted.get("__File_IDs__", [fpath] * count))
+            all_bins.extend([n_bins] * count)
+
+            for k, v in pivoted.items():
+                if k not in ["__Policy_Names__", "__Distributions__", "__File_IDs__"] and isinstance(v, list):
+                    merged_metrics[k].extend(v)
+
+        result = dict(merged_metrics)
+        result.update(
+            {
+                "__Policy_Names__": all_names,
+                "__Distributions__": all_dists,
+                "__File_IDs__": all_ids,
+                "Num Bins": all_bins,
+            }
+        )
+        return result
+
+    def _update_controls_with_metrics(self, final_keys, distributions, names):
+        """Updates UI combo boxes with available metrics and distributions."""
+        self.controls.y_key_combo.clear()
+        self.controls.y_key_combo.addItems(final_keys)
+
+        self.controls.x_key_combo.clear()
+        self.controls.x_key_combo.addItem("Policy Names")
+        self.controls.x_key_combo.addItems(final_keys)
+
+        if "step" in final_keys:
+            idx = self.controls.x_key_combo.findText("step")
+            if idx >= 0:
+                self.controls.x_key_combo.setCurrentIndex(idx)
+
+        self.controls.dist_combo.clear()
+        self.controls.dist_combo.addItem("All")
+        unique_dists = sorted(list(set(d for d in distributions if d != "unknown")))
+        if unique_dists:
+            self.controls.dist_combo.addItems(unique_dists)
+
+        self.controls.plot_btn.setEnabled(len(final_keys) > 0)
 
     def plot_json_key(self):
         """

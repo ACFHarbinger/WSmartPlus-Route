@@ -78,7 +78,7 @@ def perform_cryptographic_operations(opts: Dict[str, Any]) -> None:
                 data = gp_file.read()
             assert dec_data == data
     except Exception as e:
-        raise Exception(f"failed to perform cryptographic operations due to {repr(e)}")
+        raise Exception(f"failed to perform cryptographic operations due to {repr(e)}") from e
 
 
 def update_file_system_entries(opts: Dict[str, Any]) -> int:
@@ -182,7 +182,7 @@ def update_file_system_entries(opts: Dict[str, Any]) -> int:
             raise ValueError(f"no file or directory found with path '{target_path}'")
         return 1
     except Exception as e:
-        raise Exception(f"failed to update file system entries due to {repr(e)}")
+        raise Exception(f"failed to update file system entries due to {repr(e)}") from e
 
 
 def delete_file_system_entries(opts: Dict[str, Any]) -> int:
@@ -205,49 +205,7 @@ def delete_file_system_entries(opts: Dict[str, Any]) -> int:
         Exception: If listing or deletion operations fail.
     """
     try:
-        directories_to_delete = []
-        if opts.get("wandb"):
-            wandb_path = os.path.join(ROOT_DIR, "wandb")
-            if os.path.exists(wandb_path):
-                directories_to_delete.append(("wandb logs", wandb_path))
-
-        if opts.get("log"):
-            log_path = os.path.join(ROOT_DIR, opts["log_dir"])
-            if os.path.exists(log_path):
-                directories_to_delete.append(("train logs", log_path))
-
-        if opts.get("output"):
-            output_path = os.path.join(ROOT_DIR, opts["output_dir"])
-            if os.path.exists(output_path):
-                directories_to_delete.append(("model outputs", output_path))
-
-        if opts.get("data"):
-            data_path = os.path.join(ROOT_DIR, opts["data_dir"])
-            if os.path.exists(data_path):
-                directories_to_delete.append(("datasets", data_path))
-
-        if opts.get("eval"):
-            eval_path = os.path.join(ROOT_DIR, opts["eval_dir"])
-            if os.path.exists(eval_path):
-                directories_to_delete.append(("evaluation results", eval_path))
-
-        if opts.get("test_sim"):
-            test_sim_path = os.path.join(ROOT_DIR, "assets", opts["test_sim_dir"])
-            if os.path.exists(test_sim_path):
-                directories_to_delete.append(("test sim outputs", test_sim_path))
-
-        if opts.get("test_checkpoint"):
-            test_sim_checkpoint_path = os.path.join(ROOT_DIR, "assets", opts["test_sim_checkpoint_dir"])
-            if os.path.exists(test_sim_checkpoint_path):
-                directories_to_delete.append(("test sim checkpoints", test_sim_checkpoint_path))
-
-        if opts.get("cache"):
-            cache_path1 = os.path.join(ROOT_DIR, "cache")
-            cache_path2 = os.path.join(ROOT_DIR, "notebooks", "cache")
-            if os.path.exists(cache_path1):
-                directories_to_delete.append(("main cache", cache_path1))
-            if os.path.exists(cache_path2):
-                directories_to_delete.append(("notebooks cache", cache_path2))
+        directories_to_delete = _collect_directories_to_delete(opts)
 
         if not directories_to_delete:
             print("No directories exist for deletion based on the provided options.")
@@ -256,7 +214,7 @@ def delete_file_system_entries(opts: Dict[str, Any]) -> int:
         if opts.get("delete_preview"):
             print("\nThe following directories exist and will be deleted:")
             print("-" * 60)
-            for i, (description, path) in enumerate(directories_to_delete, 1):
+            for i, (description, _) in enumerate(directories_to_delete, 1):
                 print(f"{i}. {description}:")
 
             if not confirm_proceed(operation_name="deletion"):
@@ -279,7 +237,47 @@ def delete_file_system_entries(opts: Dict[str, Any]) -> int:
         print(f"\nDeletion completed: {success_count}/{len(directories_to_delete)} directories removed successfully.")
         return 0
     except Exception as e:
-        raise Exception(f"failed to delete file system entries due to {repr(e)}")
+        raise Exception(f"failed to delete file system entries due to {repr(e)}") from e
+
+
+def _collect_directories_to_delete(opts: Dict[str, Any]):
+    """Helper to gather existing directories for deletion."""
+    to_delete = []
+
+    # Standard logs and outputs
+    mappings = {
+        "wandb": ("wandb", "wandb logs"),
+        "log": (opts.get("log_dir"), "train logs"),
+        "output": (opts.get("output_dir"), "model outputs"),
+        "data": (opts.get("data_dir"), "datasets"),
+        "eval": (opts.get("eval_dir"), "evaluation results"),
+    }
+
+    for key, (dname, desc) in mappings.items():
+        if opts.get(key) and dname:
+            path = os.path.join(ROOT_DIR, dname)
+            if os.path.exists(path):
+                to_delete.append((desc, path))
+
+    # Assets-based paths
+    assets_mappings = {
+        "test_sim": (opts.get("test_sim_dir"), "test sim outputs"),
+        "test_checkpoint": (opts.get("test_sim_checkpoint_dir"), "test sim checkpoints"),
+    }
+    for key, (dname, desc) in assets_mappings.items():
+        if opts.get(key) and dname:
+            path = os.path.join(ROOT_DIR, "assets", dname)
+            if os.path.exists(path):
+                to_delete.append((desc, path))
+
+    # Cache handling
+    if opts.get("cache"):
+        for cdir, desc in [("cache", "main cache"), (os.path.join("notebooks", "cache"), "notebooks cache")]:
+            path = os.path.join(ROOT_DIR, cdir)
+            if os.path.exists(path):
+                to_delete.append((desc, path))
+
+    return to_delete
 
 
 if __name__ == "__main__":

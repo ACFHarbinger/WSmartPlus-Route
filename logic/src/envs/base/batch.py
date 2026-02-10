@@ -20,62 +20,43 @@ class BatchMixin:
     @batch_size.setter
     def batch_size(self, value: torch.Size) -> None:
         """Set the batch size of the environment."""
-        # Check if value is a torch.Size object
         if not isinstance(value, torch.Size):
             value = torch.Size([value]) if isinstance(value, int) else torch.Size(value)
 
         try:
-            # Try to let EnvBase handle it
-            # We assume self is also an instance of EnvBase
-            # This is a bit tricky with Mixins calling super() of a sibling.
-            # But here we delegate to EnvBase explicitly if we can, or just set it.
-            # Actually, standard MRO should handle super().batch_size if EnvBase is in MRO.
-            # But EnvBase is the parent of the final class.
-            # Mixin -> EnvBase is not strict inheritance, but Mixin is mixed INTO a class inheriting EnvBase.
-            # super() in Mixin works if the MRO is correct.
             super(BatchMixin, self.__class__).batch_size.fset(self, value)
         except (ValueError, RuntimeError, AttributeError):
-            # Suppress spec re-indexing errors in 0.3.1 or if super fails
             self._batch_size = value
+            self._sync_spec_shapes(value)
 
-            def _safe_set_shape(s, shp):
-                """safe set shape.
+    def _sync_spec_shapes(self, value: torch.Size) -> None:
+        """Synchronize spec shapes with the new batch size."""
+        if hasattr(self, "reward_spec"):
+            self._safe_set_shape(self.reward_spec, (*value, 1))
+        if hasattr(self, "done_spec"):
+            self._safe_set_shape(self.done_spec, (*value, 1))
 
-                Args:
-                            s (Any): Description of s.
-                            shp (Any): Description of shp.
-                """
-                if s is None:
-                    return
-                try:
-                    s.shape = shp
-                except (ValueError, RuntimeError):
-                    if hasattr(s, "items"):
-                        for _, v in s.items():
-                            _safe_set_shape(v, shp)
-
-            # Manually sync spec shapes if EnvBase failed to do so
-            if hasattr(self, "reward_spec"):
-                _safe_set_shape(self.reward_spec, (*value, 1))
-            if hasattr(self, "done_spec"):
-                _safe_set_shape(self.done_spec, (*value, 1))
-
-            # Sync container shapes
-            for spec_name in ["observation_spec", "action_spec", "input_spec", "output_spec"]:
-                try:
-                    # Use getattr safely as these are often properties
-                    spec = getattr(self, spec_name, None)
-                    if spec is not None:
-                        if hasattr(spec, "shape"):
-                            with contextlib.suppress(ValueError, RuntimeError):
-                                spec.shape = value
-                        # Also sync internal done/terminated if they are in there
-                        if hasattr(spec, "items"):
-                            for k, v in spec.items():
-                                if k in ["done", "terminated", "truncated", "reward"]:
-                                    _safe_set_shape(v, (*value, 1))
-                except (KeyError, AttributeError):
+        for spec_name in ["observation_spec", "action_spec", "input_spec", "output_spec"]:
+            with contextlib.suppress(KeyError, AttributeError):
+                spec = getattr(self, spec_name, None)
+                if spec is None:
                     continue
-        except Exception:
-            # Fallback for older TorchRL
-            self._batch_size = value
+                if hasattr(spec, "shape"):
+                    with contextlib.suppress(ValueError, RuntimeError):
+                        spec.shape = value
+                if hasattr(spec, "items"):
+                    for k, v in spec.items():
+                        if k in ["done", "terminated", "truncated", "reward"]:
+                            self._safe_set_shape(v, (*value, 1))
+
+    @staticmethod
+    def _safe_set_shape(s, shp):
+        """Recursively set shape with error handling."""
+        if s is None:
+            return
+        try:
+            s.shape = shp
+        except (ValueError, RuntimeError):
+            if hasattr(s, "items"):
+                for v in s.values():
+                    BatchMixin._safe_set_shape(v, shp)

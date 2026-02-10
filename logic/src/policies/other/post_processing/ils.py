@@ -8,8 +8,7 @@ from typing import Any, Dict, List, Union
 import numpy as np
 import torch
 
-from logic.src.interfaces import IPostProcessor
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces import IPostProcessor, ITraversable
 
 from .registry import PostProcessorRegistry
 
@@ -52,7 +51,7 @@ class IteratedLocalSearchPostProcessor(IPostProcessor):
             "random_swap": 0.2,
         }
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> List[int]:  # noqa: C901
         """
         Apply ILS to refine the tour.
         """

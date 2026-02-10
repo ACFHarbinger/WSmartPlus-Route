@@ -133,10 +133,9 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         if num_starts > 1:
             from logic.src.utils.decoding import batchify
 
-            if td.size(0) != heatmap.size(0) * num_starts:
+            if td.size(0) != heatmap.size(0) * num_starts and td.size(0) == heatmap.size(0):
                 # This might happen if pre_decoder_hook didn't batchify
-                if td.size(0) == heatmap.size(0):
-                    td = batchify(td, num_starts)
+                td = batchify(td, num_starts)
 
             if heatmap.size(0) != td.size(0):
                 heatmap = batchify(heatmap, num_starts)

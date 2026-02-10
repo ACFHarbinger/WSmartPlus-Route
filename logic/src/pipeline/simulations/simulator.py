@@ -38,8 +38,8 @@ import torch
 from tqdm import tqdm
 
 from logic.src.constants import ROOT_DIR, SIM_METRICS
-from logic.src.utils.logging.log_utils import log_to_json, output_stats
 from logic.src.interfaces import ITraversable
+from logic.src.utils.logging.log_utils import log_to_json, output_stats
 
 from .checkpoints import CheckpointError
 from .states import SimulationContext

@@ -163,23 +163,26 @@ class ProcessingMixin:
             new_idx = data.argmin(skipna=True)
             collected = self.df["Fill"].iat[new_idx + base_idx - 1] - self.df["Fill"].iat[base_idx - 1]
 
-        if collected >= c_trash and self.df["Fill"].iat[new_idx + base_idx] <= max_fill:
-            if self.df["Rec"].iat[new_idx + base_idx] == 0:
-                self.df.at[self.df.index[new_idx + base_idx], "Rec"] = 1
-                new_date = self.df.index[new_idx + base_idx] - timedelta(seconds=1)
-                new_row = pd.DataFrame({"Date": [new_date], "End_Pointer": [new_idx + base_idx]}).set_index("Date")
-                self.recs = pd.concat([self.recs, new_row]).sort_index()
-                self.df.loc[
-                    self.df.index[self.recs["End_Pointer"].iat[idx + 1]] : self.df.index[
-                        self.recs["End_Pointer"].iat[idx + 2] - 1
-                    ],
-                    "Cidx",
-                ] = self.df["Cidx"].max(skipna=True) + 1
-                self.calc_max_min_mean(idx, idx + 2)
-                self.calc_avg_dist_metric(idx, idx + 2)
-                if "Spearman" in self.recs.columns:
-                    self.calc_spearman(idx, idx + 2)
-                return 1
+        if (
+            collected >= c_trash
+            and self.df["Fill"].iat[new_idx + base_idx] <= max_fill
+            and self.df["Rec"].iat[new_idx + base_idx] == 0
+        ):
+            self.df.at[self.df.index[new_idx + base_idx], "Rec"] = 1
+            new_date = self.df.index[new_idx + base_idx] - timedelta(seconds=1)
+            new_row = pd.DataFrame({"Date": [new_date], "End_Pointer": [new_idx + base_idx]}).set_index("Date")
+            self.recs = pd.concat([self.recs, new_row]).sort_index()
+            self.df.loc[
+                self.df.index[self.recs["End_Pointer"].iat[idx + 1]] : self.df.index[
+                    self.recs["End_Pointer"].iat[idx + 2] - 1
+                ],
+                "Cidx",
+            ] = self.df["Cidx"].max(skipna=True) + 1
+            self.calc_max_min_mean(idx, idx + 2)
+            self.calc_avg_dist_metric(idx, idx + 2)
+            if "Spearman" in self.recs.columns:
+                self.calc_spearman(idx, idx + 2)
+            return 1
         return 0
 
     def clean_box(self, window: int, mv_thresh: int, use: str):

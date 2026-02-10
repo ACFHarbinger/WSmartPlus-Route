@@ -10,6 +10,64 @@ from logic.src.policies.simulated_annealing_neighborhood_search.common.objective
 )
 
 
+def _evaluate_move(
+    routes_list,
+    idx_route,
+    position,
+    bin_to_move,
+    previous_solution,
+    previous_profit,
+    p_vehicle,
+    p_load,
+    p_route_difference,
+    p_shift,
+    data,
+    distance_matrix,
+    values,
+):
+    """Evaluate moving a bin to a new position."""
+    index_route_to_remove = -1
+    for z_idx, z in enumerate(previous_solution):
+        if bin_to_move in z:
+            index_route_to_remove = z_idx
+            break
+
+    if index_route_to_remove == -1:
+        return previous_profit, False
+
+    # Determine insertion place
+    if index_route_to_remove == idx_route:
+        current_route = previous_solution[idx_route]
+        position_bin_to_move = current_route.index(bin_to_move)
+        place = position if position_bin_to_move < position else position + 1
+    else:
+        place = position + 1
+
+    # Temporarily apply move
+    if index_route_to_remove == idx_route:
+        routes_list[idx_route].remove(bin_to_move)
+        routes_list[idx_route].insert(place, bin_to_move)
+    else:
+        routes_list[index_route_to_remove].remove(bin_to_move)
+        routes_list[idx_route].insert(place, bin_to_move)
+
+    new_profit = compute_profit(
+        routes_list,
+        p_vehicle,
+        p_load,
+        p_route_difference,
+        p_shift,
+        data,
+        distance_matrix,
+        values,
+    )
+
+    if new_profit > previous_profit:
+        return new_profit, True
+
+    return previous_profit, False
+
+
 def local_search_2(
     previous_solution,
     p_vehicle,
@@ -22,21 +80,6 @@ def local_search_2(
 ):
     """
     Apply a deterministic set of local search operators to improve a solution.
-
-    Tries 2-opt, uncrossing, and reordering. Accept only improvements.
-
-    Args:
-        previous_solution (List[List[int]]): Solution to improve.
-        p_vehicle (float): Vehicle penalty.
-        p_load (float): Load penalty.
-        p_route_difference (float): Imbalance penalty.
-        p_shift (float): Shift penalty.
-        data (pd.DataFrame): Bin weights data.
-        distance_matrix (np.ndarray): Shortest path matrix.
-        values (Dict): Parameter dictionary.
-
-    Returns:
-        List[List[int]]: Improved routing solution.
     """
     previous_profit = compute_profit(
         previous_solution,
@@ -49,115 +92,61 @@ def local_search_2(
         values,
     )
     routes_list = deepcopy(previous_solution)
-    for it, i in enumerate(previous_solution):
-        i = previous_solution[it]
-        idx_route = previous_solution.index(i)
-        for _j, val in enumerate(i[0 : len(i) - 1]):
-            position = i.index(val)
+
+    # Loop over routes
+    for idx_route, _route in enumerate(previous_solution):
+        # iterate current route bins (except last depot)
+        # original used: for _j, val in enumerate(i[0 : len(i) - 1]):
+        # i is route
+
+        # Note: iterating over 'previous_solution' (initial state of this pass)
+        # but applying changes to 'routes_list'.
+        # If a better move is found, previous_solution is UPDATED to match routes_list.
+
+        # So essentially this is a greedy improvement loop.
+        current_route_data = previous_solution[idx_route]
+        for val in current_route_data[:-1]:  # skip last depot
+            position = current_route_data.index(val)
             row = list(distance_matrix[val][:])
             row_new = sorted(row)
 
-            # Only five closest bins
-            e = 51
-            c = 51
-            for a in row_new[1:e]:
-                bin_to_move = row.index(a)
+            # Check closest bins (excluding self at 0 distance)
+            candidates = row_new[1:51]
+            candidates = []
+            count = 0
+            for dist in row_new[1:]:
+                b_idx = row.index(dist)
+                if b_idx != 0:
+                    candidates.append(b_idx)
+                    count += 1
+                if count >= 50:
+                    break
 
-                # Identify route of bin to move
-                for z in previous_solution:
-                    if bin_to_move in z:
-                        index_route_to_remove = previous_solution.index(z)
-                        if index_route_to_remove == idx_route:
-                            position_bin_to_move = i.index(bin_to_move)
-                            place = position if position_bin_to_move < position else position + 1
-                        else:
-                            place = position + 1
-                        if bin_to_move == 0:
-                            c = e + 1
-                        elif index_route_to_remove == idx_route:
-                            routes_list[idx_route].remove(bin_to_move)
-                            routes_list[idx_route].insert(place, bin_to_move)
-                            new_profit = compute_profit(
-                                routes_list,
-                                p_vehicle,
-                                p_load,
-                                p_route_difference,
-                                p_shift,
-                                data,
-                                distance_matrix,
-                                values,
-                            )
-                            if new_profit > previous_profit:
-                                previous_solution = deepcopy(routes_list)
-                                previous_profit = new_profit
-                            else:
-                                routes_list = deepcopy(previous_solution)
-                        else:
-                            routes_list[index_route_to_remove].remove(bin_to_move)
-                            routes_list[idx_route].insert(place, bin_to_move)
-                            new_profit = compute_profit(
-                                routes_list,
-                                p_vehicle,
-                                p_load,
-                                p_route_difference,
-                                p_shift,
-                                data,
-                                distance_matrix,
-                                values,
-                            )
-                            if new_profit > previous_profit:
-                                previous_solution = deepcopy(routes_list)
-                                previous_profit = new_profit
-                            else:
-                                routes_list = deepcopy(previous_solution)
-            if c > e:
-                for b in row_new[e:c]:
-                    bin_to_move = row.index(b)
-                    for z in previous_solution:
-                        if bin_to_move in z:
-                            index_route_to_remove = previous_solution.index(z)
-                            if index_route_to_remove == idx_route:
-                                position_bin_to_move = i.index(bin_to_move)
-                                place = position if position_bin_to_move < position else position + 1
-                            else:
-                                place = position + 1
-                            if index_route_to_remove == idx_route:
-                                routes_list[idx_route].remove(bin_to_move)
-                                routes_list[idx_route].insert(place, bin_to_move)
-                                new_profit = compute_profit(
-                                    routes_list,
-                                    p_vehicle,
-                                    p_load,
-                                    p_route_difference,
-                                    p_shift,
-                                    data,
-                                    distance_matrix,
-                                    values,
-                                )
-                                if new_profit > previous_profit:
-                                    previous_solution = deepcopy(routes_list)
-                                    previous_profit = new_profit
-                                else:
-                                    routes_list = deepcopy(previous_solution)
-                            else:
-                                routes_list[index_route_to_remove].remove(bin_to_move)
-                                routes_list[idx_route].insert(place, bin_to_move)
-                                new_profit = compute_profit(
-                                    routes_list,
-                                    p_vehicle,
-                                    p_load,
-                                    p_route_difference,
-                                    p_shift,
-                                    data,
-                                    distance_matrix,
-                                    values,
-                                )
-                                if new_profit > previous_profit:
-                                    previous_solution = deepcopy(routes_list)
-                                    previous_profit = new_profit
-                                else:
-                                    routes_list = deepcopy(previous_solution)
-            i = routes_list[idx_route]
+            # Now we have candidates.
+            # Original logic applied move for each candidate.
+            for bin_to_move in candidates:
+                new_profit, improved = _evaluate_move(
+                    routes_list,
+                    idx_route,
+                    position,
+                    bin_to_move,
+                    previous_solution,
+                    previous_profit,
+                    p_vehicle,
+                    p_load,
+                    p_route_difference,
+                    p_shift,
+                    data,
+                    distance_matrix,
+                    values,
+                )
+
+                if improved:
+                    previous_solution = deepcopy(routes_list)
+                    previous_profit = new_profit
+                else:
+                    # Revert
+                    routes_list = deepcopy(previous_solution)
 
     solution_after_local_search = deepcopy(previous_solution)
     profit_after_local_search = compute_profit(

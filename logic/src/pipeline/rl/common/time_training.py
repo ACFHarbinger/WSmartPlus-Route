@@ -48,10 +48,7 @@ class TimeBasedMixin:
         # Access the TensorDict underlying the dataset
         td: TensorDict
         assert self.current_dataset is not None
-        if hasattr(self.current_dataset, "data"):
-            td = self.current_dataset.data
-        else:
-            td = self.current_dataset  # Assuming it is a TensorDict if not wrapped
+        td = self.current_dataset.data if hasattr(self.current_dataset, "data") else self.current_dataset
 
         if not isinstance(td, TensorDict):
             return
@@ -111,10 +108,7 @@ class TimeBasedMixin:
         # Generate waste increments
         # Simple Logic: 0.1 * capacity * random
         # Real logic should interact with 'generation_rate' if present in data
-        if "generation_rate" in list(td.keys()):
-            rate = td["generation_rate"]
-        else:
-            rate = 0.05 * capacity  # Default 5% per day
+        rate = td["generation_rate"] if "generation_rate" in list(td.keys()) else 0.05 * capacity  # Default 5% per day
 
         noise = torch.randn_like(current_fill) * 0.1 + 1.0  # Multiplicative noise N(1, 0.1)
         increment = rate * noise

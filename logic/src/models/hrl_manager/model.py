@@ -12,7 +12,6 @@ from logic.src.configs.models.activation_function import ActivationConfig
 from logic.src.configs.models.normalization import NormalizationConfig
 from logic.src.constants.models import (
     DEFAULT_TEMPORAL_HORIZON,
-    FEED_FORWARD_EXPANSION,
     STATIC_DIM,
 )
 from logic.src.constants.routing import DEFAULT_EVAL_BATCH_SIZE
@@ -23,7 +22,6 @@ from logic.src.utils.logging.pylogger import get_pylogger
 from .critic_head import CriticHead
 from .gate_head import GateHead
 from .must_go_head import MustGoHead
-from .temporal_encoder import TemporalEncoder
 
 logger = get_pylogger(__name__)
 
@@ -95,52 +93,15 @@ class GATLSTManager(nn.Module):
         if activation_config is None:
             activation_config = ActivationConfig()
 
-        # If shared_encoder is provided, we use its embed_dim if possible
-        if shared_encoder is not None:
-            # Most of our encoders (GAT, GGAC, etc.) have 'embed_dim' or nested attributes.
-            try:
-                val = None
-                if hasattr(shared_encoder, "embed_dim"):
-                    val = shared_encoder.embed_dim
-                elif hasattr(shared_encoder, "layers") and len(shared_encoder.layers) > 0:
-                    # Attempt to find embed_dim in deep layers
-                    first_layer = shared_encoder.layers[0]
-                    # Check for TransformerEncoderLayer style
-                    if (
-                        hasattr(first_layer, "att")
-                        and hasattr(first_layer.att, "module")
-                        and hasattr(first_layer.att.module, "embed_dim")
-                    ):
-                        val = first_layer.att.module.embed_dim
-                    # Check for standard GRU/LSTM/Linear style
-                    elif hasattr(first_layer, "embed_dim"):
-                        val = first_layer.embed_dim
-
-                if isinstance(val, int):
-                    hidden_dim = val
-                else:
-                    logger.debug(f"Could not infer embed_dim from shared_encoder: {shared_encoder}")
-            except (AttributeError, IndexError, TypeError) as e:
-                logger.warning(
-                    f"Error inferring embed_dim from shared_encoder: {e}. Using default hidden_dim={hidden_dim}"
-                )
-
-        self.hidden_dim = hidden_dim
+        self.hidden_dim = self._init_shared_encoder_dim(shared_encoder, hidden_dim)
         self.input_dim_dynamic = input_dim_dynamic
         self.global_input_dim = global_input_dim
         self.critical_threshold = critical_threshold
 
         # 1. Temporal Encoder
-        # Inputs: (Batch, N, History)
-        if temporal_encoder_cls is None:
-            temporal_encoder_cls = TemporalEncoder
-
-        if temporal_encoder_kwargs is None:
-            temporal_encoder_kwargs = {"hidden_dim": lstm_hidden, "rnn_type": temporal_encoder_type}
-        else:
-            temporal_encoder_kwargs["rnn_type"] = temporal_encoder_type
-
-        self.temporal_encoder = temporal_encoder_cls(**temporal_encoder_kwargs)
+        self.temporal_encoder = self._init_temporal_encoder(
+            temporal_encoder_cls, temporal_encoder_kwargs, lstm_hidden, temporal_encoder_type
+        )
 
         # 2. Feature Fusion
         # Static (2) + Temporal Embedding (lstm_hidden) -> Hidden
@@ -148,44 +109,32 @@ class GATLSTManager(nn.Module):
         # If a custom encoder is used with different output dim, user must ensure consistency
         self.feature_embedding = nn.Linear(input_dim_static + lstm_hidden, hidden_dim)
 
-        # 3. Spatial Encoder (GAT / Transformer)
-        # Using TransformerEncoder as standard "GAT" on fully connected graph
-        if shared_encoder is not None:
-            self.gat_encoder = shared_encoder
-        elif component_factory is not None:
-            # Use factory to create encoder
-            # We assume standardized kwargs for create_encoder, typically accepting things like
-            # embed_dim, n_layers, n_heads, etc.
-            # Adapting kwargs to fit factory interface
-            encoder_kwargs = {
-                "embed_dim": hidden_dim,
-                "hidden_dim": hidden_dim,
-                "n_layers": num_layers_gat,
-                "n_heads": n_heads,
-                "dropout": dropout,
-                "norm_config": norm_config,
-                "activation_config": activation_config,
-                "feed_forward_hidden": hidden_dim * FEED_FORWARD_EXPANSION,
-            }
-            self.gat_encoder = component_factory.create_encoder(**encoder_kwargs)
-        elif spatial_encoder_cls is None:
-            # Default to TransformerEncoder
-            encoder_layer = nn.TransformerEncoderLayer(
-                d_model=hidden_dim,
-                nhead=n_heads,
-                dim_feedforward=hidden_dim * FEED_FORWARD_EXPANSION,
-                dropout=dropout,
-                batch_first=True,
-            )
-            self.gat_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_gat)
-        else:
-            # Use custom spatial encoder
-            if spatial_encoder_kwargs is None:
-                spatial_encoder_kwargs = {}
-            self.gat_encoder = spatial_encoder_cls(**spatial_encoder_kwargs)
+        self.gat_encoder = self._init_spatial_encoder(
+            shared_encoder=shared_encoder,
+            component_factory=component_factory,
+            spatial_encoder_cls=spatial_encoder_cls,
+            spatial_encoder_kwargs=spatial_encoder_kwargs,
+            hidden_dim=self.hidden_dim,
+            num_layers_gat=num_layers_gat,
+            n_heads=n_heads,
+            dropout=dropout,
+            norm_config=norm_config,
+            activation_config=activation_config,
+        )
 
         # 4. Heads
+        self._init_heads(hidden_dim, lstm_hidden, global_input_dim)
 
+        self.to(device)
+
+        # Buffers for PPO
+        self.clear_memory()
+
+        # Force the Manager to prefer Routing (1) over Skipping (0) at the start
+        self._initialize_head_weights()
+
+    def _init_heads(self, hidden_dim: int, lstm_hidden: int, global_input_dim: int):
+        """Initialize task-specific heads."""
         # Must-Go Selection Head (Actor 1)
         # Output: (Batch, N, 2) -> Logits for [Optional, MustGo]
         # Index 0: bin is optional (can skip), Index 1: bin must be collected
@@ -202,12 +151,8 @@ class GATLSTManager(nn.Module):
         # Input: Hidden + Global Features
         self.critic = CriticHead(input_dim=hidden_dim + global_input_dim, hidden_dim=hidden_dim)
 
-        self.to(device)
-
-        # Buffers for PPO
-        self.clear_memory()
-
-        # Force the Manager to prefer Routing (1) over Skipping (0) at the start
+    def _initialize_head_weights(self):
+        """Force the Manager to prefer Routing (1) over Skipping (0) at the start."""
         with torch.no_grad():
             # Assuming gate_head's last layer is a Linear layer
             # Accessing net[-1] from GateHead wrapper
@@ -353,10 +298,7 @@ class GATLSTManager(nn.Module):
         must_go_probs = F.softmax(must_go_logits, dim=-1)
         must_go_dist = torch.distributions.Categorical(must_go_probs)
 
-        if deterministic:
-            must_go_action = (must_go_probs[:, :, 1] > must_go_threshold).long()
-        else:
-            must_go_action = must_go_dist.sample()  # (Batch, N)
+        must_go_action = (must_go_probs[:, :, 1] > must_go_threshold).long() if deterministic else must_go_dist.sample()
 
         # Store for PPO
         if not deterministic:

@@ -168,16 +168,14 @@ def pre_process_container_metrics(containers_dict: dict, calc_spearman: bool = T
     """
     container: Container
 
-    i = 0
     thresh = 0
     step = len(containers_dict) // 20
-    for _, container in containers_dict.items():
+    for i, (_, container) in enumerate(containers_dict.items(), start=1):
         container.calc_max_min_mean()
         container.calc_avg_dist_metric()
         if calc_spearman:
             container.calc_spearman()
 
-        i += 1
         if i > thresh:
             print(f"Processed {i} of {len(containers_dict)} containers")
             thresh += step

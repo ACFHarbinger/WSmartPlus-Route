@@ -13,8 +13,8 @@ import numpy as np
 from loguru import logger
 
 import logic.src.constants as udef
-from logic.src.utils.io.files import read_json
 from logic.src.interfaces import ITraversable
+from logic.src.utils.io.files import read_json
 
 
 def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") -> Any:
