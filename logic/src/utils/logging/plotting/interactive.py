@@ -26,4 +26,3 @@ def visualize_interactive_plot(**kwargs):
     interactive_fig.update_xaxes(tickvals=list(range(len(kwargs["x_labels"]))), ticktext=kwargs["x_labels"])
     interactive_fig.update_yaxes(tickvals=list(range(len(kwargs["y_labels"]))), ticktext=kwargs["y_labels"])
     interactive_fig.show()
-    return

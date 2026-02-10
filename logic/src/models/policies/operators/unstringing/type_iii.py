@@ -5,7 +5,6 @@ Involves three neighbor nodes (V_j, V_k, V_l) and complex triple reversals.
 Most sophisticated unstringing variant with three segment reversals.
 """
 
-
 import torch
 
 from logic.src.constants.routing import IMPROVEMENT_EPSILON

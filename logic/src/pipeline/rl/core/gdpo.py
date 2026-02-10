@@ -54,9 +54,9 @@ class GDPO(REINFORCE):
         if self.objective_weights is None:
             self.objective_weights = [1.0] * len(self.objective_keys)
 
-        assert len(self.objective_weights) == len(
-            self.objective_keys
-        ), f"Weights length {len(self.objective_weights)} != Objectives length {len(self.objective_keys)}"
+        assert len(self.objective_weights) == len(self.objective_keys), (
+            f"Weights length {len(self.objective_weights)} != Objectives length {len(self.objective_keys)}"
+        )
 
         self.register_buffer("weights_tensor", torch.tensor(self.objective_weights, dtype=torch.float32))
 

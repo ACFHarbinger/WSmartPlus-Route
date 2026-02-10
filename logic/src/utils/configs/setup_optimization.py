@@ -7,8 +7,7 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 import torch
-import torch.nn as nn
-import torch.optim as optim
+from torch import nn, optim
 
 
 def setup_optimizer_and_lr_scheduler(

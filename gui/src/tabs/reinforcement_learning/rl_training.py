@@ -262,9 +262,7 @@ class RLTrainingTab(BaseReinforcementLearningTab):
         for key, widget in self.widgets.items():
             if isinstance(widget, QSpinBox):
                 val = widget.value()
-                if key == "epoch_start" and val != 0:
-                    params[key] = val
-                elif key != "epoch_start":
+                if key == "epoch_start" and val != 0 or key != "epoch_start":
                     params[key] = val
             elif isinstance(widget, QDoubleSpinBox):
                 params[key] = widget.value()

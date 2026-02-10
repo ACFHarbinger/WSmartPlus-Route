@@ -7,8 +7,8 @@ from __future__ import annotations
 from typing import Any, Optional, Tuple
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from .base import Baseline
 from .exponential import ExponentialBaseline

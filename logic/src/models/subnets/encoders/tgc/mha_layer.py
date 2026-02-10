@@ -1,6 +1,6 @@
 """Multi-Head Attention Layer for TGC."""
 
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.subnets.modules import (
     MultiHeadAttention,

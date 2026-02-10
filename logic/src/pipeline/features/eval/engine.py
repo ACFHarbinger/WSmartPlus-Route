@@ -267,9 +267,9 @@ def eval_dataset(
     else:
         out_file = opts["output_filename"]
 
-    assert opts["overwrite"] or not os.path.isfile(
-        out_file
-    ), "File already exists! Try running with -f option to overwrite."
+    assert opts["overwrite"] or not os.path.isfile(out_file), (
+        "File already exists! Try running with -f option to overwrite."
+    )
 
     save_dataset((results, parallelism), out_file)
     return costs, tours, durations

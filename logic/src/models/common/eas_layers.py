@@ -1,14 +1,15 @@
 """eas_layers.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import eas_layers
-    """
+Example:
+    >>> import eas_layers
+"""
+
 from typing import Any, Dict, Optional
 
-import torch.nn as nn
+from torch import nn
 
 from .eas import EAS
 

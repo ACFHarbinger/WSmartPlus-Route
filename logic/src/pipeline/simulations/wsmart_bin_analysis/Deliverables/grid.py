@@ -201,9 +201,9 @@ class GridBase:
             np.ndarray: Array of shape (n_samples, n_columns) containing values sampled from each distribution
         """
         assert n_samples > 0, "Number of samples must be a positive integer"
-        assert (
-            self.__freq_table is not None
-        ), "Freq tables should be calculated before calling this method. Call self.calc_freq_tables()"
+        assert self.__freq_table is not None, (
+            "Freq tables should be calculated before calling this method. Call self.calc_freq_tables()"
+        )
 
         index_values = np.array(self.__freq_table.index)
         freq_table = self.__freq_table.to_numpy()
@@ -236,9 +236,9 @@ class GridBase:
         date = pd.to_datetime(date, format="%d-%m-%Y", errors="raise")
         rate = self.___values_by_date(date)
         if sample:
-            assert (
-                self.__freq_table is not None
-            ), "Freq tables should be calculated before calling this method. Call self.calc_freq_tables()"
+            assert self.__freq_table is not None, (
+                "Freq tables should be calculated before calling this method. Call self.calc_freq_tables()"
+            )
 
             samp = self.sample()
             mask = rate.isna()

@@ -6,7 +6,7 @@ import math
 from typing import Any, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.configs.models.activation_function import ActivationConfig
 from logic.src.configs.models.normalization import NormalizationConfig

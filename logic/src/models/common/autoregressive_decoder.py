@@ -1,17 +1,18 @@
 """autoregressive_decoder.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import autoregressive_decoder
-    """
+Example:
+    >>> import autoregressive_decoder
+"""
+
 from abc import ABC, abstractmethod
 from typing import Tuple, Union
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
 

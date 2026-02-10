@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.constants.routing import DEFAULT_ROLLOUT_BATCH_SIZE
 from logic.src.utils.data.rl_utils import safe_td_copy

@@ -1,16 +1,17 @@
 """encoder.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import encoder
-    """
+Example:
+    >>> import encoder
+"""
+
 from __future__ import annotations
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.models.subnets.embeddings.positional import pos_init_embedding
 from logic.src.models.subnets.modules import MultiHeadAttention, Normalization

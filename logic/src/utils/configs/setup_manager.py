@@ -8,7 +8,7 @@ import os
 from typing import Any, Dict, List, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models import GATLSTManager
 from logic.src.utils.functions import torch_load_cpu
@@ -49,7 +49,7 @@ def setup_hrl_manager(
             if base_policy in model_paths:
                 hrl_path = model_paths[base_policy]
             else:
-                for key in model_paths.keys():
+                for key in model_paths:
                     if policy.startswith(key):
                         hrl_path = model_paths[key]
                         break

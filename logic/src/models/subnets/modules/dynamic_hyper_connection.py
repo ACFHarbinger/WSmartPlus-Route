@@ -1,7 +1,7 @@
 """Dynamic Hyper-Network connections."""
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class DynamicHyperConnection(nn.Module):

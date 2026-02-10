@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import Optional
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 try:
     from torch_geometric.data import Batch, Data

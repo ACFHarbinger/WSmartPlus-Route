@@ -78,7 +78,7 @@ def _sort_log(log: Dict[str, Any]) -> Dict[str, Any]:
         for key in log.keys():
             if kw in key:
                 tmp_log[key] = log[key]
-    for key in tmp_log.keys():
+    for key in tmp_log:
         log[key] = log.pop(key)
     return log
 

@@ -326,11 +326,10 @@ def _compute_score(
             node_idx = node.item()
             if node_idx == 0:
                 current_load = 0.0
-            else:
-                if node_idx < len(demands):
-                    current_load += demands[node_idx].item()
-                    if current_load > capacity.item() + 1e-6:
-                        penalty += current_load - capacity.item()
+            elif node_idx < len(demands):
+                current_load += demands[node_idx].item()
+                if current_load > capacity.item() + 1e-6:
+                    penalty += current_load - capacity.item()
 
     return penalty, cost
 

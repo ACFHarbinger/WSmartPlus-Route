@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import Tuple, Union
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.constants.models import NUMERICAL_EPSILON
 from logic.src.envs.base import RL4COEnvBase

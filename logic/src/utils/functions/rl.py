@@ -33,17 +33,16 @@ def ensure_tensordict(batch: Union[Dict[str, Any], TensorDict], device: Optional
                     batch_size = [len(first_val)] if hasattr(first_val, "__len__") else []
                 td_data = TensorDict(td_data, batch_size=batch_size)
             td = td_data
-        else:
-            # Direct dict or TensorDict
-            if not isinstance(batch, TensorDict):
-                first_val = next(iter(batch.values()))
-                if hasattr(first_val, "ndim") and first_val.ndim == 0:
-                    batch_size = []
-                else:
-                    batch_size = [len(first_val)] if hasattr(first_val, "__len__") else []
-                td = TensorDict(batch, batch_size=batch_size)
+        # Direct dict or TensorDict
+        elif not isinstance(batch, TensorDict):
+            first_val = next(iter(batch.values()))
+            if hasattr(first_val, "ndim") and first_val.ndim == 0:
+                batch_size = []
             else:
-                td = batch
+                batch_size = [len(first_val)] if hasattr(first_val, "__len__") else []
+            td = TensorDict(batch, batch_size=batch_size)
+        else:
+            td = batch
     else:
         # Fallback for unexpected types (try to wrap)
         td = TensorDict({"data": batch}, batch_size=[len(batch)] if hasattr(batch, "__len__") else [])

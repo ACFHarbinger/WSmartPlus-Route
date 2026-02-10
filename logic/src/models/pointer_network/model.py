@@ -5,7 +5,7 @@ This module contains the Pointer Network model implementation.
 import math
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.subnets import PointerDecoder, PointerEncoder
 

@@ -8,7 +8,7 @@ import math
 from typing import Callable, Optional, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 try:
     from torch.nn.functional import scaled_dot_product_attention

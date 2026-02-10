@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import Optional, Tuple
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.models.common.autoregressive_encoder import AutoregressiveEncoder
 from logic.src.models.subnets.modules.mdam_attention import MultiHeadAttentionMDAM

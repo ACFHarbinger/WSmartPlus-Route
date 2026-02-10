@@ -1,11 +1,12 @@
 """spatial_mix_multi.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import spatial_mix_multi
-    """
+Example:
+    >>> import spatial_mix_multi
+"""
+
 from typing import Tuple
 
 import torch

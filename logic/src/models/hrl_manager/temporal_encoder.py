@@ -1,13 +1,14 @@
 """temporal_encoder.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import temporal_encoder
-    """
+Example:
+    >>> import temporal_encoder
+"""
+
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class TemporalEncoder(nn.Module):

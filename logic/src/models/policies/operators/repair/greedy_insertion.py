@@ -1,11 +1,12 @@
 """greedy_insertion.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import greedy_insertion
-    """
+Example:
+    >>> import greedy_insertion
+"""
+
 import torch
 from torch import Tensor
 

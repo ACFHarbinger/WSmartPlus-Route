@@ -1,13 +1,14 @@
 """gate_head.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import gate_head
-    """
+Example:
+    >>> import gate_head
+"""
+
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class GateHead(nn.Module):

@@ -7,7 +7,7 @@ before being processed by the encoder.
 
 from __future__ import annotations
 
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.subnets.embeddings.cvrpp import CVRPPInitEmbedding
 from logic.src.models.subnets.embeddings.vrpp import VRPPInitEmbedding

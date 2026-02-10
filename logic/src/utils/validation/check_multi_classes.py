@@ -1,11 +1,12 @@
 """check_multi_classes.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import check_multi_classes
-    """
+Example:
+    >>> import check_multi_classes
+"""
+
 import argparse
 import ast
 import os

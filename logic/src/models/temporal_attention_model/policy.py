@@ -5,8 +5,8 @@ Temporal Attention Model Policy.
 from typing import Optional, Union
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.attention_model.policy import AttentionModelPolicy

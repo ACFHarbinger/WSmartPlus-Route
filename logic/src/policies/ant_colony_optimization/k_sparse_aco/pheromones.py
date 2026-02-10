@@ -60,9 +60,7 @@ class SparsePheromoneTau:
         """
         value = max(self.tau_min, min(self.tau_max, value))
 
-        if j in self._pheromone[i]:
-            self._pheromone[i][j] = value
-        elif len(self._pheromone[i]) < self.k:
+        if j in self._pheromone[i] or len(self._pheromone[i]) < self.k:
             self._pheromone[i][j] = value
         else:
             # Find minimum value in current storage
@@ -94,5 +92,4 @@ class SparsePheromoneTau:
         for i in self._pheromone:
             for j in list(self._pheromone[i].keys()):
                 self._pheromone[i][j] *= 1 - rho
-                if self._pheromone[i][j] < self.tau_min:
-                    self._pheromone[i][j] = self.tau_min
+                self._pheromone[i][j] = max(self._pheromone[i][j], self.tau_min)

@@ -2,7 +2,7 @@
 Edge embedding modules for graph-based encoders.
 """
 
-import torch.nn as nn
+from torch import nn
 
 from .base import EdgeEmbedding
 from .cvrpp import CVRPPEdgeEmbedding

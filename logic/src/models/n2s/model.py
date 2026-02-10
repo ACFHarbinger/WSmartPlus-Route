@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-import torch.nn as nn
+from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
 

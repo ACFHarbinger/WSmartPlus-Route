@@ -1,11 +1,12 @@
 """constructive.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import constructive
-    """
+Example:
+    >>> import constructive
+"""
+
 from typing import Any, Dict, cast
 
 import pytorch_lightning as pl

@@ -1,14 +1,15 @@
 """__init__.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import __init__
-    """
+Example:
+    >>> import __init__
+"""
+
 from __future__ import annotations
 
-import torch.nn as nn
+from torch import nn
 
 from .absolute_positional_embedding import AbsolutePositionalEmbedding
 from .cyclic_positional_embedding import CyclicPositionalEmbedding

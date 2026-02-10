@@ -1,11 +1,12 @@
 """__init__.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import __init__
-    """
+Example:
+    >>> import __init__
+"""
+
 from pathlib import Path
 
 from .base.base import SimState

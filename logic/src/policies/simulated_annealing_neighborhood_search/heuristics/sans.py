@@ -97,7 +97,7 @@ def improved_simulated_annealing(
     iter_count = 0
     # --- 2. MAIN SIMULATED ANNEALING LOOP ---
     # The temperature T gradually decreases from T_init to T_min.
-    while T > T_min:
+    while T_min < T:
         if time.time() - start_time > time_limit:
             if verbose:
                 print("[DEBUG] Time limit reached.")

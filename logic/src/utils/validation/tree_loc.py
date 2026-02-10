@@ -1,11 +1,12 @@
 """tree_loc.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import tree_loc
-    """
+Example:
+    >>> import tree_loc
+"""
+
 import argparse
 import ast
 import os

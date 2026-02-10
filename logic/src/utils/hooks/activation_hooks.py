@@ -11,7 +11,7 @@ from collections import defaultdict
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 def add_activation_capture_hooks(
@@ -66,11 +66,14 @@ def add_activation_capture_hooks(
         should_hook = False
 
         # Check if this layer should be hooked
-        if layer_names is not None and name in layer_names:
-            should_hook = True
-        elif layer_types is not None and isinstance(module, layer_types):
-            should_hook = True
-        elif layer_types is None and layer_names is None:
+        if (
+            layer_names is not None
+            and name in layer_names
+            or layer_types is not None
+            and isinstance(module, layer_types)
+            or layer_types is None
+            and layer_names is None
+        ):
             should_hook = True
 
         if should_hook and name:  # Skip empty name (root module)

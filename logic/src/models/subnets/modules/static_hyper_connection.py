@@ -1,7 +1,7 @@
 """Static Hyper-Network connections."""
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class StaticHyperConnection(nn.Module):

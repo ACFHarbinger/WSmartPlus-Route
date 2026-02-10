@@ -1,19 +1,20 @@
 """improvement_policy.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import improvement_policy
-    """
+Example:
+    >>> import improvement_policy
+"""
+
 from __future__ import annotations
 
 from abc import ABC
 from typing import Any, Dict, Optional
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
+from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
 

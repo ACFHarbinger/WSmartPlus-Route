@@ -1,6 +1,6 @@
 """Connection factory for various neural network architectures."""
 
-import torch.nn as nn
+from torch import nn
 
 from .dynamic_hyper_connection import DynamicHyperConnection
 from .skip_connection import SkipConnection

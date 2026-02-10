@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-import torch.nn as nn
+from torch import nn
 
 
 def add_attention_hooks(model_module: nn.Module) -> Dict[str, Any]:

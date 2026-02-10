@@ -66,15 +66,14 @@ def process_file(
                 if isinstance(item, dict):
                     if process_dict_two_inputs(item, key1, key2, output_key, process_func):
                         modified = True
-    else:
-        # Single-input/Constant mode
-        if isinstance(data, dict):
-            modified = process_dict_of_dicts(data, output_key, process_func, update_val)
-        elif isinstance(data, list):
-            for item in data:
-                if isinstance(item, dict):
-                    if process_dict_of_dicts(item, output_key, process_func, update_val):
-                        modified = True
+    # Single-input/Constant mode
+    elif isinstance(data, dict):
+        modified = process_dict_of_dicts(data, output_key, process_func, update_val)
+    elif isinstance(data, list):
+        for item in data:
+            if isinstance(item, dict):
+                if process_dict_of_dicts(item, output_key, process_func, update_val):
+                    modified = True
 
     if modified:
         try:

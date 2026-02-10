@@ -1,13 +1,14 @@
 """hypernetwork.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import hypernetwork
-    """
+Example:
+    >>> import hypernetwork
+"""
+
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.models.subnets.modules import ActivationFunction, Normalization
 

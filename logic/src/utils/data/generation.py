@@ -1,11 +1,12 @@
 """generation.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import generation
-    """
+Example:
+    >>> import generation
+"""
+
 from __future__ import annotations
 
 import math

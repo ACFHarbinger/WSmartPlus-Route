@@ -59,7 +59,7 @@ def load_state_dict(self, state_dict):
         if torch.is_tensor(value):
             # Floating-point types are a bit special here. They are the only ones
             # that are assumed to always match the type of params.
-            if any(tp in type(param.data).__name__ for tp in {"Half", "Float", "Double"}):
+            if any(tp in type(param.data).__name__ for tp in ("Half", "Float", "Double")):
                 value = value.type_as(param.data)
             value = value.to(param.device)
             return value

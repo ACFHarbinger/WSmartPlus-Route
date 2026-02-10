@@ -25,7 +25,6 @@ def draw_graph(distance_matrix):
     print(G.edges(data=True))
     nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
     plt.show()
-    return
 
 
 # Code inspired by Google OR Tools plot:

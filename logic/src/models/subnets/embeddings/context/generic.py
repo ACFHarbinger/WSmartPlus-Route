@@ -1,17 +1,18 @@
 """generic.py module.
 
-    Attributes:
-        MODULE_VAR (Type): Description of module level variable.
+Attributes:
+    MODULE_VAR (Type): Description of module level variable.
 
-    Example:
-        >>> import generic
-    """
+Example:
+    >>> import generic
+"""
+
 from __future__ import annotations
 
 from typing import Any
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from logic.src.constants.models import NODE_DIM
 
@@ -52,7 +53,7 @@ class GenericContextEmbedder(ContextEmbedder):
             Any: Description of return value.
         """
         # Fallback to 'loc' or 'locs'
-        locs_key = "locs" if "locs" in nodes.keys() else "loc"
+        locs_key = "locs" if "locs" in nodes else "loc"
         node_features = nodes[locs_key]
 
         return torch.cat(

@@ -262,9 +262,9 @@ def import_same_file(
             path = "/" + path
 
     fill_df: pd.DataFrame = pd.read_csv(path + src_fill, sep=sep, encoding_errors="replace")
-    assert collect_id_header in list(
-        fill_df.keys()
-    ), f"'{collect_id_header}' is not a valid key. Available keys are: {list(fill_df.keys())}"
+    assert collect_id_header in list(fill_df.keys()), (
+        f"'{collect_id_header}' is not a valid key. Available keys are: {list(fill_df.keys())}"
+    )
 
     rec_df = cast(pd.DataFrame, fill_df[~fill_df[collect_id_header].isna()])
     rec_df = rec_df.copy(deep=True)
