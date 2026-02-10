@@ -2,10 +2,14 @@
 This module contains the GAT-LSTM Manager agent implementation for Hierarchical RL.
 """
 
+from typing import Optional
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from logic.src.configs.models.activation_function import ActivationConfig
+from logic.src.configs.models.normalization import NormalizationConfig
 from logic.src.constants.models import (
     DEFAULT_TEMPORAL_HORIZON,
     FEED_FORWARD_EXPANSION,
@@ -53,6 +57,8 @@ class GATLSTManager(nn.Module):
         spatial_encoder_kwargs=None,
         component_factory: NeuralComponentFactory = None,
         temporal_encoder_type: str = "lstm",
+        norm_config: Optional[NormalizationConfig] = None,
+        activation_config: Optional[ActivationConfig] = None,
     ):
         """
         Initialize the GATLSTManager.
@@ -76,10 +82,18 @@ class GATLSTManager(nn.Module):
             spatial_encoder_kwargs (dict, optional): Kwargs for spatial encoder.
             component_factory (NeuralComponentFactory, optional): Factory for creating neural components.
             temporal_encoder_type (str, optional): Type of temporal encoder. Defaults to "lstm".
+            norm_config (NormalizationConfig, optional): Configuration for normalization.
+            activation_config (ActivationConfig, optional): Configuration for activation functions.
         """
         super(GATLSTManager, self).__init__()
         self.device = device
         self.batch_size = batch_size
+
+        if norm_config is None:
+            norm_config = NormalizationConfig()
+
+        if activation_config is None:
+            activation_config = ActivationConfig()
 
         # If shared_encoder is provided, we use its embed_dim if possible
         if shared_encoder is not None:
@@ -144,12 +158,13 @@ class GATLSTManager(nn.Module):
             # embed_dim, n_layers, n_heads, etc.
             # Adapting kwargs to fit factory interface
             encoder_kwargs = {
-                "embed_dim": hidden_dim,  # Some factories use embed_dim
-                "hidden_dim": hidden_dim,  # Others use hidden_dim
+                "embed_dim": hidden_dim,
+                "hidden_dim": hidden_dim,
                 "n_layers": num_layers_gat,
                 "n_heads": n_heads,
                 "dropout": dropout,
-                "normalization": "batch",  # Defaulting
+                "norm_config": norm_config,
+                "activation_config": activation_config,
                 "feed_forward_hidden": hidden_dim * FEED_FORWARD_EXPANSION,
             }
             self.gat_encoder = component_factory.create_encoder(**encoder_kwargs)

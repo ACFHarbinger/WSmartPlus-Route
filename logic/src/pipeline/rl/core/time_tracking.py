@@ -1,56 +1,85 @@
-import time
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import torch
-import torch.nn as nn
 from tensordict import TensorDict
 
+from .reinforce import REINFORCE
 from logic.src.envs.base import RL4COEnvBase
+from logic.src.models.attention_model.time_tracking_policy import TimeTrackingPolicy
 
 
-class TimeTrackingPolicy(nn.Module):
+class TimeOptimizedREINFORCE(REINFORCE):
     """
-    Wrapper for policies to track inference time.
-
-    injects "inference_time" into the output dictionary.
+    REINFORCE variation that optimizes for solution generation time.
     """
 
-    def __init__(self, policy: nn.Module):
-        super().__init__()
-        self.policy = policy
+    def __init__(
+        self,
+        time_sensitivity: float = 0.0,
+        **kwargs,
+    ):
+        """
+        Initialize TimeOptimizedREINFORCE.
 
-    def forward(self, td: TensorDict, env: Optional[RL4COEnvBase] = None, **kwargs) -> Dict[str, Any]:
-        # Synchronize for accurate GPU timing
-        if td.device is not None and td.device.type == "cuda":
-            torch.cuda.synchronize()
+        Args:
+            time_sensitivity: Weight for time penalty. If > 0, penalizes slower inference.
+            **kwargs: Arguments passed to REINFORCE.
+        """
+        super().__init__(**kwargs)
+        self.time_sensitivity = time_sensitivity
 
-        start = time.perf_counter()
+        # Wrap policy for time tracking if needed
+        if self.time_sensitivity > 0:
+            self.policy = TimeTrackingPolicy(self.policy)
 
-        # Run policy
-        out = self.policy(td, env, **kwargs)
+    def calculate_loss(
+        self,
+        td: TensorDict,
+        out: dict,
+        batch_idx: int,
+        env: Optional["RL4COEnvBase"] = None,
+    ) -> torch.Tensor:
+        """
+        Compute REINFORCE loss with time penalty.
+        """
+        reward = out["reward"]
+        log_likelihood = out["log_likelihood"]
 
-        if td.device is not None and td.device.type == "cuda":
-            torch.cuda.synchronize()
+        # Apply time penalty if tracked
+        if self.time_sensitivity > 0 and "inference_time" in out:
+            # Penalty = sensitivity * duration (in seconds)
+            time_penalty = self.time_sensitivity * out["inference_time"]
+            effective_reward = reward - time_penalty
 
-        end = time.perf_counter()
-
-        # Calculate duration
-        duration = end - start
-
-        # Inject into output
-        # Use same device as reward for mathematical compatibility
-        if "reward" in out:
-            device = out["reward"].device
+            # Log time metrics
+            self.log("train/inference_time", out["inference_time"].mean(), sync_dist=True)
+            self.log("train/time_penalty", time_penalty.mean(), sync_dist=True)
         else:
-            device = td.device
+            effective_reward = reward
 
-        out["inference_time"] = torch.tensor(duration, dtype=torch.float32, device=device)
+        # Get baseline
+        if hasattr(self, "_current_baseline_val") and self._current_baseline_val is not None:
+            baseline_val = self._current_baseline_val
+        else:
+            # Baseline typically estimates solution quality (reward)
+            baseline_val = self.baseline.eval(td, reward, env=env)
 
-        return out
+        # Advantage based on effective reward
+        advantage = effective_reward - baseline_val
 
-    def __getattr__(self, name: str) -> Any:
-        """Forward attribute access to underlying policy."""
-        try:
-            return super().__getattr__(name)
-        except AttributeError:
-            return getattr(self.policy, name)
+        # Normalize advantage
+        advantage = (advantage - advantage.mean()) / (advantage.std() + 1e-8)
+
+        # Policy gradient loss
+        loss = -(advantage.detach() * log_likelihood).mean()
+
+        # Entropy bonus
+        if self.entropy_weight > 0 and "entropy" in out:
+            loss = loss - self.entropy_weight * out["entropy"].mean()
+
+        # Logging
+        self.log("train/advantage", advantage.mean(), sync_dist=True)
+        self.log("train/baseline", baseline_val.mean(), sync_dist=True)
+        self.log("train/effective_reward", effective_reward.mean(), sync_dist=True)
+
+        return loss
