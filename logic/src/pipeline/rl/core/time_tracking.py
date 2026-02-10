@@ -3,9 +3,10 @@ from typing import Optional
 import torch
 from tensordict import TensorDict
 
-from .reinforce import REINFORCE
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.attention_model.time_tracking_policy import TimeTrackingPolicy
+
+from .reinforce import REINFORCE
 
 
 class TimeOptimizedREINFORCE(REINFORCE):

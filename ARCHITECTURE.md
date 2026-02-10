@@ -38,6 +38,28 @@ WSmart-Route is a high-performance framework designed to solve complex Combinato
 
 ---
 
+## Module Documentation
+
+For detailed technical documentation of individual subsystems, see the [docs/](docs/) directory:
+
+| Document | Module | Description |
+|----------|--------|-------------|
+| **[CLI Module](docs/CLI_MODULE.md)** | `logic/src/cli/` | Command-line interface, argument parsing, Hydra integration, and entry points |
+| **[Configuration Module](docs/CONFIGS_MODULE.md)** | `logic/src/configs/` | Config system architecture, Hydra composition, and dataclass configurations |
+| **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)** | - | Comprehensive guide to Hydra configuration, CLI overrides, and best practices |
+| **[Constants Module](docs/CONSTANTS_MODULE.md)** | `logic/src/utils/` | System-wide constants, problem definitions, and enum types |
+| **[Data Module](docs/DATA_MODULE.md)** | `logic/src/data/` | Dataset generation, loading utilities, and data augmentation |
+| **[Environments Module](docs/ENVS_MODULE.md)** | `logic/src/envs/` | Problem environments (VRPP, WCVRP, SDWCVRP) and state management |
+| **[Interfaces Module](docs/INTERFACES_MODULE.md)** | `logic/src/interfaces/` | Abstract base classes, protocols, and type definitions |
+| **[Models Module](docs/MODELS_MODULE.md)** | `logic/src/models/` | Neural architectures, encoders, decoders, and network components (264KB doc) |
+| **[Pipeline Module](docs/PIPELINE_MODULE.md)** | `logic/src/pipeline/` | Training, evaluation, simulation orchestration, and RL algorithms |
+| **[Policies Module](docs/POLICIES_MODULE.md)** | `logic/src/policies/` | Classical solvers (Gurobi, ALNS, HGS) and heuristic policies |
+| **[Utilities Module](docs/UTILS_MODULE.md)** | `logic/src/utils/` | Helper functions, I/O utilities, logging, and debugging tools |
+
+These module docs complement the high-level architecture overview below with implementation-level details, API references, and usage examples.
+
+---
+
 ## 1. High-Level Overview
 
 The system operates on a **hybrid architecture** where DRL agents learn to construct solutions or gate classical heuristics. It supports:
