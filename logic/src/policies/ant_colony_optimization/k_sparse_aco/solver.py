@@ -148,7 +148,7 @@ class KSparseACOSolver:
         best_cost = float("inf")
         start_time = time.time()
 
-        for iteration in range(self.params.max_iterations):
+        for _iteration in range(self.params.max_iterations):
             if time.time() - start_time > self.params.time_limit:
                 break
 

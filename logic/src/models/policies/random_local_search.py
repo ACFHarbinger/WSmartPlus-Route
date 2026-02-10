@@ -154,10 +154,7 @@ class RandomLocalSearchPolicy(ImprovementPolicy):
 
         batch_ids = torch.arange(batch_size, device=device).view(batch_size, 1)
         # Correctly handle 3D dist_matrix
-        if dist_matrix.dim() == 3:
-            dists = dist_matrix[batch_ids, from_n, to_n]
-        else:
-            dists = dist_matrix[from_n, to_n]
+        dists = dist_matrix[batch_ids, from_n, to_n] if dist_matrix.dim() == 3 else dist_matrix[from_n, to_n]
 
         costs = dists.sum(dim=1)
 

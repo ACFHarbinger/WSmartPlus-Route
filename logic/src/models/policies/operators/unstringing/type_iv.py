@@ -103,7 +103,7 @@ def vectorized_type_iv_unstringing(
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
     # Main improvement loop
-    for iteration in range(max_iterations):
+    for _iteration in range(max_iterations):
         improved = False
 
         # Process each batch instance
@@ -268,30 +268,18 @@ def _apply_type_iv_move(
 
     # S_C: V_{i+1} ... V_{j-1}
     j_prev = (j - 1) if j > 0 else (n - 1)
-    if i_next <= j_prev:
-        s_c = tour_list[i_next : j_prev + 1]
-    else:
-        s_c = tour_list[i_next:] + tour_list[: j_prev + 1]
+    s_c = tour_list[i_next : j_prev + 1] if i_next <= j_prev else tour_list[i_next:] + tour_list[: j_prev + 1]
 
     # S_B: V_j ... V_{l-1}
     l_prev = (l - 1) if l > 0 else (n - 1)
-    if j <= l_prev:
-        s_b = tour_list[j : l_prev + 1]
-    else:
-        s_b = tour_list[j:] + tour_list[: l_prev + 1]
+    s_b = tour_list[j : l_prev + 1] if j <= l_prev else tour_list[j:] + tour_list[: l_prev + 1]
 
     # S_D: V_l ... V_k
-    if l <= k:
-        s_d = tour_list[l : k + 1]
-    else:
-        s_d = tour_list[l:] + tour_list[: k + 1]
+    s_d = tour_list[l : k + 1] if l <= k else tour_list[l:] + tour_list[: k + 1]
 
     # S_A: V_{k+1} ... V_{i-1}
     k_next = (k + 1) % n
-    if k_next <= i_prev:
-        s_a = tour_list[k_next : i_prev + 1]
-    else:
-        s_a = tour_list[k_next:] + tour_list[: i_prev + 1]
+    s_a = tour_list[k_next : i_prev + 1] if k_next <= i_prev else tour_list[k_next:] + tour_list[: i_prev + 1]
 
     # Reconstruct: S_C + S_D + S_A_rev + S_B_rev
     new_tour = s_c + s_d + s_a[::-1] + s_b[::-1]

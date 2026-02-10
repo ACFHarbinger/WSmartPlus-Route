@@ -118,7 +118,7 @@ def process_data(data, bins_coordinates, depot, indices=None):
     return _mapper.process_raw_data(data, bins_coordinates, depot, indices)
 
 
-def process_coordinates(coords, method, col_names=["Lat", "Lng"]):
+def process_coordinates(coords, method, col_names=None):
     """Process coordinates.
 
     Args:
@@ -129,6 +129,8 @@ def process_coordinates(coords, method, col_names=["Lat", "Lng"]):
     Returns:
         Any: Description of return value.
     """
+    if col_names is None:
+        col_names = ["Lat", "Lng"]
     return format_coordinates(coords, method, col_names)
 
 

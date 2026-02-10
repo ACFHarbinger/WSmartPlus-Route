@@ -232,10 +232,7 @@ class TrainingDisplayCallback(Callback):
             if key in ["epoch", "v_num"]:
                 continue
             value = self.current_metrics[key]
-            if isinstance(value, float):
-                val_str = f"{value:.4e}"
-            else:
-                val_str = str(value)
+            val_str = f"{value:.4e}" if isinstance(value, float) else str(value)
             table.add_row(key, val_str)
 
         return Panel(table, title="📊 Metrics", border_style="blue")

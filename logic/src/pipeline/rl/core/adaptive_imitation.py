@@ -18,6 +18,7 @@ from logic.src.pipeline.rl.core.losses import (
     weighted_nll_loss,
 )
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
+from logic.src.interfaces import ITraversable
 
 
 class AdaptiveImitation(REINFORCE):
@@ -88,7 +89,7 @@ class AdaptiveImitation(REINFORCE):
                         continue
 
                 # Allow strictly primitive dicts (shallow check)
-                if isinstance(v, dict):
+                if isinstance(v, ITraversable):
                     if all(isinstance(x, allowed_types) for x in v.values()):
                         continue
                     else:
@@ -189,7 +190,7 @@ class AdaptiveImitation(REINFORCE):
         # Iterate over all keys in the TensorDict and keep only Tensors
         # to ensure we break any nesting or recursive structures.
         safe_data = {}
-        for key in td.keys():
+        for key in td:
             val = td.get(key)
             if isinstance(val, torch.Tensor):
                 safe_data[key] = val

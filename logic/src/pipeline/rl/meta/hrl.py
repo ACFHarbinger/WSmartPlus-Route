@@ -85,9 +85,9 @@ class HRLModule(pl.LightningModule):
 
         # Prepare inputs for manager
         static = td["locs"]
-        if "waste_history" in td.keys():
+        if "waste_history" in td:
             dynamic = td["waste_history"]
-        elif "demand_history" in td.keys():
+        elif "demand_history" in td:
             dynamic = td["demand_history"]
         else:
             dynamic = td["waste"].unsqueeze(-1).expand(-1, -1, 10)

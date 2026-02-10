@@ -91,7 +91,7 @@ def initialize_lists_of_bins(binsids):
         List[int]: Zero-initialized list.
     """
     next_collection_days = []
-    for i in range(0, len(binsids)):
+    for _i in range(0, len(binsids)):
         next_collection_days.append(0)
     return next_collection_days
 

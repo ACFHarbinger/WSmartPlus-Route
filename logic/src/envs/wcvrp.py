@@ -100,7 +100,7 @@ class WCVRPEnv(RL4COEnvBase):
             The initial overflow count is computed as sum(waste[1:] >= max_waste[1:]).
         """
         # If state already initialized (e.g. transductive search resuming), skip coord mod
-        if "visited" in td.keys():
+        if "visited" in td:
             return td
 
         device = td.device
@@ -115,7 +115,7 @@ class WCVRPEnv(RL4COEnvBase):
         gen_n = getattr(self.generator, "num_loc", None)
 
         needs_prepend = False
-        if "depot" in td.keys():
+        if "depot" in td:
             # 1. If we know N, check if we are already at N+1
             if gen_n is not None and locs.shape[-2] == gen_n + 1:
                 needs_prepend = False
@@ -150,10 +150,7 @@ class WCVRPEnv(RL4COEnvBase):
 
         # Calculate initial overflows (consistent with _get_reward: count of nodes >= max_waste)
         max_waste = td.get("max_waste", torch.tensor(1.0, device=device))
-        if max_waste.dim() == 1:
-            mw = max_waste.unsqueeze(-1)
-        else:
-            mw = max_waste
+        mw = max_waste.unsqueeze(-1) if max_waste.dim() == 1 else max_waste
 
         # Customers only (skip depot at index 0)
         waste_cust = td["waste"][..., 1:]
@@ -219,10 +216,7 @@ class WCVRPEnv(RL4COEnvBase):
         max_w = td.get("max_waste", torch.tensor(1e9, device=td.device))
         if max_w.dim() > 1 and max_w.shape[-1] == td["visited"].shape[-1] - 1:
             max_w = torch.cat([torch.tensor(1e9, device=td.device).expand(*td.batch_size, 1), max_w], dim=1)
-        if max_w.dim() > 1:
-            max_w_at_node = max_w.gather(1, action.unsqueeze(-1)).squeeze(-1)
-        else:
-            max_w_at_node = max_w
+        max_w_at_node = max_w.gather(1, action.unsqueeze(-1)).squeeze(-1) if max_w.dim() > 1 else max_w
 
         collected = torch.min(waste_at_node, max_w_at_node) * is_not_depot.float()
         td["current_load"] = td["current_load"] + collected

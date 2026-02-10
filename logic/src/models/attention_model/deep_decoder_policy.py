@@ -99,10 +99,7 @@ class DeepDecoderPolicy(AutoregressivePolicy):
 
             # DeepDecoder output (Batch, Heads, Nodes) or (Batch, 1, Nodes)
             if logits.dim() == 3:
-                if logits.size(1) > 1:
-                    logits = logits[:, 0, :]
-                else:
-                    logits = logits.squeeze(1)
+                logits = logits[:, 0, :] if logits.size(1) > 1 else logits.squeeze(1)
 
             # Invert mask (AM legacy compatibility) -> Valid Mask
             if mask.dim() == 3:

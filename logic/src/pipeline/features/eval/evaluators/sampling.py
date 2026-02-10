@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from logic.src.pipeline.features.eval.eval_base import EvalBase
+from logic.src.interfaces import ITraversable
 from logic.src.utils.functions import do_batch_rep, move_to
 
 
@@ -48,7 +49,7 @@ class SamplingEval(EvalBase):
             batch = move_to(batch, self.device)
 
             # Expand batch for sampling
-            batch_size = batch["loc"].size(0) if isinstance(batch, dict) else batch.size(0)
+            batch_size = batch["loc"].size(0) if isinstance(batch, ITraversable) else batch.size(0)
             batch = do_batch_rep(batch, self.samples)
 
             with torch.no_grad():

@@ -109,7 +109,7 @@ def load_model_instance(model_path, device, size=100, problem_name="wcvrp"):
 
     checkpoint = torch.load(model_path, map_location=device)
     # Handle cases where checkpoint might be nested
-    state_dict = checkpoint["model"] if "model" in checkpoint else checkpoint
+    state_dict = checkpoint.get("model", checkpoint)
     model.load_state_dict(state_dict)
     model.eval()
     return model

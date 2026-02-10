@@ -20,6 +20,7 @@ from logic.src.utils.configs.setup_env import setup_env
 from logic.src.utils.configs.setup_manager import setup_hrl_manager
 from logic.src.utils.configs.setup_worker import setup_model
 from logic.src.utils.logging.log_utils import setup_system_logger
+from logic.src.interfaces import ITraversable
 
 from ..bins import Bins
 from ..checkpoints import SimulationCheckpoint
@@ -58,13 +59,10 @@ class InitializingState(SimState):
         config_paths = opts.get("config_path")
 
         if config_paths:
-            if isinstance(config_paths, dict):
+            if isinstance(config_paths, ITraversable):
                 for key, path in config_paths.items():
                     try:
-                        if isinstance(path, dict):
-                            loaded = path
-                        else:
-                            loaded = load_config(path)
+                        loaded = path if isinstance(path, ITraversable) else load_config(path)
 
                         ctx.config[key] = loaded
                         print(f"[INFO] Loaded configuration for '{key}' from {path}")

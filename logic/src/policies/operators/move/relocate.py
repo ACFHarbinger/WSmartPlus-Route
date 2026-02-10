@@ -38,9 +38,8 @@ def move_relocate(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) ->
         return False
     dem_u = ls.waste.get(u, 0)
 
-    if r_u != r_v:
-        if ls._get_load_cached(r_v) + dem_u > ls.Q:
-            return False
+    if r_u != r_v and ls._get_load_cached(r_v) + dem_u > ls.Q:
+        return False
 
     route_u = ls.routes[r_u]
     route_v = ls.routes[r_v]

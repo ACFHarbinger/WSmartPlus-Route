@@ -49,7 +49,7 @@ def run_app_gui(opts):
         print("\nCtrl+C received - closing application...")
         if current_window is not None:
             current_window.close()
-        quit()
+        sys.exit()
         # Force exit if app doesn't quit quickly
         threading.Timer(CTRL_C_TIMEOUT, lambda: sys.exit(1)).start()
 

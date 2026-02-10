@@ -19,8 +19,8 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
     def __init__(
         self,
         initial_weights: Dict[str, float],
-        weight_names: List[str] = ["collection", "cost"],
-        objective_names: List[str] = ["waste_efficiency", "overflow_rate"],
+        weight_names: List[str] = None,
+        objective_names: List[str] = None,
         history_window: int = 20,
         exploration_factor: float = 0.2,
         adaptation_rate: float = 0.1,
@@ -38,6 +38,10 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
             adaptation_rate: Rate of weight perturbation.
             **kwargs: Additional keyword arguments.
         """
+        if objective_names is None:
+            objective_names = ["waste_efficiency", "overflow_rate"]
+        if weight_names is None:
+            weight_names = ["collection", "cost"]
         self.weight_names = weight_names
         self.objective_names = objective_names
         self.current_weights = copy.deepcopy(initial_weights)

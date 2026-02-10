@@ -94,7 +94,7 @@ class ImprovementPolicy(nn.Module, ABC):
         if max_steps is None:
             max_steps = td.get("max_steps", torch.tensor(10)).item()
 
-        for i in range(max_steps):
+        for _i in range(max_steps):
             # 1. Encode current state
             if self.encoder is None:
                 raise ValueError("Encoder must be provided for ImprovementPolicy")

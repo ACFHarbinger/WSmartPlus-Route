@@ -85,7 +85,7 @@ def vectorized_type_ii_unstringing(
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
     # Main improvement loop
-    for iteration in range(max_iterations):
+    for _iteration in range(max_iterations):
         improved = False
 
         # Process each batch instance
@@ -221,25 +221,16 @@ def _apply_type_ii_move(
     i_next = (i + 1) % n
 
     # S1: V_{i+1} ... V_j
-    if i_next <= j:
-        s1 = tour_list[i_next : j + 1]
-    else:
-        s1 = tour_list[i_next:] + tour_list[: j + 1]
+    s1 = tour_list[i_next : j + 1] if i_next <= j else tour_list[i_next:] + tour_list[: j + 1]
 
     # S2: V_{j+1} ... V_k
     j_next = (j + 1) % n
-    if j_next <= k:
-        s2 = tour_list[j_next : k + 1]
-    else:
-        s2 = tour_list[j_next:] + tour_list[: k + 1]
+    s2 = tour_list[j_next : k + 1] if j_next <= k else tour_list[j_next:] + tour_list[: k + 1]
 
     # Remainder: V_{k+1} ... V_{i-1}
     k_next = (k + 1) % n
     i_prev = (i - 1) if i > 0 else (n - 1)
-    if k_next <= i_prev:
-        remainder = tour_list[k_next : i_prev + 1]
-    else:
-        remainder = tour_list[k_next:] + tour_list[: i_prev + 1]
+    remainder = tour_list[k_next : i_prev + 1] if k_next <= i_prev else tour_list[k_next:] + tour_list[: i_prev + 1]
 
     # Reconstruct: V_{i-1} -> S2_rev -> S1_rev -> Remainder
     v_i_prev = tour_list[i_prev]

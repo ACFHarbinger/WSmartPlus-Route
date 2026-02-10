@@ -62,7 +62,7 @@ class PathPostProcessor(IPostProcessor):
                 continue
 
             for node in segment[1:]:
-                if node == 0 or node == v:
+                if node in (0, v):
                     new_tour.append(node)
                     continue
 

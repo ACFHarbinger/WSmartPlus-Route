@@ -9,6 +9,7 @@ import numpy as np
 import torch
 
 from logic.src.interfaces import IPostProcessor
+from logic.src.interfaces import ITraversable
 
 from .registry import PostProcessorRegistry
 
@@ -90,7 +91,7 @@ class IteratedLocalSearchPostProcessor(IPostProcessor):
         op_weights: List[float] = []
         ls_func = None
 
-        if isinstance(self.ls_operator, dict):
+        if isinstance(self.ls_operator, ITraversable):
             op_probs_dict = self.ls_operator
         elif isinstance(self.ls_operator, str) and self.ls_operator == "random":
             op_probs_dict = self.default_op_probs
@@ -106,7 +107,7 @@ class IteratedLocalSearchPostProcessor(IPostProcessor):
         p_modes_sorted: List[str] = []
         p_weights: List[float] = []
 
-        if isinstance(self.perturbation_type, dict):
+        if isinstance(self.perturbation_type, ITraversable):
             p_probs_dict = self.perturbation_type
         elif isinstance(self.perturbation_type, str) and self.perturbation_type == "random":
             p_probs_dict = self.default_perturb_probs

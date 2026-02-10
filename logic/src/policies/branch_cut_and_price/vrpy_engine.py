@@ -73,8 +73,8 @@ def run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values):
 
     if prob.best_routes:
         routes = []
-        for r_id, path in prob.best_routes.items():
-            clean_route = [node for node in path if node != "Source" and node != "Sink"]
+        for _r_id, path in prob.best_routes.items():
+            clean_route = [node for node in path if node not in {"Source", "Sink"}]
             if clean_route:
                 routes.append(clean_route)
         return routes, prob.best_value

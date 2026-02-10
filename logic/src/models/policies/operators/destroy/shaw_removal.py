@@ -82,14 +82,12 @@ def vectorized_shaw_removal(
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
     # Handle demands if provided
-    if demands is not None:
-        if demands.dim() == 1:
-            demands = demands.unsqueeze(0).expand(B, -1)
+    if demands is not None and demands.dim() == 1:
+        demands = demands.unsqueeze(0).expand(B, -1)
 
     # Handle time windows if provided
-    if time_windows is not None:
-        if time_windows.dim() == 2:
-            time_windows = time_windows.unsqueeze(0).expand(B, -1, -1)
+    if time_windows is not None and time_windows.dim() == 2:
+        time_windows = time_windows.unsqueeze(0).expand(B, -1, -1)
 
     # Compute normalization factors
     max_dist = distance_matrix.max()
@@ -124,7 +122,7 @@ def vectorized_shaw_removal(
             removed_count[b] = 1
 
     # Iteratively select related nodes
-    for step in range(1, n_remove):
+    for _step in range(1, n_remove):
         # For each batch, compute relatedness scores
         relatedness_scores = torch.full((B, N), float("inf"), device=device)
 

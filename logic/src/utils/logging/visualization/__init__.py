@@ -180,7 +180,7 @@ def main():
         x_batch = get_batch(device, size=args.size, batch_size=1)
         plot_logit_lens(model, x_batch, os.path.join(args.output_dir, "logit_lens.png"))
 
-    elif args.mode == "loss" or args.mode == "both":
+    elif args.mode in {"loss", "both"}:
         fake_opts = {"device": device}
         plot_loss_landscape(
             model,

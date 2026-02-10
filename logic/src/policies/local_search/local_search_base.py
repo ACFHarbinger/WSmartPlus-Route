@@ -74,7 +74,7 @@ class LocalSearch(ABC):
             order = np.argsort(row)
             cands = []
             for c in order:
-                if c != i and c != 0:
+                if c not in (i, 0):
                     cands.append(c)
                     if len(cands) >= 10:
                         break
@@ -114,7 +114,7 @@ class LocalSearch(ABC):
             if it % 50 == 0 and (time.time() - t_start > self.params.time_limit):
                 break
 
-            nodes = [n for n in self.neighbors.keys() if n in self.node_map]
+            nodes = [n for n in self.neighbors if n in self.node_map]
             random.shuffle(nodes)
 
             for u in nodes:

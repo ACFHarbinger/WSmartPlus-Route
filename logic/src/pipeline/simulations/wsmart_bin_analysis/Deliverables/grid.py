@@ -104,7 +104,7 @@ class GridBase:
                     info_dict[id] = load_info(id, ver=info_ver, path=coords_dir)
             else:
                 for i, id in enumerate(ids):
-                    if "rate" in names[i].keys():
+                    if "rate" in names[i]:
                         rate_list = rate_list + [
                             load_rate_series(
                                 id,
@@ -116,7 +116,7 @@ class GridBase:
                     else:
                         rate_list = rate_list + [load_rate_series(id, rate_type=rate_type, path=waste_dir)]
 
-                    if "info" in names[i].keys():
+                    if "info" in names[i]:
                         info_dict[id] = load_info(id, ver=info_ver, path=coords_dir, name=names[i]["info"])
                     else:
                         info_dict[id] = load_info(id, ver=info_ver, path=coords_dir)
@@ -261,15 +261,9 @@ class GridBase:
         rate: pd.Dataframe
             The actual rate row of each bin per date
         """
-        if end is None:
-            end = self.data.index[-1]
-        else:
-            end = pd.to_datetime(end, format="%d-%m-%Y", errors="raise")
+        end = self.data.index[-1] if end is None else pd.to_datetime(end, format="%d-%m-%Y", errors="raise")
 
-        if start is None:
-            start = self.data.index[0]
-        else:
-            start = pd.to_datetime(start, format="%d-%m-%Y", errors="raise")
+        start = self.data.index[0] if start is None else pd.to_datetime(start, format="%d-%m-%Y", errors="raise")
         return self.data.loc[start:end, :]
 
     def get_info(self, i: int) -> Union[dict, pd.DataFrame, pd.Series]:

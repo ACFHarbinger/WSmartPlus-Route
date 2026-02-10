@@ -224,7 +224,7 @@ class EfficientGraphConvolution(MessagePassing):
                 out = scatter(inputs, index, 0, dim_size, reduce="min")
             elif aggregator == "max":
                 out = scatter(inputs, index, 0, dim_size, reduce="max")
-            elif aggregator == "var" or aggregator == "std":
+            elif aggregator in {"var", "std"}:
                 mean = scatter(inputs, index, 0, dim_size, reduce="mean")
                 mean_squares = scatter(inputs * inputs, index, 0, dim_size, reduce="mean")
                 out = mean_squares - mean * mean

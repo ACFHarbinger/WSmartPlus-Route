@@ -70,7 +70,7 @@ class EdgeHeatmapGenerator(nn.Module):
             edge_index, edge_attr = graph.edge_index, graph.edge_attr
             heatmap[index, edge_index[0], edge_index[1]] = edge_attr.flatten()
 
-        if heatmap.dtype == torch.float32 or heatmap.dtype == torch.bfloat16:
+        if heatmap.dtype in (torch.float32, torch.bfloat16):
             small_value = 1e-12
         elif heatmap.dtype == torch.float16:
             small_value = 3e-8

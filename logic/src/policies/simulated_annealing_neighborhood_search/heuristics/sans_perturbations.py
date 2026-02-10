@@ -143,7 +143,7 @@ def remove_n_bins_random(routes_list: list, removed_bins: set, bins_cannot_remov
     to_remove = random.sample(all_removable, min(n, len(all_removable)))
     for b in to_remove:
         removed_bins.add(b)
-        for i, r in enumerate(new_routes):
+        for _i, r in enumerate(new_routes):
             if b in r:
                 r.remove(b)
                 break

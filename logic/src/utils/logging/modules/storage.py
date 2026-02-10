@@ -14,6 +14,7 @@ from loguru import logger
 
 import logic.src.constants as udef
 from logic.src.utils.io.files import read_json
+from logic.src.interfaces import ITraversable
 
 
 def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") -> Any:
@@ -55,7 +56,7 @@ def _convert_numpy(obj: Any) -> Any:
         return int(obj)
     elif isinstance(obj, (np.float64, np.float32)):
         return float(obj)
-    elif isinstance(obj, dict):
+    elif isinstance(obj, ITraversable):
         return {k: _convert_numpy(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [_convert_numpy(v) for v in obj]
@@ -75,7 +76,7 @@ def _sort_log(log: Dict[str, Any]) -> Dict[str, Any]:
     tmp_log: Dict[str, Any] = {}
     keywords = ["policy_last_minute", "policy_regular", "policy_look_ahead", "gurobi", "hexaly"]
     for kw in keywords:
-        for key in log.keys():
+        for key in log:
             if kw in key:
                 tmp_log[key] = log[key]
     for key in tmp_log:
@@ -118,7 +119,7 @@ def log_to_json(
                 old = [] if "full" in json_path else {}
             if sample_id is not None and isinstance(old, list) and len(old) > sample_id:
                 new = old[sample_id]
-            elif isinstance(old, dict):
+            elif isinstance(old, ITraversable):
                 new = old
             else:
                 new = {}
@@ -127,7 +128,7 @@ def log_to_json(
             old = [] if sample_id is not None else {}
 
         for key, val in dit.items():
-            values = val.values() if isinstance(val, dict) else val
+            values = val.values() if isinstance(val, ITraversable) else val
             new[key] = dict(zip(keys, values))
 
         if sort_log_flag:
@@ -138,7 +139,7 @@ def log_to_json(
                     old[sample_id] = new
                 else:
                     old.append(new)
-            elif isinstance(old, dict):
+            elif isinstance(old, ITraversable):
                 old[str(sample_id)] = new
         else:
             old = new
@@ -179,7 +180,7 @@ def log_to_json2(
                 old = [] if "full" in json_path else {}
             if sample_id is not None and isinstance(old, list) and len(old) > sample_id:
                 new = old[sample_id]
-            elif isinstance(old, dict):
+            elif isinstance(old, ITraversable):
                 new = old
             else:
                 new = {}
@@ -187,7 +188,7 @@ def log_to_json2(
             new = {}
             old = [] if sample_id is not None else {}
         for key, val in dit.items():
-            values = val.values() if isinstance(val, dict) else val
+            values = val.values() if isinstance(val, ITraversable) else val
             new[key] = dict(zip(keys, values))
         if sort_log_flag:
             new = _sort_log(new)
@@ -197,7 +198,7 @@ def log_to_json2(
                     old[sample_id] = new
                 else:
                     old.append(new)
-            elif isinstance(old, dict):
+            elif isinstance(old, ITraversable):
                 old[str(sample_id)] = new
         else:
             old = new

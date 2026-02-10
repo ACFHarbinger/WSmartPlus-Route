@@ -84,7 +84,7 @@ class HyperOperatorContext:
             order = np.argsort(row)
             cands = []
             for c in order:
-                if c != i and c != 0:
+                if c not in (i, 0):
                     cands.append(c)
                     if len(cands) >= 10:
                         break
@@ -113,7 +113,7 @@ def apply_2opt_intra(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
     """Apply 2-opt intra-route move to a random route segment."""
     improved = False
     for _ in range(max_attempts):
-        nodes = [n for n in ctx.neighbors.keys() if n in ctx.node_map]
+        nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
         u = random.choice(nodes)
@@ -139,7 +139,7 @@ def apply_3opt_intra(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
     """Apply 3-opt intra-route move to a random route segment."""
     improved = False
     for _ in range(max_attempts):
-        nodes = [n for n in ctx.neighbors.keys() if n in ctx.node_map]
+        nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
         u = random.choice(nodes)
@@ -165,7 +165,7 @@ def apply_2opt_star(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
     """Apply 2-opt* inter-route move."""
     improved = False
     for _ in range(max_attempts):
-        nodes = [n for n in ctx.neighbors.keys() if n in ctx.node_map]
+        nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
         u = random.choice(nodes)
@@ -191,7 +191,7 @@ def apply_swap(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
     """Apply swap move between two nodes."""
     improved = False
     for _ in range(max_attempts):
-        nodes = [n for n in ctx.neighbors.keys() if n in ctx.node_map]
+        nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
         u = random.choice(nodes)
@@ -217,7 +217,7 @@ def apply_swap_star(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
     """Apply SWAP* inter-route move."""
     improved = False
     for _ in range(max_attempts):
-        nodes = [n for n in ctx.neighbors.keys() if n in ctx.node_map]
+        nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
         u = random.choice(nodes)
@@ -243,7 +243,7 @@ def apply_relocate(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
     """Apply relocate move."""
     improved = False
     for _ in range(max_attempts):
-        nodes = [n for n in ctx.neighbors.keys() if n in ctx.node_map]
+        nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
         u = random.choice(nodes)

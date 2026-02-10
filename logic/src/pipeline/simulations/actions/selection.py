@@ -8,7 +8,9 @@ from typing import Any, Dict, List, cast
 import numpy as np
 
 from logic.src.configs import MustGoConfig
+from logic.src.interfaces import ITraversable
 from logic.src.constants import ROOT_DIR
+from logic.src.interfaces import IBinContainer
 from logic.src.policies.other import MustGoSelectionFactory, SelectionContext
 from logic.src.utils.configs.config_loader import load_config
 
@@ -55,28 +57,35 @@ class MustGoSelectionAction(SimulationAction):
                         strategies.append({"name": strat_name, "params": cfg})
                     else:
                         for k, v in cfg.items():
-                            strategies.append({"name": k, "params": v if isinstance(v, dict) else {}})
+                            strategies.append({"name": k, "params": v if isinstance(v, ITraversable) else {}})
 
-                elif isinstance(item, dict):
+                elif isinstance(item, ITraversable):
                     # Handle case where item is a dict describing a single strategy
                     if "strategy" in item:
                         strat_name = item.pop("strategy")
                         strategies.append({"name": strat_name, "params": item})
                     else:
                         for k, v in item.items():
-                            strategies.append({"name": k, "params": v if isinstance(v, dict) else {}})
+                            strategies.append({"name": k, "params": v if isinstance(v, ITraversable) else {}})
                 else:
                     strategies.append({"name": item, "params": {}})
 
         # 2. Execute all strategies and union results
         bins = context["bins"]
-        current_fill = getattr(bins, "c", bins.get("c") if isinstance(bins, dict) else None)
+        # Use IBinContainer protocol for unified bin access
+        if isinstance(bins, IBinContainer):
+            current_fill = bins.get("c")
+            accumulation_rates = bins.get("means")
+            std_deviations = bins.get("std")
+        else:
+            # Fallback for dict-like objects
+            current_fill = bins.get("c") if hasattr(bins, "get") else getattr(bins, "c", None)
+            accumulation_rates = bins.get("means") if hasattr(bins, "get") else getattr(bins, "means", None)
+            std_deviations = bins.get("std") if hasattr(bins, "get") else getattr(bins, "std", None)
+
         n_bins = getattr(bins, "n", None)
         if n_bins is None:
             n_bins = len(current_fill) if current_fill is not None else 0
-
-        accumulation_rates = getattr(bins, "means", bins.get("means") if isinstance(bins, dict) else None)
-        std_deviations = getattr(bins, "std", bins.get("std") if isinstance(bins, dict) else None)
 
         final_must_go = set()
 
@@ -85,7 +94,7 @@ class MustGoSelectionAction(SimulationAction):
             s_params = strat_info["params"]
 
             thresh = 0.0
-            if isinstance(s_params, dict):
+            if isinstance(s_params, ITraversable):
                 val = s_params.get("threshold") or s_params.get("cf") or s_params.get("param") or s_params.get("lvl")
                 thresh = float(val) if val is not None else 0.0
 

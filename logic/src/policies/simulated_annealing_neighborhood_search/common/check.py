@@ -35,7 +35,7 @@ def check_bins_overflowing_feasibility(data, routes_list, number_of_bins, perc_b
         str: 'pass' if feasible, 'fail' otherwise.
     """
     bins_overflowing = []
-    for index, row in data.iterrows():
+    for _index, row in data.iterrows():
         if row["Stock"] + row["Accum_Rate"] >= E * B:
             bins_overflowing.append(row["#bin"])
 
@@ -49,10 +49,7 @@ def check_bins_overflowing_feasibility(data, routes_list, number_of_bins, perc_b
             overflowing_bins_in_routes.append(0)
 
     total_ovf_bins_in_routes = sum(overflowing_bins_in_routes)
-    if total_ovf_bins_in_routes >= check:
-        status = "pass"
-    else:
-        status = "fail"
+    status = "pass" if total_ovf_bins_in_routes >= check else "fail"
     return status
 
 
@@ -73,8 +70,5 @@ def check_solution_admissibility(routes_list, removed_bins, number_of_bins):
     total_length = 0
     for i in routes_list:
         total_length += len(i)
-    if (total_length + len(removed_bins)) == number_of_bins + (2 * len(routes_list)):
-        admissible = True
-    else:
-        admissible = False
+    admissible = total_length + len(removed_bins) == number_of_bins + 2 * len(routes_list)
     return admissible

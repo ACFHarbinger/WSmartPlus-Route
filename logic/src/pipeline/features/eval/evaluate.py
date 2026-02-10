@@ -47,7 +47,7 @@ def get_automatic_batch_size(
 
     current_batch_size = initial_batch_size
 
-    for i in range(max_tries):
+    for _i in range(max_tries):
         try:
             log.info(f"Testing batch size: {current_batch_size}")
             # Create a temporary loader with the current batch size

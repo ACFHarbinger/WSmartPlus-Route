@@ -17,6 +17,7 @@ from torch import nn
 
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 from logic.src.utils.data.rl_utils import safe_td_copy
+from logic.src.interfaces import ITraversable
 
 
 class PPO(RL4COLitModule):
@@ -98,7 +99,7 @@ class PPO(RL4COLitModule):
 
         # Ensure batch is a TensorDict (converting from dict if necessary)
         # This handles cases where collation returns a dict or unwrap returns a dict
-        if isinstance(batch, dict):
+        if isinstance(batch, ITraversable):
             # If it's a dict, convert to TensorDict
             # We assume it has a batch size equal to the length of its values
             bs = len(next(iter(batch.values())))
@@ -115,7 +116,7 @@ class PPO(RL4COLitModule):
         # print(f"DEBUG: env.batch_size: {self.env.batch_size}")
 
         # Remove done if present to avoid shape mismatch in reset
-        if "done" in batch.keys():
+        if "done" in batch:
             del batch["done"]
 
         env = self.env

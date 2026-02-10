@@ -7,6 +7,7 @@ from typing import Any, Dict
 from omegaconf import DictConfig, ListConfig, OmegaConf
 
 from logic.src.configs import Config
+from logic.src.interfaces import ITraversable
 from logic.src.utils.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
@@ -19,7 +20,8 @@ def deep_sanitize(obj: Any) -> Any:
     if isinstance(obj, (DictConfig, ListConfig)):
         obj = OmegaConf.to_container(obj, resolve=True)
 
-    if isinstance(obj, dict):
+    # Use ITraversable protocol for dict-like objects
+    if isinstance(obj, ITraversable):
         return {str(k): deep_sanitize(v) for k, v in obj.items()}
     elif isinstance(obj, (list, tuple)):
         return [deep_sanitize(v) for v in obj]
@@ -75,13 +77,13 @@ def flatten_config_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     new_dict = d.copy()
 
     # Flatten 'policy' first if it exists
-    if "policy" in new_dict and isinstance(new_dict["policy"], dict):
+    if "policy" in new_dict and isinstance(new_dict["policy"], ITraversable):
         policy_cfg = new_dict.pop("policy")
         new_dict.update(policy_cfg)
 
     # Flatten other standard sub-configs
     for key in ["graph", "reward", "decoding", "model"]:
-        if key in new_dict and isinstance(new_dict[key], dict):
+        if key in new_dict and isinstance(new_dict[key], ITraversable):
             nested = new_dict.pop(key)
             new_dict.update(nested)
 

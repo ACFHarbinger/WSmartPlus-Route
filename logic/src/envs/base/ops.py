@@ -72,9 +72,9 @@ class OpsMixin:
 
         # Initialize done signals with [B, 1] shape
         td["done"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)
-        if "terminated" in td.keys():
+        if "terminated" in td:
             td["terminated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)
-        if "truncated" in td.keys():
+        if "truncated" in td:
             td["truncated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)
 
         return td
@@ -86,7 +86,7 @@ class OpsMixin:
         # Copy and clean to avoid cycles
         td_next = td.copy()
         for key in ["next", "reward", "done"]:
-            if key in td_next.keys():
+            if key in td_next:
                 del td_next[key]
 
         # Execute problem-specific step
@@ -136,7 +136,7 @@ class OpsMixin:
 
         # If nodes is not already initialized (missing 'current_node' etc), reset it
         td = nodes
-        if "current_node" not in td.keys():
+        if "current_node" not in td:
             td = self._reset(td)
 
         # Ensure dist is in td if provided

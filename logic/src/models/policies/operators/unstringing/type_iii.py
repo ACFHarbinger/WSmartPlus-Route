@@ -102,7 +102,7 @@ def vectorized_type_iii_unstringing(
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
     # Main improvement loop
-    for iteration in range(max_iterations):
+    for _iteration in range(max_iterations):
         improved = False
 
         # Process each batch instance
@@ -266,31 +266,19 @@ def _apply_type_iii_move(
     i_prev = (i - 1) if i > 0 else (n - 1)
 
     # S1: V_{i+1} ... V_k
-    if i_next <= k:
-        s1 = tour_list[i_next : k + 1]
-    else:
-        s1 = tour_list[i_next:] + tour_list[: k + 1]
+    s1 = tour_list[i_next : k + 1] if i_next <= k else tour_list[i_next:] + tour_list[: k + 1]
 
     # S2: V_{k+1} ... V_j
     k_next = (k + 1) % n
-    if k_next <= j:
-        s2 = tour_list[k_next : j + 1]
-    else:
-        s2 = tour_list[k_next:] + tour_list[: j + 1]
+    s2 = tour_list[k_next : j + 1] if k_next <= j else tour_list[k_next:] + tour_list[: j + 1]
 
     # S3: V_{j+1} ... V_l
     j_next = (j + 1) % n
-    if j_next <= l:
-        s3 = tour_list[j_next : l + 1]
-    else:
-        s3 = tour_list[j_next:] + tour_list[: l + 1]
+    s3 = tour_list[j_next : l + 1] if j_next <= l else tour_list[j_next:] + tour_list[: l + 1]
 
     # Remainder: V_{l+1} ... V_{i-1}
     l_next = (l + 1) % n
-    if l_next <= i_prev:
-        remainder = tour_list[l_next : i_prev + 1]
-    else:
-        remainder = tour_list[l_next:] + tour_list[: i_prev + 1]
+    remainder = tour_list[l_next : i_prev + 1] if l_next <= i_prev else tour_list[l_next:] + tour_list[: i_prev + 1]
 
     # Reconstruct: V_{i-1} -> S1_rev -> S2_rev -> S3_rev -> Remainder
     v_i_prev = tour_list[i_prev]

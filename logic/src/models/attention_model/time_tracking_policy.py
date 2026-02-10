@@ -39,10 +39,7 @@ class TimeTrackingPolicy(nn.Module):
 
         # Inject into output
         # Use same device as reward for mathematical compatibility
-        if "reward" in out:
-            device = out["reward"].device
-        else:
-            device = td.device
+        device = out["reward"].device if "reward" in out else td.device
 
         out["inference_time"] = torch.tensor(duration, dtype=torch.float32, device=device)
 

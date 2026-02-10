@@ -20,10 +20,7 @@ def get_pylogger(name=__name__, log_file: Optional[str] = None) -> logging.Logge
         log_file: Optional path to log file. If provided, enables structured JSON logging.
     """
     # If log_file is provided, use structured logger setup first
-    if log_file:
-        logger = _get_structured(name=name, log_file=log_file)
-    else:
-        logger = logging.getLogger(name)
+    logger = _get_structured(name=name, log_file=log_file) if log_file else logging.getLogger(name)
 
     # this ensures all logging levels get marked with the rank zero decorator
     # otherwise logs would get multiplied for each GPU process in multi-GPU setup

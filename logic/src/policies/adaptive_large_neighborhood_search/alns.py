@@ -83,10 +83,7 @@ class ALNSSolver:
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
         """
-        if initial_solution:
-            current_routes = initial_solution
-        else:
-            current_routes = self.build_initial_solution()
+        current_routes = initial_solution or self.build_initial_solution()
 
         best_routes = copy.deepcopy(current_routes)
 
@@ -101,7 +98,7 @@ class ALNSSolver:
         T = self.params.start_temp
         start_time = time.time()
 
-        for it in range(self.params.max_iterations):
+        for _it in range(self.params.max_iterations):
             if time.time() - start_time > self.params.time_limit:
                 break
 

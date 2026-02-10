@@ -57,7 +57,7 @@ class SCWCVRPEnv(WCVRPEnv):
         td = super()._reset_instance(td)
 
         # Ensure real_waste is tracked
-        if "real_waste" not in td.keys():
+        if "real_waste" not in td:
             # If not provided by generator, assume it's same as waste (no noise)
             td["real_waste"] = td["waste"].clone()
 
