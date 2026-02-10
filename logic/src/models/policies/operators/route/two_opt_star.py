@@ -23,6 +23,7 @@ def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200):
     B, max_len = tours.shape
 
     batch_indices = torch.arange(B, device=device).view(B, 1)
+    seq = torch.arange(max_len, device=device).view(1, max_len).expand(B, max_len)
 
     if dist_matrix.dim() == 2:
         dist_matrix = dist_matrix.unsqueeze(0).expand(B, -1, -1)
@@ -30,127 +31,90 @@ def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200):
         dist_matrix = dist_matrix.expand(B, -1, -1)
 
     for _ in range(max_iterations):
-        # Sample i, j
+        # 1. Sample indices i, j
         idx = torch.randint(1, max_len - 1, (B, 2), device=device)
-        i = idx[:, 0:1]
-        j = idx[:, 1:2]
+        i, j = idx[:, 0:1], idx[:, 1:2]
 
-        node_i = torch.gather(tours, 1, i)
-        node_j = torch.gather(tours, 1, j)
-
+        node_i, node_j = torch.gather(tours, 1, i), torch.gather(tours, 1, j)
         mask = (node_i != 0) & (node_j != 0) & (i != j)
         if not mask.any():
             continue
 
-        # Check routes: are they separated by a 0?
-        # We need "tail" locations.
-        is_zero = tours == 0
-        seq = torch.arange(max_len, device=device).view(1, max_len).expand(B, max_len)
-
-        mask_i = seq > i
-        possible_i = is_zero & mask_i
-        end_i = torch.argmax(possible_i.float(), dim=1).view(B, 1)
-
-        mask_j = seq > j
-        possible_j = is_zero & mask_j
-        end_j = torch.argmax(possible_j.float(), dim=1).view(B, 1)
-
-        valid_search = (end_i > i) & (end_j > j)
-        mask = mask & valid_search
-
-        inter_route = end_i != end_j
-        mask = mask & inter_route
+        # 2. Identify Routes
+        end_i, end_j, route_mask = _identify_two_opt_star_routes(tours, i, j, seq, B)
+        mask &= route_mask
         if not mask.any():
             continue
 
-        # Calculate Delta
-        # New R1: ... u -> v_next ... 0
-        # New R2: ... v -> u_next ... 0
-        # Edges broken: (u, u_next), (v, v_next)
-        # Edges added: (u, v_next), (v, u_next)
-
-        u = node_i
-        v = node_j
-
-        next_i_idx = i + 1
-        next_j_idx = j + 1
-
-        u_next = torch.gather(tours, 1, next_i_idx)
-        v_next = torch.gather(tours, 1, next_j_idx)
-
-        d_curr = dist_matrix[batch_indices, u, u_next] + dist_matrix[batch_indices, v, v_next]
-        d_new = dist_matrix[batch_indices, u, v_next] + dist_matrix[batch_indices, v, u_next]
-
-        gain = d_curr - d_new
+        # 3. Compute Gain
+        gain = _compute_two_opt_star_gain(tours, dist_matrix, node_i, node_j, i, j, batch_indices)
         improved = (gain > IMPROVEMENT_EPSILON) & mask
 
         if improved.any():
-            # Apply tail swap using a vectorized index map
-            seq_b = torch.arange(max_len, device=device).view(1, max_len).expand(B, max_len)
-            idx_map = seq_b.clone()
-
-            # For instances where R1 is before R2 (e_i <= j)
-            mask_i_lt_j = (end_i <= j) & improved
-            if mask_i_lt_j.any():
-                # Define segments
-                # s_p1: [0..i] -> stays
-                # s_t1: [i+1..e_i-1] -> moves to R2 tail
-                # s_gap: [e_i..j] -> shifts
-                # s_t2: [j+1..e_j-1] -> moves to R1 tail
-                # s_end: [e_j..max_len-1] -> stays
-
-                len_t1 = end_i - (i + 1)
-                len_t2 = end_j - (j + 1)
-                len_gap = j - end_i + 1
-
-                # New R1 tail starts at i+1
-                # Range [i+1, i+len_t2]: maps to [j+1, j+len_t2]
-                r1_tail_mask = mask_i_lt_j & (seq_b > i) & (seq_b <= i + len_t2)
-                idx_map[r1_tail_mask] = (j + 1).view(B, 1).expand(-1, max_len)[r1_tail_mask] + (
-                    seq_b[r1_tail_mask] - (i + 1).view(B, 1).expand(-1, max_len)[r1_tail_mask]
-                )
-
-                # Gap shifts
-                # Range [i+len_t2+1, i+len_t2+len_gap]: maps to [e_i, j]
-                gap_mask = mask_i_lt_j & (seq_b > i + len_t2) & (seq_b <= i + len_t2 + len_gap)
-                idx_map[gap_mask] = (end_i).view(B, 1).expand(-1, max_len)[gap_mask] + (
-                    seq_b[gap_mask] - (i + len_t2 + 1).view(B, 1).expand(-1, max_len)[gap_mask]
-                )
-
-                # New R2 tail starts after gap
-                # Range [i+len_t2+len_gap+1, e_j-1]: maps to [i+1, e_i-1]
-                r2_tail_mask = mask_i_lt_j & (seq_b > i + len_t2 + len_gap) & (seq_b < end_j.view(B, 1))
-                idx_map[r2_tail_mask] = (i + 1).view(B, 1).expand(-1, max_len)[r2_tail_mask] + (
-                    seq_b[r2_tail_mask] - (i + len_t2 + len_gap + 1).view(B, 1).expand(-1, max_len)[r2_tail_mask]
-                )
-
-            # For instances where R2 is before R1 (e_j <= i)
-            mask_j_lt_i = (end_j <= i) & improved
-            if mask_j_lt_i.any():
-                # Symmetry: same logic but swap i/j and end_i/end_j
-                len_t2 = end_j - (j + 1)
-                len_t1 = end_i - (i + 1)
-                len_gap = i - end_j + 1
-
-                # New R2 tail starts at j+1
-                r2_tail_mask = mask_j_lt_i & (seq_b > j) & (seq_b <= j + len_t1)
-                idx_map[r2_tail_mask] = (i + 1).view(B, 1).expand(-1, max_len)[r2_tail_mask] + (
-                    seq_b[r2_tail_mask] - (j + 1).view(B, 1).expand(-1, max_len)[r2_tail_mask]
-                )
-
-                # Gap shifts
-                gap_mask = mask_j_lt_i & (seq_b > j + len_t1) & (seq_b <= j + len_t1 + len_gap)
-                idx_map[gap_mask] = (end_j).view(B, 1).expand(-1, max_len)[gap_mask] + (
-                    seq_b[gap_mask] - (j + len_t1 + 1).view(B, 1).expand(-1, max_len)[gap_mask]
-                )
-
-                # New R1 tail starts after gap
-                r1_tail_mask = mask_j_lt_i & (seq_b > j + len_t1 + len_gap) & (seq_b < end_i.view(B, 1))
-                idx_map[r1_tail_mask] = (j + 1).view(B, 1).expand(-1, max_len)[r1_tail_mask] + (
-                    seq_b[r1_tail_mask] - (j + len_t1 + len_gap + 1).view(B, 1).expand(-1, max_len)[r1_tail_mask]
-                )
-
-            # Apply tail swap
-            tours = torch.gather(tours, 1, idx_map)
+            tours = _apply_two_opt_star_moves(tours, improved, i, j, end_i, end_j, max_len, seq, device)
 
     return tours
+
+
+def _identify_two_opt_star_routes(tours, i, j, seq, B):
+    """Identifies route boundaries for tail swap."""
+    is_zero = tours == 0
+    end_i = torch.argmax((is_zero & (seq > i)).float(), dim=1).view(B, 1)
+    end_j = torch.argmax((is_zero & (seq > j)).float(), dim=1).view(B, 1)
+
+    valid = (end_i > i) & (end_j > j)
+    inter_route = end_i != end_j
+    return end_i, end_j, valid & inter_route
+
+
+def _compute_two_opt_star_gain(tours, dist, u, v, i, j, b_idx):
+    """Computes gain for tail swap (broken edges vs new edges)."""
+    un = torch.gather(tours, 1, i + 1)
+    vn = torch.gather(tours, 1, j + 1)
+    d_curr = dist[b_idx, u, un] + dist[b_idx, v, vn]
+    d_new = dist[b_idx, u, vn] + dist[b_idx, v, un]
+    return d_curr - d_new
+
+
+def _apply_two_opt_star_moves(tours, improved, i, j, end_i, end_j, max_len, seq, device):
+    """Applies tail swap using index mapping for segments."""
+    B = tours.shape[0]
+    idx_map = seq.clone()
+
+    # R1 before R2
+    m_i_lt_j = (end_i <= j) & improved
+    if m_i_lt_j.any():
+        idx_map = _map_tail_swap(idx_map, m_i_lt_j, i, j, end_i, end_j, B, max_len)
+
+    # R2 before R1
+    m_j_lt_i = (end_j <= i) & improved
+    if m_j_lt_i.any():
+        idx_map = _map_tail_swap(idx_map, m_j_lt_i, j, i, end_j, end_i, B, max_len)
+
+    return torch.gather(tours, 1, idx_map)
+
+
+def _map_tail_swap(idx_map, mask, i, j, end_i, end_j, B, max_len):
+    """Constructs the index mapping for a tail swap where first route < second route."""
+    seq_b = torch.arange(max_len, device=idx_map.device).view(1, max_len).expand(B, max_len)
+
+    _len_t1, len_t2 = end_i - (i + 1), end_j - (j + 1)
+    len_gap = j - end_i + 1
+
+    # New R1 tail: maps to [j+1, j+len_t2]
+    m1 = mask & (seq_b > i) & (seq_b <= i + len_t2)
+    idx_map[m1] = (j + 1).view(B, 1).expand(-1, max_len)[m1] + (seq_b[m1] - (i + 1).view(B, 1).expand(-1, max_len)[m1])
+
+    # Gap shift: maps to [end_i, j]
+    m_gap = mask & (seq_b > i + len_t2) & (seq_b <= i + len_t2 + len_gap)
+    idx_map[m_gap] = (end_i).view(B, 1).expand(-1, max_len)[m_gap] + (
+        seq_b[m_gap] - (i + len_t2 + 1).view(B, 1).expand(-1, max_len)[m_gap]
+    )
+
+    # New R2 tail: maps to [i+1, end_i-1]
+    m2 = mask & (seq_b > i + len_t2 + len_gap) & (seq_b < end_j.view(B, 1))
+    idx_map[m2] = (i + 1).view(B, 1).expand(-1, max_len)[m2] + (
+        seq_b[m2] - (i + len_t2 + len_gap + 1).view(B, 1).expand(-1, max_len)[m2]
+    )
+
+    return idx_map

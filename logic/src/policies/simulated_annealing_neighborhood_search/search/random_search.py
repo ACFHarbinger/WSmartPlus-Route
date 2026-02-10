@@ -35,7 +35,7 @@ from logic.src.policies.simulated_annealing_neighborhood_search.select import (
 )
 
 
-def local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed):
+def local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed):  # noqa: C901
     """
     Perform a multi-operator local search on the routing solution.
 
@@ -115,51 +115,69 @@ def local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed
     bins_random = []
     bins_consecutive = []
     chosen_n = 1
-    if chosen_procedure == "Move 1 route":
-        move_1_route(routes_list)
-    elif chosen_procedure == "Swap 1 route":
-        swap_1_route(routes_list)
-    elif chosen_procedure == "Move 2 routes":
-        move_2_routes(routes_list)
-    elif chosen_procedure == "Swap 2 routes":
-        swap_2_routes(routes_list)
+    if chosen_procedure.startswith("Move") or chosen_procedure.startswith("Swap"):
+        if "n" not in chosen_procedure:
+            # simple move/swap
+            if chosen_procedure == "Move 1 route":
+                move_1_route(routes_list)
+            elif chosen_procedure == "Swap 1 route":
+                swap_1_route(routes_list)
+            elif chosen_procedure == "Move 2 routes":
+                move_2_routes(routes_list)
+            elif chosen_procedure == "Swap 2 routes":
+                swap_2_routes(routes_list)
+        else:
+            # n move/swap
+            if chosen_procedure == "Move n 1 route random":
+                chosen_n = move_n_route_random(routes_list)
+            elif chosen_procedure == "Move n 1 route consecutive":
+                chosen_n = move_n_route_consecutive(routes_list)
+            elif chosen_procedure == "Swap n 1 route random":
+                chosen_n = swap_n_route_random(routes_list)
+            elif chosen_procedure == "Swap n 1 route consecutive":
+                chosen_n = swap_n_route_consecutive(routes_list)
+            elif chosen_procedure == "Move n 2 routes random":
+                chosen_n = move_n_2_routes_random(routes_list)
+            elif chosen_procedure == "Move n 2 routes consecutive":
+                chosen_n = move_n_2_routes_consecutive(routes_list)
+            elif chosen_procedure == "Swap n 2 routes random":
+                chosen_n = swap_n_2_routes_random(routes_list)
+            elif chosen_procedure == "Swap n 2 routes consecutive":
+                chosen_n = swap_n_2_routes_consecutive(routes_list)
+
+    elif "Remove n bins" in chosen_procedure:
+        if "random" in chosen_procedure:
+            bins_to_remove_random, chosen_n = remove_n_bins_random(routes_list, removed_bins, bins_cannot_removed)
+        else:
+            bins_to_remove_consecutive, chosen_n = remove_n_bins_consecutive(
+                routes_list, removed_bins, bins_cannot_removed
+            )
+
+    elif "Add n bins" in chosen_procedure:
+        if "random" in chosen_procedure:
+            bins_to_add_random, chosen_n = add_n_bins_random(routes_list, removed_bins)
+        else:
+            bins_to_add_consecutive, chosen_n = add_n_bins_consecutive(routes_list, removed_bins)
+
+    elif "Add route" in chosen_procedure:
+        if "removed bins" in chosen_procedure:
+            if "random" in chosen_procedure:
+                chosen_n, bins_random = add_route_with_removed_bins_random(routes_list, removed_bins, distance_matrix)
+            else:
+                chosen_n, bins_consecutive = add_route_with_removed_bins_consecutive(
+                    routes_list, removed_bins, distance_matrix
+                )
+        else:
+            if "random" in chosen_procedure:
+                chosen_n = add_route_random(routes_list, distance_matrix)
+            else:
+                chosen_n = add_route_consecutive(routes_list, distance_matrix)
+
     elif chosen_procedure == "Drop bin":
         bin_to_remove = remove_bin(routes_list, removed_bins, bins_cannot_removed)
     elif chosen_procedure == "Add bin":
         bin_to_add = add_bin(routes_list, removed_bins)
-    elif chosen_procedure == "Move n 1 route random":
-        chosen_n = move_n_route_random(routes_list)
-    elif chosen_procedure == "Move n 1 route consecutive":
-        chosen_n = move_n_route_consecutive(routes_list)
-    elif chosen_procedure == "Swap n 1 route random":
-        chosen_n = swap_n_route_random(routes_list)
-    elif chosen_procedure == "Swap n 1 route consecutive":
-        chosen_n = swap_n_route_consecutive(routes_list)
-    elif chosen_procedure == "Move n 2 routes random":
-        chosen_n = move_n_2_routes_random(routes_list)
-    elif chosen_procedure == "Move n 2 routes consecutive":
-        chosen_n = move_n_2_routes_consecutive(routes_list)
-    elif chosen_procedure == "Swap n 2 routes random":
-        chosen_n = swap_n_2_routes_random(routes_list)
-    elif chosen_procedure == "Swap n 2 routes consecutive":
-        chosen_n = swap_n_2_routes_consecutive(routes_list)
-    elif chosen_procedure == "Remove n bins random":
-        bins_to_remove_random, chosen_n = remove_n_bins_random(routes_list, removed_bins, bins_cannot_removed)
-    elif chosen_procedure == "Remove n bins consecutive":
-        bins_to_remove_consecutive, chosen_n = remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed)
-    elif chosen_procedure == "Add n bins random":
-        bins_to_add_random, chosen_n = add_n_bins_random(routes_list, removed_bins)
-    elif chosen_procedure == "Add n bins consecutive":
-        bins_to_add_consecutive, chosen_n = add_n_bins_consecutive(routes_list, removed_bins)
-    elif chosen_procedure == "Add route random":
-        chosen_n = add_route_random(routes_list, distance_matrix)
-    elif chosen_procedure == "Add route consecutive":
-        chosen_n = add_route_consecutive(routes_list, distance_matrix)
-    elif chosen_procedure == "Add route with removed bins random":
-        chosen_n, bins_random = add_route_with_removed_bins_random(routes_list, removed_bins, distance_matrix)
-    elif chosen_procedure == "Add route with removed bins consecutive":
-        chosen_n, bins_consecutive = add_route_with_removed_bins_consecutive(routes_list, removed_bins, distance_matrix)
-    else:
+    elif chosen_procedure == "Rearrange part of 1 route":
         chosen_n = rearrange_part_route(routes_list, distance_matrix)
     return (
         chosen_procedure,

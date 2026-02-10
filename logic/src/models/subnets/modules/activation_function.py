@@ -62,72 +62,11 @@ class ActivationFunction(nn.Module):
             if activation_config.range and len(activation_config.range) >= 2
             else None
         )
-        self.activation: nn.Module
+
         if tval and rval is None and af_name != "softplus":
             rval = tval  # Replacement value = threshold
-        if af_name == "relu":
-            self.activation = nn.ReLU(inplace=bool(inplace))
-        elif af_name == "leakyrelu":
-            self.activation = nn.LeakyReLU(inplace=bool(inplace), negative_slope=fparam if fparam is not None else 1e-2)
-        elif af_name == "silu":
-            self.activation = nn.SiLU(inplace=bool(inplace))
-        elif af_name == "selu":
-            self.activation = nn.SELU(inplace=bool(inplace))
-        elif af_name == "elu":
-            self.activation = nn.ELU(inplace=bool(inplace), alpha=fparam if fparam is not None else 1.0)
-        elif af_name == "celu":
-            self.activation = nn.CELU(inplace=bool(inplace), alpha=fparam if fparam is not None else 1.0)
-        elif af_name == "prelu":
-            self.activation = nn.PReLU(
-                num_parameters=n_params if n_params else 1,
-                init=fparam if fparam else 0.25,
-            )
-        elif af_name == "rrelu":
-            lower = urange[0] if urange else 1.0 / 8
-            upper = urange[1] if urange else 1.0 / 3
-            self.activation = nn.RReLU(inplace=bool(inplace), lower=lower, upper=upper)
-        elif af_name == "gelu":
-            self.activation = nn.GELU()
-        elif af_name == "gelu_tanh":
-            self.activation = nn.GELU(approximate="tanh")
-        elif af_name == "tanh":
-            self.activation = nn.Tanh()
-        elif af_name == "tanhshrink":
-            self.activation = nn.Tanhshrink()
-        elif af_name == "mish":
-            self.activation = nn.Mish(inplace=bool(inplace))
-        elif af_name == "hardshrink":
-            self.activation = nn.Hardshrink(lambd=fparam if fparam is not None else 0.5)
-        elif af_name == "hardtanh":
-            min_val = urange[0] if urange else -1.0
-            max_val = urange[1] if urange else 1.0
-            self.activation = nn.Hardtanh(inplace=bool(inplace), min_val=min_val, max_val=max_val)
-        elif af_name == "hardswish":
-            self.activation = nn.Hardswish(inplace=bool(inplace))
-        elif af_name == "glu":
-            self.activation = nn.GLU(dim=int(fparam) if fparam is not None else -1)
-        elif af_name == "sigmoid":
-            self.activation = nn.Sigmoid()
-        elif af_name == "logsigmoid":
-            self.activation = nn.LogSigmoid()
-        elif af_name == "hardsigmoid":
-            self.activation = nn.Hardsigmoid(inplace=bool(inplace))
-        elif af_name == "threshold":
-            self.activation = nn.Threshold(
-                inplace=bool(inplace),
-                threshold=tval if tval is not None else 0.0,
-                value=rval if rval is not None else 0.0,
-            )
-        elif af_name == "softplus":
-            self.activation = nn.Softplus(
-                beta=int(fparam) if fparam is not None else 1, threshold=int(tval) if tval is not None else 20
-            )
-        elif af_name == "softshrink":
-            self.activation = nn.Softshrink(lambd=fparam if fparam is not None else 0.5)
-        elif af_name == "softsign":
-            self.activation = nn.Softsign()
-        else:
-            raise ValueError("Unknown activation function: {}".format(af_name))
+
+        self.activation = self._get_activation_module(af_name, fparam, tval, rval, n_params, urange, inplace)
 
         if isinstance(self.activation, nn.PReLU):
             self.init_parameters()
@@ -138,6 +77,79 @@ class ActivationFunction(nn.Module):
             self.apply_threshold = True
         else:
             self.apply_threshold = False
+
+    def _get_activation_module(
+        self,
+        af_name: str,
+        fparam: Optional[float],
+        tval: Optional[float],
+        rval: Optional[float],
+        n_params: Optional[int],
+        urange: Optional[Tuple[float, float]],
+        inplace: Optional[bool],
+    ) -> nn.Module:
+        """Factory method to create PyTorch activation modules."""
+        # Simple mapping for one-to-one activations
+        inplace_val = bool(inplace)
+        simple_mappings = {
+            "relu": lambda: nn.ReLU(inplace=inplace_val),
+            "leakyrelu": lambda: nn.LeakyReLU(
+                inplace=inplace_val, negative_slope=fparam if fparam is not None else 1e-2
+            ),
+            "silu": lambda: nn.SiLU(inplace=inplace_val),
+            "selu": lambda: nn.SELU(inplace=inplace_val),
+            "elu": lambda: nn.ELU(inplace=inplace_val, alpha=fparam if fparam is not None else 1.0),
+            "celu": lambda: nn.CELU(inplace=inplace_val, alpha=fparam if fparam is not None else 1.0),
+            "gelu": lambda: nn.GELU(),
+            "gelu_tanh": lambda: nn.GELU(approximate="tanh"),
+            "prelu": lambda: nn.PReLU(num_parameters=n_params if n_params else 1, init=fparam if fparam else 0.25),
+            "rrelu": lambda: nn.RReLU(
+                inplace=inplace_val,
+                lower=urange[0] if urange else 1.0 / 8,
+                upper=urange[1] if urange else 1.0 / 3,
+            ),
+        }
+
+        if af_name in simple_mappings:
+            return simple_mappings[af_name]()
+
+        # Handle capitalize-based mappings
+        caps_list = ["tanh", "tanhshrink", "sigmoid", "logsigmoid", "softsign", "mish", "hardswish", "hardsigmoid"]
+        if af_name in caps_list:
+            cls_name = af_name.capitalize() if af_name != "logsigmoid" else "LogSigmoid"
+            if af_name == "tanhshrink":
+                cls_name = "Tanhshrink"
+            elif af_name == "hardswish":
+                cls_name = "Hardswish"
+            elif af_name == "hardsigmoid":
+                cls_name = "Hardsigmoid"
+
+            cls = getattr(nn, cls_name)
+            return cls(inplace=inplace_val) if hasattr(cls, "inplace") else cls()
+
+        # Handle other parameterized activations
+        if af_name == "hardshrink":
+            return nn.Hardshrink(lambd=fparam if fparam is not None else 0.5)
+        if af_name == "hardtanh":
+            return nn.Hardtanh(
+                inplace=inplace_val,
+                min_val=urange[0] if urange else -1.0,
+                max_val=urange[1] if urange else 1.0,
+            )
+        if af_name == "glu":
+            return nn.GLU(dim=int(fparam) if fparam is not None else -1)
+        if af_name == "threshold":
+            return nn.Threshold(
+                inplace=inplace_val,
+                threshold=tval if tval is not None else 0.0,
+                value=rval if rval is not None else 0.0,
+            )
+        if af_name == "softplus":
+            return nn.Softplus(
+                beta=int(fparam) if fparam is not None else 1,
+                threshold=int(tval) if tval is not None else 20,
+            )
+        raise ValueError(f"Unknown activation function: {af_name}")
 
     def init_parameters(self):
         """Initializes the parameters of the activation function using uniform distribution."""

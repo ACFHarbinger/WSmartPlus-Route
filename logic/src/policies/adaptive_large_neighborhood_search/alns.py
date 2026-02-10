@@ -73,6 +73,54 @@ class ALNSSolver:
         self.destroy_weights = [1.0] * len(self.destroy_ops)
         self.repair_weights = [1.0] * len(self.repair_ops)
 
+    def _initialize_solve(self, initial_solution: Optional[List[List[int]]]):
+        """Initialize the solution and metrics for the solve process."""
+        current_routes = initial_solution or self.build_initial_solution()
+        best_routes = copy.deepcopy(current_routes)
+
+        # Calculate initial metrics
+        best_cost = self.calculate_cost(best_routes)
+        best_rev = sum(self.demands.get(node_idx, 0) * self.R for route in best_routes for node_idx in route)
+        best_profit = best_rev - best_cost
+
+        return current_routes, best_routes, best_profit, best_cost
+
+    def _select_and_apply_operators(self, current_routes):
+        """Select destroy/repair operators and generate a new solution."""
+        d_idx = self.select_operator(self.destroy_weights)
+        r_idx = self.select_operator(self.repair_weights)
+
+        destroy_op = self.destroy_ops[d_idx]
+        repair_op = self.repair_ops[r_idx]
+
+        n_remove = random.randint(
+            self.params.min_removal,
+            max(
+                self.params.min_removal,
+                int(self.n_nodes * self.params.max_removal_pct),
+            ),
+        )
+
+        partial_routes, removed = destroy_op(copy.deepcopy(current_routes), n_remove)
+        new_routes = repair_op(partial_routes, removed)
+
+        return new_routes, d_idx, r_idx
+
+    def _accept_solution(self, current_profit, new_profit, T):
+        """Determine whether to accept the new solution based on SA criteria."""
+        delta = current_profit - new_profit
+        if delta < -1e-6:
+            return True
+        else:
+            prob = math.exp(-delta / T) if T > 0 else 0
+            return random.random() < prob
+
+    def _update_weights(self, d_idx, r_idx, score):
+        """Update the weights of the used operators."""
+        lambda_decay = 0.8
+        self.destroy_weights[d_idx] = lambda_decay * self.destroy_weights[d_idx] + (1 - lambda_decay) * max(0.1, score)
+        self.repair_weights[r_idx] = lambda_decay * self.repair_weights[r_idx] + (1 - lambda_decay) * max(0.1, score)
+
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
         """
         Run the ALNS algorithm.
@@ -83,16 +131,12 @@ class ALNSSolver:
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
         """
-        current_routes = initial_solution or self.build_initial_solution()
-
-        best_routes = copy.deepcopy(current_routes)
-
-        # Calculate initial metrics
-        best_cost = self.calculate_cost(best_routes)
-        best_rev = sum(self.demands.get(node_idx, 0) * self.R for route in best_routes for node_idx in route)
-        best_profit = best_rev - best_cost
-
-        current_routes = copy.deepcopy(best_routes)
+        (
+            current_routes,
+            best_routes,
+            best_profit,
+            best_cost,
+        ) = self._initialize_solve(initial_solution)
         current_profit = best_profit
 
         T = self.params.start_temp
@@ -102,38 +146,19 @@ class ALNSSolver:
             if time.time() - start_time > self.params.time_limit:
                 break
 
-            d_idx = self.select_operator(self.destroy_weights)
-            r_idx = self.select_operator(self.repair_weights)
-
-            destroy_op = self.destroy_ops[d_idx]
-            repair_op = self.repair_ops[r_idx]
-
-            n_remove = random.randint(
-                self.params.min_removal,
-                max(
-                    self.params.min_removal,
-                    int(self.n_nodes * self.params.max_removal_pct),
-                ),
-            )
-
-            partial_routes, removed = destroy_op(copy.deepcopy(current_routes), n_remove)
-            new_routes = repair_op(partial_routes, removed)
+            new_routes, d_idx, r_idx = self._select_and_apply_operators(current_routes)
 
             # Calculate new metrics
             new_cost = self.calculate_cost(new_routes)
             new_rev = sum(self.demands.get(node_idx, 0) * self.R for route in new_routes for node_idx in route)
             new_profit = new_rev - new_cost
 
-            accept = False
+            accept = self._accept_solution(current_profit, new_profit, T)
             score = 0
 
-            # Delta is change in objective (Energy). We want to Maximize Profit.
-            # Minimization equivalent: minimize (-Profit).
-            # Delta = (-new_profit) - (-current_profit) = current_profit - new_profit
-            delta = current_profit - new_profit
-
-            if delta < -1e-6:
-                accept = True
+            if accept:
+                current_routes = new_routes
+                current_profit = new_profit
                 if new_profit > best_profit + 1e-6:
                     best_routes = copy.deepcopy(new_routes)
                     best_profit = new_profit
@@ -141,27 +166,10 @@ class ALNSSolver:
                     score = 3
                 else:
                     score = 1
-            else:
-                prob = math.exp(-delta / T) if T > 0 else 0
-                if random.random() < prob:
-                    accept = True
 
-            if accept:
-                current_routes = new_routes
-                current_profit = new_profit
-
-            # Update weights
-            lambda_decay = 0.8
-            self.destroy_weights[d_idx] = lambda_decay * self.destroy_weights[d_idx] + (1 - lambda_decay) * max(
-                0.1, score
-            )
-            self.repair_weights[r_idx] = lambda_decay * self.repair_weights[r_idx] + (1 - lambda_decay) * max(
-                0.1, score
-            )
-
+            self._update_weights(d_idx, r_idx, score)
             T *= self.params.cooling_rate
 
-        # Recalculate best cost for return matching signature (best_profit is already best_rev - best_cost)
         return best_routes, best_profit, best_cost
 
     def select_operator(self, weights: List[float]) -> int:

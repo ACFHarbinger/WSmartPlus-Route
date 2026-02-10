@@ -11,6 +11,7 @@ from typing import List
 import numpy as np
 
 from .individual import Individual
+from .split import LinearSplit
 
 
 def ordered_crossover(p1: Individual, p2: Individual) -> Individual:
@@ -79,7 +80,7 @@ def update_biased_fitness(population: List[Individual], nb_elite: int):
         ind.fitness = ind.rank_profit + factor * ind.rank_diversity
 
 
-def evaluate(ind: Individual, split_manager):
+def evaluate(ind: Individual, split_manager: LinearSplit):
     """
     Decode giant tour and calculate metrics.
     """

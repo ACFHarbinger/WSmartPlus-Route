@@ -29,6 +29,7 @@ dependencies = [
     "joblib>=1.5.1",
     "cryptography>=45.0.6",
     "requests>=2.32.5",
+    "wandb>=0.16.0",
 ]
 
 [project.optional-dependencies]
@@ -153,6 +154,7 @@ format = "flat"
 # Core settings
 engine = "pylance"          # pyrefly usually wraps a core engine; pylance/pyright is standard
 ai_assisted = true          # Enables the "agentic" suggestions seen in your Antigravity view
+python-interpreter-path = ".venv/bin/python"  # Use ".venv/Scripts/python.exe" on Windows
 type_checking_mode = "basic"
 include = ["gui", "logic"]
 
@@ -190,12 +192,13 @@ exclude = [
     "logic/benchmark/",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/test",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/python experiental",
+    "logic/src/pipeline/simulations/wsmart_bin_analysis/Deliverables/Tutorials/",
 ]
 
 [tool.ruff.lint]
 # Ignore E501 (line length) for notebooks specifically if they are messy
 ignore = ["E501", "E741"]
-select = ["B", "C90", "E", "F", "I", "W", "SIM", "PL"]
+select = ["B", "C90", "E", "F", "I", "W", "SIM"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 15

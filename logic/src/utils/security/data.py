@@ -6,7 +6,6 @@ import os
 import pickle
 import struct
 from pathlib import Path
-from logic.src.interfaces import ITraversable
 from typing import Any, Optional, Union
 
 from cryptography.fernet import Fernet

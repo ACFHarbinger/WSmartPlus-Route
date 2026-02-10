@@ -6,7 +6,6 @@ import json
 import threading
 from typing import Any, Dict, List, Optional, Sequence, Union
 
-import numpy as np
 import pandas as pd
 
 import logic.src.constants as udef
@@ -35,31 +34,7 @@ def send_daily_output_to_gui(
         coords_lookup.columns = [str(c).upper().strip() for c in coords_lookup.columns]
 
     for idx in tour:
-        point_data: Dict[str, Any] = {"id": str(idx), "type": "bin"}
-        if idx == 0:
-            point_data["type"] = "depot"
-            point_data["popup"] = "Depot"
-        if coords_lookup is not None:
-            lookup_idx: Union[int, str] = idx
-            if lookup_idx not in coords_lookup.index:
-                if str(idx) in coords_lookup.index:
-                    lookup_idx = str(idx)
-                elif isinstance(idx, (int, np.integer)) and int(idx) in coords_lookup.index:
-                    lookup_idx = int(idx)
-            if lookup_idx in coords_lookup.index:
-                try:
-                    row = coords_lookup.loc[lookup_idx]
-                    if isinstance(row, pd.DataFrame):
-                        row = row.iloc[0]
-                    lat_val = row.get("LAT", row.get("LATITUDE"))
-                    lng_val = row.get("LNG", row.get("LONGITUDE", row.get("LONG")))
-                    if lat_val is not None and lng_val is not None:
-                        point_data["lat"] = float(str(lat_val).replace(",", "."))
-                        point_data["lng"] = float(str(lng_val).replace(",", "."))
-                        if idx != 0:
-                            point_data["popup"] = f"ID {row.get('ID', idx)}"
-                except Exception:
-                    pass
+        point_data = _process_tour_point(idx, coords_lookup)
         route_coords.append(point_data)
 
     full_payload.update({udef.DAY_METRICS[-1]: route_coords})
@@ -120,3 +95,16 @@ def send_final_output_to_gui(
     finally:
         if lock is not None:
             lock.release()
+
+
+def _process_tour_point(idx: int, coords_lookup: Optional[pd.DataFrame]) -> Dict[str, Any]:
+    """Helper to process a single tour point's coordinate data."""
+    point_data: Dict[str, Any] = {"id": int(idx)}
+    if coords_lookup is not None and idx in coords_lookup.index:
+        row = coords_lookup.loc[idx]
+        # Try to get coordinates from common column names
+        lat = row.get("LATITUDE") or row.get("LAT") or row.get("Y")
+        lon = row.get("LONGITUDE") or row.get("LON") or row.get("X")
+        if lat is not None and lon is not None:
+            point_data.update({"lat": float(lat), "lon": float(lon)})
+    return point_data

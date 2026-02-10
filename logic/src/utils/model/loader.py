@@ -46,88 +46,12 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         model_filename = path
         path = os.path.dirname(model_filename)
     elif os.path.isdir(path):
-        if epoch is None:
-            pt_files = [f for f in os.listdir(path) if f.endswith(".pt")]
-            # Filter for epoch-N.pt or epochN.pt
-            epochs = []
-            for f in pt_files:
-                name = os.path.splitext(f)[0]
-                m = re.match(r"epoch-?(\d+)", name)
-                if m:
-                    epochs.append(int(m.group(1)))
-
-            if not epochs:
-                raise ValueError("No valid epoch files (epoch-N.pt or epochN.pt) found in directory: {}".format(path))
-            epoch = max(epochs)
-
-        # Check if version with hyphen exists first
-        hyphen_path = os.path.join(path, "epoch-{}.pt".format(epoch))
-        model_filename = hyphen_path if os.path.exists(hyphen_path) else os.path.join(path, "epoch{}.pt".format(epoch))
+        model_filename = _find_latest_checkpoint(path, epoch)
     else:
         raise FileNotFoundError(f"{path} is not a valid directory or file.")
 
     # Load hyperparameters
-    args = {}
-    config_yaml_path = os.path.join(path, "config.yaml")
-    hparams_yaml_path = os.path.join(path, "hparams.yaml")
-    args_json_path = os.path.join(path, "args.json")
-
-    if os.path.exists(config_yaml_path) or os.path.exists(hparams_yaml_path):
-        yaml_path = config_yaml_path if os.path.exists(config_yaml_path) else hparams_yaml_path
-        cfg = OmegaConf.load(yaml_path)
-
-        if "model" in cfg and "env" in cfg:
-            # Full Hydra Config
-            args = {
-                "problem": cfg.env.name,
-                "encoder": cfg.model.encoder_type,
-                "model": cfg.model.name,
-                "embed_dim": cfg.model.embed_dim,
-                "hidden_dim": cfg.model.hidden_dim,
-                "n_heads": cfg.model.n_heads,
-                "n_encode_layers": cfg.model.n_encoder_layers,
-                "n_encode_sublayers": cfg.model.n_encoder_sublayers,
-                "n_decode_layers": cfg.model.n_decoder_layers,
-                "n_predict_layers": cfg.model.n_predictor_layers,
-                "normalization": cfg.model.normalization,
-                "activation": cfg.model.activation,
-                "dropout": cfg.model.dropout,
-                "tanh_clipping": cfg.model.tanh_clipping,
-                "learn_affine": cfg.model.learn_affine,
-                "track_stats": cfg.model.track_stats,
-                "epsilon_alpha": cfg.model.epsilon_alpha,
-                "momentum_beta": cfg.model.momentum_beta,
-                "lrnorm_k": cfg.model.lrnorm_k,
-                "gnorm_groups": cfg.model.gnorm_groups,
-                "af_param": cfg.model.activation_param,
-                "af_threshold": cfg.model.activation_threshold,
-                "af_replacement": cfg.model.activation_replacement,
-                "af_num_params": cfg.model.activation_num_parameters,
-                "af_urange": cfg.model.activation_uniform_range,
-                "aggregation": cfg.model.aggregation_node,
-                "aggregation_graph": cfg.model.aggregation_graph,
-                "spatial_bias": cfg.model.spatial_bias,
-                "spatial_bias_scale": cfg.model.spatial_bias_scale,
-                "shrink_size": cfg.model.shrink_size,
-                "temporal_horizon": cfg.model.temporal_horizon,
-                "mask_inner": cfg.model.mask_inner,
-                "mask_logits": cfg.model.mask_logits,
-                "mask_graph": cfg.model.mask_graph,
-                "checkpoint_encoder": cfg.model.checkpoint_encoder,
-            }
-            if "rl" in cfg:
-                args["entropy_weight"] = cfg.rl.entropy_weight
-        else:
-            # Maybe it's a flat DictConfig or Lightning hparams
-            args = cast(Dict[str, Any], OmegaConf.to_container(cfg, resolve=True))
-            if "embed_dim" in args and "embed_dim" not in args:
-                args["embed_dim"] = args["embed_dim"]
-            if "num_encoder_layers" in args and "n_encode_layers" not in args:
-                args["n_encode_layers"] = args["num_encoder_layers"]
-            if "n_heads" in args and "n_heads" not in args:
-                args["n_heads"] = args["n_heads"]
-    elif os.path.exists(args_json_path):
-        args = load_args(args_json_path)
+    args = _load_hyperparameters(path)
 
     if not args:
         raise ValueError("Could not find hyperparameters in directory: {}".format(path))
@@ -204,7 +128,110 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     data = torch_load_cpu(model_filename)
     loaded_state_dict = data.get("model", {})
 
-    # Migration for Abstract Factory Refactoring
+    _migrate_and_load_state_dict(model, loaded_state_dict)
+    print("  [*] Loaded model from {}".format(model_filename))
+    model.eval()
+    return model, args
+
+
+def _find_latest_checkpoint(path: str, epoch: Optional[int]) -> str:
+    """Helper to find the correct .pt file in a directory."""
+    if epoch is None:
+        pt_files = [f for f in os.listdir(path) if f.endswith(".pt")]
+        epochs = []
+        for f in pt_files:
+            name = os.path.splitext(f)[0]
+            m = re.match(r"epoch-?(\d+)", name)
+            if m:
+                epochs.append(int(m.group(1)))
+
+        if not epochs:
+            raise ValueError("No valid epoch files (epoch-N.pt or epochN.pt) found in directory: {}".format(path))
+        epoch = max(epochs)
+
+    # Check if version with hyphen exists first
+    hyphen_path = os.path.join(path, f"epoch-{epoch}.pt")
+    if os.path.exists(hyphen_path):
+        return hyphen_path
+    return os.path.join(path, f"epoch{epoch}.pt")
+
+
+def _parse_hydra_config(cfg: Any) -> Dict[str, Any]:
+    """Helper to parse raw Hydra configuration into flat arguments."""
+    args = {
+        "problem": cfg.env.name,
+        "encoder": cfg.model.encoder_type,
+        "model": cfg.model.name,
+        "embed_dim": cfg.model.embed_dim,
+        "hidden_dim": cfg.model.hidden_dim,
+        "n_heads": cfg.model.n_heads,
+        "n_encode_layers": cfg.model.n_encoder_layers,
+        "n_encode_sublayers": cfg.model.n_encoder_sublayers,
+        "n_decode_layers": cfg.model.n_decoder_layers,
+        "n_predict_layers": cfg.model.n_predictor_layers,
+        "normalization": cfg.model.normalization,
+        "activation": cfg.model.activation,
+        "dropout": cfg.model.dropout,
+        "tanh_clipping": cfg.model.tanh_clipping,
+        "learn_affine": cfg.model.learn_affine,
+        "track_stats": cfg.model.track_stats,
+        "epsilon_alpha": cfg.model.epsilon_alpha,
+        "momentum_beta": cfg.model.momentum_beta,
+        "lrnorm_k": cfg.model.lrnorm_k,
+        "gnorm_groups": cfg.model.gnorm_groups,
+        "af_param": cfg.model.activation_param,
+        "af_threshold": cfg.model.activation_threshold,
+        "af_replacement": cfg.model.activation_replacement,
+        "af_num_params": cfg.model.activation_num_parameters,
+        "af_urange": cfg.model.activation_uniform_range,
+        "aggregation": cfg.model.aggregation_node,
+        "aggregation_graph": cfg.model.aggregation_graph,
+        "spatial_bias": cfg.model.spatial_bias,
+        "spatial_bias_scale": cfg.model.spatial_bias_scale,
+        "shrink_size": cfg.model.shrink_size,
+        "temporal_horizon": cfg.model.temporal_horizon,
+        "mask_inner": cfg.model.mask_inner,
+        "mask_logits": cfg.model.mask_logits,
+        "mask_graph": cfg.model.mask_graph,
+        "checkpoint_encoder": cfg.model.checkpoint_encoder,
+    }
+    if "rl" in cfg:
+        args["entropy_weight"] = cfg.rl.entropy_weight
+    return args
+
+
+def _load_hyperparameters(path: str) -> Dict[str, Any]:
+    """Helper to detect and load hyperparameters from various formats."""
+    config_yaml_path = os.path.join(path, "config.yaml")
+    hparams_yaml_path = os.path.join(path, "hparams.yaml")
+    args_json_path = os.path.join(path, "args.json")
+
+    if os.path.exists(config_yaml_path) or os.path.exists(hparams_yaml_path):
+        yaml_path = config_yaml_path if os.path.exists(config_yaml_path) else hparams_yaml_path
+        cfg = OmegaConf.load(yaml_path)
+
+        if "model" in cfg and "env" in cfg:
+            # Full Hydra Config
+            args = _parse_hydra_config(cfg)
+            if "rl" in cfg:
+                args["entropy_weight"] = cfg.rl.entropy_weight
+            return args
+
+        # Maybe it's a flat DictConfig or Lightning hparams
+        args = cast(Dict[str, Any], OmegaConf.to_container(cfg, resolve=True))
+        # Handle renames
+        if "num_encoder_layers" in args and "n_encode_layers" not in args:
+            args["n_encode_layers"] = args["num_encoder_layers"]
+        return args
+
+    if os.path.exists(args_json_path):
+        return load_args(args_json_path)
+
+    return {}
+
+
+def _migrate_and_load_state_dict(model: nn.Module, loaded_state_dict: Dict[str, Any]) -> None:
+    """Helper to migrate old state dict keys and load into model."""
     model_state_dict = model.state_dict()
     new_state_dict = {}
     for key, value in loaded_state_dict.items():
@@ -217,7 +244,4 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         else:
             new_state_dict[key] = value
 
-    model.load_state_dict({**model.state_dict(), **new_state_dict})
-    print("  [*] Loaded model from {}".format(model_filename))
-    model.eval()
-    return model, args
+    model.load_state_dict({**model_state_dict, **new_state_dict})

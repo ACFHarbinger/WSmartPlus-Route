@@ -87,10 +87,7 @@ class CombinedSelection(IMustGoSelectionStrategy):
             ctx = self._update_context(context, params)
             current_bins = set(strategy.select_bins(ctx))
 
-            if self.logic == "or":
-                result_set = result_set.union(current_bins)
-            else:  # and
-                result_set = result_set.intersection(current_bins)
+            result_set = result_set.union(current_bins) if self.logic == "or" else result_set.intersection(current_bins)
 
         return list(result_set)
 

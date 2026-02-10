@@ -48,24 +48,15 @@ class VRPPContextEmbedder(ContextEmbedder):
         # Waste and prize are usually [batch_size, num_nodes]
         # locs is [batch_size, num_nodes, 2]
 
-        locs = nodes.get("locs")
-        if locs is None:
-            locs = nodes.get("loc")
-
+        locs = nodes.get("locs", nodes.get("loc"))
         if locs is None:
             # Fallback for missing locs
             return torch.zeros(1, 1, self.embed_dim, device=nodes.device if hasattr(nodes, "device") else None)
 
         # Use waste for node quantities
         waste = nodes.get("waste")
-
         if waste is None:
-            # Fallback if waste info is missing
-            if self.node_dim > 2:
-                # Create zeros the same size as locs (B, N, 1)
-                waste = torch.zeros(locs.shape[0], locs.shape[1], 1, device=locs.device)
-            else:
-                waste = None
+            waste = torch.zeros(locs.shape[0], locs.shape[1], 1, device=locs.device) if self.node_dim > 2 else None
 
         node_features: list[torch.Tensor] = [locs]
         if waste is not None:
@@ -85,34 +76,26 @@ class VRPPContextEmbedder(ContextEmbedder):
         node_features_tensor = torch.cat(node_features, -1)
 
         # Determine if locs already contains the depot
-        # We check if locs[0] matches depot AND if dimensions are consistent
         depot = nodes["depot"]
-        is_concatenated = False
-
-        # Heuristic 1: Shape check vs waste
-        # If locs has matching size with waste, it might be customer-only OR already both-prepended.
-        # If locs has 1 more node than waste, it's definitely prepended (waste needs it though).
         waste_raw = nodes.get("waste")
-        if waste_raw is not None:
-            if locs.size(1) == waste_raw.size(1) + 1:
-                is_concatenated = True
-            elif locs.size(1) == waste_raw.size(1):
-                # Both same size. Check values.
-                if torch.allclose(locs[..., 0, :], depot, atol=1e-4):
-                    is_concatenated = True
+
+        # Check if already concatenated: shape matches OR first element matches depot
+        is_concatenated = waste_raw is not None and (
+            locs.size(1) == waste_raw.size(1) + 1
+            or (locs.size(1) == waste_raw.size(1) and torch.allclose(locs[..., 0, :], depot, atol=1e-4))
+        )
 
         if is_concatenated:
-            # Already has depot, just embed
             return self.init_embed(node_features_tensor)
-        else:
-            # Traditional: separate depot and customers
-            return torch.cat(
-                (
-                    self.init_embed_depot(depot)[:, None, :],
-                    self.init_embed(node_features_tensor),
-                ),
-                1,
-            )
+
+        # Traditional: separate depot and customers
+        return torch.cat(
+            (
+                self.init_embed_depot(depot)[:, None, :],
+                self.init_embed(node_features_tensor),
+            ),
+            dim=1,
+        )
 
     def _step_context(self, embeddings: torch.Tensor, state: Any) -> torch.Tensor:
         """

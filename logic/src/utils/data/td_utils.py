@@ -2,13 +2,14 @@
 Utilities for TensorDict datasets.
 """
 
-from logic.src.interfaces import ITraversable
 from typing import Union, cast
 
 import tensordict
 import torch
 from packaging import version
 from tensordict.tensordict import TensorDict
+
+from logic.src.interfaces import ITraversable
 
 # Version check for tensordict
 td_kwargs = {"_run_checks": False} if version.parse(str(tensordict.__version__)) <= version.parse("0.4.0") else {}

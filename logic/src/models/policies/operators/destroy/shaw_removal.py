@@ -9,7 +9,6 @@ that can be efficiently rearranged during repair.
 from typing import Optional, Tuple
 
 import torch
-from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
 def vectorized_shaw_removal(
@@ -66,137 +65,64 @@ def vectorized_shaw_removal(
         - Works with both batched and shared distance/demand matrices
         - Time windows are optional; if not provided, chi is ignored
     """
-    device = distance_matrix.device
-
-    # Handle single tour case
-    is_batch = tours.dim() == 2
-    if not is_batch:
-        tours = tours.unsqueeze(0)
-
-    B, N = tours.shape
-
-    # Expand distance matrix if shared
-    if distance_matrix.dim() == 2:
-        distance_matrix = distance_matrix.unsqueeze(0)
-    if distance_matrix.size(0) == 1 and B > 1:
-        distance_matrix = distance_matrix.expand(B, -1, -1)
-
-    # Handle demands if provided
-    if demands is not None and demands.dim() == 1:
-        demands = demands.unsqueeze(0).expand(B, -1)
-
-    # Handle time windows if provided
-    if time_windows is not None and time_windows.dim() == 2:
-        time_windows = time_windows.unsqueeze(0).expand(B, -1, -1)
-
-    # Compute normalization factors
-    max_dist = distance_matrix.max()
-    max_demand = demands.max() if demands is not None else torch.tensor(1.0, device=device)
-    max_time = (
-        (time_windows[:, :, 1] - time_windows[:, :, 0]).max()
-        if time_windows is not None
-        else torch.tensor(1.0, device=device)
+    # Prepare inputs
+    tours, distance_matrix, demands, time_windows, is_batch = _prepare_shaw_inputs(
+        tours, distance_matrix, demands, time_windows
     )
+    device = tours.device
 
-    # Avoid division by zero
-    max_dist = torch.clamp(max_dist, min=IMPROVEMENT_EPSILON)
-    max_demand = torch.clamp(max_demand, min=IMPROVEMENT_EPSILON)
-    max_time = torch.clamp(max_time, min=IMPROVEMENT_EPSILON)
-
-    # Initialize removed nodes tracking
+    # Initialize parameters and tracks
+    distance_matrix, demands, time_windows, max_dist, max_demand, max_time = _init_shaw_params(
+        tours, distance_matrix, demands, time_windows
+    )
+    B, N = tours.shape
     removed_mask = torch.zeros(B, N, dtype=torch.bool, device=device)
     removed_list = torch.full((B, n_remove), -1, dtype=torch.long, device=device)
     removed_count = torch.zeros(B, dtype=torch.long, device=device)
 
-    # Select random seed node for each batch instance
-    valid_mask = tours >= 0  # Non-padding nodes
+    valid_mask = tours >= 0
     valid_counts = valid_mask.sum(dim=1)
 
     # Random seed selection
-    for b in range(B):
-        if valid_counts[b] > 0:
-            valid_indices = torch.where(valid_mask[b])[0]
-            seed_idx = valid_indices[torch.randint(len(valid_indices), (1,), device=device)]
-            removed_mask[b, seed_idx] = True
-            removed_list[b, 0] = seed_idx
-            removed_count[b] = 1
+    _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device)
 
     # Iteratively select related nodes
     for _step in range(1, n_remove):
-        # For each batch, compute relatedness scores
-        relatedness_scores = torch.full((B, N), float("inf"), device=device)
+        relatedness_sum = _calculate_relatedness_batch(
+            B,
+            N,
+            tours,
+            distance_matrix,
+            demands,
+            time_windows,
+            removed_mask,
+            removed_count,
+            valid_counts,
+            max_dist,
+            max_demand,
+            max_time,
+            phi,
+            psi,
+            chi,
+            device,
+        )
 
-        for b in range(B):
-            if removed_count[b] >= n_remove or removed_count[b] >= valid_counts[b]:
-                continue
+        relatedness_scores = relatedness_sum
+        relatedness_scores[removed_mask] = float("inf")
+        relatedness_scores[~valid_mask] = float("inf")
 
-            # Get removed nodes for this batch
-            removed_nodes_b = tours[b, removed_mask[b]]
-            n_removed = len(removed_nodes_b)
-
-            if n_removed == 0:
-                continue
-
-            # Compute relatedness for all non-removed nodes
-            for node_idx in range(N):
-                if removed_mask[b, node_idx] or not valid_mask[b, node_idx]:
-                    continue
-
-                node = tours[b, node_idx]
-                total_rel = torch.tensor(0.0, device=device)
-
-                # Average relatedness to all removed nodes
-                for rem_node in removed_nodes_b:
-                    # Distance component
-                    dist_rel = distance_matrix[b, node, rem_node] / max_dist
-
-                    # Demand component
-                    demand_rel = torch.tensor(0.0, device=device)
-                    if demands is not None:
-                        demand_rel = torch.abs(demands[b, node] - demands[b, rem_node]) / max_demand
-
-                    # Time window component
-                    time_rel = torch.tensor(0.0, device=device)
-                    if time_windows is not None:
-                        time_rel = torch.abs(time_windows[b, node, 0] - time_windows[b, rem_node, 0]) / max_time
-
-                    # Combined relatedness
-                    rel = phi * dist_rel + chi * time_rel + psi * demand_rel
-                    total_rel += rel
-
-                # Average over all removed nodes
-                avg_rel = total_rel / n_removed
-                relatedness_scores[b, node_idx] = avg_rel
-
-        # Select next node using randomized power law
-        for b in range(B):
-            if removed_count[b] >= n_remove or removed_count[b] >= valid_counts[b]:
-                continue
-
-            # Get candidates (non-removed, non-padding, finite relatedness)
-            candidates_mask = (~removed_mask[b]) & valid_mask[b] & (relatedness_scores[b] < float("inf"))
-
-            if not candidates_mask.any():
-                break
-
-            candidate_indices = torch.where(candidates_mask)[0]
-            candidate_scores = relatedness_scores[b, candidates_mask]
-
-            # Sort by relatedness (lower = more related)
-            sorted_indices = torch.argsort(candidate_scores)
-            sorted_candidates = candidate_indices[sorted_indices]
-
-            # Randomized selection using power law
-            y = torch.rand(1, device=device).item()
-            idx = int((y**randomization_factor) * len(sorted_candidates))
-            idx = min(idx, len(sorted_candidates) - 1)
-
-            selected_node_idx = sorted_candidates[idx]
-
-            # Mark as removed
-            removed_mask[b, selected_node_idx] = True
-            removed_list[b, removed_count[b]] = selected_node_idx
-            removed_count[b] += 1
+        _select_next_removal_batch(
+            B,
+            n_remove,
+            randomization_factor,
+            relatedness_scores,
+            removed_mask,
+            removed_list,
+            removed_count,
+            valid_mask,
+            valid_counts,
+            device,
+        )
 
     # Create modified tours with removed nodes marked as -1
     modified_tours = tours.clone()
@@ -207,3 +133,149 @@ def vectorized_shaw_removal(
         modified_tours if is_batch else modified_tours.squeeze(0),
         removed_list if is_batch else removed_list.squeeze(0),
     )
+
+
+def _prepare_shaw_inputs(tours, distance_matrix, demands, time_windows):
+    """Ensures all inputs are batched tensors."""
+    is_batch = tours.dim() == 2
+    if not is_batch:
+        tours = tours.unsqueeze(0)
+        if distance_matrix.dim() == 3:
+            distance_matrix = distance_matrix.unsqueeze(0)
+        if demands is not None and demands.dim() == 2:
+            demands = demands.unsqueeze(0)
+        if time_windows is not None and time_windows.dim() == 3:
+            time_windows = time_windows.unsqueeze(0)
+    return tours, distance_matrix, demands, time_windows, is_batch
+
+
+def _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device):
+    """Selects a random seed node for each tour."""
+    for b in range(B):
+        if valid_counts[b] > 0:
+            valid_indices = torch.where(valid_mask[b])[0]
+            seed_idx = valid_indices[torch.randint(len(valid_indices), (1,), device=device)]
+            removed_mask[b, seed_idx] = True
+            removed_list[b, 0] = seed_idx
+            removed_count[b] = 1
+
+
+def _calculate_relatedness_batch(
+    B,
+    N,
+    tours,
+    distance_matrix,
+    demands,
+    time_windows,
+    removed_mask,
+    removed_count,
+    valid_counts,
+    max_dist,
+    max_demand,
+    max_time,
+    phi,
+    psi,
+    chi,
+    device,
+):
+    """Calculates relatedness scores for all nodes against removed nodes."""
+    relatedness_sum = torch.zeros((B, N), device=device)
+
+    for b in range(B):
+        if removed_count[b] >= valid_counts[b]:
+            continue
+
+        rem_nodes = tours[b, removed_mask[b]]  # [n_rem]
+
+        # Distance component
+        d_rel = distance_matrix[b][tours[b].unsqueeze(1), rem_nodes.unsqueeze(0)] / max_dist
+        rel = phi * d_rel
+
+        # Demand component
+        if demands is not None:
+            q_rel = torch.abs(demands[b][tours[b]].unsqueeze(1) - demands[b][rem_nodes].unsqueeze(0)) / max_demand
+            rel += psi * q_rel
+
+        # Time window component
+        if time_windows is not None:
+            t_rel = (
+                torch.abs(time_windows[b][tours[b], 0].unsqueeze(1) - time_windows[b][rem_nodes, 0].unsqueeze(0))
+                / max_time
+            )
+            rel += chi * t_rel
+
+        relatedness_sum[b] = rel.mean(dim=1)
+
+    return relatedness_sum
+
+
+def _select_next_removal_batch(
+    B,
+    n_remove,
+    randomization_factor,
+    relatedness_scores,
+    removed_mask,
+    removed_list,
+    removed_count,
+    valid_mask,
+    valid_counts,
+    device,
+):
+    """Selects the next node to remove using randomized power law."""
+    for b in range(B):
+        if removed_count[b] >= n_remove or removed_count[b] >= valid_counts[b]:
+            continue
+
+        # Get candidates (non-removed, non-padding, finite relatedness)
+        candidates_mask = (~removed_mask[b]) & valid_mask[b] & (relatedness_scores[b] < float("inf"))
+
+        if not candidates_mask.any():
+            break
+
+        candidate_indices = torch.where(candidates_mask)[0]
+        candidate_scores = relatedness_scores[b, candidates_mask]
+
+        # Sort by relatedness (lower = more related)
+        sorted_indices = torch.argsort(candidate_scores)
+        sorted_candidates = candidate_indices[sorted_indices]
+
+        # Randomized selection using power law
+        y = torch.rand(1, device=device).item()
+        idx = int((y**randomization_factor) * len(sorted_candidates))
+        idx = min(idx, len(sorted_candidates) - 1)
+
+        selected_node_idx = sorted_candidates[idx]
+
+        # Mark as removed
+        removed_mask[b, selected_node_idx] = True
+        removed_list[b, removed_count[b]] = selected_node_idx
+        removed_count[b] += 1
+
+
+def _init_shaw_params(tours, distance_matrix, demands, time_windows):
+    """Initialize max values for normalization."""
+    B, N = tours.shape
+
+    # Ensure distance matrix is batched
+    if distance_matrix.dim() == 2:
+        distance_matrix = distance_matrix.unsqueeze(0).expand(B, -1, -1)
+
+    max_dist = distance_matrix.max().item()
+    max_dist = max_dist if max_dist > 1e-6 else 1.0
+
+    max_demand = 1.0
+    if demands is not None:
+        if demands.dim() == 1:
+            demands = demands.unsqueeze(0).expand(B, -1)
+        max_demand = demands.max().item()
+        max_demand = max_demand if max_demand > 1e-6 else 1.0
+
+    max_time = 1.0
+    if time_windows is not None:
+        if time_windows.dim() == 2:
+            time_windows = time_windows.unsqueeze(0).expand(B, -1, -1)
+        # Max of earliest times
+        max_time = time_windows[:, :, 0].max().item()
+        max_time = max_time if max_time > 1e-6 else 1.0
+
+    return distance_matrix, demands, time_windows, max_dist, max_demand, max_time

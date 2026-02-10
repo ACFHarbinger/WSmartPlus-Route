@@ -234,7 +234,7 @@ def optimize_batch_size(
     model: nn.Module,
     input_generator: Callable,
     initial_batch_size: int = 32,
-    device: torch.device = torch.device("cuda"),
+    device: Optional[torch.device] = None,
     safety_margin: float = 0.9,
 ) -> int:
     """
@@ -256,6 +256,8 @@ def optimize_batch_size(
         >>> optimal_bs = optimize_batch_size(model, input_gen, initial_batch_size=32)
         >>> print(f"Optimal batch size: {optimal_bs}")
     """
+    if device is None:
+        device = torch.device("cuda")
     model.to(device)
     model.eval()
 

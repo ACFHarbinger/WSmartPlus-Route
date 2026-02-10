@@ -138,10 +138,10 @@ def get_adj_osm(coords: Any, size: int, args: list, add_depot: bool = True, nega
     """
     try:
         import osmnx as ox
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "osmnx is required for OSM graph generation. Install it with 'pip install wsmart-route[geo]'."
-        )
+        ) from e
 
     G, *args = args
     assert isinstance(G, nx.MultiDiGraph)

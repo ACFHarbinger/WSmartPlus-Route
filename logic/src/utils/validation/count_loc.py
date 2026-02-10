@@ -31,14 +31,18 @@ def get_docstring_lines(source: str) -> Set[int]:
     except SyntaxError:
         return doc_lines
     for node in ast.walk(tree):
-        if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-            if node.body and isinstance(node.body[0], ast.Expr) and isinstance(node.body[0].value, ast.Constant):
-                const_node = node.body[0].value
-                if isinstance(const_node.value, str):
-                    start = node.body[0].lineno
-                    end = getattr(node.body[0], "end_lineno", start)
-                    for i in range(start, end + 1):
-                        doc_lines.add(i)
+        if (
+            isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+            and node.body
+            and isinstance(node.body[0], ast.Expr)
+            and isinstance(node.body[0].value, ast.Constant)
+        ):
+            const_node = node.body[0].value
+            if isinstance(const_node.value, str):
+                start = node.body[0].lineno
+                end = getattr(node.body[0], "end_lineno", start)
+                for i in range(start, end + 1):
+                    doc_lines.add(i)
     return doc_lines
 
 

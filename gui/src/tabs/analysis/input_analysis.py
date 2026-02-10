@@ -210,7 +210,6 @@ class InputAnalysisTab(QWidget):
 
     def plot_data(self):
         """Plot the selected data using the chosen visualization."""
-        # Use the currently selected DataFrame
         if self.current_slice_key is None:
             return
         df = self.dfs.get(self.current_slice_key)
@@ -218,92 +217,81 @@ class InputAnalysisTab(QWidget):
             return
 
         chart_type = self.chart_type_combo.currentText()
-
         self.figure.clear()
         ax = self.figure.add_subplot(111)
 
         try:
-            # --- Logic for Heatmap (Visualizes the entire numeric matrix) ---
             if chart_type == "Heatmap":
-                numeric_df = df.select_dtypes(include=["number"])
-
-                if numeric_df.empty:
-                    raise ValueError("Current table has no numeric data to display as Heatmap.")
-
-                cax = ax.imshow(numeric_df.values, aspect="auto", cmap="viridis", origin="lower")
-                self.figure.colorbar(cax, ax=ax)
-
-                ax.set_title(f"Heatmap (Slice: {self.current_slice_key})")
-                ax.set_ylabel("Row Index")
-                ax.set_xlabel("Columns")
-
-                if len(numeric_df.columns) < 50:
-                    ax.set_xticks(range(len(numeric_df.columns)))
-                    ax.set_xticklabels(numeric_df.columns, rotation=90)
-
+                self._plot_heatmap(ax, df)
             else:
-                x_col = self.x_axis_combo.currentText()
-                y_col = self.y_axis_combo.currentText()
-
-                if not x_col or not y_col:
-                    # --- ADDED: Error message if axes are missing (fixes silent failure) ---
-                    QMessageBox.warning(
-                        self,
-                        "Plot Error",
-                        "Please select both X and Y axes for this chart type.",
-                    )
-                    return
-
-                # Check if columns exist (sanity check)
-                if x_col not in df.columns.astype(str) or y_col not in df.columns.astype(str):
-                    # Handle mixed types gracefully by checking against stringified columns
-                    pass
-
-                # Prepare data
-                # We need to access columns using the original types (e.g. int) if the DF has them,
-                # but our combo box has strings.
-                try:
-                    # Try direct access (works if columns are strings)
-                    x_data = df[x_col]
-                    y_data = df[y_col]
-                except KeyError:
-                    # Fallback: Try converting combo text to int (if columns are integers)
-                    try:
-                        x_data = df[int(x_col)]
-                        y_data = df[int(y_col)]
-                    except (ValueError, KeyError):
-                        raise ValueError(f"Could not find columns '{x_col}' or '{y_col}' in data.")
-
-                if chart_type in ["Line Chart", "Area Chart"]:
-                    # Create a temporary sorted DF for plotting line charts properly
-                    temp_df = pd.DataFrame({"x": x_data, "y": y_data}).sort_values(by="x")
-                    x_plot = temp_df["x"]
-                    y_plot = temp_df["y"]
-                else:
-                    x_plot = x_data
-                    y_plot = y_data
-
-                # Plot based on selection
-                if chart_type == "Line Chart":
-                    ax.plot(x_plot, y_plot, marker="o", linestyle="-")
-                elif chart_type == "Bar Chart":
-                    ax.bar(x_plot, y_plot)
-                elif chart_type == "Scatter Plot":
-                    ax.scatter(x_plot, y_plot)
-                elif chart_type == "Area Chart":
-                    ax.fill_between(x_plot, y_plot, alpha=0.4)
-                    ax.plot(x_plot, y_plot, alpha=0.9)
-
-                ax.set_xlabel(x_col)
-                ax.set_ylabel(y_col)
-                ax.set_title(f"{chart_type}: {y_col} vs {x_col}")
-                ax.grid(True)
+                self._plot_standard_chart(ax, df, chart_type)
 
             self.canvas.draw()
             self.tabs.setCurrentIndex(1)  # Switch to chart
 
         except Exception as e:
             QMessageBox.warning(self, "Plot Error", f"Could not plot data: {str(e)}")
+
+    def _plot_heatmap(self, ax, df):
+        """Logic for Heatmap (Visualizes the entire numeric matrix)."""
+        numeric_df = df.select_dtypes(include=["number"])
+        if numeric_df.empty:
+            raise ValueError("Current table has no numeric data to display as Heatmap.")
+
+        cax = ax.imshow(numeric_df.values, aspect="auto", cmap="viridis", origin="lower")
+        self.figure.colorbar(cax, ax=ax)
+
+        ax.set_title(f"Heatmap (Slice: {self.current_slice_key})")
+        ax.set_ylabel("Row Index")
+        ax.set_xlabel("Columns")
+
+        if len(numeric_df.columns) < 50:
+            ax.set_xticks(range(len(numeric_df.columns)))
+            ax.set_xticklabels(numeric_df.columns, rotation=90)
+
+    def _get_axis_data(self, df, col_name):
+        """Retrieves data for a column, handling string/int mapping from combo box."""
+        try:
+            return df[col_name]
+        except KeyError:
+            try:
+                # Fallback: Try converting combo text to int (if columns are integers)
+                return df[int(col_name)]
+            except (ValueError, KeyError) as err:
+                raise ValueError(f"Could not find column '{col_name}' in data.") from err
+
+    def _plot_standard_chart(self, ax, df, chart_type):
+        """Plots standard charts (Line, Bar, Scatter, Area)."""
+        x_col = self.x_axis_combo.currentText()
+        y_col = self.y_axis_combo.currentText()
+
+        if not x_col or not y_col:
+            QMessageBox.warning(self, "Plot Error", "Please select both X and Y axes.")
+            return
+
+        x_data = self._get_axis_data(df, x_col)
+        y_data = self._get_axis_data(df, y_col)
+
+        if chart_type in ["Line Chart", "Area Chart"]:
+            temp_df = pd.DataFrame({"x": x_data, "y": y_data}).sort_values(by="x")
+            x_plot, y_plot = temp_df["x"], temp_df["y"]
+        else:
+            x_plot, y_plot = x_data, y_data
+
+        if chart_type == "Line Chart":
+            ax.plot(x_plot, y_plot, marker="o", linestyle="-")
+        elif chart_type == "Bar Chart":
+            ax.bar(x_plot, y_plot)
+        elif chart_type == "Scatter Plot":
+            ax.scatter(x_plot, y_plot)
+        elif chart_type == "Area Chart":
+            ax.fill_between(x_plot, y_plot, alpha=0.4)
+            ax.plot(x_plot, y_plot, alpha=0.9)
+
+        ax.set_xlabel(x_col)
+        ax.set_ylabel(y_col)
+        ax.set_title(f"{chart_type}: {y_col} vs {x_col}")
+        ax.grid(True)
 
     def get_params(self):
         """Get the parameters for this tab."""

@@ -3,11 +3,12 @@ Differential Evolution Hyperband (DEHB) wrapper.
 """
 
 import time
-from logic.src.interfaces import ITraversable
 from typing import Callable, Dict, Tuple, Union
 
 import ConfigSpace
 from dehb import DEHB
+
+from logic.src.interfaces import ITraversable
 
 
 class DifferentialEvolutionHyperband(DEHB):

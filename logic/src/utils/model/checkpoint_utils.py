@@ -5,11 +5,12 @@ Checkpoint loading utilities for PyTorch models.
 from __future__ import annotations
 
 import os
-from logic.src.interfaces import ITraversable
 from typing import Any, Dict, Optional, Tuple
 
 import torch
 from torch import nn
+
+from logic.src.interfaces import ITraversable
 
 
 def torch_load_cpu(load_path: str) -> Any:

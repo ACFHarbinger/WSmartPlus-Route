@@ -9,8 +9,8 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from logic.src.pipeline.features.eval.eval_base import EvalBase
 from logic.src.interfaces import ITraversable
+from logic.src.pipeline.features.eval.eval_base import EvalBase
 from logic.src.utils.functions import do_batch_rep, move_to
 
 

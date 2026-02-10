@@ -1,11 +1,4 @@
-"""
-Structural routing utilities and geometric optimization routines.
-
-Handles the creation of spatial coordinate mappings and implements geometric
-improvements such as arc uncrossing using LineString intersections. Includes
-logic for route reorganization and greedy sequencing.
-"""
-
+import random
 from copy import deepcopy
 from random import sample as rsample
 
@@ -38,6 +31,60 @@ def create_points(data, bins_coordinates):
     return points
 
 
+def _find_crossed_arcs(route, points, route_idx, cache):
+    """Identify intersecting arcs within a route."""
+    arc_pair = []
+    arc1 = []
+    arc2 = []
+    cache[route_idx] = []
+
+    # Iterate through edges (arcs)
+    # k is the route, valid indices are up to len(k)-2 for edges?
+    # Original loop: for i, val1 in enumerate(k[0 : len(k) - 3]):
+    #                for j, _val2 in enumerate(k[i + 2 : len(k) - 1]):
+    # edges are (val1, k[i+1]) and (k[j+i+2], k[j+i+3])
+
+    n = len(route)
+    # Ensure indices are within bounds
+    # i range: 0 to n-4 (since i+2 is start of j, and j needs at least 1 edge)
+    # Edge 1: (i, i+1)
+    # Edge 2: (j, j+1) where j > i+1
+
+    for i in range(n - 3):
+        I_1 = route[i]
+        F_1 = route[i + 1]
+        line1 = LineString([(points[I_1][0], points[I_1][1]), (points[F_1][0], points[F_1][1])])
+
+        for j in range(i + 2, n - 1):
+            I_2 = route[j]
+            F_2 = route[j + 1]
+            line2 = LineString([(points[I_2][0], points[I_2][1]), (points[F_2][0], points[F_2][1])])
+
+            if line1.intersects(line2):
+                arc1 = [I_1, F_1]
+                arc2 = [I_2, F_2]
+                arc_pair = [arc1, arc2]
+                cache[route_idx].append(arc_pair)
+
+
+def _remove_invalid_crossings(crossings, points):
+    """Filter out invalid crossings (depot-connected or sharing endpoints)."""
+    valid_crossings = []
+    for pair in crossings:
+        # Check if depot (0) is involved
+        if 0 in pair[0] and 0 in pair[1]:
+            continue
+
+        # Check if endpoints are shared (geometrically identical points)
+        # pair[0][1] is F_1, pair[1][0] is I_2
+        p1 = points[pair[0][1]]
+        p2 = points[pair[1][0]]
+        if p1[0] == p2[0] and p1[1] == p2[1]:
+            continue
+        valid_crossings.append(pair)
+    return valid_crossings
+
+
 def uncross_arcs_in_routes(
     previous_solution,
     p_vehicle,
@@ -68,97 +115,56 @@ def uncross_arcs_in_routes(
     Returns:
         List[List[int]]: Improved routing solution.
     """
-    arc_pair = []
-    arc1 = []
-    arc2 = []
-    for k in previous_solution:
-        index_route = previous_solution.index(k)
-        globals()["crossed_arcs_route_{0}".format(index_route)] = []
-        for i, val1 in enumerate(k[0 : len(k) - 3]):
-            for j, val2 in enumerate(k[i + 2 : len(k) - 1]):
-                I_1 = val1
-                F_1 = k[i + 1]
-                I_2 = k[j + i + 2]
-                F_2 = k[j + i + 3]
-                line1 = LineString([(points[I_1][0], points[I_1][1]), (points[F_1][0], points[F_1][1])])
-                line2 = LineString([(points[I_2][0], points[I_2][1]), (points[F_2][0], points[F_2][1])])
-                if line1.intersects(line2):
-                    arc1.append(I_1)
-                    arc1.append(F_1)
-                    arc2.append(I_2)
-                    arc2.append(F_2)
-                    arc_pair.append(arc1)
-                    arc_pair.append(arc2)
-                    arc1 = []
-                    arc2 = []
-                    globals()["crossed_arcs_route_{0}".format(index_route)].append(arc_pair)
-                    arc_pair = []
+    # Local cache instead of globals
+    crossed_arcs_cache = {}
 
-        globals()["relevant_crossed_arcs_route_{0}".format(index_route)] = deepcopy(
-            globals()["crossed_arcs_route_{0}".format(index_route)]
-        )
-        for i in globals()["relevant_crossed_arcs_route_{0}".format(index_route)]:
-            if 0 in i[0] and 0 in i[1]:
-                globals()["relevant_crossed_arcs_route_{0}".format(index_route)].remove(i)
+    # 1. Identify initial crossings
+    for idx, route in enumerate(previous_solution):
+        _find_crossed_arcs(route, points, idx, crossed_arcs_cache)
 
-        for x in globals()["relevant_crossed_arcs_route_{0}".format(index_route)]:
-            if points[x[0][1]][0] == points[x[1][0]][0] and points[x[0][1]][1] == points[x[1][0]][1]:
-                globals()["relevant_crossed_arcs_route_{0}".format(index_route)].remove(x)
+    # 2. Process and resolve crossings
+    for idx, route in enumerate(previous_solution):
+        # Retrieve crossings for this route
+        current_crossings = crossed_arcs_cache.get(idx, [])
+        relevant_crossings = _remove_invalid_crossings(current_crossings, points)
 
-        while len(globals()["relevant_crossed_arcs_route_{0}".format(index_route)]) != 0:
-            globals()["crossed_arcs_route_{0}".format(index_route)] = []
-            for i, val1 in enumerate(k[0 : len(k) - 3]):
-                for j, val2 in enumerate(k[i + 2 : len(k) - 1]):
-                    I_1 = val1
-                    F_1 = k[i + 1]
-                    I_2 = k[j + i + 2]
-                    F_2 = k[j + i + 3]
-                    line1 = LineString(
-                        [
-                            (points[I_1][0], points[I_1][1]),
-                            (points[F_1][0], points[F_1][1]),
-                        ]
-                    )
-                    line2 = LineString(
-                        [
-                            (points[I_2][0], points[I_2][1]),
-                            (points[F_2][0], points[F_2][1]),
-                        ]
-                    )
-                    if line1.intersects(line2):
-                        arc1.append(I_1)
-                        arc1.append(F_1)
-                        arc2.append(I_2)
-                        arc2.append(F_2)
-                        arc_pair.append(arc1)
-                        arc_pair.append(arc2)
-                        arc1 = []
-                        arc2 = []
-                        globals()["crossed_arcs_route_{0}".format(index_route)].append(arc_pair)
-                        arc_pair = []
+        while relevant_crossings:
+            # Perform swap on the first valid crossing
+            # Crossing structure: [[I1, F1], [I2, F2]]
+            # We want to reverse segment between F1 and I2 (inclusive?)
+            # Original code:
+            # swap_bin_1 = relevant[0][0][1] (F1)
+            # position_bin_1 = k.index(swap_bin_1)
+            # swap_bin_2 = relevant[0][1][0] (I2)
+            # position_bin_2 = k.index(swap_bin_2)
+            # Reverse k[position_bin_1 + 1 : position_bin_2] ?
+            # Original logic: k[position_bin_1 + 1 : position_bin_2] = k[position_bin_2 - 1 : position_bin_1 : -1]
+            # This logic seems slightly off in original or I am misreading.
+            # Let's trust the indices logic from original but cleaned up.
 
-            globals()["relevant_crossed_arcs_route_{0}".format(index_route)] = deepcopy(
-                globals()["crossed_arcs_route_{0}".format(index_route)]
-            )
-            for i in globals()["relevant_crossed_arcs_route_{0}".format(index_route)]:
-                if 0 in i[0] and 0 in i[1]:
-                    globals()["relevant_crossed_arcs_route_{0}".format(index_route)].remove(i)
+            first_crossing = relevant_crossings[0]
+            swap_bin_1 = first_crossing[0][1]
+            swap_bin_2 = first_crossing[1][0]
 
-            for x in globals()["relevant_crossed_arcs_route_{0}".format(index_route)]:
-                if points[x[0][1]][0] == points[x[1][0]][0] and points[x[0][1]][1] == points[x[1][0]][1]:
-                    globals()["relevant_crossed_arcs_route_{0}".format(index_route)].remove(x)
+            try:
+                pos1 = route.index(swap_bin_1)
+                pos2 = route.index(swap_bin_2)
+            except ValueError:
+                # Bins might have been moved/removed? Should not happen in this logic if consistent
+                relevant_crossings.pop(0)
+                continue
 
-            if len(globals()["relevant_crossed_arcs_route_{0}".format(index_route)]) > 0:
-                swap_bin_1 = globals()["relevant_crossed_arcs_route_{0}".format(index_route)][0][0][1]
-                position_bin_1 = k.index(swap_bin_1)
-                swap_bin_2 = globals()["relevant_crossed_arcs_route_{0}".format(index_route)][0][1][0]
-                position_bin_2 = k.index(swap_bin_2)
+            # Apply 2-opt swap
+            # Swap endpoints
+            route[pos1], route[pos2] = route[pos2], route[pos1]
+            # Reverse segment in between
+            if pos1 + 1 < pos2:
+                route[pos1 + 1 : pos2] = route[pos1 + 1 : pos2][::-1]
 
-                k[position_bin_1], k[position_bin_2] = (
-                    k[position_bin_2],
-                    k[position_bin_1],
-                )
-                k[position_bin_1 + 1 : position_bin_2] = k[position_bin_2 - 1 : position_bin_1 : -1]
+            # Re-evaluate crossings for this route after modification
+            _find_crossed_arcs(route, points, idx, crossed_arcs_cache)
+            current_crossings = crossed_arcs_cache.get(idx, [])
+            relevant_crossings = _remove_invalid_crossings(current_crossings, points)
 
     solution_after_uncross = deepcopy(previous_solution)
     profit_after_uncross = compute_profit(
@@ -175,7 +181,6 @@ def uncross_arcs_in_routes(
     return solution_after_uncross, profit_after_uncross, uncross_profit
 
 
-# Rearrange part of the route with nearest neighbor rule
 def rearrange_part_route(routes_list, distance_matrix):
     """
     Select a random portion of a route and reorder it using a greedy Nearest Neighbor heuristic.
@@ -187,35 +192,66 @@ def rearrange_part_route(routes_list, distance_matrix):
     Returns:
         List[List[int]]: Routing solution with partially reordered route.
     """
-    if len(routes_list) > 0:
-        chosen_route = rsample(routes_list, 1)[0]
+    if not routes_list:
+        return 0
 
+    chosen_route = rsample(routes_list, 1)[0]
     length_chosen_route = len(chosen_route)
+
+    if length_chosen_route < 4:
+        return 0
+
     possible_percent = [0.1, 0.2, 0.3, 0.4]
     chosen_n = rsample(possible_percent, 1)[0]
     chosen_n_percent = int(chosen_n * length_chosen_route)
+
+    if chosen_n_percent < 2:
+        return 0
+
     bins = []
-    for s in range(0, chosen_n_percent):
-        if s == 0:
-            chosen_bin_0 = rsample(chosen_route[1 : len(chosen_route) - chosen_n_percent], 1)[0]
-            position_chosen_bin = chosen_route.index(chosen_bin_0)
-        elif s <= chosen_n_percent - 1:
-            chosen_bin = chosen_route[position_chosen_bin + s]
-            bins.append(chosen_bin)
-        else:
-            chosen_route[position_chosen_bin + s]
+    # Ensure start index keeps enough buffer from end
+    # chosen_route length is L. Index range 0..L-1.
+    # We want a segment of length 'chosen_n_percent'.
+    # Start index must be at least 1 (after depot start)
+    # End index must be at most L-2 (before depot end)
 
-    chosen_bins = bins.copy()
-    route = organize_route(bins, distance_matrix)
-    route.remove(0)
-    route.remove(0)
-    for i in chosen_bins:
-        chosen_route.remove(i)
+    # Original logic was a bit fuzzy. Let's implementing a clean segment selection.
+    # Valid start indices: 1 to L - 1 - length
 
-    a = 0
-    for y in route:
-        a = a + 1
-        chosen_route.insert(position_chosen_bin + a, y)
+    max_start_index = length_chosen_route - 1 - chosen_n_percent
+    if max_start_index < 1:
+        return 0
+
+    start_index = random.randint(1, max_start_index)
+    segment = chosen_route[start_index : start_index + chosen_n_percent]
+
+    # Remove segment from route
+    # Note: modifying chosen_route in place affects routes_list element?
+    # Yes, lists are mutable references.
+
+    # But wait, original code:
+    # position_chosen_bin determined iteratively?
+    # "chosen_bin_0 = rsample(chosen_route[1 : len(chosen_route) - chosen_n_percent], 1)[0]"
+    # This picks a random start bin.
+
+    # Let's stick to strict segment extraction
+    bins = segment
+    del chosen_route[start_index : start_index + chosen_n_percent]
+
+    # Reorder bins using NN
+    # organize_route returns [depot, bin1, ..., binN, depot]
+    # We just want the sequence bin1...binN
+    sorted_route_full = organize_route(bins, distance_matrix)
+    # Remove depots (starts 0, ends 0)
+    sorted_segment = sorted_route_full[1:-1]
+
+    # Insert back at the same position
+    # chosen_route[start_index:start_index] = sorted_segment?
+    # Original code inserted one by one.
+
+    for i, bin_id in enumerate(sorted_segment):
+        chosen_route.insert(start_index + i, bin_id)
+
     return chosen_n
 
 

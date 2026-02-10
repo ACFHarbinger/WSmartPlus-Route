@@ -54,45 +54,41 @@ def regenerate_dataset(
 def compute_validation_metrics(out: Dict, batch: TensorDict, env: Any) -> Dict[str, float]:
     """
     Compute rich validation metrics beyond simple reward.
-
-    Args:
-        out: Output dictionary from policy (contains 'reward', 'actions', etc.)
-        batch: Input TensorDict batch
-        env: Environment instance
-
-    Returns:
-        metrics: Dictionary of scalar metrics
     """
     metrics = {}
+    _add_reward_metric(metrics, out)
+    _add_costs_metrics(metrics, out, batch, env)
+    _add_efficiency_metric(metrics)
+    _add_overflow_metrics(metrics, out, batch, env)
+    return metrics
 
-    # 1. Main Reward
+
+def _add_reward_metric(metrics: Dict[str, float], out: Dict) -> None:
+    """Add mean reward to metrics."""
     if "reward" in out:
         metrics["val/reward"] = out["reward"].mean().item()
 
-    # 2. Costs Breakdown (if available)
-    # Check if env has detailed cost function
-    if hasattr(env, "get_costs"):
-        # Expecting a dict of tensors: {'waste': ..., 'dist': ..., 'overflow': ...}
-        # We assume out["actions"] is present
-        if "actions" in out:
-            costs = env.get_costs(batch, out["actions"])
-            for key, val in costs.items():
-                if isinstance(val, torch.Tensor):
-                    metrics[f"val/{key}"] = val.float().mean().item()
 
-    # 3. Efficiency (kg/km)
-    # If not already computed in get_costs
+def _add_costs_metrics(metrics: Dict[str, float], out: Dict, batch: TensorDict, env: Any) -> None:
+    """Add detailed cost breakdown from environment if available."""
+    if hasattr(env, "get_costs") and "actions" in out:
+        costs = env.get_costs(batch, out["actions"])
+        for key, val in costs.items():
+            if isinstance(val, torch.Tensor):
+                metrics[f"val/{key}"] = val.float().mean().item()
+
+
+def _add_efficiency_metric(metrics: Dict[str, float]) -> None:
+    """Compute efficiency ratio (kg/km) from waste and distance."""
     if "val/efficiency" not in metrics and "val/waste" in metrics and "val/dist" in metrics:
-        # Avoid division by zero
         avg_waste = metrics["val/waste"]
         avg_dist = metrics["val/dist"]
         if avg_dist > 1e-6:
             metrics["val/efficiency"] = avg_waste / avg_dist
 
-    # 4. Constraints Violations (Overflows)
-    # If environment provides info on violations
+
+def _add_overflow_metrics(metrics: Dict[str, float], out: Dict, batch: TensorDict, env: Any) -> None:
+    """Add constraint violation counts (overflows) if available."""
     if hasattr(env, "get_num_overflows") and "actions" in out:
         overflows = env.get_num_overflows(batch, out["actions"])
         metrics["val/overflows"] = overflows.float().mean().item()
-
-    return metrics

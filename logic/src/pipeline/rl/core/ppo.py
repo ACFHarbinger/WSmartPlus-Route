@@ -15,9 +15,9 @@ import torch
 from tensordict import TensorDict
 from torch import nn
 
+from logic.src.interfaces import ITraversable
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 from logic.src.utils.data.rl_utils import safe_td_copy
-from logic.src.interfaces import ITraversable
 
 
 class PPO(RL4COLitModule):

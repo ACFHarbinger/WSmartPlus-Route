@@ -104,8 +104,8 @@ def plot_attention_maps_wrapper(
 
     try:
         os.makedirs(os.path.dirname(attention_filename), exist_ok=True)
-    except Exception:
-        raise Exception("directories to save attention maps do not exist and could not be created")
+    except Exception as e:
+        raise Exception("directories to save attention maps do not exist and could not be created") from e
 
     # Dynamically set figure size based on map_size
     base_vertexsize = 0.5

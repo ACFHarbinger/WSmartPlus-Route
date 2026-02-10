@@ -31,8 +31,8 @@ def encrypt_directory(
         output_dir = input_dir
     try:
         os.makedirs(output_dir, exist_ok=True)
-    except OSError:
-        raise Exception("directories to save output files do not exist and could not be created")
+    except OSError as e:
+        raise Exception("directories to save output files do not exist and could not be created") from e
 
     # Recursively process all files in the input directory
     encdata_ls = []
@@ -45,8 +45,8 @@ def encrypt_directory(
             # Create subdirectories in the output directory if they don't exist
             try:
                 os.makedirs(os.path.dirname(output_file), exist_ok=True)
-            except OSError:
-                raise Exception("subdirectories to save output files do not exist and could not be created")
+            except OSError as e:
+                raise Exception("subdirectories to save output files do not exist and could not be created") from e
             encdata_ls.append(encrypt_file_data(key, input_file, output_file))
     return encdata_ls
 
@@ -72,8 +72,8 @@ def decrypt_directory(
         output_dir = input_dir
     try:
         os.makedirs(output_dir, exist_ok=True)
-    except OSError:
-        raise Exception("directories to save output files do not exist and could not be created")
+    except OSError as e:
+        raise Exception("directories to save output files do not exist and could not be created") from e
 
     # Recursively process all files in the input directory
     decdata_ls = []
@@ -88,8 +88,8 @@ def decrypt_directory(
                 # Create subdirectories in the output directory if they don't exist
                 try:
                     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-                except OSError:
-                    raise Exception("subdirectories to save output files do not exist and could not be created")
+                except OSError as e:
+                    raise Exception("subdirectories to save output files do not exist and could not be created") from e
                 decdata_ls.append(decrypt_file_data(key, input_file, output_file))
     return decdata_ls
 

@@ -168,6 +168,22 @@ class DocstringInjector:
                 return i + 1
         return start + 1
 
+    def _queue_docstrings(self, tree):
+        """Internal helper to queue docstrings based on node types."""
+        if not ast.get_docstring(tree):
+            doc = self.generate_docstring(tree)
+            self.modifications.append((0, doc, ""))
+
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and not ast.get_docstring(node):
+                context = ""
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "__init__":
+                    context = "Class"
+                doc = self.generate_docstring(node, context)
+                idx = self._find_insertion_line(node)
+                indent = self._get_indent(node.lineno) + "    "
+                self.modifications.append((idx, doc, indent))
+
     def scan_and_queue(self):
         """Scans the file and queues missing docstrings for insertion."""
         try:
@@ -176,70 +192,8 @@ class DocstringInjector:
             print(f"Skipping {self.filepath}: Syntax Error")
             return
 
-        # 1. Check Module Docstring
-        if not ast.get_docstring(tree):
-            doc = self.generate_docstring(tree)
-            # Insert at top (after shebang/encoding if present)
-            insert_idx = 0
-            if self.lines and (self.lines[0].startswith("#!") or "coding" in self.lines[0]):
-                insert_idx = 1
-            self.modifications.append((insert_idx, doc, ""))
-
-        # 2. Walk nodes
-        for node in ast.walk(tree):
-            if isinstance(node, ast.ClassDef):
-                if not ast.get_docstring(node):
-                    doc = self.generate_docstring(node)
-                    idx = self._find_insertion_line(node)
-                    indent = self._get_indent(node.lineno) + "    "
-                    self.modifications.append((idx, doc, indent))
-
-                # Check methods inside class
-                for item in node.body:
-                    if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                        if not ast.get_docstring(item):
-                            doc = self.generate_docstring(item, context=node.name)
-                            idx = self._find_insertion_line(item)
-                            indent = self._get_indent(item.lineno) + "    "
-                            self.modifications.append((idx, doc, indent))
-
-            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                # Top-level functions
-                # Ensure we didn't already capture it inside a class loop (ast.walk does flat iteration too)
-                # A simple way to filter is checking col_offset or parent, but standard walk hits everything.
-                # We can check if it has a docstring.
-                if not ast.get_docstring(node):
-                    # Check if it was already queued (methods are hit twice in naive walk: once in ClassDef body loop, once in ast.walk)
-                    # To allow simple logic: we only process here if it wasn't processed.
-                    # Actually, simple `ast.walk` hits `ClassDef`, then hits `FunctionDef` later.
-                    # If we processed it in ClassDef, we need to track it.
-                    pass  # Simplified: The logic below is better.
-
-        # Refined Walk: Just use ast.walk and determine context
-        self.modifications = []  # Reset to use cleaner logic
-
-        # Module
-        if not ast.get_docstring(tree):
-            doc = self.generate_docstring(tree)
-            self.modifications.append((0, doc, ""))
-
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                if not ast.get_docstring(node):
-                    # Determine context (Class name if method)
-                    context = ""
-                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                        # Only way to know if it's a method is checking parent.
-                        # Without parent pointers, we assume Function unless __init__.
-                        if node.name == "__init__":
-                            context = "Class"  # Generic placeholder
-
-                    doc = self.generate_docstring(node, context)
-                    idx = self._find_insertion_line(node)
-                    indent = self._get_indent(node.lineno) + "    "
-                    self.modifications.append((idx, doc, indent))
-
-        # Sort modifications by line number descending so insertion doesn't break indices
+        self.modifications = []
+        self._queue_docstrings(tree)
         self.modifications.sort(key=lambda x: x[0], reverse=True)
 
     def apply(self):

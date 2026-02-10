@@ -112,8 +112,8 @@ class OldGridBase:
         """
         try:
             date = pd.to_datetime(date, format="%Y-%m-%d", errors="raise")
-        except ValueError:
-            raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+        except ValueError as e:
+            raise ValueError("Incorrect data format, should be YYYY-MM-DD") from e
 
         rate = self.___values_by_date(date)
         if sample:
