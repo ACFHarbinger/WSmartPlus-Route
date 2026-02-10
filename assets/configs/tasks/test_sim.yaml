@@ -58,7 +58,6 @@ sim:
       # - gurobi: Exact optimization (slow but optimal)
       # - hgs: Hybrid Genetic Search metaheuristic
       # - alns: Adaptive Large Neighborhood Search
-      # - regular: Fixed-frequency collection (e.g., every 3 days)
       # - lookahead: Predictive policy
       # - last_minute: Reactive threshold-based policy
 
@@ -66,7 +65,8 @@ sim:
   # Vehicle Configuration
   # =============================================================================
   n_vehicles:
-    1 # Number of vehicles in fleet.
+    0 # Number of vehicles in fleet.
+    # 0 = auto-detect
     # 1 = single-vehicle routing
     # 2+ = multi-vehicle fleet routing
 
@@ -86,7 +86,4 @@ sim:
   # =============================================================================
   # Data Distribution
   # =============================================================================
-  data_distribution:
-    ["gamma1"] # Waste generation distributions to test.
-    # Can specify multiple: ["gamma1", "gamma2", "uniform"]
-    # Each distribution will be tested separately.
+  data_distribution: "gamma1" # Waste generation distribution. Options: gamma1, gamma2, gamma3, empirical

@@ -75,6 +75,8 @@
 
 Our comprehensive documentation covers every aspect of the WSmart+ Route system:
 
+### Core Documentation
+
 | Document                                     | Description                                                                                                                             | Target Audience                          |
 | :------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------- |
 | **[AGENTS.md](AGENTS.md)**                   | Complete registry of neural models, classical policies, and environment physics. The AI assistant guide for understanding the codebase. | Researchers, ML Engineers, AI Assistants |
@@ -85,6 +87,25 @@ Our comprehensive documentation covers every aspect of the WSmart+ Route system:
 | **[COMPATIBILITY.md](COMPATIBILITY.md)**     | Detailed matrix of supported models, environments, and configuration pairs.                                                             | Researchers, Developers                  |
 | **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** | Common issues, diagnostic steps, error reference, and quick fixes.                                                                      | Everyone                                 |
 | **[TUTORIAL.md](TUTORIAL.md)**               | Deep dives into algorithms, code examples, and implementation guides.                                                                   | Developers, Researchers                  |
+
+### Module Documentation
+
+Detailed technical documentation for each subsystem. Essential for deep dives into specific components:
+
+| Document                                                  | Description                                                                      | Module Path         |
+| :-------------------------------------------------------- | :------------------------------------------------------------------------------- | :------------------ |
+| **[CLI Module](docs/CLI_MODULE.md)**                      | Command-line interface, argument parsing, Hydra integration, and entry points.   | `logic/src/cli/`    |
+| **[Configuration Module](docs/CONFIGS_MODULE.md)**        | Config system architecture, Hydra composition, and config classes.               | `logic/src/configs/` |
+| **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)**    | Comprehensive guide to Hydra configuration, CLI overrides, and best practices.   | -                   |
+| **[Constants Module](docs/CONSTANTS_MODULE.md)**          | System-wide constants, problem definitions, and enum types.                      | `logic/src/utils/`  |
+| **[Data Module](docs/DATA_MODULE.md)**                    | Dataset generation, loading utilities, and data augmentation.                    | `logic/src/data/`   |
+| **[Environments Module](docs/ENVS_MODULE.md)**            | Problem environments (VRPP, WCVRP, SDWCVRP) and state management.                | `logic/src/envs/`   |
+| **[Interfaces Module](docs/INTERFACES_MODULE.md)**        | Abstract base classes, protocols, and type definitions.                          | `logic/src/interfaces/` |
+| **[Models Module](docs/MODELS_MODULE.md)**                | Neural architectures, encoders, decoders, and network components.                | `logic/src/models/` |
+| **[Pipeline Module](docs/PIPELINE_MODULE.md)**            | Training, evaluation, simulation orchestration, and RL algorithms.               | `logic/src/pipeline/` |
+| **[Policies Module](docs/POLICIES_MODULE.md)**            | Classical solvers (Gurobi, ALNS, HGS) and heuristic policies.                    | `logic/src/policies/` |
+| **[Utilities Module](docs/UTILS_MODULE.md)**              | Helper functions, I/O utilities, logging, and debugging tools.                   | `logic/src/utils/`  |
+| **[Documentation Standards](docs/DOCUMENTATION_STANDARDS.md)** | Style guide and templates for all documentation.                            | -                   |
 
 ---
 

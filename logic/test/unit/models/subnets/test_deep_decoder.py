@@ -2,7 +2,8 @@
 
 import torch
 import torch.nn as nn
-from logic.src.models.subnets.decoders.gat.decoder import DeepAttentionModelFixed, DeepGATDecoder
+from logic.src.models.subnets.decoders.common import AttentionDecoderCache
+from logic.src.models.subnets.decoders.gat.decoder import DeepGATDecoder
 
 
 def test_deep_decoder_init():
@@ -61,7 +62,7 @@ def test_deep_decoder_slicing():
     """Verify slicing of fixed context."""
     node_embeddings = torch.randn(4, 5, 16)
     context_node_projected = torch.randn(4, 1, 16)
-    fixed = DeepAttentionModelFixed(node_embeddings, context_node_projected)
+    fixed = AttentionDecoderCache(node_embeddings, context_node_projected)
 
     sliced = fixed[0:2]
     assert sliced.node_embeddings.shape == (2, 5, 16)

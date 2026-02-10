@@ -5,11 +5,11 @@ Configuration dataclasses for WSmart-Route.
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
-from .envs import DataConfig, EnvConfig, GraphConfig, ObjectiveConfig
+from .envs import EnvConfig, GraphConfig, ObjectiveConfig
 from .models import DecoderConfig, DecodingConfig, EncoderConfig, ModelConfig, OptimConfig
 from .policies.other import MustGoConfig, PostProcessingConfig
 from .rl import RLConfig
-from .tasks import EvalConfig, HPOConfig, MetaRLConfig, SimConfig, TrainConfig
+from .tasks import DataConfig, EvalConfig, HPOConfig, MetaRLConfig, SimConfig, TrainConfig
 
 
 @dataclass

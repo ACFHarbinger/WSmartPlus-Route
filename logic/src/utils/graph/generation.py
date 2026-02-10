@@ -6,7 +6,6 @@ from typing import Any, Union
 
 import networkx as nx
 import numpy as np
-import osmnx as ox
 
 from .conversion import adj_to_idx
 
@@ -143,6 +142,11 @@ def get_adj_osm(coords: Any, size: int, args: list, add_depot: bool = True, nega
     """
     Computes an adjacency matrix via OpenStreetMap for given coordinates.
     """
+    try:
+        import osmnx as ox
+    except ImportError:
+        raise ImportError("osmnx is required for OSM graph generation. Install it with 'pip install wsmart-route[geo]'.")
+
     G, *args = args
     assert isinstance(G, nx.MultiDiGraph)
     df = coords.copy() if coords.shape[0] == size else coords.copy().drop(index=1)
