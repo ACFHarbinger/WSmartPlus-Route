@@ -213,7 +213,7 @@ def _generate_train_data(
                 filename = os.path.join(
                     datadir,
                     "{}{}{}_{}{}_seed{}_{}_{}{}".format(
-                        builder.problem_name,  # type: ignore[attr-defined]
+                        problem,
                         size,
                         ("_{}".format(dist) if dist is not None else ""),
                         opts["name"],
@@ -228,7 +228,7 @@ def _generate_train_data(
                 filename = os.path.join(
                     datadir,
                     "{}{}{}_{}{}_seed{}{}".format(
-                        builder.problem_name,  # type: ignore[attr-defined]
+                        problem,
                         size,
                         ("_{}".format(dist) if dist is not None else ""),
                         opts["name"],

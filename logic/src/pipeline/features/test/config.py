@@ -22,6 +22,7 @@ def expand_policy_configs(opts):
         opts["config_path"] = cast(Dict[str, Any], {})
 
     config_path = cast(Dict[str, Any], opts["config_path"])
+    dist_suffix = f"_{opts['data_distribution']}"
 
     for pol_name in opts["policies"]:
         cfg_path = _resolve_policy_cfg_path(pol_name)
@@ -32,7 +33,11 @@ def expand_policy_configs(opts):
             if variant_name and variant_name.lower() != "default":
                 middle_name = f"{middle_name}_{variant_name}"
 
-            full_name = f"{prefix}{middle_name}{suffix}_{opts['data_distribution']}"
+            # Prevent doubling of data distribution suffixes
+            full_name = f"{prefix}{middle_name}{suffix}"
+            if not full_name.endswith(dist_suffix):
+                full_name = f"{full_name}{dist_suffix}"
+
             policies.append(full_name)
             config_path[full_name] = custom_cfg or cfg_path
 
@@ -42,13 +47,28 @@ def expand_policy_configs(opts):
 def _resolve_policy_cfg_path(pol_name: str) -> str:
     """Resolve the YAML configuration path for a policy."""
     base_dir = os.path.join(udef.ROOT_DIR, "assets", "configs", "policies")
-    paths = [
+
+    # Try direct mapping first
+    paths_to_check = [
         os.path.join(base_dir, f"{pol_name}.yaml"),
         os.path.join(base_dir, f"policy_{pol_name}.yaml") if not pol_name.startswith("policy_") else None,
     ]
-    for p in paths:
+    for p in paths_to_check:
         if p and os.path.exists(p):
             return p
+
+    # If not found, try to find a base policy file by splitting (e.g. sans_gamma1 -> policy_sans.yaml)
+    parts = pol_name.split("_")
+    for i in range(len(parts), 0, -1):
+        prefix = "_".join(parts[:i])
+        paths = [
+            os.path.join(base_dir, f"{prefix}.yaml"),
+            os.path.join(base_dir, f"policy_{prefix}.yaml"),
+        ]
+        for p in paths:
+            if os.path.exists(p):
+                return p
+
     return ""
 
 
@@ -92,13 +112,19 @@ def _find_inner_config(pol_cfg: Any):
         for _k, v in pol_cfg.items():
             if isinstance(v, list):
                 return v, None
-            if isinstance(v, ITraversable):
-                # Skip top-level components
-                if any(k in cast(Any, v) for k in ["must_go", "post_processing"]):
-                    continue
-                for sub_k, sub_v in cast(Any, v).items():
+            if hasattr(v, "items"):
+                v_dict = cast(Dict[str, Any], v)
+                # If this dict itself contains components, it's an inner variant
+                if any(k in v_dict for k in ["must_go", "post_processing", "engine", "params"]):
+                    return [v], _k
+                # Otherwise, look one level deeper
+                for sub_k, sub_v in v_dict.items():
                     if isinstance(sub_v, list):
                         return sub_v, sub_k
+                    if hasattr(sub_v, "items"):
+                        sub_v_dict = cast(Dict[str, Any], sub_v)
+                        if any(sk in sub_v_dict for sk in ["must_go", "post_processing", "engine", "params"]):
+                            return [sub_v], sub_k
     return [], None
 
 

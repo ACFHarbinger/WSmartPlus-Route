@@ -76,7 +76,7 @@ class MustGoSelectionAction(SimulationAction):
                 res = strategy.select_bins(sel_ctx)
                 s_name = m_config.strategy
             elif s_name == "select_all":
-                res = list(sel_ctx.bin_ids)
+                res = (sel_ctx.bin_ids + 1).tolist()
             else:
                 strategy = MustGoSelectionFactory.create_strategy(str(s_name), **cast(Dict[str, Any], s_params))
                 res = strategy.select_bins(sel_ctx)

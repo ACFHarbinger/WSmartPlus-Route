@@ -66,42 +66,45 @@ train problem=problem model=model size=size epochs=epochs encoder=encoder decode
 
 # Run model evaluation with Hydra configs
 
-# Usage: just eval model_path=./weights/best.pt problem=wcvrp size=50 strategy=greedy
-eval model_path="" problem=problem size=size samples="128" strategy=strategy:
+# Usage: just eval model_path=./weights/best.pt dataset=data/test.pkl problem=wcvrp size=50 strategy=greedy
+eval model_path="" dataset="" problem=problem size=size strategy=strategy:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📊 STARTING MODEL EVALUATION"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Model Path:" "{{ model_path }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dataset:" "{{ dataset }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Graph Size:" "{{ size }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Strategy:" "{{ strategy }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py eval \
-        eval.model_path={{ model_path }} \
-        env.name={{ problem }} \
-        env.graph.num_loc={{ size }} \
-        eval.num_samples={{ samples }} \
-        eval.strategy={{ strategy }}
+        eval.policy.model.load_path={{ model_path }} \
+        eval.datasets=[{{ dataset }}] \
+        eval.problem={{ problem }} \
+        eval.graph.num_loc={{ size }} \
+        eval.val_size={{ samples }} \
+        eval.decoding.strategy={{ strategy }}
 
 # Run simulator testing with Hydra configs
 
-# Usage: just test-sim policies="regular,gurobi,alns" days=31 area=riomaior
-test-sim policies="regular,gurobi,alns" days=days area=area size=size samples=samples problem=problem:
+# Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
+test-sim policies="hgs,alns,sans,vrpp,cvrp,tsp" days=days area=area size=size samples=samples problem=problem:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policies:" "{{ policies }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Days:" "{{ days }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Size:" "{{ size }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Samples:" "{{ samples }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py test_sim \
-        simulation.policies=[{{ policies }}] \
-        simulation.days={{ days }} \
-        simulation.n_samples={{ samples }} \
-        env.graph.area={{ area }} \
-        env.graph.num_loc={{ size }} \
-        env.name={{ problem }}
+        sim.policies=[{{ policies }}] \
+        sim.days={{ days }} \
+        sim.n_samples={{ samples }} \
+        sim.graph.area={{ area }} \
+        sim.graph.num_loc={{ size }} \
+        sim.problem={{ problem }}
 
 # Generate data with Hydra configs
 
@@ -115,10 +118,10 @@ gen-data problem=problem size=size distribution=distribution data_type="virtual"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py gen_data \
-        data.type={{ data_type }} \
-        env.name={{ problem }} \
-        env.graph.num_loc={{ size }} \
-        data.distribution={{ distribution }}
+        data.dataset_type={{ data_type }} \
+        data.problem={{ problem }} \
+        data.num_locs=[{{ size }}] \
+        data.data_distributions=[{{ distribution }}]
 
 # Launch the GUI
 gui:
