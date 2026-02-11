@@ -88,7 +88,7 @@
 :canonical: src.configs.models.normalization.NormalizationConfig.n_groups
 :type: int
 :value: >
-   3
+   1
 
 ```{autodoc2-docstring} src.configs.models.normalization.NormalizationConfig.n_groups
 ```

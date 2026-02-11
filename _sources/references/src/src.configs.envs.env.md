@@ -150,4 +150,15 @@
 
 ````
 
+````{py:attribute} temporal_horizon
+:canonical: src.configs.envs.env.EnvConfig.temporal_horizon
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.temporal_horizon
+```
+
+````
+
 `````

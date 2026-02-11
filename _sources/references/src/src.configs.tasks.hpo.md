@@ -55,7 +55,7 @@
 :canonical: src.configs.tasks.hpo.HPOConfig.n_trials
 :type: int
 :value: >
-   20
+   0
 
 ```{autodoc2-docstring} src.configs.tasks.hpo.HPOConfig.n_trials
 ```

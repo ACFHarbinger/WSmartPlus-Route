@@ -31,6 +31,10 @@
   - ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._init_hybrid_policy
     :summary:
     ```
+* - {py:obj}`_config_to_dict <src.pipeline.features.train.model_factory.builder._config_to_dict>`
+  - ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._config_to_dict
+    :summary:
+    ```
 * - {py:obj}`_prepare_rl_kwargs <src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs>`
   - ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs
     :summary:
@@ -86,6 +90,13 @@
 :canonical: src.pipeline.features.train.model_factory.builder._init_hybrid_policy
 
 ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._init_hybrid_policy
+```
+````
+
+````{py:function} _config_to_dict(obj: typing.Any) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.features.train.model_factory.builder._config_to_dict
+
+```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._config_to_dict
 ```
 ````
 

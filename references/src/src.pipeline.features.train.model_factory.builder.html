@@ -474,6 +474,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._init_environment"><code class="docutils literal notranslate"><span class="pre">_init_environment()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._init_policy"><code class="docutils literal notranslate"><span class="pre">_init_policy()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._init_hybrid_policy"><code class="docutils literal notranslate"><span class="pre">_init_hybrid_policy()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._config_to_dict"><code class="docutils literal notranslate"><span class="pre">_config_to_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs"><code class="docutils literal notranslate"><span class="pre">_prepare_rl_kwargs()</span></code></a></li>
 </ul>
 </li>
@@ -515,7 +516,10 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._init_hybrid_policy" title="src.pipeline.features.train.model_factory.builder._init_hybrid_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_hybrid_policy</span></code></a></p></td>
 <td><p>Special handling for hybrid construction-refinement policy.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs" title="src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prepare_rl_kwargs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._config_to_dict" title="src.pipeline.features.train.model_factory.builder._config_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_config_to_dict</span></code></a></p></td>
+<td><p>Convert config object (dataclass or DictConfig) to dict.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs" title="src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prepare_rl_kwargs</span></code></a></p></td>
 <td><p>Prepare keyword arguments for RL module initialization.</p></td>
 </tr>
 </tbody>
@@ -563,6 +567,12 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.pipeline.features.train.model_factory.builder._init_hybrid_policy">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.model_factory.builder.</span></span><span class="sig-name descname"><span class="pre">_init_hybrid_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.features.train.model_factory.builder._init_hybrid_policy" title="Link to this definition">#</a></dt>
 <dd><p>Special handling for hybrid construction-refinement policy.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.train.model_factory.builder._config_to_dict">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.model_factory.builder.</span></span><span class="sig-name descname"><span class="pre">_config_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.train.model_factory.builder._config_to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Convert config object (dataclass or DictConfig) to dict.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -629,6 +639,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._init_environment"><code class="docutils literal notranslate"><span class="pre">_init_environment()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._init_policy"><code class="docutils literal notranslate"><span class="pre">_init_policy()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._init_hybrid_policy"><code class="docutils literal notranslate"><span class="pre">_init_hybrid_policy()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._config_to_dict"><code class="docutils literal notranslate"><span class="pre">_config_to_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs"><code class="docutils literal notranslate"><span class="pre">_prepare_rl_kwargs()</span></code></a></li>
 </ul>
 </li>

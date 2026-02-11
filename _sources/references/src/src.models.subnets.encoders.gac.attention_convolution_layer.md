@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.encoders.gac.attention_convolution_layer.AttentionConvolutionLayer.__init__
 ```
 
-````{py:method} forward(h, mask)
+````{py:method} forward(h, edges=None, mask=None)
 :canonical: src.models.subnets.encoders.gac.attention_convolution_layer.AttentionConvolutionLayer.forward
 
 ```{autodoc2-docstring} src.models.subnets.encoders.gac.attention_convolution_layer.AttentionConvolutionLayer.forward

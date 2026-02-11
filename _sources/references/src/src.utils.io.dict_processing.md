@@ -49,7 +49,7 @@
 ```
 ````
 
-````{py:function} process_dict_two_inputs(data_dict: typing.Dict[str, typing.Any], input_key1: str, input_key2_or_val: typing.Union[str, int, float], output_key: str, process_func: typing.Callable[[typing.Any, typing.Any], typing.Any]) -> bool
+````{py:function} process_dict_two_inputs(data_dict: typing.Union[typing.Dict[str, typing.Any], typing.Any], input_key1: str, input_key2_or_val: typing.Union[str, int, float, None], output_key: str, process_func: typing.Callable[[typing.Any, typing.Any], typing.Any]) -> bool
 :canonical: src.utils.io.dict_processing.process_dict_two_inputs
 
 ```{autodoc2-docstring} src.utils.io.dict_processing.process_dict_two_inputs

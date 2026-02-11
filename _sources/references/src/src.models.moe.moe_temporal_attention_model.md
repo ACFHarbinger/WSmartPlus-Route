@@ -45,4 +45,12 @@ Bases: {py:obj}`logic.src.models.temporal_attention_model.TemporalAttentionModel
 
 ````
 
+````{py:property} total_experts
+:canonical: src.models.moe.moe_temporal_attention_model.MoETemporalAttentionModel.total_experts
+
+```{autodoc2-docstring} src.models.moe.moe_temporal_attention_model.MoETemporalAttentionModel.total_experts
+```
+
+````
+
 `````

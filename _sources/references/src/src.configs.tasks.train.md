@@ -128,6 +128,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.tasks.train.TrainConfig.seed
+:type: int
+:value: >
+   42
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.seed
+```
+
+````
+
 ````{py:attribute} precision
 :canonical: src.configs.tasks.train.TrainConfig.precision
 :type: str

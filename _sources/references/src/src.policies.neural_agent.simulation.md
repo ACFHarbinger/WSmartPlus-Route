@@ -29,7 +29,7 @@
 ```{autodoc2-docstring} src.policies.neural_agent.simulation.SimulationMixin
 ```
 
-````{py:method} compute_simulator_day(input, graph, distC, profit_vars=None, waste_history=None, cost_weights=None, must_go=None)
+````{py:method} compute_simulator_day(input, graph, distC, profit_vars=None, waste_history=None, cost_weights=None, must_go=None, **kwargs)
 :canonical: src.policies.neural_agent.simulation.SimulationMixin.compute_simulator_day
 
 ```{autodoc2-docstring} src.policies.neural_agent.simulation.SimulationMixin.compute_simulator_day
