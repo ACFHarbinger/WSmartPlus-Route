@@ -41,20 +41,20 @@ This document serves as the authoritative reference for AI assistants (Claude, G
 
 This document provides a high-level overview of the codebase. For deep dives into specific subsystems, consult the [docs/](docs/) directory:
 
-| Document | Module Path | Description |
-|----------|-------------|-------------|
-| **[CLI Module](docs/CLI_MODULE.md)** | `logic/src/cli/` | Command-line interface, argument parsing, Hydra integration, entry points, and TUI |
-| **[Configuration Module](docs/CONFIGS_MODULE.md)** | `logic/src/configs/` | Config system architecture, Hydra composition, dataclass configurations, and overrides |
-| **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)** | - | Comprehensive guide to Hydra configuration, CLI syntax, multi-run sweeps, and best practices |
-| **[Constants Module](docs/CONSTANTS_MODULE.md)** | `logic/src/utils/` | System-wide constants, problem definitions, enum types, and magic numbers |
-| **[Data Module](docs/DATA_MODULE.md)** | `logic/src/data/` | Dataset generation, loading utilities, data augmentation, and transforms |
-| **[Environments Module](docs/ENVS_MODULE.md)** | `logic/src/envs/` | Problem environments (VRPP, WCVRP, SDWCVRP), state management, and physics |
-| **[Interfaces Module](docs/INTERFACES_MODULE.md)** | `logic/src/interfaces/` | Abstract base classes, protocols, type definitions, and contracts |
-| **[Models Module](docs/MODELS_MODULE.md)** | `logic/src/models/` | Neural architectures (264KB doc): encoders, decoders, attention mechanisms, graph layers |
-| **[Pipeline Module](docs/PIPELINE_MODULE.md)** | `logic/src/pipeline/` | Training pipeline, evaluation, simulation orchestration, RL algorithms, and HPO |
-| **[Policies Module](docs/POLICIES_MODULE.md)** | `logic/src/policies/` | Classical solvers (Gurobi, ALNS, HGS), heuristics, and policy interfaces |
-| **[Utilities Module](docs/UTILS_MODULE.md)** | `logic/src/utils/` | Helper functions, I/O utilities, logging, debugging, encryption, and config loading |
-| **[Documentation Standards](docs/DOCUMENTATION_STANDARDS.md)** | - | Style guide, templates, and quality checklist for all documentation |
+| Document                                                       | Module Path             | Description                                                                                  |
+| -------------------------------------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------- |
+| **[CLI Module](docs/CLI_MODULE.md)**                           | `logic/src/cli/`        | Command-line interface, argument parsing, Hydra integration, entry points, and TUI           |
+| **[Configuration Module](docs/CONFIGS_MODULE.md)**             | `logic/src/configs/`    | Config system architecture, Hydra composition, dataclass configurations, and overrides       |
+| **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)**         | -                       | Comprehensive guide to Hydra configuration, CLI syntax, multi-run sweeps, and best practices |
+| **[Constants Module](docs/CONSTANTS_MODULE.md)**               | `logic/src/utils/`      | System-wide constants, problem definitions, enum types, and magic numbers                    |
+| **[Data Module](docs/DATA_MODULE.md)**                         | `logic/src/data/`       | Dataset generation, loading utilities, data augmentation, and transforms                     |
+| **[Environments Module](docs/ENVS_MODULE.md)**                 | `logic/src/envs/`       | Problem environments (VRPP, WCVRP, SDWCVRP), state management, and physics                   |
+| **[Interfaces Module](docs/INTERFACES_MODULE.md)**             | `logic/src/interfaces/` | Abstract base classes, protocols, type definitions, and contracts                            |
+| **[Models Module](docs/MODELS_MODULE.md)**                     | `logic/src/models/`     | Neural architectures (264KB doc): encoders, decoders, attention mechanisms, graph layers     |
+| **[Pipeline Module](docs/PIPELINE_MODULE.md)**                 | `logic/src/pipeline/`   | Training pipeline, evaluation, simulation orchestration, RL algorithms, and HPO              |
+| **[Policies Module](docs/POLICIES_MODULE.md)**                 | `logic/src/policies/`   | Classical solvers (Gurobi, ALNS, HGS), heuristics, and policy interfaces                     |
+| **[Utilities Module](docs/UTILS_MODULE.md)**                   | `logic/src/utils/`      | Helper functions, I/O utilities, logging, debugging, encryption, and config loading          |
+| **[Documentation Standards](docs/DOCUMENTATION_STANDARDS.md)** | -                       | Style guide, templates, and quality checklist for all documentation                          |
 
 These module docs complement sections 10-11 below with implementation-level API references, usage examples, and integration patterns.
 
@@ -393,6 +393,7 @@ from logic.src.utils import get_device
 **Standard**: Use Python 3.8/3.9 compatible type hints from the `typing` module.
 
 **Rationale**: While the project supports Python 3.9+, using `typing` module imports ensures:
+
 - **Explicit clarity**: Imports clearly show typing dependencies
 - **Backward compatibility**: Code works on Python 3.8-3.9 without `from __future__ import annotations`
 - **Static analysis reliability**: Mypy and IDE autocomplete work consistently
@@ -424,15 +425,15 @@ def compute_route_cost(
 
 **Common Types**:
 
-| Built-in | Typing Module | Usage |
-|----------|---------------|-------|
-| `list`   | `List[T]`     | `from typing import List` |
-| `dict`   | `Dict[K, V]`  | `from typing import Dict` |
-| `tuple`  | `Tuple[T, ...]` | `from typing import Tuple` |
-| `set`    | `Set[T]`      | `from typing import Set` |
-| `None`   | `Optional[T]` | `from typing import Optional` (for `T | None`) |
-| -        | `Union[T, U]` | `from typing import Union` (for `T | U`) |
-| -        | `Any`         | `from typing import Any` (avoid when possible) |
+| Built-in | Typing Module   | Usage                                          |
+| -------- | --------------- | ---------------------------------------------- | ------ |
+| `list`   | `List[T]`       | `from typing import List`                      |
+| `dict`   | `Dict[K, V]`    | `from typing import Dict`                      |
+| `tuple`  | `Tuple[T, ...]` | `from typing import Tuple`                     |
+| `set`    | `Set[T]`        | `from typing import Set`                       |
+| `None`   | `Optional[T]`   | `from typing import Optional` (for `T          | None`) |
+| -        | `Union[T, U]`   | `from typing import Union` (for `T             | U`)    |
+| -        | `Any`           | `from typing import Any` (avoid when possible) |
 
 **Protocol Classes**: For structural subtyping (duck typing with type safety):
 
@@ -565,13 +566,13 @@ uv sync
 
 ### 9.2 Reference Files
 
-| File                 | Purpose                              |
-| -------------------- | ------------------------------------ |
-| `project_map.txt`    | Full project structure map           |
-| `CLAUDE.md`          | This file (symlink to AGENTS.md)     |
-| `ARCHITECTURE.md`    | System design documentation          |
-| `TROUBLESHOOTING.md` | Common issues and fixes              |
-| `COMPATIBILITY.md`   | Model and Environment support matrix |
+| File                      | Purpose                              |
+| ------------------------- | ------------------------------------ |
+| `project_map.txt`         | Full project structure map           |
+| `CLAUDE.md`               | This file (symlink to AGENTS.md)     |
+| `docs/ARCHITECTURE.md`    | System design documentation          |
+| `docs/TROUBLESHOOTING.md` | Common issues and fixes              |
+| `docs/COMPATIBILITY.md`   | Model and Environment support matrix |
 
 ---
 
