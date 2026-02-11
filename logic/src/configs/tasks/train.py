@@ -39,6 +39,7 @@ class TrainConfig:
     load_dataset: Optional[str] = None
     num_workers: int = 4
     data_distribution: Optional[str] = None
+    seed: int = 42
     precision: str = "16-mixed"  # "16-mixed", "bf16-mixed", "32-true"
     # NEW FIELDS:
     train_time: bool = False

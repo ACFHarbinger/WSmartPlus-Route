@@ -55,7 +55,7 @@ def test_simulator_testing_multi_core():
 
     # Mock Manager, Pool, and results
     with patch("multiprocessing.Manager") as mock_manager, patch(
-        "logic.src.pipeline.features.test.orchestrator.ThreadPool"
+        "logic.src.pipeline.features.test.orchestrator.Pool"
     ) as mock_pool_cls, patch("logic.src.pipeline.features.test.orchestrator.send_final_output_to_gui"), patch(
         "logic.src.pipeline.features.test.orchestrator.display_log_metrics"
     ), patch("logic.src.pipeline.features.test.orchestrator.output_stats"):

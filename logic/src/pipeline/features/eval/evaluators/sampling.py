@@ -49,7 +49,8 @@ class SamplingEval(EvalBase):
             batch = move_to(batch, self.device)  # type: ignore[arg-type]
 
             # Expand batch for sampling
-            batch_size = batch["loc"].size(0) if isinstance(batch, ITraversable) else batch.size(0)
+            locs = batch.get("locs") if "locs" in batch.keys() else batch.get("loc", None)
+            batch_size = locs.size(0) if isinstance(batch, ITraversable) else batch.size(0)
             batch = do_batch_rep(batch, self.samples)
 
             with torch.no_grad():

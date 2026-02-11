@@ -26,6 +26,7 @@ class SimulationMixin:
         waste_history=None,
         cost_weights=None,
         must_go=None,
+        **kwargs,
     ):
         """Execute neural routing policy for a single simulation day."""
         edges, dist_matrix = graph
@@ -57,13 +58,20 @@ class SimulationMixin:
             # We don't have embeddings size yet to expand against batch.
             # But model forward will handle batching.
 
-        _, _, _, pi, _ = self.model(  # type: ignore[attr-defined]
+        out = self.model(  # type: ignore[attr-defined]
             input_for_model,
             return_pi=True,
             mask=mask,
             profit_vars=profit_vars,
             cost_weights=cost_weights,
         )
+        if isinstance(out, dict):
+            pi = out.get("actions") or out.get("pi")
+        else:
+            _, _, _, pi, _ = out
+
+        if pi is None:
+            raise ValueError("Model output does not contain 'actions' or 'pi'")
 
         route = torch.cat((torch.tensor([0]).to(pi.device), pi.squeeze(0)))
         cost = get_route_cost(distC * 100, route)
@@ -91,7 +99,9 @@ class SimulationMixin:
         if horizon <= 0 or waste_history is None:
             return
 
-        loc_tensor = input_for_model.get("locs", input_for_model.get("loc"))
+        loc_tensor = (
+            input_for_model.get("locs") if "locs" in input_for_model.keys() else input_for_model.get("loc", None)
+        )
         if loc_tensor is None:
             raise KeyError("Input must contain 'loc' or 'locs'")
 

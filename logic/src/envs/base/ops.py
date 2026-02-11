@@ -72,9 +72,9 @@ class OpsMixin:
 
         # Initialize done signals with [B, 1] shape
         td["done"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
-        if "terminated" in td:
+        if td is not None and "terminated" in td.keys():
             td["terminated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
-        if "truncated" in td:
+        if td is not None and "truncated" in td.keys():
             td["truncated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
 
         return td
@@ -86,7 +86,7 @@ class OpsMixin:
         # Copy and clean to avoid cycles
         td_next = td.copy()
         for key in ["next", "reward", "done"]:
-            if key in td_next:
+            if key in td_next.keys():
                 del td_next[key]
 
         # Execute problem-specific step
@@ -136,7 +136,7 @@ class OpsMixin:
 
         # If nodes is not already initialized (missing 'current_node' etc), reset it
         td = nodes
-        if "current_node" not in td:
+        if "current_node" not in td.keys():
             td = self._reset(td)
 
         # Ensure dist is in td if provided
@@ -204,7 +204,10 @@ class OpsMixin:
         td["current_node"] = action.unsqueeze(-1)
 
         # Append to tour
-        td["tour"] = torch.cat([td["tour"], action.unsqueeze(-1)], dim=-1)
+        if "tour" not in td.keys():
+            td["tour"] = action.unsqueeze(-1)
+        else:
+            td["tour"] = torch.cat([td["tour"], action.unsqueeze(-1)], dim=-1)
 
         return td
 

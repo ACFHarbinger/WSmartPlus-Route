@@ -115,7 +115,8 @@ def plot_vehicle_routes(
     # Route is one sequence, separating different routes with 0 (depot)
     routes = [r[r != 0] for r in np.split(route.cpu().numpy(), np.where(route == 0)[0]) if (r != 0).any()]
     depot = data["depot"].cpu().numpy()
-    locs = data.get("locs", data.get("loc")).cpu().numpy()
+    locs_tensor = data.get("locs") if "locs" in data.keys() else data.get("loc")
+    locs = locs_tensor.cpu().numpy()
     demands = data.get("waste", data.get("demand")).cpu().numpy() * waste_scale
     capacity = waste_scale  # capacity is always 1
 

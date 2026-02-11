@@ -60,3 +60,8 @@ class MoETemporalAttentionModel(TemporalAttentionModel):
             embeddings = embeddings.mean(dim=2)
 
         return embeddings, None
+
+    @property
+    def total_experts(self):
+        """Get the total number of experts in the model."""
+        return self.encoder.num_experts if hasattr(self.encoder, "num_experts") else 0

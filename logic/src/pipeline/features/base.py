@@ -27,7 +27,8 @@ def deep_sanitize(obj: Any) -> Any:
         return [deep_sanitize(v) for v in obj]
     elif isinstance(obj, (int, float, str, bool, type(None))):
         return obj
-    return str(obj)
+    # Do not stringify complex objects (modules, solvers, states)
+    return obj
 
 
 def remap_legacy_keys(common_kwargs: Dict[str, Any], cfg: Config) -> None:

@@ -26,7 +26,7 @@ class HPOConfig:
 
     method: str = "dehbo"  # dehbo, rs, gs, bo
     metric: str = "reward"
-    n_trials: int = 20
+    n_trials: int = 0
     n_epochs_per_trial: int = 10
     num_workers: int = 4
     search_space: Dict[str, List[Any]] = field(

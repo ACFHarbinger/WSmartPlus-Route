@@ -27,7 +27,7 @@ def select_start_nodes(
     Returns:
         Selected start node indices [batch * num_starts].
     """
-    num_loc = td["locs"].shape[1] if "locs" in td else td["loc"].shape[1]
+    num_loc = td["locs"].shape[1] if "locs" in td.keys() else td["loc"].shape[1]
 
     # Exclude depot (index 0) if present in typical VRP/TSP formulations
     # Assuming standard RL4CO format where depots might be separate or at index 0
@@ -65,7 +65,7 @@ def select_start_nodes_by_distance(
     Returns:
         Selected start node indices [batch * num_starts].
     """
-    locs = td["locs"] if "locs" in td else td["loc"]
+    locs = td["locs"] if "locs" in td.keys() else td["loc"]
     depot = td["depot"]
 
     # Calculate distance from depot
@@ -93,9 +93,9 @@ def get_num_starts(td: TensorDict, env_name: Optional[str] = None) -> int:
     Returns:
         Number of start nodes.
     """
-    if "locs" in td:
+    if "locs" in td.keys():
         return td["locs"].shape[1]
-    elif "loc" in td:
+    elif "loc" in td.keys():
         return td["loc"].shape[1]
     # Fallback default
     return 1

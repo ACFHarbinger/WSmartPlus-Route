@@ -41,7 +41,8 @@ train:
   eval_time_days: 7 # Evaluation horizon in days (temporal problems)
 
   data_distribution: "gamma1" # Waste generation distribution. Options: gamma1, gamma2, uniform, beta
-  load_dataset: "data/datasets/${env.name}/${env.name}${env.num_loc}_${env.distribution}_time${train.n_epochs}_seed${train.seed}.td"
+  seed: 42 # Random seed for dataset generation
+  load_dataset: "data/datasets/${env.name}/${env.name}${env.num_loc}_${env.data_distribution}_time${train.n_epochs}_seed${train.seed}.td"
 
   n_epochs: 100 # Total training epochs
   batch_size: 128 # Training batch size. Reduce if OOM errors occur.
@@ -50,7 +51,7 @@ train:
   log_step: 10 # Log metrics every N batches
   logs_dir: "logs/output" # Directory for training logs
   model_weights_path: "model_weights" # Directory for checkpoints
-  final_model_path: "assets/model_weights/${env.name}${env.num_loc}_${env.graph.area}_${env.graph.waste_type}/${train.distribution}/${model.name}${model.encoder.name}${env.temporal_horizon}/epoch-${train.n_epochs}.pt"
+  final_model_path: "assets/model_weights/${env.name}${env.num_loc}_${env.graph.area}_${env.graph.waste_type}/${train.data_distribution}/${model.name}${model.encoder.type}${env.temporal_horizon}/epoch-${train.n_epochs}.pt"
 
   # DataLoader optimization
   persistent_workers: true # Keep workers alive between epochs (faster but more memory)

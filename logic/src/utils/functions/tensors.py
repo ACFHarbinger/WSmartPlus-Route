@@ -29,10 +29,12 @@ def move_to(var: T, device: torch.device, non_blocking: bool = False) -> T:
     """
     if var is None:
         return var  # type: ignore
+    if hasattr(var, "to") and callable(var.to):
+        return var.to(device, non_blocking=non_blocking)  # type: ignore
     if isinstance(var, ITraversable):
         return {k: move_to(v, device, non_blocking=non_blocking) for k, v in var.items()}  # type: ignore
-    if isinstance(var, torch.Tensor):
-        return var.to(device, non_blocking=non_blocking)  # type: ignore
+    if isinstance(var, (list, tuple)):
+        return type(var)(move_to(v, device, non_blocking=non_blocking) for v in var)  # type: ignore
     return var
 
 

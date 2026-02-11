@@ -48,7 +48,7 @@ class VRPPContextEmbedder(ContextEmbedder):
         # Waste and prize are usually [batch_size, num_nodes]
         # locs is [batch_size, num_nodes, 2]
 
-        locs = nodes.get("locs", nodes.get("loc"))
+        locs = nodes.get("locs") if "locs" in nodes.keys() else nodes.get("loc")
         if locs is None:
             # Fallback for missing locs
             return torch.zeros(1, 1, self.embed_dim, device=nodes.device if hasattr(nodes, "device") else None)

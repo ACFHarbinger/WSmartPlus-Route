@@ -15,7 +15,28 @@ log = get_pylogger(__name__)
 
 def batchify(td: TensorDict, num_samples: int) -> TensorDict:
     """Repeats the TensorDict along a new dimension."""
-    return td.unsqueeze(1).expand(*td.batch_size, num_samples).reshape(-1)
+    # Tensordict 0.3.1 might not propagate reshape(-1) to all keys correctly
+    # Use repeat_interleave which is more explicit
+    try:
+        return td.repeat_interleave(num_samples, dim=0)
+    except Exception:
+        # Fallback for very old versions or nested structures
+        # We must set batch_size to the TARGET size first to allow item assignment of different shape
+        new_batch_size = torch.Size([td.batch_size[0] * num_samples, *td.batch_size[1:]])
+        new_td = TensorDict({}, batch_size=new_batch_size, device=td.device)
+        for key, val in td.items():
+            if isinstance(val, torch.Tensor):
+                new_td[key] = val.repeat_interleave(num_samples, dim=0)
+            elif isinstance(val, (TensorDict, dict)):
+                # If it's a dict, we still need to try expanding its contents if it has tensors
+                if isinstance(val, dict):
+                    new_td[key] = {
+                        k: (v.repeat_interleave(num_samples, dim=0) if isinstance(v, torch.Tensor) else v)
+                        for k, v in val.items()
+                    }
+                else:
+                    new_td[key] = batchify(val, num_samples)
+        return new_td
 
 
 def dihedral_8_augmentation(xy: torch.Tensor) -> torch.Tensor:

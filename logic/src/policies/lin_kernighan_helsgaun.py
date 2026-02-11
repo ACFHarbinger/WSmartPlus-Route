@@ -226,7 +226,7 @@ def _try_3opt_move(curr_tour, i, j, t1, t2, t3, t4, distance_matrix, waste, capa
             distance_matrix[t1, t3] + distance_matrix[t2, t5] + distance_matrix[t4, t6]
         )
 
-        if gain3 > 1e-6:
+        if gain3 > -1e-6:
             new_3opt = apply_3opt_move(curr_tour, i, j, k, 0)
             p3, c3 = get_score(new_3opt, distance_matrix, waste, capacity)
             return new_3opt, p3, c3, True
@@ -246,8 +246,13 @@ def _improve_tour(curr_tour, curr_pen, curr_cost, candidates, distance_matrix, w
         # We need to iterate candidates manually to support 3-opt fallback
         # Re-implementing logic from original to support extraction
         for t3 in candidates[t2]:
-            if t3 == t1 or t3 == curr_tour[(i + 2) % nodes_count]:
-                continue
+            # For very small instances, allow all moves to find the best ordering
+            if nodes_count >= 5:
+                if t3 == t1 or t3 == curr_tour[(i + 2) % nodes_count]:
+                    continue
+            else:
+                if t3 == t2:
+                    continue
             try:
                 j = curr_tour.index(t3)
             except ValueError:
@@ -261,10 +266,11 @@ def _improve_tour(curr_tour, curr_pen, curr_cost, candidates, distance_matrix, w
                 distance_matrix[t1, t3] + distance_matrix[t2, t4]
             )
 
-            if gain > 1e-6:
+            if gain > -1e-6:
                 new_tour = apply_2opt_move(curr_tour, i, j)
                 p_new, c_new = get_score(new_tour, distance_matrix, waste, capacity)
                 if is_better(p_new, c_new, curr_pen, curr_cost):
+                    # print(f"DEBUG LKH: Improved! {curr_tour} -> {new_tour} (p:{curr_pen}->{p_new}, c:{curr_cost}->{c_new})")
                     return new_tour, p_new, c_new, True
 
             # 2. Try 3-opt if 2-opt didn't improve locally but was a candidate
@@ -309,7 +315,7 @@ def solve_lkh(
         (best_tour, best_cost)
     """
     n = len(distance_matrix)
-    if n < 4:
+    if n < 3:
         tour = list(range(n)) + [0]
         cost = sum(distance_matrix[tour[i], tour[i + 1]] for i in range(n))
         return tour, float(cost)
